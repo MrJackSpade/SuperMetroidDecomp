@@ -572,7 +572,7 @@ internal static partial class PowampAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = x,
             YPosition = y,
         };

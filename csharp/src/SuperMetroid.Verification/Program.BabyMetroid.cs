@@ -45,16 +45,16 @@ static void VerifyBabyMetroidCutsceneEntrance()
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
-    WritePoseDefinition(bus, SamusState.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedCrouchingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedStandingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedStandingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingLeftPose * 2, 0xc100);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedStandingLeftPose * 2, 0xc100);
     bus.WriteByte(0x91c100, 0x10);
 
     var samus = new SamusState
     {
-        Pose = SamusState.DrainedCrouchingLeftPose,
+        Pose = SamusPoseIds.DrainedCrouchingLeftPose,
         XPosition = 0x00ca,
         YPosition = 0x00c0,
         // These are the private-ROM runner's post-rainbow values. The Baby must add one
@@ -138,7 +138,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
                 "Baby face timer expires on call 269");
             AssertTrue(latch.SamusStandingRequested,
                 "Baby face completion calls drained controller one");
-            AssertEqual(SamusState.DrainedStandingLeftPose, samus.Pose,
+            AssertEqual(SamusPoseIds.DrainedStandingLeftPose, samus.Pose,
                 "Baby face completion installs left drained standing pose");
             AssertEqual(new BabyMetroidCutscenePoint(0x008c, 0xc400, 0x004b, 0x6300),
                 latch.After,
@@ -293,7 +293,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         "Mother Brain grey completion rewrites brain health to 36,000");
     AssertEqual(1, motherBrain.Phase2CorpseState,
         "Mother Brain grey completion publishes corpse state one");
-    AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
+    AssertEqual(SamusPoseIds.DrainedCrouchingLeftPose, samus.Pose,
         "ceiling collision installs left drained crouching pose");
 
     // Continue in native enemy-slot order through the eight ROM route records, generic

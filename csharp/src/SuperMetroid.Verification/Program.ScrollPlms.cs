@@ -120,11 +120,11 @@ internal static partial class Program
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
         scrolls.SetStorage(1, 0);
-        WritePoseDefinition(bus, SamusState.MorphBallGroundRightPose,
+        WritePoseDefinition(bus, SamusPoseIds.MorphBallGroundRightPose,
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState
         {
-            Pose = SamusState.MorphBallGroundRightPose,
+            Pose = SamusPoseIds.MorphBallGroundRightPose,
             XPosition = 56,
             YPosition = 56,
         };

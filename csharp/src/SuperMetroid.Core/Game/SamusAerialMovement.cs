@@ -184,14 +184,14 @@ public static class SamusAerialMovement
         // Poses `$4B/$4C/$55-$5A` are genuine movement-type-2 poses, but native treats them as
         // a transition: base X speed is forced to zero, only external X/Y displacement is
         // applied, and normal vertical speed does not move Samus on this frame.
-        if (samus.Pose is SamusState.NeutralJumpTransitionRightPose or
-            SamusState.NeutralJumpTransitionLeftPose or
-            SamusState.NormalJumpTransitionAimUpRightPose or
-            SamusState.NormalJumpTransitionAimUpLeftPose or
-            SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
-            SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
-            SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
-            SamusState.NormalJumpTransitionAimDiagonalDownLeftPose)
+        if (samus.Pose is SamusPoseIds.NeutralJumpTransitionRightPose or
+            SamusPoseIds.NeutralJumpTransitionLeftPose or
+            SamusPoseIds.NormalJumpTransitionAimUpRightPose or
+            SamusPoseIds.NormalJumpTransitionAimUpLeftPose or
+            SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose or
+            SamusPoseIds.NormalJumpTransitionAimDiagonalUpLeftPose or
+            SamusPoseIds.NormalJumpTransitionAimDiagonalDownRightPose or
+            SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
             samus.HorizontalSpeed.AccelerationMode = 0;
             int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed: 0);
@@ -435,7 +435,7 @@ public static class SamusAerialMovement
     {
         ValidateCommon(bus, level, samus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.DamageBoost ||
-            samus.Pose is not (SamusState.DamageBoostLeftPose or SamusState.DamageBoostRightPose))
+            samus.Pose is not (SamusPoseIds.DamageBoostLeftPose or SamusPoseIds.DamageBoostRightPose))
         {
             throw new InvalidOperationException(
                 $"Damage-boost movement requires type $19 pose, not ${samus.Pose:X2}.");

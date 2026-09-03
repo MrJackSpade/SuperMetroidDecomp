@@ -53,7 +53,7 @@ internal static class YardAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0500,
             YPosition = 0x01d8,
         };
@@ -73,7 +73,7 @@ internal static class YardAudit
 
         // Turn away. CC78 now uses real RNG to decide how many hidden animation frames to
         // retain before the list reinstalls the appropriate surface-crawling function.
-        samus.Pose = SamusState.FacingLeftNormalPose;
+        samus.Pose = SamusPoseIds.FacingLeftNormalPose;
         var maps = new HashSet<ushort>();
         for (int frame = 0; frame < 180; frame++)
         {

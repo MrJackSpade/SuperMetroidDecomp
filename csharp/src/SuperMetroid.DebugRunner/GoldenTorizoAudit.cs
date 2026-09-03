@@ -177,7 +177,7 @@ internal static partial class GoldenTorizoAudit
         loaded.Samus.KnockbackTimer = 0;
         loaded.Samus.KnockbackDirection = 0;
         loaded.Samus.KnockbackActive = false;
-        loaded.Samus.Pose = SamusState.FacingRightNormalPose;
+        loaded.Samus.Pose = SamusPoseIds.FacingRightNormalPose;
         loaded.Samus.RefreshCollisionRadii(bus);
         loaded.Samus.InitializeAnimation(bus);
         ushort healthBeforeTouch = loaded.Samus.Health;
@@ -545,7 +545,7 @@ internal static partial class GoldenTorizoAudit
             MaxSuperMissiles = 20,
             XPosition = 0x0180,
             YPosition = 0x0160,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

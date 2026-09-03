@@ -181,12 +181,12 @@ public sealed class SamusShinesparkState
 
         Phase = targetPose switch
         {
-            SamusState.ShinesparkHorizontalRightPose or
-            SamusState.ShinesparkHorizontalLeftPose => ShinesparkPhase.Horizontal,
-            SamusState.ShinesparkVerticalRightPose or
-            SamusState.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
-            SamusState.ShinesparkDiagonalRightPose or
-            SamusState.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
+            SamusPoseIds.ShinesparkHorizontalRightPose or
+            SamusPoseIds.ShinesparkHorizontalLeftPose => ShinesparkPhase.Horizontal,
+            SamusPoseIds.ShinesparkVerticalRightPose or
+            SamusPoseIds.ShinesparkVerticalLeftPose => ShinesparkPhase.Vertical,
+            SamusPoseIds.ShinesparkDiagonalRightPose or
+            SamusPoseIds.ShinesparkDiagonalLeftPose => ShinesparkPhase.Diagonal,
             // `$91:F80F` is reached only from the six table-selected `$C9-$CE` records.
             // Any other byte is a caller contract violation, not another untranslated arm.
             _ => throw new ArgumentOutOfRangeException(
@@ -223,8 +223,8 @@ public sealed class SamusShinesparkState
             if (timedOut)
             {
                 byte verticalPose = samus.IsFacingLeft(bus)
-                    ? SamusState.ShinesparkVerticalLeftPose
-                    : SamusState.ShinesparkVerticalRightPose;
+                    ? SamusPoseIds.ShinesparkVerticalLeftPose
+                    : SamusPoseIds.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(bus, samus, verticalPose);
             }
 
@@ -449,7 +449,7 @@ public sealed class SamusShinesparkState
             0xE0, 0x60, // $CD: diagonal right
             0x20, 0xA0, // $CE: diagonal left
         ];
-        int angleIndex = (samus.Pose - SamusState.ShinesparkHorizontalRightPose) * 2;
+        int angleIndex = (samus.Pose - SamusPoseIds.ShinesparkHorizontalRightPose) * 2;
         if ((uint)angleIndex >= (uint)departureAngles.Length)
         {
             throw new InvalidOperationException(
@@ -481,8 +481,8 @@ public sealed class SamusShinesparkState
         VerticalAccelerationSpeed = 0;
         VerticalAccelerationSubspeed = 0;
         byte standingPose = samus.IsFacingLeft(bus)
-            ? SamusState.FacingLeftNormalPose
-            : SamusState.FacingRightNormalPose;
+            ? SamusPoseIds.FacingLeftNormalPose
+            : SamusPoseIds.FacingRightNormalPose;
         samus.Pose = standingPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);

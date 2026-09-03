@@ -788,7 +788,7 @@ if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
     var climbSamus = new SamusState
     {
         Health = 99,
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 0,
         YPosition = 0,
     };
@@ -1001,7 +1001,7 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
     var colosseumSamus = new SamusState
     {
         Health = 999,
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 0x0180,
         YPosition = 0x0078,
     };
@@ -1459,20 +1459,20 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
     {
         introAudit.Step(0);
         sawRinkaHit |= introAudit.FlashbackSamusInvincibilityTimer != 0;
-        sawRinkaHurtPose |= introAudit.FlashbackSamusPose == SamusState.KnockbackLeftPose;
+        sawRinkaHurtPose |= introAudit.FlashbackSamusPose == SamusPoseIds.KnockbackLeftPose;
         sawRinkaKnockbackMotion |= introAudit.FlashbackSamusKnockbackActive &&
             introAudit.FlashbackSamusX != previousFlashbackSamusX;
         sawRinkaRise |= introAudit.FlashbackSamusKnockbackActive &&
             introAudit.FlashbackSamusY < previousFlashbackSamusY;
         sawPostKnockbackFall |= !introAudit.FlashbackSamusKnockbackActive &&
-            introAudit.FlashbackSamusPose == SamusState.FallingLeftPose &&
+            introAudit.FlashbackSamusPose == SamusPoseIds.FallingLeftPose &&
             introAudit.FlashbackSamusY > previousFlashbackSamusY;
         sawFloorRecovery |= sawRinkaHit &&
             !introAudit.FlashbackSamusKnockbackActive &&
             introAudit.FlashbackSamusY == 115 &&
             introAudit.FlashbackSamusPose is not (
-                SamusState.KnockbackLeftPose or SamusState.FallingLeftPose);
-        if (introAudit.FlashbackSamusPose == SamusState.KnockbackLeftPose)
+                SamusPoseIds.KnockbackLeftPose or SamusPoseIds.FallingLeftPose);
+        if (introAudit.FlashbackSamusPose == SamusPoseIds.KnockbackLeftPose)
             hurtAnimationFrames.Add(introAudit.FlashbackSamusAnimationFrame);
         previousFlashbackSamusX = introAudit.FlashbackSamusX;
         previousFlashbackSamusY = introAudit.FlashbackSamusY;
@@ -1715,7 +1715,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // energy and set invincibility. The old partial translation made the OBJ flicker hide
     // an unchanged normal pose, which looked like Samus vanished on contact.
     if (!auditSamus.KnockbackActive ||
-        auditSamus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose) ||
+        auditSamus.Pose is not (SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose) ||
         auditSamus.HurtFlashCounter == 0 ||
         auditSamus.Kinematics.YSpeed != 5 ||
         auditSamus.Kinematics.YSubspeed != 0)
@@ -1800,7 +1800,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     // SNES first resolves the two opaque OBJ pixels by OAM number, then compares the winner
     // with BG priority. Rendering OBJ3 as an independent plane used to resurrect Ridley's
     // later pixel and make Samus disappear behind the still-black body.
-    liveSamus.Pose = SamusState.FacingRightNormalPose;
+    liveSamus.Pose = SamusPoseIds.FacingRightNormalPose;
     liveSamus.XPosition = liveRidleySlot.XPosition;
     liveSamus.YPosition = liveRidleySlot.YPosition;
     liveSamus.Health = 999;
@@ -1881,7 +1881,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
 
     // Move the audit actor out of the arena while the literal 512-frame reveal delay runs;
     // this keeps the later battle-contact assertion independent of the overlap probe.
-    liveSamus.Pose = SamusState.ForwardFacingPowerSuitPose;
+    liveSamus.Pose = SamusPoseIds.ForwardFacingPowerSuitPose;
     liveSamus.XPosition = 0x0010;
     liveSamus.YPosition = 0x0010;
     liveSamus.InvincibilityTimer = ushort.MaxValue;
@@ -1900,7 +1900,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"Runtime Ceres Ridley never entered battle after {liveBattleEntryFrames} frames.");
     }
 
-    liveSamus.Pose = SamusState.FacingRightNormalPose;
+    liveSamus.Pose = SamusPoseIds.FacingRightNormalPose;
     liveSamus.XPosition = liveRidleySlot.XPosition;
     liveSamus.YPosition = liveRidleySlot.YPosition;
     liveSamus.Health = 999;
@@ -1913,7 +1913,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     liveRidleyRuntime.StepFrame(0);
     int liveContactOamCount = liveRidleyRuntime.Oam.LastFinalizedSpriteCount;
     if (liveSamus.Health != 994 || !liveSamus.KnockbackActive ||
-        liveSamus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose) ||
+        liveSamus.Pose is not (SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose) ||
         !liveRidleyRuntime.LastSamusBodyDrawn ||
         liveRidleyRuntime.Hud.Tiles[0x8e / 2] == hudOnesBeforeContact)
     {
@@ -2282,7 +2282,7 @@ static void ResetRidleyAuditSamusAfterHurt(
     samus.KnockbackDirection = 0;
     samus.KnockbackTimer = 0;
     samus.InvincibilityTimer = 0;
-    samus.Pose = SamusState.FacingRightNormalPose;
+    samus.Pose = SamusPoseIds.FacingRightNormalPose;
     samus.RefreshCollisionRadii(bus);
     samus.InitializeAnimation(bus);
 }
@@ -2446,7 +2446,7 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     int reportedDoorX = reportedDoorBlockIndex % probeLevel.WidthInBlocks;
     int reportedDoorY = reportedDoorBlockIndex / probeLevel.WidthInBlocks;
     SamusState doorProbeSamus = doorProbeRuntime.Samus!;
-    doorProbeSamus.Pose = SamusState.MovingRightNormalPose;
+    doorProbeSamus.Pose = SamusPoseIds.MovingRightNormalPose;
     doorProbeSamus.InitializeAnimation(ceresBus);
     doorProbeSamus.Kinematics.XPosition = unchecked((ushort)(reportedDoorX * 16 - 8));
     doorProbeSamus.Kinematics.YPosition = unchecked((ushort)(reportedDoorY * 16 + 8));
@@ -4999,7 +4999,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         // damage-source side. Use leftward X side zero against right-facing `$1D`, and pass
         // held-forward Right directly to command one: `$91:EE27` must still choose vertical
         // direction two from pose facing while `$90:8EDF` independently moves left.
-        if (runtime.Samus.Pose != SamusState.MorphBallGroundRightPose)
+        if (runtime.Samus.Pose != SamusPoseIds.MorphBallGroundRightPose)
         {
             throw new InvalidOperationException(
                 $"Morphed knockback stimulus expected stable pose $1D, not ${runtime.Samus.Pose:X2}.");
@@ -6055,7 +6055,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedXrayTurnStart |= runtime.LastXrayPoseInput is { StartedTurn: true };
     observedXrayTurnCompletion |= runtime.LastXrayPoseInput is { CompletedTurn: true };
     observedXrayLeftStablePose |=
-        runtime.Samus.Pose == SamusState.XrayingStandingLeftPose;
+        runtime.Samus.Pose == SamusPoseIds.XrayingStandingLeftPose;
     if (runtime.LastDeathSequenceStep is { } deathStep)
     {
         observedDeathPhases.Add(deathStep.PhaseAfterStep);
@@ -6080,21 +6080,21 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     observedDrainedFallingHandler |= runtime.LastDrainedSamusMovement is not null;
     observedDrainedLanding |= runtime.LastDrainedSamusMovement is { Landed: true };
     observedDrainedStanding |= runtime.Samus.Pose is
-        SamusState.DrainedStandingRightPose or SamusState.DrainedStandingLeftPose;
+        SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose;
     observedDrainedCrouching |= issuedDrainedCrouchingCommand &&
         (runtime.Samus.Pose is
-            SamusState.DrainedCrouchingRightPose or SamusState.DrainedCrouchingLeftPose);
+            SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose);
     observedDrainedRelease |= issuedDrainedReleaseCommand &&
         runtime.Samus.Drained.Phase == DrainedSamusPhase.Inactive;
     observedDrainedHyperBeam |= runtime.Samus.HyperBeam == 0x8000;
-    observedDraygonAimUp |= runtime.Samus.Pose == SamusState.DraygonGrabbedAimUpRightPose;
-    observedDraygonFiring |= runtime.Samus.Pose == SamusState.DraygonGrabbedFiringRightPose;
-    observedDraygonAimDown |= runtime.Samus.Pose == SamusState.DraygonGrabbedAimDownRightPose;
-    observedDraygonMoving |= runtime.Samus.Pose == SamusState.DraygonGrabbedMovingRightPose;
+    observedDraygonAimUp |= runtime.Samus.Pose == SamusPoseIds.DraygonGrabbedAimUpRightPose;
+    observedDraygonFiring |= runtime.Samus.Pose == SamusPoseIds.DraygonGrabbedFiringRightPose;
+    observedDraygonAimDown |= runtime.Samus.Pose == SamusPoseIds.DraygonGrabbedAimDownRightPose;
+    observedDraygonMoving |= runtime.Samus.Pose == SamusPoseIds.DraygonGrabbedMovingRightPose;
     observedDraygonNeutralFallback |= frameIndex >= 96 && frameIndex < 112 &&
-        runtime.Samus.Pose == SamusState.DraygonGrabbedNeutralRightPose;
+        runtime.Samus.Pose == SamusPoseIds.DraygonGrabbedNeutralRightPose;
     observedDraygonRelease |= !runtime.Samus.DraygonGrabbed.IsActive &&
-        runtime.Samus.Pose == SamusState.FacingRightNormalPose;
+        runtime.Samus.Pose == SamusPoseIds.FacingRightNormalPose;
     observedExternalXMovement |= options.ExtraDisplacementScript &&
         frameIndex == 31 &&
         runtime.Samus.XPosition == unchecked((ushort)(extraDisplacementStartX + 32));
@@ -6113,17 +6113,17 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         runtime.Samus.ReadMovementType(bus) == 0x19;
     observedMorphedKnockbackCompletion |= options.MorphKnockbackScript &&
         runtime.LastKnockbackMovement is { Ended: true } &&
-        runtime.Samus.Pose == SamusState.MorphBallGroundRightPose &&
+        runtime.Samus.Pose == SamusPoseIds.MorphBallGroundRightPose &&
         !runtime.Samus.KnockbackActive &&
         runtime.Samus.Kinematics.YSpeed == 0 &&
         runtime.Samus.Kinematics.YSubspeed == 0 &&
         runtime.Samus.Kinematics.YDirection == 2;
     observedMorphedKnockbackFalling |= options.MorphKnockbackScript &&
-        runtime.Samus.Pose == SamusState.MorphBallFallingRightPose &&
+        runtime.Samus.Pose == SamusPoseIds.MorphBallFallingRightPose &&
         runtime.Samus.YPosition < morphKnockbackGroundY;
     observedMorphedKnockbackLanding |= options.MorphKnockbackScript &&
         runtime.LastMorphBallMovement is { Landed: true } &&
-        runtime.Samus.Pose == SamusState.MorphBallGroundRightPose;
+        runtime.Samus.Pose == SamusPoseIds.MorphBallGroundRightPose;
     observedGrappleSwing |= runtime.LastGrappleMovement is
         { Phase: GrapplePhase.ConnectedSwinging };
     observedGrappleReleaseQueue |= runtime.LastGrappleMovement is { ReleaseQueued: true };
@@ -6447,158 +6447,158 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
                      checked((byte)transition.ProspectivePose)) ||
                  (runtime.GroundedSamusMovementEnabled &&
                  transition.ProspectivePose is
-                     SamusState.FacingRightNormalPose or
-                     SamusState.FacingLeftNormalPose or
-                     SamusState.MovingRightNormalPose or
-                     SamusState.MovingLeftNormalPose or
-                     SamusState.MovingRightGunExtendedPose or
-                     SamusState.MovingLeftGunExtendedPose or
-                     SamusState.TurningRightToLeftPose or
-                     SamusState.TurningLeftToRightPose or
-                     SamusState.TurningRightToLeftAimUpPose or
-                     SamusState.TurningLeftToRightAimUpPose or
-                     SamusState.TurningRightToLeftAimDiagonalUpPose or
-                     SamusState.TurningLeftToRightAimDiagonalUpPose or
-                     SamusState.TurningRightToLeftAimDiagonalDownPose or
-                     SamusState.TurningLeftToRightAimDiagonalDownPose or
-                     SamusState.TurningRightToLeftCrouchingPose or
-                     SamusState.TurningLeftToRightCrouchingPose or
-                     SamusState.TurningRightToLeftCrouchingAimUpPose or
-                     SamusState.TurningLeftToRightCrouchingAimUpPose or
-                     SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose or
-                     SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose or
-                     SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose or
-                     SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose or
-                     SamusState.NeutralJumpTransitionRightPose or
-                     SamusState.NeutralJumpTransitionLeftPose or
-                     SamusState.SpinJumpRightPose or
-                     SamusState.SpinJumpLeftPose or
-                     SamusState.SpaceJumpRightPose or
-                     SamusState.SpaceJumpLeftPose or
-                     SamusState.ScrewAttackRightPose or
-                     SamusState.ScrewAttackLeftPose or
-                     SamusState.CrouchingTransitionRightPose or
-                     SamusState.CrouchingTransitionLeftPose or
-                     SamusState.StandingTransitionRightPose or
-                     SamusState.StandingTransitionLeftPose or
-                     SamusState.MorphBallGroundRightPose or
-                     SamusState.MorphBallGroundLeftPose or
-                     SamusState.MorphBallMovingRightPose or
-                     SamusState.MorphBallMovingLeftPose or
-                     SamusState.MorphBallFallingRightPose or
-                     SamusState.MorphBallFallingLeftPose or
-                     SamusState.MorphingTransitionRightPose or
-                     SamusState.MorphingTransitionLeftPose or
-                     SamusState.UnmorphingTransitionRightPose or
-                     SamusState.UnmorphingTransitionLeftPose or
-                     SamusState.SpringBallGroundRightPose or
-                     SamusState.SpringBallGroundLeftPose or
-                     SamusState.SpringBallMovingRightPose or
-                     SamusState.SpringBallMovingLeftPose or
-                     SamusState.SpringBallFallingRightPose or
-                     SamusState.SpringBallFallingLeftPose or
-                     SamusState.SpringBallJumpRightPose or
-                     SamusState.SpringBallJumpLeftPose or
-                     SamusState.CrouchingRightPose or
-                     SamusState.CrouchingLeftPose or
-                     SamusState.StandingAimUpRightPose or
-                     SamusState.StandingAimUpLeftPose or
-                     SamusState.StandingAimDiagonalUpRightPose or
-                     SamusState.StandingAimDiagonalUpLeftPose or
-                     SamusState.StandingAimDiagonalDownRightPose or
-                     SamusState.StandingAimDiagonalDownLeftPose or
-                     SamusState.RunningAimUpRightPose or
-                     SamusState.RunningAimUpLeftPose or
-                     SamusState.RunningAimDiagonalUpRightPose or
-                     SamusState.RunningAimDiagonalUpLeftPose or
-                     SamusState.RunningAimDiagonalDownRightPose or
-                     SamusState.RunningAimDiagonalDownLeftPose or
-                     SamusState.NormalJumpForwardRightPose or
-                     SamusState.NormalJumpForwardLeftPose or
-                     SamusState.NormalJumpGunExtendedRightPose or
-                     SamusState.NormalJumpGunExtendedLeftPose or
-                     SamusState.NormalJumpAimUpRightPose or
-                     SamusState.NormalJumpAimUpLeftPose or
-                     SamusState.NormalJumpTransitionAimUpRightPose or
-                     SamusState.NormalJumpTransitionAimUpLeftPose or
-                     SamusState.NormalJumpTransitionAimDiagonalUpRightPose or
-                     SamusState.NormalJumpTransitionAimDiagonalUpLeftPose or
-                     SamusState.NormalJumpTransitionAimDiagonalDownRightPose or
-                     SamusState.NormalJumpTransitionAimDiagonalDownLeftPose or
-                     SamusState.NormalJumpAimDiagonalUpRightPose or
-                     SamusState.NormalJumpAimDiagonalUpLeftPose or
-                     SamusState.NormalJumpAimDiagonalDownRightPose or
-                     SamusState.NormalJumpAimDiagonalDownLeftPose or
-                     SamusState.NormalJumpAimDownRightPose or
-                     SamusState.NormalJumpAimDownLeftPose or
-                     SamusState.DamageBoostRightPose or
-                     SamusState.DamageBoostLeftPose or
-                     SamusState.FallingAimUpRightPose or
-                     SamusState.FallingAimUpLeftPose or
-                     SamusState.FallingAimDiagonalUpRightPose or
-                     SamusState.FallingAimDiagonalUpLeftPose or
-                     SamusState.FallingAimDiagonalDownRightPose or
-                     SamusState.FallingAimDiagonalDownLeftPose or
-                     SamusState.FallingAimDownRightPose or
-                     SamusState.FallingAimDownLeftPose or
-                     SamusState.FallingGunExtendedRightPose or
-                     SamusState.FallingGunExtendedLeftPose or
-                     SamusState.CrouchingAimUpRightPose or
-                     SamusState.CrouchingAimUpLeftPose or
-                     SamusState.CrouchingAimDiagonalUpRightPose or
-                     SamusState.CrouchingAimDiagonalUpLeftPose or
-                     SamusState.CrouchingAimDiagonalDownRightPose or
-                     SamusState.CrouchingAimDiagonalDownLeftPose or
-                     SamusState.LandingAimUpRightPose or
-                     SamusState.LandingAimUpLeftPose or
-                     SamusState.LandingAimDiagonalUpRightPose or
-                     SamusState.LandingAimDiagonalUpLeftPose or
-                     SamusState.LandingAimDiagonalDownRightPose or
-                     SamusState.LandingAimDiagonalDownLeftPose or
-                     SamusState.FiringLandingRightPose or
-                     SamusState.FiringLandingLeftPose or
-                     SamusState.CrouchingTransitionAimUpRightPose or
-                     SamusState.CrouchingTransitionAimUpLeftPose or
-                     SamusState.CrouchingTransitionAimDiagonalUpRightPose or
-                     SamusState.CrouchingTransitionAimDiagonalUpLeftPose or
-                     SamusState.CrouchingTransitionAimDiagonalDownRightPose or
-                     SamusState.CrouchingTransitionAimDiagonalDownLeftPose or
-                     SamusState.StandingTransitionAimUpRightPose or
-                     SamusState.StandingTransitionAimUpLeftPose or
-                     SamusState.StandingTransitionAimDiagonalUpRightPose or
-                     SamusState.StandingTransitionAimDiagonalUpLeftPose or
-                     SamusState.StandingTransitionAimDiagonalDownRightPose or
-                     SamusState.StandingTransitionAimDiagonalDownLeftPose or
-                     SamusState.MoonwalkFacingLeftPose or
-                     SamusState.MoonwalkFacingRightPose or
-                     SamusState.MoonwalkAimUpRightPose or
-                     SamusState.MoonwalkAimUpLeftPose or
-                     SamusState.MoonwalkAimDownRightPose or
-                     SamusState.MoonwalkAimDownLeftPose or
-                     SamusState.MoonwalkTurnJumpLeftPose or
-                     SamusState.MoonwalkTurnJumpRightPose or
-                     SamusState.MoonwalkTurnJumpAimUpLeftPose or
-                     SamusState.MoonwalkTurnJumpAimUpRightPose or
-                     SamusState.MoonwalkTurnJumpAimDownLeftPose or
-                     SamusState.MoonwalkTurnJumpAimDownRightPose or
-                     SamusState.RanIntoWallRightPose or
-                     SamusState.RanIntoWallLeftPose or
-                     SamusState.RanIntoWallAimUpRightPose or
-                     SamusState.RanIntoWallAimUpLeftPose or
-                     SamusState.RanIntoWallAimDownRightPose or
-                     SamusState.RanIntoWallAimDownLeftPose or
-                     SamusState.ShinesparkWindupRightPose or
-                     SamusState.ShinesparkWindupLeftPose or
-                     SamusState.ShinesparkHorizontalRightPose or
-                     SamusState.ShinesparkHorizontalLeftPose or
-                     SamusState.ShinesparkVerticalRightPose or
-                     SamusState.ShinesparkVerticalLeftPose or
-                     SamusState.ShinesparkDiagonalRightPose or
-                     SamusState.ShinesparkDiagonalLeftPose or
-                     SamusState.TurningRightToLeftJumpPose or
-                     SamusState.TurningLeftToRightJumpPose or
-                     SamusState.TurningRightToLeftFallingPose or
-                     SamusState.TurningLeftToRightFallingPose)
+                     SamusPoseIds.FacingRightNormalPose or
+                     SamusPoseIds.FacingLeftNormalPose or
+                     SamusPoseIds.MovingRightNormalPose or
+                     SamusPoseIds.MovingLeftNormalPose or
+                     SamusPoseIds.MovingRightGunExtendedPose or
+                     SamusPoseIds.MovingLeftGunExtendedPose or
+                     SamusPoseIds.TurningRightToLeftPose or
+                     SamusPoseIds.TurningLeftToRightPose or
+                     SamusPoseIds.TurningRightToLeftAimUpPose or
+                     SamusPoseIds.TurningLeftToRightAimUpPose or
+                     SamusPoseIds.TurningRightToLeftAimDiagonalUpPose or
+                     SamusPoseIds.TurningLeftToRightAimDiagonalUpPose or
+                     SamusPoseIds.TurningRightToLeftAimDiagonalDownPose or
+                     SamusPoseIds.TurningLeftToRightAimDiagonalDownPose or
+                     SamusPoseIds.TurningRightToLeftCrouchingPose or
+                     SamusPoseIds.TurningLeftToRightCrouchingPose or
+                     SamusPoseIds.TurningRightToLeftCrouchingAimUpPose or
+                     SamusPoseIds.TurningLeftToRightCrouchingAimUpPose or
+                     SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalUpPose or
+                     SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalUpPose or
+                     SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalDownPose or
+                     SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalDownPose or
+                     SamusPoseIds.NeutralJumpTransitionRightPose or
+                     SamusPoseIds.NeutralJumpTransitionLeftPose or
+                     SamusPoseIds.SpinJumpRightPose or
+                     SamusPoseIds.SpinJumpLeftPose or
+                     SamusPoseIds.SpaceJumpRightPose or
+                     SamusPoseIds.SpaceJumpLeftPose or
+                     SamusPoseIds.ScrewAttackRightPose or
+                     SamusPoseIds.ScrewAttackLeftPose or
+                     SamusPoseIds.CrouchingTransitionRightPose or
+                     SamusPoseIds.CrouchingTransitionLeftPose or
+                     SamusPoseIds.StandingTransitionRightPose or
+                     SamusPoseIds.StandingTransitionLeftPose or
+                     SamusPoseIds.MorphBallGroundRightPose or
+                     SamusPoseIds.MorphBallGroundLeftPose or
+                     SamusPoseIds.MorphBallMovingRightPose or
+                     SamusPoseIds.MorphBallMovingLeftPose or
+                     SamusPoseIds.MorphBallFallingRightPose or
+                     SamusPoseIds.MorphBallFallingLeftPose or
+                     SamusPoseIds.MorphingTransitionRightPose or
+                     SamusPoseIds.MorphingTransitionLeftPose or
+                     SamusPoseIds.UnmorphingTransitionRightPose or
+                     SamusPoseIds.UnmorphingTransitionLeftPose or
+                     SamusPoseIds.SpringBallGroundRightPose or
+                     SamusPoseIds.SpringBallGroundLeftPose or
+                     SamusPoseIds.SpringBallMovingRightPose or
+                     SamusPoseIds.SpringBallMovingLeftPose or
+                     SamusPoseIds.SpringBallFallingRightPose or
+                     SamusPoseIds.SpringBallFallingLeftPose or
+                     SamusPoseIds.SpringBallJumpRightPose or
+                     SamusPoseIds.SpringBallJumpLeftPose or
+                     SamusPoseIds.CrouchingRightPose or
+                     SamusPoseIds.CrouchingLeftPose or
+                     SamusPoseIds.StandingAimUpRightPose or
+                     SamusPoseIds.StandingAimUpLeftPose or
+                     SamusPoseIds.StandingAimDiagonalUpRightPose or
+                     SamusPoseIds.StandingAimDiagonalUpLeftPose or
+                     SamusPoseIds.StandingAimDiagonalDownRightPose or
+                     SamusPoseIds.StandingAimDiagonalDownLeftPose or
+                     SamusPoseIds.RunningAimUpRightPose or
+                     SamusPoseIds.RunningAimUpLeftPose or
+                     SamusPoseIds.RunningAimDiagonalUpRightPose or
+                     SamusPoseIds.RunningAimDiagonalUpLeftPose or
+                     SamusPoseIds.RunningAimDiagonalDownRightPose or
+                     SamusPoseIds.RunningAimDiagonalDownLeftPose or
+                     SamusPoseIds.NormalJumpForwardRightPose or
+                     SamusPoseIds.NormalJumpForwardLeftPose or
+                     SamusPoseIds.NormalJumpGunExtendedRightPose or
+                     SamusPoseIds.NormalJumpGunExtendedLeftPose or
+                     SamusPoseIds.NormalJumpAimUpRightPose or
+                     SamusPoseIds.NormalJumpAimUpLeftPose or
+                     SamusPoseIds.NormalJumpTransitionAimUpRightPose or
+                     SamusPoseIds.NormalJumpTransitionAimUpLeftPose or
+                     SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose or
+                     SamusPoseIds.NormalJumpTransitionAimDiagonalUpLeftPose or
+                     SamusPoseIds.NormalJumpTransitionAimDiagonalDownRightPose or
+                     SamusPoseIds.NormalJumpTransitionAimDiagonalDownLeftPose or
+                     SamusPoseIds.NormalJumpAimDiagonalUpRightPose or
+                     SamusPoseIds.NormalJumpAimDiagonalUpLeftPose or
+                     SamusPoseIds.NormalJumpAimDiagonalDownRightPose or
+                     SamusPoseIds.NormalJumpAimDiagonalDownLeftPose or
+                     SamusPoseIds.NormalJumpAimDownRightPose or
+                     SamusPoseIds.NormalJumpAimDownLeftPose or
+                     SamusPoseIds.DamageBoostRightPose or
+                     SamusPoseIds.DamageBoostLeftPose or
+                     SamusPoseIds.FallingAimUpRightPose or
+                     SamusPoseIds.FallingAimUpLeftPose or
+                     SamusPoseIds.FallingAimDiagonalUpRightPose or
+                     SamusPoseIds.FallingAimDiagonalUpLeftPose or
+                     SamusPoseIds.FallingAimDiagonalDownRightPose or
+                     SamusPoseIds.FallingAimDiagonalDownLeftPose or
+                     SamusPoseIds.FallingAimDownRightPose or
+                     SamusPoseIds.FallingAimDownLeftPose or
+                     SamusPoseIds.FallingGunExtendedRightPose or
+                     SamusPoseIds.FallingGunExtendedLeftPose or
+                     SamusPoseIds.CrouchingAimUpRightPose or
+                     SamusPoseIds.CrouchingAimUpLeftPose or
+                     SamusPoseIds.CrouchingAimDiagonalUpRightPose or
+                     SamusPoseIds.CrouchingAimDiagonalUpLeftPose or
+                     SamusPoseIds.CrouchingAimDiagonalDownRightPose or
+                     SamusPoseIds.CrouchingAimDiagonalDownLeftPose or
+                     SamusPoseIds.LandingAimUpRightPose or
+                     SamusPoseIds.LandingAimUpLeftPose or
+                     SamusPoseIds.LandingAimDiagonalUpRightPose or
+                     SamusPoseIds.LandingAimDiagonalUpLeftPose or
+                     SamusPoseIds.LandingAimDiagonalDownRightPose or
+                     SamusPoseIds.LandingAimDiagonalDownLeftPose or
+                     SamusPoseIds.FiringLandingRightPose or
+                     SamusPoseIds.FiringLandingLeftPose or
+                     SamusPoseIds.CrouchingTransitionAimUpRightPose or
+                     SamusPoseIds.CrouchingTransitionAimUpLeftPose or
+                     SamusPoseIds.CrouchingTransitionAimDiagonalUpRightPose or
+                     SamusPoseIds.CrouchingTransitionAimDiagonalUpLeftPose or
+                     SamusPoseIds.CrouchingTransitionAimDiagonalDownRightPose or
+                     SamusPoseIds.CrouchingTransitionAimDiagonalDownLeftPose or
+                     SamusPoseIds.StandingTransitionAimUpRightPose or
+                     SamusPoseIds.StandingTransitionAimUpLeftPose or
+                     SamusPoseIds.StandingTransitionAimDiagonalUpRightPose or
+                     SamusPoseIds.StandingTransitionAimDiagonalUpLeftPose or
+                     SamusPoseIds.StandingTransitionAimDiagonalDownRightPose or
+                     SamusPoseIds.StandingTransitionAimDiagonalDownLeftPose or
+                     SamusPoseIds.MoonwalkFacingLeftPose or
+                     SamusPoseIds.MoonwalkFacingRightPose or
+                     SamusPoseIds.MoonwalkAimUpRightPose or
+                     SamusPoseIds.MoonwalkAimUpLeftPose or
+                     SamusPoseIds.MoonwalkAimDownRightPose or
+                     SamusPoseIds.MoonwalkAimDownLeftPose or
+                     SamusPoseIds.MoonwalkTurnJumpLeftPose or
+                     SamusPoseIds.MoonwalkTurnJumpRightPose or
+                     SamusPoseIds.MoonwalkTurnJumpAimUpLeftPose or
+                     SamusPoseIds.MoonwalkTurnJumpAimUpRightPose or
+                     SamusPoseIds.MoonwalkTurnJumpAimDownLeftPose or
+                     SamusPoseIds.MoonwalkTurnJumpAimDownRightPose or
+                     SamusPoseIds.RanIntoWallRightPose or
+                     SamusPoseIds.RanIntoWallLeftPose or
+                     SamusPoseIds.RanIntoWallAimUpRightPose or
+                     SamusPoseIds.RanIntoWallAimUpLeftPose or
+                     SamusPoseIds.RanIntoWallAimDownRightPose or
+                     SamusPoseIds.RanIntoWallAimDownLeftPose or
+                     SamusPoseIds.ShinesparkWindupRightPose or
+                     SamusPoseIds.ShinesparkWindupLeftPose or
+                     SamusPoseIds.ShinesparkHorizontalRightPose or
+                     SamusPoseIds.ShinesparkHorizontalLeftPose or
+                     SamusPoseIds.ShinesparkVerticalRightPose or
+                     SamusPoseIds.ShinesparkVerticalLeftPose or
+                     SamusPoseIds.ShinesparkDiagonalRightPose or
+                     SamusPoseIds.ShinesparkDiagonalLeftPose or
+                     SamusPoseIds.TurningRightToLeftJumpPose or
+                     SamusPoseIds.TurningLeftToRightJumpPose or
+                     SamusPoseIds.TurningRightToLeftFallingPose or
+                     SamusPoseIds.TurningLeftToRightFallingPose)
                     ? "applied at a verified translated pose-transition seam"
                     : "not applied because its movement/transition side effects are not translated"));
         }
@@ -6644,7 +6644,7 @@ if (options.ElevatorScript)
     if (clearPixels < 0)
         throw new InvalidOperationException("Elevator stimulus began below its derived floor stop.");
     ushort expectedY = unchecked((ushort)(startY + Math.Min(options.FrameCount, clearPixels)));
-    if (runtime.Samus!.Pose != SamusState.ForwardFacingPowerSuitPose)
+    if (runtime.Samus!.Pose != SamusPoseIds.ForwardFacingPowerSuitPose)
     {
         throw new InvalidOperationException(
             $"Elevator ROM script left required forward-facing pose $00 for ${runtime.Samus.Pose:X2}.");
@@ -6671,11 +6671,11 @@ if (options.ElevatorScript)
 if (options.AerialTurnScript)
 {
     byte[] requiredAerialTurnRoute = [
-        SamusState.NeutralJumpTransitionRightPose,
-        SamusState.NeutralJumpRightPose,
-        SamusState.TurningRightToLeftJumpPose,
-        SamusState.NormalJumpForwardLeftPose,
-        SamusState.NormalLandingLeftPose,
+        SamusPoseIds.NeutralJumpTransitionRightPose,
+        SamusPoseIds.NeutralJumpRightPose,
+        SamusPoseIds.TurningRightToLeftJumpPose,
+        SamusPoseIds.NormalJumpForwardLeftPose,
+        SamusPoseIds.NormalLandingLeftPose,
     ];
     foreach (byte requiredPose in requiredAerialTurnRoute)
     {
@@ -6695,14 +6695,14 @@ if (options.CompactAirScript)
     // milestone validates everything the deterministic timeline has reached by that frame.
     var requiredCompactRoute = new List<byte>
     {
-        SamusState.NormalJumpAimDownRightPose,
+        SamusPoseIds.NormalJumpAimDownRightPose,
     };
     if (options.FrameCount >= 32)
-        requiredCompactRoute.Add(SamusState.NormalLandingRightPose);
+        requiredCompactRoute.Add(SamusPoseIds.NormalLandingRightPose);
     if (options.FrameCount >= 149)
-        requiredCompactRoute.Add(SamusState.NormalJumpAimDownLeftPose);
+        requiredCompactRoute.Add(SamusPoseIds.NormalJumpAimDownLeftPose);
     if (options.FrameCount >= 235)
-        requiredCompactRoute.Add(SamusState.NormalLandingLeftPose);
+        requiredCompactRoute.Add(SamusPoseIds.NormalLandingLeftPose);
     foreach (byte requiredPose in requiredCompactRoute)
     {
         if (!observedSamusPoses.Contains(requiredPose))
@@ -6723,20 +6723,20 @@ if (options.MorphBallScript)
     // a useful ball-art diagnostic without weakening the complete 220-frame route. Each
     // threshold is the first accepted NMI on which the full private-ROM run observed it.
     var requiredMorphRoute = new List<byte> {
-        SamusState.MorphingTransitionRightPose,
+        SamusPoseIds.MorphingTransitionRightPose,
     };
     if (options.FrameCount >= 17)
-        requiredMorphRoute.Add(SamusState.MorphBallGroundRightPose);
+        requiredMorphRoute.Add(SamusPoseIds.MorphBallGroundRightPose);
     if (options.FrameCount >= 26)
-        requiredMorphRoute.Add(SamusState.MorphBallMovingRightPose);
+        requiredMorphRoute.Add(SamusPoseIds.MorphBallMovingRightPose);
     if (options.FrameCount >= 81)
-        requiredMorphRoute.Add(SamusState.MorphBallMovingLeftPose);
+        requiredMorphRoute.Add(SamusPoseIds.MorphBallMovingLeftPose);
     if (options.FrameCount >= 149)
-        requiredMorphRoute.Add(SamusState.MorphBallGroundLeftPose);
+        requiredMorphRoute.Add(SamusPoseIds.MorphBallGroundLeftPose);
     if (options.FrameCount >= 176)
-        requiredMorphRoute.Add(SamusState.UnmorphingTransitionLeftPose);
+        requiredMorphRoute.Add(SamusPoseIds.UnmorphingTransitionLeftPose);
     if (options.FrameCount >= 182)
-        requiredMorphRoute.Add(SamusState.CrouchingLeftPose);
+        requiredMorphRoute.Add(SamusPoseIds.CrouchingLeftPose);
     foreach (byte requiredPose in requiredMorphRoute)
     {
         if (!observedSamusPoses.Contains(requiredPose))
@@ -6753,10 +6753,10 @@ if (options.MorphBallScript)
 if (options.SpringBallScript)
 {
     byte[] requiredSpringRoute = [
-        SamusState.MorphingTransitionRightPose,
-        SamusState.SpringBallGroundRightPose,
-        SamusState.SpringBallMovingRightPose,
-        SamusState.SpringBallJumpRightPose,
+        SamusPoseIds.MorphingTransitionRightPose,
+        SamusPoseIds.SpringBallGroundRightPose,
+        SamusPoseIds.SpringBallMovingRightPose,
+        SamusPoseIds.SpringBallJumpRightPose,
     ];
     foreach (byte requiredPose in requiredSpringRoute)
     {
@@ -6774,7 +6774,7 @@ if (options.BombJumpScript)
     // movement handler: controller edge, slot allocation, timer-eight bank-$A0 overlap,
     // next-frame `$E025`, explosion instruction list/delete, rise, and termination.
     if (options.FrameCount >= 17 &&
-        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+        !observedSamusPoses.Contains(SamusPoseIds.MorphBallGroundRightPose))
         throw new InvalidOperationException("Bomb-jump ROM script never reached stable Morph Ball pose $1D.");
 
     // Short runs are intentionally supported as art/timing captures. Each threshold is
@@ -6803,7 +6803,7 @@ if (options.PowerBombScript)
 {
     SamusPowerBombExplosionState powerBomb = runtime.BombProjectiles.PowerBombExplosion;
     if (options.FrameCount >= 17 &&
-        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+        !observedSamusPoses.Contains(SamusPoseIds.MorphBallGroundRightPose))
     {
         throw new InvalidOperationException(
             "Power-bomb ROM script never reached stable Morph Ball pose $1D.");
@@ -6852,9 +6852,9 @@ if (options.KnockbackScript)
     // The only host-authored fact is which side the not-yet-translated enemy occupied.
     // A short 21-frame capture is intentionally allowed to stop on the first white flash.
     // Longer captures require the later damage-boost pose/handler and all six palette calls.
-    var requiredKnockbackRoute = new List<byte> { SamusState.KnockbackRightPose };
+    var requiredKnockbackRoute = new List<byte> { SamusPoseIds.KnockbackRightPose };
     if (options.FrameCount >= 22)
-        requiredKnockbackRoute.Add(SamusState.DamageBoostRightPose);
+        requiredKnockbackRoute.Add(SamusPoseIds.DamageBoostRightPose);
     foreach (byte requiredPose in requiredKnockbackRoute)
     {
         if (!observedSamusPoses.Contains(requiredPose))
@@ -6891,10 +6891,10 @@ if (options.GunExtendedScript && options.FrameCount >= 150)
     // unchanged ROM transition/delay data and live controller/collision state.
     byte[] requiredGunExtendedRoute =
     [
-        SamusState.MovingRightGunExtendedPose,
-        SamusState.NormalJumpGunExtendedRightPose,
-        SamusState.FallingGunExtendedRightPose,
-        SamusState.FiringLandingRightPose,
+        SamusPoseIds.MovingRightGunExtendedPose,
+        SamusPoseIds.NormalJumpGunExtendedRightPose,
+        SamusPoseIds.FallingGunExtendedRightPose,
+        SamusPoseIds.FiringLandingRightPose,
     ];
     foreach (byte requiredPose in requiredGunExtendedRoute)
     {
@@ -7142,7 +7142,7 @@ if (options.MorphKnockbackScript)
     // pose can satisfy these checks: `$37/$F9`, `$DF15`, `$EE27`, `$F31D`, `$31`, and the
     // eventual `$1D` landing all execute through the live cartridge-backed runtime.
     if (options.FrameCount >= 17 &&
-        !observedSamusPoses.Contains(SamusState.MorphBallGroundRightPose))
+        !observedSamusPoses.Contains(SamusPoseIds.MorphBallGroundRightPose))
     {
         throw new InvalidOperationException(
             "Morphed-knockback ROM script never reached stable Morph Ball pose $1D.");
@@ -7186,11 +7186,11 @@ if (options.MoonwalkScript)
     // grounded turn art and `$1A` proves its input/animation handoff created a real jump.
     byte[] requiredMoonwalkRoute =
     [
-        SamusState.MoonwalkFacingRightPose,
-        SamusState.MoonwalkAimUpRightPose,
-        SamusState.MoonwalkAimDownRightPose,
-        SamusState.MoonwalkTurnJumpLeftPose,
-        SamusState.SpinJumpLeftPose,
+        SamusPoseIds.MoonwalkFacingRightPose,
+        SamusPoseIds.MoonwalkAimUpRightPose,
+        SamusPoseIds.MoonwalkAimDownRightPose,
+        SamusPoseIds.MoonwalkTurnJumpLeftPose,
+        SamusPoseIds.SpinJumpLeftPose,
     ];
     foreach (byte requiredPose in requiredMoonwalkRoute)
     {
@@ -7211,11 +7211,11 @@ if (options.RanIntoWallScript)
     // prospective-pose filtering, bank-$94 collision, and the ten-way selector together.
     byte[] requiredWallRoute =
     [
-        SamusState.RanIntoWallRightPose,
-        SamusState.RanIntoWallAimUpRightPose,
-        SamusState.RanIntoWallAimDownRightPose,
-        SamusState.NeutralJumpTransitionRightPose,
-        SamusState.NeutralJumpRightPose,
+        SamusPoseIds.RanIntoWallRightPose,
+        SamusPoseIds.RanIntoWallAimUpRightPose,
+        SamusPoseIds.RanIntoWallAimDownRightPose,
+        SamusPoseIds.NeutralJumpTransitionRightPose,
+        SamusPoseIds.NeutralJumpRightPose,
     ];
     foreach (byte requiredPose in requiredWallRoute)
     {
@@ -7240,7 +7240,7 @@ if (options.RunScript)
     // jointly prove transition-table admission, exact `$90:973E` accumulation/cap, and the
     // type-three `$90:9808` retention route; a host-authored displacement cannot satisfy
     // the state assertions by merely moving Samus farther.
-    if (!observedSamusPoses.Contains(SamusState.MovingRightNormalPose))
+    if (!observedSamusPoses.Contains(SamusPoseIds.MovingRightNormalPose))
         throw new InvalidOperationException("Dash ROM script never entered running pose $09.");
     if (!observedDashMomentum)
         throw new InvalidOperationException("Dash ROM script never established momentum flag $0B3C.");
@@ -7250,7 +7250,7 @@ if (options.RunScript)
             $"Dash ROM script expected maximum extra speed 2.0000, observed ${maximumObservedExtraRunSpeed:X8}.");
     }
     if (options.FrameCount >= 40 &&
-        (!observedSamusPoses.Contains(SamusState.SpinJumpRightPose) || !observedDashAerialCarry))
+        (!observedSamusPoses.Contains(SamusPoseIds.SpinJumpRightPose) || !observedDashAerialCarry))
     {
         throw new InvalidOperationException(
             "Dash ROM script did not retain the accumulated extra component through spin pose $19.");
@@ -7263,8 +7263,8 @@ if (options.RunScript)
 if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAttackScript)
 {
     byte requiredSpinPose = options.ScrewAttackScript
-        ? SamusState.ScrewAttackRightPose
-        : SamusState.SpaceJumpRightPose;
+        ? SamusPoseIds.ScrewAttackRightPose
+        : SamusPoseIds.SpaceJumpRightPose;
     if (options.FrameCount >= 15 && !observedSamusPoses.Contains(requiredSpinPose))
     {
         throw new InvalidOperationException(
@@ -7311,7 +7311,7 @@ if (options.SpaceJumpScript || options.WaterSpaceJumpScript || options.ScrewAtta
 
 if (options.SpeedBoosterScript)
 {
-    if (!observedSamusPoses.Contains(SamusState.MovingRightNormalPose) || !observedDashMomentum)
+    if (!observedSamusPoses.Contains(SamusPoseIds.MovingRightNormalPose) || !observedDashMomentum)
         throw new InvalidOperationException("Speed Booster ROM script never established running momentum.");
     if (maximumObservedSpeedBoostStage == 0 && options.FrameCount >= 30)
         throw new InvalidOperationException("Speed Booster ROM script never loaded a staged counter.");
@@ -7415,7 +7415,7 @@ if (options.GrappleScript)
 
 if (options.CrystalFlashScript)
 {
-    if (!observedSamusPoses.Contains(SamusState.CrystalFlashRightPose))
+    if (!observedSamusPoses.Contains(SamusPoseIds.CrystalFlashRightPose))
         throw new InvalidOperationException("Crystal Flash ROM route never rendered pose $D3.");
     if (options.FrameCount >= 11 && !observedCrystalFlashDrain)
         throw new InvalidOperationException("Crystal Flash ROM route never installed ammo handler $90:D6CE.");
@@ -7468,7 +7468,7 @@ if (options.XrayScript)
 
 if (options.DeathScript)
 {
-    if (runtime.Samus!.Pose != SamusState.DeathSequenceRightPose)
+    if (runtime.Samus!.Pose != SamusPoseIds.DeathSequenceRightPose)
         throw new InvalidOperationException($"Death route left required pose $D7 for ${runtime.Samus.Pose:X2}.");
     if (options.FrameCount >= 16 && !observedDeathPhases.Contains(SamusDeathSequencePhase.Flashing))
         throw new InvalidOperationException("Death route did not finish its sixteen-call preflash.");

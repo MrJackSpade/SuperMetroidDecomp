@@ -19,7 +19,7 @@ static void VerifySamusRenderingSlice()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         AnimationFrame = 0,
         XPosition = 0x0480,
         YPosition = 0x0086,
@@ -168,7 +168,7 @@ static void VerifySamusRenderingSlice()
     samus.HorizontalSpeed.BaseSpeed = 3;
     samus.Kinematics.YSpeed = 2;
     samus.ApplyForwardFacingPoseSetup(bus);
-    AssertEqual(SamusState.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
+    AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
     AssertEqual(24, samus.Kinematics.YRadius, "power forward setup reads radius 24");
     AssertEqual(8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
@@ -190,7 +190,7 @@ static void VerifySamusRenderingSlice()
     // `$9B` uses dedicated suited art and therefore must not inherit `$00`'s chest patch.
     samus.EquippedItems = 0x0001;
     samus.ApplyForwardFacingPoseSetup(bus);
-    AssertEqual(SamusState.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
+    AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, samus.Pose, "Varia selects suited forward pose");
     oam.BeginFrame();
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
     oam.FinalizeFrame();
@@ -334,7 +334,7 @@ static void VerifySamusRenderingSlice()
     // Standing's position selector has two special families. Front-view frames zero/one
     // remain generic, but frame two and later use Y-1. Keep frame two here because pose `$00`
     // already carries a deliberately different graphics offset in the fixture above.
-    samus.Pose = SamusState.ForwardFacingPowerSuitPose;
+    samus.Pose = SamusPoseIds.ForwardFacingPowerSuitPose;
     samus.AnimationFrame = 2;
     samus.YPosition = 0x0086;
     oam.BeginFrame();
@@ -378,7 +378,7 @@ static void VerifySamusRenderingSlice()
     // transform before applying the ordinary pose offset. A 90-degree matrix around
     // ($0480,$0080) maps (+8,+6) to (-6,+8). The body must use that temporary point while
     // collision-visible Samus coordinates remain byte-for-byte unchanged afterward.
-    samus.Pose = SamusState.FacingRightNormalPose;
+    samus.Pose = SamusPoseIds.FacingRightNormalPose;
     samus.AnimationFrame = 0;
     samus.XPosition = 0x0488;
     samus.YPosition = 0x0086;
@@ -455,7 +455,7 @@ static void VerifySamusArmCannon()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         AnimationFrame = 0,
         XPosition = 0x0480,
         YPosition = 0x0086,
@@ -674,7 +674,7 @@ static void VerifySamusHurtFlashPalette()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         EquippedItems = 0x0021, // Both suit bits prove Gravity's native precedence.
         HurtFlashCounter = 1,
     };
@@ -756,11 +756,11 @@ static void VerifySamusHurtFlashPalette()
 
     // Counter forty calls command `$1C` for spin/wall-jump movement. A Screw Attack pose
     // must select `$33`; using the ROM movement-type byte keeps this a real dispatcher test.
-    WritePoseDefinition(bus, SamusState.ScrewAttackRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.ScrewAttackRightPose,
         [0x08, 0x03, 0, 0, 0, 0, 0x15, 0]);
     var spinning = new SamusState
     {
-        Pose = SamusState.ScrewAttackRightPose,
+        Pose = SamusPoseIds.ScrewAttackRightPose,
         HurtFlashCounter = 39,
     };
     SamusHurtFlashPaletteStepResult spinRecovery = SamusHurtFlashPalette.Update(
@@ -773,11 +773,11 @@ static void VerifySamusHurtFlashPalette()
 
     // A non-spinning charged shot arms the native one-word latch. The post-draw consumer
     // queues `$41` only while Shoot is still held, then clears the latch in either case.
-    WritePoseDefinition(bus, SamusState.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
         [0x08, 0x00, 0, 0, 0, 0, 0x15, 0]);
     var charging = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         HurtFlashCounter = 39,
         ProjectileFlareCounter = 0x10,
     };

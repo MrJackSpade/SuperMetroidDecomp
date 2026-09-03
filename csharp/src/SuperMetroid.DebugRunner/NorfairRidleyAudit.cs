@@ -55,7 +55,7 @@ internal static partial class NorfairRidleyAudit
             MaxHealth = 999,
             XPosition = 128,
             YPosition = 352,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

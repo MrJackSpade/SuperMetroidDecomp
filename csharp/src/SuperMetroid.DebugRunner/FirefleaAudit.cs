@@ -90,7 +90,7 @@ internal static class FirefleaAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x00c0,
             YPosition = 0x0080,
         };

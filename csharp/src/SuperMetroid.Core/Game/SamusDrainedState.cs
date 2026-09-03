@@ -93,7 +93,7 @@ public sealed class SamusDrainedState
             return false;
 
         if (GetUpHandler == DrainedGetUpHandler.AbleToStand &&
-            samus.Pose == SamusState.DrainedCrouchingLeftPose &&
+            samus.Pose == SamusPoseIds.DrainedCrouchingLeftPose &&
             samus.AnimationFrame >= 8)
         {
             samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
@@ -229,8 +229,8 @@ public sealed class SamusDrainedState
         // Read it before replacing the pose, exactly as `$91:E50D` does.
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
-            ? SamusState.DrainedCrouchingLeftPose
-            : SamusState.DrainedCrouchingRightPose;
+            ? SamusPoseIds.DrainedCrouchingLeftPose
+            : SamusPoseIds.DrainedCrouchingRightPose;
         samus.RefreshCollisionRadii(bus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Special ||
             samus.Kinematics.YRadius != 21)
@@ -253,7 +253,7 @@ public sealed class SamusDrainedState
     {
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.Pose is not (
-            SamusState.DrainedCrouchingRightPose or SamusState.DrainedCrouchingLeftPose))
+            SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose))
         {
             throw new InvalidOperationException(
                 $"Drained falling command requires pose $E8/$E9, not ${samus.Pose:X2}.");
@@ -319,7 +319,7 @@ public sealed class SamusDrainedState
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
-            facingLeft ? SamusState.DrainedStandingLeftPose : SamusState.DrainedStandingRightPose,
+            facingLeft ? SamusPoseIds.DrainedStandingLeftPose : SamusPoseIds.DrainedStandingRightPose,
             frame: 0,
             timer: 16,
             refreshRadius: false);
@@ -334,7 +334,7 @@ public sealed class SamusDrainedState
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.SetPoseAndAnimationFromScriptedController(
             bus,
-            facingLeft ? SamusState.DrainedCrouchingLeftPose : SamusState.DrainedCrouchingRightPose,
+            facingLeft ? SamusPoseIds.DrainedCrouchingLeftPose : SamusPoseIds.DrainedCrouchingRightPose,
             frame: 8,
             timer: 16,
             refreshRadius: false);
@@ -350,9 +350,9 @@ public sealed class SamusDrainedState
         // These are literal byte indices into the asymmetrical delay programs, not visual
         // frame counts. In particular, left `$E9` index 13 names an operand byte; native
         // intentionally draws that index until the next animation decrement advances it.
-        if (samus.Pose is SamusState.DrainedCrouchingRightPose or SamusState.DrainedCrouchingLeftPose)
+        if (samus.Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
             samus.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
-        else if (samus.Pose is SamusState.DrainedStandingRightPose or SamusState.DrainedStandingLeftPose)
+        else if (samus.Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose)
             samus.SetAnimationFrameFromSpecialHandler(frame: 4, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
@@ -385,7 +385,7 @@ public sealed class SamusDrainedState
 
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
-        samus.Pose = SamusState.KnockbackLeftPose;
+        samus.Pose = SamusPoseIds.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         // Shared `$90:F394` installs the locked current/new state handlers after changing art.

@@ -190,14 +190,14 @@ public sealed partial class SamusState
         byte shotDirection = ReadShotDirection(bus, sourcePose);
         return shotDirection switch
         {
-            0 => StandingAimUpRightPose,
-            1 => RanIntoWallAimUpRightPose,
-            2 or 4 => RanIntoWallRightPose,
-            3 => RanIntoWallAimDownRightPose,
-            5 or 7 => RanIntoWallLeftPose,
-            6 => RanIntoWallAimDownLeftPose,
-            8 => RanIntoWallAimUpLeftPose,
-            9 => StandingAimUpLeftPose,
+            0 => SamusPoseIds.StandingAimUpRightPose,
+            1 => SamusPoseIds.RanIntoWallAimUpRightPose,
+            2 or 4 => SamusPoseIds.RanIntoWallRightPose,
+            3 => SamusPoseIds.RanIntoWallAimDownRightPose,
+            5 or 7 => SamusPoseIds.RanIntoWallLeftPose,
+            6 => SamusPoseIds.RanIntoWallAimDownLeftPose,
+            8 => SamusPoseIds.RanIntoWallAimUpLeftPose,
+            9 => SamusPoseIds.StandingAimUpLeftPose,
             _ => throw new InvalidDataException(
                 $"Pose ${sourcePose:X2} has invalid shot-direction byte ${shotDirection:X2}."),
         };
@@ -261,9 +261,9 @@ public sealed partial class SamusState
         bool leftSource = IsLeftFacingStandingPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsLeftFacingRanIntoWallPose(Pose) || IsLeftFacingLandingPose(Pose);
         bool rightRoute = rightSource &&
-            (IsRightFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpRightPose);
+            (IsRightFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseIds.StandingAimUpRightPose);
         bool leftRoute = leftSource &&
-            (IsLeftFacingRanIntoWallPose(targetPose) || targetPose == StandingAimUpLeftPose);
+            (IsLeftFacingRanIntoWallPose(targetPose) || targetPose == SamusPoseIds.StandingAimUpLeftPose);
         if (!rightRoute && !leftRoute)
         {
             // Only block-backed ran-into-wall records call this exact initializer. Treat a
@@ -334,7 +334,7 @@ public sealed partial class SamusState
             // and become right-to-left `$25`; `$49/$75/$77` store eight and become `$26`.
             ApplyGroundedTurn(
                 bus,
-                targetVisualRight ? TurningRightToLeftPose : TurningLeftToRightPose);
+                targetVisualRight ? SamusPoseIds.TurningRightToLeftPose : SamusPoseIds.TurningLeftToRightPose);
             return;
         }
 
@@ -342,8 +342,8 @@ public sealed partial class SamusState
             (IsMoonwalkingFacingRightPose(Pose) && targetVisualRight) ||
             (IsMoonwalkingFacingLeftPose(Pose) && targetVisualLeft);
         bool exitsToForwardRun =
-            (IsMoonwalkingFacingRightPose(Pose) && targetPose == MovingRightNormalPose) ||
-            (IsMoonwalkingFacingLeftPose(Pose) && targetPose == MovingLeftNormalPose);
+            (IsMoonwalkingFacingRightPose(Pose) && targetPose == SamusPoseIds.MovingRightNormalPose) ||
+            (IsMoonwalkingFacingLeftPose(Pose) && targetPose == SamusPoseIds.MovingLeftNormalPose);
         bool exitsToStandingFallback =
             (IsMoonwalkingFacingRightPose(Pose) && IsRightFacingStandingPose(targetPose)) ||
             (IsMoonwalkingFacingLeftPose(Pose) && IsLeftFacingStandingPose(targetPose));
@@ -370,12 +370,12 @@ public sealed partial class SamusState
 
         byte expectedTarget = ReadShotDirection(bus) switch
         {
-            1 => MoonwalkTurnJumpAimUpLeftPose,
-            2 => MoonwalkTurnJumpLeftPose,
-            3 => MoonwalkTurnJumpAimDownLeftPose,
-            6 => MoonwalkTurnJumpAimDownRightPose,
-            7 => MoonwalkTurnJumpRightPose,
-            8 => MoonwalkTurnJumpAimUpRightPose,
+            1 => SamusPoseIds.MoonwalkTurnJumpAimUpLeftPose,
+            2 => SamusPoseIds.MoonwalkTurnJumpLeftPose,
+            3 => SamusPoseIds.MoonwalkTurnJumpAimDownLeftPose,
+            6 => SamusPoseIds.MoonwalkTurnJumpAimDownRightPose,
+            7 => SamusPoseIds.MoonwalkTurnJumpRightPose,
+            8 => SamusPoseIds.MoonwalkTurnJumpAimUpRightPose,
             // Stable moonwalk poses publish only the six directions enumerated above.
             // Another value means WRAM/pose metadata is inconsistent, not missing logic.
             _ => throw new InvalidDataException(
@@ -408,13 +408,13 @@ public sealed partial class SamusState
     public void ApplyStandingRightToRunningRight(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (Pose != FacingRightNormalPose)
+        if (Pose != SamusPoseIds.FacingRightNormalPose)
         {
             throw new InvalidOperationException(
                 $"Standing-right to running-right transition requires pose $01, not ${Pose:X2}.");
         }
 
-        Pose = MovingRightNormalPose;
+        Pose = SamusPoseIds.MovingRightNormalPose;
         RefreshCollisionRadii(bus);
 
         // $91:F404 -> $91:FB08 resets animation frame zero and loads pose $09's first
@@ -429,13 +429,13 @@ public sealed partial class SamusState
     public void ApplyRunningRightToStandingRight(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (Pose != MovingRightNormalPose)
+        if (Pose != SamusPoseIds.MovingRightNormalPose)
         {
             throw new InvalidOperationException(
                 $"Running-right to standing-right transition requires pose $09, not ${Pose:X2}.");
         }
 
-        Pose = FacingRightNormalPose;
+        Pose = SamusPoseIds.FacingRightNormalPose;
         RefreshCollisionRadii(bus);
 
         // Pose $09's new-pose-unless-buttons byte is $01. Once Samus_Pose_Func2 selects
@@ -450,8 +450,8 @@ public sealed partial class SamusState
     public void ApplyStandingLeftToRunningLeft(ISnesAddressSpace bus) =>
         ApplySimpleGroundedPoseChange(
             bus,
-            FacingLeftNormalPose,
-            MovingLeftNormalPose,
+            SamusPoseIds.FacingLeftNormalPose,
+            SamusPoseIds.MovingLeftNormalPose,
             "Standing-left to running-left");
 
     /// <summary>Applies the no-button grounded $0A -> $02 fallback.</summary>
@@ -459,8 +459,8 @@ public sealed partial class SamusState
     {
         ApplySimpleGroundedPoseChange(
             bus,
-            MovingLeftNormalPose,
-            FacingLeftNormalPose,
+            SamusPoseIds.MovingLeftNormalPose,
+            SamusPoseIds.FacingLeftNormalPose,
             "Running-left to standing-left");
 
         // This is the mirrored `$91:ECD0` momentum-index-two route used by `$09 -> $01`.
@@ -478,9 +478,9 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool right = IsRightFacingLandingPose(Pose) &&
-            targetPose == MovingRightNormalPose;
+            targetPose == SamusPoseIds.MovingRightNormalPose;
         bool left = IsLeftFacingLandingPose(Pose) &&
-            targetPose == MovingLeftNormalPose;
+            targetPose == SamusPoseIds.MovingLeftNormalPose;
         if (!right && !left)
         {
             throw new InvalidOperationException(
@@ -531,13 +531,13 @@ public sealed partial class SamusState
             IsLeftFacingCrouchingPose(Pose) ||
             IsLeftFacingLandingPose(Pose);
         bool turnsLeft = targetPose == (wasCrouching
-            ? TurningRightToLeftCrouchingPose
-            : TurningRightToLeftPose) && rightSource;
+            ? SamusPoseIds.TurningRightToLeftCrouchingPose
+            : SamusPoseIds.TurningRightToLeftPose) && rightSource;
         bool turnsRight = targetPose == (wasCrouching
-            ? TurningLeftToRightCrouchingPose
-            : TurningLeftToRightPose) && leftSource;
+            ? SamusPoseIds.TurningLeftToRightCrouchingPose
+            : SamusPoseIds.TurningLeftToRightPose) && leftSource;
         bool leavesForwardView = wasForwardFacing &&
-            targetPose is TurningRightToLeftPose or TurningLeftToRightPose;
+            targetPose is SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose;
         if (!turnsLeft && !turnsRight && !leavesForwardView)
         {
             throw new InvalidOperationException(
@@ -562,14 +562,14 @@ public sealed partial class SamusState
             selectedTurnPose = wasCrouching
                 ? shotDirection switch
                 {
-                    0 => TurningRightToLeftCrouchingAimUpPose,
-                    1 => TurningRightToLeftCrouchingAimDiagonalUpPose,
-                    2 => TurningRightToLeftCrouchingPose,
-                    3 => TurningRightToLeftCrouchingAimDiagonalDownPose,
-                    6 => TurningLeftToRightCrouchingAimDiagonalDownPose,
-                    7 => TurningLeftToRightCrouchingPose,
-                    8 => TurningLeftToRightCrouchingAimDiagonalUpPose,
-                    9 => TurningLeftToRightCrouchingAimUpPose,
+                    0 => SamusPoseIds.TurningRightToLeftCrouchingAimUpPose,
+                    1 => SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalUpPose,
+                    2 => SamusPoseIds.TurningRightToLeftCrouchingPose,
+                    3 => SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalDownPose,
+                    6 => SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalDownPose,
+                    7 => SamusPoseIds.TurningLeftToRightCrouchingPose,
+                    8 => SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalUpPose,
+                    9 => SamusPoseIds.TurningLeftToRightCrouchingAimUpPose,
                     // Grounded/crouched pose metadata cannot publish the compact-aerial
                     // directions 4/5 (or any value outside the native eight-entry set).
                     _ => throw new InvalidDataException(
@@ -577,14 +577,14 @@ public sealed partial class SamusState
                 }
                 : shotDirection switch
                 {
-                    0 => TurningRightToLeftAimUpPose,
-                    1 => TurningRightToLeftAimDiagonalUpPose,
-                    2 => TurningRightToLeftPose,
-                    3 => TurningRightToLeftAimDiagonalDownPose,
-                    6 => TurningLeftToRightAimDiagonalDownPose,
-                    7 => TurningLeftToRightPose,
-                    8 => TurningLeftToRightAimDiagonalUpPose,
-                    9 => TurningLeftToRightAimUpPose,
+                    0 => SamusPoseIds.TurningRightToLeftAimUpPose,
+                    1 => SamusPoseIds.TurningRightToLeftAimDiagonalUpPose,
+                    2 => SamusPoseIds.TurningRightToLeftPose,
+                    3 => SamusPoseIds.TurningRightToLeftAimDiagonalDownPose,
+                    6 => SamusPoseIds.TurningLeftToRightAimDiagonalDownPose,
+                    7 => SamusPoseIds.TurningLeftToRightPose,
+                    8 => SamusPoseIds.TurningLeftToRightAimDiagonalUpPose,
+                    9 => SamusPoseIds.TurningLeftToRightAimUpPose,
                     _ => throw new InvalidDataException(
                         $"Grounded turn shot direction ${shotDirection:X2} is invalid."),
                 };

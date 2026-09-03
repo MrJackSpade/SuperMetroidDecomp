@@ -287,7 +287,7 @@ internal static class RipperAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x1000,
             YPosition = 0x1000,
         };

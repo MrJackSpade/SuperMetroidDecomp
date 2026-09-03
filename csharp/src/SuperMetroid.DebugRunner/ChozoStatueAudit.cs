@@ -399,7 +399,7 @@ internal static class ChozoStatueAudit
             MaxHealth = 999,
             XPosition = 0x0080,
             YPosition = 0x0080,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

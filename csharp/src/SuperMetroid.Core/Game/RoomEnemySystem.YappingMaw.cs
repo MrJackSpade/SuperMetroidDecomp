@@ -493,8 +493,8 @@ public sealed partial class RoomEnemySystem
                 // Reusing those public ROM-backed helpers prevents a Yapping-Maw-only pose
                 // approximation from drifting away from every other Samus transition.
                 samus.Pose = samus.IsFacingLeft(_bus!)
-                    ? SamusState.FacingLeftNormalPose
-                    : SamusState.FacingRightNormalPose;
+                    ? SamusPoseIds.FacingLeftNormalPose
+                    : SamusPoseIds.FacingRightNormalPose;
                 samus.RefreshCollisionRadii(_bus!);
                 samus.InitializeAnimation(_bus!, initialFrame: 0);
             }

@@ -394,7 +394,7 @@ internal static partial class BotwoonAudit
             MaxHealth = 999,
             XPosition = 32,
             YPosition = 32,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

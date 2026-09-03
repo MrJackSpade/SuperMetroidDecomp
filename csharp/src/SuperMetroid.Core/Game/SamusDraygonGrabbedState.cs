@@ -54,8 +54,8 @@ public sealed class SamusDraygonGrabbedState
         ArgumentNullException.ThrowIfNull(samus);
 
         samus.Pose = draygonFacingRight
-            ? SamusState.DraygonGrabbedNeutralRightPose
-            : SamusState.DraygonGrabbedNeutralLeftPose;
+            ? SamusPoseIds.DraygonGrabbedNeutralRightPose
+            : SamusPoseIds.DraygonGrabbedNeutralLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -171,8 +171,8 @@ public sealed class SamusDraygonGrabbedState
 
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
-            ? SamusState.FacingLeftNormalPose
-            : SamusState.FacingRightNormalPose;
+            ? SamusPoseIds.FacingLeftNormalPose
+            : SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 

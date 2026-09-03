@@ -764,7 +764,7 @@ internal static class ShutterAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

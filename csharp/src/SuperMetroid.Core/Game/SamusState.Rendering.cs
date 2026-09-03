@@ -126,7 +126,7 @@ public sealed partial class SamusState
     /// </summary>
     public void SetGrappleSwingAnimationFrame(ushort frame)
     {
-        if (Pose is not (GrappleSwingRightPose or GrappleSwingLeftPose))
+        if (Pose is not (SamusPoseIds.GrappleSwingRightPose or SamusPoseIds.GrappleSwingLeftPose))
             throw new InvalidOperationException($"Grapple swing art cannot be assigned to pose ${Pose:X2}.");
         AnimationFrame = frame;
         AnimationFrameTimer = 15;
@@ -163,7 +163,7 @@ public sealed partial class SamusState
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the
         // timer is exactly one; release/apex changes YDirection to two and lets it expire.
-        if (Pose is NeutralJumpRightPose or NeutralJumpLeftPose &&
+        if (Pose is SamusPoseIds.NeutralJumpRightPose or SamusPoseIds.NeutralJumpLeftPose &&
             Kinematics.YDirection != 2 &&
             AnimationFrame == 1 &&
             AnimationFrameTimer == 1)
@@ -507,7 +507,7 @@ public sealed partial class SamusState
         sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
         SpritemapXPosition = unchecked((ushort)(renderX - layer1X));
         if (movementType == 0 &&
-            Pose is ForwardFacingPowerSuitPose or ForwardFacingSuitedPose &&
+            Pose is SamusPoseIds.ForwardFacingPowerSuitPose or SamusPoseIds.ForwardFacingSuitedPose &&
             AnimationFrame >= 2)
         {
             // `$90:8D07-$90:8D27` uses the ordinary pose graphics offset for front-facing
@@ -515,20 +515,23 @@ public sealed partial class SamusState
             // center. This is independent of `$00`'s extra power-suit chest-cover OBJ.
             SpritemapYPosition = unchecked((ushort)(renderY - 1 - layer1Y));
         }
-        else if (movementType == 0 && Pose >= 0xa4 && Pose < 0xa8)
+        else if (movementType == 0 && Pose >= SamusPoseIds.NormalLandingRightPose &&
+            Pose <= SamusPoseIds.SpinLandingLeftPose)
         {
             // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
             // unaligned LDA. The following landing frame's byte therefore becomes the high
             // byte of the subtraction. OAM ultimately displays only low Y, yet the complete
             // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
-            int landingOffsetIndex = (Pose - 0xa4) * 4 + AnimationFrame;
+            int landingOffsetIndex = (Pose - SamusPoseIds.NormalLandingRightPose) * 4 +
+                AnimationFrame;
             ushort landingOffset = ReadWord(
                 bus,
                 AddWithinBank(0x908d28, landingOffsetIndex));
             SpritemapYPosition = unchecked((ushort)(
                 renderY - landingOffset - layer1Y));
         }
-        else if (movementType == 0x0f && Pose >= 0x35 && Pose < 0x41)
+        else if (movementType == 0x0f && Pose >= SamusPoseIds.CrouchingTransitionRightPose &&
+            Pose < SamusPoseIds.MorphBallGroundLeftPose)
         {
             // `$90:8D3C` indexes a signed byte by `2*(pose-$35)+animation frame` instead
             // of using the pose-definition graphics offset. Reading the cartridge table
@@ -537,11 +540,11 @@ public sealed partial class SamusState
             // retail poses before a command/operand index can escape this two-byte record.
             int transitionOffsetAddress = AddWithinBank(
                 0x908d80,
-                (Pose - 0x35) * 2 + AnimationFrame);
+                (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame);
             sbyte transitionOffset = unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
         }
-        else if (Pose is DrainedCrouchingRightPose or DrainedCrouchingLeftPose)
+        else if (Pose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose)
         {
             // `$90:8DC1` indexes the shared 32-byte table at `$90:8DEF` directly with the
             // animation byte index. Several indices intentionally name command operands,
@@ -551,7 +554,7 @@ public sealed partial class SamusState
                 AddWithinBank(0x908def, AnimationFrame)));
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
-        else if ((Pose is DrainedStandingRightPose or DrainedStandingLeftPose) &&
+        else if ((Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose) &&
                  AnimationFrame >= 5)
         {
             // `$90:8DB1-$8DBC` replaces the usual pose graphics offset with -3 after
@@ -573,7 +576,7 @@ public sealed partial class SamusState
         // suit chest. The suited `$9B` body has that shape in its ordinary spritemap and
         // deliberately skips this write. Coordinates use Samus's world center directly,
         // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
-        if (Pose == ForwardFacingPowerSuitPose)
+        if (Pose == SamusPoseIds.ForwardFacingPowerSuitPose)
         {
             ushort chestX = unchecked((ushort)(XPosition - 7 - layer1X));
             ushort chestY = unchecked((ushort)(YPosition - 0x11 - layer1Y));
@@ -585,15 +588,15 @@ public sealed partial class SamusState
         // frames B+ draw the split bottom. The admitted Screw/Space Jump records use their
         // separate native rule and always draw the bottom half at every animation frame.
         bool ordinarySpinBottom = movementType != 3 ||
-            Pose is SpaceJumpRightPose or SpaceJumpLeftPose or
-                ScrewAttackRightPose or ScrewAttackLeftPose ||
+            Pose is SamusPoseIds.SpaceJumpRightPose or SamusPoseIds.SpaceJumpLeftPose or
+                SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose ||
             AnimationFrame == 0 || AnimationFrame >= 0x0b;
 
         // `$90:86EE` is movement type `$0A`'s only exception. The first three frames of
         // the `$D7/$D8` Crystal-Flash-end/fatal-damage body are complete top spritemaps;
         // all other knockback-family poses and later frames retain an ordinary lower half.
         bool knockbackBottom = movementType != 0x0a ||
-            Pose is not (DeathSequenceRightPose or DeathSequenceLeftPose) ||
+            Pose is not (SamusPoseIds.DeathSequenceRightPose or SamusPoseIds.DeathSequenceLeftPose) ||
             AnimationFrame >= 3;
 
         // `$90:870C-$90:874B` is a pose-and-frame dispatcher, not a blanket type-$0F
@@ -601,17 +604,19 @@ public sealed partial class SamusState
         // bodies below `$DB` never do. `$DB/$DC` draw it only on frame zero, `$DD-$F0`
         // only on frame two, and the aimed transition family `$F1+` always draws it.
         bool transitionBottom = movementType != 0x0f ||
-            Pose >= 0xf1 ||
-            Pose is CrouchingTransitionRightPose or CrouchingTransitionLeftPose or
-                StandingTransitionRightPose or StandingTransitionLeftPose ||
-            (Pose is 0xdb or 0xdc && AnimationFrame == 0) ||
-            (Pose >= 0xdd && Pose < 0xf1 && AnimationFrame == 2);
+            Pose >= SamusPoseIds.CrouchingTransitionAimUpRightPose ||
+            Pose is SamusPoseIds.CrouchingTransitionRightPose or SamusPoseIds.CrouchingTransitionLeftPose or
+                SamusPoseIds.StandingTransitionRightPose or SamusPoseIds.StandingTransitionLeftPose ||
+            (Pose is SamusPoseIds.UnusedPoseDb or SamusPoseIds.UnusedPoseDc &&
+                AnimationFrame == 0) ||
+            (Pose >= SamusPoseIds.UnusedPoseDd &&
+                Pose < SamusPoseIds.CrouchingTransitionAimUpRightPose && AnimationFrame == 2);
 
         // The otherwise-unused movement type `$0D` still has executable cartridge logic
         // at `$90:874C`: poses `$65/$66` draw a lower half only on frame zero, while every
         // other type-`$0D` pose follows the ordinary always-split return.
         bool unusedTypeDBottom = movementType != 0x0d ||
-            Pose is not (0x65 or 0x66) ||
+            Pose is not (SamusPoseIds.UnusedPose65 or SamusPoseIds.UnusedPose66) ||
             AnimationFrame < 1;
 
         bool wallJumpBottom = movementType != 0x14 ||
@@ -621,8 +626,8 @@ public sealed partial class SamusState
         // `$90:8790` suppresses the lower half for vertical shinesparks and for drained
         // crouch/fall byte indices zero and one. Every other type-$1B record draws it.
         bool specialType1BBottom = movementType != 0x1b ||
-            (Pose is not (ShinesparkVerticalRightPose or ShinesparkVerticalLeftPose) &&
-             (Pose is not (DrainedCrouchingRightPose or DrainedCrouchingLeftPose) ||
+            (Pose is not (SamusPoseIds.ShinesparkVerticalRightPose or SamusPoseIds.ShinesparkVerticalLeftPose) &&
+             (Pose is not (SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose) ||
               AnimationFrame >= 2));
         bool drawBottom = movementType is not (4 or 7 or 8 or 9 or 0x11 or 0x12 or 0x13) &&
             ordinarySpinBottom && knockbackBottom && transitionBottom && unusedTypeDBottom &&

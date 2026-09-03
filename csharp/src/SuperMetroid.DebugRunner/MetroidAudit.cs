@@ -425,7 +425,7 @@ internal static class MetroidAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0100,
             YPosition = 0x0080,
         };

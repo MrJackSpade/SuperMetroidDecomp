@@ -167,6 +167,14 @@ static void VerifyTypedNativeWords()
     AssertTrue(!RoomBlockBehaviorValues.ScrollTrigger.TryGetStationAccess(out _),
         "non-station BTS rejects station view");
 
+    var typedPose = new SamusState();
+    typedPose.PoseId = SamusPoseId.ScrewAttackLeftPose;
+    AssertEqual(SamusPoseIds.ScrewAttackLeftPose, typedPose.Pose,
+        "typed Samus pose writes the native byte");
+    typedPose.Pose = 0xfe;
+    AssertEqual((SamusPoseId)0xfe, typedPose.PoseId,
+        "undefined Samus pose byte remains observable for diagnostics");
+
     var bgEntry = new SnesBgTilemapWord(0xf555);
     AssertEqual(0x155, bgEntry.CharacterIndex, "BG tile character field");
     AssertEqual(5, bgEntry.PaletteIndex, "BG tile palette field");

@@ -765,7 +765,7 @@ static void VerifyCeresRidleyRoomEntry()
     // through the public producer and explosion owner, rather than mutating HitCounter.
     WritePoseDefinition(
         bus,
-        SamusState.FacingRightNormalPose,
+        SamusPoseIds.FacingRightNormalPose,
         [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
     WriteWord(bus, 0x9383c1, 0x8431);
     WriteWord(bus, 0x938431, 20);
@@ -878,7 +878,7 @@ static void VerifyCeresRidleyRoomEntry()
     // A6C8 crosses Y=$50 and publishes fight mode one.
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         Health = 99,
     };
     int battleEntryFrames = 0;

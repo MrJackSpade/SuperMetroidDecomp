@@ -65,11 +65,11 @@ static void VerifySamusAerialMovement()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 48,
         YPosition = 77, // radius 19 will place jump-pose feet at floor Y=96
     };
-    samus.ApplyOrdinaryJumpTransition(bus, SamusState.NeutralJumpTransitionRightPose);
+    samus.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.NeutralJumpTransitionRightPose);
     AssertEqual(0x0004, samus.Kinematics.YSpeed, "jump reads initial whole Y speed");
     AssertEqual(0xe000, samus.Kinematics.YSubspeed, "jump reads initial fractional Y speed");
     AssertEqual(1, samus.Kinematics.YDirection, "jump begins upward");
@@ -152,12 +152,12 @@ static void VerifySamusAerialMovement()
     WriteTestWord(bus, 0x909f83, 0x1000);
     var spinLeft = new SamusState
     {
-        Pose = SamusState.MovingLeftNormalPose,
+        Pose = SamusPoseIds.MovingLeftNormalPose,
         XPosition = 48,
         YPosition = 77,
     };
     spinLeft.HorizontalSpeed.BaseSpeed = 1;
-    spinLeft.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
+    spinLeft.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose);
     AerialMovementResult spinFrame = SamusAerialMovement.StepSpinJump(
         bus,
         level,
@@ -173,16 +173,16 @@ static void VerifySamusAerialMovement()
     // retail match `$26 -> $19` is therefore a real spin-jump launch, not an unsupported
     // turning-only side effect. Lock down both mirrors so the runtime cannot regress to a
     // an open-dispatch crash when Jump is pressed during either one-frame ground turn.
-    var turnJumpRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
-    turnJumpRight.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpRightPose);
-    AssertEqual(SamusState.SpinJumpRightPose, turnJumpRight.Pose,
+    var turnJumpRight = new SamusState { Pose = SamusPoseIds.TurningLeftToRightPose };
+    turnJumpRight.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpRightPose);
+    AssertEqual(SamusPoseIds.SpinJumpRightPose, turnJumpRight.Pose,
         "left-to-right ground turn accepts spin jump");
     AssertEqual(1, turnJumpRight.Kinematics.YDirection,
         "left-to-right turn jump launches upward");
 
-    var turnJumpLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
-    turnJumpLeft.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
-    AssertEqual(SamusState.SpinJumpLeftPose, turnJumpLeft.Pose,
+    var turnJumpLeft = new SamusState { Pose = SamusPoseIds.TurningRightToLeftPose };
+    turnJumpLeft.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose);
+    AssertEqual(SamusPoseIds.SpinJumpLeftPose, turnJumpLeft.Pose,
         "right-to-left ground turn accepts spin jump");
     AssertEqual(1, turnJumpLeft.Kinematics.YDirection,
         "right-to-left turn jump launches upward");
@@ -190,20 +190,20 @@ static void VerifySamusAerialMovement()
     // Releasing horizontal direction before the fresh Jump edge selects the neutral-jump
     // records `$4B/$4C`, not spin `$19/$1A`. These are the exact mirrors exercised by a
     // player who turns in place and immediately jumps to aim a diagonal shot.
-    var neutralTurnJumpRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
+    var neutralTurnJumpRight = new SamusState { Pose = SamusPoseIds.TurningLeftToRightPose };
     neutralTurnJumpRight.ApplyOrdinaryJumpTransition(
         bus,
-        SamusState.NeutralJumpTransitionRightPose);
-    AssertEqual(SamusState.NeutralJumpTransitionRightPose, neutralTurnJumpRight.Pose,
+        SamusPoseIds.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionRightPose, neutralTurnJumpRight.Pose,
         "left-to-right ground turn accepts neutral jump");
     AssertEqual(1, neutralTurnJumpRight.Kinematics.YDirection,
         "left-to-right neutral turn jump launches upward");
 
-    var neutralTurnJumpLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
+    var neutralTurnJumpLeft = new SamusState { Pose = SamusPoseIds.TurningRightToLeftPose };
     neutralTurnJumpLeft.ApplyOrdinaryJumpTransition(
         bus,
-        SamusState.NeutralJumpTransitionLeftPose);
-    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, neutralTurnJumpLeft.Pose,
+        SamusPoseIds.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionLeftPose, neutralTurnJumpLeft.Pose,
         "right-to-left ground turn accepts neutral jump");
     AssertEqual(1, neutralTurnJumpLeft.Kinematics.YDirection,
         "right-to-left neutral turn jump launches upward");
@@ -214,18 +214,18 @@ static void VerifySamusAerialMovement()
     // `$8D -> $1A` is the live Climb route which first exposed this omitted family.
     (byte Source, byte SpinTarget, byte NeutralTarget)[] aimedTurnJumps =
     [
-        (SamusState.TurningRightToLeftAimUpPose,
-            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
-        (SamusState.TurningLeftToRightAimUpPose,
-            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
-        (SamusState.TurningRightToLeftAimDiagonalDownPose,
-            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
-        (SamusState.TurningLeftToRightAimDiagonalDownPose,
-            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
-        (SamusState.TurningRightToLeftAimDiagonalUpPose,
-            SamusState.SpinJumpLeftPose, SamusState.NeutralJumpTransitionLeftPose),
-        (SamusState.TurningLeftToRightAimDiagonalUpPose,
-            SamusState.SpinJumpRightPose, SamusState.NeutralJumpTransitionRightPose),
+        (SamusPoseIds.TurningRightToLeftAimUpPose,
+            SamusPoseIds.SpinJumpLeftPose, SamusPoseIds.NeutralJumpTransitionLeftPose),
+        (SamusPoseIds.TurningLeftToRightAimUpPose,
+            SamusPoseIds.SpinJumpRightPose, SamusPoseIds.NeutralJumpTransitionRightPose),
+        (SamusPoseIds.TurningRightToLeftAimDiagonalDownPose,
+            SamusPoseIds.SpinJumpLeftPose, SamusPoseIds.NeutralJumpTransitionLeftPose),
+        (SamusPoseIds.TurningLeftToRightAimDiagonalDownPose,
+            SamusPoseIds.SpinJumpRightPose, SamusPoseIds.NeutralJumpTransitionRightPose),
+        (SamusPoseIds.TurningRightToLeftAimDiagonalUpPose,
+            SamusPoseIds.SpinJumpLeftPose, SamusPoseIds.NeutralJumpTransitionLeftPose),
+        (SamusPoseIds.TurningLeftToRightAimDiagonalUpPose,
+            SamusPoseIds.SpinJumpRightPose, SamusPoseIds.NeutralJumpTransitionRightPose),
     ];
     foreach ((byte source, byte spinTarget, byte neutralTarget) in aimedTurnJumps)
     {
@@ -242,8 +242,8 @@ static void VerifySamusAerialMovement()
             $"aimed standing turn ${source:X2} accepts facing neutral jump");
     }
     AssertThrows<InvalidOperationException>(
-        () => new SamusState { Pose = SamusState.TurningRightToLeftCrouchingPose }
-            .ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose),
+        () => new SamusState { Pose = SamusPoseIds.TurningRightToLeftCrouchingPose }
+            .ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose),
         "crouched turn remains outside direct ordinary-jump initializer");
 
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
@@ -266,11 +266,11 @@ static void VerifySamusAerialMovement()
     WriteTestWord(bus, 0x909fa7, 0x1000);
     var fallLeft = new SamusState
     {
-        Pose = SamusState.FacingLeftNormalPose,
+        Pose = SamusPoseIds.FacingLeftNormalPose,
         XPosition = 48,
         YPosition = 77,
     };
-    fallLeft.ApplyWalkedOffFloorTransition(bus, SamusState.FallingLeftPose);
+    fallLeft.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingLeftPose);
     AssertEqual(0x2a, fallLeft.Pose, "walk-off chooses left falling pose");
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
         bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);
@@ -290,40 +290,40 @@ static void VerifySamusAerialMovement()
     // landing before its `$F8` fallback executes. Exercise both mirrors through the same
     // public initializer used by the runtime; this locks down actual jump velocity/radius
     // setup rather than merely accepting the target pose byte in the dispatcher.
-    var interruptRightLanding = new SamusState { Pose = SamusState.NormalLandingRightPose };
+    var interruptRightLanding = new SamusState { Pose = SamusPoseIds.NormalLandingRightPose };
     interruptRightLanding.ApplyOrdinaryJumpTransition(
-        bus, SamusState.NeutralJumpTransitionRightPose);
-    AssertEqual(SamusState.NeutralJumpTransitionRightPose, interruptRightLanding.Pose,
+        bus, SamusPoseIds.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionRightPose, interruptRightLanding.Pose,
         "right normal landing accepts fresh jump");
     AssertEqual(1, interruptRightLanding.Kinematics.YDirection,
         "right landing jump starts upward");
 
-    var interruptLeftLanding = new SamusState { Pose = SamusState.NormalLandingLeftPose };
+    var interruptLeftLanding = new SamusState { Pose = SamusPoseIds.NormalLandingLeftPose };
     interruptLeftLanding.ApplyOrdinaryJumpTransition(
-        bus, SamusState.NeutralJumpTransitionLeftPose);
-    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, interruptLeftLanding.Pose,
+        bus, SamusPoseIds.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionLeftPose, interruptLeftLanding.Pose,
         "left normal landing accepts fresh jump");
     AssertEqual(1, interruptLeftLanding.Kinematics.YDirection,
         "left landing jump starts upward");
 
     var interruptRightSpinLanding = new SamusState
     {
-        Pose = SamusState.SpinLandingRightPose,
+        Pose = SamusPoseIds.SpinLandingRightPose,
     };
     interruptRightSpinLanding.ApplyOrdinaryJumpTransition(
-        bus, SamusState.NeutralJumpTransitionRightPose);
-    AssertEqual(SamusState.NeutralJumpTransitionRightPose, interruptRightSpinLanding.Pose,
+        bus, SamusPoseIds.NeutralJumpTransitionRightPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionRightPose, interruptRightSpinLanding.Pose,
         "right spin landing accepts fresh neutral jump");
     AssertEqual(1, interruptRightSpinLanding.Kinematics.YDirection,
         "right spin-landing jump starts upward");
 
     var interruptLeftSpinLanding = new SamusState
     {
-        Pose = SamusState.SpinLandingLeftPose,
+        Pose = SamusPoseIds.SpinLandingLeftPose,
     };
     interruptLeftSpinLanding.ApplyOrdinaryJumpTransition(
-        bus, SamusState.NeutralJumpTransitionLeftPose);
-    AssertEqual(SamusState.NeutralJumpTransitionLeftPose, interruptLeftSpinLanding.Pose,
+        bus, SamusPoseIds.NeutralJumpTransitionLeftPose);
+    AssertEqual(SamusPoseIds.NeutralJumpTransitionLeftPose, interruptLeftSpinLanding.Pose,
         "left spin landing accepts fresh neutral jump");
     AssertEqual(1, interruptLeftSpinLanding.Kinematics.YDirection,
         "left spin-landing jump starts upward");
@@ -397,12 +397,12 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // actual bodies selected by `$91:F624` after that table lookup.
     foreach ((byte pose, byte direction) in new (byte, byte)[]
     {
-        (SamusState.SpinJumpRightPose, 8),
-        (SamusState.SpinJumpLeftPose, 4),
-        (SamusState.SpaceJumpRightPose, 8),
-        (SamusState.SpaceJumpLeftPose, 4),
-        (SamusState.ScrewAttackRightPose, 8),
-        (SamusState.ScrewAttackLeftPose, 4),
+        (SamusPoseIds.SpinJumpRightPose, 8),
+        (SamusPoseIds.SpinJumpLeftPose, 4),
+        (SamusPoseIds.SpaceJumpRightPose, 8),
+        (SamusPoseIds.SpaceJumpLeftPose, 4),
+        (SamusPoseIds.ScrewAttackRightPose, 8),
+        (SamusPoseIds.ScrewAttackLeftPose, 4),
     })
     {
         WritePoseDefinition(bus, pose, [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
@@ -414,25 +414,25 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     // Running sources and spin-landing endpoints are sufficient to prove equipment
     // substitution and Screw palette restoration without mocking pose metadata in code.
-    WritePoseDefinition(bus, SamusState.MovingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.MovingRightNormalPose,
         [8, 1, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, SamusState.MovingLeftNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.MovingLeftNormalPose,
         [4, 1, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, SamusState.SpinLandingRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpinLandingRightPose,
         [8, 0, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, SamusState.SpinLandingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpinLandingLeftPose,
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, SamusState.NormalJumpGunExtendedRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.NormalJumpGunExtendedRightPose,
         [8, 2, 0xff, 2, 0, 0, 24, 0]);
-    WritePoseDefinition(bus, SamusState.WallJumpRightPose,
-        [8, 0x14, SamusState.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
-    WritePoseDefinition(bus, SamusState.NormalJumpAimDownLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.WallJumpRightPose,
+        [8, 0x14, SamusPoseIds.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
+    WritePoseDefinition(bus, SamusPoseIds.NormalJumpAimDownLeftPose,
         [4, 2, 0xff, 5, 0, 0, 10, 0]);
-    WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingRightPose * 2, 0xc800);
-    WriteTestWord(bus, 0x91b010 + SamusState.SpinLandingLeftPose * 2, 0xc810);
-    WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpGunExtendedRightPose * 2, 0xc820);
-    WriteTestWord(bus, 0x91b010 + SamusState.WallJumpRightPose * 2, 0xc828);
-    WriteTestWord(bus, 0x91b010 + SamusState.NormalJumpAimDownLeftPose * 2, 0xc830);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.SpinLandingRightPose * 2, 0xc800);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.SpinLandingLeftPose * 2, 0xc810);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.NormalJumpGunExtendedRightPose * 2, 0xc820);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.WallJumpRightPose * 2, 0xc828);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.NormalJumpAimDownLeftPose * 2, 0xc830);
     bus.WriteByte(0x91c800, 4);
     bus.WriteByte(0x91c810, 4);
     bus.WriteByte(0x91c820, 4);
@@ -452,32 +452,32 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     var spaceLaunch = new SamusState
     {
-        Pose = SamusState.MovingRightNormalPose,
+        Pose = SamusPoseIds.MovingRightNormalPose,
         EquippedItems = 0x0200,
         XPosition = 128,
         YPosition = 128,
     };
-    spaceLaunch.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpRightPose);
-    AssertEqual(SamusState.SpaceJumpRightPose, spaceLaunch.Pose,
+    spaceLaunch.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpRightPose);
+    AssertEqual(SamusPoseIds.SpaceJumpRightPose, spaceLaunch.Pose,
         "Space Jump substitutes right spin pose");
 
     var screwLaunch = new SamusState
     {
-        Pose = SamusState.MovingLeftNormalPose,
+        Pose = SamusPoseIds.MovingLeftNormalPose,
         EquippedItems = 0x0208,
         XPosition = 128,
         YPosition = 128,
     };
-    screwLaunch.ApplyOrdinaryJumpTransition(bus, SamusState.SpinJumpLeftPose);
-    AssertEqual(SamusState.ScrewAttackLeftPose, screwLaunch.Pose,
+    screwLaunch.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose);
+    AssertEqual(SamusPoseIds.ScrewAttackLeftPose, screwLaunch.Pose,
         "Screw Attack takes priority over Space Jump pose");
 
     // `$81/$82` have their own retail input tables, so an opposite-direction match may
     // publish the specialized target directly rather than generic `$19/$1A`. The common
     // F624 initializer must accept that record, preserve Screw's equipment priority, and
     // still start a direction change at animation frame one.
-    screwLaunch.ApplySpinJumpDirectionTransition(bus, SamusState.ScrewAttackRightPose);
-    AssertEqual(SamusState.ScrewAttackRightPose, screwLaunch.Pose,
+    screwLaunch.ApplySpinJumpDirectionTransition(bus, SamusPoseIds.ScrewAttackRightPose);
+    AssertEqual(SamusPoseIds.ScrewAttackRightPose, screwLaunch.Pose,
         "direct Screw table target preserves equipped art");
     AssertEqual(1, screwLaunch.AnimationFrame,
         "direct Screw direction transition starts at frame one");
@@ -487,7 +487,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // mode two from residual extra-run speed and publishes the target's shot direction.
     var spinFire = new SamusState
     {
-        Pose = SamusState.ScrewAttackRightPose,
+        Pose = SamusPoseIds.ScrewAttackRightPose,
         EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
         XPosition = 128,
         YPosition = 128,
@@ -504,11 +504,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertTrue(spinFire.TryApplySpinToNormalJumpFireTransition(
         bus,
         empty,
-        SamusState.NormalJumpGunExtendedRightPose,
+        SamusPoseIds.NormalJumpGunExtendedRightPose,
         nmiFrameCounter: 0,
         controllerNewInput: (ushort)SnesButton.X),
         "spin Fire body expansion fits empty room");
-    AssertEqual(SamusState.NormalJumpGunExtendedRightPose, spinFire.Pose,
+    AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
     AssertEqual(24, spinFire.Kinematics.YRadius,
         "spin Fire expands to normal-jump radius");
@@ -529,7 +529,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // the exhaustive runtime dispatcher cannot silently regress to spin-only admission.
     var wallFire = new SamusState
     {
-        Pose = SamusState.WallJumpRightPose,
+        Pose = SamusPoseIds.WallJumpRightPose,
         EquippedItems = SamusEquipmentFlags.ScrewAttack.ToNativeWord(),
         XPosition = 128,
         YPosition = 128,
@@ -545,11 +545,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertTrue(wallFire.TryApplySpinOrWallJumpToNormalJumpTransition(
         bus,
         empty,
-        SamusState.NormalJumpGunExtendedRightPose,
+        SamusPoseIds.NormalJumpGunExtendedRightPose,
         nmiFrameCounter: 0,
         controllerNewInput: (ushort)SnesButton.X),
         "wall-jump Shot body expansion fits empty room");
-    AssertEqual(SamusState.NormalJumpGunExtendedRightPose, wallFire.Pose,
+    AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, wallFire.Pose,
         "wall-jump Shot selects cartridge target $13");
     AssertEqual(24, wallFire.Kinematics.YRadius,
         "wall-jump Shot expands to normal-jump radius");
@@ -567,7 +567,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // arc, and does not invent the `$8000` projectile bridge without a fresh Shoot edge.
     var spinAimDown = new SamusState
     {
-        Pose = SamusState.SpinJumpLeftPose,
+        Pose = SamusPoseIds.SpinJumpLeftPose,
         XPosition = 128,
         YPosition = 128,
         Kinematics =
@@ -582,11 +582,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertTrue(spinAimDown.TryApplySpinOrWallJumpToNormalJumpTransition(
         bus,
         empty,
-        SamusState.NormalJumpAimDownLeftPose,
+        SamusPoseIds.NormalJumpAimDownLeftPose,
         nmiFrameCounter: 0,
         controllerNewInput: 0),
         "spin Down body contraction fits empty room");
-    AssertEqual(SamusState.NormalJumpAimDownLeftPose, spinAimDown.Pose,
+    AssertEqual(SamusPoseIds.NormalJumpAimDownLeftPose, spinAimDown.Pose,
         "spin Down selects compact left normal jump");
     AssertEqual(10, spinAimDown.Kinematics.YRadius,
         "spin Down contracts to straight-down radius");
@@ -620,7 +620,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // `$0280` is inclusive. A fresh edge restarts at 4.E000, moves upward by that OLD
     // magnitude, then stores 4.B800 after the shared spin routine subtracts gravity.
     SamusState minimum = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x8000);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x8000);
     SamusAerialMovement.StepSpinJump(
         bus,
         empty,
@@ -634,25 +634,25 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual(123, minimum.YPosition, "Space Jump restart moves by old 4.E000 magnitude");
 
     SamusState below = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x7fff);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x7fff);
     SamusAerialMovement.StepSpinJump(
         bus, empty, below, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
     AssertEqual(2, below.Kinematics.YDirection, "Space Jump rejects velocity $027F");
 
     SamusState maximum = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 5, subspeed: 0);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 5, subspeed: 0);
     SamusAerialMovement.StepSpinJump(
         bus, empty, maximum, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
     AssertEqual(2, maximum.Kinematics.YDirection, "Space Jump maximum $0500 is exclusive");
 
     SamusState heldOnly = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     SamusAerialMovement.StepSpinJump(bus, empty, heldOnly, (ushort)SnesButton.A, 0);
     AssertEqual(2, heldOnly.Kinematics.YDirection, "Space Jump requires a fresh Jump edge");
 
     // Both item bits retain Space Jump physics while Screw Attack owns art and damage.
     SamusState screwRepeat = CreateFallingSpin(
-        SamusState.ScrewAttackRightPose, 0x0208, speed: 3, subspeed: 0);
+        SamusPoseIds.ScrewAttackRightPose, 0x0208, speed: 3, subspeed: 0);
     SamusAerialMovement.StepSpinJump(
         bus, empty, screwRepeat, (ushort)SnesButton.A, 0, (ushort)SnesButton.A);
     AssertEqual(1, screwRepeat.Kinematics.YDirection,
@@ -672,7 +672,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         16, 16, screwBombForeground, screwBombBts);
     var screwBombPlms = new RoomPlmSystem();
     SamusState screwBombSamus = CreateFallingSpin(
-        SamusState.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
+        SamusPoseIds.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
     AerialMovementResult screwBombFrame = SamusAerialMovement.StepSpinJump(
         bus,
         screwBombLevel,
@@ -696,14 +696,14 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     // Full submersion suppresses that contact mode and, on animation frames zero/eight's
     // final tick, emits the literal library-one sound $2F instead.
     SamusState chargedSpin = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     chargedSpin.ProjectileFlareCounter = 0x003c;
     SamusAerialMovement.StepSpinJump(bus, empty, chargedSpin, 0, 0, 0);
     AssertEqual(4, chargedSpin.HorizontalSpeed.ContactDamageIndex,
         "fully charged dry spin publishes contact damage index four");
 
     SamusState submergedSpin = CreateFallingSpin(
-        SamusState.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
+        SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 3, subspeed: 0);
     submergedSpin.ProjectileFlareCounter = 0x003c;
     submergedSpin.InitializeAnimation(bus, initialFrame: 0);
     for (int tick = 0; tick < 3; tick++)
@@ -757,7 +757,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     // A Screw landing requests the same normal palette reload performed by `$91:F433`.
     screwRepeat.ApplyAerialLanding(bus, wasSpinning: true);
-    AssertEqual(SamusState.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
+    AssertEqual(SamusPoseIds.SpinLandingRightPose, screwRepeat.Pose, "Screw Attack lands through spin landing");
     AssertTrue(screwRepeat.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
         "Screw Attack landing requests normal palette restore");
 
@@ -969,7 +969,7 @@ static void VerifySamusLiquidPhysics()
         RoomLevelData releaseRoom = CreateEmptyRoom(16, 16);
         var released = new SamusState
         {
-            Pose = SamusState.NormalJumpForwardRightPose,
+            Pose = SamusPoseIds.NormalJumpForwardRightPose,
             XPosition = 128,
             YPosition = 128,
             Kinematics =
@@ -1005,9 +1005,9 @@ static void VerifySamusLiquidPhysics()
 
     // Give the spin routine authentic metadata plus zero horizontal records in all three
     // tables. Water's remembered medium lowers only the inclusive minimum from $0280 to $0080.
-    WritePoseDefinition(bus, SamusState.SpaceJumpRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpaceJumpRightPose,
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + SamusState.SpaceJumpRightPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.SpaceJumpRightPose * 2, 0xc000);
     for (int frame = 0; frame < 32; frame++)
         bus.WriteByte(0x91c000 + frame, 4);
     foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
@@ -1020,7 +1020,7 @@ static void VerifySamusLiquidPhysics()
 
     var partialWaterSpaceJump = new SamusState
     {
-        Pose = SamusState.SpaceJumpRightPose,
+        Pose = SamusPoseIds.SpaceJumpRightPose,
         EquippedItems = 0x0200,
         XPosition = 128,
         YPosition = 128,
@@ -1050,7 +1050,7 @@ static void VerifySamusLiquidPhysics()
 
     var fullySubmergedScrew = new SamusState
     {
-        Pose = SamusState.ScrewAttackRightPose,
+        Pose = SamusPoseIds.ScrewAttackRightPose,
         EquippedItems = 0x0208,
         XPosition = 128,
         YPosition = 128,
@@ -1062,7 +1062,7 @@ static void VerifySamusLiquidPhysics()
             YSpeed = 3,
         },
     };
-    WritePoseDefinition(bus, SamusState.ScrewAttackRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.ScrewAttackRightPose,
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     fullySubmergedScrew.LiquidPhysics.ConfigureWater(surfaceY: 100);
     fullySubmergedScrew.LiquidPhysics.InitializeRememberedMedium(fullySubmergedScrew);
@@ -1094,9 +1094,9 @@ static void VerifySamusAtmosphericEffects()
     // Pose `$01` is sufficient to expose the literal movement type and X direction used by
     // all producer branches. Its delay metadata also lets the footstep fixture land exactly
     // on running frame two with timer one, matching `$90:A3EE-$A401`.
-    WritePoseDefinition(bus, SamusState.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
         [8, 1, 0xff, 0, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc000);
     bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
 
     // Seed only the bank-$90 table records exercised below. Distinct attributes and timers
@@ -1111,7 +1111,7 @@ static void VerifySamusAtmosphericEffects()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 100,
         YPosition = 100,
     };
@@ -1208,7 +1208,7 @@ static void VerifySamusAtmosphericEffects()
     // is delayed and the second immediate, exactly like `$90:EE64-$EEE3`.
     var runner = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 100,
         YPosition = 100,
     };

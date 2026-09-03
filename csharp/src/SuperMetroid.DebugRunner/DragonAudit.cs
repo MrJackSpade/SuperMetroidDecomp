@@ -531,7 +531,7 @@ internal static class DragonAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = xPosition,
             YPosition = 0x01c0,
         };

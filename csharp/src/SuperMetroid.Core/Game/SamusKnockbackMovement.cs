@@ -83,8 +83,8 @@ public static class SamusKnockbackMovement
         if (humanoid)
         {
             samus.Pose = facingLeft
-                ? SamusState.KnockbackLeftPose
-                : SamusState.KnockbackRightPose;
+                ? SamusPoseIds.KnockbackLeftPose
+                : SamusPoseIds.KnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
         }
         else if (unusedMovementSeven)
@@ -94,8 +94,8 @@ public static class SamusKnockbackMovement
             // initializer. This preserves the actual table instead of turning an unused
             // native arm into an exception.
             samus.Pose = facingLeft
-                ? SamusState.UnusedKnockbackLeftPose
-                : SamusState.UnusedKnockbackRightPose;
+                ? SamusPoseIds.UnusedKnockbackLeftPose
+                : SamusPoseIds.UnusedKnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
             humanoid = true;
         }
@@ -241,8 +241,8 @@ public static class SamusKnockbackMovement
         // not the now-mutable Samus.Pose, or a completely genuine last-frame damage boost
         // is incorrectly rejected as `$29/$2A -> $50/$4F`.
         bool valid = (sourcePose, targetPose) is
-            (SamusState.KnockbackRightPose, SamusState.DamageBoostRightPose) or
-            (SamusState.KnockbackLeftPose, SamusState.DamageBoostLeftPose);
+            (SamusPoseIds.KnockbackRightPose, SamusPoseIds.DamageBoostRightPose) or
+            (SamusPoseIds.KnockbackLeftPose, SamusPoseIds.DamageBoostLeftPose);
         if (!valid)
         {
             throw new InvalidOperationException(
@@ -272,10 +272,10 @@ public static class SamusKnockbackMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         bool valid = (samus.Pose, targetPose) is
-            (SamusState.DamageBoostLeftPose,
-                SamusState.NeutralJumpLeftPose or SamusState.NormalJumpForwardLeftPose) or
-            (SamusState.DamageBoostRightPose,
-                SamusState.NeutralJumpRightPose or SamusState.NormalJumpForwardRightPose);
+            (SamusPoseIds.DamageBoostLeftPose,
+                SamusPoseIds.NeutralJumpLeftPose or SamusPoseIds.NormalJumpForwardLeftPose) or
+            (SamusPoseIds.DamageBoostRightPose,
+                SamusPoseIds.NeutralJumpRightPose or SamusPoseIds.NormalJumpForwardRightPose);
         if (!valid)
         {
             throw new InvalidOperationException(
@@ -308,7 +308,7 @@ public static class SamusKnockbackMovement
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.Pose is not (SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose))
+        if (samus.Pose is not (SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose))
         {
             throw new InvalidOperationException(
                 $"Humanoid knockback completion requires pose $53/$54, not ${samus.Pose:X2}.");
@@ -319,8 +319,8 @@ public static class SamusKnockbackMovement
         // radius-21 hurt body. Thus the center moves down two pixels before velocity clears.
         ushort previousRadius = samus.Kinematics.YRadius;
         samus.Pose = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? SamusState.FallingLeftPose
-            : SamusState.FallingRightPose;
+            ? SamusPoseIds.FallingLeftPose
+            : SamusPoseIds.FallingRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.Kinematics.YPosition = unchecked((ushort)(
             samus.Kinematics.YPosition + previousRadius - samus.Kinematics.YRadius));

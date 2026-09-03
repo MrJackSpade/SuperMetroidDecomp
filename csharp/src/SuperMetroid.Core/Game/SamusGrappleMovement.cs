@@ -439,8 +439,8 @@ public static partial class SamusGrappleMovement
         InitializeBeamAnimation(grapple);
 
         samus.Pose = faceRight
-            ? SamusState.GrappleSwingRightPose
-            : SamusState.GrappleSwingLeftPose;
+            ? SamusPoseIds.GrappleSwingRightPose
+            : SamusPoseIds.GrappleSwingLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -858,10 +858,10 @@ public static partial class SamusGrappleMovement
     {
         // Swinging `$B2/$B3` bypass the direction tables and always fall to ordinary
         // standing `$01/$02`, even though their live collision radius is compact.
-        if (samus.Pose == SamusState.GrappleSwingRightPose)
-            return SamusState.FacingRightNormalPose;
-        if (samus.Pose == SamusState.GrappleSwingLeftPose)
-            return SamusState.FacingLeftNormalPose;
+        if (samus.Pose == SamusPoseIds.GrappleSwingRightPose)
+            return SamusPoseIds.FacingRightNormalPose;
+        if (samus.Pose == SamusPoseIds.GrappleSwingLeftPose)
+            return SamusPoseIds.FacingLeftNormalPose;
 
         byte shotDirection = samus.ReadShotDirection(bus);
         bool ordinaryDirection = (shotDirection & 0xf0) == 0 && shotDirection < 10;
@@ -871,8 +871,8 @@ public static partial class SamusGrappleMovement
             // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
             bool facingLeft = samus.IsFacingLeft(bus);
             return samus.Kinematics.YRadius >= 17
-                ? facingLeft ? SamusState.FacingLeftNormalPose : SamusState.FacingRightNormalPose
-                : facingLeft ? SamusState.CrouchingLeftPose : SamusState.CrouchingRightPose;
+                ? facingLeft ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose
+                : facingLeft ? SamusPoseIds.CrouchingLeftPose : SamusPoseIds.CrouchingRightPose;
         }
 
         int table = samus.Kinematics.YRadius >= 17

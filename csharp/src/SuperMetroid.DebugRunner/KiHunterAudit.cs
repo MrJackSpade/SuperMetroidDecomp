@@ -425,7 +425,7 @@ internal static class KiHunterAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(pairBus);
         samus.InitializeAnimation(pairBus);

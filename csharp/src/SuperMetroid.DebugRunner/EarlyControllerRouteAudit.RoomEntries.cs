@@ -304,7 +304,7 @@ internal static partial class EarlyControllerRouteAudit
                     $"Parlor population did not retain the $B703 owner for block {blockIndex}.");
             }
 
-            samus.Pose = SamusState.MorphBallGroundRightPose;
+            samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
             samus.Kinematics.SetXFixed(unchecked((uint)((blockX * 16 + 8) << 16)));
             // Put the upward intermediate changed-pose scan exactly on the reported trigger.
             // Morph Ball has radius seven and the native first pass moves eight pixels, so a
@@ -315,7 +315,7 @@ internal static partial class EarlyControllerRouteAudit
                     bus,
                     runtime.LevelData ?? throw new InvalidOperationException(
                         "Parlor scroll-pose audit has no level data."),
-                    SamusState.UnmorphingTransitionRightPose,
+                    SamusPoseIds.UnmorphingTransitionRightPose,
                     runtime.NmiFrameCounter,
                     runtime.Plms))
             {

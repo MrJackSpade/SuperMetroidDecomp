@@ -82,8 +82,8 @@ public sealed class SamusCeresRidleyEjectionState
             // refreshes radius/animation, and only then applies `21 - radius` alignment.
             bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
             samus.Pose = facingLeft
-                ? SamusState.KnockbackLeftPose
-                : SamusState.KnockbackRightPose;
+                ? SamusPoseIds.KnockbackLeftPose
+                : SamusPoseIds.KnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.YPosition = unchecked((ushort)(

@@ -163,11 +163,11 @@ internal static partial class CeresControllerRouteAudit
                 // while Jump plus the direction opposite the hurt pose are held. Both table
                 // records have required-new word zero, so this is not a synthetic edge or
                 // timing shortcut. Its normal arc/gravity returns Samus to the door row.
-                ushort ejectionExitInput = samus.Pose == SamusState.KnockbackLeftPose
+                ushort ejectionExitInput = samus.Pose == SamusPoseIds.KnockbackLeftPose
                     ? (ushort)(SnesButton.Right | SnesButton.A)
                     : (ushort)(SnesButton.Left | SnesButton.A);
                 host.StepFrame(ejectionExitInput);
-                if (samus.Pose is SamusState.KnockbackRightPose or SamusState.KnockbackLeftPose)
+                if (samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose)
                 {
                     throw new InvalidDataException(
                         $"Ceres ejection chord retained type-$0A pose ${samus.Pose:X2}.");

@@ -82,7 +82,7 @@ internal static class SharedCrawlerAudit
             {
                 Health = 999,
                 MaxHealth = 999,
-                Pose = SamusState.FacingRightNormalPose,
+                Pose = SamusPoseIds.FacingRightNormalPose,
                 XPosition = slot.XPosition,
                 YPosition = slot.YPosition,
             };

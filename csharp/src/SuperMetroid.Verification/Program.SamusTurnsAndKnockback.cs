@@ -70,8 +70,8 @@ static void VerifySamusAerialTurnsAndWallJump()
         samus.HorizontalSpeed.BaseSpeed = 1;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
         byte genericTarget = jumping
-            ? targetFacesLeft ? SamusState.TurningRightToLeftJumpPose : SamusState.TurningLeftToRightJumpPose
-            : targetFacesLeft ? SamusState.TurningRightToLeftFallingPose : SamusState.TurningLeftToRightFallingPose;
+            ? targetFacesLeft ? SamusPoseIds.TurningRightToLeftJumpPose : SamusPoseIds.TurningLeftToRightJumpPose
+            : targetFacesLeft ? SamusPoseIds.TurningRightToLeftFallingPose : SamusPoseIds.TurningLeftToRightFallingPose;
         AssertTrue(
             samus.TryApplyAerialTurn(bus, level, genericTarget, nmiFrameCounter: 0),
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
@@ -289,15 +289,15 @@ static void VerifySamusKnockbackAndDamageBoost()
     // One representative pose for each retail Morph/Spring movement type admitted by
     // `$90:DF15/$91:EE27`. Alternating facings make the pose-direction-only knockback
     // selection independently observable from the enemy's X-side word.
-    WritePoseDefinition(bus, SamusState.MorphBallGroundRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.MorphBallGroundRightPose,
         [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, SamusState.MorphBallFallingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.MorphBallFallingLeftPose,
         [0x04, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, SamusState.SpringBallGroundRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpringBallGroundRightPose,
         [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, SamusState.SpringBallJumpLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpringBallJumpLeftPose,
         [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePoseDefinition(bus, SamusState.SpringBallFallingRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.SpringBallFallingRightPose,
         [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
 
     // Animation-pointer table entries are `$91:B010 + pose * 2`. One long ordinary
@@ -319,11 +319,11 @@ static void VerifySamusKnockbackAndDamageBoost()
     // the same-pose knockback transition does not accidentally call InitializeAnimation.
     foreach (byte pose in new byte[]
     {
-        SamusState.MorphBallGroundRightPose,
-        SamusState.MorphBallFallingLeftPose,
-        SamusState.SpringBallGroundRightPose,
-        SamusState.SpringBallJumpLeftPose,
-        SamusState.SpringBallFallingRightPose,
+        SamusPoseIds.MorphBallGroundRightPose,
+        SamusPoseIds.MorphBallFallingLeftPose,
+        SamusPoseIds.SpringBallGroundRightPose,
+        SamusPoseIds.SpringBallJumpLeftPose,
+        SamusPoseIds.SpringBallFallingRightPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, 0xc160);
@@ -365,7 +365,7 @@ static void VerifySamusKnockbackAndDamageBoost()
 
     var samus = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -373,7 +373,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // A source to Samus's left publishes X direction one (move right). With no forward
     // input, `$91:EDB0` chooses up-right direction two and `$90:99D6` installs 5.0000.
     SamusKnockbackMovement.Start(bus, samus, controllerInput: 0, knockbackXDirection: 1);
-    AssertEqual(SamusState.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
+    AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose, "right-facing knockback pose");
     AssertEqual(2, samus.KnockbackDirection, "up-right knockback direction");
     AssertEqual(1, samus.KnockbackXDirection, "knockback X direction publication");
     AssertEqual(5, samus.KnockbackTimer, "enemy hurt timer publication");
@@ -388,7 +388,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // ordinary enemy contact's five; otherwise the cinematic reaction is cut in half.
     var introTimedKnockback = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -400,7 +400,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         knockbackTimer: 11);
     AssertEqual(11, introTimedKnockback.KnockbackTimer,
         "intro Rinka preserves producer-owned eleven-frame knockback timer");
-    AssertEqual(SamusState.KnockbackRightPose, introTimedKnockback.Pose,
+    AssertEqual(SamusPoseIds.KnockbackRightPose, introTimedKnockback.Pose,
         "intro Rinka enters visible humanoid hurt pose");
 
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
@@ -427,7 +427,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         width, height, downForeground, new byte[downForeground.Length]);
     var downKnockback = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 96,
         YPosition = 75,
     };
@@ -452,9 +452,9 @@ static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         bus,
         samus,
-        SamusState.KnockbackRightPose,
-        SamusState.DamageBoostRightPose);
-    AssertEqual(SamusState.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
+        SamusPoseIds.KnockbackRightPose,
+        SamusPoseIds.DamageBoostRightPose);
+    AssertEqual(SamusPoseIds.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
     AssertEqual(0x19, samus.ReadMovementType(bus), "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
     AssertEqual(0, samus.KnockbackDirection, "damage boost clears knockback direction");
@@ -467,7 +467,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // captured `$54` remains the transition authority and must still launch a normal boost.
     var finalHurtFrameBoost = new SamusState
     {
-        Pose = SamusState.FallingLeftPose,
+        Pose = SamusPoseIds.FallingLeftPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -475,9 +475,9 @@ static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         bus,
         finalHurtFrameBoost,
-        SamusState.KnockbackLeftPose,
-        SamusState.DamageBoostLeftPose);
-    AssertEqual(SamusState.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
+        SamusPoseIds.KnockbackLeftPose,
+        SamusPoseIds.DamageBoostLeftPose);
+    AssertEqual(SamusPoseIds.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
         "final hurt-frame damage boost uses captured source pose");
     AssertEqual(4, finalHurtFrameBoost.Kinematics.YSpeed,
         "final hurt-frame damage boost launches fresh jump");
@@ -500,8 +500,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     SamusKnockbackMovement.ApplyDamageBoostPoseTransition(
         bus,
         samus,
-        SamusState.NeutralJumpRightPose);
-    AssertEqual(SamusState.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
+        SamusPoseIds.NeutralJumpRightPose);
+    AssertEqual(SamusPoseIds.NeutralJumpRightPose, samus.Pose, "damage-boost neutral exit pose");
     AssertEqual(preservedYSpeed, samus.Kinematics.YSpeed, "damage-boost exit preserves whole Y speed");
     AssertEqual(preservedYSubspeed, samus.Kinematics.YSubspeed, "damage-boost exit preserves Y subspeed");
 
@@ -511,13 +511,13 @@ static void VerifySamusKnockbackAndDamageBoost()
     // this guards the exact real-ROM landing branch found by the scripted run.
     var boostLanding = new SamusState
     {
-        Pose = SamusState.DamageBoostRightPose,
+        Pose = SamusPoseIds.DamageBoostRightPose,
         XPosition = 96,
         YPosition = 96,
     };
     boostLanding.RefreshCollisionRadii(bus);
     boostLanding.ApplyAerialLanding(bus, wasSpinning: false);
-    AssertEqual(SamusState.NormalLandingLeftPose, boostLanding.Pose,
+    AssertEqual(SamusPoseIds.NormalLandingLeftPose, boostLanding.Pose,
         "damage-boost FF shot direction selects ordinary metadata-direction landing");
     AssertEqual(94, boostLanding.YPosition,
         "damage-boost landing radius expansion preserves feet");
@@ -526,7 +526,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // five movement frames. The sixth call chooses falling `$29` without another move.
     var expires = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -540,7 +540,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     ushort humanoidYBeforeCompletion = expires.YPosition;
     KnockbackMovementResult expired = SamusKnockbackMovement.Step(bus, empty, expires, 5);
     AssertTrue(expired.Ended, "zero hurt timer ends special handler");
-    AssertEqual(SamusState.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
+    AssertEqual(SamusPoseIds.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
     AssertEqual(0, expires.KnockbackDirection, "expired knockback clears direction");
 
@@ -549,11 +549,11 @@ static void VerifySamusKnockbackAndDamageBoost()
     // direction, while `$90:8EDF` still uses the enemy-produced X side for horizontal travel.
     foreach ((byte pose, ushort hitSide, ushort expectedDirection) in new[]
     {
-        (SamusState.MorphBallGroundRightPose, (ushort)0, (ushort)2),
-        (SamusState.MorphBallFallingLeftPose, (ushort)1, (ushort)1),
-        (SamusState.SpringBallGroundRightPose, (ushort)0, (ushort)2),
-        (SamusState.SpringBallJumpLeftPose, (ushort)1, (ushort)1),
-        (SamusState.SpringBallFallingRightPose, (ushort)0, (ushort)2),
+        (SamusPoseIds.MorphBallGroundRightPose, (ushort)0, (ushort)2),
+        (SamusPoseIds.MorphBallFallingLeftPose, (ushort)1, (ushort)1),
+        (SamusPoseIds.SpringBallGroundRightPose, (ushort)0, (ushort)2),
+        (SamusPoseIds.SpringBallJumpLeftPose, (ushort)1, (ushort)1),
+        (SamusPoseIds.SpringBallFallingRightPose, (ushort)0, (ushort)2),
     })
     {
         var ball = new SamusState
@@ -595,7 +595,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // downward direction two so normal ball physics resumes on the following frame.
     var ballExpires = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         XPosition = 96,
         YPosition = 96,
         MorphBallBounceState = 2,
@@ -620,7 +620,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         ballExpires,
         nmiFrameCounter: 5);
     AssertTrue(ballExpired.Ended, "zero hurt timer ends morphed special handler");
-    AssertEqual(SamusState.MorphBallGroundRightPose, ballExpires.Pose,
+    AssertEqual(SamusPoseIds.MorphBallGroundRightPose, ballExpires.Pose,
         "expired morphed knockback retains current ball pose");
     AssertEqual(retainedBallFrame, ballExpires.AnimationFrame,
         "expired morphed knockback retains rolling frame");
@@ -649,11 +649,11 @@ static void VerifySamusKnockbackAndDamageBoost()
     // `$90:DDE9` contains carry-clear interrupt entries as real behavior, not missing code.
     // A grounded turn keeps its current pose and ordinary movement handler while retaining
     // the producer-owned hurt timer used by Samus flicker.
-    WritePoseDefinition(bus, SamusState.TurningRightToLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.TurningRightToLeftPose,
         [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     var suppressedTurnHit = new SamusState
     {
-        Pose = SamusState.TurningRightToLeftPose,
+        Pose = SamusPoseIds.TurningRightToLeftPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -666,24 +666,24 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertTrue(!turnStarted, "movement type $0E suppresses knockback transition");
     AssertTrue(!suppressedTurnHit.KnockbackActive,
         "suppressed grounded-turn hit leaves normal movement installed");
-    AssertEqual(SamusState.TurningRightToLeftPose, suppressedTurnHit.Pose,
+    AssertEqual(SamusPoseIds.TurningRightToLeftPose, suppressedTurnHit.Pose,
         "suppressed grounded-turn hit retains pose");
     AssertEqual(7, suppressedTurnHit.KnockbackTimer,
         "suppressed grounded-turn hit retains producer hurt timer");
 
     // The unused movement-type-seven table arm is nevertheless completely defined by the
     // cartridge. It selects `$33/$34` instead of throwing, then enters the same hurt handler.
-    WritePoseDefinition(bus, SamusState.UnusedKnockbackRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.UnusedKnockbackRightPose,
         [0x08, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.UnusedKnockbackLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.UnusedKnockbackLeftPose,
         [0x04, 0x07, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusState.UnusedKnockbackRightPose * 2, 0xc170);
-    WriteTestWord(bus, 0x91b010 + SamusState.UnusedKnockbackLeftPose * 2, 0xc171);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnusedKnockbackRightPose * 2, 0xc170);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnusedKnockbackLeftPose * 2, 0xc171);
     bus.WriteByte(0x91c170, 4);
     bus.WriteByte(0x91c171, 4);
     var unusedMovementHit = new SamusState
     {
-        Pose = SamusState.UnusedKnockbackRightPose,
+        Pose = SamusPoseIds.UnusedKnockbackRightPose,
         XPosition = 96,
         YPosition = 96,
     };
@@ -693,7 +693,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         controllerInput: 0,
         knockbackXDirection: 0);
     AssertTrue(unusedStarted, "movement type $07 installs native unused knockback arm");
-    AssertEqual(SamusState.UnusedKnockbackRightPose, unusedMovementHit.Pose,
+    AssertEqual(SamusPoseIds.UnusedKnockbackRightPose, unusedMovementHit.Pose,
         "movement type $07 selects right-facing pose $33");
     AssertTrue(unusedMovementHit.KnockbackActive,
         "movement type $07 installs special hurt movement");

@@ -355,7 +355,7 @@ internal static partial class WorkRobotAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0200,
             YPosition = 0x0040,
         };

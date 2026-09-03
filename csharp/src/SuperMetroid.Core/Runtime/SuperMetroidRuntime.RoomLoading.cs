@@ -108,7 +108,7 @@ public sealed partial class SuperMetroidRuntime
         // accidentally construct the untouched new-game version of Blue Brinstar.
         Samus = new SamusState
         {
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             AnimationFrame = 0,
             XPosition = station.SamusX,
             YPosition = station.SamusY,
@@ -1163,7 +1163,7 @@ public sealed partial class SuperMetroidRuntime
 
         Samus = new SamusState
         {
-            Pose = 0x00,
+            Pose = SamusPoseIds.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
             XPosition = ActiveLoadStation.SamusX,
             YPosition = 0,

@@ -59,7 +59,7 @@ internal static class ZoaAudit
         {
             Health = 99,
             MaxHealth = 99,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0080,
             YPosition = 0x0080,
         };

@@ -355,7 +355,7 @@ internal static class SkreeAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x02be,
             YPosition = 0x0080,
         };

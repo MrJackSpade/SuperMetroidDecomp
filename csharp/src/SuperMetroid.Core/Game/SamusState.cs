@@ -25,7 +25,7 @@ public sealed partial class SamusState
     private const int GravitySuitPalette = 0x9b9800;
 
 
-    private byte _pose = FacingRightNormalPose;
+    private byte _pose = SamusPoseIds.FacingRightNormalPose;
 
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
     public byte Pose
@@ -39,6 +39,16 @@ public sealed partial class SamusState
             // low-level dispatcher can reproduce that test without owning Samus state.
             Kinematics.CollisionPose = value;
         }
+    }
+
+    /// <summary>
+    /// Typed view of <see cref="Pose"/> for debugger watches and typed gameplay APIs.
+    /// Explicit casting preserves undefined cartridge bytes for strict diagnostics.
+    /// </summary>
+    public SamusPoseId PoseId
+    {
+        get => (SamusPoseId)_pose;
+        set => Pose = (byte)value;
     }
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
@@ -602,8 +612,8 @@ public sealed partial class SamusState
     {
         ushort oldRadius = Kinematics.YRadius;
         byte fallbackPose = IsFacingLeft(bus)
-            ? CrouchingLeftPose
-            : CrouchingRightPose;
+            ? SamusPoseIds.CrouchingLeftPose
+            : SamusPoseIds.CrouchingRightPose;
         if (sourcePose == fallbackPose)
             return;
 

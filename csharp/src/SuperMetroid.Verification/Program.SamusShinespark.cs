@@ -21,14 +21,14 @@ static void VerifySamusStoredShineAndShinespark()
     // normal live pointer table, proving special movement does not bypass cartridge art.
     foreach (byte pose in new byte[]
     {
-        SamusState.ShinesparkWindupRightPose,
-        SamusState.ShinesparkWindupLeftPose,
-        SamusState.ShinesparkHorizontalRightPose,
-        SamusState.ShinesparkHorizontalLeftPose,
-        SamusState.ShinesparkVerticalRightPose,
-        SamusState.ShinesparkVerticalLeftPose,
-        SamusState.ShinesparkDiagonalRightPose,
-        SamusState.ShinesparkDiagonalLeftPose,
+        SamusPoseIds.ShinesparkWindupRightPose,
+        SamusPoseIds.ShinesparkWindupLeftPose,
+        SamusPoseIds.ShinesparkHorizontalRightPose,
+        SamusPoseIds.ShinesparkHorizontalLeftPose,
+        SamusPoseIds.ShinesparkVerticalRightPose,
+        SamusPoseIds.ShinesparkVerticalLeftPose,
+        SamusPoseIds.ShinesparkDiagonalRightPose,
+        SamusPoseIds.ShinesparkDiagonalLeftPose,
     })
     {
         WritePoseDefinition(bus, pose,
@@ -37,9 +37,9 @@ static void VerifySamusStoredShineAndShinespark()
         WriteTestWord(bus, 0x91b010 + pose * 2, stream);
         bus.WriteByte(0x910000 | stream, 4);
     }
-    WritePoseDefinition(bus, SamusState.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc500);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc500);
     bus.WriteByte(0x91c500, 4);
 
     // Give every positive-half sine/cosine entry magnitude 1.000. This deliberately is
@@ -61,7 +61,7 @@ static void VerifySamusStoredShineAndShinespark()
 
     var shine = new SamusState
     {
-        Pose = SamusState.ShinesparkWindupRightPose,
+        Pose = SamusPoseIds.ShinesparkWindupRightPose,
         XPosition = 160,
         YPosition = 160,
         Health = 99,
@@ -134,17 +134,17 @@ static void VerifySamusStoredShineAndShinespark()
     foreach ((byte windupPose, byte targetPose, ShinesparkPhase expectedPhase,
         bool expectsHorizontal, bool expectsVertical) in new[]
     {
-        (SamusState.ShinesparkWindupRightPose, SamusState.ShinesparkHorizontalRightPose,
+        (SamusPoseIds.ShinesparkWindupRightPose, SamusPoseIds.ShinesparkHorizontalRightPose,
             ShinesparkPhase.Horizontal, true, false),
-        (SamusState.ShinesparkWindupLeftPose, SamusState.ShinesparkHorizontalLeftPose,
+        (SamusPoseIds.ShinesparkWindupLeftPose, SamusPoseIds.ShinesparkHorizontalLeftPose,
             ShinesparkPhase.Horizontal, true, false),
-        (SamusState.ShinesparkWindupRightPose, SamusState.ShinesparkVerticalRightPose,
+        (SamusPoseIds.ShinesparkWindupRightPose, SamusPoseIds.ShinesparkVerticalRightPose,
             ShinesparkPhase.Vertical, false, true),
-        (SamusState.ShinesparkWindupLeftPose, SamusState.ShinesparkVerticalLeftPose,
+        (SamusPoseIds.ShinesparkWindupLeftPose, SamusPoseIds.ShinesparkVerticalLeftPose,
             ShinesparkPhase.Vertical, false, true),
-        (SamusState.ShinesparkWindupRightPose, SamusState.ShinesparkDiagonalRightPose,
+        (SamusPoseIds.ShinesparkWindupRightPose, SamusPoseIds.ShinesparkDiagonalRightPose,
             ShinesparkPhase.Diagonal, true, true),
-        (SamusState.ShinesparkWindupLeftPose, SamusState.ShinesparkDiagonalLeftPose,
+        (SamusPoseIds.ShinesparkWindupLeftPose, SamusPoseIds.ShinesparkDiagonalLeftPose,
             ShinesparkPhase.Diagonal, true, true),
     })
     {
@@ -176,8 +176,8 @@ static void VerifySamusStoredShineAndShinespark()
             $"pose ${targetPose:X2} vertical-axis dispatch");
         if (expectsHorizontal)
         {
-            AssertEqual(targetPose is SamusState.ShinesparkHorizontalLeftPose or
-                SamusState.ShinesparkDiagonalLeftPose,
+            AssertEqual(targetPose is SamusPoseIds.ShinesparkHorizontalLeftPose or
+                SamusPoseIds.ShinesparkDiagonalLeftPose,
                 directional.XPosition < 160,
                 $"pose ${targetPose:X2} follows ROM X-direction metadata");
         }
@@ -194,7 +194,7 @@ static void VerifySamusStoredShineAndShinespark()
     // Starting at 7.0000 with acceleration 0.2800 and adding +8.0000 yields +0.D800.
     var externallyReversedSpark = new SamusState
     {
-        Pose = SamusState.ShinesparkWindupRightPose,
+        Pose = SamusPoseIds.ShinesparkWindupRightPose,
         XPosition = 160,
         YPosition = 160,
         Health = 99,
@@ -206,7 +206,7 @@ static void VerifySamusStoredShineAndShinespark()
     externallyReversedSpark.Shinespark.BeginDirectionalLaunch(
         bus,
         externallyReversedSpark,
-        SamusState.ShinesparkVerticalRightPose);
+        SamusPoseIds.ShinesparkVerticalRightPose);
     externallyReversedSpark.Kinematics.YAcceleration = 0;
     externallyReversedSpark.Kinematics.YSubacceleration = 0x2800;
     externallyReversedSpark.Kinematics.ExtraYDisplacement = 8;
@@ -230,7 +230,7 @@ static void VerifySamusStoredShineAndShinespark()
     }
     ShinesparkMovementResult timeout = shine.Shinespark.Step(bus, empty, shine, 29);
     AssertTrue(timeout.WindupTimedOut, "thirtieth windup frame launches vertically");
-    AssertEqual(SamusState.ShinesparkVerticalRightPose, shine.Pose,
+    AssertEqual(SamusPoseIds.ShinesparkVerticalRightPose, shine.Pose,
         "windup timeout selects right-metadata vertical pose");
     AssertEqual(ShinesparkPhase.Vertical, shine.Shinespark.Phase,
         "windup timeout installs vertical handler");
@@ -238,7 +238,7 @@ static void VerifySamusStoredShineAndShinespark()
     // Use a fresh state so horizontal arithmetic begins from exactly CFFA's writes.
     var horizontal = new SamusState
     {
-        Pose = SamusState.ShinesparkWindupRightPose,
+        Pose = SamusPoseIds.ShinesparkWindupRightPose,
         XPosition = 160,
         YPosition = 160,
         Health = 30,
@@ -248,7 +248,7 @@ static void VerifySamusStoredShineAndShinespark()
     horizontal.Shinespark.TryStoreFromSpeedBooster(0x0400);
     horizontal.Shinespark.BeginWindup(horizontal);
     horizontal.Shinespark.BeginDirectionalLaunch(
-        bus, horizontal, SamusState.ShinesparkHorizontalRightPose);
+        bus, horizontal, SamusPoseIds.ShinesparkHorizontalRightPose);
     horizontal.Kinematics.YAcceleration = 0;
     horizontal.Kinematics.YSubacceleration = 0x2800;
     var shineBombPlms = new RoomPlmSystem();
@@ -321,7 +321,7 @@ static void VerifySamusStoredShineAndShinespark()
     AssertTrue(finished.CrashSequenceFinished, "finish handler publishes completion");
     AssertEqual(ShinesparkPhase.Inactive, horizontal.Shinespark.Phase,
         "finish restores ordinary movement handler");
-    AssertEqual(SamusState.FacingRightNormalPose, horizontal.Pose,
+    AssertEqual(SamusPoseIds.FacingRightNormalPose, horizontal.Pose,
         "right-facing crash finish returns through standing pose one");
 
     // `$90:D40D` sampled horizontal-right crash pose `$C9`, so its literal pair is
@@ -378,7 +378,7 @@ static void VerifySamusStoredShineAndShinespark()
     {
         var fixture = new SamusState
         {
-            Pose = SamusState.ShinesparkWindupRightPose,
+            Pose = SamusPoseIds.ShinesparkWindupRightPose,
             XPosition = 160,
             YPosition = 160,
             Health = 29,
@@ -388,7 +388,7 @@ static void VerifySamusStoredShineAndShinespark()
         fixture.Shinespark.TryStoreFromSpeedBooster(0x0400);
         fixture.Shinespark.BeginWindup(fixture);
         fixture.Shinespark.BeginDirectionalLaunch(
-            fixtureBus, fixture, SamusState.ShinesparkHorizontalRightPose);
+            fixtureBus, fixture, SamusPoseIds.ShinesparkHorizontalRightPose);
         fixture.Kinematics.YAcceleration = 0;
         fixture.Kinematics.YSubacceleration = 0;
         fixture.Shinespark.Step(

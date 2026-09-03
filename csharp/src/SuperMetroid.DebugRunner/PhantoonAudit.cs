@@ -39,7 +39,7 @@ internal static class PhantoonAudit
             MaxHealth = 999,
             XPosition = 128,
             YPosition = 192,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -366,7 +366,7 @@ internal static class PhantoonAudit
                 samus.KnockbackDirection = 0;
                 samus.KnockbackXDirection = 0;
                 samus.KnockbackTimer = 0;
-                samus.Pose = SamusState.FacingRightNormalPose;
+                samus.Pose = SamusPoseIds.FacingRightNormalPose;
                 samus.RefreshCollisionRadii(bus);
                 samus.InitializeAnimation(bus);
                 samusHealthBeforeContact = samus.Health;
@@ -717,7 +717,7 @@ internal static class PhantoonAudit
             MaxHealth = 999,
             XPosition = 128,
             YPosition = 192,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

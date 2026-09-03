@@ -42,7 +42,7 @@ internal static class MotherBrainAudit
             MaxHealth = 999,
             XPosition = 0x0080,
             YPosition = 0x00a0,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -202,7 +202,7 @@ internal static class MotherBrainAudit
         samus.XPosition = head.XPosition;
         samus.YPosition = head.YPosition;
         samus.InvincibilityTimer = 0;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         head.FlashTimer = 0;
@@ -213,7 +213,7 @@ internal static class MotherBrainAudit
                 $"Mother Brain standing head touch changed flash to {head.FlashTimer}.");
         }
 
-        samus.Pose = SamusState.SpinJumpRightPose;
+        samus.Pose = SamusPoseIds.SpinJumpRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
@@ -240,7 +240,7 @@ internal static class MotherBrainAudit
             enemies.Slots[index].XPosition = savedPositions[index].XPosition;
             enemies.Slots[index].YPosition = savedPositions[index].YPosition;
         }
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.XPosition = 0x0080;
         samus.YPosition = 0x00a0;
         samus.RefreshCollisionRadii(bus);
@@ -269,7 +269,7 @@ internal static class MotherBrainAudit
             MaxHealth = 999,
             XPosition = 32,
             YPosition = 220,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -724,7 +724,7 @@ internal static class MotherBrainAudit
         // Current random is read without advancing by both `$B605` and `$B65A`. Low byte
         // $50 lies between the default $40/$80 thresholds and therefore selects rings.
         random.SetRandomNumber(0x0050);
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = 0x0020;
         samus.YPosition = 0x00dc;
@@ -908,7 +908,7 @@ internal static class MotherBrainAudit
         // $50 chooses laser rather than rings, while the full word remains below $1000 so
         // the preceding thinking state elects to attack on its next ordinary frame.
         random.SetRandomNumber(0x0050);
-        samus.Pose = SamusState.SpinJumpRightPose;
+        samus.Pose = SamusPoseIds.SpinJumpRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = 0x0020;
         samus.YPosition = 0x00dc;
@@ -1171,7 +1171,7 @@ internal static class MotherBrainAudit
     {
         RoomEnemySlot head = state.Head ?? throw new InvalidDataException(
             "Mother Brain bomb audit lost the linked head record.");
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = 0x0300;
         samus.YPosition = 0x0300;
@@ -1435,7 +1435,7 @@ internal static class MotherBrainAudit
         // definition data, and radii are real. Only the fuse is advanced to its explosion
         // instant; `$86:C1BF` explicitly keys on timer zero and does not consume the bomb.
         var samusBombs = new SamusBombProjectileSystem();
-        samus.Pose = SamusState.MorphBallGroundRightPose;
+        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = impactX;
         samus.YPosition = impactY;
@@ -1516,7 +1516,7 @@ internal static class MotherBrainAudit
         // native slow walk and X=$30 safety floor are exercised rather than skipped.
         random.SetRandomNumber(0x4000);
         head.Health = 0x1000;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.XPosition = 0x00d0;
         samus.YPosition = 0x0060;
@@ -1797,7 +1797,7 @@ internal static class MotherBrainAudit
         samus.EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit;
         samus.XPosition = 0x00dc;
         samus.YPosition = 0x007c;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.InputLocked = false;
         samus.InvincibilityTimer = 0;
         samus.KnockbackTimer = 0;
@@ -2005,7 +2005,7 @@ internal static class MotherBrainAudit
                 MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand;
             observedLanding |= sequence.Phase == MotherBrainRainbowBeamAttackPhase.LowerHead &&
                 samus.YPosition == 0x00c0 &&
-                samus.Pose == SamusState.DrainedCrouchingLeftPose;
+                samus.Pose == SamusPoseIds.DrainedCrouchingLeftPose;
             observedDecisionDelay |= sequence.Phase ==
                 MotherBrainRainbowBeamAttackPhase.DecideNextAction &&
                 state.Function == MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction;
@@ -2869,7 +2869,7 @@ internal static class MotherBrainAudit
         // slot accounting, and shared `$0CCC` cooldown all remain bank-$90 output.
         var projectiles = new SamusProjectileSystem();
         samus.SelectedHudItem = 0;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         const ushort shoot = (ushort)SnesButton.X;
@@ -3135,7 +3135,7 @@ internal static class MotherBrainAudit
             MaxHealth = 999,
             XPosition = 0x0080,
             YPosition = 0x00a0,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

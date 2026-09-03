@@ -111,8 +111,8 @@ public sealed class SamusSuitPickupState
             ? samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit);
         samus.Pose = otherSuitAlreadyEquipped
-            ? SamusState.ForwardFacingSuitedPose
-            : SamusState.ForwardFacingPowerSuitPose;
+            ? SamusPoseIds.ForwardFacingSuitedPose
+            : SamusPoseIds.ForwardFacingPowerSuitPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.InputLocked = true;
@@ -250,7 +250,7 @@ public sealed class SamusSuitPickupState
             : (ushort)SamusEquipmentFlags.GravitySuit;
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
-        samus.Pose = SamusState.ForwardFacingSuitedPose;
+        samus.Pose = SamusPoseIds.ForwardFacingSuitedPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.LoadSuitPalette(bus, cgram);

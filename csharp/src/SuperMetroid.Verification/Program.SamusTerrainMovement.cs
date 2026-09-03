@@ -435,7 +435,7 @@ static void VerifySamusGroundedMovement()
         [0, 0, 0x1000, 0x1000, 0, 0],
         [0, 0, 0x12, 0x12, 0, 0]);
 
-    var running = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    var running = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     running.Kinematics.XPosition = 16;
     running.Kinematics.YPosition = 19;
     running.Kinematics.XRadius = 5;
@@ -481,7 +481,7 @@ static void VerifySamusGroundedMovement()
 
     // Standing executes its zero-base MoveX/grounding calls before clearing momentum. Base
     // speed itself is not included in Move_NoBaseSpeed_X, so the body remains on the same X.
-    var standing = new SamusState { Pose = SamusState.FacingRightNormalPose };
+    var standing = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
     standing.Kinematics.XPosition = 16;
     standing.Kinematics.YPosition = 19;
     standing.Kinematics.XRadius = 5;
@@ -503,7 +503,7 @@ static void VerifySamusGroundedMovement()
     // vertical-result clear and that no host convenience cleanup leaked into this path.
     var forward = new SamusState
     {
-        Pose = SamusState.ForwardFacingPowerSuitPose,
+        Pose = SamusPoseIds.ForwardFacingPowerSuitPose,
         XPosition = 0x1234,
         YPosition = 0x5678,
         SolidVerticalCollisionResult = 9,
@@ -623,7 +623,7 @@ static void VerifySamusGroundedReversal()
     RoomLevelData level = CreateRoom(
         width, 3, foreground, new byte[foreground.Length]);
 
-    var movingLeft = new SamusState { Pose = SamusState.MovingLeftNormalPose };
+    var movingLeft = new SamusState { Pose = SamusPoseIds.MovingLeftNormalPose };
     movingLeft.Kinematics.XPosition = 64;
     movingLeft.Kinematics.YPosition = 11;
     movingLeft.Kinematics.XRadius = 5;
@@ -642,7 +642,7 @@ static void VerifySamusGroundedReversal()
     // leaves it installed after the body has already become `$09/$0A`, the visible pose's
     // literal direction is inverted for that frame. Start above the deceleration quantum so
     // `$90:9B0A` does not clear the mode before the direction selector observes it.
-    var reversedRunningRight = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    var reversedRunningRight = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     reversedRunningRight.Kinematics.XPosition = 64;
     reversedRunningRight.Kinematics.YPosition = 11;
     reversedRunningRight.Kinematics.XRadius = 5;
@@ -657,7 +657,7 @@ static void VerifySamusGroundedReversal()
     AssertEqual(-0x00008000, reversedRightFrame.Horizontal.AcceptedDisplacement,
         "mode-one running-right carries leftward momentum");
 
-    var reversedRunningLeft = new SamusState { Pose = SamusState.MovingLeftNormalPose };
+    var reversedRunningLeft = new SamusState { Pose = SamusPoseIds.MovingLeftNormalPose };
     reversedRunningLeft.Kinematics.XPosition = 64;
     reversedRunningLeft.Kinematics.YPosition = 11;
     reversedRunningLeft.Kinematics.XRadius = 5;
@@ -679,7 +679,7 @@ static void VerifySamusGroundedReversal()
 
     // Pose $25 is already facing left ($04), but mode one makes $90:8EA9 choose the
     // opposite/right helper while its $0E speed record decelerates old momentum.
-    var turnTowardLeft = new SamusState { Pose = SamusState.TurningRightToLeftPose };
+    var turnTowardLeft = new SamusState { Pose = SamusPoseIds.TurningRightToLeftPose };
     turnTowardLeft.Kinematics.XPosition = 64;
     turnTowardLeft.Kinematics.YPosition = 11;
     turnTowardLeft.Kinematics.XRadius = 5;
@@ -696,7 +696,7 @@ static void VerifySamusGroundedReversal()
 
     // Pose $26 is the mirror: it displays a right-facing turn but carries old momentum to
     // the left. This is not a host sign choice; it is the other branch of $90:8EA9.
-    var turnTowardRight = new SamusState { Pose = SamusState.TurningLeftToRightPose };
+    var turnTowardRight = new SamusState { Pose = SamusPoseIds.TurningLeftToRightPose };
     turnTowardRight.Kinematics.XPosition = 64;
     turnTowardRight.Kinematics.YPosition = 11;
     turnTowardRight.Kinematics.XRadius = 5;
@@ -712,7 +712,7 @@ static void VerifySamusGroundedReversal()
 
     // Underflow clears speed and mode inside $90:9A7E before direction dispatch. The last
     // turn frame consequently requests exactly zero rather than crossing into new motion.
-    var exhaustedTurn = new SamusState { Pose = SamusState.TurningRightToLeftPose };
+    var exhaustedTurn = new SamusState { Pose = SamusPoseIds.TurningRightToLeftPose };
     exhaustedTurn.Kinematics.XPosition = 64;
     exhaustedTurn.Kinematics.YPosition = 11;
     exhaustedTurn.Kinematics.XRadius = 5;
@@ -752,28 +752,28 @@ static void VerifySamusGroundedReversal()
     // direction selected by their own transition tables. Cover both targets and both suit
     // variants; this prevents a future shortcut from silently assigning front-view Samus
     // an invented left or right facing.
-    var forwardToLeft = new SamusState { Pose = SamusState.ForwardFacingPowerSuitPose };
+    var forwardToLeft = new SamusState { Pose = SamusPoseIds.ForwardFacingPowerSuitPose };
     forwardToLeft.HorizontalSpeed.BaseSubspeed = 0x8000;
     forwardToLeft.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
-    forwardToLeft.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
-    AssertEqual(SamusState.TurningRightToLeftPose, forwardToLeft.Pose,
+    forwardToLeft.ApplyGroundedTurn(bus, SamusPoseIds.TurningRightToLeftPose);
+    AssertEqual(SamusPoseIds.TurningRightToLeftPose, forwardToLeft.Pose,
         "power-suit forward view retains generic left-turn target");
     AssertEqual(0xc000, forwardToLeft.HorizontalSpeed.BaseSubspeed,
         "forward left turn still folds extra run speed");
     AssertEqual(1, forwardToLeft.HorizontalSpeed.AccelerationMode,
         "forward left turn selects mode one");
 
-    var forwardToRight = new SamusState { Pose = SamusState.ForwardFacingSuitedPose };
-    forwardToRight.ApplyGroundedTurn(bus, SamusState.TurningLeftToRightPose);
-    AssertEqual(SamusState.TurningLeftToRightPose, forwardToRight.Pose,
+    var forwardToRight = new SamusState { Pose = SamusPoseIds.ForwardFacingSuitedPose };
+    forwardToRight.ApplyGroundedTurn(bus, SamusPoseIds.TurningLeftToRightPose);
+    AssertEqual(SamusPoseIds.TurningLeftToRightPose, forwardToRight.Pose,
         "suited forward view retains generic right-turn target");
     AssertEqual(1, forwardToRight.HorizontalSpeed.AccelerationMode,
         "forward right turn selects mode one");
 
-    var animatedTurn = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    var animatedTurn = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     animatedTurn.HorizontalSpeed.BaseSubspeed = 0x8000;
     animatedTurn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
-    animatedTurn.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
+    animatedTurn.ApplyGroundedTurn(bus, SamusPoseIds.TurningRightToLeftPose);
     AssertEqual(0x25, animatedTurn.Pose, "input reversal installs pose $25");
     AssertEqual(0xc000, animatedTurn.HorizontalSpeed.BaseSubspeed, "turn setup folds extra into base speed");
     AssertEqual(0, animatedTurn.HorizontalSpeed.ExtraRunSubspeed, "turn setup consumes extra speed");
@@ -802,12 +802,12 @@ static void VerifySamusGroundedReversal()
     // metadata or the selector mapping is accidentally changed.
     (byte SourcePose, byte[] Definition)[] aimedSources =
     [
-        (SamusState.StandingAimUpRightPose, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.StandingAimUpLeftPose, [0x04, 0x00, 0x02, 0x09, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.StandingAimDiagonalUpRightPose, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.StandingAimDiagonalUpLeftPose, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.StandingAimDiagonalDownRightPose, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.StandingAimDiagonalDownLeftPose, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimUpRightPose, [0x08, 0x00, 0x01, 0x00, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimUpLeftPose, [0x04, 0x00, 0x02, 0x09, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimDiagonalUpRightPose, [0x08, 0x00, 0x01, 0x01, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimDiagonalUpLeftPose, [0x04, 0x00, 0x02, 0x08, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimDiagonalDownRightPose, [0x08, 0x00, 0x01, 0x03, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.StandingAimDiagonalDownLeftPose, [0x04, 0x00, 0x02, 0x06, 0x06, 0x00, 0x15, 0x00]),
     ];
     foreach ((byte sourcePose, byte[] definition) in aimedSources)
     {
@@ -825,12 +825,12 @@ static void VerifySamusGroundedReversal()
     // than normalized to ordinary direction bytes.
     (byte TurnPose, byte[] Definition)[] aimedTurns =
     [
-        (SamusState.TurningRightToLeftAimUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.TurningLeftToRightAimUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.TurningRightToLeftAimDiagonalDownPose, [0x04, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.TurningLeftToRightAimDiagonalDownPose, [0x08, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.TurningRightToLeftAimDiagonalUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.TurningLeftToRightAimDiagonalUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningRightToLeftAimUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningLeftToRightAimUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningRightToLeftAimDiagonalDownPose, [0x04, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningLeftToRightAimDiagonalDownPose, [0x08, 0x0e, 0xff, 0xfc, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningRightToLeftAimDiagonalUpPose, [0x04, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
+        (SamusPoseIds.TurningLeftToRightAimDiagonalUpPose, [0x08, 0x0e, 0xff, 0xfa, 0x06, 0x00, 0x15, 0x00]),
     ];
     foreach ((byte turnPose, byte[] definition) in aimedTurns)
         WritePoseDefinition(bus, turnPose, definition);
@@ -839,18 +839,18 @@ static void VerifySamusGroundedReversal()
     // installs the corresponding opposite-facing standing-aim pose shown in this table.
     (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination)[] aimedTurnCases =
     [
-        (SamusState.StandingAimUpRightPose, SamusState.TurningRightToLeftPose,
-            SamusState.TurningRightToLeftAimUpPose, SamusState.StandingAimUpLeftPose),
-        (SamusState.StandingAimUpLeftPose, SamusState.TurningLeftToRightPose,
-            SamusState.TurningLeftToRightAimUpPose, SamusState.StandingAimUpRightPose),
-        (SamusState.StandingAimDiagonalUpRightPose, SamusState.TurningRightToLeftPose,
-            SamusState.TurningRightToLeftAimDiagonalUpPose, SamusState.StandingAimDiagonalUpLeftPose),
-        (SamusState.StandingAimDiagonalUpLeftPose, SamusState.TurningLeftToRightPose,
-            SamusState.TurningLeftToRightAimDiagonalUpPose, SamusState.StandingAimDiagonalUpRightPose),
-        (SamusState.StandingAimDiagonalDownRightPose, SamusState.TurningRightToLeftPose,
-            SamusState.TurningRightToLeftAimDiagonalDownPose, SamusState.StandingAimDiagonalDownLeftPose),
-        (SamusState.StandingAimDiagonalDownLeftPose, SamusState.TurningLeftToRightPose,
-            SamusState.TurningLeftToRightAimDiagonalDownPose, SamusState.StandingAimDiagonalDownRightPose),
+        (SamusPoseIds.StandingAimUpRightPose, SamusPoseIds.TurningRightToLeftPose,
+            SamusPoseIds.TurningRightToLeftAimUpPose, SamusPoseIds.StandingAimUpLeftPose),
+        (SamusPoseIds.StandingAimUpLeftPose, SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseIds.TurningLeftToRightAimUpPose, SamusPoseIds.StandingAimUpRightPose),
+        (SamusPoseIds.StandingAimDiagonalUpRightPose, SamusPoseIds.TurningRightToLeftPose,
+            SamusPoseIds.TurningRightToLeftAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpLeftPose),
+        (SamusPoseIds.StandingAimDiagonalUpLeftPose, SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseIds.TurningLeftToRightAimDiagonalUpPose, SamusPoseIds.StandingAimDiagonalUpRightPose),
+        (SamusPoseIds.StandingAimDiagonalDownRightPose, SamusPoseIds.TurningRightToLeftPose,
+            SamusPoseIds.TurningRightToLeftAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownLeftPose),
+        (SamusPoseIds.StandingAimDiagonalDownLeftPose, SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseIds.TurningLeftToRightAimDiagonalDownPose, SamusPoseIds.StandingAimDiagonalDownRightPose),
     ];
 
     // Real standing/turn poses have radius 21, unlike the compact radius-five fixture used
@@ -926,14 +926,14 @@ static void VerifySamusGroundedReversal()
 
     (byte SourcePose, byte[] Definition)[] crouchedSources =
     [
-        (SamusState.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimUpRightPose, [0x08, 0x05, 0x27, 0x00, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimUpLeftPose, [0x04, 0x05, 0x28, 0x09, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimDiagonalUpRightPose, [0x08, 0x05, 0x27, 0x01, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimDiagonalUpLeftPose, [0x04, 0x05, 0x28, 0x08, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimDiagonalDownRightPose, [0x08, 0x05, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.CrouchingAimDiagonalDownLeftPose, [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimUpRightPose, [0x08, 0x05, 0x27, 0x00, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimUpLeftPose, [0x04, 0x05, 0x28, 0x09, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimDiagonalUpRightPose, [0x08, 0x05, 0x27, 0x01, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimDiagonalUpLeftPose, [0x04, 0x05, 0x28, 0x08, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimDiagonalDownRightPose, [0x08, 0x05, 0x27, 0x03, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.CrouchingAimDiagonalDownLeftPose, [0x04, 0x05, 0x28, 0x06, 0x00, 0x00, 0x10, 0x00]),
     ];
     foreach ((byte sourcePose, byte[] definition) in crouchedSources)
     {
@@ -948,36 +948,36 @@ static void VerifySamusGroundedReversal()
     // split from a future cleanup that might look attractive but be historically wrong.
     (byte TurnPose, byte[] Definition)[] crouchedTurns =
     [
-        (SamusState.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningRightToLeftCrouchingAimUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningLeftToRightCrouchingAimUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose, [0x04, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose, [0x08, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
-        (SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningRightToLeftCrouchingPose, [0x04, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningLeftToRightCrouchingPose, [0x08, 0x0e, 0xff, 0xfb, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningRightToLeftCrouchingAimUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningLeftToRightCrouchingAimUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalDownPose, [0x04, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalDownPose, [0x08, 0x17, 0x28, 0xfc, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalUpPose, [0x04, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
+        (SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalUpPose, [0x08, 0x17, 0x28, 0xfa, 0x00, 0x00, 0x10, 0x00]),
     ];
     foreach ((byte turnPose, byte[] definition) in crouchedTurns)
         WritePoseDefinition(bus, turnPose, definition);
 
     (byte SourcePose, byte GenericTurn, byte SelectedTurn, byte Destination)[] crouchedTurnCases =
     [
-        (SamusState.CrouchingRightPose, SamusState.TurningRightToLeftCrouchingPose,
-            SamusState.TurningRightToLeftCrouchingPose, SamusState.CrouchingLeftPose),
-        (SamusState.CrouchingLeftPose, SamusState.TurningLeftToRightCrouchingPose,
-            SamusState.TurningLeftToRightCrouchingPose, SamusState.CrouchingRightPose),
-        (SamusState.CrouchingAimUpRightPose, SamusState.TurningRightToLeftCrouchingPose,
-            SamusState.TurningRightToLeftCrouchingAimUpPose, SamusState.CrouchingAimUpLeftPose),
-        (SamusState.CrouchingAimUpLeftPose, SamusState.TurningLeftToRightCrouchingPose,
-            SamusState.TurningLeftToRightCrouchingAimUpPose, SamusState.CrouchingAimUpRightPose),
-        (SamusState.CrouchingAimDiagonalUpRightPose, SamusState.TurningRightToLeftCrouchingPose,
-            SamusState.TurningRightToLeftCrouchingAimDiagonalUpPose, SamusState.CrouchingAimDiagonalUpLeftPose),
-        (SamusState.CrouchingAimDiagonalUpLeftPose, SamusState.TurningLeftToRightCrouchingPose,
-            SamusState.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusState.CrouchingAimDiagonalUpRightPose),
-        (SamusState.CrouchingAimDiagonalDownRightPose, SamusState.TurningRightToLeftCrouchingPose,
-            SamusState.TurningRightToLeftCrouchingAimDiagonalDownPose, SamusState.CrouchingAimDiagonalDownLeftPose),
-        (SamusState.CrouchingAimDiagonalDownLeftPose, SamusState.TurningLeftToRightCrouchingPose,
-            SamusState.TurningLeftToRightCrouchingAimDiagonalDownPose, SamusState.CrouchingAimDiagonalDownRightPose),
+        (SamusPoseIds.CrouchingRightPose, SamusPoseIds.TurningRightToLeftCrouchingPose,
+            SamusPoseIds.TurningRightToLeftCrouchingPose, SamusPoseIds.CrouchingLeftPose),
+        (SamusPoseIds.CrouchingLeftPose, SamusPoseIds.TurningLeftToRightCrouchingPose,
+            SamusPoseIds.TurningLeftToRightCrouchingPose, SamusPoseIds.CrouchingRightPose),
+        (SamusPoseIds.CrouchingAimUpRightPose, SamusPoseIds.TurningRightToLeftCrouchingPose,
+            SamusPoseIds.TurningRightToLeftCrouchingAimUpPose, SamusPoseIds.CrouchingAimUpLeftPose),
+        (SamusPoseIds.CrouchingAimUpLeftPose, SamusPoseIds.TurningLeftToRightCrouchingPose,
+            SamusPoseIds.TurningLeftToRightCrouchingAimUpPose, SamusPoseIds.CrouchingAimUpRightPose),
+        (SamusPoseIds.CrouchingAimDiagonalUpRightPose, SamusPoseIds.TurningRightToLeftCrouchingPose,
+            SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalUpPose, SamusPoseIds.CrouchingAimDiagonalUpLeftPose),
+        (SamusPoseIds.CrouchingAimDiagonalUpLeftPose, SamusPoseIds.TurningLeftToRightCrouchingPose,
+            SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusPoseIds.CrouchingAimDiagonalUpRightPose),
+        (SamusPoseIds.CrouchingAimDiagonalDownRightPose, SamusPoseIds.TurningRightToLeftCrouchingPose,
+            SamusPoseIds.TurningRightToLeftCrouchingAimDiagonalDownPose, SamusPoseIds.CrouchingAimDiagonalDownLeftPose),
+        (SamusPoseIds.CrouchingAimDiagonalDownLeftPose, SamusPoseIds.TurningLeftToRightCrouchingPose,
+            SamusPoseIds.TurningLeftToRightCrouchingAimDiagonalDownPose, SamusPoseIds.CrouchingAimDiagonalDownRightPose),
     ];
     for (int caseIndex = 0; caseIndex < crouchedTurnCases.Length; caseIndex++)
     {
@@ -1077,17 +1077,17 @@ static void VerifySamusMoonwalking()
 
     (byte Pose, byte[] Definition, byte Fallback, int Direction)[] stable =
     [
-        (SamusState.MoonwalkFacingLeftPose,
+        (SamusPoseIds.MoonwalkFacingLeftPose,
             [0x08, 0x10, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00], 0x02, 1),
-        (SamusState.MoonwalkFacingRightPose,
+        (SamusPoseIds.MoonwalkFacingRightPose,
             [0x04, 0x10, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00], 0x01, -1),
-        (SamusState.MoonwalkAimUpLeftPose,
+        (SamusPoseIds.MoonwalkAimUpLeftPose,
             [0x08, 0x10, 0x06, 0x08, 0x06, 0x00, 0x15, 0x00], 0x06, 1),
-        (SamusState.MoonwalkAimUpRightPose,
+        (SamusPoseIds.MoonwalkAimUpRightPose,
             [0x04, 0x10, 0x05, 0x01, 0x06, 0x00, 0x15, 0x00], 0x05, -1),
-        (SamusState.MoonwalkAimDownLeftPose,
+        (SamusPoseIds.MoonwalkAimDownLeftPose,
             [0x08, 0x10, 0x08, 0x06, 0x06, 0x00, 0x15, 0x00], 0x08, 1),
-        (SamusState.MoonwalkAimDownRightPose,
+        (SamusPoseIds.MoonwalkAimDownRightPose,
             [0x04, 0x10, 0x07, 0x03, 0x06, 0x00, 0x15, 0x00], 0x07, -1),
     ];
     foreach ((byte pose, byte[] definition, _, _) in stable)
@@ -1119,11 +1119,11 @@ static void VerifySamusMoonwalking()
     bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
     WriteTestWord(bus, 0x91b05a, 0xc100);
     bus.WriteBytes(0x91c100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
-    var disabled = new SamusState { Pose = SamusState.FacingRightNormalPose };
+    var disabled = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
     disabled.HorizontalSpeed.BaseSubspeed = 0x4000;
     disabled.HorizontalSpeed.ExtraRunSubspeed = 0x2000;
-    disabled.ApplyMoonwalkPoseChange(bus, SamusState.MoonwalkFacingRightPose, moonwalkEnabled: false);
-    AssertEqual(SamusState.TurningRightToLeftPose, disabled.Pose,
+    disabled.ApplyMoonwalkPoseChange(bus, SamusPoseIds.MoonwalkFacingRightPose, moonwalkEnabled: false);
+    AssertEqual(SamusPoseIds.TurningRightToLeftPose, disabled.Pose,
         "disabled Moonwalk option substitutes ordinary turn");
     AssertEqual(0x6000, disabled.HorizontalSpeed.BaseSubspeed,
         "disabled Moonwalk substitution folds extra momentum");
@@ -1137,12 +1137,12 @@ static void VerifySamusMoonwalking()
     // the original `$A4/$A5`-only approximation.
     byte[] rightLandingPoses =
     [
-        SamusState.NormalLandingRightPose,
-        SamusState.SpinLandingRightPose,
-        SamusState.LandingAimUpRightPose,
-        SamusState.LandingAimDiagonalUpRightPose,
-        SamusState.LandingAimDiagonalDownRightPose,
-        SamusState.FiringLandingRightPose,
+        SamusPoseIds.NormalLandingRightPose,
+        SamusPoseIds.SpinLandingRightPose,
+        SamusPoseIds.LandingAimUpRightPose,
+        SamusPoseIds.LandingAimDiagonalUpRightPose,
+        SamusPoseIds.LandingAimDiagonalDownRightPose,
+        SamusPoseIds.FiringLandingRightPose,
     ];
     foreach (byte landingPose in rightLandingPoses)
     {
@@ -1151,20 +1151,20 @@ static void VerifySamusMoonwalking()
         var landingMoonwalk = new SamusState { Pose = landingPose };
         landingMoonwalk.ApplyMoonwalkPoseChange(
             bus,
-            SamusState.MoonwalkFacingRightPose,
+            SamusPoseIds.MoonwalkFacingRightPose,
             moonwalkEnabled: false);
-        AssertEqual(SamusState.TurningRightToLeftPose, landingMoonwalk.Pose,
+        AssertEqual(SamusPoseIds.TurningRightToLeftPose, landingMoonwalk.Pose,
             $"right landing ${landingPose:X2} honors disabled Moonwalk substitution");
     }
 
     byte[] leftLandingPoses =
     [
-        SamusState.NormalLandingLeftPose,
-        SamusState.SpinLandingLeftPose,
-        SamusState.LandingAimUpLeftPose,
-        SamusState.LandingAimDiagonalUpLeftPose,
-        SamusState.LandingAimDiagonalDownLeftPose,
-        SamusState.FiringLandingLeftPose,
+        SamusPoseIds.NormalLandingLeftPose,
+        SamusPoseIds.SpinLandingLeftPose,
+        SamusPoseIds.LandingAimUpLeftPose,
+        SamusPoseIds.LandingAimDiagonalUpLeftPose,
+        SamusPoseIds.LandingAimDiagonalDownLeftPose,
+        SamusPoseIds.FiringLandingLeftPose,
     ];
     foreach (byte landingPose in leftLandingPoses)
     {
@@ -1173,9 +1173,9 @@ static void VerifySamusMoonwalking()
         var landingMoonwalk = new SamusState { Pose = landingPose };
         landingMoonwalk.ApplyMoonwalkPoseChange(
             bus,
-            SamusState.MoonwalkFacingLeftPose,
+            SamusPoseIds.MoonwalkFacingLeftPose,
             moonwalkEnabled: false);
-        AssertEqual(SamusState.TurningLeftToRightPose, landingMoonwalk.Pose,
+        AssertEqual(SamusPoseIds.TurningLeftToRightPose, landingMoonwalk.Pose,
             $"left landing ${landingPose:X2} honors disabled Moonwalk substitution");
     }
 
@@ -1184,8 +1184,8 @@ static void VerifySamusMoonwalking()
     // turns, including the disabled-option substitution above, must not create this word.
     AssertEqual(0, disabled.PoseTransitionShotDirection,
         "ordinary standing turn does not publish moonwalk shot bridge");
-    var moonwalkBridge = new SamusState { Pose = SamusState.MoonwalkFacingRightPose };
-    moonwalkBridge.ApplyGroundedTurn(bus, SamusState.TurningRightToLeftPose);
+    var moonwalkBridge = new SamusState { Pose = SamusPoseIds.MoonwalkFacingRightPose };
+    moonwalkBridge.ApplyGroundedTurn(bus, SamusPoseIds.TurningRightToLeftPose);
     AssertEqual(0x0102, moonwalkBridge.PoseTransitionShotDirection,
         "moonwalk turn publishes tagged source shot direction");
     moonwalkBridge.ClearPoseTransitionShotDirection();
@@ -1233,7 +1233,7 @@ static void VerifySamusMoonwalking()
     // pair is cleared at `$90:9808` before displacement is assembled.
     var momentumMoonwalk = new SamusState
     {
-        Pose = SamusState.MoonwalkFacingLeftPose,
+        Pose = SamusPoseIds.MoonwalkFacingLeftPose,
         XPosition = 80,
         YPosition = 11,
     };
@@ -1251,7 +1251,7 @@ static void VerifySamusMoonwalking()
 
     var unownedMoonwalk = new SamusState
     {
-        Pose = SamusState.MoonwalkFacingLeftPose,
+        Pose = SamusPoseIds.MoonwalkFacingLeftPose,
         XPosition = 80,
         YPosition = 11,
     };
@@ -1315,17 +1315,17 @@ static void VerifySamusMoonwalking()
 
     // Exercise the terminal command on one mirrored route. Six decrements consume three
     // two-tick art frames; applying `$F8,$1A` then creates the real 4.E000 upward launch.
-    var animated = new SamusState { Pose = SamusState.MoonwalkFacingRightPose };
-    animated.ApplyMoonwalkTurnJump(bus, SamusState.MoonwalkTurnJumpLeftPose);
+    var animated = new SamusState { Pose = SamusPoseIds.MoonwalkFacingRightPose };
+    animated.ApplyMoonwalkTurnJump(bus, SamusPoseIds.MoonwalkTurnJumpLeftPose);
     for (int tick = 0; tick < 6; tick++)
         animated.AnimateNoFx(bus);
     AssertEqual(0xf8, animated.LastAnimationDelayCommand!.Value,
         "moonwalk turn reaches command $F8");
-    AssertEqual(SamusState.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseIds.SpinJumpLeftPose, animated.PendingTransitionalPose!.Value,
         "moonwalk turn publishes literal spin-left operand");
     AssertTrue(animated.ApplyPendingVerifiedAnimationTransition(bus),
         "moonwalk terminal spin transition applies");
-    AssertEqual(SamusState.SpinJumpLeftPose, animated.Pose,
+    AssertEqual(SamusPoseIds.SpinJumpLeftPose, animated.Pose,
         "moonwalk terminal command enters spin jump");
     AssertEqual(4, animated.Kinematics.YSpeed,
         "moonwalk terminal command loads dry-air jump speed");
@@ -1347,17 +1347,17 @@ static void VerifySamusRanIntoWall()
 
     (byte Pose, byte[] Definition)[] wallPoses =
     [
-        (SamusState.RanIntoWallRightPose,
+        (SamusPoseIds.RanIntoWallRightPose,
             [0x08, 0x15, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.RanIntoWallLeftPose,
+        (SamusPoseIds.RanIntoWallLeftPose,
             [0x04, 0x15, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.RanIntoWallAimUpRightPose,
+        (SamusPoseIds.RanIntoWallAimUpRightPose,
             [0x08, 0x15, 0x89, 0x01, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.RanIntoWallAimUpLeftPose,
+        (SamusPoseIds.RanIntoWallAimUpLeftPose,
             [0x04, 0x15, 0x8a, 0x08, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.RanIntoWallAimDownRightPose,
+        (SamusPoseIds.RanIntoWallAimDownRightPose,
             [0x08, 0x15, 0x89, 0x03, 0x06, 0x00, 0x15, 0x00]),
-        (SamusState.RanIntoWallAimDownLeftPose,
+        (SamusPoseIds.RanIntoWallAimDownLeftPose,
             [0x04, 0x15, 0x8a, 0x06, 0x06, 0x00, 0x15, 0x00]),
     ];
     foreach ((byte pose, byte[] definition) in wallPoses)
@@ -1376,26 +1376,26 @@ static void VerifySamusRanIntoWall()
 
     byte[] selectedByShotDirection =
     [
-        SamusState.StandingAimUpRightPose,
-        SamusState.RanIntoWallAimUpRightPose,
-        SamusState.RanIntoWallRightPose,
-        SamusState.RanIntoWallAimDownRightPose,
-        SamusState.RanIntoWallRightPose,
-        SamusState.RanIntoWallLeftPose,
-        SamusState.RanIntoWallAimDownLeftPose,
-        SamusState.RanIntoWallLeftPose,
-        SamusState.RanIntoWallAimUpLeftPose,
-        SamusState.StandingAimUpLeftPose,
+        SamusPoseIds.StandingAimUpRightPose,
+        SamusPoseIds.RanIntoWallAimUpRightPose,
+        SamusPoseIds.RanIntoWallRightPose,
+        SamusPoseIds.RanIntoWallAimDownRightPose,
+        SamusPoseIds.RanIntoWallRightPose,
+        SamusPoseIds.RanIntoWallLeftPose,
+        SamusPoseIds.RanIntoWallAimDownLeftPose,
+        SamusPoseIds.RanIntoWallLeftPose,
+        SamusPoseIds.RanIntoWallAimUpLeftPose,
+        SamusPoseIds.StandingAimUpLeftPose,
     ];
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
-        WritePoseDefinitionByte(bus, SamusState.MovingRightNormalPose, 3, direction);
+        WritePoseDefinitionByte(bus, SamusPoseIds.MovingRightNormalPose, 3, direction);
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusState.SelectRanIntoWallPose(bus, SamusState.MovingRightNormalPose),
+            SamusState.SelectRanIntoWallPose(bus, SamusPoseIds.MovingRightNormalPose),
             $"ran-into-wall shot selector {direction}");
     }
-    WritePoseDefinitionByte(bus, SamusState.MovingRightNormalPose, 3, 2);
+    WritePoseDefinitionByte(bus, SamusPoseIds.MovingRightNormalPose, 3, 2);
 
     const int width = 12;
     var openForeground = new ushort[width * 4];
@@ -1407,7 +1407,7 @@ static void VerifySamusRanIntoWall()
     // A clear prospective run really moves one pixel; it is not merely a collision query.
     var armPump = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 80,
         YPosition = 27,
     };
@@ -1416,7 +1416,7 @@ static void VerifySamusRanIntoWall()
     byte? clearResult = armPump.CheckProspectiveRunningPoseForWall(
         bus,
         openFloor,
-        SamusState.MovingRightNormalPose,
+        SamusPoseIds.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
         out BlockMoveResult? clearProbe);
     AssertTrue(clearResult is null, "clear arm-pump probe keeps prospective run");
@@ -1432,7 +1432,7 @@ static void VerifySamusRanIntoWall()
         width, 4, blockedForeground, new byte[blockedForeground.Length]);
     var blocked = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 91,
         YPosition = 27,
     };
@@ -1441,23 +1441,23 @@ static void VerifySamusRanIntoWall()
     byte? blockedResult = blocked.CheckProspectiveRunningPoseForWall(
         bus,
         blockedFloor,
-        SamusState.MovingRightNormalPose,
+        SamusPoseIds.MovingRightNormalPose,
         currentXSpeedKilledByBlock: false,
         out BlockMoveResult? blockedProbe);
-    AssertEqual((byte?)SamusState.RanIntoWallRightPose, blockedResult,
+    AssertEqual((byte?)SamusPoseIds.RanIntoWallRightPose, blockedResult,
         "blocked prospective run selects $89");
     AssertTrue(blockedProbe is { Collided: true }, "blocked arm-pump probe reports wall");
     AssertEqual(91, blocked.XPosition, "blocked arm-pump probe retains last-safe X");
 
     // A killed type-one move uses the CURRENT shot direction and performs no second probe.
-    var killed = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    var killed = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     byte? killedResult = killed.CheckProspectiveRunningPoseForWall(
         bus,
         openFloor,
         prospectivePose: null,
         currentXSpeedKilledByBlock: true,
         out BlockMoveResult? killedProbe);
-    AssertEqual((byte?)SamusState.RanIntoWallRightPose, killedResult,
+    AssertEqual((byte?)SamusPoseIds.RanIntoWallRightPose, killedResult,
         "killed running speed selects current wall pose");
     AssertTrue(killedProbe is null, "killed running speed skips one-pixel probe");
 

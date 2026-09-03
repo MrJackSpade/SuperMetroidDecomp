@@ -224,7 +224,7 @@ internal static partial class RetailEnemyExecutionAudit
             loaded.Samus.KnockbackDirection = 0;
             loaded.Samus.KnockbackTimer = 0;
             loaded.Samus.Health = loaded.Samus.MaxHealth;
-            loaded.Samus.Pose = SamusState.FacingRightNormalPose;
+            loaded.Samus.Pose = SamusPoseIds.FacingRightNormalPose;
             loaded.Samus.RefreshCollisionRadii(bus);
             loaded.Samus.InitializeAnimation(bus);
             loaded.Enemies.StepFrame(

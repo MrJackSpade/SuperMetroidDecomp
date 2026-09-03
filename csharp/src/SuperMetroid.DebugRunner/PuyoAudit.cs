@@ -466,7 +466,7 @@ internal static class PuyoAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0010,
             YPosition = 0x007c,
         };

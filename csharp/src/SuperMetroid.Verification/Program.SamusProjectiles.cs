@@ -807,7 +807,7 @@ static void VerifySamusPowerBeamProjectiles()
     // still held, supplies the stored direction to the new projectile, and is then cleared.
     WritePoseDefinition(
         bus,
-        SamusState.NeutralJumpTransitionRightPose,
+        SamusPoseIds.NeutralJumpTransitionRightPose,
         [0x08, 0x02, 0xff, 0x02, 0x00, 0x00, 0x13, 0x00]);
     var bridgeSamus = new SamusState
     {
@@ -833,7 +833,7 @@ static void VerifySamusPowerBeamProjectiles()
     }
     bridgeSamus.ApplyOrdinaryJumpTransition(
         bus,
-        SamusState.NeutralJumpTransitionRightPose,
+        SamusPoseIds.NeutralJumpTransitionRightPose,
         controllerNewInput: (ushort)SnesButton.X);
     AssertEqual(0x8002, bridgeSamus.PoseTransitionShotDirection,
         "normal-jump initializer publishes tagged shot direction");

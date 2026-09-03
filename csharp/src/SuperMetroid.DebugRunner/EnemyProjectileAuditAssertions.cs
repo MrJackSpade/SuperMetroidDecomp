@@ -90,7 +90,7 @@ internal static class EnemyProjectileAuditAssertions
         // A producer scenario may previously have touched Samus through a body or scripted
         // route. Reinitialize a normal-pose target so this assertion tests the projectile,
         // not a stale bank-$90 special-movement request from an unrelated attack.
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.XPosition = target.XPosition;

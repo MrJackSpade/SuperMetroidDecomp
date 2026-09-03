@@ -198,7 +198,7 @@ internal static class AlcoonAudit
             "Production Crateria Power Bombs load omitted Samus.");
         RoomEnemySlot actor = runtime.Enemies.Slots[0];
         AlcoonEnemyState state = RequireState(runtime.Enemies, actor);
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.XPosition = unchecked((ushort)(actor.XPosition + 1));
         samus.YPosition = state.LandingYPosition;
         samus.InputLocked = true;
@@ -502,7 +502,7 @@ internal static class AlcoonAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = unchecked((ushort)xPosition),
             YPosition = unchecked((ushort)yPosition),
         };

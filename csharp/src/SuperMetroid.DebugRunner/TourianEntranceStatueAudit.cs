@@ -88,7 +88,7 @@ internal static class TourianEntranceStatueAudit
             MaxHealth = 999,
             XPosition = 0x0078,
             YPosition = 0x00b8,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

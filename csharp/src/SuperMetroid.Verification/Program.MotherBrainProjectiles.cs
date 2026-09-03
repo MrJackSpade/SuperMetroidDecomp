@@ -225,7 +225,7 @@ static void VerifyMotherBrainBombProjectiles()
         roomWidth, roomHeight, emptyBlocks, new byte[emptyBlocks.Length]);
     var bombSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x1004,
         XPosition = 0x004c,
         YPosition = 0x0070,

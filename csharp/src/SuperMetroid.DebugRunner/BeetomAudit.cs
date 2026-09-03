@@ -313,7 +313,7 @@ internal static class BeetomAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = unchecked((ushort)x),
             YPosition = unchecked((ushort)y),
         };

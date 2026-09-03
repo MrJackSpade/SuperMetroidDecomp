@@ -47,7 +47,7 @@ internal static class HZoomerAudit
         {
             Health = 99,
             MaxHealth = 99,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0040,
             YPosition = 0x0080,
         };

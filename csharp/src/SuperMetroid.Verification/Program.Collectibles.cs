@@ -552,7 +552,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 500,
             YPosition = 600,
             ProjectileFlareCounter = 60,
@@ -566,7 +566,7 @@ internal static partial class Program
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.InputLocked, "suit transformation locks Samus input");
-        AssertEqual(SamusState.ForwardFacingPowerSuitPose, samus.Pose,
+        AssertEqual(SamusPoseIds.ForwardFacingPowerSuitPose, samus.Pose,
             "first suit begins in front-facing power-suit pose");
         AssertEqual((ushort)(0x0100 + 120), samus.XPosition,
             "suit transformation centers Samus horizontally");
@@ -604,7 +604,7 @@ internal static partial class Program
             if (!observedReveal && pickup.Substate == 4)
             {
                 observedReveal = true;
-                AssertEqual(SamusState.ForwardFacingSuitedPose, samus.Pose,
+                AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, samus.Pose,
                     "stage three installs suited front-facing pose");
                 AssertEqual((ushort)0x03e0, cgram.Colors[192],
                     "stage three loads Varia palette from ROM");

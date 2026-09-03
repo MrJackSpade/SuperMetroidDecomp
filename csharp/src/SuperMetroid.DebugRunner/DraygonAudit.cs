@@ -42,7 +42,7 @@ internal static class DraygonAudit
             // player position, not an enemy-state override, and lets the same audit inspect
             // complete projectile flight before the later grab/damage slice takes contact.
             YPosition = 0x0040,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

@@ -88,7 +88,7 @@ internal static class SkulteraAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = swimmer.XPosition,
             YPosition = swimmer.YPosition,
         };
@@ -423,7 +423,7 @@ internal static class SkulteraAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = xPosition,
             YPosition = yPosition,
         };

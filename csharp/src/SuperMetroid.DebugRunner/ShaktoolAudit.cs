@@ -166,7 +166,7 @@ internal static partial class ShaktoolAudit
             MaxHealth = 999,
             XPosition = 0x0040,
             YPosition = 0x0040,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

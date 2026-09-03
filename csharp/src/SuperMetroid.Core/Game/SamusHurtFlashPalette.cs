@@ -54,7 +54,7 @@ public static class SamusHurtFlashPalette
         if (counterBefore == 2 &&
             !samus.LiquidPhysics.CinematicFunctionActive &&
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
-              samus.Pose == SamusState.KnockbackLeftPose))
+              samus.Pose == SamusPoseIds.KnockbackLeftPose))
         {
             samus.LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x35, maximumQueued: 6);
             hurtSoundQueued = true;
@@ -155,7 +155,7 @@ public static class SamusHurtFlashPalette
                 byte sound = movementType == 0x14
                     ? samus.AnimationFrame >= 23 ? (byte)0x33 :
                       samus.AnimationFrame >= 13 ? (byte)0x3e : (byte)0x31
-                    : samus.Pose is SamusState.ScrewAttackRightPose or SamusState.ScrewAttackLeftPose
+                    : samus.Pose is SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose
                         ? (byte)0x33
                         : SamusState.IsSpaceJumpPose(samus.Pose) ? (byte)0x3e : (byte)0x31;
                 samus.LiquidPhysics.QueueMovementSound(

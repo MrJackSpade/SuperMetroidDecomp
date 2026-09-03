@@ -291,7 +291,7 @@ internal static class YappingMawAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0088,
             YPosition = 0x0078,
         };

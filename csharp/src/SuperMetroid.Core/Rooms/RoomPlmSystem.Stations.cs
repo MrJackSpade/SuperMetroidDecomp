@@ -358,16 +358,16 @@ public sealed partial class RoomPlmSystem
                     StationAccessBehavior.EnergyRight or
                     StationAccessBehavior.MissileRight =>
                     horizontal && !movingPositive &&
-                    collisionPose == SamusState.RanIntoWallLeftPose,
+                    collisionPose == SamusPoseIds.RanIntoWallLeftPose,
                 StationAccessBehavior.MapLeft or
                     StationAccessBehavior.EnergyLeft or
                     StationAccessBehavior.MissileLeft =>
                     horizontal && movingPositive &&
-                    collisionPose == SamusState.RanIntoWallRightPose,
+                    collisionPose == SamusPoseIds.RanIntoWallRightPose,
                 // Save trigger B590 accepts a downward floor probe only while standing.
                 StationAccessBehavior.SaveFloor => !horizontal && movingPositive &&
-                    collisionPose is SamusState.FacingRightNormalPose or
-                        SamusState.FacingLeftNormalPose,
+                    collisionPose is SamusPoseIds.FacingRightNormalPose or
+                        SamusPoseIds.FacingLeftNormalPose,
                 _ => false,
             };
             if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&

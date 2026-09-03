@@ -27,11 +27,11 @@ internal static partial class Program
         // definition and first delay byte are consumed by this focused handler fixture.
         WritePoseDefinition(
             bus,
-            SamusState.KnockbackRightPose,
+            SamusPoseIds.KnockbackRightPose,
             [0x08, 0x0a, 0xff, 0xff, 0x00, 0x00, 0x15, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + SamusState.KnockbackRightPose * sizeof(ushort),
+            0x91b010 + SamusPoseIds.KnockbackRightPose * sizeof(ushort),
             0xc000);
         bus.WriteByte(0x91c000, 4);
 
@@ -40,16 +40,16 @@ internal static partial class Program
         // observable part of the shared knockback-finish path rather than just a pose ID.
         WritePoseDefinition(
             bus,
-            SamusState.FallingRightPose,
+            SamusPoseIds.FallingRightPose,
             [0x08, 0x06, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]);
         WriteTestWord(
             bus,
-            0x91b010 + SamusState.FallingRightPose * sizeof(ushort),
+            0x91b010 + SamusPoseIds.FallingRightPose * sizeof(ushort),
             0xc010);
         bus.WriteBytes(0x91c010, [0x01, 0xff]);
 
         SamusState samus = CreateSamus(
-            SamusState.FacingRightNormalPose,
+            SamusPoseIds.FacingRightNormalPose,
             xPosition: 100,
             yPosition: 100);
         samus.RefreshCollisionRadii(bus);
@@ -74,7 +74,7 @@ internal static partial class Program
         AssertTrue(initialized.Initialized, "first ejection gamma initializes state");
         AssertTrue(initialized.Horizontal is null, "first gamma performs no horizontal movement");
         AssertTrue(initialized.Vertical is null, "first gamma performs no vertical movement");
-        AssertEqual(SamusState.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
+        AssertEqual(SamusPoseIds.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(1, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
         AssertSamusPosition(100, 100, samus, "first ejection gamma leaves world position unchanged");
@@ -97,7 +97,7 @@ internal static partial class Program
         AssertTrue(wallCollision.Ended, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
         AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
-        AssertEqual(SamusState.FallingRightPose, samus.Pose,
+        AssertEqual(SamusPoseIds.FallingRightPose, samus.Pose,
             "neutral wall handoff consumes ordinary knockback-finished pose");
         AssertEqual(0, samus.KnockbackDirection,
             "shared knockback finish clears direction");
@@ -130,7 +130,7 @@ internal static partial class Program
         var state = new CeresElevatorShaftRoomMainState();
         state.Reset(active: true);
         SamusState outsideTrigger = CreateSamus(
-            SamusState.FacingRightNormalPose,
+            SamusPoseIds.FacingRightNormalPose,
             xPosition: 32,
             yPosition: 100);
 
@@ -164,7 +164,7 @@ internal static partial class Program
         var trigger = new CeresElevatorShaftRoomMainState();
         trigger.Reset(active: true);
         SamusState samus = CreateSamus(
-            SamusState.FacingRightNormalPose,
+            SamusPoseIds.FacingRightNormalPose,
             xPosition: 113,
             yPosition: 75);
         trigger.Step(bus, samus, 0x8000, allowDeparture: false);
@@ -174,7 +174,7 @@ internal static partial class Program
             trigger.Step(bus, samus, 0x8000, allowDeparture: true);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
         AssertTrue(samus.InputLocked, "departure trigger installs SamusCode_00 lock");
-        AssertEqual(SamusState.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
+        AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =
             trigger.Step(bus, samus, 0x8000, allowDeparture: true);

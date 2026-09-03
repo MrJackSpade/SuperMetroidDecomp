@@ -110,7 +110,7 @@ internal static class CeresSteamAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x005e,
             YPosition = 0x006c,
         };

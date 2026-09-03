@@ -327,7 +327,7 @@ internal static class KagoAudit
             samus.KnockbackActive = false;
             samus.KnockbackDirection = 0;
             samus.KnockbackTimer = 0;
-            samus.Pose = SamusState.FacingRightNormalPose;
+            samus.Pose = SamusPoseIds.FacingRightNormalPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
         }
@@ -389,7 +389,7 @@ internal static class KagoAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

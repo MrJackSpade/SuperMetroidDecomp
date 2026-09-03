@@ -154,7 +154,7 @@ static void VerifySamusHorizontalSpeed()
     WriteTestWord(bus, 0x91b5d1, 0xc100); // shared ordinary-Dash delay stream pointer
     bus.WriteBytes(0x91c000, [0x09, 0x09, 0xff]);
     bus.WriteBytes(0x91c100, [0x02, 0x03, 0xff]);
-    var dashAnimation = new SamusState { Pose = SamusState.MovingRightNormalPose };
+    var dashAnimation = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     dashAnimation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: 1,
@@ -477,7 +477,7 @@ static void VerifySamusExtraDisplacement()
     bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
     WritePoseDefinition(
         bus,
-        SamusState.MorphBallFallingRightPose,
+        SamusPoseIds.MorphBallFallingRightPose,
         [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]); // $31
     bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
     bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
@@ -498,7 +498,7 @@ static void VerifySamusExtraDisplacement()
 
     var standing = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -524,7 +524,7 @@ static void VerifySamusExtraDisplacement()
 
     var negative = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -542,7 +542,7 @@ static void VerifySamusExtraDisplacement()
 
     var transition = new SamusState
     {
-        Pose = SamusState.NeutralJumpTransitionRightPose,
+        Pose = SamusPoseIds.NeutralJumpTransitionRightPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -565,7 +565,7 @@ static void VerifySamusExtraDisplacement()
 
     var rising = new SamusState
     {
-        Pose = SamusState.NeutralJumpRightPose,
+        Pose = SamusPoseIds.NeutralJumpRightPose,
         XPosition = 64,
         YPosition = 64,
     };
@@ -589,7 +589,7 @@ static void VerifySamusExtraDisplacement()
 
     var bouncingBall = new SamusState
     {
-        Pose = SamusState.MorphBallFallingRightPose,
+        Pose = SamusPoseIds.MorphBallFallingRightPose,
         XPosition = 64,
         YPosition = 64,
         MorphBallBounceState = 1,

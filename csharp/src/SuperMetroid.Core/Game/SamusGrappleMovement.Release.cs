@@ -82,8 +82,8 @@ public static partial class SamusGrappleMovement
         // $9B:CB8B bases facing on the angular-velocity word retained from the swing. A
         // nonnegative value selects left-facing $52; a negative value selects right $51.
         samus.Pose = grapple.AngularVelocity >= 0
-            ? SamusState.NormalJumpForwardLeftPose
-            : SamusState.NormalJumpForwardRightPose;
+            ? SamusPoseIds.NormalJumpForwardLeftPose
+            : SamusPoseIds.NormalJumpForwardRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         grapple.Phase = GrapplePhase.Inactive;

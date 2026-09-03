@@ -40,8 +40,8 @@ public static class SamusMorphBallMovement
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
 
         bool stationaryPose = samus.Pose is
-            SamusState.MorphBallGroundRightPose or SamusState.MorphBallGroundLeftPose or
-            SamusState.SpringBallGroundRightPose or SamusState.SpringBallGroundLeftPose;
+            SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
+            SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose;
         BlockMoveResult horizontal;
         if (speed.AccelerationMode == 0 && stationaryPose)
         {
@@ -119,8 +119,8 @@ public static class SamusMorphBallMovement
     {
         Validate(bus, level, samus);
         bool ordinary = SamusState.IsAirborneMorphBallPose(samus.Pose);
-        bool spring = samus.Pose is SamusState.SpringBallFallingRightPose or
-            SamusState.SpringBallFallingLeftPose;
+        bool spring = samus.Pose is SamusPoseIds.SpringBallFallingRightPose or
+            SamusPoseIds.SpringBallFallingLeftPose;
         byte movementType = samus.ReadMovementType(bus);
         if ((!ordinary || movementType != 8) && (!spring || movementType != 0x13))
         {
@@ -216,7 +216,7 @@ public static class SamusMorphBallMovement
         RoomPlmSystem? plms = null)
     {
         Validate(bus, level, samus);
-        if (samus.Pose is not (SamusState.SpringBallJumpRightPose or SamusState.SpringBallJumpLeftPose) ||
+        if (samus.Pose is not (SamusPoseIds.SpringBallJumpRightPose or SamusPoseIds.SpringBallJumpLeftPose) ||
             samus.ReadMovementType(bus) != 0x12)
         {
             throw new InvalidOperationException(

@@ -455,7 +455,7 @@ internal static class BlueBrinstarFaceBlockAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             CollectedItems = hasMorphBall ? MorphBallItemMask : (ushort)0,
         };
         samus.RefreshCollisionRadii(isolatedPopulation);

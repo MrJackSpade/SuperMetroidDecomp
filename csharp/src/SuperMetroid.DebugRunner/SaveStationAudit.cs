@@ -34,7 +34,7 @@ internal static class SaveStationAudit
         int blockY = station.BlockIndex / level.WidthInBlocks;
         ushort unsnappedX = unchecked((ushort)(blockX * 16 + 13));
         ushort expectedSnappedX = unchecked((ushort)((unsnappedX + 8) & 0xfff0));
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.AnimationFrame = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

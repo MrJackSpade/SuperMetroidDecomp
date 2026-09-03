@@ -39,7 +39,7 @@ internal static partial class CeresControllerRouteAudit
             CenterY: 0x03f0);
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             "Focused Ceres elevator load did not retain Samus.");
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.XPosition = 0x00d8;
         samus.YPosition = 0x028b;
         samus.Kinematics.YDirection = 0;

@@ -492,7 +492,7 @@ internal static class PlatformAudit
         SamusState samus = runtime.Samus ?? throw new InvalidDataException(
             "Runtime East Ocean load omitted Samus.");
         RoomEnemySlot platform = runtime.Enemies.Slots[10];
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.InputLocked = true;
         samus.Health = 999;
         PlaceSamusOnPlatform(samus, platform);
@@ -566,7 +566,7 @@ internal static class PlatformAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = xPosition,
             YPosition = yPosition,
         };

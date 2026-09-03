@@ -35,7 +35,7 @@ internal static class KraidAudit
             MaxHealth = 999,
             XPosition = 300,
             YPosition = 456,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -998,7 +998,7 @@ internal static class KraidAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         probeSamus.RefreshCollisionRadii(bus);
         probeSamus.InitializeAnimation(bus);
@@ -1034,7 +1034,7 @@ internal static class KraidAudit
             MaxHealth = 999,
             XPosition = 300,
             YPosition = 456,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

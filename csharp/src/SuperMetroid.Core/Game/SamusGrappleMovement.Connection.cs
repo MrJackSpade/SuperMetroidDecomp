@@ -229,8 +229,8 @@ public static partial class SamusGrappleMovement
         // pose alone is insufficient to distinguish malformed table data from retail data.
         (byte pose, bool swinging) = handler switch
         {
-            ConnectSwingClockwiseHandler => (SamusState.GrappleSwingRightPose, true),
-            ConnectSwingAnticlockwiseHandler => (SamusState.GrappleSwingLeftPose, true),
+            ConnectSwingClockwiseHandler => (SamusPoseIds.GrappleSwingRightPose, true),
+            ConnectSwingAnticlockwiseHandler => (SamusPoseIds.GrappleSwingLeftPose, true),
             ConnectStandingUpRightHandler => ((byte)0xa8, false),
             ConnectStandingRightHandler => ((byte)0xaa, false),
             ConnectStandingDownHandler => ((byte)0xab, false),

@@ -69,7 +69,7 @@ internal static class HopperAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0080,
             YPosition = 0x0080,
         };

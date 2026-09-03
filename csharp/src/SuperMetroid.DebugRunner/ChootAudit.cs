@@ -390,7 +390,7 @@ internal static class ChootAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = xPosition,
             YPosition = yPosition,
         };

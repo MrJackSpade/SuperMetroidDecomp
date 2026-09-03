@@ -256,7 +256,7 @@ internal static class CeresRidleyProjectileAudit
             MaxHealth = 999,
             XPosition = samusX,
             YPosition = samusY,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

@@ -18,34 +18,34 @@ static void VerifySamusDrainedController()
 
     // These are the literal direction/type/graphics-offset/radius fields for the source,
     // four drained records, and their eventual ordinary-standing destinations.
-    WritePoseDefinition(bus, SamusState.CrouchingRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.CrouchingRightPose,
         [0x08, 0x05, 0xff, 0x02, 0x03, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusState.CrouchingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.CrouchingLeftPose,
         [0x04, 0x05, 0xff, 0x07, 0x03, 0x00, 0x10, 0x00]);
-    WritePoseDefinition(bus, SamusState.KnockbackLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.KnockbackLeftPose,
         [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedCrouchingRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedCrouchingRightPose,
         [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedCrouchingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedStandingRightPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedStandingRightPose,
         [0x08, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedStandingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedStandingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.FacingLeftNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
-    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingRightPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingLeftPose * 2, 0xc001);
-    WriteTestWord(bus, 0x91b010 + SamusState.KnockbackLeftPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedCrouchingRightPose * 2, 0xb257);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedCrouchingLeftPose * 2, 0xb268);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingRightPose * 2, 0xb288);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedStandingLeftPose * 2, 0xb290);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc010);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingLeftNormalPose * 2, 0xc011);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingRightPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingLeftPose * 2, 0xc001);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.KnockbackLeftPose * 2, 0xc020);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedCrouchingRightPose * 2, 0xb257);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedCrouchingLeftPose * 2, 0xb268);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedStandingRightPose * 2, 0xb288);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedStandingLeftPose * 2, 0xb290);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc010);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingLeftNormalPose * 2, 0xc011);
     bus.WriteBytes(0x91c000, [0x05, 0x05]);
     bus.WriteBytes(0x91c010, [0x05, 0x05]);
     bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
@@ -124,7 +124,7 @@ static void VerifySamusDrainedController()
 
     var right = new SamusState
     {
-        Pose = SamusState.CrouchingRightPose,
+        Pose = SamusPoseIds.CrouchingRightPose,
         XPosition = 48,
         YPosition = 75,
     };
@@ -136,7 +136,7 @@ static void VerifySamusDrainedController()
     right.Kinematics.YSubspeed = 0x2222;
 
     right.Drained.LetFall(bus, right);
-    AssertEqual(SamusState.DrainedCrouchingRightPose, right.Pose,
+    AssertEqual(SamusPoseIds.DrainedCrouchingRightPose, right.Pose,
         "drained controller zero selects right pose");
     AssertEqual(70, right.YPosition,
         "drained controller preserves source bottom while radius grows 16 to 21");
@@ -185,7 +185,7 @@ static void VerifySamusDrainedController()
         "drained landing preserves pre-clear impact magnitude");
 
     right.Drained.PutStanding(bus, right);
-    AssertEqual(SamusState.DrainedStandingRightPose, right.Pose,
+    AssertEqual(SamusPoseIds.DrainedStandingRightPose, right.Pose,
         "controller one selects standing right");
     AssertEqual(0, right.AnimationFrame, "standing drained starts index zero");
     AssertEqual(16, right.AnimationFrameTimer, "standing drained timer is literal sixteen");
@@ -195,7 +195,7 @@ static void VerifySamusDrainedController()
     AssertEqual(1, right.AnimationFrameTimer, "standing release writes timer one");
     for (int tick = 0; tick < 8 && right.PendingTransitionalPose is null; tick++)
         right.AnimateNoFx(bus);
-    AssertEqual<byte?>(SamusState.FacingRightNormalPose, right.PendingTransitionalPose,
+    AssertEqual<byte?>(SamusPoseIds.FacingRightNormalPose, right.PendingTransitionalPose,
         "standing drained release reaches ROM FD operand");
     AssertTrue(right.ApplyPendingVerifiedAnimationTransition(bus),
         "right drained release applies standing transition");
@@ -204,14 +204,14 @@ static void VerifySamusDrainedController()
 
     var left = new SamusState
     {
-        Pose = SamusState.CrouchingLeftPose,
+        Pose = SamusPoseIds.CrouchingLeftPose,
         XPosition = 48,
         YPosition = 75,
     };
     left.RefreshCollisionRadii(bus);
     left.InitializeAnimation(bus);
     left.Drained.PutCrouchingOrFalling(bus, left);
-    AssertEqual(SamusState.DrainedCrouchingLeftPose, left.Pose,
+    AssertEqual(SamusPoseIds.DrainedCrouchingLeftPose, left.Pose,
         "controller four selects left crouching/falling pose");
     AssertEqual(8, left.AnimationFrame, "controller four writes byte index eight");
     AssertEqual(16, left.AnimationFrameTimer, "controller four writes timer sixteen");
@@ -220,7 +220,7 @@ static void VerifySamusDrainedController()
         "crouched release preserves literal operand-adjacent byte index thirteen");
     for (int tick = 0; tick < 64 && left.PendingTransitionalPose is null; tick++)
         left.AnimateNoFx(bus);
-    AssertEqual<byte?>(SamusState.FacingLeftNormalPose, left.PendingTransitionalPose,
+    AssertEqual<byte?>(SamusPoseIds.FacingLeftNormalPose, left.PendingTransitionalPose,
         "left crouched release reaches asymmetric FD operand");
     AssertTrue(left.ApplyPendingVerifiedAnimationTransition(bus),
         "left drained release applies standing transition");
@@ -270,14 +270,14 @@ static void VerifySamusDrainedController()
     // pose `$54` and lock normal input; only their installed Up-edge handler differs.
     var able = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 48,
         YPosition = 75,
     };
     able.RefreshCollisionRadii(bus);
     able.InitializeAnimation(bus);
     able.Drained.SetupForRainbowBeamAbleToStand(bus, able);
-    AssertEqual(SamusState.KnockbackLeftPose, able.Pose,
+    AssertEqual(SamusPoseIds.KnockbackLeftPose, able.Pose,
         "rainbow command five unconditionally selects left knockback pose $54");
     AssertEqual(DrainedSamusPhase.RainbowBeamLocked, able.Drained.Phase,
         "rainbow command five locks Samus-side movement");
@@ -298,7 +298,7 @@ static void VerifySamusDrainedController()
 
     var unable = new SamusState
     {
-        Pose = SamusState.FacingRightNormalPose,
+        Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 48,
         YPosition = 75,
     };
@@ -563,18 +563,18 @@ static void VerifySamusGrabbedByDraygon()
     var bus = new TestAddressSpace();
 
     byte[] leftPoses = [
-        SamusState.DraygonGrabbedNeutralLeftPose,
-        SamusState.DraygonGrabbedAimUpLeftPose,
-        SamusState.DraygonGrabbedFiringLeftPose,
-        SamusState.DraygonGrabbedAimDownLeftPose,
-        SamusState.DraygonGrabbedMovingLeftPose,
+        SamusPoseIds.DraygonGrabbedNeutralLeftPose,
+        SamusPoseIds.DraygonGrabbedAimUpLeftPose,
+        SamusPoseIds.DraygonGrabbedFiringLeftPose,
+        SamusPoseIds.DraygonGrabbedAimDownLeftPose,
+        SamusPoseIds.DraygonGrabbedMovingLeftPose,
     ];
     byte[] rightPoses = [
-        SamusState.DraygonGrabbedNeutralRightPose,
-        SamusState.DraygonGrabbedAimUpRightPose,
-        SamusState.DraygonGrabbedFiringRightPose,
-        SamusState.DraygonGrabbedAimDownRightPose,
-        SamusState.DraygonGrabbedMovingRightPose,
+        SamusPoseIds.DraygonGrabbedNeutralRightPose,
+        SamusPoseIds.DraygonGrabbedAimUpRightPose,
+        SamusPoseIds.DraygonGrabbedFiringRightPose,
+        SamusPoseIds.DraygonGrabbedAimDownRightPose,
+        SamusPoseIds.DraygonGrabbedMovingRightPose,
     ];
 
     // These are the literal retail pose-definition records at `$91:BBF9-$BC20` and
@@ -611,12 +611,12 @@ static void VerifySamusGrabbedByDraygon()
     }
 
     // Ordinary release destinations need real metadata and a harmless initial delay.
-    WritePoseDefinition(bus, SamusState.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.FacingLeftNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingRightNormalPose * 2, 0xc000);
-    WriteTestWord(bus, 0x91b010 + SamusState.FacingLeftNormalPose * 2, 0xc001);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingLeftNormalPose * 2, 0xc001);
     bus.WriteBytes(0x91b2b4, [0x10, 0xff]);
     bus.WriteBytes(0x91b53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
     bus.WriteBytes(0x91c000, [0x0a]);
@@ -652,7 +652,7 @@ static void VerifySamusGrabbedByDraygon()
 
     var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0100 };
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
-    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose, samus.Pose,
+    AssertEqual(SamusPoseIds.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
     AssertEqual(21, samus.Kinematics.YRadius, "Draygon entry loads radius 21");
 
@@ -675,20 +675,20 @@ static void VerifySamusGrabbedByDraygon()
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
     SamusPoseTransition rightUpShoot = SamusPoseTransitionTable.Find(
         bus, samus.Pose, canonicalHeldInput: 0x0940, canonicalNewInput: 0)!.Value;
-    AssertEqual(SamusState.DraygonGrabbedAimUpRightPose,
+    AssertEqual(SamusPoseIds.DraygonGrabbedAimUpRightPose,
         rightUpShoot.ProspectivePose, "right grabbed transition priority");
     samus.ApplyDraygonGrabbedPoseChange(bus, (byte)rightUpShoot.ProspectivePose);
-    AssertEqual(SamusState.DraygonGrabbedAimUpRightPose, samus.Pose,
+    AssertEqual(SamusPoseIds.DraygonGrabbedAimUpRightPose, samus.Pose,
         "right grabbed aim transition applies");
-    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose,
+    AssertEqual(SamusPoseIds.DraygonGrabbedNeutralRightPose,
         samus.ReadNoInputFallbackPose(bus), "right grabbed aim fallback is $EC");
     samus.ApplyDraygonGrabbedPoseChange(bus, samus.ReadNoInputFallbackPose(bus));
     AssertThrows<InvalidOperationException>(
         () => samus.ApplyDraygonGrabbedPoseChange(
             bus,
-            SamusState.DraygonGrabbedNeutralLeftPose),
+            SamusPoseIds.DraygonGrabbedNeutralLeftPose),
         "Draygon input table cannot cross owner-controlled facing families");
-    AssertEqual(SamusState.DraygonGrabbedNeutralRightPose, samus.Pose,
+    AssertEqual(SamusPoseIds.DraygonGrabbedNeutralRightPose, samus.Pose,
         "rejected cross-family Draygon input retains current pose");
 
     DraygonEscapeResult locked = samus.DraygonGrabbed.StepEscapeHandler(
@@ -723,7 +723,7 @@ static void VerifySamusGrabbedByDraygon()
             bus, samus, direction, grappleLockedInPlace: false);
     }
     AssertTrue(release.Released, "sixtieth alternating D-pad input releases Samus");
-    AssertEqual(SamusState.FacingRightNormalPose, samus.Pose,
+    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose,
         "right grabbed family releases to pose $01");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "release clears base X speed");
     AssertEqual(0, samus.HorizontalSpeed.BaseSubspeed, "release clears base X subspeed");
@@ -749,7 +749,7 @@ static void VerifySamusGrabbedByDraygon()
     AssertEqual(-8, leftPlacement.XOffset, "left-facing claw offset is -8");
     AssertEqual(0x00f8, samus.XPosition, "left-facing owner placement X");
     samus.DraygonGrabbed.Release(bus, samus);
-    AssertEqual(SamusState.FacingLeftNormalPose, samus.Pose,
+    AssertEqual(SamusPoseIds.FacingLeftNormalPose, samus.Pose,
         "left grabbed family releases to pose $02");
 
     Console.WriteLine("  Samus/Draygon: ten poses, owner offsets, transitions, escape, and release agree.");

@@ -639,7 +639,7 @@ internal static class ShitroidAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0260,
             YPosition = 0x00a0,
         };

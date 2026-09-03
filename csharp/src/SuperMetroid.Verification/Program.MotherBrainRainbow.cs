@@ -134,12 +134,12 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     // The active chain needs only command-five/$18's forced `$54` pose and controller-zero's
     // later `$E9` pose. These bytes are the retail direction/type/radius metadata and minimal
     // byte-indexed animation streams already proven by the dedicated drained-controller test.
-    WritePoseDefinition(bus, SamusState.KnockbackLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.KnockbackLeftPose,
         [0x04, 0x0a, 0xff, 0xff, 0x06, 0x00, 0x15, 0x00]);
-    WritePoseDefinition(bus, SamusState.DrainedCrouchingLeftPose,
+    WritePoseDefinition(bus, SamusPoseIds.DrainedCrouchingLeftPose,
         [0x04, 0x1b, 0xff, 0xff, 0xfc, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b010 + SamusState.KnockbackLeftPose * 2, 0xc020);
-    WriteTestWord(bus, 0x91b010 + SamusState.DrainedCrouchingLeftPose * 2, 0xb268);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.KnockbackLeftPose * 2, 0xc020);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.DrainedCrouchingLeftPose * 2, 0xb268);
     bus.WriteBytes(0x91c020, [0x01, 0xfe, 0x01]);
     bus.WriteBytes(0x91b268, [0x02, 0x02, 0x10, 0xf7, 0x01]);
 
@@ -222,7 +222,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     attack.StartActiveBeam(bus, samus);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, attack.Phase,
         "active rainbow start installs wall-motion function");
-    AssertEqual(SamusState.KnockbackLeftPose, samus.Pose,
+    AssertEqual(SamusPoseIds.KnockbackLeftPose, samus.Pose,
         "active rainbow start runs native drained setup command");
     AssertEqual(DrainedGetUpHandler.AbleToStand, samus.Drained.GetUpHandler,
         "energy 999 selects command five able handler");
@@ -306,7 +306,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(MotherBrainRainbowBeamAttackPhase.LowerHead, attack.Phase,
         "custom falling carry installs lower-head function");
     AssertEqual(0x00c0, samus.YPosition, "custom falling reaches hardcoded floor $C0");
-    AssertEqual(SamusState.DrainedCrouchingLeftPose, samus.Pose,
+    AssertEqual(SamusPoseIds.DrainedCrouchingLeftPose, samus.Pose,
         "let-fall controller selects left drained pose from forced $54 direction");
 
     attack.Step(bus, samus, enemyFrameCounter: 0, mainEnemyExecutionCounter: 0);

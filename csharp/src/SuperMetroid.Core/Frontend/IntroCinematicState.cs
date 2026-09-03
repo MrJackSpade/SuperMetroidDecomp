@@ -500,7 +500,7 @@ public sealed class IntroCinematicState
         // collision data and must never be expanded as a visual block map.
         flashbackSamus = new SamusState
         {
-            Pose = SamusState.FacingLeftNormalPose,
+            Pose = SamusPoseIds.FacingLeftNormalPose,
             XPosition = 155,
             YPosition = 115,
             SelectedHudItem = 1,
@@ -885,7 +885,7 @@ public sealed class IntroCinematicState
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
             SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
         }
-        else if (samus.Pose is SamusState.FallingRightPose or SamusState.FallingLeftPose)
+        else if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
         {
             // When `$90:DDE9` ends humanoid knockback it selects pose $29/$2A and restores
             // normal movement. The following frames therefore execute the ordinary type-6
@@ -953,7 +953,7 @@ public sealed class IntroCinematicState
         // handler call. State-handler function pointers are not independently dispatched by
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
-        flashbackSamus!.Pose = SamusState.FacingLeftNormalPose;
+        flashbackSamus!.Pose = SamusPoseIds.FacingLeftNormalPose;
         flashbackSamus.RefreshCollisionRadii(bus);
         flashbackSamus.InitializeAnimation(bus);
         demo.Disable();

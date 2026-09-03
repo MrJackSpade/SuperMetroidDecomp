@@ -436,7 +436,7 @@ internal static class EscapeAnimalsAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0040,
             YPosition = 0x00b8,
         };

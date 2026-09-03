@@ -21,55 +21,55 @@ static void VerifySamusMorphBallMovement()
     // fallback, graphics offset, and collision radius independently observable.
     void WritePose(byte pose, byte[] definition) =>
         WritePoseDefinition(bus, pose, definition);
-    WritePose(SamusState.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
-    WritePose(SamusState.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]);
-    WritePose(SamusState.MorphBallGroundRightPose, [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphBallMovingRightPose, [0x08, 0x04, 0x1d, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphBallMovingLeftPose, [0x04, 0x04, 0x41, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphBallFallingRightPose, [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphBallFallingLeftPose, [0x04, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphingTransitionRightPose, [0x08, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.MorphingTransitionLeftPose, [0x04, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.UnmorphingTransitionRightPose, [0x08, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
-    WritePose(SamusState.UnmorphingTransitionLeftPose, [0x04, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
-    WritePose(SamusState.MorphBallGroundLeftPose, [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallGroundRightPose, [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallGroundLeftPose, [0x04, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallMovingRightPose, [0x08, 0x11, 0x79, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallMovingLeftPose, [0x04, 0x11, 0x7a, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallFallingRightPose, [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallFallingLeftPose, [0x04, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallJumpRightPose, [0x08, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusState.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
-    WritePose(SamusState.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
-    WritePose(SamusState.FallingAimUpRightPose, [0x08, 0x06, 0x29, 0x00, 0x00, 0x00, 0x13, 0x00]);
-    WritePose(SamusState.FallingAimUpLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x00, 0x00, 0x13, 0x00]);
-    WritePose(SamusState.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
-    WritePose(SamusState.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x13, 0x00]);
+    WritePose(SamusPoseIds.CrouchingRightPose, [0x08, 0x05, 0x27, 0x02, 0x00, 0x00, 0x10, 0x00]);
+    WritePose(SamusPoseIds.CrouchingLeftPose, [0x04, 0x05, 0x28, 0x07, 0x00, 0x00, 0x10, 0x00]);
+    WritePose(SamusPoseIds.MorphBallGroundRightPose, [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphBallMovingRightPose, [0x08, 0x04, 0x1d, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphBallMovingLeftPose, [0x04, 0x04, 0x41, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphBallFallingRightPose, [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphBallFallingLeftPose, [0x04, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphingTransitionRightPose, [0x08, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.MorphingTransitionLeftPose, [0x04, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.UnmorphingTransitionRightPose, [0x08, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
+    WritePose(SamusPoseIds.UnmorphingTransitionLeftPose, [0x04, 0x0f, 0xff, 0xff, 0x00, 0x00, 0x10, 0x00]);
+    WritePose(SamusPoseIds.MorphBallGroundLeftPose, [0x04, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallGroundRightPose, [0x08, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallGroundLeftPose, [0x04, 0x11, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallMovingRightPose, [0x08, 0x11, 0x79, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallMovingLeftPose, [0x04, 0x11, 0x7a, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallFallingRightPose, [0x08, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallFallingLeftPose, [0x04, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallJumpRightPose, [0x08, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
+    WritePose(SamusPoseIds.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusPoseIds.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusPoseIds.FallingAimUpRightPose, [0x08, 0x06, 0x29, 0x00, 0x00, 0x00, 0x13, 0x00]);
+    WritePose(SamusPoseIds.FallingAimUpLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x00, 0x00, 0x13, 0x00]);
+    WritePose(SamusPoseIds.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
+    WritePose(SamusPoseIds.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x13, 0x00]);
 
     // Stable ordinary-ball poses all point to `$91:B378`. Separate synthetic storage keeps
     // the production pointer lookup real while making the expected command stream concise.
     const ushort sharedBallDelay = 0xc400;
     foreach (byte pose in new byte[] {
-        SamusState.MorphBallGroundRightPose,
-        SamusState.MorphBallMovingRightPose,
-        SamusState.MorphBallMovingLeftPose,
-        SamusState.MorphBallFallingRightPose,
-        SamusState.MorphBallFallingLeftPose,
-        SamusState.MorphBallGroundLeftPose,
-        SamusState.SpringBallGroundRightPose,
-        SamusState.SpringBallGroundLeftPose,
-        SamusState.SpringBallMovingRightPose,
-        SamusState.SpringBallMovingLeftPose,
-        SamusState.SpringBallFallingRightPose,
-        SamusState.SpringBallFallingLeftPose,
-        SamusState.SpringBallJumpRightPose,
-        SamusState.SpringBallJumpLeftPose,
-        SamusState.NormalJumpForwardRightPose,
-        SamusState.NormalJumpForwardLeftPose,
-        SamusState.FallingAimUpRightPose,
-        SamusState.FallingAimUpLeftPose,
+        SamusPoseIds.MorphBallGroundRightPose,
+        SamusPoseIds.MorphBallMovingRightPose,
+        SamusPoseIds.MorphBallMovingLeftPose,
+        SamusPoseIds.MorphBallFallingRightPose,
+        SamusPoseIds.MorphBallFallingLeftPose,
+        SamusPoseIds.MorphBallGroundLeftPose,
+        SamusPoseIds.SpringBallGroundRightPose,
+        SamusPoseIds.SpringBallGroundLeftPose,
+        SamusPoseIds.SpringBallMovingRightPose,
+        SamusPoseIds.SpringBallMovingLeftPose,
+        SamusPoseIds.SpringBallFallingRightPose,
+        SamusPoseIds.SpringBallFallingLeftPose,
+        SamusPoseIds.SpringBallJumpRightPose,
+        SamusPoseIds.SpringBallJumpLeftPose,
+        SamusPoseIds.NormalJumpForwardRightPose,
+        SamusPoseIds.NormalJumpForwardLeftPose,
+        SamusPoseIds.FallingAimUpRightPose,
+        SamusPoseIds.FallingAimUpLeftPose,
     })
     {
         WriteTestWord(bus, 0x91b010 + pose * 2, sharedBallDelay);
@@ -77,16 +77,16 @@ static void VerifySamusMorphBallMovement()
     bus.WriteBytes(0x910000 | sharedBallDelay, [0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0xff]);
 
     // `$37/$38`: two visible frames, then `$F9 $0002 ground air springGround springAir`.
-    WriteTestWord(bus, 0x91b010 + SamusState.MorphingTransitionRightPose * 2, 0xc420);
-    WriteTestWord(bus, 0x91b010 + SamusState.MorphingTransitionLeftPose * 2, 0xc430);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MorphingTransitionRightPose * 2, 0xc420);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MorphingTransitionLeftPose * 2, 0xc430);
     bus.WriteBytes(0x91c420, [0x02, 0x02, 0xf9, 0x02, 0x00, 0x1d, 0x31, 0x79, 0x7d]);
     bus.WriteBytes(0x91c430, [0x02, 0x02, 0xf9, 0x02, 0x00, 0x41, 0x32, 0x7a, 0x7e]);
 
     // `$3D/$3E` finish through the already translated `$FD pp` command-three seam.
-    WriteTestWord(bus, 0x91b010 + SamusState.UnmorphingTransitionRightPose * 2, 0xc440);
-    WriteTestWord(bus, 0x91b010 + SamusState.UnmorphingTransitionLeftPose * 2, 0xc450);
-    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingRightPose * 2, 0xc460);
-    WriteTestWord(bus, 0x91b010 + SamusState.CrouchingLeftPose * 2, 0xc470);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnmorphingTransitionRightPose * 2, 0xc440);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.UnmorphingTransitionLeftPose * 2, 0xc450);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingRightPose * 2, 0xc460);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.CrouchingLeftPose * 2, 0xc470);
     bus.WriteBytes(0x91c440, [0x02, 0x02, 0xfd, 0x27]);
     bus.WriteBytes(0x91c450, [0x02, 0x02, 0xfd, 0x28]);
     bus.WriteBytes(0x91c460, [0x10, 0xff]);
@@ -137,7 +137,7 @@ static void VerifySamusMorphBallMovement()
 
     var samus = new SamusState
     {
-        Pose = SamusState.CrouchingRightPose,
+        Pose = SamusPoseIds.CrouchingRightPose,
         XPosition = 48,
         YPosition = 48,
     };
@@ -146,15 +146,15 @@ static void VerifySamusMorphBallMovement()
 
     AssertTrue(
         !samus.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionRightPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "morph entry is rejected without item bit $0004");
-    AssertEqual(SamusState.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
+    AssertEqual(SamusPoseIds.CrouchingRightPose, samus.Pose, "rejected morph retains crouch");
     AssertEqual(48, samus.YPosition, "rejected morph retains center Y");
 
     samus.EquippedItems = 0x0004;
     AssertTrue(
         samus.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionRightPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "equipped Morph Ball begins entry transition");
     AssertEqual(7, samus.Kinematics.YRadius, "morph transition radius from ROM");
     AssertEqual(57, samus.YPosition, "command seven moves center down nine");
@@ -166,7 +166,7 @@ static void VerifySamusMorphBallMovement()
     // acceleration mode two exactly as the initializer's previous-type-three branch does.
     var fallingMorph = new SamusState
     {
-        Pose = SamusState.FallingAimDownLeftPose,
+        Pose = SamusPoseIds.FallingAimDownLeftPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 40,
@@ -176,7 +176,7 @@ static void VerifySamusMorphBallMovement()
     fallingMorph.RefreshCollisionRadii(bus);
     fallingMorph.HorizontalSpeed.AccelerationMode = 1;
     AssertTrue(fallingMorph.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionLeftPose, nmiFrameCounter: 1),
+            bus, floor, SamusPoseIds.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         "compact falling pose begins cartridge morph transition");
     AssertEqual(43, fallingMorph.YPosition,
         "compact falling morph preserves bottom with three-pixel center adjustment");
@@ -189,14 +189,14 @@ static void VerifySamusMorphBallMovement()
 
     var spinMorph = new SamusState
     {
-        Pose = SamusState.SpinJumpLeftPose,
+        Pose = SamusPoseIds.SpinJumpLeftPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 40,
     };
     spinMorph.RefreshCollisionRadii(bus);
     AssertTrue(spinMorph.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionLeftPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.MorphingTransitionLeftPose, nmiFrameCounter: 0),
         "spin pose begins cartridge morph transition");
     AssertEqual(2, spinMorph.HorizontalSpeed.AccelerationMode,
         "spin-source morph forces native aerial deceleration mode two");
@@ -205,22 +205,22 @@ static void VerifySamusMorphBallMovement()
     for (int tick = 0; tick < 4; tick++)
         samus.AnimateNoFx(bus);
     AssertEqual(0xf9, samus.LastAnimationDelayCommand!.Value, "morph transition reaches F9");
-    AssertEqual(SamusState.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseIds.MorphBallGroundRightPose, samus.PendingTransitionalPose!.Value,
         "F9 selects no-spring grounded endpoint");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "grounded F9 endpoint applies");
-    AssertEqual(SamusState.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
+    AssertEqual(SamusPoseIds.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
 
     // Changing to the moving record preserves the shared rolling frame/timer. Movement
     // type four then reads its literal 0.8000 acceleration and remains floor-constrained.
     ushort timerBeforeRoll = samus.AnimationFrameTimer;
-    samus.ApplyMorphBallPoseChange(bus, SamusState.MorphBallMovingRightPose);
+    samus.ApplyMorphBallPoseChange(bus, SamusPoseIds.MorphBallMovingRightPose);
     AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer, "ball direction change preserves timer");
     MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
         bus, floor, samus, nmiFrameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
     AssertEqual(0x8000, samus.HorizontalSpeed.BaseSubspeed, "type-four acceleration uses ROM table");
 
-    samus.ApplyMorphBallPoseChange(bus, SamusState.MorphBallMovingLeftPose);
+    samus.ApplyMorphBallPoseChange(bus, SamusPoseIds.MorphBallMovingLeftPose);
     AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "ball reversal selects momentum mode one");
     AssertEqual(0x8000, samus.HorizontalSpeed.BaseSubspeed, "ball reversal preserves base magnitude");
 
@@ -233,13 +233,13 @@ static void VerifySamusMorphBallMovement()
         new byte[width * height],
         new ushort[width * height],
         new byte[8]);
-    samus.ApplyMorphBallPoseChange(bus, SamusState.MorphBallGroundLeftPose);
+    samus.ApplyMorphBallPoseChange(bus, SamusPoseIds.MorphBallGroundLeftPose);
     samus.HorizontalSpeed.AccelerationMode = 0;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
         bus, empty, samus, nmiFrameCounter: 1);
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
     samus.ApplyMorphBallWalkOff(bus);
-    AssertEqual(SamusState.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
+    AssertEqual(SamusPoseIds.MorphBallFallingLeftPose, samus.Pose, "left ball walk-off endpoint");
     AssertEqual(2, samus.Kinematics.YDirection, "ball walk-off starts falling");
 
     // None of the four native ball wrappers has a separate Speed-Booster branch. Their
@@ -252,7 +252,7 @@ static void VerifySamusMorphBallMovement()
     // routes below retain it.
     var boostedRoll = new SamusState
     {
-        Pose = SamusState.MorphBallMovingRightPose,
+        Pose = SamusPoseIds.MorphBallMovingRightPose,
         XPosition = 32,
         YPosition = 32,
     };
@@ -271,7 +271,7 @@ static void VerifySamusMorphBallMovement()
 
     var boostedFall = new SamusState
     {
-        Pose = SamusState.MorphBallFallingLeftPose,
+        Pose = SamusPoseIds.MorphBallFallingLeftPose,
         XPosition = 32,
         YPosition = 32,
     };
@@ -294,7 +294,7 @@ static void VerifySamusMorphBallMovement()
 
     var boostedSpring = new SamusState
     {
-        Pose = SamusState.SpringBallJumpRightPose,
+        Pose = SamusPoseIds.SpringBallJumpRightPose,
         XPosition = 32,
         YPosition = 32,
     };
@@ -315,7 +315,7 @@ static void VerifySamusMorphBallMovement()
 
     var boostedTransition = new SamusState
     {
-        Pose = SamusState.MorphingTransitionRightPose,
+        Pose = SamusPoseIds.MorphingTransitionRightPose,
         XPosition = 32,
         YPosition = 32,
     };
@@ -339,7 +339,7 @@ static void VerifySamusMorphBallMovement()
     // additional ten-pixel stable-crouch adjustment before command three arms the jump.
     var frozenCrouchBombJump = new SamusState
     {
-        Pose = SamusState.CrouchingRightPose,
+        Pose = SamusPoseIds.CrouchingRightPose,
         XPosition = 48,
         YPosition = 48,
     };
@@ -354,12 +354,12 @@ static void VerifySamusMorphBallMovement()
         "frozen standing/crouching setup rejects bomb jump");
     AssertEqual(0, frozenCrouchBombJump.BombJumpDirection,
         "frozen setup clears complete published direction word");
-    AssertEqual(SamusState.CrouchingRightPose, frozenCrouchBombJump.Pose,
+    AssertEqual(SamusPoseIds.CrouchingRightPose, frozenCrouchBombJump.Pose,
         "frozen setup retains crouching pose");
 
     var crouchBombJump = new SamusState
     {
-        Pose = SamusState.CrouchingLeftPose,
+        Pose = SamusPoseIds.CrouchingLeftPose,
         XPosition = 48,
         YPosition = 48,
     };
@@ -372,7 +372,7 @@ static void VerifySamusMorphBallMovement()
             timeIsFrozen: false,
             nmiFrameCounter: 1),
         "unfrozen crouch follows humanoid bomb-jump setup");
-    AssertEqual(SamusState.NormalJumpForwardLeftPose, crouchBombJump.Pose,
+    AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, crouchBombJump.Pose,
         "literal left pose direction selects bomb-jump body $52");
     AssertEqual(21, crouchBombJump.Kinematics.YRadius,
         "crouch bomb jump installs forward-jump radius from ROM");
@@ -383,7 +383,7 @@ static void VerifySamusMorphBallMovement()
 
     var airborneBombRejection = new SamusState
     {
-        Pose = SamusState.NormalJumpForwardRightPose,
+        Pose = SamusPoseIds.NormalJumpForwardRightPose,
         XPosition = 48,
         YPosition = 32,
     };
@@ -432,7 +432,7 @@ static void VerifySamusMorphBallMovement()
     samus.Kinematics.YDirection = 2;
     samus.Kinematics.YSpeed = 1;
     AssertTrue(samus.ApplyMorphBallLanding(bus), "second-bounce collision grounds ball");
-    AssertEqual(SamusState.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
+    AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
     AssertEqual(0, samus.MorphBallBounceState, "grounding clears bounce state");
 
     // Unmorphing against only the floor succeeds and moves center up nine, preserving the
@@ -440,7 +440,7 @@ static void VerifySamusMorphBallMovement()
     // radius-seven `$91:FFA7` must retain the ball instead of selecting crouch.
     AssertTrue(
         samus.TryApplyMorphTransition(
-            bus, floor, SamusState.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
         "floor-constrained unmorph succeeds");
     AssertEqual(16, samus.Kinematics.YRadius, "unmorph transition radius");
     AssertEqual(48, samus.YPosition, "unmorph expansion keeps bottom boundary");
@@ -457,7 +457,7 @@ static void VerifySamusMorphBallMovement()
         new byte[8]);
     var boxedBall = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 57,
@@ -466,9 +466,9 @@ static void VerifySamusMorphBallMovement()
     boxedBall.InitializeAnimation(bus);
     AssertTrue(
         !boxedBall.TryApplyMorphTransition(
-            bus, tunnel, SamusState.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
+            bus, tunnel, SamusPoseIds.UnmorphingTransitionRightPose, nmiFrameCounter: 1),
         "boxed Morph Ball rejects unmorph");
-    AssertEqual(SamusState.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
+    AssertEqual(SamusPoseIds.MorphBallGroundRightPose, boxedBall.Pose, "boxed unmorph retains ball pose");
     AssertEqual(7, boxedBall.Kinematics.YRadius, "boxed unmorph retains ball radius");
     AssertEqual(57, boxedBall.YPosition, "boxed unmorph retains center");
 
@@ -478,8 +478,8 @@ static void VerifySamusMorphBallMovement()
     // detects an accidental call to a fresh-jump or grounded initializer.
     foreach ((byte sourcePose, byte targetPose) in new[]
     {
-        (SamusState.UnmorphingTransitionRightPose, SamusState.FallingAimUpRightPose),
-        (SamusState.UnmorphingTransitionLeftPose, SamusState.FallingAimUpLeftPose),
+        (SamusPoseIds.UnmorphingTransitionRightPose, SamusPoseIds.FallingAimUpRightPose),
+        (SamusPoseIds.UnmorphingTransitionLeftPose, SamusPoseIds.FallingAimUpLeftPose),
     })
     {
         var fallingUnmorph = new SamusState
@@ -520,7 +520,7 @@ static void VerifySamusMorphBallMovement()
     // current collision radius or pose name. Spring Ball remains unequipped, selecting $31.
     var airborneEntry = new SamusState
     {
-        Pose = SamusState.CrouchingRightPose,
+        Pose = SamusPoseIds.CrouchingRightPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 48,
@@ -529,19 +529,19 @@ static void VerifySamusMorphBallMovement()
     airborneEntry.InitializeAnimation(bus);
     AssertTrue(
         airborneEntry.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionRightPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "airborne F9 fixture begins morph");
     airborneEntry.Kinematics.YSubspeed = 1;
     for (int tick = 0; tick < 4; tick++)
         airborneEntry.AnimateNoFx(bus);
-    AssertEqual(SamusState.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseIds.MorphBallFallingRightPose, airborneEntry.PendingTransitionalPose!.Value,
         "F9 nonzero Y subspeed selects airborne endpoint");
 
     // Repeat entry with Spring Ball bit `$0002`. F9 must use its equipped grounded operand,
     // then movement type `$11` reads its own speed record rather than ordinary type four.
     var spring = new SamusState
     {
-        Pose = SamusState.CrouchingRightPose,
+        Pose = SamusPoseIds.CrouchingRightPose,
         EquippedItems = 0x0006,
         XPosition = 48,
         YPosition = 48,
@@ -550,14 +550,14 @@ static void VerifySamusMorphBallMovement()
     spring.InitializeAnimation(bus);
     AssertTrue(
         spring.TryApplyMorphTransition(
-            bus, floor, SamusState.MorphingTransitionRightPose, nmiFrameCounter: 0),
+            bus, floor, SamusPoseIds.MorphingTransitionRightPose, nmiFrameCounter: 0),
         "Spring Ball fixture begins morph entry");
     for (int tick = 0; tick < 4; tick++)
         spring.AnimateNoFx(bus);
-    AssertEqual(SamusState.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
+    AssertEqual(SamusPoseIds.SpringBallGroundRightPose, spring.PendingTransitionalPose!.Value,
         "F9 equipped endpoint selects Spring Ball ground");
     AssertTrue(spring.ApplyPendingVerifiedAnimationTransition(bus), "Spring Ball F9 applies");
-    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallMovingRightPose);
+    spring.ApplyMorphBallPoseChange(bus, SamusPoseIds.SpringBallMovingRightPose);
     MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
         bus, floor, spring, nmiFrameCounter: 0);
     AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
@@ -566,8 +566,8 @@ static void VerifySamusMorphBallMovement()
 
     // `$79 -> $7F` initializes the literal dry-air 4.E000 jump. Releasing Jump on its
     // first movement frame invokes the shared variable-height cutoff before displacement.
-    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallGroundRightPose);
-    spring.ApplySpringBallJump(bus, SamusState.SpringBallJumpRightPose);
+    spring.ApplyMorphBallPoseChange(bus, SamusPoseIds.SpringBallGroundRightPose);
+    spring.ApplySpringBallJump(bus, SamusPoseIds.SpringBallJumpRightPose);
     AssertEqual(4, spring.Kinematics.YSpeed, "Spring Ball launch whole speed");
     AssertEqual(0xe000, spring.Kinematics.YSubspeed, "Spring Ball launch subspeed");
     SamusMorphBallMovement.StepSpringBallInAir(
@@ -576,7 +576,7 @@ static void VerifySamusMorphBallMovement()
 
     // The no-Jump hard impact stores the distinctive `$0601` state. A held-Jump impact
     // instead clears that state and immediately relaunches through Make_Samus_Jump.
-    spring.ApplyMorphBallPoseChange(bus, SamusState.SpringBallFallingRightPose);
+    spring.ApplyMorphBallPoseChange(bus, SamusPoseIds.SpringBallFallingRightPose);
     spring.Kinematics.YSpeed = 3;
     spring.Kinematics.YSubspeed = 0;
     spring.Kinematics.YDirection = 2;
@@ -586,7 +586,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!spring.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
-    AssertEqual(SamusState.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
+    AssertEqual(SamusPoseIds.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
 
     // Bank-$93 projectile fixtures copied byte-for-byte from the normal-bomb pointer/data
     // records and its slow, fast, and explosion instruction lists. The production code
@@ -763,7 +763,7 @@ static void VerifySamusMorphBallMovement()
 
     var noBombItemSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 57,
@@ -780,7 +780,7 @@ static void VerifySamusMorphBallMovement()
 
     var bombProjectileSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x1004,
         XPosition = 48,
         YPosition = 57,
@@ -823,7 +823,7 @@ static void VerifySamusMorphBallMovement()
     {
         var fixtureSamus = new SamusState
         {
-            Pose = SamusState.MorphBallGroundRightPose,
+            Pose = SamusPoseIds.MorphBallGroundRightPose,
             EquippedItems = 0x1004,
             XPosition = 48,
             YPosition = 57,
@@ -904,7 +904,7 @@ static void VerifySamusMorphBallMovement()
     // the literal bank-$93 record, and installs cooldown table entry three (`$28`).
     var powerBombSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x0004,
         SelectedHudItem = 3,
         PowerBombs = 2,
@@ -1087,7 +1087,7 @@ static void VerifySamusMorphBallMovement()
     var reactionBombs = new SamusBombProjectileSystem();
     var reactionSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x1004,
         XPosition = 48,
         YPosition = 48,
@@ -1176,7 +1176,7 @@ static void VerifySamusMorphBallMovement()
     var integratedRevealBombs = new SamusBombProjectileSystem();
     var integratedRevealSamus = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x1004,
         XPosition = 48,
         YPosition = 48,
@@ -1530,7 +1530,7 @@ static void VerifySamusMorphBallMovement()
     // must also reject non-ball callers instead of silently inventing a normal jump.
     var bombJump = new SamusState
     {
-        Pose = SamusState.MorphBallGroundRightPose,
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 48,
@@ -1592,7 +1592,7 @@ static void VerifySamusMorphBallMovement()
         new byte[8]);
     var straightBombJump = new SamusState
     {
-        Pose = SamusState.MorphBallGroundLeftPose,
+        Pose = SamusPoseIds.MorphBallGroundLeftPose,
         EquippedItems = 0x0004,
         XPosition = 48,
         YPosition = 56,

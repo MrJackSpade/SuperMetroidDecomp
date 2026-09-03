@@ -273,7 +273,7 @@ internal static class HibashiAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0197,
             YPosition = 0x02b8,
         };

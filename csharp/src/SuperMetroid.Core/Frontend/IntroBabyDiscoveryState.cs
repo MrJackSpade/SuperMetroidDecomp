@@ -35,7 +35,7 @@ internal sealed class IntroBabyDiscoveryState
 
         Samus = new SamusState
         {
-            Pose = SamusState.FacingLeftNormalPose,
+            Pose = SamusPoseIds.FacingLeftNormalPose,
             XPosition = 0x0178,
             YPosition = 0x0093,
             SelectedHudItem = 0,

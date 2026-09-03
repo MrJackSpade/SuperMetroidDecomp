@@ -37,7 +37,7 @@ internal static class EarlyRouteAudit
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             "Post-Ceres Landing Site did not retain Samus.");
         samus.InputLocked = false;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.InitializeAnimation(bus);
 
         AssertRoom(runtime, LandingSiteRoom, LandingSiteDefaultState, "Landing Site");
@@ -110,7 +110,7 @@ internal static class EarlyRouteAudit
         SamusState samus = runtime.Samus ?? throw new InvalidOperationException(
             "Elevator audit could not initialize Samus.");
         samus.InputLocked = false;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.InitializeAnimation(bus);
 
         Traverse(runtime, bus, 0, 0x8916, 0x92fd, 0x9314, "elevator audit Parlor");

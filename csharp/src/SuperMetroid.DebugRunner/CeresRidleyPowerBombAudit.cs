@@ -24,7 +24,7 @@ internal static class CeresRidleyPowerBombAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 128,
             YPosition = 112,
         };

@@ -300,7 +300,8 @@ public sealed class SamusLiquidPhysicsState
 
             // Standing forward `$00`, backward `$9B`, and every Gravity-Suit pose clear the
             // buffer in Spawn_AirBubbles after all particle/audio side effects have run.
-            if (samus.Pose is 0x00 or 0x9b || gravitySuit)
+            if (samus.Pose is SamusPoseIds.ForwardFacingPowerSuitPose or
+                SamusPoseIds.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
             return;
         }
@@ -340,7 +341,8 @@ public sealed class SamusLiquidPhysicsState
             LiquidPhysicsType = LavaAcid;
             samus.AnimationFrameBuffer = 2;
             TrySpawnLavaSurfaceSpray(samus, top, nmiFrameCounter);
-            if (samus.Pose is 0x00 or 0x9b || gravitySuit)
+            if (samus.Pose is SamusPoseIds.ForwardFacingPowerSuitPose or
+                SamusPoseIds.ForwardFacingSuitedPose || gravitySuit)
                 samus.AnimationFrameBuffer = 0;
             return;
         }
@@ -387,7 +389,8 @@ public sealed class SamusLiquidPhysicsState
         {
             QueueSound(
                 library: 1,
-                soundId: previousPose is 0x81 or 0x82 ? (byte)0x34 : (byte)0x32,
+                soundId: previousPose is SamusPoseIds.ScrewAttackRightPose or
+                    SamusPoseIds.ScrewAttackLeftPose ? (byte)0x34 : (byte)0x32,
                 maximumQueued: 6);
         }
 

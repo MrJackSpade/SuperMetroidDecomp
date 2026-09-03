@@ -246,7 +246,7 @@ public sealed class RoomLevelData
         // publish elevator_flags only while samus_pose is below $09. This prevents running,
         // aerial, morph, and damage poses that merely brush the block from arming the actor.
         else if (publishDoorSideEffects &&
-                 samusPose < SamusState.MovingRightNormalPose)
+                 samusPose < SamusPoseIds.MovingRightNormalPose)
             ElevatorDoorContactPending = true;
         return door;
     }

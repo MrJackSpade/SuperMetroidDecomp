@@ -577,7 +577,7 @@ internal static class MamaTurtleAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0,
             YPosition = 0,
         };

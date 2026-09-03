@@ -97,8 +97,8 @@ public sealed class CeresElevatorShaftRoomMainState
             // owned by the frontend dispatcher; everything Samus-visible remains here.
             bool facingLeft = samus.ReadPoseXDirection(bus) == 4;
             samus.Pose = facingLeft
-                ? SamusState.FacingLeftNormalPose
-                : SamusState.FacingRightNormalPose;
+                ? SamusPoseIds.FacingLeftNormalPose
+                : SamusPoseIds.FacingRightNormalPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.InputLocked = true;

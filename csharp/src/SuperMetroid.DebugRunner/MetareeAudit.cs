@@ -81,7 +81,7 @@ internal static class MetareeAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = unchecked((ushort)(diving.XPosition - 0x0100)),
             YPosition = unchecked((ushort)(diving.YPosition + 0x0060)),
         };
@@ -304,7 +304,7 @@ internal static class MetareeAudit
             ?? throw new InvalidDataException("Bug-fixture Metaree has no typed state.");
         var aboveSamus = new SamusState
         {
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = bugMetaree.XPosition,
             YPosition = unchecked((ushort)(bugMetaree.YPosition - 1)),
         };

@@ -464,7 +464,7 @@ internal static class CacatacAudit
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
         samus.KnockbackTimer = 0;
-        samus.Pose = SamusState.FacingRightNormalPose;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.XPosition = actors[0].XPosition;
@@ -551,7 +551,7 @@ internal static class CacatacAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0,
             YPosition = 0,
         };

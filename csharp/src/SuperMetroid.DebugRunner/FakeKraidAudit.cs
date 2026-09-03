@@ -430,8 +430,8 @@ internal static class FakeKraidAudit
             Health = 999,
             MaxHealth = 999,
             Pose = samusX > 0x0530
-                ? SamusState.FacingLeftNormalPose
-                : SamusState.FacingRightNormalPose,
+                ? SamusPoseIds.FacingLeftNormalPose
+                : SamusPoseIds.FacingRightNormalPose,
         };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

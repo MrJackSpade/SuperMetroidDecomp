@@ -374,7 +374,7 @@ internal static class NamiheAudit
         {
             Health = 999,
             MaxHealth = 999,
-            Pose = SamusState.FacingRightNormalPose,
+            Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = unchecked((ushort)xPosition),
             YPosition = unchecked((ushort)yPosition),
         };

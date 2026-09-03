@@ -4,6 +4,27 @@ internal static partial class Program
 {
 static void VerifyGenericGamepadInput()
 {
+    UsbGamepadIdentifier snesAdapter =
+        WindowsGamepadIdentifiers.SnesUsbAdapter0079_0011;
+    AssertEqual(
+        GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011,
+        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
+            snesAdapter.ManufacturerId,
+            snesAdapter.ProductId),
+        "known Windows VID/PID selects printed-label layout");
+    AssertEqual(
+        GenericGamepadFaceButtonLayout.Positional,
+        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(0x045e, 0x028e),
+        "ordinary Xbox-compatible VID/PID retains positional layout");
+    AssertEqual(
+        (uint)0xff,
+        (uint)JoystickPositionQueryFlags.ReturnAll,
+        "WinMM all-fields request retains every actual query flag");
+    AssertTrue(
+        (JoystickCapabilityFlags.HasPointOfView &
+            JoystickCapabilityFlags.PointOfViewSupportsContinuousAngles) == 0,
+        "mutually independent WinMM capability flags remain independent");
+
     AssertEqual(
         SnesButton.None,
         GenericGamepadInput.Map(new GenericGamepadSnapshot(

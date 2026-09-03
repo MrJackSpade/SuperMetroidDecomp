@@ -15,20 +15,9 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed partial class WindowsGamepadInput
 {
-    // This is the inexpensive SNES-style USB adapter which motivated the WinMM backend.
-    // Its HID/WinMM driver enumerates the face buttons by printed label X/A/B/Y rather than
-    // DirectInput's usual positional B/A/Y/X order. Apply that quirk only to this exact
-    // device so Xbox-style and other conventional controllers retain positional mapping.
-    private const ushort SnesUsbAdapterManufacturerId = 0x0079;
-    private const ushort SnesUsbAdapterProductId = 0x0011;
-    private const uint NoDevice = uint.MaxValue;
-    private const uint JoyReturnAll = 0x000000ff;
-    private const uint JoyCapabilitiesHasPointOfView = 0x00000010;
-    private const uint JoyPovCentered = GenericGamepadInput.CenteredPointOfView;
-    private const uint MmSystemNoError = 0;
     private const double RediscoveryIntervalSeconds = 1.0;
 
-    private uint activeDeviceId = NoDevice;
+    private uint activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
     private JoystickCapabilities activeCapabilities;
     private long nextDiscoveryTimestamp;
 
@@ -45,10 +34,11 @@ internal sealed partial class WindowsGamepadInput
     /// </summary>
     public SnesButton Poll()
     {
-        if (activeDeviceId != NoDevice && TryRead(activeDeviceId, out JoystickPosition position))
+        if (activeDeviceId != WindowsGamepadIdentifiers.NoDevice &&
+            TryRead(activeDeviceId, out JoystickPosition position))
             return MapAndRemember(position);
 
-        if (activeDeviceId != NoDevice)
+        if (activeDeviceId != WindowsGamepadIdentifiers.NoDevice)
             ForgetActiveDevice();
 
         long now = Stopwatch.GetTimestamp();
@@ -58,7 +48,8 @@ internal sealed partial class WindowsGamepadInput
         nextDiscoveryTimestamp = now +
             (long)(RediscoveryIntervalSeconds * Stopwatch.Frequency);
         DiscoverFirstConnectedDevice();
-        if (activeDeviceId == NoDevice || !TryRead(activeDeviceId, out position))
+        if (activeDeviceId == WindowsGamepadIdentifiers.NoDevice ||
+            !TryRead(activeDeviceId, out position))
             return SnesButton.None;
 
         return MapAndRemember(position);
@@ -70,11 +61,12 @@ internal sealed partial class WindowsGamepadInput
         for (uint deviceId = 0; deviceId < possibleDeviceCount; deviceId++)
         {
             var capabilities = new JoystickCapabilities();
-            uint result = NativeMethods.JoyGetDeviceCapabilities(
+            WindowsMultimediaResult result = NativeMethods.JoyGetDeviceCapabilities(
                 deviceId,
                 ref capabilities,
                 (uint)Marshal.SizeOf<JoystickCapabilities>());
-            if (result != MmSystemNoError || !TryRead(deviceId, out JoystickPosition initialPosition))
+            if (result != WindowsMultimediaResult.NoError ||
+                !TryRead(deviceId, out JoystickPosition initialPosition))
                 continue;
 
             activeDeviceId = deviceId;
@@ -99,7 +91,7 @@ internal sealed partial class WindowsGamepadInput
     {
         if (DeviceName is not null)
             Console.WriteLine($"Gamepad disconnected: {DeviceName}.");
-        activeDeviceId = NoDevice;
+        activeDeviceId = WindowsGamepadIdentifiers.NoDevice;
         DeviceName = null;
         activeCapabilities = default;
         LastSnapshot = default;
@@ -110,10 +102,11 @@ internal sealed partial class WindowsGamepadInput
         position = new JoystickPosition
         {
             Size = (uint)Marshal.SizeOf<JoystickPosition>(),
-            Flags = JoyReturnAll,
-            PointOfView = JoyPovCentered,
+            Flags = (uint)JoystickPositionQueryFlags.ReturnAll,
+            PointOfView = WindowsGamepadIdentifiers.CenteredPointOfView,
         };
-        return NativeMethods.JoyGetPosition(deviceId, ref position) == MmSystemNoError;
+        return NativeMethods.JoyGetPosition(deviceId, ref position) ==
+            WindowsMultimediaResult.NoError;
     }
 
     private SnesButton MapAndRemember(JoystickPosition position)
@@ -126,10 +119,9 @@ internal sealed partial class WindowsGamepadInput
 
     private static GenericGamepadFaceButtonLayout ResolveFaceButtonLayout(
         JoystickCapabilities capabilities) =>
-        capabilities.ManufacturerId == SnesUsbAdapterManufacturerId &&
-        capabilities.ProductId == SnesUsbAdapterProductId
-            ? GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011
-            : GenericGamepadFaceButtonLayout.Positional;
+        WindowsGamepadIdentifiers.ResolveFaceButtonLayout(
+            capabilities.ManufacturerId,
+            capabilities.ProductId);
 
     private static GenericGamepadSnapshot CreateSnapshot(
         JoystickPosition position,
@@ -142,9 +134,10 @@ internal sealed partial class WindowsGamepadInput
         // that no POV hat exists. Zero would mean “Up” for a real hat, so consult the
         // capability bit instead of mistaking an unused zero-filled field for held input.
         uint pointOfView =
-            (capabilities.Capabilities & JoyCapabilitiesHasPointOfView) != 0
+            (((JoystickCapabilityFlags)capabilities.Capabilities) &
+                JoystickCapabilityFlags.HasPointOfView) != 0
                 ? position.PointOfView
-                : JoyPovCentered;
+                : WindowsGamepadIdentifiers.CenteredPointOfView;
         return new GenericGamepadSnapshot(
             HorizontalAxis: NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum),
             VerticalAxis: NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum),
@@ -236,14 +229,14 @@ internal sealed partial class WindowsGamepadInput
 #pragma warning disable SYSLIB1054
         [DllImport("winmm.dll", EntryPoint = "joyGetDevCapsW", ExactSpelling = true,
             CharSet = CharSet.Unicode)]
-        public static extern uint JoyGetDeviceCapabilities(
+        public static extern WindowsMultimediaResult JoyGetDeviceCapabilities(
             uint deviceId,
             ref JoystickCapabilities capabilities,
             uint capabilitiesByteCount);
 #pragma warning restore SYSLIB1054
 
         [LibraryImport("winmm.dll", EntryPoint = "joyGetPosEx")]
-        public static partial uint JoyGetPosition(
+        public static partial WindowsMultimediaResult JoyGetPosition(
             uint deviceId,
             ref JoystickPosition position);
     }

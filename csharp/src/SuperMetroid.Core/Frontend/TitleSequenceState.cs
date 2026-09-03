@@ -267,7 +267,7 @@ public sealed class TitleSequenceState
             // confusing it with the enemy loader makes the title art uniformly blue.
             oam.AddOnScreenSpritemap(
                 bus,
-                0x8c0000 | activeSpritemap,
+                (int)new SnesAddress(0x8c, activeSpritemap),
                 activeOriginX,
                 activeOriginY,
                 activeCharacterOffset);
@@ -277,7 +277,7 @@ public sealed class TitleSequenceState
         {
             oam.AddOnScreenSpritemap(
                 bus,
-                0x8c0000 | NintendoCopyrightSpritemap,
+                (int)new SnesAddress(0x8c, NintendoCopyrightSpritemap),
                 128,
                 196,
                 0x0800);
@@ -453,7 +453,7 @@ public sealed class TitleSequenceState
     private ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8));
 
     private static int AddWithinBank(int address, int bytes) =>
-        (address & 0x00ff_0000) | ((address + bytes) & 0xffff);
+        (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
     private static void AddFixedPoint(ref int integer, ref int fraction, int delta16Point16)
     {

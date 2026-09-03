@@ -135,7 +135,7 @@ public sealed partial class RoomPlmSystem
                 // u16 size, u16 source offset, u8 bank, then u16 encoded VRAM destination.
                 ushort size = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
                 ushort sourceOffset = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
-                byte sourceBank = bus.ReadByte(0x840000 | unchecked((ushort)(cursor + 6)));
+                byte sourceBank = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 6))));
                 ushort destination = ReadBank84Word(bus, unchecked((ushort)(cursor + 7)));
                 _vramWriteRequests.Add(new PlmVramWriteRequest(
                     size,

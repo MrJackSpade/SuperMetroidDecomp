@@ -698,7 +698,7 @@ internal sealed class PauseMenuState
         if (duration == 0xff)
         {
             itemSelectorAnimationFrame = 0;
-            duration = bus.ReadByte(0x820000 | animationPointer);
+            duration = bus.ReadByte((int)new SnesAddress(0x82, animationPointer));
         }
         itemSelectorAnimationTimer = duration;
     }
@@ -854,7 +854,8 @@ internal sealed class PauseMenuState
     {
         int source = 0x820000 | sourcePointer;
         for (int index = 0; index < destination.Length; index++)
-            destination[index] = bus.ReadByte(0x820000 | ((source + index) & 0xffff));
+            destination[index] = bus.ReadByte(
+                (int)new SnesAddress(0x82, unchecked((ushort)(source + index))));
     }
 
     private static void RecolorLabel(Span<byte> bytes)

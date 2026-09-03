@@ -390,9 +390,13 @@ public sealed class SamusDeathSequenceState
     private static ushort ReadExplosionPaletteIndex(ISnesAddressSpace bus, ushort index) =>
         bus.ReadByte(ExplosionTimingTable + index * 2 + 1);
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) |
-        (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return unchecked((ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+    }
 }
 
 /// <summary>Game-state phases that own Samus after fatal damage has reached bank `$9B`.</summary>

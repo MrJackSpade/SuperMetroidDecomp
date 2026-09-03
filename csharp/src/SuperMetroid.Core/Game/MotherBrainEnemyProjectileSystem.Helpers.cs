@@ -553,8 +553,10 @@ public sealed partial class MotherBrainEnemyProjectileSystem
                 case SetXAndYRadiusInstruction:
                     // `$8298` reads the two one-byte arguments together as the packed
                     // low-X/high-Y radius word, then advances over both bytes.
-                    slot.XRadius = bus.ReadByte(0x860000 | unchecked((ushort)(pointer + 2)));
-                    slot.YRadius = bus.ReadByte(0x860000 | unchecked((ushort)(pointer + 3)));
+                    slot.XRadius = bus.ReadByte(
+                        (int)new SnesAddress(0x86, unchecked((ushort)(pointer + 2))));
+                    slot.YRadius = bus.ReadByte(
+                        (int)new SnesAddress(0x86, unchecked((ushort)(pointer + 3))));
                     pointer = unchecked((ushort)(pointer + 4));
                     break;
 

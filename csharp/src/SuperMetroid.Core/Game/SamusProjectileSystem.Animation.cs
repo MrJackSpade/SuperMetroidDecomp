@@ -26,8 +26,10 @@ public sealed partial class SamusProjectileSystem
             {
                 slot.InstructionTimer = instructionOrTimer;
                 slot.SpritemapPointer = ReadWord(bus, 0x930000 | AddWithinBank(pointer, 2));
-                slot.XRadius = bus.ReadByte(0x930000 | AddWithinBank(pointer, 4));
-                slot.YRadius = bus.ReadByte(0x930000 | AddWithinBank(pointer, 5));
+                slot.XRadius = bus.ReadByte(
+                    (int)new SnesAddress(0x93, unchecked((ushort)AddWithinBank(pointer, 4))));
+                slot.YRadius = bus.ReadByte(
+                    (int)new SnesAddress(0x93, unchecked((ushort)AddWithinBank(pointer, 5))));
                 slot.AnimationFrame = ReadWord(bus, 0x930000 | AddWithinBank(pointer, 6));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
                 return false;
@@ -93,17 +95,20 @@ public sealed partial class SamusProjectileSystem
 
         ushort frame = unchecked((ushort)(_flareFrames[component] + 1));
         ushort delayList = ReadWord(bus, 0x90c481 + component * 2);
-        byte delay = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame)));
+        byte delay = bus.ReadByte(
+            (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame))));
         if (delay == 0xff)
         {
             frame = 0;
-            delay = bus.ReadByte(0x900000 | delayList);
+            delay = bus.ReadByte((int)new SnesAddress(0x90, delayList));
         }
         else if (delay == 0xfe)
         {
-            byte rewind = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame + 1)));
+            byte rewind = bus.ReadByte(
+                (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame + 1))));
             frame = unchecked((ushort)(frame - rewind));
-            delay = bus.ReadByte(0x900000 | unchecked((ushort)(delayList + frame)));
+            delay = bus.ReadByte(
+                (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame))));
         }
 
         _flareFrames[component] = frame;

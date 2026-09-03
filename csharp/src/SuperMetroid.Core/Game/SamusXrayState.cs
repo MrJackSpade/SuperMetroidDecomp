@@ -568,8 +568,13 @@ public sealed class SamusXrayState
             throw new InvalidOperationException("X-ray has no installed Samus handler.");
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return unchecked((ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+    }
 
     private enum XrayPosture
     {

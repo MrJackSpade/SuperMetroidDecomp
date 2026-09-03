@@ -84,8 +84,8 @@ public sealed partial class RoomPlmSystem
                 RecordIndex: recordIndex,
                 RecordPointer: cursor,
                 HeaderPointer: header,
-                BlockX: bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2))),
-                BlockY: bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3))),
+                BlockX: bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 2)))),
+                BlockY: bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 3)))),
                 RoomArgument: ReadBank8fWord(bus, unchecked((ushort)(cursor + 4))));
             cursor = unchecked((ushort)(cursor + 6));
 

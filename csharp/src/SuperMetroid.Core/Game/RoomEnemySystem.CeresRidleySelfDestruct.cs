@@ -147,7 +147,8 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort sourceOffset = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
-        byte sourceBank = _bus!.ReadByte(0xa60000 | unchecked((ushort)(pointer + 4)));
+        byte sourceBank = _bus!.ReadByte(
+            (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
         ushort destination = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 5)));
         vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
 
@@ -167,7 +168,8 @@ public sealed partial class RoomEnemySystem
             if (byteCount == 0)
                 return;
             ushort sourceOffset = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 2)));
-            byte sourceBank = _bus!.ReadByte(0xa60000 | unchecked((ushort)(pointer + 4)));
+            byte sourceBank = _bus!.ReadByte(
+                (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
             ushort destination = ReadWord(_bus, 0xa60000 | unchecked((ushort)(pointer + 5)));
             vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
         }

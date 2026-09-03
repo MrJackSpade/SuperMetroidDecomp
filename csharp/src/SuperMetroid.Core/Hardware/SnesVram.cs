@@ -135,7 +135,11 @@ public sealed class SnesVram
         if (sizeInBytes == 0)
             throw new ArgumentOutOfRangeException(nameof(sizeInBytes), "A zero size is the original queue terminator, not a transfer.");
 
-        ExecuteDmaWrite(bus, sourceAddress, sizeInBytes, encodedDestination);
+        ExecuteDmaWrite(
+            bus,
+            SnesAddress.FromBusAddress(sourceAddress),
+            sizeInBytes,
+            encodedDestination);
     }
 
     /// <summary>
@@ -162,7 +166,11 @@ public sealed class SnesVram
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "DMA source must be a 24-bit CPU address.");
 
         int effectiveSize = dmaSize == 0 ? 0x10000 : dmaSize;
-        ExecuteDmaWrite(bus, sourceAddress, effectiveSize, encodedDestination);
+        ExecuteDmaWrite(
+            bus,
+            SnesAddress.FromBusAddress(sourceAddress),
+            effectiveSize,
+            encodedDestination);
     }
 
     /// <summary>
@@ -170,7 +178,7 @@ public sealed class SnesVram
     /// </summary>
     private void ExecuteDmaWrite(
         ISnesAddressSpace bus,
-        int sourceAddress,
+        SnesAddress sourceAddress,
         int sizeInBytes,
         ushort encodedDestination)
     {
@@ -182,9 +190,6 @@ public sealed class SnesVram
         int destinationWord = encodedDestination & 0x7fff;
         int wordIncrement = (encodedDestination & 0x8000) == 0 ? 1 : 32;
 
-        int sourceBank = sourceAddress & 0x00ff_0000;
-        int sourceOffset = sourceAddress & 0xffff;
-
         for (int byteIndex = 0; byteIndex < sizeInBytes; byteIndex++)
         {
             // DMA mode $01 alternates writes between $2118 (word low byte) and $2119
@@ -194,8 +199,8 @@ public sealed class SnesVram
 
             // A-bus DMA increments its 16-bit source offset but leaves the bank register
             // fixed. Explicit wrapping here matters for a transfer beginning at xx:FFFF.
-            int currentSource = sourceBank | ((sourceOffset + byteIndex) & 0xffff);
-            _bytes[vramByteOffset] = bus.ReadByte(currentSource);
+            SnesAddress currentSource = sourceAddress.AddWithinBank(byteIndex);
+            _bytes[vramByteOffset] = bus.ReadByte((int)currentSource);
 
             if (writesHighByte)
             {

@@ -1095,7 +1095,8 @@ public static class SnesGameplayFrameRenderer
             int shapeLine = Math.Abs(yFromCenter);
             if ((uint)shapeLine >= 192)
                 return -1;
-            byte halfWidth = bus.ReadByte(0x880000 | unchecked((ushort)(shapePointer + shapeLine)));
+            byte halfWidth = bus.ReadByte(
+                (int)new SnesAddress(0x88, unchecked((ushort)(shapePointer + shapeLine))));
             return halfWidth == 0 ? -1 : halfWidth;
         }
 

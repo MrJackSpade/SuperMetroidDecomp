@@ -665,7 +665,7 @@ internal sealed partial class EndingCreditsState
         {
             postCreditsTilemap[destination + index] = RomDataReader.ReadWordFixedBank(
                 bus,
-                0x8c0000 | unchecked((ushort)(sourcePointer + index * 2)));
+                new SnesAddress(0x8c, unchecked((ushort)(sourcePointer + index * 2))));
         }
     }
 

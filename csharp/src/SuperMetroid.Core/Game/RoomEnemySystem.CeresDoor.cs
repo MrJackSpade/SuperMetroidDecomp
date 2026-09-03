@@ -84,7 +84,8 @@ public sealed partial class RoomEnemySystem
             // then use SnesVram's range-checked consecutive transfer primitive.
             byte[] tileBytes = new byte[0x0400];
             for (int byteIndex = 0; byteIndex < tileBytes.Length; byteIndex++)
-                tileBytes[byteIndex] = _bus!.ReadByte(0xb00000 | ((0xc400 + byteIndex) & 0xffff));
+                tileBytes[byteIndex] = _bus!.ReadByte(
+                    (int)new SnesAddress(0xb0, unchecked((ushort)(0xc400 + byteIndex))));
             _vram!.LoadBytes(0xe000, tileBytes);
         }
 

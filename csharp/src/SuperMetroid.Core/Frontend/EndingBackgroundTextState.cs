@@ -110,8 +110,8 @@ internal sealed class EndingBackgroundTextState
                 $"Ending BG indirect function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
         }
 
-        byte width = bus.ReadByte(0x8c0000 | Add(dataPointer, 2));
-        byte height = bus.ReadByte(0x8c0000 | Add(dataPointer, 3));
+        byte width = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 2)));
+        byte height = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 3)));
         int x = packedPosition & 0xff;
         int y = packedPosition >> 8;
         if (width == 0 || height == 0 || x + width > 32 || y + height > 32)
@@ -167,7 +167,7 @@ internal sealed class EndingBackgroundTextState
         vram.ExecuteWordTransfer(tilemap, destinationWord: 0x4c00, wordIncrement: 1);
 
     private ushort ReadWord(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | pointer);
+        RomDataReader.ReadWordFixedBank(bus, new SnesAddress(0x8c, pointer));
 
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));

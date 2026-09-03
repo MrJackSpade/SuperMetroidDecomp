@@ -1004,7 +1004,7 @@ public sealed class IntroCinematicState
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             oam.AddOnScreenSpritemap(
                 bus,
-                0x8c0000 | flashbackMotherBrain.SpriteMapPointer,
+                (int)new SnesAddress(0x8c, flashbackMotherBrain.SpriteMapPointer),
                 IntroMotherBrainSpriteState.XPosition,
                 IntroMotherBrainSpriteState.YPosition,
                 IntroMotherBrainSpriteState.PaletteBits);
@@ -1146,7 +1146,7 @@ public sealed class IntroCinematicState
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             oam.AddOnScreenSpritemap(
                 bus,
-                0x8c0000 | objects.SpriteMapPointer,
+                (int)new SnesAddress(0x8c, objects.SpriteMapPointer),
                 originX: objects.CaretX,
                 originY: objects.CaretY,
                 paletteBits: 0x0c00);

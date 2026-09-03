@@ -162,10 +162,9 @@ public sealed partial class RoomEnemySystem
             }
 
             byte[] source = new byte[byteCount];
-            int sourceBank = sourceAddress & 0xff0000;
-            int sourceOffset = sourceAddress & 0xffff;
+            SnesAddress sourceStart = SnesAddress.FromBusAddress(sourceAddress);
             for (int index = 0; index < source.Length; index++)
-                source[index] = _bus.ReadByte(sourceBank | ((sourceOffset + index) & 0xffff));
+                source[index] = _bus.ReadByte((int)sourceStart.AddWithinBank(index));
             _vram!.LoadMode7MapBytes(source, destinationWord);
             cursor = AdvanceBankAddress(cursor, 9);
         }
@@ -174,5 +173,5 @@ public sealed partial class RoomEnemySystem
     }
 
     private static int AdvanceBankAddress(int address, int byteCount) =>
-        (address & 0xff0000) | ((address + byteCount) & 0xffff);
+        (int)SnesAddress.FromBusAddress(address).AddWithinBank(byteCount);
 }

@@ -284,7 +284,7 @@ public sealed class SamusHorizontalSpeedState
         ushort delayList = ReadWord(bus, 0x91b5de + stage * 2);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + bus.ReadByte(0x910000 | delayList)));
+            animationFrameBuffer + bus.ReadByte((int)new SnesAddress(0x91, delayList))));
         PublishBoostContactDamage();
         return true;
     }

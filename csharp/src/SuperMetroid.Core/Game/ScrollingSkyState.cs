@@ -192,10 +192,10 @@ public sealed class ScrollingSkyState
             // ocean entry wrapper—not in the five-word land table. Reading through the ROM
             // bus reproduces that harmless offscreen quirk without C/C# memory unsafety.
             int offset = (LandChunkPointerTableAddress + index * 2) & 0xffff;
-            int address = 0x880000 | offset;
+            SnesAddress address = new(0x88, unchecked((ushort)offset));
             return (ushort)(
-                _addressSpace.ReadByte(address) |
-                (_addressSpace.ReadByte(0x880000 | ((offset + 1) & 0xffff)) << 8));
+                _addressSpace.ReadByte((int)address) |
+                (_addressSpace.ReadByte((int)address.AddWithinBank(1)) << 8));
         }
 
         // The sixth value is the first adjacent ocean-table word and covers ordinary

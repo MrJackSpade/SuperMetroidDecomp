@@ -20,37 +20,50 @@ public static class RomDataReader
     /// </summary>
     public static byte[] ReadFixedBank(ISnesAddressSpace bus, int sourceAddress, int byteCount)
     {
+        return ReadFixedBank(bus, SnesAddress.FromBusAddress(sourceAddress), byteCount);
+    }
+
+    /// <summary>Typed overload of <see cref="ReadFixedBank(ISnesAddressSpace,int,int)"/>.</summary>
+    public static byte[] ReadFixedBank(ISnesAddressSpace bus, SnesAddress sourceAddress, int byteCount)
+    {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)sourceAddress > 0x00ff_ffff || (sourceAddress & 0x8000) == 0)
+        if (!sourceAddress.IsUpperLoRomWindow)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress));
         ArgumentOutOfRangeException.ThrowIfNegative(byteCount);
 
-        int bank = sourceAddress & 0x00ff_0000;
-        int offset = sourceAddress & 0xffff;
         var bytes = new byte[byteCount];
         for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = bus.ReadByte(bank | ((offset + index) & 0xffff));
+            bytes[index] = bus.ReadByte((int)sourceAddress.AddWithinBank(index));
         return bytes;
     }
 
     /// <summary>Reads one little-endian word without carrying out of its native data bank.</summary>
     public static ushort ReadWordFixedBank(ISnesAddressSpace bus, int address)
     {
+        return ReadWordFixedBank(bus, SnesAddress.FromBusAddress(address));
+    }
+
+    /// <summary>Typed little-endian word read with native fixed-bank wrapping.</summary>
+    public static ushort ReadWordFixedBank(ISnesAddressSpace bus, SnesAddress address)
+    {
         ArgumentNullException.ThrowIfNull(bus);
-        byte low = bus.ReadByte(address);
-        int next = (address & 0x00ff_0000) | ((address + 1) & 0xffff);
-        return (ushort)(low | (bus.ReadByte(next) << 8));
+        byte low = bus.ReadByte((int)address);
+        return (ushort)(low | (bus.ReadByte((int)address.AddWithinBank(1)) << 8));
     }
 
     /// <summary>Reads one little-endian 24-bit pointer without carrying out of its data bank.</summary>
     public static int ReadLongFixedBank(ISnesAddressSpace bus, int address)
     {
+        return ReadLongFixedBank(bus, SnesAddress.FromBusAddress(address));
+    }
+
+    /// <summary>Typed 24-bit pointer read with native fixed-bank wrapping.</summary>
+    public static int ReadLongFixedBank(ISnesAddressSpace bus, SnesAddress address)
+    {
         ArgumentNullException.ThrowIfNull(bus);
-        int bank = address & 0x00ff_0000;
-        int offset = address & 0xffff;
-        return bus.ReadByte(bank | offset) |
-               (bus.ReadByte(bank | ((offset + 1) & 0xffff)) << 8) |
-               (bus.ReadByte(bank | ((offset + 2) & 0xffff)) << 16);
+        return bus.ReadByte((int)address) |
+               (bus.ReadByte((int)address.AddWithinBank(1)) << 8) |
+               (bus.ReadByte((int)address.AddWithinBank(2)) << 16);
     }
 
     /// <summary>
@@ -69,8 +82,22 @@ public static class RomDataReader
         int maximumCompressedBytes = 0x8000,
         int maximumOutputBytes = 4 * 1024 * 1024)
     {
+        return Decompress(
+            bus,
+            SnesAddress.FromBusAddress(sourceAddress),
+            maximumCompressedBytes,
+            maximumOutputBytes);
+    }
+
+    /// <summary>Typed overload for one compressed upper-LoROM stream.</summary>
+    public static byte[] Decompress(
+        ISnesAddressSpace bus,
+        SnesAddress sourceAddress,
+        int maximumCompressedBytes = 0x8000,
+        int maximumOutputBytes = 4 * 1024 * 1024)
+    {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)sourceAddress > 0x00ff_ffff || (sourceAddress & 0x8000) == 0)
+        if (!sourceAddress.IsUpperLoRomWindow)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(sourceAddress),
@@ -83,12 +110,12 @@ public static class RomDataReader
         // `DecompressToMem` keeps its data bank fixed while its 16-bit source index wraps.
         // Read incrementally because an $FF literal byte is not necessarily the stream
         // terminator; only the compression parser can identify the first complete stream.
-        int currentAddress = sourceAddress;
+        SnesAddress currentAddress = sourceAddress;
         var stored = new byte[maximumCompressedBytes];
         for (int length = 1; length <= stored.Length; length++)
         {
-            stored[length - 1] = bus.ReadByte(currentAddress);
-            currentAddress = IncrementLoRomAddress(currentAddress);
+            stored[length - 1] = bus.ReadByte((int)currentAddress);
+            currentAddress = currentAddress.NextLoRomByte();
             if (stored[length - 1] != 0xff)
                 continue;
 
@@ -104,21 +131,7 @@ public static class RomDataReader
         }
 
         throw new InvalidDataException(
-            $"No complete compressed stream was found at ${sourceAddress >> 16:X2}:${sourceAddress & 0xffff:X4} " +
+            $"No complete compressed stream was found at {sourceAddress} " +
             $"within ${maximumCompressedBytes:X} bytes.");
-    }
-
-    private static int IncrementLoRomAddress(int address)
-    {
-        // A decompressor source is a long ROM pointer, not a fixed-bank DMA source. Once
-        // its 16-bit address reaches $FFFF, the next physical LoROM byte is in the next
-        // bank's upper window at $8000. This distinction is observable at title stream
-        // $94:E000, whose stored $10D7 bytes deliberately spill into bank $95.
-        int offset = address & 0xffff;
-        if (offset != 0xffff)
-            return address + 1;
-
-        int nextBank = ((address >> 16) + 1) & 0xff;
-        return (nextBank << 16) | 0x8000;
     }
 }

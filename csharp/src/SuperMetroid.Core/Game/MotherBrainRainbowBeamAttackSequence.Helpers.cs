@@ -47,10 +47,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     private static ushort ReadBankA9Word(ISnesAddressSpace bus, ushort address)
     {
-        int lowAddress = 0xa90000 | address;
+        SnesAddress lowAddress = new(0xa9, address);
         return unchecked((ushort)(
-            bus.ReadByte(lowAddress) |
-            (bus.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8)));
+            bus.ReadByte((int)lowAddress) |
+            (bus.ReadByte((int)lowAddress.AddWithinBank(1)) << 8)));
     }
 
     private void RetractHead()

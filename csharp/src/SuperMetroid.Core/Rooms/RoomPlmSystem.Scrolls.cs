@@ -59,7 +59,7 @@ public sealed partial class RoomPlmSystem
         ushort cursor = slot.RoomArgument;
         for (int pairIndex = 0; pairIndex < RoomScrollGrid.StorageByteCount; pairIndex++)
         {
-            byte scrollIndex = bus.ReadByte(0x8f0000 | cursor);
+            byte scrollIndex = bus.ReadByte((int)new SnesAddress(0x8f, cursor));
             if ((scrollIndex & 0x80) != 0)
             {
                 // Instruction $8B55 clears PLM_Vars and restores type-$3 special air, then
@@ -75,7 +75,8 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            byte value = bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 1)));
+            byte value = bus.ReadByte(
+                (int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
             scrolls.SetStorage(scrollIndex, value);
             cursor = unchecked((ushort)(cursor + 2));
         }

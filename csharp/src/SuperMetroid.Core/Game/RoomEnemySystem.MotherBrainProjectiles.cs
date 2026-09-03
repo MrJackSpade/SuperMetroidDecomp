@@ -126,8 +126,8 @@ public sealed partial class RoomEnemySystem
         byte currentDirection = unchecked((byte)turret.YSubposition);
         sbyte rotationDelta = unchecked((sbyte)(turret.YSubposition >> 8));
         byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
-        byte allowed = _bus!.ReadByte(0x860000 | unchecked((ushort)(
-            turret.XSubposition + candidate)));
+        byte allowed = _bus!.ReadByte((int)new SnesAddress(0x86, unchecked((ushort)(
+            turret.XSubposition + candidate))));
 
         if (allowed != 0)
         {

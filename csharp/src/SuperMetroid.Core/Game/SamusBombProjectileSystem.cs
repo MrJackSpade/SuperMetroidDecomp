@@ -714,8 +714,10 @@ public sealed class SamusBombProjectileSystem
 
                 slot.InstructionTimer = durationOrOpcode;
                 slot.SpritemapPointer = ReadWord(bus, 0x930000 | unchecked((ushort)(pointer + 2)));
-                slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(pointer + 4)));
-                slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(pointer + 5)));
+                slot.XRadius = bus.ReadByte(
+                    (int)new SnesAddress(0x93, unchecked((ushort)(pointer + 4))));
+                slot.YRadius = bus.ReadByte(
+                    (int)new SnesAddress(0x93, unchecked((ushort)(pointer + 5))));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
                 return false;
             }

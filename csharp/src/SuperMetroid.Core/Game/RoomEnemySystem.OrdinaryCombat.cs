@@ -2661,7 +2661,8 @@ public sealed partial class RoomEnemySystem
             _ => throw new InvalidDataException(
                 $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
-        return bus.ReadByte(0xb40000 | unchecked((ushort)(pointer + byteOffset)));
+        return bus.ReadByte(
+            (int)new SnesAddress(0xb4, unchecked((ushort)(pointer + byteOffset))));
     }
 
     private readonly record struct NormalShotVulnerability(

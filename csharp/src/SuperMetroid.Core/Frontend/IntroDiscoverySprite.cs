@@ -177,7 +177,7 @@ internal sealed class IntroDiscoverySprite
             return;
         oam.AddOnScreenSpritemap(
             bus,
-            0x8c0000 | SpriteMapPointer,
+            (int)new SnesAddress(0x8c, SpriteMapPointer),
             XPosition,
             YPosition,
             PaletteBits);

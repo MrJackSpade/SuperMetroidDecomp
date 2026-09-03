@@ -228,11 +228,11 @@ public sealed class RoomLevelData
         // Bit seven is not part of the list index. Native elevator/special-door BTS values
         // share the same seven-bit table lookup before the destination-room high bit decides
         // whether collision is solid or starts game state $09.
-        int pointerAddress = 0x8f0000 | unchecked((ushort)(
-            doorListPointer + ((behavior & 0x7f) * 2)));
+        SnesAddress pointerAddress = new(0x8f, unchecked((ushort)(
+            doorListPointer + ((behavior & 0x7f) * 2))));
         ushort doorPointer = unchecked((ushort)(
-            bus.ReadByte(pointerAddress) |
-            (bus.ReadByte(0x8f0000 | unchecked((ushort)(pointerAddress + 1))) << 8)));
+            bus.ReadByte((int)pointerAddress) |
+            (bus.ReadByte((int)pointerAddress.AddWithinBank(1)) << 8)));
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, doorPointer);
         // The native door handler normally publishes either a real transition or the
         // elevator-contact flag. The desktop runtime collapses the outer transition states

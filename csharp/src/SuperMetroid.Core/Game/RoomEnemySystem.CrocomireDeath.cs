@@ -600,7 +600,8 @@ public sealed partial class RoomEnemySystem
         ushort source = ReadWord(_bus!, 0xa499d9 + entry * 2);
         byte[] bytes = new byte[0x0200];
         for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = _bus!.ReadByte(0xad0000 | unchecked((ushort)(source + index)));
+            bytes[index] = _bus!.ReadByte(
+                (int)new SnesAddress(0xad, unchecked((ushort)(source + index))));
 
         // OBSEL is $03 in ordinary gameplay, so its low-three-bit base contributes $6000
         // words before the table's authored offset, exactly as $A4:9931-$9942 computes.

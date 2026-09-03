@@ -276,7 +276,7 @@ public sealed partial class RoomPlmSystem
         for (int child = 0; child < 8; child++)
         {
             byte palette = bus.ReadByte(
-                0x840000 | unchecked((ushort)(instructionList + 4 + child)));
+                Bank84(unchecked((ushort)(instructionList + 4 + child))));
             ushort tilemapWord = unchecked((ushort)(
                 startingTileNumber + child + (palette << 10)));
             level.SetBlockDefinitionWord(firstDefinitionWord + child, tilemapWord);

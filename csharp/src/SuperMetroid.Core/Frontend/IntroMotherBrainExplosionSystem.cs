@@ -57,7 +57,7 @@ internal sealed class IntroMotherBrainExplosionSystem
 
             oam.AddOnScreenSpritemap(
                 bus,
-                0x8c0000 | actor.SpriteMapPointer,
+                (int)new SnesAddress(0x8c, actor.SpriteMapPointer),
                 actor.XPosition,
                 actor.YPosition,
                 paletteBits: 0x0a00);

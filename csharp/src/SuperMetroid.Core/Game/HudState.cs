@@ -368,9 +368,10 @@ public sealed class HudState
     {
         // Every table used here remains within bank $80, but wrapping the offset documents
         // the 65C816 absolute/long access behavior and avoids accidental linear-bank reads.
-        int bank = address & 0xff0000;
-        int offset = address & 0xffff;
-        return (ushort)(bus.ReadByte(bank | offset) | (bus.ReadByte(bank | ((offset + 1) & 0xffff)) << 8));
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return (ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8));
     }
 
     private static bool ReadMapBit(ISnesAddressSpace bus, int mapDataAddress, int mapX, int mapY)

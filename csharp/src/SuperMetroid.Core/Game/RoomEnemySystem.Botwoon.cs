@@ -501,7 +501,8 @@ public sealed partial class RoomEnemySystem
         int step = state.PathDirection < 0 ? -2 : 2;
         for (int sample = 0; sample < state.Speed; sample++)
         {
-            sbyte dx = unchecked((sbyte)_bus!.ReadByte(0xb30000 | state.PathPointer));
+            sbyte dx = unchecked((sbyte)_bus!.ReadByte(
+                (int)new SnesAddress(0xb3, state.PathPointer)));
             if (dx == sbyte.MinValue)
             {
                 state.PathComplete = true;

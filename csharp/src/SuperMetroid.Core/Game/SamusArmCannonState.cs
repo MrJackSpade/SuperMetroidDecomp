@@ -72,7 +72,8 @@ public sealed class SamusArmCannonState
             AdvanceFrame();
 
         ushort drawingData = ReadWord(bus, PoseDrawingDataPointers + samus.Pose * 2);
-        DrawingMode = bus.ReadByte(0x900000 | unchecked((ushort)(drawingData + 1)));
+        DrawingMode = bus.ReadByte(
+            (int)new SnesAddress(0x90, unchecked((ushort)(drawingData + 1))));
         return new SamusArmCannonUpdateResult(
             itemChanged,
             transitionStarted,
@@ -108,10 +109,11 @@ public sealed class SamusArmCannonState
             return new SamusArmCannonDrawResult(false, false, Frame);
 
         ushort drawingData = ReadWord(bus, PoseDrawingDataPointers + samus.Pose * 2);
-        byte firstSelector = bus.ReadByte(0x900000 | drawingData);
+        byte firstSelector = bus.ReadByte((int)new SnesAddress(0x90, drawingData));
         bool frameDependentSelector = (firstSelector & 0x80) != 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
-            ? unchecked((byte)(bus.ReadByte(0x900000 | unchecked((ushort)(drawingData + 2))) & 0x7f))
+            ? unchecked((byte)(bus.ReadByte((int)new SnesAddress(
+                0x90, unchecked((ushort)(drawingData + 2)))) & 0x7f))
             : unchecked((byte)(firstSelector & 0x7f));
         if (selector >= 10)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
@@ -206,8 +208,13 @@ public sealed class SamusArmCannonState
         CloseFlag = 0;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return unchecked((ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+    }
 }
 
 /// <summary>Debugger witness from the once-per-frame arm-cannon state update.</summary>

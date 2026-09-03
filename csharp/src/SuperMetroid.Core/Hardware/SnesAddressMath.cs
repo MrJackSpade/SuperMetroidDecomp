@@ -13,5 +13,5 @@ public static class SnesAddressMath
     /// fixed data bank and therefore wrap <c>$xx:FFFF</c> to <c>$xx:0000</c>.
     /// </summary>
     public static int AddWithinBank(int address, int byteCount) =>
-        (address & 0xff0000) | ((address + byteCount) & 0xffff);
+        (int)SnesAddress.FromBusAddress(address).AddWithinBank(byteCount);
 }

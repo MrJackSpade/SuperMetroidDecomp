@@ -1305,9 +1305,12 @@ public sealed partial class RoomEnemySystem
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
                 {
                     int externalFunction =
-                        _bus!.ReadByte(0x860000 | unchecked((ushort)(cursor + 2))) |
-                        (_bus.ReadByte(0x860000 | unchecked((ushort)(cursor + 3))) << 8) |
-                        (_bus.ReadByte(0x860000 | unchecked((ushort)(cursor + 4))) << 16);
+                        _bus!.ReadByte((int)new SnesAddress(
+                            0x86, unchecked((ushort)(cursor + 2)))) |
+                        (_bus.ReadByte((int)new SnesAddress(
+                            0x86, unchecked((ushort)(cursor + 3)))) << 8) |
+                        (_bus.ReadByte((int)new SnesAddress(
+                            0x86, unchecked((ushort)(cursor + 4)))) << 16);
                     if (externalFunction != 0x86c7fb || projectile.Kind is not (
                             RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
                             RoomEnemyProjectileKind.MotherBrainHandBeamFired))

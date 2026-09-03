@@ -26,19 +26,22 @@ public sealed class SnesCgram
     /// </summary>
     public void LoadFromBus(ISnesAddressSpace bus, int sourceAddress, int colorCount = ColorCount, int destinationIndex = 0)
     {
+        LoadFromBus(bus, SnesAddress.FromBusAddress(sourceAddress), colorCount, destinationIndex);
+    }
+
+    /// <summary>Typed fixed-bank palette transfer.</summary>
+    public void LoadFromBus(ISnesAddressSpace bus, SnesAddress sourceAddress, int colorCount = ColorCount, int destinationIndex = 0)
+    {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)sourceAddress > 0x00ff_ffff)
-            throw new ArgumentOutOfRangeException(nameof(sourceAddress));
         if (colorCount < 0 || destinationIndex < 0 || destinationIndex + colorCount > ColorCount)
             throw new ArgumentOutOfRangeException(nameof(colorCount), "CGRAM load must remain within 256 colors.");
 
-        int sourceBank = sourceAddress & 0x00ff_0000;
-        int sourceOffset = sourceAddress & 0xffff;
         for (int color = 0; color < colorCount; color++)
         {
-            int lowAddress = sourceBank | ((sourceOffset + color * 2) & 0xffff);
-            int highAddress = sourceBank | ((sourceOffset + color * 2 + 1) & 0xffff);
-            _colors[destinationIndex + color] = (ushort)(bus.ReadByte(lowAddress) | (bus.ReadByte(highAddress) << 8));
+            SnesAddress lowAddress = sourceAddress.AddWithinBank(color * 2);
+            SnesAddress highAddress = sourceAddress.AddWithinBank(color * 2 + 1);
+            _colors[destinationIndex + color] = (ushort)(
+                bus.ReadByte((int)lowAddress) | (bus.ReadByte((int)highAddress) << 8));
         }
     }
 

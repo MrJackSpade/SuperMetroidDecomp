@@ -59,6 +59,27 @@ static void VerifyTypedNativeWords()
     AssertEqual(0x91fffe, SnesAddressMath.AddWithinBank(0x910002, -4),
         "fixed-bank address addition wraps negative displacement");
 
+    var typedAddress = new SnesAddress(0x91, 0xb629);
+    AssertEqual((byte)0x91, typedAddress.Bank, "typed SNES address bank");
+    AssertEqual((ushort)0xb629, typedAddress.Offset, "typed SNES address offset");
+    AssertEqual(0x91b629, (int)typedAddress, "typed SNES address explicit bus value");
+    AssertEqual(0x910000, (int)new SnesAddress(0x91, 0xffff).AddWithinBank(1),
+        "typed fixed-bank addition wraps without bank carry");
+    AssertEqual(0x91ffff, (int)new SnesAddress(0x91, 0).AddWithinBank(-1),
+        "typed fixed-bank subtraction wraps without bank borrow");
+    AssertTrue(SnesAddress.FromUpperLoRom(0x94, 0xe000).IsUpperLoRomWindow,
+        "typed upper-LoROM validation accepts cartridge window");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => SnesAddress.FromUpperLoRom(0x94, 0x7fff),
+        "typed upper-LoROM validation rejects lower bank window");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => SnesAddress.FromBusAddress(0x0100_0000),
+        "typed SNES address rejects a 25-bit host value");
+    AssertEqual(0x958000, (int)new SnesAddress(0x94, 0xffff).NextLoRomByte(),
+        "typed linear LoROM step crosses to next upper window");
+    AssertEqual(0x940000, (int)new SnesAddress(0x94, 0xffff).AddWithinBank(1),
+        "typed fixed-bank step remains distinct from linear LoROM step");
+
     // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
     // 256-entry sine tables. Verify named axes, full-turn normalization, fractional
     // preservation, and the signed modular subtraction used near the wrap seam.

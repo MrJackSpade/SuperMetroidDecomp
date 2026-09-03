@@ -104,9 +104,13 @@ public sealed class SamusVisorPaletteState
             color);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) => unchecked((ushort)(
-        bus.ReadByte(address) |
-        (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+    private static ushort ReadWord(ISnesAddressSpace bus, int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return unchecked((ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+    }
 }
 
 /// <summary>Branch and packed-word witness from one native visor-palette call.</summary>

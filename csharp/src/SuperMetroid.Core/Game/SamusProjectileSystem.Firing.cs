@@ -196,8 +196,10 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = ReadWord(
             bus,
             0x930000 | unchecked((ushort)(dataPointer + 2 + direction * 2)));
-        slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
-        slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.XRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+        slot.YRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         // `$90:B887` gives uncharged power-wave and ice-wave a three-frame trail reload.
         // All other uncharged wave combinations, and every charged wave combination, use
@@ -287,8 +289,10 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = ReadWord(
             bus,
             0x930000 | unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
-        slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.XRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+        slot.YRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         slot.Damage = 1000;
 
@@ -380,8 +384,10 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = ReadWord(
             bus,
             0x930000 | unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
-        slot.YRadius = bus.ReadByte(0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+        slot.XRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+        slot.YRadius = bus.ReadByte(
+            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile

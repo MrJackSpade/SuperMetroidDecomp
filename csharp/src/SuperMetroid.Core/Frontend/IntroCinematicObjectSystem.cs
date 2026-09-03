@@ -327,8 +327,8 @@ internal sealed class IntroCinematicObjectSystem
         if (drawFunction == DrawNothing)
             return;
 
-        byte width = bus.ReadByte(0x8c0000 | Add(dataPointer, 2));
-        byte height = bus.ReadByte(0x8c0000 | Add(dataPointer, 3));
+        byte width = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 2)));
+        byte height = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 3)));
         if (width == 0 || height == 0)
             throw new InvalidDataException($"Cinematic tile data $8C:{dataPointer:X4} has a zero-sized rectangle.");
 
@@ -381,9 +381,9 @@ internal sealed class IntroCinematicObjectSystem
         if ((nextDurationOrOpcode & 0x8000) == 0)
         {
             caretX = unchecked((ushort)(
-                bus.ReadByte(0x8c0000 | Add(instructionRecordPointer, 8)) * 8));
+                bus.ReadByte((int)new SnesAddress(0x8c, Add(instructionRecordPointer, 8))) * 8));
             caretY = unchecked((ushort)(
-                bus.ReadByte(0x8c0000 | Add(instructionRecordPointer, 9)) * 8 - 8));
+                bus.ReadByte((int)new SnesAddress(0x8c, Add(instructionRecordPointer, 9))) * 8 - 8));
             return;
         }
 
@@ -454,7 +454,8 @@ internal sealed class IntroCinematicObjectSystem
 
     private ushort ReadBank8B(ushort pointer) => RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer);
 
-    private ushort ReadBank8C(ushort pointer) => RomDataReader.ReadWordFixedBank(bus, 0x8c0000 | pointer);
+    private ushort ReadBank8C(ushort pointer) =>
+        RomDataReader.ReadWordFixedBank(bus, new SnesAddress(0x8c, pointer));
 
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 

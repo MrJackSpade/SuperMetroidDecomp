@@ -174,7 +174,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case GotoIfAreaBossBitSet:
-                byte bossMask = bus.ReadByte(0x840000 | unchecked((ushort)(cursor + 2)));
+                byte bossMask = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 2))));
                 ushort bossTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 3)));
                 slot.InstructionPointer = _motherBrainHasAreaBossBit?.Invoke(bossMask) == true
                     ? bossTarget
@@ -264,8 +264,8 @@ public sealed partial class RoomPlmSystem
 
     private static ushort ReadBank8fWord(ISnesAddressSpace bus, ushort pointer) =>
         unchecked((ushort)(
-            bus.ReadByte(0x8f0000 | pointer) |
-            (bus.ReadByte(0x8f0000 | unchecked((ushort)(pointer + 1))) << 8)));
+            bus.ReadByte((int)new SnesAddress(0x8f, pointer)) |
+            (bus.ReadByte((int)new SnesAddress(0x8f, unchecked((ushort)(pointer + 1)))) << 8)));
 }
 
 /// <summary>One <c>SpawnEprojWithRoomGfx($CEFC, parameter)</c> emitted by glass bytecode.</summary>

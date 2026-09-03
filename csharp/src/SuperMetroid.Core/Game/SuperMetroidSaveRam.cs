@@ -343,7 +343,8 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
-    private byte ReadSramByte(int offset) => bus.ReadByte(0x700000 | (offset & 0x1fff));
+    private byte ReadSramByte(int offset) =>
+        bus.ReadByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)));
 
     private ushort ReadSramWord(int offset) => unchecked((ushort)(
         ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));
@@ -357,7 +358,7 @@ public sealed class SuperMetroidSaveRam
     }
 
     private void WriteSramByte(int offset, byte value) =>
-        bus.WriteByte(0x700000 | (offset & 0x1fff), value);
+        bus.WriteByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)), value);
 
     private void WriteSramWord(int offset, ushort value)
     {
@@ -386,7 +387,8 @@ public sealed class SuperMetroidSaveRam
                 int compressedIndex = destination + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
-                int areaByteIndex = bus.ReadByte(0x810000 | ((sourceIndexPointer + index) & 0xffff));
+                int areaByteIndex = bus.ReadByte(
+                    (int)new SnesAddress(0x81, unchecked((ushort)(sourceIndexPointer + index))));
                 compressed[compressedIndex] = exploredMap[
                     area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex];
             }
@@ -420,8 +422,13 @@ public sealed class SuperMetroidSaveRam
         return explored;
     }
 
-    private ushort ReadBusWord(int address) => unchecked((ushort)(
-        bus.ReadByte(address) | (bus.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8)));
+    private ushort ReadBusWord(int address)
+    {
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        return unchecked((ushort)(
+            bus.ReadByte((int)source) |
+            (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));
+    }
 
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {

@@ -436,7 +436,7 @@ public sealed partial class SamusState
     private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
         ushort listPointer = ReadWord(bus, 0x91b5d1);
-        return bus.ReadByte(AddWithinBank(0x910000 | listPointer, byteIndex));
+        return bus.ReadByte((int)new SnesAddress(0x91, listPointer).AddWithinBank(byteIndex));
     }
 
     /// <summary>

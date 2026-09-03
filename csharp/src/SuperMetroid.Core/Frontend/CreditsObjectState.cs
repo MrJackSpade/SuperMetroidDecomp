@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class CreditsObjectState
 {
-    private const int CreditsInstructionBank = 0x8c0000;
+    private static readonly SnesAddress CreditsInstructionBank = new(0x8c, 0);
     private const int CreditsTilemapAddress = 0x97eeff;
     private const ushort InitialInstructionPointer = 0xd91b;
     private const ushort DeleteInstruction = 0x99fe;
@@ -159,7 +159,7 @@ internal sealed class CreditsObjectState
     }
 
     private ushort ReadInstructionWord(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, CreditsInstructionBank | pointer);
+        RomDataReader.ReadWordFixedBank(bus, CreditsInstructionBank.AddWithinBank(pointer));
 }
 
 internal readonly record struct CreditsObjectStepResult(

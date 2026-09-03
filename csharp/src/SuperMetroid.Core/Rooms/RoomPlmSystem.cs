@@ -1209,7 +1209,7 @@ public sealed partial class RoomPlmSystem
                     // `$84:8C79` is the shot-block queue form. It has the same odd-byte
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
                     byte singleSoundId = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, singleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
@@ -1219,7 +1219,7 @@ public sealed partial class RoomPlmSystem
                     // shot-block lists; `$8C79` enters the same max-one queue routine through
                     // a short branch. Both consume the identical odd-byte sound operand.
                     byte directSingleSoundId = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, directSingleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
@@ -1228,7 +1228,7 @@ public sealed partial class RoomPlmSystem
                     // $84:8C10 consumes one byte after its pointer. The following timer's
                     // low byte is read as A's harmless high byte by the 16-bit LDA.
                     byte soundId = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, soundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
@@ -1237,7 +1237,7 @@ public sealed partial class RoomPlmSystem
                     // `$84:8C46` has the same odd-byte operand layout as `$8C10`, but the
                     // collision-bomb list's crumble sound `$06` uses the stricter queue cap.
                     byte cappedSoundId = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cappedSoundId), MaximumQueued: 3));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
@@ -1247,7 +1247,7 @@ public sealed partial class RoomPlmSystem
                     // library-two opcodes, the 16-bit native load intentionally consumes
                     // only one argument byte before advancing Y by one.
                     byte doorSoundId = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, doorSoundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
@@ -1265,7 +1265,7 @@ public sealed partial class RoomPlmSystem
                     // `$84:874E` consumes an odd one-byte operand into PLM_Timers, not the
                     // instruction countdown. Botwoon's list seeds nine vertical rows here.
                     slot.LoopTimer = bus.ReadByte(
-                        0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
+                        Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1418,8 +1418,8 @@ public sealed partial class RoomPlmSystem
                     bg1XOffset);
             }
 
-            byte relativeX = bus.ReadByte(0x840000 | cursor);
-            byte relativeY = bus.ReadByte(0x840000 | unchecked((ushort)(cursor + 1)));
+            byte relativeX = bus.ReadByte(Bank84(cursor));
+            byte relativeY = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 1))));
             if (relativeX == 0 && relativeY == 0)
                 return;
 
@@ -1471,8 +1471,11 @@ public sealed partial class RoomPlmSystem
 
     private static ushort ReadBank84Word(ISnesAddressSpace bus, ushort address) =>
         unchecked((ushort)(
-            bus.ReadByte(0x840000 | address) |
-            (bus.ReadByte(0x840000 | unchecked((ushort)(address + 1))) << 8)));
+            bus.ReadByte(Bank84(address)) |
+            (bus.ReadByte(Bank84(unchecked((ushort)(address + 1)))) << 8)));
+
+    /// <summary>Explicit CPU-bus boundary for native bank-$84 PLM pointers.</summary>
+    private static int Bank84(ushort offset) => (int)new SnesAddress(0x84, offset);
 
     private sealed class PlmSlot
     {

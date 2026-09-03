@@ -88,7 +88,7 @@ public sealed partial class RoomPlmSystem
         ushort initialList = slot.InstructionPointer;
         ushort closedBlueList = ReadBank84Word(bus, unchecked((ushort)(initialList + 2)));
         ushort hitList = ReadBank84Word(bus, unchecked((ushort)(initialList + 6)));
-        byte hitThreshold = bus.ReadByte(0x840000 | unchecked((ushort)(hitList + 2)));
+        byte hitThreshold = bus.ReadByte(Bank84(unchecked((ushort)(hitList + 2))));
         ushort openingList = ReadBank84Word(bus, unchecked((ushort)(hitList + 3)));
         ushort coloredClosedDraw = ReadBank84Word(bus, unchecked((ushort)(initialList + 14)));
         bool wasOpened = unchecked((short)slot.RoomArgument) >= 0 &&

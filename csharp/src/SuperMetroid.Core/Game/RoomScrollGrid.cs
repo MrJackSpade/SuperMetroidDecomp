@@ -49,15 +49,12 @@ public sealed class RoomScrollGrid
         int heightInScreens)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if ((uint)sourceAddress > 0x00ff_ffff)
-            throw new ArgumentOutOfRangeException(nameof(sourceAddress));
+        SnesAddress source = SnesAddress.FromBusAddress(sourceAddress);
 
         var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
-        int sourceBank = sourceAddress & 0xff0000;
-        int sourceOffset = sourceAddress & 0xffff;
         for (int index = 0; index < StorageByteCount; index++)
         {
-            byte value = bus.ReadByte(sourceBank | ((sourceOffset + index) & 0xffff));
+            byte value = bus.ReadByte((int)source.AddWithinBank(index));
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }

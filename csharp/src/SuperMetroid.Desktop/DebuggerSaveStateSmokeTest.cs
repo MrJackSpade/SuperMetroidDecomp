@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
 
@@ -17,8 +18,13 @@ public static class DebuggerSaveStateSmokeTest
         string fullRomPath = Path.GetFullPath(romPath);
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
         var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions());
+        using var audio = new SpcAudioEngine();
         for (int frame = 0; frame < 90; frame++)
-            game.Step(0);
+        {
+            FrontendFrame current = game.Step(0);
+            audio.RenderFrame(current.AudioCommands);
+            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+        }
 
         string temporaryDirectory = Path.Combine(
             Path.GetTempPath(),
@@ -27,14 +33,24 @@ public static class DebuggerSaveStateSmokeTest
         try
         {
             var store = new DebuggerSaveStateStore(fullRomPath, bus.Rom, temporaryDirectory);
-            DebuggerSaveStateMetadata saved = store.Save(0, bus, game);
+            DebuggerSaveStateMetadata saved = store.Save(0, bus, game, audio.Player);
             long stateBytes = new FileInfo(saved.Path).Length;
             const int continuationFrames = 45;
             var expected = new FrontendFrame[continuationFrames];
+            var expectedPcm = new short[continuationFrames][];
+            var expectedAcknowledgements = new CartridgeAudioAcknowledgements[continuationFrames];
             for (int frame = 0; frame < continuationFrames; frame++)
+            {
                 expected[frame] = game.Step(0);
+                expectedPcm[frame] = audio.RenderFrame(expected[frame].AudioCommands).ToArray();
+                expectedAcknowledgements[frame] = audio.ReadAcknowledgements();
+                game.SetAudioAcknowledgements(expectedAcknowledgements[frame]);
+            }
 
             DebuggerSaveStateLoadResult loaded = store.Load(0);
+            using var restoredAudio = new SpcAudioEngine(
+                ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
+                loaded.AudioPlayer ?? throw new InvalidDataException("Restored state omitted managed audio."));
             if (loaded.Game.FrameNumber != saved.FrameNumber)
             {
                 throw new InvalidDataException(
@@ -43,12 +59,18 @@ public static class DebuggerSaveStateSmokeTest
             for (int frame = 0; frame < continuationFrames; frame++)
             {
                 FrontendFrame actual = loaded.Game.Step(0);
+                short[] actualPcm = restoredAudio.RenderFrame(actual.AudioCommands).ToArray();
+                CartridgeAudioAcknowledgements actualAcknowledgements =
+                    restoredAudio.ReadAcknowledgements();
+                loaded.Game.SetAudioAcknowledgements(actualAcknowledgements);
                 FrontendFrame wanted = expected[frame];
                 if (actual.GameState != wanted.GameState ||
                     actual.FrameNumber != wanted.FrameNumber ||
                     actual.Phase != wanted.Phase ||
                     !actual.Pixels.AsSpan().SequenceEqual(wanted.Pixels) ||
-                    !actual.AudioCommands.SequenceEqual(wanted.AudioCommands))
+                    !actual.AudioCommands.SequenceEqual(wanted.AudioCommands) ||
+                    !actualPcm.AsSpan().SequenceEqual(expectedPcm[frame]) ||
+                    actualAcknowledgements != expectedAcknowledgements[frame])
                 {
                     throw new InvalidDataException(
                         $"Debugger-state continuation diverged on relative frame {frame} " +

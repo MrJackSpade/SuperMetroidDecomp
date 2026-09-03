@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.Desktop;
 internal sealed class DebuggerSaveStateStore
 {
     private static ReadOnlySpan<byte> Magic => "SMCSTATE"u8;
-    private const int FormatVersion = 1;
+    private const int FormatVersion = 2;
     private const int SlotCount = 10;
 
     private readonly string directory;
@@ -41,7 +42,8 @@ internal sealed class DebuggerSaveStateStore
     public DebuggerSaveStateMetadata Save(
         int slot,
         SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game)
+        SuperMetroidGame game,
+        ManagedSpcPlayer? audioPlayer)
     {
         ValidateSlot(slot);
         ArgumentNullException.ThrowIfNull(addressSpace);
@@ -86,7 +88,7 @@ internal sealed class DebuggerSaveStateStore
                 using var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true);
                 DebuggerObjectGraphSerializer.Serialize(
                     compressed,
-                    new DebuggerSaveStateRoot(addressSpace, game));
+                    new DebuggerSaveStateRoot(addressSpace, game, audioPlayer));
             }
             File.Move(temporary, destination, overwrite: true);
             return metadata;
@@ -152,6 +154,7 @@ internal sealed class DebuggerSaveStateStore
         return new DebuggerSaveStateLoadResult(
             root.AddressSpace,
             root.Game,
+            root.AudioPlayer,
             new DebuggerSaveStateMetadata(slot, savedUtc, frame, gameState, room, roomState, path));
     }
 
@@ -190,10 +193,12 @@ internal sealed class DebuggerSaveStateStore
 
     private sealed class DebuggerSaveStateRoot(
         SuperMetroidAddressSpace addressSpace,
-        SuperMetroidGame game)
+        SuperMetroidGame game,
+        ManagedSpcPlayer? audioPlayer)
     {
         public readonly SuperMetroidAddressSpace AddressSpace = addressSpace;
         public readonly SuperMetroidGame Game = game;
+        public readonly ManagedSpcPlayer? AudioPlayer = audioPlayer;
     }
 }
 
@@ -209,4 +214,5 @@ internal readonly record struct DebuggerSaveStateMetadata(
 internal readonly record struct DebuggerSaveStateLoadResult(
     SuperMetroidAddressSpace AddressSpace,
     SuperMetroidGame Game,
+    ManagedSpcPlayer? AudioPlayer,
     DebuggerSaveStateMetadata Metadata);

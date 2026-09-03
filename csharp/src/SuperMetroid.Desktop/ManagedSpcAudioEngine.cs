@@ -14,17 +14,24 @@ internal sealed class SpcAudioEngine : IDisposable
     public const int ChannelCount = 2;
 
     private readonly ExtractedAudioAssetCatalog assets;
-    private readonly ManagedSpcPlayer player = new();
+    private readonly ManagedSpcPlayer player;
     private readonly short[] sampleBuffer = new short[StereoFramesPerVideoFrame * ChannelCount];
     private bool disposed;
 
-    public SpcAudioEngine() : this(ExtractedAudioAssetCatalog.Load(
-        ExtractedAudioAssetLocator.FindAudioDirectory()))
+    public SpcAudioEngine() : this(
+        ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
+        new ManagedSpcPlayer())
     {
     }
 
-    internal SpcAudioEngine(ExtractedAudioAssetCatalog assets) =>
+    internal SpcAudioEngine(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer player)
+    {
         this.assets = assets ?? throw new ArgumentNullException(nameof(assets));
+        this.player = player ?? throw new ArgumentNullException(nameof(player));
+    }
+
+    /// <summary>The exact managed APU state persisted with debugger save states.</summary>
+    internal ManagedSpcPlayer Player => player;
 
     /// <summary>Applies this NMI's APU operations, then renders one complete audio frame.</summary>
     public ReadOnlySpan<short> RenderFrame(IReadOnlyList<CartridgeAudioCommand> commands)

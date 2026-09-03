@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -206,7 +207,8 @@ public sealed class PlayableGameControl : UserControl
     {
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
-        DebuggerSaveStateMetadata metadata = stateStore.Save(slot, addressSpace, game);
+        DebuggerSaveStateMetadata metadata = stateStore.Save(
+            slot, addressSpace, game, audioEngine?.Player);
         statusLabel.Text =
             $"saved state {slot} | frame {metadata.FrameNumber} | " +
             FormatStateRoom(metadata.RoomPointer, metadata.RoomStatePointer);
@@ -237,7 +239,12 @@ public sealed class PlayableGameControl : UserControl
 
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine();
+            ManagedSpcPlayer restoredAudio = loaded.AudioPlayer
+                ?? throw new InvalidDataException(
+                    "Audio-enabled debugger state does not contain managed SPC state.");
+            audioEngine = new SpcAudioEngine(
+                ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
+                restoredAudio);
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,

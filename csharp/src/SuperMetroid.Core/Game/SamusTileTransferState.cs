@@ -15,10 +15,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusTileTransferState
 {
-    private const int AnimationDefinitionPointerTable = 0x92d94e;
-    private const int TopDefinitionPointerTable = 0x92d91e;
-    private const int BottomDefinitionPointerTable = 0x92d938;
-
     /// <summary>Bank-$92 address of the selected seven-byte top-half DMA definition.</summary>
     public int TopDefinitionAddress { get; private set; }
 
@@ -40,9 +36,12 @@ public sealed class SamusTileTransferState
 
         // One word per pose selects a variable-length list of four-byte animation records.
         // The frame number is 16-bit in WRAM and the original ASL/ASL arithmetic wraps.
-        ushort animationList = ReadWord(bus, AddWithinBank(AnimationDefinitionPointerTable, pose * 2));
-        ushort animationRecordOffset = unchecked((ushort)(animationList + animationFrame * 4));
-        int animationRecord = 0x920000 | animationRecordOffset;
+        ushort animationList = ReadWord(
+            bus,
+            AddWithinBank(SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers, pose * 2));
+        ushort animationRecordOffset = unchecked((ushort)(animationList +
+            animationFrame * SamusRenderingRomData.TileTransfers.AnimationRecordByteCount));
+        int animationRecord = SamusRenderingRomData.Banks.GraphicsDefinitions | animationRecordOffset;
 
         byte topSet = bus.ReadByte(animationRecord);
         byte topPosition = bus.ReadByte(AddWithinBank(animationRecord, 1));
@@ -53,18 +52,18 @@ public sealed class SamusTileTransferState
         // position*7 as position*8-position, a detail made explicit here for readability.
         TopDefinitionAddress = ResolveDefinition(
             bus,
-            TopDefinitionPointerTable,
+            SamusRenderingRomData.TileTransfers.TopDefinitionListPointers,
             topSet,
             topPosition);
         TopTransferEnabled = true;
 
         // $FF means this animation frame has no bottom-half graphics update. Crucially the
         // native routine simply returns; it does not clear a previously enabled flag.
-        if (bottomSet != 0xff)
+        if (bottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
         {
             BottomDefinitionAddress = ResolveDefinition(
                 bus,
-                BottomDefinitionPointerTable,
+                SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers,
                 bottomSet,
                 bottomPosition);
             BottomTransferEnabled = true;
@@ -83,9 +82,21 @@ public sealed class SamusTileTransferState
         // queue. The four destinations form two interleaved character regions selected by
         // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
         if (TopTransferEnabled)
-            ExecuteDefinition(bus, vram, TopDefinitionAddress, 0x6000, 0x6100);
+        {
+            ExecuteDefinition(
+                bus,
+                vram,
+                TopDefinitionAddress,
+                SamusRenderingRomData.TileTransfers.TopDestinations);
+        }
         if (BottomTransferEnabled)
-            ExecuteDefinition(bus, vram, BottomDefinitionAddress, 0x6080, 0x6180);
+        {
+            ExecuteDefinition(
+                bus,
+                vram,
+                BottomDefinitionAddress,
+                SamusRenderingRomData.TileTransfers.BottomDestinations);
+        }
 
         // These flags are intentionally not cleared. The original NMI routine leaves them
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
@@ -105,15 +116,16 @@ public sealed class SamusTileTransferState
         byte position)
     {
         ushort listPointer = ReadWord(bus, AddWithinBank(pointerTable, setIndex * 2));
-        return 0x920000 | unchecked((ushort)(listPointer + position * 7));
+        return SamusRenderingRomData.Banks.GraphicsDefinitions |
+            unchecked((ushort)(listPointer +
+                position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
     }
 
     private static void ExecuteDefinition(
         ISnesAddressSpace bus,
         SnesVram vram,
         int definitionAddress,
-        ushort part1Destination,
-        ushort part2Destination)
+        SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
     {
         // Definition layout: 24-bit source, 16-bit part-1 size, 16-bit part-2 size.
         ushort sourceOffset = ReadWord(bus, definitionAddress);
@@ -126,13 +138,13 @@ public sealed class SamusTileTransferState
         // one's DAS register. A raw zero therefore means $10000 bytes, not "no transfer".
         // The hardware helper also retains A-bus offset and VMADD wrapping for that complete
         // 64-KiB pass; no retail Samus definition needs it, but the routine itself does.
-        vram.ExecuteHardwareDmaWrite(bus, sourceAddress, part1Size, part1Destination);
+        vram.ExecuteHardwareDmaWrite(bus, sourceAddress, part1Size, destinations.First);
         if (part2Size != 0)
         {
             // DMA increments only the 16-bit A-bus address. Adding in ushort space retains
             // the source bank if a definition ever crosses xx:FFFF.
             int part2Source = sourceBank << 16 | unchecked((ushort)(sourceOffset + part1Size));
-            vram.ExecuteQueuedWrite(bus, part2Source, part2Size, part2Destination);
+            vram.ExecuteQueuedWrite(bus, part2Source, part2Size, destinations.Second);
         }
     }
 

@@ -16,12 +16,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class SamusState
 {
-    private const int TopSpritemapBaseIndexTable = 0x929263;
-    private const int BottomSpritemapBaseIndexTable = 0x92945d;
-    private const int PowerSuitPalette = 0x9b9400;
-    private const int VariaSuitPalette = 0x9b9520;
-    private const int GravitySuitPalette = 0x9b9800;
-
 
     private byte _pose = SamusPoseIds.FacingRightNormalPose;
 

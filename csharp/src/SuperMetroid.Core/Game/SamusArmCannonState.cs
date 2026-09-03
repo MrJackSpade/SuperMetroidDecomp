@@ -14,11 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusArmCannonState
 {
-    private const int OpenFlags = 0x90c7d9;
-    private const int PoseDrawingDataPointers = 0x90c7df;
-    private const int SpriteAttributes = 0x90c791;
-    private const int TileListPointers = 0x90c7a5;
-
     private ushort _previousSelectedHudItem;
 
     /// <summary>Low byte of WRAM `$0AA6`: zero closed, one open/opening.</summary>
@@ -71,9 +66,13 @@ public sealed class SamusArmCannonState
         if (CloseFlag != 0 || (transitionStarted = TryStartTransition(bus, samus.SelectedHudItem)))
             AdvanceFrame();
 
-        ushort drawingData = ReadWord(bus, PoseDrawingDataPointers + samus.Pose * 2);
+        ushort drawingData = ReadWord(
+            bus,
+            SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + samus.Pose * 2);
         DrawingMode = bus.ReadByte(
-            (int)new SnesAddress(0x90, unchecked((ushort)(drawingData + 1))));
+            (int)new SnesAddress(
+                SamusRenderingRomData.Banks.MovementNumber,
+                unchecked((ushort)(drawingData + 1))));
         return new SamusArmCannonUpdateResult(
             itemChanged,
             transitionStarted,
@@ -108,19 +107,24 @@ public sealed class SamusArmCannonState
         if (Frame == 0 || (samus.InvincibilityTimer != 0 && (nmiFrameCounter & 1) != 0))
             return new SamusArmCannonDrawResult(false, false, Frame);
 
-        ushort drawingData = ReadWord(bus, PoseDrawingDataPointers + samus.Pose * 2);
-        byte firstSelector = bus.ReadByte((int)new SnesAddress(0x90, drawingData));
+        ushort drawingData = ReadWord(
+            bus,
+            SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + samus.Pose * 2);
+        byte firstSelector = bus.ReadByte((int)new SnesAddress(
+            SamusRenderingRomData.Banks.MovementNumber,
+            drawingData));
         bool frameDependentSelector = (firstSelector & 0x80) != 0;
         byte selector = frameDependentSelector && samus.AnimationFrame != 0
             ? unchecked((byte)(bus.ReadByte((int)new SnesAddress(
-                0x90, unchecked((ushort)(drawingData + 2)))) & 0x7f))
+                SamusRenderingRomData.Banks.MovementNumber,
+                unchecked((ushort)(drawingData + 2)))) & 0x7f))
             : unchecked((byte)(firstSelector & 0x7f));
-        if (selector >= 10)
+        if (selector >= SamusRenderingRomData.ArmCannon.DirectionCount)
             throw new InvalidDataException($"Arm-cannon direction selector {selector} is outside 0..9.");
 
         ushort offsetsBase = unchecked((ushort)(drawingData +
             (frameDependentSelector ? 4 : 2)));
-        int offsetAddress = 0x900000 | unchecked((ushort)(
+        int offsetAddress = SamusRenderingRomData.Banks.Movement | unchecked((ushort)(
             offsetsBase + samus.AnimationFrame * 2));
         sbyte xOffset = unchecked((sbyte)bus.ReadByte(offsetAddress));
         sbyte yOffset = unchecked((sbyte)bus.ReadByte(offsetAddress + 1));
@@ -130,7 +134,9 @@ public sealed class SamusArmCannonState
         short screenY = unchecked((short)(
             samus.YPosition + yOffset - graphicsYOffset - layer1Y));
         bool spriteWritten = screenX >= 0 && screenX < 256 && screenY >= 0 && screenY < 256;
-        ushort attributes = ReadWord(bus, SpriteAttributes + selector * 2);
+        ushort attributes = ReadWord(
+            bus,
+            SamusRenderingRomData.ArmCannon.SpriteAttributes + selector * 2);
         if (spriteWritten)
         {
             oam.AddRawSmallSprite(
@@ -142,12 +148,17 @@ public sealed class SamusArmCannonState
         // Selector -> one of four orientation lists -> current cover frame -> bank-$9A
         // source. Entry zero is intentionally null but cannot be reached because Frame zero
         // returned above. Destination `$61F0` is the tile-$1F slot used by the OAM word.
-        ushort tileList = ReadWord(bus, TileListPointers + selector * 2);
-        ushort tileSource = ReadWord(bus, 0x900000 | unchecked((ushort)(tileList + Frame * 2)));
+        ushort tileList = ReadWord(
+            bus,
+            SamusRenderingRomData.ArmCannon.TileListPointers + selector * 2);
+        ushort tileSource = ReadWord(
+            bus,
+            SamusRenderingRomData.Banks.Movement |
+                unchecked((ushort)(tileList + Frame * 2)));
         vramWrites.Enqueue(
-            sizeInBytes: 0x20,
-            sourceAddress: 0x9a0000 | tileSource,
-            encodedVramDestination: 0x61f0);
+            sizeInBytes: SamusRenderingRomData.ArmCannon.TileUploadByteCount,
+            sourceAddress: SamusRenderingRomData.Banks.CharacterData | tileSource,
+            encodedVramDestination: SamusRenderingRomData.ArmCannon.TileVramDestination);
 
         return new SamusArmCannonDrawResult(
             spriteWritten,
@@ -165,7 +176,8 @@ public sealed class SamusArmCannonState
         if (ToggleFlag < 2)
             return false;
 
-        byte desiredOpenFlag = bus.ReadByte(OpenFlags + selectedHudItem);
+        byte desiredOpenFlag = bus.ReadByte(
+            SamusRenderingRomData.ArmCannon.OpenFlags + selectedHudItem);
         if (OpenFlag == desiredOpenFlag)
             return false;
 

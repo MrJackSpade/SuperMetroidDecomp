@@ -36,7 +36,11 @@ public sealed partial class SamusState
 
         // OBJ palettes begin at CGRAM 128. Spritemap palette 4 therefore resolves to 192,
         // exactly matching CopyToSamusSuitPalette's &palette_buffer[192] destination.
-        cgram.LoadFromBus(bus, PowerSuitPalette, colorCount: 16, destinationIndex: 192);
+        cgram.LoadFromBus(
+            bus,
+            SamusRenderingRomData.Body.PowerSuitPalette,
+            colorCount: SamusRenderingRomData.Body.SuitPaletteColorCount,
+            destinationIndex: SamusRenderingRomData.Body.SuitPaletteCgramIndex);
     }
 
     /// <summary>
@@ -49,11 +53,15 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(cgram);
 
         int paletteAddress = EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? GravitySuitPalette
+            ? SamusRenderingRomData.Body.GravitySuitPalette
             : EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? VariaSuitPalette
-                : PowerSuitPalette;
-        cgram.LoadFromBus(bus, paletteAddress, colorCount: 16, destinationIndex: 192);
+                ? SamusRenderingRomData.Body.VariaSuitPalette
+                : SamusRenderingRomData.Body.PowerSuitPalette;
+        cgram.LoadFromBus(
+            bus,
+            paletteAddress,
+            colorCount: SamusRenderingRomData.Body.SuitPaletteColorCount,
+            destinationIndex: SamusRenderingRomData.Body.SuitPaletteCgramIndex);
     }
 
     /// <summary>
@@ -522,7 +530,7 @@ public sealed partial class SamusState
                 AnimationFrame;
             ushort landingOffset = ReadWord(
                 bus,
-                AddWithinBank(0x908d28, landingOffsetIndex));
+                AddWithinBank(SamusRenderingRomData.Body.LandingVerticalOffsets, landingOffsetIndex));
             SpritemapYPosition = unchecked((ushort)(
                 renderY - landingOffset - layer1Y));
         }
@@ -536,7 +544,7 @@ public sealed partial class SamusState
             // valid-but-unused zero records `$39/$3A/$3F/$40`. Animation commands replace
             // retail poses before a command/operand index can escape this two-byte record.
             int transitionOffsetAddress = AddWithinBank(
-                0x908d80,
+                SamusRenderingRomData.Body.PostureTransitionVerticalOffsets,
                 (Pose - SamusPoseIds.CrouchingTransitionRightPose) * 2 + AnimationFrame);
             sbyte transitionOffset = unchecked((sbyte)bus.ReadByte(transitionOffsetAddress));
             SpritemapYPosition = unchecked((ushort)(renderY + transitionOffset - layer1Y));
@@ -548,7 +556,7 @@ public sealed partial class SamusState
             // because the external controller can publish those literal indices for a
             // visible frame. Reading ROM keeps that odd layout authoritative.
             sbyte drainedOffset = unchecked((sbyte)bus.ReadByte(
-                AddWithinBank(0x908def, AnimationFrame)));
+                AddWithinBank(SamusRenderingRomData.Body.DrainedVerticalOffsets, AnimationFrame)));
             SpritemapYPosition = unchecked((ushort)(renderY + drainedOffset - layer1Y));
         }
         else if ((Pose is SamusPoseIds.DrainedStandingRightPose or SamusPoseIds.DrainedStandingLeftPose) &&
@@ -563,7 +571,9 @@ public sealed partial class SamusState
             SpritemapYPosition = unchecked((ushort)(renderY - graphicsYOffset - layer1Y));
         }
 
-        ushort topBase = ReadWord(bus, AddWithinBank(TopSpritemapBaseIndexTable, Pose * 2));
+        ushort topBase = ReadWord(
+            bus,
+            AddWithinBank(SamusRenderingRomData.Body.TopSpritemapBaseIndices, Pose * 2));
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus, TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
 
@@ -642,7 +652,9 @@ public sealed partial class SamusState
         BottomSpritemapIndex = 0;
         if (drawBottom)
         {
-            ushort bottomBase = ReadWord(bus, AddWithinBank(BottomSpritemapBaseIndexTable, Pose * 2));
+            ushort bottomBase = ReadWord(
+                bus,
+                AddWithinBank(SamusRenderingRomData.Body.BottomSpritemapBaseIndices, Pose * 2));
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
             oam.AddSamusSpritemap(bus, BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition);
         }

@@ -10,38 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class SamusDeathSequenceState
 {
-    // `$9B:B7BF/$B7C9` are parallel word tables indexed by Y=0,2,4,6,8. Keeping
-    // the decoded values together makes it impossible to pair a source segment with the
-    // wrong OBJ destination while still leaving every literal address auditable.
-    private static readonly int[] SegmentSources =
-    [
-        0x9b8400,
-        0x9b8800,
-        0x9b8c00,
-        0x9b9000,
-        0x9b8000,
-    ];
-
-    private static readonly ushort[] SegmentDestinations =
-    [
-        0x6200,
-        0x6400,
-        0x6600,
-        0x6800,
-        0x6000,
-    ];
-
-    // `$9B:B420` supplies the starting frame by the movement type that was active at the
-    // fatal-damage boundary. Ball/Spring families begin at one so five two-tick frames can
-    // visibly unmorph; ordinary bodies begin on the already-unmorphed looping frame five.
-    private static readonly byte[] InitialFramesByMovementType =
-    [
-        5, 5, 5, 5, 1, 5, 5, 0,
-        1, 0, 5, 5, 5, 5, 5, 5,
-        5, 1, 1, 1, 5, 5, 5, 5,
-        5, 5, 5, 5,
-    ];
-
     /// <summary>The game-state-owned phase corresponding to native states `$16-$18`.</summary>
     public SamusDeathSequencePhase Phase { get; private set; }
 
@@ -87,7 +55,9 @@ public sealed class SamusDeathSequenceState
     /// <summary>Current `$92:808D` spritemap-table index used by `$92:EDBE`, or null.</summary>
     public ushort? ExplosionSpritemapIndex =>
         Phase == SamusDeathSequencePhase.SuitExplosion && AnimationIndex < 9
-            ? unchecked((ushort)((FacingLeft ? 0x0825 : 0x081c) + AnimationIndex))
+            ? unchecked((ushort)((FacingLeft
+                ? SamusSpecialSequenceRomData.Death.LeftExplosionSpritemap
+                : SamusSpecialSequenceRomData.Death.RightExplosionSpritemap) + AnimationIndex))
             : null;
 
     /// <summary>The facing bit captured before pose metadata is replaced by `$D7/$D8`.</summary>
@@ -110,7 +80,9 @@ public sealed class SamusDeathSequenceState
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
         SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
-        if ((byte)sourceMovementType >= InitialFramesByMovementType.Length)
+        ReadOnlySpan<byte> initialFrames =
+            SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
+        if ((byte)sourceMovementType >= initialFrames.Length)
         {
             throw new InvalidDataException(
                 $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
@@ -120,7 +92,7 @@ public sealed class SamusDeathSequenceState
         byte deathPose = FacingLeft
             ? SamusPoseIds.DeathSequenceLeftPose
             : SamusPoseIds.DeathSequenceRightPose;
-        ushort initialFrame = InitialFramesByMovementType[(byte)sourceMovementType];
+        ushort initialFrame = initialFrames[(byte)sourceMovementType];
 
         // Native initializes pose `$D7/$D8` normally, then overwrites only the visible frame
         // with the movement-type table result. All six delays are two, so the timer produced
@@ -137,7 +109,7 @@ public sealed class SamusDeathSequenceState
         ScreenX = unchecked((ushort)(samus.XPosition - layer1X));
         ScreenY = unchecked((ushort)(samus.YPosition - layer1Y));
 
-        PreFlashingTimer = 0x0010;
+        PreFlashingTimer = SamusSpecialSequenceRomData.Death.PreFlashFrameCount;
         AnimationTimer = 3;
         AnimationIndex = 0;
         AnimationCounter = 0;
@@ -196,7 +168,7 @@ public sealed class SamusDeathSequenceState
                     QueueSegment(vramWrites, unchecked((byte)AnimationCounter));
 
                 AnimationCounter = unchecked((ushort)(AnimationCounter + 1));
-                if (AnimationCounter >= 0x003c)
+                if (AnimationCounter >= SamusSpecialSequenceRomData.Death.FlashFrameCount)
                 {
                     // `$9B:B498` loads palette pair zero, queues the fifth/final graphics
                     // segment, resets the reused counters, and immediately draws explosion
@@ -388,12 +360,15 @@ public sealed class SamusDeathSequenceState
 
     private void QueueSegment(VramWriteQueue vramWrites, byte segmentIndex)
     {
-        if (segmentIndex >= SegmentSources.Length)
+        ReadOnlySpan<SamusDeathTileSegment> segments =
+            SamusSpecialSequenceRomData.Death.TileSegments;
+        if (segmentIndex >= segments.Length)
             throw new ArgumentOutOfRangeException(nameof(segmentIndex));
+        SamusDeathTileSegment segment = segments[segmentIndex];
         vramWrites.Enqueue(
-            sizeInBytes: 0x0400,
-            sourceAddress: SegmentSources[segmentIndex],
-            encodedVramDestination: SegmentDestinations[segmentIndex]);
+            sizeInBytes: SamusSpecialSequenceRomData.Death.TileSegmentByteCount,
+            sourceAddress: segment.SourceAddress,
+            encodedVramDestination: segment.EncodedVramDestination);
         LastQueuedSegment = segmentIndex;
     }
 

@@ -22,19 +22,8 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
-    private const int BeamCurveAddress = 0x88e3c9;
-    private const ushort NarrowBeamEndpoints = 0x7878;
-    // HDMA writes the low byte to WH0 (left) and high byte to WH1 (right). `$00FF`
-    // therefore means left=$FF/right=$00—an intentionally empty/inverted interval—while
-    // `$FF00` means left=$00/right=$FF and covers the complete 256-pixel scanline.
-    private const ushort EmptyWindowEndpoints = 0x00ff;
-    private const ushort FullScreenEndpoints = 0xff00;
-    private const ushort InitialWideningSpeed = 0x0100;
-    private const ushort WideningAcceleration = 0x0060;
-    private const ushort ShrinkingDeceleration = 0x0020;
-    private const ushort MinimumShrinkingSpeed = 0x0100;
-
-    private readonly ushort[] _windowTable = new ushort[256];
+    private readonly ushort[] _windowTable =
+        new ushort[SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount];
 
     /// <summary>Whether the post-message transformation currently owns Samus input.</summary>
     public bool IsActive { get; private set; }
@@ -91,8 +80,8 @@ public sealed class SamusSuitPickupState
             : SamusPaletteRomData.SuitPickup.GravityBlue;
         Substate = 0;
         LightBeamPosition = 0;
-        LightBeamWideningSpeed = InitialWideningSpeed;
-        Array.Fill(_windowTable, EmptyWindowEndpoints);
+        LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
+        Array.Fill(_windowTable, SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints);
 
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
@@ -171,14 +160,15 @@ public sealed class SamusSuitPickupState
         int scanlineCount = unchecked((short)LightBeamPosition);
         for (int i = 0; i < scanlineCount; i++)
         {
-            _windowTable[i] = NarrowBeamEndpoints;
-            _windowTable[255 - i] = NarrowBeamEndpoints;
+            _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
+            _windowTable[_windowTable.Length - 1 - i] =
+                SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
         }
 
         if (unchecked((short)(LightBeamPosition - 128)) >= 0)
         {
             Substate++;
-            LightBeamPosition = NarrowBeamEndpoints;
+            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.NarrowBeamEndpoints;
         }
     }
 
@@ -195,7 +185,7 @@ public sealed class SamusSuitPickupState
         if (unchecked((sbyte)(left - 97)) < 0)
         {
             Substate++;
-            LightBeamPosition = 0x846c;
+            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.CurvedWideningStart;
         }
     }
 
@@ -222,10 +212,13 @@ public sealed class SamusSuitPickupState
         // `$88:E13E-$E19C` walks the 128-byte ROM curve forward for the top half, then
         // backward for the bottom half. The signed left clamp and unsigned right carry
         // saturation are intentionally asymmetric because the 65816 routine is too.
-        for (int scanline = 0; scanline < 256; scanline++)
+        for (int scanline = 0; scanline < _windowTable.Length; scanline++)
         {
-            int curveIndex = scanline < 128 ? scanline : 255 - scanline;
-            byte curve = bus.ReadByte(BeamCurveAddress + curveIndex);
+            int curveIndex = scanline < _windowTable.Length / 2
+                ? scanline
+                : _windowTable.Length - 1 - scanline;
+            byte curve = bus.ReadByte(
+                SamusSpecialSequenceRomData.SuitPickup.BeamCurve + curveIndex);
             int candidateLeft = left - curve;
             byte curvedLeft = unchecked((sbyte)candidateLeft) < 0
                 ? (byte)0
@@ -238,8 +231,8 @@ public sealed class SamusSuitPickupState
         }
 
         LightBeamWideningSpeed = unchecked((ushort)(
-            LightBeamWideningSpeed + WideningAcceleration));
-        if (LightBeamPosition == FullScreenEndpoints)
+            LightBeamWideningSpeed + SamusSpecialSequenceRomData.SuitPickup.WideningAcceleration));
+        if (LightBeamPosition == SamusSpecialSequenceRomData.SuitPickup.FullScreenEndpoints)
         {
             Substate++;
             LightBeamWideningSpeed >>= 1;
@@ -273,18 +266,23 @@ public sealed class SamusSuitPickupState
         int scanlineCount = unchecked((short)LightBeamPosition);
         for (int i = 0; i < scanlineCount; i++)
         {
-            _windowTable[i] = EmptyWindowEndpoints;
-            _windowTable[255 - i] = EmptyWindowEndpoints;
+            _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
+            _windowTable[_windowTable.Length - 1 - i] =
+                SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
         }
 
         LightBeamWideningSpeed = unchecked((ushort)(
-            LightBeamWideningSpeed - ShrinkingDeceleration));
-        if (unchecked((short)(LightBeamWideningSpeed - MinimumShrinkingSpeed)) < 0)
-            LightBeamWideningSpeed = MinimumShrinkingSpeed;
+            LightBeamWideningSpeed - SamusSpecialSequenceRomData.SuitPickup.ShrinkingDeceleration));
+        if (unchecked((short)(
+            LightBeamWideningSpeed - SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed)) < 0)
+        {
+            LightBeamWideningSpeed =
+                SamusSpecialSequenceRomData.SuitPickup.MinimumShrinkingSpeed;
+        }
         if (unchecked((short)(LightBeamPosition - 128)) >= 0)
         {
             Substate++;
-            LightBeamPosition = unchecked((ushort)-1793); // `$F8FF` literal at $88:E222.
+            LightBeamPosition = SamusSpecialSequenceRomData.SuitPickup.DissipationStart;
         }
     }
 
@@ -303,7 +301,7 @@ public sealed class SamusSuitPickupState
         FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
         FixedColorGreen = SamusPaletteRomData.SuitPickup.ResetGreen;
         FixedColorBlue = SamusPaletteRomData.SuitPickup.ResetBlue;
-        _windowTable[0] = EmptyWindowEndpoints;
+        _windowTable[0] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
         Substate = 0;
         LightBeamPosition = 0;
         FixedColorRed = 0;

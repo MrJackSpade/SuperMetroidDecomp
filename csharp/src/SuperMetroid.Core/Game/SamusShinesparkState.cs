@@ -121,7 +121,8 @@ public sealed class SamusShinesparkState
     /// </summary>
     public bool TryStoreFromSpeedBooster(ushort speedBoostCounter)
     {
-        if (unchecked((short)((speedBoostCounter & 0xff00) - 0x0400)) < 0)
+        if (unchecked((short)((speedBoostCounter & 0xff00) -
+            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter)) < 0)
             return false;
 
         ShineTimer = 180;
@@ -149,7 +150,8 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YSubspeed = 0;
         samus.KnockbackDirection = 0;
         samus.KnockbackActive = false;
-        samus.HorizontalSpeed.SpeedBoostCounter = 0x0400;
+        samus.HorizontalSpeed.SpeedBoostCounter =
+            SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter;
         samus.HorizontalSpeed.ExtraRunSpeed = 8;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -594,7 +596,10 @@ public sealed class SamusShinesparkState
         // this positive-half lookup is the table's entry 64 at `$A0:B443`. Multiplying
         // that signed 8.8 entry by the byte radius and shifting produces the same whole-
         // pixel component as the native pair of byte multiplies.
-        ushort tableWord = ReadWord(bus, 0xa0b443 + positiveAngle.SineTableByteOffset);
+        ushort tableWord = ReadWord(
+            bus,
+            SamusSpecialSequenceRomData.Shinespark.PositiveSineTable +
+                positiveAngle.SineTableByteOffset);
         ushort magnitude = unchecked((ushort)(((uint)tableWord * radius) >> 8));
         return negative ? unchecked((ushort)-magnitude) : magnitude;
     }

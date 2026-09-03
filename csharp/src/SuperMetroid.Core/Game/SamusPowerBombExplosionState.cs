@@ -15,17 +15,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
-    private const ushort InitialRadius = 0x0400;
-    private const ushort InitialPreExplosionSpeed = 0x3000;
-    private const ushort PreExplosionAcceleration = 0x0080;
-    private const ushort ExplosionAcceleration = 0x0030;
-
-    private const ushort FirstYellowShape = 0x9f06;
-    private const ushort YellowShapeEnd = 0xa206;
-    private const ushort FirstWhiteShape = 0x9246;
-    private const ushort WhiteShapeEnd = 0x9f06;
-    private const ushort ShapeStride = 192;
-
     /// <summary>WRAM $0CEA. Negative means an armed/executing power bomb.</summary>
     public ushort Flag { get; private set; }
 
@@ -118,9 +107,9 @@ public sealed class SamusPowerBombExplosionState
         // The first object executes CallFar($88:8B14), installs pre-instruction $90DF,
         // and sleeps. HDMA processing precedes Samus/projectile processing in the native
         // frame, so the pre-instruction itself does not run until the following frame.
-        PreExplosionRadius = InitialRadius;
+        PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         ExplosionRadius = 0;
-        RadiusSpeed = InitialPreExplosionSpeed;
+        RadiusSpeed = SamusSpecialSequenceRomData.PowerBomb.InitialPreExplosionSpeed;
         ShapeDefinitionPointer = 0;
         RenderedShapeDefinitionPointer = 0;
         Phase = PowerBombExplosionPhase.PreExplosionWhite;
@@ -147,8 +136,8 @@ public sealed class SamusPowerBombExplosionState
         XPosition = xPosition;
         YPosition = yPosition;
         Status = 0x8000;
-        PreExplosionRadius = InitialRadius;
-        ExplosionRadius = InitialRadius;
+        PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+        ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         RadiusSpeed = 0;
         ShapeDefinitionPointer = 0;
         RenderedShapeDefinitionPointer = 0;
@@ -262,15 +251,16 @@ public sealed class SamusPowerBombExplosionState
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
         PreExplosionRadius = unchecked((ushort)(PreExplosionRadius + RadiusSpeed));
-        if (PreExplosionRadius < 0x9200)
+        if (PreExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.PreExplosionWhiteLimit)
         {
-            RadiusSpeed = unchecked((ushort)(RadiusSpeed - PreExplosionAcceleration));
+            RadiusSpeed = unchecked((ushort)(
+                RadiusSpeed - SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration));
             return;
         }
 
         // Advancing past Sleep executes CallFar($8B32), installs pre-instruction $91A8,
         // and sleeps again during this same HDMA-object-handler pass.
-        ShapeDefinitionPointer = FirstYellowShape;
+        ShapeDefinitionPointer = SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape;
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
 
@@ -286,8 +276,10 @@ public sealed class SamusPowerBombExplosionState
         // source pointer. Preserve that consumed pointer for a host compositor running
         // after the logic frame has completed.
         RenderedShapeDefinitionPointer = ShapeDefinitionPointer;
-        ShapeDefinitionPointer = unchecked((ushort)(ShapeDefinitionPointer + ShapeStride));
-        bool finishedShapes = ShapeDefinitionPointer == YellowShapeEnd;
+        ShapeDefinitionPointer = unchecked((ushort)(
+            ShapeDefinitionPointer + SamusSpecialSequenceRomData.PowerBomb.ShapeStride));
+        bool finishedShapes =
+            ShapeDefinitionPointer == SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd;
 
         // The carry test is performed on the sum before either state word is changed.
         // If it would exceed $FFFF, both radius and speed remain frozen for this frame.
@@ -295,7 +287,8 @@ public sealed class SamusPowerBombExplosionState
         if (nextRadius < 0x10000)
         {
             PreExplosionRadius = (ushort)nextRadius;
-            RadiusSpeed = unchecked((ushort)(RadiusSpeed - PreExplosionAcceleration));
+            RadiusSpeed = unchecked((ushort)(
+                RadiusSpeed - SamusSpecialSequenceRomData.PowerBomb.PreExplosionAcceleration));
         }
 
         if (!finishedShapes)
@@ -303,7 +296,7 @@ public sealed class SamusPowerBombExplosionState
 
         // CallFar($8B39) initializes the actual damaging radius before the next frame's
         // ExplosionYellow pre-instruction. PreExplosionRadius remains debugger-visible.
-        ExplosionRadius = InitialRadius;
+        ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         RadiusSpeed = 0;
         Phase = PowerBombExplosionPhase.ExplosionYellow;
     }
@@ -317,15 +310,16 @@ public sealed class SamusPowerBombExplosionState
             (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
-        if (ExplosionRadius < 0x8600)
+        if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.ExplosionYellowLimit)
         {
-            RadiusSpeed = unchecked((ushort)(RadiusSpeed + ExplosionAcceleration));
+            RadiusSpeed = unchecked((ushort)(
+                RadiusSpeed + SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration));
             return;
         }
 
         // The next instruction calls $8B47, selecting the first of seventeen expanding
         // white shape tables, then installs $8EB2 and sleeps.
-        ShapeDefinitionPointer = FirstWhiteShape;
+        ShapeDefinitionPointer = SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape;
         RenderedShapeDefinitionPointer = 0;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
@@ -339,14 +333,17 @@ public sealed class SamusPowerBombExplosionState
             (ExplosionRadius >> 8) >> 3);
 
         RenderedShapeDefinitionPointer = ShapeDefinitionPointer;
-        ShapeDefinitionPointer = unchecked((ushort)(ShapeDefinitionPointer + ShapeStride));
-        bool finishedShapes = ShapeDefinitionPointer == WhiteShapeEnd;
+        ShapeDefinitionPointer = unchecked((ushort)(
+            ShapeDefinitionPointer + SamusSpecialSequenceRomData.PowerBomb.ShapeStride));
+        bool finishedShapes =
+            ShapeDefinitionPointer == SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd;
 
         int nextRadius = ExplosionRadius + RadiusSpeed;
         if (nextRadius < 0x10000)
         {
             ExplosionRadius = (ushort)nextRadius;
-            RadiusSpeed = unchecked((ushort)(RadiusSpeed + ExplosionAcceleration));
+            RadiusSpeed = unchecked((ushort)(
+                RadiusSpeed + SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration));
         }
 
         if (!finishedShapes)
@@ -405,9 +402,10 @@ public sealed class SamusPowerBombExplosionState
             (ExplosionRadius >> 8) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
-        if (ExplosionRadius < 0x2000)
+        if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit)
         {
-            RadiusSpeed = unchecked((ushort)(RadiusSpeed + ExplosionAcceleration));
+            RadiusSpeed = unchecked((ushort)(
+                RadiusSpeed + SamusSpecialSequenceRomData.PowerBomb.ExplosionAcceleration));
             return;
         }
 

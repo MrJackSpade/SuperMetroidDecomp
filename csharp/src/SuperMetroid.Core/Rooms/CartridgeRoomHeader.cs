@@ -84,7 +84,7 @@ public sealed record CartridgeRoomHeader(
                 case RoomStateSelectorCodes.MainAreaBossIsDead:
                 {
                     ushort selectedPointer = ReadWord(bus, RoomBank | cursor);
-                    if (selection.IsBossDead(RoomStateSelectorOperands.MainAreaBossMask))
+                    if (selection.IsBossDead(RoomStateSelectorOperands.MainAreaBoss))
                         return selectedPointer;
                     cursor += 2;
                     break;
@@ -102,7 +102,9 @@ public sealed record CartridgeRoomHeader(
 
                 case RoomStateSelectorCodes.BossIsDead:
                 {
-                    byte bossMask = bus.ReadByte(RoomBank | cursor);
+                    BossBits bossMask = BossBitMasks.FromCartridge(
+                        bus.ReadByte(RoomBank | cursor),
+                        $"Room $8F:{roomPointer:X4} state selector $8F:{selector:X4}");
                     ushort selectedPointer = ReadWord(bus, RoomBank | unchecked((ushort)(cursor + 1)));
                     if (selection.IsBossDead(bossMask))
                         return selectedPointer;
@@ -196,7 +198,7 @@ public sealed record CartridgeRoomState(
 /// <summary>Facts inspected by the cartridge's room-state selector functions.</summary>
 public readonly record struct RoomStateSelectionContext(
     ReadOnlyMemory<byte> Events,
-    ushort BossBits,
+    BossBits BossBits,
     bool HasMorphBallAndMissiles,
     bool HasPowerBombs)
 {
@@ -207,5 +209,9 @@ public readonly record struct RoomStateSelectionContext(
         return byteIndex < events.Length && (events[byteIndex] & (1 << (eventIndex & 7))) != 0;
     }
 
-    public bool IsBossDead(byte mask) => (BossBits & mask) != 0;
+    public bool IsBossDead(BossBits mask)
+    {
+        BossBitMasks.Validate(mask, "Room-state boss selector");
+        return (BossBits & mask) != 0;
+    }
 }

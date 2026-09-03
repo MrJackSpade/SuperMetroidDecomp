@@ -28,7 +28,7 @@ internal static partial class WorkRobotAudit
         CartridgeRoomHeader poweredRoom = CartridgeRoomHeader.Load(
             bus,
             BasementRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets poweredAssets = CartridgeRoomAssets.Load(bus, poweredRoom);
         LoadedRobots powered = Load(bus, poweredRoom, poweredAssets, bossDefeated: true);
         VerifyPoweredInitialization(poweredRoom, powered);

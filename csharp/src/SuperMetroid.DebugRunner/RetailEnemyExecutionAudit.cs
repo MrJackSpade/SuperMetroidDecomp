@@ -340,7 +340,7 @@ internal static partial class RetailEnemyExecutionAudit
         {
             var selection = new RoomStateSelectionContext(
                 Events: ReadOnlyMemory<byte>.Empty,
-                BossBits: unchecked((ushort)bit),
+                BossBits: unchecked((BossBits)bit),
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false);
             if (CartridgeRoomHeader.Load(bus, roomPointer, selection).State.Pointer ==

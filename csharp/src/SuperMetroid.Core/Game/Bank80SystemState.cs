@@ -250,6 +250,7 @@ public sealed class Bank80SystemState
     public void SetBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
+        BossBitMasks.Validate(bits, "Boss-state set mask");
         _bossBitsByArea[areaIndex] |= (byte)bits;
     }
 
@@ -264,6 +265,7 @@ public sealed class Bank80SystemState
     public void ClearBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
+        BossBitMasks.Validate(bits, "Boss-state clear mask");
         _bossBitsByArea[areaIndex] &= unchecked((byte)~(byte)bits);
     }
 
@@ -277,6 +279,7 @@ public sealed class Bank80SystemState
     public bool HasAnyBossBits(int areaIndex, BossBits bits)
     {
         ValidateAreaIndex(areaIndex);
+        BossBitMasks.Validate(bits, "Boss-state query mask");
         return (_bossBitsByArea[areaIndex] & (byte)bits) != 0;
     }
 
@@ -296,6 +299,19 @@ public sealed class Bank80SystemState
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
     public byte GetBossBitsRaw(AreaId areaIndex) => GetBossBitsRaw(AreaIds.ToIndex(areaIndex));
+
+    /// <summary>
+    /// Returns the named portion of an area's live boss state for gameplay consumers. Raw
+    /// save serialization deliberately continues to use <see cref="GetBossBitsRaw(int)"/>.
+    /// </summary>
+    public BossBits GetBossBits(int areaIndex)
+    {
+        byte raw = GetBossBitsRaw(areaIndex);
+        return BossBitMasks.FromCartridge(raw, $"Area {areaIndex} boss state");
+    }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public BossBits GetBossBits(AreaId areaIndex) => GetBossBits(AreaIds.ToIndex(areaIndex));
 
     /// <summary>Restores all eight native area-boss bytes from a save-slot payload.</summary>
     public void LoadBossBytes(ReadOnlySpan<byte> bytes)

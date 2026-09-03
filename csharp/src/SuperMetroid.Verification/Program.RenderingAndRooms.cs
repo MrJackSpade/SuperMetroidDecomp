@@ -783,26 +783,26 @@ static void VerifyCartridgeRoomStateSelection()
     eventBytes[0] = 1;
     AssertEqual((ushort)0x9100,
         CartridgeRoomHeader.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, 0, false, false)).State.Pointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.None, false, false)).State.Pointer,
         "room selector event branch");
     AssertEqual((ushort)0x9120,
         CartridgeRoomHeader.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), 0x0004, false, false)).State.Pointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.AreaTorizo, false, false)).State.Pointer,
         "room selector boss branch");
     AssertEqual((ushort)0x9140,
         CartridgeRoomHeader.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), 0, true, false)).State.Pointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, true, false)).State.Pointer,
         "room selector Morph Ball and missiles branch");
     AssertEqual((ushort)0x9160,
         CartridgeRoomHeader.Load(bus, roomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), 0, false, true)).State.Pointer,
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBits.None, false, true)).State.Pointer,
         "room selector power-bomb branch");
 
     // The interpreter must return at the first successful command; later facts do not
     // override the event-selected pointer merely because they are also true.
     AssertEqual((ushort)0x9100,
         CartridgeRoomHeader.Load(bus, roomPointer,
-            new RoomStateSelectionContext(eventBytes, 0x0004, true, true)).State.Pointer,
+            new RoomStateSelectionContext(eventBytes, BossBits.AreaTorizo, true, true)).State.Pointer,
         "room selector preserves cartridge priority");
 
     // The Tourian-specific routine owns its boss-bit operand in executable code rather
@@ -815,7 +815,7 @@ static void VerifyCartridgeRoomStateSelection()
         CartridgeRoomHeader.Load(bus, roomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
-                RoomStateSelectorOperands.MainAreaBossMask,
+                RoomStateSelectorOperands.MainAreaBoss,
                 false,
                 false)).State.Pointer,
         "room selector main-area boss implicit operand");

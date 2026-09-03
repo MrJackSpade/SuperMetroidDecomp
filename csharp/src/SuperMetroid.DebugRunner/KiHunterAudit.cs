@@ -32,7 +32,7 @@ internal static class KiHunterAudit
         CartridgeRoomHeader redRoom = CartridgeRoomHeader.Load(
             bus,
             RedRoomPointer,
-            new RoomStateSelectionContext(Array.Empty<byte>(), ushort.MaxValue, false, false));
+            new RoomStateSelectionContext(Array.Empty<byte>(), BossBitMasks.AllKnown, false, false));
         AssertExpectedState(redRoom, RedStatePointer, RedPopulationPointer);
         CartridgeRoomHeader goldRoom = LoadExpectedRoom(
             bus, GoldRoomPointer, GoldStatePointer, GoldPopulationPointer);

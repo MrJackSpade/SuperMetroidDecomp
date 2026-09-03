@@ -30,7 +30,7 @@ internal static class RioAudit
             RoomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
-                BossBits: 0,
+                BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);

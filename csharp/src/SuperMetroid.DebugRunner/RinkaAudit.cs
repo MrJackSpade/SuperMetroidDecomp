@@ -30,7 +30,7 @@ internal static class RinkaAudit
             RoomPointer,
             new RoomStateSelectionContext(
                 events,
-                BossBits: 0,
+                BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);

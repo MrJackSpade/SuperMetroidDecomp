@@ -15,7 +15,7 @@ public sealed partial class RoomPlmSystem
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
-    private Func<byte, bool>? _motherBrainHasAreaBossBit;
+    private Func<BossBits, bool>? _motherBrainHasAreaBossBit;
     private Func<EventNumber, bool>? _motherBrainHasEvent;
     private Action<EventNumber>? _motherBrainSetEvent;
     private int _motherBrainGlassSlotIndex = -1;
@@ -164,7 +164,9 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.GotoIfAreaBossBitSet:
-                byte bossMask = bus.ReadByte(Bank84(unchecked((ushort)(cursor + 2))));
+                BossBits bossMask = BossBitMasks.FromCartridge(
+                    bus.ReadByte(Bank84(unchecked((ushort)(cursor + 2)))),
+                    "Mother Brain glass area-boss branch");
                 ushort bossTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 3)));
                 slot.InstructionPointer = _motherBrainHasAreaBossBit?.Invoke(bossMask) == true
                     ? bossTarget

@@ -102,7 +102,7 @@ internal static class ChozoStatueAudit
 
         var defeatedSelection = new RoomStateSelectionContext(
             ReadOnlyMemory<byte>.Empty,
-            BossBits: 1,
+            BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
         CartridgeRoomHeader wreckedDefeated = CartridgeRoomHeader.Load(
@@ -245,7 +245,7 @@ internal static class ChozoStatueAudit
     {
         var defeatedSelection = new RoomStateSelectionContext(
             ReadOnlyMemory<byte>.Empty,
-            BossBits: 1,
+            BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(

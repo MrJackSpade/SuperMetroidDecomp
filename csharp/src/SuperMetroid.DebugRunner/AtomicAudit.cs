@@ -72,7 +72,7 @@ internal static class AtomicAudit
         CartridgeRoomHeader basementRoom = CartridgeRoomHeader.Load(
             bus,
             BasementRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets basementAssets = CartridgeRoomAssets.Load(bus, basementRoom);
         ushort basementAtomicPopulation = FindFirstPopulationRecord(
             bus,

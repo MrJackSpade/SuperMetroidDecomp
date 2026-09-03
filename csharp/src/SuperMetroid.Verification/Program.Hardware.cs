@@ -143,6 +143,8 @@ static void VerifyBossBitfield()
         state.SetBossBits(area, BossBits.AreaBoss | BossBits.AreaTorizo);
         AssertTrue(state.HasAnyBossBits(area, BossBits.AreaBoss), $"area {area} boss bit");
         AssertTrue(!state.HasAnyBossBits(area, BossBits.AreaMiniBoss), $"area {area} mini-boss remains clear");
+        AssertEqual(BossBits.AreaBoss | BossBits.AreaTorizo, state.GetBossBits(area),
+            $"area {area} typed combined mask");
         AssertEqual(0x05, state.GetBossBitsRaw(area), $"area {area} combined raw mask");
 
         state.ClearBossBits(area, BossBits.AreaTorizo);
@@ -151,6 +153,12 @@ static void VerifyBossBitfield()
 
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(-1, BossBits.AreaBoss), "negative area rejected");
     AssertThrows<ArgumentOutOfRangeException>(() => state.SetBossBits(8, BossBits.AreaBoss), "area past allocation rejected");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => state.SetBossBits(0, (BossBits)0x80),
+        "unnamed boss bit rejected by typed API");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => BossBitMasks.FromCartridge(0x80, "constructed selector"),
+        "unnamed cartridge boss mask rejected");
     Console.WriteLine("  Boss state: all eight area bytes preserve independent masks.");
 }
 

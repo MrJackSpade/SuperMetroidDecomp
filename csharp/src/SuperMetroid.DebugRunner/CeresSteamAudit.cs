@@ -86,7 +86,7 @@ internal static class CeresSteamAudit
     {
         var selection = new RoomStateSelectionContext(
             ReadOnlyMemory<byte>.Empty,
-            BossBits: 1,
+            BossBits: BossBits.AreaBoss,
             HasMorphBallAndMissiles: false,
             HasPowerBombs: false);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(

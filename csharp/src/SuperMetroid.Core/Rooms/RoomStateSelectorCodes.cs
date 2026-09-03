@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Native bank-$8F callbacks accepted by a room header's inline state program.</summary>
@@ -39,5 +41,5 @@ public static class RoomStateSelectorOperands
     /// <summary>
     /// <c>RoomStateCheck_MainAreaBossIsDead</c> always tests bit zero of the area's boss byte.
     /// </summary>
-    public const byte MainAreaBossMask = 0x01;
+    public const BossBits MainAreaBoss = BossBits.AreaBoss;
 }

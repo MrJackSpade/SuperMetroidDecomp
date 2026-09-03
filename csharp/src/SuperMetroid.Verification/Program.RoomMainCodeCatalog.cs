@@ -98,14 +98,14 @@ internal static partial class Program
         var contexts = new List<RoomStateSelectionContext>
         {
             default,
-            new(Array.Empty<byte>(), 0, HasMorphBallAndMissiles: true, HasPowerBombs: false),
-            new(Array.Empty<byte>(), 0, HasMorphBallAndMissiles: false, HasPowerBombs: true),
+            new(Array.Empty<byte>(), BossBits.None, HasMorphBallAndMissiles: true, HasPowerBombs: false),
+            new(Array.Empty<byte>(), BossBits.None, HasMorphBallAndMissiles: false, HasPowerBombs: true),
         };
         for (int bit = 0; bit < 8; bit++)
         {
             contexts.Add(new RoomStateSelectionContext(
                 Array.Empty<byte>(),
-                unchecked((ushort)(1 << bit)),
+                unchecked((BossBits)(1 << bit)),
                 false,
                 false));
         }
@@ -113,7 +113,7 @@ internal static partial class Program
         {
             var events = new byte[Bank80SystemState.EventByteCount];
             events[eventIndex >> 3] = unchecked((byte)(1 << (eventIndex & 7)));
-            contexts.Add(new RoomStateSelectionContext(events, 0, false, false));
+            contexts.Add(new RoomStateSelectionContext(events, BossBits.None, false, false));
         }
         return contexts.ToArray();
     }

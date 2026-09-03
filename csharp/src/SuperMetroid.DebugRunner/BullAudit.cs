@@ -28,7 +28,7 @@ internal static class BullAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(
             bus,
             SpongeBathRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         LoadedBull natural = Load(bus, room, assets);

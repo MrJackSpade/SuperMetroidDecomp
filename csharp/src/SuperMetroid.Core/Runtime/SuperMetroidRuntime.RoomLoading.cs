@@ -753,8 +753,7 @@ public sealed partial class SuperMetroidRuntime
             isAreaTorizoDefeated: () =>
                 System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
             isTourianStatueFinished: () => Enemies.TourianEntranceStatueFinished,
-            hasAreaBossBit: mask =>
-                System.HasAnyBossBits(room.AreaIndex, (BossBits)mask),
+            hasAreaBossBit: mask => System.HasAnyBossBits(room.AreaIndex, mask),
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent);
 
@@ -904,7 +903,7 @@ public sealed partial class SuperMetroidRuntime
         SamusState? samus = Samus;
         var selection = new RoomStateSelectionContext(
             events,
-            BossBits: System.GetBossBitsRaw(fixedHeader.AreaIndex),
+            BossBits: System.GetBossBits(fixedHeader.AreaIndex),
             HasMorphBallAndMissiles:
                 samus is not null &&
                 samus.CollectedItems.HasAny(SamusEquipmentFlags.MorphBall) &&

@@ -203,7 +203,7 @@ internal static class CeresDoorAudit
             readRandom: () => 0x1234,
             selection: new RoomStateSelectionContext(
                 ReadOnlyMemory<byte>.Empty,
-                BossBits: 1,
+                BossBits: BossBits.AreaBoss,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
         generatedRandomCalls = 0; // Ignore any initialization consumers; only $F7DC counts.

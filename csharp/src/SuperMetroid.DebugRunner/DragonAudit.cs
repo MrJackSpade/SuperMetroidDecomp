@@ -28,7 +28,7 @@ internal static class DragonAudit
             RoomPointer,
             new RoomStateSelectionContext(
                 Array.Empty<byte>(),
-                BossBits: 0,
+                BossBits: BossBits.None,
                 HasMorphBallAndMissiles: false,
                 HasPowerBombs: false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(retailBus, room);

@@ -39,7 +39,7 @@ internal static class KzanAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(
             bus,
             SpikyDeathRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         LoadedKzans initialized = Load(bus, room, assets);

@@ -46,7 +46,7 @@ internal static class SparkAudit
         CartridgeRoomHeader electricDeath = CartridgeRoomHeader.Load(
             bus,
             ElectricDeathRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets electricAssets = CartridgeRoomAssets.Load(bus, electricDeath);
         LoadedSparks loaded = Load(
             bus,
@@ -517,7 +517,7 @@ internal static class SparkAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(
             bus,
             MainShaftRoom,
-            new RoomStateSelectionContext(default, BossBits: 1, false, false));
+            new RoomStateSelectionContext(default, BossBits: BossBits.AreaBoss, false, false));
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         // Kzan was the final untranslated family in this state. Load the entire untouched
         // population now so the always-active Spark variant is proven in its actual mix of

@@ -76,7 +76,7 @@ internal static class PauseMessageGateAudit
     {
         var system = new Bank80SystemState();
         system.SetBossBits(0, BossBits.AreaTorizo);
-        system.MarkSaveStationUsed(areaIndex: 0, stationBitIndex: 0);
+        system.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
         var samus = new SamusState
         {
             Health = 99,

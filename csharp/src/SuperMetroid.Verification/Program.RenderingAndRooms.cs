@@ -141,7 +141,7 @@ static void VerifyHudStateAndBg3Rendering()
     hud.UpdateMinimap(
         bus,
         mapSystem,
-        areaIndex: 0,
+        areaIndex: AreaId.Crateria,
         roomMapX: 0x17,
         roomMapY: 0,
         roomWidthInBlocks: 9 * 16,
@@ -158,7 +158,7 @@ static void VerifyHudStateAndBg3Rendering()
     hud.UpdateMinimap(
         bus,
         noMapSystem,
-        areaIndex: 0,
+        areaIndex: AreaId.Crateria,
         roomMapX: 0x17,
         roomMapY: 0,
         roomWidthInBlocks: 9 * 16,

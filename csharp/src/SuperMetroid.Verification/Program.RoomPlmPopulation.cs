@@ -51,7 +51,7 @@ internal static partial class Program
             new SnesVram(),
             population,
             system,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             getSamus: () => samus,
             isAreaTorizoDefeated: () => false);
 
@@ -124,7 +124,7 @@ internal static partial class Program
             new SnesVram(),
             population,
             system,
-            areaIndex: 2,
+            areaIndex: AreaId.Norfair,
             getSamus: () => samus,
             isAreaTorizoDefeated: () => false);
 

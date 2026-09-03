@@ -138,7 +138,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId area,
         PlmSlot slot)
     {
         switch (slot.HeaderPointer)
@@ -157,16 +157,16 @@ public sealed partial class RoomPlmSystem
             }
 
             case MapStationHeader:
-                SetupStation(level, streamer, system, areaIndex, slot, StationKind.Map);
+                SetupStation(level, streamer, system, area, slot, StationKind.Map);
                 return true;
             case EnergyStationHeader:
-                SetupStation(level, streamer, system, areaIndex, slot, StationKind.Energy);
+                SetupStation(level, streamer, system, area, slot, StationKind.Energy);
                 return true;
             case MissileStationHeader:
-                SetupStation(level, streamer, system, areaIndex, slot, StationKind.Missile);
+                SetupStation(level, streamer, system, area, slot, StationKind.Missile);
                 return true;
             case SaveStationHeader:
-                SetupStation(level, streamer, system, areaIndex, slot, StationKind.Save);
+                SetupStation(level, streamer, system, area, slot, StationKind.Save);
                 return true;
             default:
                 return false;
@@ -177,7 +177,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId area,
         PlmSlot slot,
         StationKind kind)
     {
@@ -193,7 +193,7 @@ public sealed partial class RoomPlmSystem
                 new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
             slot.Station = new StationPlmState(
                 kind,
-                areaIndex,
+                area,
                 slot.InstructionPointer,
                 completedAnimationList: slot.InstructionPointer,
                 animationFrameCount: 1);
@@ -224,12 +224,12 @@ public sealed partial class RoomPlmSystem
             StationKind.Energy or StationKind.Missile => normalAnimationList,
             _ => throw new InvalidOperationException(),
         };
-        ushort initialAnimationList = kind == StationKind.Map && system.HasAreaMap(areaIndex)
+        ushort initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
             ? completedAnimationList
             : normalAnimationList;
         slot.Station = new StationPlmState(
             kind,
-            areaIndex,
+            area,
             initialAnimationList,
             completedAnimationList,
             animationFrameCount: 3);
@@ -701,13 +701,13 @@ public sealed partial class RoomPlmSystem
 
     private sealed class StationPlmState(
         StationKind kind,
-        byte areaIndex,
+        AreaId area,
         ushort animationList,
         ushort completedAnimationList,
         int animationFrameCount)
     {
         public StationKind Kind { get; } = kind;
-        public byte AreaIndex { get; } = areaIndex;
+        public AreaId AreaIndex { get; } = area;
         public ushort AnimationList { get; set; } = animationList;
         public ushort CompletedAnimationList { get; } = completedAnimationList;
         public int AnimationFrameCount { get; } = animationFrameCount;
@@ -746,7 +746,7 @@ public enum StationKind : byte
 public readonly record struct StationActivationEvent(
     StationKind Kind,
     int MessageBoxIndex,
-    byte AreaIndex,
+    AreaId AreaIndex,
     ushort StationIndex,
     int BlockIndex);
 

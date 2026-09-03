@@ -19,7 +19,7 @@ internal static partial class NorfairRidleyAudit
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
-        if (room.AreaIndex != 2 || room.WidthInScreens != 1 || room.HeightInScreens != 2 ||
+        if (room.AreaIndex != AreaId.Norfair || room.WidthInScreens != 1 || room.HeightInScreens != 2 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
             throw new InvalidDataException(

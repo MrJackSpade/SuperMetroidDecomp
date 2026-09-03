@@ -253,6 +253,10 @@ public sealed class Bank80SystemState
         _bossBitsByArea[areaIndex] |= (byte)bits;
     }
 
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public void SetBossBits(AreaId areaIndex, BossBits bits) =>
+        SetBossBits(AreaIds.ToIndex(areaIndex), bits);
+
     /// <summary>
     /// Clears one or more boss-state bits for an area, equivalent to the unused original
     /// routine at <c>$80:81C0</c>. Keeping it is useful for debugger experiments.
@@ -263,6 +267,10 @@ public sealed class Bank80SystemState
         _bossBitsByArea[areaIndex] &= unchecked((byte)~(byte)bits);
     }
 
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public void ClearBossBits(AreaId areaIndex, BossBits bits) =>
+        ClearBossBits(AreaIds.ToIndex(areaIndex), bits);
+
     /// <summary>
     /// Returns whether any requested boss bit is set, matching <c>$80:81DC</c>.
     /// </summary>
@@ -271,6 +279,10 @@ public sealed class Bank80SystemState
         ValidateAreaIndex(areaIndex);
         return (_bossBitsByArea[areaIndex] & (byte)bits) != 0;
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public bool HasAnyBossBits(AreaId areaIndex, BossBits bits) =>
+        HasAnyBossBits(AreaIds.ToIndex(areaIndex), bits);
 
     /// <summary>
     /// Exposes an area's raw SRAM-mirror byte for save-state inspection and diagnostics.
@@ -281,6 +293,9 @@ public sealed class Bank80SystemState
         ValidateAreaIndex(areaIndex);
         return _bossBitsByArea[areaIndex];
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public byte GetBossBitsRaw(AreaId areaIndex) => GetBossBitsRaw(AreaIds.ToIndex(areaIndex));
 
     /// <summary>Restores all eight native area-boss bytes from a save-slot payload.</summary>
     public void LoadBossBytes(ReadOnlySpan<byte> bytes)
@@ -518,6 +533,10 @@ public sealed class Bank80SystemState
         _exploredMapTiles[byteIndex] |= unchecked((byte)(0x80 >> (mapX & 7)));
     }
 
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public void MarkExploredMapTile(AreaId areaIndex, int mapX, int mapY) =>
+        MarkExploredMapTile(AreaIds.ToIndex(areaIndex), mapX, mapY);
+
     /// <summary>Returns whether a 64-by-32 area-map cell has been visited.</summary>
     public bool IsMapTileExplored(int areaIndex, int mapX, int mapY)
     {
@@ -525,6 +544,10 @@ public sealed class Bank80SystemState
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
         return (_exploredMapTiles[byteIndex] & (0x80 >> (mapX & 7))) != 0;
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public bool IsMapTileExplored(AreaId areaIndex, int mapX, int mapY) =>
+        IsMapTileExplored(AreaIds.ToIndex(areaIndex), mapX, mapY);
 
     /// <summary>Returns one byte from an area's native explored-map plane for SRAM packing.</summary>
     public byte GetExploredMapByteRaw(int areaIndex, int byteIndex)
@@ -535,6 +558,10 @@ public sealed class Bank80SystemState
             throw new ArgumentOutOfRangeException(nameof(byteIndex));
         return _exploredMapTiles[areaIndex * ExploredMapBytesPerArea + byteIndex];
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public byte GetExploredMapByteRaw(AreaId areaIndex, int byteIndex) =>
+        GetExploredMapByteRaw(AreaIds.ToIndex(areaIndex), byteIndex);
 
     /// <summary>Restores all seven unpacked WRAM explored-map planes from a save snapshot.</summary>
     public void LoadExploredMapBytes(ReadOnlySpan<byte> bytes)
@@ -557,6 +584,10 @@ public sealed class Bank80SystemState
         _usedSaveStationsAndElevators[areaIndex * 2] |=
             unchecked((byte)(1 << stationBitIndex));
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public void MarkSaveStationUsed(AreaId areaIndex, int stationBitIndex) =>
+        MarkSaveStationUsed(AreaIds.ToIndex(areaIndex), stationBitIndex);
 
     /// <summary>Returns one raw save/elevator marker byte for cartridge-compatible SRAM.</summary>
     public byte GetUsedSaveStationByteRaw(int byteIndex)
@@ -582,6 +613,9 @@ public sealed class Bank80SystemState
         return _mapStations[areaIndex] != 0;
     }
 
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public bool HasAreaMap(AreaId areaIndex) => HasAreaMap(AreaIds.ToIndex(areaIndex));
+
     /// <summary>Marks an area's map station as acquired, matching the native $FF byte write.</summary>
     public void SetAreaMapAcquired(int areaIndex)
     {
@@ -589,6 +623,9 @@ public sealed class Bank80SystemState
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
         _mapStations[areaIndex] = 0xff;
     }
+
+    /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
+    public void SetAreaMapAcquired(AreaId areaIndex) => SetAreaMapAcquired(AreaIds.ToIndex(areaIndex));
 
     /// <summary>Returns one raw map-station byte for cartridge-compatible SRAM.</summary>
     public byte GetMapStationByteRaw(int byteIndex)

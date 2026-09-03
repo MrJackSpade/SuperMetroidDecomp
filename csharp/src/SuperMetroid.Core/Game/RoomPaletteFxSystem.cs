@@ -98,7 +98,7 @@ public sealed class RoomPaletteFxSystem
         ISnesAddressSpace bus,
         ushort fxPointer,
         ushort doorPointer,
-        byte areaIndex,
+        AreaId area,
         ushort equippedItems,
         bool areaMiniBossDefeated)
     {
@@ -108,11 +108,7 @@ public sealed class RoomPaletteFxSystem
 
         if (fxPointer == 0)
             return;
-        if (areaIndex >= SlotCount)
-        {
-            throw new InvalidDataException(
-                $"Room FX area {areaIndex} is outside the cartridge's eight area tables.");
-        }
+        int areaIndex = AreaIds.ToIndex(area);
 
         ushort record = SelectFxRecord(bus, fxPointer, doorPointer);
         if (record == 0)

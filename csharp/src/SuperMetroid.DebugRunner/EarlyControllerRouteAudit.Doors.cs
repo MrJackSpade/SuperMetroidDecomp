@@ -25,7 +25,7 @@ internal static partial class EarlyControllerRouteAudit
 
         CartridgeRoomHeader source = runtime.ActiveRoom ?? throw new InvalidDataException(
             "Construction Zone ghost audit did not load a source room.");
-        if (source.AreaIndex != 1 || source.RoomIndex != 0x0f)
+        if (source.AreaIndex != AreaId.Brinstar || source.RoomIndex != 0x0f)
         {
             throw new InvalidDataException(
                 $"Expected source $01/$0F, got ${source.AreaIndex:X2}/${source.RoomIndex:X2} " +
@@ -78,7 +78,7 @@ internal static partial class EarlyControllerRouteAudit
             throw new InvalidDataException("Construction Zone ghost transition did not complete its scroll.");
         CartridgeRoomHeader destination = runtime.ActiveRoom ?? throw new InvalidDataException(
             "Construction Zone ghost audit lost the destination room.");
-        if (destination.AreaIndex != 1 || destination.RoomIndex != 0x0e)
+        if (destination.AreaIndex != AreaId.Brinstar || destination.RoomIndex != 0x0e)
         {
             throw new InvalidDataException(
                 $"Expected destination $01/$0E, got ${destination.AreaIndex:X2}/" +

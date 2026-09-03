@@ -1797,7 +1797,7 @@ static void VerifySamusPowerBeamProjectiles()
             new SnesVram(),
             greyDoorPopulation,
             greyDoorSystem,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             getSamus: () => new SamusState(),
             isAreaTorizoDefeated: () => false),
         "grey-door loader allocates enemy-quota actor from population");
@@ -1869,7 +1869,7 @@ static void VerifySamusPowerBeamProjectiles()
         new SnesVram(),
         greyDoorPopulation,
         greyDoorSystem,
-        areaIndex: 0,
+        areaIndex: AreaId.Crateria,
         getSamus: () => new SamusState(),
         isAreaTorizoDefeated: () => false);
     reloadedGreyPlms.Step(

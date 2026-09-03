@@ -24,7 +24,8 @@ internal static class MotherBrainAudit
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
-        if (room.WidthInScreens != 4 || room.HeightInScreens != 1 || room.AreaIndex != 5 ||
+        if (room.WidthInScreens != 4 || room.HeightInScreens != 1 ||
+            room.AreaIndex != AreaId.Tourian ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
             throw new InvalidDataException(

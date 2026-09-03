@@ -78,7 +78,7 @@ internal static partial class Program
                     fixture.Level,
                     fixture.BlockIndex,
                     behavior: 8,
-                    areaIndex: 0,
+                    areaIndex: AreaId.Crateria,
                     projectileType: 0x0500),
                 $"{kind} freed PLM slot can be reused by a bomb-special actor");
             AssertEqual(0, fixture.Plms.Collectibles.Count,
@@ -232,7 +232,7 @@ internal static partial class Program
             new SnesVram(),
             population,
             system,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             getSamus: () => samus,
             isAreaTorizoDefeated: () => false);
         AssertEqual(1, loaded, "one-item room population load count");

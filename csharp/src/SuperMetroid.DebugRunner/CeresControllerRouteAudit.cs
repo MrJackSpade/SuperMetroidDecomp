@@ -29,7 +29,7 @@ internal static partial class CeresControllerRouteAudit
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.System.SetBossBits(areaIndex: 6, bits: BossBits.AreaBoss);
+        runtime.System.SetBossBits(areaIndex: AreaId.Ceres, bits: BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(roomPointer: 0xdf45, cameraY: 0x0200);
         runtime.ActiveSamusMode7Transform = new SamusMode7Transform(
             MatrixA: 0x0100,
@@ -813,7 +813,7 @@ internal static partial class CeresControllerRouteAudit
             sawLandingLoad |= game.GameState is SuperMetroidGameState.LoadingGameData or
                 SuperMetroidGameState.MainGameplayFadeIn;
             if (game.GameState == SuperMetroidGameState.MainGameplay &&
-                runtime.ActiveRoom?.AreaIndex == 0)
+                runtime.ActiveRoom?.AreaIndex == AreaId.Crateria)
             {
                 if (!sawBlackout || !sawDestruction || !sawLandingLoad)
                 {

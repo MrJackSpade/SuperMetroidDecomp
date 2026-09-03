@@ -13,7 +13,7 @@ public sealed partial class RoomPlmSystem
     private const ushort GreyDoorFacingDownHeader = 0xc854;
 
     private Bank80SystemState? _greyDoorSystem;
-    private byte _greyDoorAreaIndex;
+    private AreaId _greyDoorArea;
     private Func<bool>? _isTourianStatueFinished;
 
     /// <summary>Debugger-stable views of every resident grey-door PLM.</summary>
@@ -174,11 +174,11 @@ public sealed partial class RoomPlmSystem
         return condition switch
         {
             GreyDoorCondition.AreaBossDefeated =>
-                system.HasAnyBossBits(_greyDoorAreaIndex, BossBits.AreaBoss),
+                system.HasAnyBossBits(_greyDoorArea, BossBits.AreaBoss),
             GreyDoorCondition.AreaMiniBossDefeated =>
-                system.HasAnyBossBits(_greyDoorAreaIndex, BossBits.AreaMiniBoss),
+                system.HasAnyBossBits(_greyDoorArea, BossBits.AreaMiniBoss),
             GreyDoorCondition.AreaTorizoDefeated =>
-                system.HasAnyBossBits(_greyDoorAreaIndex, BossBits.AreaTorizo),
+                system.HasAnyBossBits(_greyDoorArea, BossBits.AreaTorizo),
             GreyDoorCondition.EnemyDeathQuota => enemyDeaths >= enemyDeathQuota,
             GreyDoorCondition.Never => false,
             GreyDoorCondition.TourianStatueFinished =>

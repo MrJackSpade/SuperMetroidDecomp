@@ -2635,7 +2635,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
     {
-        enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == 2
+        enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400;
         enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0004));

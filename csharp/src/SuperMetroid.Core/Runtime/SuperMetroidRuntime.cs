@@ -3972,7 +3972,7 @@ public sealed partial class SuperMetroidRuntime
         // bit is set; NMI consumes the queued transfer on the following accepted frame.
         if (WreckedShipTreadmill.IsActive)
         {
-            byte areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
+            AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active cartridge room.");
             WreckedShipTreadmill.Step(
                 System.HasAnyBossBits(areaIndex, BossBits.AreaBoss),
@@ -4239,7 +4239,7 @@ public readonly record struct GameplayPpuRenderSnapshot(
 
 /// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
 public readonly record struct SaveStationPersistenceRequest(
-    byte AreaIndex,
+    AreaId AreaIndex,
     ushort StationIndex);
 
 /// <summary>

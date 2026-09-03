@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Hardware;
 
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>
@@ -18,7 +20,7 @@ public sealed record LandingSiteEntryState(
     int SkySourceAddress,
     ushort SkyVramDestination,
     ushort SkyByteCount,
-    byte AreaIndex,
+    AreaId AreaIndex,
     byte RoomMapX,
     byte RoomMapY,
     byte RoomWidthInScreens,
@@ -75,7 +77,9 @@ public sealed record LandingSiteEntryState(
             // then the upward/downward camera-scroller distances. Reading these bytes here
             // keeps minimap and camera integration tied to the selected ROM room instead of
             // duplicating visually plausible host constants in the runtime.
-            AreaIndex: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
+            AreaIndex: AreaIds.FromCartridge(
+                bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
+                "Landing Site room header"),
             RoomMapX: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 2),
             RoomMapY: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 3),
             RoomWidthInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 4),

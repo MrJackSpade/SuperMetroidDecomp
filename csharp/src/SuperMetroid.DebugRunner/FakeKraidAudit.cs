@@ -68,7 +68,8 @@ internal static class FakeKraidAudit
         if (room.State.Pointer != 0xa533 ||
             room.State.EnemyPopulationPointer != 0xa0ba ||
             room.State.EnemyTilesetPointer != 0x8651 ||
-            room.WidthInScreens != 6 || room.HeightInScreens != 1 || room.AreaIndex != 1)
+            room.WidthInScreens != 6 || room.HeightInScreens != 1 ||
+            room.AreaIndex != AreaId.Brinstar)
         {
             throw new InvalidDataException(
                 $"Fake Kraid room mismatch: state=${room.State.Pointer:X4}, population=" +

@@ -21,7 +21,7 @@ internal static class PauseMapAudit
             bus,
             samus,
             system,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             roomMapX: 17,
             roomMapY: 9);
         Rgba32[] pixels = pause.Render();

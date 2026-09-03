@@ -105,8 +105,8 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage.</summary>
     public ushort PeriodicDamage { get; private set; }
 
-    /// <summary>Area index consumed by <c>FootstepGraphics</c>; zero is Crateria.</summary>
-    public byte AreaIndex { get; set; }
+    /// <summary>Retail area consumed by <c>FootstepGraphics</c>.</summary>
+    public AreaId AreaIndex { get; set; }
 
     /// <summary>Room index byte consumed by Crateria's special-footstep table.</summary>
     public byte RoomIndex { get; set; }
@@ -419,11 +419,11 @@ public sealed class SamusLiquidPhysicsState
         // unrelated bank-$91 data on hardware; fail loudly instead of manufacturing output.
         switch (AreaIndex)
         {
-            case 0: // Crateria
+            case AreaId.Crateria:
                 HandleCrateriaLandingGraphics(bus, samus);
                 return;
 
-            case 1: // Brinstar
+            case AreaId.Brinstar:
                 // Retail code's apparent missing RTS is real: room eight branches directly
                 // to dust, while every other Brinstar room falls through Tourian's room set.
                 if (RoomIndex == 8 || IsTourianStyleDustRoom(RoomIndex))
@@ -432,29 +432,28 @@ public sealed class SamusLiquidPhysicsState
                     DeleteLandingPair();
                 return;
 
-            case 2: // Norfair
-            case 3: // Wrecked Ship
+            case AreaId.Norfair:
+            case AreaId.WreckedShip:
                 SpawnLandingPairUnlessSubmerged(samus, type: 6);
                 return;
 
-            case 4: // Maridia
+            case AreaId.Maridia:
                 SpawnLandingPairUnlessSubmerged(samus, type: 1);
                 return;
 
-            case 5: // Tourian
+            case AreaId.Tourian:
                 if (IsTourianStyleDustRoom(RoomIndex))
                     SpawnLandingPairUnlessSubmerged(samus, type: 6);
                 else
                     DeleteLandingPair();
                 return;
 
-            case 6: // Ceres
-            case 7: // Debug
+            case AreaId.Ceres:
                 DeleteLandingPair();
                 return;
 
             default:
-                throw new InvalidDataException($"Landing graphics area {AreaIndex} is outside the native 0..7 table.");
+                throw new InvalidDataException($"Landing graphics area {(byte)AreaIndex} is outside the seven retail areas.");
         }
     }
 
@@ -713,8 +712,8 @@ public sealed class SamusLiquidPhysicsState
             return;
         }
 
-        bool useWetFootsteps = AreaIndex == 4;
-        if (AreaIndex == 0)
+        bool useWetFootsteps = AreaIndex == AreaId.Maridia;
+        if (AreaIndex == AreaId.Crateria)
         {
             if (CinematicFunctionActive)
             {

@@ -239,6 +239,30 @@ static void VerifyTypedNativeWords()
     AssertTrue(!((ushort)0x1234).AnimatesVisor(),
         "unnamed layer blending value stays outside typed handler");
 
+    AreaId[] retailAreas =
+    [
+        AreaId.Crateria,
+        AreaId.Brinstar,
+        AreaId.Norfair,
+        AreaId.WreckedShip,
+        AreaId.Maridia,
+        AreaId.Tourian,
+        AreaId.Ceres,
+    ];
+    for (byte rawArea = 0; rawArea < retailAreas.Length; rawArea++)
+    {
+        AssertEqual(retailAreas[rawArea], AreaIds.FromCartridge(rawArea, "typed-area test"),
+            $"retail area byte {rawArea} validates");
+        AssertEqual((int)rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
+            $"retail area {retailAreas[rawArea]} indexes cartridge tables");
+    }
+    AssertThrows<InvalidDataException>(
+        () => AreaIds.FromCartridge(AreaIds.RetailCount, "typed-area test"),
+        "non-retail cartridge area rejected");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => AreaIds.ToIndex((AreaId)AreaIds.RetailCount),
+        "forged non-retail area rejected before table access");
+
     Console.WriteLine("  Native words: enums, flags, packed fields, and unknown-bit preservation agree.");
 }
 

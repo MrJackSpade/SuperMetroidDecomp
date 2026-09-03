@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -28,7 +29,7 @@ internal static class CeresElevatorArrivalAudit
 
         FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);
         if (frame.GameState != SuperMetroidGameState.MainGameplayFadeIn ||
-            game.GameplayActiveAreaIndex != 6 ||
+            game.GameplayActiveAreaIndex != AreaId.Ceres ||
             game.GameplayActiveRoomIndex != 0)
         {
             throw new InvalidDataException(

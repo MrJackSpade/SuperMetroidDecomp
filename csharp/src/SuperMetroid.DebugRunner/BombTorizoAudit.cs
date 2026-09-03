@@ -46,7 +46,7 @@ internal static partial class BombTorizoAudit
         ISnesAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        if (room.Pointer != RoomPointer || room.AreaIndex != 0 ||
+        if (room.Pointer != RoomPointer || room.AreaIndex != AreaId.Crateria ||
             room.WidthInScreens != 1 || room.HeightInScreens != 1 ||
             room.State.Pointer != 0x981b ||
             room.State.EnemyPopulationPointer != PopulationPointer ||

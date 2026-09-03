@@ -45,7 +45,7 @@ internal static partial class GoldenTorizoAudit
         ISnesAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        if (room.Pointer != RoomPointer || room.AreaIndex != 2 ||
+        if (room.Pointer != RoomPointer || room.AreaIndex != AreaId.Norfair ||
             room.State.Pointer != 0xb295 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {

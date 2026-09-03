@@ -130,7 +130,7 @@ internal static partial class Program
             bus,
             samus,
             system,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             roomMapX: 28,
             roomMapY: 1,
             gameplayVram: gameplayVram);
@@ -195,7 +195,7 @@ internal static partial class Program
             bus,
             samus,
             new Bank80SystemState(),
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             roomMapX: 28,
             roomMapY: 1,
             gameplayVram: gameplayVram);

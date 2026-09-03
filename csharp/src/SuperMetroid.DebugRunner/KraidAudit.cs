@@ -923,7 +923,7 @@ internal static class KraidAudit
 
     private static void VerifyRetailRoom(CartridgeRoomHeader room)
     {
-        if (room.AreaIndex != 1 || room.WidthInScreens != 2 || room.HeightInScreens != 2 ||
+        if (room.AreaIndex != AreaId.Brinstar || room.WidthInScreens != 2 || room.HeightInScreens != 2 ||
             room.State.Pointer != 0xa5b1 || room.State.EnemyPopulationPointer != PopulationPointer)
         {
             throw new InvalidDataException(

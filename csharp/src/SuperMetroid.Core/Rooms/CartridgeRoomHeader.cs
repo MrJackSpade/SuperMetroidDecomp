@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -16,7 +17,7 @@ namespace SuperMetroid.Core.Rooms;
 public sealed record CartridgeRoomHeader(
     ushort Pointer,
     byte RoomIndex,
-    byte AreaIndex,
+    AreaId AreaIndex,
     byte MapX,
     byte MapY,
     byte WidthInScreens,
@@ -45,7 +46,9 @@ public sealed record CartridgeRoomHeader(
         return new CartridgeRoomHeader(
             roomPointer,
             RoomIndex: bus.ReadByte(address),
-            AreaIndex: bus.ReadByte(address + 1),
+            AreaIndex: AreaIds.FromCartridge(
+                bus.ReadByte(address + 1),
+                $"Room header $8F:{roomPointer:X4}"),
             MapX: bus.ReadByte(address + 2),
             MapY: bus.ReadByte(address + 3),
             WidthInScreens: bus.ReadByte(address + 4),

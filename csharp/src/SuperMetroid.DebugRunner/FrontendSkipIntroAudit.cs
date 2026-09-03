@@ -146,8 +146,8 @@ internal static class FrontendSkipIntroAudit
         // player, boss, map, and clock state before constructing the room.
         var crateriaSystem = new Bank80SystemState();
         crateriaSystem.SetBossBits(0, BossBits.AreaTorizo);
-        crateriaSystem.MarkSaveStationUsed(areaIndex: 0, stationBitIndex: 0);
-        crateriaSystem.MarkExploredMapTile(areaIndex: 0, mapX: 27, mapY: 5);
+        crateriaSystem.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
+        crateriaSystem.MarkExploredMapTile(areaIndex: AreaId.Crateria, mapX: 27, mapY: 5);
         var crateriaSamus = new SamusState
         {
             Health = 87,
@@ -172,7 +172,10 @@ internal static class FrontendSkipIntroAudit
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame crateriaFrame = FrontendAuditDriver.EnterSelectedSlot(crateriaReload);
-        LoadStationEntry crateriaStation = LoadStationEntry.Load(bus, areaIndex: 0, stationIndex: 0);
+        LoadStationEntry crateriaStation = LoadStationEntry.Load(
+            bus,
+            areaIndex: AreaId.Crateria,
+            stationIndex: 0);
         if (crateriaFrame.GameState != SuperMetroidGameState.MainGameplay ||
             crateriaReload.GameplayActiveRoomPointer != crateriaStation.RoomPointer ||
             crateriaReload.GameplayHealth != 87 ||

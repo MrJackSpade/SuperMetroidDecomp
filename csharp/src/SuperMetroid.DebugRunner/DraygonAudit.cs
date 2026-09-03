@@ -22,7 +22,7 @@ internal static class DraygonAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 2 || room.HeightInScreens != 2 ||
-            room.AreaIndex != 4 || room.State.EnemyPopulationPointer != PopulationPointer)
+            room.AreaIndex != AreaId.Maridia || room.State.EnemyPopulationPointer != PopulationPointer)
         {
             throw new InvalidDataException(
                 $"Draygon room mismatch: {room.WidthInScreens}x{room.HeightInScreens}, " +

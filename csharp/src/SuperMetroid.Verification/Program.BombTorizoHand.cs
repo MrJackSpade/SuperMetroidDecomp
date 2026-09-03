@@ -73,7 +73,7 @@ internal static partial class Program
                 new SnesVram(),
                 population,
                 new Bank80SystemState(),
-                areaIndex: 0,
+                areaIndex: AreaId.Crateria,
                 getSamus: () => samus,
                 isAreaTorizoDefeated: () => false,
                 isTourianStatueFinished: null),
@@ -139,7 +139,7 @@ internal static partial class Program
                 new SnesVram(),
                 population,
                 new Bank80SystemState(),
-                areaIndex: 0,
+                areaIndex: AreaId.Crateria,
                 getSamus: () => samus,
                 isAreaTorizoDefeated: () => true),
             "single loader still parses defeated hand record before setup deletes it");

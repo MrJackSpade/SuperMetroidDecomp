@@ -521,7 +521,7 @@ internal static class FlyFamilyAudit
                 ? (ushort)0
                 : unchecked((ushort)(profile.Health - multipliedDamage));
         ushort expectedFrozenTimer = immediateFreeze || lethalFreeze
-            ? loaded.Room.AreaIndex == 2 ? (ushort)300 : (ushort)400
+            ? loaded.Room.AreaIndex == AreaId.Norfair ? (ushort)300 : (ushort)400
             : (ushort)0;
 
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(

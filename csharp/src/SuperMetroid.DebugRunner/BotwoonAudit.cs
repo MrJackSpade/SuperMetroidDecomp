@@ -48,7 +48,7 @@ internal static partial class BotwoonAudit
         ISnesAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        if (room.Pointer != RoomPointer || room.AreaIndex != 4 ||
+        if (room.Pointer != RoomPointer || room.AreaIndex != AreaId.Maridia ||
             room.WidthInScreens != 2 || room.HeightInScreens != 1 ||
             room.State.Pointer != 0xd970 ||
             room.State.EnemyPopulationPointer != PopulationPointer ||
@@ -351,7 +351,7 @@ internal static partial class BotwoonAudit
 
         // Select room state `$D98A` and drive Botwoon_Init's defeated branch through the
         // same Bank80SystemState callback used by normal door loading.
-        runtime.System.SetBossBits(areaIndex: 4, BossBits.AreaMiniBoss);
+        runtime.System.SetBossBits(areaIndex: AreaId.Maridia, BossBits.AreaMiniBoss);
         runtime.LoadCartridgeRoomForDebug(RoomPointer, CameraX, CameraY);
         if (runtime.Plms.ActiveCount != 1 || runtime.Camera is null ||
             runtime.Camera.Scrolls.ReadStorage(0) != 1 ||

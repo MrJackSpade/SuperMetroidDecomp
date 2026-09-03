@@ -117,7 +117,8 @@ internal static class CeresDestructionAudit
         runtime.InitializeCeresStartSamus();
         runtime.InitializePostCeresZebesRoom();
 
-        if (runtime.ActiveLoadStation is not { RequestedAreaIndex: 0, StationIndex: 18 })
+        if (runtime.ActiveLoadStation is not
+            { RequestedAreaIndex: AreaId.Crateria, StationIndex: 18 })
         {
             throw new InvalidDataException(
                 "Post-Ceres loader did not retain Crateria station eighteen.");

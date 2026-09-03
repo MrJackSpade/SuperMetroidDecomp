@@ -39,7 +39,7 @@ internal static class SporeSpawnAudit
         ISnesAddressSpace bus,
         CartridgeRoomHeader room)
     {
-        if (room.Pointer != RoomPointer || room.AreaIndex != 1 ||
+        if (room.Pointer != RoomPointer || room.AreaIndex != AreaId.Brinstar ||
             room.WidthInScreens != 1 || room.HeightInScreens != 3 ||
             room.State.EnemyPopulationPointer != PopulationPointer)
         {
@@ -306,7 +306,7 @@ internal static class SporeSpawnAudit
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
 
-        runtime.System.SetBossBits(areaIndex: 1, BossBits.AreaMiniBoss);
+        runtime.System.SetBossBits(areaIndex: AreaId.Brinstar, BossBits.AreaMiniBoss);
         runtime.LoadCartridgeRoomForDebug(RoomPointer, CameraX, CameraY);
         if (runtime.Plms.ActiveCount != 1)
         {

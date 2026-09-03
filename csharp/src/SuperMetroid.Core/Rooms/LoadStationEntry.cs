@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Rooms;
 
 /// <summary>One fourteen-byte entry consumed by <c>LoadFromLoadStation</c> at $80:C437.</summary>
 public sealed record LoadStationEntry(
-    byte RequestedAreaIndex,
+    AreaId RequestedAreaIndex,
     byte StationIndex,
     ushort ListPointer,
     ushort RoomPointer,
@@ -20,12 +21,13 @@ public sealed record LoadStationEntry(
     private const int EntryByteCount = 14;
 
     /// <summary>Reads the area list pointer and indexed record with bank-$80 wrapping.</summary>
-    public static LoadStationEntry Load(ISnesAddressSpace bus, byte areaIndex, byte stationIndex)
+    public static LoadStationEntry Load(ISnesAddressSpace bus, AreaId areaIndex, byte stationIndex)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        int areaTableIndex = AreaIds.ToIndex(areaIndex);
         ushort listPointer = RomDataReader.ReadWordFixedBank(
             bus,
-            LoadStationPointerTable + areaIndex * 2);
+            LoadStationPointerTable + areaTableIndex * 2);
         int address = 0x800000 | unchecked((ushort)(listPointer + stationIndex * EntryByteCount));
         return new LoadStationEntry(
             areaIndex,

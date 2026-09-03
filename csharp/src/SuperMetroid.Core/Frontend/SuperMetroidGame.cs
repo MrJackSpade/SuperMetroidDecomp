@@ -146,8 +146,8 @@ public sealed class SuperMetroidGame
     /// <summary>Selected bank-$8F room-state pointer, exposed beside the room identity.</summary>
     public ushort? GameplayActiveRoomStatePointer => runtime?.ActiveRoom?.State.Pointer;
 
-    /// <summary>Native area byte in the active room header, or null before gameplay.</summary>
-    public byte? GameplayActiveAreaIndex => runtime?.ActiveRoom?.AreaIndex;
+    /// <summary>Validated retail area in the active room header, or null before gameplay.</summary>
+    public AreaId? GameplayActiveAreaIndex => runtime?.ActiveRoom?.AreaIndex;
 
     /// <summary>Native room index within the active area, or null before gameplay.</summary>
     public byte? GameplayActiveRoomIndex => runtime?.ActiveRoom?.RoomIndex;
@@ -195,11 +195,11 @@ public sealed class SuperMetroidGame
     public ushort GameplayTimeFrames => runtime?.GameTime.Frames ?? 0;
 
     /// <summary>Queries one live area-boss mask without exposing writable system arrays.</summary>
-    public bool GameplayHasBossBits(int areaIndex, BossBits bits) =>
+    public bool GameplayHasBossBits(AreaId areaIndex, BossBits bits) =>
         runtime?.System.HasAnyBossBits(areaIndex, bits) ?? false;
 
     /// <summary>Queries a restored explored-map cell through the native 64-by-32 layout.</summary>
-    public bool GameplayIsMapTileExplored(int areaIndex, int mapX, int mapY) =>
+    public bool GameplayIsMapTileExplored(AreaId areaIndex, int mapX, int mapY) =>
         runtime?.System.IsMapTileExplored(areaIndex, mapX, mapY) ?? false;
 
     /// <summary>Current pause page: zero for map, one for equipment, or -1 outside pause.</summary>
@@ -974,7 +974,7 @@ public sealed class SuperMetroidGame
                runtime.PowerBombExplosionStatus == 0 &&
                !samus.Xray.TimeIsFrozen &&
                !runtime.HasPendingDoorTransition &&
-               runtime.ActiveRoom.AreaIndex != 6 &&
+               runtime.ActiveRoom.AreaIndex != AreaId.Ceres &&
                (runtime.Controller1.NewlyPressed & (ushort)SnesButton.Start) != 0;
     }
 
@@ -1161,7 +1161,7 @@ public sealed class SuperMetroidGame
             SuperMetroidSaveSnapshot.Capture(
                 samus,
                 runtime.System,
-                area: request.AreaIndex,
+                area: (ushort)request.AreaIndex,
                 saveStation: request.StationIndex,
                 gameTime: runtime.GameTime,
                 controllerBindings: runtime.ControllerBindings,

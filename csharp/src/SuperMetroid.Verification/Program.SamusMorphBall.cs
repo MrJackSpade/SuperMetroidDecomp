@@ -1500,10 +1500,12 @@ static void VerifySamusMorphBallMovement()
     BackgroundTilemapStreamer specialStreamer = specialLevel.CreateBackgroundStreamer();
     var specialPlms = new RoomPlmSystem();
     AssertTrue(
-        specialPlms.TrySpawnBombedSpecialBlock(specialLevel, crumbleIndex, 3, 0, 0x0500),
+        specialPlms.TrySpawnBombedSpecialBlock(
+            specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0500),
         "normal bomb allocates two-by-two crumble reveal");
     AssertTrue(
-        specialPlms.TrySpawnBombedSpecialBlock(specialLevel, speedIndex, 0x82, 1, 0x0500),
+        specialPlms.TrySpawnBombedSpecialBlock(
+            specialLevel, speedIndex, 0x82, AreaId.Brinstar, 0x0500),
         "Brinstar negative BTS two allocates speed-block reveal");
     specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
     AssertEqual(0xb0bc,

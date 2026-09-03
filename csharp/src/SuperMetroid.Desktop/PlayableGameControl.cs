@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -493,12 +494,13 @@ public sealed class PlayableGameControl : UserControl
         ushort state = game.GameplayActiveRoomStatePointer
             ?? throw new InvalidOperationException(
                 $"Room $8F:{pointer:X4} has no selected room-state pointer.");
-        byte area = game.GameplayActiveAreaIndex
+        AreaId area = game.GameplayActiveAreaIndex
             ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no area index.");
         byte room = game.GameplayActiveRoomIndex
             ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no room index.");
         host.Text =
-            $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, area ${area:X2}/room ${room:X2}]";
+            $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, " +
+            $"area ${(byte)area:X2}/room ${room:X2}]";
     }
 
     /// <summary>

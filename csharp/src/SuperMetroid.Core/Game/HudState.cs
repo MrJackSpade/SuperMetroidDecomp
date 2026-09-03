@@ -168,7 +168,7 @@ public sealed class HudState
     public void UpdateMinimap(
         ISnesAddressSpace bus,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId areaIndex,
         byte roomMapX,
         byte roomMapY,
         int roomWidthInBlocks,
@@ -181,8 +181,7 @@ public sealed class HudState
         ArgumentNullException.ThrowIfNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
-        if (areaIndex >= 7)
-            throw new ArgumentOutOfRangeException(nameof(areaIndex));
+        int areaTableIndex = AreaIds.ToIndex(areaIndex);
         if (roomWidthInBlocks <= 0 || roomHeightInBlocks <= 0)
             throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
 
@@ -207,12 +206,12 @@ public sealed class HudState
         system.MarkExploredMapTile(areaIndex, centerX, centerY);
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
-        int areaMapPointerAddress = AreaMapPointerTable + areaIndex * 3;
+        int areaMapPointerAddress = AreaMapPointerTable + areaTableIndex * 3;
         int areaMapAddress =
             bus.ReadByte(areaMapPointerAddress) |
             (bus.ReadByte(areaMapPointerAddress + 1) << 8) |
             (bus.ReadByte(areaMapPointerAddress + 2) << 16);
-        ushort mapDataPointer = ReadRomWord(bus, MapDataPointerTable + areaIndex * 2);
+        ushort mapDataPointer = ReadRomWord(bus, MapDataPointerTable + areaTableIndex * 2);
         int mapDataAddress = 0x820000 | mapDataPointer;
 
         for (int outputY = 0; outputY < 3; outputY++)

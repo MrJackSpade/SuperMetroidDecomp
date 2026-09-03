@@ -41,7 +41,7 @@ public sealed partial class RoomPlmSystem
         SnesVram vram,
         ushort populationPointer,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId areaIndex,
         Func<SamusState?> getSamus,
         Func<bool> isAreaTorizoDefeated,
         Func<bool>? isTourianStatueFinished = null,
@@ -62,7 +62,7 @@ public sealed partial class RoomPlmSystem
         // the same cartridge/runtime state owner.
         _coloredDoorSystem = system;
         _greyDoorSystem = system;
-        _greyDoorAreaIndex = areaIndex;
+        _greyDoorArea = areaIndex;
         _isTourianStatueFinished = isTourianStatueFinished;
         _collectibleSystem = system;
         _collectibleSamus = getSamus;
@@ -212,7 +212,7 @@ public sealed partial class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         SnesVram vram,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId areaIndex,
         Func<SamusState?> getSamus,
         Func<bool> isAreaTorizoDefeated,
         RoomPlmPopulationRecord record,

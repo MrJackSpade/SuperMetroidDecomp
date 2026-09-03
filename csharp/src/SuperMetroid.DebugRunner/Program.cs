@@ -3922,7 +3922,7 @@ if (options.LandingImpactScript)
     // publish only area byte two at this documented room-metadata seam. `$91:F0AE` then
     // selects the retail Norfair handler; the live Landing Site fall/collision still supplies
     // the exact impact position and velocity, and bank `$90` supplies particle art/OAM.
-    runtime.Samus!.LiquidPhysics.AreaIndex = 2;
+    runtime.Samus!.LiquidPhysics.AreaIndex = AreaId.Norfair;
     runtime.Samus.LiquidPhysics.RoomIndex = 0;
 }
 

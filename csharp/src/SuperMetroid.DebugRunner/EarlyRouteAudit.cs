@@ -64,7 +64,7 @@ internal static class EarlyRouteAudit
         // Prove that subsequent loads consume live progression rather than silently
         // returning to each header's default branch. These writes model facts produced by
         // the encounter/item systems; the room choice itself remains the retail selector.
-        runtime.System.SetBossBits(areaIndex: 0, BossBits.AreaTorizo);
+        runtime.System.SetBossBits(areaIndex: AreaId.Crateria, BossBits.AreaTorizo);
         Traverse(runtime, bus, 0, 0x8baa, 0x9879, 0x98aa, "defeated Bomb Torizo Flyway");
         runtime.System.SetEvent((int)EventNumber.ZebesAwake);
         Traverse(runtime, bus, 0, 0x8bb6, 0x92fd, 0x932e, "awakened Parlor");

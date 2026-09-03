@@ -250,7 +250,7 @@ internal static class DoorSetupCallbackAudit
         // Then select the powered Wrecked Ship state before room load and prove both the
         // collision row and the bank-$87 source order produced by the same door callback.
         SuperMetroidRuntime poweredRuntime = CreateRuntime(bus);
-        poweredRuntime.System.SetBossBits(areaIndex: 3, BossBits.AreaBoss);
+        poweredRuntime.System.SetBossBits(areaIndex: AreaId.WreckedShip, BossBits.AreaBoss);
         poweredRuntime.LoadCartridgeRoomForDebug(WreckedShipEntranceRoom);
         poweredRuntime.RunDoorSetupForVerification(door);
         if (!poweredRuntime.WreckedShipTreadmill.IsActive ||

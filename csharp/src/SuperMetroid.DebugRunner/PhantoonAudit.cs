@@ -22,7 +22,8 @@ internal static class PhantoonAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 1 || room.HeightInScreens != 1 ||
-            room.AreaIndex != 3 || room.State.EnemyPopulationPointer != PopulationPointer)
+            room.AreaIndex != AreaId.WreckedShip ||
+            room.State.EnemyPopulationPointer != PopulationPointer)
         {
             throw new InvalidDataException(
                 $"Phantoon room mismatch: {room.WidthInScreens}x{room.HeightInScreens}, " +

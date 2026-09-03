@@ -170,7 +170,7 @@ public sealed partial class RoomPlmSystem
         // previous runtime/system-state instance.
         _coloredDoorSystem = null;
         _greyDoorSystem = null;
-        _greyDoorAreaIndex = 0;
+        _greyDoorArea = AreaId.Crateria;
         _isTourianStatueFinished = null;
         ResetMotherBrainGlassState();
         ResetCollectibleState();
@@ -966,7 +966,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         byte behavior,
-        byte areaIndex,
+        AreaId areaIndex,
         SamusProjectileTypeWord projectileType)
         => TrySpawnBombedSpecialBlock(
             level,
@@ -980,12 +980,11 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        byte areaIndex,
+        AreaId areaIndex,
         SamusProjectileTypeWord projectileType)
     {
         ArgumentNullException.ThrowIfNull(level);
-        if (areaIndex > 7)
-            throw new ArgumentOutOfRangeException(nameof(areaIndex), "Native area index must be zero through seven.");
+        _ = AreaIds.ToIndex(areaIndex);
         if (projectileType.Family != SamusProjectileFamily.Bomb)
         {
             throw new ArgumentOutOfRangeException(
@@ -1020,7 +1019,7 @@ public sealed partial class RoomPlmSystem
                     "Area-dependent bomb-special BTS must address one of its eight native entries.");
             }
 
-            instructionPointer = areaIndex == 1 && areaBehavior is >= 2 and <= 5
+            instructionPointer = areaIndex == AreaId.Brinstar && areaBehavior is >= 2 and <= 5
                 ? (ushort)0xc928
                 : DeleteInstructionList;
         }

@@ -373,7 +373,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
         RoomPlmSystem? roomPlms,
-        byte areaIndex)
+        AreaId areaIndex)
     {
         // Direction high nibble is a generic projectile kill request. Normal placed bombs
         // leave direction zero for their lifetime, but debugger state can exercise it.
@@ -466,7 +466,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
-        byte areaIndex,
+        AreaId areaIndex,
         ushort projectileType)
     {
         int horizontalRadius = PowerBombExplosion.ExplosionRadius >> 8;
@@ -499,7 +499,7 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
-        byte areaIndex)
+        AreaId areaIndex)
     {
         int centerX = slot.XPosition >> 4;
         int centerY = slot.YPosition >> 4;
@@ -541,7 +541,7 @@ public sealed class SamusBombProjectileSystem
         int y,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
-        byte areaIndex,
+        AreaId areaIndex,
         ushort projectileType)
     {
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);

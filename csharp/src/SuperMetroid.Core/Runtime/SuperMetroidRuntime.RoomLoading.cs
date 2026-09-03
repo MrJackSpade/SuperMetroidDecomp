@@ -35,7 +35,10 @@ public sealed partial class SuperMetroidRuntime
         // `InitAndLoadGameData_Async` writes these exact indexes before calling
         // LoadFromLoadStation. Reading them through the general table proves which room the
         // retail cartridge selected; no Ceres room pointer is duplicated in host code.
-        LoadStationEntry station = LoadStationEntry.Load(_addressSpace, areaIndex: 6, stationIndex: 0);
+        LoadStationEntry station = LoadStationEntry.Load(
+            _addressSpace,
+            areaIndex: AreaId.Ceres,
+            stationIndex: 0);
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
         if (door.DestinationRoomPointer != station.RoomPointer)
         {
@@ -45,10 +48,10 @@ public sealed partial class SuperMetroidRuntime
         }
 
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
-        if (room.AreaIndex != 6)
+        if (room.AreaIndex != AreaId.Ceres)
         {
             throw new InvalidDataException(
-                $"Fresh Ceres station targets area ${room.AreaIndex:X2}, expected area $06.");
+                $"Fresh Ceres station targets area ${(byte)room.AreaIndex:X2}, expected area $06.");
         }
 
         ActiveLoadStation = station;
@@ -81,13 +84,10 @@ public sealed partial class SuperMetroidRuntime
                 $"{slot.Area}:{slot.SaveStation}.");
         }
 
-        byte requestedArea = unchecked((byte)slot.Area);
+        AreaId requestedArea = AreaIds.FromCartridge(
+            unchecked((byte)slot.Area),
+            $"Save slot {slot.Slot}");
         byte stationIndex = unchecked((byte)slot.SaveStation);
-        if (requestedArea >= Bank80SystemState.AreaCount)
-        {
-            throw new InvalidDataException(
-                $"Save slot {slot.Slot} area {requestedArea} is outside the native area table.");
-        }
 
         LoadStationEntry station = LoadStationEntry.Load(
             _addressSpace,
@@ -184,7 +184,7 @@ public sealed partial class SuperMetroidRuntime
         // is not selected until GunshipTop_7 finishes the landing and performs the save.
         LoadStationEntry station = LoadStationEntry.Load(
             _addressSpace,
-            areaIndex: 0,
+            areaIndex: AreaId.Crateria,
             stationIndex: 18);
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(_addressSpace, station.DoorPointer);
         if (door.DestinationRoomPointer != station.RoomPointer)
@@ -195,7 +195,7 @@ public sealed partial class SuperMetroidRuntime
         }
 
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
-        if (room.AreaIndex != 0)
+        if (room.AreaIndex != AreaId.Crateria)
         {
             throw new InvalidDataException(
                 $"Post-Ceres station eighteen targets area {room.AreaIndex}, expected Crateria.");
@@ -1248,7 +1248,7 @@ public sealed partial class SuperMetroidRuntime
 
 /// <summary>Room-header fields shared by camera tracking and minimap publication.</summary>
 internal readonly record struct ActiveRoomGeometry(
-    byte AreaIndex,
+    AreaId AreaIndex,
     byte MapX,
     byte MapY,
     byte UpScroller,

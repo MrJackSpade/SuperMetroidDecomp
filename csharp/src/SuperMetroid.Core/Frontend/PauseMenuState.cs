@@ -25,7 +25,7 @@ internal sealed class PauseMenuState
     private readonly CartridgeAudioState? audio;
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
-    private readonly byte areaIndex;
+    private readonly AreaId area;
     private readonly byte roomMapX;
     private readonly byte roomMapY;
     private readonly SnesVram vram = new();
@@ -51,7 +51,7 @@ internal sealed class PauseMenuState
         ISnesAddressSpace bus,
         SamusState samus,
         Bank80SystemState system,
-        byte areaIndex,
+        AreaId areaIndex,
         byte roomMapX,
         byte roomMapY,
         CartridgeAudioState? audio = null,
@@ -61,7 +61,8 @@ internal sealed class PauseMenuState
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
-        this.areaIndex = areaIndex < 7 ? areaIndex : (byte)0;
+        area = areaIndex;
+        _ = AreaIds.ToIndex(areaIndex);
         this.roomMapX = roomMapX;
         this.roomMapY = roomMapY;
 
@@ -508,6 +509,7 @@ internal sealed class PauseMenuState
 
     private void LoadPauseMapTilemap()
     {
+        int areaIndex = AreaIds.ToIndex(area);
         // kPauseMenuMapTilemaps is a table of long pointers to literal 64x32 tilemaps.
         // `$82:943D` dereferences words from that ROM image while applying explored-map
         // visibility; it does not call the decompressor. Treating $B5:9000 as compressed
@@ -556,6 +558,7 @@ internal sealed class PauseMenuState
 
     private void SetupMapScrolling()
     {
+        int areaIndex = AreaIds.ToIndex(area);
         // DetermineMapScrollLimits at $82:9EC4 scans either the downloaded cartridge map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
@@ -601,7 +604,7 @@ internal sealed class PauseMenuState
             break;
         }
 
-        ushort minimumX = unchecked((ushort)(left * 8 - (areaIndex == 4 ? 24 : 0)));
+        ushort minimumX = unchecked((ushort)(left * 8 - (area == AreaId.Maridia ? 24 : 0)));
         ushort maximumX = unchecked((ushort)(right * 8));
         ushort minimumY = unchecked((ushort)(top * 8));
         ushort maximumY = unchecked((ushort)(bottom * 8));

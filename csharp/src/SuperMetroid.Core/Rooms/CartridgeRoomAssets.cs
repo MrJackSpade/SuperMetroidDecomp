@@ -55,7 +55,7 @@ public sealed class CartridgeRoomAssets
 
         byte[] roomBlockDefinitions = RomDataReader.Decompress(bus, tileset.BlockDefinitionsAddress);
         byte[] blockDefinitions;
-        if (header.AreaIndex == 6)
+        if (header.AreaIndex == AreaId.Ceres)
         {
             // $82:E7D3 installs a Ceres tileset directly at WRAM $A000. Unlike Zebes
             // rooms, area six does not reserve the first $800 bytes for common CRE blocks.

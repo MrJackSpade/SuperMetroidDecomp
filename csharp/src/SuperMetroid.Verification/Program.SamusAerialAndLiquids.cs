@@ -1329,7 +1329,7 @@ static void VerifySamusAtmosphericEffects()
     // type `$000A`; with a dry surface it creates type-one splashes at +4/-3 and bottom-4.
     bus.WriteByte(0x91f0f3, 1);
     landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
-    landing.LiquidPhysics.FxType = 0x000a;
+    landing.LiquidPhysics.FxType = RoomFxType.Rain;
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
     landing.Kinematics.YSubspeed = 1;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

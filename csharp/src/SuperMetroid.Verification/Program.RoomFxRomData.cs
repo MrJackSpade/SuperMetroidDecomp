@@ -35,6 +35,12 @@ internal static partial class Program
 
         VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
+        NotSupportedException unknown = AssertThrows<NotSupportedException>(
+            () => RoomFxTypes.FromCartridge(0x0e, "constructed FX record $9000"),
+            "null room-FX dispatcher entry fails loudly");
+        AssertTrue(unknown.Message.Contains("$0E", StringComparison.Ordinal) &&
+            unknown.Message.Contains("$9000", StringComparison.Ordinal),
+            "unknown room FX identifies value and record context");
 
         Console.WriteLine(
             "  Room FX: shared record/table catalog, typed blending, liquid, sky, haze, " +

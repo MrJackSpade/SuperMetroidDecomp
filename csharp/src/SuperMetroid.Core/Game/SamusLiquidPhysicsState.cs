@@ -27,16 +27,10 @@ public sealed class SamusLiquidPhysicsState
     public const ushort LavaAcid = 2;
 
     /// <summary>
-    /// FX type word at WRAM <c>$196E</c>. Only its low nibble is dispatched: values two and
-    /// four are lava/acid, while six is water. A default value of zero is the no-FX handler.
+    /// Exclusive FX dispatcher identity stored at WRAM <c>$196E</c>. Values two and four
+    /// are lava/acid, six is water, and zero is the no-FX handler.
     /// </summary>
-    public ushort FxType { get; set; }
-
-    /// <summary>
-    /// Typed view of the low dispatcher nibble. The raw <see cref="FxType"/> word remains
-    /// authoritative because upper bits and untranslated handler values must survive.
-    /// </summary>
-    public RoomFxType FxKind => (RoomFxType)(FxType & 0x000f);
+    public RoomFxType FxType { get; set; }
 
     /// <summary>
     /// General FX surface Y at WRAM <c>$195E</c>. A negative 16-bit value tells movement
@@ -115,7 +109,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Configures the exact room-FX words for an ordinary water surface.</summary>
     public void ConfigureWater(ushort surfaceY, ushort liquidOptions = 0)
     {
-        FxType = (ushort)RoomFxType.Water;
+        FxType = RoomFxType.Water;
         FxYPosition = surfaceY;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = liquidOptions;
@@ -124,7 +118,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Configures the exact room-FX words for a lava (type two) or acid (type four) surface.</summary>
     public void ConfigureLavaAcid(ushort surfaceY, bool acid = false)
     {
-        FxType = (ushort)(acid ? RoomFxType.Acid : RoomFxType.Lava);
+        FxType = acid ? RoomFxType.Acid : RoomFxType.Lava;
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = surfaceY;
         LiquidOptions = 0;
@@ -133,7 +127,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Restores the no-FX sentinel state used by dry rooms.</summary>
     public void Clear()
     {
-        FxType = (ushort)RoomFxType.None;
+        FxType = RoomFxType.None;
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = ushort.MaxValue;
         LiquidOptions = 0;
@@ -153,7 +147,7 @@ public sealed class SamusLiquidPhysicsState
     {
         ArgumentNullException.ThrowIfNull(samus);
         ushort bottom = samus.Kinematics.BottomBoundary;
-        LiquidPhysicsType = FxKind switch
+        LiquidPhysicsType = FxType switch
         {
             RoomFxType.Lava or RoomFxType.Acid
                 when IsBelowSurface(LavaAcidYPosition, bottom) => LavaAcid,
@@ -219,7 +213,7 @@ public sealed class SamusLiquidPhysicsState
     {
         ArgumentNullException.ThrowIfNull(samus);
         return !samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) &&
-            FxType != 0 &&
+            FxType != RoomFxType.None &&
             IsBelowSurface(FxYPosition, samus.Kinematics.BottomBoundary);
     }
 
@@ -270,7 +264,7 @@ public sealed class SamusLiquidPhysicsState
 
         ushort bottom = samus.Kinematics.BottomBoundary;
         ushort top = samus.Kinematics.TopBoundary;
-        RoomFxType fxKind = FxKind;
+        RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);
 
         if (fxKind == RoomFxType.Water && WaterAffectsBoundary(bottom))
@@ -484,7 +478,7 @@ public sealed class SamusLiquidPhysicsState
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
             // sky type deletes the pair. This exact comparison is not a generic water test.
-            if (FxType == (ushort)RoomFxType.Rain)
+            if (FxType == RoomFxType.Rain)
                 SpawnLandingPairUnlessSubmerged(samus, type: 1);
             else
                 DeleteLandingPair();
@@ -720,7 +714,7 @@ public sealed class SamusLiquidPhysicsState
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & 1) != 0)
-                    useWetFootsteps = FxType == (ushort)RoomFxType.Rain;
+                    useWetFootsteps = FxType == RoomFxType.Rain;
                 else if ((specialType & 2) != 0)
                     useWetFootsteps = samus.YPosition >= 0x03b0;
                 else if ((specialType & 4) != 0)

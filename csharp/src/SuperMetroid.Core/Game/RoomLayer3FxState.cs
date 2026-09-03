@@ -58,10 +58,9 @@ public sealed class RoomLayer3FxState
         if (record == 0)
             return;
 
-        Type = (RoomFxType)RoomFxRomData.ReadRecordByte(
-            bus,
-            record,
-            RoomFxRomData.Record.TypeOffset);
+        Type = RoomFxTypes.FromCartridge(
+            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
+            $"bank-$83 FX record ${record:X4}");
         LayerBlendConfiguration = (LayerBlendingConfiguration)RoomFxRomData.ReadRecordByte(
             bus,
             record,

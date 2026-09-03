@@ -10,16 +10,21 @@ static void VerifyGameConfigurationIni()
         "game INI template preserves the opening cinematic");
     AssertEqual(false, defaults.Invincibility,
         "game INI template preserves cartridge damage");
+    AssertEqual(false, defaults.InfiniteAmmo,
+        "game INI template preserves cartridge ammunition");
     AssertEqual(true, defaults.AudioEnabled, "game INI template enables cartridge audio");
     AssertEqual(100, defaults.MasterVolumePercent, "game INI template uses full host gain");
 
     SuperMetroidGameOptions enabled = SuperMetroidGameOptionsIni.Parse(
-        "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\nINVINCIBILITY=true\n",
+        "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\n" +
+        "INVINCIBILITY=true\nINFINITEAMMO=true\n",
         "in-memory enabled fixture");
     AssertEqual(true, enabled.SkipOpeningCinematic,
         "game INI names and boolean values are case-insensitive");
     AssertEqual(true, enabled.Invincibility,
         "game INI enables host invincibility");
+    AssertEqual(true, enabled.InfiniteAmmo,
+        "game INI enables infinite unlocked ammunition");
 
     SuperMetroidGameOptions missing = SuperMetroidGameOptionsIni.Parse(
         "; An old configuration may not contain newly introduced keys.\n[Game]\n",
@@ -28,6 +33,8 @@ static void VerifyGameConfigurationIni()
         "missing game INI key retains retail behavior");
     AssertEqual(false, missing.Invincibility,
         "missing invincibility key retains cartridge damage");
+    AssertEqual(false, missing.InfiniteAmmo,
+        "missing infinite-ammo key retains cartridge ammunition");
     AssertEqual(true, missing.AudioEnabled, "missing audio section enables sound by default");
     AssertEqual(100, missing.MasterVolumePercent, "missing volume retains full gain");
 
@@ -48,6 +55,9 @@ static void VerifyGameConfigurationIni()
         "unknown [Game] option");
     AssertInvalidGameConfiguration(
         "[Game]\nInvincibility=enabled\n",
+        "must be either true or false");
+    AssertInvalidGameConfiguration(
+        "[Game]\nInfiniteAmmo=yes\n",
         "must be either true or false");
     AssertInvalidGameConfiguration(
         "[Audio]\nMasterVolumePercent=101\n",

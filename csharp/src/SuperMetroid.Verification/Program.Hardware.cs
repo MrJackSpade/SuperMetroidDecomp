@@ -390,6 +390,35 @@ static void VerifyControllerInputLatch()
 /// </summary>
 static void VerifyFrameRuntime()
 {
+    var infiniteAmmoSamus = new SamusState
+    {
+        Missiles = 1,
+        MaxMissiles = 5,
+        SuperMissiles = 0,
+        MaxSuperMissiles = 5,
+        PowerBombs = 0,
+        MaxPowerBombs = 0,
+    };
+    HostInfiniteAmmoFrameGuard ammoGuard =
+        HostInfiniteAmmoFrameGuard.Begin(enabled: true, infiniteAmmoSamus);
+    AssertEqual((ushort)2, infiniteAmmoSamus.Missiles,
+        "infinite ammo lends a frame-local final missile");
+    AssertEqual((ushort)1, infiniteAmmoSamus.SuperMissiles,
+        "infinite ammo repairs an exhausted unlocked type before selection");
+    AssertEqual((ushort)0, infiniteAmmoSamus.PowerBombs,
+        "infinite ammo does not unlock a missing upgrade");
+
+    // Consume the lent missile exactly as the cartridge firing routine does. Completion
+    // must keep it at one instead of allowing the native zero-ammo auto-cancel branch.
+    infiniteAmmoSamus.Missiles--;
+    ammoGuard.Complete(infiniteAmmoSamus);
+    AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
+        "infinite ammo preserves selection after the final missile");
+    AssertEqual((ushort)1, infiniteAmmoSamus.SuperMissiles,
+        "infinite ammo retains the unlocked one-unit floor");
+    AssertEqual((ushort)0, infiniteAmmoSamus.PowerBombs,
+        "infinite ammo leaves locked ammunition at zero");
+
     var bus = new TestAddressSpace();
     bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
     var runtime = new SuperMetroidRuntime(bus);

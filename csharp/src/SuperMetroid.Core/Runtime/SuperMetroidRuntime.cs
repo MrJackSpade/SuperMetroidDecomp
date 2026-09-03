@@ -34,10 +34,12 @@ public sealed partial class SuperMetroidRuntime
 
     public SuperMetroidRuntime(
         ISnesAddressSpace addressSpace,
-        bool playerInvincibilityEnabled = false)
+        bool playerInvincibilityEnabled = false,
+        bool infiniteAmmoEnabled = false)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         PlayerInvincibilityEnabled = playerInvincibilityEnabled;
+        InfiniteAmmoEnabled = infiniteAmmoEnabled;
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
@@ -61,6 +63,16 @@ public sealed partial class SuperMetroidRuntime
     /// a lethal zero-energy result is raised to one before the frontend can enter death.
     /// </remarks>
     public bool PlayerInvincibilityEnabled { get; }
+
+    /// <summary>
+    /// Host testing switch that keeps every unlocked consumable ammo type above zero.
+    /// </summary>
+    /// <remarks>
+    /// Cartridge routines still subtract ammunition and publish their ordinary projectile,
+    /// HUD, and sound side effects. The frame-exit guard only raises a zero count to one when
+    /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
+    /// </remarks>
+    public bool InfiniteAmmoEnabled { get; }
 
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();
@@ -1252,6 +1264,9 @@ public sealed partial class SuperMetroidRuntime
         Action? afterAcceptedNmi = null,
         bool advanceGameTime = true)
     {
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
+            HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
+
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
 
@@ -1295,7 +1310,7 @@ public sealed partial class SuperMetroidRuntime
             if (MessageBox.ConfirmationSelectionChangedThisFrame)
                 MessageBoxSelectionSoundRequestedThisFrame = true;
             if (MessageBox.IsActive)
-                return Snapshot(escapeTimerExpired: false);
+                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
 
             if (_pendingSaveStation is { } saveStation)
             {
@@ -1324,7 +1339,7 @@ public sealed partial class SuperMetroidRuntime
                         saveStation.AreaIndex,
                         saveStation.StationIndex);
                 }
-                return Snapshot(escapeTimerExpired: false);
+                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
             }
 
             if (_pendingSaveStationCompletion is { } completedStation)
@@ -4027,7 +4042,7 @@ public sealed partial class SuperMetroidRuntime
                 : unchecked((uint)signedDistance);
         }
 
-        return Snapshot(escapeTimerExpired);
+        return Snapshot(escapeTimerExpired, infiniteAmmoGuard);
     }
 
     /// <summary>Runs the NMI handler portion currently translated from <c>$80:9583</c>.</summary>
@@ -4187,13 +4202,17 @@ public sealed partial class SuperMetroidRuntime
         _samusLoadAppearancePaletteFxDefinition = 0;
     }
 
-    private RuntimeFrameResult Snapshot(bool escapeTimerExpired)
+    private RuntimeFrameResult Snapshot(
+        bool escapeTimerExpired,
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
         // Every translated producer gets to apply its normal amount of damage first. The
         // host intervenes only at the single frame-exit seam where zero would otherwise be
         // observed by SuperMetroidGame and routed into the cartridge death states.
         if (PlayerInvincibilityEnabled && Samus is { Health: 0 } samus)
             samus.Health = 1;
+
+        infiniteAmmoGuard.Complete(Samus);
 
         return new RuntimeFrameResult(
             NmiFrameCounter,

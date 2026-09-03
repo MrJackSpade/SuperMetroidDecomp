@@ -29,6 +29,14 @@ public sealed record SuperMetroidGameOptions
     /// </remarks>
     public bool Invincibility { get; init; }
 
+    /// <summary>Keeps each unlocked consumable ammo type at one or more units.</summary>
+    /// <remarks>
+    /// Missiles, super missiles, and power bombs still consume normally. At the runtime
+    /// frame boundary, an unlocked type which reached zero is raised to one. A type whose
+    /// maximum remains zero is still locked and is never granted by this host option.
+    /// </remarks>
+    public bool InfiniteAmmo { get; init; }
+
     /// <summary>Whether the desktop host creates the SPC/DSP mixer and Windows device.</summary>
     public bool AudioEnabled { get; init; } = true;
 
@@ -57,6 +65,9 @@ public static class SuperMetroidGameOptionsIni
         "; true allows damage but prevents Samus from dropping below 1 energy\r\n" +
         "; false preserves normal cartridge damage and death behavior\r\n" +
         "Invincibility=false\r\n" +
+        "; true allows normal consumption but keeps unlocked ammo types at 1 or more\r\n" +
+        "; false preserves normal cartridge ammunition behavior\r\n" +
+        "InfiniteAmmo=false\r\n" +
         "\r\n" +
         "[Audio]\r\n" +
         "; Enables the cartridge SPC sequencer, BRR samples, DSP mixing, and playback\r\n" +
@@ -74,6 +85,7 @@ public static class SuperMetroidGameOptionsIni
 
         bool? skipOpeningCinematic = null;
         bool? invincibility = null;
+        bool? infiniteAmmo = null;
         bool? audioEnabled = null;
         int? masterVolumePercent = null;
         string currentSection = string.Empty;
@@ -128,6 +140,15 @@ public static class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.InfiniteAmmo),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (infiniteAmmo.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    infiniteAmmo = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+
                 throw Invalid(sourceName, lineNumber, $"unknown [Game] option '{key}'");
             }
 
@@ -160,6 +181,7 @@ public static class SuperMetroidGameOptionsIni
             // or empty local configuration files safe when a new host option is introduced.
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
             Invincibility = invincibility ?? false,
+            InfiniteAmmo = infiniteAmmo ?? false,
             AudioEnabled = audioEnabled ?? true,
             MasterVolumePercent = masterVolumePercent ?? 100,
         };

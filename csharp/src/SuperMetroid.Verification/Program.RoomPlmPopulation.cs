@@ -96,11 +96,138 @@ internal static partial class Program
         VerifyNativeOutOfBoundsPopulationSetupOrder(bus);
         VerifyMetroidsClearedStatePlm(bus);
         VerifyMotherBrainEscapeRoomGate(bus);
+        VerifyBombTorizoGreyDoorClosingReentry(bus);
         VerifySpeedBoosterEscapePlm(bus);
         VerifyWreckedShipAtticPlm(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Reproduces the exact `$BAF4` resident-door path from room `$9804`: the transition
+    /// redirects it to secondary list `$BA4C`, Bombs admit the closing draw, and its final
+    /// Goto returns to first list `$BA7F` without escaping into the generic `$8A72` path.
+    /// </summary>
+    private static void VerifyBombTorizoGreyDoorClosingReentry(TestAddressSpace bus)
+    {
+        const ushort population = 0x9690;
+        const int width = 16;
+        const int height = 16;
+        const int doorX = 1;
+        const int doorY = 6;
+        const ushort roomArgument = 0x081b;
+        const ushort initialList = 0xba7f;
+        const ushort closingList = 0xba4c;
+        const ushort closingDraw = 0xa683;
+        const ushort lockedDraw = 0xa6d7;
+        const ushort closedBlueList = 0xc100;
+        const ushort activationList = 0xba93;
+        const ushort openTriggerList = 0xc110;
+        const ushort openingList = 0xc120;
+
+        WriteWord(bus, 0x840000 | RoomPlmHeaders.BombTorizoGreyDoor, 0xc794);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmHeaders.BombTorizoGreyDoor + 2)),
+            initialList);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmHeaders.BombTorizoGreyDoor + 4)),
+            closingList);
+
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)), closedBlueList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)), activationList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)), lockedDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(activationList + 2)), openTriggerList);
+        bus.WriteBytes(0x840000 | unchecked((ushort)(openTriggerList + 2)),
+        [
+            0x01,
+            unchecked((byte)openingList),
+            unchecked((byte)(openingList >> 8)),
+        ]);
+
+        WriteWord(bus, 0x840000 | closingList,
+            RoomPlmInstructionCodes.GotoIfSamusHasNoBombs);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 2)), closingList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 4)), 1);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 6)), closingDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
+            RoomPlmInstructionCodes.Goto);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 10)), initialList);
+        WriteOneBlockDraw(bus, closingDraw, 0xc123);
+        WriteOneBlockDraw(bus, lockedDraw, 0xc456);
+
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0xf4, 0xba, doorX, doorY,
+            unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
+            0x00, 0x00,
+        ]);
+        RoomLevelData level = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var system = new Bank80SystemState();
+        var samus = new SamusState
+        {
+            CollectedItems = SamusEquipmentFlags.Bombs.ToNativeWord(),
+        };
+        var plms = new RoomPlmSystem();
+        AssertEqual(1, plms.LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                population,
+                system,
+                AreaId.Crateria,
+                () => samus,
+                () => false),
+            "Bomb Torizo grey door loads through the shared room population");
+
+        var enteringDoor = new CartridgeDoorHeader(
+            Pointer: 0x8bc2,
+            DestinationRoomPointer: RoomHeaderPointers.BombTorizoRoom,
+            BitFlags: 0,
+            Orientation: 5,
+            PlmX: doorX,
+            PlmY: doorY,
+            DestinationScreenX: 0,
+            DestinationScreenY: 0,
+            SamusDistance: 0x8000,
+            SetupCodePointer: 0);
+        AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+            "Bomb Torizo entry redirects the resident door to its secondary list");
+        AssertEqual(GreyDoorPhase.Closing, plms.GreyDoors.Single().Phase,
+            "redirected actor retains explicit grey-door ownership while closing");
+
+        plms.Step(
+            bus, level, streamer, 0, 0, 0,
+            scrolls: null,
+            enemyDeaths: 0,
+            enemyDeathQuota: 0,
+            controllerNewInput: 0,
+            collectedItems: samus.CollectedItems);
+        AssertEqual(0xc123, level.GetCollisionBlock(doorX, doorY).LevelWord,
+            "collected Bombs admit the secondary list's closing draw");
+
+        plms.Step(
+            bus, level, streamer, 0, 0, 0,
+            scrolls: null,
+            enemyDeaths: 0,
+            enemyDeathQuota: 0,
+            controllerNewInput: 0,
+            collectedItems: samus.CollectedItems);
+        AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
+            "closing Goto hands the resident actor back to its grey-door family");
+        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
+            "rejoined actor retains the cartridge first-list pointer");
+        AssertEqual(0xc456, level.GetCollisionBlock(doorX, doorY).LevelWord,
+            "re-entry draws the locked grey-door frame in the same handler pass");
+        AssertEqual(1, plms.ActiveCount,
+            "rejoined Bomb Torizo door remains resident for the battle condition");
     }
 
     /// <summary>

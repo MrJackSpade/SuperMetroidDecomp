@@ -35,7 +35,10 @@ public sealed partial class RoomPlmSystem
 
             // Once the one-hit instruction selects the opening stream, native clears the
             // shot pre-instruction. Further impacts cannot restart or duplicate the sound.
-            if (slot.GreyDoor.Phase is GreyDoorPhase.Opening or GreyDoorPhase.ConvertToBlue)
+            if (slot.GreyDoor.Phase is
+                GreyDoorPhase.Opening or
+                GreyDoorPhase.ConvertToBlue or
+                GreyDoorPhase.Closing)
                 return false;
 
             slot.GreyDoor.PendingProjectileType = projectileType;
@@ -58,6 +61,12 @@ public sealed partial class RoomPlmSystem
     {
         GreyDoorPlmState? door = slot.GreyDoor;
         if (door is null)
+            return false;
+
+        // Resident room-entry closers execute the header's second list in the common
+        // interpreter, then return to InitialList. Retaining this discriminator is what
+        // lets that return restore the ordinary condition-gated door owner.
+        if (door.Phase == GreyDoorPhase.Closing)
             return false;
 
         if (door.Phase == GreyDoorPhase.ConvertToBlue)
@@ -282,6 +291,7 @@ public enum GreyDoorPhase : byte
     Flashing,
     Opening,
     ConvertToBlue,
+    Closing,
 }
 
 /// <summary>Stable debugger view over a resident grey-door PLM slot.</summary>

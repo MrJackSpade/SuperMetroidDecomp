@@ -1236,9 +1236,22 @@ public sealed partial class RoomPlmSystem
                     // `$84:8724` replaces Y with the following little-endian pointer. All
                     // eight collision entry lists use it to share their dimension-specific
                     // respawning/permanent animation tail.
-                    slot.InstructionPointer = ReadBank84Word(
+                    ushort gotoTarget = ReadBank84Word(
                         bus,
                         unchecked((ushort)(slot.InstructionPointer + 2)));
+                    if (TryCompleteResidentDoorClosing(
+                            bus,
+                            level,
+                            streamer,
+                            slot,
+                            gotoTarget,
+                            layer1XPosition,
+                            layer1YPosition,
+                            bg1XOffset))
+                    {
+                        return;
+                    }
+                    slot.InstructionPointer = gotoTarget;
                     continue;
 
                 case RoomPlmInstructionCodes.SetEightBitTimer:
@@ -1543,6 +1556,7 @@ public sealed partial class RoomPlmSystem
 internal sealed class ColoredDoorPlmState(
     ColoredDoorColor color,
     ColoredDoorOrientation orientation,
+    ushort initialList,
     ushort closedBlueList,
     ushort hitList,
     ushort openingList,
@@ -1552,6 +1566,7 @@ internal sealed class ColoredDoorPlmState(
 {
     public ColoredDoorColor Color { get; } = color;
     public ColoredDoorOrientation Orientation { get; } = orientation;
+    public ushort InitialList { get; } = initialList;
     public ushort ClosedBlueList { get; } = closedBlueList;
     public ushort HitList { get; } = hitList;
     public ushort OpeningList { get; } = openingList;

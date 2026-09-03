@@ -61,11 +61,14 @@ public sealed partial class RoomPlmSystem
             resident.InstructionPointer = closingList;
             resident.InstructionTimer = 1;
 
-            // The native handler has only scalar PLM arrays. These references are C#-only
-            // family discriminators; once the shared transition routine replaces the list,
-            // the ordinary instruction interpreter must own the actor as it does on cart.
-            resident.ColoredDoor = null;
-            resident.GreyDoor = null;
+            // Native retains every scalar owned by the resident slot while only replacing
+            // its instruction pointer. Preserve the equivalent C# family data and mark the
+            // interval explicitly: the common interpreter owns the secondary list, while
+            // its final Goto returns this same actor to the original door-family program.
+            if (resident.ColoredDoor is not null)
+                resident.ColoredDoor.Phase = ColoredDoorPhase.Closing;
+            if (resident.GreyDoor is not null)
+                resident.GreyDoor.Phase = GreyDoorPhase.Closing;
             return true;
         }
 
@@ -88,6 +91,66 @@ public sealed partial class RoomPlmSystem
                 unchecked((ushort)(fallbackHeader + 2)));
             slot.InstructionTimer = 1;
             SetupDoorTransitionDeactivatedSlot(level, slot);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Completes a resident door's secondary-list close when its final Goto returns to the
+    /// header's first list. This is the semantic equivalent of the native slot retaining
+    /// its room argument, variable, link register, and family pre-instruction state.
+    /// </summary>
+    private bool TryCompleteResidentDoorClosing(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        PlmSlot slot,
+        ushort target,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset)
+    {
+        if (slot.ColoredDoor is { Phase: ColoredDoorPhase.Closing } coloredDoor &&
+            target == coloredDoor.InitialList)
+        {
+            slot.InstructionPointer = target;
+            slot.InstructionTimer = 1;
+            slot.PreInstruction = 0;
+            coloredDoor.Phase = ColoredDoorPhase.Waiting;
+            coloredDoor.InitialDrawCompleted = true;
+            coloredDoor.HasPendingHit = false;
+            DrawRomInstruction(
+                bus,
+                level,
+                streamer,
+                slot.BlockIndex,
+                coloredDoor.ColoredClosedDraw,
+                layer1XPosition,
+                layer1YPosition,
+                bg1XOffset);
+            return true;
+        }
+
+        if (slot.GreyDoor is { Phase: GreyDoorPhase.Closing } greyDoor &&
+            target == greyDoor.InitialList)
+        {
+            slot.InstructionPointer = target;
+            slot.InstructionTimer = 1;
+            slot.PreInstruction = 0;
+            greyDoor.Phase = GreyDoorPhase.Locked;
+            greyDoor.InitialDrawCompleted = true;
+            greyDoor.HasPendingHit = false;
+            DrawRomInstruction(
+                bus,
+                level,
+                streamer,
+                slot.BlockIndex,
+                greyDoor.ClosedGreyDraw,
+                layer1XPosition,
+                layer1YPosition,
+                bg1XOffset);
             return true;
         }
 

@@ -38,7 +38,9 @@ public sealed partial class RoomPlmSystem
             // Once the threshold branch has selected the opening list, native clears the
             // pre-instruction pointer. Later projectiles therefore cannot enqueue another
             // family check or restart the animation while the cap is disappearing.
-            if (slot.ColoredDoor.Phase == ColoredDoorPhase.Opening)
+            if (slot.ColoredDoor.Phase is
+                ColoredDoorPhase.Opening or
+                ColoredDoorPhase.Closing)
                 return false;
 
             slot.ColoredDoor.PendingProjectileType = projectileType;
@@ -89,6 +91,7 @@ public sealed partial class RoomPlmSystem
         slot.ColoredDoor = new ColoredDoorPlmState(
             color,
             orientation,
+            initialList,
             closedBlueList,
             hitList,
             openingList,
@@ -108,6 +111,12 @@ public sealed partial class RoomPlmSystem
     {
         ColoredDoorPlmState? door = slot.ColoredDoor;
         if (door is null)
+            return false;
+
+        // A room-entry close temporarily runs the header's second cartridge list through
+        // the shared interpreter. The semantic owner remains attached so its final Goto
+        // can hand the same physical slot back to this family without reconstructing it.
+        if (door.Phase == ColoredDoorPhase.Closing)
             return false;
 
         if (door.Phase == ColoredDoorPhase.ConvertToBlue)
@@ -357,6 +366,7 @@ public enum ColoredDoorPhase : byte
     Flashing,
     Opening,
     ConvertToBlue,
+    Closing,
 }
 
 /// <summary>Stable debugger view over a resident colored-door PLM slot.</summary>

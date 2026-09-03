@@ -17,16 +17,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class TitleSequenceState
 {
-    private const int PaletteAddress = 0x8ce1e9;
-    private const int Mode7CharactersAddress = 0x94e000;
-    private const int Mode7MapAddress = 0x96fc04;
-    private const int ObjectCharactersAddress = 0x9580d8;
-    private const int BabyMetroidCharactersAddress = 0x95a5e1;
-
-    private const ushort BlankSpritemap = 0x0000;
-    private const ushort SuperMetroidLogoSpritemap = 0x879d;
-    private const ushort NintendoCopyrightSpritemap = 0x8103;
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
@@ -58,25 +48,39 @@ public sealed class TitleSequenceState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x03));
-        audio?.QueueMusicDelayed8(MusicCommand.SelectTrack(5));
+        audio?.QueueMusicDelayed8(
+            MusicCommand.LoadData(TitleSequenceRomData.Music.DataIndex));
+        audio?.QueueMusicDelayed8(
+            MusicCommand.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
 
         // `$8B:9B87` expands these four independent streams to bank-$7F. Recreate the
         // subsequent DMA destinations rather than keeping an invented host texture format.
-        byte[] mode7Characters = RomDataReader.Decompress(bus, Mode7CharactersAddress);
-        byte[] mode7Map = RomDataReader.Decompress(bus, Mode7MapAddress);
-        byte[] objectCharacters = RomDataReader.Decompress(bus, ObjectCharactersAddress);
-        babyMetroidCharacters = RomDataReader.Decompress(bus, BabyMetroidCharactersAddress);
+        byte[] mode7Characters = RomDataReader.Decompress(
+            bus,
+            TitleSequenceRomData.Assets.Mode7CharactersAddress);
+        byte[] mode7Map = RomDataReader.Decompress(bus, TitleSequenceRomData.Assets.Mode7MapAddress);
+        byte[] objectCharacters = RomDataReader.Decompress(
+            bus,
+            TitleSequenceRomData.Assets.ObjectCharactersAddress);
+        babyMetroidCharacters = RomDataReader.Decompress(
+            bus,
+            TitleSequenceRomData.Assets.BabyMetroidCharactersAddress);
 
         LoadMode7InterleavedVram(mode7Characters, mode7Map);
-        vram.LoadBytes(0xc000, objectCharacters.AsSpan(0, Math.Min(0x4000, objectCharacters.Length)));
-        cgram.LoadFromBus(bus, PaletteAddress);
+        vram.LoadBytes(
+            TitleSequenceRomData.Vram.ObjectCharacterDestinationByte,
+            objectCharacters.AsSpan(
+                0,
+                Math.Min(
+                    TitleSequenceRomData.Vram.ObjectCharacterByteCount,
+                    objectCharacters.Length)));
+        cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
 
         // The first object is definition `$A0EF`: 1994 text at (129,112), character
         // offset `$0400`, instruction list `$A03D`. Its pre-instruction forces full
         // brightness on the first processing frame.
-        brightness = 15;
-        BeginTextSequence(TitleSequencePhase.YearText, 0x8ba03d, 129, 112, 0x0400);
+        brightness = TitleSequenceRomData.Timing.MaximumBrightness;
+        BeginTextSequence(TitleSequenceRomData.TextSequences.Year);
         UpdateBabyMetroidCharacterFrame();
     }
 
@@ -110,8 +114,8 @@ public sealed class TitleSequenceState
         // original performs a fast fade-out, reconstructs the final title objects, then a
         // fast fade-in. Do not jump straight to a host menu: those intermediate frames and
         // their INIDISP values are observable in native traces.
-        const SnesButton confirmButtons = SnesButton.B | SnesButton.Start | SnesButton.A;
-        bool confirmPressed = ((SnesButton)controller.NewlyPressed & confirmButtons) != 0;
+        bool confirmPressed =
+            ((SnesButton)controller.NewlyPressed & TitleSequenceRomData.Timing.ConfirmButtons) != 0;
         if (confirmPressed && phase < TitleSequencePhase.TitleScreenFadeIn)
         {
             phase = TitleSequencePhase.SkipFadeOut;
@@ -128,35 +132,44 @@ public sealed class TitleSequenceState
                 break;
 
             case TitleSequencePhase.SceneZeroPan:
-                AddFixedPoint(ref mode7X, ref mode7XSubposition, -0x0001_8000);
-                if (mode7X < -7)
-                    BeginTextSequence(TitleSequencePhase.NintendoText, 0x8ba055, 129, 112, 0x0200);
+                AddFixedPoint(
+                    ref mode7X,
+                    ref mode7XSubposition,
+                    -TitleSequenceRomData.Scenes.PanVelocity16Point16);
+                if (mode7X < TitleSequenceRomData.Scenes.SceneZeroEndX)
+                    BeginTextSequence(TitleSequenceRomData.TextSequences.Nintendo);
                 break;
 
             case TitleSequencePhase.SceneOnePan:
-                AddFixedPoint(ref mode7X, ref mode7XSubposition, -0x0001_8000);
-                if (mode7X < -176)
-                    BeginTextSequence(TitleSequencePhase.PresentsText, 0x8ba079, 129, 112, 0x0200);
+                AddFixedPoint(
+                    ref mode7X,
+                    ref mode7XSubposition,
+                    -TitleSequenceRomData.Scenes.PanVelocity16Point16);
+                if (mode7X < TitleSequenceRomData.Scenes.SceneOneEndX)
+                    BeginTextSequence(TitleSequenceRomData.TextSequences.Presents);
                 break;
 
             case TitleSequencePhase.SceneTwoPan:
-                AddFixedPoint(ref mode7Y, ref mode7YSubposition, 0x0001_8000);
-                if (mode7Y >= 163)
-                    BeginTextSequence(TitleSequencePhase.MetroidThreeText, 0x8ba09d, 129, 112, 0x0200);
+                AddFixedPoint(
+                    ref mode7Y,
+                    ref mode7YSubposition,
+                    TitleSequenceRomData.Scenes.PanVelocity16Point16);
+                if (mode7Y >= TitleSequenceRomData.Scenes.SceneTwoEndY)
+                    BeginTextSequence(TitleSequenceRomData.TextSequences.MetroidThree);
                 break;
 
             case TitleSequencePhase.SceneThreeZoom:
                 // `$8B:9E8B` increments only on even NMI frame counters.
-                if ((phaseTimer++ & 1) == 0 && zoom < 0x0100)
+                if ((phaseTimer++ & 1) == 0 && zoom < TitleSequenceRomData.Scenes.IdentityScale)
                     zoom++;
-                if (zoom >= 0x0100)
+                if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
-                    activeSpritemap = ReadWord(0x8ba0c7);
-                    activeOriginX = 128;
-                    activeOriginY = 48;
-                    activeCharacterOffset = 0x0400;
+                    activeSpritemap = ReadWord(TitleSequenceRomData.Sprites.LogoPointerAddress);
+                    activeOriginX = TitleSequenceRomData.Sprites.LogoX;
+                    activeOriginY = TitleSequenceRomData.Sprites.LogoY;
+                    activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
                     phase = TitleSequencePhase.TitleLogoFade;
-                    phaseTimer = 32;
+                    phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
                 }
                 break;
 
@@ -167,7 +180,7 @@ public sealed class TitleSequenceState
                     // 900-frame demo countdown. The palette FX itself remains future work;
                     // its final cartridge palette is already the visible CGRAM source.
                     phase = TitleSequencePhase.CopyrightFade;
-                    phaseTimer = 32;
+                    phaseTimer = TitleSequenceRomData.Timing.CopyrightHoldFrames;
                 }
                 break;
 
@@ -177,20 +190,25 @@ public sealed class TitleSequenceState
                 break;
 
             case TitleSequencePhase.SkipFadeOut:
-                brightness = Math.Max(0, brightness - 2);
+                brightness = Math.Max(
+                    0,
+                    brightness - TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
                 if (brightness == 0)
                 {
                     // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
                     // rebuilding the immediate title objects.
-                    audio?.QueueMusicDelayed8(MusicCommand.SelectTrack(6));
+                    audio?.QueueMusicDelayed8(
+                        MusicCommand.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
                     phase = TitleSequencePhase.TitleScreenFadeIn;
                 }
                 break;
 
             case TitleSequencePhase.TitleScreenFadeIn:
-                brightness = Math.Min(15, brightness + 2);
-                if (brightness == 15)
+                brightness = Math.Min(
+                    TitleSequenceRomData.Timing.MaximumBrightness,
+                    brightness + TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
+                if (brightness == TitleSequenceRomData.Timing.MaximumBrightness)
                     EnterTitleScreen();
                 break;
 
@@ -198,21 +216,21 @@ public sealed class TitleSequenceState
                 if (confirmPressed)
                 {
                     phase = TitleSequencePhase.TitleScreenFadeOut;
-                    phaseTimer = 2;
+                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 else if (--phaseTimer <= 0)
                 {
                     // The native timeout enters the attract-mode dispatcher. The playable
                     // C# milestone keeps the title resident until demo playback is ported;
                     // resetting the exact 900-frame counter avoids an invented auto-start.
-                    phaseTimer = 900;
+                    phaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
                 }
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOut:
                 if (--phaseTimer <= 0)
                 {
-                    phaseTimer = 2;
+                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                     brightness = Math.Max(0, brightness - 1);
                     if (brightness == 0)
                         FileSelectRequested = true;
@@ -233,7 +251,9 @@ public sealed class TitleSequenceState
         // zoom *out*. Taking its reciprocal reversed that motion and also magnified the
         // Nintendo Presents pan offsets until much of their movement wrapped off-screen.
         short matrixScale = unchecked((short)zoom);
-        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
+        Rgba32[] background = SnesLayerCompositor.CreateBackdrop(
+            cgram,
+            FrontendFrame.Width * FrontendFrame.Height);
 
         // Setup_PPU_TitleSequence writes TM=$10 at `$8B:803F`: OBJ is visible but BG1 is
         // not. Each scrolling-text command leaves that state alone, so the 1994/NINTENDO/
@@ -249,7 +269,7 @@ public sealed class TitleSequenceState
                 vram,
                 cgram,
                 matrixScale,
-                0,
+                TitleSequenceRomData.Scenes.Rotation.TableIndex,
                 0,
                 matrixScale,
                 128,
@@ -260,14 +280,14 @@ public sealed class TitleSequenceState
         }
 
         oam.BeginFrame();
-        if (activeSpritemap != BlankSpritemap)
+        if (activeSpritemap != TitleSequenceRomData.Sprites.Blank)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             oam.AddOnScreenSpritemap(
                 bus,
-                (int)new SnesAddress(0x8c, activeSpritemap),
+                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, activeSpritemap),
                 activeOriginX,
                 activeOriginY,
                 activeCharacterOffset);
@@ -277,14 +297,20 @@ public sealed class TitleSequenceState
         {
             oam.AddOnScreenSpritemap(
                 bus,
-                (int)new SnesAddress(0x8c, NintendoCopyrightSpritemap),
-                128,
-                196,
-                0x0800);
+                (int)new SnesAddress(
+                    TitleSequenceRomData.Sprites.Bank,
+                    TitleSequenceRomData.Sprites.NintendoCopyright),
+                TitleSequenceRomData.Sprites.CopyrightX,
+                TitleSequenceRomData.Sprites.CopyrightY,
+                TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         }
 
         oam.FinalizeFrame();
-        Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0x03);
+        Rgba32[] objects = SnesObjRenderer.Render(
+            oam,
+            vram,
+            cgram,
+            obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
         SnesLayerCompositor.Composite(background, objects);
         for (int pixel = 0; pixel < background.Length; pixel++)
             background[pixel] = ApplyBrightness(background[pixel], brightness);
@@ -301,56 +327,48 @@ public sealed class TitleSequenceState
         {
             int entryAddress = sequenceEntry;
             ushort durationOrCommand = ReadWord(entryAddress);
-            if ((durationOrCommand & 0x8000) == 0)
+            if ((durationOrCommand & TitleSequenceRomData.TextSequences.CommandBit) == 0)
             {
                 sequenceEntryTimer = durationOrCommand;
                 activeSpritemap = ReadWord(entryAddress + 2);
-                sequenceEntry = AddWithinBank(entryAddress, 4);
+                sequenceEntry = AddWithinBank(
+                    entryAddress,
+                    TitleSequenceRomData.TextSequences.TimedEntryByteCount);
                 return;
             }
 
-            sequenceEntry = AddWithinBank(entryAddress, 2);
+            sequenceEntry = AddWithinBank(
+                entryAddress,
+                TitleSequenceRomData.TextSequences.InstructionWordByteCount);
             switch (durationOrCommand)
             {
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene0:
                     phase = TitleSequencePhase.SceneZeroPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9CE3-$9CE5`.
-                    zoom = 0x48;
-                    mode7X = 0x013b;
-                    mode7Y = 0x00e1;
-                    activeSpritemap = BlankSpritemap;
+                    ApplyScene(TitleSequenceRomData.Scenes.SceneZero);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene1:
                     phase = TitleSequencePhase.SceneOnePan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9D5D-$9D61`.
-                    zoom = 0x60;
-                    mode7X = 0x002c;
-                    mode7Y = unchecked((short)0xff65);
-                    activeSpritemap = BlankSpritemap;
+                    ApplyScene(TitleSequenceRomData.Scenes.SceneOne);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene2:
                     phase = TitleSequencePhase.SceneTwoPan;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9DD6-$9DDA`.
-                    zoom = 0x60;
-                    mode7X = unchecked((short)0xff4f);
-                    mode7Y = unchecked((short)0xff60);
-                    activeSpritemap = BlankSpritemap;
+                    ApplyScene(TitleSequenceRomData.Scenes.SceneTwo);
                     return;
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene3:
                     phase = TitleSequencePhase.SceneThreeZoom;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     phaseTimer = 0;
-                    zoom = 0x43;
-                    mode7X = 0;
-                    mode7Y = 0;
-                    activeSpritemap = BlankSpritemap;
+                    ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
                     return;
 
                 case CinematicCodePointers.CinematicSpriteObject_Instruction_Delete:
-                    activeSpritemap = BlankSpritemap;
+                    activeSpritemap = TitleSequenceRomData.Sprites.Blank;
                     return;
 
                 default:
@@ -361,20 +379,15 @@ public sealed class TitleSequenceState
         }
     }
 
-    private void BeginTextSequence(
-        TitleSequencePhase nextPhase,
-        int instructionAddress,
-        ushort x,
-        ushort y,
-        ushort characterOffset)
+    private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
-        phase = nextPhase;
-        sequenceEntry = instructionAddress;
+        phase = definition.Phase;
+        sequenceEntry = definition.InstructionAddress;
         sequenceEntryTimer = 1;
-        activeSpritemap = BlankSpritemap;
-        activeOriginX = x;
-        activeOriginY = y;
-        activeCharacterOffset = characterOffset;
+        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+        activeOriginX = definition.OriginX;
+        activeOriginY = definition.OriginY;
+        activeCharacterOffset = definition.CharacterOffset;
         mode7XSubposition = 0;
         mode7YSubposition = 0;
 
@@ -389,38 +402,46 @@ public sealed class TitleSequenceState
     {
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
-        cgram.SetColor(201, 0x7fff);
-        cgram.SetColor(202, 0x7d80);
-        activeSpritemap = SuperMetroidLogoSpritemap;
-        activeOriginX = 128;
-        activeOriginY = 48;
-        activeCharacterOffset = 0x0400;
+        cgram.SetColor(
+            TitleSequenceRomData.Palette.CopyrightWhiteIndex,
+            TitleSequenceRomData.Palette.CopyrightWhite);
+        cgram.SetColor(
+            TitleSequenceRomData.Palette.CopyrightRedIndex,
+            TitleSequenceRomData.Palette.CopyrightRed);
+        activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
+        activeOriginX = TitleSequenceRomData.Sprites.LogoX;
+        activeOriginY = TitleSequenceRomData.Sprites.LogoY;
+        activeCharacterOffset = TitleSequenceRomData.Sprites.TitleCharacterOffset.Raw;
         mode7BackgroundEnabled = true;
         mode7X = 0;
         mode7Y = 0;
-        zoom = 0x0100;
+        zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();
         phase = TitleSequencePhase.TitleScreen;
-        phaseTimer = 900;
-        brightness = 15;
+        phaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
+        brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
     private void LoadMode7InterleavedVram(byte[] characterBytes, byte[] mapBytes)
     {
-        if (characterBytes.Length < 0x4000)
+        if (characterBytes.Length < TitleSequenceRomData.Vram.Mode7CharacterByteCount)
             throw new InvalidDataException("Title Mode 7 character stream is shorter than its $4000-byte DMA.");
-        if (mapBytes.Length < 0x1000)
+        if (mapBytes.Length < TitleSequenceRomData.Vram.Mode7MapByteCount)
             throw new InvalidDataException("Title Mode 7 map stream is shorter than its $1000-byte DMA.");
 
         // DMA mode zero to $2119 writes only high bytes and increments VMADD afterward.
         // The following $2118 fill and map DMA populate the corresponding low bytes.
-        vram.FillMode7MapBytes(0xff, 0x4000);
-        vram.LoadMode7CharacterBytes(characterBytes.AsSpan(0, 0x4000));
-        vram.LoadMode7MapBytes(mapBytes.AsSpan(0, 0x1000));
+        vram.FillMode7MapBytes(
+            TitleSequenceRomData.Vram.Mode7InitialMapByte,
+            TitleSequenceRomData.Vram.Mode7CharacterByteCount);
+        vram.LoadMode7CharacterBytes(
+            characterBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7CharacterByteCount));
+        vram.LoadMode7MapBytes(
+            mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
     }
 
     private void StepBabyMetroidAnimation()
@@ -428,8 +449,8 @@ public sealed class TitleSequenceState
         if (--babyFrameTimer > 0)
             return;
 
-        babyFrame = (babyFrame + 1) % 4;
-        babyFrameTimer = 10;
+        babyFrame = (babyFrame + 1) % TitleSequenceRomData.Vram.BabyAnimationSourcePages.Length;
+        babyFrameTimer = TitleSequenceRomData.Timing.BabyFrameDuration;
         UpdateBabyMetroidCharacterFrame();
     }
 
@@ -437,15 +458,21 @@ public sealed class TitleSequenceState
     {
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word
         // `$3800`, high byte only. Each page is exactly $100 bytes / four characters.
-        int sourcePage = babyFrame is 0 ? 0 : babyFrame is 2 ? 2 : 1;
-        int source = sourcePage * 0x0100;
-        if (babyMetroidCharacters.Length < source + 0x0100)
+        int sourcePage = TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame];
+        int source = sourcePage * TitleSequenceRomData.Vram.BabyCharacterPageByteCount;
+        if (babyMetroidCharacters.Length <
+            source + TitleSequenceRomData.Vram.BabyCharacterPageByteCount)
             throw new InvalidDataException("Title baby-Metroid stream is missing an animation page.");
 
-        for (int byteIndex = 0; byteIndex < 0x0100; byteIndex++)
+        for (int byteIndex = 0;
+             byteIndex < TitleSequenceRomData.Vram.BabyCharacterPageByteCount;
+             byteIndex++)
         {
-            int word = 0x3800 + byteIndex;
-            ushort value = (ushort)((vram.ReadWord(word) & 0x00ff) | (babyMetroidCharacters[source + byteIndex] << 8));
+            int word = TitleSequenceRomData.Vram.BabyCharacterDestinationWord + byteIndex;
+            ushort value = (ushort)(
+                (vram.ReadWord(word) & TitleSequenceRomData.Vram.Mode7MapLowByteMask) |
+                (babyMetroidCharacters[source + byteIndex] <<
+                    TitleSequenceRomData.Vram.Mode7CharacterByteShift));
             vram.ExecuteWordTransfer([value], (ushort)word, 1);
         }
     }
@@ -463,17 +490,27 @@ public sealed class TitleSequenceState
         fraction = (ushort)combined;
     }
 
+    private void ApplyScene(TitleMode7SceneDefinition definition)
+    {
+        phase = definition.Phase;
+        mode7BackgroundEnabled = true;
+        zoom = definition.Scale;
+        mode7X = definition.HorizontalOffset;
+        mode7Y = definition.VerticalOffset;
+        activeSpritemap = TitleSequenceRomData.Sprites.Blank;
+    }
+
     private static Rgba32 ApplyBrightness(Rgba32 color, int level)
     {
-        if (color.A == 0 || level >= 15)
+        if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)
             return color;
         if (level <= 0)
             return new Rgba32(0, 0, 0, color.A);
 
         return new Rgba32(
-            (byte)(color.R * level / 15),
-            (byte)(color.G * level / 15),
-            (byte)(color.B * level / 15),
+            (byte)(color.R * level / TitleSequenceRomData.Timing.MaximumBrightness),
+            (byte)(color.G * level / TitleSequenceRomData.Timing.MaximumBrightness),
+            (byte)(color.B * level / TitleSequenceRomData.Timing.MaximumBrightness),
             color.A);
     }
 }

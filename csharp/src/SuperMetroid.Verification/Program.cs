@@ -40,6 +40,7 @@ VerifyControllerInputLatch();
 VerifyGameOptionsRomDataCatalog();
 VerifyControllerBindingsAndOptionsSubmenus();
 VerifyGameOverRomData();
+VerifyTitleSequenceRomData();
 VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();
 VerifyDoorOpeningTrajectories();

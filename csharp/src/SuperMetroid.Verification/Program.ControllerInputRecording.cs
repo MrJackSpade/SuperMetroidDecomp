@@ -16,7 +16,11 @@ internal static partial class Program
             StartedUtc = new DateTimeOffset(2026, 9, 1, 12, 34, 56, TimeSpan.Zero),
             RomSha256 = digest,
             InitialSaveRam = saveRam,
-            GameOptions = new SuperMetroidGameOptions { SkipOpeningCinematic = true },
+            GameOptions = new SuperMetroidGameOptions
+            {
+                SkipOpeningCinematic = true,
+                Invincibility = true,
+            },
             ControllerInputs = inputs,
         };
 
@@ -27,6 +31,7 @@ internal static partial class Program
 
         AssertEqual(expected.StartedUtc, actual.StartedUtc, "input recording UTC seed");
         AssertTrue(actual.GameOptions.SkipOpeningCinematic, "input recording host option");
+        AssertTrue(actual.GameOptions.Invincibility, "input recording invincibility option");
         AssertTrue(digest.SequenceEqual(actual.RomSha256), "input recording ROM digest");
         AssertTrue(saveRam.SequenceEqual(actual.InitialSaveRam), "input recording SRAM seed");
         AssertTrue(inputs.SequenceEqual(actual.ControllerInputs), "input recording frame words");

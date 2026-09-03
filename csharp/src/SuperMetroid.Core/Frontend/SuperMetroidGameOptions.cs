@@ -21,6 +21,14 @@ public sealed record SuperMetroidGameOptions
     /// </remarks>
     public bool SkipOpeningCinematic { get; init; }
 
+    /// <summary>Prevents emulated gameplay damage from reducing Samus below one energy.</summary>
+    /// <remarks>
+    /// This is a host-side testing convenience, not cartridge state. Damage routines still
+    /// execute, so energy loss, hit reactions, and collision behavior remain available for
+    /// debugging; the runtime only changes a lethal zero-energy result to one.
+    /// </remarks>
+    public bool Invincibility { get; init; }
+
     /// <summary>Whether the desktop host creates the SPC/DSP mixer and Windows device.</summary>
     public bool AudioEnabled { get; init; } = true;
 
@@ -46,6 +54,9 @@ public static class SuperMetroidGameOptionsIni
         "; true  = keep title/file select/options, then go directly to the Ceres elevator\r\n" +
         "; false = play the narration, flashbacks, and Ceres approach before the elevator\r\n" +
         "SkipOpeningCinematic=false\r\n" +
+        "; true allows damage but prevents Samus from dropping below 1 energy\r\n" +
+        "; false preserves normal cartridge damage and death behavior\r\n" +
+        "Invincibility=false\r\n" +
         "\r\n" +
         "[Audio]\r\n" +
         "; Enables the cartridge SPC sequencer, BRR samples, DSP mixing, and playback\r\n" +
@@ -62,6 +73,7 @@ public static class SuperMetroidGameOptionsIni
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
 
         bool? skipOpeningCinematic = null;
+        bool? invincibility = null;
         bool? audioEnabled = null;
         int? masterVolumePercent = null;
         string currentSection = string.Empty;
@@ -98,23 +110,25 @@ public static class SuperMetroidGameOptionsIni
             string value = line[(equals + 1)..].Trim();
             if (currentSection.Equals("Game", StringComparison.OrdinalIgnoreCase))
             {
-                if (!key.Equals(nameof(SuperMetroidGameOptions.SkipOpeningCinematic),
+                if (key.Equals(nameof(SuperMetroidGameOptions.SkipOpeningCinematic),
                         StringComparison.OrdinalIgnoreCase))
                 {
-                    throw Invalid(sourceName, lineNumber, $"unknown [Game] option '{key}'");
+                    if (skipOpeningCinematic.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    skipOpeningCinematic = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
                 }
 
-                if (skipOpeningCinematic.HasValue)
-                    throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
-                if (!bool.TryParse(value, out bool parsed))
+                if (key.Equals(nameof(SuperMetroidGameOptions.Invincibility),
+                        StringComparison.OrdinalIgnoreCase))
                 {
-                    throw Invalid(
-                        sourceName,
-                        lineNumber,
-                        $"{key} must be either true or false, not '{value}'");
+                    if (invincibility.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    invincibility = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
                 }
-                skipOpeningCinematic = parsed;
-                continue;
+
+                throw Invalid(sourceName, lineNumber, $"unknown [Game] option '{key}'");
             }
 
             if (key.Equals("Enabled", StringComparison.OrdinalIgnoreCase))
@@ -145,9 +159,24 @@ public static class SuperMetroidGameOptionsIni
             // A missing key is deliberately equivalent to the retail path. This makes old
             // or empty local configuration files safe when a new host option is introduced.
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
+            Invincibility = invincibility ?? false,
             AudioEnabled = audioEnabled ?? true,
             MasterVolumePercent = masterVolumePercent ?? 100,
         };
+    }
+
+    private static bool ParseBoolean(
+        string sourceName,
+        int lineNumber,
+        string key,
+        string value)
+    {
+        if (bool.TryParse(value, out bool parsed))
+            return parsed;
+        throw Invalid(
+            sourceName,
+            lineNumber,
+            $"{key} must be either true or false, not '{value}'");
     }
 
     private static InvalidDataException Invalid(string sourceName, int lineNumber, string reason) =>

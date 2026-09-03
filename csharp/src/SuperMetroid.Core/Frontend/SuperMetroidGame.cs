@@ -1032,7 +1032,7 @@ public sealed class SuperMetroidGame
 
     private bool SetupSelectedGame()
     {
-        runtime = new SuperMetroidRuntime(bus);
+        runtime = new SuperMetroidRuntime(bus, gameOptions.Invincibility);
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;

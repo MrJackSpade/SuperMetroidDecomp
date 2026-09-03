@@ -167,6 +167,7 @@ try
         Console.WriteLine(
             $"Loaded {GameConfigurationFile.FileName}: " +
             $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic}, " +
+            $"Invincibility={configuration.Options.Invincibility}, " +
             $"AudioEnabled={configuration.Options.AudioEnabled}, " +
             $"MasterVolumePercent={configuration.Options.MasterVolumePercent} " +
             $"({configuration.Path})");
@@ -179,6 +180,7 @@ try
         Console.WriteLine(
             $"Replaying {Path.GetFullPath(args[1])}: {replay.ControllerInputs.Length} frames, " +
             $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
+            $"Invincibility={gameOptions.Invincibility}, " +
             $"started {replay.StartedUtc:O}");
     }
     Application.Run(new GameForm(romPath, gameOptions, replay));

@@ -8,20 +8,26 @@ static void VerifyGameConfigurationIni()
         SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents);
     AssertEqual(false, defaults.SkipOpeningCinematic,
         "game INI template preserves the opening cinematic");
+    AssertEqual(false, defaults.Invincibility,
+        "game INI template preserves cartridge damage");
     AssertEqual(true, defaults.AudioEnabled, "game INI template enables cartridge audio");
     AssertEqual(100, defaults.MasterVolumePercent, "game INI template uses full host gain");
 
     SuperMetroidGameOptions enabled = SuperMetroidGameOptionsIni.Parse(
-        "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\n",
+        "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\nINVINCIBILITY=true\n",
         "in-memory enabled fixture");
     AssertEqual(true, enabled.SkipOpeningCinematic,
         "game INI names and boolean values are case-insensitive");
+    AssertEqual(true, enabled.Invincibility,
+        "game INI enables host invincibility");
 
     SuperMetroidGameOptions missing = SuperMetroidGameOptionsIni.Parse(
         "; An old configuration may not contain newly introduced keys.\n[Game]\n",
         "in-memory missing-key fixture");
     AssertEqual(false, missing.SkipOpeningCinematic,
         "missing game INI key retains retail behavior");
+    AssertEqual(false, missing.Invincibility,
+        "missing invincibility key retains cartridge damage");
     AssertEqual(true, missing.AudioEnabled, "missing audio section enables sound by default");
     AssertEqual(100, missing.MasterVolumePercent, "missing volume retains full gain");
 
@@ -40,6 +46,9 @@ static void VerifyGameConfigurationIni()
     AssertInvalidGameConfiguration(
         "[Game]\nSkipOpenngCinematic=true\n",
         "unknown [Game] option");
+    AssertInvalidGameConfiguration(
+        "[Game]\nInvincibility=enabled\n",
+        "must be either true or false");
     AssertInvalidGameConfiguration(
         "[Audio]\nMasterVolumePercent=101\n",
         "0 through 100");

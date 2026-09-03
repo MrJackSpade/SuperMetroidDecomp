@@ -32,9 +32,12 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     internal ISnesAddressSpace AddressSpace => _addressSpace;
 
-    public SuperMetroidRuntime(ISnesAddressSpace addressSpace)
+    public SuperMetroidRuntime(
+        ISnesAddressSpace addressSpace,
+        bool playerInvincibilityEnabled = false)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
+        PlayerInvincibilityEnabled = playerInvincibilityEnabled;
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
@@ -47,6 +50,17 @@ public sealed partial class SuperMetroidRuntime
         // PPU here produces the same starting colors while that fade pipeline is ported.
         Cgram.LoadFromBus(_addressSpace, 0x9a8000);
     }
+
+    /// <summary>
+    /// Host testing switch that prevents Samus from dropping below one energy.
+    /// </summary>
+    /// <remarks>
+    /// The guard deliberately surrounds the complete frame instead of branching inside the
+    /// many cartridge damage producers. Enemy, projectile, liquid, and scripted routines
+    /// therefore retain their ordinary damage, collision, and animation side effects. Only
+    /// a lethal zero-energy result is raised to one before the frontend can enter death.
+    /// </remarks>
+    public bool PlayerInvincibilityEnabled { get; }
 
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();
@@ -4173,12 +4187,22 @@ public sealed partial class SuperMetroidRuntime
         _samusLoadAppearancePaletteFxDefinition = 0;
     }
 
-    private RuntimeFrameResult Snapshot(bool escapeTimerExpired) => new(
-        NmiFrameCounter,
-        Controller1.Current,
-        Controller1.NewlyPressed,
-        EscapeTimer.State,
-        escapeTimerExpired);
+    private RuntimeFrameResult Snapshot(bool escapeTimerExpired)
+    {
+        // Every translated producer gets to apply its normal amount of damage first. The
+        // host intervenes only at the single frame-exit seam where zero would otherwise be
+        // observed by SuperMetroidGame and routed into the cartridge death states.
+        if (PlayerInvincibilityEnabled && Samus is { Health: 0 } samus)
+            samus.Health = 1;
+
+        return new RuntimeFrameResult(
+            NmiFrameCounter,
+            Controller1.Current,
+            Controller1.NewlyPressed,
+            EscapeTimer.State,
+            escapeTimerExpired);
+    }
+
 }
 
 /// <summary>

@@ -51,7 +51,9 @@ public sealed record ControllerInputRecording
 
         // Byte twenty is a format-owned bitfield. Seven reserved zero bytes follow it so
         // future host switches can be added without shifting the ROM digest or payload.
-        header[20] = GameOptions.SkipOpeningCinematic ? (byte)1 : (byte)0;
+        header[20] = (byte)(
+            (GameOptions.SkipOpeningCinematic ? 1 : 0) |
+            (GameOptions.Invincibility ? 2 : 0));
         RomSha256.CopyTo(header[28..(28 + RomDigestByteCount)]);
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);
         BinaryPrimitives.WriteInt32LittleEndian(header[64..], ControllerInputs.Length);
@@ -83,7 +85,7 @@ public sealed record ControllerInputRecording
         }
 
         byte optionFlags = header[20];
-        if ((optionFlags & ~1) != 0 || !header[21..28].SequenceEqual(new byte[7]))
+        if ((optionFlags & ~3) != 0 || !header[21..28].SequenceEqual(new byte[7]))
             throw new InvalidDataException("Controller recording contains unknown option/reserved bits.");
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
@@ -129,6 +131,7 @@ public sealed record ControllerInputRecording
             GameOptions = new SuperMetroidGameOptions
             {
                 SkipOpeningCinematic = (optionFlags & 1) != 0,
+                Invincibility = (optionFlags & 2) != 0,
             },
             ControllerInputs = inputs,
         };

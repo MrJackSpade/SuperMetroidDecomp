@@ -80,14 +80,17 @@ file if none exists. Its supported options are:
 ```ini
 [Game]
 SkipOpeningCinematic=false
+Invincibility=false
 
 [Audio]
 Enabled=true
 MasterVolumePercent=100
 ```
 
-`true` preserves the title, file select, and options screens, then enters the same new-game
-Ceres loader used after the cinematic. The generated default is `false`; this private
+`SkipOpeningCinematic=true` preserves the title, file select, and options screens, then enters
+the same new-game Ceres loader used after the cinematic. `Invincibility=true` allows normal
+damage and hit reactions but prevents Samus from dropping below one energy. The
+generated defaults are `false`; this private
 workspace's checked-in `../SuperMetroid.ini` is intentionally set to `true` for development.
 Audio is enabled by default; `MasterVolumePercent` is the final host gain from zero through
 100 after SNES mixing. Unknown sections, unknown or duplicate keys, invalid Booleans, and

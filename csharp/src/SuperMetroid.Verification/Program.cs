@@ -54,6 +54,7 @@ VerifyGameTimeState();
 VerifySuperMetroidAddressSpace();
 VerifyCartridgeAudioQueues();
 VerifyTypedNativeWords();
+VerifyProductionMagicNumberAudit();
 VerifyOamSpritemapPacking();
 VerifyCeresElevatorArrivalGraphicsIndex();
 VerifySamusRenderingSlice();

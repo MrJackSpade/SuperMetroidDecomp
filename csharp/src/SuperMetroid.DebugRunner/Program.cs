@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.SourceAudit;
 
 // This runner is an intentionally thin debugger host, not a claim that the full game has
 // already been ported. Its job is to exercise every translated frame boundary against the
@@ -21,6 +22,34 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length <= 2 && args.Length >= 1 && args[0] == "--magic-number-audit")
+{
+    bool printBaseline = args.Length == 2 && args[1] == "--print-baseline";
+    string sourceAuditRoot = args.Length == 2 && !printBaseline
+        ? Path.GetFullPath(args[1].Trim('"'))
+        : ProductionMagicNumberAudit.FindRepositoryRoot();
+    MagicNumberAuditResult audit = ProductionMagicNumberAudit.Run(sourceAuditRoot);
+    if (printBaseline)
+    {
+        Console.WriteLine(ProductionMagicNumberAudit.CreateBaselinePayload(audit.CurrentFindings));
+        return 0;
+    }
+    foreach (MagicNumberFinding finding in audit.NewFindings)
+        Console.Error.WriteLine(finding.Diagnostic);
+    if (!audit.Passed)
+    {
+        Console.Error.WriteLine(
+            $"Magic-number audit failed with {audit.NewFindings.Count} new finding(s); " +
+            $"reviewed baseline={audit.BaselineCount}, current debt={audit.CurrentFindingCount}.");
+        return 1;
+    }
+
+    Console.WriteLine(
+        $"Magic-number audit passed: current debt={audit.CurrentFindingCount}, " +
+        $"reviewed baseline={audit.BaselineCount}, retired baseline entries={audit.RetiredBaselineEntries}.");
+    return 0;
+}
+
 if (args.Length >= 2 && args[0] == "--door-setup-callback-audit")
 {
     string doorSetupRomPath = string.Join(' ', args[1..]).Trim('"');

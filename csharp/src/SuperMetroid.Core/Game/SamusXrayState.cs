@@ -18,11 +18,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusXrayState
 {
-    private const int VisorPaletteWords = 0x9ba3c0;
-    private const int NormalSuitPalettePointerTable = 0x91d727;
-    private const int SamusPaletteCgramIndex = 192;
-    private const int VisorColorCgramIndex = SamusPaletteCgramIndex + 4;
-
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
@@ -241,14 +236,14 @@ public sealed class SamusXrayState
 
         bool facingLeft = samus.IsFacingLeft(bus);
         ushort frame = facingLeft
-            ? Angle.TableIndex < 0x99 ? (ushort)4 :
-              Angle.TableIndex < 0xb2 ? (ushort)3 :
-              Angle.TableIndex < 0xcb ? (ushort)2 :
-              Angle.TableIndex < 0xe4 ? (ushort)1 : (ushort)0
-            : Angle.TableIndex < 0x19 ? (ushort)0 :
-              Angle.TableIndex < 0x32 ? (ushort)1 :
-              Angle.TableIndex < 0x4b ? (ushort)2 :
-              Angle.TableIndex < 0x64 ? (ushort)3 : (ushort)4;
+            ? Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameFour ? (ushort)4 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameThree ? (ushort)3 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameTwo ? (ushort)2 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.LeftFrameOne ? (ushort)1 : (ushort)0
+            : Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameOne ? (ushort)0 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameTwo ? (ushort)1 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameThree ? (ushort)2 :
+              Angle.TableIndex < SamusXrayRomData.AnimationAngles.RightFrameFour ? (ushort)3 : (ushort)4;
         samus.SetAnimationFrameFromSpecialHandler(frame, timer: 15);
         return frame;
     }
@@ -299,7 +294,7 @@ public sealed class SamusXrayState
                 // widening velocity gains `$0800` per call; both velocity and width can
                 // carry into their whole components before the ten-unit clamp.
                 uint delta = ((uint)AngularWidthDelta << 16) | AngularSubwidthDelta;
-                delta = unchecked(delta + 0x0000_0800u);
+                delta = unchecked(delta + SamusXrayRomData.Window.WideningStep);
                 AngularWidthDelta = unchecked((ushort)(delta >> 16));
                 AngularSubwidthDelta = unchecked((ushort)delta);
 
@@ -371,12 +366,14 @@ public sealed class SamusXrayState
             // complete normal suit palette, then clears every X-ray palette word.
             ushort suitOffset = (equippedItems & 0x0020) != 0 ? (ushort)4 :
                 (equippedItems & 0x0001) != 0 ? (ushort)2 : (ushort)0;
-            ushort palettePointer = ReadWord(bus, NormalSuitPalettePointerTable + suitOffset);
+            ushort palettePointer = ReadWord(
+                bus,
+                SamusXrayRomData.Palette.NormalSuitPointers + suitOffset);
             cgram.LoadFromBus(
                 bus,
-                0x9b0000 | palettePointer,
-                colorCount: 16,
-                destinationIndex: SamusPaletteCgramIndex);
+                SamusXrayRomData.Palette.PaletteBank | palettePointer,
+                colorCount: SamusXrayRomData.Palette.SuitColorCount,
+                destinationIndex: SamusXrayRomData.Palette.SamusCgramIndex);
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             CommonPaletteTimer = 0;
@@ -400,22 +397,24 @@ public sealed class SamusXrayState
         if (!timer.IsZero && timer.IsNonNegative)
             return false;
 
-        CommonPaletteTimer = 5;
+        CommonPaletteTimer = SamusXrayRomData.Palette.FrameDelay;
         cgram.SetColor(
-            VisorColorCgramIndex,
-            ReadWord(bus, VisorPaletteWords + SpecialPaletteFrame));
+            SamusXrayRomData.Palette.VisorCgramIndex,
+            ReadWord(bus, SamusXrayRomData.Palette.VisorWords + SpecialPaletteFrame));
 
         if (BeamSizeFlag == 0)
         {
             // Widening uses offsets 0,2,4 and then pins four until state two is observed.
-            if (SpecialPaletteFrame < 4)
+            if (SpecialPaletteFrame < SamusXrayRomData.Palette.WideningFinalWordOffset)
                 SpecialPaletteFrame = unchecked((ushort)(SpecialPaletteFrame + 2));
         }
         else
         {
             // Full beam cycles offsets 6,8,10,6... with the comparison after increment.
             ushort next = unchecked((ushort)(SpecialPaletteFrame + 2));
-            SpecialPaletteFrame = next < 12 ? next : (ushort)6;
+            SpecialPaletteFrame = next < SamusXrayRomData.Palette.FullCycleEndWordOffset
+                ? next
+                : SamusXrayRomData.Palette.FullCycleFirstWordOffset;
         }
 
         return true;
@@ -444,9 +443,9 @@ public sealed class SamusXrayState
 
         // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
         int leftEdge = Angle.TableIndex + AngularWidth;
-        if (leftEdge == 0x0100)
+        if (leftEdge == SnesAngle.TableUnitsPerTurn)
             return;
-        if (leftEdge > 0x0100)
+        if (leftEdge > SnesAngle.TableUnitsPerTurn)
         {
             Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
             return;
@@ -463,9 +462,9 @@ public sealed class SamusXrayState
         {
             // Right-facing down rotates toward `$80`; keep the lower edge at or below it.
             int lowerEdge = Angle.TableIndex + AngularWidth;
-            if (lowerEdge == 0x0080)
+            if (lowerEdge == SnesAngle.HalfTurn.TableIndex)
                 return;
-            if (lowerEdge > 0x0080)
+            if (lowerEdge > SnesAngle.HalfTurn.TableIndex)
             {
                 Angle = SnesAngle.NormalizeTableIndex(
                     SnesAngle.HalfTurn.TableIndex - AngularWidth);
@@ -481,9 +480,9 @@ public sealed class SamusXrayState
 
         // Left-facing down rotates toward `$80` from above and clamps its upper edge.
         int upperEdge = Angle.TableIndex - AngularWidth;
-        if (upperEdge == 0x0080)
+        if (upperEdge == SnesAngle.HalfTurn.TableIndex)
             return;
-        if (upperEdge < 0x0080)
+        if (upperEdge < SnesAngle.HalfTurn.TableIndex)
         {
             Angle = SnesAngle.NormalizeTableIndex(
                 SnesAngle.HalfTurn.TableIndex + AngularWidth);

@@ -9,11 +9,6 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
 public static class SnesGameplayFrameRenderer
 {
-    // `$91:C9D4` is the 129-word absolute-tangent table shared by the on-screen and
-    // off-screen X-ray window builders. Angles are measured clockwise in 1/256 turns,
-    // with zero pointing up; every table word is |dx/dy| in 8.8 fixed point.
-    private const int XrayAbsoluteTangentTableAddress = 0x91c9d4;
-
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
     public const int Height = SnesPpuLayout.ScreenHeightPixels;
     public const int HudHeight = SnesPpuLayout.GameplayHudHeightPixels;
@@ -1161,25 +1156,25 @@ public static class SnesGameplayFrameRenderer
         // The four cardinals are mathematically exact. At horizontal entries the ROM table
         // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
         // the identical limiting ray and also preserves the dedicated zero-width line.
-        if (wrappedAngle == 0x00)
-            return new XrayDirection(0, -0x0100);
+        if (wrappedAngle == SnesAngle.Zero.TableIndex)
+            return new XrayDirection(0, -SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle == SnesAngle.QuarterTurn.TableIndex)
-            return new XrayDirection(0x0100, 0);
+            return new XrayDirection(SamusXrayRomData.Window.UnitVector, 0);
         if (wrappedAngle == SnesAngle.HalfTurn.TableIndex)
-            return new XrayDirection(0, 0x0100);
+            return new XrayDirection(0, SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle == SnesAngle.ThreeQuarterTurn.TableIndex)
-            return new XrayDirection(-0x0100, 0);
+            return new XrayDirection(-SamusXrayRomData.Window.UnitVector, 0);
 
         int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
-        int tableAddress = XrayAbsoluteTangentTableAddress + tangentIndex * 2;
+        int tableAddress = SamusXrayRomData.Window.AbsoluteTangentTable + tangentIndex * 2;
         int tangent = bus.ReadByte(tableAddress) | (bus.ReadByte(tableAddress + 1) << 8);
-        return wrappedAngle switch
-        {
-            < 0x40 => new XrayDirection(tangent, -0x0100),
-            < 0x80 => new XrayDirection(tangent, 0x0100),
-            < 0xc0 => new XrayDirection(-tangent, 0x0100),
-            _ => new XrayDirection(-tangent, -0x0100),
-        };
+        if (wrappedAngle < SnesAngle.QuarterTurn.TableIndex)
+            return new XrayDirection(tangent, -SamusXrayRomData.Window.UnitVector);
+        if (wrappedAngle < SnesAngle.HalfTurn.TableIndex)
+            return new XrayDirection(tangent, SamusXrayRomData.Window.UnitVector);
+        if (wrappedAngle < SnesAngle.ThreeQuarterTurn.TableIndex)
+            return new XrayDirection(-tangent, SamusXrayRomData.Window.UnitVector);
+        return new XrayDirection(-tangent, -SamusXrayRomData.Window.UnitVector);
     }
 
     private static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)

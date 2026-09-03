@@ -129,12 +129,15 @@ internal static class InputReplayAudit
                         for (int blockX = left; blockX <= right; blockX++)
                         {
                             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-                            if (block.CollisionType is not (8 or 12 or 14))
+                            if (block.CollisionType is not (
+                                RoomCollisionType.SolidBlock or
+                                RoomCollisionType.ShootableBlock or
+                                RoomCollisionType.GrappleBlock))
                                 continue;
                             throw new InvalidDataException(
                                 $"Replay frame {index} crossed solid platform " +
                                 $"room $8F:{room.GetValueOrDefault():X4} block " +
-                                $"({blockX:X2},{blockY:X2}) type ${block.CollisionType:X1}/" +
+                                $"({blockX:X2},{blockY:X2}) type ${(byte)block.CollisionType:X1}/" +
                                 $"BTS ${block.Behavior:X2}: bottom {bottomBefore:X4}->" +
                                 $"{bottomAfter:X4}, Samus (${xBeforeStep:X4},${yBeforeStep:X4})" +
                                 $"->(${samus.XPosition:X4},${samus.YPosition:X4}), pose " +

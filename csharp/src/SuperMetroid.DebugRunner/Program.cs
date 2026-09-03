@@ -2436,11 +2436,12 @@ if (args.Length >= 3 && args[0] == "--ceres-room-capture")
     RoomLevelData probeLevel = doorProbeRuntime.LevelData!;
     const int reportedDoorBlockIndex = 639;
     RoomCollisionBlock reportedDoorBlock = probeLevel.GetCollisionBlockByIndex(reportedDoorBlockIndex);
-    if (reportedDoorBlock.CollisionType != 9 || reportedDoorBlock.Behavior != 0)
+    if (reportedDoorBlock.CollisionType != RoomCollisionType.DoorBlock ||
+        reportedDoorBlock.Behavior != 0)
     {
         throw new InvalidDataException(
             $"Expected reported Ceres block 639 to remain type $9/BTS $00, got " +
-            $"${reportedDoorBlock.CollisionType:X1}/${reportedDoorBlock.Behavior:X2}.");
+            $"${(byte)reportedDoorBlock.CollisionType:X1}/${reportedDoorBlock.Behavior:X2}.");
     }
 
     int reportedDoorX = reportedDoorBlockIndex % probeLevel.WidthInBlocks;
@@ -3983,7 +3984,7 @@ Console.WriteLine(
     $"Debug Samus uses cartridge pose ${runtime.Samus!.Pose:X2}, frame {runtime.Samus.AnimationFrame}, " +
     $"world position ({runtime.Samus.XPosition},{runtime.Samus.YPosition}); " +
     (groundedPlacement is DebugGroundedSamusPlacement placement
-        ? $"floor=({placement.BlockX},{placement.BlockY}) type=${placement.FloorBlock.CollisionType:X1}/" +
+        ? $"floor=({placement.BlockX},{placement.BlockY}) type=${(byte)placement.FloorBlock.CollisionType:X1}/" +
           $"BTS ${placement.FloorBlock.Behavior:X2}, height={placement.FloorHeight}; only X/screen framing are host-selected."
         : "only that placement is host-selected."));
 if (wallPlacement is DebugRanIntoWallSamusPlacement wallDiagnostic)
@@ -4017,7 +4018,7 @@ if (options.GrappleScript || options.GrappleFireScript)
         for (int blockX = 0; blockX < runtime.LevelData.WidthInBlocks; blockX++)
         {
             RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
-            if (block.CollisionType == 0x0e)
+            if (block.CollisionType == RoomCollisionType.GrappleBlock)
                 grappleBlocks.Add($"({blockX:X2},{blockY:X2}):{block.Behavior:X2}");
         }
     }
@@ -4059,8 +4060,8 @@ RoomCollisionBlock bottomBlock = runtime.LevelData.GetCollisionBlockAtPixel(
     unchecked((ushort)(runtime.Samus.YPosition + samusYRadius - 1)));
 Console.WriteLine(
     $"Debug Samus collision probes: radiusY={samusYRadius}; " +
-    $"center index={centerBlock.Index} level=${centerBlock.LevelWord:X4} BTS=${centerBlock.Behavior:X2} type=${centerBlock.CollisionType:X1}; " +
-    $"bottom index={bottomBlock.Index} level=${bottomBlock.LevelWord:X4} BTS=${bottomBlock.Behavior:X2} type=${bottomBlock.CollisionType:X1}.");
+    $"center index={centerBlock.Index} level=${centerBlock.LevelWord:X4} BTS=${centerBlock.Behavior:X2} type=${(byte)centerBlock.CollisionType:X1}; " +
+    $"bottom index={bottomBlock.Index} level=${bottomBlock.LevelWord:X4} BTS=${bottomBlock.Behavior:X2} type=${(byte)bottomBlock.CollisionType:X1}.");
 
 if (groundedPlacement is DebugGroundedSamusPlacement groundedDiagnostic)
 {
@@ -4076,10 +4077,10 @@ if (groundedPlacement is DebugGroundedSamusPlacement groundedDiagnostic)
         RoomCollisionBlock candidate = runtime.LevelData.GetCollisionBlock(
             groundedDiagnostic.BlockX,
             blockY);
-        if (candidate.CollisionType != 0)
+        if (candidate.CollisionType != RoomCollisionType.Air)
         {
             floorCandidates.Add(
-                $"{blockY:X2}:{candidate.CollisionType:X1}/{candidate.Behavior:X2}/" +
+                $"{blockY:X2}:{(byte)candidate.CollisionType:X1}/{candidate.Behavior:X2}/" +
                 $"{candidate.LevelWord:X4}");
         }
     }
@@ -4098,13 +4099,13 @@ for (int blockY = (runtime.Samus.YPosition + samusYRadius - 1) >> 4;
     RoomCollisionBlock candidate = runtime.LevelData.GetCollisionBlock(
         runtime.Samus.XPosition >> 4,
         blockY);
-    if (candidate.CollisionType == 0)
+    if (candidate.CollisionType == RoomCollisionType.Air)
         continue;
 
     Console.WriteLine(
         $"First non-air block below debug Samus: block=({runtime.Samus.XPosition >> 4},{blockY}) " +
         $"index={candidate.Index} topY={blockY * 16} level=${candidate.LevelWord:X4} " +
-        $"BTS=${candidate.Behavior:X2} type=${candidate.CollisionType:X1}.");
+        $"BTS=${candidate.Behavior:X2} type=${(byte)candidate.CollisionType:X1}.");
 
     // A compact neighboring-row dump reveals whether the candidate is an isolated special
     // block or part of a continuous slope/solid running lane. Each token is X:type/BTS.
@@ -4114,7 +4115,7 @@ for (int blockY = (runtime.Samus.YPosition + samusYRadius - 1) >> 4;
     for (int blockX = firstDiagnosticX; blockX <= lastDiagnosticX; blockX++)
     {
         RoomCollisionBlock neighbor = runtime.LevelData.GetCollisionBlock(blockX, blockY);
-        rowTokens.Add($"{blockX:X2}:{neighbor.CollisionType:X1}/{neighbor.Behavior:X2}");
+        rowTokens.Add($"{blockX:X2}:{(byte)neighbor.CollisionType:X1}/{neighbor.Behavior:X2}");
     }
     Console.WriteLine($"Collision row {blockY:X2} around stimulus: {string.Join(' ', rowTokens)}");
 
@@ -4122,7 +4123,7 @@ for (int blockY = (runtime.Samus.YPosition + samusYRadius - 1) >> 4;
     // block's top. Derive the exact center Y that places Samus's bottom on that surface,
     // then execute a +1.0 native grounding probe and a separate +1.0 horizontal scan.
     // These copies do not relocate the visible debug stimulus.
-    if (candidate.CollisionType == 1 &&
+    if (candidate.CollisionType == RoomCollisionType.Slope &&
         (candidate.Behavior & 0x1f) >= 5 &&
         (candidate.Behavior & 0x80) == 0)
     {

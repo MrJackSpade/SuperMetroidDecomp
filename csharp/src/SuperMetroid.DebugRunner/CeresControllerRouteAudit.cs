@@ -472,7 +472,7 @@ internal static partial class CeresControllerRouteAudit
             for (int x = 0; x < Math.Min(4, level.WidthInBlocks); x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                cells.Add($"{block.CollisionType:X1}{block.Behavior:X2}");
+                cells.Add($"{(byte)block.CollisionType:X1}{block.Behavior:X2}");
             }
             rows.Add($"y{y:X1}:{string.Join('/', cells)}");
         }
@@ -843,7 +843,7 @@ internal static partial class CeresControllerRouteAudit
         {
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
-                if (level.GetCollisionBlock(x, y).CollisionType == 9 &&
+                if (level.GetCollisionBlock(x, y).CollisionType == RoomCollisionType.DoorBlock &&
                     (selected is null || y > selected.Value.Y))
                 {
                     selected = (x, y);
@@ -902,7 +902,7 @@ internal static partial class CeresControllerRouteAudit
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                if (block.CollisionType != 9)
+                if (block.CollisionType != RoomCollisionType.DoorBlock)
                     continue;
                 CartridgeDoorHeader door = level.ResolveDoorCollision(
                     bus,

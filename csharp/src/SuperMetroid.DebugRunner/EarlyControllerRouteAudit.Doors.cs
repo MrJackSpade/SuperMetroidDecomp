@@ -318,7 +318,7 @@ internal static partial class EarlyControllerRouteAudit
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                if (block.CollisionType != 9)
+                if (block.CollisionType != RoomCollisionType.DoorBlock)
                     continue;
                 CartridgeDoorHeader candidate = level.ResolveDoorCollision(
                     bus,

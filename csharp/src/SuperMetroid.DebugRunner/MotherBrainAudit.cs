@@ -3167,7 +3167,7 @@ internal static class MotherBrainAudit
         RoomCollisionBlock glass = assets.LevelData.GetCollisionBlockByIndex(glassBlockIndex);
         if (plms.ActiveCount != 1 || !plms.MotherBrainGlassWasLoaded ||
             plms.MotherBrainGlassWasDeleted || plms.MotherBrainGlassRoomArgument != 0 ||
-            glass.CollisionType != 8 || glass.Behavior != 0x44 ||
+            glass.CollisionType != RoomCollisionType.SolidBlock || glass.Behavior != 0x44 ||
             (glass.LevelWord & 0x0fff) != (originalGlassWord & 0x0fff))
         {
             throw new InvalidDataException(

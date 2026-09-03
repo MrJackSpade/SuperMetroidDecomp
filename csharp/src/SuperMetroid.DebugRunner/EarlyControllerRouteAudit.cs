@@ -1154,7 +1154,8 @@ internal static partial class EarlyControllerRouteAudit
                 {
                     RoomCollisionBlock returnBlock = runtime.LevelData!
                         .GetCollisionBlock(0x4c, 0x2c);
-                    bool returnBlockStillSolid = returnBlock.CollisionType == 0x0c &&
+                    bool returnBlockStillSolid =
+                        returnBlock.CollisionType == RoomCollisionType.ShootableBlock &&
                         returnBlock.Behavior == 0x04;
                     bool isMorphBall = SamusState.IsGroundedMorphBallPose(samus.Pose) ||
                         SamusState.IsAirborneMorphBallPose(samus.Pose);
@@ -2220,7 +2221,7 @@ internal static partial class EarlyControllerRouteAudit
                             RoomCollisionBlock flywayCap =
                                 runtime.LevelData!.GetCollisionBlock(0x3e, 0x26);
                             horizontalTargetX = flywayCap is
-                                { CollisionType: 12, Behavior: 0x40 }
+                                { CollisionType: RoomCollisionType.ShootableBlock, Behavior: 0x40 }
                                     ? 0x03c0
                                     : 0x0400;
                         }
@@ -2608,7 +2609,10 @@ internal static partial class EarlyControllerRouteAudit
                         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
                         {
                             RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
-                            if (block.CollisionType is 8 or 12 or 14)
+                            if (block.CollisionType is
+                                RoomCollisionType.SolidBlock or
+                                RoomCollisionType.ShootableBlock or
+                                RoomCollisionType.GrappleBlock)
                             {
                                 throw new InvalidDataException(
                                     $"Pre-Missiles frame {frame} crossed solid ceiling block " +
@@ -2643,7 +2647,10 @@ internal static partial class EarlyControllerRouteAudit
                         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
                         {
                             RoomCollisionBlock block = runtime.LevelData.GetCollisionBlock(blockX, blockY);
-                            if (block.CollisionType is 8 or 12 or 14)
+                            if (block.CollisionType is
+                                RoomCollisionType.SolidBlock or
+                                RoomCollisionType.ShootableBlock or
+                                RoomCollisionType.GrappleBlock)
                             {
                                 throw new InvalidDataException(
                                     $"Climb frame {frame} crossed solid platform block " +
@@ -3204,7 +3211,7 @@ internal static partial class EarlyControllerRouteAudit
                             $"(${impact.XPosition:X4},${impact.YPosition:X4})/" +
                             $"r({impact.XRadius},{impact.YRadius})/" +
                             $"block={impactBlock.Index}:" +
-                            $"{impactBlock.CollisionType:X1}/{impactBlock.Behavior:X2}");
+                            $"{(byte)impactBlock.CollisionType:X1}/{impactBlock.Behavior:X2}");
                     }
                 }
             }
@@ -3322,7 +3329,7 @@ internal static partial class EarlyControllerRouteAudit
         var frontier = new Queue<(int X, int Y)>();
         if (level.GetCollisionBlock(
                 flywayDoorInteriorColumn,
-                flywayDoorInteriorRow).CollisionType != 0)
+                flywayDoorInteriorRow).CollisionType != RoomCollisionType.Air)
         {
             throw new InvalidDataException(
                 "Flyway door interior is not cartridge air in the active Parlor state.");
@@ -3342,8 +3349,11 @@ internal static partial class EarlyControllerRouteAudit
                 if ((uint)neighborX >= (uint)level.WidthInBlocks ||
                     (uint)neighborY >= (uint)level.HeightInBlocks ||
                     distanceToFlyway[neighborX, neighborY] != 0 ||
-                    level.GetCollisionBlock(neighborX, neighborY).CollisionType is not
-                        (0 or 1 or 3 or 5))
+                    level.GetCollisionBlock(neighborX, neighborY).CollisionType is not (
+                        RoomCollisionType.Air or
+                        RoomCollisionType.Slope or
+                        RoomCollisionType.SpecialAir or
+                        RoomCollisionType.HorizontalExtension))
                 {
                     continue;
                 }
@@ -3462,7 +3472,7 @@ internal static partial class EarlyControllerRouteAudit
             // Slopes/extensions are admitted only to preserve topological connectivity.
             // The steering point itself remains in cartridge air so the controller never
             // deliberately aims Samus' centre into a solid quadrant or PLM carrier block.
-            if (level.GetCollisionBlock(routeX, routeY).CollisionType == 0)
+            if (level.GetCollisionBlock(routeX, routeY).CollisionType == RoomCollisionType.Air)
             {
                 waypointX = routeX;
                 waypointY = routeY;
@@ -3513,7 +3523,7 @@ internal static partial class EarlyControllerRouteAudit
                 // family deliberately excludes one-row ledges and their type-$1 slopes,
                 // which are valid wall-jump collision but not the controller's intended
                 // opposite boundary.
-                if (room.GetCollisionBlock(blockX, blockY).CollisionType == 8)
+                if (room.GetCollisionBlock(blockX, blockY).CollisionType == RoomCollisionType.SolidBlock)
                     solidSamples++;
             }
             return solidSamples >= Math.Min(
@@ -3630,10 +3640,12 @@ internal static partial class EarlyControllerRouteAudit
                 // this exact body coordinate. Skipping air here is important: a 17-pixel
                 // probe from an empty row can otherwise rediscover the floor below it and
                 // incorrectly widen a narrow platform's usable centre range.
-                if (candidate.CollisionType is not (1 or 8))
+                if (candidate.CollisionType is not (
+                    RoomCollisionType.Slope or RoomCollisionType.SolidBlock))
                     continue;
-                if (candidate.CollisionType == 8 && blockY > 0 &&
-                    level.GetCollisionBlock(centerX >> 4, blockY - 1).CollisionType == 8)
+                if (candidate.CollisionType == RoomCollisionType.SolidBlock && blockY > 0 &&
+                    level.GetCollisionBlock(centerX >> 4, blockY - 1).CollisionType ==
+                        RoomCollisionType.SolidBlock)
                 {
                     // The side walls are long vertical stacks of type-$8 blocks. Their top
                     // edge is technically a downward collision surface, but it is not an
@@ -3717,7 +3729,8 @@ internal static partial class EarlyControllerRouteAudit
                     continue;
                 }
                 bool runIsSolidLedge =
-                    level.GetCollisionBlock(middle.X >> 4, blockY).CollisionType == 8;
+                    level.GetCollisionBlock(middle.X >> 4, blockY).CollisionType ==
+                        RoomCollisionType.SolidBlock;
                 int middleRise = currentSurfaceY - middle.SurfaceY;
                 int horizontalDistance = Math.Abs(middle.X - samus.XPosition);
                 int shadowLeftX = (rowSamples[runStart].X >> 4) * 16;
@@ -3808,7 +3821,11 @@ internal static partial class EarlyControllerRouteAudit
             for (int blockX = firstBodyColumn; blockX <= lastBodyColumn; blockX++)
             {
                 if (level.GetCollisionBlock(blockX, blockY).CollisionType is
-                    8 or 10 or 12 or 14 or 15)
+                    RoomCollisionType.SolidBlock or
+                    RoomCollisionType.SpikeBlock or
+                    RoomCollisionType.ShootableBlock or
+                    RoomCollisionType.GrappleBlock or
+                    RoomCollisionType.BombableBlock)
                 {
                     return true;
                 }
@@ -3829,7 +3846,8 @@ internal static partial class EarlyControllerRouteAudit
         // complete door-cap lifecycle.
         for (int blockX = capLeftBlock; blockX <= capRightBlock; blockX++)
         {
-            if (level.GetCollisionBlock(blockX, capRow).CollisionType is 0x0c or 0x05)
+            if (level.GetCollisionBlock(blockX, capRow).CollisionType is
+                RoomCollisionType.ShootableBlock or RoomCollisionType.HorizontalExtension)
                 return true;
         }
         return false;
@@ -4220,8 +4238,13 @@ internal static partial class EarlyControllerRouteAudit
     /// deliberately excluded so the route audit cannot invent clearance semantics.
     /// </summary>
     private static bool IsUnconditionallyBodySolid(RoomCollisionBlock block) =>
-        block.CollisionType is 8 or 10 or 12 or 14 or 15 ||
-        block.CollisionType == 11 && block.Behavior != 0x45;
+        block.CollisionType is
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.SpikeBlock or
+            RoomCollisionType.ShootableBlock or
+            RoomCollisionType.GrappleBlock or
+            RoomCollisionType.BombableBlock ||
+        block.CollisionType == RoomCollisionType.SpecialBlock && block.Behavior != 0x45;
 
     private static string FormatCounts(IReadOnlyList<int> counts) => string.Join(
         ", ",
@@ -4641,7 +4664,7 @@ internal static partial class EarlyControllerRouteAudit
                  x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                row.Add($"{x:X2}:{block.CollisionType:X1}/{block.Behavior:X2}");
+                row.Add($"{x:X2}:{(byte)block.CollisionType:X1}/{block.Behavior:X2}");
             }
             Console.WriteLine($"    y={y:X2} {string.Join(' ', row)}");
         }
@@ -4664,7 +4687,8 @@ internal static partial class EarlyControllerRouteAudit
         {
             var types = new char[right - left + 1];
             for (int x = left; x <= right; x++)
-                types[x - left] = "0123456789ABCDEF"[level.GetCollisionBlock(x, y).CollisionType];
+                types[x - left] =
+                    "0123456789ABCDEF"[(byte)level.GetCollisionBlock(x, y).CollisionType];
             Console.WriteLine($"    {y:X2}: {new string(types)}");
         }
     }
@@ -4688,8 +4712,8 @@ internal static partial class EarlyControllerRouteAudit
             for (int x = left; x <= right; x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                if (block.CollisionType != 0)
-                    features.Add($"{x:X2}:{block.CollisionType:X1}/{block.Behavior:X2}");
+                if (block.CollisionType != RoomCollisionType.Air)
+                    features.Add($"{x:X2}:{(byte)block.CollisionType:X1}/{block.Behavior:X2}");
             }
             if (features.Count != 0)
                 Console.WriteLine($"    {y:X2}: {string.Join(' ', features)}");
@@ -4729,7 +4753,7 @@ internal static partial class EarlyControllerRouteAudit
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                pixels[y * level.WidthInBlocks + x] = collisionColors[block.CollisionType];
+                pixels[y * level.WidthInBlocks + x] = collisionColors[(byte)block.CollisionType];
             }
         }
 
@@ -4766,7 +4790,7 @@ internal static partial class EarlyControllerRouteAudit
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(x, y);
-                if (block.CollisionType == 9)
+                if (block.CollisionType == RoomCollisionType.DoorBlock)
                 {
                     CartridgeDoorHeader definition = level.ResolveDoorCollision(
                         bus,

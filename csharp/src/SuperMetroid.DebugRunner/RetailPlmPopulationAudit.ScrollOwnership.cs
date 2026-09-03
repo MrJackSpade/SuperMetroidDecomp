@@ -174,7 +174,9 @@ internal static partial class RetailPlmPopulationAudit
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(index);
-            bool isScrollTrigger = block.CollisionType == 3 && block.Behavior == 0x46;
+            bool isScrollTrigger =
+                block.CollisionType == RoomCollisionType.SpecialAir &&
+                block.Bts == RoomBlockBehaviorValues.ScrollTrigger;
             if (isScrollTrigger && !ownerSet.Contains(index))
             {
                 failures.Add(new ScrollOwnershipFailure(
@@ -214,7 +216,9 @@ internal static partial class RetailPlmPopulationAudit
         for (int index = 0; index < level.ForegroundEntries.Length; index++)
         {
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(index);
-            bool isScrollTrigger = block.CollisionType == 3 && block.Behavior == 0x46;
+            bool isScrollTrigger =
+                block.CollisionType == RoomCollisionType.SpecialAir &&
+                block.Bts == RoomBlockBehaviorValues.ScrollTrigger;
             if (isScrollTrigger == actualSet.Contains(index))
                 continue;
 

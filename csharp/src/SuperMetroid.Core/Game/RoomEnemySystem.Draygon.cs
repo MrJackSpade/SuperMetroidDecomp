@@ -60,9 +60,9 @@ public sealed partial class RoomEnemySystem
             BackgroundTilemapPrepared = true,
             RoomLoadingIrqCommand = 0x000c,
             MinimapDisabledAndBossTilesExplored = true,
-            BottomUnusedTurretDisabled = true,
             Function = DraygonAiFunction.IntroInitialDelay,
         };
+        _draygon.DisabledCannonWords.Add(DraygonCannonData.UnusedBottomDisabledWord);
     }
 
     /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>

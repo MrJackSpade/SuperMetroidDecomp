@@ -200,6 +200,16 @@ internal static class RoomPlmHeaders
     /// <summary>Left-facing eye-door bottom component at <c>$84:DB60</c>.</summary>
     public const ushort EyeDoorBottomFacingLeft = 0xdb60;
 
+    /// <summary>Draygon-room right-facing shielded cannon at <c>$84:DF59</c>.</summary>
+    public const ushort DraygonCannonFacingRight = 0xdf59;
+    /// <summary>
+    /// Draygon-room right-facing cannon at <c>$84:DF65</c>. Its authored list enters the
+    /// destroyed state immediately, disabling the unused upper-left firing position.
+    /// </summary>
+    public const ushort DraygonCannonFacingRightDestroyed = 0xdf65;
+    /// <summary>Draygon-room left-facing shielded cannon at <c>$84:DF71</c>.</summary>
+    public const ushort DraygonCannonFacingLeft = 0xdf71;
+
     /// <summary>Collision-side permanent-item detector at $84:EED3.</summary>
     public const ushort ItemCollisionDetection = 0xeed3;
 

@@ -196,8 +196,26 @@ public sealed class DraygonEnemyState
     /// <summary>Number of exact 64-frame turret-selection RNG draws observed.</summary>
     public int TurretCadenceChecks { get; internal set; }
 
-    /// <summary>The body initializer disables turret index six through extra-enemy word $45.</summary>
-    public bool BottomUnusedTurretDisabled { get; internal set; }
+    /// <summary>
+    /// Exact extra-enemy WRAM words disabled by Draygon setup or a destroyed room PLM.
+    /// This is the shared storage observed by bank $A5's firing selector.
+    /// </summary>
+    internal HashSet<ushort> DisabledCannonWords { get; } = [];
+
+    /// <summary>Whether a named Draygon cannon-control word currently contains one.</summary>
+    public bool IsCannonDisabled(ushort controlWord)
+    {
+        if (!DraygonCannonData.IsControlWord(controlWord))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(controlWord), controlWord, "Not a Draygon cannon-control word.");
+        }
+        return DisabledCannonWords.Contains(controlWord);
+    }
+
+    /// <summary>Compatibility projection of the body initializer's unused-bottom write.</summary>
+    public bool BottomUnusedTurretDisabled =>
+        IsCannonDisabled(DraygonCannonData.UnusedBottomDisabledWord);
 
     public DraygonAiFunction Function
     {

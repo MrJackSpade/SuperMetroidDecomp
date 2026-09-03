@@ -119,6 +119,7 @@ VerifySequentialRoomPlmPopulationLoader();
 VerifyNoobTubePlm();
 VerifyDownwardGatePlms();
 VerifyEyeDoorPlms();
+VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
 VerifyMovedSamusCameraTracking();

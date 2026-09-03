@@ -7,24 +7,14 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private static readonly (ushort X, ushort Y)[] DraygonTurretPositions =
-    [
-        (0x0038, 0x00c0),
-        (0x0034, 0x012f),
-        (0x01cc, 0x0101),
-    ];
-
     /// <summary>Ports <c>HandleFiringWallTurret</c> and initializer <c>$86:8D40</c>.</summary>
     private void SpawnDraygonWallTurret(
         DraygonEnemyState state,
         SamusState samus,
         ushort random)
     {
-        int selection = random & 3;
-        // InitAI_DraygonBody writes one to extra-enemy word $45, permanently suppressing
-        // the fourth coordinate. The first three words remain zero until their PLM cannon
-        // is destroyed; that destruction seam will later update the same typed flags.
-        if (selection == 3 && state.BottomUnusedTurretDisabled)
+        DraygonCannonTarget target = DraygonCannonData.FiringTargets[random & 3];
+        if (state.DisabledCannonWords.Contains(target.DisabledWord))
             return;
 
         RoomEnemyProjectileSlot? turret = AllocateEnemyProjectile();
@@ -36,7 +26,7 @@ public sealed partial class RoomEnemySystem
             turret,
             RoomEnemyProjectileKind.DraygonWallTurret,
             graphicsIndex: EnemyPaletteBits.Palette5);
-        (turret.XPosition, turret.YPosition) = DraygonTurretPositions[selection];
+        (turret.XPosition, turret.YPosition) = (target.X, target.Y);
         turret.XSubposition = 0;
         turret.YSubposition = 0;
 
@@ -53,6 +43,23 @@ public sealed partial class RoomEnemySystem
         // bloom reaches instruction $8CF6 and explicitly enables flight.
         turret.PreInstruction = EnemyProjectileCodePointers.RTS_868D54;
         state.WallTurretsSpawned++;
+    }
+
+    /// <summary>
+    /// Implements bank $84's write through <c>PLM_Variable</c>. Cannon setup stores one of
+    /// Draygon's extra-enemy WRAM addresses, then the damage instruction writes one here.
+    /// </summary>
+    public void DisableDraygonCannon(ushort variablePointer)
+    {
+        if (!DraygonCannonData.IsControlWord(variablePointer))
+        {
+            throw new InvalidDataException(
+                $"Draygon cannon PLM targeted unrecognized WRAM word ${variablePointer:X4}.");
+        }
+
+        DraygonEnemyState state = Draygon ?? throw new InvalidOperationException(
+            "A Draygon cannon PLM attempted to write its control word without a loaded Draygon body.");
+        state.DisabledCannonWords.Add(variablePointer);
     }
 
     /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>

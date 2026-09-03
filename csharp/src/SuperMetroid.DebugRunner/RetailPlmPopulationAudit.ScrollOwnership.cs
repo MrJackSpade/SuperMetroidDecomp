@@ -115,7 +115,8 @@ internal static partial class RetailPlmPopulationAudit
                     hasEvent: _ => false,
                     setEvent: _ => { },
                     roomFx: roomFx,
-                    setEarthquakeTimer: _ => { });
+                    setEarthquakeTimer: _ => { },
+                    disableDraygonCannon: _ => { });
             }
             catch (Exception exception)
             {

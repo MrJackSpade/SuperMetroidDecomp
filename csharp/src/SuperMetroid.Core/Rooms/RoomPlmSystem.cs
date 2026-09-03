@@ -68,6 +68,7 @@ public sealed partial class RoomPlmSystem
             slot.Treadmill = null;
             slot.Gate = null;
             slot.EyeDoor = null;
+            slot.DraygonCannon = null;
         }
         _soundRequests.Clear();
         _pendingDownwardGateSounds.Clear();
@@ -92,6 +93,7 @@ public sealed partial class RoomPlmSystem
         ResetBombTorizoHandState();
         ResetNoobTubeState();
         ResetEyeDoorState();
+        ResetDraygonCannonState();
     }
 
     /// <summary>
@@ -1080,6 +1082,7 @@ public sealed partial class RoomPlmSystem
             RunNoobTubePreInstruction(slot, controllerNewInput);
             RunDownwardGatePreInstruction(slot);
             RunEyeDoorPreInstruction(slot);
+            RunDraygonCannonPreInstruction(slot);
             if (!slot.Active)
                 continue;
 
@@ -1320,6 +1323,7 @@ public sealed partial class RoomPlmSystem
                     slot.ColoredDoor = null;
                     slot.GreyDoor = null;
                     slot.EyeDoor = null;
+                    slot.DraygonCannon = null;
                     return;
 
                 case RoomPlmInstructionCodes.Sleep:
@@ -1339,6 +1343,8 @@ public sealed partial class RoomPlmSystem
                     if (TryExecuteNoobTubeInstruction(bus, slot, instruction))
                         continue;
                     if (TryExecuteEyeDoorInstruction(bus, level, slot, instruction))
+                        continue;
+                    if (TryExecuteDraygonCannonInstruction(bus, level, slot, instruction))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached uncatalogued bank-$84 instruction ${instruction:X4}.");
@@ -1514,6 +1520,8 @@ public sealed partial class RoomPlmSystem
         public DownwardGatePlmState? Gate { get; set; }
         /// <summary>Semantic owner for one component of a mirrored eye-door assembly.</summary>
         public EyeDoorPlmState? EyeDoor { get; set; }
+        /// <summary>Semantic owner for one of Draygon's three retail cannon headers.</summary>
+        public DraygonCannonPlmState? DraygonCannon { get; set; }
         /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
         public WreckedShipTreadmillPlmState? Treadmill { get; set; }
     }

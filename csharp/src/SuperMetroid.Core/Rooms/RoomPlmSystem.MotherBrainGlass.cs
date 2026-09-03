@@ -113,6 +113,8 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public bool TryNotifyProjectileHit(int blockIndex, ushort projectileType)
     {
+        if (TryNotifyDraygonCannonHit(blockIndex, new SamusProjectileTypeWord(projectileType)))
+            return true;
         if (TryGetMotherBrainGlassSlot(out PlmSlot? slot) && slot!.BlockIndex == blockIndex)
         {
             slot.LoopTimer = projectileType;

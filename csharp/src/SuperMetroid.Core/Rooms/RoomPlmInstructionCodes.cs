@@ -29,6 +29,9 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:8A91</c>: increment the door-hit byte and branch at its threshold.</summary>
     public const ushort IncrementDoorHitCounterAndGoto = 0x8a91;
 
+    /// <summary><c>$84:8ACD</c>: increment the room-argument byte and branch at a threshold.</summary>
+    public const ushort IncrementArgumentAndGotoIfGreaterOrEqual = 0x8acd;
+
     /// <summary><c>$84:8D41</c>: branch when Samus is within the operand block rectangle.</summary>
     public const ushort GotoIfSamusNear = 0x8d41;
 
@@ -94,6 +97,12 @@ public static class RoomPlmInstructionCodes
 
     /// <summary><c>$84:D7DA</c>: move up and construct a left-facing blue-door cap.</summary>
     public const ushort MoveUpAndMakeBlueDoorFacingLeft = 0xd7da;
+
+    /// <summary><c>$84:DB8E</c>: disable and replace a right-facing Draygon cannon.</summary>
+    public const ushort DamageDraygonCannonFacingRight = 0xdb8e;
+
+    /// <summary><c>$84:DC36</c>: disable and replace a left-facing Draygon cannon.</summary>
+    public const ushort DamageDraygonCannonFacingLeft = 0xdc36;
 
     /// <summary><c>$84:8C46 Instruction_PLM_QueueSound_Y_Lib2_Max3</c>.</summary>
     public const ushort QueueSoundLibrary2Maximum3 = 0x8c46;

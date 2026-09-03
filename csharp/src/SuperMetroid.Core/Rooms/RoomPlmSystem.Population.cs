@@ -30,7 +30,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
             RoomPlmHeaders.MotherBrainEscapeRoomGate or
             RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock ||
-            IsEyeDoorHeader(header))
+            IsEyeDoorHeader(header) || IsDraygonCannonHeader(header))
         {
             return true;
         }
@@ -63,7 +63,8 @@ public sealed partial class RoomPlmSystem
         Action<ushort>? setEarthquakeTimer = null,
         Action<ushort>? setEarthquakeType = null,
         Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
-        Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null)
+        Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null,
+        Action<ushort>? disableDraygonCannon = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -95,6 +96,7 @@ public sealed partial class RoomPlmSystem
         _eyeDoorSystem = system;
         _eyeDoorSamus = getSamus;
         _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
+        _disableDraygonCannon = disableDraygonCannon;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -241,6 +243,7 @@ public sealed partial class RoomPlmSystem
         slot.Treadmill = null;
         slot.Gate = null;
         slot.EyeDoor = null;
+        slot.DraygonCannon = null;
     }
 
     private bool TryRunRoomPopulationSetup(
@@ -349,6 +352,12 @@ public sealed partial class RoomPlmSystem
         if (IsEyeDoorHeader(header))
         {
             SetupEyeDoorSlot(level, slot);
+            return true;
+        }
+
+        if (IsDraygonCannonHeader(header))
+        {
+            SetupDraygonCannonSlot(level, slot);
             return true;
         }
 

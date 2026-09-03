@@ -71,11 +71,11 @@ internal static class FrontendSkipIntroAudit
         }
 
         // State $1F performs the authentic room/load-station initialization on the next
-        // dispatcher call. The existing bank-$86 elevator then owns the full wait, descent,
-        // graphical concealer, landing, and input-unlock sequence.
+        // dispatcher call. Native state seven then fades complete gameplay/OAM frames in
+        // before state $20 continues the bank-$86 elevator wait and descent.
         frame = game.Step(0);
-        if (frame.GameState != SuperMetroidGameState.MadeItToCeresElevator)
-            throw new InvalidOperationException("New-game setup did not enter the Ceres elevator.");
+        if (frame.GameState != SuperMetroidGameState.MainGameplayFadeIn)
+            throw new InvalidOperationException("New-game setup did not enter the Ceres gameplay fade.");
         SuperMetroidSaveSlot saved = new SuperMetroidSaveRam(bus).ReadSlot(0)
             ?? throw new InvalidDataException("Ceres setup did not produce a valid slot-A SRAM checkpoint.");
         if (saved.Area != 6 || saved.SaveStation != 0 || saved.Health != 99)
@@ -112,7 +112,7 @@ internal static class FrontendSkipIntroAudit
         int restartedSaveRamChangeCount = 0;
         restartedGame.SaveRamChanged += () => restartedSaveRamChangeCount++;
         FrontendFrame restartedFrame = FrontendAuditDriver.EnterSelectedSlot(restartedGame);
-        if (restartedFrame.GameState != SuperMetroidGameState.MadeItToCeresElevator ||
+        if (restartedFrame.GameState != SuperMetroidGameState.MainGameplayFadeIn ||
             restartedGame.GameplayActiveRoomPointer != game.GameplayActiveRoomPointer)
         {
             throw new InvalidDataException(

@@ -41,6 +41,7 @@ public sealed class SuperMetroidGame
     private int postCeresLoadFramesRemaining = -1;
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
+    private bool gameplayFadeLeadsToCeresArrival;
     private byte pauseBrightness = 15;
     private CartridgePaletteTransition? deathPaletteFade;
     private byte deathFadeBrightness = 15;
@@ -321,12 +322,16 @@ public sealed class SuperMetroidGame
 
             case SuperMetroidGameState.SetUpNewGame:
                 bool usesCeresArrival = SetupSelectedGame();
-                GameState = usesCeresArrival
-                    ? SuperMetroidGameState.MadeItToCeresElevator
-                    : SuperMetroidGameState.MainGameplay;
-                lastPixels = usesCeresArrival
-                    ? CreateBlackFrame()
-                    : SuperMetroidRuntimeFrameRenderer.Render(runtime!);
+                if (usesCeresArrival)
+                {
+                    BeginGameplayFadeIn(leadsToCeresArrival: true);
+                    lastPixels = CreateBlackFrame();
+                }
+                else
+                {
+                    GameState = SuperMetroidGameState.MainGameplay;
+                    lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime!);
+                }
                 break;
 
             case SuperMetroidGameState.MadeItToCeresElevator:
@@ -539,14 +544,12 @@ public sealed class SuperMetroidGame
                 bool continueUsesCeresArrival = SetupSelectedGame();
                 if (continueUsesCeresArrival)
                 {
-                    GameState = SuperMetroidGameState.MadeItToCeresElevator;
+                    BeginGameplayFadeIn(leadsToCeresArrival: true);
                     lastPixels = CreateBlackFrame();
                 }
                 else
                 {
-                    postCeresFadeBrightness = 0;
-                    postCeresFadeCounter = 1;
-                    GameState = SuperMetroidGameState.MainGameplayFadeIn;
+                    BeginGameplayFadeIn(leadsToCeresArrival: false);
                     lastPixels = CreateBlackFrame();
                 }
                 break;
@@ -707,9 +710,7 @@ public sealed class SuperMetroidGame
                 }
                 else if (--postCeresLoadFramesRemaining <= 0)
                 {
-                    postCeresFadeBrightness = 0;
-                    postCeresFadeCounter = 1;
-                    GameState = SuperMetroidGameState.MainGameplayFadeIn;
+                    BeginGameplayFadeIn(leadsToCeresArrival: false);
                 }
                 lastPixels = CreateBlackFrame();
                 break;
@@ -726,7 +727,12 @@ public sealed class SuperMetroidGame
                         15,
                         postCeresFadeBrightness + 1);
                     if (postCeresFadeBrightness == 15)
-                        GameState = SuperMetroidGameState.MainGameplay;
+                    {
+                        GameState = gameplayFadeLeadsToCeresArrival
+                            ? SuperMetroidGameState.MadeItToCeresElevator
+                            : SuperMetroidGameState.MainGameplay;
+                        gameplayFadeLeadsToCeresArrival = false;
+                    }
                 }
                 break;
 
@@ -931,7 +937,9 @@ public sealed class SuperMetroidGame
         SuperMetroidGameState.LoadingGameData =>
             $"Loading Landing Site ({Math.Max(0, postCeresLoadFramesRemaining)} transfers)",
         SuperMetroidGameState.MainGameplayFadeIn =>
-            $"Landing Site fade-in (brightness {postCeresFadeBrightness})",
+            gameplayFadeLeadsToCeresArrival
+                ? $"Ceres elevator fade-in (brightness {postCeresFadeBrightness})"
+                : $"Landing Site fade-in (brightness {postCeresFadeBrightness})",
         SuperMetroidGameState.MainGameplay => "Gameplay",
         SuperMetroidGameState.HitDoorBlock => "Door collision",
         SuperMetroidGameState.LoadingNextRoomA => "Loading destination room",
@@ -1113,6 +1121,20 @@ public sealed class SuperMetroidGame
                 iconCancelEnabled: runtime.IconCancelEnabled));
         SaveRamChanged?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// Enters cartridge game state seven with a fully dark screen and the native two-frame
+    /// brightness cadence. A fresh Ceres game must execute complete gameplay/OAM frames in
+    /// this state before state $20 owns the elevator arrival; otherwise the level-data pad
+    /// is briefly visible before its bank-$86 concealer reaches displayed OAM.
+    /// </summary>
+    private void BeginGameplayFadeIn(bool leadsToCeresArrival)
+    {
+        postCeresFadeBrightness = 0;
+        postCeresFadeCounter = 1;
+        gameplayFadeLeadsToCeresArrival = leadsToCeresArrival;
+        GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
 
     private void HandleGunshipLandingSave()

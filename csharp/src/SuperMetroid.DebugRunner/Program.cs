@@ -61,6 +61,12 @@ if (args.Length >= 2 && args[0] == "--ceres-elevator-climb-focus")
     return CeresControllerRouteAudit.RunElevatorClimbFocus(ceresElevatorRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--ceres-elevator-arrival-audit")
+{
+    string ceresArrivalRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CeresElevatorArrivalAudit.Run(ceresArrivalRomPath);
+}
+
 // Configuration regression kept as its own small audit rather than adding another branch
 // to the already deep cinematic capture tree below.
 if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")

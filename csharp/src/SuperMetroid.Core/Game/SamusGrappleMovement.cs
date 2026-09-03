@@ -26,75 +26,25 @@ public static partial class SamusGrappleMovement
 {
     // These five values are the literal words at $9B:C118-$9B:C120. Names describe how
     // $9B:BB64-$9B:BD44 use them; the original storage itself is anonymous.
-    private const short GravityMagnitude = 24;
-    private const short DirectionInputMagnitude = 12;
-    private const short VelocityCorrectionMagnitude = 5;
-    private const short MaximumAngularVelocity = 0x480;
-    private const short JumpImpulseMagnitude = 0x300;
-
     // The C decompilation materializes a convenient 320-word array beside $94:A957, but
     // the 65816 instructions at $94:A95F/$94:A9A3 actually issue long reads into bank $A0.
     // Index zero here is the negative-cosine quadrant at $A0:B3C3; index 64 is the label
     // SineCosineTables_8bitSine_SignExtended at $A0:B443. The 64-word prefix is what makes
     // every caller's `angle + 64` cosine lookup legal without wrapping the pointer.
-    private const int SignedSineTable = 0xa0b3c3;
-    private const int SwingFrameByAngle = 0x9bc1c2;
-    private const int LeftPoseOffsetsByFrame = 0x9bc2c2;
-    private const int RightPoseOffsetsByFrame = 0x9bc302;
-    private const int GrapplePointTilePointers = 0x9bc342;
-    private const int GrappleSegmentTilePointers = 0x9bc346;
-
     // `$9B:C036` deliberately reuses the main charge-flare delay program and bank-$93
     // spritemap index tables. Grapple owns independent copies of the three live WRAM words,
     // however, because `$90:EB86` bypasses the ordinary projectile charge-flare handler.
-    private const int MainFlareAnimationDelays = 0x90c487;
-    private const int RightFlareSpritemapOffsets = 0x93a225;
-    private const int LeftFlareSpritemapOffsets = 0x93a22b;
-
     // Eight ten-byte records at $9B:C43E drive close-collision snapping. Keeping the
     // function words named lets us validate the ROM table instead of reducing its final
     // field to a guessed host boolean.
-    private const int SpecialAngleTable = 0x9bc43e;
-    private const int SpecialAngleRecordSize = 10;
-    private const ushort LockedInPlaceFunction = 0xc77e;
-    private const ushort SwingingFunction = 0xc79d;
-    private const ushort WallGrabFunction = 0xc814;
-    private const int DroppedStandingPoseTable = 0x9bc9ba;
-    private const int DroppedCrouchingPoseTable = 0x9bc9c4;
-
     // $9B:C0DB-$C1C1 is the complete firing policy table. Values are deliberately read
     // from ROM instead of copied into host arrays: a debugger can correlate every live
     // word with the cartridge, and altered/revision ROMs retain their authored behavior.
-    private const int FireXVelocityTable = 0x9bc0db;
-    private const int FireYVelocityTable = 0x9bc0ef;
-    private const int FireAngleTable = 0x9bc104;
-    private const int NoRunOriginXTable = 0x9bc122;
-    private const int NoRunOriginYTable = 0x9bc136;
-    private const int NoRunFlareXTable = 0x9bc14a;
-    private const int NoRunFlareYTable = 0x9bc15e;
-    private const int RunOriginXTable = 0x9bc172;
-    private const int RunOriginYTable = 0x9bc186;
-    private const int RunFlareXTable = 0x9bc19a;
-    private const int RunFlareYTable = 0x9bc1ae;
-
     // HandleConnectingGrapple at $9B:B97C selects one of these three ten-record tables.
     // Every four-byte record is {next grapple-function word, connection-handler word}.
     // Reading both words from ROM preserves the deliberately surprising crouching entries
     // for horizontal fire, and validating the pair prevents a bad mapping from silently
     // turning a locked body into a pendulum (or vice versa).
-    private const int DefaultConnectionTable = 0x9bc3c6;
-    private const int MovingVerticallyConnectionTable = 0x9bc3ee;
-    private const int CrouchingConnectionTable = 0x9bc416;
-    private const ushort ConnectSwingClockwiseHandler = 0xb9d9;
-    private const ushort ConnectSwingAnticlockwiseHandler = 0xb9e2;
-    private const ushort ConnectStandingUpRightHandler = 0xb9ea;
-    private const ushort ConnectStandingRightHandler = 0xb9f3;
-    private const ushort ConnectStandingDownHandler = 0xb9fc;
-    private const ushort ConnectStandingUpLeftHandler = 0xba05;
-    private const ushort ConnectCrouchingUpRightHandler = 0xba0e;
-    private const ushort ConnectCrouchingRightHandler = 0xba17;
-    private const ushort ConnectCrouchingDownLeftHandler = 0xba20;
-    private const ushort ConnectCrouchingUpLeftHandler = 0xba29;
 
     /// <summary>
     /// Ports <c>GrappleBeamFunc_FireGoToCancel</c> at <c>$9B:C51E</c>, stopping immediately
@@ -121,19 +71,33 @@ public static partial class SamusGrappleMovement
         int tableOffset = direction * 2;
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = direction;
-        grapple.ExtensionXVelocity = unchecked((short)ReadWord(bus, FireXVelocityTable + tableOffset));
-        grapple.ExtensionYVelocity = unchecked((short)ReadWord(bus, FireYVelocityTable + tableOffset));
-        grapple.Angle = SnesAngle.FromRaw(ReadWord(bus, FireAngleTable + tableOffset));
+        grapple.ExtensionXVelocity = unchecked((short)ReadWord(
+            bus,
+            SamusGrappleRomData.Firing.XVelocities + tableOffset));
+        grapple.ExtensionYVelocity = unchecked((short)ReadWord(
+            bus,
+            SamusGrappleRomData.Firing.YVelocities + tableOffset));
+        grapple.Angle = SnesAngle.FromRaw(ReadWord(
+            bus,
+            SamusGrappleRomData.Firing.Angles + tableOffset));
         grapple.MirroredAngle = grapple.Angle;
 
         // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is
         // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
-        int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
-        int flareXTable = useRunOffsets ? RunFlareXTable : NoRunFlareXTable;
-        int flareYTable = useRunOffsets ? RunFlareYTable : NoRunFlareYTable;
+        int originXTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningOriginX
+            : SamusGrappleRomData.Firing.DefaultOriginX;
+        int originYTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningOriginY
+            : SamusGrappleRomData.Firing.DefaultOriginY;
+        int flareXTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningFlareX
+            : SamusGrappleRomData.Firing.DefaultFlareX;
+        int flareYTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningFlareY
+            : SamusGrappleRomData.Firing.DefaultFlareY;
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
         grapple.OriginXOffset = unchecked((short)ReadWord(bus, originXTable + tableOffset));
@@ -236,19 +200,22 @@ public static partial class SamusGrappleMovement
         if (unchecked((short)grapple.FlareAnimationTimer) < 0)
         {
             grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
-            byte delay = bus.ReadByte(MainFlareAnimationDelays + grapple.FlareAnimationFrame);
+            byte delay = bus.ReadByte(
+                SamusGrappleRomData.Firing.MainFlareAnimationDelays +
+                    grapple.FlareAnimationFrame);
             if (delay == 0xfe)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
                 byte rewind = bus.ReadByte(
-                    MainFlareAnimationDelays +
+                    SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     unchecked((ushort)(grapple.FlareAnimationFrame + 1)));
                 grapple.FlareAnimationFrame = unchecked((ushort)(
                     grapple.FlareAnimationFrame - rewind));
                 delay = bus.ReadByte(
-                    MainFlareAnimationDelays + grapple.FlareAnimationFrame);
+                    SamusGrappleRomData.Firing.MainFlareAnimationDelays +
+                        grapple.FlareAnimationFrame);
             }
 
             grapple.FlareAnimationTimer = delay;
@@ -262,8 +229,8 @@ public static partial class SamusGrappleMovement
             return false;
 
         int orientationTable = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? LeftFlareSpritemapOffsets
-            : RightFlareSpritemapOffsets;
+            ? SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets
+            : SamusGrappleRomData.Firing.RightFlareSpritemapOffsets;
         ushort tableIndex = unchecked((ushort)(
             grapple.FlareAnimationFrame + ReadWord(bus, orientationTable)));
         oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
@@ -408,7 +375,8 @@ public static partial class SamusGrappleMovement
         ArgumentNullException.ThrowIfNull(samus);
         if (ropeLength is < 8 or > 63)
             throw new ArgumentOutOfRangeException(nameof(ropeLength), "Retail connected rope length is 8..63 pixels.");
-        if (angularVelocity is < -MaximumAngularVelocity or > MaximumAngularVelocity)
+        if (angularVelocity is < -SamusGrappleRomData.Physics.MaximumAngularVelocity or
+            > SamusGrappleRomData.Physics.MaximumAngularVelocity)
             throw new ArgumentOutOfRangeException(nameof(angularVelocity));
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("A grapple state is already active.");
@@ -876,8 +844,8 @@ public static partial class SamusGrappleMovement
         }
 
         int table = samus.Kinematics.YRadius >= 17
-            ? DroppedStandingPoseTable
-            : DroppedCrouchingPoseTable;
+            ? SamusGrappleRomData.Release.StandingPoseTable
+            : SamusGrappleRomData.Release.CrouchingPoseTable;
         return bus.ReadByte(table + shotDirection);
     }
 
@@ -894,7 +862,8 @@ public static partial class SamusGrappleMovement
         // in a modified ROM resolve exactly like the cartridge loop.
         for (int record = 7; record >= 0; record--)
         {
-            int address = SpecialAngleTable + record * SpecialAngleRecordSize;
+            int address = SamusGrappleRomData.Connections.SpecialAngleTable +
+                record * SamusGrappleRomData.Connections.SpecialAngleRecordByteCount;
             if (ReadWord(bus, address) != grapple.Angle.RawValue)
                 continue;
 
@@ -907,8 +876,8 @@ public static partial class SamusGrappleMovement
             ushort function = ReadWord(bus, address + 8);
             GrapplePhase phase = function switch
             {
-                LockedInPlaceFunction => GrapplePhase.ConnectedLocked,
-                WallGrabFunction => GrapplePhase.WallGrab,
+                SamusGrappleRomData.Connections.LockedInPlaceHandler => GrapplePhase.ConnectedLocked,
+                SamusGrappleRomData.Connections.WallGrabHandler => GrapplePhase.WallGrab,
                 _ => throw new InvalidDataException(
                     $"Grapple special-angle record {record} names unknown function ${function:X4}."),
             };

@@ -45,8 +45,8 @@ public static partial class SamusGrappleMovement
             if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)(DirectionInputMagnitude / 2)
-                : DirectionInputMagnitude;
+                ? (short)(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
+                : SamusGrappleRomData.Physics.DirectionInputMagnitude;
             return;
         }
 
@@ -55,8 +55,8 @@ public static partial class SamusGrappleMovement
             if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
-                ? (short)-(DirectionInputMagnitude / 2)
-                : (short)-DirectionInputMagnitude;
+                ? (short)-(SamusGrappleRomData.Physics.DirectionInputMagnitude / 2)
+                : (short)-SamusGrappleRomData.Physics.DirectionInputMagnitude;
             return;
         }
 
@@ -133,10 +133,11 @@ public static partial class SamusGrappleMovement
         int angle = grapple.Angle.RawValue;
         if ((angle & 0xc000) == 0xc000)
         {
-            grapple.VelocityCorrection = (short)-(VelocityCorrectionMagnitude >> 2);
+            grapple.VelocityCorrection = (short)-(
+                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)-(GravityMagnitude >> 3)
-                : (short)-(GravityMagnitude >> 2);
+                ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
+                : (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
         }
         else if ((angle & 0x8000) != 0)
         {
@@ -149,25 +150,28 @@ public static partial class SamusGrappleMovement
             }
             else
             {
-                grapple.VelocityCorrection = -VelocityCorrectionMagnitude;
+                grapple.VelocityCorrection =
+                    -SamusGrappleRomData.Physics.VelocityCorrectionMagnitude;
                 grapple.GravityAcceleration = grapple.Submerged
-                    ? (short)-(GravityMagnitude >> 1)
-                    : (short)-GravityMagnitude;
+                    ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 1)
+                    : (short)-SamusGrappleRomData.Physics.GravityMagnitude;
             }
         }
         else if ((angle & 0x4000) != 0)
         {
-            grapple.VelocityCorrection = VelocityCorrectionMagnitude;
+            grapple.VelocityCorrection =
+                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude;
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(GravityMagnitude >> 1)
-                : GravityMagnitude;
+                ? (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 1)
+                : SamusGrappleRomData.Physics.GravityMagnitude;
         }
         else
         {
-            grapple.VelocityCorrection = (short)(VelocityCorrectionMagnitude >> 2);
+            grapple.VelocityCorrection = (short)(
+                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
             grapple.GravityAcceleration = grapple.Submerged
-                ? (short)(GravityMagnitude >> 3)
-                : (short)(GravityMagnitude >> 2);
+                ? (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
+                : (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
         }
     }
 
@@ -185,8 +189,8 @@ public static partial class SamusGrappleMovement
 
         grapple.AngularVelocity = unchecked((short)Math.Clamp(
             velocity,
-            -MaximumAngularVelocity,
-            MaximumAngularVelocity));
+            -SamusGrappleRomData.Physics.MaximumAngularVelocity,
+            SamusGrappleRomData.Physics.MaximumAngularVelocity));
     }
 
     private static void ApplyJumpImpulse(SamusGrappleState grapple, ushort newlyPressedInput)
@@ -199,8 +203,12 @@ public static partial class SamusGrappleMovement
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {
-                > 0 => grapple.Submerged ? (short)(JumpImpulseMagnitude / 2) : JumpImpulseMagnitude,
-                < 0 => grapple.Submerged ? (short)-(JumpImpulseMagnitude / 2) : (short)-JumpImpulseMagnitude,
+                > 0 => grapple.Submerged
+                    ? (short)(SamusGrappleRomData.Physics.JumpImpulseMagnitude / 2)
+                    : SamusGrappleRomData.Physics.JumpImpulseMagnitude,
+                < 0 => grapple.Submerged
+                    ? (short)-(SamusGrappleRomData.Physics.JumpImpulseMagnitude / 2)
+                    : (short)-SamusGrappleRomData.Physics.JumpImpulseMagnitude,
                 _ => 0,
             };
         }

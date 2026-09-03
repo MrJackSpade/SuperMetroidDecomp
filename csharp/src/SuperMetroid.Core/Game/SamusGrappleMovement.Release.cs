@@ -34,10 +34,11 @@ public static partial class SamusGrappleMovement
 
         // $9B:BD95 maps all 256 angle bytes onto the authentic swing-art frame, then adds
         // a frame-specific origin correction so Samus's hand remains attached to the beam.
-        byte artFrame = bus.ReadByte(SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
+        byte artFrame = bus.ReadByte(
+            SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
         int offsetAddress = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? LeftPoseOffsetsByFrame
-            : RightPoseOffsetsByFrame;
+            ? SamusGrappleRomData.Rendering.LeftPoseOffsetsByFrame
+            : SamusGrappleRomData.Rendering.RightPoseOffsetsByFrame;
         int pairAddress = offsetAddress + artFrame * 2;
         sbyte xOffset = unchecked((sbyte)bus.ReadByte(pairAddress));
         sbyte yOffset = unchecked((sbyte)bus.ReadByte(pairAddress + 1));
@@ -141,7 +142,7 @@ public static partial class SamusGrappleMovement
 
     private static short ReadSignedSine(ISnesAddressSpace bus, int index)
     {
-        int address = SignedSineTable + index * 2;
+        int address = SamusGrappleRomData.Physics.SignedSineTable + index * 2;
         return unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
     }
 

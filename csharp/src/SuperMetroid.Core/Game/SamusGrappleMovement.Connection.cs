@@ -216,10 +216,10 @@ public static partial class SamusGrappleMovement
         bool movingVertically =
             samus.Kinematics.YSpeed != 0 || samus.Kinematics.YSubspeed != 0;
         int connectionTable = movingVertically
-            ? MovingVerticallyConnectionTable
+            ? SamusGrappleRomData.Connections.MovingVerticallyTable
             : sourceMovementType == SamusMovementType.Crouching
-                ? CrouchingConnectionTable
-                : DefaultConnectionTable;
+                ? SamusGrappleRomData.Connections.CrouchingTable
+                : SamusGrappleRomData.Connections.DefaultTable;
         int recordAddress = connectionTable + grapple.FireDirection * 4;
         ushort nextFunction = ReadWord(bus, recordAddress);
         ushort handler = ReadWord(bus, recordAddress + 2);
@@ -229,20 +229,32 @@ public static partial class SamusGrappleMovement
         // pose alone is insufficient to distinguish malformed table data from retail data.
         (byte pose, bool swinging) = handler switch
         {
-            ConnectSwingClockwiseHandler => (SamusPoseIds.GrappleSwingRightPose, true),
-            ConnectSwingAnticlockwiseHandler => (SamusPoseIds.GrappleSwingLeftPose, true),
-            ConnectStandingUpRightHandler => ((byte)0xa8, false),
-            ConnectStandingRightHandler => ((byte)0xaa, false),
-            ConnectStandingDownHandler => ((byte)0xab, false),
-            ConnectStandingUpLeftHandler => ((byte)0xa9, false),
-            ConnectCrouchingUpRightHandler => ((byte)0xb4, false),
-            ConnectCrouchingRightHandler => ((byte)0xb6, false),
-            ConnectCrouchingDownLeftHandler => ((byte)0xb7, false),
-            ConnectCrouchingUpLeftHandler => ((byte)0xb5, false),
+            SamusGrappleRomData.Connections.SwingClockwiseHandler =>
+                (SamusPoseIds.GrappleSwingRightPose, true),
+            SamusGrappleRomData.Connections.SwingAnticlockwiseHandler =>
+                (SamusPoseIds.GrappleSwingLeftPose, true),
+            SamusGrappleRomData.Connections.StandingUpRightHandler =>
+                (SamusPoseIds.GrappleStandingRightPose, false),
+            SamusGrappleRomData.Connections.StandingRightHandler =>
+                (SamusPoseIds.GrappleStandingDownRightPose, false),
+            SamusGrappleRomData.Connections.StandingDownHandler =>
+                (SamusPoseIds.GrappleStandingDownLeftPose, false),
+            SamusGrappleRomData.Connections.StandingUpLeftHandler =>
+                (SamusPoseIds.GrappleStandingLeftPose, false),
+            SamusGrappleRomData.Connections.CrouchingUpRightHandler =>
+                (SamusPoseIds.GrappleCrouchingRightPose, false),
+            SamusGrappleRomData.Connections.CrouchingRightHandler =>
+                (SamusPoseIds.GrappleCrouchingDownRightPose, false),
+            SamusGrappleRomData.Connections.CrouchingDownLeftHandler =>
+                (SamusPoseIds.GrappleCrouchingDownLeftPose, false),
+            SamusGrappleRomData.Connections.CrouchingUpLeftHandler =>
+                (SamusPoseIds.GrappleCrouchingLeftPose, false),
             _ => throw new InvalidDataException(
                 $"Grapple connection direction {grapple.FireDirection} names unknown handler ${handler:X4}."),
         };
-        ushort expectedFunction = swinging ? SwingingFunction : LockedInPlaceFunction;
+        ushort expectedFunction = swinging
+            ? SamusGrappleRomData.Connections.SwingingHandler
+            : SamusGrappleRomData.Connections.LockedInPlaceHandler;
         if (nextFunction != expectedFunction)
         {
             throw new InvalidDataException(
@@ -291,10 +303,18 @@ public static partial class SamusGrappleMovement
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
             int tableOffset = grapple.FireDirection * 2;
-            short originX = unchecked((short)ReadWord(bus, NoRunOriginXTable + tableOffset));
-            short originY = unchecked((short)ReadWord(bus, NoRunOriginYTable + tableOffset));
-            short flareX = unchecked((short)ReadWord(bus, NoRunFlareXTable + tableOffset));
-            short flareY = unchecked((short)ReadWord(bus, NoRunFlareYTable + tableOffset));
+            short originX = unchecked((short)ReadWord(
+                bus,
+                SamusGrappleRomData.Firing.DefaultOriginX + tableOffset));
+            short originY = unchecked((short)ReadWord(
+                bus,
+                SamusGrappleRomData.Firing.DefaultOriginY + tableOffset));
+            short flareX = unchecked((short)ReadWord(
+                bus,
+                SamusGrappleRomData.Firing.DefaultFlareX + tableOffset));
+            short flareY = unchecked((short)ReadWord(
+                bus,
+                SamusGrappleRomData.Firing.DefaultFlareY + tableOffset));
             samus.XPosition = unchecked((ushort)(grapple.RopeStartX - originX));
             samus.YPosition = unchecked((ushort)(grapple.RopeStartY - originY));
             grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flareX));
@@ -408,10 +428,18 @@ public static partial class SamusGrappleMovement
     {
         int tableOffset = grapple.FireDirection * 2;
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int originXTable = useRunOffsets ? RunOriginXTable : NoRunOriginXTable;
-        int originYTable = useRunOffsets ? RunOriginYTable : NoRunOriginYTable;
-        int flareXTable = useRunOffsets ? RunFlareXTable : NoRunFlareXTable;
-        int flareYTable = useRunOffsets ? RunFlareYTable : NoRunFlareYTable;
+        int originXTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningOriginX
+            : SamusGrappleRomData.Firing.DefaultOriginX;
+        int originYTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningOriginY
+            : SamusGrappleRomData.Firing.DefaultOriginY;
+        int flareXTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningFlareX
+            : SamusGrappleRomData.Firing.DefaultFlareX;
+        int flareYTable = useRunOffsets
+            ? SamusGrappleRomData.Firing.RunningFlareY
+            : SamusGrappleRomData.Firing.DefaultFlareY;
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
         // `$9B:BF1B` rereads ROM instead of trusting `$0D0A/$0D0C`, then publishes Start

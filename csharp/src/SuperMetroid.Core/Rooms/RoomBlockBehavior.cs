@@ -106,7 +106,38 @@ public readonly record struct RoomBlockBehavior(byte Value)
         return false;
     }
 
+    /// <summary>
+    /// Decodes the eight shootable-block values reserved for downward gate triggers.
+    /// These bytes overlap unrelated meanings in other collision families, so the caller
+    /// must first establish that the level word is a shootable block.
+    /// </summary>
+    public bool TryGetDownwardGateTrigger(out DownwardGateTriggerBehavior trigger)
+    {
+        if (Value is >= (byte)DownwardGateTriggerBehavior.GreenLeft and
+            <= (byte)DownwardGateTriggerBehavior.YellowRight)
+        {
+            trigger = (DownwardGateTriggerBehavior)Value;
+            return true;
+        }
+
+        trigger = default;
+        return false;
+    }
+
     public override string ToString() => $"${Value:X2}";
+}
+
+/// <summary>Exclusive shootable-block BTS identities used by downward gate shot blocks.</summary>
+public enum DownwardGateTriggerBehavior : byte
+{
+    GreenLeft = 0x46,
+    GreenRight = 0x47,
+    RedLeft = 0x48,
+    RedRight = 0x49,
+    BlueLeft = 0x4a,
+    BlueRight = 0x4b,
+    YellowLeft = 0x4c,
+    YellowRight = 0x4d,
 }
 
 /// <summary>

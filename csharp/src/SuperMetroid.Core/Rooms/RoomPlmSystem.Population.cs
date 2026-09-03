@@ -28,7 +28,8 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.WreckedShipAttic or
             RoomPlmHeaders.NoobTube or
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
-            RoomPlmHeaders.MotherBrainEscapeRoomGate)
+            RoomPlmHeaders.MotherBrainEscapeRoomGate or
+            RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock)
         {
             return true;
         }
@@ -87,6 +88,8 @@ public sealed partial class RoomPlmSystem
         _writeEarthquakeTimer = setEarthquakeTimer;
         _writeNoobTubeEarthquakeType = setEarthquakeType;
         _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
+        _downwardGateSamus = getSamus;
+        _downwardGateRoomWidth = level.WidthInBlocks;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -231,6 +234,7 @@ public sealed partial class RoomPlmSystem
         slot.Station = null;
         slot.IsElevatorPlatform = false;
         slot.Treadmill = null;
+        slot.Gate = null;
     }
 
     private bool TryRunRoomPopulationSetup(
@@ -321,6 +325,18 @@ public sealed partial class RoomPlmSystem
         if (header == RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
             SetupDoorTransitionDeactivatedSlot(level, slot);
+            return true;
+        }
+
+        if (header == RoomPlmHeaders.DownwardGate)
+        {
+            SetupDownwardGateSlot(level, slot);
+            return true;
+        }
+
+        if (header == RoomPlmHeaders.DownwardGateShotBlock)
+        {
+            SetupDownwardGateShotBlock(bus, level, slot);
             return true;
         }
 

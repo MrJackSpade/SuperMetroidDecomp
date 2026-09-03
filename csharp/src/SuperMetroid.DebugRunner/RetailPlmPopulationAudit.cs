@@ -11,8 +11,8 @@ internal static partial class RetailPlmPopulationAudit
 {
     private const int ExpectedRecordCount = 941;
     private const int ExpectedDistinctHeaderCount = 70;
-    private const int ExpectedSupportedRecordCount = 900;
-    private const int ExpectedSupportedHeaderCount = 59;
+    private const int ExpectedSupportedRecordCount = 922;
+    private const int ExpectedSupportedHeaderCount = 61;
 
     public static int Run(string romPath)
     {

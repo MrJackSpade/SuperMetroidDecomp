@@ -630,6 +630,24 @@ public sealed class SamusBombProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
+            // Gate shot blocks reuse shootable collision with private BTS $46-$4D. They
+            // select temporary trigger PLMs rather than the ordinary 0..F bomb table.
+            if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+                block.Bts.TryGetDownwardGateTrigger(out _))
+            {
+                if (roomPlms is null)
+                {
+                    throw new InvalidOperationException(
+                        $"Bombed downward gate trigger at ({x},{y}) requires a room PLM owner.");
+                }
+                roomPlms.TrySpawnDownwardGateTrigger(
+                    level,
+                    block.Index,
+                    block.Bts,
+                    projectileType);
+                return;
+            }
+
             // Type-$4 shootable air treats negative BTS as a duplicate and returns.
             // Type-$C instead indexes one of eight area tables; every retail entry is
             // PLMEntries_nothing, but Spawn_PLM still consumes a slot for one pass.

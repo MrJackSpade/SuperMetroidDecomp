@@ -2701,6 +2701,7 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.NewlyPressed);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
+                ApplyPendingDownwardGateProjectileRequests();
 
                 // PLM opcode $87E5 appends a normal seven-byte VRAM record. It must share
                 // the runtime queue so the next accepted NMI performs the transfer in the

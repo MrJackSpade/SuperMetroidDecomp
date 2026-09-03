@@ -8,6 +8,20 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class RoomPlmInstructionLists
 {
+    /// <summary>Downward gate's close-and-wait loop at <c>$84:BC13</c>.</summary>
+    public const ushort DownwardGateClosing = 0xbc13;
+
+    /// <summary>Downward gate's open-and-wait loop at <c>$84:BC3A</c>.</summary>
+    public const ushort DownwardGateOpening = 0xbc3a;
+
+    public const ushort DownwardGateShotBlockGreenLeft = 0xbcaf;
+    public const ushort DownwardGateShotBlockGreenRight = 0xbcb5;
+    public const ushort DownwardGateShotBlockRedLeft = 0xbcbb;
+    public const ushort DownwardGateShotBlockRedRight = 0xbcc1;
+    public const ushort DownwardGateShotBlockBlueLeft = 0xbcc7;
+    public const ushort DownwardGateShotBlockBlueRight = 0xbccd;
+    public const ushort DownwardGateShotBlockYellowLeft = 0xbcd3;
+    public const ushort DownwardGateShotBlockYellowRight = 0xbcd9;
     /// <summary><c>$84:AAE3 InstList_PLM_Delete</c>.</summary>
     public const ushort Delete = 0xaae3;
 

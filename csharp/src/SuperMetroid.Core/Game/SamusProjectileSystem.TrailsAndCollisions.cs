@@ -609,6 +609,16 @@ public sealed partial class SamusProjectileSystem
         if (roomPlms is null)
             return;
 
+        // Downward gate BTS $46-$4D bypasses the normal 16-entry shot-block table and
+        // allocates one of eight temporary trigger PLMs. Dispatch it before the table-range
+        // validation below; those BTS bytes are intentionally outside that ordinary domain.
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Bts.TryGetDownwardGateTrigger(out _))
+        {
+            roomPlms.TrySpawnDownwardGateTrigger(level, block.Index, block.Bts, slot.PackedType);
+            return;
+        }
+
         // Setup_ColoredDoor installs type-$C/BTS-$44 at the cap origin. Its resident
         // pre-instruction consumes the current projectile family; the ordinary shot-block
         // table must never see this private door-dispatch value.

@@ -66,8 +66,13 @@ public sealed partial class RoomPlmSystem
             slot.Station = null;
             slot.IsElevatorPlatform = false;
             slot.Treadmill = null;
+            slot.Gate = null;
         }
         _soundRequests.Clear();
+        _pendingDownwardGateSounds.Clear();
+        _downwardGateProjectileRequests.Clear();
+        _downwardGateSamus = null;
+        _downwardGateRoomWidth = 0;
         _tilemapUpdates.Clear();
         _stationActivationEvents.Clear();
         _saveStationLockedOut = false;
@@ -996,6 +1001,7 @@ public sealed partial class RoomPlmSystem
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(streamer);
         _soundRequests.Clear();
+        PublishPendingDownwardGateSounds();
         _tilemapUpdates.Clear();
         _stationActivationEvents.Clear();
         BeginMotherBrainGlassFrame();
@@ -1070,6 +1076,7 @@ public sealed partial class RoomPlmSystem
             RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
             RunNoobTubePreInstruction(slot, controllerNewInput);
+            RunDownwardGatePreInstruction(slot);
             if (!slot.Active)
                 continue;
 
@@ -1139,6 +1146,13 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
+                case RoomPlmInstructionCodes.ClearPreInstruction:
+                    // $84:86CA installs the shared RTS callback. Zero is the C# semantic
+                    // representation of that inert routine for non-family-specific slots.
+                    slot.PreInstruction = 0;
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
                 case RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1:
                     // `$84:8C79` is the shot-block queue form. It has the same odd-byte
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
@@ -1184,6 +1198,29 @@ public sealed partial class RoomPlmSystem
                         Bank84(unchecked((ushort)(slot.InstructionPointer + 2))));
                     _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, doorSoundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
+                    continue;
+
+                case RoomPlmInstructionCodes.ClearDownwardGateTrigger:
+                    slot.LoopTimer = 0;
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
+                case RoomPlmInstructionCodes.SpawnDownwardGateProjectile:
+                    _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+                        DownwardGateProjectileOperation.Spawn,
+                        ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 2))),
+                        slot.BlockIndex));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
+                    continue;
+
+                case RoomPlmInstructionCodes.WakeDownwardGateProjectile:
+                    // $BBF0 consumes but does not use the following list address. It locates
+                    // the actor whose variable-E stores this PLM's native block byte index.
+                    _downwardGateProjectileRequests.Add(new DownwardGateProjectileRequest(
+                        DownwardGateProjectileOperation.Wake,
+                        DefinitionPointer: 0,
+                        slot.BlockIndex));
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 4));
                     continue;
 
                 case RoomPlmInstructionCodes.Goto:
@@ -1467,6 +1504,8 @@ public sealed partial class RoomPlmSystem
         public StationPlmState? Station { get; set; }
         /// <summary>Marks header $B70B while its animation remains generic list execution.</summary>
         public bool IsElevatorPlatform { get; set; }
+        /// <summary>Marks the resident five-block downward gate coroutine.</summary>
+        public DownwardGatePlmState? Gate { get; set; }
         /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
         public WreckedShipTreadmillPlmState? Treadmill { get; set; }
     }

@@ -8,6 +8,11 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 internal static class RoomPlmHeaders
 {
+    /// <summary>Resident five-block downward gate at <c>$84:C82A</c>.</summary>
+    public const ushort DownwardGate = 0xc82a;
+
+    /// <summary>Room-authored downward-gate shot block at <c>$84:C836</c>.</summary>
+    public const ushort DownwardGateShotBlock = 0xc836;
     /// <summary>Number of concrete headers in each permanent-collectible presentation.</summary>
     public const int PermanentCollectibleKindCount = 21;
 

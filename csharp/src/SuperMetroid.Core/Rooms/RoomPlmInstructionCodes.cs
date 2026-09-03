@@ -59,6 +59,15 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:8C19 Instruction_PLM_QueueSound_Y_Lib3_Max6</c>.</summary>
     public const ushort QueueSoundLibrary3Maximum6 = 0x8c19;
 
+    /// <summary><c>$84:BBDD</c>: clear the downward gate's trigger word.</summary>
+    public const ushort ClearDownwardGateTrigger = 0xbbdd;
+
+    /// <summary><c>$84:BBE1</c>: spawn the following gate projectile definition.</summary>
+    public const ushort SpawnDownwardGateProjectile = 0xbbe1;
+
+    /// <summary><c>$84:BBF0</c>: wake the gate projectile associated with this PLM.</summary>
+    public const ushort WakeDownwardGateProjectile = 0xbbf0;
+
     /// <summary><c>$84:8C46 Instruction_PLM_QueueSound_Y_Lib2_Max3</c>.</summary>
     public const ushort QueueSoundLibrary2Maximum3 = 0x8c46;
 

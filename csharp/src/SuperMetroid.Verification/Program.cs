@@ -117,6 +117,7 @@ VerifyRoomPlmHeaderCatalog();
 VerifyRoomPlmInstructionListCatalog();
 VerifySequentialRoomPlmPopulationLoader();
 VerifyNoobTubePlm();
+VerifyDownwardGatePlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
 VerifyMovedSamusCameraTracking();

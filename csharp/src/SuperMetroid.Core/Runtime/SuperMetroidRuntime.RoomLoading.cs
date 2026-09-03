@@ -822,6 +822,11 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
+        // Gate setup runs while the room PLM population is constructed, but Enemies.Load
+        // subsequently clears the shared bank-$86 projectile pool. Consume those setup
+        // requests here—the first point matching the cartridge's completed room teardown—
+        // so the closed actor survives into the initial viewport.
+        ApplyPendingDownwardGateProjectileRequests();
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();
@@ -1061,6 +1066,16 @@ public sealed partial class SuperMetroidRuntime
                 request.BlockY,
                 request.Header);
         }
+    }
+
+    /// <summary>Transfers bank-$84 downward-gate spawn/wake work into bank $86.</summary>
+    private void ApplyPendingDownwardGateProjectileRequests()
+    {
+        if (LevelData is null)
+            throw new InvalidOperationException("Gate projectile work requires active room level data.");
+
+        foreach (DownwardGateProjectileRequest request in Plms.TakeDownwardGateProjectileRequests())
+            Enemies.ApplyDownwardGateProjectileRequest(request, LevelData.WidthInBlocks);
     }
 
     /// <summary>

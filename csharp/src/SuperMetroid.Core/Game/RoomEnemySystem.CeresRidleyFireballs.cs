@@ -114,6 +114,10 @@ public enum RoomEnemyProjectileKind : ushort
     SporeSpawnSpore = 0xde7a,
     SporeSpawnSpawner = 0xde88,
     SaveStationElectricity = 0xe6d2,
+    /// <summary>Gate actor spawned when a downward gate begins closing.</summary>
+    DownwardGateMoving = 0xe64b,
+    /// <summary>Gate actor parked at the bottom when a room initially loads.</summary>
+    DownwardGateClosed = 0xe659,
     NoobTubeCrack = 0xd904,
     NoobTubeShard = 0xd912,
     NoobTubeReleasedAirBubble = 0xd920,
@@ -680,6 +684,11 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectileCodePointers.RTS_86CAA3:
             case EnemyProjectileCodePointers.RTS_86C76D:
             case EnemyProjectileCodePointers.RTS_86E6D1:
+            case DownwardGateEnemyProjectileRomData.InertPreInstruction:
+                return;
+
+            case DownwardGateEnemyProjectileRomData.MovementPreInstruction:
+                RunDownwardGateProjectileMovement(projectile);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling:
@@ -1325,6 +1334,12 @@ public sealed partial class RoomEnemySystem
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;
                     cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case DownwardGateEnemyProjectileRomData.SetYVelocityInstruction:
+                    projectile.YVelocity = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CallExternalFunctionInY:
                 {

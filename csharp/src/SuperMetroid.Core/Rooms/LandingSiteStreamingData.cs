@@ -7,22 +7,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Cartridge-backed loader for Landing Site's native BG stream inputs.</summary>
 public static class LandingSiteStreamingData
 {
-    // These addresses and compressed lengths are labels/boundaries in bank_B9..CE.asm.
-    // Keeping the lengths beside the addresses makes decompression reject a wrong ROM
-    // revision or accidental walk into the following compressed asset.
-    private const int CreBlockTableAddress = 0xb9a09d;
-    private const int CreBlockTableCompressedBytes = 0x0597;
-    private const int AreaBlockTableAddress = 0xc1b6f6;
-    private const int AreaBlockTableCompressedBytes = 0x07f8;
-    private const int LevelDataAddress = 0xc2c2bb;
-    private const int LevelDataCompressedBytes = 0x142d;
-    private const int CreTilesAddress = 0xb98000;
-    private const int CreTilesCompressedBytes = 0x209d;
-    private const int AreaTilesAddress = 0xbac629;
-    private const int AreaTilesCompressedBytes = 0x32e8;
-
-    private const int WidthInBlocks = 9 * 16;
-    private const int HeightInBlocks = 5 * 16;
+    private const int WidthInBlocks =
+        RoomAssetRomData.LandingSite.WidthInScreens * RoomAssetRomData.LandingSite.BlocksPerScreenAxis;
+    private const int HeightInBlocks =
+        RoomAssetRomData.LandingSite.HeightInScreens * RoomAssetRomData.LandingSite.BlocksPerScreenAxis;
     private const int LayerEntryCount = WidthInBlocks * HeightInBlocks;
     private const int LayerByteCount = LayerEntryCount * 2;
 
@@ -43,16 +31,16 @@ public static class LandingSiteStreamingData
     {
         ArgumentNullException.ThrowIfNull(bus);
 
-        byte[] creDefinitions = DecompressExact(bus, CreBlockTableAddress, CreBlockTableCompressedBytes);
-        byte[] areaDefinitions = DecompressExact(bus, AreaBlockTableAddress, AreaBlockTableCompressedBytes);
-        if (creDefinitions.Length != 0x0800)
+        byte[] creDefinitions = DecompressExact(bus, RoomAssetRomData.LandingSite.CreBlockDefinitions);
+        byte[] areaDefinitions = DecompressExact(bus, RoomAssetRomData.LandingSite.AreaBlockDefinitions);
+        if (creDefinitions.Length != RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount)
             throw new InvalidDataException($"CRE block table expanded to ${creDefinitions.Length:X}, expected $800.");
 
         var combinedDefinitions = new byte[creDefinitions.Length + areaDefinitions.Length];
         creDefinitions.CopyTo(combinedDefinitions, 0);
         areaDefinitions.CopyTo(combinedDefinitions, creDefinitions.Length);
 
-        byte[] levelStream = DecompressExact(bus, LevelDataAddress, LevelDataCompressedBytes);
+        byte[] levelStream = DecompressExact(bus, RoomAssetRomData.LandingSite.LevelData);
         if (levelStream.Length < 2)
             throw new InvalidDataException("Landing Site level stream has no layer-size word.");
         int declaredLayerBytes = BinaryPrimitives.ReadUInt16LittleEndian(levelStream);
@@ -106,10 +94,10 @@ public static class LandingSiteStreamingData
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(entry);
-        byte[] creTiles = DecompressExact(bus, CreTilesAddress, CreTilesCompressedBytes);
-        byte[] areaTiles = DecompressExact(bus, AreaTilesAddress, AreaTilesCompressedBytes);
-        vram.LoadBytes(0x5000, creTiles);
-        vram.LoadBytes(0x0000, areaTiles);
+        byte[] creTiles = DecompressExact(bus, RoomAssetRomData.LandingSite.CreCharacters);
+        byte[] areaTiles = DecompressExact(bus, RoomAssetRomData.LandingSite.AreaCharacters);
+        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, creTiles);
+        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, areaTiles);
 
         // $82:E9E7's door-dependent library-background command has already been resolved
         // by LandingSiteEntryState. Copy its literal ROM slice to its literal VRAM word;
@@ -120,11 +108,13 @@ public static class LandingSiteStreamingData
         vram.LoadBytes(entry.SkyVramDestination * 2, skyTilemap);
     }
 
-    private static byte[] DecompressExact(ISnesAddressSpace bus, int address, int compressedBytes)
+    private static byte[] DecompressExact(
+        ISnesAddressSpace bus,
+        RoomAssetRomData.BoundedCompressedAsset asset)
     {
-        var stored = new byte[compressedBytes];
+        var stored = new byte[asset.StoredByteCount];
         for (int index = 0; index < stored.Length; index++)
-            stored[index] = bus.ReadByte(address + index);
+            stored[index] = bus.ReadByte(asset.Address + index);
         return SmCompression.Decompress(stored);
     }
 

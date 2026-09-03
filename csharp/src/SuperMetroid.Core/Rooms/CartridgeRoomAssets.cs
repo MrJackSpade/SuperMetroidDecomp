@@ -15,11 +15,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class CartridgeRoomAssets
 {
-    private const int TilesetPointerTable = 0x8fe7a7;
-    private const int TilesetBank = 0x8f0000;
-    private const int CreTilesAddress = 0xb98000;
-    private const int CreBlockDefinitionsAddress = 0xb9a09d;
-
     private CartridgeRoomAssets(
         CartridgeRoomHeader header,
         RoomLevelData levelData,
@@ -63,7 +58,9 @@ public sealed class CartridgeRoomAssets
         }
         else
         {
-            byte[] creDefinitions = RomDataReader.Decompress(bus, CreBlockDefinitionsAddress);
+            byte[] creDefinitions = RomDataReader.Decompress(
+                bus,
+                RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress);
             blockDefinitions = new byte[creDefinitions.Length + roomBlockDefinitions.Length];
             creDefinitions.CopyTo(blockDefinitions, 0);
             roomBlockDefinitions.CopyTo(blockDefinitions, creDefinitions.Length);
@@ -83,7 +80,7 @@ public sealed class CartridgeRoomAssets
             header,
             levelData,
             scrolls,
-            RomDataReader.Decompress(bus, CreTilesAddress),
+            RomDataReader.Decompress(bus, RoomAssetRomData.Tilesets.CreCharactersAddress),
             RomDataReader.Decompress(bus, tileset.CharacterAddress),
             RomDataReader.Decompress(bus, tileset.PaletteAddress),
             tileset);
@@ -100,27 +97,35 @@ public sealed class CartridgeRoomAssets
         // BG character allocation. The second transfer from VRAM byte $0000 must therefore
         // overwrite the CRE upload at $5000..$7FFF; reversing these calls produces the
         // characteristic vertical-stripe corruption seen when CRE replaces Ceres tiles.
-        vram.LoadBytes(0x5000, CreCharacters);
-        vram.LoadBytes(0x0000, RoomCharacters);
-        if (PaletteBytes.Length < 0x0100)
+        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset, CreCharacters);
+        vram.LoadBytes(RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset, RoomCharacters);
+        if (PaletteBytes.Length < RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount)
         {
             throw new InvalidDataException(
                 $"Tileset palette expanded to ${PaletteBytes.Length:X} bytes; expected at least $100.");
         }
-        cgram.LoadBytes(PaletteBytes.AsSpan(0, 0x0100), destinationIndex: 0);
+        cgram.LoadBytes(
+            PaletteBytes.AsSpan(0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount),
+            destinationIndex: 0);
     }
 
     private static TilesetDefinition ReadTileset(ISnesAddressSpace bus, byte graphicsSet)
     {
         ushort pointer = RomDataReader.ReadWordFixedBank(
             bus,
-            TilesetPointerTable + graphicsSet * 2);
-        int address = TilesetBank | pointer;
+            RoomAssetRomData.Tilesets.PointerTableAddress + graphicsSet * sizeof(ushort));
+        int address = RoomAssetRomData.Tilesets.DefinitionBank | pointer;
         return new TilesetDefinition(
             pointer,
-            BlockDefinitionsAddress: RomDataReader.ReadLongFixedBank(bus, address),
-            CharacterAddress: RomDataReader.ReadLongFixedBank(bus, address + 3),
-            PaletteAddress: RomDataReader.ReadLongFixedBank(bus, address + 6));
+            BlockDefinitionsAddress: RomDataReader.ReadLongFixedBank(
+                bus,
+                address + RoomAssetRomData.Tilesets.BlockDefinitionsAddressOffset),
+            CharacterAddress: RomDataReader.ReadLongFixedBank(
+                bus,
+                address + RoomAssetRomData.Tilesets.CharacterAddressOffset),
+            PaletteAddress: RomDataReader.ReadLongFixedBank(
+                bus,
+                address + RoomAssetRomData.Tilesets.PaletteAddressOffset));
     }
 
     private static RoomLevelData ParseLevelData(
@@ -183,7 +188,7 @@ public sealed class CartridgeRoomAssets
         // compressed bytes for that tail rejected valid retail room $DF8D. Preserve any
         // partial authored words, but materialize every omitted word from the real fill.
         ushort[] background = new ushort[blockCount];
-        Array.Fill(background, (ushort)0x8000);
+        Array.Fill(background, RoomLevelMemoryLayout.PrefilledLevelWord);
         int availableBackgroundBytes = Math.Min(
             layerByteCount,
             levelStream.Length - backgroundOffset);
@@ -222,7 +227,7 @@ public sealed class CartridgeRoomAssets
         return scrollPointer < 0
             ? RoomScrollGrid.LoadExplicit(
                 bus,
-                0x8f0000 | header.State.ScrollPointer,
+                RoomAssetRomData.Tilesets.DefinitionBank | header.State.ScrollPointer,
                 header.WidthInScreens,
                 header.HeightInScreens)
             : RoomScrollGrid.CreateImplicit(

@@ -14,10 +14,6 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public static class LibraryBackgroundLoader
 {
-    private const int RoomBank = 0x8f0000;
-    private const int WorkRamBank = 0x7e0000;
-    private const ushort Bg2TilemapBuffer = 0x4000;
-
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
     public static int Execute(
         ISnesAddressSpace bus,
@@ -36,7 +32,7 @@ public static class LibraryBackgroundLoader
 
         ushort cursor = listPointer;
         int executedCommands = 0;
-        for (int guard = 0; guard < 128; guard++)
+        for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList; guard++)
         {
             ushort commandAddress = cursor;
             ushort command = ReadWord(bus, cursor);
@@ -59,8 +55,7 @@ public static class LibraryBackgroundLoader
                 case LibraryBackgroundCommand.ClearFxTilemap:
                     // The retail command is unused, but its implementation is fully named:
                     // fill the shared $7E:4000 buffer and transfer $F00 bytes to VRAM $5880.
-                    FillWords(bus, Bg2TilemapBuffer, byteCount: 0x0f00, value: 0x184e);
-                    vram.ExecuteQueuedWrite(bus, 0x7e4000, 0x0f00, 0x5880);
+                    FillAndTransfer(bus, vram, RoomAssetRomData.LibraryBackground.ClearFx);
                     break;
 
                 case LibraryBackgroundCommand.TransferToVramForKraid:
@@ -121,14 +116,16 @@ public static class LibraryBackgroundLoader
         int sourceAddress = ReadLong(bus, cursor);
         ushort destination = ReadWord(bus, unchecked((ushort)(cursor + 3)));
         byte[] decompressed = RomDataReader.Decompress(bus, sourceAddress);
-        if (destination + decompressed.Length > 0x10000)
+        if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
         {
             throw new InvalidDataException(
                 $"Library-background decompression from ${sourceAddress:X6} crosses bank $7E.");
         }
 
         for (int index = 0; index < decompressed.Length; index++)
-            bus.WriteByte(WorkRamBank | (destination + index), decompressed[index]);
+            bus.WriteByte(
+                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + index),
+                decompressed[index]);
         return unchecked((ushort)(cursor + 5));
     }
 
@@ -136,10 +133,35 @@ public static class LibraryBackgroundLoader
     {
         // Clear_BG2_Tilemap fills both $800-byte WRAM pages with tile $0338, then performs
         // one $1000-byte DMA. Kraid repeats that same buffer at VRAM $4000 as well.
-        FillWords(bus, Bg2TilemapBuffer, byteCount: 0x1000, value: 0x0338);
+        RoomAssetRomData.TilemapTransfer transfer = RoomAssetRomData.LibraryBackground.ClearBg2;
+        FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
         if (includeKraidPage)
-            vram.ExecuteQueuedWrite(bus, 0x7e4000, 0x1000, 0x4000);
-        vram.ExecuteQueuedWrite(bus, 0x7e4000, 0x1000, 0x4800);
+        {
+            vram.ExecuteQueuedWrite(
+                bus,
+                transfer.WorkRamSourceAddress,
+                transfer.ByteCount,
+                RoomAssetRomData.LibraryBackground.KraidBg2VramDestinationWord);
+        }
+        vram.ExecuteQueuedWrite(
+            bus,
+            transfer.WorkRamSourceAddress,
+            transfer.ByteCount,
+            transfer.VramDestinationWord);
+    }
+
+    /// <summary>Applies one named native fill-and-DMA definition without unpacked literals.</summary>
+    private static void FillAndTransfer(
+        ISnesAddressSpace bus,
+        SnesVram vram,
+        RoomAssetRomData.TilemapTransfer transfer)
+    {
+        FillWords(bus, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
+        vram.ExecuteQueuedWrite(
+            bus,
+            transfer.WorkRamSourceAddress,
+            transfer.ByteCount,
+            transfer.VramDestinationWord);
     }
 
     private static void FillWords(
@@ -148,26 +170,34 @@ public static class LibraryBackgroundLoader
         int byteCount,
         ushort value)
     {
-        if ((byteCount & 1) != 0 || destination + byteCount > 0x10000)
+        if ((byteCount & 1) != 0 ||
+            destination + byteCount > RoomAssetRomData.LibraryBackground.BankByteCount)
             throw new ArgumentOutOfRangeException(nameof(byteCount));
 
         for (int byteOffset = 0; byteOffset < byteCount; byteOffset += 2)
         {
-            bus.WriteByte(WorkRamBank | (destination + byteOffset), (byte)value);
-            bus.WriteByte(WorkRamBank | (destination + byteOffset + 1), (byte)(value >> 8));
+            bus.WriteByte(
+                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + byteOffset),
+                (byte)value);
+            bus.WriteByte(
+                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + byteOffset + 1),
+                (byte)(value >> 8));
         }
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer)
     {
-        int address = RoomBank | pointer;
+        int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
         return unchecked((ushort)(
             bus.ReadByte(address) |
-            (bus.ReadByte(RoomBank | unchecked((ushort)(pointer + 1))) << 8)));
+            (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+                unchecked((ushort)(pointer + 1))) << 8)));
     }
 
     private static int ReadLong(ISnesAddressSpace bus, ushort pointer) =>
-        bus.ReadByte(RoomBank | pointer) |
-        (bus.ReadByte(RoomBank | unchecked((ushort)(pointer + 1))) << 8) |
-        (bus.ReadByte(RoomBank | unchecked((ushort)(pointer + 2))) << 16);
+        bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank | pointer) |
+        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+            unchecked((ushort)(pointer + 1))) << 8) |
+        (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
+            unchecked((ushort)(pointer + 2))) << 16);
 }

@@ -113,6 +113,7 @@ VerifyRoomLevelData();
 VerifyCartridgeRoomStateSelection();
 VerifyRoomMainCodeCatalog();
 VerifyRoomSetupCodeCatalog();
+VerifyRoomAssetRomData();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyLoRomCrossBankCompressedData();

@@ -37,18 +37,6 @@ public static class RoomRenderer
         "TileTables_0_1_UpperCrateria.bin",
         "Palettes_0_UpperCrateria.bin");
 
-    // One 8x8 four-bit SNES tile has four 8-byte bitplanes.
-    private const int BytesPer4BppTile = 32;
-
-    // LoadCRETilesTilesetTilesAndPalette ($82:E783) decompresses the area tiles at VRAM
-    // byte address $0000 and CRE (Common Room Elements) tiles at byte address $5000.
-    // $5000 / 32 means CRE tile numbers begin at tile $280.
-    private const int CommonTilesVramByteOffset = 0x5000;
-
-    // CRE's decompressed block table is $800 bytes. Each 16x16 block uses four two-byte
-    // tilemap entries, so $800 / 8 gives 256 common blocks at indexes $000-$0FF.
-    private const int CommonBlockCount = 256;
-
     /// <summary>
     /// Loads and composes both static block layers for a room. This mirrors the data setup in
     /// <c>LoadLevelDataAndOtherThings</c> at <c>$82:E7D3</c>, but renders to RGBA instead of PPU VRAM.
@@ -81,17 +69,21 @@ public static class RoomRenderer
         // tile-number layout lets unmodified tile-table entries address this byte array.
         byte[] areaTiles = LoadCompressed(rawAssetDirectory, room.AreaTiles);
         byte[] commonTiles = LoadCompressed(rawAssetDirectory, room.CommonTiles);
-        var vram = new byte[0x8000];
-        areaTiles.CopyTo(vram, 0);
-        commonTiles.CopyTo(vram, CommonTilesVramByteOffset);
+        var vram = new byte[RoomAssetRomData.GraphicsLayout.BackgroundCharacterVramByteCount];
+        areaTiles.CopyTo(vram, RoomAssetRomData.GraphicsLayout.AreaCharactersVramByteOffset);
+        commonTiles.CopyTo(vram, RoomAssetRomData.GraphicsLayout.CreCharactersVramByteOffset);
 
         // $82:E7D3 places CRE block definitions at WRAM $7E:A000 and the current area's
         // definitions immediately after them at $7E:A800. A level block index can therefore
         // select either table without any runtime rebasing.
         byte[] commonBlocks = LoadCompressed(rawAssetDirectory, room.CommonTileTable);
         byte[] areaBlocks = LoadCompressed(rawAssetDirectory, room.AreaTileTable);
-        if (commonBlocks.Length != CommonBlockCount * 8)
-            throw new InvalidDataException($"Expected {CommonBlockCount} common 16x16 block definitions.");
+        if (commonBlocks.Length != RoomAssetRomData.GraphicsLayout.CreBlockDefinitionsByteCount)
+        {
+            throw new InvalidDataException(
+                $"Expected {RoomAssetRomData.GraphicsLayout.CreBlockDefinitionCount} " +
+                "common 16x16 block definitions.");
+        }
         var blockDefinitions = new byte[commonBlocks.Length + areaBlocks.Length];
         commonBlocks.CopyTo(blockDefinitions, 0);
         areaBlocks.CopyTo(blockDefinitions, commonBlocks.Length);
@@ -181,8 +173,8 @@ public static class RoomRenderer
         //   bit     15 vertical flip
         SnesBgTilemapWord packedEntry = tileEntry;
         int tileIndex = packedEntry.CharacterIndex;
-        int tileOffset = tileIndex * BytesPer4BppTile;
-        if (tileOffset + BytesPer4BppTile > vram.Length)
+        int tileOffset = tileIndex * RoomAssetRomData.GraphicsLayout.BytesPer4BppCharacter;
+        if (tileOffset + RoomAssetRomData.GraphicsLayout.BytesPer4BppCharacter > vram.Length)
             throw new InvalidDataException($"Tile index ${tileIndex:X3} exceeds modeled VRAM.");
         int paletteBase = packedEntry.PaletteIndex * 16;
 

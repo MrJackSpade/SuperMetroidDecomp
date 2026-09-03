@@ -999,7 +999,8 @@ public sealed partial class RoomPlmSystem
         RoomScrollGrid? scrolls,
         ushort enemyDeaths,
         byte enemyDeathQuota,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        ushort collectedItems = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -1098,7 +1099,8 @@ public sealed partial class RoomPlmSystem
                 layer1XPosition,
                 layer1YPosition,
                 bg1XOffset,
-                scrolls);
+                scrolls,
+                collectedItems);
         }
 
         return _tilemapUpdates;
@@ -1112,7 +1114,8 @@ public sealed partial class RoomPlmSystem
         ushort layer1XPosition,
         ushort layer1YPosition,
         ushort bg1XOffset,
-        RoomScrollGrid? scrolls)
+        RoomScrollGrid? scrolls,
+        ushort collectedItems)
     {
         // An instruction list may execute multiple negative instruction words before it
         // reaches a positive timer/draw pair. The guard catches corrupt ROM/test data while
@@ -1280,6 +1283,16 @@ public sealed partial class RoomPlmSystem
                     // twice. C# stores logical word indexes; adding width once is identical.
                     slot.BlockIndex = checked(slot.BlockIndex + level.WidthInBlocks);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
+                case RoomPlmInstructionCodes.GotoIfSamusHasNoBombs:
+                    // Native receives Y on the operand after the JSR address. Owning Bombs
+                    // skips that two-byte target; lacking Bombs replaces Y with the target.
+                    slot.InstructionPointer = collectedItems.HasAny(SamusEquipmentFlags.Bombs)
+                        ? unchecked((ushort)(slot.InstructionPointer + 4))
+                        : ReadBank84Word(
+                            bus,
+                            unchecked((ushort)(slot.InstructionPointer + 2)));
                     continue;
 
                 case RoomPlmInstructionCodes.SetPlmBtsToOne:

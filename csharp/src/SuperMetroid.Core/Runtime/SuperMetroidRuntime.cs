@@ -2698,7 +2698,8 @@ public sealed partial class SuperMetroidRuntime
                     Camera.Scrolls,
                     Enemies.EnemiesKilled,
                     Enemies.DeathQuota,
-                    Controller1.NewlyPressed);
+                    Controller1.NewlyPressed,
+                    Samus.CollectedItems);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
                 ApplyPendingDownwardGateProjectileRequests();

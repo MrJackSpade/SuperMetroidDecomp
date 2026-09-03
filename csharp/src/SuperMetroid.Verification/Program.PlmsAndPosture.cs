@@ -289,6 +289,56 @@ static void VerifyBreakableGrapplePlms()
     AssertEqual(0, permanent1x2Plms.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 
+    // `$84:BA6F` receives the instruction cursor on its two-byte target. Without Bombs it
+    // branches to Sleep; with Bombs it consumes the target and reaches Delete inline.
+    // Exercising both results proves the shared interpreter reads CollectedItems rather
+    // than treating this as a room-specific or equipped-item condition.
+    bus.WriteBytes(0x84cd6a, [
+        0x6f, 0xba, 0x72, 0xcd,
+        0xbc, 0x86,
+        0x00, 0x00,
+        0xb4, 0x86,
+    ]);
+    RoomLevelData noBombsBranchLevel = CreateLevel(1, definitions);
+    var noBombsBranchPlms = new RoomPlmSystem();
+    AssertTrue(noBombsBranchPlms.TrySpawnBreakableGrappleBlock(
+        noBombsBranchLevel, blockIndex, 1),
+        "no-Bombs branch fixture occupies a PLM slot");
+    noBombsBranchPlms.Step(
+        bus,
+        noBombsBranchLevel,
+        noBombsBranchLevel.CreateBackgroundStreamer(),
+        0,
+        0,
+        0,
+        scrolls: null,
+        enemyDeaths: 0,
+        enemyDeathQuota: 0,
+        controllerNewInput: 0,
+        collectedItems: 0);
+    AssertEqual(1, noBombsBranchPlms.ActiveCount,
+        "BA6F branches to the target when Bombs have not been collected");
+
+    RoomLevelData bombsBranchLevel = CreateLevel(1, definitions);
+    var bombsBranchPlms = new RoomPlmSystem();
+    AssertTrue(bombsBranchPlms.TrySpawnBreakableGrappleBlock(
+        bombsBranchLevel, blockIndex, 1),
+        "Bombs branch fixture occupies a PLM slot");
+    bombsBranchPlms.Step(
+        bus,
+        bombsBranchLevel,
+        bombsBranchLevel.CreateBackgroundStreamer(),
+        0,
+        0,
+        0,
+        scrolls: null,
+        enemyDeaths: 0,
+        enemyDeathQuota: 0,
+        controllerNewInput: 0,
+        collectedItems: SamusEquipmentFlags.Bombs.ToNativeWord());
+    AssertEqual(0, bombsBranchPlms.ActiveCount,
+        "BA6F continues inline when Bombs have been collected");
+
     // Any high-bit word is dispatched as native code. An unknown routine must stop at the
     // interpreter boundary instead of being skipped or misread as a timer/draw record.
     bus.WriteBytes(0x84cd6a, [0x00, 0x90]);

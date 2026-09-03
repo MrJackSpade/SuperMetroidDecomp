@@ -119,6 +119,12 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:AB59</c>: move Botwoon's PLM origin down one room-block row.</summary>
     public const ushort MoveBotwoonPlmDownOneBlock = 0xab59;
 
+    /// <summary>
+    /// <c>$84:BA6F PlmInstr_JumpIfSamusHasNoBombs</c>: branch through the following
+    /// instruction-list pointer when the Bombs item has not been collected.
+    /// </summary>
+    public const ushort GotoIfSamusHasNoBombs = 0xba6f;
+
     /// <summary><c>$84:CD93</c>: replace the current PLM block's BTS byte with one.</summary>
     public const ushort SetPlmBtsToOne = 0xcd93;
 

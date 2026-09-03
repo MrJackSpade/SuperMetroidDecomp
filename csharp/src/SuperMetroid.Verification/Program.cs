@@ -118,6 +118,7 @@ VerifyBgPriorityPlaneRendering();
 VerifyLibraryBackgroundLoader();
 VerifyGameConfigurationIni();
 VerifyControllerInputRecording();
+VerifySaveRamLayout();
 VerifyFileSelectFreshSaveTilemap();
 VerifySavedGameLoadAppearance();
 VerifyIntroGameplayFlashbackVerticalScroll();

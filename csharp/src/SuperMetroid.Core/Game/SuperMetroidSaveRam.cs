@@ -14,61 +14,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SuperMetroidSaveRam
 {
-    public const int SlotCount = 3;
-    public const int SlotByteCount = 0x065c;
-    public const int SelectedSlotOffset = 0x1fec;
-
-    private static readonly ushort[] SlotOffsets = [0x0010, 0x066c, 0x0cc8];
-
-    private const int PrimaryChecksumOffset = 0x0000;
-    private const int PrimaryComplementOffset = 0x0008;
-    private const int BackupChecksumOffset = 0x1ff0;
-    private const int BackupComplementOffset = 0x1ff8;
-
-    // Offsets within the copied $D7C0-$DE1B save mirror.
-    private const int EquippedItemsOffset = 0x0000;
-    private const int CollectedItemsOffset = 0x0002;
-    private const int EquippedBeamsOffset = 0x0004;
-    private const int CollectedBeamsOffset = 0x0006;
-    private const int ButtonConfigOffset = 0x0008;
-    private const int ReserveModeOffset = 0x001e;
-    private const int HealthOffset = 0x0020;
-    private const int MaxHealthOffset = 0x0022;
-    private const int MissilesOffset = 0x0024;
-    private const int MaxMissilesOffset = 0x0026;
-    private const int SuperMissilesOffset = 0x0028;
-    private const int MaxSuperMissilesOffset = 0x002a;
-    private const int PowerBombsOffset = 0x002c;
-    private const int MaxPowerBombsOffset = 0x002e;
-    private const int HudItemOffset = 0x0030;
-    private const int MaxReserveEnergyOffset = 0x0032;
-    private const int ReserveEnergyOffset = 0x0034;
-    private const int GameTimeFramesOffset = 0x0038;
-    private const int GameTimeSecondsOffset = 0x003a;
-    private const int GameTimeMinutesOffset = 0x003c;
-    private const int GameTimeHoursOffset = 0x003e;
-    private const int MoonwalkOffset = 0x0042;
-    private const int DebugFlagOffset = 0x0044;
-    private const int NewFileMarkerOffset = 0x0046;
-    private const int IconCancelOffset = 0x0048;
-    private const int EventsOffset = 0x0060;
-    private const int BossBitsOffset = 0x0068;
-    private const int RoomChozoBitsOffset = 0x0070;
-    private const int CollectedItemBitsOffset = 0x00b0;
-    private const int OpenedDoorBitsOffset = 0x00f0;
-    private const int UsedSaveStationsOffset = 0x0138;
-    private const int MapStationsOffset = 0x0148;
-    private const int SaveStationOffset = 0x0156;
-    private const int AreaOffset = 0x0158;
-    private const int CompressedMapDataOffset = 0x015c;
-    private const int CompressedMapDataByteCount = 0x0500;
-
-    // Bank-$81 table addresses consumed by PackMapToSave/UnpackMapFromSave. The count and
-    // packed-offset tables describe six SRAM-backed areas; each unpacked-offset pointer
-    // selects a cartridge list of byte indexes within that area's 256-byte bit plane.
-    private const int PackedMapByteCountTable = 0x818131;
-    private const int PackedMapDestinationOffsetTable = 0x818138;
-    private const int PackedMapSourceIndexPointerTable = 0x8182d6;
+    public const int SlotCount = SaveRamLayout.SlotCount;
+    public const int SlotByteCount = SaveRamLayout.SlotByteCount;
+    public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
     private readonly ISnesAddressSpace bus;
 
@@ -82,77 +30,77 @@ public sealed class SuperMetroidSaveRam
         ushort checksum = CalculateChecksum(slotOffset);
         ushort complement = unchecked((ushort)~checksum);
         bool primaryValid =
-            ReadSramWord(PrimaryChecksumOffset + slot * 2) == checksum &&
-            ReadSramWord(PrimaryComplementOffset + slot * 2) == complement;
+            ReadSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2) == checksum &&
+            ReadSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2) == complement;
         bool backupValid =
-            ReadSramWord(BackupChecksumOffset + slot * 2) == checksum &&
-            ReadSramWord(BackupComplementOffset + slot * 2) == complement;
+            ReadSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2) == checksum &&
+            ReadSramWord(SaveRamLayout.BackupComplementOffset + slot * 2) == complement;
         if (!primaryValid && !backupValid)
             return null;
 
         return new SuperMetroidSaveSlot(
             Slot: slot,
-            EquippedItems: ReadSramWord(slotOffset + EquippedItemsOffset),
-            CollectedItems: ReadSramWord(slotOffset + CollectedItemsOffset),
-            EquippedBeams: ReadSramWord(slotOffset + EquippedBeamsOffset),
-            CollectedBeams: ReadSramWord(slotOffset + CollectedBeamsOffset),
-            ReserveMode: ReadSramWord(slotOffset + ReserveModeOffset),
-            Health: ReadSramWord(slotOffset + HealthOffset),
-            MaxHealth: ReadSramWord(slotOffset + MaxHealthOffset),
-            Missiles: ReadSramWord(slotOffset + MissilesOffset),
-            MaxMissiles: ReadSramWord(slotOffset + MaxMissilesOffset),
-            SuperMissiles: ReadSramWord(slotOffset + SuperMissilesOffset),
-            MaxSuperMissiles: ReadSramWord(slotOffset + MaxSuperMissilesOffset),
-            PowerBombs: ReadSramWord(slotOffset + PowerBombsOffset),
-            MaxPowerBombs: ReadSramWord(slotOffset + MaxPowerBombsOffset),
-            HudItem: ReadSramWord(slotOffset + HudItemOffset),
-            MaxReserveEnergy: ReadSramWord(slotOffset + MaxReserveEnergyOffset),
-            ReserveEnergy: ReadSramWord(slotOffset + ReserveEnergyOffset),
-            GameTimeFrames: ReadSramWord(slotOffset + GameTimeFramesOffset),
-            GameTimeSeconds: ReadSramWord(slotOffset + GameTimeSecondsOffset),
-            GameTimeMinutes: ReadSramWord(slotOffset + GameTimeMinutesOffset),
-            GameTimeHours: ReadSramWord(slotOffset + GameTimeHoursOffset),
+            EquippedItems: ReadSramWord(slotOffset + SaveRamLayout.EquippedItemsOffset),
+            CollectedItems: ReadSramWord(slotOffset + SaveRamLayout.CollectedItemsOffset),
+            EquippedBeams: ReadSramWord(slotOffset + SaveRamLayout.EquippedBeamsOffset),
+            CollectedBeams: ReadSramWord(slotOffset + SaveRamLayout.CollectedBeamsOffset),
+            ReserveMode: ReadSramWord(slotOffset + SaveRamLayout.ReserveModeOffset),
+            Health: ReadSramWord(slotOffset + SaveRamLayout.HealthOffset),
+            MaxHealth: ReadSramWord(slotOffset + SaveRamLayout.MaxHealthOffset),
+            Missiles: ReadSramWord(slotOffset + SaveRamLayout.MissilesOffset),
+            MaxMissiles: ReadSramWord(slotOffset + SaveRamLayout.MaxMissilesOffset),
+            SuperMissiles: ReadSramWord(slotOffset + SaveRamLayout.SuperMissilesOffset),
+            MaxSuperMissiles: ReadSramWord(slotOffset + SaveRamLayout.MaxSuperMissilesOffset),
+            PowerBombs: ReadSramWord(slotOffset + SaveRamLayout.PowerBombsOffset),
+            MaxPowerBombs: ReadSramWord(slotOffset + SaveRamLayout.MaxPowerBombsOffset),
+            HudItem: ReadSramWord(slotOffset + SaveRamLayout.HudItemOffset),
+            MaxReserveEnergy: ReadSramWord(slotOffset + SaveRamLayout.MaxReserveEnergyOffset),
+            ReserveEnergy: ReadSramWord(slotOffset + SaveRamLayout.ReserveEnergyOffset),
+            GameTimeFrames: ReadSramWord(slotOffset + SaveRamLayout.GameTimeFramesOffset),
+            GameTimeSeconds: ReadSramWord(slotOffset + SaveRamLayout.GameTimeSecondsOffset),
+            GameTimeMinutes: ReadSramWord(slotOffset + SaveRamLayout.GameTimeMinutesOffset),
+            GameTimeHours: ReadSramWord(slotOffset + SaveRamLayout.GameTimeHoursOffset),
             EventBytes: ReadSramBytes(
-                slotOffset + EventsOffset,
+                slotOffset + SaveRamLayout.EventsOffset,
                 Bank80SystemState.EventByteCount),
             BossBytes: ReadSramBytes(
-                slotOffset + BossBitsOffset,
+                slotOffset + SaveRamLayout.BossBitsOffset,
                 Bank80SystemState.AreaCount),
             RoomChozoBytes: ReadSramBytes(
-                slotOffset + RoomChozoBitsOffset,
+                slotOffset + SaveRamLayout.RoomChozoBitsOffset,
                 Bank80SystemState.RoomChozoBitByteCount),
             CollectedItemBytes: ReadSramBytes(
-                slotOffset + CollectedItemBitsOffset,
+                slotOffset + SaveRamLayout.CollectedItemBitsOffset,
                 Bank80SystemState.ItemBitByteCount),
             OpenedDoorBytes: ReadSramBytes(
-                slotOffset + OpenedDoorBitsOffset,
+                slotOffset + SaveRamLayout.OpenedDoorBitsOffset,
                 Bank80SystemState.DoorBitByteCount),
             UsedSaveStationBytes: ReadSramBytes(
-                slotOffset + UsedSaveStationsOffset,
+                slotOffset + SaveRamLayout.UsedSaveStationsOffset,
                 Bank80SystemState.UsedSaveStationByteCount),
             MapStationBytes: ReadSramBytes(
-                slotOffset + MapStationsOffset,
+                slotOffset + SaveRamLayout.MapStationsOffset,
                 Bank80SystemState.MapStationByteCount),
             ExploredMapBytes: UnpackExploredMap(ReadSramBytes(
-                slotOffset + CompressedMapDataOffset,
-                CompressedMapDataByteCount)),
-            SaveStation: ReadSramWord(slotOffset + SaveStationOffset),
-            Area: ReadSramWord(slotOffset + AreaOffset))
+                slotOffset + SaveRamLayout.CompressedMapDataOffset,
+                SaveRamLayout.CompressedMapDataByteCount)),
+            SaveStation: ReadSramWord(slotOffset + SaveRamLayout.SaveStationOffset),
+            Area: ReadSramWord(slotOffset + SaveRamLayout.AreaOffset))
         {
             // The first four words are the immutable D-pad directions. The remaining
             // seven are laid out by WRAM address rather than by the options-screen row
             // order: cancel precedes select and aim-down precedes aim-up in the save mirror.
             ControllerBindings = new ControllerBindings(
-                Shoot: ReadSramWord(slotOffset + ButtonConfigOffset + 8),
-                Jump: ReadSramWord(slotOffset + ButtonConfigOffset + 10),
-                Dash: ReadSramWord(slotOffset + ButtonConfigOffset + 12),
-                ItemSelect: ReadSramWord(slotOffset + ButtonConfigOffset + 16),
-                ItemCancel: ReadSramWord(slotOffset + ButtonConfigOffset + 14),
-                AimUp: ReadSramWord(slotOffset + ButtonConfigOffset + 20),
-                AimDown: ReadSramWord(slotOffset + ButtonConfigOffset + 18))
+                Shoot: ReadSramWord(slotOffset + SaveRamLayout.ShootButtonOffset),
+                Jump: ReadSramWord(slotOffset + SaveRamLayout.JumpButtonOffset),
+                Dash: ReadSramWord(slotOffset + SaveRamLayout.DashButtonOffset),
+                ItemSelect: ReadSramWord(slotOffset + SaveRamLayout.SelectButtonOffset),
+                ItemCancel: ReadSramWord(slotOffset + SaveRamLayout.CancelButtonOffset),
+                AimUp: ReadSramWord(slotOffset + SaveRamLayout.AimUpButtonOffset),
+                AimDown: ReadSramWord(slotOffset + SaveRamLayout.AimDownButtonOffset))
                 .RequireRetailPermutation(),
-            MoonwalkEnabled = ReadSramWord(slotOffset + MoonwalkOffset) != 0,
-            IconCancelEnabled = ReadSramWord(slotOffset + IconCancelOffset) != 0,
+            MoonwalkEnabled = ReadSramWord(slotOffset + SaveRamLayout.MoonwalkOffset) != 0,
+            IconCancelEnabled = ReadSramWord(slotOffset + SaveRamLayout.IconCancelOffset) != 0,
         };
     }
 
@@ -166,10 +114,10 @@ public sealed class SuperMetroidSaveRam
         int slotOffset = GetSlotOffset(slot);
         var payload = new byte[SlotByteCount];
 
-        WriteWord(payload, EquippedItemsOffset, snapshot.EquippedItems);
-        WriteWord(payload, CollectedItemsOffset, snapshot.CollectedItems);
-        WriteWord(payload, EquippedBeamsOffset, snapshot.EquippedBeams);
-        WriteWord(payload, CollectedBeamsOffset, snapshot.CollectedBeams);
+        WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems);
+        WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems);
+        WriteWord(payload, SaveRamLayout.EquippedBeamsOffset, snapshot.EquippedBeams);
+        WriteWord(payload, SaveRamLayout.CollectedBeamsOffset, snapshot.CollectedBeams);
 
         // NewSaveFile at $81:B2CB installs these eleven literal SNES controller words.
         // Later saves copy the live configurable action words, so do not silently restore
@@ -190,78 +138,78 @@ public sealed class SuperMetroidSaveRam
             bindings.AimUp,
         ];
         for (int index = 0; index < buttons.Length; index++)
-            WriteWord(payload, ButtonConfigOffset + index * 2, buttons[index]);
+            WriteWord(payload, SaveRamLayout.ButtonConfigOffset + index * 2, buttons[index]);
 
-        WriteWord(payload, ReserveModeOffset, snapshot.ReserveMode);
-        WriteWord(payload, HealthOffset, snapshot.Health);
-        WriteWord(payload, MaxHealthOffset, snapshot.MaxHealth);
-        WriteWord(payload, MissilesOffset, snapshot.Missiles);
-        WriteWord(payload, MaxMissilesOffset, snapshot.MaxMissiles);
-        WriteWord(payload, SuperMissilesOffset, snapshot.SuperMissiles);
-        WriteWord(payload, MaxSuperMissilesOffset, snapshot.MaxSuperMissiles);
-        WriteWord(payload, PowerBombsOffset, snapshot.PowerBombs);
-        WriteWord(payload, MaxPowerBombsOffset, snapshot.MaxPowerBombs);
-        WriteWord(payload, HudItemOffset, snapshot.HudItem);
-        WriteWord(payload, MaxReserveEnergyOffset, snapshot.MaxReserveEnergy);
-        WriteWord(payload, ReserveEnergyOffset, snapshot.ReserveEnergy);
-        WriteWord(payload, GameTimeFramesOffset, snapshot.GameTimeFrames);
-        WriteWord(payload, GameTimeSecondsOffset, snapshot.GameTimeSeconds);
-        WriteWord(payload, GameTimeMinutesOffset, snapshot.GameTimeMinutes);
-        WriteWord(payload, GameTimeHoursOffset, snapshot.GameTimeHours);
-        WriteWord(payload, MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
+        WriteWord(payload, SaveRamLayout.ReserveModeOffset, snapshot.ReserveMode);
+        WriteWord(payload, SaveRamLayout.HealthOffset, snapshot.Health);
+        WriteWord(payload, SaveRamLayout.MaxHealthOffset, snapshot.MaxHealth);
+        WriteWord(payload, SaveRamLayout.MissilesOffset, snapshot.Missiles);
+        WriteWord(payload, SaveRamLayout.MaxMissilesOffset, snapshot.MaxMissiles);
+        WriteWord(payload, SaveRamLayout.SuperMissilesOffset, snapshot.SuperMissiles);
+        WriteWord(payload, SaveRamLayout.MaxSuperMissilesOffset, snapshot.MaxSuperMissiles);
+        WriteWord(payload, SaveRamLayout.PowerBombsOffset, snapshot.PowerBombs);
+        WriteWord(payload, SaveRamLayout.MaxPowerBombsOffset, snapshot.MaxPowerBombs);
+        WriteWord(payload, SaveRamLayout.HudItemOffset, snapshot.HudItem);
+        WriteWord(payload, SaveRamLayout.MaxReserveEnergyOffset, snapshot.MaxReserveEnergy);
+        WriteWord(payload, SaveRamLayout.ReserveEnergyOffset, snapshot.ReserveEnergy);
+        WriteWord(payload, SaveRamLayout.GameTimeFramesOffset, snapshot.GameTimeFrames);
+        WriteWord(payload, SaveRamLayout.GameTimeSecondsOffset, snapshot.GameTimeSeconds);
+        WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset, snapshot.GameTimeMinutes);
+        WriteWord(payload, SaveRamLayout.GameTimeHoursOffset, snapshot.GameTimeHours);
+        WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
         // NewSaveFile deliberately initializes both of these otherwise obscure words to
         // one before the intro's first save. They are part of the checksummed 96-byte copy.
-        WriteWord(payload, DebugFlagOffset, 1);
-        WriteWord(payload, NewFileMarkerOffset, 1);
-        WriteWord(payload, IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
+        WriteWord(payload, SaveRamLayout.DebugFlagOffset, 1);
+        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, 1);
+        WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
             throw new InvalidDataException("A save snapshot requires exactly eight event bytes.");
         if (snapshot.BossBytes.Length != Bank80SystemState.AreaCount)
             throw new InvalidDataException("A save snapshot requires exactly eight area-boss bytes.");
-        snapshot.EventBytes.CopyTo(payload, EventsOffset);
-        snapshot.BossBytes.CopyTo(payload, BossBitsOffset);
+        snapshot.EventBytes.CopyTo(payload, SaveRamLayout.EventsOffset);
+        snapshot.BossBytes.CopyTo(payload, SaveRamLayout.BossBitsOffset);
         if (snapshot.RoomChozoBytes.Length != Bank80SystemState.RoomChozoBitByteCount)
         {
             throw new InvalidDataException(
                 "A save snapshot requires exactly 64 room-Chozo bytes.");
         }
-        snapshot.RoomChozoBytes.CopyTo(payload, RoomChozoBitsOffset);
+        snapshot.RoomChozoBytes.CopyTo(payload, SaveRamLayout.RoomChozoBitsOffset);
         if (snapshot.CollectedItemBytes.Length != Bank80SystemState.ItemBitByteCount)
         {
             throw new InvalidDataException(
                 "A save snapshot requires exactly 64 collected-item bytes.");
         }
-        snapshot.CollectedItemBytes.CopyTo(payload, CollectedItemBitsOffset);
+        snapshot.CollectedItemBytes.CopyTo(payload, SaveRamLayout.CollectedItemBitsOffset);
         if (snapshot.OpenedDoorBytes.Length != Bank80SystemState.DoorBitByteCount)
         {
             throw new InvalidDataException(
                 "A save snapshot requires exactly 64 opened-door bytes.");
         }
-        snapshot.OpenedDoorBytes.CopyTo(payload, OpenedDoorBitsOffset);
+        snapshot.OpenedDoorBytes.CopyTo(payload, SaveRamLayout.OpenedDoorBitsOffset);
         if (snapshot.UsedSaveStationBytes.Length != Bank80SystemState.UsedSaveStationByteCount)
         {
             throw new InvalidDataException(
                 "A save snapshot requires exactly 16 used save/elevator bytes.");
         }
-        snapshot.UsedSaveStationBytes.CopyTo(payload, UsedSaveStationsOffset);
+        snapshot.UsedSaveStationBytes.CopyTo(payload, SaveRamLayout.UsedSaveStationsOffset);
         if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
-        snapshot.MapStationBytes.CopyTo(payload, MapStationsOffset);
-        WriteWord(payload, SaveStationOffset, snapshot.SaveStation);
-        WriteWord(payload, AreaOffset, snapshot.Area);
+        snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
+        WriteWord(payload, SaveRamLayout.SaveStationOffset, snapshot.SaveStation);
+        WriteWord(payload, SaveRamLayout.AreaOffset, snapshot.Area);
         byte[] compressedMap = PackExploredMap(snapshot.ExploredMapBytes);
-        compressedMap.CopyTo(payload, CompressedMapDataOffset);
+        compressedMap.CopyTo(payload, SaveRamLayout.CompressedMapDataOffset);
 
         for (int index = 0; index < payload.Length; index++)
             WriteSramByte(slotOffset + index, payload[index]);
 
         ushort checksum = CalculateChecksum(slotOffset);
         ushort complement = unchecked((ushort)~checksum);
-        WriteSramWord(PrimaryChecksumOffset + slot * 2, checksum);
-        WriteSramWord(PrimaryComplementOffset + slot * 2, complement);
-        WriteSramWord(BackupChecksumOffset + slot * 2, checksum);
-        WriteSramWord(BackupComplementOffset + slot * 2, complement);
+        WriteSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2, checksum);
+        WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, complement);
+        WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, checksum);
+        WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, complement);
     }
 
     /// <summary>Stores the menu's selected-slot word and complement at $1FEC/$1FEE.</summary>
@@ -289,10 +237,10 @@ public sealed class SuperMetroidSaveRam
         // including untranslated/reserved fields which a domain snapshot cannot preserve.
         for (int index = 0; index < SlotByteCount; index++)
             WriteSramByte(destinationOffset + index, ReadSramByte(sourceOffset + index));
-        CopyDirectoryWord(PrimaryChecksumOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(PrimaryComplementOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(BackupChecksumOffset, sourceSlot, destinationSlot);
-        CopyDirectoryWord(BackupComplementOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(SaveRamLayout.PrimaryChecksumOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(SaveRamLayout.PrimaryComplementOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(SaveRamLayout.BackupChecksumOffset, sourceSlot, destinationSlot);
+        CopyDirectoryWord(SaveRamLayout.BackupComplementOffset, sourceSlot, destinationSlot);
     }
 
     /// <summary>
@@ -304,10 +252,10 @@ public sealed class SuperMetroidSaveRam
         int slotOffset = GetSlotOffset(slot);
         for (int index = 0; index < SlotByteCount; index++)
             WriteSramByte(slotOffset + index, 0);
-        WriteSramWord(PrimaryChecksumOffset + slot * 2, 0);
-        WriteSramWord(PrimaryComplementOffset + slot * 2, 0);
-        WriteSramWord(BackupChecksumOffset + slot * 2, 0);
-        WriteSramWord(BackupComplementOffset + slot * 2, 0);
+        WriteSramWord(SaveRamLayout.PrimaryChecksumOffset + slot * 2, 0);
+        WriteSramWord(SaveRamLayout.PrimaryComplementOffset + slot * 2, 0);
+        WriteSramWord(SaveRamLayout.BackupChecksumOffset + slot * 2, 0);
+        WriteSramWord(SaveRamLayout.BackupComplementOffset + slot * 2, 0);
     }
 
     /// <summary>Reads the persistent menu selection, falling back to slot A if corrupt.</summary>
@@ -334,7 +282,7 @@ public sealed class SuperMetroidSaveRam
     private static int GetSlotOffset(int slot)
     {
         ValidateSlot(slot);
-        return SlotOffsets[slot];
+        return SaveRamLayout.SlotOffsets[slot];
     }
 
     private static void ValidateSlot(int slot)
@@ -376,19 +324,24 @@ public sealed class SuperMetroidSaveRam
                 $"A save snapshot requires exactly {expectedByteCount} unpacked explored-map bytes.");
         }
 
-        var compressed = new byte[CompressedMapDataByteCount];
-        for (int area = 0; area < 6; area++)
+        var compressed = new byte[SaveRamLayout.CompressedMapDataByteCount];
+        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
-            int count = bus.ReadByte(PackedMapByteCountTable + area);
-            int destination = ReadBusWord(PackedMapDestinationOffsetTable + area * 2);
-            ushort sourceIndexPointer = ReadBusWord(PackedMapSourceIndexPointerTable + area * 2);
+            int count = bus.ReadByte(
+                (int)SaveRamLayout.PackedMapByteCountTable.AddWithinBank(area));
+            int destination = ReadBusWord(
+                SaveRamLayout.PackedMapDestinationOffsetTable.AddWithinBank(area * 2));
+            ushort sourceIndexPointer = ReadBusWord(
+                SaveRamLayout.PackedMapSourceIndexPointerTable.AddWithinBank(area * 2));
             for (int index = 0; index < count; index++)
             {
                 int compressedIndex = destination + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
                 int areaByteIndex = bus.ReadByte(
-                    (int)new SnesAddress(0x81, unchecked((ushort)(sourceIndexPointer + index))));
+                    (int)new SnesAddress(
+                        SaveRamLayout.PackedMapSourceIndexPointerTable.Bank,
+                        unchecked((ushort)(sourceIndexPointer + index))));
                 compressed[compressedIndex] = exploredMap[
                     area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex];
             }
@@ -398,23 +351,28 @@ public sealed class SuperMetroidSaveRam
 
     private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
-        if (compressed.Length != CompressedMapDataByteCount)
+        if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
             throw new ArgumentException("Compressed map payload must contain exactly $500 bytes.", nameof(compressed));
 
         var explored = new byte[
             Bank80SystemState.ExploredMapAreaCount * Bank80SystemState.ExploredMapBytesPerArea];
-        for (int area = 0; area < 6; area++)
+        for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)
         {
-            int count = bus.ReadByte(PackedMapByteCountTable + area);
-            int source = ReadBusWord(PackedMapDestinationOffsetTable + area * 2);
-            ushort destinationIndexPointer = ReadBusWord(PackedMapSourceIndexPointerTable + area * 2);
+            int count = bus.ReadByte(
+                (int)SaveRamLayout.PackedMapByteCountTable.AddWithinBank(area));
+            int source = ReadBusWord(
+                SaveRamLayout.PackedMapDestinationOffsetTable.AddWithinBank(area * 2));
+            ushort destinationIndexPointer = ReadBusWord(
+                SaveRamLayout.PackedMapSourceIndexPointerTable.AddWithinBank(area * 2));
             for (int index = 0; index < count; index++)
             {
                 int compressedIndex = source + index;
                 if ((uint)compressedIndex >= compressed.Length)
                     throw new InvalidDataException("ROM packed-map table escapes the $500-byte SRAM field.");
                 int areaByteIndex = bus.ReadByte(
-                    0x810000 | ((destinationIndexPointer + index) & 0xffff));
+                    (int)new SnesAddress(
+                        SaveRamLayout.PackedMapSourceIndexPointerTable.Bank,
+                        unchecked((ushort)(destinationIndexPointer + index))));
                 explored[area * Bank80SystemState.ExploredMapBytesPerArea + areaByteIndex] =
                     compressed[compressedIndex];
             }
@@ -422,9 +380,8 @@ public sealed class SuperMetroidSaveRam
         return explored;
     }
 
-    private ushort ReadBusWord(int address)
+    private ushort ReadBusWord(SnesAddress source)
     {
-        SnesAddress source = SnesAddress.FromBusAddress(address);
         return unchecked((ushort)(
             bus.ReadByte((int)source) |
             (bus.ReadByte((int)source.AddWithinBank(1)) << 8)));

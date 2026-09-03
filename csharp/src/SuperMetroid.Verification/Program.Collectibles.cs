@@ -536,6 +536,25 @@ internal static partial class Program
             message.Step(0);
         AssertTrue(!message.IsActive,
             "map-station message returns to its suspended station PLM");
+
+        // Parse every message accepted by the translated bank-$85 owner from the retail
+        // cartridge. This catches table-boundary and uncommon-layout regressions without
+        // needing controller playback through each collectible or station room.
+        string romPath = Path.GetFullPath("Super Metroid.smc");
+        if (File.Exists(romPath))
+        {
+            var retailBus = new SuperMetroidAddressSpace(File.ReadAllBytes(romPath));
+            for (byte messageId = 1; messageId <= 26; messageId++)
+            {
+                var retailMessage = new GameplayMessageBoxState();
+                retailMessage.Begin(retailBus, messageId);
+                AssertTrue(
+                    retailMessage.TilemapRowCount is >=
+                        GameplayMessageRomData.Layout.MinimumRows and <=
+                        GameplayMessageRomData.Layout.MaximumRows,
+                    $"retail gameplay message {messageId} has a supported layout");
+            }
+        }
     }
 
     private static void VerifySuitPickupTransformation()

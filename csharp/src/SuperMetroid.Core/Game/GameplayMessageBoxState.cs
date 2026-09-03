@@ -22,36 +22,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class GameplayMessageBoxState
 {
-    private const int DefinitionTableAddress = 0x85869b;
-    private const int LargeBorderAddress = 0x858000;
-    private const int SmallBorderAddress = 0x858040;
-    private const ushort DrawLargeTilemapFunction = 0x825a;
-    private const ushort DrawSmallTilemapFunction = 0x8289;
-    private const ushort PatchShootButtonFunction = 0x83c5;
-    private const ushort PatchRunButtonFunction = 0x83cc;
-    private const ushort SetupSmallFunction = 0x8436;
-    private const ushort SetupLargeFunction = 0x8441;
-    private const int TilemapWidth = 32;
-    private const int MaximumRadiusPixels = 24;
-    private const int RadiusStepPixels = 2;
-    private const int ItemMinimumDisplayFrames = 360;
-    private const int StationMinimumDisplayFrames = 10;
-    private const int SaveSelectionTilemapAddress = 0x859581;
-    private const int SaveSelectionDestinationWord = 128;
-    private const int SaveSelectionRowWordCount = 32;
-    private const int SaveSelectionYesSourceWord = 32;
-    private const int SaveSelectionNoSourceWord = 64;
-
-    // Byte offsets inside MessageBoxTilemap for the configurable glyph in definitions
-    // 1-27. These are the literal words at $85:8749, named by the upstream disassembly.
-    private static readonly ushort[] SpecialButtonByteOffsets =
-    [
-        0x000, 0x12a, 0x12a, 0x12c, 0x12c, 0x12c, 0x000, 0x000,
-        0x000, 0x000, 0x000, 0x000, 0x120, 0x000, 0x000, 0x000,
-        0x000, 0x000, 0x12a, 0x000, 0x000, 0x000, 0x000, 0x000,
-        0x000, 0x000, 0x000,
-    ];
-
     private ushort[] _tilemap = [];
     private readonly ControllerInputState _controller = new();
     private ISnesAddressSpace? _activeBus;
@@ -78,7 +48,7 @@ public sealed class GameplayMessageBoxState
     public int MinimumDisplayFramesRemaining { get; private set; }
 
     /// <summary>Number of consecutive 32-tile rows in the ROM-built box.</summary>
-    public int TilemapRowCount => _tilemap.Length / TilemapWidth;
+    public int TilemapRowCount => _tilemap.Length / GameplayMessageRomData.Layout.TilemapWidth;
 
     /// <summary>Read-only final tilemap after border and configured-button substitution.</summary>
     public ReadOnlySpan<ushort> Tilemap => _tilemap;
@@ -121,13 +91,15 @@ public sealed class GameplayMessageBoxState
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
-        int definition = DefinitionTableAddress + (messageId - 1) * 6;
+        int definition = GameplayMessageRomData.Assets.DefinitionTable +
+            (messageId - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
         ushort modifyFunction = ReadWord(bus, definition);
         ushort drawFunction = ReadWord(bus, definition + 2);
         ushort contentPointer = ReadWord(bus, definition + 4);
         ushort nextContentPointer = ReadWord(bus, definition + 10);
         int contentByteCount = nextContentPointer - contentPointer;
-        if (contentByteCount <= 0 || (contentByteCount % (TilemapWidth * 2)) != 0)
+        if (contentByteCount <= 0 ||
+            (contentByteCount % (GameplayMessageRomData.Layout.TilemapWidth * 2)) != 0)
         {
             throw new InvalidDataException(
                 $"Message {messageId} content ${contentPointer:X4}-${nextContentPointer:X4} " +
@@ -137,11 +109,11 @@ public sealed class GameplayMessageBoxState
         int borderAddress;
         switch (drawFunction)
         {
-            case DrawSmallTilemapFunction:
-                borderAddress = SmallBorderAddress;
+            case GameplayMessageRomData.Routines.DrawSmallTilemap:
+                borderAddress = GameplayMessageRomData.Assets.SmallBorder;
                 break;
-            case DrawLargeTilemapFunction:
-                borderAddress = LargeBorderAddress;
+            case GameplayMessageRomData.Routines.DrawLargeTilemap:
+                borderAddress = GameplayMessageRomData.Assets.LargeBorder;
                 break;
             default:
                 throw new InvalidDataException(
@@ -155,28 +127,33 @@ public sealed class GameplayMessageBoxState
         // the important retail counterexample: it deliberately uses the small border
         // routine around three content rows. Treating "small" as "one row" made valid
         // cartridge data fail as soon as the first map station opened.
-        int contentRows = contentByteCount / (TilemapWidth * 2);
+        int contentRows = contentByteCount / (GameplayMessageRomData.Layout.TilemapWidth * 2);
 
-        _tilemap = new ushort[(contentRows + 2) * TilemapWidth];
-        for (int column = 0; column < TilemapWidth; column++)
+        _tilemap = new ushort[
+            (contentRows + GameplayMessageRomData.Layout.BorderRows) *
+            GameplayMessageRomData.Layout.TilemapWidth];
+        for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
         {
             ushort borderWord = ReadWord(bus, borderAddress + column * 2);
             _tilemap[column] = borderWord;
-            _tilemap[_tilemap.Length - TilemapWidth + column] = borderWord;
+            _tilemap[_tilemap.Length - GameplayMessageRomData.Layout.TilemapWidth + column] =
+                borderWord;
         }
         for (int word = 0; word < contentByteCount / 2; word++)
-            _tilemap[TilemapWidth + word] = ReadWord(bus, 0x850000 | (contentPointer + word * 2));
+            _tilemap[GameplayMessageRomData.Layout.TilemapWidth + word] = ReadWord(
+                bus,
+                GameplayMessageRomData.Assets.BankBase | (contentPointer + word * 2));
 
         switch (modifyFunction)
         {
-            case PatchShootButtonFunction:
+            case GameplayMessageRomData.Routines.PatchShootButton:
                 PatchConfiguredButton(messageId, shootBinding);
                 break;
-            case PatchRunButtonFunction:
+            case GameplayMessageRomData.Routines.PatchRunButton:
                 PatchConfiguredButton(messageId, runBinding);
                 break;
-            case SetupSmallFunction:
-            case SetupLargeFunction:
+            case GameplayMessageRomData.Routines.SetupSmall:
+            case GameplayMessageRomData.Routines.SetupLarge:
                 break;
             default:
                 throw new InvalidDataException(
@@ -188,7 +165,7 @@ public sealed class GameplayMessageBoxState
         RadiusPixels = 0;
         MinimumDisplayFramesRemaining = 0;
         _nextOpeningRadiusPixels = 0;
-        _nextClosingRadiusPixels = MaximumRadiusPixels;
+        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
         _closingConfirmationResult = null;
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
@@ -223,7 +200,7 @@ public sealed class GameplayMessageBoxState
                 // radius before the for-loop increment. Radius zero is consequently a
                 // real accepted frame, even though it exposes no pixels.
                 RadiusPixels = _nextOpeningRadiusPixels;
-                if (RadiusPixels == MaximumRadiusPixels)
+                if (RadiusPixels == GameplayMessageRomData.Timing.MaximumRadiusPixels)
                 {
                     if (MessageId == GameplayMessageIds.SaveConfirmation)
                     {
@@ -241,13 +218,13 @@ public sealed class GameplayMessageBoxState
                             GameplayMessageIds.EnergyRechargeCompleted or
                             GameplayMessageIds.MissileRechargeCompleted or
                             GameplayMessageIds.SaveCompleted
-                            ? StationMinimumDisplayFrames
-                            : ItemMinimumDisplayFrames;
+                            ? GameplayMessageRomData.Timing.StationMinimumDisplayFrames
+                            : GameplayMessageRomData.Timing.ItemMinimumDisplayFrames;
                         Phase = GameplayMessageBoxPhase.MinimumDisplay;
                     }
                 }
                 else
-                    _nextOpeningRadiusPixels += RadiusStepPixels;
+                    _nextOpeningRadiusPixels += GameplayMessageRomData.Timing.RadiusStepPixels;
                 return;
 
             case GameplayMessageBoxPhase.MinimumDisplay:
@@ -274,13 +251,15 @@ public sealed class GameplayMessageBoxState
                     if ((newlyPressed & (ushort)SnesButton.B) != 0)
                     {
                         _closingConfirmationResult = false;
-                        _nextClosingRadiusPixels = MaximumRadiusPixels;
+                        _nextClosingRadiusPixels =
+                            GameplayMessageRomData.Timing.MaximumRadiusPixels;
                         Phase = GameplayMessageBoxPhase.Closing;
                     }
                     else if ((newlyPressed & (ushort)SnesButton.A) != 0)
                     {
                         _closingConfirmationResult = ConfirmationSelectionYes;
-                        _nextClosingRadiusPixels = MaximumRadiusPixels;
+                        _nextClosingRadiusPixels =
+                            GameplayMessageRomData.Timing.MaximumRadiusPixels;
                         Phase = GameplayMessageBoxPhase.Closing;
                     }
                     return;
@@ -290,14 +269,15 @@ public sealed class GameplayMessageBoxState
                 // mandatory 360-frame item fanfare.
                 if (controllerInput != 0)
                 {
-                    _nextClosingRadiusPixels = MaximumRadiusPixels;
+                    _nextClosingRadiusPixels =
+                        GameplayMessageRomData.Timing.MaximumRadiusPixels;
                     Phase = GameplayMessageBoxPhase.Closing;
                 }
                 return;
 
             case GameplayMessageBoxPhase.Closing:
                 RadiusPixels = _nextClosingRadiusPixels;
-                _nextClosingRadiusPixels -= RadiusStepPixels;
+                _nextClosingRadiusPixels -= GameplayMessageRomData.Timing.RadiusStepPixels;
                 if (_nextClosingRadiusPixels < 0)
                 {
                     // Radius zero has no visible pixels, so restoring gameplay state at
@@ -329,26 +309,28 @@ public sealed class GameplayMessageBoxState
         ISnesAddressSpace source = _activeBus
             ?? throw new InvalidOperationException(
                 "Save confirmation cursor changed without its cartridge address space.");
-        if (_tilemap.Length < SaveSelectionDestinationWord + SaveSelectionRowWordCount)
+        if (_tilemap.Length <
+            GameplayMessageRomData.Layout.SaveSelectionDestinationWord +
+            GameplayMessageRomData.Layout.SaveSelectionRowWords)
         {
             throw new InvalidDataException(
                 "Save confirmation tilemap is too short for the native selected YES/NO row.");
         }
 
         int sourceWord = ConfirmationSelectionYes
-            ? SaveSelectionYesSourceWord
-            : SaveSelectionNoSourceWord;
-        for (int word = 0; word < SaveSelectionRowWordCount; word++)
+            ? GameplayMessageRomData.Layout.SaveSelectionYesSourceWord
+            : GameplayMessageRomData.Layout.SaveSelectionNoSourceWord;
+        for (int word = 0; word < GameplayMessageRomData.Layout.SaveSelectionRowWords; word++)
         {
-            _tilemap[SaveSelectionDestinationWord + word] = ReadWord(
+            _tilemap[GameplayMessageRomData.Layout.SaveSelectionDestinationWord + word] = ReadWord(
                 source,
-                SaveSelectionTilemapAddress + (sourceWord + word) * 2);
+                GameplayMessageRomData.Assets.SaveSelectionTilemap + (sourceWord + word) * 2);
         }
     }
 
     private void PatchConfiguredButton(byte messageId, ushort binding)
     {
-        int byteOffset = SpecialButtonByteOffsets[messageId - 1];
+        int byteOffset = GameplayMessageRomData.Buttons.SpecialGlyphByteOffsets[messageId - 1];
         if ((byteOffset & 1) != 0 || byteOffset + 1 >= _tilemap.Length * 2)
         {
             throw new InvalidDataException(
@@ -363,14 +345,13 @@ public sealed class GameplayMessageBoxState
         // BIT tests occur in this exact order at $85:83D1. A malformed multi-bit binding
         // therefore still selects the first native match instead of requiring an enum
         // equality that the cartridge never performed.
-        if ((binding & (ushort)SnesButton.A) != 0) return 0x28e0;
-        if ((binding & (ushort)SnesButton.B) != 0) return 0x3ce1;
-        if ((binding & (ushort)SnesButton.X) != 0) return 0x2cf7;
-        if ((binding & (ushort)SnesButton.Y) != 0) return 0x38f8;
-        if ((binding & (ushort)SnesButton.Select) != 0) return 0x38d0;
-        if ((binding & (ushort)SnesButton.L) != 0) return 0x38eb;
-        if ((binding & (ushort)SnesButton.R) != 0) return 0x38f1;
-        return 0x284e;
+        foreach (GameplayMessageButtonGlyph definition in
+            GameplayMessageRomData.Buttons.Glyphs)
+        {
+            if ((binding & (ushort)definition.Button) != 0)
+                return definition.Glyph.Raw;
+        }
+        return GameplayMessageRomData.Buttons.UnknownGlyph.Raw;
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

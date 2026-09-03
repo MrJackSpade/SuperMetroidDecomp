@@ -3353,7 +3353,7 @@ internal static class MotherBrainAudit
                 nmiFrameCounter8: unchecked((byte)frame));
             plms.Step(bus, assets.LevelData, streamer, 0, 0, 0, assets.Scrolls);
             if (plms.SoundRequests.Any(request =>
-                    request is { Library: 3, SoundId: 0x2e, MaximumQueued: 15 }))
+                    request is { Library: SoundEffectLibrary.Library3, SoundId: 0x2e, MaximumQueued: 15 }))
             {
                 shatterSounds++;
             }

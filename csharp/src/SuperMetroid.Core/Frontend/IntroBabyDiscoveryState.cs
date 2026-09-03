@@ -170,7 +170,7 @@ internal sealed class IntroBabyDiscoveryState
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < 6; index++)
                     eggParticles.Add(new IntroEggParticle(bus, index));
-                audio?.QueueSound(library: 2, soundId: 0x0b, maximumQueued: 6);
+                audio?.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x0b, maximumQueued: 6);
                 return argumentPointer;
 
             case CinematicCodePointers.Instruction_StartIntroPage3:
@@ -197,7 +197,7 @@ internal sealed class IntroBabyDiscoveryState
         if (soundId == 0)
             return null;
 
-        audio?.QueueSound(library: 3, soundId, maximumQueued: 6);
+        audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId, maximumQueued: 6);
         return argumentPointer;
     }
 
@@ -261,7 +261,7 @@ internal sealed class IntroBabyDiscoveryState
             }
             // `$8B:BA73` publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
-            audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
+            audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x23, maximumQueued: 6);
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
@@ -296,7 +296,7 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.GeneralTimer++;
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if ((confusedBaby.GeneralTimer & 0x003f) == 0)
-                audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
+                audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x23, maximumQueued: 6);
         }
 
         BabyXVelocity = AccelerateToward(

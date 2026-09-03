@@ -274,7 +274,7 @@ public sealed partial class SamusState
 
         // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
         // six-entry threshold after clearing the base-speed words and before pose setup.
-        LiquidPhysics.QueueMovementSound(library: 3, soundId: 0x05, maximumQueued: 6);
+        LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library3, soundId: 0x05, maximumQueued: 6);
 
         SamusAerialMovement.InitializeWallJump(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
@@ -315,7 +315,7 @@ public sealed partial class SamusState
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
-        LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x07, maximumQueued: 15);
+        LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library1, soundId: 0x07, maximumQueued: 15);
         ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(bus, this);

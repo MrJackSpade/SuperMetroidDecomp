@@ -2032,7 +2032,7 @@ public sealed partial class RoomEnemySystem
         bottom.VariableD = unchecked((ushort)(bottom.VariableD - 1));
         if (oldBottomTimer == 1 || (short)bottom.VariableD < 0)
         {
-            QueueEnemySound(library: 2, soundId: 0x004d, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x004d, maximumQueued: 6);
             bottom.VariableD = 70;
         }
 
@@ -3016,7 +3016,7 @@ public sealed partial class RoomEnemySystem
                     break;
                 case EnemyInstructionCodePointers.Instruction_Ridley_QueueRoarSFX:
                     RequireRidley(slot).Roaring = true;
-                    QueueEnemySound(library: 2, soundId: 0x0059, maximumQueued: 6);
+                    QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0059, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_Spark_SetAsIntangible when slot.EnemyDefinitionPointer == SparkDefinition:
@@ -3341,7 +3341,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_CeresDoor_QueueOpeningSFX:
-                    QueueEnemySound(library: 3, soundId: 0x002c, maximumQueued: 6);
+                    QueueEnemySound(library: SoundEffectLibrary.Library3, soundId: 0x002c, maximumQueued: 6);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_SidehopperCorpse_EndHop when slot.EnemyDefinitionPointer == DeadSidehopperDefinition:

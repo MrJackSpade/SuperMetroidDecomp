@@ -104,7 +104,7 @@ public sealed partial class RoomEnemySystem
                 // instruction releases the dive. Publishing it as a frame event retains
                 // native timing without coupling enemy AI to a particular audio backend.
                 LastSkreeSoundEffect = 0x005b;
-                QueueEnemySound(library: 2, soundId: 0x005b, maximumQueued: 6);
+                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x005b, maximumQueued: 6);
                 return;
 
             case SkreeEnemyFunction.Diving:
@@ -140,7 +140,7 @@ public sealed partial class RoomEnemySystem
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
             LastSkreeSoundEffect = 0x005c;
-            QueueEnemySound(library: 2, soundId: 0x005c, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x005c, maximumQueued: 6);
             return;
         }
 

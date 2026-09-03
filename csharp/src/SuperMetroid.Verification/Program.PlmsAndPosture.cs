@@ -109,7 +109,7 @@ static void VerifyBreakableGrapplePlms()
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.SoundRequests.Count,
         "break transition queues one sound request");
-    AssertEqual(new PlmSoundRequest(2, 0x0a, 6), respawningPlms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x0a, 6), respawningPlms.SoundRequests[0],
         "break transition uses library two sound $0A with maximum six");
 
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 4);
@@ -241,7 +241,7 @@ static void VerifyBreakableGrapplePlms()
         "CE83 synchronously removes only the type-F collision nibble");
     IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(
         bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
-    AssertEqual(new PlmSoundRequest(2, 0x06, 3), respawning2x2Plms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x06, 3), respawning2x2Plms.SoundRequests[0],
         "collision break queues library-two sound six with native maximum three");
     AssertEqual(4, first2x2Draw.Count,
         "2x2 draw record emits one debugger-visible redraw for each mutated level word");

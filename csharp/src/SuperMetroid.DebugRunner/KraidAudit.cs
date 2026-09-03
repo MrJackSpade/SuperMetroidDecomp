@@ -187,7 +187,7 @@ internal static class KraidAudit
             if (state.CurrentHeadTilemap != 0)
                 headTilemaps.Add(state.CurrentHeadTilemap);
             minimumBodyX = Math.Min(minimumBodyX, body.XPosition);
-            sawFootstep |= enemies.LastKraidSoundEffect is { Library: 2, SoundEffect: 0x0076 };
+            sawFootstep |= enemies.LastKraidSoundEffect is { Library: SoundEffectLibrary.Library2, SoundEffect: 0x0076 };
         }
 
         if (!combatFunctions.Contains(KraidAiFunction.MainloopThinking) ||

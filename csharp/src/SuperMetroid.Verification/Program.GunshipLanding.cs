@@ -132,7 +132,7 @@ internal static partial class Program
             enemies.StepFrame(cameraX: 0x0400, cameraY, timeIsFrozen: false, samus);
             frames++;
             observedEngineSound |= enemies.SoundRequests.Contains(
-                new EnemySoundRequest(Library: 2, SoundId: 0x4d, MaximumQueued: 6));
+                new EnemySoundRequest(Library: SoundEffectLibrary.Library2, SoundId: 0x4d, MaximumQueued: 6));
 
             if (top.VariableF == 0xa80c)
             {

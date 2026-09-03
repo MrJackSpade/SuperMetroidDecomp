@@ -857,7 +857,7 @@ public sealed class IntroCinematicState
         if (soundId != 0)
         {
             audio?.QueueSound(
-                library: 1,
+                library: SoundEffectLibrary.Library1,
                 unchecked((byte)soundId),
                 flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
         }

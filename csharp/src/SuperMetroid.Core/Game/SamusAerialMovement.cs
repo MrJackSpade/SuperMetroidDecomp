@@ -274,7 +274,7 @@ public static class SamusAerialMovement
             samus.AnimationFrame is 0 or 8)
         {
             samus.LiquidPhysics.QueueMovementSound(
-                library: 1,
+                library: SoundEffectLibrary.Library1,
                 soundId: 0x2f,
                 maximumQueued: 6);
         }

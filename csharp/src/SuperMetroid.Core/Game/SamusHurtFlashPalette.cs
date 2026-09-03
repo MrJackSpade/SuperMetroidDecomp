@@ -56,7 +56,7 @@ public static class SamusHurtFlashPalette
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseIds.KnockbackLeftPose))
         {
-            samus.LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x35, maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library1, soundId: 0x35, maximumQueued: 6);
             hurtSoundQueued = true;
         }
 
@@ -132,7 +132,7 @@ public static class SamusHurtFlashPalette
         if (queued)
         {
             samus.LiquidPhysics.QueueMovementSound(
-                library: 1, soundId: 0x41, maximumQueued: 9);
+                library: SoundEffectLibrary.Library1, soundId: 0x41, maximumQueued: 9);
         }
 
         samus.ResumeChargingBeamSoundFlag = 0;
@@ -159,7 +159,7 @@ public static class SamusHurtFlashPalette
                         ? (byte)0x33
                         : SamusState.IsSpaceJumpPose(samus.Pose) ? (byte)0x3e : (byte)0x31;
                 samus.LiquidPhysics.QueueMovementSound(
-                    library: 1, soundId: sound, maximumQueued: 9);
+                    library: SoundEffectLibrary.Library1, soundId: sound, maximumQueued: 9);
                 return sound switch
                 {
                     0x33 => SamusHurtFlashRecoveryAction.ScrewAttackSound,
@@ -190,7 +190,7 @@ public static class SamusHurtFlashPalette
         if (!grappleSoundActive)
             return SamusHurtFlashRecoveryAction.None;
 
-        samus.LiquidPhysics.QueueMovementSound(library: 1, soundId: 0x06, maximumQueued: 9);
+        samus.LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library1, soundId: 0x06, maximumQueued: 9);
         return SamusHurtFlashRecoveryAction.GrappleSound;
     }
 

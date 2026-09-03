@@ -434,7 +434,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot, ShotBlockRevealFrame0Draw,
                     layer1XPosition, layer1YPosition, bg1XOffset);
-                _soundRequests.Add(new PlmSoundRequest(2, 0x0a, 6));
+                _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x0a, 6));
                 item.Timer = 4;
                 return true;
 

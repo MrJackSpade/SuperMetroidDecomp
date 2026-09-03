@@ -715,7 +715,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "full liquid physics suppresses charged-spin contact damage");
     AssertEqual(1, submergedSpin.LiquidPhysics.SoundRequests.Count,
         "underwater Space Jump sound frame publishes once");
-    AssertEqual(new SamusSoundRequest(1, 0x2f, 6), submergedSpin.LiquidPhysics.SoundRequests[0],
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library1, 0x2f, 6), submergedSpin.LiquidPhysics.SoundRequests[0],
         "underwater Space Jump uses library-one sound $2F max six");
 
     screwRepeat.AnimationFrame = 4;
@@ -1128,14 +1128,14 @@ static void VerifySamusAtmosphericEffects()
     AssertEqual(2, entrySplash.AnimationTimer, "diving splash initial timer");
     AssertEqual(100, entrySplash.XPosition, "diving splash Samus X");
     AssertEqual(111, entrySplash.YPosition, "diving splash surface Y");
-    AssertEqual(new SamusSoundRequest(2, 0x0d, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library2, 0x0d, 6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-entry library-two sound");
 
     // Leaving water produces sound `$0E` and replaces the slot through the same movement-
     // type table. A spin/wall-jump-only `$30` request is correctly absent for type one.
     samus.LiquidPhysics.ConfigureWater(surfaceY: 112);
     samus.LiquidPhysics.PrepareAnimationFrame(bus, samus, nmiFrameCounter: 2);
-    AssertEqual(new SamusSoundRequest(2, 0x0e, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library2, 0x0e, 6),
         samus.LiquidPhysics.SoundRequests.Single(), "water-exit library-two sound");
 
     // Bubble admission samples top-24, every 128th accepted NMI, and slot two availability.
@@ -1148,7 +1148,7 @@ static void VerifySamusAtmosphericEffects()
     AssertEqual(5, bubble.Type, "128-frame submerged cadence creates bubbles");
     AssertEqual(94, bubble.YPosition, "bubble origin is Samus top plus six");
     AssertTrue(samus.LiquidPhysics.SoundRequests.Any(request =>
-        request.Library == 2 && request.SoundId is 0x0f or 0x11),
+        request.Library == SoundEffectLibrary.Library2 && request.SoundId is 0x0f or 0x11),
         "bubble RNG publishes one of the two native sounds");
 
     // Surface spray uses four type-four slots and exact asymmetric X positions. A half-unit
@@ -1247,9 +1247,9 @@ static void VerifySamusAtmosphericEffects()
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
     AssertEqual(2, landing.LiquidPhysics.SoundRequests.Count,
         "spin landing publishes termination and impact sounds");
-    AssertEqual(new SamusSoundRequest(1, 0x32, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library1, 0x32, 6),
         landing.LiquidPhysics.SoundRequests[0], "ordinary spin termination sound");
-    AssertEqual(new SamusSoundRequest(3, 0x05, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library3, 0x05, 6),
         landing.LiquidPhysics.SoundRequests[1], "sub-five soft landing sound");
     AssertEqual(6, landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
         "Norfair landing creates right dust slot");
@@ -1271,9 +1271,9 @@ static void VerifySamusAtmosphericEffects()
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         bus, landing, previousMovementType: SamusMovementType.WallJumping, previousPose: 0x81,
         landing.Kinematics.YSpeed, landing.Kinematics.YSubspeed);
-    AssertEqual(new SamusSoundRequest(1, 0x34, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library1, 0x34, 6),
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
-    AssertEqual(new SamusSoundRequest(3, 0x04, 6),
+    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library3, 0x04, 6),
         landing.LiquidPhysics.SoundRequests[1], "speed-five hard landing sound");
     landing.LiquidPhysics.CinematicFunctionActive = true;
     landing.LiquidPhysics.BeginFrameSoundRequests();

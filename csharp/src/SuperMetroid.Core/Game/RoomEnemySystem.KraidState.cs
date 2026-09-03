@@ -69,7 +69,9 @@ public enum KraidAiFunction : ushort
 /// the roar uses library two, while spat rocks use library three despite sharing the same
 /// room-enemy scheduler.
 /// </summary>
-public readonly record struct KraidSoundRequest(byte Library, ushort SoundEffect);
+public readonly record struct KraidSoundRequest(
+    SoundEffectLibrary Library,
+    ushort SoundEffect);
 
 /// <summary>
 /// Per-physical-slot projection of Kraid's bank-$7E extended workspace. Native code obtains

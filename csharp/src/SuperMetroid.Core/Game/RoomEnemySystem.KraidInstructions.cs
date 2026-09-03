@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
                 EarthquakeTimer = 10;
                 return;
             case KraidInstructionCodes.Instruction_Kraid_QueueSFX76_Lib2_Max6:
-                LastKraidSoundEffect = new KraidSoundRequest(2, 0x0076);
+                LastKraidSoundEffect = new KraidSoundRequest(SoundEffectLibrary.Library2, 0x0076);
                 return;
             case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3:
             case KraidInstructionCodes.Instruction_Kraid_XPositionMinus3_duplicate:

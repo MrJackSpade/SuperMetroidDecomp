@@ -3,16 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// One call to one of the cartridge's three <c>QueueSfx</c> entry points.
 /// </summary>
-/// <param name="Library">
-/// APU input port/library number one through three. This is deliberately not an enum:
-/// the three values are port identities, not combinable flags.
-/// </param>
+/// <param name="Library">The exclusive cartridge SFX queue/input-port identity.</param>
 /// <param name="SoundId">The low-byte sound index supplied by the original 65816 caller.</param>
 /// <param name="MaximumQueued">
 /// The exact queue-cap variant selected by that caller (for example Max3 or Max6).
 /// </param>
 public readonly record struct EnemySoundRequest(
-    byte Library,
+    SoundEffectLibrary Library,
     byte SoundId,
     byte MaximumQueued);
 
@@ -73,10 +70,12 @@ public sealed partial class RoomEnemySystem
     /// Records an already-decoded cartridge queue call without assigning host-side meaning
     /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
     /// </summary>
-    private void QueueEnemySound(byte library, ushort soundId, byte maximumQueued)
+    private void QueueEnemySound(
+        SoundEffectLibrary library,
+        ushort soundId,
+        byte maximumQueued)
     {
-        if (library is < 1 or > 3)
-            throw new ArgumentOutOfRangeException(nameof(library), library, "SPC sound library must be 1..3.");
+        _ = SoundEffectLibraries.ToQueueIndex(library);
         if (soundId > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(soundId), soundId, "SPC sound ID must fit in one byte.");
         if (maximumQueued == 0)
@@ -104,83 +103,83 @@ public sealed partial class RoomEnemySystem
     private void CollectLegacyEnemyAudioRequests()
     {
         // Ordinary bank-$A2/$A3/$A8/$B2 actors overwhelmingly call QueueSfx2_Max6.
-        QueueLegacySound(LastBoyonSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMamaTurtleSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastCacatacSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMochtroidSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastBoulderSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastEtecoonSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastDachoraSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastEvirSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMorphBallEyeSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastYappingMawSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastHopperSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMetareeSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastAlcoonSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastFuneNamiheSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastKagoBugSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastKzanSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastHibashiSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastNuclearWaffleSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastFakeKraidSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastChozoStatueSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastWorkRobotSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastSpacePirateSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastRioSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastNorfairLavaJumpingEnemySoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastNorfairRioSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastLowerNorfairRioSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastDragonSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastKiHunterSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMagdolliteSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastShutterSoundEffect, library: 2, maximumQueued: 6);
+        QueueLegacySound(LastBoyonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastCacatacSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMochtroidSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastBoulderSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastDachoraSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastEvirSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMorphBallEyeSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastYappingMawSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastHopperSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMetareeSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastAlcoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastFuneNamiheSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastKagoBugSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastKzanSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastHibashiSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastNuclearWaffleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastFakeKraidSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastChozoStatueSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastWorkRobotSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastSpacePirateSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastNorfairLavaJumpingEnemySoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastNorfairRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastLowerNorfairRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMaridiaLargeSnailSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastDragonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastKiHunterSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMagdolliteSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastShutterSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
 
         // These actors deliberately use a different library or the tighter Max3 entry.
-        QueueLegacySound(LastYardSoundEffect, library: 2, maximumQueued: 3);
-        QueueLegacySound(LastBeetomSoundEffect, library: 3, maximumQueued: 6);
-        QueueLegacySound(LastZebetiteSoundEffect, library: 3, maximumQueued: 6);
-        QueueLegacySound(LastMetroidSoundEffectLibrary2, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastMetroidSoundEffectLibrary3, library: 3, maximumQueued: 6);
+        QueueLegacySound(LastYardSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
+        QueueLegacySound(LastBeetomSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
+        QueueLegacySound(LastZebetiteSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
+        QueueLegacySound(LastMetroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastMetroidSoundEffectLibrary3, library: SoundEffectLibrary.Library3, maximumQueued: 6);
 
         // Bank-$86 pickup/death opcodes and the common rejected-shot path have explicit,
         // smaller admission limits. Their fields are shared by several projectile actors.
-        QueueLegacySound(LastEnemyPickupSoundEffect, library: 2, maximumQueued: 1);
-        QueueLegacySound(LastEnemyDeathSoundEffectLibrary2, library: 2, maximumQueued: 1);
-        QueueLegacySound(LastEnemyProjectileDudSoundEffect, library: 1, maximumQueued: 3);
+        QueueLegacySound(LastEnemyPickupSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 1);
+        QueueLegacySound(LastEnemyDeathSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 1);
+        QueueLegacySound(LastEnemyProjectileDudSoundEffect, library: SoundEffectLibrary.Library1, maximumQueued: 3);
 
         // Encounter-specific banks. Ceres doors, elevators, Skree, and Bomb Torizo sound
         // opcodes already publish directly and are intentionally absent to avoid duplicates.
-        QueueLegacySound(LastBotwoonSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastCrocomireSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastDeadTorizoSoundEffect, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastDeadSidehopperSoundEffect, library: 2, maximumQueued: 3);
-        QueueLegacySound(LastShitroidSoundEffectLibrary2, library: 2, maximumQueued: 6);
-        QueueLegacySound(LastSporeSpawnSoundEffectLibrary2, library: 2, maximumQueued: 6);
+        QueueLegacySound(LastBotwoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastCrocomireSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastDeadTorizoSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastDeadSidehopperSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
+        QueueLegacySound(LastShitroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
+        QueueLegacySound(LastSporeSpawnSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
 
         if (LastKraidSoundEffect is { } kraidSound)
             QueueEnemySound(kraidSound.Library, kraidSound.SoundEffect, maximumQueued: 6);
         if (_ridleyState?.LastDeathSoundEffect is ushort ridleyDeath)
-            QueueEnemySound(library: 2, ridleyDeath, maximumQueued: 3);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, ridleyDeath, maximumQueued: 3);
         if (_draygon?.LastSoundLibrary2 is ushort draygonLibrary2)
-            QueueEnemySound(library: 2, draygonLibrary2, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, draygonLibrary2, maximumQueued: 6);
         if (_draygon?.LastSoundLibrary3 is ushort draygonLibrary3)
-            QueueEnemySound(library: 3, draygonLibrary3, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library3, draygonLibrary3, maximumQueued: 6);
         if (_phantoonState?.LastMaterializationSound is ushort phantoonMaterialization)
-            QueueEnemySound(library: 2, phantoonMaterialization, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, phantoonMaterialization, maximumQueued: 6);
         if (_phantoonState?.LastCombatSoundEffect is ushort phantoonCombat)
-            QueueEnemySound(library: 2, phantoonCombat, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, phantoonCombat, maximumQueued: 6);
 
         if (_motherBrain?.LastSoundEffect is ushort motherBrainLibrary2)
-            QueueEnemySound(library: 2, motherBrainLibrary2, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, motherBrainLibrary2, maximumQueued: 6);
         if (_motherBrain?.LastSoundEffectLibrary1 is ushort motherBrainLibrary1)
-            QueueEnemySound(library: 1, motherBrainLibrary1, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library1, motherBrainLibrary1, maximumQueued: 6);
         if (_motherBrain?.LastSoundEffectLibrary3 is ushort motherBrainLibrary3)
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
             byte maximumQueued = motherBrainLibrary3 == 0x13 ? (byte)3 : (byte)6;
-            QueueEnemySound(library: 3, motherBrainLibrary3, maximumQueued);
+            QueueEnemySound(library: SoundEffectLibrary.Library3, motherBrainLibrary3, maximumQueued);
         }
 
         QueueLegacyMusic(LastBotwoonMusicRequest?.Track, LastBotwoonMusicRequest?.DelayFrames);
@@ -198,7 +197,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void QueueLegacySound(ushort? soundId, byte library, byte maximumQueued)
+    private void QueueLegacySound(
+        ushort? soundId,
+        SoundEffectLibrary library,
+        byte maximumQueued)
     {
         if (soundId is ushort value)
             QueueEnemySound(library, value, maximumQueued);

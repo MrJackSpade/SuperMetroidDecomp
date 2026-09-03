@@ -118,7 +118,7 @@ internal static partial class Program
 
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
-        sfx.QueueSound(library: 2, soundId: 0x57, maximumQueued: 6);
+        sfx.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x57, maximumQueued: 6);
         IReadOnlyList<CartridgeAudioCommand> request = sfx.AdvanceFrame(bus, default);
         AssertEqual(CartridgeAudioCommand.WritePort(2, 0x57), request.Single(), "SFX request write");
         AssertEqual(
@@ -131,6 +131,20 @@ internal static partial class Program
             sfx.AdvanceFrame(bus, default).Single(),
             "SFX request clear");
 
+        // Library numbers are an exclusive cartridge domain: only queues one through
+        // three exist. A forged enum value must fail at the public queue boundary rather
+        // than indexing some unrelated host collection or silently selecting a queue.
+        AssertEqual(
+            SoundEffectLibrary.Library3,
+            SoundEffectLibraries.FromCartridge(3, "audio verifier"),
+            "cartridge SFX library decoding");
+        AssertThrows<InvalidDataException>(
+            () => SoundEffectLibraries.FromCartridge(0, "audio verifier"),
+            "zero is not a cartridge SFX library");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => sfx.QueueSound((SoundEffectLibrary)4, soundId: 1, maximumQueued: 1),
+            "forged SFX library is rejected at queue boundary");
+
         // Verify the upload reader follows contiguous ROM pointer arithmetic across a
         // physical LoROM bank boundary: $90:FFFF continues at $91:8000, not $91:0000.
         AssertSequenceEqual(
@@ -138,7 +152,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, SFX handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, typed SFX libraries, handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

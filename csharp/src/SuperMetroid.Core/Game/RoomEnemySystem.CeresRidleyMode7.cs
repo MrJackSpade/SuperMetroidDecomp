@@ -49,7 +49,7 @@ public sealed partial class RoomEnemySystem
         // entry only ($A6:AABD -> QueueSfx2_Max6($4E)). Tying the request to the native
         // byte index preserves the same one-shot behavior after saves/replays and pauses.
         if (tableByteIndex == 0)
-            QueueEnemySound(library: 2, soundId: 0x004e, maximumQueued: 6);
+            QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x004e, maximumQueued: 6);
 
         // At byte index $D0, `$90:E119` replaces Samus's movement/hack handlers so the
         // rotating boss image cannot overlap her. Room main executes after Samus movement

@@ -96,7 +96,10 @@ public sealed class SamusLiquidPhysicsState
     /// of exact queue calls—most notably underwater Space Jump's library-one sound $2F—and
     /// the runtime already begins one shared publication window before movement.
     /// </remarks>
-    public void QueueMovementSound(byte library, byte soundId, byte maximumQueued) =>
+    public void QueueMovementSound(
+        SoundEffectLibrary library,
+        byte soundId,
+        byte maximumQueued) =>
         QueueSound(library, soundId, maximumQueued);
 
     /// <summary>WRAM <c>$0A4E</c>, the fractional half of pending periodic damage.</summary>
@@ -291,7 +294,7 @@ public sealed class SamusLiquidPhysicsState
             samus.AnimationFrameBuffer = 3;
             if (enteredWater)
             {
-                QueueSound(library: 2, soundId: 0x0d, maximumQueued: 6);
+                QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x0d, maximumQueued: 6);
                 SpawnWaterSplash(bus, samus, movementType, bottom);
             }
 
@@ -338,7 +341,7 @@ public sealed class SamusLiquidPhysicsState
                 fxKind == RoomFxType.Lava ? LavaSubDamagePerFrame : AcidSubDamagePerFrame,
                 fxKind == RoomFxType.Lava ? LavaDamagePerFrame : AcidDamagePerFrame);
             if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
-                QueueSound(library: 3, soundId: 0x2d, maximumQueued: 3);
+                QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x2d, maximumQueued: 3);
 
             // Both lava and acid now share `$90:824C`'s delay-two submerged path.
             LiquidPhysicsType = LavaAcid;
@@ -357,10 +360,10 @@ public sealed class SamusLiquidPhysicsState
         LiquidPhysicsType = Air;
         if (exitedWater)
         {
-            QueueSound(library: 2, soundId: 0x0e, maximumQueued: 6);
+            QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x0e, maximumQueued: 6);
             if (!gravitySuit && movementType is
                 SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
-                QueueSound(library: 1, soundId: 0x30, maximumQueued: 6);
+                QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x30, maximumQueued: 6);
             SpawnWaterSplash(bus, samus, movementType, bottom);
             TrySpawnAirBubbles(
                 samus,
@@ -393,7 +396,7 @@ public sealed class SamusLiquidPhysicsState
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             QueueSound(
-                library: 1,
+                library: SoundEffectLibrary.Library1,
                 soundId: previousPose is SamusPoseIds.ScrewAttackRightPose or
                     SamusPoseIds.ScrewAttackLeftPose ? (byte)0x34 : (byte)0x32,
                 maximumQueued: 6);
@@ -408,7 +411,7 @@ public sealed class SamusLiquidPhysicsState
         if (!CinematicFunctionActive)
         {
             QueueSound(
-                library: 3,
+                library: SoundEffectLibrary.Library3,
                 soundId: impactYSpeed >= 5 ? (byte)0x04 : (byte)0x05,
                 maximumQueued: 6);
         }
@@ -668,7 +671,7 @@ public sealed class SamusLiquidPhysicsState
             samus.XPosition,
             unchecked((ushort)(top + 6)));
         ushort random = system.NextRandom();
-        QueueSound(library: 2, soundId: (byte)((random & 1) != 0 ? 0x0f : 0x11), maximumQueued: 6);
+        QueueSound(library: SoundEffectLibrary.Library2, soundId: (byte)((random & 1) != 0 ? 0x0f : 0x11), maximumQueued: 6);
     }
 
     private void TrySpawnLavaSurfaceSpray(
@@ -698,7 +701,7 @@ public sealed class SamusLiquidPhysicsState
         }
 
         if ((nmiFrameCounter & 1) == 0)
-            QueueSound(library: 2, soundId: 0x10, maximumQueued: 6);
+            QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x10, maximumQueued: 6);
     }
 
     private void TrySpawnRunningFootsteps(
@@ -747,7 +750,7 @@ public sealed class SamusLiquidPhysicsState
             samus.HorizontalSpeed.SpecialPaletteTimer == 0 &&
             (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
         {
-            QueueSound(library: 3, soundId: 0x06, maximumQueued: 6);
+            QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x06, maximumQueued: 6);
         }
     }
 
@@ -775,7 +778,10 @@ public sealed class SamusLiquidPhysicsState
             ReadWord(bus, damageAddress));
     }
 
-    private void QueueSound(byte library, byte soundId, byte maximumQueued) =>
+    private void QueueSound(
+        SoundEffectLibrary library,
+        byte soundId,
+        byte maximumQueued) =>
         _soundRequests.Add(new SamusSoundRequest(library, soundId, maximumQueued));
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

@@ -711,7 +711,7 @@ internal static class WallSpacePirateAudit
                 level: assets.LevelData,
                 samusProjectiles: loaded.Projectiles);
             sawPublishedDeathSound |= loaded.Enemies.SoundRequests.Any(request =>
-                request.Library == 2 && request.MaximumQueued == 1 &&
+                request.Library == SoundEffectLibrary.Library2 && request.MaximumQueued == 1 &&
                 request.SoundId is 9 or 0x24 or 0x0b);
 
             if (!loaded.Enemies.EnemyProjectiles.Any(projectile => projectile.IsActive))

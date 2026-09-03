@@ -254,4 +254,7 @@ public sealed class SamusAtmosphericEffectSlot
 }
 
 /// <summary>One exact request to a native sound-library queue.</summary>
-public readonly record struct SamusSoundRequest(byte Library, byte SoundId, byte MaximumQueued);
+public readonly record struct SamusSoundRequest(
+    SoundEffectLibrary Library,
+    byte SoundId,
+    byte MaximumQueued);

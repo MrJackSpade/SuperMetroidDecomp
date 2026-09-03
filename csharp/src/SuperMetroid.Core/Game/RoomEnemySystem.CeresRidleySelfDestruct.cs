@@ -225,7 +225,7 @@ public sealed partial class RoomEnemySystem
             // Ceres is area six, selecting QueueSfx2_Max3($45); the alternate library-three
             // call belongs to the non-Ceres reuse of this shared native routine.
             if (state.CeresEscapeTextSoundCounter == 0)
-                QueueEnemySound(library: 2, soundId: 0x0045, maximumQueued: 3);
+                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0045, maximumQueued: 3);
             return false;
         }
     }

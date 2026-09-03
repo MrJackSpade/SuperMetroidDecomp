@@ -887,7 +887,7 @@ static void VerifyCeresRidleyRoomEntry()
     {
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
         observedRoarSound |= enemies.SoundRequests.Contains(
-            new EnemySoundRequest(Library: 2, SoundId: 0x59, MaximumQueued: 6));
+            new EnemySoundRequest(Library: SoundEffectLibrary.Library2, SoundId: 0x59, MaximumQueued: 6));
         battleEntryFrames++;
     }
     AssertEqual((ushort)RidleyAiFunction.CeresHovering, (ushort)state.Function,
@@ -1021,7 +1021,7 @@ static void VerifyCeresRidleyRoomEntry()
     var escapeWrites = new VramWriteQueue();
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
     AssertTrue(enemies.SoundRequests.Contains(
-            new EnemySoundRequest(Library: 2, SoundId: 0x4e, MaximumQueued: 6)),
+            new EnemySoundRequest(Library: SoundEffectLibrary.Library2, SoundId: 0x4e, MaximumQueued: 6)),
         "first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
     AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,

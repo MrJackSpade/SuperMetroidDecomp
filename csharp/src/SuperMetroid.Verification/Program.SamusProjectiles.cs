@@ -1663,7 +1663,7 @@ static void VerifySamusPowerBeamProjectiles()
         "resident red door receives power-beam family for native rejection");
     residentDoorPlms.Step(
         bus, residentDoorLevel, residentDoorStreamer, 0x1000, 0x1000, 0);
-    AssertTrue(residentDoorPlms.SoundRequests.Contains(new PlmSoundRequest(2, 0x57, 6)),
+    AssertTrue(residentDoorPlms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x57, 6)),
         "wrong colored-door weapon queues native dud sound");
     AssertEqual(0, residentDoorPlms.ColoredDoors.Single().HitCounter,
         "wrong colored-door weapon does not advance threshold counter");
@@ -1821,7 +1821,7 @@ static void VerifySamusPowerBeamProjectiles()
     greyDoorPlms.Step(
         bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
         enemyDeaths: 1, enemyDeathQuota: 2);
-    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(2, 0x57, 6)),
+    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x57, 6)),
         "locked enemy-quota grey door consumes shot with native dud sound");
     AssertTrue(!greyDoorSystem.HasEvent((int)EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
@@ -1849,7 +1849,7 @@ static void VerifySamusPowerBeamProjectiles()
         "post-unlock shot selects cartridge opening list");
     AssertTrue(greyDoorSystem.HasOpenedDoorBit(greyDoorPersistedArgument),
         "grey-door one-hit instruction persists sanitized room argument");
-    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(3, 0x07, 6)),
+    AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary.Library3, 0x07, 6)),
         "grey-door opening stream queues native library-three sound seven");
 
     var reloadedGreyWords = new ushort[16 * 16];
@@ -1984,7 +1984,7 @@ static void VerifySamusPowerBeamProjectiles()
     BackgroundTilemapStreamer blueDoorStreamer = blueDoor.CreateBackgroundStreamer();
     blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, 0x1000, 0x1000, 0);
     AssertTrue(blueDoorPlms.SoundRequests.Any(request =>
-            request == new PlmSoundRequest(3, 0x07, 6)),
+            request == new PlmSoundRequest(SoundEffectLibrary.Library3, 0x07, 6)),
         "blue-door list queues library-three opening sound seven");
     for (int frame = 1; frame < 19; frame++)
         blueDoorPlms.Step(bus, blueDoor, blueDoorStreamer, 0x1000, 0x1000, 0);

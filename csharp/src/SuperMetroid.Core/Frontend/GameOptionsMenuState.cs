@@ -491,10 +491,10 @@ public sealed class GameOptionsMenuState
     }
 
     private void QueueMoveSound() =>
-        audio?.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+        audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
 
     private void QueueSelectSound() =>
-        audio?.QueueSound(library: 1, soundId: 0x38, maximumQueued: 6);
+        audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
 
     private void ApplyBrightness(Span<Rgba32> pixels)
     {

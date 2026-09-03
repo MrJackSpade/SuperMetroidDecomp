@@ -91,7 +91,7 @@ public sealed class GameOverMenuState
                 StepBabyMetroid();
                 if ((pressed & (SnesButton.Select | SnesButton.Up | SnesButton.Down)) != 0)
                 {
-                    audio.QueueSound(library: 1, soundId: 0x37, maximumQueued: 6);
+                    audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
                     SelectedItem ^= 1;
                 }
                 else if ((pressed & SnesButton.A) != 0)
@@ -180,7 +180,7 @@ public sealed class GameOverMenuState
                 _ => throw new InvalidDataException(
                     $"Unknown game-over Baby instruction $82:{next:X4}."),
             };
-            audio.QueueSound(library: 3, soundId: cry, maximumQueued: 6);
+            audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: cry, maximumQueued: 6);
             babyInstructionPointer = unchecked((ushort)(babyInstructionPointer + 8));
             babyInstructionTimer = ReadBank82Word(babyInstructionPointer);
         }

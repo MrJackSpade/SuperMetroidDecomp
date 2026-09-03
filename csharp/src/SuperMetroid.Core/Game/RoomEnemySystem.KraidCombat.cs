@@ -153,7 +153,7 @@ public sealed partial class RoomEnemySystem
             state.SpitRockRequestCount++;
             if (SpawnKraidSpitRock(body))
                 state.SpawnedSpitRockCount++;
-            LastKraidSoundEffect = new KraidSoundRequest(3, 0x001e);
+            LastKraidSoundEffect = new KraidSoundRequest(SoundEffectLibrary.Library3, 0x001e);
         }
     }
 
@@ -178,8 +178,8 @@ public sealed partial class RoomEnemySystem
             {
                 LastKraidSoundEffect = word switch
                 {
-                    0xaf94 => new KraidSoundRequest(2, 0x002d),
-                    0xaf9f => new KraidSoundRequest(2, 0x002e),
+                    0xaf94 => new KraidSoundRequest(SoundEffectLibrary.Library2, 0x002d),
+                    0xaf9f => new KraidSoundRequest(SoundEffectLibrary.Library2, 0x002e),
                     _ => throw new InvalidDataException(
                         $"Kraid head instruction $A7:{word:X4} is not translated."),
                 };

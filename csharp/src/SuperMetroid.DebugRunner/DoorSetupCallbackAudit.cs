@@ -380,7 +380,7 @@ internal static class DoorSetupCallbackAudit
         {
             StepPlms(runtime);
             soundObserved |= runtime.Plms.SoundRequests.Any(
-                sound => sound is { Library: 2, SoundId: 0x15, MaximumQueued: 6 });
+                sound => sound is { Library: SoundEffectLibrary.Library2, SoundId: 0x15, MaximumQueued: 6 });
         }
         if (!soundObserved || runtime.Plms.PopulationSlots.Any(
                 slot => slot.HeaderPointer == RoomPlmHeaders.MaridiaElevatube))

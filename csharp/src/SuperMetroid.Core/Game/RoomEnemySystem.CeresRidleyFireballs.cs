@@ -1004,7 +1004,7 @@ public sealed partial class RoomEnemySystem
                     ushort impactY = projectile.YPosition;
                     projectile.Clear();
                     SpawnRoomGraphicsDustExplosion(impactX, impactY, animationIndex: 9);
-                    QueueEnemySound(library: 2, soundId: 0x006d, maximumQueued: 6);
+                    QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x006d, maximumQueued: 6);
                 }
                 return;
 

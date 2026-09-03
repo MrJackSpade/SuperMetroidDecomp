@@ -94,7 +94,7 @@ public sealed partial class RoomEnemySystem
         if (oldTimer == 1)
         {
             lint.VariableA = (ushort)KraidAiFunction.LintFire;
-            LastKraidSoundEffect = new KraidSoundRequest(3, 0x001f);
+            LastKraidSoundEffect = new KraidSoundRequest(SoundEffectLibrary.Library3, 0x001f);
         }
     }
 

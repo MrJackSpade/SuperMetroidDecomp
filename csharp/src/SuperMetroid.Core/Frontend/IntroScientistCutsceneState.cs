@@ -87,13 +87,13 @@ internal sealed class IntroScientistCutsceneState
         switch (opcode)
         {
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1:
-                audio?.QueueSound(library: 3, soundId: 0x23, maximumQueued: 6);
+                audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x23, maximumQueued: 6);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2:
-                audio?.QueueSound(library: 3, soundId: 0x26, maximumQueued: 6);
+                audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x26, maximumQueued: 6);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3:
-                audio?.QueueSound(library: 3, soundId: 0x27, maximumQueued: 6);
+                audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x27, maximumQueued: 6);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_StartIntroPage4:
                 // The delivery loop ends by selecting page four.

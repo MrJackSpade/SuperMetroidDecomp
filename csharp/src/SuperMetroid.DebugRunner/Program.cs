@@ -5944,7 +5944,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     }
     observedHurtImpactSound |= options.KnockbackScript &&
         runtime.Samus!.LiquidPhysics.SoundRequests.Any(
-            request => request == new SamusSoundRequest(1, 0x35, 6));
+            request => request == new SamusSoundRequest(SoundEffectLibrary.Library1, 0x35, 6));
     if (options.LandingImpactScript &&
         (runtime.LastAerialSamusMovement is { Landed: true } ||
          runtime.LastMorphBallMovement is { Landed: true }))
@@ -5955,7 +5955,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[2].Type == 6 &&
             runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[3].Type == 6;
         observedLandingImpactSound |= runtime.Samus.LiquidPhysics.SoundRequests.Any(
-            request => request == new SamusSoundRequest(3, 0x05, 6));
+            request => request == new SamusSoundRequest(SoundEffectLibrary.Library3, 0x05, 6));
     }
     if (specialSpinRoute &&
         yDirectionBeforeFrame == 2 &&

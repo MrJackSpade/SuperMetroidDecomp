@@ -156,23 +156,21 @@ public sealed class CartridgeAudioState
     /// </summary>
     public void QueueCancelSoundEffects()
     {
-        QueueSound(library: 1, soundId: AudioCancellationCommands.Library1, maximumQueued: 6);
-        QueueSound(library: 2, soundId: AudioCancellationCommands.Library2, maximumQueued: 6);
-        QueueSound(library: 3, soundId: AudioCancellationCommands.Library3, maximumQueued: 6);
+        QueueSound(library: SoundEffectLibrary.Library1, soundId: AudioCancellationCommands.Library1, maximumQueued: 6);
+        QueueSound(library: SoundEffectLibrary.Library2, soundId: AudioCancellationCommands.Library2, maximumQueued: 6);
+        QueueSound(library: SoundEffectLibrary.Library3, soundId: AudioCancellationCommands.Library3, maximumQueued: 6);
     }
 
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
-    public void QueueSound(byte library, byte soundId, byte maximumQueued)
+    public void QueueSound(SoundEffectLibrary library, byte soundId, byte maximumQueued)
     {
-        if (library is < 1 or > 3)
-            throw new ArgumentOutOfRangeException(nameof(library), library, "SFX library must be 1..3.");
         if (maximumQueued is < 1 or > 15)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(maximumQueued), maximumQueued, "Retail queue limit must be 1..15.");
         }
 
-        int queue = library - 1;
+        int queue = SoundEffectLibraries.ToQueueIndex(library);
         int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) & SoundQueueMask;
         if (occupancy >= maximumQueued)
             return;

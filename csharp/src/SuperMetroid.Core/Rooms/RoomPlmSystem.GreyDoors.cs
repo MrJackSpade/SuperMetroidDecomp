@@ -111,7 +111,7 @@ public sealed partial class RoomPlmSystem
                 // Play_Dud_Sound_if_Shot consumes the shared PLM timer whether or not it
                 // was nonzero. This is why a rejected shot never survives until unlock.
                 if (door.HasPendingHit)
-                    _soundRequests.Add(new PlmSoundRequest(2, 0x57, MaximumQueued: 6));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x57, MaximumQueued: 6));
                 door.HasPendingHit = false;
                 door.PendingProjectileType = default;
                 return true;

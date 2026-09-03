@@ -7,7 +7,9 @@ public readonly record struct ManagedAudioParitySmokeTestResult(
     int MusicFrames,
     int SoundEffectFrames,
     int ComparedPcmSamples,
-    int ComparedAcknowledgements);
+    int ComparedAcknowledgements,
+    int MusicBankScenarios,
+    int SoundEffectScenarios);
 
 /// <summary>
 /// Temporary migration oracle. It gives the managed port and the pinned native translation
@@ -24,11 +26,16 @@ public static class ManagedAudioParitySmokeTest
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         int samples = CompareMusic(bus, musicFrames);
         int acknowledgements = CompareSoundEffect(bus, soundEffectFrames, ref samples);
+        CompareEveryMusicBank(bus, Math.Min(musicFrames, 120), ref samples, ref acknowledgements);
+        CompareAdditionalSoundLibraries(
+            bus, soundEffectFrames, ref samples, ref acknowledgements);
         return new ManagedAudioParitySmokeTestResult(
             musicFrames,
             soundEffectFrames,
             samples,
-            acknowledgements);
+            acknowledgements,
+            AudioAssetCatalogData.Music.Count,
+            3);
     }
 
     private static int CompareMusic(ISnesAddressSpace bus, int frameCount)
@@ -73,6 +80,95 @@ public static class ManagedAudioParitySmokeTest
             acknowledgements = managedAck;
         }
         return comparedAcknowledgements;
+    }
+
+    /// <summary>
+    /// Loads every extracted bank and starts its first retail track. This catches a bad
+    /// upload-address mapping as well as bank-specific instruments, BRR data, envelopes,
+    /// pitch, echo, and sequence opcodes before the native oracle is retired.
+    /// </summary>
+    private static void CompareEveryMusicBank(
+        ISnesAddressSpace bus,
+        int frameCount,
+        ref int samples,
+        ref int acknowledgements)
+    {
+        foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.Music)
+        {
+            using var managed = new SpcAudioEngine();
+            using var native = new NativeSpcAudioOracle(bus);
+            for (int frame = 0; frame < frameCount; frame++)
+            {
+                IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
+                    ?
+                    [
+                        CartridgeAudioCommand.Upload(AudioAssetCatalogData.Common.SnesAddress),
+                        CartridgeAudioCommand.Upload(bank.SnesAddress),
+                        CartridgeAudioCommand.WritePort(AudioRomData.Apu.MusicPort, 1),
+                    ]
+                    : Array.Empty<CartridgeAudioCommand>();
+                string scenario = $"{bank.Name} track 1";
+                CompareFrame(frame, scenario, managed, native, commands, ref samples);
+                CompareAcknowledgements(
+                    frame, scenario, managed.ReadAcknowledgements(), native.ReadAcknowledgements());
+                acknowledgements += AudioRomData.Apu.PortCount;
+            }
+        }
+    }
+
+    /// <summary>Exercises the other two SFX command tables plus overlap and cancellation.</summary>
+    private static void CompareAdditionalSoundLibraries(
+        ISnesAddressSpace bus,
+        int frameCount,
+        ref int samples,
+        ref int acknowledgements)
+    {
+        SoundEffectId[] effects =
+        [
+            SoundEffectLibrary2Sounds.DoorOpening,
+            new SoundEffectId(SoundEffectLibrary.Library3, 0x23),
+        ];
+        foreach (SoundEffectId effect in effects)
+        {
+            var queue = new CartridgeAudioState();
+            queue.QueueSound(effect, maximumQueued: 15);
+            CompareQueuedScenario(
+                bus, queue, effect.ToString(), frameCount, ref samples, ref acknowledgements);
+        }
+
+        var overlapping = new CartridgeAudioState();
+        overlapping.QueueSound(SoundEffectLibrary1Sounds.PowerBeam, maximumQueued: 15);
+        overlapping.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, maximumQueued: 15);
+        overlapping.QueueSound(
+            new SoundEffectId(SoundEffectLibrary.Library3, 0x23), maximumQueued: 15);
+        CompareQueuedScenario(
+            bus, overlapping, "three-library overlap", frameCount, ref samples, ref acknowledgements,
+            cancelFrame: frameCount / 2);
+    }
+
+    private static void CompareQueuedScenario(
+        ISnesAddressSpace bus,
+        CartridgeAudioState queue,
+        string scenario,
+        int frameCount,
+        ref int samples,
+        ref int acknowledgements,
+        int cancelFrame = -1)
+    {
+        using var managed = new SpcAudioEngine();
+        using var native = new NativeSpcAudioOracle(bus);
+        CartridgeAudioAcknowledgements previous = default;
+        for (int frame = 0; frame < frameCount; frame++)
+        {
+            if (frame == cancelFrame)
+                queue.QueueCancelSoundEffects();
+            IReadOnlyList<CartridgeAudioCommand> commands = queue.AdvanceFrame(bus, previous);
+            CompareFrame(frame, scenario, managed, native, commands, ref samples);
+            CartridgeAudioAcknowledgements managedAck = managed.ReadAcknowledgements();
+            CompareAcknowledgements(frame, scenario, managedAck, native.ReadAcknowledgements());
+            acknowledgements += AudioRomData.Apu.PortCount;
+            previous = managedAck;
+        }
     }
 
     private static void CompareFrame(

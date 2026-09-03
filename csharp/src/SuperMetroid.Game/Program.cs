@@ -143,7 +143,8 @@ try
         Console.WriteLine(
             $"Managed audio parity passed: {result.MusicFrames} music frames, " +
             $"{result.SoundEffectFrames} SFX frames, {result.ComparedPcmSamples} PCM samples, " +
-            $"and {result.ComparedAcknowledgements} acknowledgement bytes matched native.");
+            $"and {result.ComparedAcknowledgements} acknowledgement bytes matched native across " +
+            $"{result.MusicBankScenarios} music banks and {result.SoundEffectScenarios} SFX scenarios.");
         return 0;
     }
 

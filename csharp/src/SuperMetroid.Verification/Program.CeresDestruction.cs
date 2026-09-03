@@ -8,14 +8,40 @@ static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
 
+    AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
+        "Ceres destruction typed approach angle");
+    AssertTrue(
+        CeresDestructionRomData.Vram.ObjectCharacterDestinationByte +
+            CeresDestructionRomData.Vram.Mode7CharacterBytes <= SnesVram.ByteCount,
+        "Ceres destruction OBJ transfer fits VRAM");
+
     // Each cinematic decompression target is intentionally all zero in this timeline
     // fixture. Long command-one runs encode $4000 bytes in only 49 stored bytes, while the
     // distinct output lengths still exercise every minimum-size assertion and map slice.
-    WriteRepeatedCompressedStream(rom, 0x95a82f, 0x4000, 0);
-    WriteRepeatedCompressedChunks(rom, 0x96fe69, [0x11, 0x22, 0x33, 0x44]);
-    WriteRepeatedCompressedStream(rom, 0x96d10a, 0x4000, 0);
-    WriteRepeatedCompressedStream(rom, 0x978adb, 0x0800, 0);
-    WriteRepeatedCompressedStream(rom, 0x96ec76, 0x4000, 0);
+    WriteRepeatedCompressedStream(
+        rom,
+        CeresDestructionRomData.Assets.Mode7Characters,
+        CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        0);
+    WriteRepeatedCompressedChunks(
+        rom,
+        CeresDestructionRomData.Assets.CeresTilemaps,
+        [0x11, 0x22, 0x33, 0x44]);
+    WriteRepeatedCompressedStream(
+        rom,
+        CeresDestructionRomData.Assets.CeresObjectCharacters,
+        CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        CeresDestructionRomData.Assets.ZebesTilemap,
+        CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
+        0);
+    WriteRepeatedCompressedStream(
+        rom,
+        CeresDestructionRomData.Assets.ZebesCharacters,
+        CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        0);
 
     // Stable invisible frame lists let this test isolate the state machine from spritemap
     // decoding. The real-ROM audit exercises the same pointers with their retail maps.

@@ -18,14 +18,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed partial class CeresDestructionCinematicState
 {
-    private const int PaletteAddress = 0x8ce5e9;
-    private const int Mode7CharacterAddress = 0x95a82f;
-    private const int CeresTilemapAddress = 0x96fe69;
-    private const int CeresObjectCharacterAddress = 0x96d10a;
-    private const int ZebesTilemapAddress = 0x978adb;
-    private const int ZebesCharacterAddress = 0x96ec76;
-    private const int SignedSineTableAddress = 0xa0b443;
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
@@ -39,7 +31,7 @@ internal sealed partial class CeresDestructionCinematicState
     private ushort backgroundXSubPosition;
     private ushort backgroundY = unchecked((ushort)-112);
     private ushort backgroundYSubPosition;
-    private ushort zoom = 0x0100;
+    private ushort zoom = CeresDestructionRomData.Motion.IdentityScale;
     private SnesAngle angle;
     private byte brightness;
     private int fadeCounter = 1;
@@ -58,9 +50,15 @@ internal sealed partial class CeresDestructionCinematicState
         this.audio = audio;
         // State $25 selects the common cinematic bank and destruction track eight.
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x2d));
-        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(8), MusicCommandDelay.FromDelayedYArgument(0x0e));
-        ceresTilemaps = RomDataReader.Decompress(bus, CeresTilemapAddress, maximumOutputBytes: 0x1000);
+        audio?.QueueMusicDelayed8(
+            MusicCommand.LoadData(CeresDestructionRomData.Music.CeresDataIndex));
+        audio?.QueueMusicDelayed(
+            MusicCommand.SelectTrack(CeresDestructionRomData.Music.CeresTrack),
+            MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
+        ceresTilemaps = RomDataReader.Decompress(
+            bus,
+            CeresDestructionRomData.Assets.CeresTilemaps,
+            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
         SetupCeresDestruction();
     }
 
@@ -83,7 +81,7 @@ internal sealed partial class CeresDestructionCinematicState
     /// </summary>
     internal byte ReadMode7MapByte(int mapByteIndex)
     {
-        if ((uint)mapByteIndex >= 0x4000)
+        if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
             throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
         return vram.ReadByte(mapByteIndex * 2);
     }
@@ -112,7 +110,7 @@ internal sealed partial class CeresDestructionCinematicState
 
             case CeresDestructionPhase.ApproachExplosion:
                 StepInitialDrift();
-                if (zoom < 0x0280)
+                if (zoom < CeresDestructionRomData.Motion.CeresZoomLimit)
                 {
                     zoom++;
                 }
@@ -120,7 +118,7 @@ internal sealed partial class CeresDestructionCinematicState
                 {
                     // `$8B:C345` snaps the scale to $0300, creates the final blast, and
                     // installs the flying-away function on this exact handler call.
-                    zoom = 0x0300;
+                    zoom = CeresDestructionRomData.Motion.CeresExplosionScale;
                     SpawnFinalCeresExplosion();
                     Phase = CeresDestructionPhase.FlyingAwayFromExplosion;
                 }
@@ -129,14 +127,15 @@ internal sealed partial class CeresDestructionCinematicState
             case CeresDestructionPhase.FlyingAwayFromExplosion:
                 backgroundX = unchecked((ushort)(backgroundX + 2));
                 angle = angle.AddTableUnits(-1);
-                if (zoom < 0x0010)
+                if (zoom < CeresDestructionRomData.Motion.MinimumScale)
                 {
-                    phaseTimer = 0x00c0;
+                    phaseTimer = CeresDestructionRomData.Timing.ExplosionHoldFrames;
                     Phase = CeresDestructionPhase.HoldAfterExplosion;
                 }
                 else
                 {
-                    zoom = unchecked((ushort)(zoom - 0x0010));
+                    zoom = unchecked((ushort)(
+                        zoom - CeresDestructionRomData.Motion.SlowScaleStep));
                 }
                 break;
 
@@ -170,9 +169,11 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition, 0x0000_2000);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition, unchecked((int)0xffff_8000));
-                if (zoom < 0x0480)
+                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
+                    CeresDestructionRomData.Motion.EighthPixel16Point16);
+                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
+                    CeresDestructionRomData.Motion.NegativeHalfPixel16Point16);
+                if (zoom < CeresDestructionRomData.Motion.ZebesApproachScaleLimit)
                     zoom = unchecked((ushort)(zoom + 4));
                 else
                     Phase = CeresDestructionPhase.FlyingTowardZebesB;
@@ -180,30 +181,34 @@ internal sealed partial class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition, 0x0000_2000);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition, unchecked((int)0xffff_8000));
+                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
+                    CeresDestructionRomData.Motion.EighthPixel16Point16);
+                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
+                    CeresDestructionRomData.Motion.NegativeHalfPixel16Point16);
                 if (unchecked((short)backgroundX) < -128)
                 {
                     Phase = CeresDestructionPhase.FlyingTowardZebesC;
                 }
                 else
                 {
-                    zoom = unchecked((ushort)(zoom + 0x0010));
+                    zoom = unchecked((ushort)(zoom + CeresDestructionRomData.Motion.SlowScaleStep));
                     angle = angle.AddTableUnits(-1);
                 }
                 StepZebesActors(slidingAway: false);
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
-                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition, 0x0000_2000);
-                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition, 0x0000_2000);
-                if (zoom < 0x2000)
+                AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
+                    CeresDestructionRomData.Motion.EighthPixel16Point16);
+                AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
+                    CeresDestructionRomData.Motion.EighthPixel16Point16);
+                if (zoom < CeresDestructionRomData.Motion.FarZebesScaleLimit)
                 {
-                    zoom = unchecked((ushort)(zoom + 0x0020));
+                    zoom = unchecked((ushort)(zoom + CeresDestructionRomData.Motion.FastScaleStep));
                 }
                 else
                 {
-                    phaseTimer = 0x0040;
+                    phaseTimer = CeresDestructionRomData.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
                 StepZebesActors(slidingAway: false);
@@ -231,48 +236,82 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SetupCeresDestruction()
     {
-        byte[] characters = RomDataReader.Decompress(bus, Mode7CharacterAddress, maximumOutputBytes: 0x4000);
-        byte[] objectCharacters = RomDataReader.Decompress(bus, CeresObjectCharacterAddress, maximumOutputBytes: 0x4000);
-        RequireMinimum(characters, 0x4000, "Ceres destruction Mode-7 characters");
+        byte[] characters = RomDataReader.Decompress(
+            bus,
+            CeresDestructionRomData.Assets.Mode7Characters,
+            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
+        byte[] objectCharacters = RomDataReader.Decompress(
+            bus,
+            CeresDestructionRomData.Assets.CeresObjectCharacters,
+            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
+        RequireMinimum(characters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+            "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
         // screens used by this setup call. `$8B:C345` later consumes the front-gunship
         // screen at +$000 and the clear screen at +$C00 without decompressing again.
-        RequireMinimum(ceresTilemaps, 0x0f00, "Ceres cinematic tilemaps");
-        RequireMinimum(objectCharacters, 0x4000, "Ceres cinematic OBJ characters");
+        RequireMinimum(ceresTilemaps, CeresDestructionRomData.Vram.CeresMinimumTilemapBytes,
+            "Ceres cinematic tilemaps");
+        RequireMinimum(objectCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+            "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
         // intro uses offsets zero and $300, so reusing either intro slice produces a
         // coherent but completely incorrect destruction shot.
-        vram.LoadMode7CharacterBytes(characters.AsSpan(0, 0x4000));
-        vram.FillMode7MapBytes(0x8c, 0x4000);
-        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(0x0600, 0x0600));
-        vram.LoadBytes(0xc000, objectCharacters.AsSpan(0, 0x4000));
+        vram.LoadMode7CharacterBytes(
+            characters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
+        vram.FillMode7MapBytes(
+            CeresDestructionRomData.Vram.InitialMode7MapCharacter,
+            CeresDestructionRomData.Vram.Mode7MapCapacityBytes);
+        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+            CeresDestructionRomData.Vram.CeresSceneTilemapOffset,
+            CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
+        vram.LoadBytes(
+            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+            objectCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
 
         // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard
         // cinematic sheet at $9A:D200. Preserve that overlap instead of displaying the
         // decompressed source's stale characters for explosion spritemaps.
-        vram.LoadBytes(0xc000, ReadBusBytes(0x9ad200, 0x1a00));
-        cgram.LoadFromBus(bus, PaletteAddress);
+        vram.LoadBytes(
+            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+            ReadBusBytes(
+                CeresDestructionRomData.Assets.SharedObjectCharacters,
+                CeresDestructionRomData.Vram.SharedObjectCharacterBytes));
+        cgram.LoadFromBus(bus, CeresDestructionRomData.Assets.Palette);
 
         actors.Clear();
-        actors.Add(new IntroDiscoverySprite(0x0050, 0x009f, 0x0800, 0xcc3f));
-        actors.Add(new IntroDiscoverySprite(0x0080, 0x0060, 0x0800, 0xcc4f));
-        actors.Add(new IntroDiscoverySprite(0x0070, 0x0057, 0x0800, 0xcc57));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialAsteroids));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialSmallAsteroids));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialVortex));
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
     private void SetupZebesReveal()
     {
-        byte[] zebesTilemap = RomDataReader.Decompress(bus, ZebesTilemapAddress, maximumOutputBytes: 0x1000);
-        byte[] zebesCharacters = RomDataReader.Decompress(bus, ZebesCharacterAddress, maximumOutputBytes: 0x4000);
-        RequireMinimum(zebesTilemap, 0x0800, "Zebes reveal tilemap");
-        RequireMinimum(zebesCharacters, 0x4000, "Zebes reveal characters");
+        byte[] zebesTilemap = RomDataReader.Decompress(
+            bus,
+            CeresDestructionRomData.Assets.ZebesTilemap,
+            maximumOutputBytes: CeresDestructionRomData.Vram.CompressedTilemapLimit);
+        byte[] zebesCharacters = RomDataReader.Decompress(
+            bus,
+            CeresDestructionRomData.Assets.ZebesCharacters,
+            maximumOutputBytes: CeresDestructionRomData.Vram.Mode7CharacterBytes);
+        RequireMinimum(zebesTilemap, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
+            "Zebes reveal tilemap");
+        RequireMinimum(zebesCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+            "Zebes reveal characters");
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM
         // zero; that dormant map becomes visible only when C7CA later selects Mode 7.
-        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(0x0300, 0x0300));
-        vram.LoadBytes(0xb800, zebesTilemap.AsSpan(0, 0x0800));
-        vram.LoadBytes(0xc000, zebesCharacters.AsSpan(0, 0x4000));
+        vram.LoadMode7MapBytes(ceresTilemaps.AsSpan(
+            CeresDestructionRomData.Vram.MapHalfBytes,
+            CeresDestructionRomData.Vram.MapHalfBytes));
+        vram.LoadBytes(
+            CeresDestructionRomData.Vram.ZebesTilemapDestinationByte,
+            zebesTilemap.AsSpan(0, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes));
+        vram.LoadBytes(
+            CeresDestructionRomData.Vram.ObjectCharacterDestinationByte,
+            zebesCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
 
         actors.Clear();
         backgroundX = 0;
@@ -280,16 +319,19 @@ internal sealed partial class CeresDestructionCinematicState
         backgroundY = 0;
         backgroundYSubPosition = 0;
         angle = SnesAngle.Zero;
-        zoom = 0x0100;
+        zoom = CeresDestructionRomData.Motion.IdentityScale;
         brightness = 0;
         fadeCounter = 1;
-        phaseTimer = 0x81; // The complete MOSAIC register, including BG-enable bit zero.
+        phaseTimer = CeresDestructionRomData.Timing.InitialMosaicRegister;
         usesMode7 = false;
         // The Ceres/Zebes interstitial at $8B:D6D7 has its own bank-$33 data set and
         // waits for all three commands before beginning the mosaic fade.
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x33));
-        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
+        audio?.QueueMusicDelayed8(
+            MusicCommand.LoadData(CeresDestructionRomData.Music.ZebesDataIndex));
+        audio?.QueueMusicDelayed(
+            MusicCommand.SelectTrack(CeresDestructionRomData.Music.ZebesTrack),
+            MusicCommandDelay.FromDelayedYArgument(CeresDestructionRomData.Music.DelayArgument));
         musicQueueTimer = 14;
         Phase = CeresDestructionPhase.WaitForZebesMusicQueue;
     }
@@ -297,26 +339,28 @@ internal sealed partial class CeresDestructionCinematicState
     private void SetupZebesMode7Actors()
     {
         usesMode7 = true;
-        backgroundX = 0x0080;
+        backgroundX = CeresDestructionRomData.Sprites.ZebesInitialBackgroundX;
         backgroundY = unchecked((ushort)-104);
-        angle = SnesAngle.FromTableIndex(0x20);
-        zoom = 0x0100;
+        angle = CeresDestructionRomData.Motion.ApproachAngle;
+        zoom = CeresDestructionRomData.Motion.IdentityScale;
         actors.Clear();
-        zebesPlanetActor = new IntroDiscoverySprite(0x0088, 0x006f, 0x0e00, 0xccab);
+        zebesPlanetActor = CreateActor(CeresDestructionRomData.Sprites.ZebesPlanet);
         actors.Add(zebesPlanetActor);
-        actors.Add(new IntroDiscoverySprite(0x0030, 0x002f, 0x0800, 0xcd83));
-        actors.Add(new IntroDiscoverySprite(0x00d0, 0x002f, 0x0800, 0xcd8b));
-        actors.Add(new IntroDiscoverySprite(0x0030, 0x00cf, 0x0800, 0xcd93));
-        zebesCompletionStarActor = new IntroDiscoverySprite(0x00d0, 0x00cf, 0x0800, 0xcd9b);
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.UpperLeftStar));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.UpperRightStar));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.LowerLeftStar));
+        zebesCompletionStarActor = CreateActor(CeresDestructionRomData.Sprites.LowerRightStar);
         actors.Add(zebesCompletionStarActor);
-        actors.Add(new IntroDiscoverySprite(0x0080, 0x00ba, 0x0000, 0xccbb));
+        actors.Add(CreateActor(CeresDestructionRomData.Sprites.PlanetTitle));
         Phase = CeresDestructionPhase.PlanetZebesTitle;
     }
 
     private void StepInitialDrift()
     {
-        AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition, 0x0000_1000);
-        AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition, unchecked((int)0xffff_c000));
+        AddSignedSixteenSixteen(ref backgroundY, ref backgroundYSubPosition,
+            CeresDestructionRomData.Motion.SixteenthPixel16Point16);
+        AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
+            CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16);
         zoom++;
     }
 
@@ -341,8 +385,9 @@ internal sealed partial class CeresDestructionCinematicState
     {
         if ((cinematicFrameCounter & 3) != 0)
             return false;
-        phaseTimer = unchecked((byte)(phaseTimer - 0x10));
-        return (phaseTimer & 0xf0) == 0;
+        phaseTimer = unchecked((byte)(
+            phaseTimer - CeresDestructionRomData.Timing.MosaicFadeStep));
+        return (phaseTimer & CeresDestructionRomData.Timing.MosaicSizeMask) == 0;
     }
 
     private bool MusicQueueFinished() =>
@@ -355,6 +400,9 @@ internal sealed partial class CeresDestructionCinematicState
             result[index] = bus.ReadByte(address + index);
         return result;
     }
+
+    private static IntroDiscoverySprite CreateActor(CeresCinematicActorDefinition definition) =>
+        new(definition.X, definition.Y, definition.PaletteBits, definition.InstructionPointer);
 
     private static void AddSignedSixteenSixteen(
         ref ushort whole,

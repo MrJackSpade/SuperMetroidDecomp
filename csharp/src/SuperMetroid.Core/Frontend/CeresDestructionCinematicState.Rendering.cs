@@ -45,8 +45,8 @@ internal sealed partial class CeresDestructionCinematicState
             Rgba32[] bg1 = SnesBgTilemapRenderer.Render4BppViewport(
                 vram,
                 cgram,
-                tilemapBaseWord: 0x5c00,
-                characterBaseWord: 0x6000,
+                tilemapBaseWord: CeresDestructionRomData.Rendering.Mode1TilemapWord,
+                characterBaseWord: CeresDestructionRomData.Rendering.Mode1CharacterWord,
                 horizontalScroll: 0,
                 verticalScroll: 0,
                 width: 256,
@@ -70,7 +70,9 @@ internal sealed partial class CeresDestructionCinematicState
     }
 
     private short ReadSine(byte index) => unchecked((short)
-        RomDataReader.ReadWordFixedBank(bus, SignedSineTableAddress + index * 2));
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            CeresDestructionRomData.Assets.SignedSineTable + index * sizeof(ushort)));
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));

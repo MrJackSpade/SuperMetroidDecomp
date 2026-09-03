@@ -14,14 +14,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class EndingBackgroundTextState
 {
-    private const ushort DeleteInstruction = 0x9698;
-    private const ushort GotoInstruction = 0x971e;
-    private const ushort DrawItemPercentageInstruction = 0xe627;
-    private const ushort DrawItemPercentageSubtitleInstruction = 0xe769;
-    private const ushort ClearItemPercentageSubtitleInstruction = 0xe780;
-    private const ushort DrawNothing = 0x8849;
-    private const ushort DrawTextToTilemap = 0x88b7;
-
     private readonly ISnesAddressSpace bus;
     private readonly ushort[] tilemap;
     private readonly EndingInventorySnapshot inventory;
@@ -38,7 +30,7 @@ internal sealed class EndingBackgroundTextState
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.tilemap = tilemap ?? throw new ArgumentNullException(nameof(tilemap));
-        if (tilemap.Length != 0x400)
+        if (tilemap.Length != EndingCreditsRomData.Rendering.TilemapWords)
             throw new ArgumentException("Ending BG tilemap must contain exactly $400 words.", nameof(tilemap));
         this.instructionPointer = instructionPointer;
         this.inventory = inventory;
@@ -58,7 +50,7 @@ internal sealed class EndingBackgroundTextState
         while (true)
         {
             ushort word = ReadWord(cursor);
-            if ((word & 0x8000) == 0)
+            if ((word & EndingCreditsRomData.Instructions.OpcodeBit) == 0)
             {
                 instructionTimer = word;
                 ushort packedPosition = ReadWord(Add(cursor, 2));
@@ -71,24 +63,31 @@ internal sealed class EndingBackgroundTextState
 
             switch (word)
             {
-                case DeleteInstruction:
+                case EndingCreditsRomData.Instructions.BackgroundDelete:
                     instructionPointer = 0;
                     Upload(vram);
                     return;
-                case GotoInstruction:
+                case EndingCreditsRomData.Instructions.BackgroundGoto:
                     cursor = ReadWord(Add(cursor, 2));
                     break;
-                case DrawItemPercentageInstruction:
+                case EndingCreditsRomData.Instructions.DrawItemPercentage:
                     DrawItemPercentage();
                     cursor = Add(cursor, 2);
                     break;
-                case DrawItemPercentageSubtitleInstruction:
+                case EndingCreditsRomData.Instructions.DrawItemPercentageSubtitle:
                     if (japaneseText)
-                        CopyWords(0xdf5b, destination: 736, count: 64);
+                        CopyWords(
+                            EndingCreditsRomData.Instructions.JapaneseItemPercentageSubtitle,
+                            EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                            EndingCreditsRomData.Text.JapaneseSubtitleWords);
                     cursor = Add(cursor, 2);
                     break;
-                case ClearItemPercentageSubtitleInstruction:
-                    Array.Fill(tilemap, (ushort)0x007f, startIndex: 736, count: 64);
+                case EndingCreditsRomData.Instructions.ClearItemPercentageSubtitle:
+                    Array.Fill(
+                        tilemap,
+                        EndingCreditsRomData.Rendering.BlankTile,
+                        EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                        EndingCreditsRomData.Text.JapaneseSubtitleWords);
                     RequestedItemPercentageScroll = true;
                     cursor = Add(cursor, 2);
                     break;
@@ -102,17 +101,19 @@ internal sealed class EndingBackgroundTextState
     private void DrawRecord(ushort packedPosition, ushort dataPointer)
     {
         ushort drawFunction = ReadWord(dataPointer);
-        if (drawFunction == DrawNothing)
+        if (drawFunction == EndingCreditsRomData.Instructions.DrawNothing)
             return;
-        if (drawFunction != DrawTextToTilemap)
+        if (drawFunction != EndingCreditsRomData.Instructions.DrawTextToTilemap)
         {
             throw new InvalidDataException(
                 $"Ending BG indirect function $8B:{drawFunction:X4} at $8C:{dataPointer:X4} is invalid.");
         }
 
-        byte width = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 2)));
-        byte height = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 3)));
-        int x = packedPosition & 0xff;
+        byte width = bus.ReadByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+            Add(dataPointer, 2)));
+        byte height = bus.ReadByte((int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+            Add(dataPointer, 3)));
+        int x = packedPosition & EndingCreditsRomData.Text.PackedPositionXMask;
         int y = packedPosition >> 8;
         if (width == 0 || height == 0 || x + width > 32 || y + height > 32)
             throw new InvalidDataException($"Ending BG rectangle ({x},{y}) {width}x{height} is invalid.");
@@ -135,26 +136,33 @@ internal sealed class EndingBackgroundTextState
                   + inventory.MaxMissiles / 5
                   + inventory.MaxSuperMissiles / 5
                   + inventory.MaxPowerBombs / 5;
-        count += BitOperations.PopCount((uint)(inventory.CollectedItems & 0xf32f));
-        count += BitOperations.PopCount((uint)(inventory.CollectedBeams & 0x100f));
+        count += BitOperations.PopCount((uint)(
+            inventory.CollectedItems & EndingCreditsRomData.Text.CollectibleItemMask));
+        count += BitOperations.PopCount((uint)(
+            inventory.CollectedBeams & EndingCreditsRomData.Text.CollectibleBeamMask));
         count = Math.Clamp(count, 0, 100);
 
         int hundreds = count / 100;
         int tens = count / 10 % 10;
         int units = count % 10;
         if (hundreds != 0)
-            WriteDigit(462, hundreds);
+            WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex, hundreds);
         if (tens != 0 || hundreds != 0)
-            WriteDigit(463, tens);
-        WriteDigit(464, units);
-        tilemap[465] = 0x386a;
-        tilemap[497] = 0x387a;
+            WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex + 1, tens);
+        WriteDigit(EndingCreditsRomData.Text.PercentageHundredsTopIndex + 2, units);
+        tilemap[EndingCreditsRomData.Text.PercentageHundredsTopIndex + 3] =
+            EndingCreditsRomData.Text.PercentTopTile;
+        tilemap[
+            EndingCreditsRomData.Text.PercentageHundredsTopIndex + 3 +
+            EndingCreditsRomData.Rendering.TilemapWidth] =
+            EndingCreditsRomData.Text.PercentBottomTile;
     }
 
     private void WriteDigit(int topIndex, int digit)
     {
-        tilemap[topIndex] = unchecked((ushort)(0x3860 + digit));
-        tilemap[topIndex + 32] = unchecked((ushort)(0x3870 + digit));
+        tilemap[topIndex] = unchecked((ushort)(EndingCreditsRomData.Text.DigitTopTile + digit));
+        tilemap[topIndex + EndingCreditsRomData.Rendering.TilemapWidth] =
+            unchecked((ushort)(EndingCreditsRomData.Text.DigitBottomTile + digit));
     }
 
     private void CopyWords(ushort source, int destination, int count)
@@ -164,10 +172,15 @@ internal sealed class EndingBackgroundTextState
     }
 
     private void Upload(SnesVram vram) =>
-        vram.ExecuteWordTransfer(tilemap, destinationWord: 0x4c00, wordIncrement: 1);
+        vram.ExecuteWordTransfer(
+            tilemap,
+            EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+            wordIncrement: 1);
 
     private ushort ReadWord(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, new SnesAddress(0x8c, pointer));
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            EndingCreditsRomData.Instructions.Bank.AddWithinBank(pointer));
 
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));

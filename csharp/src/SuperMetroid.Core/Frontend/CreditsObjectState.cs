@@ -15,22 +15,14 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class CreditsObjectState
 {
-    private static readonly SnesAddress CreditsInstructionBank = new(0x8c, 0);
-    private const int CreditsTilemapAddress = 0x97eeff;
-    private const ushort InitialInstructionPointer = 0xd91b;
-    private const ushort DeleteInstruction = 0x99fe;
-    private const ushort DecrementTimerAndGotoInstruction = 0x9a0d;
-    private const ushort SetTimerInstruction = 0x9a17;
-    private const ushort EndCreditsInstruction = 0xf6fe;
-    private const ushort BlankTile = 0x007f;
-    private const int TilemapWidth = 32;
-    private const int TilemapHeight = 32;
-    private const int RowByteCount = TilemapWidth * sizeof(ushort);
+    private const int RowByteCount =
+        EndingCreditsRomData.Rendering.TilemapWidth * sizeof(ushort);
 
     private readonly ISnesAddressSpace bus;
     private readonly byte[] sourceRows;
-    private readonly ushort[] tilemap = new ushort[TilemapWidth * TilemapHeight];
-    private ushort instructionPointer = InitialInstructionPointer;
+    private readonly ushort[] tilemap =
+        new ushort[EndingCreditsRomData.Rendering.TilemapWords];
+    private ushort instructionPointer = EndingCreditsRomData.Instructions.CreditsInitial;
     private ushort instructionTimer;
     private ushort scrollWhole;
     private ushort scrollSubposition;
@@ -40,13 +32,13 @@ internal sealed class CreditsObjectState
     public CreditsObjectState(ISnesAddressSpace bus)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        sourceRows = RomDataReader.Decompress(bus, CreditsTilemapAddress);
-        if (sourceRows.Length < 0x2000)
+        sourceRows = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.CreditsTilemap);
+        if (sourceRows.Length < EndingCreditsRomData.Rendering.CreditsSourceBytes)
         {
             throw new InvalidDataException(
                 $"Credits tilemap expanded to ${sourceRows.Length:X}, expected at least $2000.");
         }
-        Array.Fill(tilemap, BlankTile);
+        Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile);
     }
 
     public bool Enabled => instructionPointer != 0;
@@ -65,7 +57,8 @@ internal sealed class CreditsObjectState
 
         // AddToHiLo($198F,$198D,$00008000): half a pixel per accepted frame.
         uint fixedScroll = ((uint)scrollWhole << 16) | scrollSubposition;
-        fixedScroll = unchecked(fixedScroll + 0x0000_8000u);
+        fixedScroll = unchecked(
+            fixedScroll + EndingCreditsRomData.Motion.CreditsScrollDelta16Point16);
         scrollWhole = unchecked((ushort)(fixedScroll >> 16));
         scrollSubposition = unchecked((ushort)fixedScroll);
 
@@ -83,7 +76,10 @@ internal sealed class CreditsObjectState
     public void UploadTilemap(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
-        vram.ExecuteWordTransfer(tilemap, destinationWord: 0x4800, wordIncrement: 1);
+        vram.ExecuteWordTransfer(
+            tilemap,
+            EndingCreditsRomData.Rendering.CreditsTilemapWord,
+            wordIncrement: 1);
     }
 
     private bool InterpretUntilRowOrStop()
@@ -93,32 +89,33 @@ internal sealed class CreditsObjectState
         for (int operation = 0; operation < 32; operation++)
         {
             ushort word = ReadInstructionWord(instructionPointer);
-            if ((word & 0x8000) == 0)
+            if ((word & EndingCreditsRomData.Instructions.OpcodeBit) == 0)
             {
                 ushort sourceOffset = ReadInstructionWord(
                     unchecked((ushort)(instructionPointer + 2)));
                 CopySourceRow(sourceOffset);
                 instructionPointer = unchecked((ushort)(instructionPointer + 4));
-                destinationRow = (destinationRow + 1) & 0x1f;
+                destinationRow = (destinationRow + 1) &
+                    (EndingCreditsRomData.Rendering.TilemapHeight - 1);
                 return true;
             }
 
             switch (word)
             {
-                case SetTimerInstruction:
+                case EndingCreditsRomData.Instructions.CreditsSetTimer:
                     instructionTimer = ReadInstructionWord(
                         unchecked((ushort)(instructionPointer + 2)));
                     instructionPointer = unchecked((ushort)(instructionPointer + 4));
                     break;
 
-                case DecrementTimerAndGotoInstruction:
+                case EndingCreditsRomData.Instructions.CreditsDecrementTimerAndGoto:
                     instructionTimer = unchecked((ushort)(instructionTimer - 1));
                     instructionPointer = instructionTimer != 0
                         ? ReadInstructionWord(unchecked((ushort)(instructionPointer + 2)))
                         : unchecked((ushort)(instructionPointer + 4));
                     break;
 
-                case EndCreditsInstruction:
+                case EndingCreditsRomData.Instructions.CreditsEnd:
                     // $8B:F6FE disables the object, forces blank, installs the post-credit
                     // palette, and arms the following cinematic. The outer ending owner
                     // performs those cross-system effects; this interpreter publishes the
@@ -127,7 +124,7 @@ internal sealed class CreditsObjectState
                     instructionPointer = 0;
                     return false;
 
-                case DeleteInstruction:
+                case EndingCreditsRomData.Instructions.CreditsDelete:
                     instructionPointer = 0;
                     return false;
 
@@ -149,8 +146,8 @@ internal sealed class CreditsObjectState
                 $"Credits row offset ${sourceOffset:X4} exceeds the $2000-byte source tilemap.");
         }
 
-        int destination = destinationRow * TilemapWidth;
-        for (int column = 0; column < TilemapWidth; column++)
+        int destination = destinationRow * EndingCreditsRomData.Rendering.TilemapWidth;
+        for (int column = 0; column < EndingCreditsRomData.Rendering.TilemapWidth; column++)
         {
             int source = sourceOffset + column * 2;
             tilemap[destination + column] = unchecked((ushort)(
@@ -159,7 +156,9 @@ internal sealed class CreditsObjectState
     }
 
     private ushort ReadInstructionWord(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, CreditsInstructionBank.AddWithinBank(pointer));
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            EndingCreditsRomData.Instructions.Bank.AddWithinBank(pointer));
 }
 
 internal readonly record struct CreditsObjectStepResult(

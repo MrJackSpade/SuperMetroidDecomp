@@ -16,46 +16,6 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed partial class EndingCreditsState
 {
-    private const int Intro3PaletteAddress = 0x8cede9;
-    private const int Intro4PaletteAddress = 0x8cefe9;
-    private const int Intro5PaletteAddress = 0x8ce9e9;
-    private const int Intro6PaletteAddress = 0x8cebe9;
-
-    private const int EscapeMapAAddress = 0x98bcd6;
-    private const int EscapeMapBAddress = 0x98ed4f;
-    private const int EscapeMapCAddress = 0x999101;
-    private const int EscapeCharactersAAddress = 0x99d17e;
-    private const int EscapeCharactersBAddress = 0x99d65b;
-    private const int EscapeCharactersCAddress = 0x99d932;
-    private const int EndingObjectCharactersAddress = 0x99d17e;
-    private const int EndingObjectCharacters70Address = 0x98b5c1;
-    private const int EndingObjectCharacters74Address = 0x98b857;
-    private const int EndingObjectCharacters78Address = 0x98baed;
-    private const int EndingObjectCharacters7cAddress = 0x98bccd;
-    private const int EndingFontCharactersAddress = 0x97e7de;
-
-    private const int WaitingForCreditsCharactersAddress = 0x979803;
-    private const int SuitlessSamusCharactersAddress = 0x97b957;
-    private const int ShootingScreenCharactersAddress = 0x97d7fc;
-    private const int WaitingForCreditsTilemapAddress = 0x9796f4;
-    private const int PostCreditsMode7Address = 0x97f987;
-    private const int PostCreditsTileFragmentAAddress = 0x99da9f;
-    private const int PostCreditsTileFragmentBAddress = 0x99dab1;
-
-    private const ushort ExplosionFadePaletteOpcode = 0xf284;
-    private const ushort SpawnExplosionSilhouetteOpcode = 0xf295;
-    private const ushort StartZebesExplosionOpcode = 0xf2b7;
-    private const ushort ExplosionFinaleOpcode = 0xf2fa;
-    private const ushort EndZebesExplosionOpcode = 0xf32b;
-    private const ushort SpawnCompletedTextOpcode = 0xf3b0;
-    private const ushort SpawnClearTimeOpcode = 0xf3ce;
-    private const ushort SpawnHoursTensOpcode = 0xf41b;
-    private const ushort SpawnHoursUnitsOpcode = 0xf424;
-    private const ushort SpawnColonOpcode = 0xf42d;
-    private const ushort SpawnMinutesTensOpcode = 0xf436;
-    private const ushort SpawnMinutesUnitsOpcode = 0xf43f;
-    private const ushort TransitionToCreditsOpcode = 0xf448;
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState audio;
     private readonly ushort gameTimeHours;
@@ -65,7 +25,8 @@ internal sealed partial class EndingCreditsState
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly List<EndingSprite> sprites = [];
-    private readonly ushort[] postCreditsTilemap = new ushort[0x400];
+    private readonly ushort[] postCreditsTilemap =
+        new ushort[EndingCreditsRomData.Rendering.TilemapWords];
 
     private CreditsObjectState? credits;
     private EndingBackgroundTextState? postCreditsText;
@@ -76,7 +37,7 @@ internal sealed partial class EndingCreditsState
     private ushort mode7X;
     private ushort mode7XSubposition;
     private ushort mode7Y;
-    private ushort mode7Zoom = 0x0100;
+    private ushort mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
     private SnesAngle mode7Angle;
     private ushort planetMotionIndex;
     private ushort postCreditsVerticalScroll;
@@ -106,9 +67,10 @@ internal sealed partial class EndingCreditsState
     public ushort CinematicFrame => cinematicFrame;
     public ushort CreditsVerticalScroll => credits?.VerticalScroll ?? 0;
     public bool CreditsFinished => credits?.Finished ?? false;
-    public EndingReward EndingReward => gameTimeHours < 3
+    public EndingReward EndingReward =>
+        gameTimeHours < EndingCreditsRomData.Rewards.SuitlessMaximumHoursExclusive
         ? EndingReward.Suitless
-        : gameTimeHours < 10
+        : gameTimeHours < EndingCreditsRomData.Rewards.HelmetlessMaximumHoursExclusive
             ? EndingReward.Helmetless
             : EndingReward.Armored;
 
@@ -140,7 +102,7 @@ internal sealed partial class EndingCreditsState
                 StepEscapeClouds(sceneB: false);
                 mode7X = unchecked((ushort)(mode7X - ((cinematicFrame & 1) == 0 ? 1 : 0)));
                 mode7Y = unchecked((ushort)(mode7Y + 2));
-                if (mode7Y >= 0x0180)
+                if (mode7Y >= EndingCreditsRomData.Motion.EscapeEndY)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -163,7 +125,7 @@ internal sealed partial class EndingCreditsState
                 StepEscapeClouds(sceneB: true);
                 mode7X = unchecked((ushort)(mode7X - ((cinematicFrame & 1) == 0 ? 1 : 0)));
                 mode7Y = unchecked((ushort)(mode7Y + 3));
-                if (mode7Y >= 0x0180)
+                if (mode7Y >= EndingCreditsRomData.Motion.EscapeEndY)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -210,8 +172,12 @@ internal sealed partial class EndingCreditsState
                 if (--phaseTimer <= 0)
                 {
                     audio.QueueMusicDelayed8(MusicCommand.Stop);
-                    audio.QueueMusicDelayed8(MusicCommand.LoadData(0x3c));
-                    audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
+                    audio.QueueMusicDelayed8(MusicCommand.LoadData(
+                        EndingCreditsRomData.Music.EndingDataIndex));
+                    audio.QueueMusicDelayed(
+                        MusicCommand.SelectTrack(EndingCreditsRomData.Music.Track),
+                        MusicCommandDelay.FromDelayedYArgument(
+                            EndingCreditsRomData.Music.DelayArgument));
                     Phase = EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
                 }
                 break;
@@ -276,7 +242,10 @@ internal sealed partial class EndingCreditsState
                 {
                     // Function 132 installs the complete $8C:DC9B result panel into rows
                     // nine through seventeen before the following 180-frame hold.
-                    CopyPostCreditsWords(0xdc9b, destination: 288, count: 288);
+                    CopyPostCreditsWords(
+                        EndingCreditsRomData.Instructions.ResultPanel,
+                        EndingCreditsRomData.Text.ResultPanelDestination,
+                        EndingCreditsRomData.Text.ResultPanelWords);
                     UploadPostCreditsTilemap();
                     phaseTimer = 180;
                     Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -296,13 +265,20 @@ internal sealed partial class EndingCreditsState
                 StepSprites();
                 if (--phaseTimer <= 0)
                 {
-                    Array.Fill(postCreditsTilemap, (ushort)0x007f, startIndex: 288, count: 288);
-                    CopyPostCreditsWords(0xdedb, destination: 384, count: 64);
+                    Array.Fill(
+                        postCreditsTilemap,
+                        EndingCreditsRomData.Rendering.BlankTile,
+                        EndingCreditsRomData.Text.ResultPanelDestination,
+                        EndingCreditsRomData.Text.ResultPanelWords);
+                    CopyPostCreditsWords(
+                        EndingCreditsRomData.Instructions.ItemPercentagePanel,
+                        EndingCreditsRomData.Text.ItemPercentagePanelDestination,
+                        EndingCreditsRomData.Text.ItemPercentagePanelWords);
                     UploadPostCreditsTilemap();
                     postCreditsText = new EndingBackgroundTextState(
                         bus,
                         postCreditsTilemap,
-                        instructionPointer: 0xdfdb,
+                        instructionPointer: EndingCreditsRomData.Instructions.ItemPercentageText,
                         inventory,
                         japaneseText);
                     Phase = EndingCreditsPhase.ItemPercentage;
@@ -328,7 +304,7 @@ internal sealed partial class EndingCreditsState
                     postCreditsText = new EndingBackgroundTextState(
                         bus,
                         postCreditsTilemap,
-                        instructionPointer: 0xe0af,
+                        instructionPointer: EndingCreditsRomData.Instructions.SeeYouNextMissionText,
                         inventory,
                         japaneseText);
                     Phase = EndingCreditsPhase.SeeYouNextMission;
@@ -348,37 +324,44 @@ internal sealed partial class EndingCreditsState
 
     private void SetupEscapeSceneA()
     {
-        cgram.LoadFromBus(bus, Intro3PaletteAddress);
-        LoadMode7(EscapeMapAAddress, EscapeCharactersAAddress);
+        cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.EscapePalette);
+        LoadMode7(
+            EndingCreditsRomData.Assets.EscapeMapA,
+            EndingCreditsRomData.Assets.EscapeCharactersA);
         LoadEndingObjectCharacters();
         sprites.Clear();
-        SpawnSprite(0x0140, 0x00c0, 0x0a00, 0xed0d, EndingSpriteRole.CloudRightA);
-        SpawnSprite(0xffc0, 0x0040, 0x0a00, 0xed15, EndingSpriteRole.CloudLeftA);
-        SpawnSprite(0x0140, 0x01c0, 0x0a00, 0xed0d, EndingSpriteRole.CloudRightB);
-        SpawnSprite(0xffc0, 0xff40, 0x0a00, 0xed15, EndingSpriteRole.CloudLeftB);
-        mode7X = 0x0020;
-        mode7Y = 0x0040;
-        mode7Zoom = 0x0100;
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
+        mode7X = EndingCreditsRomData.Motion.EscapeInitialX;
+        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
+        mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
         mode7Angle = SnesAngle.Zero;
         brightness = 0;
         postCreditsVerticalScroll = 0;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
-        audio.QueueMusicDelayed8(MusicCommand.LoadData(0x33));
-        audio.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x000e));
+        audio.QueueMusicDelayed8(MusicCommand.LoadData(
+            EndingCreditsRomData.Music.EscapeDataIndex));
+        audio.QueueMusicDelayed(
+            MusicCommand.SelectTrack(EndingCreditsRomData.Music.Track),
+            MusicCommandDelay.FromDelayedYArgument(EndingCreditsRomData.Music.DelayArgument));
         Phase = EndingCreditsPhase.WaitForEscapeMusic;
     }
 
     private void SetupEscapeSceneB()
     {
-        LoadMode7(EscapeMapBAddress, EscapeCharactersBAddress);
+        LoadMode7(
+            EndingCreditsRomData.Assets.EscapeMapB,
+            EndingCreditsRomData.Assets.EscapeCharactersB);
         LoadEndingObjectCharacters();
         sprites.Clear();
-        SpawnSprite(0xffa0, 0x0080, 0x0a00, 0xeced, EndingSpriteRole.CloudTopA);
-        SpawnSprite(0xffa0, 0x00c0, 0x0a00, 0xecf5, EndingSpriteRole.CloudTopB);
-        SpawnSprite(0x0120, 0x0120, 0x0a00, 0xecfd, EndingSpriteRole.CloudBottomA);
-        SpawnSprite(0x0120, 0x0160, 0x0a00, 0xed05, EndingSpriteRole.CloudBottomB);
-        mode7X = 0x0020;
-        mode7Y = 0x0040;
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
+        SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
+        mode7X = EndingCreditsRomData.Motion.EscapeInitialX;
+        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
         brightness = 0;
         fadeCounter = 1;
         Phase = EndingCreditsPhase.FadeInEscapeSceneB;
@@ -386,17 +369,24 @@ internal sealed partial class EndingCreditsState
 
     private void SetupZebesExplosion()
     {
-        LoadMode7(EscapeMapCAddress, EscapeCharactersCAddress);
+        LoadMode7(
+            EndingCreditsRomData.Assets.ExplosionMap,
+            EndingCreditsRomData.Assets.ExplosionCharacters);
         LoadEndingObjectCharacters();
-        cgram.LoadFromBus(bus, Intro6PaletteAddress + 0x0100, 128, 128);
+        cgram.LoadFromBus(
+            bus,
+            EndingCreditsRomData.Assets.ExplosionPalette +
+                EndingCreditsRomData.Rendering.PaletteSecondHalfOffset,
+            EndingCreditsRomData.Rendering.PaletteHalfBytes,
+            EndingCreditsRomData.Rendering.PaletteHalfBytes);
         sprites.Clear();
-        SpawnSprite(0x0080, 0x0080, 0x0e00, 0xeb0f, EndingSpriteRole.ExplodingZebes);
-        SpawnSprite(0x0080, 0x0080, 0x0a00, 0xeb59, EndingSpriteRole.ExplosionLava);
-        SpawnSprite(0x0080, 0x0080, 0x0e00, 0xeb3d, EndingSpriteRole.ExplosionGlow);
-        SpawnSprite(0x0080, 0x0080, 0x0e00, 0xeb51, EndingSpriteRole.ExplosionStars);
+        SpawnSprite(EndingCreditsRomData.Sprites.ExplodingZebes, EndingSpriteRole.ExplodingZebes);
+        SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
+        SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
+        SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
         mode7X = 0;
-        mode7Y = 0x0040;
-        mode7Zoom = 0x0100;
+        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
+        mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
         mode7Angle = SnesAngle.Zero;
         brightness = 0;
         fadeCounter = 1;
@@ -408,7 +398,7 @@ internal sealed partial class EndingCreditsState
     {
         mode7X = unchecked((ushort)-72);
         mode7Y = unchecked((ushort)-104);
-        mode7Zoom = 0x0c00;
+        mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
         mode7Angle = SnesAngle.NormalizeTableIndex(-112);
         phaseTimer = 192;
         planetMotionIndex = 0;
@@ -420,7 +410,7 @@ internal sealed partial class EndingCreditsState
         LoadCreditsAndPostCreditsAssets();
         credits = new CreditsObjectState(bus);
         credits.UploadTilemap(vram);
-        Array.Fill(postCreditsTilemap, (ushort)0x007f);
+        Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile);
         sprites.Clear();
         brightness = 15;
         Phase = EndingCreditsPhase.Credits;
@@ -430,7 +420,12 @@ internal sealed partial class EndingCreditsState
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
         // function 129 for sixty calls. Preserve colors zero through three as native does.
-        cgram.LoadFromBus(bus, Intro4PaletteAddress + 8, 252, 4);
+        cgram.LoadFromBus(
+            bus,
+            EndingCreditsRomData.Assets.PostCreditsPalette +
+                EndingCreditsRomData.Rendering.PostCreditsPaletteSourceOffset,
+            EndingCreditsRomData.Rendering.PostCreditsPaletteBytes,
+            EndingCreditsRomData.Rendering.PostCreditsPaletteDestination);
         brightness = 0;
         UploadPostCreditsTilemap();
         phaseTimer = 60;
@@ -439,38 +434,67 @@ internal sealed partial class EndingCreditsState
 
     private void LoadMode7(int mapAddress, int characterAddress)
     {
-        byte[] map = RomDataReader.Decompress(bus, mapAddress, maximumOutputBytes: 0x8000);
-        byte[] characters = RomDataReader.Decompress(bus, characterAddress, maximumOutputBytes: 0x8000);
-        RequireMinimum(map, 0x4000, "ending Mode-7 map");
-        RequireMinimum(characters, 0x4000, "ending Mode-7 characters");
+        byte[] map = RomDataReader.Decompress(
+            bus, mapAddress, EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] characters = RomDataReader.Decompress(
+            bus, characterAddress, EndingCreditsRomData.Rendering.DecompressionLimit);
+        RequireMinimum(map, EndingCreditsRomData.Rendering.Mode7Bytes,
+            "ending Mode-7 map");
+        RequireMinimum(characters, EndingCreditsRomData.Rendering.Mode7Bytes,
+            "ending Mode-7 characters");
         vram.Clear();
-        vram.LoadMode7MapBytes(map.AsSpan(0, 0x4000));
-        vram.LoadMode7CharacterBytes(characters.AsSpan(0, 0x4000));
+        vram.LoadMode7MapBytes(map.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        vram.LoadMode7CharacterBytes(
+            characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
     }
 
     private void LoadEndingObjectCharacters()
     {
-        byte[] main = RomDataReader.Decompress(bus, EndingObjectCharactersAddress, maximumOutputBytes: 0x8000);
+        byte[] main = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.EndingObjectCharacters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
         // The native $6000-byte DMA begins at $7F:8000, but the $99:D17E stream itself
         // expands to $4000 bytes. Its final $2000 source bytes are the already-cleared
         // $7F:C000-$DFFF work-RAM tail. VRAM was likewise cleared above, so copying the
         // authored $4000-byte prefix reproduces the complete observable transfer.
-        RequireMinimum(main, 0x4000, "ending OBJ characters");
-        vram.LoadBytes(0x8000, main.AsSpan(0, 0x4000));
-        LoadObjectFragment(EndingObjectCharacters70Address, 0xe000);
-        LoadObjectFragment(EndingObjectCharacters74Address, 0xe800);
-        LoadObjectFragment(EndingObjectCharacters78Address, 0xf000);
-        LoadObjectFragment(EndingObjectCharacters7cAddress, 0xf800);
-        byte[] font = RomDataReader.Decompress(bus, EndingFontCharactersAddress, maximumOutputBytes: 0x4000);
-        RequireMinimum(font, 0x1000, "ending font characters");
-        vram.LoadBytes(0xa000, font.AsSpan(0, 0x1000));
+        RequireMinimum(main, EndingCreditsRomData.Rendering.Mode7Bytes,
+            "ending OBJ characters");
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.ObjectCharactersDestination,
+            main.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        LoadObjectFragment(
+            EndingCreditsRomData.Assets.EndingObjectCharacters70,
+            EndingCreditsRomData.Rendering.Fragment70Destination);
+        LoadObjectFragment(
+            EndingCreditsRomData.Assets.EndingObjectCharacters74,
+            EndingCreditsRomData.Rendering.Fragment74Destination);
+        LoadObjectFragment(
+            EndingCreditsRomData.Assets.EndingObjectCharacters78,
+            EndingCreditsRomData.Rendering.Fragment78Destination);
+        LoadObjectFragment(
+            EndingCreditsRomData.Assets.EndingObjectCharacters7C,
+            EndingCreditsRomData.Rendering.Fragment7CDestination);
+        byte[] font = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.EndingFontCharacters,
+            EndingCreditsRomData.Rendering.Mode7Bytes);
+        RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
+            "ending font characters");
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.FontCharactersDestination,
+            font.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentLimit));
     }
 
     private void LoadObjectFragment(int sourceAddress, int destinationByte)
     {
-        byte[] fragment = RomDataReader.Decompress(bus, sourceAddress, maximumOutputBytes: 0x1000);
-        RequireMinimum(fragment, 0x0800, "ending OBJ fragment");
-        vram.LoadBytes(destinationByte, fragment.AsSpan(0, 0x0800));
+        byte[] fragment = RomDataReader.Decompress(
+            bus, sourceAddress, EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
+            "ending OBJ fragment");
+        vram.LoadBytes(
+            destinationByte,
+            fragment.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
     }
 
     private void LoadCreditsAndPostCreditsAssets()
@@ -478,37 +502,86 @@ internal sealed partial class EndingCreditsState
         if (creditsAssetsLoaded)
             return;
 
-        cgram.LoadFromBus(bus, Intro5PaletteAddress, 128, 0);
-        byte[] font = RomDataReader.Decompress(bus, EndingFontCharactersAddress, maximumOutputBytes: 0x4000);
-        byte[] waiting = RomDataReader.Decompress(bus, WaitingForCreditsCharactersAddress, maximumOutputBytes: 0x4000);
-        byte[] shooting = RomDataReader.Decompress(bus, ShootingScreenCharactersAddress, maximumOutputBytes: 0x8000);
-        byte[] waitingMap = RomDataReader.Decompress(bus, WaitingForCreditsTilemapAddress, maximumOutputBytes: 0x1000);
-        byte[] mode7 = RomDataReader.Decompress(bus, PostCreditsMode7Address, maximumOutputBytes: 0x8000);
-        byte[] fragmentA = RomDataReader.Decompress(bus, PostCreditsTileFragmentAAddress, maximumOutputBytes: 0x1000);
-        byte[] fragmentB = RomDataReader.Decompress(bus, PostCreditsTileFragmentBAddress, maximumOutputBytes: 0x1000);
-        RequireMinimum(font, 0x1000, "credits font");
-        RequireMinimum(waiting, 0x2000, "waiting-Samus characters");
-        RequireMinimum(shooting, 0x4000, "post-credits OBJ characters");
-        RequireMinimum(waitingMap, 0x0800, "waiting-Samus tilemap");
-        RequireMinimum(mode7, 0x4000, "post-credits Mode-7 characters");
-        RequireMinimum(fragmentA, 0x0100, "post-credits tile fragment A");
-        RequireMinimum(fragmentB, 0x0800, "post-credits tile fragment B");
+        cgram.LoadFromBus(
+            bus,
+            EndingCreditsRomData.Assets.CreditsPalette,
+            EndingCreditsRomData.Rendering.PaletteHalfBytes,
+            0);
+        byte[] font = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.EndingFontCharacters,
+            EndingCreditsRomData.Rendering.Mode7Bytes);
+        byte[] waiting = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
+            EndingCreditsRomData.Rendering.Mode7Bytes);
+        byte[] shooting = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.ShootingScreenCharacters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] waitingMap = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.WaitingForCreditsTilemap,
+            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        byte[] mode7 = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        byte[] fragmentA = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentA,
+            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        byte[] fragmentB = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.PostCreditsTileFragmentB,
+            EndingCreditsRomData.Rendering.ObjectFragmentLimit);
+        RequireMinimum(font, EndingCreditsRomData.Rendering.FontCharacterBytes,
+            "credits font");
+        RequireMinimum(waiting, EndingCreditsRomData.Rendering.WaitingCharacterBytes,
+            "waiting-Samus characters");
+        RequireMinimum(shooting, EndingCreditsRomData.Rendering.ShootingCharacterBytes,
+            "post-credits OBJ characters");
+        RequireMinimum(waitingMap, EndingCreditsRomData.Rendering.WaitingTilemapBytes,
+            "waiting-Samus tilemap");
+        RequireMinimum(mode7, EndingCreditsRomData.Rendering.Mode7Bytes,
+            "post-credits Mode-7 characters");
+        RequireMinimum(fragmentA, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes,
+            "post-credits tile fragment A");
+        RequireMinimum(fragmentB, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
+            "post-credits tile fragment B");
 
         vram.Clear();
-        vram.LoadBytes(0x8000, font.AsSpan(0, 0x1000));
-        vram.LoadBytes(0xa000, waiting.AsSpan(0, 0x2000));
-        vram.LoadBytes(0xc000, shooting.AsSpan(0, 0x4000));
-        vram.LoadBytes(0x9800, waitingMap.AsSpan(0, 0x0800));
-        vram.LoadBytes(0x4000, fragmentA.AsSpan(0, 0x0100));
-        vram.LoadBytes(0x4800, fragmentB.AsSpan(0, 0x0800));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.ObjectCharactersDestination,
+            font.AsSpan(0, EndingCreditsRomData.Rendering.FontCharacterBytes));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.FontCharactersDestination,
+            waiting.AsSpan(0, EndingCreditsRomData.Rendering.WaitingCharacterBytes));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
+            shooting.AsSpan(0, EndingCreditsRomData.Rendering.ShootingCharacterBytes));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.WaitingTilemapDestination,
+            waitingMap.AsSpan(0, EndingCreditsRomData.Rendering.WaitingTilemapBytes));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.PostCreditsFragmentADestination,
+            fragmentA.AsSpan(0, EndingCreditsRomData.Rendering.PostCreditsFragmentABytes));
+        vram.LoadBytes(
+            EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination,
+            fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
 
         // Function 126 selects either the suitless (<3h) or armored (>=3h) Mode-7
         // character source. Keeping both decompressions here makes the branch explicit.
         byte[] resultCharacters = EndingReward == EndingReward.Suitless
-            ? RomDataReader.Decompress(bus, SuitlessSamusCharactersAddress, maximumOutputBytes: 0x8000)
+            ? RomDataReader.Decompress(
+                bus,
+                EndingCreditsRomData.Assets.SuitlessSamusCharacters,
+                EndingCreditsRomData.Rendering.DecompressionLimit)
             : mode7;
-        RequireMinimum(resultCharacters, 0x4000, "post-credits reward characters");
-        vram.LoadMode7CharacterBytes(resultCharacters.AsSpan(0, 0x4000));
+        RequireMinimum(resultCharacters, EndingCreditsRomData.Rendering.Mode7Bytes,
+            "post-credits reward characters");
+        vram.LoadMode7CharacterBytes(
+            resultCharacters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
         creditsAssetsLoaded = true;
     }
 
@@ -521,7 +594,7 @@ internal sealed partial class EndingCreditsState
             {
                 case EndingSpriteRole.CloudRightA:
                 case EndingSpriteRole.CloudRightB:
-                    if (mode7Y >= 0x0060)
+                    if (mode7Y >= EndingCreditsRomData.Motion.CloudMotionStartY)
                     {
                         sprite.XPosition = unchecked((ushort)(sprite.XPosition - 2));
                         sprite.YPosition--;
@@ -529,7 +602,7 @@ internal sealed partial class EndingCreditsState
                     break;
                 case EndingSpriteRole.CloudLeftA:
                 case EndingSpriteRole.CloudLeftB:
-                    if (mode7Y >= 0x0060)
+                    if (mode7Y >= EndingCreditsRomData.Motion.CloudMotionStartY)
                     {
                         sprite.XPosition = unchecked((ushort)(sprite.XPosition + 2));
                         sprite.YPosition++;
@@ -537,12 +610,12 @@ internal sealed partial class EndingCreditsState
                     break;
                 case EndingSpriteRole.CloudTopA:
                 case EndingSpriteRole.CloudTopB:
-                    if (mode7Zoom < 0x00b0)
+                    if (mode7Zoom < EndingCreditsRomData.Motion.CloudSceneBScaleLimit)
                         sprite.XPosition++;
                     break;
                 case EndingSpriteRole.CloudBottomA:
                 case EndingSpriteRole.CloudBottomB:
-                    if (mode7Zoom < 0x00b0)
+                    if (mode7Zoom < EndingCreditsRomData.Motion.CloudSceneBScaleLimit)
                         sprite.XPosition--;
                     break;
             }
@@ -568,59 +641,73 @@ internal sealed partial class EndingCreditsState
     {
         switch (opcode)
         {
-            case ExplosionFadePaletteOpcode:
+            case EndingCreditsRomData.Instructions.ExplosionFadePalette:
                 // F284 starts a palette-FX object. The palette interpreter remains a
                 // separate subsystem; the actor's list cursor still advances immediately.
                 return cursor;
 
-            case SpawnExplosionSilhouetteOpcode:
-                SpawnSprite(0x0080, 0x0080, 0x0a00, 0xeb69, EndingSpriteRole.ExplosionSilhouette);
-                cgram.SetColor(0, 0x7fff);
+            case EndingCreditsRomData.Instructions.SpawnExplosionSilhouette:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ExplosionSilhouette,
+                    EndingSpriteRole.ExplosionSilhouette);
+                cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
                 return cursor;
 
-            case StartZebesExplosionOpcode:
-                SpawnSprite(0x0080, 0x0080, 0x0e00, 0xeb71, EndingSpriteRole.ExplosionStarsRight);
-                SpawnSprite(0xff80, 0x0080, 0x0e00, 0xeb81, EndingSpriteRole.ExplosionStarsLeft);
+            case EndingCreditsRomData.Instructions.StartZebesExplosion:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ExplosionStarsRight,
+                    EndingSpriteRole.ExplosionStarsRight);
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ExplosionStarsLeft,
+                    EndingSpriteRole.ExplosionStarsLeft);
                 return cursor;
 
-            case ExplosionFinaleOpcode:
-                SpawnSprite(0x0080, 0x0080, 0x0c00, 0xeb89, EndingSpriteRole.ExplosionAfterglow);
+            case EndingCreditsRomData.Instructions.ExplosionFinale:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ExplosionAfterglow,
+                    EndingSpriteRole.ExplosionAfterglow);
                 return cursor;
 
-            case EndZebesExplosionOpcode:
+            case EndingCreditsRomData.Instructions.EndZebesExplosion:
                 phaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return cursor;
 
-            case SpawnCompletedTextOpcode:
-                SpawnSprite(0x0080, 0x0060, 0x0400, 0xebd7, EndingSpriteRole.CompletedSuccessfullyText);
+            case EndingCreditsRomData.Instructions.SpawnCompletedText:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.CompletedSuccessfullyText,
+                    EndingSpriteRole.CompletedSuccessfullyText);
                 return cursor;
 
-            case SpawnClearTimeOpcode:
-                SpawnSprite(0x0080, 0x00a0, 0x0200, 0xec35, EndingSpriteRole.ClearTimeText);
+            case EndingCreditsRomData.Instructions.SpawnClearTime:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ClearTimeText,
+                    EndingSpriteRole.ClearTimeText);
                 return cursor;
 
-            case SpawnHoursTensOpcode:
-                SpawnDigit(gameTimeHours / 10, 0x009c);
+            case EndingCreditsRomData.Instructions.SpawnHoursTens:
+                SpawnDigit(gameTimeHours / 10, EndingCreditsRomData.Text.HoursTensX);
                 return cursor;
 
-            case SpawnHoursUnitsOpcode:
-                SpawnDigit(gameTimeHours % 10, 0x00a4);
+            case EndingCreditsRomData.Instructions.SpawnHoursUnits:
+                SpawnDigit(gameTimeHours % 10, EndingCreditsRomData.Text.HoursUnitsX);
                 return cursor;
 
-            case SpawnColonOpcode:
-                SpawnSprite(0x00ac, 0x00a0, 0, 0xecd1, EndingSpriteRole.ClearTimeDigit);
+            case EndingCreditsRomData.Instructions.SpawnColon:
+                SpawnSprite(
+                    EndingCreditsRomData.Sprites.ClearTimeColon,
+                    EndingSpriteRole.ClearTimeDigit);
                 return cursor;
 
-            case SpawnMinutesTensOpcode:
-                SpawnDigit(gameTimeMinutes / 10, 0x00b4);
+            case EndingCreditsRomData.Instructions.SpawnMinutesTens:
+                SpawnDigit(gameTimeMinutes / 10, EndingCreditsRomData.Text.MinutesTensX);
                 return cursor;
 
-            case SpawnMinutesUnitsOpcode:
-                SpawnDigit(gameTimeMinutes % 10, 0x00bc);
+            case EndingCreditsRomData.Instructions.SpawnMinutesUnits:
+                SpawnDigit(gameTimeMinutes % 10, EndingCreditsRomData.Text.MinutesUnitsX);
                 return cursor;
 
-            case TransitionToCreditsOpcode:
+            case EndingCreditsRomData.Instructions.TransitionToCredits:
                 fadeCounter = 1;
                 Phase = EndingCreditsPhase.FadeOutToCredits;
                 return cursor;
@@ -634,7 +721,14 @@ internal sealed partial class EndingCreditsState
     private void SpawnDigit(int digit, ushort x)
     {
         int normalized = Math.Clamp(digit, 0, 9);
-        SpawnSprite(x, 0x00a0, 0, unchecked((ushort)(0xec81 + normalized * 8)), EndingSpriteRole.ClearTimeDigit);
+        SpawnSprite(
+            x,
+            EndingCreditsRomData.Sprites.ClearTimeDigitY,
+            0,
+            unchecked((ushort)(
+                EndingCreditsRomData.Sprites.ClearTimeDigitInstructionBase +
+                normalized * EndingCreditsRomData.Sprites.ClearTimeDigitInstructionStride)),
+            EndingSpriteRole.ClearTimeDigit);
     }
 
     private void SpawnEndingRewardActors()
@@ -643,16 +737,16 @@ internal sealed partial class EndingCreditsState
         switch (EndingReward)
         {
             case EndingReward.Suitless:
-                SpawnSprite(0x0078, 0x0088, 0x0a00, 0xed1d, EndingSpriteRole.RewardSamus);
-                SpawnSprite(0x0078, 0x0088, 0x0a00, 0xed25, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.SuitlessRewardBody, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.SuitlessRewardHead, EndingSpriteRole.RewardSamus);
                 break;
             case EndingReward.Helmetless:
-                SpawnSprite(0x0078, 0x0098, 0x0c00, 0xedb1, EndingSpriteRole.RewardSamus);
-                SpawnSprite(0x0079, 0x006b, 0x0a00, 0xedc1, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.HelmetlessRewardHead, EndingSpriteRole.RewardSamus);
                 break;
             default:
-                SpawnSprite(0x0078, 0x0098, 0x0c00, 0xedb1, EndingSpriteRole.RewardSamus);
-                SpawnSprite(0x007c, 0x006c, 0x0c00, 0xedb9, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardBody, EndingSpriteRole.RewardSamus);
+                SpawnSprite(EndingCreditsRomData.Sprites.ArmoredRewardHead, EndingSpriteRole.RewardSamus);
                 break;
         }
     }
@@ -665,12 +759,16 @@ internal sealed partial class EndingCreditsState
         {
             postCreditsTilemap[destination + index] = RomDataReader.ReadWordFixedBank(
                 bus,
-                new SnesAddress(0x8c, unchecked((ushort)(sourcePointer + index * 2))));
+                EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+                    unchecked((ushort)(sourcePointer + index * sizeof(ushort)))));
         }
     }
 
     private void UploadPostCreditsTilemap() =>
-        vram.ExecuteWordTransfer(postCreditsTilemap, destinationWord: 0x4c00, wordIncrement: 1);
+        vram.ExecuteWordTransfer(
+            postCreditsTilemap,
+            EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+            wordIncrement: 1);
 
     private void SpawnSprite(
         ushort x,
@@ -684,15 +782,28 @@ internal sealed partial class EndingCreditsState
             role));
     }
 
+    private void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>
+        SpawnSprite(
+            definition.X,
+            definition.Y,
+            definition.Attributes.Raw,
+            definition.InstructionPointer,
+            role);
+
     private void StepPlanetEscapeFast()
     {
         if (phaseTimer > 0)
             phaseTimer--;
         mode7Angle = mode7Angle.AddTableUnits(-4);
-        AddSignedFixed(ref mode7X, ref mode7XSubposition, PlanetFastMotion[planetMotionIndex]);
-        planetMotionIndex = unchecked((ushort)((planetMotionIndex + 1) & 0x0f));
+        AddSignedFixed(
+            ref mode7X,
+            ref mode7XSubposition,
+            EndingCreditsRomData.Motion.PlanetFastPattern[planetMotionIndex]);
+        planetMotionIndex = unchecked((ushort)(
+            (planetMotionIndex + 1) &
+            (EndingCreditsRomData.Motion.PlanetFastPattern.Length - 1)));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 8));
-        if (mode7Zoom < 0x05b0)
+        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
         {
             planetMotionIndex = 0;
             Phase = EndingCreditsPhase.PlanetEscapeSlow;
@@ -701,15 +812,20 @@ internal sealed partial class EndingCreditsState
 
     private void StepPlanetEscapeSlow()
     {
-        if (mode7Angle != SnesAngle.FromTableIndex(0xe0))
+        if (mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
             mode7Angle = mode7Angle.AddTableUnits(-1);
-        AddSignedFixed(ref mode7X, ref mode7XSubposition, PlanetSlowMotion[planetMotionIndex]);
-        planetMotionIndex = unchecked((ushort)((planetMotionIndex + 1) & 7));
+        AddSignedFixed(
+            ref mode7X,
+            ref mode7XSubposition,
+            EndingCreditsRomData.Motion.PlanetSlowPattern[planetMotionIndex]);
+        planetMotionIndex = unchecked((ushort)(
+            (planetMotionIndex + 1) &
+            (EndingCreditsRomData.Motion.PlanetSlowPattern.Length - 1)));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 2));
-        if (mode7Zoom < 0x04a0)
+        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
         {
             planetVelocityWhole = 0;
-            planetVelocityFraction = 0x8000;
+            planetVelocityFraction = EndingCreditsRomData.Motion.InitialAccelerationFraction;
             Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
         }
     }
@@ -717,18 +833,22 @@ internal sealed partial class EndingCreditsState
     private void StepPlanetEscapeAccelerating()
     {
         int velocity = (planetVelocityWhole << 16) | planetVelocityFraction;
-        velocity = unchecked(velocity - 0x0000_0100);
+        velocity = unchecked(
+            velocity - EndingCreditsRomData.Motion.AccelerationDelta16Point16);
         planetVelocityWhole = unchecked((short)(velocity >> 16));
         planetVelocityFraction = unchecked((ushort)velocity);
         AddSignedFixed(ref mode7X, ref mode7XSubposition, velocity);
-        if (mode7Zoom < 0x0180 && (cinematicFrame & 3) == 0 &&
-            mode7Angle != SnesAngle.FromTableIndex(0x10))
+        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
+            (cinematicFrame & 3) == 0 &&
+            mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
         {
             mode7Angle = mode7Angle.AddTableUnits(2);
         }
-        if (mode7Zoom < 0x0020)
+        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
-            SpawnSprite(0x0080, 0x0060, 0x0400, 0xeb91, EndingSpriteRole.OperationWasText);
+            SpawnSprite(
+                EndingCreditsRomData.Sprites.OperationWasText,
+                EndingSpriteRole.OperationWasText);
             Phase = EndingCreditsPhase.OperationSuccessfulText;
         }
         else
@@ -781,19 +901,6 @@ internal sealed partial class EndingCreditsState
             throw new InvalidDataException($"{name} expanded to ${data.Length:X}, expected at least ${minimum:X}.");
     }
 
-    private static readonly int[] PlanetFastMotion =
-    [
-        0x0000_8000, 0x0000_8000, 0x0000_8000, 0x0000_8000,
-        unchecked((int)0xffff_8000), unchecked((int)0xffff_8000), 0x0000_8000, 0x0000_8000,
-        0x0000_8000, unchecked((int)0xffff_8000), unchecked((int)0xffff_8000), 0x0000_8000,
-        0x0000_8000, 0x0000_8000, unchecked((int)0xffff_8000), unchecked((int)0xffff_8000),
-    ];
-
-    private static readonly int[] PlanetSlowMotion =
-    [
-        0x0001_0000, 0x0001_0000, 0x0001_0000, unchecked((int)0xffff_0000),
-        unchecked((int)0xffff_0000), 0x0001_0000, 0x0001_0000, unchecked((int)0xffff_0000),
-    ];
 }
 
 internal enum EndingCreditsPhase

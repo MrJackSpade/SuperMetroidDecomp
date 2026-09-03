@@ -309,11 +309,19 @@ static void VerifyDoorOpeningTrajectories()
 static void VerifyCreditsObjectInterpreter()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
-    WriteRepeatedCompressedStream(rom, 0x97eeff, 0x2000, 0);
+    WriteRepeatedCompressedStream(
+        rom,
+        EndingCreditsRomData.Assets.CreditsTilemap,
+        EndingCreditsRomData.Rendering.CreditsSourceBytes,
+        0);
 
     // A compact stream exercises all production control-flow opcodes: timer assignment,
     // a looping row, timer exhaustion/fallthrough, another row, and the end-credits seam.
-    WriteRomWord(rom, 0x8cd91b, 0x9a17);
+    WriteRomWord(
+        rom,
+        (int)EndingCreditsRomData.Instructions.Bank.AddWithinBank(
+            EndingCreditsRomData.Instructions.CreditsInitial),
+        EndingCreditsRomData.Instructions.CreditsSetTimer);
     WriteRomWord(rom, 0x8cd91d, 0x0002);
     WriteRomWord(rom, 0x8cd91f, 0x0000);
     WriteRomWord(rom, 0x8cd921, 0x0000);

@@ -20,8 +20,8 @@ internal sealed partial class EndingCreditsState
             Rgba32[] text = SnesBgTilemapRenderer.Render4BppViewport(
                 vram,
                 cgram,
-                tilemapBaseWord: 0x4800,
-                characterBaseWord: 0x4000,
+                tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
+                characterBaseWord: EndingCreditsRomData.Rendering.CreditsCharacterWord,
                 horizontalScroll: 0,
                 verticalScroll: credits!.VerticalScroll,
                 width: 256,
@@ -78,8 +78,8 @@ internal sealed partial class EndingCreditsState
         Rgba32[] waiting = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x4c00,
-            characterBaseWord: 0x5000,
+            tilemapBaseWord: EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+            characterBaseWord: EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
             horizontalScroll: 0,
             verticalScroll: postCreditsVerticalScroll,
             width: 256,
@@ -101,7 +101,9 @@ internal sealed partial class EndingCreditsState
     }
 
     private short ReadSine(byte index) => unchecked((short)
-        RomDataReader.ReadWordFixedBank(bus, 0xa0b443 + index * 2));
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            EndingCreditsRomData.Assets.SignedSineTable + index * sizeof(ushort)));
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));

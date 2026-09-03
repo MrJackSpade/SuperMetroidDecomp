@@ -36,7 +36,8 @@ public sealed class IntroCinematicState
     private readonly ControllerInputState controller = new();
     private readonly SamusProjectileSystem flashbackProjectiles = new();
     private readonly SamusBombProjectileSystem flashbackBombProjectiles = new();
-    private readonly ushort[] textTilemap = new ushort[0x400];
+    private readonly ushort[] textTilemap =
+        new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount];
     private readonly byte[] japaneseBlankCharacter;
     private readonly ushort[] introPalette = new ushort[SnesCgram.ColorCount];
     private IntroCinematicObjectSystem? objects;
@@ -63,47 +64,86 @@ public sealed class IntroCinematicState
         this.bus = bus;
         this.audio = audio;
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x3f));
-        cgram.LoadFromBus(bus, 0x8ce3e9);
+        audio?.QueueMusicDelayed8(
+            MusicCommand.LoadData(IntroCinematicRomData.Music.OpeningDataIndex));
+        cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
         cgram.Colors.CopyTo(introPalette);
 
-        byte[] bgCharacters = RomDataReader.Decompress(bus, 0x95f90e, maximumOutputBytes: 0x8000);
-        byte[] fontOne = RomDataReader.Decompress(bus, 0x95d089, maximumOutputBytes: 0x0900);
-        byte[] samusHeadTilemap = RomDataReader.Decompress(bus, 0x9788cc, maximumOutputBytes: 0x0800);
-        byte[] bg1Pages = RomDataReader.Decompress(bus, 0x96ff14, maximumOutputBytes: 0x2000);
-        byte[] introObjects = RomDataReader.Decompress(bus, 0x95e4c2, maximumOutputBytes: 0x2400);
-        byte[] firstNarrationTilemap = RomDataReader.Decompress(bus, 0x978d12, maximumOutputBytes: 0x0800);
+        byte[] bgCharacters = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.BackgroundCharacters,
+            maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundCharacterBytes);
+        byte[] fontOne = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.FontOne,
+            maximumOutputBytes: IntroCinematicRomData.Vram.FontOneBytes);
+        byte[] samusHeadTilemap = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.SamusHeadTilemap,
+            maximumOutputBytes: IntroCinematicRomData.Vram.SamusHeadTilemapBytes);
+        byte[] bg1Pages = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.BackgroundPageTilemaps,
+            maximumOutputBytes: IntroCinematicRomData.Vram.BackgroundPageTilemapBytes);
+        byte[] introObjects = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.ObjectCharacters,
+            maximumOutputBytes: IntroCinematicRomData.Vram.ObjectCharacterBytes);
+        byte[] firstNarrationTilemap = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.FirstNarrationTilemap,
+            maximumOutputBytes: IntroCinematicRomData.Vram.NarrationTilemapBytes);
 
-        RequireMinimum(bgCharacters, 0x8000, "intro BG1/BG2 characters");
-        RequireMinimum(fontOne, 0x0900, "intro font one");
-        RequireMinimum(samusHeadTilemap, 0x0800, "Samus-head BG2 tilemap");
-        RequireMinimum(bg1Pages, 0x2000, "intro BG1 page tilemaps");
-        RequireMinimum(introObjects, 0x2400, "intro OBJ characters");
-        RequireMinimum(firstNarrationTilemap, 0x0800, "first narration BG3 tilemap");
+        RequireMinimum(bgCharacters, IntroCinematicRomData.Vram.BackgroundCharacterBytes,
+            "intro BG1/BG2 characters");
+        RequireMinimum(fontOne, IntroCinematicRomData.Vram.FontOneBytes, "intro font one");
+        RequireMinimum(samusHeadTilemap, IntroCinematicRomData.Vram.SamusHeadTilemapBytes,
+            "Samus-head BG2 tilemap");
+        RequireMinimum(bg1Pages, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes,
+            "intro BG1 page tilemaps");
+        RequireMinimum(introObjects, IntroCinematicRomData.Vram.ObjectCharacterBytes,
+            "intro OBJ characters");
+        RequireMinimum(firstNarrationTilemap, IntroCinematicRomData.Vram.NarrationTilemapBytes,
+            "first narration BG3 tilemap");
 
         // BTS[$1E8E-$1E9D] aliases $7F:8290-$829F while the first font is resident in
         // decompression RAM. $8B:A86A repeats precisely this character when blanking the
         // optional Japanese glyph area; retain the source before host staging is discarded.
-        japaneseBlankCharacter = fontOne.AsSpan(0x0290, 0x10).ToArray();
+        japaneseBlankCharacter = fontOne.AsSpan(
+            IntroCinematicRomData.Text.JapaneseBlankSourceOffset,
+            IntroCinematicRomData.Text.JapaneseBlankCharacterByteCount).ToArray();
 
         // Literal VMADD values from `$8B:A469-$A529`, converted to physical byte offsets.
-        vram.LoadBytes(0x0000, bgCharacters.AsSpan(0, 0x8000));
-        vram.LoadBytes(0x8000, fontOne.AsSpan(0, 0x0900));       // VMADD $4000
-        vram.LoadBytes(0x9000, samusHeadTilemap.AsSpan(0, 0x0800)); // VMADD $4800
-        vram.LoadBytes(0x9800, firstNarrationTilemap.AsSpan(0, 0x0800)); // VMADD $4C00
-        vram.LoadBytes(0xa000, bg1Pages.AsSpan(0, 0x2000));      // VMADD $5000
-        vram.LoadBytes(0xc000, RomDataReader.ReadFixedBank(bus, 0x9ad200, 0x2000)); // VMADD $6000
-        vram.LoadBytes(0xdc00, introObjects.AsSpan(0, 0x2400));  // VMADD $6E00
+        vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundCharacterDestinationByte,
+            bgCharacters.AsSpan(0, IntroCinematicRomData.Vram.BackgroundCharacterBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.FontOneDestinationByte,
+            fontOne.AsSpan(0, IntroCinematicRomData.Vram.FontOneBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.SamusHeadTilemapDestinationByte,
+            samusHeadTilemap.AsSpan(0, IntroCinematicRomData.Vram.SamusHeadTilemapBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.NarrationTilemapDestinationByte,
+            firstNarrationTilemap.AsSpan(0, IntroCinematicRomData.Vram.NarrationTilemapBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.BackgroundPagesDestinationByte,
+            bg1Pages.AsSpan(0, IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.IntroObjectCharactersDestinationByte,
+            RomDataReader.ReadFixedBank(
+                bus,
+                IntroCinematicRomData.Assets.IntroObjectCharacters,
+                IntroCinematicRomData.Vram.BackgroundPageTilemapBytes));
+        vram.LoadBytes(IntroCinematicRomData.Vram.CinematicObjectCharactersDestinationByte,
+            introObjects.AsSpan(0, IntroCinematicRomData.Vram.ObjectCharacterBytes));
 
         // $8B:A3AC performs the ordinary beam tile/palette upload before copying the full
         // intro palette. The projectile tile DMA remains resident for both gameplay
         // flashbacks; restore the later intro CGRAM copy after using the shared helper.
         SamusProjectileSystem.LoadBeamTilesAndPalette(bus, vram, cgram, equippedBeams: 0);
-        cgram.LoadFromBus(bus, 0x8ce3e9);
+        cgram.LoadFromBus(bus, IntroCinematicRomData.Assets.Palette);
 
         // Font two is decompressed only after the initial VRAM setup in the native routine.
         // Retain the validation now even though English is the fresh-save default.
-        _ = RomDataReader.Decompress(bus, 0x95d713, maximumOutputBytes: 0x1200);
+        _ = RomDataReader.Decompress(
+            bus,
+            IntroCinematicRomData.Assets.JapaneseFontTwo,
+            maximumOutputBytes: IntroCinematicRomData.Vram.JapaneseFontTwoBytes);
         Phase = IntroCinematicPhase.WaitForInitialMusicQueue;
     }
 
@@ -218,8 +258,12 @@ public sealed class IntroCinematicState
                     // The next music commands wait for APU acknowledgement before the
                     // documented four-second hold. Eight frames models their delayed slot.
                     audio?.QueueMusicDelayed8(MusicCommand.Stop);
-                    audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x42));
-                    audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
+                    audio?.QueueMusicDelayed8(
+                        MusicCommand.LoadData(IntroCinematicRomData.Music.MotherBrainDataIndex));
+                    audio?.QueueMusicDelayed(
+                        MusicCommand.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+                        MusicCommandDelay.FromDelayedYArgument(
+                            IntroCinematicRomData.Music.SceneTrackDelayArgument));
                     Phase = IntroCinematicPhase.WaitForSecondMusicQueue;
                     timer = 8;
                 }
@@ -521,26 +565,26 @@ public sealed class IntroCinematicState
         // Retain the exact 224-word level-data copy as debugger-visible state. The later
         // $91:8784 demo movement/collision translation will consume this array; loading it
         // now proves the visual BG1 screen is not standing in for the collision contract.
-        MotherBrainLevelData = RomDataReader.ReadFixedBank(bus, 0x8cbec3, 448);
+        MotherBrainLevelData = RomDataReader.ReadFixedBank(
+            bus,
+            IntroCinematicRomData.Assets.MotherBrainLevelData,
+            IntroCinematicRomData.Flashback.MotherBrainLevelByteCount);
         flashbackLevel = CreateMotherBrainLevel(MotherBrainLevelData);
         flashbackProjectiles.Reset();
         flashbackDemoInput = new DemoInputState();
         flashbackDemoInput.Clear();
         flashbackDemoInput.Enable();
-        flashbackDemoInput.LoadObject(bus, 0x8784);
+        flashbackDemoInput.LoadObject(bus, IntroCinematicRomData.Flashback.DemoInputObject);
 
         // $8B:B018 replaces the target palette with kPalettes_Intro, decomposes every
         // component, clears only the incoming gameplay ranges, and immediately composes.
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0028, 0x0003);
-        paletteFader.Clear(0x00e0, 0x0010);
-        paletteFader.Clear(0x0180, 0x0020);
-        paletteFader.Clear(0x01e0, 0x0010);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(cgram);
 
         // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
         // $CE55's setup) cinematic_var4. $B250 tests the old counter, then decrements it.
-        crossfadeCounter = 127;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
@@ -554,26 +598,20 @@ public sealed class IntroCinematicState
     {
         // $8B:B250 updates only when the pre-decrement counter is divisible by four.
         // Values 124..0 therefore yield exactly 32 component updates.
-        if ((crossfadeCounter & 3) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
-            paletteFader!.FadeOut(0x0000, 0x0014);
-            paletteFader.FadeOut(0x0060, 0x0010);
-            paletteFader.FadeOut(0x01d2, 0x0006);
-            paletteFader.FadeIn(0x0028, 0x0003);
-            paletteFader.FadeIn(0x00e0, 0x0010);
-            paletteFader.FadeIn(0x0180, 0x0020);
-            paletteFader.FadeIn(0x01e0, 0x0010);
-            paletteFader.ComposeInto(cgram);
+            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            paletteFader!.ComposeInto(cgram);
         }
 
         crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & 0x8000) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
             return;
 
         // Transition completion sets TM=$15 and clears English words 128..767 to tile
         // $002F. The top/bottom ornamental rows survive because the loop starts at $80.
-        Array.Fill(textTilemap, (ushort)0x002f, startIndex: 128, count: 640);
-        vram.ExecuteWordTransfer(textTilemap.AsSpan(0, 0x3c0), 0x4c00, 1);
+        ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.MotherBrainFlashback;
     }
 
@@ -583,11 +621,9 @@ public sealed class IntroCinematicState
         // text palette routine, and restores the already allocated caret object.
         objects!.StartEnglishPageTwo();
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0000, 0x0010);
-        paletteFader.Clear(0x0060, 0x0010);
-        paletteFader.Clear(0x01d2, 0x0006);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -600,20 +636,15 @@ public sealed class IntroCinematicState
 
     private void StepReverseGameplayToTextCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter & 3) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
-            paletteFader!.FadeIn(0x0000, 0x0010);
-            paletteFader.FadeIn(0x0060, 0x0010);
-            paletteFader.FadeIn(0x01d2, 0x0006);
-            paletteFader.FadeOut(0x0028, 0x0003);
-            paletteFader.FadeOut(0x00e0, 0x0010);
-            paletteFader.FadeOut(0x0180, 0x0020);
-            paletteFader.FadeOut(0x01e0, 0x0010);
-            paletteFader.ComposeInto(cgram);
+            FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            paletteFader!.ComposeInto(cgram);
         }
 
         crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & 0x8000) != 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) != 0)
             Phase = completedPhase;
     }
 
@@ -639,37 +670,28 @@ public sealed class IntroCinematicState
         flashbackProjectiles.Reset();
 
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0028, 0x0003);
-        paletteFader.Clear(0x00e0, 0x0010);
-        paletteFader.Clear(0x0180, 0x0020);
-        paletteFader.Clear(0x01e0, 0x0010);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
     private void StepBabyDiscoveryCrossfade()
     {
-        if ((crossfadeCounter & 3) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
-            paletteFader!.FadeOut(0x0000, 0x0014);
-            paletteFader.FadeOut(0x0060, 0x0010);
-            paletteFader.FadeOut(0x01d2, 0x0006);
-            paletteFader.FadeIn(0x0028, 0x0003);
-            paletteFader.FadeIn(0x00e0, 0x0010);
-            paletteFader.FadeIn(0x0180, 0x0020);
-            paletteFader.FadeIn(0x01e0, 0x0010);
-            paletteFader.ComposeInto(cgram);
+            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicRomData.Palette.Narration);
+            paletteFader!.ComposeInto(cgram);
         }
 
         crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & 0x8000) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
             return;
 
         // $8B:B29F leaves TM=$15 and clears the English text region after the final fade
         // update. BG1SC already points at $54, so the SR388 room becomes the sole BG1 page.
-        Array.Fill(textTilemap, (ushort)0x002f, startIndex: 128, count: 640);
-        vram.ExecuteWordTransfer(textTilemap.AsSpan(0, 0x3c0), 0x4c00, 1);
+        ClearVisibleNarrationText();
         Phase = IntroCinematicPhase.BabyDiscovery;
     }
 
@@ -680,11 +702,9 @@ public sealed class IntroCinematicState
         // routine used after Mother Brain. The SR388 actors continue running beneath it.
         objects!.StartEnglishPageThree();
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0000, 0x0010);
-        paletteFader.Clear(0x0060, 0x0010);
-        paletteFader.Clear(0x01d2, 0x0006);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -708,14 +728,13 @@ public sealed class IntroCinematicState
         babyDiscovery = null;
 
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0040, 0x0010);
-        paletteFader.Clear(0x01c0, 0x0009);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(cgram);
 
         // The native intro alternates two adjacent WRAM counters. Page-three setup left
         // CinematicFunctionTimer at $007F; this setup writes the separate intro counter.
-        crossfadeCounter = 0x007f;
-        introCrossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
@@ -728,22 +747,18 @@ public sealed class IntroCinematicState
 
     private void StepTextToScientistCrossfade(IntroCinematicPhase completedPhase)
     {
-        if ((crossfadeCounter & 3) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.StepEveryFourFramesMask) == 0)
         {
-            paletteFader!.FadeOut(0x0000, 0x0014);
-            paletteFader.FadeOut(0x0060, 0x0010);
-            paletteFader.FadeOut(0x01d2, 0x0006);
-            paletteFader.FadeIn(0x0040, 0x0010);
-            paletteFader.FadeIn(0x01c0, 0x0009);
-            paletteFader.ComposeInto(cgram);
+            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Gameplay);
+            FadeInPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+            paletteFader!.ComposeInto(cgram);
         }
 
         crossfadeCounter = unchecked((ushort)(crossfadeCounter - 1));
-        if ((crossfadeCounter & 0x8000) == 0)
+        if ((crossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) == 0)
             return;
 
-        Array.Fill(textTilemap, (ushort)0x002f, startIndex: 128, count: 640);
-        vram.ExecuteWordTransfer(textTilemap.AsSpan(0, 0x3c0), 0x4c00, 1);
+        ClearVisibleNarrationText();
         Phase = completedPhase;
     }
 
@@ -754,11 +769,9 @@ public sealed class IntroCinematicState
         // still-$007F IntroCrossFadeTimer set by the delivery scene.
         objects!.StartEnglishPageFour();
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0000, 0x0010);
-        paletteFader.Clear(0x0060, 0x0010);
-        paletteFader.Clear(0x01d2, 0x0006);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
@@ -773,16 +786,13 @@ public sealed class IntroCinematicState
     {
         if ((introCrossfadeCounter & 3) == 0)
         {
-            paletteFader!.FadeIn(0x0000, 0x0010);
-            paletteFader.FadeIn(0x0060, 0x0010);
-            paletteFader.FadeIn(0x01d2, 0x0006);
-            paletteFader.FadeOut(0x0040, 0x0010);
-            paletteFader.FadeOut(0x01c0, 0x0009);
-            paletteFader.ComposeInto(cgram);
+            FadeInPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
+            FadeOutPaletteSpans(IntroCinematicRomData.Palette.Discovery);
+            paletteFader!.ComposeInto(cgram);
         }
 
         introCrossfadeCounter = unchecked((ushort)(introCrossfadeCounter - 1));
-        if ((introCrossfadeCounter & 0x8000) != 0)
+        if ((introCrossfadeCounter & IntroCinematicRomData.Palette.CounterSignBit) != 0)
             Phase = completedPhase;
     }
 
@@ -794,11 +804,10 @@ public sealed class IntroCinematicState
         // Its setup is otherwise the same two-counter scientist crossfade as delivery.
         scientistCutscene = IntroScientistCutsceneState.CreateExamination(audio);
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0040, 0x0010);
-        paletteFader.Clear(0x01c0, 0x0009);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
-        introCrossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
+        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -809,11 +818,9 @@ public sealed class IntroCinematicState
     {
         objects!.StartEnglishPageFive();
         paletteFader = new CinematicPaletteFader(introPalette);
-        paletteFader.Clear(0x0000, 0x0010);
-        paletteFader.Clear(0x0060, 0x0010);
-        paletteFader.Clear(0x01d2, 0x0006);
+        ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(cgram);
-        crossfadeCounter = 0x007f;
+        crossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -824,7 +831,7 @@ public sealed class IntroCinematicState
     {
         // English takes B1F4's direct fall-through into B207: no palette transition. Only
         // the English text region, caret, eye stream, and final page object are replaced.
-        introCrossfadeCounter = 0x007f;
+        introCrossfadeCounter = IntroCinematicRomData.Palette.CrossfadeInitialCounter;
         objects!.StartEnglishPageSix();
         scientistCutscene = null;
         Phase = IntroCinematicPhase.PageSixText;
@@ -942,7 +949,7 @@ public sealed class IntroCinematicState
         ushort instructionPointer,
         ushort argumentPointer)
     {
-        if (instructionPointer != 0x8739)
+        if (instructionPointer != IntroCinematicRomData.Flashback.ExpectedEndInstruction)
             return DemoInputInstructionResult.NotHandled(argumentPointer);
 
         // $91:8739 locks Samus in pose two, reinitializes the pose/animation bookkeeping,
@@ -1004,7 +1011,9 @@ public sealed class IntroCinematicState
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             oam.AddOnScreenSpritemap(
                 bus,
-                (int)new SnesAddress(0x8c, flashbackMotherBrain.SpriteMapPointer),
+                (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps,
+                    flashbackMotherBrain.SpriteMapPointer),
                 IntroMotherBrainSpriteState.XPosition,
                 IntroMotherBrainSpriteState.YPosition,
                 IntroMotherBrainSpriteState.PaletteBits);
@@ -1075,7 +1084,8 @@ public sealed class IntroCinematicState
         Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: scientistCutscene?.TilemapBaseWord ?? 0x5800,
+            tilemapBaseWord: scientistCutscene?.TilemapBaseWord ??
+                IntroCinematicRomData.Layers.ScientistTilemapWord,
             characterBaseWord: 0,
             horizontalScroll: scientistCutscene?.BackgroundX ?? 0,
             verticalScroll: scientistCutscene?.BackgroundY ?? 0,
@@ -1092,7 +1102,7 @@ public sealed class IntroCinematicState
         Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x5400,
+            tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg2TilemapWord,
             characterBaseWord: 0,
             horizontalScroll: 0,
             verticalScroll: GameplayFlashbackBg1VerticalScroll,
@@ -1109,7 +1119,7 @@ public sealed class IntroCinematicState
         Rgba32[] room = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x5000,
+            tilemapBaseWord: IntroCinematicRomData.Layers.SceneBg1TilemapWord,
             characterBaseWord: 0,
             horizontalScroll: 0,
             verticalScroll: flashbackMotherBrain?.BackgroundVerticalScroll ??
@@ -1127,7 +1137,11 @@ public sealed class IntroCinematicState
         // Initial SetupPpu_Intro sets TM=$04: only BG3 is visible. BG3SC=$4C and BG34NBA=$04
         // select tilemap word $4C00 and 2-bpp character word $4000 respectively.
         return SnesBgTilemapRenderer.Render2Bpp(
-            vram, cgram, tilemapBaseWord: 0x4c00, characterBaseWord: 0x4000, rowCount: 28);
+            vram,
+            cgram,
+            tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
+            characterBaseWord: IntroCinematicRomData.Layers.FontCharacterBaseWord,
+            rowCount: IntroCinematicRomData.Layers.NarrationRowCount);
     }
 
     private Rgba32[] RenderFirstIllustratedPage()
@@ -1146,10 +1160,12 @@ public sealed class IntroCinematicState
             // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
             oam.AddOnScreenSpritemap(
                 bus,
-                (int)new SnesAddress(0x8c, objects.SpriteMapPointer),
+                (int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps,
+                    objects.SpriteMapPointer),
                 originX: objects.CaretX,
                 originY: objects.CaretY,
-                paletteBits: 0x0c00);
+                paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         oam.FinalizeFrame();
 
@@ -1174,7 +1190,7 @@ public sealed class IntroCinematicState
         Rgba32[] portrait = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: 0x4800,
+            tilemapBaseWord: IntroCinematicRomData.Layers.PortraitTilemapWord,
             characterBaseWord: 0,
             horizontalScroll: 0,
             verticalScroll: 8,
@@ -1191,8 +1207,8 @@ public sealed class IntroCinematicState
         Rgba32[] fullText = SnesBgTilemapRenderer.Render2Bpp(
             vram,
             cgram,
-            tilemapBaseWord: 0x4c00,
-            characterBaseWord: 0x4000,
+            tilemapBaseWord: IntroCinematicRomData.Layers.NarrationTilemapWord,
+            characterBaseWord: IntroCinematicRomData.Layers.FontCharacterBaseWord,
             rowCount: 32,
             transparentColorZero: true,
             priority: priority);
@@ -1218,35 +1234,55 @@ public sealed class IntroCinematicState
         // $7E:4000, then DMA copies the resulting $600 bytes to VMADD $4180 (byte $8300).
         // English still performs this clear; omitting it exposes stale font glyphs in the
         // otherwise empty lower margin.
-        var blankJapaneseCharacters = new byte[0x0600];
+        var blankJapaneseCharacters =
+            new byte[IntroCinematicRomData.Vram.JapaneseBlankCharactersByteCount];
         for (int offset = 0; offset < blankJapaneseCharacters.Length; offset += japaneseBlankCharacter.Length)
             japaneseBlankCharacter.CopyTo(blankJapaneseCharacters, offset);
-        vram.LoadBytes(0x8300, blankJapaneseCharacters);
+        vram.LoadBytes(
+            IntroCinematicRomData.Vram.JapaneseBlankCharactersDestinationByte,
+            blankJapaneseCharacters);
 
         // ClearCinematicBgObjects($2F) fills the complete $7E:3000 staging tilemap. The
         // native border then replaces four 32-tile rows at the top and bottom.
-        Array.Fill(textTilemap, (ushort)0x002f);
-        for (int index = 0; index < 128; index++)
+        Array.Fill(textTilemap, IntroCinematicRomData.Text.Blank.Raw);
+        for (int index = 0;
+             index < IntroCinematicRomData.Text.GameplayBlankStartIndex;
+             index++)
         {
-            textTilemap[index] = 0x3c29;
-            textTilemap[index + 896] = 0x3c29;
+            textTilemap[index] = IntroCinematicRomData.Text.JapaneseBlank.Raw;
+            textTilemap[index + IntroCinematicRomData.Text.JapaneseBlankBottomDelta] =
+                IntroCinematicRomData.Text.JapaneseBlank.Raw;
         }
 
         // $8B:A72B supplies the four-row ornamental divider at rows 24-27.
-        for (int index = 0; index < 128; index++)
-            textTilemap[768 + index] = RomDataReader.ReadWordFixedBank(bus, 0x8ba72b + index * 2);
+        for (int index = 0; index < IntroCinematicRomData.Text.FinalLineWordCount; index++)
+        {
+            textTilemap[IntroCinematicRomData.Text.FinalLineDestinationStart + index] =
+                RomDataReader.ReadWordFixedBank(
+                    bus,
+                    IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort));
+        }
 
         // `menu.menu_tilemap` begins $600 bytes into the same WRAM union. Its byte offset
         // $11E therefore aliases words 911/912 of the staging map; both receive $1C29.
-        textTilemap[911] = 0x1c29;
-        textTilemap[912] = 0x1c29;
+        textTilemap[IntroCinematicRomData.Text.FinalBlankLeftIndex] =
+            IntroCinematicRomData.Text.FinalBlank.Raw;
+        textTilemap[IntroCinematicRomData.Text.FinalBlankRightIndex] =
+            IntroCinematicRomData.Text.FinalBlank.Raw;
 
-        vram.ExecuteWordTransfer(textTilemap, 0x4c00, 1);
+        vram.ExecuteWordTransfer(
+            textTilemap,
+            IntroCinematicRomData.Layers.NarrationTilemapWord,
+            1);
         objects = new IntroCinematicObjectSystem(bus, vram, textTilemap, audio);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
-        audio?.QueueMusicDelayed8(MusicCommand.LoadData(0x36));
-        audio?.QueueMusicDelayed(MusicCommand.SelectTrack(5), MusicCommandDelay.FromDelayedYArgument(0x0e));
-        timer = 0x0e;
+        audio?.QueueMusicDelayed8(
+            MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));
+        audio?.QueueMusicDelayed(
+            MusicCommand.SelectTrack(IntroCinematicRomData.Music.SceneTrack),
+            MusicCommandDelay.FromDelayedYArgument(
+                IntroCinematicRomData.Music.SceneTrackDelayArgument));
+        timer = IntroCinematicRomData.Music.DiscoveryInitialTimer;
         Phase = IntroCinematicPhase.WaitForPageOneMusicQueue;
     }
 
@@ -1255,6 +1291,38 @@ public sealed class IntroCinematicState
     /// not own an APU queue, so they retain the previously explicit local countdown.
     /// </summary>
     private bool MusicQueueFinished() => audio is null ? --timer <= 0 : !audio.HasQueuedMusic;
+
+    /// <summary>Clears the gameplay rows of BG3 and publishes the same native DMA range.</summary>
+    private void ClearVisibleNarrationText()
+    {
+        Array.Fill(
+            textTilemap,
+            IntroCinematicRomData.Text.Blank.Raw,
+            startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
+            count: IntroCinematicRomData.Text.GameplayBlankWordCount);
+        vram.ExecuteWordTransfer(
+            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount),
+            IntroCinematicRomData.Layers.NarrationTilemapWord,
+            1);
+    }
+
+    private void ClearPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    {
+        foreach (IntroPaletteSpan span in spans)
+            paletteFader!.Clear(span.ByteOffset, span.ByteCount);
+    }
+
+    private void FadeInPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    {
+        foreach (IntroPaletteSpan span in spans)
+            paletteFader!.FadeIn(span.ByteOffset, span.ByteCount);
+    }
+
+    private void FadeOutPaletteSpans(ReadOnlySpan<IntroPaletteSpan> spans)
+    {
+        foreach (IntroPaletteSpan span in spans)
+            paletteFader!.FadeOut(span.ByteOffset, span.ByteCount);
+    }
 
     private void ApplyMasterBrightness(Span<Rgba32> pixels)
     {

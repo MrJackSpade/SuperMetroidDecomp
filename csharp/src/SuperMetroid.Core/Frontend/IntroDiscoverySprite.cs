@@ -177,14 +177,18 @@ internal sealed class IntroDiscoverySprite
             return;
         oam.AddOnScreenSpritemap(
             bus,
-            (int)new SnesAddress(0x8c, SpriteMapPointer),
+            (int)new SnesAddress(
+                IntroCinematicRomData.Banks.Spritemaps,
+                SpriteMapPointer),
             XPosition,
             YPosition,
             PaletteBits);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer);
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));

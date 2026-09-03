@@ -20,7 +20,7 @@ internal sealed class IntroScientistCutsceneState
         baby = new IntroDiscoverySprite(
             xPosition: delivery ? (ushort)0x0054 : (ushort)0x0070,
             yPosition: delivery ? (ushort)0x008b : (ushort)0x006f,
-            paletteBits: 0x0c00,
+            paletteBits: IntroCinematicRomData.Objects.ScientistPalette.Raw,
             instructionPointer: delivery ? (ushort)0xcb9f : (ushort)0xcbcd);
         TilemapBaseWord = delivery ? (ushort)0x5800 : (ushort)0x5c00;
         BackgroundX = delivery ? (ushort)0x0020 : (ushort)0;
@@ -87,13 +87,19 @@ internal sealed class IntroScientistCutsceneState
         switch (opcode)
         {
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1:
-                audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x23), maximumQueued: 6);
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.BabyCry1,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2:
-                audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x26), maximumQueued: 6);
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.BabyCry2,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3:
-                audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x27), maximumQueued: 6);
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.BabyCry3,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
             case CinematicCodePointers.Instruction_StartIntroPage4:
                 // The delivery loop ends by selecting page four.

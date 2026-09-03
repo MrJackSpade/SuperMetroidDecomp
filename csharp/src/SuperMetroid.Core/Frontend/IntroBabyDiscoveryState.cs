@@ -20,12 +20,12 @@ internal sealed class IntroBabyDiscoveryState
     private readonly IntroDiscoverySprite egg = new(
         xPosition: 0x0070,
         yPosition: 0x009b,
-        paletteBits: 0x0e00,
+        paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
         instructionPointer: 0xcb33);
     private readonly IntroDiscoverySprite confusedBaby = new(
         xPosition: 0x0070,
         yPosition: 0x009b,
-        paletteBits: 0x0e00,
+        paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
         instructionPointer: 0xcc2b);
 
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
@@ -170,7 +170,9 @@ internal sealed class IntroBabyDiscoveryState
                 // and init parameters zero through five, in this exact order.
                 for (byte index = 0; index < 6; index++)
                     eggParticles.Add(new IntroEggParticle(bus, index));
-                audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0b), maximumQueued: 6);
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.EggHatch,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
                 return argumentPointer;
 
             case CinematicCodePointers.Instruction_StartIntroPage3:
@@ -189,9 +191,12 @@ internal sealed class IntroBabyDiscoveryState
     {
         byte soundId = opcode switch
         {
-            0xa25b => 0x23,
-            0xa263 => 0x26,
-            0xa26b => 0x27,
+            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry1 =>
+                IntroCinematicRomData.Objects.BabyCry1.Value,
+            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry2 =>
+                IntroCinematicRomData.Objects.BabyCry2.Value,
+            CinematicCodePointers.Instruction_PlayBabyMetroid_Cry3 =>
+                IntroCinematicRomData.Objects.BabyCry3.Value,
             _ => 0,
         };
         if (soundId == 0)
@@ -212,7 +217,8 @@ internal sealed class IntroBabyDiscoveryState
                 // fully-hatched frame list, so the baby starts moving on that exact handoff.
                 if (egg.InstructionPointer >= 0xcb79)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(0xba73);
+                    confusedBaby.PreInstructionPointerForDiscovery(
+                        CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Hatched);
                     BabyYVelocity = 0;
                 }
                 return;
@@ -225,7 +231,8 @@ internal sealed class IntroBabyDiscoveryState
                 BabyIdleTimer = unchecked((ushort)(BabyIdleTimer - 1));
                 if (unchecked((short)BabyIdleTimer) <= 0)
                 {
-                    confusedBaby.PreInstructionPointerForDiscovery(0xbb24);
+                    confusedBaby.PreInstructionPointerForDiscovery(
+                        CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Dancing);
                     BabyIdleTimer = 0;
                     BabyYVelocity = 0;
                     confusedBaby.GeneralTimer = 0;
@@ -263,7 +270,9 @@ internal sealed class IntroBabyDiscoveryState
             }
             // `$8B:BA73` publishes the first confused cry at the same equality edge
             // that creates the four egg-slime drops.
-            audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x23), maximumQueued: 6);
+            audio?.QueueSound(
+                IntroCinematicRomData.Objects.BabyCry1,
+                maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
         }
 
         // $BA73 accelerates toward 32 pixels above Samus, clamping to +/-$220 in 8.8.
@@ -281,7 +290,8 @@ internal sealed class IntroBabyDiscoveryState
         if (unchecked((short)BabyYVelocity) >= 0)
         {
             BabyIdleTimer = 0x0080;
-            confusedBaby.PreInstructionPointerForDiscovery(0xbb0d);
+            confusedBaby.PreInstructionPointerForDiscovery(
+                CinematicCodePointers.PreInstruction_ConfusedBabyMetroid_Idling);
         }
     }
 
@@ -298,7 +308,9 @@ internal sealed class IntroBabyDiscoveryState
             confusedBaby.GeneralTimer++;
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if ((confusedBaby.GeneralTimer & 0x003f) == 0)
-                audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x23), maximumQueued: 6);
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.BabyCry1,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
         }
 
         BabyXVelocity = AccelerateToward(

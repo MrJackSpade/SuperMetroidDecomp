@@ -136,6 +136,7 @@ VerifyControllerInputRecording();
 VerifySaveRamLayout();
 VerifyFileSelectFreshSaveTilemap();
 VerifySavedGameLoadAppearance();
+VerifyIntroCinematicRomData();
 VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();

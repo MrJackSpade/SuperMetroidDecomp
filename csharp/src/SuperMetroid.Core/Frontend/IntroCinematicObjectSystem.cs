@@ -16,43 +16,20 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroCinematicObjectSystem
 {
-    private const ushort SpriteGoto = 0x94bc;
-    private const ushort SpriteDelete = 0x9438;
-    private const ushort SpriteSleep = 0x9442;
-    private const ushort BgDelete = 0x9698;
-    private const ushort BgGoto = 0x971e;
-    private const ushort BeginEnglishPageOne = 0xae43;
-    private const ushort FinishEnglishPageOne = 0xae5b;
-    private const ushort BeginEnglishPageTwo = 0xae79;
-    private const ushort FinishEnglishPageTwo = 0xae91;
-    private const ushort BeginEnglishPageThree = 0xb074;
-    private const ushort FinishEnglishPageThree = 0xb08c;
-    private const ushort BeginEnglishPageFour = 0xb0b3;
-    private const ushort FinishEnglishPageFour = 0xb0cb;
-    private const ushort BeginEnglishPageFive = 0xb19b;
-    private const ushort FinishEnglishPageFive = 0xb1b3;
-    private const ushort BeginEnglishPageSix = 0xb228;
-    private const ushort FinishIntro = 0xb240;
-    private const ushort SetCaretBlinkingInstruction = 0xadd4;
-
-    private const ushort DrawNothing = 0x8849;
-    private const ushort DrawCharacter = 0x884d;
-    private const ushort DrawToTextTilemap = 0x88b7;
-    private const ushort DrawToPortraitTilemap = 0x88fd;
-
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram;
     private readonly ushort[] textTilemap;
-    private ushort eyeInstructionPointer = 0xd5df;
+    private ushort eyeInstructionPointer = IntroCinematicRomData.ObjectSystem.InitialEyeInstruction;
     private ushort eyeInstructionTimer = 1;
     private ushort textInstructionPointer;
     private ushort textInstructionTimer;
-    private ushort spriteInstructionPointer = 0xcbfb;
+    private ushort spriteInstructionPointer =
+        IntroCinematicRomData.ObjectSystem.InitialSpriteInstruction;
     private ushort spriteInstructionTimer = 1;
     private ushort spriteMapPointer;
-    private ushort caretX = 8;
-    private ushort caretY = 24;
+    private ushort caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+    private ushort caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
     private bool typewriterSoundToggle;
 
     public IntroCinematicObjectSystem(
@@ -65,7 +42,7 @@ internal sealed class IntroCinematicObjectSystem
         this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
         this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
         this.audio = audio;
-        if (textTilemap.Length != 0x400)
+        if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
 
@@ -103,8 +80,8 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void PlaceCaretOffScreen()
     {
-        caretX = 8;
-        caretY = 0x00f8;
+        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+        caretY = IntroCinematicRomData.ObjectSystem.CaretInitialY;
     }
 
     /// <summary>
@@ -113,7 +90,7 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageOne()
     {
-        textInstructionPointer = 0xc383;
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageOneText;
         textInstructionTimer = 1;
     }
 
@@ -122,7 +99,7 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageTwo()
     {
-        textInstructionPointer = 0xc797;
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageTwoText;
         textInstructionTimer = 1;
         PageTwoAwaitingInput = false;
         ResetCaret();
@@ -133,7 +110,7 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageThree()
     {
-        textInstructionPointer = 0xcb45;
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageThreeText;
         textInstructionTimer = 1;
         PageThreeAwaitingInput = false;
         ResetCaret();
@@ -142,7 +119,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Spawns the page-four text definition at $8B:CF51 / $8C:CE33.</summary>
     public void StartEnglishPageFour()
     {
-        textInstructionPointer = 0xce33;
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageFourText;
         textInstructionTimer = 1;
         PageFourAwaitingInput = false;
         ResetCaret();
@@ -151,7 +128,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Spawns the page-five text definition at $8B:CF57 / $8C:D15D.</summary>
     public void StartEnglishPageFive()
     {
-        textInstructionPointer = 0xd15d;
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageFiveText;
         textInstructionTimer = 1;
         PageFiveAwaitingInput = false;
         ResetCaret();
@@ -160,15 +137,19 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Clears pages one-through-five and starts final text definition $8C:D511.</summary>
     public void StartEnglishPageSix()
     {
-        Array.Fill(textTilemap, (ushort)0x002f, startIndex: 128, count: 640);
-        textInstructionPointer = 0xd511;
+        Array.Fill(
+            textTilemap,
+            IntroCinematicRomData.Text.Blank.Raw,
+            startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
+            count: IntroCinematicRomData.Text.GameplayBlankWordCount);
+        textInstructionPointer = IntroCinematicRomData.ObjectSystem.PageSixText;
         textInstructionTimer = 1;
         IntroFinishRequested = false;
         ResetCaret();
 
         // B4BC observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan sequence at $8C:D613.
-        eyeInstructionPointer = 0xd613;
+        eyeInstructionPointer = IntroCinematicRomData.ObjectSystem.ActiveEyeInstruction;
         eyeInstructionTimer = 1;
     }
 
@@ -182,7 +163,10 @@ internal sealed class IntroCinematicObjectSystem
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
-        vram.ExecuteWordTransfer(textTilemap.AsSpan(0, 0x3c0), 0x4c00, 1);
+        vram.ExecuteWordTransfer(
+            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount),
+            IntroCinematicRomData.Layers.NarrationTilemapWord,
+            1);
     }
 
     private void StepSpriteObject()
@@ -194,11 +178,15 @@ internal sealed class IntroCinematicObjectSystem
         while (true)
         {
             ushort instructionOrDuration = ReadBank8B(pointer);
-            if ((instructionOrDuration & 0x8000) == 0)
+            if ((instructionOrDuration & IntroCinematicRomData.ObjectSystem.CommandBit) == 0)
             {
                 spriteInstructionTimer = instructionOrDuration;
-                spriteMapPointer = ReadBank8B(Add(pointer, 2));
-                spriteInstructionPointer = Add(pointer, 4);
+                spriteMapPointer = ReadBank8B(Add(
+                    pointer,
+                    IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
+                spriteInstructionPointer = Add(
+                    pointer,
+                    IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount);
                 return;
             }
 
@@ -206,14 +194,16 @@ internal sealed class IntroCinematicObjectSystem
             // retained because they are fundamental interpreter control flow, not page lore.
             switch (instructionOrDuration)
             {
-                case SpriteGoto:
-                    pointer = ReadBank8B(Add(pointer, 2));
+                case IntroCinematicRomData.ObjectSystem.SpriteGoto:
+                    pointer = ReadBank8B(Add(
+                        pointer,
+                        IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                     break;
-                case SpriteDelete:
+                case IntroCinematicRomData.ObjectSystem.SpriteDelete:
                     spriteMapPointer = 0;
                     spriteInstructionPointer = 0;
                     return;
-                case SpriteSleep:
+                case IntroCinematicRomData.ObjectSystem.SpriteSleep:
                     spriteInstructionPointer = pointer;
                     return;
                 default:
@@ -231,84 +221,92 @@ internal sealed class IntroCinematicObjectSystem
         while (true)
         {
             ushort instructionOrDuration = ReadBank8C(pointer);
-            if ((instructionOrDuration & 0x8000) == 0)
+            if ((instructionOrDuration & IntroCinematicRomData.ObjectSystem.CommandBit) == 0)
             {
                 instructionTimer = instructionOrDuration;
-                ushort tilePosition = ReadBank8C(Add(pointer, 2));
-                ushort dataPointer = ReadBank8C(Add(pointer, 4));
+                ushort tilePosition = ReadBank8C(Add(
+                    pointer,
+                    IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
+                ushort dataPointer = ReadBank8C(Add(
+                    pointer,
+                    IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount));
                 ProcessTileData(pointer, tilePosition, dataPointer);
-                instructionPointer = Add(pointer, 6);
+                instructionPointer = Add(
+                    pointer,
+                    IntroCinematicRomData.ObjectSystem.BackgroundRecordByteCount);
                 return;
             }
 
             switch (instructionOrDuration)
             {
-                case BgGoto:
-                    pointer = ReadBank8C(Add(pointer, 2));
+                case IntroCinematicRomData.ObjectSystem.BackgroundGoto:
+                    pointer = ReadBank8C(Add(
+                        pointer,
+                        IntroCinematicRomData.ObjectSystem.RecordDurationToPositionByteCount));
                     break;
-                case BgDelete:
+                case IntroCinematicRomData.ObjectSystem.BackgroundDelete:
                     instructionPointer = 0;
                     return;
-                case BeginEnglishPageOne:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageOne:
                     // English skips the Japanese Mode-7 glyph object spawned by this opcode.
                     pointer = Add(pointer, 2);
                     break;
-                case FinishEnglishPageOne:
+                case IntroCinematicRomData.ObjectSystem.FinishEnglishPageOne:
                     // $8B:AE5B switches the cinematic function to its input-wait routine.
                     // The page marker sprite is Japanese-only, but the state change is not.
                     PageOneAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case BeginEnglishPageTwo:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageTwo:
                     // $AE79 differs only in the Japanese subtitle object it conditionally
                     // spawns. The default English route consumes no operands.
                     pointer = Add(pointer, 2);
                     break;
-                case FinishEnglishPageTwo:
+                case IntroCinematicRomData.ObjectSystem.FinishEnglishPageTwo:
                     // $AE91 selects the baby-Metroid-discovery input wait and makes the
                     // same existing caret object blink; page-three setup is the next slice.
                     PageTwoAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case BeginEnglishPageThree:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageThree:
                     // $B074 clears the Japanese click flag and conditionally starts a Mode
                     // 7 subtitle object. English has no extra actor or operands here.
                     pointer = Add(pointer, 2);
                     break;
-                case FinishEnglishPageThree:
+                case IntroCinematicRomData.ObjectSystem.FinishEnglishPageThree:
                     // $B08C selects the page-three input wait that proceeds to the Ceres
                     // delivery scene; the optional subtitle/arrow branch is Japanese-only.
                     PageThreeAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case BeginEnglishPageFour:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageFour:
                     // English skips the optional page-four Japanese Mode-7 subtitle actor.
                     pointer = Add(pointer, 2);
                     break;
-                case FinishEnglishPageFour:
+                case IntroCinematicRomData.ObjectSystem.FinishEnglishPageFour:
                     PageFourAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case BeginEnglishPageFive:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageFive:
                     pointer = Add(pointer, 2);
                     break;
-                case FinishEnglishPageFive:
+                case IntroCinematicRomData.ObjectSystem.FinishEnglishPageFive:
                     PageFiveAwaitingInput = true;
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case BeginEnglishPageSix:
+                case IntroCinematicRomData.ObjectSystem.BeginEnglishPageSix:
                     pointer = Add(pointer, 2);
                     break;
-                case SetCaretBlinkingInstruction:
+                case IntroCinematicRomData.ObjectSystem.SetCaretBlinkingInstruction:
                     SetCaretBlinking();
                     pointer = Add(pointer, 2);
                     break;
-                case FinishIntro:
+                case IntroCinematicRomData.ObjectSystem.FinishIntro:
                     IntroFinishRequested = true;
                     pointer = Add(pointer, 2);
                     break;
@@ -324,20 +322,27 @@ internal sealed class IntroCinematicObjectSystem
         ushort dataPointer)
     {
         ushort drawFunction = ReadBank8C(dataPointer);
-        if (drawFunction == DrawNothing)
+        if (drawFunction == IntroCinematicRomData.ObjectSystem.DrawNothing)
             return;
 
-        byte width = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 2)));
-        byte height = bus.ReadByte((int)new SnesAddress(0x8c, Add(dataPointer, 3)));
+        byte width = bus.ReadByte((int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            Add(dataPointer, 2)));
+        byte height = bus.ReadByte((int)new SnesAddress(
+            IntroCinematicRomData.Banks.Spritemaps,
+            Add(dataPointer, 3)));
         if (width == 0 || height == 0)
             throw new InvalidDataException($"Cinematic tile data $8C:{dataPointer:X4} has a zero-sized rectangle.");
 
-        int destinationX = packedPosition & 0xff;
+        int destinationX =
+            packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask;
         int destinationY = packedPosition >> 8;
-        ushort source = Add(dataPointer, 4);
+        ushort source = Add(
+            dataPointer,
+            IntroCinematicRomData.ObjectSystem.RecordDurationToDataPointerByteCount);
         switch (drawFunction)
         {
-            case DrawCharacter:
+            case IntroCinematicRomData.ObjectSystem.DrawCharacter:
                 // `$8B:884D-$8B:889F` does more than copy the glyph. It looks ahead from
                 // the *current six-byte BG-object record* to the following record and moves
                 // cinematic sprite slot $1E to that next character cell. If the following
@@ -348,14 +353,19 @@ internal sealed class IntroCinematicObjectSystem
                 // ProcessCinematicBgObject_DrawChar toggles $1991 for every glyph. The
                 // $D67D blank/marker record is silent even on an audible half-cycle.
                 typewriterSoundToggle = !typewriterSoundToggle;
-                if (dataPointer != 0xd67d && typewriterSoundToggle)
-                    audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0d), maximumQueued: 6);
+                if (dataPointer != IntroCinematicRomData.ObjectSystem.SilentTypewriterDataPointer &&
+                    typewriterSoundToggle)
+                {
+                    audio?.QueueSound(
+                        IntroCinematicRomData.Objects.Typewriter,
+                        maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+                }
                 CopyRectangleToText(destinationX, destinationY, width, height, source);
                 return;
-            case DrawToTextTilemap:
+            case IntroCinematicRomData.ObjectSystem.DrawToTextTilemap:
                 CopyRectangleToText(destinationX, destinationY, width, height, source);
                 return;
-            case DrawToPortraitTilemap:
+            case IntroCinematicRomData.ObjectSystem.DrawToPortraitTilemap:
                 CopyRectangleToPortrait(destinationX, destinationY, width, height, source);
                 return;
             default:
@@ -377,22 +387,36 @@ internal sealed class IntroCinematicObjectSystem
         // duration therefore begins six bytes after this record; its packed coordinates
         // begin eight bytes after this record. ROM words with bit 15 set are interpreter
         // opcodes, so there is no following cell to read in that branch.
-        ushort nextDurationOrOpcode = ReadBank8C(Add(instructionRecordPointer, 6));
-        if ((nextDurationOrOpcode & 0x8000) == 0)
+        ushort nextDurationOrOpcode = ReadBank8C(Add(
+            instructionRecordPointer,
+            IntroCinematicRomData.ObjectSystem.BackgroundRecordByteCount));
+        if ((nextDurationOrOpcode & IntroCinematicRomData.ObjectSystem.CommandBit) == 0)
         {
             caretX = unchecked((ushort)(
-                bus.ReadByte((int)new SnesAddress(0x8c, Add(instructionRecordPointer, 8))) * 8));
+                bus.ReadByte((int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps,
+                    Add(
+                        instructionRecordPointer,
+                        IntroCinematicRomData.ObjectSystem.NextRecordPositionXByteOffset))) *
+                IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
             caretY = unchecked((ushort)(
-                bus.ReadByte((int)new SnesAddress(0x8c, Add(instructionRecordPointer, 9))) * 8 - 8));
+                bus.ReadByte((int)new SnesAddress(
+                    IntroCinematicRomData.Banks.Spritemaps,
+                    Add(
+                        instructionRecordPointer,
+                        IntroCinematicRomData.ObjectSystem.NextRecordPositionYByteOffset))) *
+                IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
+                IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset));
             return;
         }
 
         // At an instruction boundary `$8B:888A-$889F` retains the native left margin and
         // derives the following line from the just-drawn record's Y byte: (Y + 2)*8 - 8.
         // packedPosition is already the little-endian form of that exact X/Y operand.
-        caretX = 8;
+        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
         int currentTileY = packedPosition >> 8;
-        caretY = unchecked((ushort)((currentTileY + 1) * 8));
+        caretY = unchecked((ushort)(
+            (currentTileY + 1) * IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
     }
 
     private void CopyRectangleToText(int destinationX, int destinationY, int width, int height, ushort source)
@@ -402,7 +426,9 @@ internal sealed class IntroCinematicObjectSystem
         {
             for (int column = 0; column < width; column++)
             {
-                textTilemap[(destinationY + row) * 32 + destinationX + column] = ReadBank8C(source);
+                textTilemap[
+                    (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
+                    destinationX + column] = ReadBank8C(source);
                 source = Add(source, 2);
             }
         }
@@ -423,7 +449,10 @@ internal sealed class IntroCinematicObjectSystem
             // BG2SC=$48 selects word $4800. Updating only the script-authored rectangle is
             // equivalent for visible pixels and avoids inventing values for unrelated
             // $7E:3800 staging words that this focused state does not yet own.
-            ushort destinationWord = (ushort)(0x4800 + (destinationY + row) * 32 + destinationX);
+            ushort destinationWord = (ushort)(
+                IntroCinematicRomData.Layers.PortraitTilemapWord +
+                (destinationY + row) * IntroCinematicRomData.Layers.TilemapWidth +
+                destinationX);
             vram.ExecuteWordTransfer(words, destinationWord, 1);
         }
     }
@@ -432,9 +461,9 @@ internal sealed class IntroCinematicObjectSystem
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
         // restoring its non-blinking list. Position is state, not a renderer constant.
-        caretX = 8;
-        caretY = 24;
-        spriteInstructionPointer = 0xcbfb;
+        caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+        caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
+        spriteInstructionPointer = IntroCinematicRomData.ObjectSystem.InitialSpriteInstruction;
         spriteInstructionTimer = 1;
     }
 
@@ -442,20 +471,25 @@ internal sealed class IntroCinematicObjectSystem
     {
         // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
         // one, allowing the generic sprite list handler to select the first frame now.
-        spriteInstructionPointer = 0xcc03;
+        spriteInstructionPointer = IntroCinematicRomData.ObjectSystem.OpenEyeInstruction;
         spriteInstructionTimer = 1;
     }
 
     private static void ValidateRectangle(int x, int y, int width, int height)
     {
-        if (x + width > 32 || y + height > 32)
+        if (x + width > IntroCinematicRomData.Layers.TilemapWidth ||
+            y + height > IntroCinematicRomData.Layers.TilemapWidth)
             throw new InvalidDataException($"Cinematic rectangle ({x},{y}) {width}x{height} leaves its 32x32 tilemap.");
     }
 
-    private ushort ReadBank8B(ushort pointer) => RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | pointer);
+    private ushort ReadBank8B(ushort pointer) => RomDataReader.ReadWordFixedBank(
+        bus,
+        IntroCinematicRomData.Banks.CinematicCode | pointer);
 
     private ushort ReadBank8C(ushort pointer) =>
-        RomDataReader.ReadWordFixedBank(bus, new SnesAddress(0x8c, pointer));
+        RomDataReader.ReadWordFixedBank(
+            bus,
+            new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer));
 
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 

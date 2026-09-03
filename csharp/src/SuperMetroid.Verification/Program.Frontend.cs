@@ -565,33 +565,44 @@ static void VerifyCinematicPaletteFader()
 static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
-    WriteRomWord(rom, 0x918784, 0x83bf); // Initializer: RTS.
-    WriteRomWord(rom, 0x918786, 0x83bf); // Pre-instruction: RTS.
-    WriteRomWord(rom, 0x918788, 0x8694); // Retail old-Mother-Brain input list.
+    int objectAddress = DemoInputRomData.BankBase | DemoInputRomData.IntroMotherBrain.Object;
+    WriteRomWord(rom, objectAddress, DemoInputRomData.Routines.NoOp); // Initializer: RTS.
+    WriteRomWord(rom, objectAddress + 2, DemoInputRomData.Routines.NoOp); // Pre-instruction: RTS.
+    WriteRomWord(
+        rom,
+        objectAddress + 4,
+        DemoInputRomData.IntroMotherBrain.InputList);
 
     // Exact six records at $91:8694. The two one-frame X edges are separated by held-X
     // records; normal projectile cooldown/motion code—not this fixture—decides each shot.
     ushort[] words =
     [
         0x005a, 0x0000, 0x0000,
-        0x0001, 0x0040, 0x0040,
-        0x0028, 0x0040, 0x0000,
-        0x0001, 0x0040, 0x0040,
-        0x001d, 0x0040, 0x0000,
+        0x0001, (ushort)SnesButton.X, (ushort)SnesButton.X,
+        0x0028, (ushort)SnesButton.X, 0x0000,
+        0x0001, (ushort)SnesButton.X, (ushort)SnesButton.X,
+        0x001d, (ushort)SnesButton.X, 0x0000,
         0x0046, 0x0000, 0x0000,
     ];
     for (int index = 0; index < words.Length; index++)
-        WriteRomWord(rom, 0x918694 + index * 2, words[index]);
+        WriteRomWord(
+            rom,
+            (DemoInputRomData.BankBase | DemoInputRomData.IntroMotherBrain.InputList) +
+                index * sizeof(ushort),
+            words[index]);
 
     var demo = new DemoInputState();
     var bus = new SuperMetroidAddressSpace(rom);
     demo.Clear();
     demo.Enable();
-    demo.LoadObject(bus, 0x8784);
+    demo.LoadObject(bus, DemoInputRomData.IntroMotherBrain.Object);
 
     int[] boundaries = [90, 1, 40, 1, 29, 70];
-    ushort[] held = [0, 0x0040, 0x0040, 0x0040, 0x0040, 0];
-    ushort[] newlyPressed = [0, 0x0040, 0, 0x0040, 0, 0];
+    ushort[] held =
+        [0, (ushort)SnesButton.X, (ushort)SnesButton.X, (ushort)SnesButton.X,
+            (ushort)SnesButton.X, 0];
+    ushort[] newlyPressed =
+        [0, (ushort)SnesButton.X, 0, (ushort)SnesButton.X, 0, 0];
     int elapsed = 0;
     for (int record = 0; record < boundaries.Length; record++)
     {
@@ -606,25 +617,41 @@ static void VerifyDemoInputObject()
     }
 
     AssertEqual(231, elapsed, "old Mother Brain demo-input duration");
-    AssertEqual(0x86b8, demo.InstructionPointer, "old Mother Brain next record pointer");
+    AssertEqual(DemoInputRomData.IntroMotherBrain.NextRecord, demo.InstructionPointer,
+        "old Mother Brain next record pointer");
     // Loading a record and publishing its first visible frame happen in the same handler
     // call. Consequently the last of its 70 visible frames leaves timer one; the following
     // call decrements to zero and fetches the next record.
     AssertEqual(1, demo.InstructionTimer, "final visible record frame retains timer one");
 
+    string retailPath = Path.GetFullPath("Super Metroid.smc");
+    if (File.Exists(retailPath))
+    {
+        var retailDemo = new DemoInputState();
+        var retailBus = new SuperMetroidAddressSpace(File.ReadAllBytes(retailPath));
+        retailDemo.Enable();
+        retailDemo.LoadObject(retailBus, DemoInputRomData.IntroMotherBrain.Object);
+        for (int frame = 0; frame < elapsed; frame++)
+            retailDemo.Step(retailBus);
+        AssertEqual(demo.InstructionPointer, retailDemo.InstructionPointer,
+            "retail old-Mother-Brain stream reaches catalogued record boundary");
+        AssertEqual(demo.Held, retailDemo.Held,
+            "retail old-Mother-Brain stream publishes catalogued held input");
+    }
+
     // Exercise the generic control instructions separately: set a loop count, consume the
     // decrement/goto twice, then delete. This verifies that the reusable interpreter is not
     // accidentally hard-coded to the intro's all-record list.
-    WriteRomWord(rom, 0x918700, 0x8459);
+    WriteRomWord(rom, 0x918700, DemoInputRomData.Instructions.SetTimer);
     WriteRomWord(rom, 0x918702, 0x0002);
     WriteRomWord(rom, 0x918704, 0x0001);
     WriteRomWord(rom, 0x918706, 0x1234);
     WriteRomWord(rom, 0x918708, 0x0020);
-    WriteRomWord(rom, 0x91870a, 0x844f);
+    WriteRomWord(rom, 0x91870a, DemoInputRomData.Instructions.DecrementTimerAndGoto);
     WriteRomWord(rom, 0x91870c, 0x8704);
-    WriteRomWord(rom, 0x91870e, 0x8427);
-    WriteRomWord(rom, 0x918720, 0x83bf);
-    WriteRomWord(rom, 0x918722, 0x83bf);
+    WriteRomWord(rom, 0x91870e, DemoInputRomData.Instructions.Delete);
+    WriteRomWord(rom, 0x918720, DemoInputRomData.Routines.NoOp);
+    WriteRomWord(rom, 0x918722, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918724, 0x8700);
 
     bus = new SuperMetroidAddressSpace(rom);
@@ -646,11 +673,11 @@ static void VerifyDemoInputObject()
     // Object-specific routine pointers must be acknowledged explicitly and return the exact
     // bytecode cursor after their operands. Model $8739's no-argument disable followed by
     // the shared delete opcode, just as the physical Mother Brain list ends in the ROM.
-    WriteRomWord(rom, 0x918730, 0x83bf);
-    WriteRomWord(rom, 0x918732, 0x83bf);
+    WriteRomWord(rom, 0x918730, DemoInputRomData.Routines.NoOp);
+    WriteRomWord(rom, 0x918732, DemoInputRomData.Routines.NoOp);
     WriteRomWord(rom, 0x918734, 0x8750);
     WriteRomWord(rom, 0x918750, 0x8739);
-    WriteRomWord(rom, 0x918752, 0x8427);
+    WriteRomWord(rom, 0x918752, DemoInputRomData.Instructions.Delete);
     bus = new SuperMetroidAddressSpace(rom);
     demo.Clear();
     demo.Enable();

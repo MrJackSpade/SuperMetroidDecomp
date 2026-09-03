@@ -19,17 +19,6 @@ namespace SuperMetroid.Core.Input;
 /// </remarks>
 public sealed class DemoInputState
 {
-    private const int DemoInputBank = 0x910000;
-    private const ushort NoOpRoutine = 0x83bf;
-    private const ushort ClearedPreInstructionRoutine = 0x8447;
-
-    private const ushort DeleteInstruction = 0x8427;
-    private const ushort SetPreInstruction = 0x8434;
-    private const ushort ClearPreInstruction = 0x843f;
-    private const ushort GotoInstruction = 0x8448;
-    private const ushort DecrementTimerAndGoto = 0x844f;
-    private const ushort SetTimer = 0x8459;
-
     /// <summary>High-bit enable flag installed by <c>$91:834E</c>.</summary>
     public bool Enabled { get; private set; }
 
@@ -133,7 +122,7 @@ public sealed class DemoInputState
 
         if (initializer is not null)
             initializer(this, initializerPointer);
-        else if (initializerPointer != NoOpRoutine)
+        else if (initializerPointer != DemoInputRomData.Routines.NoOp)
             throw UnsupportedRoutine("initializer", initializerPointer);
     }
 
@@ -151,14 +140,18 @@ public sealed class DemoInputState
 
         if (preInstruction is not null)
             preInstruction(this, PreInstructionPointer);
-        else if (PreInstructionPointer is not (NoOpRoutine or ClearedPreInstructionRoutine))
+        else if (PreInstructionPointer is not (
+            DemoInputRomData.Routines.NoOp or
+            DemoInputRomData.Routines.ClearedPreInstruction))
             throw UnsupportedRoutine("pre-instruction", PreInstructionPointer);
 
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual ROM data.
-        InstructionTimer = unchecked((ushort)(InstructionTimer - 1));
-        if (InstructionTimer == 0)
+        NativeWordCounterStep instructionTimer =
+            NativeWordCounter.Decrement(InstructionTimer);
+        InstructionTimer = instructionTimer.Value;
+        if (instructionTimer.IsZero)
             ProcessInstructionList(bus, specialInstruction);
 
         // $91:83D3 publishes the old demo words to the drawing-input history before it
@@ -177,12 +170,13 @@ public sealed class DemoInputState
         while (true)
         {
             ushort word = ReadWord(bus, cursor);
-            if ((word & 0x8000) == 0)
+            if ((word & DemoInputRomData.Instructions.OpcodeBit) == 0)
             {
                 InstructionTimer = word;
                 Held = ReadWord(bus, unchecked((ushort)(cursor + 2)));
                 NewlyPressed = ReadWord(bus, unchecked((ushort)(cursor + 4)));
-                InstructionPointer = unchecked((ushort)(cursor + 6));
+                InstructionPointer = unchecked((ushort)(
+                    cursor + DemoInputRomData.Instructions.InputRecordBytes));
                 return;
             }
 
@@ -192,33 +186,34 @@ public sealed class DemoInputState
             cursor = unchecked((ushort)(cursor + 2));
             switch (word)
             {
-                case DeleteInstruction:
+                case DemoInputRomData.Instructions.Delete:
                     InstructionPointer = 0;
                     Held = 0;
                     NewlyPressed = 0;
                     return;
 
-                case SetPreInstruction:
+                case DemoInputRomData.Instructions.SetPreInstruction:
                     PreInstructionPointer = ReadWord(bus, cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
 
-                case ClearPreInstruction:
-                    PreInstructionPointer = ClearedPreInstructionRoutine;
+                case DemoInputRomData.Instructions.ClearPreInstruction:
+                    PreInstructionPointer = DemoInputRomData.Routines.ClearedPreInstruction;
                     break;
 
-                case GotoInstruction:
+                case DemoInputRomData.Instructions.Goto:
                     cursor = ReadWord(bus, cursor);
                     break;
 
-                case DecrementTimerAndGoto:
-                    Timer = unchecked((ushort)(Timer - 1));
-                    cursor = Timer != 0
+                case DemoInputRomData.Instructions.DecrementTimerAndGoto:
+                    NativeWordCounterStep timer = NativeWordCounter.Decrement(Timer);
+                    Timer = timer.Value;
+                    cursor = !timer.IsZero
                         ? ReadWord(bus, cursor)
                         : unchecked((ushort)(cursor + 2));
                     break;
 
-                case SetTimer:
+                case DemoInputRomData.Instructions.SetTimer:
                     Timer = ReadWord(bus, cursor);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -254,8 +249,9 @@ public sealed class DemoInputState
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort address) =>
-        unchecked((ushort)(bus.ReadByte(DemoInputBank | address) |
-            (bus.ReadByte(DemoInputBank | unchecked((ushort)(address + 1))) << 8)));
+        unchecked((ushort)(bus.ReadByte(DemoInputRomData.BankBase | address) |
+            (bus.ReadByte(DemoInputRomData.BankBase |
+                unchecked((ushort)(address + 1))) << 8)));
 
     private static InvalidOperationException UnsupportedRoutine(string kind, ushort pointer) =>
         new($"Demo-input {kind} $91:{pointer:X4} was not supplied by the owning object.");

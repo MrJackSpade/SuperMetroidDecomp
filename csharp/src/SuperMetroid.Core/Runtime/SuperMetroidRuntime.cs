@@ -294,8 +294,8 @@ public sealed partial class SuperMetroidRuntime
     /// Native WRAM <c>$1982</c>. Room/HDMA setup owns this word; the current Landing Site
     /// shell starts at bank-$88's cleared-FX default two.
     /// </summary>
-    public ushort LayerBlendingDefaultConfig { get; set; } =
-        (ushort)LayerBlendingConfiguration.NormalGameplay;
+    public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; set; } =
+        LayerBlendingConfiguration.NormalGameplay;
 
     /// <summary>
     /// Most recent call of the final-priority ordinary hurt palette handler. The result

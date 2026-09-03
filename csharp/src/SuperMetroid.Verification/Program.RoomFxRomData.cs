@@ -1,5 +1,7 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
@@ -41,6 +43,13 @@ internal static partial class Program
         AssertTrue(unknown.Message.Contains("$0E", StringComparison.Ordinal) &&
             unknown.Message.Contains("$9000", StringComparison.Ordinal),
             "unknown room FX identifies value and record context");
+        NotSupportedException unknownBlend = AssertThrows<NotSupportedException>(
+            () => LayerBlendingConfigurations.FromCartridge(
+                0x36, "constructed FX record $9000"),
+            "past-table layer-blending configuration fails loudly");
+        AssertTrue(unknownBlend.Message.Contains("0036", StringComparison.Ordinal) &&
+            unknownBlend.Message.Contains("$9000", StringComparison.Ordinal),
+            "unknown layer blend identifies value and record context");
 
         Console.WriteLine(
             "  Room FX: shared record/table catalog, typed blending, liquid, sky, haze, " +
@@ -133,14 +142,40 @@ internal static partial class Program
             RoomFxRomData.Banks.RoomDefinitions |
                 unchecked((ushort)(record + RoomFxRomData.Record.TypeOffset)),
             (byte)type);
+        LayerBlendingConfiguration layerBlend = type == RoomFxType.Rain
+            ? LayerBlendingConfiguration.Rain
+            : LayerBlendingConfiguration.FogAdditive;
+        bus.WriteByte(
+            RoomFxRomData.Banks.RoomDefinitions |
+                unchecked((ushort)(record +
+                    RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset)),
+            (byte)layerBlend);
 
         state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
         AssertEqual(type, state.Type, $"{type} layer-three type");
         AssertTrue(state.IsRenderable, $"{type} owns a translated layer-three plane");
         RoomLayer3FxRenderSnapshot snapshot = state.CaptureForDisplay()!.Value;
         AssertEqual(
-            LayerBlendingConfiguration.NormalGameplay,
+            layerBlend,
             snapshot.LayerBlendConfiguration,
             $"{type} render snapshot retains typed blending");
+
+        // The software compositor now consumes the same typed dispatcher identity as the
+        // room loader. Rain and fog use different main/subscreen ownership in hardware even
+        // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
+        var frame = new Rgba32[
+            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+            frame, vram, cgram, snapshot);
+        LayerBlendingConfiguration wrongBlend = type == RoomFxType.Rain
+            ? LayerBlendingConfiguration.FogAdditive
+            : LayerBlendingConfiguration.Rain;
+        AssertThrows<InvalidDataException>(
+            () => SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+                frame,
+                vram,
+                cgram,
+                snapshot with { LayerBlendConfiguration = wrongBlend }),
+            $"{type} rejects another FX type's layer-blending route");
     }
 }

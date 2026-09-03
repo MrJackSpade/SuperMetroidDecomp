@@ -310,7 +310,7 @@ public sealed class MotherBrainEnemyState
     public bool RisingHdmaActive { get; internal set; }
 
     /// <summary>Last verified room layer-blending configuration written by the body AI.</summary>
-    public ushort LayerBlendingDefaultConfig { get; internal set; }
+    public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; internal set; }
 
     /// <summary>Direct BG2 scroll-register mirrors owned by the phase-two body art.</summary>
     public ushort Bg2XScroll { get; internal set; }

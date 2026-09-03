@@ -278,7 +278,8 @@ internal static class MotherBrainAudit
         byte[] scrollBytes = new byte[50];
         scrollBytes[0] = 2;
         scrollBytes[1] = 1;
-        ushort observedLayerBlendingConfig = 0;
+        LayerBlendingConfiguration observedLayerBlendingConfig =
+            LayerBlendingConfiguration.PowerBombOnly;
         ushort observedBg2X = 0;
         ushort observedBg2Y = 0;
         var enemies = new RoomEnemySystem();
@@ -502,7 +503,7 @@ internal static class MotherBrainAudit
         }
 
         MotherBrainNeckPoint finalHeadJoint = state.NeckSegment4;
-        if (observedLayerBlendingConfig != 0x0034 ||
+        if (observedLayerBlendingConfig != LayerBlendingConfiguration.MotherBrainPhaseTwo ||
             !observedRisingHdma || state.RisingHdmaActive ||
             state.Body.XPosition != 0x003b || state.Body.YPosition != 0x0096 ||
             observedBg2X != 0xffe5 || observedBg2Y != 0xffa9 ||

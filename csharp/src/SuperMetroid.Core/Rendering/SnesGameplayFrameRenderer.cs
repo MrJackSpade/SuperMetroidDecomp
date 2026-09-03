@@ -947,8 +947,20 @@ public static class SnesGameplayFrameRenderer
         ArgumentNullException.ThrowIfNull(cgram);
         if (frame.Length != Width * Height)
             throw new ArgumentException("Room FX compositor requires one complete 256x224 frame.", nameof(frame));
-        if (fx.Type is not RoomFxType.Rain and not RoomFxType.Fog)
-            throw new NotSupportedException($"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor.");
+        LayerBlendingConfiguration expectedConfiguration = fx.Type switch
+        {
+            RoomFxType.Rain => LayerBlendingConfiguration.Rain,
+            RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            _ => throw new NotSupportedException(
+                $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
+        };
+        if (fx.LayerBlendConfiguration != expectedConfiguration)
+        {
+            throw new InvalidDataException(
+                $"Room FX type {fx.Type} requires layer-blending configuration " +
+                $"${(ushort)expectedConfiguration:X2}, not " +
+                $"${(ushort)fx.LayerBlendConfiguration:X2}.");
+        }
 
         // Rain ($0E) keeps BG1/BG2/OBJ on main and BG3 on sub; fog ($30) reverses those
         // screens. Both configurations enable additive math for the BG3 result, so the

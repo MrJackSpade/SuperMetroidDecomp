@@ -61,10 +61,12 @@ public sealed class RoomLayer3FxState
         Type = RoomFxTypes.FromCartridge(
             RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
             $"bank-$83 FX record ${record:X4}");
-        LayerBlendConfiguration = (LayerBlendingConfiguration)RoomFxRomData.ReadRecordByte(
-            bus,
-            record,
-            RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset);
+        LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
+            RoomFxRomData.ReadRecordByte(
+                bus,
+                record,
+                RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset),
+            $"bank-$83 FX record ${record:X4}");
         byte paletteBlend = RoomFxRomData.ReadRecordByte(
             bus,
             record,

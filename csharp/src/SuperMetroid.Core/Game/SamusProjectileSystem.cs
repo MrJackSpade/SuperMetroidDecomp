@@ -198,7 +198,8 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         SnesCgram cgram,
         SamusState samus,
-        ushort layerBlendingDefaultConfig = 0x0002)
+        LayerBlendingConfiguration layerBlendingDefaultConfig =
+            LayerBlendingConfiguration.NormalGameplay)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);

@@ -583,7 +583,8 @@ static void VerifySamusVisorPalette()
     var state = new SamusVisorPaletteState();
     cgram.SetColor(196, 0x7777);
     SamusVisorPaletteStepResult normal = state.Update(
-        bus, cgram, specialSamusPaletteType: 0, layerBlendingDefaultConfig: 2);
+        bus, cgram, specialSamusPaletteType: 0,
+        layerBlendingDefaultConfig: LayerBlendingConfiguration.NormalGameplay);
     AssertEqual(SamusVisorPaletteAction.ResetForNormalRoom, normal.Action,
         "ordinary room resets visor animation");
     AssertEqual(0x0601, state.PackedTimerIndex,
@@ -592,7 +593,8 @@ static void VerifySamusVisorPalette()
         "ordinary room reset does not overwrite current visor color");
 
     // The first `$28` call decrements timer one to zero and immediately copies offset six.
-    SamusVisorPaletteStepResult first = state.Update(bus, cgram, 0, 0x0028);
+    SamusVisorPaletteStepResult first = state.Update(
+        bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusVisorPaletteAction.ColorWritten, first.Action,
         "backdrop room writes first visor color immediately");
     AssertEqual((byte?)6, first.SourceByteOffset, "first visor source is table offset six");
@@ -603,7 +605,8 @@ static void VerifySamusVisorPalette()
     // Four calls retain timers 4/3/2/1. The fifth reaches zero, writes, and reloads five.
     for (ushort expectedTimer = 4; expectedTimer >= 1; expectedTimer--)
     {
-        SamusVisorPaletteStepResult countdown = state.Update(bus, cgram, 0, 0x002a);
+        SamusVisorPaletteStepResult countdown = state.Update(
+            bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
         AssertEqual(SamusVisorPaletteAction.Countdown, countdown.Action,
             $"visor countdown timer {expectedTimer}");
         AssertEqual(unchecked((byte)expectedTimer), state.Timer,
@@ -611,21 +614,23 @@ static void VerifySamusVisorPalette()
         if (expectedTimer == 1)
             break;
     }
-    SamusVisorPaletteStepResult second = state.Update(bus, cgram, 0, 0x002a);
+    SamusVisorPaletteStepResult second = state.Update(
+        bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop2A);
     AssertEqual((byte?)8, second.SourceByteOffset, "second visor source is table offset eight");
     AssertEqual(0x2001, cgram.Colors[196], "second backdrop visor color");
     AssertEqual(0x0a05, state.PackedTimerIndex,
         "second write advances packed offset to ten");
 
     for (int call = 0; call < 5; call++)
-        state.Update(bus, cgram, 0, 0x0028);
+        state.Update(bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
     AssertEqual(0x0605, state.PackedTimerIndex,
         "third write wraps only to room-cycle offset six");
 
     ushort packedBeforeXray = state.PackedTimerIndex;
     cgram.SetColor(196, 0x3456);
-    SamusVisorPaletteStepResult xray = state.Update(bus, cgram, 8, 0x0028);
+    SamusVisorPaletteStepResult xray = state.Update(
+        bus, cgram, 8, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusVisorPaletteAction.SuppressedByXray, xray.Action,
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(packedBeforeXray, state.PackedTimerIndex,
@@ -638,7 +643,8 @@ static void VerifySamusVisorPalette()
     var integratedSamus = new SamusState();
     var projectiles = new SamusProjectileSystem();
     SamusBeamChargePaletteStepResult charge = projectiles.UpdateBeamChargePalette(
-        bus, cgram, integratedSamus, layerBlendingDefaultConfig: 0x0028);
+        bus, cgram, integratedSamus,
+        layerBlendingDefaultConfig: LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(SamusBeamChargePaletteAction.Inactive, charge.Action,
         "inactive charging retains beam-palette result");
     AssertEqual(SamusVisorPaletteAction.ColorWritten,

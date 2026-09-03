@@ -3960,7 +3960,7 @@ if (options.VisorScript)
     // Landing Site normally uses default blending configuration two and therefore resets
     // `$0A72/$0A73` instead of cycling. Publish only the room/HDMA-owned configuration word
     // `$28`; the timer, table offsets, colors, movement, DMA, OAM, and rendering stay native.
-    runtime.LayerBlendingDefaultConfig = 0x0028;
+    runtime.LayerBlendingDefaultConfig = LayerBlendingConfiguration.VisorBackdrop28;
 }
 
 Console.WriteLine(

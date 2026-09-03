@@ -35,7 +35,7 @@ public sealed class SamusVisorPaletteState
         ISnesAddressSpace bus,
         SnesCgram cgram,
         ushort specialSamusPaletteType,
-        ushort layerBlendingDefaultConfig)
+        LayerBlendingConfiguration layerBlendingDefaultConfig)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -121,7 +121,7 @@ public readonly record struct SamusVisorPaletteStepResult(
     SamusVisorPaletteAction Action,
     ushort PackedBefore,
     ushort PackedAfter,
-    ushort LayerBlendingDefaultConfig,
+    LayerBlendingConfiguration LayerBlendingDefaultConfig,
     byte? SourceByteOffset = null,
     ushort? WrittenColor = null);
 

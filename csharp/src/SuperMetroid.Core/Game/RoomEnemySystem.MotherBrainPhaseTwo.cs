@@ -18,7 +18,7 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainBombPhaseTwoHeadInstruction = 0x9ecc;
     private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
-    private Action<ushort>? _setMotherBrainLayerBlendingDefaultConfig;
+    private Action<LayerBlendingConfiguration>? _setMotherBrainLayerBlendingDefaultConfig;
     private Action<ushort, ushort>? _setMotherBrainBg2Scroll;
 
     private static readonly ushort[] MotherBrainAscentDustXPositions =
@@ -169,8 +169,7 @@ public sealed partial class RoomEnemySystem
         byte nmiFrameCounter8)
     {
         // `$34` is the room's verified Mother Brain phase-two color-math configuration.
-        state.LayerBlendingDefaultConfig =
-            (ushort)LayerBlendingConfiguration.MotherBrainPhaseTwo;
+        state.LayerBlendingDefaultConfig = LayerBlendingConfiguration.MotherBrainPhaseTwo;
         RequireSetLayerBlendingDefaultConfig(state.LayerBlendingDefaultConfig);
         state.BrainFunction = MotherBrainBrainFunction.SetupBrainAndNeckToBeDrawn;
 

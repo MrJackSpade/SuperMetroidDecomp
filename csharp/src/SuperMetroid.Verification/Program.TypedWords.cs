@@ -401,9 +401,9 @@ static void VerifyTypedNativeWords()
     AssertEqual(0x9002, beams.WithCombinationIndex(2),
         "beam combination replacement preserves upper raw bits");
 
-    AssertTrue(((ushort)LayerBlendingConfiguration.VisorBackdrop2A).AnimatesVisor(),
+    AssertTrue(LayerBlendingConfiguration.VisorBackdrop2A.AnimatesVisor(),
         "layer blending enum selects visor backdrop handler");
-    AssertTrue(!((ushort)0x1234).AnimatesVisor(),
+    AssertTrue(!((LayerBlendingConfiguration)0x1234).AnimatesVisor(),
         "unnamed layer blending value stays outside typed handler");
 
     AreaId[] retailAreas =

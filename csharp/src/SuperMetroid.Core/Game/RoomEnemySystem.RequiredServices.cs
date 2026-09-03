@@ -57,7 +57,7 @@ public sealed partial class RoomEnemySystem
         (_setSamusControlsEnabled ?? throw MissingService("change Samus control enablement"))(
             enabled);
 
-    internal void RequireSetLayerBlendingDefaultConfig(ushort value) =>
+    internal void RequireSetLayerBlendingDefaultConfig(LayerBlendingConfiguration value) =>
         (_setMotherBrainLayerBlendingDefaultConfig ??
             throw MissingService("write Mother Brain's layer-blending configuration"))(value);
 

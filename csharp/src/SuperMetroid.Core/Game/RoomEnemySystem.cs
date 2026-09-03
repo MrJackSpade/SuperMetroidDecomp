@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
         Action? setAreaBossDefeated = null,
         Action? incrementMotherBrainGlassRoomArgument = null,
         Func<int, RoomScrollState>? readRoomScrollState = null,
-        Action<ushort>? setMotherBrainLayerBlendingDefaultConfig = null,
+        Action<LayerBlendingConfiguration>? setMotherBrainLayerBlendingDefaultConfig = null,
         Action<ushort, ushort>? setMotherBrainBg2Scroll = null,
         GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
     {

@@ -143,6 +143,36 @@ static void VerifyTypedNativeWords()
         SnesAngle.Zero.SignedTableDeltaTo(SnesAngle.ThreeQuarterTurn),
         "SNES signed table delta crosses wrap seam");
 
+    var positiveEightEight = new SnesSignedEightEight(0x0180);
+    AssertEqual((sbyte)1, positiveEightEight.WholePixels,
+        "signed 8.8 positive whole byte");
+    AssertEqual((byte)0x80, positiveEightEight.Fraction,
+        "signed 8.8 positive fraction byte");
+    AssertEqual(0x0001_8000,
+        positiveEightEight.ToSixteenSixteenDelta().RawValue,
+        "signed 8.8 promotes to signed 16.16");
+    var negativeEightEight = new SnesSignedEightEight(0xff80);
+    AssertEqual(unchecked((int)0xffff_8000),
+        negativeEightEight.ToSixteenSixteenDelta().RawValue,
+        "negative signed 8.8 promotion sign-extends");
+    SnesFixedPosition halfPixelBack = negativeEightEight
+        .ToSixteenSixteenDelta()
+        .AddTo(10, 0x4000);
+    AssertEqual(new SnesFixedPosition(9, 0xc000), halfPixelBack,
+        "signed fixed delta carries and borrows across split position words");
+    AssertEqual(new SnesFixedPosition(0, 0),
+        SnesSignedSixteenSixteen.FromWholePixels(1).AddTo(ushort.MaxValue, 0),
+        "signed fixed position addition wraps native whole word");
+    AssertEqual(unchecked((ushort)0xff00),
+        SnesSignedEightEight.FromWholePixels(127).AddRawWrapping(0x8000).RawValue,
+        "signed 8.8 arithmetic wraps the cartridge word");
+    AssertThrows<OverflowException>(
+        () => SnesSignedEightEight.FromWholePixels(128),
+        "signed 8.8 checked whole conversion rejects positive overflow");
+    AssertThrows<OverflowException>(
+        () => SnesSignedSixteenSixteen.FromWholePixels(32768),
+        "signed 16.16 checked whole conversion rejects positive overflow");
+
     NativeWordCounterStep fromOne = NativeWordCounter.Decrement(0x0001);
     AssertEqual((ushort)0x0000, fromOne.Value, "native DEC one reaches zero");
     AssertTrue(fromOne.IsZero && fromOne.IsNonNegative && !fromOne.IsNegative,

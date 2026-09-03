@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Exact fixed-point additions shared by translated opening-cinematic actors.</summary>
@@ -11,10 +13,11 @@ internal static class IntroCinematicMotion
     {
         // Native 16-bit ADC first adds the fractional words, then propagates its carry into
         // the signed whole-word sum. Packing them produces precisely that wrap/carry model.
-        int velocity = unchecked((short)wholeVelocity) * 0x10000 + fractionalVelocity;
-        uint packed = unchecked((uint)(((uint)wholePosition << 16) | subPosition) + (uint)velocity);
-        wholePosition = unchecked((ushort)(packed >> 16));
-        subPosition = unchecked((ushort)packed);
+        SnesFixedPosition result = SnesSignedSixteenSixteen
+            .FromParts(unchecked((short)wholeVelocity), fractionalVelocity)
+            .AddTo(wholePosition, subPosition);
+        wholePosition = result.Whole;
+        subPosition = result.Fraction;
     }
 
     public static void AddEightEight(
@@ -24,10 +27,10 @@ internal static class IntroCinematicMotion
     {
         // The 65c816 XBA sequence places the velocity fraction in subposition byte +1.
         // Its eight-bit carry then feeds the sign-extended integer byte.
-        int fractionalSum = (subPosition >> 8) + (velocity & 0x00ff);
-        subPosition = unchecked((ushort)(
-            ((byte)fractionalSum << 8) | (subPosition & 0x00ff)));
-        int wholeDelta = unchecked((sbyte)(velocity >> 8)) + (fractionalSum > 0xff ? 1 : 0);
-        wholePosition = unchecked((ushort)(wholePosition + wholeDelta));
+        SnesFixedPosition result = new SnesSignedEightEight(velocity)
+            .ToSixteenSixteenDelta()
+            .AddTo(wholePosition, subPosition);
+        wholePosition = result.Whole;
+        subPosition = result.Fraction;
     }
 }

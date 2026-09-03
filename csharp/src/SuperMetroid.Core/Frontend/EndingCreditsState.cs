@@ -889,10 +889,11 @@ internal sealed partial class EndingCreditsState
 
     private static void AddSignedFixed(ref ushort whole, ref ushort fraction, int delta)
     {
-        uint value = ((uint)whole << 16) | fraction;
-        value = unchecked(value + (uint)delta);
-        whole = unchecked((ushort)(value >> 16));
-        fraction = unchecked((ushort)value);
+        SnesFixedPosition result = SnesSignedSixteenSixteen
+            .FromRaw(delta)
+            .AddTo(whole, fraction);
+        whole = result.Whole;
+        fraction = result.Fraction;
     }
 
     private static void RequireMinimum(byte[] data, int minimum, string name)

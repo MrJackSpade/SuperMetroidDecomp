@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -59,11 +61,10 @@ public sealed partial class RoomEnemySystem
         ushort subposition,
         ushort velocity)
     {
-        int fixedPosition = (position << 16) | subposition;
-        fixedPosition = unchecked(fixedPosition + (unchecked((short)velocity) << 8));
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        SnesFixedPosition result = new SnesSignedEightEight(velocity)
+            .ToSixteenSixteenDelta()
+            .AddTo(position, subposition);
+        return (result.Whole, result.Fraction);
     }
 
     /// <summary>
@@ -72,7 +73,7 @@ public sealed partial class RoomEnemySystem
     /// <c>INT16_SHL8</c> conversion on both axes.
     /// </summary>
     private static int ToEightBitVelocityDisplacement(ushort velocity) =>
-        unchecked((short)velocity) << 8;
+        new SnesSignedEightEight(velocity).ToSixteenSixteenDelta().RawValue;
 
     /// <summary>
     /// Returns the cartridge's modular absolute value of one signed 16-bit difference.

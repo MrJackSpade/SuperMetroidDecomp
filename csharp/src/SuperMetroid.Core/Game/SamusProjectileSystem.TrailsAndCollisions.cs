@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
 
@@ -658,11 +659,11 @@ public sealed partial class SamusProjectileSystem
         // Bank $94 overlaps DP $12/$13 so an 8.8 velocity becomes a signed 16.16 delta by
         // shifting it left eight. Performing the addition as one wrapped 32-bit quantity is
         // exactly equivalent to its low-word ADC followed by sign-word ADC.
-        uint fixedPosition = ((uint)position << 16) | subposition;
-        fixedPosition = unchecked((uint)(fixedPosition + ((int)velocity << 8)));
-        return (
-            unchecked((ushort)(fixedPosition >> 16)),
-            unchecked((ushort)fixedPosition));
+        SnesFixedPosition result = SnesSignedEightEight
+            .FromSignedRaw(velocity)
+            .ToSixteenSixteenDelta()
+            .AddTo(position, subposition);
+        return (result.Whole, result.Fraction);
     }
 
     private static void KillBeam(ISnesAddressSpace bus, SamusProjectileSlot slot)

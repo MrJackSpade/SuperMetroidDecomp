@@ -16,8 +16,8 @@ public sealed partial class RoomPlmSystem
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
     private Func<BossBits, bool>? _motherBrainHasAreaBossBit;
-    private Func<EventNumber, bool>? _motherBrainHasEvent;
-    private Action<EventNumber>? _motherBrainSetEvent;
+    private Func<EventNumber, bool>? _hasEvent;
+    private Action<EventNumber>? _setEvent;
     private int _motherBrainGlassSlotIndex = -1;
     private bool _motherBrainGlassWasLoaded;
     private bool _motherBrainGlassWasDeleted;
@@ -120,8 +120,6 @@ public sealed partial class RoomPlmSystem
     {
         _motherBrainGlassProjectileRequests.Clear();
         _motherBrainHasAreaBossBit = null;
-        _motherBrainHasEvent = null;
-        _motherBrainSetEvent = null;
         _motherBrainGlassSlotIndex = -1;
         _motherBrainGlassWasLoaded = false;
         _motherBrainGlassWasDeleted = false;
@@ -177,7 +175,7 @@ public sealed partial class RoomPlmSystem
                 ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
                 ushort eventTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = _motherBrainHasEvent?.Invoke(namedEvent) == true
+                slot.InstructionPointer = _hasEvent?.Invoke(namedEvent) == true
                     ? eventTarget
                     : unchecked((ushort)(cursor + 6));
                 return true;
@@ -211,7 +209,7 @@ public sealed partial class RoomPlmSystem
             case RoomPlmInstructionCodes.SetEvent:
                 ushort setEventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
                 EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
-                (_motherBrainSetEvent ?? throw new InvalidOperationException(
+                (_setEvent ?? throw new InvalidOperationException(
                     "Mother Brain glass has no event writer."))(eventToSet);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;

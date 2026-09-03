@@ -77,6 +77,8 @@ public sealed partial class RoomPlmSystem
         _greyDoorSystem = null;
         _greyDoorArea = AreaId.Crateria;
         _isTourianStatueFinished = null;
+        _hasEvent = null;
+        _setEvent = null;
         ResetMotherBrainGlassState();
         ResetCollectibleState();
         ResetBombTorizoHandState();
@@ -1041,6 +1043,7 @@ public sealed partial class RoomPlmSystem
                 continue;
             }
 
+            RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
             RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
             if (!slot.Active)

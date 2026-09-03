@@ -275,6 +275,12 @@ if (args.Length >= 2 && args[0] == "--retail-scroll-ownership-audit")
     return RetailPlmPopulationAudit.AuditScrollOwnership(scrollOwnershipRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--metroids-cleared-plm-audit")
+{
+    string metroidsClearedRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.AuditMetroidsClearedStates(metroidsClearedRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-enemy-execution-audit")
 {
     string executionRomPath = string.Join(' ', args[1..]).Trim('"');

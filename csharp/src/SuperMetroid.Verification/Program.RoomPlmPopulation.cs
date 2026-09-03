@@ -93,9 +93,104 @@ internal static partial class Program
 
         VerifyOtherStationFamilies(bus);
         VerifySaveStationConfirmation(bus);
+        VerifyMetroidsClearedStatePlm(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Exercises all semantic branches in `$DB44`'s thirteen-entry room-argument table:
+    /// no-op, below-quota, four event writes, persistent sleep, and malformed input.
+    /// </summary>
+    private static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
+    {
+        const ushort population = 0x9500;
+        WriteWord(bus, 0x84db46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
+        WriteWord(bus, 0x84db42, RoomPlmInstructionCodes.Sleep);
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0x44, 0xdb, 0x01, 0x01, 0x10, 0x00,
+            0x44, 0xdb, 0x02, 0x01, 0x12, 0x00,
+            0x44, 0xdb, 0x03, 0x01, 0x14, 0x00,
+            0x44, 0xdb, 0x04, 0x01, 0x16, 0x00,
+            0x44, 0xdb, 0x05, 0x01, 0x18, 0x00,
+            0x00, 0x00,
+        ]);
+
+        RoomLevelData level = CreateRoom(
+            8,
+            8,
+            new ushort[64],
+            new byte[64],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var system = new Bank80SystemState();
+        var plms = new RoomPlmSystem();
+        AssertEqual(5, plms.LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                population,
+                system,
+                AreaId.Tourian,
+                () => new SamusState(),
+                () => false,
+                hasEvent: system.HasEvent,
+                setEvent: system.SetEvent),
+            "Metroids-cleared population loads all argument families");
+
+        plms.Step(bus, level, streamer, 0, 0, 0, enemyDeaths: 2, enemyDeathQuota: 3);
+        foreach (EventNumber eventNumber in new[]
+                 {
+                     EventNumber.FirstMetroidHallCleared,
+                     EventNumber.FirstMetroidShaftCleared,
+                     EventNumber.SecondMetroidHallCleared,
+                     EventNumber.SecondMetroidShaftCleared,
+                 })
+        {
+            AssertTrue(!system.HasEvent(eventNumber),
+                $"Metroids-cleared {eventNumber} remains clear below quota");
+        }
+
+        plms.Step(bus, level, streamer, 0, 0, 0, enemyDeaths: 3, enemyDeathQuota: 3);
+        foreach (EventNumber eventNumber in new[]
+                 {
+                     EventNumber.FirstMetroidHallCleared,
+                     EventNumber.FirstMetroidShaftCleared,
+                     EventNumber.SecondMetroidHallCleared,
+                     EventNumber.SecondMetroidShaftCleared,
+                 })
+        {
+            AssertTrue(system.HasEvent(eventNumber),
+                $"Metroids-cleared {eventNumber} is marked at quota");
+        }
+        AssertEqual(5, plms.ActiveCount,
+            "Metroids-cleared observers remain resident on their sleep instruction");
+        AssertTrue(plms.PopulationSlots.All(slot =>
+                slot.InstructionPointer ==
+                    RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired),
+            "Metroids-cleared observers retain the cartridge sleep list");
+
+        const ushort invalidPopulation = 0x9580;
+        bus.WriteBytes(0x8f0000 | invalidPopulation,
+        [
+            0x44, 0xdb, 0x01, 0x01, 0x01, 0x00,
+            0x00, 0x00,
+        ]);
+        AssertThrows<InvalidDataException>(
+            () => new RoomPlmSystem().LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                invalidPopulation,
+                new Bank80SystemState(),
+                AreaId.Tourian,
+                () => new SamusState(),
+                () => false),
+            "odd Metroids-cleared room argument fails loudly");
     }
 
     private static void VerifyOtherStationFamilies(TestAddressSpace bus)

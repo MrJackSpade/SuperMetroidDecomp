@@ -23,7 +23,8 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.MotherBrainGlass or RoomPlmHeaders.BombTorizoHand or
             RoomPlmHeaders.MapStation or RoomPlmHeaders.EnergyStation or
             RoomPlmHeaders.MissileStation or RoomPlmHeaders.ElevatorPlatform or
-            RoomPlmHeaders.SaveStation)
+            RoomPlmHeaders.SaveStation or
+            RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
         {
             return true;
         }
@@ -72,8 +73,8 @@ public sealed partial class RoomPlmSystem
         _collectibleSamus = getSamus;
         _bombTorizoSamus = getSamus;
         _motherBrainHasAreaBossBit = hasAreaBossBit;
-        _motherBrainHasEvent = hasEvent;
-        _motherBrainSetEvent = setEvent;
+        _hasEvent = hasEvent;
+        _setEvent = setEvent;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -266,6 +267,12 @@ public sealed partial class RoomPlmSystem
         if (header == RoomPlmHeaders.BombTorizoHand)
         {
             SetupBombTorizoHandSlot(level, slot, isAreaTorizoDefeated);
+            return true;
+        }
+
+        if (header == RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired)
+        {
+            SetupMetroidsClearedSlot(slot);
             return true;
         }
 

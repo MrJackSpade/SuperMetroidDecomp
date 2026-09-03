@@ -318,7 +318,8 @@ internal static partial class RetailPlmPopulationAudit
             records.Add(new ScrollAuditPopulationRecord(
                 header,
                 bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 2))),
-                bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3)))));
+                bus.ReadByte(0x8f0000 | unchecked((ushort)(cursor + 3))),
+                ReadWord(bus, 0x8f0000 | unchecked((ushort)(cursor + 4)))));
             cursor = unchecked((ushort)(cursor + 6));
         }
 
@@ -378,7 +379,8 @@ internal static partial class RetailPlmPopulationAudit
     private readonly record struct ScrollAuditPopulationRecord(
         ushort Header,
         byte BlockX,
-        byte BlockY);
+        byte BlockY,
+        ushort RoomArgument);
 
     private readonly record struct ScrollAuditRoomState(
         ushort RoomPointer,

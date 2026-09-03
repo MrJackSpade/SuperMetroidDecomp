@@ -136,6 +136,12 @@ public static class RoomPlmInstructionLists
     /// <summary><c>$84:D368 InstList_PLM_BombTorizosCrumblingChozo</c>.</summary>
     public const ushort BombTorizoCrumblingChozo = 0xd368;
 
+    /// <summary>
+    /// <c>$84:DB42 InstList_PLM_SetsMetroidsClearedStatesWhenRequired</c>. The list is one
+    /// permanent Sleep instruction; its selected pre-instruction owns all useful behavior.
+    /// </summary>
+    public const ushort SetMetroidsClearedStatesWhenRequired = 0xdb42;
+
     private static readonly ushort[] CollisionBombLists =
     [
         CollisionBombBlock1x1Respawning,

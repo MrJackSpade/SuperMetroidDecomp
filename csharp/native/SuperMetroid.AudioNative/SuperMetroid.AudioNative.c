@@ -30,6 +30,7 @@ SM_AUDIO_EXPORT SpcPlayer *sm_audio_create(void) {
 SM_AUDIO_EXPORT void sm_audio_destroy(SpcPlayer *player) {
   if (player == NULL)
     return;
+  free(player->reg_write_history);
   dsp_free(player->dsp);
   free(player);
 }
@@ -69,6 +70,81 @@ SM_AUDIO_EXPORT int sm_audio_read_port(SpcPlayer *player, int port) {
   if (player == NULL || (unsigned)port >= 4)
     return -1;
   return player->port_to_snes[port];
+}
+
+// Temporary migration diagnostics. These expose read-only emulated state so the managed
+// port can report the first exact divergence instead of merely saying that PCM differs.
+SM_AUDIO_EXPORT int sm_audio_read_dsp_register(SpcPlayer *player, int address) {
+  if (player == NULL || (unsigned)address >= 0x80)
+    return -1;
+  return dsp_read(player->dsp, (uint8_t)address);
+}
+
+SM_AUDIO_EXPORT int sm_audio_read_apu_ram(SpcPlayer *player, int address) {
+  if (player == NULL || (unsigned)address >= 0x10000)
+    return -1;
+  return player->ram[address];
+}
+
+SM_AUDIO_EXPORT int sm_audio_begin_dsp_write_capture(SpcPlayer *player) {
+  if (player == NULL)
+    return 0;
+  if (player->reg_write_history == NULL) {
+    player->reg_write_history = (DspRegWriteHistory *)calloc(1, sizeof(DspRegWriteHistory));
+    if (player->reg_write_history == NULL)
+      return 0;
+  }
+  player->reg_write_history->count = 0;
+  return 1;
+}
+
+SM_AUDIO_EXPORT int sm_audio_dsp_write_count(SpcPlayer *player) {
+  if (player == NULL || player->reg_write_history == NULL)
+    return -1;
+  return (int)player->reg_write_history->count;
+}
+
+SM_AUDIO_EXPORT int sm_audio_dsp_write_address(SpcPlayer *player, int index) {
+  if (player == NULL || player->reg_write_history == NULL ||
+      (unsigned)index >= player->reg_write_history->count)
+    return -1;
+  return player->reg_write_history->addr[index];
+}
+
+SM_AUDIO_EXPORT int sm_audio_dsp_write_value(SpcPlayer *player, int index) {
+  if (player == NULL || player->reg_write_history == NULL ||
+      (unsigned)index >= player->reg_write_history->count)
+    return -1;
+  return player->reg_write_history->val[index];
+}
+
+SM_AUDIO_EXPORT int sm_audio_debug_value(SpcPlayer *player, int selector, int channel) {
+  if (player == NULL || (unsigned)channel >= 8)
+    return -1;
+  Channel *c = &player->channel[channel];
+  switch (selector) {
+    case 0: return player->timer_cycles;
+    case 1: return player->counter_sf0c;
+    case 2: return player->music_ptr_toplevel;
+    case 3: return player->fast_forward;
+    case 4: return player->main_tempo_accum;
+    case 5: return player->tempo;
+    case 6: return player->block_count;
+    case 7: return player->key_ON;
+    case 8: return player->key_OFF;
+    case 9: return player->cur_chan_bit;
+    case 10: return player->is_chan_on;
+    case 11: return c->pattern_order_ptr_for_chan;
+    case 12: return c->note_ticks_left;
+    case 13: return c->note_length;
+    case 14: return c->instrument_id;
+    case 15: return c->subroutine_num_loops;
+    case 16: return c->saved_pattern_ptr;
+    case 17: return c->pattern_start_ptr;
+    case 18: return c->note_gate_off_fixedpt;
+    case 19: return c->cutk;
+    default: return -1;
+  }
 }
 
 SM_AUDIO_EXPORT int sm_audio_generate_frame(

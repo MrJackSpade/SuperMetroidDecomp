@@ -55,6 +55,9 @@ public static class SoundEffectLibrary1Sounds
     /// <summary>Stops/cancels every currently active library-one sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library1, 0x02);
 
+    /// <summary>Uncharged Power Beam projectile launch.</summary>
+    public static readonly SoundEffectId PowerBeam = new(SoundEffectLibrary.Library1, 0x0b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Moves a cursor among file, options, game-over, or pause-menu entries.</summary>
     public static readonly SoundEffectId MenuCursor = new(SoundEffectLibrary.Library1, 0x37);
 

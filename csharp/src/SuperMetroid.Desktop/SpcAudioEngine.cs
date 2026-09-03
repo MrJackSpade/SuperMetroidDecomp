@@ -14,7 +14,7 @@ namespace SuperMetroid.Desktop;
 /// 48-kHz stereo block per emulated video frame. The native boundary is intentionally kept
 /// here so every queue decision remains inspectable in C#.
 /// </remarks>
-internal sealed partial class SpcAudioEngine : IDisposable
+internal sealed partial class NativeSpcAudioOracle : IDisposable
 {
     public const int SampleRate = 48_000;
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
@@ -26,7 +26,7 @@ internal sealed partial class SpcAudioEngine : IDisposable
     private nint player;
     private bool disposed;
 
-    public SpcAudioEngine(ISnesAddressSpace bus)
+    public NativeSpcAudioOracle(ISnesAddressSpace bus)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         player = NativeMethods.Create();
@@ -112,6 +112,53 @@ internal sealed partial class SpcAudioEngine : IDisposable
         return unchecked((byte)value);
     }
 
+    internal byte ReadDspRegister(byte address)
+    {
+        int value = NativeMethods.ReadDspRegister(player, address);
+        if ((uint)value > byte.MaxValue)
+            throw new InvalidOperationException($"Native SPC bridge rejected DSP register ${address:X2}.");
+        return unchecked((byte)value);
+    }
+
+    internal byte ReadApuRam(ushort address)
+    {
+        int value = NativeMethods.ReadApuRam(player, address);
+        if ((uint)value > byte.MaxValue)
+            throw new InvalidOperationException($"Native SPC bridge rejected APU RAM ${address:X4}.");
+        return unchecked((byte)value);
+    }
+
+    internal void BeginDspWriteCapture()
+    {
+        if (NativeMethods.BeginDspWriteCapture(player) == 0)
+            throw new InvalidOperationException("Native SPC bridge could not begin DSP-write capture.");
+    }
+
+    internal IReadOnlyList<(byte Address, byte Value)> ReadCapturedDspWrites()
+    {
+        int count = NativeMethods.DspWriteCount(player);
+        if (count < 0)
+            throw new InvalidOperationException("Native SPC bridge has no active DSP-write capture.");
+        var writes = new (byte Address, byte Value)[count];
+        for (int index = 0; index < count; index++)
+        {
+            int address = NativeMethods.DspWriteAddress(player, index);
+            int value = NativeMethods.DspWriteValue(player, index);
+            if ((uint)address > byte.MaxValue || (uint)value > byte.MaxValue)
+                throw new InvalidOperationException($"Native SPC bridge rejected DSP write {index}.");
+            writes[index] = (unchecked((byte)address), unchecked((byte)value));
+        }
+        return writes;
+    }
+
+    internal int ReadDebugValue(SpcAudioDebugValue value, int channel = 0)
+    {
+        int result = NativeMethods.DebugValue(player, (int)value, channel);
+        if (result < 0)
+            throw new InvalidOperationException($"Native SPC bridge rejected debug selector {value}.");
+        return result;
+    }
+
     private static partial class NativeMethods
     {
         private const string LibraryName = "SuperMetroid.AudioNative";
@@ -141,6 +188,34 @@ internal sealed partial class SpcAudioEngine : IDisposable
         [LibraryImport(LibraryName, EntryPoint = "sm_audio_read_port")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         internal static partial int ReadPort(nint player, int port);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_read_dsp_register")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int ReadDspRegister(nint player, int address);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_read_apu_ram")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int ReadApuRam(nint player, int address);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_begin_dsp_write_capture")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int BeginDspWriteCapture(nint player);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_dsp_write_count")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int DspWriteCount(nint player);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_dsp_write_address")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int DspWriteAddress(nint player, int index);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_dsp_write_value")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int DspWriteValue(nint player, int index);
+
+        [LibraryImport(LibraryName, EntryPoint = "sm_audio_debug_value")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        internal static partial int DebugValue(nint player, int selector, int channel);
 
         internal static unsafe int GenerateFrame(
             nint player,

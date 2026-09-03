@@ -1,0 +1,37 @@
+namespace SuperMetroid.Core.Audio;
+
+/// <summary>Opcodes in Super Metroid's SPC music-pattern bytecode.</summary>
+internal enum SpcMusicEffect : byte
+{
+    SetInstrument = 0xe0,
+    SetPan = 0xe1,
+    FadePan = 0xe2,
+    EnableVibrato = 0xe3,
+    DisableVibrato = 0xe4,
+    SetMasterVolume = 0xe5,
+    FadeMasterVolume = 0xe6,
+    SetTempo = 0xe7,
+    FadeTempo = 0xe8,
+    SetGlobalTransposition = 0xe9,
+    SetChannelTransposition = 0xea,
+    EnableTremolo = 0xeb,
+    DisableTremolo = 0xec,
+    SetChannelVolume = 0xed,
+    FadeChannelVolume = 0xee,
+    CallPattern = 0xef,
+    FadeVibrato = 0xf0,
+    PitchEnvelopeTo = 0xf1,
+    PitchEnvelopeFrom = 0xf2,
+    DisablePitchEnvelope = 0xf3,
+    SetFineTune = 0xf4,
+    EnableEcho = 0xf5,
+    DisableEcho = 0xf6,
+    ConfigureEcho = 0xf7,
+    FadeEchoVolume = 0xf8,
+    PitchSlide = 0xf9,
+    SetPercussionBase = 0xfa,
+    SkipByte = 0xfb,
+    CutKey = 0xfc,
+    FastForwardForFrames = 0xfd,
+    SetFastForward = 0xfe,
+}

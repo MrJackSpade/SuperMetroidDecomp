@@ -133,6 +133,20 @@ try
         return 0;
     }
 
+    if (args.Length != 0 && args[0].Equals("--audio-parity-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        string[] audioRomArguments = args.Length == 2 ? [args[1]] : [];
+        if (args.Length > 2)
+            throw new ArgumentException("--audio-parity-audit accepts one optional private ROM path.");
+        string audioRomPath = PrivateRomPath.Resolve(audioRomArguments);
+        ManagedAudioParitySmokeTestResult result = ManagedAudioParitySmokeTest.Run(audioRomPath);
+        Console.WriteLine(
+            $"Managed audio parity passed: {result.MusicFrames} music frames, " +
+            $"{result.SoundEffectFrames} SFX frames, {result.ComparedPcmSamples} PCM samples, " +
+            $"and {result.ComparedAcknowledgements} acknowledgement bytes matched native.");
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--pause-audio-audit", StringComparison.OrdinalIgnoreCase))
     {
         string[] pauseAudioRomArguments = args.Length == 2 ? [args[1]] : [];

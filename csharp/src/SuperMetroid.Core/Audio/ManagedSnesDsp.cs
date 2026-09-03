@@ -48,6 +48,9 @@ public sealed class ManagedSnesDsp
         Reset();
     }
 
+    /// <summary>Native stereo frames accumulated since the last host-buffer copy.</summary>
+    public int BufferedStereoFrameCount => sampleOffset;
+
     /// <summary>Restores the hardware-facing DSP state used by the translated SPC reset vector.</summary>
     public void Reset()
     {

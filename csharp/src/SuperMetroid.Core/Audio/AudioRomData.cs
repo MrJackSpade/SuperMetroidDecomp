@@ -9,6 +9,18 @@ public static class AudioRomData
         public const int MusicPointerTable = 0x8fe7e1;
     }
 
+    public static class MusicBanks
+    {
+        /// <summary>Title-screen music data selected by the retail frontend.</summary>
+        public const byte Title = 0x03;
+    }
+
+    public static class MusicTracks
+    {
+        /// <summary>Title-screen track within <see cref="MusicBanks.Title"/>.</summary>
+        public const byte Title = 0x05;
+    }
+
     public static class Queues
     {
         public const int MusicCapacity = 8;

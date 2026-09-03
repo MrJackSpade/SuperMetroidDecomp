@@ -29,8 +29,7 @@ internal static class CeresElevatorArrivalAudit
 
         FrontendFrame frame = FrontendAuditDriver.EnterSelectedSlot(game);
         if (frame.GameState != SuperMetroidGameState.MainGameplayFadeIn ||
-            game.GameplayActiveAreaIndex != AreaId.Ceres ||
-            game.GameplayActiveRoomIndex != 0)
+            game.GameplayActiveRoomIdentity != RoomIdentities.CeresElevatorRoom)
         {
             throw new InvalidDataException(
                 $"Fresh Ceres setup skipped native state-seven fade: state={frame.GameState}, " +

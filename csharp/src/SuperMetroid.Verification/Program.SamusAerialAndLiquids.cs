@@ -1240,7 +1240,7 @@ static void VerifySamusAtmosphericEffects()
     landing.RefreshCollisionRadii(bus);
     landing.Kinematics.YSpeed = 4;
     landing.Kinematics.YSubspeed = 0;
-    landing.LiquidPhysics.AreaIndex = AreaId.Norfair;
+    landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Norfair, 0);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
         bus, landing, previousMovementType: SamusMovementType.SpinJumping, previousPose: 0x19,
@@ -1302,7 +1302,7 @@ static void VerifySamusAtmosphericEffects()
 
     // Ceres/debug deletion writes only frame/type. Position and timer are observable stale
     // WRAM. Zero vertical speed returns even earlier and therefore does not delete anything.
-    landing.LiquidPhysics.AreaIndex = AreaId.Ceres;
+    landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Ceres, 0);
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
     landing.Kinematics.YSpeed = 1;
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1327,8 +1327,7 @@ static void VerifySamusAtmosphericEffects()
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates type-one splashes at +4/-3 and bottom-4.
     bus.WriteByte(0x91f0f3, 1);
-    landing.LiquidPhysics.AreaIndex = AreaId.Crateria;
-    landing.LiquidPhysics.RoomIndex = 0;
+    landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
     landing.LiquidPhysics.FxType = 0x000a;
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
     landing.Kinematics.YSubspeed = 1;

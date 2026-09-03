@@ -30,6 +30,9 @@ public sealed record CartridgeRoomHeader(
 {
     private const int RoomBank = 0x8f0000;
 
+    /// <summary>Logical area/room pair, kept separate from <see cref="Pointer"/>.</summary>
+    public RoomIdentity Identity => new(AreaIndex, RoomIndex);
+
     /// <summary>Reads a room and resolves the same selector bytecode consumed by $8F:E5D2.</summary>
     public static CartridgeRoomHeader Load(
         ISnesAddressSpace bus,

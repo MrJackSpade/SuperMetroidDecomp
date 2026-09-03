@@ -1,6 +1,5 @@
-using SuperMetroid.Core.Hardware;
-
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -20,7 +19,7 @@ public sealed record LandingSiteEntryState(
     int SkySourceAddress,
     ushort SkyVramDestination,
     ushort SkyByteCount,
-    AreaId AreaIndex,
+    RoomIdentity RoomIdentity,
     byte RoomMapX,
     byte RoomMapY,
     byte RoomWidthInScreens,
@@ -31,6 +30,9 @@ public sealed record LandingSiteEntryState(
     ushort EnemyPopulationPointer,
     ushort EnemyTilesetPointer)
 {
+    /// <summary>Validated area projected from the logical room identity.</summary>
+    public AreaId AreaIndex => RoomIdentity.Area;
+
     /// <summary>Initial layer-1 X position encoded by the door's screen-X byte.</summary>
     public ushort CameraX => (ushort)(ScreenX << 8);
 
@@ -77,9 +79,7 @@ public sealed record LandingSiteEntryState(
             // then the upward/downward camera-scroller distances. Reading these bytes here
             // keeps minimap and camera integration tied to the selected ROM room instead of
             // duplicating visually plausible host constants in the runtime.
-            AreaIndex: AreaIds.FromCartridge(
-                bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
-                "Landing Site room header"),
+            RoomIdentity: ReadLandingSiteIdentity(bus),
             RoomMapX: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 2),
             RoomMapY: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 3),
             RoomWidthInScreens: bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 4),
@@ -95,6 +95,23 @@ public sealed record LandingSiteEntryState(
             RoomStatePointer: (ushort)(LandingSiteRomData.DefaultStateAddress & 0xffff),
             EnemyPopulationPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 8),
             EnemyTilesetPointer: ReadWord(bus, LandingSiteRomData.DefaultStateAddress + 10));
+    }
+
+    private static RoomIdentity ReadLandingSiteIdentity(ISnesAddressSpace bus)
+    {
+        var identity = new RoomIdentity(
+            AreaIds.FromCartridge(
+                bus.ReadByte(LandingSiteRomData.RoomHeaderAddress + 1),
+                "Landing Site room header"),
+            bus.ReadByte(LandingSiteRomData.RoomHeaderAddress));
+        if (identity != RoomIdentities.LandingSite)
+        {
+            throw new InvalidDataException(
+                $"Landing Site room header has logical identity {identity}, expected " +
+                $"{RoomIdentities.LandingSite}.");
+        }
+
+        return identity;
     }
 
     private static SkyTransfer FindSkyTransfer(ISnesAddressSpace bus, ushort doorPointer)

@@ -105,11 +105,14 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>WRAM <c>$0A50</c>, the whole-energy half of pending periodic damage.</summary>
     public ushort PeriodicDamage { get; private set; }
 
-    /// <summary>Retail area consumed by <c>FootstepGraphics</c>.</summary>
-    public AreaId AreaIndex { get; set; }
+    /// <summary>Logical room pair consumed by area/room-specific footstep graphics.</summary>
+    public RoomIdentity RoomIdentity { get; set; }
 
-    /// <summary>Room index byte consumed by Crateria's special-footstep table.</summary>
-    public byte RoomIndex { get; set; }
+    /// <summary>Validated retail-area projection used by area-only consumers.</summary>
+    public AreaId AreaIndex => RoomIdentity.Area;
+
+    /// <summary>Per-area room-index projection used by native room tables.</summary>
+    public byte RoomIndex => RoomIdentity.RoomIndex;
 
     /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
     public bool CinematicFunctionActive { get; set; }
@@ -426,7 +429,8 @@ public sealed class SamusLiquidPhysicsState
             case AreaId.Brinstar:
                 // Retail code's apparent missing RTS is real: room eight branches directly
                 // to dust, while every other Brinstar room falls through Tourian's room set.
-                if (RoomIndex == 8 || IsTourianStyleDustRoom(RoomIndex))
+                if (RoomIdentity == RoomIdentities.BrinstarDirectLandingDust ||
+                    RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
                     SpawnLandingPairUnlessSubmerged(samus, type: 6);
                 else
                     DeleteLandingPair();
@@ -442,7 +446,7 @@ public sealed class SamusLiquidPhysicsState
                 return;
 
             case AreaId.Tourian:
-                if (IsTourianStyleDustRoom(RoomIndex))
+                if (RoomIdentities.UsesTourianStyleLandingDust(RoomIdentity))
                     SpawnLandingPairUnlessSubmerged(samus, type: 6);
                 else
                     DeleteLandingPair();
@@ -469,7 +473,7 @@ public sealed class SamusLiquidPhysicsState
 
         // Room `$1C` (space-pirate shaft) bypasses the 16-byte classification table and
         // always chooses the dry-dust handler, still subject to live liquid submersion.
-        if (RoomIndex == 0x1c)
+        if (RoomIdentity == RoomIdentities.CrateriaSpacePirateShaft)
         {
             SpawnLandingPairUnlessSubmerged(samus, type: 6);
             return;
@@ -544,9 +548,6 @@ public sealed class SamusLiquidPhysicsState
         AtmosphericEffects.ClearFrameAndType(2);
         AtmosphericEffects.ClearFrameAndType(3);
     }
-
-    private static bool IsTourianStyleDustRoom(byte roomIndex) =>
-        roomIndex is >= 5 and < 9 or 0x0b;
 
     /// <summary>
     /// Ports <c>HandlePeriodicDamageToSamus</c> at <c>$90:E9CE</c>. The producer above adds

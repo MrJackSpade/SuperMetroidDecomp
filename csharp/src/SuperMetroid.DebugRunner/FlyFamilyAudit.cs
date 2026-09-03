@@ -747,7 +747,7 @@ internal static class FlyFamilyAudit
             MaxHealth = 999,
             Pose = SamusPoseIds.FacingRightNormalPose,
         };
-        samus.LiquidPhysics.AreaIndex = room.AreaIndex;
+        samus.LiquidPhysics.RoomIdentity = room.Identity;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var random = new Bank80SystemState();

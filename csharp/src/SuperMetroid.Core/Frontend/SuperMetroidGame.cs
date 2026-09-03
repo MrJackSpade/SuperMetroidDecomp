@@ -152,6 +152,9 @@ public sealed class SuperMetroidGame
     /// <summary>Native room index within the active area, or null before gameplay.</summary>
     public byte? GameplayActiveRoomIndex => runtime?.ActiveRoom?.RoomIndex;
 
+    /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
+    public RoomIdentity? GameplayActiveRoomIdentity => runtime?.ActiveRoom?.Identity;
+
     /// <summary>Current bank-$83 entry door pointer, exposed for door-transition watches.</summary>
     public ushort? GameplayActiveDoorPointer => runtime?.ActiveDoor?.Pointer;
 

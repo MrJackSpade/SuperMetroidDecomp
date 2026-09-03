@@ -494,13 +494,12 @@ public sealed class PlayableGameControl : UserControl
         ushort state = game.GameplayActiveRoomStatePointer
             ?? throw new InvalidOperationException(
                 $"Room $8F:{pointer:X4} has no selected room-state pointer.");
-        AreaId area = game.GameplayActiveAreaIndex
-            ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no area index.");
-        byte room = game.GameplayActiveRoomIndex
-            ?? throw new InvalidOperationException($"Room $8F:{pointer:X4} has no room index.");
+        RoomIdentity identity = game.GameplayActiveRoomIdentity
+            ?? throw new InvalidOperationException(
+                $"Room $8F:{pointer:X4} has no logical room identity.");
         host.Text =
             $"Super Metroid C# — {name} [$8F:{pointer:X4}, state $8F:{state:X4}, " +
-            $"area ${(byte)area:X2}/room ${room:X2}]";
+            $"room {identity}]";
     }
 
     /// <summary>

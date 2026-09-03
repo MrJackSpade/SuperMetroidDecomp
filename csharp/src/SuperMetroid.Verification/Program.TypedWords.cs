@@ -263,6 +263,24 @@ static void VerifyTypedNativeWords()
         () => AreaIds.ToIndex((AreaId)AreaIds.RetailCount),
         "forged non-retail area rejected before table access");
 
+    var crateriaRoom = new RoomIdentity(AreaId.Crateria, 0x1c);
+    var brinstarRoom = new RoomIdentity(AreaId.Brinstar, 0x1c);
+    AssertEqual(RoomIdentities.CrateriaSpacePirateShaft, crateriaRoom,
+        "named room identity combines area and per-area index");
+    AssertTrue(crateriaRoom != brinstarRoom,
+        "equal room bytes in different areas remain distinct");
+    AssertEqual("$00/$1C", crateriaRoom.ToString(),
+        "room identity diagnostic format");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => new RoomIdentity((AreaId)AreaIds.RetailCount, 0),
+        "room identity rejects forged area enum");
+    AssertTrue(RoomIdentities.UsesTourianStyleLandingDust(
+            RoomIdentities.BrinstarDirectLandingDust),
+        "named Brinstar dust room matches shared landing policy");
+    AssertTrue(!RoomIdentities.UsesTourianStyleLandingDust(
+            new RoomIdentity(AreaId.Crateria, 0x08)),
+        "same room byte in unrelated area does not match landing policy");
+
     Console.WriteLine("  Native words: enums, flags, packed fields, and unknown-bit preservation agree.");
 }
 

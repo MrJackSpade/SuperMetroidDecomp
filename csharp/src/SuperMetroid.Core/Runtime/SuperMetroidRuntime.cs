@@ -1211,8 +1211,7 @@ public sealed partial class SuperMetroidRuntime
             // FootstepGraphics dispatches on the literal area and room-index bytes. Keep
             // those room-owned inputs beside the FX surface state instead of hard-coding
             // “Landing Site” behavior into the generic atmospheric renderer.
-            Samus.LiquidPhysics.AreaIndex = LandingSiteEntry.AreaIndex;
-            Samus.LiquidPhysics.RoomIndex = _addressSpace.ReadByte(0x8f91f8);
+            Samus.LiquidPhysics.RoomIdentity = LandingSiteEntry.RoomIdentity;
         }
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 

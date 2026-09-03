@@ -148,8 +148,7 @@ public sealed partial class SuperMetroidRuntime
         Samus.LoadSuitPalette(_addressSpace, Cgram);
         Samus.ApplyForwardFacingPoseSetup(_addressSpace);
         Samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 3);
-        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
-        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.LiquidPhysics.RoomIdentity = room.Identity;
         Samus.PrimeGraphics(_addressSpace);
         _samusLoadAppearancePaletteFxDefinition =
             Samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
@@ -229,8 +228,7 @@ public sealed partial class SuperMetroidRuntime
         samus.LoadSuitPalette(_addressSpace, Cgram);
         samus.RefreshCollisionRadii(_addressSpace);
         samus.InitializeAnimation(_addressSpace);
-        samus.LiquidPhysics.AreaIndex = room.AreaIndex;
-        samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        samus.LiquidPhysics.RoomIdentity = room.Identity;
         samus.PrimeGraphics(_addressSpace);
         PreviousMovementTypeForXray = samus.ReadMovementType(_addressSpace);
         GroundedSamusMovementEnabled = false;
@@ -523,8 +521,7 @@ public sealed partial class SuperMetroidRuntime
         // black silhouette after every ordinary desktop door transition.
         Samus.LoadSuitPalette(_addressSpace, Cgram);
 
-        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
-        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.LiquidPhysics.RoomIdentity = room.Identity;
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.PrimeGraphics(_addressSpace);
         GroundedSamusMovementEnabled = true;
@@ -570,8 +567,7 @@ public sealed partial class SuperMetroidRuntime
             cameraX,
             cameraY,
             RoomViewportLoadMode.DisplayInitialViewport);
-        Samus.LiquidPhysics.AreaIndex = room.AreaIndex;
-        Samus.LiquidPhysics.RoomIndex = room.RoomIndex;
+        Samus.LiquidPhysics.RoomIdentity = room.Identity;
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.PrimeGraphics(_addressSpace);
         GroundedSamusMovementEnabled = true;
@@ -1182,8 +1178,7 @@ public sealed partial class SuperMetroidRuntime
 
         Samus.RefreshCollisionRadii(_addressSpace);
         Samus.InitializeAnimation(_addressSpace);
-        Samus.LiquidPhysics.AreaIndex = ActiveRoom.AreaIndex;
-        Samus.LiquidPhysics.RoomIndex = ActiveRoom.RoomIndex;
+        Samus.LiquidPhysics.RoomIdentity = ActiveRoom.Identity;
         Samus.PrimeGraphics(_addressSpace);
         PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 

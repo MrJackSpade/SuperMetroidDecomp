@@ -14,12 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusSlopePhysics
 {
-    /// <summary>First 16-bit pair in <c>kBlockColl_Horiz_Slope_NonSquare_Tab</c>.</summary>
-    public const int HorizontalMultiplierTableAddress = 0x948586;
-
-    /// <summary>First byte of the 32×16 <c>kAlignYPos_Tab0</c> height field.</summary>
-    public const int AlignmentHeightTableAddress = 0x948b2b;
-
     /// <summary>
     /// Ports <c>BlockColl_Horiz_Slope_NonSquare</c> at <c>$94:84D6</c>.
     /// </summary>
@@ -60,7 +54,8 @@ public static class SamusSlopePhysics
 
         // Each shape owns two words. $94:84D6 chooses the second word at index
         // 2*shape+1. For Landing Site BTS $12 that word is $00C0 (three quarters).
-        int multiplierAddress = HorizontalMultiplierTableAddress + (2 * shape + 1) * 2;
+        int multiplierAddress =
+            SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * shape + 1) * 2;
         ushort multiplier = ReadWord(bus, multiplierAddress);
 
         // The 65816 discards the displacement's lowest eight fractional bits before the
@@ -103,7 +98,8 @@ public static class SamusSlopePhysics
             ? unchecked((ushort)(xPosition ^ 0x000f))
             : xPosition;
         int tableIndex = 16 * bts.SlopeShape + (sampledX & 0x0f);
-        return unchecked((byte)(bus.ReadByte(AlignmentHeightTableAddress + tableIndex) & 0x1f));
+        return unchecked((byte)(
+            bus.ReadByte(SamusMovementRomData.Slopes.AlignmentHeights + tableIndex) & 0x1f));
     }
 
     /// <summary>

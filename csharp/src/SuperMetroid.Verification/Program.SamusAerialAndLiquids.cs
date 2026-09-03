@@ -856,13 +856,13 @@ static void VerifySamusLiquidPhysics()
 
     var speed = sample.HorizontalSpeed;
     speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Air);
-    AssertEqual(SamusHorizontalSpeedState.NormalAirSpeedTableBaseAddress,
+    AssertEqual(SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "air X table base");
     speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.Water);
-    AssertEqual(SamusHorizontalSpeedState.WaterSpeedTableBaseAddress,
+    AssertEqual(SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "water X table base");
     speed.SelectEnvironmentSpeedTable(SamusLiquidPhysicsState.LavaAcid);
-    AssertEqual(SamusHorizontalSpeedState.LavaAcidSpeedTableBaseAddress,
+    AssertEqual(SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
         speed.ActiveSpeedTableBaseAddress, "lava X table base");
 
     // Submersion reaches `$90:9808` before the running/Dash test. It cannot establish new

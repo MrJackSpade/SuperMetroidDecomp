@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed partial class SamusState
 {
-    private const int PoseDefinitions = 0x91b629;
-    private const int AnimationDelayPointerTable = 0x91b010;
     private const int TopSpritemapBaseIndexTable = 0x929263;
     private const int BottomSpritemapBaseIndexTable = 0x92945d;
     private const int PowerSuitPalette = 0x9b9400;
@@ -473,7 +471,9 @@ public sealed partial class SamusState
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {
-        int targetDefinition = AddWithinBank(PoseDefinitions, targetPose * 8);
+        int targetDefinition = AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            targetPose * SamusMovementRomData.Poses.DefinitionByteCount);
         ushort targetRadius = bus.ReadByte(AddWithinBank(targetDefinition, 6));
         if (targetRadius <= Kinematics.YRadius)
         {

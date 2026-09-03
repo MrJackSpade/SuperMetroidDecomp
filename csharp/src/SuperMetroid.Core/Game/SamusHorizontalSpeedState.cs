@@ -13,19 +13,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusHorizontalSpeedState
 {
-    // kSamusSpeedTable_Normal_X begins at $90:9F49. BlockInsideReact_ShootableAir at
-    // $94:97D0 writes base+12 ($9F55) to samus_x_speed_table_pointer. DetermineSpeedTable-
-    // EntryPtr_X at $90:9BD1 then adds 12 * movement type. Running type 1 consequently
-    // reads $90:9F61, not the superficially tempting $90:9F55 entry.
-    public const ushort NormalSpeedTableAddress = 0x9f49;
-    public const ushort NormalAirSpeedTableBaseAddress = NormalSpeedTableAddress + SpeedTableEntry.ByteCount;
-
-    /// <summary>Bank-$90 base selected by `$90:9BFE` below an effective water surface.</summary>
-    public const ushort WaterSpeedTableBaseAddress = 0xa08d;
-
-    /// <summary>Bank-$90 base selected by `$90:9C06` below a lava/acid surface.</summary>
-    public const ushort LavaAcidSpeedTableBaseAddress = 0xa1dd;
-
     /// <summary>Whole part of <c>samus_x_base_speed</c> at WRAM <c>$0B46</c>.</summary>
     public ushort BaseSpeed { get; set; }
 
@@ -139,13 +126,14 @@ public sealed class SamusHorizontalSpeedState
     /// Bank-$90 offset stored by the current inside-block/environment reaction. Normal air,
     /// water, and lava/acid select three complete ROM tables before movement type is added.
     /// </summary>
-    public ushort ActiveSpeedTableBaseAddress { get; private set; } = NormalAirSpeedTableBaseAddress;
+    public ushort ActiveSpeedTableBaseAddress { get; private set; } =
+        SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
 
     /// <summary>
     /// Reproduces the ordinary-air assignment made by <c>$94:97D0</c> before movement.
     /// </summary>
     public void SelectNormalAirSpeedTable() =>
-        ActiveSpeedTableBaseAddress = NormalAirSpeedTableBaseAddress;
+        ActiveSpeedTableBaseAddress = SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable;
 
     /// <summary>
     /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
@@ -156,9 +144,9 @@ public sealed class SamusHorizontalSpeedState
     {
         ActiveSpeedTableBaseAddress = liquidMedium switch
         {
-            SamusLiquidPhysicsState.Water => WaterSpeedTableBaseAddress,
-            SamusLiquidPhysicsState.LavaAcid => LavaAcidSpeedTableBaseAddress,
-            _ => NormalAirSpeedTableBaseAddress,
+            SamusLiquidPhysicsState.Water => SamusMovementRomData.HorizontalMotion.WaterSpeedTable,
+            SamusLiquidPhysicsState.LavaAcid => SamusMovementRomData.HorizontalMotion.LavaAcidSpeedTable,
+            _ => SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable,
         };
     }
 
@@ -205,7 +193,9 @@ public sealed class SamusHorizontalSpeedState
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = 1;
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = ReadWord(bus, 0x91b61f);
+                SpeedBoostCounter = ReadWord(
+                    bus,
+                    SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
             }
 
             if (unchecked((short)(ExtraRunSpeed - 7)) >= 0 &&
@@ -278,10 +268,14 @@ public sealed class SamusHorizontalSpeedState
         }
 
         byte stage = unchecked((byte)(stagedCounter >> 8));
-        ushort nextLowByte = ReadWord(bus, 0x91b61f + stage * 2);
+        ushort nextLowByte = ReadWord(
+            bus,
+            SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes + stage * 2);
         SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
 
-        ushort delayList = ReadWord(bus, 0x91b5de + stage * 2);
+        ushort delayList = ReadWord(
+            bus,
+            SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
             animationFrameBuffer + bus.ReadByte((int)new SnesAddress(0x91, delayList))));
@@ -294,8 +288,11 @@ public sealed class SamusHorizontalSpeedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
-        ushort delayList = ReadWord(bus, 0x91b5de + stage * 2);
-        int address = 0x910000 | unchecked((ushort)(delayList + byteIndex));
+        ushort delayList = ReadWord(
+            bus,
+            SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
+        int address = SamusMovementRomData.Banks.Pose |
+            unchecked((ushort)(delayList + byteIndex));
         return bus.ReadByte(address);
     }
 
@@ -675,7 +672,7 @@ public sealed class SamusHorizontalSpeedState
     {
         ushort bankOffset = unchecked((ushort)(
             ActiveSpeedTableBaseAddress + SpeedTableEntry.ByteCount * (byte)movementType));
-        return 0x900000 | bankOffset;
+        return SamusMovementRomData.Banks.Movement | bankOffset;
     }
 
     /// <summary>

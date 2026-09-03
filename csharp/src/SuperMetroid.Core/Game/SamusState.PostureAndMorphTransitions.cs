@@ -474,8 +474,12 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 1;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = ReadWord(bus, 0x909eb5);
-            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            Kinematics.YSpeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed);
+            Kinematics.YSubspeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
             return false;
         }
 
@@ -483,8 +487,12 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 2;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = unchecked((ushort)(ReadWord(bus, 0x909eb5) - 1));
-            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            Kinematics.YSpeed = unchecked((ushort)(ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed) - 1));
+            Kinematics.YSubspeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
             return false;
         }
 
@@ -527,8 +535,12 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 0x0601;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = ReadWord(bus, 0x909eb5);
-            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            Kinematics.YSpeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed);
+            Kinematics.YSubspeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
             return false;
         }
 
@@ -536,8 +548,12 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 0x0602;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = unchecked((ushort)(ReadWord(bus, 0x909eb5) - 1));
-            Kinematics.YSubspeed = ReadWord(bus, 0x909eb7);
+            Kinematics.YSpeed = unchecked((ushort)(ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed) - 1));
+            Kinematics.YSubspeed = ReadWord(
+                bus,
+                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
             return false;
         }
 

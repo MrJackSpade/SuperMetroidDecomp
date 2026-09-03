@@ -53,6 +53,7 @@ VerifyTypedNativeWords();
 VerifyOamSpritemapPacking();
 VerifyCeresElevatorArrivalGraphicsIndex();
 VerifySamusRenderingSlice();
+VerifySamusMovementRomData();
 VerifySamusArmCannon();
 VerifySamusHudSelection();
 VerifySamusVisorPalette();

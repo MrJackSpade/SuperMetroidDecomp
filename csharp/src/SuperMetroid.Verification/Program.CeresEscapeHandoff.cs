@@ -84,7 +84,8 @@ internal static partial class Program
         // translated `$90:E1FD` call takes its real horizontal-collision termination path.
         WriteTestWords(
             bus,
-            0x900000 | (SamusHorizontalSpeedState.NormalAirSpeedTableBaseAddress +
+            SamusMovementRomData.Banks.Movement |
+                (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
                 0x0a * SpeedTableEntry.ByteCount),
             1, 0, 1, 0, 0, 0);
         samus.Kinematics.XPosition = samus.Kinematics.XRadius;

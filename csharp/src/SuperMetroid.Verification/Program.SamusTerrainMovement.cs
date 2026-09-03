@@ -20,7 +20,7 @@ static void VerifySamusSlopePhysics()
     // $00C0 there, causing a grounded 1.0 displacement to become 0.C000.
     WriteTestWord(
         bus,
-        SamusSlopePhysics.HorizontalMultiplierTableAddress + (2 * 0x12 + 1) * 2,
+        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
         0x00c0);
     AssertEqual(
         0x0000c000,
@@ -43,7 +43,7 @@ static void VerifySamusSlopePhysics()
 
     // Seed two explicit samples in shape $12's 16-byte row. BTS bit $40 mirrors X=0 to
     // sample 15, proving the profile selection comes from ROM rather than a line formula.
-    int shapeTwelveRow = SamusSlopePhysics.AlignmentHeightTableAddress + 16 * 0x12;
+    int shapeTwelveRow = SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12;
     bus.WriteByte(shapeTwelveRow + 0, 8);
     bus.WriteByte(shapeTwelveRow + 15, 3);
     AssertEqual(8, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
@@ -89,9 +89,9 @@ static void VerifySamusBlockCollision()
     var bus = new TestAddressSpace();
     WriteTestWord(
         bus,
-        SamusSlopePhysics.HorizontalMultiplierTableAddress + (2 * 0x12 + 1) * 2,
+        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
         0x00c0);
-    bus.WriteByte(SamusSlopePhysics.AlignmentHeightTableAddress + 16 * 0x12, 8);
+    bus.WriteByte(SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12, 8);
 
     const int width = 4;
     const int height = 4;
@@ -426,9 +426,9 @@ static void VerifySamusGroundedMovement()
     // the radius scan can visit either column without introducing another dispatcher type.
     WriteTestWord(
         bus,
-        SamusSlopePhysics.HorizontalMultiplierTableAddress + (2 * 0x12 + 1) * 2,
+        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
         0x00c0);
-    bus.WriteByte(SamusSlopePhysics.AlignmentHeightTableAddress + 16 * 0x12, 8);
+    bus.WriteByte(SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12, 8);
     RoomLevelData level = CreateRoom(
         2,
         3,

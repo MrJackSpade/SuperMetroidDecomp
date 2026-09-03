@@ -17,10 +17,6 @@ public sealed class SamusAtmosphericEffectsState
 {
     public const int SlotCount = 4;
 
-    private const int AnimationTimerPointerTable = 0x908b93;
-    private const int AnimationFrameCountTable = 0x908bef;
-    private const int DirectSpriteAttributePointerTable = 0x908bff;
-
     private readonly SamusAtmosphericEffectSlot[] _slots =
     [
         new(),
@@ -179,10 +175,13 @@ public sealed class SamusAtmosphericEffectsState
 
         // `$90:8BFF` is a pointer table. Type two's retail pointer is literally zero; do
         // not silently alias it to type one if a debugger deliberately creates that slot.
-        ushort attributeList = ReadWord(bus, DirectSpriteAttributePointerTable + type * 2);
+        ushort attributeList = ReadWord(
+            bus,
+            SamusMovementRomData.Environment.AtmosphericSpriteAttributeListPointers + type * 2);
         ushort attributes = ReadWord(
             bus,
-            0x900000 | unchecked((ushort)(attributeList + slot.AnimationFrame * 2)));
+            SamusMovementRomData.Banks.Movement |
+                unchecked((ushort)(attributeList + slot.AnimationFrame * 2)));
         oam.AddRawSmallSprite(unchecked((ushort)screenX), unchecked((ushort)screenY), attributes);
     }
 
@@ -211,12 +210,19 @@ public sealed class SamusAtmosphericEffectsState
 
     private static ushort ReadFrameTimer(ISnesAddressSpace bus, byte type, byte frame)
     {
-        ushort timerList = ReadWord(bus, AnimationTimerPointerTable + type * 2);
-        return ReadWord(bus, 0x900000 | unchecked((ushort)(timerList + frame * 2)));
+        ushort timerList = ReadWord(
+            bus,
+            SamusMovementRomData.Environment.AtmosphericAnimationTimerListPointers + type * 2);
+        return ReadWord(
+            bus,
+            SamusMovementRomData.Banks.Movement |
+                unchecked((ushort)(timerList + frame * 2)));
     }
 
     private static ushort ReadFrameCount(ISnesAddressSpace bus, byte type) =>
-        ReadWord(bus, AnimationFrameCountTable + type * 2);
+        ReadWord(
+            bus,
+            SamusMovementRomData.Environment.AtmosphericAnimationFrameCounts + type * 2);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));

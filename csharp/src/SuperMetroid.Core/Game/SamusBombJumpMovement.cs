@@ -14,10 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusBombJumpMovement
 {
-    private const int DiagonalBombJumpSpeedEntry = 0x909f25;
-    private const int InitialYSpeedTable = 0x909ef5;
-    private const int InitialYSubspeedTable = 0x909efb;
-
     /// <summary>Runs `$90:E025`, which initializes velocity but deliberately moves zero pixels.</summary>
     public static BombJumpMovementResult Start(ISnesAddressSpace bus, SamusState samus)
     {
@@ -31,8 +27,12 @@ public static class SamusBombJumpMovement
         // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
         // frame-handler alpha, so this routine replaces only the launch speed/direction.
         int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
-        samus.Kinematics.YSpeed = ReadWord(bus, InitialYSpeedTable + liquidOffset);
-        samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedTable + liquidOffset);
+        samus.Kinematics.YSpeed = ReadWord(
+            bus,
+            SamusMovementRomData.VerticalMotion.BombJumpSpeeds + liquidOffset);
+        samus.Kinematics.YSubspeed = ReadWord(
+            bus,
+            SamusMovementRomData.VerticalMotion.BombJumpSubspeeds + liquidOffset);
         samus.Kinematics.YDirection = 1;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;
@@ -73,7 +73,7 @@ public static class SamusBombJumpMovement
             // direction three is right. Existing base words intentionally participate.
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeedAtAddress(
                 bus,
-                DiagonalBombJumpSpeedEntry);
+            SamusMovementRomData.VerticalMotion.DiagonalBombJumpHorizontalSpeed);
             int displacement = direction == 1
                 ? samus.HorizontalSpeed.CalculateLeftDisplacement(
                     baseSpeed,

@@ -17,7 +17,9 @@ public sealed partial class SamusState
     public void RefreshCollisionRadii(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
+        int poseDefinition = AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
         Kinematics.XRadius = 5;
         Kinematics.YRadius = bus.ReadByte(AddWithinBank(poseDefinition, 6));
     }
@@ -37,7 +39,9 @@ public sealed partial class SamusState
     public static byte ReadPoseXDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8));
+        return bus.ReadByte(AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            pose * SamusMovementRomData.Poses.DefinitionByteCount));
     }
 
     /// <summary>
@@ -88,7 +92,9 @@ public sealed partial class SamusState
     public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte rawMovementType = bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 1));
+        byte rawMovementType = bus.ReadByte(AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            pose * SamusMovementRomData.Poses.DefinitionByteCount + 1));
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
             throw new InvalidDataException(
@@ -110,7 +116,9 @@ public sealed partial class SamusState
     public byte ReadNoInputFallbackPose(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 2));
+        return bus.ReadByte(AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            Pose * SamusMovementRomData.Poses.DefinitionByteCount + 2));
     }
 
     /// <summary>
@@ -127,7 +135,9 @@ public sealed partial class SamusState
     public static byte ReadShotDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(PoseDefinitions, pose * 8 + 3));
+        return bus.ReadByte(AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            pose * SamusMovementRomData.Poses.DefinitionByteCount + 3));
     }
 
     /// <summary>
@@ -139,7 +149,9 @@ public sealed partial class SamusState
     public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return unchecked((sbyte)bus.ReadByte(AddWithinBank(PoseDefinitions, Pose * 8 + 4)));
+        return unchecked((sbyte)bus.ReadByte(AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            Pose * SamusMovementRomData.Poses.DefinitionByteCount + 4)));
     }
 
     /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>

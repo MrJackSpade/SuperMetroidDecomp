@@ -14,7 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusPoseTransitionTable
 {
-    private const int PosePointerTable = 0x919ee2;
     private const ushort StartAndSelectMask = 0x3000;
 
     /// <summary>
@@ -65,8 +64,10 @@ public static class SamusPoseTransitionTable
         ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
         ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
 
-        ushort tablePointer = ReadWord(bus, AddWithinBank(PosePointerTable, currentPose * 2));
-        int entryAddress = 0x910000 | tablePointer;
+        ushort tablePointer = ReadWord(
+            bus,
+            AddWithinBank(SamusMovementRomData.Poses.TransitionListPointers, currentPose * 2));
+        int entryAddress = SamusMovementRomData.Banks.Pose | tablePointer;
 
         // A valid table ends with a single $FFFF word. The retail bank cannot contain more
         // than 10,923 six-byte records, so this guard diagnoses corrupt/synthetic data while

@@ -421,8 +421,10 @@ public sealed partial class SamusState
 
     private int ResolveAnimationDelayList(ISnesAddressSpace bus)
     {
-        ushort pointer = ReadWord(bus, AddWithinBank(AnimationDelayPointerTable, Pose * 2));
-        return 0x910000 | pointer;
+        ushort pointer = ReadWord(
+            bus,
+            AddWithinBank(SamusMovementRomData.Poses.AnimationDelayListPointers, Pose * 2));
+        return SamusMovementRomData.Banks.Pose | pointer;
     }
 
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
@@ -435,7 +437,9 @@ public sealed partial class SamusState
     /// </summary>
     private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
-        ushort listPointer = ReadWord(bus, 0x91b5d1);
+        ushort listPointer = ReadWord(
+            bus,
+            SamusMovementRomData.Poses.DefaultRunningAnimationDelayListPointer);
         return bus.ReadByte((int)new SnesAddress(0x91, listPointer).AddWithinBank(byteIndex));
     }
 
@@ -462,7 +466,9 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
 
-        int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
+        int poseDefinition = AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
         SamusMovementType movementType = ReadMovementType(bus);
 
         // `$90:85E2-$90:85FC` applies invincibility flicker to the body spritemaps, not to
@@ -802,7 +808,9 @@ public sealed partial class SamusState
         if (echoX == 0)
             return;
 
-        int poseDefinition = AddWithinBank(PoseDefinitions, Pose * 8);
+        int poseDefinition = AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
         sbyte graphicsYOffset = unchecked((sbyte)bus.ReadByte(AddWithinBank(poseDefinition, 4)));
         short screenY = unchecked((short)(echoY - graphicsYOffset - layer1Y));
 

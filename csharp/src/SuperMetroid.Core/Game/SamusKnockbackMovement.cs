@@ -22,9 +22,6 @@ public static class SamusKnockbackMovement
     // `{5,2,2}` followed by subspeeds `{0,0,0}`. Do not infer data placement from the C
     // decompiler's declaration order; `$99CA/$99D0` are executable bytes/data belonging to
     // the preceding routine and produce enormous bogus hurt velocities when read as tables.
-    private const int InitialYSpeedTable = 0x909ee9;
-    private const int InitialYSubspeedTable = 0x909eef;
-
     /// <summary>
     /// Consumes special prospective command one after bank `$90` has admitted either the
     /// normal `$53/$54` hurt-pose branch or the pose-preserving Morph/Spring Ball branch.
@@ -163,8 +160,12 @@ public static class SamusKnockbackMovement
         // `$90:99D6` indexes air/water/lava by zero/two/four after the exact bottom-edge
         // and Gravity-Suit checks. Values remain live ROM reads for regional/modded builds.
         int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
-        samus.Kinematics.YSpeed = ReadWord(bus, InitialYSpeedTable + liquidOffset);
-        samus.Kinematics.YSubspeed = ReadWord(bus, InitialYSubspeedTable + liquidOffset);
+        samus.Kinematics.YSpeed = ReadWord(
+            bus,
+            SamusMovementRomData.VerticalMotion.KnockbackSpeeds + liquidOffset);
+        samus.Kinematics.YSubspeed = ReadWord(
+            bus,
+            SamusMovementRomData.VerticalMotion.KnockbackSubspeeds + liquidOffset);
         samus.Kinematics.YDirection = 1;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         if (humanoid)

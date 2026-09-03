@@ -14,14 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
-    private const int RunningFootstepFrameTable = 0x90a424;
-    private const int WaterSplashTypeTable = 0x9081a4;
-    private const int CrateriaFootstepTypeTable = 0x90edc9;
-    private const int LavaSubDamagePerFrame = 0x909e8b;
-    private const int LavaDamagePerFrame = 0x909e8d;
-    private const int AcidSubDamagePerFrame = 0x909e8f;
-    private const int AcidDamagePerFrame = 0x909e91;
-
     private readonly List<SamusSoundRequest> _soundRequests = [];
     private readonly Bank80SystemState _standaloneRandom = new();
 
@@ -335,8 +327,12 @@ public sealed class SamusLiquidPhysicsState
 
             AccumulateLiquidDamage(
                 bus,
-                fxKind == RoomFxType.Lava ? LavaSubDamagePerFrame : AcidSubDamagePerFrame,
-                fxKind == RoomFxType.Lava ? LavaDamagePerFrame : AcidDamagePerFrame);
+                fxKind == RoomFxType.Lava
+                    ? SamusMovementRomData.Environment.LavaSubdamagePerFrame
+                    : SamusMovementRomData.Environment.AcidSubdamagePerFrame,
+                fxKind == RoomFxType.Lava
+                    ? SamusMovementRomData.Environment.LavaDamagePerFrame
+                    : SamusMovementRomData.Environment.AcidDamagePerFrame);
             if ((nmiFrameCounter & 7) == 0 && samus.Health >= 0x0047)
                 QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
 
@@ -482,7 +478,8 @@ public sealed class SamusLiquidPhysicsState
         // Read the literal inline flags at `$91:F0F3`, rather than maintaining a second C#
         // room list. BIT priority is 1 (Landing Site), 2 (Wrecked Ship entrance), then 4
         // (wet-footstep rooms), even if a modified/private image combines those bits.
-        byte roomFlags = bus.ReadByte(0x91f0f3 + RoomIndex);
+        byte roomFlags = bus.ReadByte(
+            SamusMovementRomData.Environment.RoomAtmosphericEffectFlags + RoomIndex);
         if ((roomFlags & 1) != 0)
         {
             // Landing Site creates splashes only for FX type `$000A`; its normal scrolling-
@@ -624,7 +621,8 @@ public sealed class SamusLiquidPhysicsState
         SamusMovementType movementType,
         ushort bottom)
     {
-        bool groundedSplash = bus.ReadByte(WaterSplashTypeTable + (byte)movementType) != 0;
+        bool groundedSplash = bus.ReadByte(
+            SamusMovementRomData.Environment.WaterSplashTypes + (byte)movementType) != 0;
         if (!groundedSplash)
         {
             AtmosphericEffects.SetSlot(
@@ -702,7 +700,8 @@ public sealed class SamusLiquidPhysicsState
     {
         if (movementType != SamusMovementType.Running ||
             samus.AnimationFrameTimer != 1 ||
-            bus.ReadByte(RunningFootstepFrameTable + samus.AnimationFrame) == 0)
+            bus.ReadByte(
+                SamusMovementRomData.Environment.RunningFootstepFrames + samus.AnimationFrame) == 0)
         {
             return;
         }
@@ -716,7 +715,8 @@ public sealed class SamusLiquidPhysicsState
             }
             else if (RoomIndex < 0x10)
             {
-                byte specialType = bus.ReadByte(CrateriaFootstepTypeTable + RoomIndex);
+                byte specialType = bus.ReadByte(
+                    SamusMovementRomData.Environment.CrateriaFootstepTypes + RoomIndex);
                 // The three BIT branches have strict priority. Retail records contain one
                 // flag apiece, but retaining priority also reproduces corrupted/debug data.
                 if ((specialType & 1) != 0)

@@ -84,13 +84,13 @@ public sealed partial class SamusProjectileSystem
         if (family == SamusProjectileFamily.Beam)
         {
             dataPointerTable = slot.PackedType.IsChargedBeam
-                ? ChargedBeamDataPointers
-                : UnchargedBeamDataPointers;
+                ? SamusProjectileRomData.Beams.ChargedDataPointers
+                : SamusProjectileRomData.Beams.UnchargedDataPointers;
             dataPointerIndex = slot.PackedType.BeamCombinationIndex;
         }
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
-            dataPointerTable = NonBeamProjectileDataPointers;
+            dataPointerTable = SamusProjectileRomData.NonBeam.DataPointers;
             dataPointerIndex = slot.PackedType.FamilyValue >> 8;
         }
         else
@@ -103,15 +103,17 @@ public sealed partial class SamusProjectileSystem
         }
 
         ushort dataPointer = ReadWord(bus, dataPointerTable + dataPointerIndex * 2);
-        int data = 0x930000 | dataPointer;
+        int data = SamusProjectileRomData.Banks.Projectile | dataPointer;
         slot.Damage = ReadWord(bus, data);
         slot.InstructionPointer = ReadWord(
             bus,
             AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
         slot.XRadius = bus.ReadByte(
-            0x930000 | unchecked((ushort)(slot.InstructionPointer + 4)));
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(slot.InstructionPointer + 4)));
         slot.YRadius = bus.ReadByte(
-            0x930000 | unchecked((ushort)(slot.InstructionPointer + 5)));
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(slot.InstructionPointer + 5)));
         slot.InstructionTimer = 1;
 
         if (family == SamusProjectileFamily.Missile)
@@ -235,8 +237,12 @@ public sealed partial class SamusProjectileSystem
 
         trail.Left.InstructionTimer = 1;
         trail.Right.InstructionTimer = 1;
-        trail.Left.InstructionPointer = ReadWord(bus, TrailLeftInstructionPointers + pointerIndex * 2);
-        trail.Right.InstructionPointer = ReadWord(bus, TrailRightInstructionPointers + pointerIndex * 2);
+        trail.Left.InstructionPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Trails.LeftInstructionPointers + pointerIndex * 2);
+        trail.Right.InstructionPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2);
 
         // `$93:81D1` returns the animation field that is current at this exact pre-instruction
         // instant. When the timer is one and the upcoming word is a normal record, that means
@@ -244,17 +250,19 @@ public sealed partial class SamusProjectileSystem
         ushort animationFrame = GetTrailAnimationFrame(bus, projectile);
         int direction = projectile.PackedDirection.DirectionIndex;
         int familyTable = (projectile.Type & 0x0020) != 0
-            ? SpazerSbaTrailOffsetFamilies
+            ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
             : projectile.PackedType.IsChargedBeam
-                ? ChargedTrailOffsetFamilies
-                : UnchargedTrailOffsetFamilies;
+                ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
+                : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
         ushort directionTable = ReadWord(
             bus,
             familyTable + projectile.PackedType.BeamCombinationIndex * 2);
         ushort offsetList = ReadWord(
             bus,
-            0x9b0000 | unchecked((ushort)(directionTable + direction * 2)));
-        int offsets = 0x9b0000 | unchecked((ushort)(offsetList + animationFrame * 4));
+            SamusProjectileRomData.Banks.PaletteAndTrailData |
+                unchecked((ushort)(directionTable + direction * 2)));
+        int offsets = SamusProjectileRomData.Banks.PaletteAndTrailData |
+            unchecked((ushort)(offsetList + animationFrame * 4));
 
         // All four bytes are signed offsets. The final minus four converts a beam-centered
         // point to the upper-left origin of the raw 8x8 trail OBJ, exactly as `$9B:A3CC`.
@@ -269,12 +277,12 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot projectile)
     {
         ushort pointer = projectile.InstructionPointer;
-        ushort upcomingWord = ReadWord(bus, 0x930000 | pointer);
+        ushort upcomingWord = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | pointer);
         int recordDelta = projectile.InstructionTimer == 1 && (upcomingWord & 0x8000) == 0
             ? 0
             : -8;
         ushort frameAddress = unchecked((ushort)(pointer + recordDelta + 6));
-        return ReadWord(bus, 0x930000 | frameAddress);
+        return ReadWord(bus, SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
@@ -300,7 +308,9 @@ public sealed partial class SamusProjectileSystem
                 ushort pointer = side.InstructionPointer;
                 while (true)
                 {
-                    ushort instructionOrTimer = ReadWord(bus, 0x900000 | pointer);
+                    ushort instructionOrTimer = ReadWord(
+                        bus,
+                        SamusProjectileRomData.Banks.Movement | pointer);
                     if ((instructionOrTimer & 0x8000) == 0)
                     {
                         side.InstructionTimer = instructionOrTimer;
@@ -309,7 +319,8 @@ public sealed partial class SamusProjectileSystem
 
                         side.TileNumberAttributes = ReadWord(
                             bus,
-                            0x900000 | unchecked((ushort)(pointer + 2)));
+                            SamusProjectileRomData.Banks.Movement |
+                                unchecked((ushort)(pointer + 2)));
                         side.InstructionPointer = unchecked((ushort)(pointer + 4));
                         break;
                     }
@@ -319,11 +330,11 @@ public sealed partial class SamusProjectileSystem
                     pointer = unchecked((ushort)(pointer + 2));
                     switch (instructionOrTimer)
                     {
-                        case MoveLeftTrailDown when isLeft:
-                        case MoveRightTrailDown when !isLeft:
+                        case SamusProjectileRomData.Trails.MoveLeftDown when isLeft:
+                        case SamusProjectileRomData.Trails.MoveRightDown when !isLeft:
                             side.YPosition = unchecked((ushort)(side.YPosition + 1));
                             break;
-                        case MoveLeftTrailUp when isLeft:
+                        case SamusProjectileRomData.Trails.MoveLeftUp when isLeft:
                             side.YPosition = unchecked((ushort)(side.YPosition - 1));
                             break;
                         default:
@@ -670,7 +681,9 @@ public sealed partial class SamusProjectileSystem
             slot.YPosition = unchecked((ushort)(slot.YPosition + slot.YRadius));
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
-        slot.InstructionPointer = ReadWord(bus, BeamExplosionInstructionPointerAddress);
+        slot.InstructionPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.NonBeam.BeamExplosionInstructionPointer);
         slot.InstructionTimer = 1;
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;
@@ -703,8 +716,8 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = ReadWord(
             bus,
             wasSuperMissile
-                ? SuperMissileExplosionInstructionPointerAddress
-                : MissileExplosionInstructionPointerAddress);
+                ? SamusProjectileRomData.NonBeam.SuperMissileExplosionInstructionPointer
+                : SamusProjectileRomData.NonBeam.MissileExplosionInstructionPointer);
         slot.InstructionTimer = 1;
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;

@@ -29,55 +29,14 @@ public sealed partial class SamusProjectileSystem
     /// </summary>
     public const int TrailSlotCount = 18;
 
-    private const int PoseDefinitions = 0x91b629;
     private const int PoseDirectionOffset = 3;
     private const int PoseYOffsetOffset = 4;
-    private const int ProjectileXDefault = 0x90c204;
-    private const int ProjectileYDefault = 0x90c218;
-    private const int ProjectileXRunning = 0x90c22c;
-    private const int ProjectileYRunning = 0x90c240;
-    private const int UnchargedCooldowns = 0x90c254;
-    private const int BeamAutoFireCooldowns = 0x90c283;
-    private const int UnchargedSounds = 0x90c28f;
-    private const int ChargedSounds = 0x90c2a7;
-    private const int BeamSpeedsHorizontalVertical = 0x90c2d1;
-    private const int BeamSpeedsDiagonal = 0x90c2d3;
-    private const int ProjectileAccelerationX = 0x90c353;
-    private const int ProjectileAccelerationY = 0x90c367;
-    private const int BeamTilePointers = 0x90c3b1;
-    private const int BeamPalettePointers = 0x90c3c9;
-    private const int NormalSuitPalettePointers = 0x91d727;
-    private const int BeamChargePalettePointers = 0x91d7d5;
-    private const int PseudoScrewPalettePointers = 0x91d7ff;
-    private const int HyperBeamShotPalettePointers = 0x91d829;
-    private const int SamusPaletteCgramIndex = 192;
-    private const int UnchargedBeamDataPointers = 0x9383c1;
-    private const int ChargedBeamDataPointers = 0x9383d9;
     // `$93:83FF` is only the pointer-table entry that names the beam-explosion DATA
     // record (`$8679`). KillProjectileInner does not install that address. Its assembly
     // reads the instruction-list pointer stored two bytes into the data record, at
     // `$93:867B`. Treating `$83FF` itself as the list made the interpreter consume data
     // tables as eight-byte animation records: the first bogus "spritemap" was the real
     // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
-    private const int BeamExplosionInstructionPointerAddress = 0x93867b;
-    private const int MissileExplosionInstructionPointerAddress = 0x93867f;
-    private const int SuperMissileExplosionInstructionPointerAddress = 0x938693;
-    private const int NonBeamProjectileDataPointers = 0x9383f1;
-    private const int SuperMissileLinkDataPointers = 0x93842b;
-    private const int MissileAccelerations = 0x90c303;
-    private const int SuperMissileAccelerations = 0x90c32b;
-    private const int NonSquareSlopeDefinitions = 0x948b2b;
-    private const int SquareSlopeDefinitions = 0x948e54;
-    private const int TrailLeftInstructionPointers = 0x90b5bb;
-    private const int TrailRightInstructionPointers = 0x90b609;
-    private const int UnchargedTrailOffsetFamilies = 0x9ba4b3;
-    private const int ChargedTrailOffsetFamilies = 0x9ba4cb;
-    private const int SpazerSbaTrailOffsetFamilies = 0x9ba4e3;
-    private const ushort MoveLeftTrailDown = 0xb525;
-    private const ushort MoveRightTrailDown = 0xb587;
-    private const ushort MoveLeftTrailUp = 0xb5b3;
-    private const ushort ProjectileInstructionDelete = 0x822f;
-    private const ushort ProjectileInstructionGoto = 0x8239;
 
     private readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
@@ -173,18 +132,20 @@ public sealed partial class SamusProjectileSystem
                 "Retail beam tile/palette tables contain twelve low-bit combinations.");
         }
 
-        ushort tilePointer = ReadWord(bus, BeamTilePointers + beamType * 2);
+        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
         vram.ExecuteQueuedWrite(
             bus,
-            0x9a0000 | tilePointer,
+            SamusProjectileRomData.Banks.CharacterData | tilePointer,
             sizeInBytes: 0x0100,
             encodedDestination: 0x6300);
 
-        ushort palettePointer = ReadWord(bus, BeamPalettePointers + beamType * 2);
+        ushort palettePointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
         cgram.LoadFromBus(
             bus,
-            0x900000 | palettePointer,
-            colorCount: 16,
+            SamusProjectileRomData.Banks.Movement | palettePointer,
+            colorCount: SamusProjectileRomData.Palettes.ColorCount,
             destinationIndex: 0xe0);
     }
 
@@ -206,17 +167,19 @@ public sealed partial class SamusProjectileSystem
         if ((uint)beamType >= 12)
             throw new ArgumentOutOfRangeException(nameof(equippedBeams));
 
-        ushort tilePointer = ReadWord(bus, BeamTilePointers + beamType * 2);
+        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
         writes.Enqueue(
             sizeInBytes: 0x0100,
-            sourceAddress: 0x9a0000 | tilePointer,
+            sourceAddress: SamusProjectileRomData.Banks.CharacterData | tilePointer,
             encodedVramDestination: 0x6300);
 
-        ushort palettePointer = ReadWord(bus, BeamPalettePointers + beamType * 2);
+        ushort palettePointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
         cgram.LoadFromBus(
             bus,
-            0x900000 | palettePointer,
-            colorCount: 16,
+            SamusProjectileRomData.Banks.Movement | palettePointer,
+            colorCount: SamusProjectileRomData.Palettes.ColorCount,
             destinationIndex: 0xe0);
     }
 
@@ -257,22 +220,22 @@ public sealed partial class SamusProjectileSystem
             {
                 bool pseudoScrew = samus.HorizontalSpeed.ContactDamageIndex == 4;
                 int pointerTable = pseudoScrew
-                    ? PseudoScrewPalettePointers
-                    : BeamChargePalettePointers;
+                    ? SamusProjectileRomData.Palettes.PseudoScrewPointers
+                    : SamusProjectileRomData.Palettes.BeamChargePointers;
                 ushort suitOffset = GetSuitPaletteOffset(samus.EquippedItems);
 
                 // The first lookup selects one of the three suit-specific six-word lists
                 // in bank $91. The second produces a bank-$9B, sixteen-color palette.
                 // `$0B62` is kept as a byte offset because that is what the native ADC uses.
                 ushort listPointer = ReadWord(bus, pointerTable + suitOffset);
-                int listEntryAddress = 0x910000 |
+                int listEntryAddress = SamusProjectileRomData.Banks.Pose |
                     unchecked((ushort)(listPointer + SamusChargePaletteIndex));
                 ushort palettePointer = ReadWord(bus, listEntryAddress);
                 cgram.LoadFromBus(
                     bus,
-                    0x9b0000 | palettePointer,
-                    colorCount: 16,
-                    destinationIndex: SamusPaletteCgramIndex);
+                    SamusProjectileRomData.Banks.PaletteAndTrailData | palettePointer,
+                    colorCount: SamusProjectileRomData.Palettes.ColorCount,
+                    destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
 
                 int paletteIndex = SamusChargePaletteIndex / 2;
                 SamusChargePaletteIndex = SamusChargePaletteIndex >= 10
@@ -331,7 +294,7 @@ public sealed partial class SamusProjectileSystem
             // That is exactly colors 15..1: transparent color zero is intentionally left
             // untouched while every visible Samus color becomes BGR555 `$03FF`.
             for (int color = 1; color < 16; color++)
-                cgram.SetColor(SamusPaletteCgramIndex + color, 0x03ff);
+                cgram.SetColor(SamusProjectileRomData.Palettes.SamusCgramIndex + color, 0x03ff);
 
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.OrdinaryWhite,
@@ -373,12 +336,14 @@ public sealed partial class SamusProjectileSystem
             return LastBeamChargePaletteStep;
         }
 
-        ushort hyperPointer = ReadWord(bus, HyperBeamShotPalettePointers + tableOffset);
+        ushort hyperPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);
         cgram.LoadFromBus(
             bus,
-            0x9b0000 | hyperPointer,
-            colorCount: 16,
-            destinationIndex: SamusPaletteCgramIndex);
+            SamusProjectileRomData.Banks.PaletteAndTrailData | hyperPointer,
+            colorCount: SamusProjectileRomData.Palettes.ColorCount,
+            destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
         int hyperPaletteIndex = (0x14 - tableOffset) / 2;
         ChargedShotGlowTimer = unchecked((ushort)(ChargedShotGlowTimer - 1));
         LastBeamChargePaletteStep = new(

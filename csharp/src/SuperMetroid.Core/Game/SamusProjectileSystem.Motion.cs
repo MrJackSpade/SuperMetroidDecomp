@@ -35,9 +35,13 @@ public sealed partial class SamusProjectileSystem
 
         int directionOffset = slot.PackedDirection.DirectionIndex * 2;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationX + directionOffset))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.XAccelerations + directionOffset))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationY + directionOffset))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.YAccelerations + directionOffset))));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = direction switch
@@ -130,9 +134,13 @@ public sealed partial class SamusProjectileSystem
     {
         int direction = slot.PackedDirection.DirectionIndex;
         slot.XVelocity = unchecked((short)(slot.XVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationX + direction * 2))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationY + direction * 2))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
 
         // `$94:A352/$A3E4` advance the same 16.16 positions and scan every block touched by
         // the projectile radii, but deliberately return carry clear unconditionally. That is
@@ -187,9 +195,13 @@ public sealed partial class SamusProjectileSystem
         // acceleration as beams. On the ignition frame Missile_Func1 below replaces velocity,
         // so this addition is intentionally overwritten; subsequent frames retain it.
         slot.XVelocity = unchecked((short)(slot.XVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationX + direction * 2))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.XAccelerations + direction * 2))));
         slot.YVelocity = unchecked((short)(slot.YVelocity +
-            unchecked((short)ReadWord(bus, ProjectileAccelerationY + direction * 2))));
+            unchecked((short)ReadWord(
+                bus,
+                SamusProjectileRomData.Beams.YAccelerations + direction * 2))));
 
         if ((slot.Variable & 0xff00) == 0)
         {
@@ -202,7 +214,7 @@ public sealed partial class SamusProjectileSystem
         }
         else
         {
-            int acceleration = MissileAccelerations + direction * 4;
+            int acceleration = SamusProjectileRomData.NonBeam.MissileAccelerations + direction * 4;
             slot.XVelocity = unchecked((short)(slot.XVelocity +
                 unchecked((short)ReadWord(bus, acceleration))));
             slot.YVelocity = unchecked((short)(slot.YVelocity +
@@ -271,7 +283,8 @@ public sealed partial class SamusProjectileSystem
         }
         else
         {
-            int acceleration = SuperMissileAccelerations + direction * 4;
+            int acceleration =
+                SamusProjectileRomData.NonBeam.SuperMissileAccelerations + direction * 4;
             slot.XVelocity = unchecked((short)(slot.XVelocity +
                 unchecked((short)ReadWord(bus, acceleration))));
             slot.YVelocity = unchecked((short)(slot.YVelocity +
@@ -351,9 +364,14 @@ public sealed partial class SamusProjectileSystem
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
         InitializePosition(bus, samus, link);
-        ushort dataPointer = ReadWord(bus, SuperMissileLinkDataPointers + 4);
-        link.Damage = ReadWord(bus, 0x930000 | dataPointer);
-        link.InstructionPointer = ReadWord(bus, 0x930000 | unchecked((ushort)(dataPointer + 2)));
+        ushort dataPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
+        link.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        link.InstructionPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(dataPointer + 2)));
         link.InstructionTimer = 1;
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
@@ -570,7 +588,8 @@ public sealed partial class SamusProjectileSystem
                 yInBlock ^= 0x000f;
 
             int height = bus.ReadByte(
-                NonSquareSlopeDefinitions + slopeShape * 16 + xInBlock) & 0x1f;
+                SamusProjectileRomData.Collision.NonSquareSlopeDefinitions +
+                    slopeShape * 16 + xInBlock) & 0x1f;
             return height <= yInBlock;
         }
 
@@ -592,7 +611,7 @@ public sealed partial class SamusProjectileSystem
                 quadrant ^= 1;
         }
 
-        return bus.ReadByte(SquareSlopeDefinitions + quadrant) != 0;
+        return bus.ReadByte(SamusProjectileRomData.Collision.SquareSlopeDefinitions + quadrant) != 0;
     }
 
 }

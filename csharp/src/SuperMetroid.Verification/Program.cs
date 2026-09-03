@@ -56,6 +56,7 @@ VerifySamusRenderingSlice();
 VerifySamusMovementRomData();
 VerifySamusRenderingRomData();
 VerifySamusArmCannon();
+VerifySamusProjectileRomData();
 VerifySamusHudSelection();
 VerifySamusVisorPalette();
 VerifySamusHurtFlashPalette();

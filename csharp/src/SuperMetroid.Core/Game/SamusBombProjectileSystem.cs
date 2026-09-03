@@ -28,10 +28,6 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
     public const ushort PowerBombType = 0x0300;
 
-    private const int NonBeamProjectileDataPointerTable = 0x9383f1;
-    private const int BombExplosionInstructionPointerAddress = 0x938683;
-    private const ushort ProjectileInstructionDelete = 0x822f;
-    private const ushort ProjectileInstructionGoto = 0x8239;
     private const ushort NormalBombCooldown = 0x0010;
     private const ushort PowerBombCooldown = 0x0028;
     private const ushort InitialBombTimer = 60;
@@ -356,8 +352,8 @@ public sealed class SamusBombProjectileSystem
         int projectileTypeIndex = (slot.Type >> 8) & 0x000f;
         ushort dataPointer = ReadWord(
             bus,
-            AddWithinBank(NonBeamProjectileDataPointerTable, projectileTypeIndex * 2));
-        int dataAddress = 0x930000 | dataPointer;
+            AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
+        int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
 
         slot.Damage = ReadWord(bus, dataAddress);
         if ((slot.Damage & 0x8000) != 0)
@@ -410,7 +406,9 @@ public sealed class SamusBombProjectileSystem
                 {
                     // $93:814E reads the pointer word embedded in the bomb-explosion data
                     // record at $93:8683 and resets the instruction timer to one.
-                    slot.InstructionPointer = ReadWord(bus, BombExplosionInstructionPointerAddress);
+                    slot.InstructionPointer = ReadWord(
+                        bus,
+                        SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer);
                     slot.InstructionTimer = 1;
                 }
                 else
@@ -706,32 +704,44 @@ public sealed class SamusBombProjectileSystem
         ushort pointer = slot.InstructionPointer;
         for (int operationCount = 0; operationCount < 16; operationCount++)
         {
-            ushort durationOrOpcode = ReadWord(bus, 0x930000 | pointer);
+            ushort durationOrOpcode = ReadWord(
+                bus,
+                SamusProjectileRomData.Banks.Projectile | pointer);
             if ((durationOrOpcode & 0x8000) == 0)
             {
                 if (durationOrOpcode == 0)
                     throw new InvalidDataException($"Projectile instruction at $93:{pointer:X4} has zero duration.");
 
                 slot.InstructionTimer = durationOrOpcode;
-                slot.SpritemapPointer = ReadWord(bus, 0x930000 | unchecked((ushort)(pointer + 2)));
+                slot.SpritemapPointer = ReadWord(
+                    bus,
+                    SamusProjectileRomData.Banks.Projectile |
+                        unchecked((ushort)(pointer + 2)));
                 slot.XRadius = bus.ReadByte(
-                    (int)new SnesAddress(0x93, unchecked((ushort)(pointer + 4))));
+                    (int)new SnesAddress(
+                        SamusProjectileRomData.Banks.ProjectileNumber,
+                        unchecked((ushort)(pointer + 4))));
                 slot.YRadius = bus.ReadByte(
-                    (int)new SnesAddress(0x93, unchecked((ushort)(pointer + 5))));
+                    (int)new SnesAddress(
+                        SamusProjectileRomData.Banks.ProjectileNumber,
+                        unchecked((ushort)(pointer + 5))));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
                 return false;
             }
 
             switch (durationOrOpcode)
             {
-                case ProjectileInstructionDelete:
+                case SamusProjectileRomData.Instructions.Delete:
                     ClearProjectile(slot);
                     return true;
 
-                case ProjectileInstructionGoto:
+                case SamusProjectileRomData.Instructions.GoTo:
                     // The handler increments Y past the opcode before the instruction
                     // routine reads [[Y]]. Its target is another bank-$93 16-bit pointer.
-                    pointer = ReadWord(bus, 0x930000 | unchecked((ushort)(pointer + 2)));
+                    pointer = ReadWord(
+                        bus,
+                        SamusProjectileRomData.Banks.Projectile |
+                            unchecked((ushort)(pointer + 2)));
                     break;
 
                 default:

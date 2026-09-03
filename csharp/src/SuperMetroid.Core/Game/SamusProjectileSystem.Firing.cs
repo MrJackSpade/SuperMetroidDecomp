@@ -191,15 +191,22 @@ public sealed partial class SamusProjectileSystem
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
         ushort dataPointer = ReadWord(
             bus,
-            (charged ? ChargedBeamDataPointers : UnchargedBeamDataPointers) + beamType * 2);
-        slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
+            (charged
+                ? SamusProjectileRomData.Beams.ChargedDataPointers
+                : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType * 2);
+        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
-            0x930000 | unchecked((ushort)(dataPointer + 2 + direction * 2)));
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(dataPointer + 2 + direction * 2)));
         slot.XRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 4))));
         slot.YRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         // `$90:B887` gives uncharged power-wave and ice-wave a three-frame trail reload.
         // All other uncharged wave combinations, and every charged wave combination, use
@@ -214,15 +221,19 @@ public sealed partial class SamusProjectileSystem
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction even though both read ROM.
         byte cooldown = charged
-            ? bus.ReadByte(UnchargedCooldowns + 0x10 + beamType)
+            ? bus.ReadByte(
+                SamusProjectileRomData.Beams.UnchargedCooldowns +
+                SamusProjectileRomData.Beams.CooldownCancelRowOffset + beamType)
             : (controllerNewInput & shoot) != 0
-                ? bus.ReadByte(UnchargedCooldowns + beamType)
-                : bus.ReadByte(BeamAutoFireCooldowns + beamType);
+                ? bus.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
+                : bus.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         ushort sound = ReadWord(
             bus,
-            (charged ? ChargedSounds : UnchargedSounds) + beamType * 2);
+            (charged
+                ? SamusProjectileRomData.Beams.ChargedSounds
+                : SamusProjectileRomData.Beams.UnchargedSounds) + beamType * 2);
         if (charged)
             ChargedShotGlowTimer = 4;
 
@@ -284,15 +295,22 @@ public sealed partial class SamusProjectileSystem
         // with 1000 before the first instruction record executes.
         slot.Type = 0x9018;
         const int hyperBeamType = 8;
-        ushort dataPointer = ReadWord(bus, ChargedBeamDataPointers + hyperBeamType * 2);
-        slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
+        ushort dataPointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType * 2);
+        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
-            0x930000 | unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
         slot.XRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 4))));
         slot.YRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         slot.Damage = 1000;
 
@@ -318,7 +336,9 @@ public sealed partial class SamusProjectileSystem
         _flareTimers[0] = _flareTimers[1] = _flareTimers[2] = 3;
         FlareCounter = 0x8000;
 
-        ushort sound = ReadWord(bus, ChargedSounds + hyperBeamType * 2);
+        ushort sound = ReadWord(
+            bus,
+            SamusProjectileRomData.Beams.ChargedSounds + hyperBeamType * 2);
         return (slotIndex, sound);
     }
 
@@ -379,15 +399,20 @@ public sealed partial class SamusProjectileSystem
 
         ushort dataPointer = ReadWord(
             bus,
-            NonBeamProjectileDataPointers + samus.SelectedHudItem * 2);
-        slot.Damage = ReadWord(bus, 0x930000 | dataPointer);
+            SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
+        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
-            0x930000 | unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
+            SamusProjectileRomData.Banks.Projectile |
+                unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
         slot.XRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 4))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 4))));
         slot.YRadius = bus.ReadByte(
-            (int)new SnesAddress(0x93, unchecked((ushort)(slot.InstructionPointer + 5))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.ProjectileNumber,
+                unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile
@@ -414,8 +439,12 @@ public sealed partial class SamusProjectileSystem
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseIds.MoonwalkAimUpLeftPose or SamusPoseIds.MoonwalkAimUpRightPose;
-        int xTable = runningOrigin ? ProjectileXRunning : ProjectileXDefault;
-        int yTable = runningOrigin ? ProjectileYRunning : ProjectileYDefault;
+        int xTable = runningOrigin
+            ? SamusProjectileRomData.Origins.RunningX
+            : SamusProjectileRomData.Origins.DefaultX;
+        int yTable = runningOrigin
+            ? SamusProjectileRomData.Origins.RunningY
+            : SamusProjectileRomData.Origins.DefaultY;
 
         short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
         short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
@@ -431,7 +460,9 @@ public sealed partial class SamusProjectileSystem
         bool diagonal = direction is 1 or 3 or 6 or 8;
         short speed = unchecked((short)ReadWord(
             bus,
-            diagonal ? BeamSpeedsDiagonal : BeamSpeedsHorizontalVertical));
+            diagonal
+                ? SamusProjectileRomData.Beams.DiagonalSpeeds
+                : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds));
 
         InitializeDirectionalVelocity(slot, speed);
     }

@@ -21,29 +21,39 @@ public sealed partial class SamusProjectileSystem
         ushort pointer = slot.InstructionPointer;
         while (true)
         {
-            ushort instructionOrTimer = ReadWord(bus, 0x930000 | pointer);
+            ushort instructionOrTimer = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | pointer);
             if ((instructionOrTimer & 0x8000) == 0)
             {
                 slot.InstructionTimer = instructionOrTimer;
-                slot.SpritemapPointer = ReadWord(bus, 0x930000 | AddWithinBank(pointer, 2));
+                slot.SpritemapPointer = ReadWord(
+                    bus,
+                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
                 slot.XRadius = bus.ReadByte(
-                    (int)new SnesAddress(0x93, unchecked((ushort)AddWithinBank(pointer, 4))));
+                    (int)new SnesAddress(
+                        SamusProjectileRomData.Banks.ProjectileNumber,
+                        unchecked((ushort)AddWithinBank(pointer, 4))));
                 slot.YRadius = bus.ReadByte(
-                    (int)new SnesAddress(0x93, unchecked((ushort)AddWithinBank(pointer, 5))));
-                slot.AnimationFrame = ReadWord(bus, 0x930000 | AddWithinBank(pointer, 6));
+                    (int)new SnesAddress(
+                        SamusProjectileRomData.Banks.ProjectileNumber,
+                        unchecked((ushort)AddWithinBank(pointer, 5))));
+                slot.AnimationFrame = ReadWord(
+                    bus,
+                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 6));
                 slot.InstructionPointer = unchecked((ushort)(pointer + 8));
                 return false;
             }
 
-            if (instructionOrTimer == ProjectileInstructionDelete)
+            if (instructionOrTimer == SamusProjectileRomData.Instructions.Delete)
             {
                 ClearProjectile(slot);
                 return true;
             }
 
-            if (instructionOrTimer == ProjectileInstructionGoto)
+            if (instructionOrTimer == SamusProjectileRomData.Instructions.GoTo)
             {
-                pointer = ReadWord(bus, 0x930000 | AddWithinBank(pointer, 2));
+                pointer = ReadWord(
+                    bus,
+                    SamusProjectileRomData.Banks.Projectile | AddWithinBank(pointer, 2));
                 continue;
             }
 
@@ -94,21 +104,31 @@ public sealed partial class SamusProjectileSystem
             return;
 
         ushort frame = unchecked((ushort)(_flareFrames[component] + 1));
-        ushort delayList = ReadWord(bus, 0x90c481 + component * 2);
+        ushort delayList = ReadWord(
+            bus,
+            SamusProjectileRomData.Beams.ChargeFlareDelayListPointers + component * 2);
         byte delay = bus.ReadByte(
-            (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame))));
+            (int)new SnesAddress(
+                SamusProjectileRomData.Banks.MovementNumber,
+                unchecked((ushort)(delayList + frame))));
         if (delay == 0xff)
         {
             frame = 0;
-            delay = bus.ReadByte((int)new SnesAddress(0x90, delayList));
+            delay = bus.ReadByte((int)new SnesAddress(
+                SamusProjectileRomData.Banks.MovementNumber,
+                delayList));
         }
         else if (delay == 0xfe)
         {
             byte rewind = bus.ReadByte(
-                (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame + 1))));
+                (int)new SnesAddress(
+                    SamusProjectileRomData.Banks.MovementNumber,
+                    unchecked((ushort)(delayList + frame + 1))));
             frame = unchecked((ushort)(frame - rewind));
             delay = bus.ReadByte(
-                (int)new SnesAddress(0x90, unchecked((ushort)(delayList + frame))));
+                (int)new SnesAddress(
+                    SamusProjectileRomData.Banks.MovementNumber,
+                    unchecked((ushort)(delayList + frame))));
         }
 
         _flareFrames[component] = frame;
@@ -130,8 +150,12 @@ public sealed partial class SamusProjectileSystem
 
         int directionOffset = (direction & 0x0f) * 2;
         bool running = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int xTable = running ? 0x90c1dc : 0x90c1a8;
-        int yTable = running ? 0x90c1f0 : 0x90c1c2;
+        int xTable = running
+            ? SamusProjectileRomData.Origins.FlareRunningX
+            : SamusProjectileRomData.Origins.FlareDefaultX;
+        int yTable = running
+            ? SamusProjectileRomData.Origins.FlareRunningY
+            : SamusProjectileRomData.Origins.FlareDefaultY;
         short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
         short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
         byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
@@ -167,7 +191,9 @@ public sealed partial class SamusProjectileSystem
     }
 
     private static byte ReadPoseByte(ISnesAddressSpace bus, byte pose, int fieldOffset) =>
-        bus.ReadByte(PoseDefinitions + pose * 8 + fieldOffset);
+        bus.ReadByte(
+            SamusMovementRomData.Poses.Definitions +
+            pose * SamusMovementRomData.Poses.DefinitionByteCount + fieldOffset);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(AddWithinBank(address, 1)) << 8)));
@@ -180,12 +206,14 @@ public sealed partial class SamusProjectileSystem
         // `SuitPaletteIndex` is a byte offset, not an ordinal: Power=0, Varia=2,
         // Gravity=4. Gravity wins when externally stimulated state contains both bits.
         ushort suitOffset = GetSuitPaletteOffset(equippedItems);
-        ushort pointer = ReadWord(bus, NormalSuitPalettePointers + suitOffset);
+        ushort pointer = ReadWord(
+            bus,
+            SamusProjectileRomData.Palettes.NormalSuitPointers + suitOffset);
         cgram.LoadFromBus(
             bus,
-            0x9b0000 | pointer,
-            colorCount: 16,
-            destinationIndex: SamusPaletteCgramIndex);
+            SamusProjectileRomData.Banks.PaletteAndTrailData | pointer,
+            colorCount: SamusProjectileRomData.Palettes.ColorCount,
+            destinationIndex: SamusProjectileRomData.Palettes.SamusCgramIndex);
         return pointer;
     }
 

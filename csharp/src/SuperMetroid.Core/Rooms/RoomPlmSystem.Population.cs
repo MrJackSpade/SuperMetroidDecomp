@@ -98,13 +98,18 @@ public sealed partial class RoomPlmSystem
             int blockIndex;
             try
             {
-                blockIndex = level.GetBlockIndex(record.BlockX, record.BlockY);
+                // `$84:8482-$849F` allocates the ID first and converts the two unsigned
+                // coordinates with the room-width multiplier without checking logical
+                // dimensions. The bounded native allocation preserves that ordering for
+                // the two shipped off-room door records; setup routines that genuinely
+                // require authored terrain still validate when they consume the index.
+                blockIndex = level.GetPlmBlockIndex(record.BlockX, record.BlockY);
             }
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
-                    $"header $84:{header:X4} has out-of-room block " +
+                    $"header $84:{header:X4} has block outside safe native allocation " +
                     $"({record.BlockX},{record.BlockY}) and argument ${record.RoomArgument:X4}.",
                     error);
             }

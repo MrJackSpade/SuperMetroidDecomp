@@ -21,6 +21,8 @@ public sealed class RoomLevelData
     private readonly byte[] _blockDefinitions;
     private readonly ushort[] _streamingForegroundAllocation;
     private readonly ushort[] _streamingBackgroundAllocation;
+    private readonly ushort[] _plmForegroundAllocation;
+    private readonly byte[] _plmBehaviorAllocation;
 
     public RoomLevelData(
         int widthInBlocks,
@@ -68,6 +70,22 @@ public sealed class RoomLevelData
                 "The streaming BG1 allocation cannot be shorter than logical BG1.",
                 nameof(streamingForegroundAllocation));
         }
+
+        // Room PLM coordinates are converted to a row-major native block index before
+        // their setup callback runs. Retail contains two deliberately off-room colored
+        // doors whose setup writes into the harmless prefilled tail of level_data. Keep a
+        // bounded image of that native allocation so those writes retain cartridge order
+        // without exposing adjacent host memory or weakening logical rendering/collision
+        // bounds. Copy the decompressed allocation because its tail is exactly what the
+        // cartridge would observe before the PLM population is constructed.
+        int plmAllocationLength = Math.Max(
+            RoomLevelMemoryLayout.PrefilledStreamingWordCount,
+            _streamingForegroundAllocation.Length);
+        _plmForegroundAllocation = new ushort[plmAllocationLength];
+        Array.Fill(_plmForegroundAllocation, RoomLevelMemoryLayout.PrefilledLevelWord);
+        _streamingForegroundAllocation.CopyTo(_plmForegroundAllocation, 0);
+        _plmBehaviorAllocation = new byte[plmAllocationLength];
+        _behaviorBytes.CopyTo(_plmBehaviorAllocation, 0);
 
         // BG2 is copied to another region of the same pre-cleared WRAM allocation and can
         // be overread by the same 17-column/row camera fill. Keep its logical plane exact
@@ -133,6 +151,81 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(blockY));
         return blockY * WidthInBlocks + blockX;
     }
+
+    /// <summary>
+    /// Reproduces <c>Spawn_Room_PLM</c>'s unchecked byte-coordinate multiplication while
+    /// bounding the result to the translated image of bank-$7F level memory.
+    /// </summary>
+    /// <remarks>
+    /// This is intentionally distinct from <see cref="GetBlockIndex"/>. A PLM setup that
+    /// requires a logical room block must still use the strict API and fail at that actual
+    /// consumption point. Native-memory setup and draw operations may use the bounded PLM
+    /// allocation, matching the two shipped off-room colored-door records safely.
+    /// </remarks>
+    internal int GetPlmBlockIndex(int blockX, int blockY)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(blockX);
+        ArgumentOutOfRangeException.ThrowIfNegative(blockY);
+        int blockIndex = checked(blockY * WidthInBlocks + blockX);
+        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(blockY),
+                $"PLM block ({blockX},{blockY}) resolves to native index {blockIndex}, " +
+                $"outside the {_plmForegroundAllocation.Length}-word safe level allocation.");
+        }
+
+        return blockIndex;
+    }
+
+    /// <summary>Whether a native PLM block index belongs to the authored logical plane.</summary>
+    internal bool IsLogicalBlockIndex(int blockIndex) =>
+        (uint)blockIndex < (uint)_foregroundEntries.Length;
+
+    /// <summary>Reads a block through the bounded level/BTS allocation used by PLM code.</summary>
+    internal RoomCollisionBlock GetPlmCollisionBlockByIndex(int blockIndex)
+    {
+        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+        return new RoomCollisionBlock(
+            blockIndex,
+            _plmForegroundAllocation[blockIndex],
+            _plmBehaviorAllocation[blockIndex]);
+    }
+
+    /// <summary>
+    /// Applies a bank-$84 level-data write inside the bounded native PLM allocation.
+    /// Logical writes remain visible to collision and streaming; tail writes remain safely
+    /// isolated just as their cartridge addresses remain outside the authored room.
+    /// </summary>
+    internal void SetPlmForegroundEntry(int blockIndex, ushort levelWord)
+    {
+        if ((uint)blockIndex >= (uint)_plmForegroundAllocation.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+
+        _plmForegroundAllocation[blockIndex] = levelWord;
+        if (!IsLogicalBlockIndex(blockIndex))
+            return;
+
+        _foregroundEntries[blockIndex] = levelWord;
+        if (blockIndex < _streamingForegroundAllocation.Length)
+            _streamingForegroundAllocation[blockIndex] = levelWord;
+    }
+
+    /// <summary>Applies a bank-$84 BTS write through the bounded native PLM allocation.</summary>
+    internal void SetPlmBehavior(int blockIndex, byte behavior)
+    {
+        if ((uint)blockIndex >= (uint)_plmBehaviorAllocation.Length)
+            throw new ArgumentOutOfRangeException(nameof(blockIndex));
+
+        _plmBehaviorAllocation[blockIndex] = behavior;
+        if (IsLogicalBlockIndex(blockIndex))
+            _behaviorBytes[blockIndex] = behavior;
+    }
+
+    /// <summary>Typed overload for a bounded native PLM BTS write.</summary>
+    internal void SetPlmBehavior(int blockIndex, RoomBlockBehavior behavior) =>
+        SetPlmBehavior(blockIndex, behavior.Value);
 
     /// <summary>Returns both collision inputs consumed for one block by bank $94.</summary>
     public RoomCollisionBlock GetCollisionBlock(int blockX, int blockY)
@@ -284,6 +377,7 @@ public sealed class RoomLevelData
 
         ushort airWord = unchecked((ushort)(_foregroundEntries[blockIndex] & 0x0fff));
         _foregroundEntries[blockIndex] = airWord;
+        _plmForegroundAllocation[blockIndex] = airWord;
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = airWord;
     }
@@ -304,6 +398,7 @@ public sealed class RoomLevelData
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
 
         _foregroundEntries[blockIndex] = levelWord;
+        _plmForegroundAllocation[blockIndex] = levelWord;
         if (blockIndex < _streamingForegroundAllocation.Length)
             _streamingForegroundAllocation[blockIndex] = levelWord;
     }
@@ -321,6 +416,7 @@ public sealed class RoomLevelData
         if ((uint)blockIndex >= (uint)_behaviorBytes.Length)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         _behaviorBytes[blockIndex] = behavior;
+        _plmBehaviorAllocation[blockIndex] = behavior;
     }
 
     /// <summary>Writes a typed BTS value while retaining the byte-exact room format.</summary>

@@ -1319,11 +1319,17 @@ public sealed partial class RoomPlmSystem
             {
                 int x = entryX + (vertical ? 0 : blockOffset);
                 int y = entryY + (vertical ? blockOffset : 0);
-                if ((uint)x >= (uint)level.WidthInBlocks ||
-                    (uint)y >= (uint)level.HeightInBlocks)
+                int targetBlockIndex;
+                try
+                {
+                    targetBlockIndex = level.GetPlmBlockIndex(x, y);
+                }
+                catch (ArgumentOutOfRangeException error)
                 {
                     throw new InvalidDataException(
-                        $"PLM draw list ${drawPointer:X4} targets out-of-room block ({x},{y}).");
+                        $"PLM draw list ${drawPointer:X4} targets block ({x},{y}) outside " +
+                        "the safe native level allocation.",
+                        error);
                 }
 
                 ushort levelWord = ReadBank84Word(bus, cursor);
@@ -1331,7 +1337,7 @@ public sealed partial class RoomPlmSystem
                 DrawLevelWord(
                     level,
                     streamer,
-                    level.GetBlockIndex(x, y),
+                    targetBlockIndex,
                     levelWord,
                     layer1XPosition,
                     layer1YPosition,
@@ -1361,7 +1367,10 @@ public sealed partial class RoomPlmSystem
         ushort layer1YPosition,
         ushort bg1XOffset)
     {
-        level.SetForegroundEntry(blockIndex, levelWord);
+        level.SetPlmForegroundEntry(blockIndex, levelWord);
+        if (!level.IsLogicalBlockIndex(blockIndex))
+            return;
+
         streamer.SetLevelEntry(blockIndex, levelWord);
 
         int blockX = blockIndex % level.WidthInBlocks;

@@ -52,9 +52,11 @@ public sealed partial class RoomPlmSystem
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
         // collision, and selects BTS $44 so subsequent projectiles find this resident PLM.
-        ushort originalWord = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
-        level.SetForegroundEntry(blockIndex, unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
-        level.SetBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
+        ushort originalWord = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
+        level.SetPlmForegroundEntry(
+            blockIndex,
+            unchecked((ushort)((originalWord & 0x0fff) | 0xc000)));
+        level.SetPlmBehavior(blockIndex, RoomBlockBehaviorValues.ResidentPlmProjectileTrigger);
     }
 
     /// <summary>
@@ -115,7 +117,7 @@ public sealed partial class RoomPlmSystem
             ushort drawPointer = ReadBank84Word(
                 bus,
                 unchecked((ushort)(door.ClosedBlueList + 5)));
-            level.SetBehavior(slot.BlockIndex, blueBts);
+            level.SetPlmBehavior(slot.BlockIndex, blueBts);
             DrawRomInstruction(
                 bus,
                 level,

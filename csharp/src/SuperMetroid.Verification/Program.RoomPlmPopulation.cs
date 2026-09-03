@@ -93,11 +93,127 @@ internal static partial class Program
 
         VerifyOtherStationFamilies(bus);
         VerifySaveStationConfirmation(bus);
+        VerifyNativeOutOfBoundsPopulationSetupOrder(bus);
         VerifyMetroidsClearedStatePlm(bus);
         VerifyMotherBrainEscapeRoomGate(bus);
         VerifyUnsupportedPopulationContext(bus);
         Console.WriteLine(
             "  Room PLM population: one-pass native slots, synchronous reuse, elevator, and station families agree.");
+    }
+
+    /// <summary>
+    /// Reproduces the retail Fireflea/Colosseum defect pattern: a colored door can have a
+    /// byte coordinate below the native allocation ceiling but outside the authored room.
+    /// Native allocates the slot and runs setup against level_data anyway. The translation
+    /// must preserve that harmless order without weakening bounds for PLMs whose setup
+    /// genuinely consumes logical terrain.
+    /// </summary>
+    private static void VerifyNativeOutOfBoundsPopulationSetupOrder(TestAddressSpace bus)
+    {
+        const ushort population = 0x96c0;
+        const ushort malformedPopulation = 0x96e0;
+        const ushort offRoomList = 0x9700;
+        const ushort inRoomList = 0x9740;
+        const ushort offRoomDraw = 0x9780;
+        const ushort inRoomDraw = 0x9790;
+        const int width = 16;
+        const int height = 32;
+        const int offRoomX = 1;
+        const int offRoomY = 38;
+        const int inRoomX = 2;
+        const int inRoomY = 2;
+
+        SeedColoredDoorPopulationHeader(
+            bus,
+            RoomPlmHeaders.GreenDoorFacingRight,
+            offRoomList,
+            offRoomDraw);
+        SeedColoredDoorPopulationHeader(
+            bus,
+            RoomPlmHeaders.GreenDoorFacingLeft,
+            inRoomList,
+            inRoomDraw);
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0x78, 0xc8, offRoomX, offRoomY, 0x27, 0x00,
+            0x72, 0xc8, inRoomX, inRoomY, 0x28, 0x00,
+            0x00, 0x00,
+        ]);
+
+        RoomLevelData level = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var plms = new RoomPlmSystem();
+        AssertEqual(2, plms.LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                population,
+                new Bank80SystemState(),
+                AreaId.Brinstar,
+                () => new SamusState(),
+                () => false),
+            "off-room colored door and following record both run setup");
+        RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
+        AssertEqual(39, slots[0].NativeSlotIndex,
+            "off-room record is allocated before its setup callback");
+        AssertEqual(offRoomY * width + offRoomX, slots[0].BlockIndex,
+            "off-room record retains native unchecked row-major block index");
+        AssertEqual(38, slots[1].NativeSlotIndex,
+            "following record retains descending native slot order");
+        AssertEqual(0, level.GetCollisionBlockByIndex(width * height - 1).LevelWord,
+            "off-room setup cannot corrupt the final authored host block");
+
+        // Both resident actors execute their first draw. The off-room write remains in the
+        // bounded native tail while the ordinary record updates logical terrain normally.
+        plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertEqual(0x8123, level.GetCollisionBlock(inRoomX, inRoomY).LevelWord,
+            "in-room record following the harmless tail actor still draws normally");
+
+        bus.WriteBytes(0x8f0000 | malformedPopulation,
+        [
+            0x03, 0xb7, offRoomX, offRoomY, 0x00, 0x98,
+            0x00, 0x00,
+        ]);
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => new RoomPlmSystem().LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                malformedPopulation,
+                new Bank80SystemState(),
+                AreaId.Brinstar,
+                () => new SamusState(),
+                () => false),
+            "off-room scroll owner fails when setup consumes a required logical block");
+    }
+
+    private static void SeedColoredDoorPopulationHeader(
+        TestAddressSpace bus,
+        ushort header,
+        ushort instructionList,
+        ushort drawPointer)
+    {
+        const ushort closedBlueList = 0x97a0;
+        const ushort hitList = 0x97b0;
+        const ushort openingList = 0x97c0;
+        WriteWord(bus, 0x840000 | unchecked((ushort)(header + 2)), instructionList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 2)), closedBlueList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 6)), hitList);
+        bus.WriteBytes(0x840000 | unchecked((ushort)(hitList + 2)),
+        [
+            0x01,
+            unchecked((byte)openingList),
+            unchecked((byte)(openingList >> 8)),
+        ]);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(instructionList + 14)), drawPointer);
+        WriteOneBlockDraw(bus, drawPointer, 0x8123);
     }
 
     /// <summary>

@@ -263,6 +263,12 @@ if (args.Length >= 2 && args[0] == "--retail-plm-population-audit")
     return RetailPlmPopulationAudit.Run(plmRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--out-of-bounds-plm-audit")
+{
+    string outOfBoundsPlmRomPath = string.Join(' ', args[1..]).Trim('"');
+    return RetailPlmPopulationAudit.AuditOutOfBoundsSetup(outOfBoundsPlmRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--retail-scroll-owner-audit")
 {
     string scrollOwnerRomPath = string.Join(' ', args[1..]).Trim('"');

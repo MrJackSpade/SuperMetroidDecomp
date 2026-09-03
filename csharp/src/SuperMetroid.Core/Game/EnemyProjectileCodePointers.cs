@@ -356,6 +356,8 @@ internal static class EnemyProjectileCodePointers
 
     /// <summary><c>Instruction_EnemyProjectile_PreInstructionInY</c> at $86:8161. Install the operand as pre-instruction.</summary>
     public const ushort Instruction_EnemyProjectile_PreInstructionInY = 0x8161;
+    /// <summary><c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> at $86:82A5.</summary>
+    public const ushort Instruction_EnemyProjectile_CalculateDirectionTowardsSamus = 0x82a5;
 
     /// <summary><c>Instruction_EnemyProjectile_ClearPreInstruction</c> at $86:816A. Clear pre-instruction to $8170 RTS.</summary>
     public const ushort Instruction_EnemyProjectile_ClearPreInstruction = 0x816a;

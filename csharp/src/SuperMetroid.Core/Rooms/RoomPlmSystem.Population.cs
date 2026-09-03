@@ -29,7 +29,8 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.NoobTube or
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
             RoomPlmHeaders.MotherBrainEscapeRoomGate or
-            RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock)
+            RoomPlmHeaders.DownwardGate or RoomPlmHeaders.DownwardGateShotBlock ||
+            IsEyeDoorHeader(header))
         {
             return true;
         }
@@ -61,7 +62,8 @@ public sealed partial class RoomPlmSystem
         RoomLayer3FxState? roomFx = null,
         Action<ushort>? setEarthquakeTimer = null,
         Action<ushort>? setEarthquakeType = null,
-        Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null)
+        Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null,
+        Action<EyeDoorProjectileRequest>? spawnEyeDoorProjectile = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -90,6 +92,9 @@ public sealed partial class RoomPlmSystem
         _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
         _downwardGateSamus = getSamus;
         _downwardGateRoomWidth = level.WidthInBlocks;
+        _eyeDoorSystem = system;
+        _eyeDoorSamus = getSamus;
+        _spawnEyeDoorProjectile = spawnEyeDoorProjectile;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -235,6 +240,7 @@ public sealed partial class RoomPlmSystem
         slot.IsElevatorPlatform = false;
         slot.Treadmill = null;
         slot.Gate = null;
+        slot.EyeDoor = null;
     }
 
     private bool TryRunRoomPopulationSetup(
@@ -337,6 +343,12 @@ public sealed partial class RoomPlmSystem
         if (header == RoomPlmHeaders.DownwardGateShotBlock)
         {
             SetupDownwardGateShotBlock(bus, level, slot);
+            return true;
+        }
+
+        if (IsEyeDoorHeader(header))
+        {
+            SetupEyeDoorSlot(level, slot);
             return true;
         }
 

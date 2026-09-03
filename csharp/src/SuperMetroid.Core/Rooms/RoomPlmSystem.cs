@@ -67,6 +67,7 @@ public sealed partial class RoomPlmSystem
             slot.IsElevatorPlatform = false;
             slot.Treadmill = null;
             slot.Gate = null;
+            slot.EyeDoor = null;
         }
         _soundRequests.Clear();
         _pendingDownwardGateSounds.Clear();
@@ -90,6 +91,7 @@ public sealed partial class RoomPlmSystem
         ResetCollectibleState();
         ResetBombTorizoHandState();
         ResetNoobTubeState();
+        ResetEyeDoorState();
     }
 
     /// <summary>
@@ -1077,6 +1079,7 @@ public sealed partial class RoomPlmSystem
             RunMotherBrainGlassPreInstruction(slot);
             RunNoobTubePreInstruction(slot, controllerNewInput);
             RunDownwardGatePreInstruction(slot);
+            RunEyeDoorPreInstruction(slot);
             if (!slot.Active)
                 continue;
 
@@ -1316,6 +1319,7 @@ public sealed partial class RoomPlmSystem
                     // must never inherit door-only pre-handler behavior.
                     slot.ColoredDoor = null;
                     slot.GreyDoor = null;
+                    slot.EyeDoor = null;
                     return;
 
                 case RoomPlmInstructionCodes.Sleep:
@@ -1333,6 +1337,8 @@ public sealed partial class RoomPlmSystem
                     if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
                         continue;
                     if (TryExecuteNoobTubeInstruction(bus, slot, instruction))
+                        continue;
+                    if (TryExecuteEyeDoorInstruction(bus, level, slot, instruction))
                         continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached uncatalogued bank-$84 instruction ${instruction:X4}.");
@@ -1506,6 +1512,8 @@ public sealed partial class RoomPlmSystem
         public bool IsElevatorPlatform { get; set; }
         /// <summary>Marks the resident five-block downward gate coroutine.</summary>
         public DownwardGatePlmState? Gate { get; set; }
+        /// <summary>Semantic owner for one component of a mirrored eye-door assembly.</summary>
+        public EyeDoorPlmState? EyeDoor { get; set; }
         /// <summary>Semantic owner for door-spawned Wrecked Ship treadmill PLMs.</summary>
         public WreckedShipTreadmillPlmState? Treadmill { get; set; }
     }

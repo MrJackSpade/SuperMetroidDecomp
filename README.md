@@ -54,13 +54,12 @@ its entire retail room and surrounding game-state sequence are integrated, howev
 These are implementation gaps, not merely missing tests:
 
 - Bank `$84` room populations now parse once in ROM order and retain the native descending
-  forty-slot allocation/reuse rules. The current dispatcher translates 922 of 941 retail
-  records across 61 of 70 headers, including downward gates, elevators, save/map/energy/missile stations,
+  forty-slot allocation/reuse rules. The current dispatcher translates 937 of 941 retail
+  records across 67 of 70 headers, including downward gates, eye doors, elevators, save/map/energy/missile stations,
   the Speed Booster escape controller, the Wrecked Ship attic observer, the n00b tube, and
   the resident Metroid-room clear-state observers.
-  The remaining gate, eye-door, escape/progression, Draygon-cannon, and other special headers
-  fail at room load with exact population/header/coordinate context; their setup and instruction
-  families remain implementation work.
+  The remaining four Draygon-cannon records fail at room load with exact
+  population/header/coordinate context; that three-header family remains implementation work.
 - Arbitrary room setup code, room-main code, FX records, and X-ray room data are not generally
   dispatched. Ceres and several encounter-specific paths have explicit translated owners.
 - Audio playback is connected to every currently translated publisher: title/intro/room and

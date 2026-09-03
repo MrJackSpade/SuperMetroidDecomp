@@ -187,6 +187,19 @@ internal static class RoomPlmHeaders
     /// </summary>
     public const ushort SetMetroidsClearedStatesWhenRequired = 0xdb44;
 
+    /// <summary>Right-facing eye-door eye controller at <c>$84:DB48</c>.</summary>
+    public const ushort EyeDoorEyeFacingRight = 0xdb48;
+    /// <summary>Right-facing eye-door middle/door component at <c>$84:DB4C</c>.</summary>
+    public const ushort EyeDoorFacingRight = 0xdb4c;
+    /// <summary>Right-facing eye-door bottom component at <c>$84:DB52</c>.</summary>
+    public const ushort EyeDoorBottomFacingRight = 0xdb52;
+    /// <summary>Left-facing eye-door eye controller at <c>$84:DB56</c>.</summary>
+    public const ushort EyeDoorEyeFacingLeft = 0xdb56;
+    /// <summary>Left-facing eye-door middle/door component at <c>$84:DB5A</c>.</summary>
+    public const ushort EyeDoorFacingLeft = 0xdb5a;
+    /// <summary>Left-facing eye-door bottom component at <c>$84:DB60</c>.</summary>
+    public const ushort EyeDoorBottomFacingLeft = 0xdb60;
+
     /// <summary>Collision-side permanent-item detector at $84:EED3.</summary>
     public const ushort ItemCollisionDetection = 0xeed3;
 

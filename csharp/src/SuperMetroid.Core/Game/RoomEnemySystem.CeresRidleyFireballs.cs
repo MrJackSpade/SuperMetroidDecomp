@@ -81,6 +81,9 @@ public enum RoomEnemyProjectileKind : ushort
     FuneFireball = 0xdfca,
     LavaThrownByMagdollite = 0xe0e0,
     DragonFireball = 0xb5cb,
+    EyeDoorProjectile = 0xb743,
+    EyeDoorSweat = 0xb751,
+    EyeDoorSmoke = 0xe517,
     MiscDustExplosion = 0xe509,
     EnemyDeathPickup = 0xf337,
     EnemyDeathExplosion = 0xf345,
@@ -685,10 +688,19 @@ public sealed partial class RoomEnemySystem
             case EnemyProjectileCodePointers.RTS_86C76D:
             case EnemyProjectileCodePointers.RTS_86E6D1:
             case DownwardGateEnemyProjectileRomData.InertPreInstruction:
+            case EyeDoorEnemyProjectileRomData.SmokeInertPreInstruction:
                 return;
 
             case DownwardGateEnemyProjectileRomData.MovementPreInstruction:
                 RunDownwardGateProjectileMovement(projectile);
+                return;
+
+            case EyeDoorEnemyProjectileRomData.ProjectilePreInstruction:
+                RunEyeDoorProjectilePreInstruction(projectile, level);
+                return;
+
+            case EyeDoorEnemyProjectileRomData.SweatPreInstruction:
+                RunEyeDoorSweatPreInstruction(projectile, level);
                 return;
 
             case EnemyProjectileCodePointers.PreInst_EnemyProjectile_BombTorizoChozoBreaking_Falling:
@@ -1330,6 +1342,26 @@ public sealed partial class RoomEnemySystem
                         _bus!,
                         0x860000 | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
+                    break;
+                case EnemyProjectileCodePointers.Instruction_EnemyProjectile_CalculateDirectionTowardsSamus:
+                    if (samus is null)
+                    {
+                        throw new InvalidOperationException(
+                            "Enemy-projectile direction bytecode requires Samus.");
+                    }
+                    projectile.Variable0 = unchecked((ushort)(2 * CalculateCartridgeAngle(
+                        unchecked((short)(samus.XPosition - projectile.XPosition)),
+                        unchecked((short)(samus.YPosition - projectile.YPosition)))));
+                    int eyeDoorAngle = projectile.Variable0 >> 1;
+                    projectile.XVelocity = unchecked((ushort)ReadWord(
+                        _bus!,
+                        EnemyRomTablePointers.Common.SignedSineCosineWords +
+                        ((eyeDoorAngle & 0xff) * 2)));
+                    projectile.YVelocity = unchecked((ushort)ReadWord(
+                        _bus!,
+                        EnemyRomTablePointers.Common.SignedSineCosineWords +
+                        (((eyeDoorAngle - 64) & 0xff) * 2)));
+                    cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:
                     projectile.PreInstruction = EnemyProjectileCodePointers.RTS_868170;

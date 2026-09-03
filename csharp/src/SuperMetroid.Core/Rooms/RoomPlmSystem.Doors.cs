@@ -27,6 +27,9 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public bool TryNotifyColoredDoorHit(int blockIndex, SamusProjectileTypeWord projectileType)
     {
+        if (TryNotifyEyeDoorHit(blockIndex, projectileType))
+            return true;
+
         foreach (PlmSlot slot in _slots)
         {
             if (!slot.Active || slot.BlockIndex != blockIndex || slot.ColoredDoor is null)

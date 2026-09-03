@@ -23,6 +23,15 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:8A24 Instruction_PLM_LinkInstruction_Y</c>.</summary>
     public const ushort LinkInstruction = 0x8a24;
 
+    /// <summary><c>$84:8A72</c>: branch when the slot's persistent door bit is set.</summary>
+    public const ushort GotoIfDoorBitSet = 0x8a72;
+
+    /// <summary><c>$84:8A91</c>: increment the door-hit byte and branch at its threshold.</summary>
+    public const ushort IncrementDoorHitCounterAndGoto = 0x8a91;
+
+    /// <summary><c>$84:8D41</c>: branch when Samus is within the operand block rectangle.</summary>
+    public const ushort GotoIfSamusNear = 0x8d41;
+
     /// <summary><c>$84:8724 Instruction_PLM_GotoY</c>: replace the list cursor.</summary>
     public const ushort Goto = 0x8724;
 
@@ -67,6 +76,24 @@ public static class RoomPlmInstructionCodes
 
     /// <summary><c>$84:BBF0</c>: wake the gate projectile associated with this PLM.</summary>
     public const ushort WakeDownwardGateProjectile = 0xbbf0;
+
+    /// <summary><c>$84:D77A</c>: spawn an eye-door attack with the following parameter.</summary>
+    public const ushort ShootEyeDoorProjectile = 0xd77a;
+
+    /// <summary><c>$84:D790</c>: spawn an eye-door sweat drop with the following parameter.</summary>
+    public const ushort SpawnEyeDoorSweat = 0xd790;
+
+    /// <summary><c>$84:D79F</c>: spawn two randomized eye-door smoke actors.</summary>
+    public const ushort SpawnTwoEyeDoorSmoke = 0xd79f;
+
+    /// <summary><c>$84:D7B6</c>: spawn one centered eye-door smoke actor.</summary>
+    public const ushort SpawnEyeDoorSmoke = 0xd7b6;
+
+    /// <summary><c>$84:D7C3</c>: move up and construct a right-facing blue-door cap.</summary>
+    public const ushort MoveUpAndMakeBlueDoorFacingRight = 0xd7c3;
+
+    /// <summary><c>$84:D7DA</c>: move up and construct a left-facing blue-door cap.</summary>
+    public const ushort MoveUpAndMakeBlueDoorFacingLeft = 0xd7da;
 
     /// <summary><c>$84:8C46 Instruction_PLM_QueueSound_Y_Lib2_Max3</c>.</summary>
     public const ushort QueueSoundLibrary2Maximum3 = 0x8c46;

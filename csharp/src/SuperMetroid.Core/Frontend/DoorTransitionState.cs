@@ -76,18 +76,18 @@ public sealed class DoorTransitionState
                 // and points the IRQ dispatcher at the door-scrolling handler. The typed
                 // header was captured by Begin; retaining this separate call preserves the
                 // coroutine boundary and its one accepted NMI.
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
             case DoorTransitionPhase.AlignSourceCamera:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 if (runtime.AlignPendingDoorCameraOnePixel())
                     Phase = DoorTransitionPhase.FixDoorsMovingUp;
                 break;
 
             case DoorTransitionPhase.FixDoorsMovingUp:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 runtime.FixPendingDoorTilesMovingUp();
                 Phase = DoorTransitionPhase.SetupNewRoom;
                 break;
@@ -95,17 +95,17 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.SetupNewRoom:
                 // Room/state/FX/level setup is atomic in LoadPendingDoorDestination, but
                 // native exposes this function separately from scrolling and tile upload.
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 Phase = DoorTransitionPhase.SetupScrolling;
                 break;
 
             case DoorTransitionPhase.SetupScrolling:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;
 
             case DoorTransitionPhase.PlaceSamusAndLoadTiles:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 Phase = DoorTransitionPhase.LoadMoreThingsAndOpenDoor;
                 break;
 
@@ -136,7 +136,11 @@ public sealed class DoorTransitionState
                 break;
 
             case DoorTransitionPhase.WaitForDoorOpeningScroll:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                // RunOneFrameOfGameInner always clears/finalizes the OAM build even when
+                // this coroutine is only waiting on the room-loading IRQ. Publishing that
+                // empty build prevents the faded source enemies from becoming black ghosts
+                // over the incrementally moving destination doorway.
+                runtime.RunBlankGameplayFrame(controllerInput);
                 if (runtime.StepDoorOpeningScroll())
                     Phase = DoorTransitionPhase.HandleAnimatedTiles;
                 break;
@@ -144,12 +148,12 @@ public sealed class DoorTransitionState
             case DoorTransitionPhase.HandleAnimatedTiles:
                 // LoadCartridgeRoom already initialized the destination animtile owner.
                 // Native gives it one explicit call before polling the global music queue.
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 Phase = DoorTransitionPhase.WaitForMusicQueue;
                 break;
 
             case DoorTransitionPhase.WaitForMusicQueue:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunBlankGameplayFrame(controllerInput);
                 if (!audio.HasQueuedMusic)
                     Phase = DoorTransitionPhase.HandleTransition;
                 break;

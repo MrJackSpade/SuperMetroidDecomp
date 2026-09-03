@@ -298,6 +298,9 @@ internal static class DoorPointers
     /// <summary>Left door leaving the Morph Ball room for the Blue Brinstar elevator.</summary>
     public const ushort BlueBrinstarElevatorFromMorphBall = 0x8eb6;
 
+    /// <summary>Left door leaving Construction Zone for the Morph Ball room.</summary>
+    public const ushort MorphBallFromConstructionZone = 0x8ec2;
+
     /// <summary>Door returning from First Missile to Construction Zone.</summary>
     public const ushort ConstructionZoneFromFirstMissile = 0x8fa6;
 

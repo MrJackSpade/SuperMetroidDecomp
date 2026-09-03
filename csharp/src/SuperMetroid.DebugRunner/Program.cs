@@ -121,6 +121,12 @@ if (args.Length >= 2 && args[0] == "--door-transition-visual-audit")
     return EarlyControllerRouteAudit.RunDoorTransitionVisualAudit(doorTransitionRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--construction-zone-door-ghost-audit")
+{
+    string doorGhostRomPath = string.Join(' ', args[1..]).Trim('"');
+    return EarlyControllerRouteAudit.RunConstructionZoneDoorGhostAudit(doorGhostRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--vertical-room-entry-audit")
 {
     string verticalEntryRomPath = args.Length == 2

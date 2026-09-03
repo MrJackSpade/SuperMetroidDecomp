@@ -10,6 +10,89 @@ using SuperMetroid.Core.Runtime;
 internal static partial class EarlyControllerRouteAudit
 {
     /// <summary>
+    /// Reproduces issue #62's exact area-$01 room-$0F to room-$0E transition and requires
+    /// source-room OAM to be parked before the horizontal door begins moving.
+    /// </summary>
+    public static int RunConstructionZoneDoorGhostAudit(string romPath)
+    {
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.ConstructionZone);
+
+        CartridgeRoomHeader source = runtime.ActiveRoom ?? throw new InvalidDataException(
+            "Construction Zone ghost audit did not load a source room.");
+        if (source.AreaIndex != 1 || source.RoomIndex != 0x0f)
+        {
+            throw new InvalidDataException(
+                $"Expected source $01/$0F, got ${source.AreaIndex:X2}/${source.RoomIndex:X2} " +
+                $"at $8F:{source.Pointer:X4}.");
+        }
+
+        // Two frames are required because OAM produced by the first gameplay pass becomes
+        // PPU-visible at the following NMI. A zero count would let this audit pass without
+        // ever reproducing the source-room objects reported by the player.
+        runtime.StepFrame(0);
+        runtime.StepFrame(0);
+        int sourceSpriteCount = runtime.DisplayedOam.LastFinalizedSpriteCount;
+        if (sourceSpriteCount == 0 || runtime.Enemies.EnemyCount == 0)
+        {
+            throw new InvalidDataException(
+                "Area $01/$0F did not publish its source-room enemy OAM before transition.");
+        }
+
+        PublishRetailDoor(runtime, bus, DoorPointers.MorphBallFromConstructionZone);
+        CartridgeDoorHeader door = runtime.PendingDoorTransition ??
+            throw new InvalidDataException("Construction Zone did not publish its Morph Ball door.");
+        if (door.DestinationRoomPointer != RoomHeaderPointers.MorphBallRoom)
+        {
+            throw new InvalidDataException(
+                $"Door $83:{door.Pointer:X4} targets $8F:{door.DestinationRoomPointer:X4}, " +
+                $"not $01/$0E $8F:{RoomHeaderPointers.MorphBallRoom:X4}.");
+        }
+        var audio = new CartridgeAudioState();
+        var transition = new DoorTransitionState();
+        transition.Begin(runtime);
+        bool observedOpeningScroll = false;
+        for (int dispatcherFrame = 0;
+            transition.IsActive && dispatcherFrame < 320;
+            dispatcherFrame++)
+        {
+            transition.Step(runtime, audio, controllerInput: 0);
+            if (transition.Phase != DoorTransitionPhase.WaitForDoorOpeningScroll)
+                continue;
+
+            observedOpeningScroll = true;
+            if (runtime.DisplayedOam.LastFinalizedSpriteCount != 0)
+            {
+                throw new InvalidDataException(
+                    $"Reproduced issue #62: door $83:{door.Pointer:X4} began scrolling with " +
+                    $"{runtime.DisplayedOam.LastFinalizedSpriteCount} stale source-room OBJ entries.");
+            }
+        }
+
+        if (transition.IsActive || !observedOpeningScroll)
+            throw new InvalidDataException("Construction Zone ghost transition did not complete its scroll.");
+        CartridgeRoomHeader destination = runtime.ActiveRoom ?? throw new InvalidDataException(
+            "Construction Zone ghost audit lost the destination room.");
+        if (destination.AreaIndex != 1 || destination.RoomIndex != 0x0e)
+        {
+            throw new InvalidDataException(
+                $"Expected destination $01/$0E, got ${destination.AreaIndex:X2}/" +
+                $"${destination.RoomIndex:X2} at $8F:{destination.Pointer:X4}.");
+        }
+
+        Console.WriteLine(
+            $"Construction Zone door-ghost audit passed: $01/$0F -> $01/$0E via " +
+            $"$83:{door.Pointer:X4}; {sourceSpriteCount} source OBJ entries were cleared " +
+            "before every visible door-scroll frame.");
+        return 0;
+    }
+
+    /// <summary>
     /// Reproduces both horizontal door directions through the production transition and
     /// renderer using retail Landing Site/Parlor room data. Unlike the historical request-
     /// count check, this audit snapshots the actual BG1 VRAM ring before and after the first

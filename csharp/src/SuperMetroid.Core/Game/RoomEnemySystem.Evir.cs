@@ -83,9 +83,9 @@ public sealed partial class RoomEnemySystem
     private const ushort EvirArmsRightInstruction = 0x8727;
     private const ushort EvirProjectileNormalInstruction = 0x876f;
     private const ushort EvirProjectileRegenerationInstruction = 0x8775;
-    private const ushort EvirTouchAi = 0x8b06;
-    private const ushort EvirPowerBombAi = 0x8b0c;
-    private const ushort EvirShotAi = 0x8b12;
+    private const ushort EvirTouchAi = EnemyAiCodePointers.BankA8.EvirTouch;
+    private const ushort EvirPowerBombAi = EnemyAiCodePointers.BankA8.EvirPowerBomb;
+    private const ushort EvirShotAi = EnemyAiCodePointers.BankA8.EvirShot;
     private const ushort EvirSpitSound = 0x005e;
     private const ushort EvirActivationDistance = 0x0080;
     private const ushort EvirProjectileSpeed = 4;

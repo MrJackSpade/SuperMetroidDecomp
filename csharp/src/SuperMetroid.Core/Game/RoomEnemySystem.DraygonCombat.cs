@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort DraygonTouchAi = 0x95ea;
-    private const ushort DraygonShotAi = 0x95f0;
-    private const ushort DraygonPowerBombAi = 0x9607;
-    private const ushort DraygonDudHitboxShotAi = 0x8046;
-    private const ushort DraygonNoOpHitboxTouchAi = 0x804c;
+    private const ushort DraygonTouchAi = EnemyAiCodePointers.BankA5.DraygonTouch;
+    private const ushort DraygonShotAi = EnemyAiCodePointers.BankA5.DraygonShot;
+    private const ushort DraygonPowerBombAi = EnemyAiCodePointers.BankA5.DraygonPowerBomb;
+    private const ushort DraygonDudHitboxShotAi = EnemyAiCodePointers.BankA0.DudShot;
+    private const ushort DraygonNoOpHitboxTouchAi = EnemyAiCodePointers.BankA0.NoOp;
 
     private const int DraygonBgPalette = 0xa5a277;
     private const int DraygonSpritePalette = 0xa5a1f7;

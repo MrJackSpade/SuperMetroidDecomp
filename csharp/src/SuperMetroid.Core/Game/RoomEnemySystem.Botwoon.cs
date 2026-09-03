@@ -145,9 +145,9 @@ public readonly record struct BotwoonMusicRequest(MusicCommand Command, MusicCom
 public sealed partial class RoomEnemySystem
 {
     internal const ushort BotwoonDefinition = 0xf293;
-    internal const ushort BotwoonTouchAi = 0x9fff;
-    internal const ushort BotwoonShotAi = 0xa016;
-    internal const ushort BotwoonPowerBombAi = 0xa041;
+    internal const ushort BotwoonTouchAi = EnemyAiCodePointers.BankB3.BotwoonTouch;
+    internal const ushort BotwoonShotAi = EnemyAiCodePointers.BankB3.BotwoonShot;
+    internal const ushort BotwoonPowerBombAi = EnemyAiCodePointers.BankB3.BotwoonPowerBomb;
 
     private const ushort BotwoonInitialInstruction = 0x9389;
     private const int BotwoonMovementInstructionTable = 0xb3946b;

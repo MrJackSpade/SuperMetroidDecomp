@@ -71,7 +71,7 @@ public sealed partial class RoomEnemySystem
     internal const ushort Ripper2Definition = 0xd43f;
     internal const ushort RipperDefinition = 0xd47f;
 
-    internal const ushort GRipperRipper2ShotAi = 0xe3a9;
+    internal const ushort GRipperRipper2ShotAi = EnemyAiCodePointers.BankA2.GRipperRipper2Shot;
 
     private const ushort GRipperMovingLeftInstruction = 0xe19b;
     private const ushort GRipperMovingRightInstruction = 0xe1af;

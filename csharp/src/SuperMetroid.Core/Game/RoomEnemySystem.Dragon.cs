@@ -100,9 +100,9 @@ public sealed class DragonEnemyState
 public sealed partial class RoomEnemySystem
 {
     internal const ushort DragonDefinition = 0xd4bf;
-    internal const ushort DragonTouchAi = 0xe7c8;
-    internal const ushort DragonShotAi = 0xe7ce;
-    internal const ushort DragonPowerBombAi = 0xe7d4;
+    internal const ushort DragonTouchAi = EnemyAiCodePointers.BankA2.DragonTouch;
+    internal const ushort DragonShotAi = EnemyAiCodePointers.BankA2.DragonShot;
+    internal const ushort DragonPowerBombAi = EnemyAiCodePointers.BankA2.DragonPowerBomb;
 
     private const ushort DragonIdleFacingLeftInstruction = 0xe59b;
     private const ushort DragonWingsFacingLeftInstruction = 0xe5a1;

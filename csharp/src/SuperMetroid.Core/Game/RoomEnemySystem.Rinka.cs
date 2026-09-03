@@ -68,9 +68,9 @@ public readonly record struct RinkaSpawnResource(
 public sealed partial class RoomEnemySystem
 {
     internal const ushort RinkaDefinition = 0xd23f;
-    internal const ushort RinkaTouchAi = 0xb947;
-    internal const ushort RinkaShotAi = 0xb94d;
-    internal const ushort RinkaPowerBombAi = 0xb953;
+    internal const ushort RinkaTouchAi = EnemyAiCodePointers.BankA2.RinkaTouch;
+    internal const ushort RinkaShotAi = EnemyAiCodePointers.BankA2.RinkaShot;
+    internal const ushort RinkaPowerBombAi = EnemyAiCodePointers.BankA2.RinkaPowerBomb;
 
     private const ushort RinkaOrdinaryInstructionList = 0xb9e0;
     private const ushort RinkaSpecialInstructionList = 0xba0c;

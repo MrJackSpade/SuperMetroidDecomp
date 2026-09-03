@@ -82,7 +82,7 @@ public sealed class OwtchEnemyState
 public sealed partial class RoomEnemySystem
 {
     internal const ushort OwtchDefinition = 0xd03f;
-    internal const ushort OwtchShotAi = 0xa579;
+    internal const ushort OwtchShotAi = EnemyAiCodePointers.BankA2.OwtchShot;
 
     private const ushort OwtchMovingLeftInstructionList = 0xa3ab;
     private const ushort OwtchMovingRightInstructionList = 0xa3bd;

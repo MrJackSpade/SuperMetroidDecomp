@@ -128,7 +128,7 @@ public sealed partial class RoomEnemySystem
     internal const ushort RedKiHunterWingsDefinition = 0xeb7f;
     internal const ushort GoldKiHunterDefinition = 0xebbf;
     internal const ushort GoldKiHunterWingsDefinition = 0xebff;
-    internal const ushort KiHunterShotAi = 0xf701;
+    internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
     private const ushort KiHunterFlyingLeftInstruction = 0xe9fa;
     private const ushort KiHunterFlyingRightInstruction = 0xea24;

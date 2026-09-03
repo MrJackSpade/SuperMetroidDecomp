@@ -59,7 +59,7 @@ public sealed class KagoEnemyState
 public sealed partial class RoomEnemySystem
 {
     internal const ushort KagoDefinition = 0xe7ff;
-    internal const ushort KagoShotAi = 0xab83;
+    internal const ushort KagoShotAi = EnemyAiCodePointers.BankA8.KagoShot;
 
     private const ushort KagoSlowInstructionList = 0xab1e;
     private const ushort KagoFastInstructionList = 0xab32;

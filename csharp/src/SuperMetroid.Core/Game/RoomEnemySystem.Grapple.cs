@@ -9,13 +9,13 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort GrappleNoInteraction = 0x8000;
-    private const ushort GrappleAttach = 0x8005;
-    private const ushort GrappleKill = 0x800a;
-    private const ushort GrappleCancel = 0x800f;
-    private const ushort GrappleAttachWithoutInvincibility = 0x8014;
-    private const ushort GrappleAttachAndParalyze = 0x8019;
-    private const ushort GrappleHurtSamus = 0x801e;
+    private const ushort GrappleNoInteraction = EnemyAiCodePointers.BankA0.GrappleNoInteraction;
+    private const ushort GrappleAttach = EnemyAiCodePointers.BankA0.GrappleAttach;
+    private const ushort GrappleKill = EnemyAiCodePointers.BankA0.GrappleKill;
+    private const ushort GrappleCancel = EnemyAiCodePointers.BankA0.GrappleCancel;
+    private const ushort GrappleAttachWithoutInvincibility = EnemyAiCodePointers.BankA0.GrappleAttachWithoutInvincibility;
+    private const ushort GrappleAttachAndParalyze = EnemyAiCodePointers.BankA0.GrappleAttachAndParalyze;
+    private const ushort GrappleHurtSamus = EnemyAiCodePointers.BankA0.GrappleHurtSamus;
 
     /// <summary>
     /// Ports <c>EnemyGrappleBeamCollisionDetection</c> at $A0:9E9A. Extended hitboxes are

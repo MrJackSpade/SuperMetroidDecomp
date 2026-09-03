@@ -178,14 +178,14 @@ public sealed partial class RoomEnemySystem
     internal const ushort DestroyableVerticalShutterDefinition = 0xd5bf;
     internal const ushort KamerVerticalPlatformDefinition = 0xd5ff;
 
-    internal const ushort VerticalShutterTouchAi = 0xf09d;
-    internal const ushort ShootableVerticalShutterShotAi = 0xf0a2;
-    internal const ushort DestroyableVerticalShutterShotAi = 0xf0aa;
-    internal const ushort VerticalShutterPowerBombAi = 0xf0b6;
-    internal const ushort HorizontalShutterTouchAi = 0xf3d8;
-    internal const ushort HorizontalShutterShotAi = 0xf40e;
-    internal const ushort HorizontalShutterPowerBombAi = 0xf41a;
-    internal const ushort GrowingShutterNoOpAi = 0x804c;
+    internal const ushort VerticalShutterTouchAi = EnemyAiCodePointers.BankA2.VerticalShutterTouch;
+    internal const ushort ShootableVerticalShutterShotAi = EnemyAiCodePointers.BankA2.ShootableVerticalShutterShot;
+    internal const ushort DestroyableVerticalShutterShotAi = EnemyAiCodePointers.BankA2.DestroyableVerticalShutterShot;
+    internal const ushort VerticalShutterPowerBombAi = EnemyAiCodePointers.BankA2.VerticalShutterPowerBomb;
+    internal const ushort HorizontalShutterTouchAi = EnemyAiCodePointers.BankA2.HorizontalShutterTouch;
+    internal const ushort HorizontalShutterShotAi = EnemyAiCodePointers.BankA2.HorizontalShutterShot;
+    internal const ushort HorizontalShutterPowerBombAi = EnemyAiCodePointers.BankA2.HorizontalShutterPowerBomb;
+    internal const ushort GrowingShutterNoOpAi = EnemyAiCodePointers.BankA0.NoOp;
 
     private const ushort ShutterActivationSound = 0x000e;
     private const ushort PermanentStopRestTime = 0x0ff0;

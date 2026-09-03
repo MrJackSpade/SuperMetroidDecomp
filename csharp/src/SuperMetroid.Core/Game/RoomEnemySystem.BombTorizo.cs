@@ -90,10 +90,10 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BombTorizoDefinition = 0xeeff;
     internal const ushort GoldenTorizoDefinition = 0xef7f;
-    internal const ushort BombTorizoTouchAi = 0xc977;
-    internal const ushort BombTorizoShotAi = 0xc97c;
-    internal const ushort TorizoStandUpSitDownShotAi = 0xc9c2;
-    internal const ushort GoldenTorizoShotAi = 0xd667;
+    internal const ushort BombTorizoTouchAi = EnemyAiCodePointers.BankAA.BombTorizoTouch;
+    internal const ushort BombTorizoShotAi = EnemyAiCodePointers.BankAA.BombTorizoShot;
+    internal const ushort TorizoStandUpSitDownShotAi = EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot;
+    internal const ushort GoldenTorizoShotAi = EnemyAiCodePointers.BankAA.GoldenTorizoShot;
 
     private const ushort BombTorizoInitialInstruction = 0xb879;
     private const ushort BombTorizoLowHealthInterruptInstruction = 0xb0e5;

@@ -105,9 +105,9 @@ public sealed class MagdolliteEnemyState
 public sealed partial class RoomEnemySystem
 {
     internal const ushort MagdolliteDefinition = 0xe83f;
-    internal const ushort MagdollitePowerBombAi = 0xb400;
-    internal const ushort MagdolliteTouchAi = 0xb406;
-    internal const ushort MagdolliteShotAi = 0xb40c;
+    internal const ushort MagdollitePowerBombAi = EnemyAiCodePointers.BankA8.MagdollitePowerBomb;
+    internal const ushort MagdolliteTouchAi = EnemyAiCodePointers.BankA8.MagdolliteTouch;
+    internal const ushort MagdolliteShotAi = EnemyAiCodePointers.BankA8.MagdolliteShot;
 
     private const ushort MagdolliteLeftIdleList = 0xac9c;
     private const ushort MagdolliteLeftThrowList = 0xacb0;

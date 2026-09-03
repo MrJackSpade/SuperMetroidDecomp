@@ -138,6 +138,7 @@ VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyScrollingSkyState();
+VerifyEnemyAiCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyRipperEnemy();
 VerifyPostCeresGunshipLanding();

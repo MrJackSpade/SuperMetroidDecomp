@@ -190,8 +190,8 @@ public sealed partial class RoomEnemySystem
     private const ushort TripperStillMovingLeftInstruction = 0x9c3f;
     private const ushort TripperStillMovingRightInstruction = 0x9c55;
 
-    internal const ushort PlatformNoOpTouchAi = 0x9f07;
-    internal const ushort TripperShotAi = 0x9f08;
+    internal const ushort PlatformNoOpTouchAi = EnemyAiCodePointers.BankA3.PlatformNoOpTouch;
+    internal const ushort TripperShotAi = EnemyAiCodePointers.BankA3.TripperShot;
     internal const ushort TripperFrozenMovingLeftSpritemap = 0xa009;
     internal const ushort TripperFrozenMovingRightSpritemap = 0xa015;
 

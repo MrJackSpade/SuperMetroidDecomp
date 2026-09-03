@@ -53,7 +53,7 @@ public sealed class SparkEnemyState
 public sealed partial class RoomEnemySystem
 {
     internal const ushort SparkDefinition = 0xea3f;
-    internal const ushort SparkShotAi = 0xe70e;
+    internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
     private const int SparkInstructionListTable = 0xa8e682;
     private const int SparkFunctionTable = 0xa8e688;

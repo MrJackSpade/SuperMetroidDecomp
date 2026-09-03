@@ -78,8 +78,8 @@ internal enum ShaktoolMotionFlags : ushort
 public sealed partial class RoomEnemySystem
 {
     internal const ushort ShaktoolDefinition = 0xf07f;
-    internal const ushort ShaktoolTouchAi = 0xdf2f;
-    internal const ushort ShaktoolShotAi = 0xdf34;
+    internal const ushort ShaktoolTouchAi = EnemyAiCodePointers.BankAA.ShaktoolTouch;
+    internal const ushort ShaktoolShotAi = EnemyAiCodePointers.BankAA.ShaktoolShot;
 
     private const int ShaktoolSegmentCount = 7;
     private const int ShaktoolPropertyTable = 0xaade95;

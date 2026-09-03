@@ -2697,7 +2697,8 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.Bg1XOffset,
                     Camera.Scrolls,
                     Enemies.EnemiesKilled,
-                    Enemies.DeathQuota);
+                    Enemies.DeathQuota,
+                    Controller1.NewlyPressed);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
 

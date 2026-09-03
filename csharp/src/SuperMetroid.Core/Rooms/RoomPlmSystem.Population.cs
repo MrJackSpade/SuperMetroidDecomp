@@ -26,6 +26,7 @@ public sealed partial class RoomPlmSystem
             RoomPlmHeaders.SaveStation or
             RoomPlmHeaders.SpeedBoosterEscape or
             RoomPlmHeaders.WreckedShipAttic or
+            RoomPlmHeaders.NoobTube or
             RoomPlmHeaders.SetMetroidsClearedStatesWhenRequired or
             RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
@@ -57,7 +58,9 @@ public sealed partial class RoomPlmSystem
         Func<EventNumber, bool>? hasEvent = null,
         Action<EventNumber>? setEvent = null,
         RoomLayer3FxState? roomFx = null,
-        Action<ushort>? setEarthquakeTimer = null)
+        Action<ushort>? setEarthquakeTimer = null,
+        Action<ushort>? setEarthquakeType = null,
+        Action<NoobTubeProjectileRequest>? spawnNoobTubeProjectile = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -82,6 +85,8 @@ public sealed partial class RoomPlmSystem
         _setEvent = setEvent;
         _speedBoosterEscapeFx = roomFx;
         _writeEarthquakeTimer = setEarthquakeTimer;
+        _writeNoobTubeEarthquakeType = setEarthquakeType;
+        _spawnNoobTubeProjectile = spawnNoobTubeProjectile;
 
         ushort cursor = populationPointer;
         int spawnedRecordCount = 0;
@@ -170,7 +175,10 @@ public sealed partial class RoomPlmSystem
             BlockIndex: entry.slot.BlockIndex,
             RoomArgument: entry.slot.RoomArgument,
             InstructionPointer: entry.slot.InstructionPointer,
-            PreInstruction: entry.slot.PreInstruction))
+            PreInstruction: entry.slot.PreInstruction,
+            InstructionTimer: entry.slot.InstructionTimer,
+            LinkInstruction: entry.slot.LinkInstruction,
+            LoopTimer: entry.slot.LoopTimer))
         .ToArray();
 
     private PlmSlot? AllocateRoomPopulationSlot(
@@ -215,6 +223,7 @@ public sealed partial class RoomPlmSystem
         slot.PreInstruction = 0;
         slot.RoomArgument = 0;
         slot.LoopTimer = 0;
+        slot.LinkInstruction = 0;
         slot.Item = null;
         slot.Scroll = null;
         slot.ColoredDoor = null;
@@ -303,6 +312,12 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
+        if (header == RoomPlmHeaders.NoobTube)
+        {
+            SetupNoobTubeSlot(level, slot);
+            return true;
+        }
+
         if (header == RoomPlmHeaders.MotherBrainEscapeRoomGate)
         {
             SetupDoorTransitionDeactivatedSlot(level, slot);
@@ -333,4 +348,7 @@ public readonly record struct RoomPlmSlotSnapshot(
     int BlockIndex,
     ushort RoomArgument,
     ushort InstructionPointer,
-    ushort PreInstruction);
+    ushort PreInstruction,
+    ushort InstructionTimer,
+    ushort LinkInstruction,
+    ushort LoopTimer);

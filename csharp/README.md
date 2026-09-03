@@ -203,10 +203,10 @@ Room loading now parses every six-byte population record exactly once in ROM ord
 the native forty-slot pool from highest ID downward before dispatching reusable setup handlers;
 synchronous-delete setups free their physical slot for the next record just as `$84:846A` does.
 Unsupported headers throw with population pointer, record index, header/setup/list pointers,
-coordinates, and room argument. The private-ROM exhaustive audit currently measures 899 of 941
-retail records (58 of 70 headers) as translated. The remaining 42 records are gates, eye doors,
-escape/progression actors, Draygon cannons, Noob Tube, and related special families—not silent
-skips or station/elevator gaps.
+coordinates, and room argument. The private-ROM exhaustive audit currently measures 900 of 941
+retail records (59 of 70 headers) as translated. The remaining 41 records are gates, eye doors,
+escape/progression actors, Draygon cannons, and related special families—not silent skips or
+station/elevator/n00b-tube gaps.
 
 Room headers expose FX, X-ray, room-main, PLM, background, and setup pointers, but only the
 translated consumers are executed. Room loading now selects the door-matched sixteen-byte FX

@@ -106,12 +106,19 @@ public sealed partial class RoomPlmSystem
     /// changes the origin to type-$8/BTS-$44`; its pre-instruction accepts only family
     /// <c>$0100</c> missiles and <c>$0200</c> supers, then clears this timer word every frame.
     /// </summary>
+    /// <summary>
+    /// Publishes a projectile collision to the resident type-$8/BTS-$44 actor occupying
+    /// <paramref name="blockIndex"/>. Mother Brain's glass and the n00b tube share this
+    /// cartridge collision route; their own pre-instructions interpret the projectile family.
+    /// </summary>
     public bool TryNotifyProjectileHit(int blockIndex, ushort projectileType)
     {
-        if (!TryGetMotherBrainGlassSlot(out PlmSlot? slot) || slot!.BlockIndex != blockIndex)
-            return false;
-        slot.LoopTimer = projectileType;
-        return true;
+        if (TryGetMotherBrainGlassSlot(out PlmSlot? slot) && slot!.BlockIndex == blockIndex)
+        {
+            slot.LoopTimer = projectileType;
+            return true;
+        }
+        return TryNotifyNoobTubeProjectileHit(blockIndex, projectileType);
     }
 
     private void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();

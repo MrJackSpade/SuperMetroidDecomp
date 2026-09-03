@@ -58,6 +58,7 @@ public sealed partial class RoomPlmSystem
             slot.PreInstruction = 0;
             slot.RoomArgument = 0;
             slot.LoopTimer = 0;
+            slot.LinkInstruction = 0;
             slot.Item = null;
             slot.Scroll = null;
             slot.ColoredDoor = null;
@@ -83,6 +84,7 @@ public sealed partial class RoomPlmSystem
         ResetMotherBrainGlassState();
         ResetCollectibleState();
         ResetBombTorizoHandState();
+        ResetNoobTubeState();
     }
 
     /// <summary>
@@ -971,6 +973,24 @@ public sealed partial class RoomPlmSystem
         RoomScrollGrid? scrolls = null,
         ushort enemyDeaths = 0,
         byte enemyDeathQuota = 0)
+        => Step(bus, level, streamer, layer1XPosition, layer1YPosition, bg1XOffset,
+            scrolls, enemyDeaths, enemyDeathQuota, controllerNewInput: 0);
+
+    /// <summary>
+    /// Executes the PLM handler with the accepted NMI's newly pressed controller bits.
+    /// Resident programs such as the n00b tube consume edges, not held input.
+    /// </summary>
+    public IReadOnlyList<PlmTilemapUpdate> Step(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        BackgroundTilemapStreamer streamer,
+        ushort layer1XPosition,
+        ushort layer1YPosition,
+        ushort bg1XOffset,
+        RoomScrollGrid? scrolls,
+        ushort enemyDeaths,
+        byte enemyDeathQuota,
+        ushort controllerNewInput)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -1049,6 +1069,7 @@ public sealed partial class RoomPlmSystem
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
             RunMotherBrainGlassPreInstruction(slot);
+            RunNoobTubePreInstruction(slot, controllerNewInput);
             if (!slot.Active)
                 continue;
 
@@ -1274,6 +1295,8 @@ public sealed partial class RoomPlmSystem
                         continue;
                     if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))
                         continue;
+                    if (TryExecuteNoobTubeInstruction(bus, slot, instruction))
+                        continue;
                     throw new InvalidDataException(
                         $"Movement-owned PLM reached uncatalogued bank-$84 instruction ${instruction:X4}.");
             }
@@ -1427,6 +1450,8 @@ public sealed partial class RoomPlmSystem
         public ushort RoomArgument { get; set; }
         /// <summary>Native <c>PLM_Timers</c>, distinct from the instruction countdown.</summary>
         public ushort LoopTimer { get; set; }
+        /// <summary>Native extra PLM link-instruction word used by sleeping coroutines.</summary>
+        public ushort LinkInstruction { get; set; }
         /// <summary>
         /// Semantic state for one of bank $84's 63 permanent-item headers. A null value
         /// leaves this physical slot under the ordinary instruction interpreter.

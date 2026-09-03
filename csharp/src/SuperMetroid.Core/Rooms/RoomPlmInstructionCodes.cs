@@ -17,6 +17,12 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:86C1 Instruction_PLM_PreInstruction</c>: install a bank-$84 callback.</summary>
     public const ushort InstallPreInstruction = 0x86c1;
 
+    /// <summary><c>$84:86CA Instruction_PLM_ClearPreInstruction</c>.</summary>
+    public const ushort ClearPreInstruction = 0x86ca;
+
+    /// <summary><c>$84:8A24 Instruction_PLM_LinkInstruction_Y</c>.</summary>
+    public const ushort LinkInstruction = 0x8a24;
+
     /// <summary><c>$84:8724 Instruction_PLM_GotoY</c>: replace the list cursor.</summary>
     public const ushort Goto = 0x8724;
 
@@ -82,4 +88,22 @@ public static class RoomPlmInstructionCodes
 
     /// <summary><c>$84:D3C7</c>: queue Bomb Torizo's track-one music command.</summary>
     public const ushort QueueSongOneMusicTrack = 0xd3c7;
+
+    /// <summary><c>$84:D525 Instruction_PLM_EnableWaterPhysics</c>.</summary>
+    public const ushort EnableNoobTubeWaterPhysics = 0xd525;
+
+    /// <summary><c>$84:D52C Instruction_PLM_SpawnNoobTubeCrackEnemyProjectile</c>.</summary>
+    public const ushort SpawnNoobTubeCrack = 0xd52c;
+
+    /// <summary><c>$84:D536 Instruction_PLM_TriggerNoobTubeEarthquake</c>.</summary>
+    public const ushort TriggerNoobTubeEarthquake = 0xd536;
+
+    /// <summary><c>$84:D543</c>: spawn ten tube shards and six released-air bubbles.</summary>
+    public const ushort SpawnNoobTubeShardsAndBubbles = 0xd543;
+
+    /// <summary><c>$84:D5E6 Instruction_PLM_LockSamus</c>.</summary>
+    public const ushort LockSamus = 0xd5e6;
+
+    /// <summary><c>$84:D5EE Instruction_PLM_UnlockSamus</c>.</summary>
+    public const ushort UnlockSamus = 0xd5ee;
 }

@@ -760,7 +760,10 @@ public sealed partial class SuperMetroidRuntime
             hasEvent: System.HasEvent,
             setEvent: System.SetEvent,
             roomFx: RoomLayer3Fx,
-            setEarthquakeTimer: value => Enemies.EarthquakeTimer = value);
+            setEarthquakeTimer: value => Enemies.EarthquakeTimer = value,
+            setEarthquakeType: value => Enemies.EarthquakeType = value,
+            spawnNoobTubeProjectile: request =>
+                Enemies.SpawnNoobTubeProjectile(request, LevelData.WidthInBlocks));
 
         // `$82:E8DD/$82:EB93` runs the bank-$8F door program only after destination PLMs
         // exist and before enemy initialization/initial viewport construction. Several of

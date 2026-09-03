@@ -114,6 +114,9 @@ public enum RoomEnemyProjectileKind : ushort
     SporeSpawnSpore = 0xde7a,
     SporeSpawnSpawner = 0xde88,
     SaveStationElectricity = 0xe6d2,
+    NoobTubeCrack = 0xd904,
+    NoobTubeShard = 0xd912,
+    NoobTubeReleasedAirBubble = 0xd920,
 }
 
 /// <summary>
@@ -218,6 +221,7 @@ public sealed partial class RoomEnemySystem
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
             .ToArray();
+    private byte _currentEnemyProjectileFrame8;
 
     /// <summary>All eighteen physical bank-$86 slots, including currently inactive slots.</summary>
     public IReadOnlyList<RoomEnemyProjectileSlot> EnemyProjectiles => _enemyProjectiles;
@@ -435,6 +439,7 @@ public sealed partial class RoomEnemySystem
         // preserves all three cases and prevents host collection semantics from inventing a
         // universal one-frame spawn delay.
         byte projectileFrame = nmiFrameCounter8 ?? _standaloneEnemyProjectileFrameCounter8++;
+        _currentEnemyProjectileFrame8 = projectileFrame;
         for (int projectileIndex = _enemyProjectiles.Length - 1;
              projectileIndex >= 0;
              projectileIndex--)
@@ -842,6 +847,15 @@ public sealed partial class RoomEnemySystem
                 }
                 return;
             }
+
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFlickering:
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeCrackFalling:
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFlying:
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeShardFalling:
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFalling:
+            case EnemyProjectileCodePointers.PreInstruction_NoobTubeBubbleFlying:
+                RunNoobTubeProjectilePreInstruction(projectile, cameraY);
+                return;
 
             case EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_HorizontalAfterburn:
                 // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
@@ -1375,6 +1389,36 @@ public sealed partial class RoomEnemySystem
                         0x860000 | unchecked((ushort)(cursor + 2)));
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
+                case EnemyProjectileCodePointers.Instruction_NoobTubeShardAssignFallingAngle:
+                    projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
+                    projectile.YVelocity = NoobTubeProjectileRomData.ShardFallYVelocity;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case EnemyProjectileCodePointers.Instruction_NoobTubeBubbleAssignFallingAngle:
+                    projectile.XVelocity = unchecked((byte)(_nextRandom!() >> 8));
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
+                case EnemyProjectileCodePointers.Instruction_NoobTubeShardReflectFlicker:
+                    projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
+                        ? projectile.Variable1
+                        : unchecked((ushort)(0x0100 - projectile.Variable1));
+                    projectile.SpritemapPointer = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor +
+                            ((_currentEnemyProjectileFrame8 & 1) != 0 ? 2 : 4))));
+                    projectile.InstructionPointer = unchecked((ushort)(cursor + 6));
+                    projectile.InstructionTimer = 1;
+                    return;
+                case EnemyProjectileCodePointers.Instruction_NoobTubeShardFlicker:
+                    projectile.XPosition = (_currentEnemyProjectileFrame8 & 1) != 0
+                        ? projectile.Variable1
+                        : NoobTubeProjectileRomData.HiddenXPosition;
+                    projectile.SpritemapPointer = ReadWord(
+                        _bus!,
+                        0x860000 | unchecked((ushort)(cursor + 2)));
+                    projectile.InstructionPointer = unchecked((ushort)(cursor + 4));
+                    projectile.InstructionTimer = 1;
+                    return;
                 case EnemyProjectileCodePointers.RTS_8681DE:
                     // Bomb Torizo's impact list uses this address as a compact no-op before
                     // its counted branch. It is a real callable ROM entry, not a typo for

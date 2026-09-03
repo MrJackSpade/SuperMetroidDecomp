@@ -173,6 +173,9 @@ internal static class RoomPlmHeaders
     /// <summary>Bomb Torizo's Chozo-hand synchronization actor at $84:D6EA.</summary>
     public const ushort BombTorizoHand = 0xd6ea;
 
+    /// <summary>Maridia's power-bomb-reactive n00b tube actor at $84:D70C.</summary>
+    public const ushort NoobTube = 0xd70c;
+
     /// <summary>
     /// Resident room-kill observer at $84:DB44 which marks the four Tourian Metroid-room
     /// events when their authored enemy death quotas have been reached.

@@ -474,6 +474,36 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy</c> at $86:EF10. Respawn the retained physical enemy slot, when bit $8000 is set.</summary>
     public const ushort Instruction_EnemyProjectile_Pickup_HandleRespawningEnemy = 0xef10;
 
+    /// <summary><c>$86:D5E1</c>: assign a random falling angle to a n00b-tube shard.</summary>
+    public const ushort Instruction_NoobTubeShardAssignFallingAngle = 0xd5e1;
+
+    /// <summary><c>$86:D5F2</c>: mirror/flicker a two-sided n00b-tube shard frame.</summary>
+    public const ushort Instruction_NoobTubeShardReflectFlicker = 0xd5f2;
+
+    /// <summary><c>$86:D62A</c>: flicker a one-sided n00b-tube shard frame.</summary>
+    public const ushort Instruction_NoobTubeShardFlicker = 0xd62a;
+
+    /// <summary><c>$86:D69A</c>: assign a random falling angle to a released-air bubble.</summary>
+    public const ushort Instruction_NoobTubeBubbleAssignFallingAngle = 0xd69a;
+
+    /// <summary><c>$86:D7BF</c>: flicker the n00b-tube crack actor.</summary>
+    public const ushort PreInstruction_NoobTubeCrackFlickering = 0xd7bf;
+
+    /// <summary><c>$86:D7DE</c>: move the detached n00b-tube crack downward.</summary>
+    public const ushort PreInstruction_NoobTubeCrackFalling = 0xd7de;
+
+    /// <summary><c>$86:D7FD</c>: move a newly emitted n00b-tube shard.</summary>
+    public const ushort PreInstruction_NoobTubeShardFlying = 0xd7fd;
+
+    /// <summary><c>$86:D83D</c>: rotate and fall after a n00b-tube shard's initial flight.</summary>
+    public const ushort PreInstruction_NoobTubeShardFalling = 0xd83d;
+
+    /// <summary><c>$86:D89F</c>: rotate and fall a released-air bubble.</summary>
+    public const ushort PreInstruction_NoobTubeBubbleFalling = 0xd89f;
+
+    /// <summary><c>$86:D8DF</c>: move a released-air bubble vertically.</summary>
+    public const ushort PreInstruction_NoobTubeBubbleFlying = 0xd8df;
+
     /// <summary><c>RTS_868170</c> at $86:8170. The common cleared-pre-instruction RTS.</summary>
     public const ushort RTS_868170 = 0x8170;
 

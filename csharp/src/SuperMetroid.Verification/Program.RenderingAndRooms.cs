@@ -291,11 +291,24 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
     AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
 
+    // Only the width*height logical cells are scroll discriminators. The remaining bytes
+    // deliberately preserve the native 50-byte overread above, but an unknown value inside
+    // the room itself must fail at the ROM boundary instead of becoming a phantom camera mode.
+    var invalidBus = new TestAddressSpace();
+    invalidBus.WriteByte(source, 3);
+    NotSupportedException invalidScroll = AssertThrows<NotSupportedException>(
+        () => RoomScrollGrid.LoadExplicit(
+            invalidBus, source, widthInScreens: 1, heightInScreens: 1),
+        "unknown logical room scroll state fails loudly");
+    AssertTrue(invalidScroll.Message.Contains("$03", StringComparison.Ordinal) &&
+        invalidScroll.Message.Contains("logical cell 0", StringComparison.Ordinal),
+        "unknown scroll diagnostic identifies value and logical cell");
+
     var camera = new ScrollBoundaryCamera(grid);
 
     // Right: the screen to the right is red, so the attempted +16 is rejected and the
     // routine's deliberate extra two-pixel retreat clamps the signed underflow to zero.
-    grid.SetLogicalCell(1, 0, 0);
+    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
     camera.SetPosition(0, 0);
     camera.MoveRight(16);
     AssertEqual(0, camera.XPosition, "$80:A641 red boundary moving right");
@@ -308,8 +321,8 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Down: a blue current cell over a red lower cell rejects the move and retreats two
     // pixels above the pre-move position (224 -> proposed 240 -> result 222).
-    grid.SetLogicalCell(0, 0, 1);
-    grid.SetLogicalCell(0, 1, 0);
+    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
+    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
     camera.SetPosition(0, 224);
     camera.MoveDown(16);
     AssertEqual(222, camera.YPosition, "$80:A893 red boundary moving down");
@@ -320,7 +333,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     AssertEqual(274, camera.YPosition, "$80:A936 red boundary moving up");
 
     // Physical right edge is (width-1)*$100 regardless of the scroll padding bytes.
-    grid.SetLogicalCell(1, 0, 1);
+    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
     camera.SetPosition(0x01f8, 0);
     camera.MoveRight(16);
     AssertEqual(0x0200, camera.XPosition, "scroll camera physical room maximum");
@@ -328,8 +341,8 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     // Issue #12's slot-one capture is Construction Zone immediately after returning from
     // First Missile. Its room header starts `[blue, red]`; the incoming door points at
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
-    grid.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
-    grid.SetLogicalCell(0, 1, (byte)RoomScrollState.RedBoundary);
+    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
+    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorCodes.DoorASM_Scroll_0_Green_1_Blue,
         DoorPointers.ConstructionZoneFromFirstMissile,
@@ -338,7 +351,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
         "$8F:BE25 writes Construction Zone screen zero green");
     AssertEqual((byte)RoomScrollState.Blue, grid.ReadStorage(1),
         "$8F:BE25 writes Construction Zone screen one blue");
-    grid.SetStorage(6, (byte)RoomScrollState.RedBoundary);
+    grid.SetStorage(6, RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorCodes.DoorCode_Scroll6_Green,
         DoorPointers.ParlorFromClimb,
@@ -350,7 +363,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     // restores ordinary PPU state but performs no writes to the destination scroll array.
     // The scroll interpreter must accept it without corrupting an otherwise valid grid;
     // runtime-owned Mode-7 state is cleared by the paired door dispatcher.
-    grid.SetStorage(7, (byte)RoomScrollState.Blue);
+    grid.SetStorage(7, RoomScrollState.Blue);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorCodes.DoorASM_FromCeresElevatorShaft,
         DoorPointers.FromCeresElevatorShaft,
@@ -417,8 +430,8 @@ static void VerifyMovedSamusCameraTracking()
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
     // samples, the bank-$90 distance routine still produces speed 1; autoscroll then adds
     // its own two pixels. A red current cell with a blue neighbor therefore drifts +3.
-    grid.SetLogicalCell(0, 0, 0);
-    grid.SetLogicalCell(1, 0, 1);
+    grid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
     camera.SetPosition(0x0020, 0);
     var stationary = new SamusCameraPoint(200, 0, 200, 0);
     camera.TrackMovedSamusHorizontally(
@@ -429,7 +442,7 @@ static void VerifyMovedSamusCameraTracking()
     AssertEqual(0x0023, camera.XPosition, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
-    grid.SetLogicalCell(1, 0, 0);
+    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
     camera.SetPosition(0x0020, 0);
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -439,7 +452,7 @@ static void VerifyMovedSamusCameraTracking()
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
     // speed. It is intentionally not a blanket prohibition on moved-axis handling.
-    grid.SetLogicalCell(1, 0, 1);
+    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
     camera.SetPosition(0x0020, 0);
     camera.TrackMovedSamusHorizontally(
         stationary,
@@ -477,8 +490,8 @@ static void VerifyMovedSamusCameraTracking()
         source,
         widthInScreens: 3,
         heightInScreens: 3);
-    verticalGrid.SetLogicalCell(0, 0, 0);
-    verticalGrid.SetLogicalCell(0, 1, 1);
+    verticalGrid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
+    verticalGrid.SetLogicalState(0, 1, RoomScrollState.Blue);
     var verticalCamera = new ScrollBoundaryCamera(verticalGrid);
     verticalCamera.SetPosition(0, 0x0020);
     verticalCamera.TrackMovedSamusVertically(

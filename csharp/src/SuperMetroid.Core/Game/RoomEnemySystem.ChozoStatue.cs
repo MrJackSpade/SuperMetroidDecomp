@@ -96,7 +96,7 @@ public sealed partial class RoomEnemySystem
         new ChozoStatueState?[MaximumEnemyCount];
     private readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
     private Action<bool>? _setSamusControlsEnabled;
-    private Action<int, byte>? _setRoomScrollByte;
+    private Action<int, RoomScrollState>? _setRoomScrollState;
 
     /// <summary>Typed per-slot state; non-statue slots contain null.</summary>
     public IReadOnlyList<ChozoStatueState?> ChozoStatueStates => _chozoStatueStates;
@@ -125,12 +125,12 @@ public sealed partial class RoomEnemySystem
 
     private void ResetChozoStatueRoomState(
         Action<bool>? setSamusControlsEnabled,
-        Action<int, byte>? setRoomScrollByte)
+        Action<int, RoomScrollState>? setRoomScrollState)
     {
         Array.Clear(_chozoStatueStates);
         _chozoStatuePlmRequests.Clear();
         _setSamusControlsEnabled = setSamusControlsEnabled;
-        _setRoomScrollByte = setRoomScrollByte;
+        _setRoomScrollState = setRoomScrollState;
         LastChozoStatueSoundEffect = null;
         ChozoStatueSamusControlsEnabled = true;
         ChozoStatueFxTimer = 0;
@@ -245,10 +245,10 @@ public sealed partial class RoomEnemySystem
             // $84:D620 performs two little-endian word stores before handing the statue to
             // $E7AE: scroll bytes 7/8 become green and 13/14 become blue. PLM $D6F8 then
             // queues the authored music/terrain transition in bank $84.
-            RequireSetRoomScrollByte(7, 2);
-            RequireSetRoomScrollByte(8, 2);
-            RequireSetRoomScrollByte(13, 1);
-            RequireSetRoomScrollByte(14, 1);
+            RequireSetRoomScrollState(7, RoomScrollState.Green);
+            RequireSetRoomScrollState(8, RoomScrollState.Green);
+            RequireSetRoomScrollState(13, RoomScrollState.Blue);
+            RequireSetRoomScrollState(14, RoomScrollState.Blue);
             PublishHardcodedChozoPlm(
                 WreckedShipWakePlm,
                 blockX: 0x17,
@@ -454,9 +454,9 @@ public sealed partial class RoomEnemySystem
         // The assembly performs overlapping 16-bit stores at raw scroll indexes 6, 8, 9,
         // and 13. Publish the resulting bytes (6..10 = 0, 13 = 1, 14 = 0) exactly.
         for (int index = 6; index <= 10; index++)
-            RequireSetRoomScrollByte(index, 0);
-        RequireSetRoomScrollByte(13, 1);
-        RequireSetRoomScrollByte(14, 0);
+            RequireSetRoomScrollState(index, RoomScrollState.RedBoundary);
+        RequireSetRoomScrollState(13, RoomScrollState.Blue);
+        RequireSetRoomScrollState(14, RoomScrollState.RedBoundary);
 
         PublishHardcodedChozoPlm(
             WreckedShipSpikeTerrainPlm,

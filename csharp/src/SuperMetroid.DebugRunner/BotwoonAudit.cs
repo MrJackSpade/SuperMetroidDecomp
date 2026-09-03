@@ -326,8 +326,8 @@ internal static partial class BotwoonAudit
             throw new InvalidDataException("Already-defeated Botwoon could not allocate $B797.");
 
         // `$B3:959E` is outside the PLM list and performs this store immediately.
-        assets.Scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
-        assets.Scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+        assets.Scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
+        assets.Scrolls.SetLogicalState(1, 0, RoomScrollState.Blue);
         plms.Step(bus, assets.LevelData, streamer, CameraX, CameraY, 0, assets.Scrolls);
         for (int row = 0; row < 9; row++)
         {

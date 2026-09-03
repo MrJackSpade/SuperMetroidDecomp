@@ -300,15 +300,18 @@ internal static partial class RetailEnemyExecutionAudit
             setAreaTorizoDefeated: () => { },
             isRoomPlmPresent: _ => false,
             setSamusControlsEnabled: _ => { },
-            setRoomScrollByte: (index, value) =>
+            setRoomScrollState: (index, state) =>
             {
                 if ((uint)index < (uint)roomScrollBytes.Length)
-                    roomScrollBytes[index] = value;
+                    roomScrollBytes[index] = (byte)state;
             },
             setAreaBossDefeated: () => { },
             incrementMotherBrainGlassRoomArgument: () => { },
-            readRoomScrollByte: index =>
-                (uint)index < (uint)roomScrollBytes.Length ? roomScrollBytes[index] : (byte)0,
+            readRoomScrollState: index =>
+                (uint)index < (uint)roomScrollBytes.Length
+                    ? RoomScrollStates.FromCartridge(
+                        roomScrollBytes[index], $"retail enemy audit scroll cell {index}")
+                    : RoomScrollState.RedBoundary,
             setMotherBrainLayerBlendingDefaultConfig: _ => { },
             setMotherBrainBg2Scroll: (_, _) => { });
 

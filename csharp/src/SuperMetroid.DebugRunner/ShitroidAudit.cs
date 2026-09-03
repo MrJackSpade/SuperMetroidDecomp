@@ -671,15 +671,18 @@ internal static class ShitroidAudit
             setAreaTorizoDefeated: () => { },
             isRoomPlmPresent: _ => false,
             setSamusControlsEnabled: _ => { },
-            setRoomScrollByte: (index, value) =>
+            setRoomScrollState: (index, state) =>
             {
                 if ((uint)index < (uint)scrollBytes.Length)
-                    scrollBytes[index] = value;
+                    scrollBytes[index] = (byte)state;
             },
             setAreaBossDefeated: () => { },
             incrementMotherBrainGlassRoomArgument: () => { },
-            readRoomScrollByte: index =>
-                (uint)index < (uint)scrollBytes.Length ? scrollBytes[index] : (byte)0,
+            readRoomScrollState: index =>
+                (uint)index < (uint)scrollBytes.Length
+                    ? RoomScrollStates.FromCartridge(
+                        scrollBytes[index], $"Shitroid audit scroll cell {index}")
+                    : RoomScrollState.RedBoundary,
             setMotherBrainLayerBlendingDefaultConfig: _ => { },
             setMotherBrainBg2Scroll: (_, _) => { },
             cameraX: EncounterCameraX);

@@ -1200,8 +1200,8 @@ public sealed partial class RoomPlmSystem
                     }
                     // `$84:AB51` performs one 16-bit store of $0101 at Scrolls. Express the
                     // two raw leading cells semantically while retaining the same WRAM mirror.
-                    scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
-                    scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+                    scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
+                    scrolls.SetLogicalState(1, 0, RoomScrollState.Blue);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 

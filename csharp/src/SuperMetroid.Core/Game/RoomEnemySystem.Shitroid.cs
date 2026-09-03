@@ -324,7 +324,7 @@ public sealed partial class RoomEnemySystem
                 {
                     state.Function = ShitroidAiFunction.HoverNearSamus;
                     slot.Parameter2 = 1;
-                    SetShitroidScrollPair(1);
+                    SetShitroidScrollPair(RoomScrollState.Blue);
                     QueueShitroidWallPlms(RoomPlmHeaders.ClearBabyMetroidInvisibleWall);
                 }
                 return;
@@ -481,20 +481,20 @@ public sealed partial class RoomEnemySystem
         // into their adjacent bytes. The paired calls below preserve the observable four
         // byte scroll array without pretending that this is ordinary camera tracking.
         RequestedShitroidCameraX = 512;
-        SetShitroidScrollPair(0);
+        SetShitroidScrollPair(RoomScrollState.RedBoundary);
         QueueShitroidWallPlms(RoomPlmHeaders.CreateBabyMetroidInvisibleWall);
         state.Function = ShitroidAiFunction.BeginEntranceDelay;
         state.CryEnabled = 1;
     }
 
-    private void SetShitroidScrollPair(byte highByte)
+    private void SetShitroidScrollPair(RoomScrollState highState)
     {
-        byte scroll0 = RequireReadRoomScrollByte(0);
-        byte scroll2 = RequireReadRoomScrollByte(2);
-        RequireSetRoomScrollByte(0, scroll0);
-        RequireSetRoomScrollByte(1, highByte);
-        RequireSetRoomScrollByte(2, scroll2);
-        RequireSetRoomScrollByte(3, highByte);
+        RoomScrollState scroll0 = RequireReadRoomScrollState(0);
+        RoomScrollState scroll2 = RequireReadRoomScrollState(2);
+        RequireSetRoomScrollState(0, scroll0);
+        RequireSetRoomScrollState(1, highState);
+        RequireSetRoomScrollState(2, scroll2);
+        RequireSetRoomScrollState(3, highState);
     }
 
     private void QueueShitroidWallPlms(ushort header)

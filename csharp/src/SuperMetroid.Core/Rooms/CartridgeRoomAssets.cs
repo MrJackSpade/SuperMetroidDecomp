@@ -234,7 +234,9 @@ public sealed class CartridgeRoomAssets
                 bus,
                 header.WidthInScreens,
                 header.HeightInScreens,
-                unchecked((byte)(header.State.ScrollPointer + 1)));
+                RoomScrollStates.FromCartridge(
+                    unchecked((byte)(header.State.ScrollPointer + 1)),
+                    $"implicit scroll word ${header.State.ScrollPointer:X4}"));
     }
 
     private static ushort[] ReadWords(ReadOnlySpan<byte> bytes)

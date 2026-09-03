@@ -103,7 +103,7 @@ internal static class DoorScrollPrograms
             return false;
 
         foreach (DoorScrollWrite write in writes)
-            scrolls.SetStorage(write.StorageIndex, (byte)write.State);
+            scrolls.SetStorage(write.StorageIndex, write.State);
         return true;
     }
 

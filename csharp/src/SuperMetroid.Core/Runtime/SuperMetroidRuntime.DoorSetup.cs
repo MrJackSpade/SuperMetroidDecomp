@@ -170,8 +170,8 @@ internal static class DoorSetupCodeInterpreter
             case DoorCodes.DoorASM_ResetElevatubeOnSouthExit:
                 // $8F:E309 performs one 16-bit $0202 store at $7E:CD20. The typed grid
                 // expresses the same two green storage bytes before Samus is unlocked.
-                scrolls.SetStorage(0, (byte)RoomScrollState.Green);
-                scrolls.SetStorage(1, (byte)RoomScrollState.Green);
+                scrolls.SetStorage(0, RoomScrollState.Green);
+                scrolls.SetStorage(1, RoomScrollState.Green);
                 return;
 
             default:

@@ -72,7 +72,11 @@ public sealed partial class RoomPlmSystem
 
             byte value = bus.ReadByte(
                 (int)new SnesAddress(0x8f, unchecked((ushort)(cursor + 1))));
-            scrolls.SetStorage(scrollIndex, value);
+            scrolls.SetStorage(
+                scrollIndex,
+                RoomScrollStates.FromCartridge(
+                    value,
+                    $"scroll PLM program $8F:{slot.RoomArgument:X4} pair {pairIndex}"));
             cursor = unchecked((ushort)(cursor + 2));
         }
 

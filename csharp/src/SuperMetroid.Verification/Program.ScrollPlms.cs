@@ -75,7 +75,8 @@ internal static partial class Program
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            bus, widthInScreens: 2, heightInScreens: 2, lastRowValue: 0);
+            bus, widthInScreens: 2, heightInScreens: 2,
+            lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 
         // A direct touch wakes the resident object. Its next handler pass interprets the
@@ -93,7 +94,7 @@ internal static partial class Program
         // Place a seven-pixel-tall test body immediately left of the right extension. The
         // normal horizontal scanner reaches type five, follows signed BTS `$FF` to the
         // origin, and executes the same `$B393` wakeup—there is no route-specific callback.
-        scrolls.SetStorage(1, 0);
+        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
         var body = new SamusKinematicsState
         {
             XPosition = 56,
@@ -119,7 +120,7 @@ internal static partial class Program
         // the composition seam that originally dropped RoomPlmSystem while ordinary Samus
         // movement passed it correctly: type-five resolves to the resident `$B703` owner,
         // and the ball remains controller/collision driven throughout the call.
-        scrolls.SetStorage(1, 0);
+        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
         WritePoseDefinition(bus, SamusPoseIds.MorphBallGroundRightPose,
             [0x08, 0x04, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
         var ball = new SamusState

@@ -46,11 +46,11 @@ public sealed partial class RoomEnemySystem
         (_isRoomPlmPresent ?? throw MissingService("query the active room PLM population"))(
             headerPointer);
 
-    internal void RequireSetRoomScrollByte(int index, byte value) =>
-        (_setRoomScrollByte ?? throw MissingService("write a room scroll byte"))(index, value);
+    internal void RequireSetRoomScrollState(int index, RoomScrollState state) =>
+        (_setRoomScrollState ?? throw MissingService("write a room scroll state"))(index, state);
 
-    internal byte RequireReadRoomScrollByte(int index) =>
-        (_readMotherBrainRoomScrollByte ?? throw MissingService("read a room scroll byte"))(
+    internal RoomScrollState RequireReadRoomScrollState(int index) =>
+        (_readMotherBrainRoomScrollState ?? throw MissingService("read a room scroll state"))(
             index);
 
     internal void RequireSetSamusControlsEnabled(bool enabled) =>

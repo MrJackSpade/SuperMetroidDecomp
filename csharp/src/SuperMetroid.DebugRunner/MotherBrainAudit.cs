@@ -295,8 +295,9 @@ internal static class MotherBrainAudit
             samus: samus,
             isAreaBossDefeated: () => false,
             hasEvent: eventNumber => eventNumber == EventNumber.MotherBrainGlassDestroyed,
-            setRoomScrollByte: (index, value) => scrollBytes[index] = value,
-            readRoomScrollByte: index => scrollBytes[index],
+            setRoomScrollState: (index, state) => scrollBytes[index] = (byte)state,
+            readRoomScrollState: index => RoomScrollStates.FromCartridge(
+                scrollBytes[index], $"Mother Brain audit scroll cell {index}"),
             setMotherBrainLayerBlendingDefaultConfig:
                 value => observedLayerBlendingConfig = value,
             setMotherBrainBg2Scroll: (x, y) =>

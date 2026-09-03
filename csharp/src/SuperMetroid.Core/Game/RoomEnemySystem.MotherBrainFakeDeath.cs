@@ -32,8 +32,8 @@ public sealed partial class RoomEnemySystem
     private static readonly ushort[] MotherBrainFallingTubeFloor = [0x00f8, 0x00f8, 0x00f0, 0x00f0, 0x00f6];
     private static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
-    private Func<int, byte>? _readMotherBrainRoomScrollByte;
-    private Action<int, byte>? _setMotherBrainRoomScrollByte;
+    private Func<int, RoomScrollState>? _readMotherBrainRoomScrollState;
+    private Action<int, RoomScrollState>? _setMotherBrainRoomScrollState;
 
     /// <summary>Dispatches the body pointer after the phase-one function changes to $881D.</summary>
     private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState? samus)
@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
         requiredSamus.InputLocked = true;
-        RequireSetRoomScrollByte(1, RequireReadRoomScrollByte(0));
+        RequireSetRoomScrollState(1, RequireReadRoomScrollState(0));
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;
         state.FunctionTimer = 32;

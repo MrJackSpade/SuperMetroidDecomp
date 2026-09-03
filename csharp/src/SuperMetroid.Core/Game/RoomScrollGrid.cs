@@ -55,6 +55,12 @@ public sealed class RoomScrollGrid
         for (int index = 0; index < StorageByteCount; index++)
         {
             byte value = bus.ReadByte((int)source.AddWithinBank(index));
+            if (index < grid.LogicalCellCount)
+            {
+                _ = RoomScrollStates.FromCartridge(
+                    value,
+                    $"scroll table {source} logical cell {index}");
+            }
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }
@@ -71,7 +77,7 @@ public sealed class RoomScrollGrid
     /// </summary>
     /// <remarks>
     /// This is the literal nested loop at $82:E84A: every row begins as blue/green value
-    /// two, while the final row receives the low byte of <paramref name="lastRowValue" />.
+    /// two, while the final row receives <paramref name="lastRowState" />.
     /// The remaining bytes in the fixed 50-byte WRAM allocation are cleared because this
     /// path constructs the buffer rather than copying adjacent ROM bytes into all 50 slots.
     /// </remarks>
@@ -79,15 +85,18 @@ public sealed class RoomScrollGrid
         ISnesAddressSpace bus,
         int widthInScreens,
         int heightInScreens,
-        byte lastRowValue)
+        RoomScrollState lastRowState)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
         var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
         for (int index = 0; index < StorageByteCount; index++)
         {
             byte value = index < grid.LogicalCellCount
-                ? (index / widthInScreens == heightInScreens - 1 ? lastRowValue : (byte)2)
-                : (byte)0;
+                ? (byte)(index / widthInScreens == heightInScreens - 1
+                    ? lastRowState
+                    : RoomScrollState.Green)
+                : (byte)RoomScrollState.RedBoundary;
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }
@@ -135,27 +144,23 @@ public sealed class RoomScrollGrid
     /// literal WRAM indexes rather than logical room coordinates, so this seam preserves their
     /// overlapping word stores without reverse-engineering them into guessed screen cells.
     /// </summary>
-    public void SetStorage(int index, byte value)
+    public void SetStorage(int index, RoomScrollState state)
     {
         if ((uint)index >= StorageByteCount)
             throw new ArgumentOutOfRangeException(nameof(index));
-        _cells[index] = value;
-        _bus.WriteByte(WorkRamAddress + index, value);
+        RoomScrollStates.Validate(state, nameof(state));
+        _cells[index] = (byte)state;
+        _bus.WriteByte(WorkRamAddress + index, (byte)state);
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
-    public void SetLogicalCell(int x, int y, byte value)
+    public void SetLogicalState(int x, int y, RoomScrollState state)
     {
         if ((uint)x >= WidthInScreens || (uint)y >= HeightInScreens)
             throw new ArgumentOutOfRangeException(nameof(x));
-        if (value > 2)
-            throw new ArgumentOutOfRangeException(nameof(value), "Known room scroll values are red=0, blue=1, or green=2.");
+        RoomScrollStates.Validate(state, nameof(state));
         int index = y * WidthInScreens + x;
-        _cells[index] = value;
-        _bus.WriteByte(WorkRamAddress + index, value);
+        _cells[index] = (byte)state;
+        _bus.WriteByte(WorkRamAddress + index, (byte)state);
     }
-
-    /// <summary>Semantic setter for known red, blue, and green scroll states.</summary>
-    public void SetLogicalState(int x, int y, RoomScrollState state) =>
-        SetLogicalCell(x, y, (byte)state);
 }

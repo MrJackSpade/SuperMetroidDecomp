@@ -162,10 +162,10 @@ public sealed partial class RoomEnemySystem
         Action? setAreaTorizoDefeated = null,
         Func<ushort, bool>? isRoomPlmPresent = null,
         Action<bool>? setSamusControlsEnabled = null,
-        Action<int, byte>? setRoomScrollByte = null,
+        Action<int, RoomScrollState>? setRoomScrollState = null,
         Action? setAreaBossDefeated = null,
         Action? incrementMotherBrainGlassRoomArgument = null,
-        Func<int, byte>? readRoomScrollByte = null,
+        Func<int, RoomScrollState>? readRoomScrollState = null,
         Action<ushort>? setMotherBrainLayerBlendingDefaultConfig = null,
         Action<ushort, ushort>? setMotherBrainBg2Scroll = null,
         GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary)
@@ -188,8 +188,8 @@ public sealed partial class RoomEnemySystem
         _isAreaBossDefeated = isAreaBossDefeated;
         _setAreaBossDefeated = setAreaBossDefeated;
         _incrementMotherBrainGlassRoomArgument = incrementMotherBrainGlassRoomArgument;
-        _readMotherBrainRoomScrollByte = readRoomScrollByte;
-        _setMotherBrainRoomScrollByte = setRoomScrollByte;
+        _readMotherBrainRoomScrollState = readRoomScrollState;
+        _setMotherBrainRoomScrollState = setRoomScrollState;
         _setMotherBrainLayerBlendingDefaultConfig = setMotherBrainLayerBlendingDefaultConfig;
         _setMotherBrainBg2Scroll = setMotherBrainBg2Scroll;
         _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
@@ -243,7 +243,7 @@ public sealed partial class RoomEnemySystem
         ResetBombTorizoRoomState();
         ResetTourianEntranceStatueRoomState();
         ResetShaktoolRoomState();
-        ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollByte);
+        ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollState);
         ResetEscapeAnimalRoomState();
         ResetCrocomireRoomState();
         ResetSporeSpawnRoomState();

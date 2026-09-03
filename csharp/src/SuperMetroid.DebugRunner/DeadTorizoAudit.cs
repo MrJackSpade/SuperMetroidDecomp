@@ -204,10 +204,10 @@ internal static class DeadTorizoAudit
             setAreaTorizoDefeated: () => { },
             isRoomPlmPresent: _ => false,
             setSamusControlsEnabled: _ => { },
-            setRoomScrollByte: (_, _) => { },
+            setRoomScrollState: (_, _) => { },
             setAreaBossDefeated: () => { },
             incrementMotherBrainGlassRoomArgument: () => { },
-            readRoomScrollByte: _ => 0,
+            readRoomScrollState: _ => RoomScrollState.RedBoundary,
             setMotherBrainLayerBlendingDefaultConfig: _ => { },
             setMotherBrainBg2Scroll: (_, _) => { });
 

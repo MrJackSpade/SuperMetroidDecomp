@@ -160,10 +160,10 @@ public sealed partial class RoomEnemySystem
             slot.YPosition = 0x0090;
             slot.XRadius = 0x0028;
             slot.YRadius = 0x001c;
-            RequireSetRoomScrollByte(0, 1);
-            RequireSetRoomScrollByte(1, 1);
-            RequireSetRoomScrollByte(2, 1);
-            RequireSetRoomScrollByte(3, 1);
+            RequireSetRoomScrollState(0, RoomScrollState.Blue);
+            RequireSetRoomScrollState(1, RoomScrollState.Blue);
+            RequireSetRoomScrollState(2, RoomScrollState.Blue);
+            RequireSetRoomScrollState(3, RoomScrollState.Blue);
             PublishCrocomirePlm(0x20, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
             PublishCrocomirePlm(0x1e, 0x03, RoomPlmHeaders.ClearCrocomireInvisibleWall);
             PublishCrocomirePlm(0x61, 0x0b, RoomPlmHeaders.ClearCrocomireBridge);
@@ -177,8 +177,8 @@ public sealed partial class RoomEnemySystem
         InstallCrocomireInstructionList(slot, CrocomireInitialInstructionList);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        RequireSetRoomScrollByte(0, 0);
-        RequireSetRoomScrollByte(1, 0);
+        RequireSetRoomScrollState(0, RoomScrollState.RedBoundary);
+        RequireSetRoomScrollState(1, RoomScrollState.RedBoundary);
 
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare

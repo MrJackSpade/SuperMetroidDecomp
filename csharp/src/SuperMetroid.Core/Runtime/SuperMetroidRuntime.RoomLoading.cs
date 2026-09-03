@@ -794,9 +794,9 @@ public sealed partial class SuperMetroidRuntime
             setAreaTorizoDefeated: () =>
                 System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
             setSamusControlsEnabled: enabled => GroundedSamusMovementEnabled = enabled,
-            setRoomScrollByte: (index, value) => Camera.Scrolls.SetStorage(index, value),
+            setRoomScrollState: Camera.Scrolls.SetStorage,
             incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
-            readRoomScrollByte: index => Camera.Scrolls.ReadStorage(index),
+            readRoomScrollState: Camera.Scrolls.ReadState,
             setMotherBrainLayerBlendingDefaultConfig:
                 value => LayerBlendingDefaultConfig = value,
             setMotherBrainBg2Scroll:
@@ -937,8 +937,8 @@ public sealed partial class SuperMetroidRuntime
             // The already-defeated branch performs this 16-bit `$0101` store directly in
             // `$B3:959E`; unlike the live crumble PLM, it does not wait for instruction
             // `$84:AB51` during the first handler pass.
-            Camera.Scrolls.SetLogicalCell(0, 0, (byte)RoomScrollState.Blue);
-            Camera.Scrolls.SetLogicalCell(1, 0, (byte)RoomScrollState.Blue);
+            Camera.Scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
+            Camera.Scrolls.SetLogicalState(1, 0, RoomScrollState.Blue);
         }
     }
 

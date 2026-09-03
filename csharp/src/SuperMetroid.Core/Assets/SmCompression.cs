@@ -17,7 +17,9 @@ public static class SmCompression
     /// Decompresses exactly one complete stream. Trailing data is rejected because each
     /// extracted <c>.bin</c> is expected to contain one asset and nothing else.
     /// </summary>
-    public static byte[] Decompress(ReadOnlySpan<byte> source, int maximumOutputBytes = 4 * 1024 * 1024)
+    public static byte[] Decompress(
+        ReadOnlySpan<byte> source,
+        int maximumOutputBytes = SmCompressionFormat.DefaultMaximumOutputBytes)
     {
         if (!TryDecompress(source, out byte[] output, out int consumed, maximumOutputBytes) || consumed != source.Length)
             throw new InvalidDataException("Input is not one complete Super Metroid compressed stream.");
@@ -28,7 +30,7 @@ public static class SmCompression
         ReadOnlySpan<byte> source,
         out byte[] output,
         out int consumed,
-        int maximumOutputBytes = 4 * 1024 * 1024)
+        int maximumOutputBytes = SmCompressionFormat.DefaultMaximumOutputBytes)
     {
         // ReadOnlySpan cannot be captured by a local function. Owning this small copy keeps
         // Next() readable and also prevents a caller from mutating input during decoding.
@@ -61,36 +63,28 @@ public static class SmCompression
 
         while (Next(out byte header))
         {
-            if (header == 0xff)
+            if (header == SmCompressionFormat.Terminator)
             {
                 output = destination.ToArray();
                 consumed = input;
                 return true;
             }
 
-            int command;
-            int length;
-            if ((header & 0xe0) == 0xe0)
+            byte? longLength = null;
+            if (SmCompressionFormat.IsLongHeader(header))
             {
                 if (!Next(out byte lowLength))
                     break;
-                // In a long header, bits 2-4 hold the command and bits 0-1 become the
-                // high two bits of (length - 1). This expression matches the 65816 code.
-                command = (header << 3) & 0xe0;
-                length = (((header & 3) << 8) | lowLength) + 1;
+                longLength = lowLength;
             }
-            else
-            {
-                command = header & 0xe0;
-                length = (header & 0x1f) + 1;
-            }
+            SmCompressionHeader decoded = SmCompressionHeader.Decode(header, longLength);
 
             // Commands 4-7 copy bytes already emitted to the destination. Overlapping
             // copies are intentional and work like LZSS/RLE expansion, one byte at a time.
-            if ((command & 0x80) != 0)
+            if (decoded.IsCopy)
             {
                 int copyFrom;
-                if (command >= 0xc0)
+                if (decoded.IsRelativeCopy)
                 {
                     // Relative commands encode a one-byte backwards distance.
                     if (!Next(out byte distance) || distance == 0)
@@ -106,22 +100,21 @@ public static class SmCompression
                 }
 
                 // Commands 5 and 7 XOR every copied byte with $FF.
-                bool invert = (command & 0x20) != 0;
-                for (int i = 0; i < length; i++, copyFrom++)
+                for (int i = 0; i < decoded.Length; i++, copyFrom++)
                 {
                     if ((uint)copyFrom >= (uint)destination.Count)
                         goto Invalid;
                     byte value = destination[copyFrom];
-                    if (!Append(invert ? (byte)~value : value))
+                    if (!Append(decoded.InvertsCopiedBytes ? (byte)~value : value))
                         goto Invalid;
                 }
                 continue;
             }
 
-            switch ((SmCompressionCommand)command)
+            switch (decoded.Command)
             {
                 case SmCompressionCommand.Literal:
-                    for (int i = 0; i < length; i++)
+                    for (int i = 0; i < decoded.Length; i++)
                     {
                         if (!Next(out byte value) || !Append(value))
                             goto Invalid;
@@ -131,21 +124,21 @@ public static class SmCompression
                 case SmCompressionCommand.RepeatByte:
                     if (!Next(out byte repeated))
                         goto Invalid;
-                    for (int i = 0; i < length; i++)
+                    for (int i = 0; i < decoded.Length; i++)
                         if (!Append(repeated)) goto Invalid;
                     break;
 
                 case SmCompressionCommand.AlternatePair:
                     if (!Next(out byte first) || !Next(out byte second))
                         goto Invalid;
-                    for (int i = 0; i < length; i++)
+                    for (int i = 0; i < decoded.Length; i++)
                         if (!Append((i & 1) == 0 ? first : second)) goto Invalid;
                     break;
 
                 case SmCompressionCommand.IncrementingSequence:
                     if (!Next(out byte initial))
                         goto Invalid;
-                    for (int i = 0; i < length; i++)
+                    for (int i = 0; i < decoded.Length; i++)
                         if (!Append((byte)(initial + i))) goto Invalid;
                     break;
 

@@ -33,6 +33,7 @@ VerifyTimedHeldInputTimeline();
 VerifyEventBitfield();
 VerifyBossBitfield();
 VerifyMultiplicationExhaustively();
+VerifySmCompressionFormat();
 VerifyVramWriteQueue();
 VerifyEscapeTimerBcd();
 VerifyEscapeTimerStateMachine();

@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Assets;
 /// Three-bit command field from the native Super Metroid compressed-stream format.
 /// Values occupy bits 5-7 in both short and expanded command headers.
 /// </summary>
-internal enum SmCompressionCommand : byte
+public enum SmCompressionCommand : byte
 {
     /// <summary>Copy literal bytes from the compressed stream.</summary>
     Literal = 0x00,

@@ -1,4 +1,5 @@
 using SuperMetroid.RoomViewer;
+using SuperMetroid.Desktop;
 using System.Runtime.InteropServices;
 
 // WinForms supplies a convenient zero-dependency debug shell on this Windows workstation.
@@ -14,28 +15,9 @@ NativeViewerProcess.SetErrorMode(
     NativeViewerProcess.SemNoGpFaultErrorBox |
     NativeViewerProcess.SemNoOpenFileErrorBox);
 
-// WinForms normally converts exceptions thrown by control event handlers into its own modal
-// dialog. Route them into the same stderr/exit-code contract as console-hosted tools instead.
-// Application.ExitThread unwinds the message loop after the exception has been printed, so a
-// failed frame cannot leave a half-responsive viewer process behind.
-Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-Application.ThreadException += (_, eventArguments) =>
-{
-    Console.Error.WriteLine(eventArguments.Exception);
-    Environment.ExitCode = 1;
-    Application.ExitThread();
-};
-
-// A non-UI worker-thread failure cannot be recovered safely, but writing it here makes the
-// complete managed exception visible before the runtime terminates the process. SetErrorMode
-// above ensures that termination does not hand control to a focus-stealing Windows dialog.
-AppDomain.CurrentDomain.UnhandledException += (_, eventArguments) =>
-{
-    if (eventArguments.ExceptionObject is Exception exception)
-        Console.Error.WriteLine(exception);
-    else
-        Console.Error.WriteLine($"Unhandled non-Exception object: {eventArguments.ExceptionObject}");
-};
+// Use the same fatal boundary as the playable executable. The full exception remains visible
+// in this console until Enter is pressed, regardless of which managed thread failed.
+UnhandledExceptionConsole.InstallWinFormsHandlers();
 
 ApplicationConfiguration.Initialize();
 
@@ -46,11 +28,7 @@ try
 }
 catch (Exception exception)
 {
-    // Catch every managed startup/message-loop failure at the process boundary. ToString()
-    // preserves the exception type, message, inner exception, and full stack trace, while the
-    // explicit exit code keeps Visual Studio, scripts, and CI aware that the run failed.
-    Console.Error.WriteLine(exception);
-    return 1;
+    return UnhandledExceptionConsole.ReportAndWait(exception);
 }
 
 return Environment.ExitCode;

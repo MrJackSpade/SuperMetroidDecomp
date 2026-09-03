@@ -11,27 +11,30 @@ NativeGameProcess.SetErrorMode(
     NativeGameProcess.SemNoGpFaultErrorBox |
     NativeGameProcess.SemNoOpenFileErrorBox);
 
-// WinForms normally turns exceptions from control event handlers into modal dialogs. Route
-// them through the executable's console contract so failures remain copyable and searchable.
-Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-Application.ThreadException += (_, eventArguments) =>
-{
-    Console.Error.WriteLine(eventArguments.Exception);
-    Environment.ExitCode = 1;
-    Application.ExitThread();
-};
-AppDomain.CurrentDomain.UnhandledException += (_, eventArguments) =>
-{
-    if (eventArguments.ExceptionObject is Exception exception)
-        Console.Error.WriteLine(exception);
-    else
-        Console.Error.WriteLine($"Unhandled non-Exception object: {eventArguments.ExceptionObject}");
-};
+// Install one shared process boundary before WinForms creates a window. UI callbacks,
+// background threads, startup failures, and message-loop failures therefore all retain their
+// complete console diagnostic and wait for Enter instead of disappearing immediately.
+UnhandledExceptionConsole.InstallWinFormsHandlers();
 
 ApplicationConfiguration.Initialize();
 
 try
 {
+    if (args.Length != 0 &&
+        args[0].Equals("--unhandled-exception-console-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+        {
+            throw new ArgumentException(
+                "--unhandled-exception-console-audit does not accept additional arguments.");
+        }
+        UnhandledExceptionConsoleSmokeTestResult result = UnhandledExceptionConsoleSmokeTest.Run();
+        Console.WriteLine(
+            $"Unhandled-exception console passed: complete {result.ReportLength}-character " +
+            "diagnostic was flushed before the acknowledgment wait.");
+        return 0;
+    }
+
     if (args.Length != 0 &&
         args[0].Equals("--keyboard-input-audit", StringComparison.OrdinalIgnoreCase))
     {
@@ -189,8 +192,7 @@ try
 }
 catch (Exception exception)
 {
-    Console.Error.WriteLine(exception);
-    return 1;
+    return UnhandledExceptionConsole.ReportAndWait(exception);
 }
 
 return Environment.ExitCode;

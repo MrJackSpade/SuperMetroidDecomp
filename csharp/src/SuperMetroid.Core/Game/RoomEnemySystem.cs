@@ -34,9 +34,9 @@ public sealed partial class RoomEnemySystem
     private Func<bool>? _isAreaBossDefeated;
     private Action? _setAreaBossDefeated;
     private Func<bool>? _isAreaMiniBossDefeated;
-    private Func<int, bool>? _hasEvent;
-    private Action<int>? _setEvent;
-    private Action<int>? _clearEvent;
+    private Func<EventNumber, bool>? _hasEvent;
+    private Action<EventNumber>? _setEvent;
+    private Action<EventNumber>? _clearEvent;
     private Action? _setAreaMiniBossDefeated;
     private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
@@ -153,9 +153,9 @@ public sealed partial class RoomEnemySystem
         Func<bool>? isAreaBossDefeated = null,
         ushort cameraX = 0,
         ushort cameraY = 0,
-        Func<int, bool>? hasEvent = null,
-        Action<int>? setEvent = null,
-        Action<int>? clearEvent = null,
+        Func<EventNumber, bool>? hasEvent = null,
+        Action<EventNumber>? setEvent = null,
+        Action<EventNumber>? clearEvent = null,
         Func<bool>? isAreaMiniBossDefeated = null,
         Action? setAreaMiniBossDefeated = null,
         Func<bool>? isAreaTorizoDefeated = null,
@@ -2294,7 +2294,7 @@ public sealed partial class RoomEnemySystem
         // Event $0E is set by Mother Brain's death sequence. Native bypasses every refill
         // and save-prompt branch here, installs the takeoff tile uploader, and keeps the
         // already hidden/input-locked Samus rigidly attached to the ship.
-        if (RequireEvent((int)EventNumber.ZebesTimebombSet))
+        if (RequireEvent(EventNumber.ZebesTimebombSet))
         {
             RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
             top.VariableF = GunshipCodePointers.LoadLiftoffDustTiles;

@@ -115,7 +115,7 @@ public sealed partial class RoomPlmSystem
             {
                 (_greyDoorSystem ?? throw new InvalidOperationException(
                     "A resident grey door has no progression-state owner."))
-                    .SetEvent((int)EventNumber.ZebesAwake);
+                    .SetEvent(EventNumber.ZebesAwake);
             }
 
             // Goto_Link_Instruction clears shot status, sets timer one, and selects the
@@ -178,7 +178,7 @@ public sealed partial class RoomPlmSystem
             GreyDoorCondition.TourianStatueFinished =>
                 _isTourianStatueFinished?.Invoke() == true,
             GreyDoorCondition.CrittersEscaped =>
-                system.HasEvent((int)EventNumber.CrittersEscaped),
+                system.HasEvent(EventNumber.CrittersEscaped),
             _ => throw new InvalidDataException(
                 $"Unknown grey-door condition {(byte)condition}.")
         };

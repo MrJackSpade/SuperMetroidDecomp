@@ -50,8 +50,8 @@ public sealed partial class RoomPlmSystem
         Func<bool> isAreaTorizoDefeated,
         Func<bool>? isTourianStatueFinished = null,
         Func<byte, bool>? hasAreaBossBit = null,
-        Func<int, bool>? hasEvent = null,
-        Action<int>? setEvent = null)
+        Func<EventNumber, bool>? hasEvent = null,
+        Action<EventNumber>? setEvent = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);

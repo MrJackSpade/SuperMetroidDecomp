@@ -13,13 +13,11 @@ public sealed partial class RoomPlmSystem
 {
     private const ushort MotherBrainGlassPreInstruction = 0xd1e6;
     private const ushort MotherBrainGlassShardDefinition = 0xcefc;
-    private const int MotherBrainGlassDestroyedEvent = 2;
-
     private readonly List<MotherBrainGlassProjectileRequest>
         _motherBrainGlassProjectileRequests = new();
     private Func<byte, bool>? _motherBrainHasAreaBossBit;
-    private Func<int, bool>? _motherBrainHasEvent;
-    private Action<int>? _motherBrainSetEvent;
+    private Func<EventNumber, bool>? _motherBrainHasEvent;
+    private Action<EventNumber>? _motherBrainSetEvent;
     private int _motherBrainGlassSlotIndex = -1;
     private bool _motherBrainGlassWasLoaded;
     private bool _motherBrainGlassWasDeleted;
@@ -175,8 +173,9 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstructionCodes.GotoIfEventSet:
                 ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
+                EventNumber namedEvent = ResolveMotherBrainGlassEvent(eventNumber);
                 ushort eventTarget = ReadBank84Word(bus, unchecked((ushort)(cursor + 4)));
-                slot.InstructionPointer = _motherBrainHasEvent?.Invoke(eventNumber) == true
+                slot.InstructionPointer = _motherBrainHasEvent?.Invoke(namedEvent) == true
                     ? eventTarget
                     : unchecked((ushort)(cursor + 6));
                 return true;
@@ -209,19 +208,31 @@ public sealed partial class RoomPlmSystem
 
             case RoomPlmInstructionCodes.SetEvent:
                 ushort setEventNumber = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
-                if (setEventNumber != MotherBrainGlassDestroyedEvent)
-                {
-                    throw new InvalidDataException(
-                        $"Mother Brain glass attempted to set event {setEventNumber}, not event 2.");
-                }
+                EventNumber eventToSet = ResolveMotherBrainGlassEvent(setEventNumber);
                 (_motherBrainSetEvent ?? throw new InvalidOperationException(
-                    "Mother Brain glass has no event writer."))(setEventNumber);
+                    "Mother Brain glass has no event writer."))(eventToSet);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
 
             default:
                 return false;
         }
+    }
+
+    /// <summary>
+    /// The translated glass program is only valid for the proven event-$02 operand used by
+    /// the retail instruction stream. A changed ROM operand is corruption or unported code,
+    /// not permission to leak an integer into the named event API.
+    /// </summary>
+    private static EventNumber ResolveMotherBrainGlassEvent(ushort eventNumber)
+    {
+        if (eventNumber != (ushort)EventNumber.MotherBrainGlassDestroyed)
+        {
+            throw new InvalidDataException(
+                $"Mother Brain glass referenced event {eventNumber}, not the proven glass-destroyed event.");
+        }
+
+        return EventNumber.MotherBrainGlassDestroyed;
     }
 
     private int _motherBrainGlassRoomWidth;

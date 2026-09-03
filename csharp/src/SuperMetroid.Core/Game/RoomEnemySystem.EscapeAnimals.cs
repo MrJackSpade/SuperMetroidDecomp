@@ -78,8 +78,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort EscapeDachoraDefinition = 0xf313;
 
     private const int EscapeAnimalBank = 0xb30000;
-    private const int CrittersEscapedEvent = (int)EventNumber.CrittersEscaped;
-
     private const ushort EmptyBankB3Spritemap = 0x804d;
     private const ushort EscapeEtecoonLeftWalkList = 0xe556;
     private const ushort EscapeEtecoonRightWalkList = 0xe582;
@@ -323,7 +321,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private bool HasCrittersEscaped() => RequireEvent(CrittersEscapedEvent);
+    private bool HasCrittersEscaped() => RequireEvent(EventNumber.CrittersEscaped);
 
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;

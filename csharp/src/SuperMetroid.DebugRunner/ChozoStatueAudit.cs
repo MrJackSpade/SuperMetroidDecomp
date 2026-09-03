@@ -432,7 +432,7 @@ internal static class ChozoStatueAudit
             level: assets.LevelData,
             samus: samus,
             isAreaBossDefeated: () => bossDefeated,
-            setEvent: capturedEvents.Add,
+            setEvent: eventNumber => capturedEvents.Add((int)eventNumber),
             setSamusControlsEnabled: capturedControls.Add,
             setRoomScrollByte: (index, value) => capturedScrolls[index] = value);
         return enemies;

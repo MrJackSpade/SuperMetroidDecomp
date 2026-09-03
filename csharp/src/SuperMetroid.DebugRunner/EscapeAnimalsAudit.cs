@@ -328,7 +328,7 @@ internal static class EscapeAnimalsAudit
         // with event $0E, which selected this room state. Dachora branches to $EA34; the
         // first two Etecoons switch at their next wall collision, while role two immediately
         // enters $E5DA and later installs the shared $E65C rightward escape pre-instruction.
-        loaded.System.SetEvent((int)EventNumber.CrittersEscaped);
+        loaded.System.SetEvent(EventNumber.CrittersEscaped);
         bool sawDachoraEscapeList = false;
         ushort dachoraXAtEvent = dachora.XPosition;
         for (int frame = 0; frame < 900; frame++)
@@ -428,9 +428,9 @@ internal static class EscapeAnimalsAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var system = new Bank80SystemState();
-        system.SetEvent((int)EventNumber.ZebesTimebombSet);
+        system.SetEvent(EventNumber.ZebesTimebombSet);
         if (crittersEscapedAtLoad)
-            system.SetEvent((int)EventNumber.CrittersEscaped);
+            system.SetEvent(EventNumber.CrittersEscaped);
 
         var samus = new SamusState
         {

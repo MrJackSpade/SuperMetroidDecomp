@@ -313,7 +313,17 @@ public sealed class Bank80SystemState
     /// <summary>
     /// Marks an event as having occurred, matching <c>$80:81FA</c>.
     /// </summary>
-    public void SetEvent(int eventNumber)
+    public void SetEvent(EventNumber eventNumber)
+    {
+        SetEventRaw(ResolveNamedEvent(eventNumber));
+    }
+
+    /// <summary>
+    /// Marks an event bit whose retail identity is not yet proven. Cartridge bytecode is
+    /// allowed to use this deliberately raw boundary; ordinary game logic must use
+    /// <see cref="EventNumber"/> so an unexplained number cannot acquire accidental meaning.
+    /// </summary>
+    public void SetEventRaw(int eventNumber)
     {
         (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
         _events[byteIndex] |= bitMask;
@@ -322,7 +332,13 @@ public sealed class Bank80SystemState
     /// <summary>
     /// Clears an event, matching <c>$80:8212</c>.
     /// </summary>
-    public void ClearEvent(int eventNumber)
+    public void ClearEvent(EventNumber eventNumber)
+    {
+        ClearEventRaw(ResolveNamedEvent(eventNumber));
+    }
+
+    /// <summary>Clears an allocated but intentionally unnamed cartridge event bit.</summary>
+    public void ClearEventRaw(int eventNumber)
     {
         (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
         _events[byteIndex] &= unchecked((byte)~bitMask);
@@ -331,7 +347,13 @@ public sealed class Bank80SystemState
     /// <summary>
     /// Tests an event, matching <c>$80:8233</c>.
     /// </summary>
-    public bool HasEvent(int eventNumber)
+    public bool HasEvent(EventNumber eventNumber)
+    {
+        return HasEventRaw(ResolveNamedEvent(eventNumber));
+    }
+
+    /// <summary>Tests an allocated but intentionally unnamed cartridge event bit.</summary>
+    public bool HasEventRaw(int eventNumber)
     {
         (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
         return (_events[byteIndex] & bitMask) != 0;
@@ -664,6 +686,23 @@ public sealed class Bank80SystemState
         int byteIndex = eventNumber >> 3;
         byte bitMask = (byte)(1 << (eventNumber & 7));
         return (byteIndex, bitMask);
+    }
+
+    /// <summary>
+    /// Rejects a forged enum value instead of silently treating the named API as another
+    /// spelling of the raw SRAM index API.
+    /// </summary>
+    private static int ResolveNamedEvent(EventNumber eventNumber)
+    {
+        if (!Enum.IsDefined(typeof(EventNumber), eventNumber))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(eventNumber),
+                eventNumber,
+                "The event has no proven retail EventNumber identity; use the explicit raw API for cartridge data.");
+        }
+
+        return (int)eventNumber;
     }
 
     private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)

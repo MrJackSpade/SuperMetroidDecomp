@@ -318,14 +318,15 @@ internal static class ZebetiteAudit
             }
 
             ushort next = unchecked((ushort)(generation + 1));
-            if (loaded.System.HasEvent(3) != ((next & 1) != 0) ||
-                loaded.System.HasEvent(4) != ((next & 2) != 0) ||
-                loaded.System.HasEvent(5) != ((next & 4) != 0))
+            if (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit0) != ((next & 1) != 0) ||
+                loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit1) != ((next & 2) != 0) ||
+                loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit2) != ((next & 4) != 0))
             {
                 throw new InvalidDataException(
                     $"Generation {generation} published events " +
-                    $"{loaded.System.HasEvent(5)}/{loaded.System.HasEvent(4)}/" +
-                    $"{loaded.System.HasEvent(3)} instead of binary {next}.");
+                    $"{loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit2)}/" +
+                    $"{loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit1)}/" +
+                    $"{loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit0)} instead of binary {next}.");
             }
 
             if (next < 4)
@@ -367,9 +368,9 @@ internal static class ZebetiteAudit
         var cgram = new SnesCgram();
         assets.LoadGraphics(vram, cgram);
         var system = new Bank80SystemState();
-        system.SetOrClearEvent(3, (generation & 1) != 0);
-        system.SetOrClearEvent(4, (generation & 2) != 0);
-        system.SetOrClearEvent(5, (generation & 4) != 0);
+        system.SetOrClearEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
+        system.SetOrClearEvent(EventNumber.ZebetiteDestroyedBit1, (generation & 2) != 0);
+        system.SetOrClearEvent(EventNumber.ZebetiteDestroyedBit2, (generation & 4) != 0);
         var samus = new SamusState
         {
             Health = 999,
@@ -475,7 +476,7 @@ internal static class ZebetiteAuditEventExtensions
 {
     public static void SetOrClearEvent(
         this Bank80SystemState system,
-        int eventNumber,
+        EventNumber eventNumber,
         bool set)
     {
         if (set)

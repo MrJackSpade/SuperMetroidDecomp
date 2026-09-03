@@ -294,7 +294,7 @@ internal static class MotherBrainAudit
             level: assets.LevelData,
             samus: samus,
             isAreaBossDefeated: () => false,
-            hasEvent: eventNumber => eventNumber == 2,
+            hasEvent: eventNumber => eventNumber == EventNumber.MotherBrainGlassDestroyed,
             setRoomScrollByte: (index, value) => scrollBytes[index] = value,
             readRoomScrollByte: index => scrollBytes[index],
             setMotherBrainLayerBlendingDefaultConfig:
@@ -3158,8 +3158,8 @@ internal static class MotherBrainAudit
                 getSamus: () => samus,
                 isAreaTorizoDefeated: () => false,
                 hasAreaBossBit: _ => false,
-                hasEvent: events.Contains,
-                setEvent: eventNumber => events.Add(eventNumber)) == 0)
+                hasEvent: eventNumber => events.Contains((int)eventNumber),
+                setEvent: eventNumber => events.Add((int)eventNumber)) == 0)
         {
             throw new InvalidDataException(
                 $"Mother Brain room did not load PLM ${glassHeader:X4}.");
@@ -3190,7 +3190,7 @@ internal static class MotherBrainAudit
             level: assets.LevelData,
             samus: samus,
             isAreaBossDefeated: () => false,
-            hasEvent: events.Contains,
+            hasEvent: eventNumber => events.Contains((int)eventNumber),
             setEvent: eventNumber => events.Add((int)eventNumber),
             incrementMotherBrainGlassRoomArgument: plms.IncrementMotherBrainGlassRoomArgument);
 

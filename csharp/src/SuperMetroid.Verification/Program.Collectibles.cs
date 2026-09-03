@@ -383,7 +383,7 @@ internal static partial class Program
         sourceSystem.SetOpenedDoorBit(0);
         sourceSystem.SetOpenedDoorBit(91);
         sourceSystem.SetOpenedDoorBit(511);
-        sourceSystem.SetEvent((int)EventNumber.TourianUnlocked);
+        sourceSystem.SetEvent(EventNumber.TourianUnlocked);
         sourceSystem.SetBossBits(2, BossBits.AreaBoss | BossBits.AreaTorizo);
         var sourceSamus = new SamusState
         {
@@ -409,7 +409,7 @@ internal static partial class Program
         AssertTrue(restoredSystem.HasOpenedDoorBit(0), "first opened-door bit round-trips");
         AssertTrue(restoredSystem.HasOpenedDoorBit(91), "middle opened-door bit round-trips");
         AssertTrue(restoredSystem.HasOpenedDoorBit(511), "last opened-door bit round-trips");
-        AssertTrue(restoredSystem.HasEvent((int)EventNumber.TourianUnlocked),
+        AssertTrue(restoredSystem.HasEvent(EventNumber.TourianUnlocked),
             "event bytes round-trip through SRAM");
         AssertTrue(restoredSystem.HasAnyBossBits(2, BossBits.AreaBoss),
             "area boss byte round-trips through SRAM");

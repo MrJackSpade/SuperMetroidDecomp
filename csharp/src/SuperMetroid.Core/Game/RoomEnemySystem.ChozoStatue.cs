@@ -92,8 +92,6 @@ public sealed partial class RoomEnemySystem
     private const ushort WreckedShipSpikeTerrainPlm = 0xd6fc;
     private const ushort ChozoSpikeFootstepTerrainPlm = 0xd113;
 
-    private const int LowerNorfairEvent = 0x000c;
-
     private readonly ChozoStatueState?[] _chozoStatueStates =
         new ChozoStatueState?[MaximumEnemyCount];
     private readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
@@ -236,7 +234,7 @@ public sealed partial class RoomEnemySystem
         if (statue.Parameter2 != 0)
         {
             // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
-            RequireSetEvent(LowerNorfairEvent);
+            RequireSetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
                 ChozoSpikeFootstepTerrainPlm,
                 blockX: 0x0c,

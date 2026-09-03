@@ -107,7 +107,7 @@ internal static partial class Program
             () => 0,
             samus: samus,
             hasEvent: eventNumber =>
-                zebesTimebombSet && eventNumber == (int)EventNumber.ZebesTimebombSet,
+                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet,
             gunshipLoadScenario: GunshipLoadScenario.EscapingCeres);
 
         RoomEnemySlot top = enemies.Slots[0];

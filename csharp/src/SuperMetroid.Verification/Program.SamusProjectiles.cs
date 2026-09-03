@@ -1839,7 +1839,7 @@ static void VerifySamusPowerBeamProjectiles()
         enemyDeaths: 1, enemyDeathQuota: 2);
     AssertTrue(greyDoorPlms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, 6)),
         "locked enemy-quota grey door consumes shot with native dud sound");
-    AssertTrue(!greyDoorSystem.HasEvent((int)EventNumber.ZebesAwake),
+    AssertTrue(!greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "below-quota grey door does not publish Zebes-awake event");
 
     // Publish a second hit on the exact quota-completion frame. BE01 clears the PLM shot
@@ -1849,7 +1849,7 @@ static void VerifySamusPowerBeamProjectiles()
     greyDoorPlms.Step(
         bus, greyDoorLevel, greyDoorStreamer, 0x1000, 0x1000, 0,
         enemyDeaths: 2, enemyDeathQuota: 2);
-    AssertTrue(greyDoorSystem.HasEvent((int)EventNumber.ZebesAwake),
+    AssertTrue(greyDoorSystem.HasEvent(EventNumber.ZebesAwake),
         "enemy-quota grey door is native producer of Zebes-awake event");
     AssertEqual(GreyDoorPhase.Flashing, greyDoorPlms.GreyDoors.Single().Phase,
         "quota completion enters cartridge flash loop");

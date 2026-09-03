@@ -42,7 +42,7 @@ static void VerifyStrictFailureBoundaries()
         () => enemies.RequireAreaBossDefeated(),
         "missing enemy boss-state reader is rejected");
     AssertThrows<InvalidOperationException>(
-        () => enemies.RequireEvent(2),
+        () => enemies.RequireEvent(EventNumber.MotherBrainGlassDestroyed),
         "missing enemy event-state reader is rejected");
     AssertThrows<InvalidOperationException>(
         () => enemies.RequireSetAreaBossDefeated(),

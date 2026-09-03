@@ -237,7 +237,7 @@ public sealed partial class RoomEnemySystem
         // event two is clear and `$A9:87E1` performs no phase mutation. Head-vs-Samus and
         // projectile interactions are separate collision passes and remain outside this
         // body-function dispatcher.
-        bool glassDestroyed = RequireEvent((int)EventNumber.MotherBrainGlassDestroyed);
+        bool glassDestroyed = RequireEvent(EventNumber.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = EarthquakeTimer;

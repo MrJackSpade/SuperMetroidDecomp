@@ -119,9 +119,9 @@ public sealed partial class RoomEnemySystem
             : ZebetiteAiFunction.SpawnLinkedHalf;
 
         ushort generation = 0;
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(5) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(4) ? 1 : 0)));
-        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(3) ? 1 : 0)));
+        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit2) ? 1 : 0)));
+        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit1) ? 1 : 0)));
+        generation = unchecked((ushort)((generation << 1) | (HasZebetiteEvent(EventNumber.ZebetiteDestroyedBit0) ? 1 : 0)));
         state.Generation = generation;
         if (generation >= 4)
         {
@@ -335,16 +335,16 @@ public sealed partial class RoomEnemySystem
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
     }
 
-    private bool HasZebetiteEvent(int eventNumber) => RequireEvent(eventNumber);
+    private bool HasZebetiteEvent(EventNumber eventNumber) => RequireEvent(eventNumber);
 
     private void PublishZebetiteGenerationEvents(ushort generation)
     {
-        PublishZebetiteEvent(3, (generation & 1) != 0);
-        PublishZebetiteEvent(4, (generation & 2) != 0);
-        PublishZebetiteEvent(5, (generation & 4) != 0);
+        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit0, (generation & 1) != 0);
+        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit1, (generation & 2) != 0);
+        PublishZebetiteEvent(EventNumber.ZebetiteDestroyedBit2, (generation & 4) != 0);
     }
 
-    private void PublishZebetiteEvent(int eventNumber, bool set)
+    private void PublishZebetiteEvent(EventNumber eventNumber, bool set)
     {
         if (set)
             RequireSetEvent(eventNumber);

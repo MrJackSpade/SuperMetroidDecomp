@@ -109,20 +109,26 @@ static void VerifyEventBitfield()
     var state = new Bank80SystemState();
     for (int eventNumber = 0; eventNumber < Bank80SystemState.EventByteCount * 8; eventNumber++)
     {
-        state.SetEvent(eventNumber);
-        AssertTrue(state.HasEvent(eventNumber), $"event ${eventNumber:X2} set");
+        state.SetEventRaw(eventNumber);
+        AssertTrue(state.HasEventRaw(eventNumber), $"event ${eventNumber:X2} set");
 
         int expectedByteIndex = eventNumber >> 3;
         byte expectedMask = (byte)(1 << (eventNumber & 7));
         AssertEqual(expectedMask, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} byte/mask");
 
-        state.ClearEvent(eventNumber);
-        AssertTrue(!state.HasEvent(eventNumber), $"event ${eventNumber:X2} clear");
+        state.ClearEventRaw(eventNumber);
+        AssertTrue(!state.HasEventRaw(eventNumber), $"event ${eventNumber:X2} clear");
         AssertEqual(0, state.GetEventByteRaw(expectedByteIndex), $"event ${eventNumber:X2} cleared byte");
     }
 
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEvent(-1), "negative event rejected");
-    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEvent(64), "event past allocation rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEventRaw(-1), "negative raw event rejected");
+    AssertThrows<ArgumentOutOfRangeException>(() => state.SetEventRaw(64), "raw event past allocation rejected");
+    AssertThrows<ArgumentOutOfRangeException>(
+        () => state.SetEvent((EventNumber)0x3f),
+        "unnamed event rejected by named API");
+    state.SetEvent(EventNumber.TourianUnlocked);
+    AssertTrue(state.HasEvent(EventNumber.TourianUnlocked), "named retail event set");
+    state.ClearEvent(EventNumber.TourianUnlocked);
     Console.WriteLine("  Events: all 64 allocated bits set, map, and clear correctly.");
 }
 

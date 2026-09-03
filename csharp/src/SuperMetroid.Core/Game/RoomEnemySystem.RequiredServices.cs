@@ -27,13 +27,13 @@ public sealed partial class RoomEnemySystem
     internal void RequireSetAreaMiniBossDefeated() =>
         (_setAreaMiniBossDefeated ?? throw MissingService("set the area-miniboss flag"))();
 
-    internal bool RequireEvent(int eventNumber) =>
+    internal bool RequireEvent(EventNumber eventNumber) =>
         (_hasEvent ?? throw MissingService("read global event bits"))(eventNumber);
 
-    internal void RequireSetEvent(int eventNumber) =>
+    internal void RequireSetEvent(EventNumber eventNumber) =>
         (_setEvent ?? throw MissingService("set a global event bit"))(eventNumber);
 
-    internal void RequireClearEvent(int eventNumber) =>
+    internal void RequireClearEvent(EventNumber eventNumber) =>
         (_clearEvent ?? throw MissingService("clear a global event bit"))(eventNumber);
 
     internal bool RequireAreaTorizoDefeated() =>

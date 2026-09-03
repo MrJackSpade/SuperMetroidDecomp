@@ -51,7 +51,7 @@ internal static partial class RetailPlmPopulationAudit
         }
 
         int loadedObservers = 0;
-        int testedEventBranches = 0;
+        var testedEventArguments = new HashSet<ushort>();
         int testedParlorTriggers = 0;
         foreach (ScrollAuditRoomState state in states)
         {
@@ -151,11 +151,16 @@ internal static partial class RetailPlmPopulationAudit
                 assets.Scrolls,
                 enemyDeaths: 3,
                 enemyDeathQuota: 3);
-            testedEventBranches += AssertMetroidsClearedEventState(
+            AssertMetroidsClearedEventState(
                 system,
                 sourceObservers,
                 shouldBeSet: true,
                 state);
+            foreach (ScrollAuditPopulationRecord observer in sourceObservers)
+            {
+                if (observer.RoomArgument is 0x12 or 0x14 or 0x16 or 0x18)
+                    testedEventArguments.Add(observer.RoomArgument);
+            }
 
             if (state.RoomPointer == ParlorRoomPointer &&
                 state.StatePointer == ParlorMetroidsGoneStatePointer)
@@ -167,10 +172,11 @@ internal static partial class RetailPlmPopulationAudit
             }
         }
 
-        if (testedEventBranches != 4)
+        if (testedEventArguments.Count != 4)
         {
             throw new InvalidDataException(
-                $"Retail $DB44 audit reached {testedEventBranches} event-setting argument " +
+                $"Retail $DB44 audit reached {testedEventArguments.Count} distinct " +
+                "event-setting argument " +
                 "branches, expected all four.");
         }
         if (testedParlorTriggers != ReportedParlorTriggerBlocks.Length)
@@ -188,13 +194,12 @@ internal static partial class RetailPlmPopulationAudit
         return 0;
     }
 
-    private static int AssertMetroidsClearedEventState(
+    private static void AssertMetroidsClearedEventState(
         Bank80SystemState system,
         IReadOnlyList<ScrollAuditPopulationRecord> observers,
         bool shouldBeSet,
         ScrollAuditRoomState state)
     {
-        int activeBranches = 0;
         foreach (ScrollAuditPopulationRecord observer in observers)
         {
             EventNumber? eventNumber = observer.RoomArgument switch
@@ -208,7 +213,6 @@ internal static partial class RetailPlmPopulationAudit
             if (eventNumber is null)
                 continue;
 
-            activeBranches++;
             if (system.HasEvent(eventNumber.Value) != shouldBeSet)
             {
                 throw new InvalidDataException(
@@ -218,7 +222,6 @@ internal static partial class RetailPlmPopulationAudit
             }
         }
 
-        return activeBranches;
     }
 
     private static int AuditReportedParlorTriggerCollisions(

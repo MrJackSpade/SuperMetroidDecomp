@@ -53,6 +53,7 @@ VerifyFrameRuntime();
 VerifyGameTimeState();
 VerifySuperMetroidAddressSpace();
 VerifyCartridgeAudioQueues();
+VerifyManagedSnesDsp();
 VerifyTypedNativeWords();
 VerifyProductionMagicNumberAudit();
 VerifyOamSpritemapPacking();

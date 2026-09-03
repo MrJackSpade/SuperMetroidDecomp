@@ -14,8 +14,8 @@ internal static class SpcDriverData
     internal const int DspCyclesPerDriverTick = 64;
     internal const int MaximumFastForwardTicks = 0x10000;
     internal const byte NoPortCommand = byte.MaxValue;
-    internal const byte PauseMusicCommand = 0xf0;
-    internal const byte ResumeMusicCommand = 0xf1;
+    internal const byte PauseMusicCommand = AudioRomData.Apu.PauseMusic;
+    internal const byte ResumeMusicCommand = AudioRomData.Apu.ResumeMusic;
 
     internal static class Ram
     {

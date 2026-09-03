@@ -62,7 +62,15 @@ public static class AudioRomData
     {
         public const byte MusicPort = 0;
         public const byte FirstSoundPort = 1;
+        public const byte LibraryOnePort = FirstSoundPort;
         public const byte LibraryTwoPort = 2;
+        public const byte LibraryThreePort = 3;
         public const int PortCount = 4;
+
+        /// <summary>SPC driver command that freezes music sequencing without discarding it.</summary>
+        public const byte PauseMusic = 0xf0;
+
+        /// <summary>SPC driver command that resumes a previously paused sequence.</summary>
+        public const byte ResumeMusic = 0xf1;
     }
 }

@@ -133,18 +133,14 @@ try
         return 0;
     }
 
-    if (args.Length != 0 && args[0].Equals("--audio-parity-audit", StringComparison.OrdinalIgnoreCase))
+    if (args.Length != 0 && args[0].Equals("--managed-audio-audit", StringComparison.OrdinalIgnoreCase))
     {
-        string[] audioRomArguments = args.Length == 2 ? [args[1]] : [];
-        if (args.Length > 2)
-            throw new ArgumentException("--audio-parity-audit accepts one optional private ROM path.");
-        string audioRomPath = PrivateRomPath.Resolve(audioRomArguments);
-        ManagedAudioParitySmokeTestResult result = ManagedAudioParitySmokeTest.Run(audioRomPath);
+        if (args.Length != 1)
+            throw new ArgumentException("--managed-audio-audit does not accept a ROM path.");
+        ManagedAudioRegressionSmokeTestResult result = ManagedAudioRegressionSmokeTest.Run();
         Console.WriteLine(
-            $"Managed audio parity passed: {result.MusicFrames} music frames, " +
-            $"{result.SoundEffectFrames} SFX frames, {result.ComparedPcmSamples} PCM samples, " +
-            $"and {result.ComparedAcknowledgements} acknowledgement bytes matched native across " +
-            $"{result.MusicBankScenarios} music banks and {result.SoundEffectScenarios} SFX scenarios.");
+            $"Managed audio regression passed: {result.Scenarios} scenarios, {result.Frames} frames, " +
+            $"{result.PcmSamples} samples; PCM {result.PcmSha256}, acknowledgements {result.AcknowledgementSha256}.");
         return 0;
     }
 

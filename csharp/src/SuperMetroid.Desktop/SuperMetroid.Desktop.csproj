@@ -11,18 +11,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
-    <None
-      Include="../../native/SuperMetroid.AudioNative/bin/x64/$(Configuration)/SuperMetroid.AudioNative.dll"
-      Link="SuperMetroid.AudioNative.dll"
-      CopyToOutputDirectory="PreserveNewest"
-      CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
-  <Target Name="BuildNativeAudio" BeforeTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
-    <Exec Command="powershell -NoProfile -ExecutionPolicy Bypass -File &quot;$(MSBuildThisFileDirectory)..\..\native\SuperMetroid.AudioNative\Build-NativeAudio.ps1&quot; -Configuration &quot;$(Configuration)&quot;" />
-  </Target>
-  <Target Name="CopyNativeAudio" AfterTargets="Build" DependsOnTargets="BuildNativeAudio" Condition="'$(OS)' == 'Windows_NT'">
-    <Copy
-      SourceFiles="$(MSBuildThisFileDirectory)..\..\native\SuperMetroid.AudioNative\bin\x64\$(Configuration)\SuperMetroid.AudioNative.dll"
-      DestinationFolder="$(TargetDir)" />
-  </Target>
 </Project>

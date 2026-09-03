@@ -62,18 +62,5 @@ internal sealed class SpcAudioEngine : IDisposable
         player.ReadPort(2),
         player.ReadPort(3));
 
-    internal byte ReadDspRegister(byte address) => player.ReadDspRegister(address);
-
-    internal byte ReadApuRam(ushort address) => player.ReadApuRam(address);
-
-    internal void BeginDspWriteCapture() => player.BeginDspWriteCapture();
-
-    internal IReadOnlyList<(byte Address, byte Value)> CapturedDspWrites => player.CapturedDspWrites;
-
-    internal IReadOnlyList<string> CapturedDriverTrace => player.CapturedDriverTrace;
-
-    internal int ReadDebugValue(SpcAudioDebugValue value, int channel = 0) =>
-        player.ReadDebugValue(value, channel);
-
     public void Dispose() => disposed = true;
 }

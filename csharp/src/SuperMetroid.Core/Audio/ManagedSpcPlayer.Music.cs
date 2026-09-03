@@ -165,7 +165,6 @@ public sealed partial class ManagedSpcPlayer
 
     private void HandleEffect(ManagedSpcMusicChannel channel, byte rawEffect)
     {
-        TraceDriver($"ch{channel.Index} effect {rawEffect:X2} at {channel.PatternOrderPointer - 1:X4}");
         int tableIndex = rawEffect - SpcDriverData.Music.FirstEffect;
         if ((uint)tableIndex >= SpcMusicTables.EffectByteLengths.Length)
             throw new InvalidDataException($"Unknown SPC music effect ${rawEffect:X2}.");
@@ -514,7 +513,6 @@ public sealed partial class ManagedSpcPlayer
 
     private void HandleMusicCommand()
     {
-        TraceDriver($"music entry ptr={musicTopLevelPointer:X4} ff={fastForward:X2} ctr={counter:X4}");
         byte command = inputPorts[AudioRomData.Apu.MusicPort];
         inputPorts[AudioRomData.Apu.MusicPort] = SpcDriverData.NoPortCommand;
         if (command == SpcDriverData.PauseMusicCommand)
@@ -550,7 +548,6 @@ public sealed partial class ManagedSpcPlayer
             if (records > SpcDriverData.MaximumFastForwardTicks)
                 throw new InvalidDataException("SPC top-level music stream did not reach a pattern table.");
             ushort record = ReadWord(musicTopLevelPointer);
-            TraceDriver($"top {musicTopLevelPointer:X4}={record:X4}");
             musicTopLevelPointer += 2;
             if (HighByte(record) >= SpcDriverData.Music.PatternPointerHighByteMinimum)
             {
@@ -612,7 +609,6 @@ public sealed partial class ManagedSpcPlayer
                     if (instructions > SpcDriverData.MaximumFastForwardTicks)
                         throw new InvalidDataException($"SPC channel {index} did not reach a timed note.");
                     byte noteCommand = ram[channel.PatternOrderPointer++];
-                    TraceDriver($"ch{index} cmd {noteCommand:X2} at {channel.PatternOrderPointer - 1:X4}");
                     if (noteCommand == 0)
                     {
                         if (channel.SubroutineLoops == 0)

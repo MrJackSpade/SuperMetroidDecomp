@@ -109,7 +109,6 @@ internal sealed class ManagedSpcSoundChannel
 /// </summary>
 public sealed partial class ManagedSpcPlayer
 {
-    private const int MaximumCapturedDspWrites = 256;
     private readonly byte[] ram = new byte[SpcDriverData.ApuRamSize];
     private readonly byte[] portsToSnes = new byte[AudioRomData.Apu.PortCount];
     private readonly byte[] inputPorts = new byte[AudioRomData.Apu.PortCount];
@@ -132,8 +131,6 @@ public sealed partial class ManagedSpcPlayer
     ];
 
     private readonly ManagedSnesDsp dsp;
-    private readonly List<(byte Address, byte Value)> capturedDspWrites = [];
-    private readonly List<string> capturedDriverTrace = [];
     private byte timerCycles;
     private ushort counter;
     private byte affectedVolumeOrPitch;
@@ -192,53 +189,6 @@ public sealed partial class ManagedSpcPlayer
         if ((uint)port >= portsToSnes.Length)
             throw new ArgumentOutOfRangeException(nameof(port), port, "SPC output port must be zero through three.");
         return portsToSnes[port];
-    }
-
-    /// <summary>Reads the mirrored DSP register file for deterministic migration audits.</summary>
-    public byte ReadDspRegister(byte address) => dsp.ReadRegister(address);
-
-    /// <summary>Reads APU RAM for deterministic migration audits.</summary>
-    public byte ReadApuRam(ushort address) => ram[address];
-
-    public void BeginDspWriteCapture()
-    {
-        capturedDspWrites.Clear();
-        capturedDriverTrace.Clear();
-    }
-
-    public IReadOnlyList<(byte Address, byte Value)> CapturedDspWrites => capturedDspWrites;
-
-    public IReadOnlyList<string> CapturedDriverTrace => capturedDriverTrace;
-
-    public int ReadDebugValue(SpcAudioDebugValue value, int channelIndex = 0)
-    {
-        if ((uint)channelIndex >= channels.Length)
-            throw new ArgumentOutOfRangeException(nameof(channelIndex));
-        ManagedSpcMusicChannel channel = channels[channelIndex];
-        return value switch
-        {
-            SpcAudioDebugValue.TimerCycles => timerCycles,
-            SpcAudioDebugValue.StartupCounter => counter,
-            SpcAudioDebugValue.MusicPointer => musicTopLevelPointer,
-            SpcAudioDebugValue.FastForward => fastForward,
-            SpcAudioDebugValue.MainTempoAccumulator => mainTempoAccumulator,
-            SpcAudioDebugValue.Tempo => tempo,
-            SpcAudioDebugValue.BlockCount => blockCount,
-            SpcAudioDebugValue.KeyOn => keyOn,
-            SpcAudioDebugValue.KeyOff => keyOff,
-            SpcAudioDebugValue.CurrentChannelBit => currentChannelBit,
-            SpcAudioDebugValue.ChannelOnMask => channelOnMask,
-            SpcAudioDebugValue.PatternPointer => channel.PatternOrderPointer,
-            SpcAudioDebugValue.NoteTicksLeft => channel.NoteTicksLeft,
-            SpcAudioDebugValue.NoteLength => channel.NoteLength,
-            SpcAudioDebugValue.InstrumentId => channel.InstrumentId,
-            SpcAudioDebugValue.SubroutineLoops => channel.SubroutineLoops,
-            SpcAudioDebugValue.SavedPatternPointer => channel.SavedPatternPointer,
-            SpcAudioDebugValue.PatternStartPointer => channel.PatternStartPointer,
-            SpcAudioDebugValue.NoteGateOff => channel.NoteGateOffFixedPoint,
-            SpcAudioDebugValue.CutKey => channel.CutKey,
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown SPC debug value."),
-        };
     }
 
     /// <summary>
@@ -423,15 +373,7 @@ public sealed partial class ManagedSpcPlayer
     private void WriteDsp(byte register, int value)
     {
         byte narrowed = unchecked((byte)value);
-        if (capturedDspWrites.Count < MaximumCapturedDspWrites)
-            capturedDspWrites.Add((register, narrowed));
         dsp.WriteRegister(register, narrowed);
-    }
-
-    private void TraceDriver(string message)
-    {
-        if (capturedDriverTrace.Count < MaximumCapturedDspWrites)
-            capturedDriverTrace.Add(message);
     }
 
     private ushort ReadWord(int address) => unchecked((ushort)(

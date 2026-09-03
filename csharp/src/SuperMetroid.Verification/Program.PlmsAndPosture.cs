@@ -289,6 +289,24 @@ static void VerifyBreakableGrapplePlms()
     AssertEqual(0, permanent1x2Plms.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 
+    // Any high-bit word is dispatched as native code. An unknown routine must stop at the
+    // interpreter boundary instead of being skipped or misread as a timer/draw record.
+    bus.WriteBytes(0x84cd6a, [0x00, 0x90]);
+    RoomLevelData unknownOpcodeLevel = CreateLevel(1, definitions);
+    var unknownOpcodePlms = new RoomPlmSystem();
+    AssertTrue(unknownOpcodePlms.TrySpawnBreakableGrappleBlock(
+        unknownOpcodeLevel, blockIndex, 1),
+        "uncatalogued-opcode fixture occupies a PLM slot");
+    AssertThrows<InvalidDataException>(
+        () => unknownOpcodePlms.Step(
+            bus,
+            unknownOpcodeLevel,
+            unknownOpcodeLevel.CreateBackgroundStreamer(),
+            0,
+            0,
+            0),
+        "uncatalogued bank-$84 PLM opcode fails loudly");
+
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 

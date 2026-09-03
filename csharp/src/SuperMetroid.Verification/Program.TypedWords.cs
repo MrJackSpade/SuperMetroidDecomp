@@ -92,6 +92,36 @@ static void VerifyTypedNativeWords()
     AssertEqual((ushort)0x5000, SnesPpuLayout.GameplayBg1TilemapWord,
         "engine gameplay BG1 tilemap placement");
 
+    ushort[] translatedPlmInstructionCodes =
+    [
+        RoomPlmInstructionCodes.Sleep,
+        RoomPlmInstructionCodes.Delete,
+        RoomPlmInstructionCodes.InstallPreInstruction,
+        RoomPlmInstructionCodes.Goto,
+        RoomPlmInstructionCodes.DecrementTimerAndGoto,
+        RoomPlmInstructionCodes.SetEightBitTimer,
+        RoomPlmInstructionCodes.CopyFromRamToVram,
+        RoomPlmInstructionCodes.GotoIfAreaBossBitSet,
+        RoomPlmInstructionCodes.GotoIfEventSet,
+        RoomPlmInstructionCodes.SetEvent,
+        RoomPlmInstructionCodes.DrawPlmBlock,
+        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
+        RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
+        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3,
+        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1,
+        RoomPlmInstructionCodes.QueueSoundLibrary2Maximum1Direct,
+        RoomPlmInstructionCodes.SetBotwoonScrollsBlue,
+        RoomPlmInstructionCodes.MoveBotwoonPlmDownOneBlock,
+        RoomPlmInstructionCodes.SetPlmBtsToOne,
+        RoomPlmInstructionCodes.GotoIfRoomArgumentLess,
+        RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards,
+        RoomPlmInstructionCodes.SpawnTorizoStatueBreaking,
+        RoomPlmInstructionCodes.QueueSongOneMusicTrack,
+    ];
+    AssertEqual(translatedPlmInstructionCodes.Length,
+        translatedPlmInstructionCodes.Distinct().Count(),
+        "translated PLM instruction catalog has unique native pointers");
+
     // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
     // 256-entry sine tables. Verify named axes, full-turn normalization, fractional
     // preservation, and the signed modular subtraction used near the wrap seam.

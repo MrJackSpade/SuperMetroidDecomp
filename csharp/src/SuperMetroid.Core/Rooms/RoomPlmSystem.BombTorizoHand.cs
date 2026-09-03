@@ -20,9 +20,6 @@ public sealed partial class RoomPlmSystem
     private const ushort BombTorizoHandHeader = 0xd6ea;
     private const ushort BombTorizoHandInitialInstruction = 0xd368;
     private const ushort WakeIfSamusHasBombsPreInstruction = 0xd33b;
-    private const ushort CopyFromRamToVramInstruction = 0x87e5;
-    private const ushort SpawnTorizoStatueBreakingInstruction = 0xd357;
-    private const ushort QueueSongOneMusicTrackInstruction = 0xd3c7;
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
@@ -129,7 +126,7 @@ public sealed partial class RoomPlmSystem
         ushort cursor = slot.InstructionPointer;
         switch (instruction)
         {
-            case CopyFromRamToVramInstruction:
+            case RoomPlmInstructionCodes.CopyFromRamToVram:
             {
                 // $87E5 consumes seven deliberately unaligned bytes after its opcode:
                 // u16 size, u16 source offset, u8 bank, then u16 encoded VRAM destination.
@@ -145,7 +142,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case SpawnTorizoStatueBreakingInstruction:
+            case RoomPlmInstructionCodes.SpawnTorizoStatueBreaking:
             {
                 ushort parameter = ReadBank84Word(bus, unchecked((ushort)(cursor + 2)));
                 _bombTorizoStatueProjectileRequests.Add(
@@ -158,7 +155,7 @@ public sealed partial class RoomPlmSystem
                 return true;
             }
 
-            case QueueSongOneMusicTrackInstruction:
+            case RoomPlmInstructionCodes.QueueSongOneMusicTrack:
                 // Despite its name, this routine always queues literal gameplay track six
                 // with the shared eight-frame delay and consumes no inline operand.
                 _musicRequests.Add(new PlmMusicRequest(

@@ -262,7 +262,8 @@ public sealed partial class RoomEnemySystem
         ushort opcode,
         ref ushort cursor)
     {
-        if (slot.EnemyDefinitionPointer != RioDefinition || opcode != 0xbbc3)
+        if (slot.EnemyDefinitionPointer != RioDefinition ||
+            opcode != RioInstructionCodes.SetAnimationFinished)
             return false;
 
         RequireRioState(slot).AnimationFinished = true;

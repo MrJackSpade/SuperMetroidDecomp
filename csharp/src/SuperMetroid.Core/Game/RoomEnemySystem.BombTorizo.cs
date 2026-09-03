@@ -500,8 +500,8 @@ public sealed partial class RoomEnemySystem
             torizo.Health < BombTorizoCoreExplosionHealth)
         {
             state.ReturnInstruction = (torizo.Parameter1 & 0x8000) != 0
-                ? (ushort)0xbd0e
-                : (ushort)0xc188;
+                ? TorizoInstructionLists.AlternateLandingFacingRight
+                : TorizoInstructionLists.AlternateLandingFacingLeft;
             torizo.CurrentInstruction = BombTorizoLowHealthRecoveryInstruction;
             torizo.InstructionTimer = 1;
             return;
@@ -613,8 +613,12 @@ public sealed partial class RoomEnemySystem
             if (state.AirTransitionTimer == 0)
             {
                 torizo.CurrentInstruction = alternateLanding
-                    ? ((torizo.Parameter1 & 0x8000) != 0 ? (ushort)0xbd0e : (ushort)0xc188)
-                    : ((torizo.Parameter1 & 0x8000) != 0 ? (ushort)0xb962 : (ushort)0xbdd8);
+                    ? ((torizo.Parameter1 & 0x8000) != 0
+                        ? TorizoInstructionLists.AlternateLandingFacingRight
+                        : TorizoInstructionLists.AlternateLandingFacingLeft)
+                    : ((torizo.Parameter1 & 0x8000) != 0
+                        ? TorizoInstructionLists.LandingFacingRight
+                        : TorizoInstructionLists.LandingFacingLeft);
                 torizo.InstructionTimer = 1;
                 return;
             }
@@ -626,8 +630,8 @@ public sealed partial class RoomEnemySystem
             // $AA:C752 swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
             torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
-                ? (ushort)0xc0f2
-                : (ushort)0xbc78;
+                ? TorizoInstructionLists.AirborneFacingRight
+                : TorizoInstructionLists.AirborneFacingLeft;
             torizo.InstructionTimer = 1;
             state.VerticalVelocity = 0x0100;
             state.HorizontalVelocity = 0;
@@ -647,8 +651,8 @@ public sealed partial class RoomEnemySystem
             if (state.AirTransitionTimer == 0)
             {
                 torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
-                    ? (ushort)0xd203
-                    : (ushort)0xd2bf;
+                    ? TorizoInstructionLists.GoldenLandingFacingRight
+                    : TorizoInstructionLists.GoldenLandingFacingLeft;
                 torizo.InstructionTimer = 1;
                 return;
             }
@@ -660,8 +664,8 @@ public sealed partial class RoomEnemySystem
         if (!MoveEnemyVertically(level, torizo, fallingSpeed << 16))
         {
             torizo.CurrentInstruction = (torizo.Parameter1 & 0x8000) != 0
-                ? (ushort)0xc0f2
-                : (ushort)0xbc78;
+                ? TorizoInstructionLists.AirborneFacingRight
+                : TorizoInstructionLists.AirborneFacingLeft;
             torizo.InstructionTimer = 1;
             state.VerticalVelocity = 0x0100;
             state.HorizontalVelocity = 0;

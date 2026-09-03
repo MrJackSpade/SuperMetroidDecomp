@@ -7,13 +7,15 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidArmNormalInstruction = 0x89f3;
-    private const ushort KraidArmRetractedInstruction = 0x8af0;
-    private const ushort KraidFootNeutralInstruction = 0x86ed;
-    private const ushort KraidFootLungeInstruction = 0x87bd;
-    private const ushort KraidFootLungeFinishedInstruction = 0x8885;
-    private const ushort KraidFootWalkBackInstruction = 0x8887;
-    private const ushort KraidFootWalkBackLoopInstruction = 0x8939;
+    private const ushort KraidArmNormalInstruction = KraidInstructionLists.Ilist_89F3;
+    private const ushort KraidArmRetractedInstruction = KraidInstructionLists.ArmRetracted;
+    private const ushort KraidFootNeutralInstruction = KraidInstructionLists.Ilist_86ED;
+    private const ushort KraidFootLungeInstruction = KraidInstructionLists.FootLunge;
+    private const ushort KraidFootLungeFinishedInstruction =
+        KraidInstructionLists.FootLungeFinished;
+    private const ushort KraidFootWalkBackInstruction = KraidInstructionLists.FootWalkBack;
+    private const ushort KraidFootWalkBackLoopInstruction =
+        KraidInstructionLists.FootWalkBackLoop;
 
     private void RunKraidArmMain(RoomEnemySlot arm, ushort cameraY)
     {
@@ -176,7 +178,7 @@ public sealed partial class RoomEnemySystem
         if (TryBeginKraidGrowth(body, RequireKraidState(body)))
             return;
         RoomEnemySlot arm = _slots[1];
-        if (unchecked((short)(arm.CurrentInstruction - 0x8a37)) < 0)
+        if (unchecked((short)(arm.CurrentInstruction - KraidInstructionLists.ArmListLowerBound)) < 0)
             return;
         arm.CurrentInstruction = KraidArmRetractedInstruction;
         arm.InstructionTimer = 1;
@@ -327,7 +329,7 @@ public sealed partial class RoomEnemySystem
         RequireKraidState(foot).TargetX = targetX;
         part.NextWord = thinkTimer;
         foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseWalkingLeft;
-        foot.CurrentInstruction = 0x86f3;
+        foot.CurrentInstruction = KraidInstructionLists.Ilist_86F3;
         foot.InstructionTimer = 1;
     }
 
@@ -353,15 +355,15 @@ public sealed partial class RoomEnemySystem
         ushort targetX = RequireKraidState(body).TargetX;
         if (unchecked((short)(targetX - body.XPosition)) < 0)
         {
-            if (foot.CurrentInstruction == 0x87bb)
+            if (foot.CurrentInstruction == KraidInstructionLists.Ilist_87BB)
             {
-                foot.CurrentInstruction = 0x86f3;
+                foot.CurrentInstruction = KraidInstructionLists.Ilist_86F3;
                 foot.InstructionTimer = 1;
             }
             return;
         }
         body.XPosition = targetX;
-        if (foot.CurrentInstruction == 0x87bb)
+        if (foot.CurrentInstruction == KraidInstructionLists.Ilist_87BB)
         {
             foot.VariableA = (ushort)KraidAiFunction.FootSecondPhaseThinking;
             foot.CurrentInstruction = KraidFootNeutralInstruction;

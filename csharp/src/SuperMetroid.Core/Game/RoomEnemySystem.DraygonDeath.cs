@@ -49,13 +49,17 @@ public sealed partial class RoomEnemySystem
         state.Function = DraygonAiFunction.DyingSink;
         state.MusicRequest = MusicCommand.SelectTrack(3);
         state.FunctionTimer = DraygonDeathWaitFramesUs;
-        InstallDraygonInstruction(body, 0x97b9);
+        InstallDraygonInstruction(body, DraygonInstructionLists.Ilist_97B9);
 
         ushort deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);
         state.Tail!.Properties = deletedPartProperties;
         state.Arms!.Properties = deletedPartProperties;
         RoomEnemySlot eye = state.Eye!;
-        InstallDraygonInstruction(eye, state.FacingRight ? (ushort)0x9d3e : (ushort)0x999c);
+        InstallDraygonInstruction(
+            eye,
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9D3E
+                : DraygonInstructionLists.Ilist_999C);
         eye.VariableA = 0x804b;
     }
 
@@ -85,7 +89,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(body.YPosition - DraygonBurialFinishedY)) < 0)
             return;
 
-        InstallDraygonInstruction(body, 0x98ed);
+        InstallDraygonInstruction(body, DraygonInstructionLists.Ilist_98ED);
 
         // $A0:B917 uses Draygon's body header for sixteen independent drops over the
         // lower half of the arena. Do this before deleting the body so the native event is

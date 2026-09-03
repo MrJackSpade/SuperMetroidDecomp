@@ -42,7 +42,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        SetRidleyInstruction(body, 0xe6c8);
+        SetRidleyInstruction(body, RidleyInstructionLists.Ilist_E6C8);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
         state.FunctionTimer = 32;
     }

@@ -1386,8 +1386,8 @@ public sealed partial class RoomEnemySystem
                             torizoState.Function = TorizoFunctionIdle;
                             enemy.InstructionTimer = 1;
                             enemy.CurrentInstruction = (enemy.Parameter1 & 0x8000) != 0
-                                ? (ushort)0xd2ad
-                                : (ushort)0xd1f1;
+                                ? TorizoInstructionLists.CaughtMissileFacingRight
+                                : TorizoInstructionLists.CaughtMissileFacingLeft;
                             hitCount++;
                             break;
                         }
@@ -1407,11 +1407,11 @@ public sealed partial class RoomEnemySystem
                                 enemy.InstructionTimer = 1;
                                 enemy.CurrentInstruction = (enemy.Parameter1 & 0x2000) != 0
                                     ? (enemy.Parameter1 & 0x8000) != 0
-                                        ? (ushort)0xceff
-                                        : (ushort)0xce43
+                                        ? TorizoInstructionLists.AlternateCaughtSuperFacingRight
+                                        : TorizoInstructionLists.CaughtSuperFacingRight
                                     : (enemy.Parameter1 & 0x8000) != 0
-                                        ? (ushort)0xcea5
-                                        : (ushort)0xcde1;
+                                        ? TorizoInstructionLists.AlternateCaughtSuperFacingLeft
+                                        : TorizoInstructionLists.CaughtSuperFacingLeft;
                                 hitCount++;
                                 break;
                             }

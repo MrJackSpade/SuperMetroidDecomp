@@ -74,7 +74,7 @@ public sealed partial class RoomEnemySystem
             Function = SkreeEnemyFunction.Idling,
         };
         _skreeStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = 0xc65e;
+        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.SkreeInitial;
     }
 
     private void RunSkreeMain(RoomEnemySlot slot, SamusState? samus, RoomLevelData? level)

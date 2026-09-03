@@ -8,11 +8,14 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort PhantoonInvulnerableBodyInstruction = 0xcc41;
-    private const ushort PhantoonEyeHitboxBodyInstruction = 0xcc4d;
-    private const ushort PhantoonFullHitboxBodyInstruction = 0xcc47;
-    private const ushort PhantoonEyeClosedInstruction = 0xcc91;
-    private const ushort PhantoonEyeCenteredInstruction = 0xcc9d;
+    private const ushort PhantoonInvulnerableBodyInstruction =
+        PhantoonInstructionLists.InvulnerableBody;
+    private const ushort PhantoonEyeHitboxBodyInstruction =
+        PhantoonInstructionLists.EyeHitboxBody;
+    private const ushort PhantoonFullHitboxBodyInstruction =
+        PhantoonInstructionLists.FullHitboxBody;
+    private const ushort PhantoonEyeClosedInstruction = PhantoonInstructionLists.EyeClosed;
+    private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionLists.EyeCentered;
     private const int PhantoonEyeDirectionTable = 0xa7d40d;
     private const int PhantoonFadeOutPalette = 0xa7ca41;
     private const int PhantoonFlameRainHidingTimerTable = 0xa7cd63;
@@ -34,7 +37,7 @@ public sealed partial class RoomEnemySystem
             {
                 body.VariableF = (ushort)PhantoonAiFunction.NoOperation;
                 InstallPhantoonInstruction(body, PhantoonInvulnerableBodyInstruction);
-                InstallPhantoonInstruction(state.Eye!, 0xcc81);
+                InstallPhantoonInstruction(state.Eye!, PhantoonInstructionLists.EyeOpening);
                 body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
                 // This flag makes PickNewPhantoonPattern choose the initial flame-rain

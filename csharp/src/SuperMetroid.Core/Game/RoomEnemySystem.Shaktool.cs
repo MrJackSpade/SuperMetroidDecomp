@@ -530,7 +530,7 @@ public sealed partial class RoomEnemySystem
                     .OrientationAndAcceleration);
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == 0xd931
+                    opcode == ShaktoolInstructionCodes.UNUSED_Instruction_Shaktool_Lower1PixelAwayFromProj_AAD931
                         ? unchecked((byte)(centerDirection ^ 0x80))
                         : centerDirection);
                 break;
@@ -542,7 +542,7 @@ public sealed partial class RoomEnemySystem
                 byte targetDirection = unchecked((byte)(state.TargetAngle >> 8));
                 MoveShaktoolSegmentForAnimation(
                     slot,
-                    opcode == 0xd94a
+                    opcode == ShaktoolInstructionCodes.Instruction_Shaktool_Lower1Pixel
                         ? unchecked((byte)(targetDirection ^ 0x80))
                         : targetDirection);
                 break;

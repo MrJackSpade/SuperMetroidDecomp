@@ -108,7 +108,7 @@ public sealed partial class RoomEnemySystem
         // every actor-owned write that follows is retained below.
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        SetRidleyInstruction(slot, 0xe538);
+        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E538);
         slot.PaletteIndex = 0x0e00;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -218,7 +218,7 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if ((short)state.FunctionTimer < 0)
                 {
-                    SetRidleyInstruction(slot, 0xe690);
+                    SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E690);
                     state.FunctionTimer = 252;
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -229,7 +229,7 @@ public sealed partial class RoomEnemySystem
                 if ((short)state.FunctionTimer < 0)
                 {
                     state.FadePaletteOffset = 0;
-                    SetRidleyInstruction(slot, 0xe91d);
+                    SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E91D);
                     // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs instruction list $E91D.
@@ -274,7 +274,7 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case RidleyAiFunction.CeresLungeSetup:
-                SetRidleyInstruction(slot, 0xe548);
+                SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E548);
                 state.Function = RidleyAiFunction.CeresLungeMain;
                 state.FunctionTimer = 64;
                 TickCeresRidleyLunge(slot, state, samus);
@@ -358,7 +358,7 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if ((short)state.FunctionTimer < 0)
                 {
-                    SetRidleyInstruction(slot, 0xe658);
+                    SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E658);
                     state.Function = RidleyAiFunction.CeresRetrieveBaby;
                     TickCeresRidleyRetrieveBaby(slot, state);
                 }
@@ -565,7 +565,7 @@ public sealed partial class RoomEnemySystem
         // Function $A782 installs the complete retail mouth/fireball instruction stream.
         // Its $E84D/$E904/$E909 commands calculate and spawn bank-$86 actors; leaving this
         // assignment out produces correct boss motion with a conspicuously silent attack.
-        SetRidleyInstruction(slot, 0xe73a);
+        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E73A);
         state.Function = RidleyAiFunction.CeresFireballShooting;
         state.FunctionTimer = 224;
         TickCeresRidleyFireballShooting(slot, state);

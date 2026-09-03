@@ -104,7 +104,7 @@ public sealed partial class RoomEnemySystem
         // change detector, because both requested and installed indexes intentionally start
         // at zero. InitializeEnemies clears the immediate map afterward; frame one restores
         // it from this real ROM list through the common instruction interpreter.
-        slot.CurrentInstruction = 0x8910;
+        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.MetareeInitial;
     }
 
     /// <summary>Ports the indirect state dispatch in <c>MainAI_Metaree</c>.</summary>

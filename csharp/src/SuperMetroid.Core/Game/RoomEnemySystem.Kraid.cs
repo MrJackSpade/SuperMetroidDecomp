@@ -8,11 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidInitialArmInstruction = 0x8aa4;
-    private const ushort KraidInitialLintInstruction = 0x8afe;
+    private const ushort KraidInitialArmInstruction = KraidInstructionLists.InitialArm;
+    private const ushort KraidInitialLintInstruction = KraidInstructionLists.InitialLint;
     private const ushort KraidInitialLintSpritemap = 0xa5df;
-    private const ushort KraidInitialFootInstruction = 0x86e7;
-    private const ushort KraidNailInstruction = 0x8b0a;
+    private const ushort KraidInitialFootInstruction = KraidInstructionLists.InitialFoot;
+    private const ushort KraidNailInstruction = KraidInstructionLists.Nail;
 
     /// <summary>Most recent Kraid-private sound request in the current enemy frame.</summary>
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }

@@ -117,7 +117,7 @@ public sealed partial class RoomEnemySystem
             _firefleaMaximumYPositions,
             _firefleaSpeedTableIndexes);
         _firefleaStates[slot.SlotIndex] = state;
-        slot.CurrentInstruction = 0x8c2f;
+        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.FirefleaInitial;
 
         // Parameter one is native `init0`: bit one selects circle versus vertical motion,
         // bit zero selects the sign half of the speed table, and its high byte is the initial

@@ -57,7 +57,11 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        InstallDraygonInstruction(state.Arms!, state.FacingRight ? (ushort)0x9c38 : (ushort)0x9845);
+        InstallDraygonInstruction(
+            state.Arms!,
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9C38
+                : DraygonInstructionLists.Ilist_9845);
 
         // Samus command $0D returns nonzero whenever the grapple-beam function is anything
         // other than its inactive entry. In that case Draygon drops the beam and retreats;
@@ -110,7 +114,11 @@ public sealed partial class RoomEnemySystem
         if (reachedTarget)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
-            InstallDraygonInstruction(body, state.FacingRight ? (ushort)0x9cb4 : (ushort)0x9922);
+            InstallDraygonInstruction(
+                body,
+                state.FacingRight
+                    ? DraygonInstructionLists.Ilist_9CB4
+                    : DraygonInstructionLists.Ilist_9922);
             body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
             return;
         }
@@ -204,7 +212,9 @@ public sealed partial class RoomEnemySystem
         {
             InstallDraygonInstruction(
                 state.Tail!,
-                state.FacingRight ? (ushort)0x9ea1 : (ushort)0x9ae8);
+                state.FacingRight
+                    ? DraygonInstructionLists.Ilist_9EA1
+                    : DraygonInstructionLists.Ilist_9AE8);
         }
     }
 
@@ -214,7 +224,9 @@ public sealed partial class RoomEnemySystem
         MoveSamusWithDraygon(state, RequireDraygonGrabbedSamus(samus));
         InstallDraygonInstruction(
             state.Tail!,
-            state.FacingRight ? (ushort)0x9e21 : (ushort)0x9a68);
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9E21
+                : DraygonInstructionLists.Ilist_9A68);
         state.Function = DraygonAiFunction.FinalTailWhipsWait;
     }
 
@@ -246,7 +258,9 @@ public sealed partial class RoomEnemySystem
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         InstallDraygonInstruction(
             state.Tail!,
-            state.FacingRight ? (ushort)0x9f15 : (ushort)0x9b5a);
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9F15
+                : DraygonInstructionLists.Ilist_9B5A);
     }
 
     /// <summary>Ports the regional four-pixel upward retreat at <c>$A5:9154</c>.</summary>

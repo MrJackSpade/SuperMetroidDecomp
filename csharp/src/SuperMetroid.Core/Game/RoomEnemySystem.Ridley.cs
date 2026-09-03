@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
 
         slot.Parameter1 = 0;
         slot.Parameter2 = 0;
-        SetRidleyInstruction(slot, 0xe538);
+        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E538);
         slot.PaletteIndex = 0x0e00;
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
 
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if ((short)state.FunctionTimer < 0)
                 {
-                    SetRidleyInstruction(slot, 0xe690);
+                    SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E690);
                     state.FunctionTimer = 0;
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
@@ -404,7 +404,7 @@ public sealed partial class RoomEnemySystem
         }
 
         state.FadePaletteOffset = 0;
-        SetRidleyInstruction(slot, 0xe91d);
+        SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E91D);
         state.WingAnimationTimer = 8;
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
@@ -616,7 +616,7 @@ public sealed partial class RoomEnemySystem
         {
             state.PogoBounceCount = 0;
             if (state.FacingDirection != 1)
-                SetRidleyInstruction(slot, 0xe73a);
+                SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E73A);
         }
         state.Function = RidleyAiFunction.NorfairFireballRecover;
     }
@@ -820,7 +820,11 @@ public sealed partial class RoomEnemySystem
     {
         if (state.FacingDirection == 1)
             return;
-        SetRidleyInstruction(slot, state.FacingDirection == 0 ? (ushort)0xe6f0 : (ushort)0xe706);
+        SetRidleyInstruction(
+            slot,
+            state.FacingDirection == 0
+                ? RidleyInstructionLists.Ilist_E6F0
+                : RidleyInstructionLists.Ilist_E706);
         slot.InstructionTimer = 2;
     }
 

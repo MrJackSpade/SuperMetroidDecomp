@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort KraidRoarInstruction = 0x96da;
+    private const ushort KraidRoarInstruction = KraidInstructionLists.Roar;
     private const int KraidRoarInitialTimerAddress = 0xa796d2;
     private const ushort KraidOpenMouthTilemap = 0xa0c8;
 

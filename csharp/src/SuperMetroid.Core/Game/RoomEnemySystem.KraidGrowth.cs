@@ -80,11 +80,11 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.GrowFinishBg2Update:
                 body.VariableA = (ushort)KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _slots[5];
-                foot.CurrentInstruction = 0x86ed;
+                foot.CurrentInstruction = KraidInstructionLists.Ilist_86ED;
                 foot.InstructionTimer = 1;
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
-                    _slots[lintSlot].CurrentInstruction = 0x8b04;
+                    _slots[lintSlot].CurrentInstruction = KraidInstructionLists.Ilist_8B04;
                     _slots[lintSlot].SpritemapPointer = 0x8c6c;
                 }
                 state.BottomTilemapUploadCount++;

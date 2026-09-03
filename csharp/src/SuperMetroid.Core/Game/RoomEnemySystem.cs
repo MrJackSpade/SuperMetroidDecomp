@@ -1515,7 +1515,9 @@ public sealed partial class RoomEnemySystem
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        slot.CurrentInstruction = slot.Parameter2 != 0 ? (ushort)0xa60e : (ushort)0xa61c;
+        slot.CurrentInstruction = slot.Parameter2 != 0
+            ? GunshipInstructionLists.BottomEntrancePad
+            : GunshipInstructionLists.BottomHull;
 
         // $A2:A6F1 reads enemy_drawing_queue[(cur_enemy_index >> 1) + 106].
         // For the two Landing Site bottom slots those WRAM addresses alias the preceding

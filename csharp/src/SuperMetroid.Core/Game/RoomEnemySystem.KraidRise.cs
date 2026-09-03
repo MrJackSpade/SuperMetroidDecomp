@@ -85,7 +85,7 @@ public sealed partial class RoomEnemySystem
                     foot.VariableA = (ushort)KraidAiFunction.FootFirstPhaseThinking;
                     foot.VariableF = 300;
                     state.Parts[5].NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
-                    _slots[1].CurrentInstruction = 0x89f3;
+                    _slots[1].CurrentInstruction = KraidInstructionLists.Ilist_89F3;
                     _slots[1].InstructionTimer = 1;
                 }
                 return;

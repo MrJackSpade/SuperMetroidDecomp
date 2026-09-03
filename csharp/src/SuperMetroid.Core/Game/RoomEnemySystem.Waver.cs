@@ -94,7 +94,7 @@ public sealed partial class RoomEnemySystem
         // The native initializer first installs the left steady list and then invokes the
         // change detector. Parameter bit zero therefore changes only right-facing spawns;
         // left-facing spawns intentionally observe current==requested and keep this list.
-        slot.CurrentInstruction = 0x86a7;
+        slot.CurrentInstruction = OrdinaryEnemyInstructionLists.WaverInitial;
         SetWaverInstructionList(slot, state);
     }
 

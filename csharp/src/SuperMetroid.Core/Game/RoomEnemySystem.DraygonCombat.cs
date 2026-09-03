@@ -93,8 +93,16 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot body = state.Body;
         samus?.Grapple.Phase = GrapplePhase.Dropped;
-        InstallDraygonInstruction(body, state.FacingRight ? (ushort)0x9c5a : (ushort)0x9867);
-        InstallDraygonInstruction(state.Eye!, state.FacingRight ? (ushort)0x9d1c : (ushort)0x997a);
+        InstallDraygonInstruction(
+            body,
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9C5A
+                : DraygonInstructionLists.Ilist_9867);
+        InstallDraygonInstruction(
+            state.Eye!,
+            state.FacingRight
+                ? DraygonInstructionLists.Ilist_9D1C
+                : DraygonInstructionLists.Ilist_997A);
         state.Eye!.VariableA = 0x804b;
         state.Function = DraygonAiFunction.Dying;
 

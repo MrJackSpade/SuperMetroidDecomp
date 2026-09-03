@@ -2085,7 +2085,8 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             LevelData,
                             Samus,
-                            NmiFrameCounter);
+                            NmiFrameCounter,
+                            Plms);
                 }
                 // Drained controller functions install movement-type-$1B poses whose normal
                 // beta dispatcher is RTS. Only animation command `$F7` replaces the handler

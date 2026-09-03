@@ -146,6 +146,37 @@ internal static partial class Program
         AssertEqual(1, scrolls.ReadStorage(1),
             "Morph Ball scroll contact executes resident bank-$8F program");
 
+        // Reproduce the recorded block-940 failure through the distinct `$90:E032`
+        // bomb-jump handler. The upward scanner reaches the type-D extension immediately
+        // above the resident trigger and must resolve it back to the same `$B703` owner.
+        // Ordinary Morph Ball movement already forwards that owner; this assertion guards
+        // the special movement-handler composition seam used only during bomb-jump ascent.
+        scrolls.SetStorage(1, RoomScrollState.RedBoundary);
+        var bombJump = new SamusState
+        {
+            Pose = SamusPoseIds.MorphBallGroundRightPose,
+            EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
+            XPosition = 56,
+            YPosition = 40,
+        };
+        bombJump.RefreshCollisionRadii(bus);
+        bombJump.Kinematics.YAcceleration = 0;
+        bombJump.Kinematics.YSubacceleration = 0;
+        bombJump.RequestMorphedBombJump(2);
+        SamusBombJumpMovement.Start(bus, bombJump);
+        bombJump.Kinematics.YSpeed = 1;
+        bombJump.Kinematics.YSubspeed = 0;
+        BombJumpMovementResult bombJumpMovement = SamusBombJumpMovement.Step(
+            bus,
+            level,
+            bombJump,
+            nmiFrameCounter: 0,
+            plms);
+        AssertTrue(!bombJumpMovement.Ended,
+            "unobstructed scroll extension does not terminate bomb-jump ascent");
+        AssertTrue(plms.ScrollPlms[0].Triggered,
+            "bomb-jump wrapper forwards live PLM owner to block collision");
+
         Console.WriteLine(
             "  Scroll PLMs: population setup, four extensions, collision wakeup, and bank-$8F programs agree.");
     }

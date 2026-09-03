@@ -1561,7 +1561,7 @@ static void VerifySamusMorphBallMovement()
     // moves right one pixel, moves upward by the pre-gravity 2.C000 magnitude, then stores
     // the reduced 2.8000 magnitude for the following frame.
     BombJumpMovementResult diagonal = SamusBombJumpMovement.Step(
-        bus, empty, bombJump, nmiFrameCounter: 0);
+        bus, empty, bombJump, nmiFrameCounter: 0, new RoomPlmSystem());
     AssertTrue(!diagonal.Ended, "unobstructed diagonal bomb jump remains active");
     AssertEqual((startX + 1), bombJump.XPosition, "right bomb jump uses $90:9F25 displacement");
     AssertEqual(2, bombJump.Kinematics.YSpeed, "bomb-jump gravity stores next whole speed");
@@ -1573,7 +1573,7 @@ static void VerifySamusMorphBallMovement()
     bombJump.Kinematics.YSpeed = 0xffff;
     bombJump.Kinematics.YSubspeed = 0;
     BombJumpMovementResult apex = SamusBombJumpMovement.Step(
-        bus, empty, bombJump, nmiFrameCounter: 1);
+        bus, empty, bombJump, nmiFrameCounter: 1, new RoomPlmSystem());
     AssertTrue(apex.Ended, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
     AssertEqual(2, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
@@ -1606,7 +1606,7 @@ static void VerifySamusMorphBallMovement()
     straightBombJump.RequestMorphedBombJump(2);
     SamusBombJumpMovement.Start(bus, straightBombJump);
     BombJumpMovementResult ceilingHit = SamusBombJumpMovement.Step(
-        bus, ceiling, straightBombJump, nmiFrameCounter: 0);
+        bus, ceiling, straightBombJump, nmiFrameCounter: 0, new RoomPlmSystem());
     AssertTrue(ceilingHit.Ended && ceilingHit.Vertical is { Collided: true },
         "straight bomb jump terminates on ceiling");
     AssertTrue(ceilingHit.Horizontal is null, "straight bomb jump performs no horizontal move");

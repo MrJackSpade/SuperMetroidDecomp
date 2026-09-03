@@ -44,11 +44,13 @@ public static class SamusBombJumpMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem plms)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
         ArgumentNullException.ThrowIfNull(samus);
+        ArgumentNullException.ThrowIfNull(plms);
         if (!samus.BombJumpActive)
             throw new InvalidOperationException("Bomb-jump main handler requires an active jump.");
 
@@ -85,7 +87,8 @@ public static class SamusBombJumpMovement
                 bus,
                 level,
                 samus.Kinematics,
-                displacement);
+                displacement,
+                plms: plms);
         }
 
         // `$90:8F1B` changes signed underflow to the falling direction. A diagonal jump
@@ -106,7 +109,12 @@ public static class SamusBombJumpMovement
         if (samus.Kinematics.YDirection == 2)
             return End(samus, horizontal, null);
 
-        BlockMoveResult vertical = MoveUpWithGravity(bus, level, samus, nmiFrameCounter);
+        BlockMoveResult vertical = MoveUpWithGravity(
+            bus,
+            level,
+            samus,
+            nmiFrameCounter,
+            plms);
         if (vertical.Collided || horizontal is { Collided: true })
             return End(samus, horizontal, vertical);
 
@@ -117,7 +125,8 @@ public static class SamusBombJumpMovement
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        RoomPlmSystem plms)
     {
         SamusKinematicsState state = samus.Kinematics;
         uint oldSpeed = state.VerticalSpeedFixed;
@@ -133,7 +142,8 @@ public static class SamusBombJumpMovement
             level,
             state,
             displacement,
-            scanLeftToRight: (nmiFrameCounter & 1) == 0);
+            scanLeftToRight: (nmiFrameCounter & 1) == 0,
+            plms: plms);
         if (result.Collided)
         {
             state.YSpeed = 0;

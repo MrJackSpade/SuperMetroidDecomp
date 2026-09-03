@@ -14,14 +14,33 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length is 4 or 5 && args[0].Equals("audio-replace", StringComparison.OrdinalIgnoreCase))
+{
+    string audioDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
+    string replacementPath = ResolveWorkspacePath(args[3], mustAlreadyExist: true);
+    PcmSampleLoopReplacement loop = args.Length == 4
+        ? PcmSampleLoopReplacement.PreserveTime
+        : ParseLoopReplacement(args[4]);
+    AudioCanonicalSampleMetadata installed = PcmSampleReplacementInstaller.Install(
+        audioDirectory,
+        args[2],
+        replacementPath,
+        loop);
+    Console.WriteLine(
+        $"Installed {installed.Id}: {installed.SampleRate} Hz, {installed.SampleCount} samples, " +
+        $"loop={installed.LoopSampleIndex?.ToString() ?? "none"}, SHA-256 {installed.Sha256}.");
+    return 0;
+}
+
 if (args.Length == 3 && args[0].Equals("audio", StringComparison.OrdinalIgnoreCase))
 {
     string rawDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
     string audioDirectory = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
     AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(rawDirectory, audioDirectory);
     Console.WriteLine(
-        $"Extracted {manifest.Uploads.Count} SPC streams, {manifest.Banks.Sum(bank => bank.Samples.Count)} " +
-        $"decoded BRR WAV files, and managed-driver metadata to {audioDirectory}");
+        $"Extracted {manifest.Uploads.Count} SPC streams and " +
+        $"{manifest.Banks.Sum(bank => bank.Samples.Count)} source aliases into " +
+        $"{manifest.CanonicalSamples.Count} canonical PCM WAV files at {audioDirectory}");
     return 0;
 }
 
@@ -41,6 +60,8 @@ if (args.Length != 2)
     Console.Error.WriteLine("Usage:");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor <raw-assets-directory> <png-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio <raw-assets-directory> <audio-output-directory>");
+    Console.Error.WriteLine(
+        "  SuperMetroid.AssetExtractor audio-replace <audio-directory> <sample-id> <wav> [preserve|none|loop-sample]");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor room <raw-assets-directory> <room.png>");
     return 2;
 }
@@ -157,6 +178,21 @@ static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
     // A non-asset relative path keeps conventional repository-root fallback semantics only
     // when its current-directory interpretation did not exist.
     return Path.GetFullPath(Path.Combine(repositoryRoot, argument));
+}
+
+static PcmSampleLoopReplacement ParseLoopReplacement(string value)
+{
+    if (value.Equals("preserve", StringComparison.OrdinalIgnoreCase))
+        return PcmSampleLoopReplacement.PreserveTime;
+    if (value.Equals("none", StringComparison.OrdinalIgnoreCase))
+        return PcmSampleLoopReplacement.Disabled;
+    if (int.TryParse(value, System.Globalization.NumberStyles.None,
+            System.Globalization.CultureInfo.InvariantCulture, out int sampleIndex) && sampleIndex >= 0)
+    {
+        return PcmSampleLoopReplacement.At(sampleIndex);
+    }
+    throw new ArgumentException(
+        $"Replacement loop '{value}' must be 'preserve', 'none', or a non-negative PCM sample index.");
 }
 
 static bool ContainsStandaloneAssetsSegment(string path)

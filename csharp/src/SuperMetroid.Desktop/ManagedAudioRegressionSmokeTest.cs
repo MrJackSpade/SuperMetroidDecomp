@@ -8,6 +8,8 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
     int Scenarios,
     int Frames,
     int PcmSamples,
+    int CanonicalSamples,
+    int SourceAliases,
     string PcmSha256,
     string AcknowledgementSha256);
 
@@ -19,15 +21,27 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
 public static class ManagedAudioRegressionSmokeTest
 {
     private const string ExpectedPcmSha256 =
-        "62656660AB1B53265C88CB01BB1215F0E83D7D63A2978C1D7A5DF60D55D44F85";
+        "AD413D9B0EE4BFDB2C84B9879AFF5F6A09963D18DE2317973EBFAE6423BF4CE1";
     private const string ExpectedAcknowledgementSha256 =
         "DF414B59F7CA21C4BBAD7ABA9C379C8296DCA454B480BFCEFCB8B35123D851FD";
     private const int ShortScenarioFrames = 120;
     private const int TitleScenarioFrames = 600;
     private const int LifecycleScenarioFrames = 600;
+    private const int ExpectedCanonicalSampleCount = 112;
+    private const int ExpectedSourceAliasCount = 935;
 
     public static ManagedAudioRegressionSmokeTestResult Run()
     {
+        ExtractedAudioAssetCatalog catalog = ExtractedAudioAssetCatalog.Load(
+            ExtractedAudioAssetLocator.FindAudioDirectory());
+        if (catalog.CanonicalSampleCount != ExpectedCanonicalSampleCount ||
+            catalog.SourceMappingCount != ExpectedSourceAliasCount)
+        {
+            throw new InvalidDataException(
+                $"Managed audio catalog has {catalog.CanonicalSampleCount} canonical samples/" +
+                $"{catalog.SourceMappingCount} aliases; expected {ExpectedCanonicalSampleCount}/" +
+                $"{ExpectedSourceAliasCount}.");
+        }
         using IncrementalHash pcmHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using IncrementalHash acknowledgementHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         int scenarios = 0;
@@ -110,7 +124,13 @@ public static class ManagedAudioRegressionSmokeTest
                 $"Managed audio acknowledgement regression: {acknowledgements}, expected {ExpectedAcknowledgementSha256}.");
         }
         return new ManagedAudioRegressionSmokeTestResult(
-            scenarios, frames, samples, pcm, acknowledgements);
+            scenarios,
+            frames,
+            samples,
+            catalog.CanonicalSampleCount,
+            catalog.SourceMappingCount,
+            pcm,
+            acknowledgements);
     }
 
     private static void RunMusicScenario(

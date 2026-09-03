@@ -105,8 +105,10 @@ whose ROM mirror is conventionally written `$80:841C`.
   extractor, room viewer, verification runner, and private-ROM debug runner.
 - `standalone-assets/raw/` contains named ROM chunks; `standalone-assets/png/` and
   `standalone-assets/runtime/` contain inspectable PNG assets and rendered diagnostic layers.
-- `standalone-assets/audio/` contains exact SPC upload streams, a SHA-verified metadata
-  catalog, and per-bank lossless BRR-to-WAV inspection assets used by managed audio playback.
+- `standalone-assets/audio/` contains exact SPC sequence/instrument upload streams, a
+  SHA-verified metadata catalog, and 112 deduplicated, stable-ID PCM WAV samples used directly
+  by managed audio playback. The 935 bank/source aliases make those WAVs replaceable without
+  rewriting game code or sequence data.
 - `standalone-native/` contains the compiled native C reference and SDL runtime.
 - `upstream-disassembly/` and `upstream-sm/` are pinned source references used during
   translation and differential inspection.

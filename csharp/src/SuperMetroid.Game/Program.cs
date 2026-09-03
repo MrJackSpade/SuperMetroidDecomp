@@ -140,7 +140,9 @@ try
         ManagedAudioRegressionSmokeTestResult result = ManagedAudioRegressionSmokeTest.Run();
         Console.WriteLine(
             $"Managed audio regression passed: {result.Scenarios} scenarios, {result.Frames} frames, " +
-            $"{result.PcmSamples} samples; PCM {result.PcmSha256}, acknowledgements {result.AcknowledgementSha256}.");
+            $"{result.PcmSamples} samples, {result.CanonicalSamples} canonical WAVs/" +
+            $"{result.SourceAliases} source aliases; PCM {result.PcmSha256}, " +
+            $"acknowledgements {result.AcknowledgementSha256}.");
         return 0;
     }
 

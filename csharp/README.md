@@ -243,11 +243,13 @@ music ring, three bank-$82 SFX handshakes, and acknowledgement timing; Windows `
 only buffered delivery of the resulting 48 kHz stereo PCM.
 
 Runtime upload commands resolve against the SHA-verified catalog in
-`../standalone-assets/audio`, not against the ROM or a native DLL. Its exact `.spcu` streams
-remain the playback source of truth. The accompanying JSON exposes track pointers, six-byte
-instrument/envelope records, BRR loop metadata, and all SFX routing tables, while per-bank WAV
-files provide lossless decoded views of the BRR samples for inspection. Unknown commands,
-malformed streams, missing assets, address misses, and digest mismatches throw explicitly.
+`../standalone-assets/audio`, not against the ROM or a native DLL. Exact `.spcu` streams remain
+the source of sequence, instrument, and SFX command data; BRR decoding now occurs only during
+asset extraction. Runtime voices read 16-bit mono PCM WAVs and apply pitch, pan, envelopes,
+looping, cancellation/voice stealing, Gaussian interpolation, noise, pitch modulation, and FIR
+echo dynamically in C#. The manifest maps 935 bank/source aliases onto 112 deduplicated WAVs,
+each with a stable ID, sample rate, loop frame, and SHA-256 digest. Unknown commands, malformed
+streams/WAVs, missing sources, invalid loops, address misses, and digest mismatches throw.
 
 Every currently translated audio publisher is connected: title, intro, Ceres, room and boss
 music; file-select/options/pause feedback; Samus movement, damage, liquid, X-ray, Crystal Flash,
@@ -265,9 +267,11 @@ demo-only calls remain absent with those untranslated states. The managed implem
 Super Metroid's sound driver; it is intentionally not a general-purpose SPC700 CPU emulator.
 
 The permanent ROM-free audio regression covers every music bank, all three SFX libraries,
-simultaneous SFX and cancellation, bank changes, stop, pause/resume, and track restoration. Its
-PCM and port-acknowledgement hashes were captured only after 6,336,000 samples and 13,440 port
-bytes matched the pinned native oracle exactly:
+simultaneous SFX and cancellation, bank changes, stop, pause/resume, track restoration, all 935
+aliases, and the 112-WAV deduplication invariant. The acknowledgement hash remains identical to
+the pinned cartridge-driver oracle. The PCM hash is the stock extracted-WAV baseline: unlike
+live BRR, a PCM loop repeats decoded frames rather than reapplying BRR predictor history at each
+loop boundary, which is the intentional seam that makes arbitrary replacement audio possible.
 
 ```powershell
 dotnet run --project src/SuperMetroid.Game -- --managed-audio-audit
@@ -358,13 +362,18 @@ inspection. Its optional diagnostic composition modes should not be confused wit
 ```powershell
 dotnet run --project src/SuperMetroid.AssetExtractor -- ../standalone-assets/raw ../standalone-assets/png
 dotnet run --project src/SuperMetroid.AssetExtractor -- audio ../standalone-assets/raw ../standalone-assets/audio
+dotnet run --project src/SuperMetroid.AssetExtractor -- audio-replace ../standalone-assets/audio sample-00-00 replacement.wav preserve
 dotnet run --project src/SuperMetroid.AssetExtractor -- room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
 The extractor produces named raw chunks, PNGs, manifests, composed-room diagnostics, exact SPC
-upload streams, audio metadata, and decoded BRR WAVs. Gameplay still reads general cartridge
-code/data directly; audio alone uses its extracted catalog at runtime. PNGs and WAVs are
-inspectable derivatives rather than replacement sources of gameplay truth.
+upload streams, audio metadata, and canonical decoded PCM WAVs. The `audio-replace` command
+validates an uncompressed mono PCM16 WAV, retains the named sample ID and every bank alias,
+updates its rate/count/hash, and defaults to preserving the loop time across sample-rate changes.
+Pass `none` to disable looping or a non-negative PCM frame index to set it explicitly. Supported
+replacement rates are 8-384 kHz; the managed mixer normalizes pitch to the source rate. Running
+the ordinary `audio` extraction again restores every stock WAV. Gameplay still reads general
+cartridge code/data directly; audio alone uses its extracted catalog at runtime.
 
 ## Testing policy
 

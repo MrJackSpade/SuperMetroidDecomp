@@ -44,6 +44,7 @@ internal sealed class SpcAudioEngine : IDisposable
             {
                 case CartridgeAudioCommandKind.Upload:
                     player.Upload(assets.GetUpload(command.UploadAddress).Span);
+                    player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                     break;
                 case CartridgeAudioCommandKind.WritePort:
                     player.WritePort(command.Port, command.Value);

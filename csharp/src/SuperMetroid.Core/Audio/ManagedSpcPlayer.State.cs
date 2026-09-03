@@ -175,6 +175,12 @@ public sealed partial class ManagedSpcPlayer
         InitializeDriver();
     }
 
+    /// <summary>
+    /// Selects the replaceable PCM sources corresponding to the most recent cartridge upload.
+    /// Sequence, pitch, envelope, pan, cancellation, and echo behavior remain live DSP work.
+    /// </summary>
+    public void SetSampleBank(ManagedPcmSampleBank bank) => dsp.SetSampleBank(bank);
+
     /// <summary>Writes one CPU-to-SPC communication port exactly as the cartridge does.</summary>
     public void WritePort(int port, byte value)
     {

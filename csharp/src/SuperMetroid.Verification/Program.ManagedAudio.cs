@@ -1,11 +1,14 @@
 using SuperMetroid.Core.Audio;
+using System.Text.Json;
 
 internal static partial class Program
 {
     private static void VerifyManagedSnesDsp()
     {
         VerifyManagedDspResetProducesSilence();
-        VerifyManagedDspDecodesConstructedBrrSample();
+        VerifyManagedDspPlaysConstructedPcmSample();
+        VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
+        VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
     }
 
@@ -27,28 +30,68 @@ internal static partial class Program
     }
 
     /// <summary>
-    /// Exercises the real directory lookup, BRR nibble expansion, Gaussian interpolation,
-    /// direct-gain envelope, pitch stepping, stereo volumes, and end/loop flag path without
-    /// depending on a cartridge room or prerecorded waveform.
+    /// Exercises PCM source lookup, Gaussian interpolation, direct-gain envelope, pitch
+    /// stepping, stereo volumes, and the end/loop path without a cartridge room.
     /// </summary>
-    private static void VerifyManagedDspDecodesConstructedBrrSample()
+    private static void VerifyManagedDspPlaysConstructedPcmSample()
     {
-        const int directoryAddress = 0x1000;
-        const int sampleAddress = 0x2000;
         byte[] apuRam = new byte[0x10000];
-        apuRam[directoryAddress] = unchecked((byte)sampleAddress);
-        apuRam[directoryAddress + 1] = (byte)(sampleAddress >> 8);
-        apuRam[directoryAddress + 2] = unchecked((byte)sampleAddress);
-        apuRam[directoryAddress + 3] = (byte)(sampleAddress >> 8);
-
-        // Range $C, filter zero, end+loop. Alternating +7/-8 nibbles create an unmistakable
-        // non-silent waveform while the loop flag repeatedly exercises the directory restart.
-        apuRam[sampleAddress] = 0xc3;
-        for (int index = 1; index <= 8; index++)
-            apuRam[sampleAddress + index] = 0x78;
-
         ManagedSnesDsp dsp = new(apuRam);
-        dsp.WriteRegister(0x5d, directoryAddress >> 8);
+        short[] waveform = Enumerable.Range(0, 16)
+            .Select(index => unchecked((short)((index & 1) == 0 ? 14_336 : -16_384)))
+            .ToArray();
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "constructed",
+            0xC00000,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new ManagedPcmSample("constructed-loop", 32_000, waveform, 0),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+
+        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
+            dsp.Cycle();
+
+        short[] output = new short[1_600];
+        dsp.CopyResampledSamples(output, 800);
+        AssertTrue(output.Any(sample => sample != 0), "constructed PCM waveform is audible");
+        AssertEqual(output[0], output[1], "constructed PCM waveform uses equal stereo volumes");
+        AssertTrue((dsp.ReadRegister(0x7c) & 1) != 0, "constructed PCM loop raises ENDX");
+    }
+
+    /// <summary>
+    /// A replacement WAV may carry more source frames than the stock 32-kHz decode. The DSP
+    /// normalizes phase advance, applies the same live envelope/pan path, and still obeys key-off.
+    /// </summary>
+    private static void VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement()
+    {
+        ManagedSnesDsp dsp = new(new byte[0x10000]);
+        short[] waveform = Enumerable.Range(0, 96)
+            .Select(index => unchecked((short)(Math.Sin(index * Math.PI / 12) * 20_000)))
+            .ToArray();
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "hd-replacement",
+            0xC00003,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new ManagedPcmSample("sample-00-00", 48_000, waveform, 24),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+
+        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
+            dsp.Cycle();
+        short[] output = new short[1_600];
+        dsp.CopyResampledSamples(output, 800);
+        AssertTrue(output.Any(sample => sample != 0), "48-kHz replacement waveform is audible");
+
+        dsp.WriteRegister(0x5c, 1);
+        for (int index = 0; index < 300; index++)
+            dsp.Cycle();
+        AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
+    }
+
+    private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp)
+    {
         dsp.WriteRegister(0x00, 0x7f);
         dsp.WriteRegister(0x01, 0x7f);
         dsp.WriteRegister(0x02, 0xff);
@@ -60,15 +103,75 @@ internal static partial class Program
         dsp.WriteRegister(0x1c, 0x7f);
         dsp.WriteRegister(0x6c, 0x20);
         dsp.WriteRegister(0x4c, 1);
+    }
 
-        for (int index = 0; index < ManagedSnesDsp.NativeStereoFramesPerVideoFrame; index++)
-            dsp.Cycle();
+    /// <summary>
+    /// Exercises the build-stage replacement seam: the ID and bank aliases remain stable while
+    /// a higher-rate WAV, rescaled loop position, sample count, and integrity hash replace data.
+    /// </summary>
+    private static void VerifyPcmReplacementPreservesStableIdentity()
+    {
+        string directory = Path.Combine(Path.GetTempPath(), $"sm-pcm-replacement-{Guid.NewGuid():N}");
+        string samplesDirectory = Path.Combine(directory, "samples");
+        Directory.CreateDirectory(samplesDirectory);
+        try
+        {
+            string target = Path.Combine(samplesDirectory, "sample-00-00.wav");
+            short[] stock = Enumerable.Range(0, 16).Select(index => unchecked((short)index)).ToArray();
+            PcmWaveFile.WriteMonoPcm16(target, 32_000, stock);
+            var original = new AudioCanonicalSampleMetadata(
+                "sample-00-00",
+                "samples/sample-00-00.wav",
+                32_000,
+                stock.Length,
+                8,
+                Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(target))));
+            var manifest = new AudioAssetManifest(
+                AudioAssetManifest.CurrentFormatVersion,
+                [],
+                [original],
+                [],
+                []);
+            File.WriteAllText(
+                Path.Combine(directory, ExtractedAudioAssetCatalog.ManifestFileName),
+                JsonSerializer.Serialize(manifest, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true,
+                }));
 
-        short[] output = new short[1_600];
-        dsp.CopyResampledSamples(output, 800);
-        AssertTrue(output.Any(sample => sample != 0), "constructed BRR waveform is audible");
-        AssertEqual(output[0], output[1], "constructed BRR waveform uses equal stereo volumes");
-        AssertTrue((dsp.ReadRegister(0x7c) & 1) != 0, "constructed BRR loop raises ENDX");
+            string replacement = Path.Combine(directory, "replacement.wav");
+            short[] hd = Enumerable.Range(0, 32)
+                .Select(index => unchecked((short)(index * 257)))
+                .ToArray();
+            PcmWaveFile.WriteMonoPcm16(replacement, 48_000, hd);
+            AudioCanonicalSampleMetadata installed = PcmSampleReplacementInstaller.Install(
+                directory,
+                original.Id,
+                replacement,
+                PcmSampleLoopReplacement.PreserveTime);
+
+            AssertEqual(original.Id, installed.Id, "PCM replacement stable sample ID");
+            AssertEqual(48_000, installed.SampleRate, "PCM replacement sample rate");
+            AssertEqual(32, installed.SampleCount, "PCM replacement sample count");
+            AssertEqual(12, installed.LoopSampleIndex, "PCM replacement time-scaled loop");
+            (int rate, short[] samples) = PcmWaveFile.ReadMonoPcm16(File.ReadAllBytes(target), target);
+            AssertEqual(48_000, rate, "installed PCM WAV rate");
+            AssertTrue(samples.SequenceEqual(hd), "installed PCM WAV content");
+
+            AssertThrows<InvalidDataException>(
+                () => PcmSampleReplacementInstaller.Install(
+                    directory,
+                    original.Id,
+                    replacement,
+                    PcmSampleLoopReplacement.At(hd.Length)),
+                "PCM replacement rejects loop at end of sample");
+        }
+        finally
+        {
+            if (Directory.Exists(directory))
+                Directory.Delete(directory, recursive: true);
+        }
     }
 
     private static void VerifyManagedDspRejectsInvalidBoundaries()
@@ -84,5 +187,25 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(
             () => dsp.CopyResampledSamples(new short[2], 0),
             "managed DSP rejects an empty host frame");
+        dsp.SetSampleBank(new ManagedPcmSampleBank(
+            "missing-source",
+            0xC00000,
+            new Dictionary<byte, ManagedPcmSample>()));
+        AssertThrows<InvalidDataException>(
+            () => dsp.WriteRegister(0x4c, 1),
+            "managed DSP rejects an unmapped source at key-on");
+        AssertThrows<InvalidDataException>(
+            () => _ = new ManagedPcmSample(
+                "bad-rate",
+                PcmSampleFormat.MinimumReplacementSampleRate - 1,
+                [0],
+                null),
+            "managed PCM rejects unsupported sample rate");
+        AssertThrows<InvalidDataException>(
+            () => _ = new ManagedPcmSample("bad-loop", 32_000, [0], 1),
+            "managed PCM rejects loop outside waveform");
+        AssertThrows<InvalidDataException>(
+            () => PcmWaveFile.ReadMonoPcm16("not-wave"u8, "constructed invalid WAV"),
+            "managed PCM rejects malformed WAV container");
     }
 }

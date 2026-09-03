@@ -2,8 +2,10 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Managed implementation of the eight-voice S-DSP behavior used by Super Metroid.
-/// It owns BRR decoding, Gaussian interpolation, envelopes, pitch/noise modulation, and
-/// the shared FIR echo buffer; the music driver only writes the ordinary DSP registers.
+/// It consumes replaceable decoded PCM while retaining cartridge-accurate Gaussian
+/// interpolation, envelopes, pitch/noise modulation, and the shared FIR echo buffer. The
+/// music driver continues to write the ordinary DSP registers, so samples remain data rather
+/// than pre-rendered sound effects.
 /// </summary>
 public sealed class ManagedSnesDsp
 {
@@ -20,7 +22,7 @@ public sealed class ManagedSnesDsp
     private readonly short[] firBufferLeft = new short[8];
     private readonly short[] firBufferRight = new short[8];
 
-    private ushort directoryPage;
+    private ManagedPcmSampleBank? sampleBank;
     private bool mute;
     private bool reset;
     private sbyte masterVolumeLeft;
@@ -58,7 +60,6 @@ public sealed class ManagedSnesDsp
         registers[SnesDspRegisterMap.Global.EndFlags] = byte.MaxValue;
         foreach (Voice voice in voices)
             voice.Reset();
-        directoryPage = 0;
         mute = true;
         reset = true;
         masterVolumeLeft = 0;
@@ -83,6 +84,13 @@ public sealed class ManagedSnesDsp
     }
 
     public byte ReadRegister(byte address) => registers[address & 0x7f];
+
+    /// <summary>
+    /// Installs the source-number map associated with the latest cartridge upload. Existing
+    /// voices retain their waveform while releasing; future key-ons resolve through this bank.
+    /// </summary>
+    public void SetSampleBank(ManagedPcmSampleBank bank) =>
+        sampleBank = bank ?? throw new ArgumentNullException(nameof(bank));
 
     /// <summary>Applies one SPC write to the mirrored S-DSP register file.</summary>
     public void WriteRegister(byte address, byte value)
@@ -199,7 +207,8 @@ public sealed class ManagedSnesDsp
                     voices[index].EchoEnable = (value & (1 << index)) != 0;
                 break;
             case SnesDspRegisterMap.Global.SourceDirectory:
-                directoryPage = unchecked((ushort)(value << 8));
+                // The extracted catalog has already resolved this BRR directory into stable
+                // source IDs. Preserve the register mirror because software can read it back.
                 break;
             case SnesDspRegisterMap.Global.EchoBufferAddress:
                 echoBufferAddress = unchecked((ushort)(value << 8));
@@ -263,9 +272,11 @@ public sealed class ManagedSnesDsp
 
     private void KeyOn(Voice voice)
     {
+        ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
+            "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = 0;
-        int directory = unchecked((ushort)(directoryPage + 4 * voice.SourceNumber));
-        voice.DecodeOffset = ReadWord(directory);
+        voice.Sample = bank.Resolve(voice.SourceNumber);
+        voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
         voice.Gain = 0;
         voice.AdsrState = voice.UseGain ? EnvelopeState.Gain : EnvelopeState.Attack;
@@ -280,13 +291,30 @@ public sealed class ManagedSnesDsp
             int factor = (voices[index - 1].SampleOutput >> 4) + 0x400;
             pitch = Math.Min(0x3fff, (pitch * factor) >> 10);
         }
-        int nextCounter = voice.PitchCounter + pitch;
-        if (nextCounter > ushort.MaxValue)
-            DecodeBrr(index);
+        ManagedPcmSample? sampleSource = voice.Sample;
+        // A stock 32-kHz WAV is numerically identical to decoded BRR. Scaling the phase step
+        // lets an HD replacement use a different sample rate without changing musical pitch.
+        long scaledPitch = sampleSource is null
+            ? pitch
+            : ((long)pitch * sampleSource.SampleRate + PcmSampleFormat.StockSampleRate / 2) /
+                PcmSampleFormat.StockSampleRate;
+        long nextCounter = voice.PitchCounter + scaledPitch;
+        while (nextCounter > ushort.MaxValue)
+        {
+            if (sampleSource is null)
+            {
+                throw new InvalidOperationException(
+                    $"S-DSP voice {index} advanced without a key-on PCM sample.");
+            }
+            DecodePcm(index);
+            nextCounter -= ushort.MaxValue + 1L;
+        }
         voice.PitchCounter = unchecked((ushort)nextCounter);
         short sample = voice.UseNoise
             ? noiseSample
-            : GetInterpolatedSample(voice, voice.PitchCounter >> 12, (voice.PitchCounter >> 4) & 0xff);
+            : sampleSource is null
+                ? (short)0
+                : GetInterpolatedSample(voice, voice.PitchCounter >> 12, (voice.PitchCounter >> 4) & 0xff);
 
         if (reset)
         {
@@ -381,16 +409,18 @@ public sealed class ManagedSnesDsp
         return unchecked((short)(Clamp16(output) >> 1));
     }
 
-    private void DecodeBrr(int voiceIndex)
+    private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
+        ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
+            $"S-DSP voice {voiceIndex} cannot decode without a PCM sample.");
+        ReadOnlySpan<short> source = sample.Samples.Span;
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
         if (voice.PreviousFlags is 1 or 3)
         {
-            int directory = unchecked((ushort)(directoryPage + 4 * voice.SourceNumber));
-            voice.DecodeOffset = ReadWord(unchecked((ushort)(directory + 2)));
+            voice.SampleCursor = sample.LoopSampleIndex ?? 0;
             if (voice.PreviousFlags == 1)
             {
                 voice.AdsrState = EnvelopeState.Release;
@@ -399,44 +429,28 @@ public sealed class ManagedSnesDsp
             registers[SnesDspRegisterMap.Global.EndFlags] |= unchecked((byte)(1 << voiceIndex));
         }
 
-        byte header = apuRam[voice.DecodeOffset++];
-        int shift = header >> 4;
-        int filter = (header & 0x0c) >> 2;
-        voice.PreviousFlags = unchecked((byte)(header & 3));
-        byte packed = 0;
-        int old = voice.Old;
-        int older = voice.Older;
-        for (int sampleIndex = 0; sampleIndex < 16; sampleIndex++)
+        voice.PreviousFlags = 0;
+        for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
         {
-            int sample;
-            if ((sampleIndex & 1) != 0)
+            if (voice.SampleCursor >= source.Length)
             {
-                sample = packed & 0x0f;
+                if (sample.LoopSampleIndex is int loop)
+                {
+                    voice.SampleCursor = loop;
+                    registers[SnesDspRegisterMap.Global.EndFlags] |=
+                        unchecked((byte)(1 << voiceIndex));
+                }
+                else
+                {
+                    voice.PreviousFlags = 1;
+                    voice.DecodeBuffer[sampleIndex + 3] = 0;
+                    continue;
+                }
             }
-            else
-            {
-                packed = apuRam[voice.DecodeOffset++];
-                sample = packed >> 4;
-            }
-            if (sample > 7)
-                sample -= 16;
-            sample = shift <= 0x0c ? (sample << shift) >> 1 : (sample >> 3) << 12;
-            sample += filter switch
-            {
-                0 => 0,
-                1 => old + (-old >> 4),
-                2 => 2 * old + ((3 * -old) >> 5) - older + (older >> 4),
-                3 => 2 * old + ((13 * -old) >> 6) - older + ((3 * older) >> 4),
-                _ => throw new InvalidDataException($"Unknown BRR filter {filter}."),
-            };
-            sample = Clamp16(sample);
-            sample = unchecked((short)((sample & 0x7fff) << 1)) >> 1;
-            older = old;
-            old = sample;
-            voice.DecodeBuffer[sampleIndex + 3] = unchecked((short)sample);
+            voice.DecodeBuffer[sampleIndex + 3] = source[voice.SampleCursor++];
         }
-        voice.Older = unchecked((short)older);
-        voice.Old = unchecked((short)old);
+        if (voice.SampleCursor == source.Length)
+            voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
     }
 
     private void HandleNoise()
@@ -530,10 +544,9 @@ public sealed class ManagedSnesDsp
         public bool PitchModulation;
         public short[] DecodeBuffer { get; } = new short[19];
         public byte SourceNumber;
-        public ushort DecodeOffset;
+        public ManagedPcmSample? Sample;
+        public int SampleCursor;
         public byte PreviousFlags;
-        public short Old;
-        public short Older;
         public bool UseNoise;
         public ushort[] AdsrRates { get; } = new ushort[4];
         public ushort RateCounter;
@@ -555,9 +568,9 @@ public sealed class ManagedSnesDsp
             PitchModulation = false;
             Array.Clear(DecodeBuffer);
             SourceNumber = 0;
-            DecodeOffset = 0;
+            Sample = null;
+            SampleCursor = 0;
             PreviousFlags = 0;
-            Old = Older = 0;
             UseNoise = false;
             Array.Clear(AdsrRates);
             RateCounter = 0;

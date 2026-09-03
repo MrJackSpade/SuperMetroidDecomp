@@ -83,8 +83,8 @@ public sealed class SamusGrappleState
     public short FlareYOffset { get; set; }
     public int EndpointXOffsetFixed { get; set; }
     public int EndpointYOffsetFixed { get; set; }
-    public ushort Angle { get; set; }
-    public ushort MirroredAngle { get; set; }
+    public SnesAngle Angle { get; set; }
+    public SnesAngle MirroredAngle { get; set; }
     public short AngularVelocity { get; set; }
     public short DirectionInputAcceleration { get; set; }
     public short GravityAcceleration { get; set; }

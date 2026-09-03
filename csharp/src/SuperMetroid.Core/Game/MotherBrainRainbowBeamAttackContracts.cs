@@ -166,7 +166,7 @@ public readonly record struct MotherBrainEscapeDoorPlmRequest(
     ushort PlmEntry);
 
 /// <summary>One `$86:CB4B` blue-ring spawn emitted by head opcode `$A9:9E29`.</summary>
-public readonly record struct MotherBrainOnionRingSpawnRequest(byte Angle);
+public readonly record struct MotherBrainOnionRingSpawnRequest(SnesAngle Angle);
 
 /// <summary>One `$86:CB59` bomb spawn emitted by head opcode `$A9:9EBD`.</summary>
 public readonly record struct MotherBrainBombSpawnRequest(ushort AfterburnCount);
@@ -181,7 +181,7 @@ public readonly record struct MotherBrainHeadAnimationStepResult(
     bool LoadedFrame,
     bool BabyAttackCounterIncremented,
     bool BabyAttackCounterReset,
-    byte OnionRingTargetAngle,
+    SnesAngle OnionRingTargetAngle,
     MotherBrainOnionRingSpawnRequest? OnionRingSpawn,
     MotherBrainBombSpawnRequest? BombSpawn,
     bool PurpleBreathBigSpawnRequested,

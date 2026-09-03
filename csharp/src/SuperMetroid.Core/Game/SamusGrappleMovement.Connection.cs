@@ -255,8 +255,8 @@ public static partial class SamusGrappleMovement
         // as an integer byte in the high half of the native word; its fraction becomes zero.
         int deltaX = unchecked((short)(samus.XPosition - grapple.AnchorX));
         int deltaY = unchecked((short)(samus.YPosition - grapple.AnchorY));
-        byte angleByte = CalculateAngleFromXY(deltaX, deltaY);
-        grapple.Angle = unchecked((ushort)(angleByte << 8));
+        SnesAngle angle = CalculateAngleFromXY(deltaX, deltaY);
+        grapple.Angle = angle;
         grapple.MirroredAngle = grapple.Angle;
         grapple.AngularVelocity = 0;
         grapple.RopeLengthDelta = 0;
@@ -269,7 +269,7 @@ public static partial class SamusGrappleMovement
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             bus,
             grapple,
-            angleByte,
+            angle.TableIndex,
             grapple.RopeLength);
         grapple.RopeStartX = ropeStart.X;
         grapple.RopeStartY = ropeStart.Y;
@@ -344,14 +344,14 @@ public static partial class SamusGrappleMovement
     /// The return byte is measured clockwise from negative Y: $00 up, $40 right, $80 down,
     /// and $C0 left. Division truncates exactly as the SNES unsigned divide registers do.
     /// </summary>
-    internal static byte CalculateAngleFromXY(int x, int y)
+    internal static SnesAngle CalculateAngleFromXY(int x, int y)
     {
         bool xNegative = x < 0;
         bool yNegative = y < 0;
         int absoluteX = Math.Abs(x);
         int absoluteY = Math.Abs(y);
         if (absoluteX == 0 && absoluteY == 0)
-            return 0;
+            return SnesAngle.Zero;
 
         // The assembly advances its pointer byte offset by four for negative X and two
         // for negative Y, then indexes a word table. Converted to a zero-based entry index,
@@ -360,23 +360,23 @@ public static partial class SamusGrappleMovement
         if (absoluteY < absoluteX)
         {
             int eighths = ((absoluteY << 8) / absoluteX) >> 3;
-            return quadrant switch
+            return SnesAngle.NormalizeTableIndex(quadrant switch
             {
-                0 => unchecked((byte)(eighths + 0x40)),
-                1 => unchecked((byte)(0x40 - eighths)),
-                2 => unchecked((byte)(0xc0 - eighths)),
-                _ => unchecked((byte)(0xc0 + eighths)),
-            };
+                0 => eighths + SnesAngle.QuarterTurn.TableIndex,
+                1 => SnesAngle.QuarterTurn.TableIndex - eighths,
+                2 => SnesAngle.ThreeQuarterTurn.TableIndex - eighths,
+                _ => SnesAngle.ThreeQuarterTurn.TableIndex + eighths,
+            });
         }
 
         int reciprocalEighths = ((absoluteX << 8) / absoluteY) >> 3;
-        return quadrant switch
+        return SnesAngle.NormalizeTableIndex(quadrant switch
         {
-            0 => unchecked((byte)(0x80 - reciprocalEighths)),
+            0 => SnesAngle.HalfTurn.TableIndex - reciprocalEighths,
             1 => unchecked((byte)reciprocalEighths),
-            2 => unchecked((byte)(reciprocalEighths + 0x80)),
-            _ => unchecked((byte)(0x100 - reciprocalEighths)),
-        };
+            2 => reciprocalEighths + SnesAngle.HalfTurn.TableIndex,
+            _ => 0x100 - reciprocalEighths,
+        });
     }
 
     private static void InitializeBeamAnimation(SamusGrappleState grapple)

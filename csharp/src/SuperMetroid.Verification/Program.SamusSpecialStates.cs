@@ -331,7 +331,7 @@ static void VerifySamusXray()
     AssertEqual(21, standing.Kinematics.YRadius, "standing X-ray radius");
     AssertEqual(2, standing.AnimationFrame, "command five starts X-ray frame two");
     AssertEqual(0x3f, standing.AnimationFrameTimer, "command five X-ray timer");
-    AssertEqual(0x40, standing.Xray.Angle, "right X-ray initial angle");
+    AssertEqual(0x40, standing.Xray.Angle.TableIndex, "right X-ray initial angle");
     AssertEqual(1, standing.Xray.SetupStage, "X-ray starts setup stage one");
     AssertTrue(standing.Xray.TimeIsFrozen, "X-ray freezes time");
     AssertTrue(standing.Xray.ActivationSoundRequested, "X-ray activation sound requested");
@@ -416,10 +416,10 @@ static void VerifySamusXray()
         bus,
         standing,
         (ushort)(SnesButton.B | SnesButton.Up | SnesButton.Down));
-    AssertEqual(0x3f, standing.Xray.Angle, "X-ray Up wins over Down");
+    AssertEqual(0x3f, standing.Xray.Angle.TableIndex, "X-ray Up wins over Down");
     for (int frame = 0; frame < 80; frame++)
         standing.Xray.StepBeam(bus, standing, (ushort)(SnesButton.B | SnesButton.Up));
-    AssertEqual(10, standing.Xray.Angle, "right X-ray upper clamp includes width");
+    AssertEqual(10, standing.Xray.Angle.TableIndex, "right X-ray upper clamp includes width");
     AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
         "upper-clamped angle selects looking-up art");
 
@@ -432,7 +432,7 @@ static void VerifySamusXray()
         (ushort)SnesButton.Left);
     AssertTrue(startedTurn.StartedTurn, "X-ray starts standing turn");
     AssertEqual(0x25, standing.Pose, "X-ray right-to-left standing turn pose");
-    AssertEqual(0xf6, standing.Xray.Angle, "X-ray turn mirrors angle");
+    AssertEqual(0xf6, standing.Xray.Angle.TableIndex, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
         "X-ray movement is RTS during type-E turn");
     standing.AnimateNoFx(bus);

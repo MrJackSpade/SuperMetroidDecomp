@@ -329,9 +329,9 @@ static void VerifySamusStoredShineAndShinespark()
     // execute `$90:D4D2` until the following alpha projectile pass.
     AssertEqual(2, horizontal.Shinespark.ReleasedCrashEchoCount,
         "empty projectile capacity admits both departing crash echoes");
-    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEcho.Angle,
+    AssertEqual(0x00, horizontal.Shinespark.FirstReleasedCrashEcho.Angle.TableIndex,
         "horizontal-right first departing echo uses ROM table angle zero");
-    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEcho.Angle,
+    AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEcho.Angle.TableIndex,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
     AssertEqual(64, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
         "departing echo initializes to native radius 64");

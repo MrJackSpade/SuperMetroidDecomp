@@ -62,8 +62,8 @@ internal sealed partial class CeresDestructionCinematicState
 
     private (short A, short B, short C, short D) CalculateMatrix()
     {
-        short cosine = ReadSine(unchecked((byte)(angle + 0x40)));
-        short sine = ReadSine(angle);
+        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
+        short sine = ReadSine(angle.TableIndex);
         short a = Scale(cosine, zoom);
         short b = Scale(sine, zoom);
         return (a, b, unchecked((short)-b), a);

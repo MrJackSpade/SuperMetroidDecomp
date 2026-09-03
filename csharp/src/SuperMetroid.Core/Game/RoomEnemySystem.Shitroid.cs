@@ -803,15 +803,16 @@ public sealed partial class RoomEnemySystem
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the
             // negated source angle. Magnitude $40 is added to the current 8.8 velocity.
-            byte angle = unchecked((byte)-SamusGrappleMovement.CalculateAngleFromXY(
+            SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
                 unchecked((short)(samus.XPosition - slot.XPosition)),
-                unchecked((short)(samus.YPosition - slot.YPosition))));
+                unchecked((short)(samus.YPosition - slot.YPosition)));
+            SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
             state.XVelocity = unchecked((ushort)(
-                state.XVelocity + MultiplyCartridgeSinCos(0x0040, angle)));
+                state.XVelocity + MultiplyCartridgeSinCos(0x0040, angle.TableIndex)));
             state.YVelocity = unchecked((ushort)(
                 state.YVelocity + MultiplyCartridgeSinCos(
                     0x0040,
-                    unchecked((byte)(angle + 64)))));
+                    angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
             return;
         }
 
@@ -848,18 +849,19 @@ public sealed partial class RoomEnemySystem
             return;
 
         BreakReleasedShitroidFollow(state);
-        byte angle = unchecked((byte)-SamusGrappleMovement.CalculateAngleFromXY(
+        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(
             unchecked((short)(slotZeroProjectile.XPosition - slot.XPosition)),
-            unchecked((short)(slotZeroProjectile.YPosition - slot.YPosition))));
+            unchecked((short)(slotZeroProjectile.YPosition - slot.YPosition)));
+        SnesAngle angle = SnesAngle.NormalizeRaw(-sourceAngle.RawValue);
         ushort magnitude = unchecked((ushort)(8 * collisionDamage));
         if (magnitude >= 0x00f0)
             magnitude = 0x00f0;
         state.XVelocity = unchecked((ushort)(
-            state.XVelocity + MultiplyCartridgeSinCos(magnitude, angle)));
+            state.XVelocity + MultiplyCartridgeSinCos(magnitude, angle.TableIndex)));
         state.YVelocity = unchecked((ushort)(
             state.YVelocity + MultiplyCartridgeSinCos(
                 magnitude,
-                unchecked((byte)(angle + 64)))));
+                angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)));
     }
 
     /// <summary>Ports <c>Shitroid_Powerbomb</c> at <c>$A9:EFBA</c>.</summary>

@@ -39,7 +39,7 @@ public sealed class SamusXrayState
     public XrayBeamPhase BeamPhase { get; private set; }
 
     /// <summary>WRAM `$0A7E`; right-facing angles occupy `$00-$7F`, left `$80-$FF`.</summary>
-    public ushort Angle { get; private set; }
+    public SnesAngle Angle { get; private set; }
 
     /// <summary>WRAM `$0A82`, the whole half-width of the beam in 8-bit angle units.</summary>
     public ushort AngularWidth { get; private set; }
@@ -152,7 +152,7 @@ public sealed class SamusXrayState
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
         samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
-        Angle = facingLeft ? (ushort)0x00c0 : (ushort)0x0040;
+        Angle = facingLeft ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn;
         AngularWidth = 0;
         AngularSubwidth = 0;
         AngularWidthDelta = 0;
@@ -195,7 +195,7 @@ public sealed class SamusXrayState
 
             // Mirroring through `$0100 - angle` turns right-space `$00-$7F` into its exact
             // left-space counterpart and vice versa. This happens before selecting turn art.
-            Angle = unchecked((ushort)(0x0100 - Angle));
+            Angle = SnesAngle.NormalizeRaw(-Angle.RawValue);
             bool crouching = movementType == SamusMovementType.Crouching;
             byte targetPose = (facingLeft, crouching) switch
             {
@@ -241,14 +241,14 @@ public sealed class SamusXrayState
 
         bool facingLeft = samus.IsFacingLeft(bus);
         ushort frame = facingLeft
-            ? Angle < 0x0099 ? (ushort)4 :
-              Angle < 0x00b2 ? (ushort)3 :
-              Angle < 0x00cb ? (ushort)2 :
-              Angle < 0x00e4 ? (ushort)1 : (ushort)0
-            : Angle < 0x0019 ? (ushort)0 :
-              Angle < 0x0032 ? (ushort)1 :
-              Angle < 0x004b ? (ushort)2 :
-              Angle < 0x0064 ? (ushort)3 : (ushort)4;
+            ? Angle.TableIndex < 0x99 ? (ushort)4 :
+              Angle.TableIndex < 0xb2 ? (ushort)3 :
+              Angle.TableIndex < 0xcb ? (ushort)2 :
+              Angle.TableIndex < 0xe4 ? (ushort)1 : (ushort)0
+            : Angle.TableIndex < 0x19 ? (ushort)0 :
+              Angle.TableIndex < 0x32 ? (ushort)1 :
+              Angle.TableIndex < 0x4b ? (ushort)2 :
+              Angle.TableIndex < 0x64 ? (ushort)3 : (ushort)4;
         samus.SetAnimationFrameFromSpecialHandler(frame, timer: 15);
         return frame;
     }
@@ -270,7 +270,7 @@ public sealed class SamusXrayState
         EnsureActive();
 
         XrayBeamPhase phaseAtStart = BeamPhase;
-        ushort angleAtStart = Angle;
+        SnesAngle angleAtStart = Angle;
         ushort widthAtStart = AngularWidth;
 
         if (SetupStage != 0)
@@ -422,73 +422,77 @@ public sealed class SamusXrayState
 
     private void MoveAngleUp()
     {
-        if (Angle < 0x0080)
+        if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
         {
             // Right-facing upper limit is `angle - width >= 0`. Equality returns without
             // movement; crossing clamps the center to exactly the current half-width.
-            int candidate = Angle - AngularWidth;
+            int candidate = Angle.TableIndex - AngularWidth;
             if (candidate == 0)
                 return;
             if (candidate < 0)
             {
-                Angle = AngularWidth;
+                Angle = SnesAngle.FromTableIndex(checked((byte)AngularWidth));
                 return;
             }
 
-            Angle = unchecked((ushort)(Angle - 1));
-            if ((int)Angle - AngularWidth < 0)
-                Angle = AngularWidth;
+            Angle = Angle.AddTableUnits(-1);
+            if (Angle.TableIndex - AngularWidth < 0)
+                Angle = SnesAngle.FromTableIndex(checked((byte)AngularWidth));
             return;
         }
 
         // Left-facing up rotates toward `$100`; clamp the upper beam edge at exactly 256.
-        int leftEdge = Angle + AngularWidth;
+        int leftEdge = Angle.TableIndex + AngularWidth;
         if (leftEdge == 0x0100)
             return;
         if (leftEdge > 0x0100)
         {
-            Angle = unchecked((ushort)(0x0100 - AngularWidth));
+            Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
             return;
         }
 
-        Angle = unchecked((ushort)(Angle + 1));
-        if (Angle + AngularWidth > 0x0100)
-            Angle = unchecked((ushort)(0x0100 - AngularWidth));
+        Angle = Angle.AddTableUnits(1);
+        if (Angle.TableIndex + AngularWidth > SnesAngle.TableUnitsPerTurn)
+            Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
     }
 
     private void MoveAngleDown()
     {
-        if (Angle < 0x0080)
+        if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
         {
             // Right-facing down rotates toward `$80`; keep the lower edge at or below it.
-            int lowerEdge = Angle + AngularWidth;
+            int lowerEdge = Angle.TableIndex + AngularWidth;
             if (lowerEdge == 0x0080)
                 return;
             if (lowerEdge > 0x0080)
             {
-                Angle = unchecked((ushort)(0x0080 - AngularWidth));
+                Angle = SnesAngle.NormalizeTableIndex(
+                    SnesAngle.HalfTurn.TableIndex - AngularWidth);
                 return;
             }
 
-            Angle = unchecked((ushort)(Angle + 1));
-            if (Angle + AngularWidth > 0x0080)
-                Angle = unchecked((ushort)(0x0080 - AngularWidth));
+            Angle = Angle.AddTableUnits(1);
+            if (Angle.TableIndex + AngularWidth > SnesAngle.HalfTurn.TableIndex)
+                Angle = SnesAngle.NormalizeTableIndex(
+                    SnesAngle.HalfTurn.TableIndex - AngularWidth);
             return;
         }
 
         // Left-facing down rotates toward `$80` from above and clamps its upper edge.
-        int upperEdge = Angle - AngularWidth;
+        int upperEdge = Angle.TableIndex - AngularWidth;
         if (upperEdge == 0x0080)
             return;
         if (upperEdge < 0x0080)
         {
-            Angle = unchecked((ushort)(0x0080 + AngularWidth));
+            Angle = SnesAngle.NormalizeTableIndex(
+                SnesAngle.HalfTurn.TableIndex + AngularWidth);
             return;
         }
 
-        Angle = unchecked((ushort)(Angle - 1));
-        if ((int)Angle - AngularWidth < 0x0080)
-            Angle = unchecked((ushort)(0x0080 + AngularWidth));
+        Angle = Angle.AddTableUnits(-1);
+        if (Angle.TableIndex - AngularWidth < SnesAngle.HalfTurn.TableIndex)
+            Angle = SnesAngle.NormalizeTableIndex(
+                SnesAngle.HalfTurn.TableIndex + AngularWidth);
     }
 
     private void Finish(ISnesAddressSpace bus, SamusState samus)
@@ -515,7 +519,7 @@ public sealed class SamusXrayState
         IsActive = false;
         SetupStage = 0;
         BeamPhase = XrayBeamPhase.NoBeam;
-        Angle = 0;
+        Angle = SnesAngle.Zero;
         AngularWidth = 0;
         AngularSubwidth = 0;
         AngularWidthDelta = 0;
@@ -545,7 +549,7 @@ public sealed class SamusXrayState
 
     private XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
-        ushort angleAtStart,
+        SnesAngle angleAtStart,
         ushort widthAtStart,
         bool completed) => new(
             phaseAtStart,
@@ -590,15 +594,15 @@ public readonly record struct XrayPoseInputResult(
     bool StartedTurn,
     bool CompletedTurn,
     byte Pose,
-    ushort Angle);
+    SnesAngle Angle);
 
 /// <summary>One bank-$88 beam-state call exposing the words consumed by the window renderer.</summary>
 public readonly record struct XrayBeamStepResult(
     XrayBeamPhase PhaseAtStart,
     XrayBeamPhase PhaseAfterStep,
     byte SetupStage,
-    ushort AngleAtStart,
-    ushort AngleAfterStep,
+    SnesAngle AngleAtStart,
+    SnesAngle AngleAfterStep,
     ushort WidthAtStart,
     ushort WidthAfterStep,
     bool Completed);

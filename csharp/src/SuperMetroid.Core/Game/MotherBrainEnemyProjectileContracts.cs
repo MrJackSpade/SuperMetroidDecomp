@@ -36,7 +36,7 @@ public sealed class MotherBrainEnemyProjectileSlot
     /// Zero has the special pre-first-bounce friction path; `$12` selects the terminating zero.
     /// </summary>
     public ushort BounceTableOffset { get; internal set; }
-    public byte Angle { get; internal set; }
+    public SnesAngle Angle { get; internal set; }
     public ushort XPosition { get; internal set; }
     public ushort XSubposition { get; internal set; }
     public ushort YPosition { get; internal set; }
@@ -61,7 +61,7 @@ public sealed class MotherBrainEnemyProjectileSlot
         Lifetime = 0;
         BounceHorizontalSpeed = 0;
         BounceTableOffset = 0;
-        Angle = 0;
+        Angle = SnesAngle.Zero;
         XPosition = 0;
         XSubposition = 0;
         YPosition = 0;

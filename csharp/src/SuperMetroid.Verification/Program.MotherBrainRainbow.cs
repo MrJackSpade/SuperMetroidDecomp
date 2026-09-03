@@ -78,7 +78,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.XSubposition = 0x0022;
     samus.YPosition = 100;
     samus.Kinematics.YSubposition = 0x0033;
-    movement.RainbowBeamAngle = 0;
+    movement.RainbowBeamAngle = SnesAngle.Zero;
     MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(bus, samus);
     AssertEqual(0x1000, beam.YVelocity, "rainbow beam table-derived Y velocity");
     AssertEqual(116, samus.XPosition, "rainbow beam horizontal $10.00 step");
@@ -101,7 +101,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     samus.Kinematics.XSubposition = 0;
     samus.YPosition = 0x0030;
     samus.Kinematics.YSubposition = 0x9999;
-    movement.RainbowBeamAngle = 0x80;
+    movement.RainbowBeamAngle = SnesAngle.HalfTurn;
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(bus, samus);
     AssertTrue(ceiling.ReachedVerticalBoundary && !ceiling.NativeCarry,
         "rainbow ceiling clamp is hidden from caller carry");

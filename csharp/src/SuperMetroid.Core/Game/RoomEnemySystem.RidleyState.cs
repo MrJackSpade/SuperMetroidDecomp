@@ -196,7 +196,7 @@ public sealed class RidleyEnemyState
     public bool Mode7Active { get; internal set; }
     public bool Mode7Finished { get; internal set; }
     public ushort Mode7TableByteIndex { get; internal set; }
-    public ushort Mode7Angle { get; internal set; }
+    public SnesAngle Mode7Angle { get; internal set; }
     public ushort Mode7HorizontalOffset { get; internal set; }
     public ushort Mode7VerticalOffset { get; internal set; }
     public ushort Mode7Zoom { get; internal set; }

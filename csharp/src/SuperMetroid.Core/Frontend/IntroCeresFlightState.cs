@@ -53,7 +53,7 @@ internal sealed class IntroCeresFlightState
     private ushort backgroundY = 0xff98;
     private ushort backgroundYSubPosition;
     private ushort zoom = 0x0200;
-    private byte angle = 0xe0;
+    private SnesAngle angle = SnesAngle.FromTableIndex(0xe0);
     private int musicQueueTimer = 14;
     private byte brightness;
     private IntroDiscoverySprite[] rearViewActors = [];
@@ -216,7 +216,7 @@ internal sealed class IntroCeresFlightState
         backgroundXSubPosition = 0;
         backgroundY = 0xff80;
         backgroundYSubPosition = 0;
-        angle = 0x20;
+        angle = SnesAngle.FromTableIndex(0x20);
 
         // These five slots are the exact $BE3B-$BE5C spawn order. Their list pointers and
         // initial positions come from definitions $CF39/$CE85/$CE8B/$CE91/$CF0F; keeping
@@ -446,8 +446,8 @@ internal sealed class IntroCeresFlightState
     {
         // $8532 reads signed 8-bit sine words from $A0:B443 and keeps product bits 8..23.
         // Reading the retail table makes the rotation agree at every one of 256 angles.
-        short cosine = ReadSine(unchecked((byte)(angle + 0x40)));
-        short sine = ReadSine(angle);
+        short cosine = ReadSine(angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
+        short sine = ReadSine(angle.TableIndex);
         short a = Scale(cosine, zoom);
         short b = Scale(sine, zoom);
         return (a, b, unchecked((short)-b), a);

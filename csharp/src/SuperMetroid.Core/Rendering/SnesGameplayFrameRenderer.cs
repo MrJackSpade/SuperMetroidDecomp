@@ -849,7 +849,7 @@ public static class SnesGameplayFrameRenderer
         int originX = unchecked((short)(samus.XPosition - layer1X)) + (facingLeft ? -3 : 3);
         int originY = unchecked((short)(samus.YPosition - layer1Y)) -
             (movementType == SamusMovementType.Crouching ? 12 : 16);
-        int centerAngle = xray.Angle & 0x00ff;
+        int centerAngle = xray.Angle.TableIndex;
         int angularWidth = xray.AngularWidth & 0x00ff;
         int leftEdgeAngle = (centerAngle - angularWidth) & 0x00ff;
         int rightEdgeAngle = (centerAngle + angularWidth) & 0x00ff;
@@ -857,7 +857,9 @@ public static class SnesGameplayFrameRenderer
         // State zero calculates a genuinely zero-width horizontal table before changing
         // state to one. `$91:C901` special-cases exactly right/left so it produces a single
         // horizontal scanline instead of using the finite `$3C00` tangent-table sentinel.
-        bool horizontalLine = angularWidth == 0 && centerAngle is 0x40 or 0xc0;
+        bool horizontalLine = angularWidth == 0 &&
+            (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
+             centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
         XrayDirection leftEdge = ReadXrayDirection(bus, leftEdgeAngle);
         XrayDirection rightEdge = ReadXrayDirection(bus, rightEdgeAngle);
 
@@ -872,7 +874,9 @@ public static class SnesGameplayFrameRenderer
                 if (horizontalLine)
                 {
                     inside = fromOriginY == 0 &&
-                        (centerAngle == 0x40 ? fromOriginX >= 0 : fromOriginX <= 0);
+                        (centerAngle == SnesAngle.QuarterTurn.TableIndex
+                            ? fromOriginX >= 0
+                            : fromOriginX <= 0);
                 }
                 else
                 {
@@ -1013,11 +1017,13 @@ public static class SnesGameplayFrameRenderer
         // itself. Anchoring at WorldY directly made the cone appear to leave the top/back
         // of the camera-eye art and was especially conspicuous on its first visible frame.
         int originY = unchecked((short)(beam.WorldY - layer1Y)) - 1;
-        int centerAngle = beam.Angle & 0x00ff;
+        int centerAngle = beam.Angle.TableIndex;
         int angularWidth = beam.AngularWidth & 0x00ff;
         XrayDirection leftEdge = ReadXrayDirection(bus, centerAngle - angularWidth);
         XrayDirection rightEdge = ReadXrayDirection(bus, centerAngle + angularWidth);
-        bool horizontalLine = angularWidth == 0 && centerAngle is 0x40 or 0xc0;
+        bool horizontalLine = angularWidth == 0 &&
+            (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
+             centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
 
         byte addRed = ExpandFiveBit((byte)(beam.Red & 0x1f));
         byte addGreen = ExpandFiveBit((byte)(beam.Green & 0x1f));
@@ -1033,7 +1039,9 @@ public static class SnesGameplayFrameRenderer
                 if (horizontalLine)
                 {
                     inside = fromOriginY == 0 &&
-                        (centerAngle == 0x40 ? fromOriginX >= 0 : fromOriginX <= 0);
+                        (centerAngle == SnesAngle.QuarterTurn.TableIndex
+                            ? fromOriginX >= 0
+                            : fromOriginX <= 0);
                 }
                 else
                 {
@@ -1145,21 +1153,21 @@ public static class SnesGameplayFrameRenderer
 
     private static XrayDirection ReadXrayDirection(ISnesAddressSpace bus, int angle)
     {
-        int wrappedAngle = angle & 0x00ff;
+        int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
 
         // The four cardinals are mathematically exact. At horizontal entries the ROM table
         // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
         // the identical limiting ray and also preserves the dedicated zero-width line.
         if (wrappedAngle == 0x00)
             return new XrayDirection(0, -0x0100);
-        if (wrappedAngle == 0x40)
+        if (wrappedAngle == SnesAngle.QuarterTurn.TableIndex)
             return new XrayDirection(0x0100, 0);
-        if (wrappedAngle == 0x80)
+        if (wrappedAngle == SnesAngle.HalfTurn.TableIndex)
             return new XrayDirection(0, 0x0100);
-        if (wrappedAngle == 0xc0)
+        if (wrappedAngle == SnesAngle.ThreeQuarterTurn.TableIndex)
             return new XrayDirection(-0x0100, 0);
 
-        int tangentIndex = wrappedAngle & 0x007f;
+        int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
         int tableAddress = XrayAbsoluteTangentTableAddress + tangentIndex * 2;
         int tangent = bus.ReadByte(tableAddress) | (bus.ReadByte(tableAddress + 1) << 8);
         return wrappedAngle switch

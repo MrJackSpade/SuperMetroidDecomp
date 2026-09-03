@@ -81,10 +81,10 @@ public sealed class SamusShinesparkState
     public byte CrashRadius { get; private set; }
 
     /// <summary>First byte-angle formerly stored in speed-echo X speed slot zero.</summary>
-    public byte FirstCrashEchoAngle { get; private set; }
+    public SnesAngle FirstCrashEchoAngle { get; private set; }
 
     /// <summary>Second byte-angle, exactly 128 degrees-of-256 opposite the first.</summary>
-    public byte SecondCrashEchoAngle { get; private set; }
+    public SnesAngle SecondCrashEchoAngle { get; private set; }
 
     /// <summary>Phase-one angular travel counter formerly aliased to echo Y slot two.</summary>
     public ushort CrashAngularTravel { get; private set; }
@@ -334,8 +334,8 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.ContactDamageIndex = 0;
         samus.HurtFlashCounter = 0;
         bool facingLeft = samus.IsFacingLeft(bus);
-        FirstCrashEchoAngle = facingLeft ? (byte)32 : (byte)224;
-        SecondCrashEchoAngle = facingLeft ? (byte)160 : (byte)96;
+        FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
+        SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         _crashAngularDelta = facingLeft ? (sbyte)4 : (sbyte)-4;
         CrashSubphase = 0;
         CrashRadius = 0;
@@ -373,8 +373,8 @@ public sealed class SamusShinesparkState
             }
 
             case 1:
-                FirstCrashEchoAngle = unchecked((byte)(FirstCrashEchoAngle + _crashAngularDelta));
-                SecondCrashEchoAngle = unchecked((byte)(SecondCrashEchoAngle + _crashAngularDelta));
+                FirstCrashEchoAngle = FirstCrashEchoAngle.AddTableUnits(_crashAngularDelta);
+                SecondCrashEchoAngle = SecondCrashEchoAngle.AddTableUnits(_crashAngularDelta);
                 CrashAngularTravel = unchecked((ushort)(CrashAngularTravel + 4));
                 if (unchecked((short)(CrashAngularTravel - 128)) >= 0)
                     CrashSubphase = 2;
@@ -387,8 +387,8 @@ public sealed class SamusShinesparkState
                     Phase = ShinesparkPhase.CrashEchoCircle;
                     StartStopTimer = 30;
                     CrashSubphase = 0;
-                    FirstCrashEchoAngle = 0;
-                    SecondCrashEchoAngle = 0;
+                    FirstCrashEchoAngle = SnesAngle.Zero;
+                    SecondCrashEchoAngle = SnesAngle.Zero;
                 }
                 break;
 
@@ -440,14 +440,14 @@ public sealed class SamusShinesparkState
         // The six pose pairs `$C9-$CE` select two literal byte angles. Keeping this table
         // adjacent to the consumer makes the subtraction by `$C9` visible instead of
         // disguising it as a facing-direction approximation.
-        ReadOnlySpan<byte> departureAngles =
+        ReadOnlySpan<SnesAngle> departureAngles =
         [
-            0x00, 0x80, // $C9: horizontal right
-            0x00, 0x80, // $CA: horizontal left
-            0x40, 0xC0, // $CB: vertical right
-            0x40, 0xC0, // $CC: vertical left
-            0xE0, 0x60, // $CD: diagonal right
-            0x20, 0xA0, // $CE: diagonal left
+            SnesAngle.Zero, SnesAngle.HalfTurn, // $C9: horizontal right
+            SnesAngle.Zero, SnesAngle.HalfTurn, // $CA: horizontal left
+            SnesAngle.QuarterTurn, SnesAngle.ThreeQuarterTurn, // $CB: vertical right
+            SnesAngle.QuarterTurn, SnesAngle.ThreeQuarterTurn, // $CC: vertical left
+            SnesAngle.FromTableIndex(0xe0), SnesAngle.FromTableIndex(0x60), // $CD: diagonal right
+            SnesAngle.FromTableIndex(0x20), SnesAngle.FromTableIndex(0xa0), // $CE: diagonal left
         ];
         int angleIndex = (samus.Pose - SamusPoseIds.ShinesparkHorizontalRightPose) * 2;
         if ((uint)angleIndex >= (uint)departureAngles.Length)
@@ -470,11 +470,15 @@ public sealed class SamusShinesparkState
             if (unchecked((short)(projectileCounter - 4)) < 0)
             {
                 _firstReleasedCrashEcho.Initialize(
-                    departureAngles[angleIndex], samus.XPosition, samus.YPosition);
+                    departureAngles[angleIndex],
+                    samus.XPosition,
+                    samus.YPosition);
             }
 
             _secondReleasedCrashEcho.Initialize(
-                departureAngles[angleIndex + 1], samus.XPosition, samus.YPosition);
+                departureAngles[angleIndex + 1],
+                samus.XPosition,
+                samus.YPosition);
         }
 
         ShineTimer = 1;
@@ -556,27 +560,32 @@ public sealed class SamusShinesparkState
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
     private static (ushort X, ushort Y) ProjectileSinLookup(
         ISnesAddressSpace bus,
-        byte angle,
+        SnesAngle angle,
         byte radius)
     {
         ushort x = LookupSignedComponent(bus, angle, radius);
-        ushort y = LookupSignedComponent(bus, unchecked((byte)(angle - 64)), radius);
+        ushort y = LookupSignedComponent(
+            bus,
+            angle.AddRaw(-SnesAngle.QuarterTurn.RawValue),
+            radius);
         return (x, y);
     }
 
     private static ushort LookupSignedComponent(
         ISnesAddressSpace bus,
-        byte angle,
+        SnesAngle angle,
         byte radius)
     {
-        bool negative = angle >= 128;
-        byte positiveAngle = negative ? unchecked((byte)(angle + 128)) : angle;
+        bool negative = angle.RawValue >= SnesAngle.HalfTurn.RawValue;
+        SnesAngle positiveAngle = negative
+            ? angle.AddRaw(SnesAngle.HalfTurn.RawValue)
+            : angle;
         // The complete signed sine/cosine table begins at `$A0:B3C3`. Native routine
         // `$90:CC8A` deliberately biases its long pointer by 64 words, so index zero in
         // this positive-half lookup is the table's entry 64 at `$A0:B443`. Multiplying
         // that signed 8.8 entry by the byte radius and shifting produces the same whole-
         // pixel component as the native pair of byte multiplies.
-        ushort tableWord = ReadWord(bus, 0xa0b443 + positiveAngle * 2);
+        ushort tableWord = ReadWord(bus, 0xa0b443 + positiveAngle.SineTableByteOffset);
         ushort magnitude = unchecked((ushort)(((uint)tableWord * radius) >> 8));
         return negative ? unchecked((ushort)-magnitude) : magnitude;
     }
@@ -693,7 +702,7 @@ public sealed class SamusShinesparkState
     private sealed class ReleasedEchoSlot
     {
         public bool Active { get; private set; }
-        public byte Angle { get; private set; }
+        public SnesAngle Angle { get; private set; }
         public ushort Radius { get; set; }
         public ushort XPosition { get; set; }
         public ushort YPosition { get; set; }
@@ -701,7 +710,7 @@ public sealed class SamusShinesparkState
         public ShinesparkReleasedEcho Snapshot => new(
             Active, Angle, Radius, XPosition, YPosition);
 
-        public void Initialize(byte angle, ushort xPosition, ushort yPosition)
+        public void Initialize(SnesAngle angle, ushort xPosition, ushort yPosition)
         {
             Active = true;
             Angle = angle;
@@ -713,7 +722,7 @@ public sealed class SamusShinesparkState
         public void Clear()
         {
             Active = false;
-            Angle = 0;
+            Angle = SnesAngle.Zero;
             Radius = 0;
             XPosition = 0;
             YPosition = 0;
@@ -749,7 +758,7 @@ public readonly record struct ShinesparkMovementResult(
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
 public readonly record struct ShinesparkReleasedEcho(
     bool Active,
-    byte Angle,
+    SnesAngle Angle,
     ushort Radius,
     ushort XPosition,
     ushort YPosition);
@@ -757,7 +766,7 @@ public readonly record struct ShinesparkReleasedEcho(
 /// <summary>Debugger-only witness captured immediately before an off-camera echo clears.</summary>
 public readonly record struct ShinesparkReleasedEchoClear(
     byte NativeSlot,
-    byte Angle,
+    SnesAngle Angle,
     ushort Radius,
     ushort XPosition,
     ushort YPosition,

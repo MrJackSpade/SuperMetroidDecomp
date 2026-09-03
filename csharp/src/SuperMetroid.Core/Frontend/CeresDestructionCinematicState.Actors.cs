@@ -152,7 +152,7 @@ internal sealed partial class CeresDestructionCinematicState
                 // where its cartridge instruction list reaches C9C7.
                 backgroundX = 0x003e;
                 backgroundY = unchecked((ushort)-112);
-                angle = 0x20;
+                angle = SnesAngle.FromTableIndex(0x20);
                 zoom = 0x0010;
                 Phase = CeresDestructionPhase.FlyingTowardZebesA;
                 return cursor;

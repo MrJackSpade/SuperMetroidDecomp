@@ -36,19 +36,19 @@ public sealed partial class RoomEnemySystem
             int divided = absoluteX == 0 ? 0 : (absoluteY << 8) / absoluteX;
             return quadrant switch
             {
-                0 => unchecked((byte)((divided >> 3) + 64)),
-                1 => unchecked((byte)(64 - (divided >> 3))),
-                2 => unchecked((byte)(-64 - (divided >> 3))),
-                _ => unchecked((byte)((divided >> 3) - 64)),
+                0 => unchecked((byte)((divided >> 3) + SnesAngle.QuarterTurn.TableIndex)),
+                1 => unchecked((byte)(SnesAngle.QuarterTurn.TableIndex - (divided >> 3))),
+                2 => unchecked((byte)(-SnesAngle.QuarterTurn.TableIndex - (divided >> 3))),
+                _ => unchecked((byte)((divided >> 3) - SnesAngle.QuarterTurn.TableIndex)),
             };
         }
 
         int inverseDivided = absoluteY == 0 ? 0 : (absoluteX << 8) / absoluteY;
         return quadrant switch
         {
-            0 => unchecked((byte)(128 - (inverseDivided >> 3))),
+            0 => unchecked((byte)(SnesAngle.HalfTurn.TableIndex - (inverseDivided >> 3))),
             1 => unchecked((byte)(inverseDivided >> 3)),
-            2 => unchecked((byte)((inverseDivided >> 3) + 128)),
+            2 => unchecked((byte)((inverseDivided >> 3) + SnesAngle.HalfTurn.TableIndex)),
             _ => unchecked((byte)(-(inverseDivided >> 3))),
         };
     }
@@ -137,11 +137,15 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
     private int ReadEightBitCosineProduct(ushort angle, ushort radius) =>
-        ReadEightBitSineProduct(unchecked((ushort)(angle + 0x40)), radius);
+        ReadEightBitSineProduct(
+            unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
+            radius);
 
     /// <summary>Ports <c>EightBitNegativeSineMultiplication</c> at $A0:B0C6.</summary>
     private int ReadEightBitNegativeSineProduct(ushort angle, ushort radius) =>
-        ReadEightBitSineProduct(unchecked((ushort)(angle + 0x80)), radius);
+        ReadEightBitSineProduct(
+            unchecked((ushort)(angle + SnesAngle.HalfTurn.TableIndex)),
+            radius);
 
     /// <summary>
     /// Returns the complete signed 16.16 result produced by the native eight-bit sine
@@ -170,12 +174,16 @@ public sealed partial class RoomEnemySystem
     private (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
-        ReadEightBitSineFixedProduct(unchecked((ushort)(angle + 0x40)), radius);
+        ReadEightBitSineFixedProduct(
+            unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
+            radius);
 
     private (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>
-        ReadEightBitSineFixedProduct(unchecked((ushort)(angle + 0x80)), radius);
+        ReadEightBitSineFixedProduct(
+            unchecked((ushort)(angle + SnesAngle.HalfTurn.TableIndex)),
+            radius);
 
     /// <summary>
     /// Ports one half of <c>Do_Some_Math_With_Sine_Cosine_Terrible_Label_Name</c> at

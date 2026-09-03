@@ -32,7 +32,8 @@ public static partial class SamusGrappleMovement
         // The branch accepts pumping only through the lower half of the circle:
         // angle $4000..$BFFF. At exactly $8000 a motionless pendulum gets the cartridge's
         // +/-$0100 kick before the normal +/-12 input acceleration is added.
-        bool inPumpArc = grapple.Angle >= 0x4000 && grapple.Angle < 0xc000;
+        bool inPumpArc = grapple.Angle.RawValue >= SnesAngle.QuarterTurn.RawValue &&
+            grapple.Angle.RawValue < SnesAngle.ThreeQuarterTurn.RawValue;
         if (!inPumpArc)
         {
             grapple.DirectionInputAcceleration = 0;
@@ -41,7 +42,7 @@ public static partial class SamusGrappleMovement
 
         if ((controllerInput & (ushort)SnesButton.Left) != 0)
         {
-            if (grapple.Angle == 0x8000 && grapple.AngularVelocity == 0)
+            if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = 0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)(DirectionInputMagnitude / 2)
@@ -51,7 +52,7 @@ public static partial class SamusGrappleMovement
 
         if ((controllerInput & (ushort)SnesButton.Right) != 0)
         {
-            if (grapple.Angle == 0x8000 && grapple.AngularVelocity == 0)
+            if (grapple.Angle == SnesAngle.HalfTurn && grapple.AngularVelocity == 0)
                 grapple.AngularVelocity = -0x100;
             grapple.DirectionInputAcceleration = grapple.Submerged
                 ? (short)-(DirectionInputMagnitude / 2)
@@ -107,7 +108,7 @@ public static partial class SamusGrappleMovement
             GrappleCollisionPoint point = CalculateCollisionPoint(
                 bus,
                 grapple,
-                unchecked((byte)(grapple.Angle >> 8)),
+                grapple.Angle.TableIndex,
                 probeDistance);
             if (IsSwingCollision(level, samus, point.BlockX, point.BlockY))
             {
@@ -129,7 +130,7 @@ public static partial class SamusGrappleMovement
     {
         // $9B:BC1F is deliberately quadrant-based rather than trigonometric. The four
         // magnitudes are 1/4, full, full, and 1/4 gravity as angle crosses $4000 boundaries.
-        int angle = grapple.Angle;
+        int angle = grapple.Angle.RawValue;
         if ((angle & 0xc000) == 0xc000)
         {
             grapple.VelocityCorrection = (short)-(VelocityCorrectionMagnitude >> 2);
@@ -178,7 +179,8 @@ public static partial class SamusGrappleMovement
         // $9B:BCFF adds the small correction when velocity and angle have opposite signs.
         // This looks unusual in decimal, but preserving the 16-bit sign-bit comparison is
         // essential around the $0000/$FFFF angle seam.
-        if (((unchecked((ushort)velocity) ^ grapple.Angle) & 0x8000) != 0)
+        if (((unchecked((ushort)velocity) ^ grapple.Angle.RawValue) &
+             SnesAngle.HalfTurn.RawValue) != 0)
             velocity += grapple.VelocityCorrection;
 
         grapple.AngularVelocity = unchecked((short)Math.Clamp(
@@ -220,9 +222,9 @@ public static partial class SamusGrappleMovement
             return new GrappleSwingCollisionResult(Collided: false, DistanceFromFeet: 0);
 
         int signedDelta = combined < 0 ? -magnitude : magnitude;
-        ushort targetAngle = unchecked((ushort)(grapple.Angle + signedDelta));
-        byte targetAngleByte = unchecked((byte)(targetAngle >> 8));
-        byte lastSafeAngleByte = unchecked((byte)(grapple.Angle >> 8));
+        SnesAngle targetAngle = grapple.Angle.AddRaw(signedDelta);
+        byte targetAngleByte = targetAngle.TableIndex;
+        byte lastSafeAngleByte = grapple.Angle.TableIndex;
         int byteDirection = combined < 0 ? -1 : 1;
 
         // At the maximum retail velocity this loop executes at most five times. Keep an
@@ -244,7 +246,8 @@ public static partial class SamusGrappleMovement
                 // $94:ADB4/$AE84 restore the last safe whole angle byte and force the
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
-                grapple.Angle = unchecked((ushort)((lastSafeAngleByte << 8) | 0x80));
+                grapple.Angle = SnesAngle.FromRaw(
+                    unchecked((ushort)((lastSafeAngleByte << 8) | 0x80)));
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&

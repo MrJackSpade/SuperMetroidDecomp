@@ -59,6 +59,27 @@ static void VerifyTypedNativeWords()
     AssertEqual(0x91fffe, SnesAddressMath.AddWithinBank(0x910002, -4),
         "fixed-bank address addition wraps negative displacement");
 
+    // A cartridge turn is a 16-bit wrapping domain whose high byte indexes the shared
+    // 256-entry sine tables. Verify named axes, full-turn normalization, fractional
+    // preservation, and the signed modular subtraction used near the wrap seam.
+    AssertEqual((ushort)0x4000, SnesAngle.QuarterTurn.RawValue,
+        "SNES quarter-turn raw word");
+    AssertEqual((byte)0x40, SnesAngle.QuarterTurn.TableIndex,
+        "SNES quarter-turn sine index");
+    AssertEqual(0x80, SnesAngle.QuarterTurn.SineTableByteOffset,
+        "SNES quarter-turn word-table offset");
+    AssertEqual(SnesAngle.Zero, SnesAngle.NormalizeRaw(0x1_0000),
+        "SNES raw angle wraps at one turn");
+    AssertEqual(SnesAngle.Zero, SnesAngle.NormalizeTableIndex(0x100),
+        "SNES table angle wraps at 256 units");
+    AssertEqual((ushort)0x41ab, SnesAngle.FromRaw(0x40ab).AddTableUnits(1).RawValue,
+        "SNES whole-unit addition retains fractional angle byte");
+    AssertEqual((short)-0x4000, SnesAngle.Zero.SignedDeltaTo(SnesAngle.ThreeQuarterTurn),
+        "SNES signed raw delta crosses wrap seam");
+    AssertEqual((sbyte)-0x40,
+        SnesAngle.Zero.SignedTableDeltaTo(SnesAngle.ThreeQuarterTurn),
+        "SNES signed table delta crosses wrap seam");
+
     ushort enemyProperties = 0x1000;
     enemyProperties = enemyProperties.With(
         EnemyProperties.Invisible | EnemyProperties.IgnoreSamusCollision);
@@ -281,7 +302,7 @@ static void VerifyTypedNativeWords()
             new RoomIdentity(AreaId.Crateria, 0x08)),
         "same room byte in unrelated area does not match landing policy");
 
-    Console.WriteLine("  Native words: enums, flags, packed fields, and unknown-bit preservation agree.");
+    Console.WriteLine("  Native words: enums, flags, angles, packed fields, and unknown-bit preservation agree.");
 }
 
 }

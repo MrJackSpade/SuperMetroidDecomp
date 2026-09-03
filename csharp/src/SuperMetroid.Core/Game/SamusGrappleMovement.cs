@@ -123,7 +123,7 @@ public static partial class SamusGrappleMovement
         grapple.FireDirection = direction;
         grapple.ExtensionXVelocity = unchecked((short)ReadWord(bus, FireXVelocityTable + tableOffset));
         grapple.ExtensionYVelocity = unchecked((short)ReadWord(bus, FireYVelocityTable + tableOffset));
-        grapple.Angle = ReadWord(bus, FireAngleTable + tableOffset);
+        grapple.Angle = SnesAngle.FromRaw(ReadWord(bus, FireAngleTable + tableOffset));
         grapple.MirroredAngle = grapple.Angle;
 
         // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is
@@ -400,7 +400,7 @@ public static partial class SamusGrappleMovement
         ushort anchorX,
         ushort anchorY,
         byte ropeLength,
-        ushort angle,
+        SnesAngle angle,
         short angularVelocity,
         bool faceRight)
     {
@@ -526,7 +526,7 @@ public static partial class SamusGrappleMovement
         // art: it computes velocity and queues the release function for the following frame.
         if ((controllerInput & (ushort)SnesButton.X) == 0)
         {
-            if (grapple.AngularVelocity == 0 && grapple.Angle == 0x8000)
+            if (grapple.AngularVelocity == 0 && grapple.Angle == SnesAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
@@ -587,7 +587,7 @@ public static partial class SamusGrappleMovement
             // native validation seam so a future dynamic/breakable PLM cannot leave a rope
             // attached to air. A motionless straight-down body queues `$C8C5`; a moving
             // pendulum uses the already translated velocity-preserving release handoff.
-            if (grapple.AngularVelocity == 0 && grapple.Angle == 0x8000)
+            if (grapple.AngularVelocity == 0 && grapple.Angle == SnesAngle.HalfTurn)
             {
                 grapple.Phase = GrapplePhase.Dropped;
                 return new GrappleMovementResult(
@@ -895,7 +895,7 @@ public static partial class SamusGrappleMovement
         for (int record = 7; record >= 0; record--)
         {
             int address = SpecialAngleTable + record * SpecialAngleRecordSize;
-            if (ReadWord(bus, address) != grapple.Angle)
+            if (ReadWord(bus, address) != grapple.Angle.RawValue)
                 continue;
 
             ushort poseWord = ReadWord(bus, address + 2);

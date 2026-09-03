@@ -50,7 +50,7 @@ public static partial class SamusGrappleMovement
         // The result is already an even byte offset into the word table. Multiplying that
         // value by two again selects unrelated data for half the angles (notably firing
         // right at $C000), producing a correctly positioned but visually blank rope.
-        int foldedAngleOffset = (grapple.Angle >> 9) & 0xfe;
+        int foldedAngleOffset = (grapple.Angle.RawValue >> 9) & 0xfe;
         ushort segmentPointer = ReadWord(bus, GrappleSegmentTilePointers + foldedAngleOffset);
         vramWrites.Enqueue(0x80, 0x9a0000 | segmentPointer, 0x6210);
 
@@ -68,13 +68,15 @@ public static partial class SamusGrappleMovement
         // keeps the rope visually attached after pose-specific art-origin correction.
         int beamDeltaX = unchecked((short)(grapple.AnchorX - grapple.BeamStartX));
         int beamDeltaY = unchecked((short)(grapple.AnchorY - grapple.BeamStartY));
-        byte drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
-        int stepX = ScaleCoordinate(ReadSignedSine(bus, drawAngle + 64), 8);
-        int stepY = ScaleCoordinate(ReadSignedSine(bus, drawAngle), 8);
+        SnesAngle drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
+        int stepX = ScaleCoordinate(
+            ReadSignedSine(bus, drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex),
+            8);
+        int stepY = ScaleCoordinate(ReadSignedSine(bus, drawAngle.TableIndex), 8);
 
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
-        int angleHigh = grapple.Angle >> 8;
+        int angleHigh = grapple.Angle.TableIndex;
         int flipBits = (angleHigh & 0x80) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
         ushort flipAttributes = unchecked((ushort)(flipBits << 8));

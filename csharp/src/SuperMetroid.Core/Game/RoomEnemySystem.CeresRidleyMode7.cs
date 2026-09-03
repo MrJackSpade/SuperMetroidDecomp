@@ -18,7 +18,7 @@ public sealed partial class RoomEnemySystem
         state.Mode7Active = true;
         state.Mode7Finished = false;
         state.Mode7TableByteIndex = 0;
-        state.Mode7Angle = 1;
+        state.Mode7Angle = SnesAngle.FromRaw(1);
         state.Mode7HorizontalOffset = 0xff80;
         state.Mode7VerticalOffset = 0x0020;
         state.Mode7Zoom = 0x0800;
@@ -91,7 +91,7 @@ public sealed partial class RoomEnemySystem
             ReadWord(_bus!, CeresRidleyMode7XVelocityTable + tableByteIndex)));
 
         UpdateCeresRidleyMode7Palette(zoom);
-        state.Mode7Angle = unchecked((ushort)(state.Mode7Angle + 0x0030));
+        state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);
         UpdateCeresRidleyMode7Matrix(state);
 
         // $A6:ACBC advances the Baby capsule on every fourth NMI using 0,1,2,1. The transfer
@@ -113,7 +113,7 @@ public sealed partial class RoomEnemySystem
 
     private void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
-        byte angle = unchecked((byte)(state.Mode7Angle >> 8));
+        byte angle = state.Mode7Angle.TableIndex;
         ushort diagonal = MultiplyCartridgeSinCos(state.Mode7Zoom, unchecked((byte)(angle + 64)));
         ushort offDiagonal = MultiplyCartridgeSinCos(state.Mode7Zoom, angle);
         state.Mode7MatrixA = diagonal;

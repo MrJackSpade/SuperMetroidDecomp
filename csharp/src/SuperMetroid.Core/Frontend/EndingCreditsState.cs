@@ -77,7 +77,7 @@ internal sealed partial class EndingCreditsState
     private ushort mode7XSubposition;
     private ushort mode7Y;
     private ushort mode7Zoom = 0x0100;
-    private byte mode7Angle;
+    private SnesAngle mode7Angle;
     private ushort planetMotionIndex;
     private ushort postCreditsVerticalScroll;
     private short planetVelocityWhole;
@@ -359,7 +359,7 @@ internal sealed partial class EndingCreditsState
         mode7X = 0x0020;
         mode7Y = 0x0040;
         mode7Zoom = 0x0100;
-        mode7Angle = 0;
+        mode7Angle = SnesAngle.Zero;
         brightness = 0;
         postCreditsVerticalScroll = 0;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -397,7 +397,7 @@ internal sealed partial class EndingCreditsState
         mode7X = 0;
         mode7Y = 0x0040;
         mode7Zoom = 0x0100;
-        mode7Angle = 0;
+        mode7Angle = SnesAngle.Zero;
         brightness = 0;
         fadeCounter = 1;
         phaseTimer = 64;
@@ -409,7 +409,7 @@ internal sealed partial class EndingCreditsState
         mode7X = unchecked((ushort)-72);
         mode7Y = unchecked((ushort)-104);
         mode7Zoom = 0x0c00;
-        mode7Angle = unchecked((byte)-112);
+        mode7Angle = SnesAngle.NormalizeTableIndex(-112);
         phaseTimer = 192;
         planetMotionIndex = 0;
         Phase = EndingCreditsPhase.PlanetEscapeFast;
@@ -688,7 +688,7 @@ internal sealed partial class EndingCreditsState
     {
         if (phaseTimer > 0)
             phaseTimer--;
-        mode7Angle = unchecked((byte)(mode7Angle - 4));
+        mode7Angle = mode7Angle.AddTableUnits(-4);
         AddSignedFixed(ref mode7X, ref mode7XSubposition, PlanetFastMotion[planetMotionIndex]);
         planetMotionIndex = unchecked((ushort)((planetMotionIndex + 1) & 0x0f));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 8));
@@ -701,8 +701,8 @@ internal sealed partial class EndingCreditsState
 
     private void StepPlanetEscapeSlow()
     {
-        if (mode7Angle != 0xe0)
-            mode7Angle--;
+        if (mode7Angle != SnesAngle.FromTableIndex(0xe0))
+            mode7Angle = mode7Angle.AddTableUnits(-1);
         AddSignedFixed(ref mode7X, ref mode7XSubposition, PlanetSlowMotion[planetMotionIndex]);
         planetMotionIndex = unchecked((ushort)((planetMotionIndex + 1) & 7));
         mode7Zoom = unchecked((ushort)(mode7Zoom - 2));
@@ -721,8 +721,11 @@ internal sealed partial class EndingCreditsState
         planetVelocityWhole = unchecked((short)(velocity >> 16));
         planetVelocityFraction = unchecked((ushort)velocity);
         AddSignedFixed(ref mode7X, ref mode7XSubposition, velocity);
-        if (mode7Zoom < 0x0180 && (cinematicFrame & 3) == 0 && mode7Angle != 0x10)
-            mode7Angle = unchecked((byte)(mode7Angle + 2));
+        if (mode7Zoom < 0x0180 && (cinematicFrame & 3) == 0 &&
+            mode7Angle != SnesAngle.FromTableIndex(0x10))
+        {
+            mode7Angle = mode7Angle.AddTableUnits(2);
+        }
         if (mode7Zoom < 0x0020)
         {
             SpawnSprite(0x0080, 0x0060, 0x0400, 0xeb91, EndingSpriteRole.OperationWasText);

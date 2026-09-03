@@ -21,7 +21,7 @@ public static partial class SamusGrappleMovement
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
             bus,
             grapple,
-            unchecked((byte)(grapple.Angle >> 8)),
+            grapple.Angle.TableIndex,
             grapple.RopeLength);
         grapple.RopeStartX = ropeStart.X;
         grapple.RopeStartY = ropeStart.Y;
@@ -34,7 +34,7 @@ public static partial class SamusGrappleMovement
 
         // $9B:BD95 maps all 256 angle bytes onto the authentic swing-art frame, then adds
         // a frame-specific origin correction so Samus's hand remains attached to the beam.
-        byte artFrame = bus.ReadByte(SwingFrameByAngle + (grapple.MirroredAngle >> 8));
+        byte artFrame = bus.ReadByte(SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
         int offsetAddress = SamusState.IsFacingLeft(bus, samus.Pose)
             ? LeftPoseOffsetsByFrame
             : RightPoseOffsetsByFrame;
@@ -54,7 +54,9 @@ public static partial class SamusGrappleMovement
     {
         int absoluteVelocity = Math.Abs((int)grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
-        short cosine = ReadSignedSine(bus, (grapple.Angle >> 8) + 64);
+        short cosine = ReadSignedSine(
+            bus,
+            grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
         samus.Kinematics.YSpeed = unchecked((ushort)(verticalFixed >> 16));
@@ -67,7 +69,7 @@ public static partial class SamusGrappleMovement
 
         samus.HorizontalSpeed.AccelerationMode = 2;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
-        byte horizontalAngle = unchecked((byte)((grapple.Angle >> 8) - phaseOffset));
+        byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(bus, horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
         samus.HorizontalSpeed.BaseSpeed = unchecked((ushort)(horizontalFixed >> 16));

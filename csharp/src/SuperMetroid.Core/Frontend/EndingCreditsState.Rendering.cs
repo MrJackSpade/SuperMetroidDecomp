@@ -50,8 +50,8 @@ internal sealed partial class EndingCreditsState
         // Ending setup uses the standard bank-$8B matrix helper. X/Y are the same signed
         // scroll words and zoom/angle are the same 8.8 scalar and sine-table index used by
         // the Ceres cinematic, so no host camera transform is introduced here.
-        short cosine = ReadSine(unchecked((byte)(mode7Angle + 0x40)));
-        short sine = ReadSine(mode7Angle);
+        short cosine = ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
+        short sine = ReadSine(mode7Angle.TableIndex);
         short matrixA = Scale(cosine, mode7Zoom);
         short matrixB = Scale(sine, mode7Zoom);
         Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(

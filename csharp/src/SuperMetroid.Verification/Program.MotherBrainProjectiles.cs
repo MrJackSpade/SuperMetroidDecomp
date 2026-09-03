@@ -620,10 +620,16 @@ static void VerifyMotherBrainEscapeDoorParticles()
         AssertTrue(sharedPool.SpawnEscapeDoorParticle(new(parameter)).HasValue,
             $"shared pool door fragment {parameter}");
     for (byte ring = 0; ring < 10; ring++)
-        AssertTrue(sharedPool.Spawn(bus, motherBrain, new MotherBrainOnionRingSpawnRequest(ring)).HasValue,
+        AssertTrue(sharedPool.Spawn(
+                bus,
+                motherBrain,
+                new MotherBrainOnionRingSpawnRequest(SnesAngle.FromTableIndex(ring))).HasValue,
             $"shared pool ring {ring}");
     AssertEqual<int?>(null,
-        sharedPool.Spawn(bus, motherBrain, new MotherBrainOnionRingSpawnRequest(0x10)),
+        sharedPool.Spawn(
+            bus,
+            motherBrain,
+            new MotherBrainOnionRingSpawnRequest(SnesAngle.FromTableIndex(0x10))),
         "nineteenth mixed Mother Brain projectile allocation fails");
 
     // The subtitle uses the same allocator, loads one `$8D:970B` spritemap immediately,

@@ -6044,11 +6044,11 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             Console.WriteLine(
                 $"frame {result.FrameNumber,4}: X-ray {xrayBeamStep.PhaseAtStart} -> " +
                 $"{xrayBeamStep.PhaseAfterStep}; setup={xrayBeamStep.SetupStage}, " +
-                $"angle=${xrayBeamStep.AngleAfterStep:X2}, width={xrayBeamStep.WidthAfterStep}.");
+                $"angle=${xrayBeamStep.AngleAfterStep.TableIndex:X2}, width={xrayBeamStep.WidthAfterStep}.");
         }
 
-        observedXrayAim |= xrayBeamStep.AngleAfterStep != 0x0040 &&
-            xrayBeamStep.AngleAfterStep != 0x00c0;
+        observedXrayAim |= xrayBeamStep.AngleAfterStep != SnesAngle.QuarterTurn &&
+            xrayBeamStep.AngleAfterStep != SnesAngle.ThreeQuarterTurn;
     }
     if (runtime.LastXrayAnimationFrame is ushort xrayAnimationFrame)
         observedXrayAnimationFrames.Add(xrayAnimationFrame);
@@ -7468,7 +7468,7 @@ if (options.XrayScript)
     Console.WriteLine(
         $"X-ray ROM route validated setup/full={observedXrayPhases.Contains(XrayBeamPhase.Full)}, " +
         $"aim={observedXrayAim}, turn={observedXrayTurnStart}/{observedXrayTurnCompletion}, " +
-        $"pose=${runtime.Samus!.Pose:X2}, angle=${runtime.Samus.Xray.Angle:X2}, " +
+        $"pose=${runtime.Samus!.Pose:X2}, angle=${runtime.Samus.Xray.Angle.TableIndex:X2}, " +
         $"art=[{string.Join(',', observedXrayAnimationFrames.Order())}].");
 }
 

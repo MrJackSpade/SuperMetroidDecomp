@@ -35,14 +35,14 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$A0:C0B1` returns the game's byte angle. `$A9:9E77` converts it to the projectile
         // convention (`$80-angle`) and performs a circular signed clamp: `$10-$47` survive,
         // `$48-$BF` clamp to `$48`, and `$C0-$FF/$00-$0F` clamp to `$10`.
-        byte sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
-        byte candidate = unchecked((byte)(0x80 - sourceAngle));
-        OnionRingTargetAngle = candidate switch
+        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
+        byte candidate = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue).TableIndex;
+        OnionRingTargetAngle = SnesAngle.FromTableIndex(candidate switch
         {
             >= 0x10 and < 0x48 => candidate,
             >= 0x48 and < 0xc0 => 0x48,
             _ => 0x10,
-        };
+        });
     }
 
     private static ushort ReadBankA9Word(ISnesAddressSpace bus, ushort address)
@@ -572,8 +572,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // rainbow beam's anti-clockwise-down convention with `-$angle + $80`.
         short deltaX = unchecked((short)(samus.XPosition - BrainXPosition - 0x0010));
         short deltaY = unchecked((short)(samus.YPosition - BrainYPosition - 0x0004));
-        byte sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
-        _movement.RainbowBeamAngle = unchecked((byte)(0x80 - sourceAngle));
+        SnesAngle sourceAngle = SamusGrappleMovement.CalculateAngleFromXY(deltaX, deltaY);
+        _movement.RainbowBeamAngle = SnesAngle.HalfTurn.AddRaw(-sourceAngle.RawValue);
     }
 
     private MotherBrainRainbowExplosionRequest? StepExplosionTimer()

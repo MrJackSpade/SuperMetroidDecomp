@@ -332,13 +332,15 @@ internal static class MorphBallEyeAudit
         for (int frame = 1; frame <= 32; frame++)
             Step(loaded, room, assets, frame);
 
-        if (state.Function != MorphBallEyeAiFunction.Active || state.Angle != 0x0040 ||
+        if (state.Function != MorphBallEyeAiFunction.Active ||
+            state.Angle != SnesAngle.QuarterTurn ||
             loaded.Enemies.LastMorphBallEyeSoundEffect != 0x0017 ||
             loaded.Enemies.MorphBallEyeBeam.Phase !=
                 MorphBallEyeBeamPhase.PendingInitialization)
         {
             throw new InvalidDataException(
-                $"Eye activation expiry failed: function={state.Function}, angle=${state.Angle:X4}, " +
+                $"Eye activation expiry failed: function={state.Function}, " +
+                $"angle=${state.Angle.TableIndex:X2}, " +
                 $"sound={loaded.Enemies.LastMorphBallEyeSoundEffect}, " +
                 $"beam={loaded.Enemies.MorphBallEyeBeam.Phase}.");
         }
@@ -487,7 +489,7 @@ internal static class MorphBallEyeAudit
         Step(loaded, room, assets, frame: 0);
         for (int frame = 1; frame <= 33; frame++)
             Step(loaded, room, assets, frame);
-        if (state.Angle != 0x0040 ||
+        if (state.Angle != SnesAngle.QuarterTurn ||
             loaded.Enemies.MorphBallEyeBeam.Phase != MorphBallEyeBeamPhase.Widening ||
             loaded.Enemies.MorphBallEyeBeam.AngularWidth != 0)
         {

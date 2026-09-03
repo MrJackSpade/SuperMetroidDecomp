@@ -983,7 +983,7 @@ public sealed partial class SuperMetroidRuntime
             anchorX: placement.XPosition,
             anchorY: unchecked((ushort)(placement.YPosition - 72)),
             ropeLength: 52,
-            angle: 0x4000,
+            angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0180,
             faceRight: true);
 

@@ -40,7 +40,7 @@ internal sealed partial class CeresDestructionCinematicState
     private ushort backgroundY = unchecked((ushort)-112);
     private ushort backgroundYSubPosition;
     private ushort zoom = 0x0100;
-    private byte angle;
+    private SnesAngle angle;
     private byte brightness;
     private int fadeCounter = 1;
     private int phaseTimer;
@@ -128,7 +128,7 @@ internal sealed partial class CeresDestructionCinematicState
 
             case CeresDestructionPhase.FlyingAwayFromExplosion:
                 backgroundX = unchecked((ushort)(backgroundX + 2));
-                angle = unchecked((byte)(angle - 1));
+                angle = angle.AddTableUnits(-1);
                 if (zoom < 0x0010)
                 {
                     phaseTimer = 0x00c0;
@@ -189,7 +189,7 @@ internal sealed partial class CeresDestructionCinematicState
                 else
                 {
                     zoom = unchecked((ushort)(zoom + 0x0010));
-                    angle = unchecked((byte)(angle - 1));
+                    angle = angle.AddTableUnits(-1);
                 }
                 StepZebesActors(slidingAway: false);
                 break;
@@ -279,7 +279,7 @@ internal sealed partial class CeresDestructionCinematicState
         backgroundXSubPosition = 0;
         backgroundY = 0;
         backgroundYSubPosition = 0;
-        angle = 0;
+        angle = SnesAngle.Zero;
         zoom = 0x0100;
         brightness = 0;
         fadeCounter = 1;
@@ -299,7 +299,7 @@ internal sealed partial class CeresDestructionCinematicState
         usesMode7 = true;
         backgroundX = 0x0080;
         backgroundY = unchecked((ushort)-104);
-        angle = 0x20;
+        angle = SnesAngle.FromTableIndex(0x20);
         zoom = 0x0100;
         actors.Clear();
         zebesPlanetActor = new IntroDiscoverySprite(0x0088, 0x006f, 0x0e00, 0xccab);

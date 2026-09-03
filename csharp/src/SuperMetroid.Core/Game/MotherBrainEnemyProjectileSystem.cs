@@ -112,11 +112,11 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
         // `$86:C27A` multiplies `$0450` by a sign-extended ROM sine entry, shifts the
         // unsigned magnitude right eight, then restores the sign. Cosine is sine+`$40`.
-        slot.XVelocity = CalculateVelocityComponent(bus, 0x0450, request.Angle);
+        slot.XVelocity = CalculateVelocityComponent(bus, 0x0450, request.Angle.TableIndex);
         slot.YVelocity = CalculateVelocityComponent(
             bus,
             0x0450,
-            unchecked((byte)(request.Angle + 0x40)));
+            request.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
         PinToBrain(slot, motherBrain);
         return slotIndex;
     }

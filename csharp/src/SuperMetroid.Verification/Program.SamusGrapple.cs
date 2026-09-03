@@ -189,7 +189,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(55, firingSamus.Grapple.AnchorX,
         "accepted grapple block centers X then applies negative-rope side bias");
     AssertEqual(56, firingSamus.Grapple.AnchorY, "accepted grapple block centers Y");
-    AssertEqual(0xca00, firingSamus.Grapple.Angle,
+    AssertEqual(0xca00, firingSamus.Grapple.Angle.RawValue,
         "connection angle uses bank-$A0 integer octant calculation");
     AssertEqual(SamusPoseIds.GrappleSwingRightPose, firingSamus.Pose,
         "right-half airborne shot selects clockwise grapple pose $B2");
@@ -577,7 +577,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 200,
         anchorY: 100,
         ropeLength: 50,
-        angle: 0x8000,
+        angle: SnesAngle.HalfTurn,
         angularVelocity: 0,
         faceRight: true);
 
@@ -602,7 +602,7 @@ static void VerifySamusGrappleSwingAndRelease()
         newlyPressedInput: 0);
     AssertEqual(GrapplePhase.ConnectedSwinging, swung.Phase, "held-shot grapple phase");
     AssertEqual(0x010c, samus.Grapple.AngularVelocity, "bottom kick plus input acceleration");
-    AssertEqual(0x810c, samus.Grapple.Angle, "unobstructed angle integration");
+    AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
     AssertEqual(150, samus.Grapple.BeamStartX, "advanced grapple beam-start X");
     AssertEqual(105, samus.Grapple.BeamStartY, "advanced grapple beam-start Y");
     AssertEqual(154, samus.XPosition, "advanced grapple art-corrected X");
@@ -657,7 +657,7 @@ static void VerifySamusGrappleSwingAndRelease()
     // source. Give this angle unique pointers so a hard-coded host tile cannot pass.
     WriteTestWord(bus, 0x9bc342, 0x1234);
     WriteTestWord(bus, 0x9bc344, 0x1434);
-    int foldedAngleOffset = (samus.Grapple.Angle >> 9) & 0xfe;
+    int foldedAngleOffset = (samus.Grapple.Angle.RawValue >> 9) & 0xfe;
     WriteTestWord(bus, 0x9bc346 + foldedAngleOffset, 0x5678);
 
     // $94:AFBA recalculates its angle from endpoint minus flare. Here (49,-1) selects
@@ -790,7 +790,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 32,
-        angle: 0x4000,
+        angle: SnesAngle.QuarterTurn,
         angularVelocity: 0x0100,
         faceRight: true);
     GrappleMovementResult angularCollision = SamusGrappleMovement.Step(
@@ -802,7 +802,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(angularCollision.TerrainCollided, "grapple angular sweep reports terrain collision");
     AssertEqual(6, angularCollision.CollisionDistanceFromFeet,
         "nearest of six grapple body probes collides first");
-    AssertEqual(0x4080, angularCollisionSamus.Grapple.Angle,
+    AssertEqual(0x4080, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision restores last-safe angle plus half fraction");
     AssertEqual(-0x008c, angularCollisionSamus.Grapple.AngularVelocity,
         "grapple collision negates arithmetic half velocity");
@@ -834,7 +834,7 @@ static void VerifySamusGrappleSwingAndRelease()
             anchorX: 128,
             anchorY: 128,
             ropeLength: 32,
-            angle: 0x4000,
+            angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
         GrappleMovementResult spikeBlockContact = SamusGrappleMovement.Step(
@@ -878,7 +878,7 @@ static void VerifySamusGrappleSwingAndRelease()
             anchorX: 128,
             anchorY: 128,
             ropeLength: 32,
-            angle: 0x4000,
+            angle: SnesAngle.QuarterTurn,
             angularVelocity: 0x0100,
             faceRight: true);
         GrappleMovementResult spikeAirContact = SamusGrappleMovement.Step(
@@ -921,7 +921,7 @@ static void VerifySamusGrappleSwingAndRelease()
         newlyPressedInput: (ushort)SnesButton.B);
     AssertTrue(!afterAngularCollision.TerrainCollided,
         "collision kick crosses three clear angle-byte terrain sweeps");
-    AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle,
+    AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,
         "grapple collision kick advances exact reflected-plus-extra angle");
     AssertEqual(-0x006f, angularCollisionSamus.Grapple.AngularVelocity,
         "grapple kick keeps gravity-corrected base angular velocity");
@@ -948,7 +948,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 32,
-        angle: 0x4000,
+        angle: SnesAngle.QuarterTurn,
         angularVelocity: 0,
         faceRight: true);
     GrappleMovementResult ropeCollision = SamusGrappleMovement.Step(
@@ -975,7 +975,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 32,
-        angle: 0x4000,
+        angle: SnesAngle.QuarterTurn,
         angularVelocity: 0,
         faceRight: true);
     disconnectedAnchorSamus.Grapple.ValidateAnchorBlock = true;
@@ -1020,7 +1020,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 8,
-        angle: 0x6a00,
+        angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult wallGrab = SamusGrappleMovement.Step(
@@ -1117,7 +1117,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 8,
-        angle: 0x6a00,
+        angle: SnesAngle.FromRaw(0x6a00),
         angularVelocity: 0x0200,
         faceRight: true);
     SamusGrappleMovement.Step(
@@ -1169,7 +1169,7 @@ static void VerifySamusGrappleSwingAndRelease()
         anchorX: 128,
         anchorY: 128,
         ropeLength: 8,
-        angle: 0xd600,
+        angle: SnesAngle.FromRaw(0xd600),
         angularVelocity: 0x0200,
         faceRight: true);
     GrappleMovementResult locked = SamusGrappleMovement.Step(
@@ -1203,7 +1203,7 @@ static void VerifySamusGrappleSwingAndRelease()
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusGrappleMovement.ConnectUnobstructedSwing(
-            bus, new SamusState(), 0, 0, ropeLength: 7, angle: 0, angularVelocity: 0, faceRight: true),
+            bus, new SamusState(), 0, 0, ropeLength: 7, angle: SnesAngle.Zero, angularVelocity: 0, faceRight: true),
         "grapple rejects a rope shorter than retail connected minimum");
 
     Console.WriteLine("  Samus grapple: firing, swing collision, locked/wall-grab specials, wall jump, dropped pose, beam OAM, and release agree.");

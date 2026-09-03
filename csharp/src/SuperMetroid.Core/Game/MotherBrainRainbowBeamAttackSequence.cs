@@ -173,7 +173,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     public ushort HeadSpritemapPointer { get; private set; }
 
     /// <summary>Byte-angle used by newly spawned Mother Brain blue-ring projectiles.</summary>
-    public byte OnionRingTargetAngle { get; private set; }
+    public SnesAngle OnionRingTargetAngle { get; private set; }
 
     /// <summary>Native neck angular delta at Mother Brain body extra word `$0FBC`.</summary>
     public ushort NeckAngleDelta { get; private set; }
@@ -213,7 +213,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// Exposing the translated movement owner's word lets the live room adapter publish the
     /// real beam geometry without maintaining a second aim calculation.
     /// </summary>
-    public byte RainbowBeamAngle => _movement.RainbowBeamAngle;
+    public SnesAngle RainbowBeamAngle => _movement.RainbowBeamAngle;
 
     /// <summary>
     /// Lower neck angle updated by the brain-slot handler at <c>$A9:9072</c>. The final

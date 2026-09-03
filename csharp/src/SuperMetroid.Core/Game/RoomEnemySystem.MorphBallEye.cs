@@ -38,10 +38,10 @@ public sealed class MorphBallEyeEnemyState
     /// Zero-up, clockwise, 1/256-turn aim angle in native variable D. Only the low byte is
     /// meaningful, but the cartridge stores the complete accumulator result as a word.
     /// </summary>
-    public ushort Angle
+    public SnesAngle Angle
     {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => SnesAngle.FromTableIndex(unchecked((byte)_slot.VariableD));
+        internal set => _slot.VariableD = value.TableIndex;
     }
 
     /// <summary>Activation/deactivation countdown in native variable E.</summary>
@@ -132,7 +132,7 @@ public readonly record struct MorphBallEyeBeamRenderSnapshot(
     MorphBallEyeBeamPhase Phase,
     ushort WorldX,
     ushort WorldY,
-    ushort Angle,
+    SnesAngle Angle,
     ushort AngularWidth,
     byte Red,
     byte Green,
@@ -324,7 +324,7 @@ public sealed partial class RoomEnemySystem
         // Sixteen four-byte duration/map records begin at $8FAC. The high angle nibble is
         // shifted down by two, producing byte offsets $00,$04,...,$3C exactly as native.
         eye.CurrentInstruction = unchecked((ushort)(
-            EyeActiveInstructionTable + ((state.Angle & 0x00f0) >> 2)));
+            EyeActiveInstructionTable + ((state.Angle.TableIndex & 0x00f0) >> 2)));
         eye.InstructionTimer = 1;
     }
 
@@ -335,10 +335,10 @@ public sealed partial class RoomEnemySystem
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 
-    private static ushort CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
-        CalculateCartridgeAngle(
+    private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
+        SnesAngle.FromTableIndex(CalculateCartridgeAngle(
             unchecked((short)(samus.XPosition - eye.XPosition)),
-            unchecked((short)(samus.YPosition - eye.YPosition)));
+            unchecked((short)(samus.YPosition - eye.YPosition))));
 
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {

@@ -34,7 +34,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     /// The low-byte beam angle stored by <c>$A9:BBA8-$BBAB</c>; zero points down and the
     /// positive direction is anti-clockwise, matching the shared bank-$86 trig routines.
     /// </summary>
-    public byte RainbowBeamAngle { get; set; }
+    public SnesAngle RainbowBeamAngle { get; set; }
 
     /// <summary>
     /// Ports <c>$A9:BBB5</c>: move right at <c>$10.00</c> pixels per call and, until the
@@ -146,10 +146,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     private static ushort CalculateYVelocity(
         ISnesAddressSpace bus,
         ushort speed,
-        byte angle)
+        SnesAngle angle)
     {
-        int sineIndex = unchecked((byte)(angle + 0x40));
-        int sineAddress = SignedSineTable + sineIndex * 2;
+        int sineAddress = SignedSineTable +
+            angle.AddRaw(SnesAngle.QuarterTurn.RawValue).SineTableByteOffset;
         short sine = unchecked((short)(
             bus.ReadByte(sineAddress) |
             (bus.ReadByte(sineAddress + 1) << 8)));

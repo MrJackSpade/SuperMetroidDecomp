@@ -292,13 +292,13 @@ public sealed partial class RoomEnemySystem
 
             case TorizoInstructionCodes.Instruction_Torizo_PlayShotTorizoSFX:
                 LastBombTorizoSoundEffect = 0x0027;
-                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0027, maximumQueued: 6);
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0027), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_PlayTorizoFootstepsSFX:
                 LastBombTorizoSoundEffect = 0x004b;
-                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x004b, maximumQueued: 6);
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x004b), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -354,19 +354,19 @@ public sealed partial class RoomEnemySystem
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_QueueEggReleasedSFX:
                 LastBombTorizoSoundEffect = 0x0034;
-                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0034, maximumQueued: 6);
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0034), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case TorizoInstructionCodes.Instruction_GoldenTorizo_QueueLaserSFX:
                 LastBombTorizoSoundEffect = 0x0067;
-                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0067, maximumQueued: 6);
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0067), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case TorizoInstructionCodes.Instruction_Torizo_QueueSonicBoomSFX:
                 LastBombTorizoSoundEffect = 0x0048;
-                QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: 0x0048, maximumQueued: 6);
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0048), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

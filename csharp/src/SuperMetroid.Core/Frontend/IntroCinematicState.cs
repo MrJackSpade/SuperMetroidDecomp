@@ -853,12 +853,10 @@ public sealed class IntroCinematicState
             layer1Y: 0,
             flashbackBombProjectiles,
             controllerPreviousNewInput: flashbackDemoInput.PublishedPreviousNewlyPressed);
-        ushort soundId = flashbackProjectiles.LastFrameResult.QueuedSoundEffect;
-        if (soundId != 0)
+        if (flashbackProjectiles.LastFrameResult.QueuedSoundEffect is { } soundEffect)
         {
             audio?.QueueSound(
-                library: SoundEffectLibrary.Library1,
-                unchecked((byte)soundId),
+                soundEffect,
                 flashbackProjectiles.LastFrameResult.QueuedSoundMaximum);
         }
     }

@@ -5944,7 +5944,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
     }
     observedHurtImpactSound |= options.KnockbackScript &&
         runtime.Samus!.LiquidPhysics.SoundRequests.Any(
-            request => request == new SamusSoundRequest(SoundEffectLibrary.Library1, 0x35, 6));
+            request => request == new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), 6));
     if (options.LandingImpactScript &&
         (runtime.LastAerialSamusMovement is { Landed: true } ||
          runtime.LastMorphBallMovement is { Landed: true }))
@@ -5955,7 +5955,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[2].Type == 6 &&
             runtime.Samus.LiquidPhysics.AtmosphericEffects.Slots[3].Type == 6;
         observedLandingImpactSound |= runtime.Samus.LiquidPhysics.SoundRequests.Any(
-            request => request == new SamusSoundRequest(SoundEffectLibrary.Library3, 0x05, 6));
+            request => request == new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6));
     }
     if (specialSpinRoute &&
         yDirectionBeforeFrame == 2 &&
@@ -6180,7 +6180,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             observedHyperBeamShot = true;
             observedHyperBeamType = firedProjectile.Type;
             observedHyperBeamDamage = firedProjectile.Damage;
-            observedHyperBeamSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            observedHyperBeamSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect?.Value ?? 0;
             Console.WriteLine(
                 $"frame {result.FrameNumber,4}: Hyper Beam slot {firedSlot}, " +
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
@@ -6195,7 +6195,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         {
             observedSuperMissileShot = true;
             observedSuperMissileDamage = firedProjectile.Damage;
-            observedSuperMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            observedSuperMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect?.Value ?? 0;
             Console.WriteLine(
                 $"frame {result.FrameNumber,4}: super missile slot {firedSlot}, " +
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
@@ -6205,7 +6205,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         {
             observedMissileShot = true;
             observedMissileDamage = firedProjectile.Damage;
-            observedMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            observedMissileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect?.Value ?? 0;
             Console.WriteLine(
                 $"frame {result.FrameNumber,4}: missile slot {firedSlot}, " +
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +
@@ -6215,7 +6215,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
         {
             observedChargedShot = true;
             observedChargedShotDamage = firedProjectile.Damage;
-            observedChargedShotSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
+            observedChargedShotSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect?.Value ?? 0;
             Console.WriteLine(
                 $"frame {result.FrameNumber,4}: charged beam slot {firedSlot}, " +
                 $"type=${firedProjectile.Type:X4}, damage=${firedProjectile.Damage:X4}, " +

@@ -118,7 +118,7 @@ internal static partial class Program
 
         var sfx = new CartridgeAudioState();
         sfx.AdvanceFrame(bus, default); // consume reset upload/port writes
-        sfx.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x57, maximumQueued: 6);
+        sfx.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, maximumQueued: 6);
         IReadOnlyList<CartridgeAudioCommand> request = sfx.AdvanceFrame(bus, default);
         AssertEqual(CartridgeAudioCommand.WritePort(2, 0x57), request.Single(), "SFX request write");
         AssertEqual(
@@ -142,8 +142,44 @@ internal static partial class Program
             () => SoundEffectLibraries.FromCartridge(0, "audio verifier"),
             "zero is not a cartridge SFX library");
         AssertThrows<ArgumentOutOfRangeException>(
-            () => sfx.QueueSound((SoundEffectLibrary)4, soundId: 1, maximumQueued: 1),
+            () => sfx.QueueSound(new SoundEffectId((SoundEffectLibrary)4, 1), maximumQueued: 1),
             "forged SFX library is rejected at queue boundary");
+
+        // The same relative number in two libraries denotes two different sounds. The
+        // paired value must preserve that distinction, retain unknown cartridge IDs, and
+        // be the only shape accepted by QueueSound—there is no reorderable library/ID API.
+        SoundEffectId libraryOneUnknown =
+            SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0xfe);
+        SoundEffectId libraryTwoUnknown =
+            SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0xfe);
+        AssertTrue(libraryOneUnknown != libraryTwoUnknown,
+            "library-relative equal numbers remain distinct sound identities");
+        AssertEqual(0xfe, libraryTwoUnknown.Value,
+            "unknown cartridge sound number remains losslessly representable");
+        AssertEqual(SoundEffectLibrary.Library2, libraryTwoUnknown.Library,
+            "unknown cartridge sound retains its library");
+        AssertTrue(
+            typeof(CartridgeAudioState).GetMethod(
+                nameof(CartridgeAudioState.QueueSound),
+                [typeof(SoundEffectId), typeof(byte)]) is not null,
+            "QueueSound accepts one indivisible sound identity");
+        AssertTrue(
+            typeof(CartridgeAudioState).GetMethod(
+                nameof(CartridgeAudioState.QueueSound),
+                [typeof(SoundEffectLibrary), typeof(byte), typeof(byte)]) is null,
+            "QueueSound exposes no reversible library-and-ID argument list");
+        AssertThrows<InvalidDataException>(
+            () => SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0100),
+            "word-sized sound values outside the SPC port fail loudly");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => sfx.QueueSound(default, maximumQueued: 1),
+            "default sound identity cannot silently select a queue");
+        AssertEqual(SoundEffectLibrary1Sounds.MenuCursor,
+            SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x37),
+            "named library-one menu catalog retains cartridge identity");
+        AssertEqual(SoundEffectLibrary2Sounds.DoorOpening,
+            SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x57),
+            "named library-two door catalog retains cartridge identity");
 
         // Verify the upload reader follows contiguous ROM pointer arithmetic across a
         // physical LoROM bank boundary: $90:FFFF continues at $91:8000, not $91:0000.
@@ -152,7 +188,7 @@ internal static partial class Program
             SpcUploadStreamReader.Read(bus, 0x90fffb),
             "cross-bank SPC upload stream");
 
-        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, typed SFX libraries, handshake, and LoROM stream agree.");
+        Console.WriteLine("  Audio: music delays, inherited Ceres track, post-Ceres bank/track restart, item fanfare, upload lookup, paired SFX identities/catalogs, handshake, and LoROM stream agree.");
     }
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>

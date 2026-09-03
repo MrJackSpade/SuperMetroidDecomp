@@ -530,7 +530,9 @@ public sealed partial class SamusProjectileSystem
 
         LastFrameResult = new SamusProjectileFrameResult(
             firedSlot,
-            queuedSound,
+            queuedSound == 0
+                ? null
+                : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, queuedSound),
             queuedSound == 0
                 ? (byte)0
                 : samus.SelectedHudItem is 0 or 3

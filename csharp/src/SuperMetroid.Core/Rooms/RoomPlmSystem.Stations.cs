@@ -425,7 +425,7 @@ public sealed partial class RoomPlmSystem
                 station.OperationPhase = StationOperationPhase.Extending;
                 station.OperationTimer = StationAccessMovementFrames;
                 samus.InputLocked = true;
-                _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x37, MaximumQueued: 6));
+                _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x37), MaximumQueued: 6));
                 DrawStationAccess(
                     bus,
                     level,
@@ -477,7 +477,7 @@ public sealed partial class RoomPlmSystem
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
                     case StationOperationPhase.PostActivationHold:
-                        _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x38, MaximumQueued: 6));
+                        _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x38), MaximumQueued: 6));
                         station.OperationPhase = StationOperationPhase.Retracting;
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
@@ -569,7 +569,7 @@ public sealed partial class RoomPlmSystem
         if (station.SaveStartSoundPending)
         {
             // `$84:AFF4` queues sound $2E in library one immediately after centering Samus.
-            _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library1, 0x2e, MaximumQueued: 6));
+            _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), MaximumQueued: 6));
             station.SaveStartSoundPending = false;
         }
 

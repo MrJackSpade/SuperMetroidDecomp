@@ -54,7 +54,7 @@ public sealed partial class RoomEnemySystem
         rock.YVelocity = unchecked((ushort)-0x0500);
         rock.GraphicsIndex = 0x0600;
         state.SpawnedRiseRockCount++;
-        LastKraidSoundEffect = new KraidSoundRequest(SoundEffectLibrary.Library3, 0x001e);
+        LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001e));
     }
 
     private bool SpawnKraidCeilingRock(ushort xPosition)

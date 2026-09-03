@@ -424,7 +424,7 @@ public sealed class SuperMetroidGame
                     });
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 if (reserveStep.RefillSoundRequested)
-                    audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x2d, maximumQueued: 3);
+                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
                 if (reserveStep.Completed)
                 {
                     runtime.GameplayTimeFrozen = false;
@@ -457,9 +457,9 @@ public sealed class SuperMetroidGame
                 {
                     // `$82:DCE0` cancels all three SFX libraries, then installs the death
                     // music data and track through the ordinary delayed music queue.
-                    audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x02, maximumQueued: 15);
-                    audio.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x71, maximumQueued: 15);
-                    audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x01, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
                     audio.QueueMusicDelayed8(0);
                     audio.QueueMusicDelayed8(0xff39);
                     audio.QueueMusicDelayed(5, 0x000e);
@@ -750,14 +750,14 @@ public sealed class SuperMetroidGame
                 if (doorMovementType is
                     SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
                 {
-                    audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x32, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 15);
                 }
                 else if ((controllerInput & (ushort)SnesButton.X) == 0 &&
                     runtime.Projectiles.FlareCounter < 16)
                 {
-                    audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x02, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
                 }
-                audio.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x71, maximumQueued: 15);
+                audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
                 doorTransition.Begin(runtime);
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
                 // publishes state $0B before returning. Consequently neither intermediate
@@ -790,9 +790,9 @@ public sealed class SuperMetroidGame
                     // cancels all three SFX libraries, and publishes state $27. The new
                     // state performs its own cartridge-backed setup on the following call.
                     audio.QueueMusicDelayed8(0);
-                    audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x02, maximumQueued: 15);
-                    audio.QueueSound(library: SoundEffectLibrary.Library2, soundId: 0x71, maximumQueued: 15);
-                    audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x01, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                    audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
                     SamusState endingSamus = runtime.Samus ??
                         throw new InvalidOperationException(
                             "Ending inventory calculation requires the live Samus state.");
@@ -866,55 +866,53 @@ public sealed class SuperMetroidGame
         if (runtime.Samus is { } samus)
         {
             if (runtime.MessageBoxSelectionSoundRequestedThisFrame)
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 
             if (runtime.Hud.SelectionSoundRequestedThisFrame)
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x39, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x39), maximumQueued: 6);
 
             foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
-                audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+                audio.QueueSound(request.SoundEffect, request.MaximumQueued);
 
             // These state machines predate the shared SamusSoundRequest list. Consume their
             // one-shot publications here, retaining the exact native library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x03, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x03), maximumQueued: 6);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x0c, maximumQueued: 9);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0c), maximumQueued: 9);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x0f, maximumQueued: 9);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0f), maximumQueued: 9);
             if (samus.Shinespark.ConsumeCrashSoundRequest())
             {
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x35, maximumQueued: 6);
-                audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x10, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x10), maximumQueued: 6);
             }
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x01, maximumQueued: 15);
+                audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
             if (samus.Xray.ConsumeActivationSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x09, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x09), maximumQueued: 6);
             if (samus.Xray.ConsumeDeactivationSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x0a, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x0a), maximumQueued: 6);
             if (samus.DeathSequence.ConsumeSpinJumpSoundRequest())
-                audio.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x32, maximumQueued: 6);
+                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x32), maximumQueued: 6);
         }
 
-        ushort projectileSound = runtime.Projectiles.LastFrameResult.QueuedSoundEffect;
-        if (projectileSound != 0)
+        if (runtime.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
         {
             audio.QueueSound(
-                library: SoundEffectLibrary.Library1,
-                unchecked((byte)projectileSound),
+                projectileSound,
                 runtime.Projectiles.LastFrameResult.QueuedSoundMaximum);
         }
 
         foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)
-            audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (PlmMusicRequest request in runtime.Plms.MusicRequests)
             audio.QueueMusicDelayed(request.Track, request.DelayFrames);
         if (runtime.Plms.ConsumeCollectibleFanfareRequest())
             audio.QueuePermanentItemFanfare();
 
         foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
-            audio.QueueSound(request.Library, request.SoundId, request.MaximumQueued);
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (EnemyMusicRequest request in runtime.Enemies.MusicRequests)
             audio.QueueMusicDelayed(request.Entry, request.DelayFrames);
     }

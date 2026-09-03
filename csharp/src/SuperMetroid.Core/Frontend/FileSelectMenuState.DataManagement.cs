@@ -57,7 +57,7 @@ public sealed partial class FileSelectMenuState
 
         if (SelectedItem < 3)
         {
-            audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x2a, maximumQueued: 6);
+            audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2a), maximumQueued: 6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             helmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
@@ -259,7 +259,7 @@ public sealed partial class FileSelectMenuState
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
 
-        audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
+        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         if (confirmationSelection != 0)
         {
             ReturnFromConfirmation(copy);
@@ -438,7 +438,7 @@ public sealed partial class FileSelectMenuState
         ppu.Vram.ExecuteWordTransfer(bg1Tilemap, MenuPpuState.Bg1TilemapWord, 1);
 
     private void QueueCursorSound() =>
-        audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
+        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 }
 
 internal enum FileSelectDataMode

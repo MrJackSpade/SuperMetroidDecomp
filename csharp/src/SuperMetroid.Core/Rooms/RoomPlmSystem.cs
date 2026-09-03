@@ -1210,7 +1210,7 @@ public sealed partial class RoomPlmSystem
                     // operand layout as `$8C10/$8C46`, but permits only one pending sound.
                     byte singleSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, singleSoundId, MaximumQueued: 1));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, singleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1220,10 +1220,7 @@ public sealed partial class RoomPlmSystem
                     // a short branch. Both consume the identical odd-byte sound operand.
                     byte directSingleSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(new PlmSoundRequest(
-                        SoundEffectLibrary.Library2,
-                        directSingleSoundId,
-                        MaximumQueued: 1));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, directSingleSoundId), MaximumQueued: 1));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1232,7 +1229,7 @@ public sealed partial class RoomPlmSystem
                     // low byte is read as A's harmless high byte by the 16-bit LDA.
                     byte soundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(new PlmSoundRequest(Library: SoundEffectLibrary.Library2, soundId, MaximumQueued: 6));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, soundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1241,7 +1238,7 @@ public sealed partial class RoomPlmSystem
                     // collision-bomb list's crumble sound `$06` uses the stricter queue cap.
                     byte cappedSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library2, cappedSoundId, MaximumQueued: 3));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, cappedSoundId), MaximumQueued: 3));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1251,7 +1248,7 @@ public sealed partial class RoomPlmSystem
                     // only one argument byte before advancing Y by one.
                     byte doorSoundId = bus.ReadByte(
                         0x840000 | unchecked((ushort)(slot.InstructionPointer + 2)));
-                    _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary.Library3, doorSoundId, MaximumQueued: 6));
+                    _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, doorSoundId), MaximumQueued: 6));
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
@@ -1541,6 +1538,5 @@ internal sealed class ColoredDoorPlmState(
 
 /// <summary>Observable call to one of the cartridge's three queued-sound libraries.</summary>
 public readonly record struct PlmSoundRequest(
-    SoundEffectLibrary Library,
-    byte SoundId,
+    SoundEffectId SoundEffect,
     byte MaximumQueued);

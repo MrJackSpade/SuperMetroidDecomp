@@ -97,9 +97,9 @@ public static class PauseAudioSmokeTest
             throw new InvalidDataException("Pause PCM audit did not exercise audio or pause states.");
         (byte Port, byte Value)[] expectedCancellationWrites =
         [
-            (1, AudioCancellationCommands.Library1),
-            (2, AudioCancellationCommands.Library2),
-            (3, AudioCancellationCommands.Library3),
+            (1, SoundEffectLibrary1Sounds.CancelAll.Value),
+            (2, SoundEffectLibrary2Sounds.CancelAll.Value),
+            (3, SoundEffectLibrary3Sounds.CancelAll.Value),
         ];
         int cancellationCursor = 0;
         foreach ((byte port, byte value) in pauseSetupPortWrites)

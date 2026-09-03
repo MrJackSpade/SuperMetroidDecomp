@@ -1247,7 +1247,7 @@ static void VerifySamusMorphBallMovement()
         "respawning shot block begins with retail air frame");
     AssertEqual(1, shotPlms.SoundRequests.Count,
         "shot-block head queues one sound request");
-    AssertEqual(0x0a, shotPlms.SoundRequests[0].SoundId,
+    AssertEqual(0x0a, shotPlms.SoundRequests[0].SoundEffect.Value,
         "shot-block head queues crumble sound $0A");
     AssertEqual(1, shotPlms.SoundRequests[0].MaximumQueued,
         "$84:8C79 uses sound-library-two maximum one");
@@ -1295,7 +1295,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x0053,
         powerBombShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "power-bomb block begins with retail air frame");
-    AssertEqual(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x0a, 1), powerBombShotPlms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 1), powerBombShotPlms.SoundRequests[0],
         "$8C7C queues power-bomb breakup sound with maximum one");
     StepFrames(12 + 384 + 12, _ =>
         powerBombShotPlms.Step(bus, powerBombShotLevel, powerBombShotStreamer, 0, 0, 0));
@@ -1343,7 +1343,7 @@ static void VerifySamusMorphBallMovement()
         superShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "CF67 installs synthesized temporary Super Missile word");
     superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0);
-    AssertEqual(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x0a, 6), superShotPlms.SoundRequests[0],
+    AssertEqual(new PlmSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6), superShotPlms.SoundRequests[0],
         "$CB71 queues Super Missile breakup sound with maximum six");
     StepFrames(12 + 384 + 12, _ =>
         superShotPlms.Step(bus, superShotLevel, superShotStreamer, 0, 0, 0));

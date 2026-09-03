@@ -521,7 +521,7 @@ public sealed partial class RoomEnemySystem
                     // including the random branch that immediately jumps to another list.
                     // Publish before reproducing that branch so its control flow cannot
                     // accidentally suppress the chirp.
-                    QueueEnemySound(library: SoundEffectLibrary.Library3, soundId: 0x0024, maximumQueued: 6);
+                    QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0024), maximumQueued: 6);
                     // The native “moving” word is the same $8808 velocity accumulator
                     // advanced by TickCeresBaby. While stationary, the cartridge RNG may
                     // branch to the expressive palette-animation list with 50% probability.

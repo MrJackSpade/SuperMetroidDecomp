@@ -80,7 +80,7 @@ internal static partial class Program
         plms.Step(bus, level, streamer, 0, 0, 0);
         AssertTrue(samus.InputLocked,
             "station access command locks Samus during six-plus-$60 insertion");
-        AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary.Library2, 0x37, 6)),
+        AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x37), 6)),
             "station access begins with cartridge extension sound $37");
         for (int frame = 1; frame < 102; frame++)
             plms.Step(bus, level, streamer, 0, 0, 0);
@@ -190,7 +190,7 @@ internal static partial class Program
             plms.Step(bus, level, streamer, 0, 0, 0);
             if (frame == 0)
             {
-                AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectLibrary.Library1, 0x2e, 6)),
+                AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2e), 6)),
                     "save animation queues cartridge library-one sound $2E");
             }
             if (plms.StationActivationEvents.Count != 0)

@@ -133,7 +133,7 @@ public sealed class SamusProjectileTrailSide
 /// <summary>Immutable summary of one ordinary-projectile alpha pass.</summary>
 public readonly record struct SamusProjectileFrameResult(
     int? FiredSlot,
-    ushort QueuedSoundEffect,
+    SoundEffectId? QueuedSoundEffect,
     byte QueuedSoundMaximum,
     bool CollisionStartedExplosion,
     bool ProjectileDeleted);

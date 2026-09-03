@@ -251,8 +251,8 @@ public sealed partial class RoomEnemySystem
         LastElevatorSoundEffectLibrary1 = ElevatorDepartureSoundLibrary1;
         // $A3:9548 issues both calls in this order before changing Samus's pose. Keeping
         // them as two requests matters because each library owns an independent SPC port.
-        QueueEnemySound(library: SoundEffectLibrary.Library3, soundId: ElevatorDepartureSoundLibrary3, maximumQueued: 6);
-        QueueEnemySound(library: SoundEffectLibrary.Library1, soundId: ElevatorDepartureSoundLibrary1, maximumQueued: 6);
+        QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorDepartureSoundLibrary3), maximumQueued: 6);
+        QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, ElevatorDepartureSoundLibrary1), maximumQueued: 6);
         samus.ApplyForwardFacingPoseSetup(_bus!);
         samus.InputLocked = true;
         samus.PrimeGraphics(_bus!);
@@ -309,7 +309,7 @@ public sealed partial class RoomEnemySystem
         ElevatorStatus = ElevatorActorStatus.Inactive;
         ElevatorFlags = 0;
         LastElevatorSoundEffectLibrary3 = ElevatorArrivalSoundLibrary3;
-        QueueEnemySound(library: SoundEffectLibrary.Library3, soundId: ElevatorArrivalSoundLibrary3, maximumQueued: 6);
+        QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorArrivalSoundLibrary3), maximumQueued: 6);
         slot.YPosition = state.RestingYPosition;
         samus.InputLocked = false;
         PinSamusToElevator(slot, samus);

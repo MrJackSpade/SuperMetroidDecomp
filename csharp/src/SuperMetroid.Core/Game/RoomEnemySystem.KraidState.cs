@@ -70,8 +70,7 @@ public enum KraidAiFunction : ushort
 /// room-enemy scheduler.
 /// </summary>
 public readonly record struct KraidSoundRequest(
-    SoundEffectLibrary Library,
-    ushort SoundEffect);
+    SoundEffectId SoundEffect);
 
 /// <summary>
 /// Per-physical-slot projection of Kraid's bank-$7E extended workspace. Native code obtains

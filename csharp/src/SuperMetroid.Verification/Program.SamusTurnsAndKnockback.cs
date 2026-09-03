@@ -198,7 +198,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(1, eligible.HorizontalSpeed.ExtraRunSpeed, "wall jump preserves Dash whole speed");
     AssertEqual(0x7000, eligible.HorizontalSpeed.ExtraRunSubspeed, "wall jump preserves Dash fraction");
     AssertTrue(eligible.HorizontalSpeed.HasRunningMomentum, "wall jump preserves Dash momentum flag");
-    AssertEqual(new SamusSoundRequest(SoundEffectLibrary.Library3, 0x05, 6), eligible.LiquidPhysics.SoundRequests.Single(),
+    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6), eligible.LiquidPhysics.SoundRequests.Single(),
         "ordinary wall trigger queues library-three sound five max six");
     for (int tick = 0; tick < 8; tick++)
         eligible.AnimateNoFx(bus);

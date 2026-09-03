@@ -3,14 +3,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>
 /// One call to one of the cartridge's three <c>QueueSfx</c> entry points.
 /// </summary>
-/// <param name="Library">The exclusive cartridge SFX queue/input-port identity.</param>
-/// <param name="SoundId">The low-byte sound index supplied by the original 65816 caller.</param>
+/// <param name="SoundEffect">The library-qualified sound identity supplied by the original 65816 caller.</param>
 /// <param name="MaximumQueued">
 /// The exact queue-cap variant selected by that caller (for example Max3 or Max6).
 /// </param>
 public readonly record struct EnemySoundRequest(
-    SoundEffectLibrary Library,
-    byte SoundId,
+    SoundEffectId SoundEffect,
     byte MaximumQueued);
 
 /// <summary>One native enemy-owned <c>QueueMusic_Delayed*</c> publication.</summary>
@@ -70,21 +68,12 @@ public sealed partial class RoomEnemySystem
     /// Records an already-decoded cartridge queue call without assigning host-side meaning
     /// to its numeric sound ID. The bank-$80 queue remains the sole owner of arbitration.
     /// </summary>
-    private void QueueEnemySound(
-        SoundEffectLibrary library,
-        ushort soundId,
-        byte maximumQueued)
+    private void QueueEnemySound(SoundEffectId soundEffect, byte maximumQueued)
     {
-        _ = SoundEffectLibraries.ToQueueIndex(library);
-        if (soundId > byte.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(soundId), soundId, "SPC sound ID must fit in one byte.");
         if (maximumQueued == 0)
             throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
 
-        _soundRequests.Add(new EnemySoundRequest(
-            library,
-            unchecked((byte)soundId),
-            maximumQueued));
+        _soundRequests.Add(new EnemySoundRequest(soundEffect, maximumQueued));
     }
 
     /// <summary>
@@ -158,28 +147,28 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastSporeSpawnSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
 
         if (LastKraidSoundEffect is { } kraidSound)
-            QueueEnemySound(kraidSound.Library, kraidSound.SoundEffect, maximumQueued: 6);
+            QueueEnemySound(kraidSound.SoundEffect, maximumQueued: 6);
         if (_ridleyState?.LastDeathSoundEffect is ushort ridleyDeath)
-            QueueEnemySound(library: SoundEffectLibrary.Library2, ridleyDeath, maximumQueued: 3);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, ridleyDeath), maximumQueued: 3);
         if (_draygon?.LastSoundLibrary2 is ushort draygonLibrary2)
-            QueueEnemySound(library: SoundEffectLibrary.Library2, draygonLibrary2, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, draygonLibrary2), maximumQueued: 6);
         if (_draygon?.LastSoundLibrary3 is ushort draygonLibrary3)
-            QueueEnemySound(library: SoundEffectLibrary.Library3, draygonLibrary3, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, draygonLibrary3), maximumQueued: 6);
         if (_phantoonState?.LastMaterializationSound is ushort phantoonMaterialization)
-            QueueEnemySound(library: SoundEffectLibrary.Library2, phantoonMaterialization, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonMaterialization), maximumQueued: 6);
         if (_phantoonState?.LastCombatSoundEffect is ushort phantoonCombat)
-            QueueEnemySound(library: SoundEffectLibrary.Library2, phantoonCombat, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, phantoonCombat), maximumQueued: 6);
 
         if (_motherBrain?.LastSoundEffect is ushort motherBrainLibrary2)
-            QueueEnemySound(library: SoundEffectLibrary.Library2, motherBrainLibrary2, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, motherBrainLibrary2), maximumQueued: 6);
         if (_motherBrain?.LastSoundEffectLibrary1 is ushort motherBrainLibrary1)
-            QueueEnemySound(library: SoundEffectLibrary.Library1, motherBrainLibrary1, maximumQueued: 6);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, motherBrainLibrary1), maximumQueued: 6);
         if (_motherBrain?.LastSoundEffectLibrary3 is ushort motherBrainLibrary3)
         {
             // Explosion instruction $13 is QueueSfx3_Max3; the other translated library-
             // three Mother Brain instructions use Max6.
             byte maximumQueued = motherBrainLibrary3 == 0x13 ? (byte)3 : (byte)6;
-            QueueEnemySound(library: SoundEffectLibrary.Library3, motherBrainLibrary3, maximumQueued);
+            QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, motherBrainLibrary3), maximumQueued);
         }
 
         QueueLegacyMusic(LastBotwoonMusicRequest?.Track, LastBotwoonMusicRequest?.DelayFrames);
@@ -203,7 +192,7 @@ public sealed partial class RoomEnemySystem
         byte maximumQueued)
     {
         if (soundId is ushort value)
-            QueueEnemySound(library, value, maximumQueued);
+            QueueEnemySound(SoundEffectId.FromCartridge(library, value), maximumQueued);
     }
 
     private void QueueLegacyMusic(ushort? entry, ushort? delayFrames)

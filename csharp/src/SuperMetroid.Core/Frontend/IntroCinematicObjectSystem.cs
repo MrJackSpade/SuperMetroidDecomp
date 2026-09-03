@@ -349,7 +349,7 @@ internal sealed class IntroCinematicObjectSystem
                 // $D67D blank/marker record is silent even on an audible half-cycle.
                 typewriterSoundToggle = !typewriterSoundToggle;
                 if (dataPointer != 0xd67d && typewriterSoundToggle)
-                    audio?.QueueSound(library: SoundEffectLibrary.Library3, soundId: 0x0d, maximumQueued: 6);
+                    audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0d), maximumQueued: 6);
                 CopyRectangleToText(destinationX, destinationY, width, height, source);
                 return;
             case DrawToTextTilemap:

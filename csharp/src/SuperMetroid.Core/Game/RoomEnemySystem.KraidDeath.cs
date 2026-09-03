@@ -124,7 +124,7 @@ public sealed partial class RoomEnemySystem
         state.DeathSoundTimer = unchecked((ushort)(state.DeathSoundTimer - 1));
         if (state.DeathSoundTimer == 0)
         {
-            LastKraidSoundEffect = new KraidSoundRequest(SoundEffectLibrary.Library3, 0x001e);
+            LastKraidSoundEffect = new KraidSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x001e));
             state.DeathSoundTimer = 30;
         }
         ProcessKraidSinkTable(body, state);

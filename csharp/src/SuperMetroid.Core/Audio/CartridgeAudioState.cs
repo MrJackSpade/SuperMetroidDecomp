@@ -156,13 +156,13 @@ public sealed class CartridgeAudioState
     /// </summary>
     public void QueueCancelSoundEffects()
     {
-        QueueSound(library: SoundEffectLibrary.Library1, soundId: AudioCancellationCommands.Library1, maximumQueued: 6);
-        QueueSound(library: SoundEffectLibrary.Library2, soundId: AudioCancellationCommands.Library2, maximumQueued: 6);
-        QueueSound(library: SoundEffectLibrary.Library3, soundId: AudioCancellationCommands.Library3, maximumQueued: 6);
+        QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 6);
+        QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 6);
+        QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 6);
     }
 
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
-    public void QueueSound(SoundEffectLibrary library, byte soundId, byte maximumQueued)
+    public void QueueSound(SoundEffectId soundEffect, byte maximumQueued)
     {
         if (maximumQueued is < 1 or > 15)
         {
@@ -170,7 +170,7 @@ public sealed class CartridgeAudioState
                 nameof(maximumQueued), maximumQueued, "Retail queue limit must be 1..15.");
         }
 
-        int queue = SoundEffectLibraries.ToQueueIndex(library);
+        int queue = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
         int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) & SoundQueueMask;
         if (occupancy >= maximumQueued)
             return;
@@ -180,12 +180,12 @@ public sealed class CartridgeAudioState
         if (next == _soundReadPositions[queue])
         {
             // A full native ring retains the lower-numbered (higher-priority) request.
-            if (soundId < _soundQueues[queue, write])
-                _soundQueues[queue, write] = soundId;
+            if (soundEffect.Value < _soundQueues[queue, write])
+                _soundQueues[queue, write] = soundEffect.Value;
             return;
         }
 
-        _soundQueues[queue, write] = soundId;
+        _soundQueues[queue, write] = soundEffect.Value;
         _soundWritePositions[queue] = next;
         _soundQueues[queue, next] = 0;
     }

@@ -56,7 +56,7 @@ public static class SamusHurtFlashPalette
             !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked &&
               samus.Pose == SamusPoseIds.KnockbackLeftPose))
         {
-            samus.LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library1, soundId: 0x35, maximumQueued: 6);
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
             hurtSoundQueued = true;
         }
 
@@ -131,8 +131,7 @@ public static class SamusHurtFlashPalette
         bool queued = (controllerInput & (ushort)SnesButton.X) != 0;
         if (queued)
         {
-            samus.LiquidPhysics.QueueMovementSound(
-                library: SoundEffectLibrary.Library1, soundId: 0x41, maximumQueued: 9);
+            samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), maximumQueued: 9);
         }
 
         samus.ResumeChargingBeamSoundFlag = 0;
@@ -158,8 +157,7 @@ public static class SamusHurtFlashPalette
                     : samus.Pose is SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose
                         ? (byte)0x33
                         : SamusState.IsSpaceJumpPose(samus.Pose) ? (byte)0x3e : (byte)0x31;
-                samus.LiquidPhysics.QueueMovementSound(
-                    library: SoundEffectLibrary.Library1, soundId: sound, maximumQueued: 9);
+                samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, sound), maximumQueued: 9);
                 return sound switch
                 {
                     0x33 => SamusHurtFlashRecoveryAction.ScrewAttackSound,
@@ -190,7 +188,7 @@ public static class SamusHurtFlashPalette
         if (!grappleSoundActive)
             return SamusHurtFlashRecoveryAction.None;
 
-        samus.LiquidPhysics.QueueMovementSound(library: SoundEffectLibrary.Library1, soundId: 0x06, maximumQueued: 9);
+        samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x06), maximumQueued: 9);
         return SamusHurtFlashRecoveryAction.GrappleSound;
     }
 

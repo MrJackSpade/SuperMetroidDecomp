@@ -186,7 +186,7 @@ internal sealed class PauseMenuState
         // excluded for three frames by $80:8146 before becoming menu input.
         if ((delayedPressed & SnesButton.Start) != 0)
         {
-            audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
+            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
             SetPauseButtonLabelMode(1);
             return true;
         }
@@ -195,7 +195,7 @@ internal sealed class PauseMenuState
         {
             if ((delayedPressed & SnesButton.R) != 0)
             {
-                audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
                 SetPauseButtonLabelMode(2);
                 transition = PauseMenuTransition.MapToEquipmentFadeOut;
                 transitionBrightness = 15;
@@ -205,7 +205,7 @@ internal sealed class PauseMenuState
 
         if ((delayedPressed & SnesButton.L) != 0)
         {
-            audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
+            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
             SetPauseButtonLabelMode(0);
             transition = PauseMenuTransition.EquipmentToMapFadeOut;
             transitionBrightness = 15;
@@ -377,7 +377,7 @@ internal sealed class PauseMenuState
                 if ((collected & ReadCategoryMask(category, item)) == 0)
                     continue;
                 selectedItem = item;
-                audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
                 return;
             }
         }
@@ -388,7 +388,7 @@ internal sealed class PauseMenuState
                 if ((collected & ReadCategoryMask(category, item)) == 0)
                     continue;
                 selectedItem = item;
-                audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x37, maximumQueued: 6);
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
                 return;
             }
         }
@@ -398,7 +398,7 @@ internal sealed class PauseMenuState
             if ((collected & mask) == 0)
                 return;
 
-            audio?.QueueSound(library: SoundEffectLibrary.Library1, soundId: 0x38, maximumQueued: 6);
+            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
 
             // EquipmentScreenCategory_ButtonResponse toggles the live equipped word, then
             // recolors exactly this label. Rebuilding all labels is equivalent and avoids

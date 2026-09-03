@@ -218,7 +218,7 @@ public sealed partial class RoomEnemySystem
         LastCeresDoorSoundEffectLibrary2 = CeresDoorRumbleSoundEffect;
         // New audio consumers use the lossless list; retain LastCeresDoorSoundEffectLibrary2
         // as a debugger/test compatibility view until the older per-enemy seams are migrated.
-        QueueEnemySound(library: SoundEffectLibrary.Library2, soundId: CeresDoorRumbleSoundEffect, maximumQueued: 6);
+        QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, CeresDoorRumbleSoundEffect), maximumQueued: 6);
     }
 
     private void RunCeresDoorPaletteAnimation()

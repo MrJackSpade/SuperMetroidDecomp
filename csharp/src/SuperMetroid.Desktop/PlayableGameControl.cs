@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
+using Microsoft.Win32;
 
 namespace SuperMetroid.Desktop;
 
@@ -40,6 +41,7 @@ public sealed class PlayableGameControl : UserControl
     private FrameTimingSnapshot? latestFrameTiming;
     private string? lastRecoverableError;
     private Form? inputLifecycleForm;
+    private bool sessionSwitchAttached;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -598,9 +600,22 @@ public sealed class PlayableGameControl : UserControl
         // A deactivated WinForms/RDP window is not guaranteed to receive the matching
         // WM_KEYUP or a fresh joystick sample. Treat the focus boundary as a release and
         // require a genuinely neutral device sample before accepting controls again.
-        keyboard.Clear();
-        inputActivation.SuppressUntilNeutral();
+        HostInputDiscontinuity.Release(keyboard, inputActivation);
     }
+
+    private void OnWindowsSessionSwitch(object sender, SessionSwitchEventArgs e)
+    {
+        // Remote disconnect/lock can leave the WinForms window technically active, so its
+        // Deactivate event is not a sufficient release boundary. SystemEvents may deliver
+        // this callback off the UI thread; queue the state mutation onto the same thread
+        // that polls and records controller words.
+        if (!IsHandleCreated || IsDisposed)
+            return;
+        BeginInvoke(ReleaseInputAfterSessionSwitch);
+    }
+
+    private void ReleaseInputAfterSessionSwitch() =>
+        HostInputDiscontinuity.Release(keyboard, inputActivation);
 
     protected override bool ProcessKeyPreview(ref Message message)
     {
@@ -618,6 +633,12 @@ public sealed class PlayableGameControl : UserControl
     {
         base.OnHandleCreated(e);
 
+        if (!sessionSwitchAttached)
+        {
+            SystemEvents.SessionSwitch += OnWindowsSessionSwitch;
+            sessionSwitchAttached = true;
+        }
+
         // Constructor-time Focus() can run before a native handle exists. Queue the first
         // focus request after handle creation so F5 starts with controller input active.
         BeginInvoke(canvas.Focus);
@@ -627,6 +648,11 @@ public sealed class PlayableGameControl : UserControl
     {
         if (disposing)
         {
+            if (sessionSwitchAttached)
+            {
+                SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;
+                sessionSwitchAttached = false;
+            }
             AttachInputLifecycleForm(null);
             playbackTimer.Dispose();
             playbackClock.Stop();

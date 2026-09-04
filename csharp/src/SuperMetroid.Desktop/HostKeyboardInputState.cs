@@ -106,6 +106,26 @@ internal sealed class HostInputActivationGate
     }
 }
 
+/// <summary>
+/// Applies one host-input discontinuity to every stateful desktop producer. Windows can
+/// omit both keyboard-up messages and fresh WinMM joystick samples across a remote-session
+/// switch, so the operation must clear event-owned keys and arm the merged neutral gate as
+/// one indivisible policy decision.
+/// </summary>
+internal static class HostInputDiscontinuity
+{
+    /// <summary>Releases event-owned keys and suppresses stale device samples until neutral.</summary>
+    public static void Release(
+        HostKeyboardInputState keyboard,
+        HostInputActivationGate activation)
+    {
+        ArgumentNullException.ThrowIfNull(keyboard);
+        ArgumentNullException.ThrowIfNull(activation);
+        keyboard.Clear();
+        activation.SuppressUntilNeutral();
+    }
+}
+
 /// <summary>Result of the headless host-key routing regression.</summary>
 public readonly record struct HostKeyboardInputSmokeTestResult(
     ushort EnterControllerWord,
@@ -133,15 +153,23 @@ public static class HostKeyboardInputSmokeTest
         if (released != 0)
             throw new InvalidDataException($"Released Enter left controller ${released:X4} latched.");
 
-        // WinForms/RDP is allowed to omit a key-up or return the last joystick sample when
-        // the application deactivates. A focus boundary must force neutral input and keep
-        // it neutral until all physical sources have actually released their controls.
+        // WinForms/RDP is allowed to omit a keyboard-up message and WinMM may return the
+        // last joystick sample when a remote session disconnects without deactivating the
+        // form. Model both stale producers: Right remains in the event-owned keyboard set,
+        // while A remains in the polled gamepad word.
         var activation = new HostInputActivationGate();
+        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Right);
         ushort jumpAndRight = (ushort)(SnesButton.A | SnesButton.Right);
-        if (activation.Filter(jumpAndRight) != jumpAndRight)
+        if (activation.Filter(keyboard.BuildControllerWord(SnesButton.A)) != jumpAndRight)
             throw new InvalidDataException("Active host input was unexpectedly suppressed.");
-        activation.SuppressUntilNeutral();
-        if (activation.Filter(jumpAndRight) != 0 ||
+
+        // PlayableGameControl routes both Form.Deactivate and Windows SessionSwitch through
+        // this policy. The first neutral sample re-arms input; no invented hold timeout is
+        // imposed on uninterrupted gameplay.
+        HostInputDiscontinuity.Release(keyboard, activation);
+        if (keyboard.BuildControllerWord(SnesButton.None) != 0)
+            throw new InvalidDataException("Host discontinuity did not release keyboard state.");
+        if (activation.Filter((ushort)SnesButton.A) != 0 ||
             activation.Filter((ushort)SnesButton.Right) != 0)
         {
             throw new InvalidDataException(

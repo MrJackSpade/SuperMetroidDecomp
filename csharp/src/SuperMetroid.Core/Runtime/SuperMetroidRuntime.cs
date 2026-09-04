@@ -360,6 +360,14 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public GameplayPpuRenderSnapshot DisplayedGameplayPpu { get; private set; }
 
+    /// <summary>
+    /// BG3 character base selected by gameplay initialization or a room's library-
+    /// background command list. Kraid temporarily selects word $2000; ordinary rooms use
+    /// word $4000.
+    /// </summary>
+    public ushort GameplayHudCharacterBaseWord { get; private set; } =
+        SnesPpuLayout.GameplayHudCharacterBaseWord;
+
     /// <summary>Room-FX BG3 state published by the most recent accepted NMI.</summary>
     public RoomLayer3FxRenderSnapshot? DisplayedRoomLayer3Fx { get; private set; }
 

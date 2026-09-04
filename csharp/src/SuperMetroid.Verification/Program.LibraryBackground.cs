@@ -30,8 +30,10 @@ static void VerifyLibraryBackgroundLoader()
 
     var bus = new SuperMetroidAddressSpace(rom);
     var vram = new SnesVram();
-    int commands = LibraryBackgroundLoader.Execute(bus, vram, 0xe000, activeDoorPointer: 0);
-    AssertEqual(4, commands, "library-background command count includes terminator");
+    LibraryBackgroundExecutionResult result =
+        LibraryBackgroundLoader.Execute(bus, vram, 0xe000, activeDoorPointer: 0);
+    AssertEqual(4, result.ExecutedCommandCount, "library-background command count includes terminator");
+    AssertEqual<ushort?>(null, result.Bg3CharacterBaseWord, "ordinary library list leaves BG3 base unchanged");
     AssertEqual(0x2211, vram.ReadWord(0x4800), "library background first BG2 page word");
     AssertEqual(0x4433, vram.ReadWord(0x4801), "library background first BG2 page tail");
     AssertEqual(0x2211, vram.ReadWord(0x4c00), "library background second BG2 page word");

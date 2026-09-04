@@ -643,6 +643,9 @@ public sealed partial class SuperMetroidRuntime
         ActiveDoor = door;
         ActiveRoom = room;
         ActiveRoomAssets = assets;
+        // Gameplay PPU initialization selects BG34NBA=$04 for every ordinary room load.
+        // A later library-background command eight may override it to $02 for Kraid.
+        GameplayHudCharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord;
         _ceresFallingDebrisTimer = 0;
         WreckedShipTreadmill.Reset();
         MaridiaElevatube.Reset(
@@ -751,11 +754,13 @@ public sealed partial class SuperMetroidRuntime
         // $7E:4000 and copies it to both VRAM $4800 and $4C00.
         if (unchecked((short)room.State.BackgroundDataPointer) < 0)
         {
-            LibraryBackgroundLoader.Execute(
+            LibraryBackgroundExecutionResult backgroundResult = LibraryBackgroundLoader.Execute(
                 _addressSpace,
                 Vram,
                 room.State.BackgroundDataPointer,
                 door.Pointer);
+            if (backgroundResult.Bg3CharacterBaseWord is ushort bg3CharacterBaseWord)
+                GameplayHudCharacterBaseWord = bg3CharacterBaseWord;
         }
 
         // `$82:E43A-$E472` destroys room-owned objects before constructing the destination.

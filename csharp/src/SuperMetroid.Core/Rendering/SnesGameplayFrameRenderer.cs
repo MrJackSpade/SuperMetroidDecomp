@@ -205,6 +205,7 @@ public static class SnesGameplayFrameRenderer
         ushort bg2TilemapBaseWord = SnesPpuLayout.GameplayBg2TilemapWord,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
+        ushort bg3CharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord,
         byte obsel = 0x03)
     {
         Rgba32[] output = CreateBackdrop(cgram);
@@ -257,7 +258,7 @@ public static class SnesGameplayFrameRenderer
             ArrayPool<Rgba32>.Shared.Return(rentedObjectPixels, clearArray: false);
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
-        DrawHud(output, vram, cgram);
+        DrawHud(output, vram, cgram, bg3CharacterBaseWord);
         return output;
     }
 
@@ -505,14 +506,18 @@ public static class SnesGameplayFrameRenderer
             destination[color] = SnesGraphics.DecodeBgr555Color(source[color]);
     }
 
-    private static void DrawHud(Span<Rgba32> output, SnesVram vram, SnesCgram cgram)
+    private static void DrawHud(
+        Span<Rgba32> output,
+        SnesVram vram,
+        SnesCgram cgram,
+        ushort characterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord)
     {
         SnesBgTilemapRenderer.Render2Bpp(
             output[..(HudHeight * Width)],
             vram,
             cgram,
             tilemapBaseWord: SnesPpuLayout.GameplayHudTilemapWord,
-            characterBaseWord: 0x4000,
+            characterBaseWord,
             rowCount: 4);
     }
 

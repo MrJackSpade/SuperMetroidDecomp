@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Rooms;
 public static class LibraryBackgroundLoader
 {
     /// <summary>Runs one high-bank room-state list and returns its executed command count.</summary>
-    public static int Execute(
+    public static LibraryBackgroundExecutionResult Execute(
         ISnesAddressSpace bus,
         SnesVram vram,
         ushort listPointer,
@@ -32,6 +32,7 @@ public static class LibraryBackgroundLoader
 
         ushort cursor = listPointer;
         int executedCommands = 0;
+        ushort? bg3CharacterBaseWord = null;
         for (int guard = 0; guard < RoomAssetRomData.LibraryBackground.MaximumCommandsPerList; guard++)
         {
             ushort commandAddress = cursor;
@@ -42,7 +43,9 @@ public static class LibraryBackgroundLoader
             switch ((LibraryBackgroundCommand)command)
             {
                 case LibraryBackgroundCommand.End:
-                    return executedCommands;
+                    return new LibraryBackgroundExecutionResult(
+                        executedCommands,
+                        bg3CharacterBaseWord);
 
                 case LibraryBackgroundCommand.TransferToVram:
                     cursor = TransferToVram(bus, vram, cursor);
@@ -59,10 +62,12 @@ public static class LibraryBackgroundLoader
                     break;
 
                 case LibraryBackgroundCommand.TransferToVramForKraid:
-                    // Kraid also changes BG3's character base after this ordinary transfer.
-                    // That PPU-register side effect has no owner in the current room runtime;
-                    // the VRAM behavior remains exact and the missing register is explicit.
                     cursor = TransferToVram(bus, vram, cursor);
+                    // `$82:EA66` writes BG34NBA=$02 after the transfer. BG3 therefore
+                    // consumes characters at word $2000 while Kraid's private BG2 map owns
+                    // word $4000. Return the register-derived base to the room PPU owner.
+                    bg3CharacterBaseWord =
+                        RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord;
                     break;
 
                 case LibraryBackgroundCommand.ClearBg2:
@@ -201,3 +206,11 @@ public static class LibraryBackgroundLoader
         (bus.ReadByte(RoomAssetRomData.LibraryBackground.CommandBank |
             unchecked((ushort)(pointer + 2))) << 16);
 }
+
+/// <summary>
+/// Observable output of one bank-$82 library-background list, including PPU register
+/// side effects which cannot be represented by VRAM writes alone.
+/// </summary>
+public readonly record struct LibraryBackgroundExecutionResult(
+    int ExecutedCommandCount,
+    ushort? Bg3CharacterBaseWord);

@@ -1,6 +1,8 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
@@ -651,6 +653,7 @@ internal static class KraidAudit
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(door, CameraX, CameraY);
+        VerifyKraidHudCharacterBase(runtime);
 
         SamusState samus = runtime.Samus ??
             throw new InvalidDataException("Kraid runtime load did not retain Samus.");
@@ -745,6 +748,39 @@ internal static class KraidAudit
                 state.InvulnerableMouthHitbox != ushort.MaxValue,
             maximumFrames: 1400,
             "open-mouth damage window");
+
+    /// <summary>
+    /// Reproduces the Kraid-entry HUD corruption as rendered pixels. Library-background
+    /// command eight selects BG34NBA=$02 after copying standard HUD characters to VRAM
+    /// $2000; using the normal $4000 character base decodes Kraid's body map as glyphs.
+    /// </summary>
+    private static void VerifyKraidHudCharacterBase(SuperMetroidRuntime runtime)
+    {
+        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+        var expectedHud = new Rgba32[
+            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.HudHeight];
+        SnesBgTilemapRenderer.Render2Bpp(
+            expectedHud,
+            runtime.Vram,
+            runtime.Cgram,
+            SnesPpuLayout.GameplayHudTilemapWord,
+            characterBaseWord: RoomAssetRomData.LibraryBackground.KraidHudCharacterBaseWord,
+            rowCount: 4);
+
+        ReadOnlySpan<Rgba32> actualHud = actual.AsSpan(0, expectedHud.Length);
+        if (!actualHud.SequenceEqual(expectedHud))
+        {
+            int differingPixels = 0;
+            for (int pixel = 0; pixel < expectedHud.Length; pixel++)
+            {
+                if (actualHud[pixel] != expectedHud[pixel])
+                    differingPixels++;
+            }
+            throw new InvalidDataException(
+                $"Kraid entry rendered {differingPixels} corrupt HUD pixels by ignoring " +
+                "library-background command eight's BG34NBA=$02 side effect.");
+        }
+    }
 
     private static void AdvanceRuntimeUntil(
         SuperMetroidRuntime runtime,

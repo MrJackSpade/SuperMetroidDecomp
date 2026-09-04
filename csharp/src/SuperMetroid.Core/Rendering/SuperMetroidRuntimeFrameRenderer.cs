@@ -158,7 +158,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
                     : SnesPpuLayout.GameplayBg2TilemapWord,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
-                bg2CharacterBaseWord: bgCharacterBaseWord);
+                bg2CharacterBaseWord: bgCharacterBaseWord,
+                bg3CharacterBaseWord: runtime.GameplayHudCharacterBaseWord);
         }
 
         if (runtime.DisplayedRoomLayer3Fx is { } layer3Fx)

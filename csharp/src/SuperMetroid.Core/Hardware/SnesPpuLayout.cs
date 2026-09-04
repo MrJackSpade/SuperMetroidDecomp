@@ -67,6 +67,9 @@ public static class SnesPpuLayout
     /// <summary>IRQ-visible gameplay HUD BG3's first VMADD tilemap word.</summary>
     public const ushort GameplayHudTilemapWord = 0x5800;
 
+    /// <summary>Ordinary gameplay BG3 character base selected by BG34NBA=$04.</summary>
+    public const ushort GameplayHudCharacterBaseWord = 0x4000;
+
     /// <summary>Rain/fog BG3 tilemap installed immediately after the HUD page.</summary>
     public const ushort RoomFxTilemapWord = 0x5c00;
 

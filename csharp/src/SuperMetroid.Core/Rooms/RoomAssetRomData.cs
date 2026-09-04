@@ -137,5 +137,11 @@ public static class RoomAssetRomData
 
         /// <summary>Kraid's additional destination for the already-filled BG2 buffer.</summary>
         public const ushort KraidBg2VramDestinationWord = 0x4000;
+
+        /// <summary>
+        /// HUD BG3 character base selected by command eight's BG34NBA=$02 write while
+        /// Kraid occupies the ordinary $4000 character region with his private BG2 map.
+        /// </summary>
+        public const ushort KraidHudCharacterBaseWord = 0x2000;
     }
 }

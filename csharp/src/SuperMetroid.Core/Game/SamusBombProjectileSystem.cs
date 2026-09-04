@@ -165,6 +165,16 @@ public sealed class SamusBombProjectileSystem
                     SoundEffectLibrary2Sounds.BombExplosion,
                     MaximumQueued: 6));
             }
+            else if (slotExplosionStarted)
+            {
+                // `$88:8AA9-$8AAC` queues library-one sound one through the ordinary
+                // Max15 entry immediately before setting explosion status `$8000` and
+                // allocating the two HDMA objects. Publish it from the same frame that
+                // Spawn installs the semantic bank-$88 owner.
+                soundRequests.Add(new SamusSoundRequest(
+                    SoundEffectLibrary1Sounds.PowerBombExplosion,
+                    MaximumQueued: 15));
+            }
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
             // Its cleared timer underflows and returns without reading pointer zero. An

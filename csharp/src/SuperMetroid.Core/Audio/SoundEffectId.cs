@@ -52,6 +52,13 @@ public readonly record struct SoundEffectId
 /// <summary>Named, proven sound sequences in cartridge SFX library one.</summary>
 public static class SoundEffectLibrary1Sounds
 {
+    /// <summary>
+    /// Starts the Power Bomb explosion at <c>$88:8AA9-$8AAC</c> through the library-one
+    /// max-fifteen queue entry.
+    /// </summary>
+    public static readonly SoundEffectId PowerBombExplosion =
+        new(SoundEffectLibrary.Library1, 0x01); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Stops/cancels every currently active library-one sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library1, 0x02);
 

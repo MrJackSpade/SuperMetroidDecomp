@@ -1119,6 +1119,10 @@ static void VerifySamusMorphBallMovement()
         "normal explosion publishes active status $8000");
     AssertEqual(0, powerBombFuse.BlockReactions!.Count,
         "fuse-expiration sentinel frame does not scan terrain");
+    AssertEqual(
+        new SamusSoundRequest(SoundEffectLibrary1Sounds.PowerBombExplosion, 15),
+        powerBombFuse.SoundRequests!.Single(),
+        "power-bomb spawn queues cartridge library-one explosion sound");
 
     // HDMA executes before the next projectile pass. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
@@ -1540,6 +1544,8 @@ static void VerifySamusMorphBallMovement()
         integratedPowerBombBts,
         new ushort[integratedPowerBombWords.Length],
         reactionDefinitions);
+    BackgroundTilemapStreamer integratedPowerBombStreamer =
+        integratedPowerBombLevel.CreateBackgroundStreamer();
     var integratedPowerBombPlms = new RoomPlmSystem();
     var integratedPowerBombs = new SamusBombProjectileSystem();
     var integratedPowerBombSamus = new SamusState
@@ -1591,6 +1597,16 @@ static void VerifySamusMorphBallMovement()
         "integrated CF2E setup installs temporary power-bomb block word");
     AssertEqual(1, integratedPowerBombPlms.ActiveCount,
         "integrated power-bomb radius allocates the gated block PLM exactly once");
+    integratedPowerBombPlms.Step(
+        bus,
+        integratedPowerBombLevel,
+        integratedPowerBombStreamer,
+        0,
+        0,
+        0);
+    AssertEqual(0x0053,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "integrated power-bomb reaction draws the first cleared-air frame");
 
     // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame

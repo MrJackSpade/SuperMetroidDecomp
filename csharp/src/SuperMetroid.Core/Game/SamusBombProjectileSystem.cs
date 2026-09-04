@@ -932,11 +932,12 @@ public sealed class SamusBombProjectileSystem
                     $"at ({x},{y}) requires a room PLM owner.");
             }
 
-            roomPlms.TrySpawnBombedShootableBlock(
+            roomPlms.TrySpawnProjectileShotBlock(
                 level,
                 block.Index,
                 block.Bts,
-                projectileType);
+                projectileType,
+                solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
             return;
         }
 

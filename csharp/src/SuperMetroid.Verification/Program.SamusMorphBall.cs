@@ -1524,6 +1524,74 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, powerBombShotPlms.ActiveCount,
         "respawning power-bomb block deletes after restoration");
 
+    // Issue #286 reached this same BTS-eight setup through the integrated expanding
+    // power-bomb boundary scan. The old call site incorrectly routed every type-$4/$C
+    // collision through the legacy normal-bomb-only helper, even though the shared
+    // projectile setup above already models CF2E's accepted family `$0300`. Drive the
+    // actual placement and fuse so a direct helper test cannot conceal that mismatch.
+    var integratedPowerBombWords = new ushort[width * height];
+    var integratedPowerBombBts = new byte[integratedPowerBombWords.Length];
+    integratedPowerBombWords[shotIndex] = 0xc321;
+    integratedPowerBombBts[shotIndex] = 8;
+    RoomLevelData integratedPowerBombLevel = new(
+        width,
+        height,
+        integratedPowerBombWords,
+        integratedPowerBombBts,
+        new ushort[integratedPowerBombWords.Length],
+        reactionDefinitions);
+    var integratedPowerBombPlms = new RoomPlmSystem();
+    var integratedPowerBombs = new SamusBombProjectileSystem();
+    var integratedPowerBombSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
+        SelectedHudItem = 3,
+        PowerBombs = 1,
+        MaxPowerBombs = 5,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    integratedPowerBombSamus.RefreshCollisionRadii(bus);
+    integratedPowerBombs.StepFrame(
+        bus,
+        integratedPowerBombLevel,
+        integratedPowerBombSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        integratedPowerBombPlms);
+    BombProjectileFrameResult integratedPowerBombExplosion = default;
+    while (!integratedPowerBombExplosion.ExplosionStarted)
+    {
+        integratedPowerBombExplosion = integratedPowerBombs.StepFrame(
+            bus,
+            integratedPowerBombLevel,
+            integratedPowerBombSamus,
+            0,
+            0,
+            integratedPowerBombPlms);
+    }
+    AssertEqual(0xc321,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "power-bomb fuse frame leaves gated block intact before radius scan");
+    BombProjectileFrameResult integratedPowerBombRadius = integratedPowerBombs.StepFrame(
+        bus,
+        integratedPowerBombLevel,
+        integratedPowerBombSamus,
+        0,
+        0,
+        integratedPowerBombPlms);
+    AssertTrue(integratedPowerBombRadius.BlockReactions!.Any(reaction =>
+            reaction.BlockX == 3 && reaction.BlockY == 3 &&
+            reaction.CollisionType == RoomCollisionType.ShootableBlock &&
+            reaction.Behavior == new RoomBlockBehavior(8)),
+        "expanding power bomb visits BTS-eight shootable block");
+    AssertEqual(0x8057,
+        integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "integrated CF2E setup installs temporary power-bomb block word");
+    AssertEqual(1, integratedPowerBombPlms.ActiveCount,
+        "integrated power-bomb radius allocates the gated block PLM exactly once");
+
     // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or

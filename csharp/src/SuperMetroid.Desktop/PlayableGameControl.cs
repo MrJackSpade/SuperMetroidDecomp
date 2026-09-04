@@ -26,6 +26,7 @@ public sealed class PlayableGameControl : UserControl
     private readonly Stopwatch playbackClock = new();
     private readonly FrameTimingCounter frameTimings = new();
     private readonly HostKeyboardInputState keyboard = new();
+    private readonly HostInputActivationGate inputActivation = new();
     private readonly WindowsGamepadInput gamepad = new();
     private double pendingPlaybackFrames;
     private SuperMetroidAddressSpace addressSpace = null!;
@@ -38,6 +39,7 @@ public sealed class PlayableGameControl : UserControl
     private ushort? displayedRoomPointer;
     private FrameTimingSnapshot? latestFrameTiming;
     private string? lastRecoverableError;
+    private Form? inputLifecycleForm;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -570,7 +572,34 @@ public sealed class PlayableGameControl : UserControl
         // Keyboard and gamepad are two host producers for the same physical SNES port.
         // Merge them before recording so replay sees one exact cartridge-format word and
         // never depends on which Windows device generated a particular held bit.
-        return keyboard.BuildControllerWord(gamepad.Poll());
+        ushort input = keyboard.BuildControllerWord(gamepad.Poll());
+        return inputActivation.Filter(input);
+    }
+
+    protected override void OnParentChanged(EventArgs e)
+    {
+        base.OnParentChanged(e);
+        AttachInputLifecycleForm(FindForm());
+    }
+
+    private void AttachInputLifecycleForm(Form? form)
+    {
+        if (ReferenceEquals(inputLifecycleForm, form))
+            return;
+        if (inputLifecycleForm is not null)
+            inputLifecycleForm.Deactivate -= OnInputHostDeactivated;
+        inputLifecycleForm = form;
+        if (inputLifecycleForm is not null)
+            inputLifecycleForm.Deactivate += OnInputHostDeactivated;
+    }
+
+    private void OnInputHostDeactivated(object? sender, EventArgs e)
+    {
+        // A deactivated WinForms/RDP window is not guaranteed to receive the matching
+        // WM_KEYUP or a fresh joystick sample. Treat the focus boundary as a release and
+        // require a genuinely neutral device sample before accepting controls again.
+        keyboard.Clear();
+        inputActivation.SuppressUntilNeutral();
     }
 
     protected override bool ProcessKeyPreview(ref Message message)
@@ -598,6 +627,7 @@ public sealed class PlayableGameControl : UserControl
     {
         if (disposing)
         {
+            AttachInputLifecycleForm(null);
             playbackTimer.Dispose();
             playbackClock.Stop();
             audioDevice?.Dispose();

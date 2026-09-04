@@ -77,6 +77,35 @@ internal sealed class HostKeyboardInputState
         Keys.Enter or Keys.ShiftKey;
 }
 
+/// <summary>
+/// Prevents a controller state sampled before desktop deactivation from becoming a
+/// permanent held input when Windows or an RDP session drops the corresponding release.
+/// </summary>
+/// <remarks>
+/// The gate does not guess that a long press is invalid. After deactivation it requires
+/// one completely neutral merged keyboard/gamepad sample before accepting input again.
+/// This preserves arbitrary legitimate holds while making focus loss an explicit release
+/// boundary for both host producers.
+/// </remarks>
+internal sealed class HostInputActivationGate
+{
+    private bool suppressedUntilNeutral;
+
+    /// <summary>Suppresses subsequent input until every host control has been released.</summary>
+    public void SuppressUntilNeutral() => suppressedUntilNeutral = true;
+
+    /// <summary>Returns a safe controller word for the current activation state.</summary>
+    public ushort Filter(ushort input)
+    {
+        if (!suppressedUntilNeutral)
+            return input;
+
+        if (input == 0)
+            suppressedUntilNeutral = false;
+        return 0;
+    }
+}
+
 /// <summary>Result of the headless host-key routing regression.</summary>
 public readonly record struct HostKeyboardInputSmokeTestResult(
     ushort EnterControllerWord,
@@ -103,6 +132,27 @@ public static class HostKeyboardInputSmokeTest
         ushort released = keyboard.BuildControllerWord(SnesButton.None);
         if (released != 0)
             throw new InvalidDataException($"Released Enter left controller ${released:X4} latched.");
+
+        // WinForms/RDP is allowed to omit a key-up or return the last joystick sample when
+        // the application deactivates. A focus boundary must force neutral input and keep
+        // it neutral until all physical sources have actually released their controls.
+        var activation = new HostInputActivationGate();
+        ushort jumpAndRight = (ushort)(SnesButton.A | SnesButton.Right);
+        if (activation.Filter(jumpAndRight) != jumpAndRight)
+            throw new InvalidDataException("Active host input was unexpectedly suppressed.");
+        activation.SuppressUntilNeutral();
+        if (activation.Filter(jumpAndRight) != 0 ||
+            activation.Filter((ushort)SnesButton.Right) != 0)
+        {
+            throw new InvalidDataException(
+                "Deactivated host leaked a latched jump or direction before neutral input.");
+        }
+        if (activation.Filter(0) != 0 ||
+            activation.Filter((ushort)SnesButton.Right) != (ushort)SnesButton.Right)
+        {
+            throw new InvalidDataException(
+                "Host input did not re-arm after a completely neutral sample.");
+        }
 
         return new HostKeyboardInputSmokeTestResult(pressed, released);
     }

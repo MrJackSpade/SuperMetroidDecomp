@@ -662,6 +662,13 @@ if (args.Length >= 2 && args[0] == "--kraid-audit")
     return KraidAudit.Run(kraidRomPath);
 }
 
+if (args.Length == 3 && args[0] == "--kraid-rise-capture")
+{
+    return KraidAudit.CaptureRise(
+        args[1].Trim('"'),
+        args[2].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--phantoon-audit")
 {
     string phantoonRomPath = string.Join(' ', args[1..]).Trim('"');

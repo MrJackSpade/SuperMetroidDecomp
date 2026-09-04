@@ -31,11 +31,19 @@ public sealed partial class RoomEnemySystem
         }
 
         Span<ushort> working = state.BackgroundTilemapWords;
-        working.Clear();
+        // The lower stream is decompressed directly over `$7E:2000-$2FFF`, which is also
+        // Kraid's working tilemap. `$A7:AB19` then copies only its first $600 bytes upward
+        // to `$2800` before the upper stream replaces `$2000-$27FF`. The untouched
+        // `$2E00-$2FFF` tail therefore remains lower-stream data. Clearing the managed
+        // buffer first left those eight rows as tile word zero; once growth raised BG2 and
+        // enabled priority, character zero became a conspicuous repeated rectangle above
+        // Kraid's head.
+        for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)
+            working[word] = WithoutKraidBg2Priority(ReadLittleEndianWord(lower, word));
         for (int word = 0; word < KraidBackgroundRomData.LowerSourceCopyWords; word++)
         {
             working[KraidBackgroundRomData.WorkingLowerHalfWord + word] =
-                WithoutKraidBg2Priority(ReadLittleEndianWord(lower, word));
+                working[word];
         }
         for (int word = 0; word < KraidBackgroundRomData.VisiblePageWords; word++)
             working[word] = WithoutKraidBg2Priority(ReadLittleEndianWord(upper, word));

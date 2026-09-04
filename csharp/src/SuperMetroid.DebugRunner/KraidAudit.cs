@@ -23,6 +23,145 @@ internal static class KraidAudit
     private static readonly ushort[] ExpectedDefinitions =
         [0xe2bf, 0xe2ff, 0xe33f, 0xe37f, 0xe3bf, 0xe3ff, 0xe43f, 0xe47f];
 
+    /// <summary>
+    /// Captures the complete retail-room rise through the production room loader and frame
+    /// renderer. This is intentionally separate from the pass/fail audit so a visual defect
+    /// can be localized to its first frame before its exact pixel assertion is finalized.
+    /// </summary>
+    public static int CaptureRise(string romPath, string outputDirectory)
+    {
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        Console.WriteLine(
+            $"Kraid character bytes: room=${assets.RoomCharacters.Length:X}, " +
+            $"CRE=${assets.CreCharacters.Length:X}.");
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomThroughDoorForVerification(door, CameraX, CameraY);
+
+        SamusState samus = runtime.Samus ??
+            throw new InvalidDataException("Kraid capture did not retain Samus.");
+        samus.XPosition = 128;
+        samus.YPosition = 456;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        KraidEnemyState state = runtime.Enemies.Kraid ??
+            throw new InvalidDataException("Kraid capture did not initialize encounter state.");
+        RoomEnemySlot body = runtime.Enemies.Slots[0];
+        Directory.CreateDirectory(outputDirectory);
+        int frame;
+        for (frame = 0; frame < 1200; frame++)
+        {
+            if (frame % 8 == 0 ||
+                body.VariableA is (ushort)KraidAiFunction.GrowBreakCeilingPlatforms or
+                    (ushort)KraidAiFunction.GrowSetBg2Priority or
+                    (ushort)KraidAiFunction.GrowFinishBg2Update)
+            {
+                Rgba32[] pixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                PngWriter.WriteRgba(
+                    Path.Combine(
+                        outputDirectory,
+                        $"kraid-rise-{frame:D4}-{body.VariableA:X4}-{body.YPosition:D3}.png"),
+                    FrontendFrame.Width,
+                    FrontendFrame.Height,
+                    pixels);
+            }
+
+            if (body.VariableA == (ushort)KraidAiFunction.MainloopThinking)
+                break;
+            runtime.StepFrame(controller1Input: 0);
+        }
+
+        if (body.VariableA != (ushort)KraidAiFunction.MainloopThinking)
+            throw new InvalidDataException("Kraid capture did not reach the first-phase main loop.");
+
+        for (int hit = 0; hit < 2; hit++)
+        {
+            AdvanceRuntimeUntilOpenMouth(runtime, body, state);
+            if (StrikeKraidMouth(bus, runtime.Enemies, body, state, projectileDamage: 100) != 1)
+                throw new InvalidDataException("Kraid capture could not trigger the growth phase.");
+            runtime.StepFrame(controller1Input: 0);
+        }
+
+        for (int growthFrame = 0; growthFrame < 1800; growthFrame++)
+        {
+            Rgba32[] pixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+            PngWriter.WriteRgba(
+                Path.Combine(
+                    outputDirectory,
+                    $"kraid-growth-{growthFrame:D4}-{body.VariableA:X4}-{body.YPosition:D3}.png"),
+                FrontendFrame.Width,
+                FrontendFrame.Height,
+                pixels);
+            if (growthFrame == 341)
+            {
+                var visibleWords = new HashSet<ushort>();
+                for (int screenY = 80; screenY < 136; screenY += 8)
+                {
+                    for (int screenX = 48; screenX < 240; screenX += 8)
+                    {
+                        int tileX = ((state.Bg2HorizontalScroll + screenX) & 0x01ff) >> 3;
+                        int tileY = ((state.Bg2VerticalScroll + screenY) & 0x01ff) >> 3;
+                        int page = (tileY >> 5) * 2 + (tileX >> 5);
+                        int mapWord = KraidBackgroundRomData.LiveBg2TilemapWord +
+                            page * 0x0400 + (tileY & 31) * 32 + (tileX & 31);
+                        visibleWords.Add(runtime.Vram.ReadWord(mapWord));
+                    }
+                }
+                Console.WriteLine(
+                    "Kraid issue #268 rectangle tilemap words: " +
+                    string.Join(',', visibleWords.Order().Select(word => $"${word:X4}")) +
+                    $"; radius={body.XRadius}, BG2=(${state.Bg2HorizontalScroll:X4}," +
+                    $"${state.Bg2VerticalScroll:X4}), body=({body.XPosition},{body.YPosition}).");
+                PngWriter.WriteRgba(
+                    Path.Combine(outputDirectory, "kraid-growth-0341-bg1.png"),
+                    FrontendFrame.Width,
+                    FrontendFrame.Height,
+                    SnesBgTilemapRenderer.Render4BppViewport(
+                        runtime.Vram,
+                        runtime.Cgram,
+                        SnesPpuLayout.GameplayBg1TilemapWord,
+                        characterBaseWord: 0,
+                        runtime.DisplayedGameplayPpu.Bg1HorizontalScroll,
+                        runtime.DisplayedGameplayPpu.Bg1VerticalScroll,
+                        FrontendFrame.Width,
+                        FrontendFrame.Height));
+                PngWriter.WriteRgba(
+                    Path.Combine(outputDirectory, "kraid-growth-0341-bg2.png"),
+                    FrontendFrame.Width,
+                    FrontendFrame.Height,
+                    SnesBgTilemapRenderer.Render4BppViewport(
+                        runtime.Vram,
+                        runtime.Cgram,
+                        KraidBackgroundRomData.LiveBg2TilemapWord,
+                        characterBaseWord: 0,
+                        state.Bg2HorizontalScroll,
+                        state.Bg2VerticalScroll,
+                        FrontendFrame.Width,
+                        FrontendFrame.Height,
+                        KraidBackgroundRomData.TilemapWidthInTiles,
+                        KraidBackgroundRomData.TilemapHeightInTiles));
+            }
+            if (body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking)
+                break;
+            runtime.StepFrame(controller1Input: 0);
+        }
+
+        if (body.VariableA != (ushort)KraidAiFunction.SecondPhaseThinking)
+            throw new InvalidDataException("Kraid capture did not reach the second-phase main loop.");
+        Console.WriteLine(
+            $"Captured Kraid's production rise and growth through frame " +
+            $"{runtime.NmiFrameCounter} to {outputDirectory}.");
+        return 0;
+    }
+
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -688,6 +827,7 @@ internal static class KraidAudit
             () => body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking,
             maximumFrames: 1600,
             "second-phase main loop");
+        VerifyKraidGrowthArtifactRegion(runtime);
 
         AdvanceRuntimeUntilOpenMouth(runtime, body, state);
         body.Health = 100;
@@ -741,6 +881,69 @@ internal static class KraidAudit
 
         VerifyBothDefeatedKraidExits(bus, runtime);
         VerifyDefeatedRoomReload(runtime);
+    }
+
+    /// <summary>
+    /// Reproduces issue #268 at the exact post-growth frame where Kraid's priority BG2 tail
+    /// used to expose eight zero-filled rows over the now-visible room background.
+    /// </summary>
+    private static void VerifyKraidGrowthArtifactRegion(SuperMetroidRuntime runtime)
+    {
+        KraidEnemyState state = runtime.Enemies.Kraid ??
+            throw new InvalidDataException("Kraid artifact audit lost encounter state.");
+        ReadOnlySpan<ushort> tail = state.BackgroundTilemapWords.AsSpan(
+            KraidBackgroundRomData.PreservedLowerTailFirstWord,
+            KraidBackgroundRomData.PreservedLowerTailWordCount);
+        if (tail.Contains((ushort)0))
+        {
+            throw new InvalidDataException(
+                "Reproduced issue #268: Kraid's preserved lower-stream BG2 tail still " +
+                "contains zero tile words after growth.");
+        }
+
+        GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        ushort bg1X = unchecked((ushort)(
+            ppu.Bg1HorizontalScroll + ppu.RoomShake.Bg1X));
+        ushort bg1Y = unchecked((ushort)(
+            ppu.Bg1VerticalScroll + ppu.RoomShake.Bg1Y));
+        Rgba32[] expectedBg1 = SnesBgTilemapRenderer.Render4BppViewport(
+            runtime.Vram,
+            runtime.Cgram,
+            SnesPpuLayout.GameplayBg1TilemapWord,
+            characterBaseWord: 0,
+            bg1X,
+            bg1Y,
+            FrontendFrame.Width,
+            FrontendFrame.Height);
+        Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+
+        int comparedOpaquePixels = 0;
+        int differingOpaquePixels = 0;
+        for (int y = KraidAuditDefinitions.ArtifactRegionTop;
+             y < KraidAuditDefinitions.ArtifactRegionBottom;
+             y++)
+        {
+            for (int x = KraidAuditDefinitions.ArtifactRegionLeft;
+                 x < KraidAuditDefinitions.ArtifactRegionRight;
+                 x++)
+            {
+                int pixel = y * FrontendFrame.Width + x;
+                if (expectedBg1[pixel].A == 0)
+                    continue;
+                comparedOpaquePixels++;
+                if (actual[pixel] != expectedBg1[pixel])
+                    differingOpaquePixels++;
+            }
+        }
+
+        if (comparedOpaquePixels < KraidAuditDefinitions.MinimumArtifactRegionBg1Pixels ||
+            differingOpaquePixels != 0)
+        {
+            throw new InvalidDataException(
+                $"Reproduced issue #268: Kraid's post-growth region retained " +
+                $"{differingOpaquePixels}/{comparedOpaquePixels} pixels over the " +
+                "cartridge-authored opaque BG1 background.");
+        }
     }
 
     /// <summary>

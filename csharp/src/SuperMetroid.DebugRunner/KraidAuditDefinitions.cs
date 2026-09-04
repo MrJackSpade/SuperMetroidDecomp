@@ -5,6 +5,21 @@
 /// </summary>
 internal static class KraidAuditDefinitions
 {
+    /// <summary>Left edge of issue #268's formerly corrupt post-growth BG2 rectangle.</summary>
+    public const int ArtifactRegionLeft = 48;
+
+    /// <summary>Exclusive right edge of issue #268's formerly corrupt rectangle.</summary>
+    public const int ArtifactRegionRight = 240;
+
+    /// <summary>Top edge of the stable artifact-only band below Samus after growth.</summary>
+    public const int ArtifactRegionTop = 96;
+
+    /// <summary>Exclusive bottom edge of the stable artifact-only band above Kraid.</summary>
+    public const int ArtifactRegionBottom = 136;
+
+    /// <summary>Minimum opaque BG1 pixels required for the region assertion to be meaningful.</summary>
+    public const int MinimumArtifactRegionBg1Pixels = 1000;
+
     /// <summary>Kraid-room door <c>$83:91CE</c>, which exits left after the fight.</summary>
     public const ushort LeftExitDoor = 0x91ce;
 

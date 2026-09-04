@@ -25,6 +25,15 @@ public static class KraidBackgroundRomData
     /// <summary>First word of the lower half in Kraid's combined working tilemap.</summary>
     public const int WorkingLowerHalfWord = 0x0400;
 
+    /// <summary>
+    /// First untouched word left by <c>$A7:AB19-$AB2C</c> after the lower stream is
+    /// decompressed directly into the working tilemap.
+    /// </summary>
+    public const int PreservedLowerTailFirstWord = 0x0700;
+
+    /// <summary>Number of lower-stream words retained at working words $700-$7FF.</summary>
+    public const int PreservedLowerTailWordCount = 0x0100;
+
     /// <summary>Number of lower-source words copied by <c>$A7:AAC6</c>.</summary>
     public const int LowerSourceCopyWords = 0x0300;
 
@@ -59,16 +68,16 @@ public static class KraidBackgroundRomData
     public const int StandardBg3TransferCount = 4;
 
     /// <summary>
-    /// <c>Tiles_KraidRoomBackground</c> at <c>$A7:A716</c>, uploaded by defeated Kraid
-    /// initialization so the empty arena retains its authored background character.
+    /// <c>Tiles_KraidRoomBackground</c> at <c>$A7:A716</c>, uploaded both when Kraid
+    /// finishes growing and during defeated-room initialization.
     /// </summary>
-    public const int DefeatedRoomBackgroundTileAddress = 0xa7a716;
+    public const int RoomBackgroundTileAddress = 0xa7a716;
 
-    /// <summary>Byte count of the defeated-room background character upload at $A7:A9A9.</summary>
-    public const ushort DefeatedRoomBackgroundTileBytes = 0x0200;
+    /// <summary>Byte count of the Kraid room-background character upload.</summary>
+    public const ushort RoomBackgroundTileBytes = 0x0200;
 
-    /// <summary>VRAM word destination computed by $A7:A9BB-$A9C5 for BG1 base zero.</summary>
-    public const ushort DefeatedRoomBackgroundTileVramWord = 0x3f00;
+    /// <summary>VRAM word destination computed by $A7:ADCC-$ADD6 for BG1 base zero.</summary>
+    public const ushort RoomBackgroundTileVramWord = 0x3f00;
 
     /// <summary>Priority flag cleared while composing Kraid's initial BG2 surface.</summary>
     public const ushort PriorityBit = 0x2000;

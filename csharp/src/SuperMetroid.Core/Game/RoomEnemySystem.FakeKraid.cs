@@ -323,7 +323,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>EprojPreInit_MiniKraidSpit</c> at <c>$86:9E1E</c>.</summary>
-    private static void RunFakeKraidSpitPreInstruction(
+    private void RunFakeKraidSpitPreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -342,7 +342,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>EprojPreInstr_MiniKraidSpikes</c> at <c>$86:9E83</c>.</summary>
-    private static void RunFakeKraidSpikePreInstruction(
+    private void RunFakeKraidSpikePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

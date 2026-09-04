@@ -79,7 +79,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>sub_8690B3</c>: delete on the first horizontal/vertical wall hit.</summary>
-    private static void RunCrocomireProjectileFlight(
+    private void RunCrocomireProjectileFlight(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
@@ -224,7 +224,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports bridge-fragment vertical collision and gravity at $86:92BA.</summary>
-    private static void RunCrocomireBridgeFragment(
+    private void RunCrocomireBridgeFragment(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

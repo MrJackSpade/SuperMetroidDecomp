@@ -1080,7 +1080,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static bool MoveProjectileAxis(
+    private bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
         bool horizontal)
@@ -1110,18 +1110,26 @@ public sealed partial class RoomEnemySystem
         int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
         for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
         {
-            ushort probeX = horizontal ? movementEdge : unchecked((ushort)(block << 4));
-            ushort probeY = horizontal ? unchecked((ushort)(block << 4)) : movementEdge;
-            if (ProjectileProbeHitsRoom(level, probeX, probeY))
+            int blockX = horizontal ? movementEdge >> 4 : block;
+            int blockY = horizontal ? block : movementEdge >> 4;
+            if (ProjectileAxisProbeHitsRoom(
+                    level,
+                    projectile,
+                    blockX,
+                    blockY,
+                    horizontal,
+                    movingNegative: velocity < 0,
+                    targetEdge: movementEdge,
+                    slopeAlignedPosition: out ushort? slopeAlignedPosition))
             {
                 // `$86:894F-$897A` / `$86:8A0D-$8A38` do not merely reject the
                 // attempted movement. They clear the subposition and place the
                 // projectile flush against the 16-pixel block boundary it reached.
                 // Without this correction a fast downward projectile retains its last
                 // pre-collision coordinate and visibly hovers above the floor.
-                ushort snappedPosition = velocity < 0
+                ushort snappedPosition = slopeAlignedPosition ?? (velocity < 0
                     ? unchecked((ushort)((movementEdge | 0x000f) + movementRadius + 1))
-                    : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius));
+                    : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius)));
                 bool snapDoesNotMoveBackwards = velocity < 0
                     ? snappedPosition <= position
                     : snappedPosition >= position;
@@ -1155,6 +1163,92 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
+    private bool ProjectileAxisProbeHitsRoom(
+        RoomLevelData level,
+        RoomEnemyProjectileSlot projectile,
+        int blockX,
+        int blockY,
+        bool horizontal,
+        bool movingNegative,
+        ushort targetEdge,
+        out ushort? slopeAlignedPosition)
+    {
+        slopeAlignedPosition = null;
+        if ((uint)blockX >= (uint)level.WidthInBlocks ||
+            (uint)blockY >= (uint)level.HeightInBlocks)
+        {
+            return true;
+        }
+
+        // Resolve type-$5/$D BTS links before dispatching the final block family, just as
+        // the native projectile collision loop does. Type zero is air; type nine is a door
+        // and remains a wall to an enemy projectile.
+        int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
+        if (blockIndex < 0)
+            return true;
+
+        RoomCollisionBlock collisionBlock = level.GetCollisionBlockByIndex(blockIndex);
+        RoomCollisionType type = collisionBlock.CollisionType;
+        if (type == RoomCollisionType.Slope && collisionBlock.Bts.IsNonSquareSlope)
+        {
+            // Horizontal bank-$86 motion ignores non-square slopes; the following
+            // vertical pass owns their height profile. Treating one as a full wall can
+            // consume every Kago falling frame before Y collision is ever attempted.
+            if (horizontal)
+                return false;
+
+            // Bank $86's vertical projectile collision uses the same 16-sample slope
+            // profiles as bank $94. Only the column containing the projectile center owns
+            // non-square geometry; neighboring columns touched by its radius do not turn
+            // the slope into a full-height wall.
+            if (blockX != projectile.XPosition >> 4)
+                return false;
+
+            bool movingUp = movingNegative;
+            if (movingUp != collisionBlock.Bts.SlopeFlipsVertically)
+                return false;
+
+            int height = ReadNonSquareSlopeHeight(
+                collisionBlock.Bts,
+                (collisionBlock.Bts.SlopeFlipsHorizontally
+                    ? projectile.XPosition ^ 0x000f
+                    : projectile.XPosition) & 0x000f);
+            int edgeWithinBlock = movingUp
+                ? (targetEdge & 0x000f) ^ 0x000f
+                : targetEdge & 0x000f;
+            int adjustment = height - edgeWithinBlock - 1;
+            if (movingUp)
+            {
+                if (adjustment > 0)
+                    return false;
+            }
+            else if (height - edgeWithinBlock != 1 && adjustment >= 0)
+            {
+                return false;
+            }
+
+            slopeAlignedPosition = movingUp
+                ? unchecked((ushort)((blockY << 4) + 16 - height + projectile.YRadius))
+                : unchecked((ushort)((blockY << 4) + height - projectile.YRadius));
+            return true;
+        }
+
+        return type is
+            RoomCollisionType.Slope or
+            RoomCollisionType.HorizontalExtension or
+            RoomCollisionType.SolidBlock or
+            RoomCollisionType.DoorBlock or
+            RoomCollisionType.SpecialBlock or
+            RoomCollisionType.ShootableBlock or
+            RoomCollisionType.VerticalExtension or
+            RoomCollisionType.GrappleBlock or
+            RoomCollisionType.BombableBlock;
+    }
+
+    /// <summary>
+    /// Point-form room collision used by projectile routines that do not carry an axis,
+    /// radius, or movement direction and therefore cannot resolve non-square geometry.
+    /// </summary>
     private static bool ProjectileProbeHitsRoom(RoomLevelData level, ushort x, ushort y)
     {
         int blockX = x >> 4;
@@ -1165,9 +1259,6 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        // Resolve type-$5/$D BTS links before dispatching the final block family, just as
-        // the native projectile collision loop does. Type zero is air; type nine is a door
-        // and remains a wall to an enemy projectile.
         int blockIndex = ResolveEnemyCollisionBlockIndex(level, blockX, blockY);
         if (blockIndex < 0)
             return true;

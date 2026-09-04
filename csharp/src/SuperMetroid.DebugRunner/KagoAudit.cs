@@ -154,7 +154,7 @@ internal static class KagoAudit
         bool sawFall = false;
         bool sawLandedLoop = false;
         bool enabledShotCollision = false;
-        for (int frame = 0; frame < 256 && !sawLandedLoop; frame++)
+        for (int frame = 0; frame < 512 && !sawLandedLoop; frame++)
         {
             enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
             fastMaps.Add(actor.SpritemapPointer);
@@ -183,19 +183,35 @@ internal static class KagoAudit
                 $"{string.Join(',', fastMaps.Select(value => $"${value:X4}"))}, bug maps=" +
                 $"{string.Join(',', bugMaps.Select(value => $"${value:X4}"))}, positions=" +
                 $"{bugPositions.Count}, sound/jump/fall/land/shot=" +
-                $"{sawSound}/{sawJump}/{sawFall}/{sawLandedLoop}/{enabledShotCollision}.");
+                $"{sawSound}/{sawJump}/{sawFall}/{sawLandedLoop}/{enabledShotCollision}, " +
+                $"final=(${bug.XPosition:X4},${bug.YPosition:X4}) velocity=" +
+                $"(${bug.XVelocity:X4},${bug.YVelocity:X4}).");
         }
 
-        // The shared bank-$86 vertical collision routine snaps a downward-moving
-        // projectile flush to the top of the solid 16-pixel block it hit.  Keeping the
-        // pre-collision position leaves the four-pixel-radius bug visibly hovering above
-        // the floor, which is the exact player-reported failure in this retail room.
+        // This deterministic natural jump lands on Forgotten Highway's mirrored
+        // non-square BTS-$52 slope. The first attempted fix snapped the bug to the block's
+        // top edge ($0350), eleven pixels above the cartridge-authored surface. Sample the
+        // actual bank-$94 slope-height row and assert the visible bottom edge itself.
         int landedBottom = bug.YPosition + bug.YRadius;
-        if ((landedBottom & 0x0f) != 0)
+        RoomCollisionBlock landedBlock = assets.LevelData.GetCollisionBlock(
+            bug.XPosition >> 4,
+            landedBottom >> 4);
+        int sampleX = (landedBlock.Bts.SlopeFlipsHorizontally
+            ? bug.XPosition ^ 0x000f
+            : bug.XPosition) & 0x000f;
+        int slopeHeight = bus.ReadByte(
+            EnemyRomTablePointers.Common.SlopeHeightBytes +
+            16 * landedBlock.Bts.SlopeShape + sampleX) & 0x1f;
+        int expectedBottom = (landedBottom & 0xfff0) + slopeHeight;
+        if (landedBlock.CollisionType != RoomCollisionType.Slope ||
+            landedBlock.Behavior != 0x52 ||
+            landedBottom != expectedBottom)
         {
             throw new InvalidDataException(
-                $"Kago bug landed above its retail floor: center=${bug.YPosition:X4}, " +
-                $"radius={bug.YRadius}, bottom=${landedBottom:X4}.");
+                $"Kago bug missed its retail slope surface: center=" +
+                $"(${bug.XPosition:X4},${bug.YPosition:X4}), radius={bug.YRadius}, " +
+                $"bottom=${landedBottom:X4}, expected=${expectedBottom:X4}, " +
+                $"block={landedBlock.Index}/{landedBlock.CollisionType}/BTS-${landedBlock.Behavior:X2}.");
         }
 
         var oam = new OamBuffer();

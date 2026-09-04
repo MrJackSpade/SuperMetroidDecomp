@@ -162,7 +162,7 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)flame.YVelocity));
     }
 
-    private static void RunPhantoonCasualFlameFalling(
+    private void RunPhantoonCasualFlameFalling(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
@@ -199,7 +199,7 @@ public sealed partial class RoomEnemySystem
         flame.XVelocity = (nmiFrameCounter8 & 1) == 0 ? (ushort)0x0080 : (ushort)0xff80;
     }
 
-    private static void RunPhantoonCasualFlameBouncing(
+    private void RunPhantoonCasualFlameBouncing(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {
@@ -245,7 +245,7 @@ public sealed partial class RoomEnemySystem
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
-    private static void RunPhantoonRainFlame(
+    private void RunPhantoonRainFlame(
         RoomEnemyProjectileSlot flame,
         RoomLevelData level)
     {

@@ -80,7 +80,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>
-    private static void RunShaktoolFrontCirclePreInstruction(
+    private void RunShaktoolFrontCirclePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

@@ -63,7 +63,7 @@ public sealed partial class RoomEnemySystem
     /// Ports $86:CFF8 exactly: move/test Y, then X, then add capped 8.8 gravity. A floor
     /// collision swaps to the cartridge splash list; a wall collision only zeros X speed.
     /// </summary>
-    private static void RunKiHunterAcidMovement(
+    private void RunKiHunterAcidMovement(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {

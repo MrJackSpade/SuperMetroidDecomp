@@ -203,6 +203,12 @@ if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
     return HopperAudit.Run(hopperRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--crumble-block-audit")
+{
+    string crumbleRomPath = string.Join(' ', args[1..]).Trim('"');
+    return CrumbleBlockAudit.Run(crumbleRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--alpha-power-bomb-boyon-audit")
 {
     string boyonRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -173,6 +173,39 @@ internal static class RoomPlmHeaders
     /// </summary>
     public const ushort MotherBrainEscapeRoomGateClosing = 0xc8d0;
 
+    /// <summary>Respawning 1x1 Samus-contact crumble block at <c>$84:D044</c>.</summary>
+    public const ushort ContactCrumble1x1Respawning = 0xd044;
+    /// <summary>Respawning 2x1 Samus-contact crumble block at <c>$84:D048</c>.</summary>
+    public const ushort ContactCrumble2x1Respawning = 0xd048;
+    /// <summary>Respawning 1x2 Samus-contact crumble block at <c>$84:D04C</c>.</summary>
+    public const ushort ContactCrumble1x2Respawning = 0xd04c;
+    /// <summary>Respawning 2x2 Samus-contact crumble block at <c>$84:D050</c>.</summary>
+    public const ushort ContactCrumble2x2Respawning = 0xd050;
+    /// <summary>Permanent 1x1 Samus-contact crumble block at <c>$84:D054</c>.</summary>
+    public const ushort ContactCrumble1x1Permanent = 0xd054;
+    /// <summary>Permanent 2x1 Samus-contact crumble block at <c>$84:D058</c>.</summary>
+    public const ushort ContactCrumble2x1Permanent = 0xd058;
+    /// <summary>Permanent 1x2 Samus-contact crumble block at <c>$84:D05C</c>.</summary>
+    public const ushort ContactCrumble1x2Permanent = 0xd05c;
+    /// <summary>Permanent 2x2 Samus-contact crumble block at <c>$84:D060</c>.</summary>
+    public const ushort ContactCrumble2x2Permanent = 0xd060;
+
+    private static readonly ushort[] ContactCrumbleHeaders =
+    [
+        ContactCrumble1x1Respawning,
+        ContactCrumble2x1Respawning,
+        ContactCrumble1x2Respawning,
+        ContactCrumble2x2Respawning,
+        ContactCrumble1x1Permanent,
+        ContactCrumble2x1Permanent,
+        ContactCrumble1x2Permanent,
+        ContactCrumble2x2Permanent,
+    ];
+
+    /// <summary>Bank-$94 special-block BTS `$00-$07` dispatch order.</summary>
+    public static ReadOnlySpan<ushort> ContactCrumbleByReactionIndex =>
+        ContactCrumbleHeaders;
+
     /// <summary>Mother Brain's missile-reactive glass actor at $84:D6DE.</summary>
     public const ushort MotherBrainGlass = 0xd6de;
     /// <summary>Bomb Torizo's Chozo-hand synchronization actor at $84:D6EA.</summary>

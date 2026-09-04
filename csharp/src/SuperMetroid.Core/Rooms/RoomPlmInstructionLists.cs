@@ -124,6 +124,23 @@ public static class RoomPlmInstructionLists
     public const ushort CrumbleReveal1x2 = 0xc8f8;
     public const ushort CrumbleReveal2x2 = 0xc8fe;
 
+    /// <summary>Respawning 1x1 contact-crumble list at <c>$84:C9F9</c>.</summary>
+    public const ushort ContactCrumble1x1Respawning = 0xc9f9;
+    /// <summary>Respawning 2x1 contact-crumble list at <c>$84:CA1C</c>.</summary>
+    public const ushort ContactCrumble2x1Respawning = 0xca1c;
+    /// <summary>Respawning 1x2 contact-crumble list at <c>$84:CA41</c>.</summary>
+    public const ushort ContactCrumble1x2Respawning = 0xca41;
+    /// <summary>Respawning 2x2 contact-crumble list at <c>$84:CA66</c>.</summary>
+    public const ushort ContactCrumble2x2Respawning = 0xca66;
+    /// <summary>Permanent 1x1 contact-crumble list at <c>$84:CA8B</c>.</summary>
+    public const ushort ContactCrumble1x1Permanent = 0xca8b;
+    /// <summary>Permanent 2x1 contact-crumble list at <c>$84:CAA0</c>.</summary>
+    public const ushort ContactCrumble2x1Permanent = 0xcaa0;
+    /// <summary>Permanent 1x2 contact-crumble list at <c>$84:CAB5</c>.</summary>
+    public const ushort ContactCrumble1x2Permanent = 0xcab5;
+    /// <summary>Permanent 2x2 contact-crumble list at <c>$84:CACA</c>.</summary>
+    public const ushort ContactCrumble2x2Permanent = 0xcaca;
+
     public const ushort BombedPowerBombBlockUnused = 0xc91c;
     public const ushort BombedSuperMissileBlockUnused = 0xc922;
     public const ushort BombReactionSpeedBlock = 0xc928;
@@ -228,9 +245,22 @@ public static class RoomPlmInstructionLists
         CrumbleReveal2x2,
     ];
 
+    private static readonly ushort[] ContactCrumbleLists =
+    [
+        ContactCrumble1x1Respawning,
+        ContactCrumble2x1Respawning,
+        ContactCrumble1x2Respawning,
+        ContactCrumble2x2Respawning,
+        ContactCrumble1x1Permanent,
+        ContactCrumble2x1Permanent,
+        ContactCrumble1x2Permanent,
+        ContactCrumble2x2Permanent,
+    ];
+
     public static ReadOnlySpan<ushort> CollisionBombByReactionIndex => CollisionBombLists;
     public static ReadOnlySpan<ushort> ReactionBombByReactionIndex => ReactionBombLists;
     public static ReadOnlySpan<ushort> RespawningShotBySize => RespawningShotLists;
     public static ReadOnlySpan<ushort> PermanentShotBySize => PermanentShotLists;
     public static ReadOnlySpan<ushort> CrumbleRevealBySize => CrumbleRevealLists;
+    public static ReadOnlySpan<ushort> ContactCrumbleByReactionIndex => ContactCrumbleLists;
 }

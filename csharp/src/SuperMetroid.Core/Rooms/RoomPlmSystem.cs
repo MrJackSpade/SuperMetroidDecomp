@@ -476,6 +476,58 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
+    /// Spawns the bank-$84 crumble actor selected when downward Samus collision reaches a
+    /// type-$B special block with BTS `$00-$07`.
+    /// </summary>
+    /// <remarks>
+    /// This is setup <c>$84:CE37</c>. Bank $94 only permits activation for collision
+    /// direction three (down): setup synthesizes <c>(levelWord &amp; $F000) | $00BC</c>,
+    /// replaces the live collision nibble with type-eight solid, and delays list execution for four PLM handler
+    /// passes. BTS `$00-$03` reverse their animation and restore the synthesized parent;
+    /// `$04-$07` end on air. The collision dispatcher independently returns solid for the
+    /// triggering frame, so allocation success is not a collision-result substitute.
+    /// </remarks>
+    public bool TrySpawnSamusContactCrumbleBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        if (!bts.IsNormalReactionIndex(8))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(bts),
+                "Samus-contact crumble BTS must be in the native table range zero through seven.");
+        }
+
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
+            slot.Active = true;
+            slot.HeaderPointer =
+                RoomPlmHeaders.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+            slot.BlockIndex = blockIndex;
+            RoomLevelWord restoreWord = new RoomLevelWord(block.LevelWord)
+                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.ContactCrumbleParent);
+            slot.RestoreLevelWord = restoreWord.Raw;
+            slot.InstructionPointer =
+                RoomPlmInstructionLists.ContactCrumbleByReactionIndex[bts.NormalReactionIndex];
+            slot.InstructionTimer = 4;
+            level.SetForegroundEntry(
+                blockIndex,
+                restoreWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Spawns the bank-$84 shot/bombed/grappled-reaction PLM selected by bombable BTS.
     /// </summary>
     /// <remarks>

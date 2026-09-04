@@ -555,6 +555,25 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        if (!block.Bts.UsesAreaReactionTable &&
+                            block.Bts.IsNormalReactionIndex(8) &&
+                            acceptedDisplacement > 0)
+                        {
+                            if (plms is null)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Contact crumble block {block.Index} BTS " +
+                                    $"${block.Behavior:X2} requires an active room PLM owner.");
+                            }
+
+                            // `$94:9102` always returns carry set for CE37. Setup removes
+                            // the special collision nibble immediately (leaving the block
+                            // type-eight solid), and this downward scan remains clipped.
+                            plms.TrySpawnSamusContactCrumbleBlock(
+                                level,
+                                block.Index,
+                                block.Bts);
+                        }
                         if (block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(

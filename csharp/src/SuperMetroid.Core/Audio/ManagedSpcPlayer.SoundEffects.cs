@@ -184,8 +184,12 @@ public sealed partial class ManagedSpcPlayer
             soundChannel.VoiceIndex = library.VoiceIndex;
             int musicChannelIndex = library.VoiceId - 1;
             // The native field is one byte; the apparent phase byte in its source expression
-            // is intentionally truncated and restored separately from PhaseInvert.
-            soundChannel.Volume = channels[musicChannelIndex].FinalVolume;
+            // is intentionally split into the adjacent managed field. Both halves must be
+            // captured before the SFX overwrites the shared music-channel registers: the
+            // cancellation stream later restores them as one packed native word.
+            ManagedSpcSoundOwnership.CaptureBorrowedMusicState(
+                channels[musicChannelIndex],
+                soundChannel);
             byte voiceBit = unchecked((byte)(1 << musicChannelIndex));
             channelOnMask |= voiceBit;
             currentChannelBit &= unchecked((byte)~voiceBit);

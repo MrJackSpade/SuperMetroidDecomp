@@ -133,6 +133,28 @@ try
         return 0;
     }
 
+    if (args.Length != 0 &&
+        args[0].Equals("--recorded-pause-audio-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 3)
+        {
+            throw new ArgumentException(
+                "--recorded-pause-audio-audit requires a .smrec path and private ROM path.");
+        }
+        IReadOnlyList<RecordedPauseAudioResult> pauses =
+            AudioInputReplaySmokeTest.AnalyzeRecordedPauses(args[1], args[2]);
+        foreach (RecordedPauseAudioResult pause in pauses)
+        {
+            Console.WriteLine(
+                $"Recorded pause {pause.EntryFrame}-{pause.ResumeFrame} in " +
+                $"$8F:{pause.RoomPointer:X4}: {pause.PauseOwnedFrames} pause frames, " +
+                $"RMS {pause.MinimumPausedRms:F1}-{pause.MaximumPausedRms:F1} " +
+                $"(mean {pause.MeanPausedRms:F1}), {pause.AudioCommands} APU commands; " +
+                $"{pause.CommandTrace}.");
+        }
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--waveout-audit", StringComparison.OrdinalIgnoreCase))
     {
         if (args.Length != 1)

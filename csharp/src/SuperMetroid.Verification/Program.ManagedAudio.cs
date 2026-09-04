@@ -12,6 +12,31 @@ internal static partial class Program
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
         VerifyManagedSpcUsesAddressedFirCoefficients();
+        VerifyManagedSpcSoundOwnershipPreservesPhase();
+    }
+
+    /// <summary>
+    /// Covers the two adjacent SPC bytes whose omission reproduced issue #54 in the exact
+    /// player recording. The SFX owner must retain both ordinary volume and the packed
+    /// left/right phase flags before it overwrites the shared music voice.
+    /// </summary>
+    private static void VerifyManagedSpcSoundOwnershipPreservesPhase()
+    {
+        var music = new ManagedSpcMusicChannel
+        {
+            FinalVolume = 0x67,
+            PanFlags = 0x8a,
+        };
+        var sound = new ManagedSpcSoundChannel
+        {
+            Volume = 0xff,
+            PhaseInvert = 0xff,
+        };
+
+        ManagedSpcSoundOwnership.CaptureBorrowedMusicState(music, sound);
+
+        AssertEqual(0x67, sound.Volume, "borrowed SFX voice saved music volume");
+        AssertEqual(0x8a, sound.PhaseInvert, "borrowed SFX voice saved music phase flags");
     }
 
     /// <summary>

@@ -88,6 +88,8 @@ internal static class HopperAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
+        VerifyBlueHopperFloorOrientation(bus, enemies, assets, auditedSlot, auditedState);
+
         ushort startX = auditedSlot.XPosition;
         ushort startY = auditedSlot.YPosition;
         ushort minimumY = startY;
@@ -152,6 +154,46 @@ internal static class HopperAudit
             $"hop sizes traversed the ROM quadratic arc and landing loop, {maps.Count} maps " +
             $"animated, 120 contact damage resolved, and {oam.LastFinalizedSpriteCount} OBJ pieces rendered.");
         return 0;
+    }
+
+    /// <summary>
+    /// Reproduces issue #248 against the actual floor actor in Blue Hopper. The ceiling
+    /// and floor actors share one draw queue, so use the floor actor's live cartridge
+    /// spritemap count and native population order to isolate its trailing OAM records.
+    /// This asserts the pixels' vertical-flip attributes rather than merely trusting the
+    /// already-correct typed <see cref="HopperEnemyState.UpsideDown"/> selector.
+    /// </summary>
+    private static void VerifyBlueHopperFloorOrientation(
+        SuperMetroidAddressSpace bus,
+        RoomEnemySystem enemies,
+        CartridgeRoomAssets assets,
+        RoomEnemySlot floorHopper,
+        HopperEnemyState floorState)
+    {
+        enemies.StepFrame(0, 0, false, samus: null, level: assets.LevelData);
+        int pieceCount = bus.ReadByte(0xa30000 | floorHopper.SpritemapPointer) |
+            (bus.ReadByte(0xa30000 | unchecked((ushort)(floorHopper.SpritemapPointer + 1))) << 8);
+        if (pieceCount <= 0)
+        {
+            throw new InvalidDataException(
+                $"Blue Hopper floor map $A3:{floorHopper.SpritemapPointer:X4} has no OBJ pieces.");
+        }
+
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        enemies.DrawLayers(oam, 0, 0, 0, 7);
+        oam.FinalizeFrame();
+        OamEntry[] floorPieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
+            .Select(oam.GetEntry)
+            .TakeLast(pieceCount)
+            .ToArray();
+        if (floorState.UpsideDown || floorPieces.Length != pieceCount ||
+            floorPieces.Any(piece => piece.FlipY))
+        {
+            throw new InvalidDataException(
+                $"Blue Hopper floor actor emitted {floorPieces.Length}/{pieceCount} OBJ pieces " +
+                $"with vertical flips [{string.Join(',', floorPieces.Select(piece => piece.FlipY))}].");
+        }
     }
 
     private static void VerifyRoom0102CeilingOrientation(SuperMetroidAddressSpace bus)

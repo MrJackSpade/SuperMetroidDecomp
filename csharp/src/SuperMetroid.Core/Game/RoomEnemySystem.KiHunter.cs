@@ -417,7 +417,7 @@ public sealed partial class RoomEnemySystem
         AlignEnemyYWithNonSquareSlope(level, body);
         ushort targetY = unchecked((ushort)(
             state.SwoopOriginY +
-            ReadEightBitSineProduct(state.Angle, state.SwoopVerticalRadius)));
+            ReadEightBitNegativeSineProduct(state.Angle, state.SwoopVerticalRadius)));
         int verticalDisplacement = unchecked((short)(targetY - body.YPosition)) << 16;
         if (MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -609,7 +609,9 @@ public sealed partial class RoomEnemySystem
         ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         wings.YPosition = unchecked((ushort)(
-            state.OrbitCenterY + ReadEightBitSineProduct(byteAngle, radius) - state.OrbitYOffset));
+            state.OrbitCenterY +
+            ReadEightBitNegativeSineProduct(byteAngle, radius) -
+            state.OrbitYOffset));
         wings.XPosition = unchecked((ushort)(
             state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.OrbitXOffset));
 
@@ -633,7 +635,9 @@ public sealed partial class RoomEnemySystem
         ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         ushort desiredY = unchecked((ushort)(
-            state.OrbitCenterY + ReadEightBitSineProduct(byteAngle, radius) - state.FallingArcYOffset));
+            state.OrbitCenterY +
+            ReadEightBitNegativeSineProduct(byteAngle, radius) -
+            state.FallingArcYOffset));
         if (MoveEnemyVertically(
                 level,
                 wings,
@@ -703,9 +707,9 @@ public sealed partial class RoomEnemySystem
 
         ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
         state.OrbitXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xe0, radius));
-        state.OrbitYOffset = unchecked((ushort)ReadEightBitSineProduct(0xe0, radius));
+        state.OrbitYOffset = unchecked((ushort)ReadEightBitNegativeSineProduct(0xe0, radius));
         state.FallingArcXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xa0, radius));
-        state.FallingArcYOffset = unchecked((ushort)ReadEightBitSineProduct(0xa0, radius));
+        state.FallingArcYOffset = unchecked((ushort)ReadEightBitNegativeSineProduct(0xa0, radius));
         state.Angle = unchecked((ushort)-0x2000);
         state.Function = KiHunterEnemyFunction.DetachedWing;
         state.WingFunction = KiHunterWingFunction.Orbit;

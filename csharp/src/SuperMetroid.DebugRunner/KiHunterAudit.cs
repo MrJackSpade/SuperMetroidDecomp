@@ -15,6 +15,9 @@ internal static class KiHunterAudit
     private const ushort GoldRoomPointer = 0xb585;
     private const ushort GoldStatePointer = 0xb592;
     private const ushort GoldPopulationPointer = 0xa428;
+    private const ushort ReportedClusterRoomPointer = 0xa4da;
+    private const ushort ReportedClusterStatePointer = 0xa4e7;
+    private const ushort ReportedClusterPopulationPointer = 0x98f7;
 
     private static readonly ushort[] RetailPopulations =
         [0x8f19, 0x8fc5, 0x98f7, 0xbfe6, 0xa428, 0xba4b];
@@ -24,6 +27,7 @@ internal static class KiHunterAudit
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         VerifyAllHeaders(bus);
         VerifyAllRetailPairs(bus);
+        VerifyReportedClusterRoom(bus);
 
         CartridgeRoomHeader normalRoom = LoadExpectedRoom(
             bus, NormalRoomPointer, NormalStatePointer, NormalPopulationPointer);
@@ -54,6 +58,126 @@ internal static class KiHunterAudit
             "orbit, death cleanup, and OBJ " +
             "drawing agree with the cartridge path.");
         return 0;
+    }
+
+    /// <summary>
+    /// Reproduces issue #261 in the exact area-$01/room-$2C population. Keeping all four
+    /// body/wing pairs active is essential: the earlier prefix audit proved one pair in a
+    /// different room and could not observe cross-pair convergence or scheduling errors.
+    /// </summary>
+    private static void VerifyReportedClusterRoom(SuperMetroidAddressSpace bus)
+    {
+        CartridgeRoomHeader room = LoadExpectedRoom(
+            bus,
+            ReportedClusterRoomPointer,
+            ReportedClusterStatePointer,
+            ReportedClusterPopulationPointer);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState(0x4567);
+        var samus = new SamusState
+        {
+            XPosition = 0x0200,
+            YPosition = 0x0170,
+            Health = 999,
+            MaxHealth = 999,
+            Pose = SamusPoseIds.FacingRightNormalPose,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus,
+            cameraX: 0x0100,
+            cameraY: 0);
+
+        RoomEnemySlot[] bodies = enemies.Slots.Take(enemies.EnemyCount)
+            .Where(slot => slot.EnemyDefinitionPointer == 0xeabf)
+            .ToArray();
+        (ushort X, ushort Y)[] authored =
+            [(0x0169, 0x0070), (0x0289, 0x0059), (0x01fe, 0x0063), (0x0242, 0x007a)];
+        if (bodies.Length != authored.Length ||
+            bodies.Where((body, index) =>
+                body.XPosition != authored[index].X || body.YPosition != authored[index].Y).Any())
+        {
+            throw new InvalidDataException(
+                "Room $01/$2C did not preserve all four cartridge-authored Ki-Hunter positions.");
+        }
+
+        var attacked = new bool[bodies.Length];
+        var attackFrame = Enumerable.Repeat(-1, bodies.Length).ToArray();
+        var attackTargetX = new ushort[bodies.Length];
+        var attackOriginY = new ushort[bodies.Length];
+        var attackHorizontalRadius = new ushort[bodies.Length];
+        var attackVerticalRadius = new ushort[bodies.Length];
+        ushort[] maximumY = bodies.Select(body => body.YPosition).ToArray();
+        var visitedPositions = bodies.Select(_ => new HashSet<(ushort X, ushort Y)>()).ToArray();
+        for (int frame = 0; frame < 240; frame++)
+        {
+            enemies.StepFrame(0x0100, 0, timeIsFrozen: false, samus, level: assets.LevelData);
+            for (int index = 0; index < bodies.Length; index++)
+            {
+                KiHunterEnemyState state = enemies.KiHunterStates[bodies[index].SlotIndex]!;
+                bool isAttacking = state.Function is
+                    KiHunterEnemyFunction.Swooping or KiHunterEnemyFunction.RecoveringFromSwoop;
+                if (isAttacking && !attacked[index])
+                {
+                    attackFrame[index] = frame;
+                    attackTargetX[index] = state.TargetXOrSpeedIndex;
+                    attackOriginY[index] = state.SwoopOriginY;
+                    attackHorizontalRadius[index] = state.SwoopHorizontalRadius;
+                    attackVerticalRadius[index] = state.SwoopVerticalRadius;
+                }
+                attacked[index] |= isAttacking;
+                maximumY[index] = Math.Max(maximumY[index], bodies[index].YPosition);
+                visitedPositions[index].Add((bodies[index].XPosition, bodies[index].YPosition));
+            }
+        }
+
+        string finalPositions = string.Join(
+            ", ",
+            bodies.Select(body => $"({body.XPosition:X4},{body.YPosition:X4})"));
+        // The first body begins left of the viewport and legitimately patrols away from Samus
+        // in this setup. The other three begin within the cartridge's $0100-pixel trigger
+        // radius. Each must enter the shared attack dispatcher and descend materially below
+        // its authored ceiling position; merely changing X to Samus's position was the broken
+        // ceiling-clustering behavior reported in #261.
+        bool visibleBodiesAttacked = attacked.Skip(1).All(value => value);
+        bool visibleBodiesTargetedSamus = Enumerable.Range(1, bodies.Length - 1).All(index =>
+            attackTargetX[index] == samus.XPosition &&
+            attackOriginY[index] <= authored[index].Y + 0x10 &&
+            attackHorizontalRadius[index] > 0 &&
+            attackVerticalRadius[index] > 0);
+        bool visibleBodiesDescended = Enumerable.Range(1, bodies.Length - 1).All(index =>
+            maximumY[index] >= authored[index].Y + 0x08);
+        bool independentTrajectories = visitedPositions.Skip(1)
+            .Select(positions => string.Join(",", positions.OrderBy(position => position.X)
+                .ThenBy(position => position.Y)))
+            .Distinct()
+            .Count() == bodies.Length - 1;
+        if (!visibleBodiesAttacked || !visibleBodiesTargetedSamus ||
+            !visibleBodiesDescended || !independentTrajectories)
+        {
+            throw new InvalidDataException(
+                $"Room $01/$2C Ki-Hunters failed independent attack: " +
+                $"attacked={string.Join('/', attacked)}, frames={string.Join('/', attackFrame)}, " +
+                $"targets={string.Join('/', attackTargetX.Select(x => $"{x:X4}"))}, " +
+                $"radii={string.Join('/', attackHorizontalRadius.Zip(attackVerticalRadius, (x, y) => $"{x:X4}x{y:X4}"))}, " +
+                $"maxY={string.Join('/', maximumY.Select(y => $"{y:X4}"))}, " +
+                $"uniquePaths={visitedPositions.Skip(1).Select(positions => positions.Count).Distinct().Count()}, " +
+                $"final={finalPositions}.");
+        }
     }
 
     private static void VerifyFlyingPair(

@@ -1113,7 +1113,33 @@ public sealed partial class RoomEnemySystem
             ushort probeX = horizontal ? movementEdge : unchecked((ushort)(block << 4));
             ushort probeY = horizontal ? unchecked((ushort)(block << 4)) : movementEdge;
             if (ProjectileProbeHitsRoom(level, probeX, probeY))
+            {
+                // `$86:894F-$897A` / `$86:8A0D-$8A38` do not merely reject the
+                // attempted movement. They clear the subposition and place the
+                // projectile flush against the 16-pixel block boundary it reached.
+                // Without this correction a fast downward projectile retains its last
+                // pre-collision coordinate and visibly hovers above the floor.
+                ushort snappedPosition = velocity < 0
+                    ? unchecked((ushort)((movementEdge | 0x000f) + movementRadius + 1))
+                    : unchecked((ushort)((movementEdge & 0xfff0) - movementRadius));
+                bool snapDoesNotMoveBackwards = velocity < 0
+                    ? snappedPosition <= position
+                    : snappedPosition >= position;
+
+                if (horizontal)
+                {
+                    projectile.XSubposition = 0;
+                    if (snapDoesNotMoveBackwards)
+                        projectile.XPosition = snappedPosition;
+                }
+                else
+                {
+                    projectile.YSubposition = 0;
+                    if (snapDoesNotMoveBackwards)
+                        projectile.YPosition = snappedPosition;
+                }
                 return true;
+            }
         }
 
         if (horizontal)

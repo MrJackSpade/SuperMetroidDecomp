@@ -160,7 +160,7 @@ internal static class KagoAudit
             fastMaps.Add(actor.SpritemapPointer);
             enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: samus,
                 cameraX: cameraX,
                 cameraY: cameraY);
             if (!bug.IsActive)
@@ -184,6 +184,18 @@ internal static class KagoAudit
                 $"{string.Join(',', bugMaps.Select(value => $"${value:X4}"))}, positions=" +
                 $"{bugPositions.Count}, sound/jump/fall/land/shot=" +
                 $"{sawSound}/{sawJump}/{sawFall}/{sawLandedLoop}/{enabledShotCollision}.");
+        }
+
+        // The shared bank-$86 vertical collision routine snaps a downward-moving
+        // projectile flush to the top of the solid 16-pixel block it hit.  Keeping the
+        // pre-collision position leaves the four-pixel-radius bug visibly hovering above
+        // the floor, which is the exact player-reported failure in this retail room.
+        int landedBottom = bug.YPosition + bug.YRadius;
+        if ((landedBottom & 0x0f) != 0)
+        {
+            throw new InvalidDataException(
+                $"Kago bug landed above its retail floor: center=${bug.YPosition:X4}, " +
+                $"radius={bug.YRadius}, bottom=${landedBottom:X4}.");
         }
 
         var oam = new OamBuffer();
@@ -218,7 +230,7 @@ internal static class KagoAudit
         {
             enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: samus,
                 cameraX: cameraX,
                 cameraY: cameraY);
             if (bug.IsActive)

@@ -28,6 +28,7 @@ internal sealed class PauseMenuState
     private readonly AreaId area;
     private readonly byte roomMapX;
     private readonly byte roomMapY;
+    private readonly MapRevealMode mapRevealMode;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly OamBuffer oam = new();
@@ -55,7 +56,8 @@ internal sealed class PauseMenuState
         byte roomMapX,
         byte roomMapY,
         CartridgeAudioState? audio = null,
-        SnesVram? gameplayVram = null)
+        SnesVram? gameplayVram = null,
+        MapRevealMode mapRevealMode = MapRevealMode.None)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
@@ -65,6 +67,9 @@ internal sealed class PauseMenuState
         _ = AreaIds.ToIndex(areaIndex);
         this.roomMapX = roomMapX;
         this.roomMapY = roomMapY;
+        this.mapRevealMode = Enum.IsDefined(mapRevealMode)
+            ? mapRevealMode
+            : throw new ArgumentOutOfRangeException(nameof(mapRevealMode));
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
@@ -521,18 +526,8 @@ internal sealed class PauseMenuState
     private void LoadPauseMapTilemap()
     {
         int areaIndex = AreaIds.ToIndex(area);
-        // kPauseMenuMapTilemaps is a table of long pointers to literal 64x32 tilemaps.
-        // `$82:943D` dereferences words from that ROM image while applying explored-map
-        // visibility; it does not call the decompressor. Treating $B5:9000 as compressed
-        // therefore walks unrelated data looking for an impossible command terminator.
-        int mapPointer = RomDataReader.ReadLongFixedBank(
-            bus,
-            PauseMenuRomData.AreaMapTilemapPointerTable + areaIndex * 3);
-        byte[] mapTilemap = RomDataReader.ReadFixedBank(bus, mapPointer, 0x1000);
-        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(
-            bus,
-            PauseMenuRomData.AreaMapDataPointerTable + areaIndex * 2);
-        int mapDataAddress = 0x820000 | mapDataPointer;
+        AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+        byte[] mapTilemap = map.RawTilemapBytes.ToArray();
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         // `$82:943D` combines three independent cartridge structures: the literal 64x32
@@ -547,13 +542,18 @@ internal sealed class PauseMenuState
             int mapX = pageIndex % 32 + (tilemapIndex >= 0x400 ? 32 : 0);
             int mapY = pageIndex / 32;
             bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-            bool exists = ReadMapBit(mapDataAddress, mapX, mapY);
+            bool stationVisible = map.IsRevealedByMapStation(mapX, mapY);
             int byteOffset = tilemapIndex * 2;
             MapTileWord word = unchecked((ushort)(
                 mapTilemap[byteOffset] | (mapTilemap[byteOffset + 1] << 8)));
             if (explored)
                 word = word.AsExplored();
-            else if (!hasAreaMap || !exists)
+            else if (!AreaMapVisibility.IsVisible(
+                         explored,
+                         hasAreaMap,
+                         stationVisible,
+                         !word.IsBlank,
+                         mapRevealMode))
                 word = MapTileWords.PauseBlank;
             mapTilemap[byteOffset] = unchecked((byte)word.Raw);
             mapTilemap[byteOffset + 1] = unchecked((byte)(word.Raw >> 8));
@@ -573,14 +573,18 @@ internal sealed class PauseMenuState
         // DetermineMapScrollLimits at $82:9EC4 scans either the downloaded cartridge map
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
-        bool useCartridgeMap = system.HasAreaMap(areaIndex);
-        ushort mapDataPointer = RomDataReader.ReadWordFixedBank(
-            bus,
-            PauseMenuRomData.AreaMapDataPointerTable + areaIndex * 2);
-        int mapDataAddress = 0x820000 | mapDataPointer;
-        bool IsVisible(int x, int y) => useCartridgeMap
-            ? ReadMapBit(mapDataAddress, x, y)
-            : system.IsMapTileExplored(areaIndex, x, y);
+        bool hasAreaMap = system.HasAreaMap(areaIndex);
+        AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+        bool IsVisible(int x, int y)
+        {
+            bool explored = system.IsMapTileExplored(areaIndex, x, y);
+            return AreaMapVisibility.IsVisible(
+                explored,
+                hasAreaMap,
+                map.IsRevealedByMapStation(x, y),
+                map.IsDiscoverable(x, y),
+                mapRevealMode);
+        }
 
         int left = 26;
         int right = 28;
@@ -845,12 +849,6 @@ internal sealed class PauseMenuState
             bus,
             PauseMenuRomData.SpritemapPointerTable + id * 2);
         oam.AddOnScreenSpritemap(bus, 0x820000 | pointer, x, y, paletteBits);
-    }
-
-    private bool ReadMapBit(int mapDataAddress, int mapX, int mapY)
-    {
-        int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
-        return (bus.ReadByte(mapDataAddress + byteIndex) & AreaMapLayout.GetBitMask(mapX)) != 0;
     }
 
     private void UploadEquipmentTilemap() =>

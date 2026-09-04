@@ -20,8 +20,6 @@ public sealed class HudState
     private const int AutoReserveTableAddress = 0x80998b;
     private const int HealthDigitsAddress = 0x809dbf;
     private const int AmmoDigitsAddress = 0x809dd3;
-    private const int AreaMapPointerTable = 0x82964a;
-    private const int MapDataPointerTable = 0x829717;
     private const ushort BlankTile = 0x2c0f;
 
     // Byte offsets from $7E:C608, preserved from $80:9BCF. Seven tanks occupy row two;
@@ -174,7 +172,8 @@ public sealed class HudState
         int roomHeightInBlocks,
         ushort samusX,
         ushort samusY,
-        byte nmiFrameCounter)
+        byte nmiFrameCounter,
+        MapRevealMode mapRevealMode = MapRevealMode.None)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
@@ -205,13 +204,15 @@ public sealed class HudState
         system.MarkExploredMapTile(areaIndex, centerX, centerY);
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
-        int areaMapPointerAddress = AreaMapPointerTable + areaTableIndex * 3;
+        int areaMapPointerAddress = AreaMapRomData.TilemapPointerTable + areaTableIndex * 3;
         int areaMapAddress =
             bus.ReadByte(areaMapPointerAddress) |
             (bus.ReadByte(areaMapPointerAddress + 1) << 8) |
             (bus.ReadByte(areaMapPointerAddress + 2) << 16);
-        ushort mapDataPointer = ReadRomWord(bus, MapDataPointerTable + areaTableIndex * 2);
-        int mapDataAddress = 0x820000 | mapDataPointer;
+        ushort mapDataPointer = ReadRomWord(
+            bus,
+            AreaMapRomData.StationRevealMaskPointerTable + areaTableIndex * 2);
+        int mapDataAddress = AreaMapRomData.StationRevealMaskBank | mapDataPointer;
 
         for (int outputY = 0; outputY < 3; outputY++)
         {
@@ -226,18 +227,24 @@ public sealed class HudState
                     continue;
                 }
 
-                bool exists = ReadMapBit(bus, mapDataAddress, mapX, mapY);
                 bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-                if (!explored && (!exists || !hasAreaMap))
-                {
-                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
-                    continue;
-                }
+                bool stationVisible = ReadMapBit(bus, mapDataAddress, mapX, mapY);
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
                 int tilemapIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
                 MapTileWord mapTile = ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
+                if (!AreaMapVisibility.IsVisible(
+                        explored,
+                        hasAreaMap,
+                        stationVisible,
+                        !mapTile.IsBlank,
+                        mapRevealMode))
+                {
+                    _tiles[destination] = (ushort)MapTileWords.HudBlank;
+                    continue;
+                }
+
                 _tiles[destination] = (ushort)mapTile.ForHud(explored);
             }
         }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
@@ -21,6 +22,7 @@ internal static partial class Program
                 SkipOpeningCinematic = true,
                 Invincibility = true,
                 InfiniteAmmo = true,
+                MapReveal = MapRevealMode.Secret,
             },
             ControllerInputs = inputs,
         };
@@ -34,6 +36,8 @@ internal static partial class Program
         AssertTrue(actual.GameOptions.SkipOpeningCinematic, "input recording host option");
         AssertTrue(actual.GameOptions.Invincibility, "input recording invincibility option");
         AssertTrue(actual.GameOptions.InfiniteAmmo, "input recording infinite-ammo option");
+        AssertEqual(MapRevealMode.Secret, actual.GameOptions.MapReveal,
+            "input recording map-reveal mode");
         AssertTrue(digest.SequenceEqual(actual.RomSha256), "input recording ROM digest");
         AssertTrue(saveRam.SequenceEqual(actual.InitialSaveRam), "input recording SRAM seed");
         AssertTrue(inputs.SequenceEqual(actual.ControllerInputs), "input recording frame words");

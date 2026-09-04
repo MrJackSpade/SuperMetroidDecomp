@@ -1357,7 +1357,8 @@ public sealed partial class SuperMetroidRuntime
             LevelData?.HeightInBlocks ?? ActiveRoom.HeightInScreens * 16,
             Samus.XPosition,
             Samus.YPosition,
-            NmiFrameCounter8);
+            NmiFrameCounter8,
+            MapRevealMode);
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

@@ -614,7 +614,8 @@ public sealed class SuperMetroidGame
                     pauseRoom.MapX,
                     pauseRoom.MapY,
                     audio,
-                    runtime.Vram);
+                    runtime.Vram,
+                    gameOptions.MapReveal);
                 pauseBrightness = 0;
                 lastPixels = pauseMenu.Render();
                 MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
@@ -1090,7 +1091,8 @@ public sealed class SuperMetroidGame
         runtime = new SuperMetroidRuntime(
             bus,
             playerInvincibilityEnabled: gameOptions.Invincibility,
-            infiniteAmmoEnabled: gameOptions.InfiniteAmmo);
+            infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
+            mapRevealMode: gameOptions.MapReveal);
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;

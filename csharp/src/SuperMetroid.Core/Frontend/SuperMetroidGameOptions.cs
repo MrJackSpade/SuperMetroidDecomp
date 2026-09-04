@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Game;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -36,6 +38,14 @@ public sealed record SuperMetroidGameOptions
     /// maximum remains zero is still locked and is never granted by this host option.
     /// </remarks>
     public bool InfiniteAmmo { get; init; }
+
+    /// <summary>Temporary map visibility used by the HUD and pause-map presentations.</summary>
+    /// <remarks>
+    /// This host convenience is evaluated only while drawing. It never changes exploration
+    /// bits or area-map acquisition flags, so returning to <see cref="MapRevealMode.None"/>
+    /// immediately restores the cartridge's saved visibility.
+    /// </remarks>
+    public MapRevealMode MapReveal { get; init; }
 
     /// <summary>Whether the desktop host creates the SPC/DSP mixer and Windows device.</summary>
     public bool AudioEnabled { get; init; } = true;
@@ -80,6 +90,10 @@ public static class SuperMetroidGameOptionsIni
         "; true allows normal consumption but keeps unlocked ammo types at 1 or more\r\n" +
         "; false preserves normal cartridge ammunition behavior\r\n" +
         "InfiniteAmmo=false\r\n" +
+        "; None = normal save/map-station visibility\r\n" +
+        "; Public = temporarily reveal everything an ordinary map station exposes\r\n" +
+        "; Secret = temporarily reveal every valid map cell, including hidden cells\r\n" +
+        "MapReveal=None\r\n" +
         "\r\n" +
         "[Audio]\r\n" +
         "; Enables the cartridge SPC sequencer, BRR samples, DSP mixing, and playback\r\n" +
@@ -105,6 +119,7 @@ public static class SuperMetroidGameOptionsIni
         bool? skipOpeningCinematic = null;
         bool? invincibility = null;
         bool? infiniteAmmo = null;
+        MapRevealMode? mapReveal = null;
         bool? audioEnabled = null;
         int? masterVolumePercent = null;
         bool? reportErrorsToGitHub = null;
@@ -171,6 +186,23 @@ public static class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.MapReveal),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    if (mapReveal.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    if (!Enum.TryParse(value, ignoreCase: true, out MapRevealMode parsed) ||
+                        !Enum.IsDefined(parsed))
+                    {
+                        throw Invalid(
+                            sourceName,
+                            lineNumber,
+                            $"{key} must be None, Public, or Secret, not '{value}'");
+                    }
+                    mapReveal = parsed;
+                    continue;
+                }
+
                 throw Invalid(sourceName, lineNumber, $"unknown [Game] option '{key}'");
             }
 
@@ -231,6 +263,7 @@ public static class SuperMetroidGameOptionsIni
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
             Invincibility = invincibility ?? false,
             InfiniteAmmo = infiniteAmmo ?? false,
+            MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
             MasterVolumePercent = masterVolumePercent ?? 100,
             ReportErrorsToGitHub = reportErrorsToGitHub ?? false,

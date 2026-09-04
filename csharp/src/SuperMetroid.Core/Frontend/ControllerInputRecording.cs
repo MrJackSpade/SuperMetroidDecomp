@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -51,10 +52,15 @@ public sealed record ControllerInputRecording
 
         // Byte twenty is a format-owned bitfield. Seven reserved zero bytes follow it so
         // future host switches can be added without shifting the ROM digest or payload.
+        if (!Enum.IsDefined(GameOptions.MapReveal))
+            throw new InvalidDataException($"Cannot record undefined map reveal mode {GameOptions.MapReveal}.");
         header[20] = (byte)(
-            (GameOptions.SkipOpeningCinematic ? 1 : 0) |
-            (GameOptions.Invincibility ? 2 : 0) |
-            (GameOptions.InfiniteAmmo ? 4 : 0));
+            (GameOptions.SkipOpeningCinematic
+                ? ControllerInputRecordingFormat.SkipOpeningCinematic
+                : 0) |
+            (GameOptions.Invincibility ? ControllerInputRecordingFormat.Invincibility : 0) |
+            (GameOptions.InfiniteAmmo ? ControllerInputRecordingFormat.InfiniteAmmo : 0) |
+            ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
         RomSha256.CopyTo(header[28..(28 + RomDigestByteCount)]);
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);
         BinaryPrimitives.WriteInt32LittleEndian(header[64..], ControllerInputs.Length);
@@ -86,8 +92,15 @@ public sealed record ControllerInputRecording
         }
 
         byte optionFlags = header[20];
-        if ((optionFlags & ~7) != 0 || !header[21..28].SequenceEqual(new byte[7]))
+        if ((optionFlags & ~ControllerInputRecordingFormat.KnownOptionMask) != 0 ||
+            !header[21..28].SequenceEqual(new byte[7]))
             throw new InvalidDataException("Controller recording contains unknown option/reserved bits.");
+        var mapReveal = (MapRevealMode)(
+            (optionFlags & ControllerInputRecordingFormat.MapRevealMask) >>
+            ControllerInputRecordingFormat.MapRevealShift);
+        if (!Enum.IsDefined(mapReveal))
+            throw new InvalidDataException(
+                $"Controller recording contains undefined map reveal mode {(byte)mapReveal}.");
 
         int saveRamLength = BinaryPrimitives.ReadInt32LittleEndian(header[60..]);
         if (saveRamLength != Hardware.SuperMetroidAddressSpace.SaveRamByteCount)
@@ -131,9 +144,13 @@ public sealed record ControllerInputRecording
             InitialSaveRam = saveRam,
             GameOptions = new SuperMetroidGameOptions
             {
-                SkipOpeningCinematic = (optionFlags & 1) != 0,
-                Invincibility = (optionFlags & 2) != 0,
-                InfiniteAmmo = (optionFlags & 4) != 0,
+                SkipOpeningCinematic =
+                    (optionFlags & ControllerInputRecordingFormat.SkipOpeningCinematic) != 0,
+                Invincibility =
+                    (optionFlags & ControllerInputRecordingFormat.Invincibility) != 0,
+                InfiniteAmmo =
+                    (optionFlags & ControllerInputRecordingFormat.InfiniteAmmo) != 0,
+                MapReveal = mapReveal,
             },
             ControllerInputs = inputs,
         };

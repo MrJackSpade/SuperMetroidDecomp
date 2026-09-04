@@ -31,6 +31,36 @@ internal static partial class Program
             WriteRomByte(rom, 0x828500 + mapByte, 0xff);
         for (int mapWord = 0; mapWord < 0x0800; mapWord++)
             WriteRomWord(rom, 0xb59000 + mapWord * 2, 0x0001);
+        const int secretMapX = 4;
+        const int publicMapX = 5;
+        const int exploredSecretMapX = 6;
+        const int revealTestMapY = 4;
+        int secretMapByte = AreaMapLayout.GetBitByteIndex(secretMapX, revealTestMapY);
+        byte secretAndExploredSecretMasks = (byte)(
+            AreaMapLayout.GetBitMask(secretMapX) |
+            AreaMapLayout.GetBitMask(exploredSecretMapX));
+        WriteRomByte(
+            rom,
+            0x828500 + secretMapByte,
+            (byte)(0xff & ~secretAndExploredSecretMasks));
+        foreach (int mapX in new[] { secretMapX, publicMapX, exploredSecretMapX })
+        {
+            WriteRomWord(
+                rom,
+                0xb59000 + AreaMapLayout.GetTilemapWordIndex(mapX, revealTestMapY) * 2,
+                0x0403);
+        }
+
+        // PackMapToSave is table-driven even for a synthetic ROM. Give Crateria a single
+        // packed byte covering the three reveal-test cells so the SRAM round trip below
+        // exercises the production compressor instead of bypassing it with direct arrays.
+        int revealTestAreaByte = AreaMapLayout.GetBitByteIndex(
+            exploredSecretMapX,
+            revealTestMapY);
+        WriteRomByte(rom, (int)SaveRamLayout.PackedMapByteCountTable, 1);
+        WriteRomWord(rom, (int)SaveRamLayout.PackedMapDestinationOffsetTable, 0);
+        WriteRomWord(rom, (int)SaveRamLayout.PackedMapSourceIndexPointerTable, 0x8300);
+        WriteRomByte(rom, 0x818300, unchecked((byte)revealTestAreaByte));
         WriteRomWord(rom, 0xb6e000 + (10 * 32 + 10) * 2, 0x2002);
         for (int row = 0; row < 8; row++)
         {
@@ -203,8 +233,81 @@ internal static partial class Program
         AssertEqual(new Rgba32(0, 0, 0, 255), blankMapFrame[40 * 256],
             "pause clears unused BG3 rows instead of tiling character zero over empty map space");
 
+        // The same persistent state is projected through all three host modes. One public
+        // cell, one secret-only cell, and one entered secret cell prove visibility and the
+        // explored-palette distinction independently. Reconstructing None afterward proves
+        // the earlier override never wrote either progression plane.
+        var revealSystem = new Bank80SystemState();
+        revealSystem.MarkExploredMapTile(
+            AreaId.Crateria,
+            exploredSecretMapX,
+            revealTestMapY);
+        PauseMenuState CreateRevealPause(MapRevealMode mode) => new(
+            bus,
+            samus,
+            revealSystem,
+            areaIndex: AreaId.Crateria,
+            roomMapX: 4,
+            roomMapY: 3,
+            gameplayVram: gameplayVram,
+            mapRevealMode: mode);
+
+        PauseMenuState nonePause = CreateRevealPause(MapRevealMode.None);
+        AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(publicMapX, revealTestMapY),
+            "None pause map hides unentered public cell without acquired map");
+        AssertEqual(MapTileWords.PauseBlank, nonePause.ReadDisplayedMapTile(secretMapX, revealTestMapY),
+            "None pause map hides unentered secret cell");
+        AssertEqual(new MapTileWord(0x0003),
+            nonePause.ReadDisplayedMapTile(exploredSecretMapX, revealTestMapY),
+            "None pause map retains entered secret cell with explored palette");
+
+        PauseMenuState publicPause = CreateRevealPause(MapRevealMode.Public);
+        AssertEqual(new MapTileWord(0x0403),
+            publicPause.ReadDisplayedMapTile(publicMapX, revealTestMapY),
+            "Public pause map reveals cartridge station cell as unentered");
+        AssertEqual(MapTileWords.PauseBlank,
+            publicPause.ReadDisplayedMapTile(secretMapX, revealTestMapY),
+            "Public pause map excludes cartridge secret-only cell");
+
+        PauseMenuState secretPause = CreateRevealPause(MapRevealMode.Secret);
+        AssertEqual(new MapTileWord(0x0403),
+            secretPause.ReadDisplayedMapTile(secretMapX, revealTestMapY),
+            "Secret pause map reveals nonblank secret-only cell as unentered");
+        AssertEqual(new MapTileWord(0x0003),
+            secretPause.ReadDisplayedMapTile(exploredSecretMapX, revealTestMapY),
+            "Secret pause map keeps entered secret cell visually distinct");
+
+        SuperMetroidSaveSnapshot revealSnapshot = SuperMetroidSaveSnapshot.Capture(
+            samus,
+            revealSystem,
+            area: 0,
+            saveStation: 0);
+        var revealSaveRam = new SuperMetroidSaveRam(bus);
+        revealSaveRam.SaveSlot(0, revealSnapshot);
+        SuperMetroidSaveSlot restoredRevealSlot = revealSaveRam.ReadSlot(0) ??
+            throw new InvalidOperationException("Map-reveal SRAM fixture did not round trip.");
+        var restoredRevealSystem = new Bank80SystemState();
+        restoredRevealSlot.ApplyTo(new SamusState(), restoredRevealSystem);
+        var restoredNonePause = new PauseMenuState(
+            bus,
+            samus,
+            restoredRevealSystem,
+            AreaId.Crateria,
+            roomMapX: 4,
+            roomMapY: 3,
+            gameplayVram: gameplayVram,
+            mapRevealMode: MapRevealMode.None);
+        AssertTrue(!restoredRevealSystem.HasAreaMap(AreaId.Crateria),
+            "map reveal mode does not persist a map-station flag through SRAM snapshot");
+        AssertEqual(MapTileWords.PauseBlank,
+            restoredNonePause.ReadDisplayedMapTile(secretMapX, revealTestMapY),
+            "map reveal mode does not persist secret-only visibility through SRAM snapshot");
+        AssertEqual(new MapTileWord(0x0003),
+            restoredNonePause.ReadDisplayedMapTile(exploredSecretMapX, revealTestMapY),
+            "SRAM round trip preserves legitimately explored secret cell");
+
         Console.WriteLine(
-            "  Pause menu: ROM tables, native map centering, OAM indicators, page transition, Bomb toggle, and Start agree.");
+            "  Pause menu: ROM tables, map reveal modes, native centering, OAM indicators, page transition, Bomb toggle, and Start agree.");
     }
 
     private static void PopulateEquipmentCategory(

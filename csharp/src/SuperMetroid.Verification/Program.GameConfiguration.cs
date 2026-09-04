@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
@@ -12,6 +13,8 @@ static void VerifyGameConfigurationIni()
         "game INI template preserves cartridge damage");
     AssertEqual(false, defaults.InfiniteAmmo,
         "game INI template preserves cartridge ammunition");
+    AssertEqual(MapRevealMode.None, defaults.MapReveal,
+        "game INI template preserves ordinary map visibility");
     AssertEqual(true, defaults.AudioEnabled, "game INI template enables cartridge audio");
     AssertEqual(100, defaults.MasterVolumePercent, "game INI template uses full host gain");
     AssertEqual(false, defaults.ReportErrorsToGitHub,
@@ -21,7 +24,7 @@ static void VerifyGameConfigurationIni()
 
     SuperMetroidGameOptions enabled = SuperMetroidGameOptionsIni.Parse(
         "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\n" +
-        "INVINCIBILITY=true\nINFINITEAMMO=true\n",
+        "INVINCIBILITY=true\nINFINITEAMMO=true\nMAPREVEAL=sEcReT\n",
         "in-memory enabled fixture");
     AssertEqual(true, enabled.SkipOpeningCinematic,
         "game INI names and boolean values are case-insensitive");
@@ -29,6 +32,8 @@ static void VerifyGameConfigurationIni()
         "game INI enables host invincibility");
     AssertEqual(true, enabled.InfiniteAmmo,
         "game INI enables infinite unlocked ammunition");
+    AssertEqual(MapRevealMode.Secret, enabled.MapReveal,
+        "game INI parses named map reveal values case-insensitively");
 
     SuperMetroidGameOptions missing = SuperMetroidGameOptionsIni.Parse(
         "; An old configuration may not contain newly introduced keys.\n[Game]\n",
@@ -39,6 +44,8 @@ static void VerifyGameConfigurationIni()
         "missing invincibility key retains cartridge damage");
     AssertEqual(false, missing.InfiniteAmmo,
         "missing infinite-ammo key retains cartridge ammunition");
+    AssertEqual(MapRevealMode.None, missing.MapReveal,
+        "missing map-reveal key retains cartridge visibility");
     AssertEqual(true, missing.AudioEnabled, "missing audio section enables sound by default");
     AssertEqual(100, missing.MasterVolumePercent, "missing volume retains full gain");
     AssertEqual(false, missing.ReportErrorsToGitHub,
@@ -74,6 +81,12 @@ static void VerifyGameConfigurationIni()
         "[Game]\nInfiniteAmmo=yes\n",
         "must be either true or false");
     AssertInvalidGameConfiguration(
+        "[Game]\nMapReveal=Everything\n",
+        "None, Public, or Secret");
+    AssertInvalidGameConfiguration(
+        "[Game]\nMapReveal=Public\nMapReveal=None\n",
+        "duplicate");
+    AssertInvalidGameConfiguration(
         "[Audio]\nMasterVolumePercent=101\n",
         "0 through 100");
     AssertInvalidGameConfiguration(
@@ -90,7 +103,7 @@ static void VerifyGameConfigurationIni()
         "unknown [Diagnostics] option");
 
     Console.WriteLine(
-        "  Game INI: startup/audio/diagnostic defaults, strict values, and typo rejection agree.");
+        "  Game INI: startup/map/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
 private static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)

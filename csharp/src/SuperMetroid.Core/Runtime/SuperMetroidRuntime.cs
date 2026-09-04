@@ -35,11 +35,15 @@ public sealed partial class SuperMetroidRuntime
     public SuperMetroidRuntime(
         ISnesAddressSpace addressSpace,
         bool playerInvincibilityEnabled = false,
-        bool infiniteAmmoEnabled = false)
+        bool infiniteAmmoEnabled = false,
+        MapRevealMode mapRevealMode = MapRevealMode.None)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         PlayerInvincibilityEnabled = playerInvincibilityEnabled;
         InfiniteAmmoEnabled = infiniteAmmoEnabled;
+        MapRevealMode = Enum.IsDefined(mapRevealMode)
+            ? mapRevealMode
+            : throw new ArgumentOutOfRangeException(nameof(mapRevealMode));
 
         // These two host objects represent the lower and upper halves of the cartridge's
         // parallel ten-slot projectile arrays. BombProjectiles remains the owner of shared
@@ -73,6 +77,9 @@ public sealed partial class SuperMetroidRuntime
     /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
     /// </remarks>
     public bool InfiniteAmmoEnabled { get; }
+
+    /// <summary>Nonpersistent host map visibility used by gameplay HUD updates.</summary>
+    public MapRevealMode MapRevealMode { get; }
 
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();
@@ -3678,7 +3685,8 @@ public sealed partial class SuperMetroidRuntime
                     LevelData.HeightInBlocks,
                     Samus.XPosition,
                     Samus.YPosition,
-                    NmiFrameCounter8);
+                    NmiFrameCounter8,
+                    MapRevealMode);
             }
 
             if (!deathOwnsSamus)

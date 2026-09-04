@@ -169,6 +169,83 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
+    // A reveal override combines with display state only. Remove the station-mask bit from
+    // the top-left HUD cell while leaving its cartridge tile nonblank, giving Public and
+    // Secret modes an observable difference without manufacturing a room approximation.
+    const int secretHudX = 25;
+    const int secretHudY = 4;
+    const int publicHudX = 26;
+    int secretHudByte = AreaMapLayout.GetBitByteIndex(secretHudX, secretHudY);
+    bus.WriteByte(
+        0x829000 + secretHudByte,
+        (byte)(bus.ReadByte(0x829000 + secretHudByte) & ~AreaMapLayout.GetBitMask(secretHudX)));
+    var overrideSystem = new Bank80SystemState();
+    hud.UpdateMinimap(
+        bus,
+        overrideSystem,
+        AreaId.Crateria,
+        roomMapX: 0x17,
+        roomMapY: 0,
+        roomWidthInBlocks: 9 * 16,
+        roomHeightInBlocks: 5 * 16,
+        samusX: 0x0440,
+        samusY: 0x04bb,
+        nmiFrameCounter: 8,
+        mapRevealMode: MapRevealMode.Public);
+    AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[26],
+        "Public HUD override excludes cartridge secret-only cell");
+    AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
+        "Public HUD override reveals station cell as unentered");
+    hud.UpdateMinimap(
+        bus,
+        overrideSystem,
+        AreaId.Crateria,
+        roomMapX: 0x17,
+        roomMapY: 0,
+        roomWidthInBlocks: 9 * 16,
+        roomHeightInBlocks: 5 * 16,
+        samusX: 0x0440,
+        samusY: 0x04bb,
+        nmiFrameCounter: 8,
+        mapRevealMode: MapRevealMode.Secret);
+    AssertEqual(0x2c00, hud.Tiles[26] & 0x3c00,
+        "Secret HUD override reveals cartridge secret-only cell as unentered");
+    overrideSystem.MarkExploredMapTile(AreaId.Crateria, secretHudX, secretHudY);
+    hud.UpdateMinimap(
+        bus,
+        overrideSystem,
+        AreaId.Crateria,
+        roomMapX: 0x17,
+        roomMapY: 0,
+        roomWidthInBlocks: 9 * 16,
+        roomHeightInBlocks: 5 * 16,
+        samusX: 0x0440,
+        samusY: 0x04bb,
+        nmiFrameCounter: 8,
+        mapRevealMode: MapRevealMode.Secret);
+    AssertEqual(0x2800, hud.Tiles[26] & 0x3c00,
+        "Secret HUD keeps entered secret cell visually distinct");
+    AssertEqual(0x2c00, hud.Tiles[27] & 0x3c00,
+        "Secret HUD leaves override-only public cell unentered");
+    hud.UpdateMinimap(
+        bus,
+        overrideSystem,
+        AreaId.Crateria,
+        roomMapX: 0x17,
+        roomMapY: 0,
+        roomWidthInBlocks: 9 * 16,
+        roomHeightInBlocks: 5 * 16,
+        samusX: 0x0440,
+        samusY: 0x04bb,
+        nmiFrameCounter: 8,
+        mapRevealMode: MapRevealMode.None);
+    AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[27],
+        "returning HUD override to None immediately hides unentered public cell");
+    AssertTrue(!overrideSystem.HasAreaMap(AreaId.Crateria),
+        "HUD reveal override does not grant the map station");
+    AssertTrue(!overrideSystem.IsMapTileExplored(AreaId.Crateria, publicHudX, secretHudY),
+        "HUD reveal override does not persist an unentered cell");
+
     // Room $01/$27 lives on the right-hand map page. Give only its eastern neighbor an
     // existence bit. The historical HUD formula counted mapX's page bit twice and read
     // this coordinate from the following row, while pause used the correct byte. A solid

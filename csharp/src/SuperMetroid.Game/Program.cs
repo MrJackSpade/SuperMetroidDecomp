@@ -233,6 +233,7 @@ try
             $"SkipOpeningCinematic={configuration.Options.SkipOpeningCinematic}, " +
             $"Invincibility={configuration.Options.Invincibility}, " +
             $"InfiniteAmmo={configuration.Options.InfiniteAmmo}, " +
+            $"MapReveal={configuration.Options.MapReveal}, " +
             $"AudioEnabled={configuration.Options.AudioEnabled}, " +
             $"MasterVolumePercent={configuration.Options.MasterVolumePercent}, " +
             $"ReportErrorsToGitHub={configuration.Options.ReportErrorsToGitHub}, " +
@@ -254,6 +255,7 @@ try
             $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
             $"Invincibility={gameOptions.Invincibility}, " +
             $"InfiniteAmmo={gameOptions.InfiniteAmmo}, " +
+            $"MapReveal={gameOptions.MapReveal}, " +
             $"ReportErrorsToGitHub={gameOptions.ReportErrorsToGitHub}, " +
             $"started {replay.StartedUtc:O}");
     }

@@ -901,6 +901,12 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(5, explosion.BlockReactions!.Count, "bomb explosion visits center/up/right/left/down");
     AssertEqual(RoomCollisionType.SolidBlock, explosion.BlockReactions[4].CollisionType,
         "bottom reaction reaches fixture solid floor without inventing a PLM");
+    AssertEqual(1, explosion.SoundRequests!.Count,
+        "normal bomb fuse expiry publishes exactly one sound request");
+    AssertEqual(
+        new SamusSoundRequest(SoundEffectLibrary2Sounds.BombExplosion, 6),
+        explosion.SoundRequests[0],
+        "normal bomb fuse expiry queues cartridge library-two sound eight with Max6");
 
     for (int tick = 0; tick < 20 && bombs.BombCounter != 0; tick++)
         bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
@@ -942,12 +948,12 @@ static void VerifySamusMorphBallMovement()
         "releasing Down while holding charged Shoot starts bomb spread");
     AssertTrue(spreadReleased.BeamChargeConsumed,
         "bomb spread publishes charge teardown to shared beam owner");
+    AssertEqual(1, spreadReleased.SoundRequests!.Count,
+        "bomb spread publishes one charge-cancellation sound request");
     AssertEqual(
-        (SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
-        spreadReleased.QueuedSoundEffect,
-        "bomb spread queues cartridge library-one sound two");
-    AssertEqual(9, spreadReleased.QueuedSoundMaximum,
-        "bomb spread uses cartridge Max9 sound queue");
+        new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9),
+        spreadReleased.SoundRequests[0],
+        "bomb spread queues cartridge library-one sound two with Max9");
     AssertEqual(5, spreadBombs.BombCounter,
         "bomb spread occupies all five physical bomb slots");
     AssertEqual(0x0010, spreadBombs.CooldownTimer,

@@ -111,7 +111,7 @@ public sealed class SamusBombProjectileSystem
         int? placedSlot = null;
         bool bombSpreadStarted = false;
         bool beamChargeConsumed = false;
-        SoundEffectId? queuedSound = null;
+        var soundRequests = new List<SamusSoundRequest>();
         if (SamusState.IsStableBallPose(samus.Pose))
         {
             BombSpreadAdmission spread = HandleBombSpreadInput(bus, samus, controllerInput);
@@ -119,7 +119,11 @@ public sealed class SamusBombProjectileSystem
             beamChargeConsumed = spread is
                 BombSpreadAdmission.Spawned or BombSpreadAdmission.ChargeCancelled;
             if (beamChargeConsumed)
-                queuedSound = SoundEffectLibrary1Sounds.CancelAll;
+            {
+                soundRequests.Add(new SamusSoundRequest(
+                    SoundEffectLibrary1Sounds.CancelAll,
+                    MaximumQueued: 9));
+            }
             if (spread == BombSpreadAdmission.NotApplicable)
             {
                 placedSlot = TryPlaceBomb(
@@ -142,6 +146,7 @@ public sealed class SamusBombProjectileSystem
             if (slot.InstructionPointer == 0)
                 continue;
 
+            bool wasNormalBomb = slot.PackedType.Family == SamusProjectileFamily.Bomb;
             bool slotExplosionStarted = RunBombPreInstruction(
                 bus,
                 level,
@@ -151,6 +156,15 @@ public sealed class SamusBombProjectileSystem
                 samus.LiquidPhysics.AreaIndex,
                 samus.Kinematics);
             explosionStarted |= slotExplosionStarted;
+            if (slotExplosionStarted && wasNormalBomb)
+            {
+                // `$90:C128` publishes this exact Max6 request for every normal bomb
+                // whose fuse expires. Keep the append-only shape because several spread
+                // bombs can expire during one Samus projectile pass.
+                soundRequests.Add(new SamusSoundRequest(
+                    SoundEffectLibrary2Sounds.BombExplosion,
+                    MaximumQueued: 6));
+            }
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
             // Its cleared timer underflows and returns without reading pointer zero. An
@@ -178,8 +192,7 @@ public sealed class SamusBombProjectileSystem
             blockReactions.ToArray(),
             bombSpreadStarted,
             beamChargeConsumed,
-            queuedSound,
-            queuedSound is null ? (byte)0 : (byte)9);
+            soundRequests.ToArray());
         return LastFrameResult;
     }
 
@@ -1176,8 +1189,7 @@ public readonly record struct BombProjectileFrameResult(
     IReadOnlyList<BombBlockReaction>? BlockReactions,
     bool BombSpreadStarted = false,
     bool BeamChargeConsumed = false,
-    SoundEffectId? QueuedSoundEffect = null,
-    byte QueuedSoundMaximum = 0);
+    IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
 
 internal enum BombSpreadAdmission
 {

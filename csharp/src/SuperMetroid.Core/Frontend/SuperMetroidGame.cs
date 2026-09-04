@@ -924,11 +924,12 @@ public sealed class SuperMetroidGame
                 runtime.Projectiles.LastFrameResult.QueuedSoundMaximum);
         }
 
-        if (runtime.BombProjectiles.LastFrameResult.QueuedSoundEffect is { } bombSound)
+        foreach (SamusSoundRequest request in
+            runtime.BombProjectiles.LastFrameResult.SoundRequests ?? [])
         {
             audio.QueueSound(
-                bombSound,
-                runtime.BombProjectiles.LastFrameResult.QueuedSoundMaximum);
+                request.SoundEffect,
+                request.MaximumQueued);
         }
 
         foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)

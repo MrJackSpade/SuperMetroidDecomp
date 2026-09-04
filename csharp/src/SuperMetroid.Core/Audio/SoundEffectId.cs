@@ -76,6 +76,12 @@ public static class SoundEffectLibrary2Sounds
 
     /// <summary>Plays when Samus acquires a permanent equipment item.</summary>
     public static readonly SoundEffectId PermanentItemAcquisition = new(SoundEffectLibrary.Library2, 0x0a);
+
+    /// <summary>
+    /// Normal Morph Ball bomb explosion queued with Max6 by <c>Bomb_Func2</c> at
+    /// <c>$90:C128</c> when the bomb fuse reaches zero.
+    /// </summary>
+    public static readonly SoundEffectId BombExplosion = new(SoundEffectLibrary.Library2, 0x08); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 }
 
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>

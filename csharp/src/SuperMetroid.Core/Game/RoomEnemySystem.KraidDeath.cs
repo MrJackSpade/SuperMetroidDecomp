@@ -174,18 +174,24 @@ public sealed partial class RoomEnemySystem
             state.SinkTableEventCount++;
             ushort function = ReadWord(
                 _bus!, EnemyRomTablePointers.Kraid.DeathExplosionRecords + 4 + offset);
-            ushort rockX = function switch
+            // Every eight-pixel sinking row invokes its cartridge callback, including the
+            // deliberately empty RTS used by rows whose only job is the BG2 strip upload.
+            // Do not merge that address with the adjacent $C6A7 crumble routine: they are
+            // distinct legal indirect-JSR targets in the retail table.
+            ushort? rockX = function switch
             {
-                0xc691 => 0x0070,
-                0xc6a7 => 0x00f0,
-                0xc6bd => 0x00e0,
-                0xc6d3 => 0x0090,
-                0xc6e9 => 0x0080,
-                0xc6ff => 0x0100,
+                KraidSinkCallbacks.NoOperation => null,
+                KraidSinkCallbacks.CrumbleLeftPlatformLeft => 0x0070,
+                KraidSinkCallbacks.CrumbleRightPlatformMiddle => 0x00f0,
+                KraidSinkCallbacks.CrumbleRightPlatformLeft => 0x00e0,
+                KraidSinkCallbacks.CrumbleLeftPlatformRight => 0x0090,
+                KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 0x0080,
+                KraidSinkCallbacks.CrumbleRightPlatformRight => 0x0100,
                 _ => throw new InvalidDataException(
                     $"Kraid sink table Y=${y:X4} names unknown function $A7:{function:X4}."),
             };
-            _ = SpawnKraidCeilingRock(rockX);
+            if (rockX is ushort xPosition)
+                _ = SpawnKraidCeilingRock(xPosition);
             return;
         }
     }

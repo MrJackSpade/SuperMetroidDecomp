@@ -94,6 +94,7 @@ internal static class KraidAudit
         var functions = new HashSet<KraidAiFunction>();
         var observedProjectileKinds = new HashSet<RoomEnemyProjectileKind>();
         var contactedProjectileKinds = new HashSet<RoomEnemyProjectileKind>();
+        bool sawBattleMusicRequest = false;
         ushort nailStartX = enemies.Slots[6].XPosition;
         bool sawNailMovement = false;
         int frame;
@@ -108,6 +109,8 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            sawBattleMusicRequest |= enemies.MusicRequests.Any(
+                request => request.Command.RawValue == 5);
             ProbeFirstUnauditedProjectileContact(
                 bus,
                 enemies,
@@ -125,14 +128,14 @@ internal static class KraidAudit
         if (body.VariableA != (ushort)KraidAiFunction.MainloopThinking ||
             samus.XPosition != 256 || body.XPosition != 176 || body.YPosition >= 457 ||
             state.TopTilemapUploadCount != 1 || state.BottomTilemapUploadCount != 1 ||
-            state.MusicRequest?.RawValue != 5 || state.RiseRockSpawnRequestCount == 0 ||
+            !sawBattleMusicRequest || state.RiseRockSpawnRequestCount == 0 ||
             state.SpawnedRiseRockCount == 0 || !sawNailMovement || functions.Count < 6)
         {
             throw new InvalidDataException(
                 $"Kraid rise mismatch after {frame} frames: function=$A7:{body.VariableA:X4}, " +
                 $"Samus X={samus.XPosition}, body=({body.XPosition},{body.YPosition}), " +
                 $"uploads={state.TopTilemapUploadCount}/{state.BottomTilemapUploadCount}, " +
-                $"music={state.MusicRequest}, rocks=" +
+                $"music observed={sawBattleMusicRequest}, rocks=" +
                 $"{state.SpawnedRiseRockCount}/{state.RiseRockSpawnRequestCount}, " +
                 $"nail moved={sawNailMovement}, functions={functions.Count}.");
         }
@@ -504,6 +507,7 @@ internal static class KraidAudit
         }
 
         var deathFunctions = new HashSet<KraidAiFunction>();
+        bool sawRoomMusicRequest = false;
         int deathFrames;
         for (deathFrames = 0;
              deathFrames < 1200 && !state.DeathSequenceComplete;
@@ -516,12 +520,14 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            sawRoomMusicRequest |= enemies.MusicRequests.Any(
+                request => request.Command.RawValue == 3);
             enemies.StepEnemyProjectiles(assets.LevelData, samus, cameraX: CameraX, cameraY: CameraY);
         }
         if (!state.DeathSequenceComplete || !state.BossDefeatPersisted || !bossDefeated ||
             body.YPosition < 608 || state.SinkTableEventCount < 20 ||
             state.DeathDropRequestCount != 16 || state.DeathBg3TransferCount != 4 ||
-            state.MusicRequest?.RawValue != 3 ||
+            !sawRoomMusicRequest ||
             !deathFunctions.Contains(KraidAiFunction.DeathFadeOut) ||
             !deathFunctions.Contains(KraidAiFunction.DeathSink) ||
             !deathFunctions.Contains(KraidAiFunction.DeathFadeInBackground))
@@ -531,7 +537,7 @@ internal static class KraidAudit
                 $"{state.DeathSequenceComplete}/{state.BossDefeatPersisted}/{bossDefeated}, " +
                 $"Y={body.YPosition}, sink events={state.SinkTableEventCount}, " +
                 $"drops/BG3/music={state.DeathDropRequestCount}/" +
-                $"{state.DeathBg3TransferCount}/{state.MusicRequest}, functions=" +
+                $"{state.DeathBg3TransferCount}/{sawRoomMusicRequest}, functions=" +
                 $"{string.Join(',', deathFunctions)}.");
         }
 
@@ -1054,6 +1060,7 @@ internal static class KraidAudit
             readRandomNumber: () => random.RandomNumber,
             level: assets.LevelData,
             samus: samus,
+            isAreaBossDefeated: () => false,
             cameraX: CameraX,
             cameraY: CameraY);
 

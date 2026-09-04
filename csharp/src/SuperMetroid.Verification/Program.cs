@@ -88,6 +88,7 @@ VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
+VerifyCrampedAerialLandingPoseCollision();
 VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
 VerifySamusAtmosphericEffects();

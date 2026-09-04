@@ -672,10 +672,16 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Applies <c>$91:E95D</c>'s normal/spin/aimed landing choice and grounded collision cleanup
-    /// at <c>$91:F010</c>. Expanding radius 19 to 21 moves Samus upward by two pixels so
-    /// her feet stay on the same collision boundary, matching <c>$91:FF49</c>.
+    /// Applies <c>$91:E95D</c>'s normal/spin/aimed landing choice in a scripted context that
+    /// is known to have room for the destination pose, followed by grounded collision cleanup
+    /// at <c>$91:F010</c>.
     /// </summary>
+    /// <remarks>
+    /// Playable room code must call <see cref="TryApplyAerialLanding"/> instead. The cartridge
+    /// sends every prospective landing pose through <c>HandleCollDueToChangedPose</c>; omitting
+    /// that probe lets the much taller landing body overlap a low ceiling. This roomless entry
+    /// point remains for cinematic movement and focused collision-free fixtures only.
+    /// </remarks>
     public void ApplyAerialLanding(
         ISnesAddressSpace bus,
         bool wasSpinning,
@@ -683,40 +689,7 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         bool leavingScrewAttack = IsScrewAttackPose(Pose);
-        byte direction = ReadPoseXDirection(bus);
-        bool facingLeft = direction == 4;
-        byte targetPose;
-        if (wasSpinning)
-        {
-            targetPose = facingLeft ? SamusPoseIds.SpinLandingLeftPose : SamusPoseIds.SpinLandingRightPose;
-        }
-        else
-        {
-            // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
-            // deliberately stores that sentinel and lands through the ordinary facing pair.
-            // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
-            // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
-            // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
-            // Compact directions four/five intentionally remain in the collision-aware path.
-            bool shotHeld = (controllerInput & (ushort)SnesButton.X) != 0;
-            targetPose = ReadShotDirection(bus) switch
-            {
-                0 => SamusPoseIds.LandingAimUpRightPose,
-                1 => SamusPoseIds.LandingAimDiagonalUpRightPose,
-                2 => shotHeld ? SamusPoseIds.FiringLandingRightPose : SamusPoseIds.NormalLandingRightPose,
-                3 => SamusPoseIds.LandingAimDiagonalDownRightPose,
-                6 => SamusPoseIds.LandingAimDiagonalDownLeftPose,
-                7 => shotHeld ? SamusPoseIds.FiringLandingLeftPose : SamusPoseIds.NormalLandingLeftPose,
-                8 => SamusPoseIds.LandingAimDiagonalUpLeftPose,
-                9 => SamusPoseIds.LandingAimUpLeftPose,
-                0xff => facingLeft ? SamusPoseIds.NormalLandingLeftPose : SamusPoseIds.NormalLandingRightPose,
-                // Directions four/five are consumed by TryApplyCompactAerialLanding,
-                // because the 10 -> 21 expansion needs room collision data. Reaching this
-                // roomless routine with either direction is therefore a caller error.
-                byte shotDirection => throw new InvalidOperationException(
-                    $"Landing from shot direction ${shotDirection:X2} requires the collision-aware compact landing operation."),
-            };
-        }
+        byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
 
         ushort oldRadius = Kinematics.YRadius;
         Pose = targetPose;
@@ -727,6 +700,102 @@ public sealed partial class SamusState
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - difference));
         }
 
+        ApplyAerialLandingCollisionCommand(leavingScrewAttack);
+        InitializeAnimation(bus, initialFrame: 0);
+    }
+
+    /// <summary>
+    /// Applies a normal or spinning landing through the cartridge's shared prospective-pose
+    /// collision handler before committing the taller landing body.
+    /// </summary>
+    /// <returns>
+    /// True when the selected landing pose fit. False means native collision retained the
+    /// source pose or selected its stable-crouch fallback; grounded velocity is still cleared.
+    /// </returns>
+    public bool TryApplyAerialLanding(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        bool wasSpinning,
+        ushort controllerInput,
+        ushort nmiFrameCounter,
+        RoomPlmSystem? plms = null)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
+
+        byte sourcePose = Pose;
+        bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
+        byte targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus,
+            level,
+            targetPose,
+            nmiFrameCounter,
+            plms,
+            out int centerAdjustment);
+        if (collision == LargerPoseCollisionOutcome.Allowed)
+        {
+            Pose = targetPose;
+            RefreshCollisionRadii(bus);
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            InitializeAnimation(bus, initialFrame: 0);
+        }
+        else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+        {
+            // `$91:FFA7` deliberately chooses stable crouch for a non-Morph source when
+            // both the floor and ceiling reject the full landing body. This is what lets
+            // a spin jump land in a 32-pixel passage without embedding Samus in its ceiling.
+            ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+        }
+
+        // Collision command five follows prospective-pose handling even when the chosen
+        // pose was rejected. A rejected landing is still grounded and must lose air speed.
+        ApplyAerialLandingCollisionCommand(leavingScrewAttack);
+        return collision == LargerPoseCollisionOutcome.Allowed;
+    }
+
+    /// <summary>Chooses <c>$91:E95D</c>'s prospective landing pose.</summary>
+    private byte SelectAerialLandingPose(
+        ISnesAddressSpace bus,
+        bool wasSpinning,
+        ushort controllerInput)
+    {
+        byte direction = ReadPoseXDirection(bus);
+        bool facingLeft = direction == 4;
+        if (wasSpinning)
+        {
+            return facingLeft
+                ? SamusPoseIds.SpinLandingLeftPose
+                : SamusPoseIds.SpinLandingRightPose;
+        }
+
+        // `$91:E95D` checks `$FF` before indexing `$91:E9F3`; hurt/damage-boost art
+        // deliberately stores that sentinel and lands through the ordinary facing pair.
+        // Horizontal directions two/seven take `$91:E96E-$E98F`'s extra Shot-binding
+        // test. Held Shot selects firing landing `$E6/$E7`; released Shot selects the
+        // ordinary `$A4/$A5` pair. The six admitted aim directions select `$E0-$E5`.
+        bool shotHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        return ReadShotDirection(bus) switch
+        {
+            0 => SamusPoseIds.LandingAimUpRightPose,
+            1 => SamusPoseIds.LandingAimDiagonalUpRightPose,
+            2 => shotHeld ? SamusPoseIds.FiringLandingRightPose : SamusPoseIds.NormalLandingRightPose,
+            3 => SamusPoseIds.LandingAimDiagonalDownRightPose,
+            6 => SamusPoseIds.LandingAimDiagonalDownLeftPose,
+            7 => shotHeld ? SamusPoseIds.FiringLandingLeftPose : SamusPoseIds.NormalLandingLeftPose,
+            8 => SamusPoseIds.LandingAimDiagonalUpLeftPose,
+            9 => SamusPoseIds.LandingAimUpLeftPose,
+            0xff => facingLeft ? SamusPoseIds.NormalLandingLeftPose : SamusPoseIds.NormalLandingRightPose,
+            // Directions four/five are consumed by TryApplyCompactAerialLanding,
+            // because the 10 -> 21 expansion needs room collision data.
+            byte shotDirection => throw new InvalidOperationException(
+                $"Landing from shot direction ${shotDirection:X2} requires the collision-aware compact landing operation."),
+        };
+    }
+
+    /// <summary>Applies collision command five at <c>$91:F010</c>.</summary>
+    private void ApplyAerialLandingCollisionCommand(bool leavingScrewAttack)
+    {
         HorizontalSpeed.AccelerationMode = 0;
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;
@@ -739,7 +808,6 @@ public sealed partial class SamusState
         if (leavingScrewAttack)
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
         Kinematics.YDirection = 0;
-        InitializeAnimation(bus, initialFrame: 0);
     }
 
     /// <summary>

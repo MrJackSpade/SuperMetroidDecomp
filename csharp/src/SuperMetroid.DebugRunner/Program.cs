@@ -569,6 +569,15 @@ if (args.Length >= 2 && args[0] == "--heat-room-audit")
     return HeatRoomAudit.Run(heatRoomRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--norfair-barrier-collision-audit")
+{
+    string norfairBarrierRomPath = args[^1].Trim('"');
+    string? norfairBarrierRecordingPath = args.Length >= 3 ? args[1].Trim('"') : null;
+    return NorfairBarrierCollisionAudit.Run(
+        norfairBarrierRomPath,
+        norfairBarrierRecordingPath);
+}
+
 if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
 {
     string pipeBugRomPath = string.Join(' ', args[1..]).Trim('"');

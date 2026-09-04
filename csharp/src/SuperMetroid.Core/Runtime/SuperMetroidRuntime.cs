@@ -2997,10 +2997,14 @@ public sealed partial class SuperMetroidRuntime
                     {
                         bool wasSpinning = SamusState.IsSpinJumpPose(poseAtFrameStart) ||
                             SamusState.IsWallJumpPose(poseAtFrameStart);
-                        Samus.ApplyAerialLanding(
+                        Samus.TryApplyAerialLanding(
                             _addressSpace,
+                            LevelData ?? throw new InvalidOperationException(
+                                "Aerial landing requires active room level data."),
                             wasSpinning,
-                            Controller1.Current);
+                            Controller1.Current,
+                            NmiFrameCounter,
+                            Plms);
                     }
                     animationTransitionApplied = true;
                 }

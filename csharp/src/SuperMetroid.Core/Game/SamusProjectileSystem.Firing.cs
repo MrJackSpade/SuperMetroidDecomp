@@ -15,6 +15,16 @@ public sealed partial class SamusProjectileSystem
     /// selected weapon producer runs.
     /// </summary>
     public void CancelChargeForHudSelection()
+        => CancelCharge();
+
+    /// <summary>
+    /// Applies the flare teardown shared by Morph-Ball charge cancellation and a completed
+    /// bomb spread.
+    /// </summary>
+    public void CancelChargeForBombSpread()
+        => CancelCharge();
+
+    private void CancelCharge()
     {
         FlareCounter = 0;
         PreviousBeamChargeCounter = 0;

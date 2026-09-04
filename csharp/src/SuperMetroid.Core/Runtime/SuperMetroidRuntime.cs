@@ -1784,13 +1784,20 @@ public sealed partial class SuperMetroidRuntime
                     // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
                     // and palette FX while time is frozen. Normal bombs cannot be placed or
                     // advanced through this translated producer during the X-ray interval.
-                    BombProjectiles.StepFrame(
+                    BombProjectileFrameResult bombFrame = BombProjectiles.StepFrame(
                         _addressSpace,
                         LevelData,
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
                         Plms);
+
+                    if (bombFrame.BeamChargeConsumed)
+                    {
+                        Projectiles.CancelChargeForBombSpread();
+                        Samus.ProjectileFlareCounter = 0;
+                        Samus.LoadSuitPalette(_addressSpace, Cgram);
+                    }
 
                     // The bomb half above has already decremented shared cooldown $0CCC.
                     // `$90:DD31` then dispatches the humanoid HUD producer before the same

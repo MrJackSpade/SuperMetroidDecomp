@@ -594,6 +594,14 @@ static void VerifySamusMorphBallMovement()
     // radii, frame durations, or animation endpoints directly into a slot.
     WriteTestWord(bus, 0x9383fb, 0x8675); // Non-beam type five -> normal bomb data.
     bus.WriteBytes(0x938675, [0x1e, 0x00, 0xbf, 0x9f]);
+    // `$90:D8CF-$D8F6` is the complete five-slot bomb-spread launch table. Keeping the
+    // encoded direction/magnitude words intact exercises the same XBA/sign decode as ROM.
+    bus.WriteBytes(0x90d8cf, [
+        0x78, 0x00, 0x6e, 0x00, 0x64, 0x00, 0x6e, 0x00, 0x78, 0x00,
+        0x00, 0x81, 0x80, 0x80, 0x00, 0x00, 0x80, 0x00, 0x00, 0x01,
+        0x00, 0x00, 0x01, 0x00, 0x02, 0x00, 0x01, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00,
+    ]);
     WriteTestWord(bus, 0x938683, 0xa06b); // Bomb-explosion instruction pointer.
     bus.WriteBytes(0x939fbf, [
         0x05, 0x00, 0x45, 0xad, 0x04, 0x04, 0x00, 0x00,
@@ -898,6 +906,140 @@ static void VerifySamusMorphBallMovement()
         bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
     AssertEqual(0, bombs.BombCounter, "explosion delete decrements bomb counter");
     AssertTrue(!bombs.Slots[0].IsActive, "delete opcode clears complete bomb slot");
+
+    // A charged beam carried into Morph Ball is not a sixth projectile family. `$90:C0AB`
+    // waits while Shoot+Down remain held, then `$90:D849` fills every ordinary bomb slot
+    // from the ROM table as soon as Down is released. The standard bomb interpreter runs
+    // later in that same frame, so fuses and positions below include their first tick.
+    var spreadSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+        XPosition = 80,
+        YPosition = 80,
+        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+    };
+    spreadSamus.RefreshCollisionRadii(bus);
+    var spreadBombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult spreadHeld = spreadBombs.StepFrame(
+        bus,
+        empty,
+        spreadSamus,
+        (ushort)(SnesButton.X | SnesButton.Down),
+        0);
+    AssertTrue(!spreadHeld.BombSpreadStarted,
+        "held Down charges bomb spread without spawning");
+    AssertEqual(1, spreadSamus.BombSpreadChargeTimeoutCounter,
+        "held Down advances native bomb-spread timeout");
+
+    BombProjectileFrameResult spreadReleased = spreadBombs.StepFrame(
+        bus,
+        empty,
+        spreadSamus,
+        (ushort)SnesButton.X,
+        0);
+    AssertTrue(spreadReleased.BombSpreadStarted,
+        "releasing Down while holding charged Shoot starts bomb spread");
+    AssertTrue(spreadReleased.BeamChargeConsumed,
+        "bomb spread publishes charge teardown to shared beam owner");
+    AssertEqual(
+        (SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
+        spreadReleased.QueuedSoundEffect,
+        "bomb spread queues cartridge library-one sound two");
+    AssertEqual(9, spreadReleased.QueuedSoundMaximum,
+        "bomb spread uses cartridge Max9 sound queue");
+    AssertEqual(5, spreadBombs.BombCounter,
+        "bomb spread occupies all five physical bomb slots");
+    AssertEqual(0x0010, spreadBombs.CooldownTimer,
+        "bomb spread selects non-beam cooldown entry five");
+    AssertEqual(0, spreadSamus.ProjectileFlareCounter,
+        "bomb spread clears mirrored flare counter");
+    AssertEqual(0, spreadSamus.BombSpreadChargeTimeoutCounter,
+        "bomb spread clears its timeout counter");
+
+    ushort[] expectedSpreadTimers = [119, 109, 99, 109, 119];
+    ushort[] expectedSpreadX = [79, 79, 80, 80, 81];
+    ushort[] expectedSpreadXSub = [0, 0x8000, 0, 0x8000, 0];
+    ushort[] expectedSpreadY = [80, 79, 78, 79, 80];
+    ushort[] expectedSpreadYSub = [0, 0, 0x8000, 0, 0];
+    for (int index = 0; index < SamusBombSpreadRomData.SlotCount; index++)
+    {
+        SamusBombProjectileSlot slot = spreadBombs.Slots[index];
+        AssertTrue(slot.IsBombSpread, $"spread slot {index} selects spread pre-instruction");
+        AssertEqual(0x8500, slot.Type, $"spread slot {index} uses bomb family/type `$8500`");
+        AssertEqual(expectedSpreadTimers[index], slot.BombTimer,
+            $"spread slot {index} consumes first ROM fuse tick");
+        AssertEqual(expectedSpreadX[index], slot.XPosition,
+            $"spread slot {index} applies encoded X velocity");
+        AssertEqual(expectedSpreadXSub[index], slot.XSubposition,
+            $"spread slot {index} preserves fractional X motion");
+        AssertEqual(expectedSpreadY[index], slot.YPosition,
+            $"spread slot {index} applies encoded Y velocity");
+        AssertEqual(expectedSpreadYSub[index], slot.YSubposition,
+            $"spread slot {index} preserves fractional Y motion");
+    }
+
+    // Force one already-launched spread bomb's next point step through the synthetic
+    // floor. The real pre-instruction must undo penetration and restore its original
+    // negative bounce velocity rather than freezing or reusing generic Samus collision.
+    SamusBombProjectileSlot bouncingSpread = spreadBombs.Slots[2];
+    bouncingSpread.XPosition = 48;
+    bouncingSpread.XSubposition = 0;
+    bouncingSpread.YPosition = 63;
+    bouncingSpread.YSubposition = 0;
+    bouncingSpread.BombSpreadXVelocity = 0;
+    bouncingSpread.BombSpreadYVelocity = 1;
+    bouncingSpread.BombSpreadYSubvelocity = 0;
+    bouncingSpread.BombSpreadInitialYSubvelocity = 0x8000;
+    bouncingSpread.BombSpreadBounceYVelocity = 0xfffe;
+    spreadBombs.StepFrame(bus, floor, spreadSamus, 0, 0);
+    AssertEqual(63, bouncingSpread.YPosition,
+        "spread-bomb floor collision undoes penetrating Y movement");
+    AssertEqual(0xfffe, bouncingSpread.BombSpreadYVelocity,
+        "falling spread bomb restores launch velocity on floor bounce");
+    AssertEqual(0x8000, bouncingSpread.BombSpreadYSubvelocity,
+        "falling spread bomb restores ROM fractional launch speed");
+
+    // The Down timeout is intentionally quantized by bits six/seven. `$BF -> $C0` waits
+    // one final frame; the next held frame forces the same five-slot launch.
+    var timeoutSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+        XPosition = 80,
+        YPosition = 80,
+        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+        BombSpreadChargeTimeoutCounter = 0x00bf,
+    };
+    timeoutSamus.RefreshCollisionRadii(bus);
+    var timeoutBombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult timeoutLastWait = timeoutBombs.StepFrame(
+        bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
+    AssertTrue(!timeoutLastWait.BombSpreadStarted,
+        "timeout `$BF` advances to `$C0` before forced launch");
+    AssertEqual(0x00c0, timeoutSamus.BombSpreadChargeTimeoutCounter,
+        "last held charging frame reaches timeout threshold");
+    BombProjectileFrameResult timeoutLaunch = timeoutBombs.StepFrame(
+        bus, empty, timeoutSamus, (ushort)(SnesButton.X | SnesButton.Down), 0);
+    AssertTrue(timeoutLaunch.BombSpreadStarted,
+        "timeout `$C0` forces launch even while Down remains held");
+
+    // Releasing Shoot in ball form cancels an inherited flare without placing a normal
+    // bomb. Runtime consumes this publication to clear actual beam-flare animation state,
+    // restore the suit palette, and queue the same library-one cancellation sound.
+    var cancelledSpreadSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+    };
+    var cancelledSpreadBombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult cancelledSpread = cancelledSpreadBombs.StepFrame(
+        bus, empty, cancelledSpreadSamus, 0, 0);
+    AssertTrue(cancelledSpread.BeamChargeConsumed,
+        "released Shoot publishes carried-charge cancellation");
+    AssertEqual<int?>(null, cancelledSpread.PlacedSlot,
+        "charge cancellation does not place an ordinary bomb");
 
     // Selected HUD item three takes the power-bomb branch even without the normal Bomb
     // item bit. Placement consumes one round, locks `$0CEA`, initializes type `$0300` from
@@ -1628,7 +1770,7 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!straightBombJump.ApplyMorphBallLanding(bus), "post-bomb-jump landing launches bounce");
     AssertEqual(1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
-    Console.WriteLine("  Morph Ball: entry, bomb jump, bombable/shootable/special reaction PLMs, bounce, and tunnel collision agree.");
+    Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
 }
 
 }

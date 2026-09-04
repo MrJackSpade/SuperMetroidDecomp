@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -19,18 +20,13 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusBombProjectileSystem
 {
     /// <summary>Number of physical bomb slots at projectile byte indices $0A-$12.</summary>
-    public const int SlotCount = 5;
+    public const int SlotCount = SamusBombSpreadRomData.SlotCount;
 
-    /// <summary>Equipped-item bit checked by <c>HudSelectionHandler_MorphBall_Helper</c>.</summary>
     /// <summary>Normal-bomb projectile type written by $90:BF9D.</summary>
-    public const ushort NormalBombType = 0x0500;
+    public const ushort NormalBombType = SamusBombSpreadRomData.NormalBombType;
 
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
-    public const ushort PowerBombType = 0x0300;
-
-    private const ushort NormalBombCooldown = 0x0010;
-    private const ushort PowerBombCooldown = 0x0028;
-    private const ushort InitialBombTimer = 60;
+    public const ushort PowerBombType = SamusBombSpreadRomData.PowerBombType;
 
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
@@ -113,13 +109,25 @@ public sealed class SamusBombProjectileSystem
         StepCooldown();
 
         int? placedSlot = null;
+        bool bombSpreadStarted = false;
+        bool beamChargeConsumed = false;
+        SoundEffectId? queuedSound = null;
         if (SamusState.IsStableBallPose(samus.Pose))
         {
-            placedSlot = TryPlaceBomb(
-                bus,
-                samus,
-                controllerInput,
-                controllerNewInput);
+            BombSpreadAdmission spread = HandleBombSpreadInput(bus, samus, controllerInput);
+            bombSpreadStarted = spread == BombSpreadAdmission.Spawned;
+            beamChargeConsumed = spread is
+                BombSpreadAdmission.Spawned or BombSpreadAdmission.ChargeCancelled;
+            if (beamChargeConsumed)
+                queuedSound = SoundEffectLibrary1Sounds.CancelAll;
+            if (spread == BombSpreadAdmission.NotApplicable)
+            {
+                placedSlot = TryPlaceBomb(
+                    bus,
+                    samus,
+                    controllerInput,
+                    controllerNewInput);
+            }
         }
 
         bool explosionStarted = false;
@@ -140,7 +148,8 @@ public sealed class SamusBombProjectileSystem
                 slot,
                 blockReactions,
                 roomPlms,
-                samus.LiquidPhysics.AreaIndex);
+                samus.LiquidPhysics.AreaIndex,
+                samus.Kinematics);
             explosionStarted |= slotExplosionStarted;
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.
@@ -166,7 +175,11 @@ public sealed class SamusBombProjectileSystem
             explosionStarted,
             projectileDeleted,
             publishedDirection,
-            blockReactions.ToArray());
+            blockReactions.ToArray(),
+            bombSpreadStarted,
+            beamChargeConsumed,
+            queuedSound,
+            queuedSound is null ? (byte)0 : (byte)9);
         return LastFrameResult;
     }
 
@@ -282,9 +295,11 @@ public sealed class SamusBombProjectileSystem
         slot.Direction = 0;
         slot.XPosition = samus.XPosition;
         slot.YPosition = samus.YPosition;
-        slot.BombTimer = InitialBombTimer;
+        slot.BombTimer = SamusBombSpreadRomData.InitialBombTimer;
         InitializeBombFromRom(bus, slot);
-        CooldownTimer = placingPowerBomb ? PowerBombCooldown : NormalBombCooldown;
+        CooldownTimer = placingPowerBomb
+            ? SamusBombSpreadRomData.PowerBombCooldown
+            : SamusBombSpreadRomData.NormalBombCooldown;
 
         if (placingPowerBomb)
         {
@@ -302,6 +317,84 @@ public sealed class SamusBombProjectileSystem
         }
 
         return slotIndex;
+    }
+
+    private BombSpreadAdmission HandleBombSpreadInput(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput)
+    {
+        // The power-bomb HUD branch bypasses `$90:C0AB` entirely.
+        if (samus.SelectedHudItem == 3)
+            return BombSpreadAdmission.NotApplicable;
+
+        bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
+        if (!shootHeld)
+        {
+            // `$90:BF75` cancels a carried humanoid charge when the Morph-Ball handler
+            // observes Shoot released. The palette/SFX bridge is consumed by runtime.
+            return samus.ProjectileFlareCounter != 0
+                ? BombSpreadAdmission.ChargeCancelled
+                : BombSpreadAdmission.NotApplicable;
+        }
+
+        if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
+            samus.ProjectileFlareCounter < SamusBombSpreadRomData.RequiredChargeFrames ||
+            BombCounter != 0)
+        {
+            return BombSpreadAdmission.NotApplicable;
+        }
+
+        if ((controllerInput & (ushort)SnesButton.Down) != 0 &&
+            (samus.BombSpreadChargeTimeoutCounter &
+                SamusBombSpreadRomData.DownChargeTimeoutMask) <
+                SamusBombSpreadRomData.DownChargeTimeoutMask)
+        {
+            samus.BombSpreadChargeTimeoutCounter =
+                unchecked((ushort)(samus.BombSpreadChargeTimeoutCounter + 1));
+            return BombSpreadAdmission.Charging;
+        }
+
+        SpawnBombSpread(bus, samus);
+        return BombSpreadAdmission.Spawned;
+    }
+
+    private void SpawnBombSpread(ISnesAddressSpace bus, SamusState samus)
+    {
+        int verticalModifier =
+            (samus.BombSpreadChargeTimeoutCounter >> 6) & 0x0003;
+        for (int index = 0; index < SlotCount; index++)
+        {
+            SamusBombProjectileSlot slot = _slots[index];
+            slot.ClearFields();
+            slot.Type = SamusBombSpreadRomData.BombSpreadType;
+            slot.IsBombSpread = true;
+            slot.XPosition = samus.XPosition;
+            slot.YPosition = samus.YPosition;
+            InitializeBombFromRom(bus, slot);
+
+            int tableOffset = index * 2;
+            slot.BombTimer = ReadWord(
+                bus,
+                SamusBombSpreadRomData.FuseTimers + tableOffset);
+            slot.BombSpreadXVelocity = ReadWord(
+                bus,
+                SamusBombSpreadRomData.XVelocities + tableOffset);
+            slot.BombSpreadInitialYSubvelocity = ReadWord(
+                bus,
+                SamusBombSpreadRomData.YSubspeeds + tableOffset);
+            slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
+            ushort wholeYSpeed = unchecked((ushort)(ReadWord(
+                bus,
+                SamusBombSpreadRomData.YSpeeds + tableOffset) + verticalModifier));
+            slot.BombSpreadYVelocity = unchecked((ushort)(0 - wholeYSpeed));
+            slot.BombSpreadBounceYVelocity = slot.BombSpreadYVelocity;
+        }
+
+        BombCounter = SlotCount;
+        CooldownTimer = SamusBombSpreadRomData.NormalBombCooldown;
+        samus.BombSpreadChargeTimeoutCounter = 0;
+        samus.ProjectileFlareCounter = 0;
     }
 
     private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
@@ -369,7 +462,8 @@ public sealed class SamusBombProjectileSystem
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
         RoomPlmSystem? roomPlms,
-        AreaId areaIndex)
+        AreaId areaIndex,
+        SamusKinematicsState samusKinematics)
     {
         // Direction high nibble is a generic projectile kill request. Normal placed bombs
         // leave direction zero for their lifetime, but debugger state can exercise it.
@@ -422,6 +516,9 @@ public sealed class SamusBombProjectileSystem
             }
         }
 
+        if (slot.IsBombSpread && slot.BombTimer != 0)
+            MoveBombSpread(bus, level, slot, samusKinematics);
+
         if (typeFamily == SamusProjectileFamily.Bomb &&
             slot.BombTimer == 0 &&
             (slot.Type & 0x0001) == 0)
@@ -458,6 +555,131 @@ public sealed class SamusBombProjectileSystem
         }
 
         return explosionStarted;
+    }
+
+    private static void MoveBombSpread(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusBombProjectileSlot slot,
+        SamusKinematicsState samus)
+    {
+        (slot.BombSpreadYVelocity, slot.BombSpreadYSubvelocity) = AddFixedWords(
+            slot.BombSpreadYVelocity,
+            slot.BombSpreadYSubvelocity,
+            samus.YAcceleration,
+            samus.YSubacceleration);
+
+        ushort previousY = slot.YPosition;
+        ushort previousYSub = slot.YSubposition;
+        (slot.YPosition, slot.YSubposition) = AddFixedWords(
+            slot.YPosition,
+            slot.YSubposition,
+            slot.BombSpreadYVelocity,
+            slot.BombSpreadYSubvelocity);
+        if (BombSpreadCollides(bus, level, slot))
+        {
+            slot.YPosition = previousY;
+            slot.YSubposition = previousYSub;
+            if ((slot.BombSpreadYVelocity & 0x8000) != 0)
+            {
+                slot.BombSpreadYVelocity = 0;
+                slot.YRadius = 0;
+            }
+            else
+            {
+                slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
+                slot.BombSpreadYVelocity = slot.BombSpreadBounceYVelocity;
+            }
+            return;
+        }
+
+        ushort previousX = slot.XPosition;
+        ushort previousXSub = slot.XSubposition;
+        MoveBombSpreadHorizontally(slot);
+        if (!BombSpreadCollides(bus, level, slot))
+            return;
+
+        slot.XPosition = previousX;
+        slot.XSubposition = previousXSub;
+        slot.BombSpreadXVelocity ^= 0x8000;
+    }
+
+    private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
+    {
+        ushort swapped = unchecked((ushort)(
+            (slot.BombSpreadXVelocity << 8) |
+            (slot.BombSpreadXVelocity >> 8)));
+        ushort subvelocity = unchecked((ushort)(swapped & 0xff00));
+        ushort wholeMagnitude = unchecked((ushort)(swapped & 0x007f));
+        bool movingLeft = (swapped & 0x0080) != 0;
+
+        uint fraction = movingLeft
+            ? unchecked((uint)slot.XSubposition - subvelocity)
+            : (uint)slot.XSubposition + subvelocity;
+        slot.XSubposition = unchecked((ushort)fraction);
+        int carryOrBorrow = movingLeft
+            ? (fraction > ushort.MaxValue ? 1 : 0)
+            : (int)(fraction >> 16);
+        slot.XPosition = movingLeft
+            ? unchecked((ushort)(slot.XPosition - wholeMagnitude - carryOrBorrow))
+            : unchecked((ushort)(slot.XPosition + wholeMagnitude + carryOrBorrow));
+    }
+
+    private static (ushort Whole, ushort Fraction) AddFixedWords(
+        ushort whole,
+        ushort fraction,
+        ushort addWhole,
+        ushort addFraction)
+    {
+        uint fractionalSum = (uint)fraction + addFraction;
+        fraction = unchecked((ushort)fractionalSum);
+        whole = unchecked((ushort)(whole + addWhole + (fractionalSum >> 16)));
+        return (whole, fraction);
+    }
+
+    private static bool BombSpreadCollides(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        SamusBombProjectileSlot slot)
+    {
+        int blockX = slot.XPosition >> 4;
+        int blockY = slot.YPosition >> 4;
+        if ((uint)blockX >= (uint)level.WidthInBlocks ||
+            (uint)blockY >= (uint)level.HeightInBlocks)
+        {
+            return true;
+        }
+
+        RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+        if (!SamusBlockCollision.TryResolveExtension(level, ref block))
+            return false;
+
+        if (block.CollisionType != RoomCollisionType.Slope)
+        {
+            return block.CollisionType is not (
+                RoomCollisionType.Air or
+                RoomCollisionType.SpikeAir or
+                RoomCollisionType.SpecialAir or
+                RoomCollisionType.UnusedAir or
+                RoomCollisionType.BombableAir);
+        }
+
+        if (!block.Bts.IsNonSquareSlope)
+            return true;
+
+        // `$94:A58F` mirrors X before indexing the slope-height row, then compares the
+        // resulting height with Y within the block. Equality counts as collision.
+        int xWithinBlock = (block.Bts.SlopeFlipsHorizontally
+            ? slot.XPosition ^ 0x000f
+            : slot.XPosition) & 0x000f;
+        int yWithinBlock = slot.YPosition & 0x000f;
+        if (block.Bts.SlopeFlipsVertically)
+            yWithinBlock ^= 0x000f;
+        int height = bus.ReadByte(
+            SamusBombSpreadRomData.NonSquareSlopeHeights +
+            block.Bts.SlopeShape * 16 + xWithinBlock) &
+            SamusBombSpreadRomData.NonSquareSlopeHeightMask;
+        return height <= yWithinBlock;
     }
 
     private void CollectPowerBombBoundaryReactions(
@@ -860,6 +1082,30 @@ public sealed class SamusBombProjectileSlot
     public ushort XRadius { get; internal set; }
     public ushort YRadius { get; internal set; }
 
+    /// <summary>Fractional X position at WRAM <c>$0B64+slot</c>.</summary>
+    public ushort XSubposition { get; internal set; }
+
+    /// <summary>Fractional Y position at WRAM <c>$0B78+slot</c>.</summary>
+    public ushort YSubposition { get; internal set; }
+
+    /// <summary>Whether bank-$90 installed <c>ProjectilePreInstruction_BombSpread</c>.</summary>
+    public bool IsBombSpread { get; internal set; }
+
+    /// <summary>Native direction/magnitude X-velocity word from $90:D8D9.</summary>
+    public ushort BombSpreadXVelocity { get; internal set; }
+
+    /// <summary>Whole signed Y velocity used by the spread pre-instruction.</summary>
+    public ushort BombSpreadYVelocity { get; internal set; }
+
+    /// <summary>Fractional Y velocity used by the spread pre-instruction.</summary>
+    public ushort BombSpreadYSubvelocity { get; internal set; }
+
+    /// <summary>ROM-authored fractional Y velocity restored on a floor bounce.</summary>
+    public ushort BombSpreadInitialYSubvelocity { get; internal set; }
+
+    /// <summary>Initial negative whole Y velocity restored on a floor bounce.</summary>
+    public ushort BombSpreadBounceYVelocity { get; internal set; }
+
     /// <summary>
     /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
     /// <c>bomb_timers[Index]</c> by bank $A0 due to the original overlapping arrays.
@@ -888,6 +1134,14 @@ public sealed class SamusBombProjectileSlot
         XRadius = 0;
         YRadius = 0;
         BombTimer = 0;
+        XSubposition = 0;
+        YSubposition = 0;
+        IsBombSpread = false;
+        BombSpreadXVelocity = 0;
+        BombSpreadYVelocity = 0;
+        BombSpreadYSubvelocity = 0;
+        BombSpreadInitialYSubvelocity = 0;
+        BombSpreadBounceYVelocity = 0;
     }
 }
 
@@ -897,7 +1151,19 @@ public readonly record struct BombProjectileFrameResult(
     bool ExplosionStarted,
     bool ProjectileDeleted,
     byte PublishedBombJumpDirection,
-    IReadOnlyList<BombBlockReaction>? BlockReactions);
+    IReadOnlyList<BombBlockReaction>? BlockReactions,
+    bool BombSpreadStarted = false,
+    bool BeamChargeConsumed = false,
+    SoundEffectId? QueuedSoundEffect = null,
+    byte QueuedSoundMaximum = 0);
+
+internal enum BombSpreadAdmission
+{
+    NotApplicable,
+    Charging,
+    Spawned,
+    ChargeCancelled,
+}
 
 /// <summary>
 /// One block visited by `$94:9CF4`'s normal-bomb cross or `$94:9D68`'s Power Bomb border.

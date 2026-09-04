@@ -213,12 +213,15 @@ internal static partial class BombTorizoAudit
         ArmProjectile(shots.Slots[0], loaded.Head, type: 0x0200, damage: 4000);
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, loaded.Samus);
         if (hits != 1 || loaded.Head.Health != 0 || !loaded.State.DeathStarted ||
-            loaded.Head.Properties.HasAny(EnemyProperties.Deleted))
+            loaded.Head.Properties.HasAny(EnemyProperties.Deleted) ||
+            !loaded.Head.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
+            loaded.Head.Properties.HasAny(EnemyProperties.SolidToSamus))
         {
             throw new InvalidDataException(
                 $"Bomb Torizo fatal shot mismatch: hits={hits}, health={loaded.Head.Health}, " +
                 $"death={loaded.State.DeathStarted}, deleted=" +
-                $"{loaded.Head.Properties.HasAny(EnemyProperties.Deleted)}.");
+                $"{loaded.Head.Properties.HasAny(EnemyProperties.Deleted)}, properties=" +
+                $"${loaded.Head.Properties:X4}.");
         }
 
         bool sawDeathMusic = false;
@@ -309,7 +312,7 @@ internal static partial class BombTorizoAudit
         {
             shotLoaded.Enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: shotLoaded.Samus,
                 cameraX: CameraX,
                 cameraY: CameraY,
                 nmiFrameCounter8: unchecked((byte)(shotFrame + frame + 1)));
@@ -377,12 +380,12 @@ internal static partial class BombTorizoAudit
                 selectorPhaseChanged = true;
             }
 
-            // The finder deliberately disables Samus contact but otherwise advances every
-            // live instruction/pre-instruction so old actors free their physical slots and
-            // producer timing remains identical to ordinary gameplay.
+            // Keep the active Samus state installed because native death/drop selection
+            // reads its inventory. The finder moves Samus away from the current attack
+            // above, so retaining that state does not manufacture a projectile contact.
             loaded.Enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: loaded.Samus,
                 cameraX: CameraX,
                 cameraY: CameraY,
                 nmiFrameCounter8: unchecked((byte)frame));

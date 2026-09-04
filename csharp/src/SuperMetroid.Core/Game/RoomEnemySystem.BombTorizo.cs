@@ -725,7 +725,10 @@ public sealed partial class RoomEnemySystem
         torizo.CurrentInstruction = BombTorizoDeathInstruction;
         torizo.InstructionTimer = 1;
         torizo.Parameter2 = unchecked((ushort)(torizo.Parameter2 | 0xc000));
-        torizo.Properties = torizo.Properties.With(EnemyProperties.SolidToSamus);
+        // EnemyShot_Torizo_Normal `$AA:C9B7-$AA:C9BD` sets property $0400 when
+        // entering the death stream. This removes the dying actor from Samus contact and
+        // solid-enemy collision while its flashing/invisible instruction frames continue.
+        torizo.Properties = torizo.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
     private void FinishBombTorizoDeath(TorizoEnemyState state)

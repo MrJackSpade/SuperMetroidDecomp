@@ -205,10 +205,11 @@ internal static partial class BombTorizoAudit
             level: level,
             nmiFrameCounter8: nmi);
         // These four definitions are visual-only and keep property $2000 throughout their
-        // lives. Null Samus makes that invariant explicit while retaining terrain movement.
+        // lives. Samus remains active because native drop selection is allowed to consult
+        // her inventory even when these visual actors never perform contact damage.
         loaded.Enemies.StepEnemyProjectiles(
             level,
-            samus: null,
+            samus: loaded.Samus,
             cameraX: CameraX,
             cameraY: CameraY,
             nmiFrameCounter8: nmi);

@@ -734,6 +734,65 @@ internal static class KraidAudit
                 $"${completedFrame:X4}->${runtime.NmiFrameCounter:X4}, grey doors=" +
                 $"[{string.Join(',', runtime.Plms.GreyDoors.Select(value => value.Phase))}].");
         }
+
+        VerifyDefeatedRoomReload(runtime);
+    }
+
+    /// <summary>
+    /// Reproduces the reported defeat, exit, and re-entry failure through the actual room
+    /// loader and runtime PLM handoff. Reloading is the important part of this assertion:
+    /// the live death sequence can leave the arena correct while a later defeated-room
+    /// initialization silently restores the authored ceiling and spikes.
+    /// </summary>
+    private static void VerifyDefeatedRoomReload(SuperMetroidRuntime runtime)
+    {
+        runtime.LoadCartridgeRoomForDebug(RoomPointer, CameraX, CameraY);
+        RoomLevelData level = runtime.LevelData ??
+            throw new InvalidDataException("Defeated Kraid reload did not install room level data.");
+        KraidEnemyState state = runtime.Enemies.Kraid ??
+            throw new InvalidDataException("Defeated Kraid reload did not initialize encounter state.");
+
+        if (!runtime.Enemies.KraidPlmRequests.SequenceEqual(KraidPlmDefinitions.DefeatedRoom))
+        {
+            throw new InvalidDataException(
+                "Defeated Kraid reload did not publish ceiling/spike clears in native order.");
+        }
+
+        ushort authoredCeiling = level.GetCollisionBlock(0x02, 0x12).LevelWord;
+        ushort authoredSpikes = level.GetCollisionBlock(0x05, 0x1b).LevelWord;
+        if (!runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidCeiling) ||
+            !runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes))
+        {
+            throw new InvalidDataException(
+                "Defeated Kraid room-load handoff did not retain both native clear PLMs.");
+        }
+
+        // The spike clear is an authored multi-frame sweep across the floor; it is much
+        // longer than the one-frame setup mutation at its origin. Let the real instruction
+        // streams reach their delete opcodes instead of asserting an arbitrary animation
+        // prefix.
+        for (int frame = 0;
+             frame < 180 &&
+                 (runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidCeiling) ||
+                  runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes));
+             frame++)
+            runtime.StepFrame(controller1Input: 0);
+
+        ushort clearedCeiling = level.GetCollisionBlock(0x02, 0x12).LevelWord;
+        ushort clearedSpikes = level.GetCollisionBlock(0x05, 0x1b).LevelWord;
+        if (runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidCeiling) ||
+            runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes) ||
+            clearedCeiling == authoredCeiling ||
+            clearedSpikes == authoredSpikes)
+        {
+            throw new InvalidDataException(
+                $"Defeated Kraid reload did not restore the arena: PLMs={runtime.Plms.ActiveCount}, " +
+                $"ceiling=${authoredCeiling:X4}->${clearedCeiling:X4}, " +
+                $"spikes=${authoredSpikes:X4}->${clearedSpikes:X4}.");
+        }
+
+        if (state.OwnsBg2Tilemap)
+            throw new InvalidDataException("Defeated Kraid incorrectly retained private BG2 ownership.");
     }
 
     private static void AdvanceRuntimeUntilOpenMouth(
@@ -1277,6 +1336,7 @@ internal static class KraidAudit
             () => 0,
             isAreaBossDefeated: () => true);
         if (defeated.EnemyCount != ExpectedDefinitions.Length || defeated.Kraid is null ||
+            !defeated.KraidPlmRequests.SequenceEqual(KraidPlmDefinitions.DefeatedRoom) ||
             defeated.Slots.Take(ExpectedDefinitions.Length).Any(
                 slot => !slot.Properties.HasAny(
                     EnemyProperties.Deleted | EnemyProperties.Invisible)))

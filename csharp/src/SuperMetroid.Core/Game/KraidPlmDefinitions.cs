@@ -12,6 +12,12 @@ public readonly record struct KraidPlmRequest(byte BlockX, byte BlockY, ushort H
 /// </summary>
 public static class KraidPlmDefinitions
 {
+    private static readonly KraidPlmRequest[] DefeatedRoomRequests =
+    [
+        new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling),
+        new(0x05, 0x1b, RoomPlmHeaders.ClearKraidSpikes),
+    ];
+
     private static readonly KraidPlmRequest[] GrowthCeilingRequests =
     [
         new(0x06, 0x12, RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3),
@@ -27,6 +33,13 @@ public static class KraidPlmDefinitions
 
     /// <summary>The nine calls in <c>$A7:AC4D</c>, indexed by Kraid variable F / 2.</summary>
     public static IReadOnlyList<KraidPlmRequest> GrowthCeiling => GrowthCeilingRequests;
+
+    /// <summary>
+    /// The hardcoded PLMs spawned by defeated-room initialization at
+    /// <c>$A7:C168</c> (<c>Kraid_SpawnPlmToClearCeiling</c>) and <c>$A7:C171</c>
+    /// (<c>Kraid_ClearSomeSpikes</c>), in native call order.
+    /// </summary>
+    public static IReadOnlyList<KraidPlmRequest> DefeatedRoom => DefeatedRoomRequests;
 
     /// <summary>Returns the platform mutation paired with a sinking-table callback.</summary>
     public static KraidPlmRequest? ForSinkCallback(ushort callback) => callback switch

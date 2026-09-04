@@ -877,6 +877,7 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingBotwoonWallPlm();
         ApplyPendingSporeSpawnCeilingPlm();
         ApplyPendingCrocomireArenaPlms();
+        ApplyPendingKraidPlms();
         ApplyPendingMotherBrainPlms();
         ApplyPendingShitroidWallPlms();
         Enemies.QueueGraphicsUploads(VramWrites);

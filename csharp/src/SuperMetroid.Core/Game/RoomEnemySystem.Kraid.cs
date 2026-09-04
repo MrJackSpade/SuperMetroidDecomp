@@ -30,8 +30,12 @@ public sealed partial class RoomEnemySystem
         if (RequireAreaBossDefeated())
         {
             // `$A7:A959` installs the dead-room BG palette before the shared part initializer
-            // marks every physical actor invisible/deleted/non-interactive.
+            // marks every physical actor invisible/deleted/non-interactive. Its two calls
+            // immediately before that initializer are not cosmetic bookkeeping: they
+            // restore the defeated arena on every room load so the broken ceiling and
+            // removed floor spikes cannot return when the player exits and re-enters.
             _cgram!.LoadFromBus(_bus!, 0xa786c7, colorCount: 16, destinationIndex: 96);
+            _kraidPlmRequests.AddRange(KraidPlmDefinitions.DefeatedRoom);
             MarkKraidPartDead(body);
             return;
         }

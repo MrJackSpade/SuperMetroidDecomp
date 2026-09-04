@@ -106,6 +106,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 ? (ushort)0x6000
                 : (ushort)0;
             bool crocomireOwnsBg2 = runtime.Enemies.Crocomire is not null;
+            KraidEnemyState? kraid = runtime.Enemies.Kraid;
+            bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
             ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
             ushort[]? skyHorizontalScrolls = scrollingSky?.BuildGameplayHorizontalScrolls(
                 runtime.Camera?.YPosition
@@ -130,10 +132,14 @@ public static class SuperMetroidRuntimeFrameRenderer
                 runtime.DisplayedOam,
                 bg1HorizontalScroll,
                 bg1VerticalScroll,
-                crocomireOwnsBg2
+                kraidOwnsBg2
+                    ? AddShake(kraid!.Bg2HorizontalScroll, shake.Bg2X)
+                    : crocomireOwnsBg2
                     ? AddShake(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X)
                     : bg2HorizontalScroll,
-                crocomireOwnsBg2
+                kraidOwnsBg2
+                    ? AddShake(kraid!.Bg2VerticalScroll, shake.Bg2Y)
+                    : crocomireOwnsBg2
                     ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
                     : scrollingSky is not null
                         ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
@@ -142,8 +148,15 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
                     : null,
-                bg2TilemapWidthInTiles: scrollingSky is null ? 64 : 32,
-                bg2TilemapHeightInTiles: scrollingSky is null ? 32 : 64,
+                bg2TilemapWidthInTiles: kraidOwnsBg2
+                    ? KraidBackgroundRomData.TilemapWidthInTiles
+                    : scrollingSky is null ? 64 : 32,
+                bg2TilemapHeightInTiles: kraidOwnsBg2
+                    ? KraidBackgroundRomData.TilemapHeightInTiles
+                    : scrollingSky is null ? 32 : 64,
+                bg2TilemapBaseWord: kraidOwnsBg2
+                    ? KraidBackgroundRomData.LiveBg2TilemapWord
+                    : SnesPpuLayout.GameplayBg2TilemapWord,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
                 bg2CharacterBaseWord: bgCharacterBaseWord);
         }

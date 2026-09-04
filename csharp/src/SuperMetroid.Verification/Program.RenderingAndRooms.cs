@@ -1057,6 +1057,31 @@ static void VerifyFourBitBackgroundRendering()
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
 
+    // Kraid selects BG2SC=$43: a 64x64 map rooted at word $4000 instead of the normal
+    // room BG2 map at $4800. Verify the general compositor consumes that register-derived
+    // layout; accepting a 64x64 argument without using its base still leaves only Kraid's
+    // ordinary OAM arm visible.
+    const ushort kraidBg2BaseWord = 0x4000;
+    int firstGameplaySourceRow = SnesGameplayFrameRenderer.HudHeight / 8;
+    gameplayVram.ExecuteWordTransfer(
+        [0x0801],
+        destinationWord: unchecked((ushort)(kraidBg2BaseWord + firstGameplaySourceRow * 32)),
+        wordIncrement: 1);
+    gameplayFrame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+        gameplayVram,
+        gameplayCgram,
+        gameplayOam,
+        bg1HorizontalScroll: 0,
+        bg1VerticalScroll: 0,
+        bg2HorizontalScroll: 0,
+        bg2VerticalScroll: 0,
+        bg2TilemapWidthInTiles: 64,
+        bg2TilemapHeightInTiles: 64,
+        bg2TilemapBaseWord: kraidBg2BaseWord);
+    AssertEqual(new Rgba32(255, 0, 0),
+        gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
+        "ordinary compositor consumes Kraid's 64x64 BG2 map at $4000");
+
     // The force-blank room fill is exactly 17 level columns when layer-2 X mode is odd.
     var scroll = new BackgroundScrollState
     {

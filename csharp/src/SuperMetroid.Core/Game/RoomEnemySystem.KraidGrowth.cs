@@ -72,11 +72,11 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case KraidAiFunction.GrowSetBg2Priority:
-                state.Bg2PriorityBitsSet = true;
+                SetKraidBg2Priority(state);
                 _slots[1].Properties = _slots[1].Properties.Without(
                     EnemyProperties.IgnoreSamusCollision);
                 body.VariableA = (ushort)KraidAiFunction.GrowFinishBg2Update;
-                state.TopTilemapUploadCount++;
+                TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.GrowFinishBg2Update:
@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
                     _slots[lintSlot].CurrentInstruction = KraidInstructionLists.Ilist_8B04;
                     _slots[lintSlot].SpritemapPointer = 0x8c6c;
                 }
-                state.BottomTilemapUploadCount++;
+                TransferKraidBottomTilemap(state);
                 return;
 
             case KraidAiFunction.GrowDrawRoomBackground:

@@ -202,6 +202,7 @@ public static class SnesGameplayFrameRenderer
         IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
         int bg2TilemapWidthInTiles = 64,
         int bg2TilemapHeightInTiles = 32,
+        ushort bg2TilemapBaseWord = SnesPpuLayout.GameplayBg2TilemapWord,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
         byte obsel = 0x03)
@@ -245,7 +246,8 @@ public static class SnesGameplayFrameRenderer
                 bg2HorizontalScrollByLine,
                 bg2VerticalScrollByLine,
                 bg2TilemapWidthInTiles,
-                bg2TilemapHeightInTiles);
+                bg2TilemapHeightInTiles,
+                bg2TilemapBaseWord);
         }
         finally
         {
@@ -280,7 +282,8 @@ public static class SnesGameplayFrameRenderer
         IReadOnlyList<ushort>? bg2HorizontalScrollByLine,
         IReadOnlyList<ushort>? bg2VerticalScrollByLine,
         int bg2TilemapWidthInTiles,
-        int bg2TilemapHeightInTiles)
+        int bg2TilemapHeightInTiles,
+        ushort bg2TilemapBaseWord)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -305,10 +308,10 @@ public static class SnesGameplayFrameRenderer
         }
         if (bg2TilemapWidthInTiles is not (32 or 64) ||
             bg2TilemapHeightInTiles is not (32 or 64) ||
-            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles != 2048)
+            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles is not (2048 or 4096))
         {
             throw new ArgumentException(
-                "BG2 gameplay tilemaps must be either 64x32 or 32x64 tiles.",
+                "BG2 gameplay tilemaps must be 64x32, 32x64, or 64x64 tiles.",
                 nameof(bg2TilemapWidthInTiles));
         }
 
@@ -369,7 +372,7 @@ public static class SnesGameplayFrameRenderer
                     int bg2ScreenColumn = bg2TileX >> 5;
                     int bg2ScreenRow = bg2TileY >> 5;
                     int bg2MapWord = (
-                        SnesPpuLayout.GameplayBg2TilemapWord +
+                        bg2TilemapBaseWord +
                         (bg2ScreenRow * bg2ScreensPerRow + bg2ScreenColumn) * SnesPpuLayout.TilemapPageWordCount +
                         (bg2TileY & 31) * 32 +
                         (bg2TileX & 31)) & 0x7fff;

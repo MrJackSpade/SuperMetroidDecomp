@@ -22,7 +22,7 @@ public sealed partial class RoomEnemySystem
                     body.VariableA = (ushort)KraidAiFunction.DeathUpdateTopTilemap;
                     state.HurtFrameTimer = 1;
                     state.HurtFrame = 1;
-                    state.TopTilemapUploadCount++;
+                    TransferKraidTopTilemap(state);
                 }
                 return;
 
@@ -34,7 +34,7 @@ public sealed partial class RoomEnemySystem
                     _slots[lintSlot].VariableA = (ushort)KraidAiFunction.AlignPartToKraid;
                     _slots[lintSlot].VariableF = 0x7fff;
                 }
-                state.TopTilemapUploadCount++;
+                TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.DeathUpdateBottomTilemap:
@@ -49,7 +49,7 @@ public sealed partial class RoomEnemySystem
                 _slots[5].CurrentInstruction = KraidInitialFootInstruction;
                 _slots[5].InstructionTimer = 1;
                 _slots[5].VariableA = (ushort)KraidAiFunction.NoOperation;
-                state.BottomTilemapUploadCount++;
+                TransferKraidBottomTilemap(state);
                 return;
 
             case KraidAiFunction.DeathSink:
@@ -58,11 +58,11 @@ public sealed partial class RoomEnemySystem
 
             case KraidAiFunction.DeathClearTopTilemap:
                 body.VariableA = (ushort)KraidAiFunction.DeathClearBottomTilemap;
-                state.TopTilemapUploadCount++;
+                ClearKraidTopTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathClearBottomTilemap:
                 body.VariableA = (ushort)KraidAiFunction.DeathLoadBg3Quarter1;
-                state.BottomTilemapUploadCount++;
+                ClearKraidBottomTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter1:
                 AdvanceKraidDeathBg3Transfer(body, state, KraidAiFunction.DeathLoadBg3Quarter2);

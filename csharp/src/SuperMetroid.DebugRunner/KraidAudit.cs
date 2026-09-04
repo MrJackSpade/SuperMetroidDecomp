@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
@@ -216,6 +217,8 @@ internal static class KraidAudit
                 $"{sawSpitRockMovement}, " +
                 $"footstep={sawFootstep}.");
         }
+
+        VerifyKraidBg2VideoState(bus, vram, body, state);
 
         // Damage is accepted only by the inner hitbox pointer carried by a live open-mouth
         // head entry. Advance to that authored window instead of placing a shot against the
@@ -554,6 +557,67 @@ internal static class KraidAudit
             "charged-body eye glow/unglow, ceiling growth, palette fade, second-phase " +
             $"walking/lint attacks, and {deathFrames}-frame sink/death/persistence.");
         return 0;
+    }
+
+    /// <summary>
+    /// Reproduces the missing-body report at the actual first-phase checkpoint. Kraid's
+    /// arm is ordinary OAM, but his body is the two-page enemy BG2 surface constructed by
+    /// <c>$A7:AAC6</c> and uploaded by <c>$A7:C874/$C8B6</c>. Counters alone cannot make
+    /// that body visible, so compare stable words outside the animated 352-word head span.
+    /// </summary>
+    private static void VerifyKraidBg2VideoState(
+        ISnesAddressSpace bus,
+        SnesVram vram,
+        RoomEnemySlot body,
+        KraidEnemyState state)
+    {
+        byte[] upper = RomDataReader.Decompress(
+            bus,
+            KraidBackgroundRomData.UpperTilemap,
+            KraidBackgroundRomData.DecompressedTilemapBytes);
+        byte[] lower = RomDataReader.Decompress(
+            bus,
+            KraidBackgroundRomData.LowerTilemap,
+            KraidBackgroundRomData.DecompressedTilemapBytes);
+        if (upper.Length != KraidBackgroundRomData.DecompressedTilemapBytes ||
+            lower.Length != KraidBackgroundRomData.DecompressedTilemapBytes)
+        {
+            throw new InvalidDataException(
+                $"Kraid BG2 decompression size changed: upper=${upper.Length:X}, " +
+                $"lower=${lower.Length:X}.");
+        }
+
+        const int stableTopWord = 500;
+        const int stableBottomWord = 100;
+        ushort expectedTop = unchecked((ushort)(
+            ReadByteWord(upper, stableTopWord) & ~KraidBackgroundRomData.PriorityBit));
+        ushort expectedBottom = unchecked((ushort)(
+            ReadByteWord(lower, stableBottomWord) & ~KraidBackgroundRomData.PriorityBit));
+        ushort actualTop = vram.ReadWord(
+            KraidBackgroundRomData.LiveBg2TilemapWord + stableTopWord);
+        ushort actualBottom = vram.ReadWord(
+            KraidBackgroundRomData.LiveLowerBg2TilemapWord + stableBottomWord);
+        ushort expectedHorizontalScroll = unchecked((ushort)(
+            CameraX - body.XPosition + body.XRadius));
+        ushort expectedVerticalScroll = unchecked((ushort)(CameraY - body.YPosition + 152));
+        if (actualTop != expectedTop || actualBottom != expectedBottom ||
+            !state.OwnsBg2Tilemap ||
+            state.Bg2HorizontalScroll != expectedHorizontalScroll ||
+            state.Bg2VerticalScroll != expectedVerticalScroll)
+        {
+            throw new InvalidDataException(
+                $"Kraid body BG2 is not renderer-visible: top=${actualTop:X4}/${expectedTop:X4}, " +
+                $"bottom=${actualBottom:X4}/${expectedBottom:X4}, " +
+                $"owns={state.OwnsBg2Tilemap}, scroll=" +
+                $"(${state.Bg2HorizontalScroll:X4},{state.Bg2VerticalScroll:X4})/" +
+                $"({expectedHorizontalScroll:X4},{expectedVerticalScroll:X4}).");
+        }
+    }
+
+    private static ushort ReadByteWord(ReadOnlySpan<byte> bytes, int wordIndex)
+    {
+        int byteIndex = checked(wordIndex * 2);
+        return unchecked((ushort)(bytes[byteIndex] | (bytes[byteIndex + 1] << 8)));
     }
 
     /// <summary>

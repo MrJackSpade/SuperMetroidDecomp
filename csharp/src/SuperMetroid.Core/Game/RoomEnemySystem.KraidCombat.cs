@@ -196,7 +196,7 @@ public sealed partial class RoomEnemySystem
             state.InvulnerableMouthHitbox = ReadWord(
                 _bus!, 0xa70000 | unchecked((ushort)(cursor + 6)));
             body.VariableB = unchecked((ushort)(cursor + 8));
-            state.HeadTilemapUploadCount++;
+            TransferKraidHeadTilemap(state, state.CurrentHeadTilemap);
             return 1;
         }
         throw new InvalidDataException("Kraid head instruction stream exceeded its command guard.");

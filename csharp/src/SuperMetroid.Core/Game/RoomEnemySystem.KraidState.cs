@@ -123,8 +123,28 @@ public sealed class KraidEnemyState
     public ushort VulnerableMouthHitbox { get; internal set; }
     public ushort InvulnerableMouthHitbox { get; internal set; }
 
+    /// <summary>
+    /// Native $7E:2000-$2FFF combined BG2 tilemap. Keeping this surface separate from
+    /// VRAM is essential because rise, growth, head animation, and sinking upload only
+    /// selected portions of it on their authored frames.
+    /// </summary>
+    internal ushort[] BackgroundTilemapWords { get; } =
+        new ushort[KraidBackgroundRomData.WorkingTilemapWords];
+
     /// <summary>True after `$A7:AAC6` prepared Kraid's two decompressed BG2 tilemaps.</summary>
     public bool BackgroundTilemapsPrepared { get; internal set; }
+
+    /// <summary>
+    /// True while native BG2SC=$43 makes Kraid's private 64x64 map the renderer's BG2.
+    /// Death restores the ordinary room map at $4800 and relinquishes this ownership.
+    /// </summary>
+    public bool OwnsBg2Tilemap { get; internal set; }
+
+    /// <summary>Live BG2HOFS calculated by Kraid main AI from camera and body X.</summary>
+    public ushort Bg2HorizontalScroll { get; internal set; }
+
+    /// <summary>Live BG2VOFS calculated by Kraid main AI from camera and body Y.</summary>
+    public ushort Bg2VerticalScroll { get; internal set; }
 
     /// <summary>Native BG2 top/bottom upload requests issued during the rise sequence.</summary>
     public int TopTilemapUploadCount { get; internal set; }

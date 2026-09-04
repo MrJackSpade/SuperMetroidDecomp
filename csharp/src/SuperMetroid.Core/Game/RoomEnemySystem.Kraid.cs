@@ -50,10 +50,9 @@ public sealed partial class RoomEnemySystem
                 oneQuarter * (index + 1)));
         }
 
-        // `$A7:AAC6` decompresses two cartridge tilemaps and clears priority bits before
-        // the first rise frame. The renderer-facing tilemap transfer will consume this
-        // state in the dedicated BG2 slice; initialization still records the authored seam.
-        state.BackgroundTilemapsPrepared = true;
+        // `$A7:AAC6` constructs the private WRAM tilemap which subsequent rise, head,
+        // growth, and death functions upload in independently timed slices.
+        InitializeKraidBackground(state);
         state.HurtFrame = 0;
         state.HurtFrameTimer = 0;
 
@@ -164,9 +163,18 @@ public sealed partial class RoomEnemySystem
                 EnemyProperties.Deleted |
                 EnemyProperties.Invisible);
 
-    private void RunKraidBodyMain(RoomEnemySlot body, SamusState? samus)
+    private void RunKraidBodyMain(
+        RoomEnemySlot body,
+        SamusState? samus,
+        ushort cameraX,
+        ushort cameraY)
     {
         KraidEnemyState state = RequireKraidState(body);
+        // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
+        // body's right-edge origin adjustment; 152 is the authored vertical anchor.
+        state.Bg2HorizontalScroll = unchecked((ushort)(
+            cameraX - body.XPosition + body.XRadius));
+        state.Bg2VerticalScroll = unchecked((ushort)(cameraY - body.YPosition + 152));
         RunKraidPaletteHandling(body, state);
         KraidAiFunction function = (KraidAiFunction)body.VariableA;
         if (function is >= KraidAiFunction.RestrictSamusToFirstScreen and

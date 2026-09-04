@@ -23,7 +23,7 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.RaiseKraidThroughFloor:
                 RestrictSamusToKraidFirstScreen(samus);
                 body.VariableA = (ushort)KraidAiFunction.RaiseLoadBottomTilemap;
-                state.TopTilemapUploadCount++;
+                TransferKraidTopTilemap(state);
                 return;
 
             case KraidAiFunction.RaiseLoadBottomTilemap:
@@ -32,7 +32,7 @@ public sealed partial class RoomEnemySystem
                 body.VariableF = 120;
                 EarthquakeTimer = 496;
                 state.MusicRequest = MusicCommand.SelectTrack(5);
-                state.BottomTilemapUploadCount++;
+                TransferKraidBottomTilemap(state);
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:

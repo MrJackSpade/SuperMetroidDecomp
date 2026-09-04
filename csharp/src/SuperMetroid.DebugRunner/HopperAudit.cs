@@ -25,6 +25,12 @@ internal static class HopperAudit
 
         /// <summary>Floor Sidehopper frame mirrored by <c>$A3:AF34</c>.</summary>
         public const ushort FloorSidehopperLandedSpritemap = 0xaee3;
+
+        /// <summary>Upper Norfair room <c>$02/$04</c> header at <c>$8F:A815</c>.</summary>
+        public const ushort UpperNorfairDessgeegaRoom = 0xa815;
+
+        /// <summary>Small Dessgeega enemy definition at <c>$A0:D97F</c>.</summary>
+        public const ushort SmallDessgeegaDefinition = 0xd97f;
     }
 
     private const ushort BlueHopperRoomHeader = 0xdc19;
@@ -169,12 +175,223 @@ internal static class HopperAudit
         }
 
         VerifyRoom0102CeilingOrientation(bus, outputDirectory);
+        VerifyUpperNorfairSmallDessgeegaCycle(bus, outputDirectory);
 
         Console.WriteLine(
             "Blue Hopper audit passed: two retail Tourian Sidehoppers loaded, both random " +
             $"hop sizes traversed the ROM quadratic arc and landing loop, {maps.Count} maps " +
             $"animated, 120 contact damage resolved, and {oam.LastFinalizedSpriteCount} OBJ pieces rendered.");
         return 0;
+    }
+
+    /// <summary>
+    /// Captures every distinct live Small Dessgeega spritemap from the exact Upper Norfair
+    /// retail room reported in issue #248. This diagnostic deliberately observes both
+    /// population mountings through the real instruction interpreter and enemy OAM path.
+    /// </summary>
+    private static void VerifyUpperNorfairSmallDessgeegaCycle(
+        SuperMetroidAddressSpace bus,
+        string? outputDirectory)
+    {
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            bus,
+            RoomDefinitions.UpperNorfairDessgeegaRoom);
+        if (room.Identity != new RoomIdentity(AreaId.Norfair, 0x04))
+            throw new InvalidDataException($"Dessgeega audit selected {room.Identity}, expected $02/$04.");
+
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState();
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber);
+
+        RoomEnemySlot[] dessgeegas = enemies.Slots
+            .Where(slot => slot.EnemyDefinitionPointer == RoomDefinitions.SmallDessgeegaDefinition)
+            .ToArray();
+        if (!dessgeegas.Any(slot => slot.Parameter1 == 0) ||
+            !dessgeegas.Any(slot => slot.Parameter1 != 0))
+        {
+            throw new InvalidDataException(
+                $"Room $02/$04 exposes {dessgeegas.Length} Small Dessgeegas without both mountings.");
+        }
+
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 0x0180,
+            YPosition = 0x0380,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        var seenMaps = new HashSet<(bool Ceiling, ushort Spritemap)>();
+        var floorFrames = new List<Rgba32[]>();
+        var ceilingFrames = new List<Rgba32[]>();
+        var floorFunctions = new HashSet<HopperEnemyFunction>();
+        var ceilingFunctions = new HashSet<HopperEnemyFunction>();
+
+        for (int frame = 0; frame < 600; frame++)
+        {
+            enemies.StepFrame(0x0100, 0x0300, false, samus, level: assets.LevelData);
+            foreach (RoomEnemySlot slot in dessgeegas)
+            {
+                HopperEnemyState state = enemies.HopperStates[slot.SlotIndex]
+                    ?? throw new InvalidDataException(
+                        $"Small Dessgeega slot {slot.SlotIndex} has no typed hopper state.");
+                (state.UpsideDown ? ceilingFunctions : floorFunctions).Add(state.Function);
+                if (slot.SpritemapPointer == 0x804d)
+                    continue;
+                if (!seenMaps.Add((state.UpsideDown, slot.SpritemapPointer)))
+                    continue;
+
+                var oam = new OamBuffer();
+                oam.BeginFrame();
+                oam.AddEnemySpritemap(
+                    bus,
+                    slot.Definition.Bank,
+                    slot.SpritemapPointer,
+                    originX: 128,
+                    originY: 112,
+                    slot.PaletteIndex,
+                    slot.VramTilesIndex);
+                oam.FinalizeFrame();
+                OamEntry[] pieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
+                    .Select(oam.GetEntry)
+                    .ToArray();
+                if (pieces.Length != 5 ||
+                    pieces.Any(piece => piece.FlipY != state.UpsideDown))
+                {
+                    throw new InvalidDataException(
+                        $"Small Dessgeega {(state.UpsideDown ? "ceiling" : "floor")} " +
+                        $"map $A3:{slot.SpritemapPointer:X4} emitted {pieces.Length} pieces " +
+                        $"with flipY=[{string.Join(',', pieces.Select(piece => piece.FlipY))}].");
+                }
+                Rgba32[] pixels = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0x03);
+                (state.UpsideDown ? ceilingFrames : floorFrames).Add(pixels);
+                Console.WriteLine(
+                    $"Small Dessgeega {(state.UpsideDown ? "ceiling" : "floor")} frame {frame}: " +
+                    $"map $A3:{slot.SpritemapPointer:X4}, " +
+                    $"flipY=[{string.Join(',', pieces.Select(piece => piece.FlipY))}].");
+
+                if (outputDirectory is not null)
+                {
+                    Directory.CreateDirectory(outputDirectory);
+                    PngWriter.WriteRgba(
+                        Path.Combine(
+                            outputDirectory,
+                            $"small-dessgeega-{(state.UpsideDown ? "ceiling" : "floor")}-{slot.SpritemapPointer:X4}.png"),
+                        256,
+                        224,
+                        pixels);
+                }
+            }
+        }
+
+        HopperEnemyFunction[] requiredFloorFunctions =
+        [
+            HopperEnemyFunction.WaitToHop,
+            HopperEnemyFunction.JumpingUpsideUpForward,
+            HopperEnemyFunction.Landed,
+        ];
+        HopperEnemyFunction[] requiredCeilingFunctions =
+        [
+            HopperEnemyFunction.WaitToHop,
+            HopperEnemyFunction.JumpingUpsideDownBackward,
+            HopperEnemyFunction.Landed,
+        ];
+        if (floorFrames.Count != 3 || ceilingFrames.Count != 3 ||
+            requiredFloorFunctions.Any(function => !floorFunctions.Contains(function)) ||
+            requiredCeilingFunctions.Any(function => !ceilingFunctions.Contains(function)))
+        {
+            throw new InvalidDataException(
+                $"Small Dessgeega full cycle mismatch: maps={floorFrames.Count}/{ceilingFrames.Count}, " +
+                $"floor-functions=[{string.Join(',', floorFunctions)}], " +
+                $"ceiling-functions=[{string.Join(',', ceilingFunctions)}].");
+        }
+        for (int animationFrame = 0; animationFrame < floorFrames.Count; animationFrame++)
+        {
+            VerifyExactVerticalMirror(
+                floorFrames[animationFrame],
+                ceilingFrames[animationFrame],
+                originY: 112,
+                $"Small Dessgeega animation frame {animationFrame}");
+        }
+
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(
+            RoomDefinitions.UpperNorfairDessgeegaRoom,
+            cameraX: 0x0100,
+            cameraY: 0x0300);
+        if (runtime.Samus is not null)
+        {
+            runtime.Samus.XPosition = 0x0180;
+            runtime.Samus.YPosition = 0x0380;
+        }
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        for (int frame = 0; frame < 40; frame++)
+            runtime.StepFrame(controller1Input: 0);
+        foreach (RoomEnemySlot slot in runtime.Enemies.Slots.Where(slot =>
+                     slot.EnemyDefinitionPointer == RoomDefinitions.SmallDessgeegaDefinition &&
+                     slot.SpritemapPointer != 0x804d))
+        {
+            Rgba32[] reference = RenderIsolatedHopper(
+                bus, vram, cgram, slot, slot.SpritemapPointer, 128, 112);
+            Rgba32[] integrated = RenderIsolatedHopper(
+                bus, runtime.Vram, runtime.Cgram, slot, slot.SpritemapPointer, 128, 112);
+            if (!reference.AsSpan().SequenceEqual(integrated))
+            {
+                throw new InvalidDataException(
+                    $"Integrated room load changed Small Dessgeega map $A3:{slot.SpritemapPointer:X4} " +
+                    "graphics or palette data.");
+            }
+        }
+        if (outputDirectory is not null)
+        {
+            PngWriter.WriteRgba(
+                Path.Combine(outputDirectory, "small-dessgeega-integrated-room-02-04.png"),
+                256,
+                224,
+                SuperMetroidRuntimeFrameRenderer.Render(runtime));
+        }
+    }
+
+    private static void VerifyExactVerticalMirror(
+        ReadOnlySpan<Rgba32> floor,
+        ReadOnlySpan<Rgba32> ceiling,
+        int originY,
+        string description)
+    {
+        for (int y = 0; y < FrontendFrame.Height; y++)
+        {
+            int mirroredY = originY * 2 - 1 - y;
+            for (int x = 0; x < FrontendFrame.Width; x++)
+            {
+                Rgba32 expected = mirroredY is >= 0 and < FrontendFrame.Height
+                    ? floor[mirroredY * FrontendFrame.Width + x]
+                    : default;
+                Rgba32 actual = ceiling[y * FrontendFrame.Width + x];
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"{description} ceiling pixel ({x},{y}) is {actual}; " +
+                        $"floor mirror ({x},{mirroredY}) is {expected}.");
+                }
+            }
+        }
     }
 
     /// <summary>

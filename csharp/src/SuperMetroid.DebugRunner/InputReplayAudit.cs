@@ -42,7 +42,10 @@ internal static class InputReplayAudit
 
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
         recording.InitialSaveRam.CopyTo(bus.SaveRam);
-        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var game = new SuperMetroidGame(
+            bus,
+            recording.GameOptions,
+            renderGameplayFrames: false);
         var apuPortEchoes = new byte[4];
         var tail = new Queue<ReplayFrameState>(RetainedTailFrames);
         ushort? previousRoom = null;
@@ -51,6 +54,10 @@ internal static class InputReplayAudit
         bool previousEjection = false;
         int previousPlmCount = -1;
         int previousScrollPlmCount = -1;
+        PowerBombExplosionPhase previousPowerBombPhase = PowerBombExplosionPhase.Inactive;
+        bool previousPowerBombArmed = false;
+        bool previousPowerBombSlotActive = false;
+        bool previousPowerBombDamagingRadius = false;
         SuperMetroidRuntime? lastRuntime = null;
 
         for (int index = 0; index < recording.ControllerInputs.Length; index++)
@@ -104,6 +111,14 @@ internal static class InputReplayAudit
             bool ejection = samus?.CeresRidleyEjection.IsActive ?? false;
             int plmCount = runtime?.Plms.ActiveCount ?? 0;
             int scrollPlmCount = runtime?.Plms.ScrollPlms.Count ?? 0;
+            SamusPowerBombExplosionState? powerBomb =
+                runtime?.BombProjectiles.PowerBombExplosion;
+            PowerBombExplosionPhase powerBombPhase =
+                powerBomb?.Phase ?? PowerBombExplosionPhase.Inactive;
+            bool powerBombArmed = powerBomb?.IsArmed ?? false;
+            bool powerBombSlotActive = runtime?.BombProjectiles.Slots.Any(slot =>
+                slot.IsActive && slot.PackedType.Family == SamusProjectileFamily.PowerBomb) ?? false;
+            bool powerBombDamagingRadius = powerBomb?.ExplosionRadius != 0;
 
             // Projectile reports are often intermittent because allocation depends on
             // which of five shared beam/missile slots still owns an explosion or an
@@ -249,12 +264,32 @@ internal static class InputReplayAudit
                     $"rec={index,6} PLMs active={plmCount}, scroll={scrollPlmCount}, " +
                     $"origins=[{string.Join(',', runtime?.Plms.ScrollPlms.Select(x => x.BlockIndex) ?? [])}]");
             }
+            if (powerBombPhase != previousPowerBombPhase ||
+                powerBombArmed != previousPowerBombArmed ||
+                powerBombSlotActive != previousPowerBombSlotActive ||
+                powerBombDamagingRadius != previousPowerBombDamagingRadius ||
+                runtime?.BombProjectiles.LastFrameResult.ExplosionStarted == true)
+            {
+                BombProjectileFrameResult bombFrame =
+                    runtime?.BombProjectiles.LastFrameResult ?? default;
+                Console.WriteLine(
+                    $"rec={index,6} power-bomb phase={powerBombPhase}, " +
+                    $"armed={powerBombArmed}, active-slot={powerBombSlotActive}, " +
+                    $"pre-radius=${powerBomb?.PreExplosionRadius ?? 0:X4}, " +
+                    $"damage-radius=${powerBomb?.ExplosionRadius ?? 0:X4}, " +
+                    $"started={bombFrame.ExplosionStarted}, deleted={bombFrame.ProjectileDeleted}, " +
+                    $"block-visits={bombFrame.BlockReactions?.Count ?? 0}, plms={plmCount}.");
+            }
             previousRoom = room;
             previousCeresStatus = ceresStatus;
             previousElevatorStatus = elevatorStatus;
             previousEjection = ejection;
             previousPlmCount = plmCount;
             previousScrollPlmCount = scrollPlmCount;
+            previousPowerBombPhase = powerBombPhase;
+            previousPowerBombArmed = powerBombArmed;
+            previousPowerBombSlotActive = powerBombSlotActive;
+            previousPowerBombDamagingRadius = powerBombDamagingRadius;
 
             // A bounded trace is an investigation tool, not a semantic full-recording
             // replay. Stop at its requested endpoint so inspecting a late transition does

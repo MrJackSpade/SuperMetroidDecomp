@@ -208,6 +208,18 @@ public static class SuperMetroidRuntimeFrameRenderer
                 displayedPpu.Layer1YPosition);
         }
 
+        // The bank-$88 Power Bomb objects own a final PPU color-math window, not OAM or
+        // either room background. Every gameplay presentation therefore has to apply the
+        // shared window after its room-specific layers have been composed. The Room Viewer
+        // already called this compositor directly; omitting it here let the real desktop
+        // advance the complete damaging radius while showing no explosion at all.
+        SnesGameplayFrameRenderer.ApplyPowerBombColorMath(
+            frame,
+            runtime.AddressSpace,
+            runtime.BombProjectiles.PowerBombExplosion,
+            displayedPpu.Layer1XPosition,
+            displayedPpu.Layer1YPosition);
+
         // Bank $85 temporarily owns BG3 and disables gameplay color math while an item
         // message is active. Its scanline-window result belongs above every room-specific
         // compositor and haze path, so one shared overlay covers ordinary and Mode-7 rooms.

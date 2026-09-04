@@ -56,6 +56,12 @@ if (args.Length >= 2 && args[0] == "--door-setup-callback-audit")
     return DoorSetupCallbackAudit.Run(doorSetupRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--power-bomb-runtime-audit")
+{
+    string powerBombRomPath = string.Join(' ', args[1..]).Trim('"');
+    return PowerBombRuntimeAudit.Run(powerBombRomPath);
+}
+
 if (args.Length >= 3 && args[0] == "--input-replay-audit")
 {
     return InputReplayAudit.Run(

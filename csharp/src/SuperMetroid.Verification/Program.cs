@@ -149,6 +149,7 @@ VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
+VerifyPowerBombRuntimeRendererIntegration();
 VerifyRoomFxRomData();
 VerifyScrollingSkyState();
 VerifyEnemyAiCodePointerCatalog();

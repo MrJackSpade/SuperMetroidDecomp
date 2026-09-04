@@ -120,6 +120,19 @@ try
         return 0;
     }
 
+    if (args.Length != 0 &&
+        args[0].Equals("--full-audio-input-replay-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 3)
+        {
+            throw new ArgumentException(
+                "--full-audio-input-replay-audit requires a .smrec path and private ROM path.");
+        }
+        int frames = AudioInputReplaySmokeTest.RunCompleteManagedAudio(args[1], args[2]);
+        Console.WriteLine($"Full managed-audio replay passed {frames} recorded calls.");
+        return 0;
+    }
+
     if (args.Length != 0 && args[0].Equals("--waveout-audit", StringComparison.OrdinalIgnoreCase))
     {
         if (args.Length != 1)

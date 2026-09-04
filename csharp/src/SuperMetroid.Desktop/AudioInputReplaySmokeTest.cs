@@ -143,6 +143,45 @@ public static class AudioInputReplaySmokeTest
             destinationRoom);
     }
 
+    /// <summary>
+    /// Replays an entire desktop journal through both the public frontend and the managed
+    /// SPC/DSP implementation. Unlike the short first-door smoke test, this diagnostic keeps
+    /// every later room-music upload, sound-effect overlap, and acknowledgement delay intact.
+    /// </summary>
+    public static int RunCompleteManagedAudio(string recordingPath, string romPath)
+    {
+        ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
+        string fullRomPath = Path.GetFullPath(romPath);
+        byte[] actualRomDigest;
+        using (FileStream rom = File.OpenRead(fullRomPath))
+            actualRomDigest = SHA256.HashData(rom);
+        if (!CryptographicOperations.FixedTimeEquals(actualRomDigest, recording.RomSha256))
+            throw new InvalidDataException("Replay ROM SHA-256 does not match the recording.");
+
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        recording.InitialSaveRam.CopyTo(bus.SaveRam);
+        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        using var audio = new SpcAudioEngine();
+        for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
+        {
+            FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
+            try
+            {
+                audio.RenderFrame(frame.AudioCommands);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidDataException(
+                    $"Managed audio replay failed on recorded call {frameIndex}, " +
+                    $"state=${(ushort)game.GameState:X2}, " +
+                    $"room=$8F:{game.GameplayActiveRoomPointer.GetValueOrDefault():X4}.",
+                    exception);
+            }
+            game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+        }
+        return recording.ControllerInputs.Length;
+    }
+
     private static void WriteCapture(Rgba32[]? pixels, string directory, string fileName)
     {
         if (pixels is null)

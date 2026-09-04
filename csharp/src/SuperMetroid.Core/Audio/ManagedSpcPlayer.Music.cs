@@ -279,13 +279,16 @@ public sealed partial class ManagedSpcPlayer
                 echoFeedback = ram[channel.PatternOrderPointer++];
                 int preset = ram[channel.PatternOrderPointer++];
                 int firOffset = preset * SpcDriverData.Echo.FirTapCount;
-                if (firOffset > SpcMusicTables.EchoFirParameters.Length - SpcDriverData.Echo.FirTapCount)
-                    throw new InvalidDataException($"SPC echo FIR preset {preset} is outside the cartridge table.");
+                // `$F7` indexes from APU `$1E32`, not from an abstract four-entry host
+                // array. Retail sequences use values beyond three: Kraid's post-defeat
+                // room track executes `F7 02 0A 0A` and therefore reads the eight resident
+                // driver bytes at `$1E82`. Reading the actual uploaded address space also
+                // preserves any cartridge revision that changes those adjacent bytes.
                 for (int tap = 0; tap < SpcDriverData.Echo.FirTapCount; tap++)
                 {
                     WriteDsp(unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +
                         tap * SnesDspRegisterMap.VoiceStride)),
-                        SpcMusicTables.EchoFirParameters[firOffset + tap]);
+                        ram[SpcDriverData.Echo.FirCoefficientTableAddress + firOffset + tap]);
                 }
                 break;
             case SpcMusicEffect.FadeEchoVolume:

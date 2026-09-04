@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 internal static partial class Program
@@ -10,6 +11,69 @@ internal static partial class Program
         VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
+        VerifyManagedSpcUsesAddressedFirCoefficients();
+    }
+
+    /// <summary>
+    /// Reproduces Kraid's post-defeat `$F7 02 0A 0A` command with a minimal APU image.
+    /// Preset `$0A` deliberately lands beyond the four conventional filters and must read
+    /// the resident bytes at `$1E82`, exactly as the SPC's indexed load does.
+    /// </summary>
+    private static void VerifyManagedSpcUsesAddressedFirCoefficients()
+    {
+        const ushort topLevel = 0x6000;
+        const ushort patternTable = 0x6100;
+        const ushort channelPattern = 0x6200;
+        byte[] expectedCoefficients = [0x56, 0x65, 0x72, 0x20, 0x53, 0x31, 0x2e, 0x32];
+        var upload = new List<byte>();
+
+        AddSpcUploadRecord(upload, SpcDriverData.Ram.DefaultMusicPointer,
+            [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
+        AddSpcUploadRecord(upload, SpcDriverData.Ram.MusicTrackPointerTable,
+            [unchecked((byte)topLevel), (byte)(topLevel >> 8)]);
+        AddSpcUploadRecord(upload, topLevel,
+            [unchecked((byte)patternTable), (byte)(patternTable >> 8)]);
+        AddSpcUploadRecord(upload, patternTable,
+            [
+                unchecked((byte)channelPattern), (byte)(channelPattern >> 8),
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            ]);
+        AddSpcUploadRecord(upload, channelPattern,
+            [(byte)SpcMusicEffect.ConfigureEcho, 0x02, 0x0a, 0x0a, 1, SpcDriverData.Music.RestNote]);
+        AddSpcUploadRecord(
+            upload,
+            SpcDriverData.Echo.FirCoefficientTableAddress + 10 * SpcDriverData.Echo.FirTapCount,
+            expectedCoefficients);
+        upload.Add(0);
+        upload.Add(0);
+
+        var player = new ManagedSpcPlayer();
+        player.Upload(CollectionsMarshal.AsSpan(upload));
+        player.WritePort(AudioRomData.Apu.MusicPort, 1);
+        short[] pcm = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
+        // The SPC starts at tempo $10 and requires multiple 64-cycle timer carries before
+        // the two-tick track startup handshake reaches the first pattern command.
+        for (int frame = 0; frame < 60; frame++)
+            player.GenerateFrame(pcm);
+
+        for (int tap = 0; tap < expectedCoefficients.Length; tap++)
+        {
+            byte register = unchecked((byte)(SnesDspRegisterMap.Global.FirstFirCoefficient +
+                tap * SnesDspRegisterMap.VoiceStride));
+            AssertEqual(
+                expectedCoefficients[tap],
+                player.ReadDspRegisterForVerification(register),
+                $"addressed FIR coefficient {tap}");
+        }
+    }
+
+    private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
+    {
+        stream.Add(unchecked((byte)payload.Length));
+        stream.Add(unchecked((byte)(payload.Length >> 8)));
+        stream.Add(unchecked((byte)target));
+        stream.Add(unchecked((byte)(target >> 8)));
+        stream.AddRange(payload);
     }
 
     /// <summary>

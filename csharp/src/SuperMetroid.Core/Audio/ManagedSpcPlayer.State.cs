@@ -197,6 +197,9 @@ public sealed partial class ManagedSpcPlayer
         return portsToSnes[port];
     }
 
+    /// <summary>Exposes the mirrored DSP register file to deterministic verification.</summary>
+    internal byte ReadDspRegisterForVerification(byte address) => dsp.ReadRegister(address);
+
     /// <summary>
     /// Applies a complete cartridge upload stream to APU RAM. Each record contains a little-
     /// endian length and destination followed by payload; a zero length terminates the stream.

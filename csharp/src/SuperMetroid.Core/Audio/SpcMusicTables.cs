@@ -24,19 +24,9 @@ internal static class SpcMusicTables
     internal static readonly byte[] NoteGateOffPercentages =
         [50, 101, 127, 152, 178, 203, 229, 252];
 
-    /// <summary>Four eight-tap echo FIR presets selected by effect $F7.</summary>
-    internal static readonly sbyte[] EchoFirParameters =
-    [
-        127, 0, 0, 0, 0, 0, 0, 0,
-        88, -65, -37, -16, -2, 7, 12, 12,
-        12, 33, 43, 43, 19, -2, -13, -7,
-        52, 51, 0, -39, -27, 1, -4, -21,
-    ];
-
     static SpcMusicTables()
     {
-        if (EffectByteLengths.Length != 31 || BaseNoteFrequencies.Length != 13 ||
-            EchoFirParameters.Length != 32)
+        if (EffectByteLengths.Length != 31 || BaseNoteFrequencies.Length != 13)
         {
             throw new InvalidDataException("One or more fixed SPC music tables have an invalid length.");
         }

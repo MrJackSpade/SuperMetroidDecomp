@@ -42,6 +42,13 @@ internal static class SpcDriverData
         internal const int BufferPageBias = 0x16;
         internal const int DelayToPages = 8;
         internal const int FirTapCount = 8;
+
+        /// <summary>
+        /// APU address `$1E32`, the first FIR coefficient consumed by music effect `$F7`.
+        /// The native driver performs byte-addressed arithmetic from this location and does
+        /// not constrain the preset operand to the four conventional filters.
+        /// </summary>
+        internal const ushort FirCoefficientTableAddress = 0x1e32;
     }
 
     internal static class Music

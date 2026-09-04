@@ -12,6 +12,7 @@ internal static class KraidAudit
 {
     private const ushort RoomPointer = 0xa59f;
     private const ushort PopulationPointer = 0x9eb5;
+    private const ushort IncomingDoorPointer = 0x91b6;
     private const ushort CameraX = 0;
     private const ushort CameraY = 256;
 
@@ -550,6 +551,7 @@ internal static class KraidAudit
                 $"{string.Join(',', deathFunctions)}.");
         }
 
+        VerifyRuntimeDefeatHandoff(bus);
         VerifyDefeatedRoom(bus, room);
         Console.WriteLine(
             $"Kraid audit passed through repeating first-phase combat after {frame} rise frames: " +
@@ -624,6 +626,140 @@ internal static class KraidAudit
     {
         int byteIndex = checked(wordIndex * 2);
         return unchecked((ushort)(bytes[byteIndex] | (bytes[byteIndex + 1] << 8)));
+    }
+
+    /// <summary>
+    /// Reproduces the reported defeat softlock through the complete gameplay runtime, not
+    /// merely the isolated enemy dispatcher. It enters the retail room through its real
+    /// south door, reaches both combat phases, applies a lethal hit through the production
+    /// multibox callback, and then proves NMI, PLMs, boss state, music, and the grey-door
+    /// handoff continue advancing beyond the formerly failing sinking-table frame.
+    /// </summary>
+    private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus)
+    {
+        CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
+        if (door.DestinationRoomPointer != RoomPointer)
+        {
+            throw new InvalidDataException(
+                $"Kraid audit door $83:{IncomingDoorPointer:X4} now targets " +
+                $"$8F:{door.DestinationRoomPointer:X4}, not $8F:{RoomPointer:X4}.");
+        }
+
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomThroughDoorForVerification(door, CameraX, CameraY);
+
+        SamusState samus = runtime.Samus ??
+            throw new InvalidDataException("Kraid runtime load did not retain Samus.");
+        samus.Health = 999;
+        samus.MaxHealth = 999;
+        samus.XPosition = 128;
+        samus.YPosition = 456;
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        KraidEnemyState state = runtime.Enemies.Kraid ??
+            throw new InvalidDataException("Kraid runtime room did not initialize its enemy state.");
+        RoomEnemySlot body = runtime.Enemies.Slots[0];
+        AdvanceRuntimeUntil(
+            runtime,
+            () => body.VariableA == (ushort)KraidAiFunction.MainloopThinking,
+            maximumFrames: 1200,
+            "first-phase main loop");
+
+        for (int hit = 0; hit < 2; hit++)
+        {
+            AdvanceRuntimeUntilOpenMouth(runtime, body, state);
+            if (StrikeKraidMouth(bus, runtime.Enemies, body, state, projectileDamage: 100) != 1)
+                throw new InvalidDataException("Runtime Kraid did not accept a first-phase mouth hit.");
+            runtime.StepFrame(controller1Input: 0);
+        }
+        AdvanceRuntimeUntil(
+            runtime,
+            () => body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking,
+            maximumFrames: 1600,
+            "second-phase main loop");
+
+        AdvanceRuntimeUntilOpenMouth(runtime, body, state);
+        body.Health = 100;
+        if (StrikeKraidMouth(bus, runtime.Enemies, body, state, projectileDamage: 100) != 1 ||
+            body.Health != 0 ||
+            body.VariableA != (ushort)KraidAiFunction.DeathInitialize)
+        {
+            throw new InvalidDataException(
+                $"Runtime Kraid lethal transition failed: HP={body.Health}, " +
+                $"function=$A7:{body.VariableA:X4}.");
+        }
+
+        bool sawRoomMusic = false;
+        int deathFrames = 0;
+        while (!state.DeathSequenceComplete && deathFrames < 1200)
+        {
+            runtime.StepFrame(controller1Input: 0);
+            sawRoomMusic |= runtime.Enemies.MusicRequests.Any(
+                request => request.Command.RawValue == 3);
+            deathFrames++;
+        }
+        if (!state.DeathSequenceComplete ||
+            !runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaBoss) ||
+            !sawRoomMusic ||
+            state.SinkTableEventCount < 20 ||
+            state.DeathDropRequestCount != 16)
+        {
+            throw new InvalidDataException(
+                $"Runtime Kraid defeat stalled after {deathFrames} frames: " +
+                $"complete={state.DeathSequenceComplete}, " +
+                $"boss={runtime.System.HasAnyBossBits(AreaId.Brinstar, BossBits.AreaBoss)}, " +
+                $"music={sawRoomMusic}, sink={state.SinkTableEventCount}, " +
+                $"drops={state.DeathDropRequestCount}.");
+        }
+
+        ushort completedFrame = runtime.NmiFrameCounter;
+        for (int postDefeatFrame = 0; postDefeatFrame < 60; postDefeatFrame++)
+            runtime.StepFrame(controller1Input: 0);
+        if (runtime.NmiFrameCounter != unchecked((ushort)(completedFrame + 60)) ||
+            !runtime.Plms.GreyDoors.Any(doorState =>
+                doorState.Condition == GreyDoorCondition.AreaBossDefeated &&
+                doorState.Phase == GreyDoorPhase.Flashing))
+        {
+            throw new InvalidDataException(
+                $"Kraid post-defeat runtime did not advance/unlock: frame " +
+                $"${completedFrame:X4}->${runtime.NmiFrameCounter:X4}, grey doors=" +
+                $"[{string.Join(',', runtime.Plms.GreyDoors.Select(value => value.Phase))}].");
+        }
+    }
+
+    private static void AdvanceRuntimeUntilOpenMouth(
+        SuperMetroidRuntime runtime,
+        RoomEnemySlot body,
+        KraidEnemyState state) =>
+        AdvanceRuntimeUntil(
+            runtime,
+            () => body.VariableA is (
+                    (ushort)KraidAiFunction.MainAttackWithMouthOpen or
+                    (ushort)KraidAiFunction.MouthOpenReaction) &&
+                state.InvulnerableMouthHitbox != ushort.MaxValue,
+            maximumFrames: 1400,
+            "open-mouth damage window");
+
+    private static void AdvanceRuntimeUntil(
+        SuperMetroidRuntime runtime,
+        Func<bool> condition,
+        int maximumFrames,
+        string checkpoint)
+    {
+        for (int frame = 0; frame < maximumFrames; frame++)
+        {
+            if (condition())
+                return;
+            runtime.StepFrame(controller1Input: 0);
+        }
+        throw new InvalidDataException(
+            $"Kraid runtime did not reach {checkpoint} within {maximumFrames} frames.");
     }
 
     /// <summary>

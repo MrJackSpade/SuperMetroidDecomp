@@ -14,6 +14,23 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCase))
+{
+    string romPath = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
+    string mapOutputDirectory = ResolveWorkspacePath(args[2], mustAlreadyExist: false);
+    string repositoryRoot = FindRepositoryRoot() ?? throw new DirectoryNotFoundException(
+        "Map extraction requires the repository's upstream-sm/assets/names.txt room catalog.");
+    string roomSymbolPath = Path.Combine(repositoryRoot, "upstream-sm", "assets", "names.txt");
+    MapAssetManifest manifest = MapAssetExtractor.Extract(
+        romPath,
+        mapOutputDirectory,
+        roomSymbolPath);
+    Console.WriteLine(
+        $"Extracted {manifest.Areas.Count} area maps and {manifest.RoomPlacementCount} " +
+        $"room placements into {mapOutputDirectory}");
+    return 0;
+}
+
 if (args.Length is 4 or 5 && args[0].Equals("audio-replace", StringComparison.OrdinalIgnoreCase))
 {
     string audioDirectory = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -58,6 +75,7 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
 if (args.Length != 2)
 {
     Console.Error.WriteLine("Usage:");
+    Console.Error.WriteLine("  SuperMetroid.AssetExtractor maps <rom-path> <map-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor <raw-assets-directory> <png-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio <raw-assets-directory> <audio-output-directory>");
     Console.Error.WriteLine(

@@ -1478,7 +1478,9 @@ public sealed partial class SuperMetroidRuntime
             Samus?.EquippedItems ?? 0,
             enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
             areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
-                System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss));
+                System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss),
+            samus: Samus,
+            nmiFrameCounter: NmiFrameCounter);
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
             Cgram);

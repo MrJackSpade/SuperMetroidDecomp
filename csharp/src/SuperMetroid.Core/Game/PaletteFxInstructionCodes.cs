@@ -97,6 +97,42 @@ public static class PaletteFxInstructionListPointers
     public const ushort AboveY380Second = 0xec76;
 }
 
+/// <summary>
+/// Cartridge definitions shared by the Norfair palette animator and Samus-in-heat owner.
+/// </summary>
+public static class PaletteFxHeatData
+{
+    /// <summary>
+    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.gravity</c>
+    /// at $8D:E3E0. Each heat-animation index selects one word.
+    /// </summary>
+    public const ushort GravitySuitListPointerTable = 0xe3e0;
+
+    /// <summary>
+    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.varia</c>
+    /// at $8D:E400. Each heat-animation index selects one word.
+    /// </summary>
+    public const ushort VariaSuitListPointerTable = 0xe400;
+
+    /// <summary>
+    /// Base of <c>PreInstruction_PaletteFXObject_SamusInHeat.InstListPointers.power</c>
+    /// at $8D:E420. Each heat-animation index selects one word.
+    /// </summary>
+    public const ushort PowerSuitListPointerTable = 0xe420;
+
+    /// <summary>Fractional 16.16 damage added by $8D:E379 on every unprotected frame.</summary>
+    public const ushort SubdamagePerFrame = 0x4000;
+
+    /// <summary>
+    /// Energy must be greater than $0046 before $8D:E379 queues another environmental
+    /// damage sound; this prevents the sound from obscuring low-health warnings.
+    /// </summary>
+    public const ushort DamageSoundEnergyThreshold = 0x0046;
+
+    /// <summary>$8D:E379 calls <c>QueueSfx3_Max6</c>.</summary>
+    public const byte DamageSoundMaximumQueued = 6;
+}
+
 /// <summary>Native queue-admission limits selected by palette-FX audio instructions.</summary>
 public static class PaletteFxAudioQueueLimits
 {

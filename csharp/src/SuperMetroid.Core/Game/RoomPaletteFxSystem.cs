@@ -23,6 +23,8 @@ public sealed class RoomPaletteFxSystem
         .ToArray();
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
+    private ushort samusInHeatPaletteIndex;
+    private ushort previousSamusInHeatPaletteIndex;
 
     /// <summary>Number of bank-$8D objects currently occupying native slots.</summary>
     public int ActiveCount => slots.Count(slot => slot.Id != 0);
@@ -32,6 +34,18 @@ public sealed class RoomPaletteFxSystem
 
     /// <summary>Music calls published by palette bytecode during the current frame.</summary>
     public IReadOnlyList<PaletteFxMusicRequest> MusicRequests => musicRequests;
+
+    /// <summary>
+    /// Heat-animation phase at WRAM $1EED, published by Norfair palette streams and
+    /// consumed one descending-slot pass later by the shared Samus-in-heat object.
+    /// </summary>
+    public ushort SamusInHeatPaletteIndex => samusInHeatPaletteIndex;
+
+    /// <summary>
+    /// Last heat-animation phase consumed by the shared Samus-in-heat object, corresponding
+    /// to WRAM $1EEF. Exposing both words makes native one-frame handoff timing inspectable.
+    /// </summary>
+    public ushort PreviousSamusInHeatPaletteIndex => previousSamusInHeatPaletteIndex;
 
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
     public bool IsDefinitionActive(ushort definition) =>
@@ -115,7 +129,9 @@ public sealed class RoomPaletteFxSystem
         ushort samusY,
         ushort equippedItems,
         bool enemyZeroIsDead,
-        bool areaMiniBossDefeated)
+        bool areaMiniBossDefeated,
+        SamusState? samus = null,
+        ushort nmiFrameCounter = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -132,11 +148,14 @@ public sealed class RoomPaletteFxSystem
                 continue;
 
             RunPreInstruction(
+                bus,
                 slot,
                 samusY,
                 equippedItems,
                 enemyZeroIsDead,
-                areaMiniBossDefeated);
+                areaMiniBossDefeated,
+                samus,
+                nmiFrameCounter);
             if (slot.Id == 0)
                 continue;
 
@@ -209,12 +228,15 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    private static void RunPreInstruction(
+    private void RunPreInstruction(
+        ISnesAddressSpace bus,
         PaletteFxSlot slot,
         ushort samusY,
         ushort equippedItems,
         bool enemyZeroIsDead,
-        bool areaMiniBossDefeated)
+        bool areaMiniBossDefeated,
+        SamusState? samus,
+        ushort nmiFrameCounter)
     {
         switch (slot.PreInstruction)
         {
@@ -250,8 +272,8 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstructionCodes.Heat:
-                throw new NotSupportedException(
-                    "Room palette-FX heat pre-instruction $8D:E379 requires untranslated periodic-damage side effects.");
+                RunHeatPreInstruction(bus, slot, equippedItems, samus, nmiFrameCounter);
+                return;
 
             case PaletteFxPreInstructionCodes.InspectAdjacentSlot:
                 throw new NotSupportedException(
@@ -262,6 +284,50 @@ public sealed class RoomPaletteFxSystem
                     $"Room palette-FX pre-instruction $8D:{slot.PreInstruction:X4} is not translated " +
                     $"for object $8D:{slot.Id:X4} (Samus Y=${samusY:X4}, items=${equippedItems:X4}).");
         }
+    }
+
+    /// <summary>
+    /// Ports <c>PreInstruction_PaletteFXObject_SamusInHeat</c> at $8D:E379. The palette
+    /// object deliberately owns both presentation and damage: an unprotected Samus gains
+    /// one quarter-unit of 16.16 damage per frame, while a second Norfair object publishes
+    /// the animation index consumed here on the following descending-slot pass.
+    /// </summary>
+    private void RunHeatPreInstruction(
+        ISnesAddressSpace bus,
+        PaletteFxSlot slot,
+        ushort equippedItems,
+        SamusState? samus,
+        ushort nmiFrameCounter)
+    {
+        bool protectedFromHeat = equippedItems.HasAny(
+            SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
+        if (!protectedFromHeat && samus is not null)
+        {
+            samus.LiquidPhysics.AccumulatePeriodicDamage(
+                PaletteFxHeatData.SubdamagePerFrame,
+                wholeDamage: 0);
+            if ((nmiFrameCounter & 7) == 0 &&
+                samus.Health > PaletteFxHeatData.DamageSoundEnergyThreshold)
+            {
+                soundRequests.Add(new PaletteFxSoundRequest(
+                    SoundEffectLibrary3Sounds.EnvironmentalDamage,
+                    PaletteFxHeatData.DamageSoundMaximumQueued));
+            }
+        }
+
+        if (samusInHeatPaletteIndex == previousSamusInHeatPaletteIndex)
+            return;
+
+        previousSamusInHeatPaletteIndex = samusInHeatPaletteIndex;
+        ushort table = equippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
+            ? PaletteFxHeatData.GravitySuitListPointerTable
+            : equippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
+                ? PaletteFxHeatData.VariaSuitListPointerTable
+                : PaletteFxHeatData.PowerSuitListPointerTable;
+        slot.InstructionTimer = 1;
+        slot.InstructionPointer = ReadBank8dWord(
+            bus,
+            unchecked((ushort)(table + samusInHeatPaletteIndex * 2)));
     }
 
     private void ExecuteProgram(
@@ -352,9 +418,14 @@ public sealed class RoomPaletteFxSystem
                     break;
 
                 case PaletteFxInstructionCodes.SetPaletteFxIndex:
-                    throw new NotSupportedException(
-                        $"Room palette-FX object $8D:{slot.Id:X4} selected the heat-palette index at " +
-                        $"$8D:{cursor:X4}; the shared heat owner is not translated.");
+                    // `$8D:F1C6` consumes one byte, despite living among word-sized
+                    // commands. Advancing by three is essential: advancing by four would
+                    // parse the high byte of the following duration as an opcode.
+                    samusInHeatPaletteIndex = ReadBank8dByte(
+                        bus,
+                        unchecked((ushort)(cursor + 2)));
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
 
                 default:
                     throw new InvalidDataException(

@@ -16,6 +16,7 @@ internal static partial class Program
         AssertPaletteFxCatalog(typeof(PaletteFxSetupCodes), expectedCount: 4);
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
+        AssertPaletteFxCatalog(typeof(PaletteFxHeatData), expectedCount: 5, requireMappedPointers: false);
         VerifyConstructedAudioInstructions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -45,10 +46,66 @@ internal static partial class Program
         }
 
         VerifyBeaconSoundInstruction(bus);
+        VerifyNorfairHeatPaletteHandshake(bus);
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; all four audio " +
             "opcodes and retail $F781's byte/cursor handoff agree.");
+    }
+
+    /// <summary>
+    /// Reproduces issue #253 with the two retail definitions active in native allocation
+    /// order. `$F785` must publish its byte-sized heat index without losing cursor
+    /// alignment; `$F761` must then consume that index, add quarter-energy subdamage, and
+    /// queue the native environmental-damage sound on an eight-frame boundary.
+    /// </summary>
+    private static void VerifyNorfairHeatPaletteHandshake(SuperMetroidAddressSpace bus)
+    {
+        var paletteFx = new RoomPaletteFxSystem();
+        var cgram = new SnesCgram();
+        var samus = new SamusState { Health = 99 };
+        paletteFx.SpawnDefinition(bus, definition: 0xf761, equippedItems: 0);
+        paletteFx.SpawnDefinition(bus, definition: 0xf785, equippedItems: 0);
+
+        int damageSoundCount = 0;
+        for (ushort frame = 0; frame <= 17; frame++)
+        {
+            paletteFx.Step(
+                bus,
+                cgram,
+                samusY: samus.YPosition,
+                equippedItems: samus.EquippedItems,
+                enemyZeroIsDead: false,
+                areaMiniBossDefeated: false,
+                samus,
+                nmiFrameCounter: frame);
+            damageSoundCount += paletteFx.SoundRequests.Count;
+            foreach (PaletteFxSoundRequest request in paletteFx.SoundRequests)
+            {
+                AssertEqual(SoundEffectLibrary3Sounds.EnvironmentalDamage,
+                    request.SoundEffect,
+                    "retail Norfair heat owner publishes native library-three sound");
+                AssertEqual(PaletteFxHeatData.DamageSoundMaximumQueued,
+                    request.MaximumQueued,
+                    "retail Norfair heat owner uses native Max6 queue");
+            }
+            if (frame == 16)
+            {
+                AssertEqual((ushort)1, paletteFx.SamusInHeatPaletteIndex,
+                    "$F785 publishes its second heat phase on its own slot pass");
+                AssertEqual((ushort)0, paletteFx.PreviousSamusInHeatPaletteIndex,
+                    "shared heat owner has not consumed the later slot's phase in the same frame");
+            }
+        }
+
+        AssertEqual((ushort)0x0004, samus.LiquidPhysics.PeriodicDamage,
+            "retail Norfair heat owner carries quarter-units into whole damage");
+        AssertEqual((ushort)0x4000, samus.LiquidPhysics.PeriodicSubDamage,
+            "retail Norfair heat owner retains exact 16.16 fractional carry");
+        AssertEqual((ushort)1, paletteFx.PreviousSamusInHeatPaletteIndex,
+            "shared heat owner consumes $F785 phase on following frame");
+        AssertEqual(2, damageSoundCount,
+            "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
     private static void VerifyConstructedAudioInstructions()
@@ -181,7 +238,10 @@ internal static partial class Program
     // in diagnostic stack traces while retaining the catalog's precise domain name.
     private static Type PaletteFxInstructionCodesType() => typeof(PaletteFxInstructionCodes);
 
-    private static void AssertPaletteFxCatalog(Type catalog, int expectedCount)
+    private static void AssertPaletteFxCatalog(
+        Type catalog,
+        int expectedCount,
+        bool requireMappedPointers = true)
     {
         FieldInfo[] fields = GetUshortConstants(catalog);
         AssertEqual(expectedCount, fields.Length, $"{catalog.Name} exhaustive entry count");
@@ -190,7 +250,10 @@ internal static partial class Program
             .ToArray();
         AssertEqual(pointers.Length, pointers.Distinct().Count(),
             $"{catalog.Name} contains no duplicate callbacks");
-        foreach (ushort pointer in pointers)
-            AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
+        if (requireMappedPointers)
+        {
+            foreach (ushort pointer in pointers)
+                AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
+        }
     }
 }

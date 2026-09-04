@@ -51,7 +51,7 @@ public sealed class SuperMetroidGame
     private IReadOnlyList<CartridgeAudioCommand> lastAudioCommands =
         Array.Empty<CartridgeAudioCommand>();
     private CartridgeAudioAcknowledgements audioAcknowledgements;
-    private ushort? lastAudioRuntimeNmiFrame;
+    private ulong? lastAudioRuntimeGameplayPublication;
     private ushort? lastAudioRoomStatePointer;
 
     public SuperMetroidGame(
@@ -225,7 +225,7 @@ public sealed class SuperMetroidGame
                 // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
                 audio.Reset();
                 title = new TitleSequenceState(bus, audio);
-                lastAudioRuntimeNmiFrame = null;
+                lastAudioRuntimeGameplayPublication = null;
                 lastAudioRoomStatePointer = null;
                 fileSelect = null;
                 gameOver = null;
@@ -860,12 +860,23 @@ public sealed class SuperMetroidGame
             lastAudioRoomStatePointer = roomState.Pointer;
         }
 
-        // Frontend states sometimes render several frames without calling runtime.StepFrame.
-        // Consume publishers only when the runtime's NMI count changes, or their most recent
-        // one-frame request list would be incorrectly enqueued again by a transition frame.
-        if (runtime is null || runtime.NmiFrameCounter == lastAudioRuntimeNmiFrame)
+        // The message-box selector is an NMI-only owner, not part of the gameplay
+        // publication generation below. It has explicit consume semantics so its one-shot
+        // request remains audible without making stale enemy/PLM lists eligible again.
+        if (runtime?.ConsumeMessageBoxSelectionSoundRequest() == true)
+            audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+
+        // Frontend states sometimes accept NMIs without running the state-eight owner list.
+        // In particular, the door coroutine waits for all unread sound-ring entries to
+        // drain. NMI identity cannot guard this handoff: re-reading the last enemy or PLM
+        // publication during each wait NMI perpetually refills that ring. Consume only a
+        // newly completed gameplay publication instead.
+        if (runtime is null ||
+            runtime.CompletedGameplayAudioPublication ==
+                lastAudioRuntimeGameplayPublication)
             return;
-        lastAudioRuntimeNmiFrame = runtime.NmiFrameCounter;
+        lastAudioRuntimeGameplayPublication =
+            runtime.CompletedGameplayAudioPublication;
 
         // Bank $8D runs before Samus, projectiles, PLMs, and enemies in state eight. Queue
         // its calls first so a full SFX ring retains the same higher-priority request the
@@ -877,9 +888,6 @@ public sealed class SuperMetroidGame
 
         if (runtime.Samus is { } samus)
         {
-            if (runtime.MessageBoxSelectionSoundRequestedThisFrame)
-                audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-
             if (runtime.Hud.SelectionSoundRequestedThisFrame)
                 audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x39), maximumQueued: 6);
 

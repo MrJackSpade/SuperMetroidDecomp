@@ -436,6 +436,21 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>One-frame bank-$85 request for the save selector's library-one sound $37.</summary>
     public bool MessageBoxSelectionSoundRequestedThisFrame { get; private set; }
 
+    /// <summary>
+    /// Returns and clears the message selector's momentary sound publication.
+    /// </summary>
+    /// <remarks>
+    /// Message boxes advance through an NMI-only path and therefore do not increment
+    /// <see cref="CompletedGameplayAudioPublication"/>. Giving this publisher explicit
+    /// consume semantics keeps it audible once without reopening stale gameplay lists.
+    /// </remarks>
+    public bool ConsumeMessageBoxSelectionSoundRequest()
+    {
+        bool requested = MessageBoxSelectionSoundRequestedThisFrame;
+        MessageBoxSelectionSoundRequestedThisFrame = false;
+        return requested;
+    }
+
     /// <summary>True while command nine's 360-frame saved-game appearance owns Samus.</summary>
     public bool SamusLoadAppearanceActive => _samusLoadAppearanceFramesRemaining != 0;
 
@@ -1236,6 +1251,18 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>16-bit accepted-NMI frame counter at WRAM <c>$05B6</c>.</summary>
     public ushort NmiFrameCounter { get; private set; }
+
+    /// <summary>
+    /// Monotonic host sequence advanced only after a complete state-eight gameplay owner
+    /// pass has published its per-frame audio requests.
+    /// </summary>
+    /// <remarks>
+    /// Door transitions and other frontend coroutines can run accepted NMIs without
+    /// running enemy, projectile, or PLM owners. Consumers must distinguish those waits
+    /// from a fresh gameplay publication; otherwise the last request is re-enqueued on
+    /// every transition NMI and the native sound-queue drain can never finish.
+    /// </remarks>
+    public ulong CompletedGameplayAudioPublication { get; private set; }
 
     /// <summary>Consecutive NMIs for which the main loop had no pending request.</summary>
     public ushort NmiLagCounter { get; private set; }
@@ -4088,6 +4115,7 @@ public sealed partial class SuperMetroidRuntime
                 : unchecked((uint)signedDistance);
         }
 
+        CompletedGameplayAudioPublication++;
         return Snapshot(escapeTimerExpired, infiniteAmmoGuard);
     }
 

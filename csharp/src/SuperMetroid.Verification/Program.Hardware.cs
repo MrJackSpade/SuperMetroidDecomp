@@ -492,6 +492,8 @@ static void VerifyFrameRuntime()
     RuntimeFrameResult second = runtime.StepFrame((ushort)SnesButton.Start);
     AssertEqual(0, second.ControllerNewInput, "second runtime frame sees stable hold");
     AssertEqual(2, runtime.NmiFrameCounter, "accepted NMI counter advances twice");
+    AssertEqual((ulong)2, runtime.CompletedGameplayAudioPublication,
+        "complete gameplay passes publish distinct audio generations");
     AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
         "following accepted NMI publishes the changed Mode 7 matrix");
 
@@ -506,6 +508,13 @@ static void VerifyFrameRuntime()
     AssertEqual(3, runtime.NmiCounterIncludingLag, "all-NMI counter includes lag");
     AssertEqual(secondMode7, runtime.DisplayedSamusMode7Transform,
         "lag NMI leaves displayed Mode 7 registers untouched");
+
+    // Door/pause frontend coroutines accept NMIs without running the gameplay owner list.
+    // They must not make the frontend consume the preceding enemy/PLM audio publication
+    // again, or a door waiting for unread SFX entries can refill its own queue forever.
+    runtime.RunBlankGameplayFrame(controllerInput: 0);
+    AssertEqual((ulong)2, runtime.CompletedGameplayAudioPublication,
+        "NMI-only frontend frame does not republish gameplay audio");
 
     Console.WriteLine("  Runtime: frame seam, NMI order, and lag accounting agree.");
 }

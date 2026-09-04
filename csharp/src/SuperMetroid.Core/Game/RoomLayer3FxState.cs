@@ -29,6 +29,8 @@ public sealed class RoomLayer3FxState
     private int waterBg3WavePhase;
     private int waterBg2WavePhase;
     private short waterSurfaceScreenY;
+    private ushort lavaAcidBg2WaveTimer;
+    private int lavaAcidBg2WavePhase;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; private set; }
@@ -58,7 +60,8 @@ public sealed class RoomLayer3FxState
     public ushort VerticalScroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
-    public bool IsRenderable => Type is RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog;
+    public bool IsRenderable => Type is
+        RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog;
 
     /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
     public ushort CurrentYPosition { get; private set; } = ushort.MaxValue;
@@ -161,6 +164,16 @@ public sealed class RoomLayer3FxState
             waterBg3WaveTimer = 1;
             waterBg2WaveTimer = 1;
         }
+        else if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        {
+            // `$88:B4CE` seeds timer B to one, so the first HDMA-object pass rotates A
+            // from zero to $1E and then reloads either four or six. Expressing the already-
+            // resolved waveform phase as zero produces the same first visible table.
+            lavaAcidBg2WaveTimer = UsesLavaAcidVerticalWave
+                ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
+                : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration;
+            lavaAcidBg2WavePhase = 0;
+        }
         else if (Type == RoomFxType.Rain)
         {
             ReadOnlySpan<ushort> velocities = RoomFxRomData.Rain.HorizontalVelocities;
@@ -184,6 +197,12 @@ public sealed class RoomLayer3FxState
         ArgumentNullException.ThrowIfNull(vram);
         if (!IsRenderable || timeIsFrozen)
             return;
+
+        if (Type is RoomFxType.Lava or RoomFxType.Acid)
+        {
+            StepLavaAcid(cameraX, cameraY);
+            return;
+        }
 
         if (Type == RoomFxType.Water)
         {
@@ -217,18 +236,20 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Seeds camera-dependent water registers during a room transition without advancing
-    /// either wave clock. Destination rendering can therefore show the correct surface on
-    /// its first accepted NMI instead of waiting for the first gameplay handler call.
+    /// Seeds camera-dependent liquid registers during a room transition without advancing
+    /// a wave clock. Destination rendering can therefore show the correct surface on its
+    /// first accepted NMI instead of waiting for the first gameplay handler call.
     /// </summary>
     public void PrimeViewport(ushort cameraX, ushort cameraY)
     {
-        if (Type != RoomFxType.Water)
+        if (Type is not (RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid))
             return;
         CurrentYPosition = BaseYPosition;
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = cameraX;
-        VerticalScroll = ComputeWaterVerticalScroll(CurrentYPosition, cameraY);
+        VerticalScroll = Type == RoomFxType.Water
+            ? ComputeWaterVerticalScroll(CurrentYPosition, cameraY)
+            : (ushort)0;
     }
 
     /// <summary>Captures values visible alongside the current accepted NMI's OAM upload.</summary>
@@ -243,6 +264,9 @@ public sealed class RoomLayer3FxState
             waterBg3WavePhase,
             waterBg2WavePhase,
             waterSurfaceScreenY)
+        {
+            LavaAcidBg2WavePhase = lavaAcidBg2WavePhase,
+        }
         : null;
 
     /// <summary>
@@ -348,6 +372,38 @@ public sealed class RoomLayer3FxState
         }
     }
 
+    /// <summary>
+    /// Ports the visible outputs of <c>$88:B3B0</c> and <c>$88:B4D5</c>. The liquid
+    /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
+    /// waveforms rotates at the cadence selected by the record's liquid-options byte.
+    /// </summary>
+    private void StepLavaAcid(ushort cameraX, ushort cameraY)
+    {
+        CurrentYPosition = BaseYPosition;
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
+        HorizontalScroll = cameraX;
+        VerticalScroll = 0;
+
+        if (!UsesLavaAcidVerticalWave && !UsesLavaAcidHorizontalWave)
+            return;
+        lavaAcidBg2WaveTimer = unchecked((ushort)(lavaAcidBg2WaveTimer - 1));
+        if (lavaAcidBg2WaveTimer != 0)
+            return;
+
+        lavaAcidBg2WavePhase =
+            (lavaAcidBg2WavePhase - 1 + RoomFxRomData.LavaAcid.WaveDisplacementCount) %
+            RoomFxRomData.LavaAcid.WaveDisplacementCount;
+        lavaAcidBg2WaveTimer = UsesLavaAcidVerticalWave
+            ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
+            : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration;
+    }
+
+    private bool UsesLavaAcidVerticalWave =>
+        (LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
+
+    private bool UsesLavaAcidHorizontalWave =>
+        (LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
+
     private static ushort ComputeWaterVerticalScroll(ushort surfaceY, ushort cameraY)
     {
         if (unchecked((short)surfaceY) < 0)
@@ -379,6 +435,8 @@ public sealed class RoomLayer3FxState
         waterBg3WaveTimer = waterBg2WaveTimer = 0;
         waterBg3WavePhase = waterBg2WavePhase = 0;
         waterSurfaceScreenY = short.MaxValue;
+        lavaAcidBg2WaveTimer = 0;
+        lavaAcidBg2WavePhase = 0;
     }
 
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
@@ -397,4 +455,11 @@ public readonly record struct RoomLayer3FxRenderSnapshot(
     ushort LiquidOptions = 0,
     int WaterBg3WavePhase = 0,
     int WaterBg2WavePhase = 0,
-    short WaterSurfaceScreenY = short.MaxValue);
+    short WaterSurfaceScreenY = short.MaxValue)
+{
+    /// <summary>
+    /// Effective circular phase of the lava/acid BG2 HDMA table. Zero is the first table
+    /// produced after <c>$88:B4CE</c>; subsequent phases move backward through 16 entries.
+    /// </summary>
+    public int LavaAcidBg2WavePhase { get; init; }
+}

@@ -126,6 +126,17 @@ public static class SuperMetroidRuntimeFrameRenderer
                     bg2HorizontalScroll,
                     bg2VerticalScroll)
                 : null;
+            ushort[]? lavaAcidBg2HorizontalScrolls = displayedRoomFx is { } horizontalFx
+                ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(
+                    horizontalFx,
+                    bg2HorizontalScroll,
+                    bg2VerticalScroll)
+                : null;
+            ushort[]? lavaAcidBg2VerticalScrolls = displayedRoomFx is { } verticalFx
+                ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(
+                    verticalFx,
+                    bg2VerticalScroll)
+                : null;
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
@@ -144,10 +155,11 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : scrollingSky is not null
                         ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
                         : bg2VerticalScroll,
-                bg2HorizontalScrollByLine: waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
+                bg2HorizontalScrollByLine:
+                    lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
-                    : null,
+                    : lavaAcidBg2VerticalScrolls,
                 bg2TilemapWidthInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapWidthInTiles
                     : scrollingSky is null ? 64 : 32,

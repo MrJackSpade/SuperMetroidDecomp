@@ -104,6 +104,36 @@ public static class RoomFxRomData
             [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
     }
 
+    /// <summary>Bank-$88 lava/acid BG2 distortion data at <c>$88:B4D5-$B628</c>.</summary>
+    public static class LavaAcid
+    {
+        /// <summary>Liquid-options bit selecting the vertical BG2 wave used by heat rooms.</summary>
+        public const ushort VerticalBg2WaveOption = 0x0002;
+
+        /// <summary>Liquid-options bit selecting the alternate horizontal BG2 wave.</summary>
+        public const ushort HorizontalBg2WaveOption = 0x0004;
+
+        /// <summary>Frames between vertical-wave rotations in <c>$88:B5A9</c>.</summary>
+        public const ushort VerticalWavePhaseDuration = 4;
+
+        /// <summary>Frames between horizontal-wave rotations in <c>$88:B53B</c>.</summary>
+        public const ushort HorizontalWavePhaseDuration = 6;
+
+        /// <summary>Number of one-scanline entries in either circular HDMA waveform.</summary>
+        public const int WaveDisplacementCount = 16;
+
+        /// <summary>
+        /// Signed BG2VOFS offsets read from <c>$88:B60A</c>. Ordinary Norfair records set
+        /// liquid-options bit one and therefore use this waveform as the visible heat haze.
+        /// </summary>
+        public static ReadOnlySpan<short> VerticalWaveDisplacements =>
+            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+
+        /// <summary>Signed BG2HOFS offsets read from <c>$88:B589</c>.</summary>
+        public static ReadOnlySpan<short> HorizontalWaveDisplacements =>
+            [0, 0, 1, 1, 1, 1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0];
+    }
+
     /// <summary>Climb fog fixed-point BG3 velocities.</summary>
     public static class Fog
     {

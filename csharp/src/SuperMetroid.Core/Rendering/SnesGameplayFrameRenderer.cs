@@ -954,6 +954,7 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Room FX compositor requires one complete 256x224 frame.", nameof(frame));
         LayerBlendingConfiguration expectedConfiguration = fx.Type switch
         {
+            RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.LavaAcidAdditive,
             RoomFxType.Water => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
@@ -984,7 +985,8 @@ public static class SnesGameplayFrameRenderer
         // the cartridge's animated surface into a host-authored rectangle.
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            if (fx.Type == RoomFxType.Water && screenY <= fx.WaterSurfaceScreenY)
+            if (fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid &&
+                screenY <= fx.WaterSurfaceScreenY)
                 continue;
             int scrolledY = unchecked(fx.VerticalScroll + screenY) & 0xff;
             int tileY = scrolledY >> 3;
@@ -1060,6 +1062,70 @@ public static class SnesGameplayFrameRenderer
                 (RoomFxRomData.Water.WaveDisplacementCount - 1);
             result[screenY - HudHeight] = unchecked((ushort)(
                 bg2HorizontalScroll + wave[index]));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Resolves the optional lava/acid BG2HOFS waveform from <c>$88:B53B</c>. Vertical
+    /// distortion has cartridge priority when both option bits are set, matching the
+    /// branch order in <c>$88:B4D5</c>.
+    /// </summary>
+    public static ushort[]? BuildLavaAcidBg2HorizontalScrolls(
+        RoomLayer3FxRenderSnapshot fx,
+        ushort bg2HorizontalScroll,
+        ushort bg2VerticalScroll)
+    {
+        bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
+        bool usesVertical =
+            (fx.LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
+        bool usesHorizontal =
+            (fx.LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
+        if (!isLavaAcid || usesVertical || !usesHorizontal)
+            return null;
+
+        return BuildLavaAcidBg2Wave(
+            bg2HorizontalScroll,
+            bg2VerticalScroll,
+            fx.LavaAcidBg2WavePhase,
+            RoomFxRomData.LavaAcid.HorizontalWaveDisplacements);
+    }
+
+    /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
+    public static ushort[]? BuildLavaAcidBg2VerticalScrolls(
+        RoomLayer3FxRenderSnapshot fx,
+        ushort bg2VerticalScroll)
+    {
+        if (fx.Type is not (RoomFxType.Lava or RoomFxType.Acid) ||
+            (fx.LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) == 0)
+        {
+            return null;
+        }
+
+        return BuildLavaAcidBg2Wave(
+            bg2VerticalScroll,
+            bg2VerticalScroll,
+            fx.LavaAcidBg2WavePhase,
+            RoomFxRomData.LavaAcid.VerticalWaveDisplacements);
+    }
+
+    private static ushort[] BuildLavaAcidBg2Wave(
+        ushort baseScroll,
+        ushort bg2VerticalScroll,
+        int wavePhase,
+        ReadOnlySpan<short> wave)
+    {
+        var result = new ushort[Height - HudHeight];
+        int verticalPhase = bg2VerticalScroll & 0x000f;
+        for (int line = 0; line < result.Length; line++)
+        {
+            // `$88:C0B1` is 16 one-scanline indirect entries repeated through the frame.
+            // Its pointer starts at BG2VOFS's low nibble, while `$88:B53B/$B5A9` rotates
+            // the sixteen resident words backward through A. HUD height is 32, exactly two
+            // waveform periods, so gameplay-local and physical scanline indices coincide.
+            int waveIndex = (verticalPhase + line + wavePhase) &
+                (RoomFxRomData.LavaAcid.WaveDisplacementCount - 1);
+            result[line] = unchecked((ushort)(baseScroll + wave[waveIndex]));
         }
         return result;
     }

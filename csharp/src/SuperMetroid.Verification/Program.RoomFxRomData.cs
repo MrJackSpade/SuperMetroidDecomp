@@ -100,8 +100,6 @@ internal static partial class Program
 
         RoomFxType[] nonLayer3Types =
         [
-            RoomFxType.Lava,
-            RoomFxType.Acid,
             RoomFxType.ScrollingSky,
             RoomFxType.CeresHaze,
             RoomFxType.CeresRidley,
@@ -119,6 +117,8 @@ internal static partial class Program
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");
         }
 
+        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Lava);
+        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Acid);
         VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Water);
         VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Rain);
         VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Fog);
@@ -144,6 +144,8 @@ internal static partial class Program
             (byte)type);
         LayerBlendingConfiguration layerBlend = type switch
         {
+            RoomFxType.Lava or RoomFxType.Acid =>
+                LayerBlendingConfiguration.LavaAcidAdditive,
             RoomFxType.Water => LayerBlendingConfiguration.LiquidOrFogAdditive,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
@@ -156,13 +158,15 @@ internal static partial class Program
             (byte)layerBlend);
 
         state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
-        if (type == RoomFxType.Water)
+        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             const ushort surfaceY = 100;
             bus.WriteByte(
                 RoomFxRomData.Banks.RoomDefinitions |
                     unchecked((ushort)(record + RoomFxRomData.Record.LiquidOptionsOffset)),
-                3);
+                type == RoomFxType.Water
+                    ? (byte)3
+                    : (byte)RoomFxRomData.LavaAcid.VerticalBg2WaveOption);
             WriteTestWord(
                 bus,
                 RoomFxRomData.Banks.RoomDefinitions |
@@ -179,14 +183,17 @@ internal static partial class Program
             snapshot.LayerBlendConfiguration,
             $"{type} render snapshot retains typed blending");
 
-        if (type == RoomFxType.Water)
+        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             AssertEqual(100, snapshot.WaterSurfaceScreenY,
-                "water surface retains room-relative scanline");
-            AssertEqual((ushort)3, snapshot.LiquidOptions,
-                "water render snapshot retains both wave options");
+                $"{type} surface retains room-relative scanline");
+            ushort expectedOptions = type == RoomFxType.Water
+                ? (ushort)3
+                : RoomFxRomData.LavaAcid.VerticalBg2WaveOption;
+            AssertEqual(expectedOptions, snapshot.LiquidOptions,
+                $"{type} render snapshot retains its wave options");
 
-            // Give the water page one opaque two-bit tile and a visible blue color. The
+            // Give the liquid page one opaque two-bit tile and a visible blue color. The
             // exact surface assertion proves the compositor leaves the air row untouched
             // and applies the cartridge layer-three plane below it.
             vram.ExecuteWordTransfer(
@@ -207,30 +214,57 @@ internal static partial class Program
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
             frame, vram, cgram, snapshot);
-        if (type == RoomFxType.Water)
+        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             int above = 90 * SnesGameplayFrameRenderer.Width + 20;
             int below = 110 * SnesGameplayFrameRenderer.Width + 20;
             AssertEqual(new Rgba32(0, 0, 0, 0), frame[above],
-                "water leaves pixels above its surface untouched");
+                $"{type} leaves pixels above its surface untouched");
             AssertTrue(frame[below].B != 0,
-                "water applies its visible BG3 color below the surface");
+                $"{type} applies its visible BG3 color below the surface");
 
-            ushort[] bg2Scroll = SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
-                snapshot,
-                bg2HorizontalScroll: 0x0200,
-                bg2VerticalScroll: 0) ?? throw new InvalidDataException(
-                    "Wavy water did not publish a BG2 HDMA scroll table.");
+            ushort[] bg2Scroll = type == RoomFxType.Water
+                ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
+                    snapshot,
+                    bg2HorizontalScroll: 0x0200,
+                    bg2VerticalScroll: 0) ?? throw new InvalidDataException(
+                        "Wavy water did not publish a BG2 HDMA scroll table.")
+                : SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(
+                    snapshot,
+                    bg2VerticalScroll: 0x0200) ?? throw new InvalidDataException(
+                        $"{type} did not publish its BG2 HDMA scroll table.");
             AssertEqual(SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight,
                 bg2Scroll.Length,
-                "water BG2 wave table covers gameplay scanlines");
-            AssertEqual((ushort)0x0200, bg2Scroll[90 - SnesGameplayFrameRenderer.HudHeight],
-                "water leaves BG2 undistorted above the surface");
-            AssertTrue(bg2Scroll.Skip(101 - SnesGameplayFrameRenderer.HudHeight).Distinct().Count() > 1,
-                "water distorts BG2 below the surface");
+                $"{type} BG2 wave table covers gameplay scanlines");
+            if (type == RoomFxType.Water)
+            {
+                AssertEqual((ushort)0x0200,
+                    bg2Scroll[90 - SnesGameplayFrameRenderer.HudHeight],
+                    "water leaves BG2 undistorted above the surface");
+                AssertTrue(
+                    bg2Scroll.Skip(101 - SnesGameplayFrameRenderer.HudHeight).Distinct().Count() > 1,
+                    "water distorts BG2 below the surface");
+            }
+            else
+            {
+                AssertEqual(3, bg2Scroll.Distinct().Count(),
+                    $"{type} uses the native three-value heat waveform");
+                for (int frameNumber = 0;
+                     frameNumber < RoomFxRomData.LavaAcid.VerticalWavePhaseDuration - 1;
+                     frameNumber++)
+                {
+                    state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false);
+                    AssertEqual(0, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
+                        $"{type} heat wave retains phase before frame four");
+                }
+                state.Step(bus, vram, cameraX: 0x0100, cameraY: 0, timeIsFrozen: false);
+                AssertEqual(15, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
+                    $"{type} heat wave rotates backward on frame four");
+            }
         }
         LayerBlendingConfiguration wrongBlend = type switch
         {
+            RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.NormalGameplay,
             RoomFxType.Water => LayerBlendingConfiguration.NormalGameplay,
             RoomFxType.Rain => LayerBlendingConfiguration.FogAdditive,
             _ => LayerBlendingConfiguration.Rain,

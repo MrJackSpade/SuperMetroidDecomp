@@ -563,6 +563,12 @@ if (args.Length >= 2 && args[0] == "--ki-hunter-audit")
     return KiHunterAudit.Run(kiHunterRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--heat-room-audit")
+{
+    string heatRoomRomPath = string.Join(' ', args[1..]).Trim('"');
+    return HeatRoomAudit.Run(heatRoomRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
 {
     string pipeBugRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -114,6 +114,15 @@ public sealed partial class SuperMetroidRuntime
             YPosition = station.SamusY,
         };
         slot.ApplyTo(Samus, System);
+        // `Samus_Initialize` at `$91:E00D` runs after the SRAM mirror has been restored
+        // and explicitly clears both `$09D2` and `$0A04`. The cartridge therefore stores
+        // the last HUD selection as part of its contiguous WRAM save block, but never
+        // carries that selection into a newly loaded game. Leaving missiles selected here
+        // opened the independent arm-cannon cover during pose `$00`; its direction-zero
+        // tile then appeared above Samus as a false "lightning" fragment throughout the
+        // load appearance.
+        Samus.SelectedHudItem = 0;
+        Samus.AutoCancelHudItemIndex = 0;
         ControllerBindings = slot.ControllerBindings;
         MoonwalkEnabled = slot.MoonwalkEnabled;
         IconCancelEnabled = slot.IconCancelEnabled;

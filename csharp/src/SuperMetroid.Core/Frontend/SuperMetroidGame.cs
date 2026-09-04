@@ -1091,7 +1091,9 @@ public sealed class SuperMetroidGame
                 slot.PowerBombs,
                 slot.MaxPowerBombs,
                 slot.EquippedItems,
-                slot.HudItem,
+                // `$91:E00D` clears the SRAM mirror's persisted HUD selection before
+                // `$80:9A79` constructs the visible HUD for a loaded game.
+                SelectedItem: 0,
                 slot.ReserveEnergy,
                 slot.ReserveMode));
             runtime.GameTime.Load(
@@ -1114,6 +1116,8 @@ public sealed class SuperMetroidGame
                     runtime.Samus ?? throw new InvalidOperationException(
                         "Ceres initialization did not create Samus."),
                     runtime.System);
+                runtime.Samus.SelectedHudItem = 0;
+                runtime.Samus.AutoCancelHudItemIndex = 0;
                 return true;
             }
 

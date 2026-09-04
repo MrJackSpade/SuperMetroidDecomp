@@ -584,6 +584,17 @@ if (args.Length >= 2 && args[0] == "--breakable-block-initial-state-audit")
     return BreakableBlockInitialStateAudit.Run(breakableBlockRomPath);
 }
 
+if (args.Length == 4 && args[0] == "--load-appearance-artifact-audit")
+{
+    return LoadAppearanceArtifactAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        args[3].Trim('"'));
+}
+
+if (args.Length == 2 && args[0] == "--load-appearance-artifact-audit")
+    return LoadAppearanceArtifactAudit.RunRegression(args[1].Trim('"'));
+
 if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
 {
     string pipeBugRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -3,6 +3,16 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Retail cartridge identities used by the Alpha Power Bomb Boyon audit.</summary>
+internal static class BoyonAuditDefinitions
+{
+    /// <summary>Alpha Power Bomb room <c>$01/$26</c> header at <c>$8F:A3AE</c>.</summary>
+    public const ushort AlphaPowerBombRoomHeader = 0xa3ae;
+
+    /// <summary>Boyon enemy definition at <c>$A0:CEBF</c>.</summary>
+    public const ushort BoyonEnemyDefinition = 0xcebf;
+}
+
 /// <summary>
 /// ROM-backed end-to-end audit for the four untouched Boyons in Alpha Power Bomb Room.
 /// This room contains no second enemy family, so loading, animation, movement, and combat
@@ -10,13 +20,12 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class BoyonAudit
 {
-    private const ushort RoomPointer = 0xa3ae;
-    private const ushort DefinitionPointer = 0xcebf;
-
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            bus,
+            BoyonAuditDefinitions.AlphaPowerBombRoomHeader);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         var vram = new SnesVram();
         var cgram = new SnesCgram();
@@ -50,7 +59,7 @@ internal static class BoyonAudit
 
         RoomEnemySlot[] boyons = enemies.Slots
             .Take(enemies.EnemyCount)
-            .Where(slot => slot.EnemyDefinitionPointer == DefinitionPointer)
+            .Where(slot => slot.EnemyDefinitionPointer == BoyonAuditDefinitions.BoyonEnemyDefinition)
             .ToArray();
         if (room.State.Pointer != 0xa3bb || enemies.EnemyCount != 4 || boyons.Length != 4 ||
             boyons.Any(slot => enemies.BoyonStates[slot.SlotIndex] is null))
@@ -259,12 +268,16 @@ internal static class BoyonAudit
         ArmProjectile(lethal.Slots[0], audited, type: 0x0200, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(
                 bus, lethal, sharedProjectiles, samus) != 1 || audited.Health != 0 ||
-            !audited.Properties.HasAny(EnemyProperties.Deleted) || enemies.EnemiesKilled != 1)
+            audited.EnemyDefinitionPointer != 0 || audited.Properties != 0 ||
+            enemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException(
                 $"Boyon death failed: health={audited.Health}, " +
+                $"definition=${audited.EnemyDefinitionPointer:X4}, " +
                 $"properties=${audited.Properties:X4}, killed={enemies.EnemiesKilled}.");
         }
+
+        VerifyIntegratedRoomActivation(bus);
 
         Console.WriteLine(
             "Boyon audit passed: four untouched Alpha Power Bomb actors loaded; the exact " +
@@ -277,7 +290,9 @@ internal static class BoyonAudit
 
     private static void VerifyHeader(ISnesAddressSpace bus)
     {
-        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(bus, DefinitionPointer);
+        RoomEnemyDefinition definition = RoomEnemySystem.ReadDefinition(
+            bus,
+            BoyonAuditDefinitions.BoyonEnemyDefinition);
         if (definition.TileDataSize != 0x0400 || definition.PalettePointer != 0x8687 ||
             definition.Health != 1000 || definition.Damage != 10 ||
             definition.XRadius != 8 || definition.YRadius != 8 || definition.Bank != 0xa2 ||
@@ -292,6 +307,55 @@ internal static class BoyonAudit
             definition.VulnerabilityPointer != 0xeda8)
         {
             throw new InvalidDataException("Retail Boyon header words do not match $A0:CEBF.");
+        }
+    }
+
+    /// <summary>
+    /// Reproduces issue #287 through the production room/runtime seam. Direct enemy tests
+    /// cannot catch a missing Samus handoff, skipped room population, or absent frame draw.
+    /// </summary>
+    private static void VerifyIntegratedRoomActivation(SuperMetroidAddressSpace bus)
+    {
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(
+            BoyonAuditDefinitions.AlphaPowerBombRoomHeader,
+            cameraX: 0x0180,
+            cameraY: 0);
+        SamusState integratedSamus = runtime.Samus
+            ?? throw new InvalidDataException("Integrated Boyon room did not retain Samus.");
+        RoomEnemySlot[] integratedBoyons = runtime.Enemies.Slots
+            .Where(slot => slot.EnemyDefinitionPointer == BoyonAuditDefinitions.BoyonEnemyDefinition)
+            .ToArray();
+        if (integratedBoyons.Length != 4)
+            throw new InvalidDataException($"Integrated Boyon room loaded {integratedBoyons.Length}/4 actors.");
+
+        RoomEnemySlot target = integratedBoyons[0];
+        ushort baselineY = target.YPosition;
+        integratedSamus.XPosition = target.XPosition;
+        integratedSamus.YPosition = target.YPosition;
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        bool moved = false;
+        bool sounded = false;
+        bool rendered = false;
+        for (int frame = 0; frame < 12; frame++)
+        {
+            runtime.StepFrame(controller1Input: 0);
+            moved |= target.YPosition < baselineY;
+            sounded |= runtime.Enemies.LastBoyonSoundEffect == 0x000e;
+            rendered |= runtime.DisplayedOam.LastFinalizedSpriteCount > 0;
+        }
+        BoyonEnemyState state = runtime.Enemies.BoyonStates[target.SlotIndex]
+            ?? throw new InvalidDataException("Integrated Boyon target lost its typed state.");
+        if (!moved || !sounded || !rendered || !state.Bouncing || state.BounceDisabled)
+        {
+            throw new InvalidDataException(
+                $"Integrated Boyon did not visibly activate: moved={moved}, sounded={sounded}, " +
+                $"rendered={rendered}, bouncing={state.Bouncing}, disabled={state.BounceDisabled}, " +
+                $"Y=${baselineY:X4}->${target.YPosition:X4}.");
         }
     }
 

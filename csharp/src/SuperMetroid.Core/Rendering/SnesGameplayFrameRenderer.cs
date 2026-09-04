@@ -988,6 +988,16 @@ public static class SnesGameplayFrameRenderer
                 $"${(ushort)fx.LayerBlendConfiguration:X2}.");
         }
 
+        // $88:B3B0 sends a negative lava/acid position to the all-blank HDMA table.
+        // Many heated Norfair rooms deliberately retain type $02, its palette objects,
+        // and BG2 shimmer while using $FFFF to mean that no liquid surface exists. A
+        // signed -1 must therefore suppress BG3 rather than compare as a line above zero.
+        if (fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid &&
+            unchecked((short)fx.CurrentYPosition) < 0)
+        {
+            return;
+        }
+
         // Rain ($0E) keeps BG1/BG2/OBJ on main and BG3 on sub; fog ($30) reverses those
         // screens. Water selects either the additive route ($18) or one of the two
         // subtractive routes ($14/$16). Compositing the already-resolved scene with the

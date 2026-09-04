@@ -37,6 +37,7 @@ internal static partial class Program
 
         VerifyRoomFxRecordSelection();
         VerifyRoomLayer3FxTypes();
+        VerifyRetailRoomFxInventory();
         NotSupportedException unknown = AssertThrows<NotSupportedException>(
             () => RoomFxTypes.FromCartridge(0x0e, "constructed FX record $9000"),
             "null room-FX dispatcher entry fails loudly");
@@ -133,6 +134,7 @@ internal static partial class Program
         RoomFxType type)
     {
         const ushort tilemapPointer = 0x9800;
+        SeedRoomFxAnimatedTileObject(bus, type);
         int typeIndex = ((byte)type) >> 1;
         WriteTestWord(
             bus,
@@ -192,6 +194,8 @@ internal static partial class Program
                 : RoomFxRomData.LavaAcid.VerticalBg2WaveOption;
             AssertEqual(expectedOptions, snapshot.LiquidOptions,
                 $"{type} render snapshot retains its wave options");
+            AssertEqual((ushort)0x009b, snapshot.VerticalScroll,
+                $"{type} anchors BG3 row zero immediately below surface Y 100");
 
             // Give the liquid page one opaque two-bit tile and a visible blue color. The
             // exact surface assertion proves the compositor leaves the air row untouched
@@ -222,6 +226,23 @@ internal static partial class Program
                 $"{type} leaves pixels above its surface untouched");
             AssertTrue(frame[below].B != 0,
                 $"{type} applies its visible BG3 color below the surface");
+
+            // Negative liquid positions are the cartridge's deliberate "no visible
+            // surface" sentinel. Reuse the same known-opaque tile and palette so this
+            // assertion would fail if the signed boundary check regressed; an empty
+            // fixture could otherwise make a broken compositor look correct by accident.
+            var hiddenSurfaceFrame = new Rgba32[frame.Length];
+            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+                hiddenSurfaceFrame,
+                vram,
+                cgram,
+                snapshot with
+                {
+                    CurrentYPosition = ushort.MaxValue,
+                    WaterSurfaceScreenY = -1,
+                });
+            AssertTrue(hiddenSurfaceFrame.All(pixel => pixel == default),
+                $"{type} $FFFF surface suppresses the complete BG3 liquid plane");
 
             ushort[] bg2Scroll = type == RoomFxType.Water
                 ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
@@ -276,5 +297,38 @@ internal static partial class Program
                 cgram,
                 snapshot with { LayerBlendConfiguration = wrongBlend }),
             $"{type} rejects another FX type's layer-blending route");
+    }
+
+    /// <summary>
+    /// Supplies the smallest faithful bank-$87 loop required by the constructed FX record.
+    /// Retail object headers are audited separately against the private ROM; this fixture
+    /// keeps the unit test focused on the production interpreter and its VRAM transfer.
+    /// </summary>
+    private static void SeedRoomFxAnimatedTileObject(TestAddressSpace bus, RoomFxType type)
+    {
+        ushort objectPointer = type switch
+        {
+            RoomFxType.Lava => AnimatedTileObjectPointers.Lava,
+            RoomFxType.Acid => AnimatedTileObjectPointers.Acid,
+            RoomFxType.Rain => AnimatedTileObjectPointers.Rain,
+            _ => 0,
+        };
+        if (objectPointer == 0)
+            return;
+
+        ushort listPointer = unchecked((ushort)(0x9a00 + (ushort)type * 0x10));
+        ushort sourcePointer = unchecked((ushort)(0x9c00 + (ushort)type * 0x20));
+        int objectAddress = RoomFxRomData.Banks.AnimatedTiles | objectPointer;
+        WriteTestWord(bus, objectAddress, listPointer);
+        WriteTestWord(bus, objectAddress + 2, 16);
+        WriteTestWord(bus, objectAddress + 4, 0x4008);
+
+        int listAddress = RoomFxRomData.Banks.AnimatedTiles | listPointer;
+        WriteTestWord(bus, listAddress, 4);
+        WriteTestWord(bus, listAddress + 2, sourcePointer);
+        WriteTestWord(bus, listAddress + 4, AnimatedTileInstructionCodes.Goto);
+        WriteTestWord(bus, listAddress + 6, listPointer);
+        for (int row = 0; row < 8; row++)
+            bus.WriteByte(RoomFxRomData.Banks.AnimatedTiles | sourcePointer + row * 2, 0xff);
     }
 }

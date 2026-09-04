@@ -64,14 +64,43 @@ public static class RoomFxRomData
         public const int PaletteBlendColorCount = 3;
     }
 
+    /// <summary>Retail headers and first frames of type-owned bank-$87 animations.</summary>
+    public static class Layer3AnimatedTiles
+    {
+        /// <summary>Common lava/acid transfer destination from objects $82AB/$82C9.</summary>
+        public const ushort LiquidDestinationWord = 0x4280;
+
+        /// <summary>Common lava/acid frame size from objects $82AB/$82C9.</summary>
+        public const ushort LiquidFrameByteCount = 0x0040;
+
+        /// <summary>First lava instruction-list entry at $87:8293.</summary>
+        public const ushort LavaFirstInstruction = 0x8293;
+
+        /// <summary>First lava character frame at $87:A564.</summary>
+        public const ushort LavaFirstFrame = 0xa564;
+
+        /// <summary>First acid instruction-list entry at $87:82B1.</summary>
+        public const ushort AcidFirstInstruction = 0x82b1;
+
+        /// <summary>First acid character frame at $87:A6A4.</summary>
+        public const ushort AcidFirstFrame = 0xa6a4;
+
+        /// <summary>Rain transfer destination from object $87:82E7.</summary>
+        public const ushort RainDestinationWord = 0x4280;
+
+        /// <summary>Rain frame size from object $87:82E7.</summary>
+        public const ushort RainFrameByteCount = 0x0050;
+
+        /// <summary>First rain instruction-list entry at $87:82CF.</summary>
+        public const ushort RainFirstInstruction = 0x82cf;
+
+        /// <summary>First rain character frame at $87:A874.</summary>
+        public const ushort RainFirstFrame = 0xa874;
+    }
+
     /// <summary>Landing Site rain tile animation and fixed-point velocities.</summary>
     public static class Rain
     {
-        public const ushort AnimationDestinationWord = 0x4280;
-        public const ushort AnimationByteCount = 0x0050;
-        public const int AnimationFrameCount = 5;
-        public const ushort AnimationFrameDuration = 10;
-        public const int AnimationFirstFrameAddress = 0x87a874;
         public const ushort VerticalVelocity = 0x0600;
 
         /// <summary>
@@ -132,6 +161,37 @@ public static class RoomFxRomData
         /// <summary>Signed BG2HOFS offsets read from <c>$88:B589</c>.</summary>
         public static ReadOnlySpan<short> HorizontalWaveDisplacements =>
             [0, 0, 1, 1, 1, 1, 0, 0, -1, -1, -1, -1, 0, 0, 0, 0];
+    }
+
+    /// <summary>Shared water/lava/acid tide encoding consumed by <c>FxHandleTide</c>.</summary>
+    public static class LiquidTide
+    {
+        /// <summary>Liquid-options bit seven selects the ±8-pixel tide.</summary>
+        public const ushort SmallTideOption = 0x0080;
+
+        /// <summary>Liquid-options bit six selects the ±32-pixel tide.</summary>
+        public const ushort LargeTideOption = 0x0040;
+
+        /// <summary>Sign-extended 8-bit sine words beginning at $A0:B443.</summary>
+        public const int SignedSineTableAddress = 0xa0b443;
+
+        /// <summary>Small-tide sine scale before the native byte-shifted fixed add.</summary>
+        public const int SmallTideScale = 8;
+
+        /// <summary>Large-tide sine scale before the native byte-shifted fixed add.</summary>
+        public const int LargeTideScale = 32;
+
+        /// <summary>Small-tide phase delta for a nonnegative sine sample.</summary>
+        public const ushort SmallTidePositivePhaseDelta = 288;
+
+        /// <summary>Small-tide phase delta for a negative sine sample.</summary>
+        public const ushort SmallTideNegativePhaseDelta = 192;
+
+        /// <summary>Large-tide phase delta for a nonnegative sine sample.</summary>
+        public const ushort LargeTidePositivePhaseDelta = 224;
+
+        /// <summary>Large-tide phase delta for a negative sine sample.</summary>
+        public const ushort LargeTideNegativePhaseDelta = 128;
     }
 
     /// <summary>Climb fog fixed-point BG3 velocities.</summary>

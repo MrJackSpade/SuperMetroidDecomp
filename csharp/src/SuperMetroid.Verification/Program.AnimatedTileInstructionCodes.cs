@@ -12,7 +12,7 @@ internal static partial class Program
     static void VerifyAnimatedTileInstructionCodeCatalog()
     {
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionCodes), 14);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 2);
+        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 5);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
         VerifyConstructedAnimatedTileStreams();
 

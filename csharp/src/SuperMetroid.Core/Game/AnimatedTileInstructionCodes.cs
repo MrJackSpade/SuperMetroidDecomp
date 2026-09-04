@@ -40,6 +40,24 @@ public static class AnimatedTileObjectPointers
     public const ushort WreckedShipTreadmillRightwards = 0x8275;
     /// <summary>Wrecked Ship leftward treadmill object at $87:827B.</summary>
     public const ushort WreckedShipTreadmillLeftwards = 0x827b;
+
+    /// <summary>
+    /// <c>kAnimtiles_Lava</c> at $87:82AB, spawned by the lava FX dispatcher at
+    /// $88:B279. Its five-frame loop uploads $40 bytes to VRAM word $4280.
+    /// </summary>
+    public const ushort Lava = 0x82ab;
+
+    /// <summary>
+    /// <c>kAnimtiles_Acid</c> at $87:82C9, spawned by the acid FX dispatcher at
+    /// $88:B2A1. Its five-frame loop uploads $40 bytes to VRAM word $4280.
+    /// </summary>
+    public const ushort Acid = 0x82c9;
+
+    /// <summary>
+    /// <c>kAnimtiles_Rain</c> at $87:82E7, spawned by the rain FX dispatcher at
+    /// $88:C4B9. Its three-frame loop uploads $50 bytes to VRAM word $4280.
+    /// </summary>
+    public const ushort Rain = 0x82e7;
 }
 
 /// <summary>Named entry points within the translated Wrecked Ship instruction streams.</summary>

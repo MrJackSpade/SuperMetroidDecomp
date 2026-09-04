@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -35,8 +37,18 @@ public sealed partial class RoomEnemySystem
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
             _cgram!.LoadFromBus(_bus!, 0xa786c7, colorCount: 16, destinationIndex: 96);
+            state.BackgroundTilemapWords.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
+            state.BackgroundTilemapsPrepared = true;
+            _vram!.ExecuteQueuedWrite(
+                _bus!,
+                KraidBackgroundRomData.DefeatedRoomBackgroundTileAddress,
+                KraidBackgroundRomData.DefeatedRoomBackgroundTileBytes,
+                KraidBackgroundRomData.DefeatedRoomBackgroundTileVramWord);
             _kraidPlmRequests.AddRange(KraidPlmDefinitions.DefeatedRoom);
-            MarkKraidPartDead(body);
+            // The body is the owner of `$A7:C715-$C815`; deleting it here skips the two
+            // BG2 clears and four standard-BG3 restoration DMAs. The other seven physical
+            // records take their own dead initializer and remain deleted as on cartridge.
+            body.VariableA = (ushort)KraidAiFunction.DeathClearTopTilemap;
             return;
         }
 
@@ -171,7 +183,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         SamusState? samus,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        VramWriteQueue? vramWriteQueue)
     {
         KraidEnemyState state = RequireKraidState(body);
         // `$A7:AC21` makes BG2 follow Kraid rather than the room. X radius is the native
@@ -187,7 +200,7 @@ public sealed partial class RoomEnemySystem
             RunKraidRiseFunction(body, state, samus);
             return;
         }
-        RunKraidCombatFunction(body, state);
+        RunKraidCombatFunction(body, state, vramWriteQueue);
     }
 
     private void RunKraidPaletteHandling(RoomEnemySlot body, KraidEnemyState state)

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -11,7 +13,10 @@ public sealed partial class RoomEnemySystem
     private const int KraidRoarInitialTimerAddress = 0xa796d2;
     private const ushort KraidOpenMouthTilemap = 0xa0c8;
 
-    private void RunKraidCombatFunction(RoomEnemySlot body, KraidEnemyState state)
+    private void RunKraidCombatFunction(
+        RoomEnemySlot body,
+        KraidEnemyState state,
+        VramWriteQueue? vramWriteQueue)
     {
         switch ((KraidAiFunction)body.VariableA)
         {
@@ -80,7 +85,7 @@ public sealed partial class RoomEnemySystem
             case KraidAiFunction.DeathFadeInBackground:
             case KraidAiFunction.DeathFinishedWasAlive:
             case KraidAiFunction.DeathFinishedWasDead:
-                RunKraidDeathFunction(body, state);
+                RunKraidDeathFunction(body, state, vramWriteQueue);
                 return;
 
             default:

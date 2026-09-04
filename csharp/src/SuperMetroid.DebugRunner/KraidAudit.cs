@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -721,6 +723,8 @@ internal static class KraidAudit
                 $"drops={state.DeathDropRequestCount}.");
         }
 
+        VerifyStandardBg3Restored(bus, runtime);
+
         ushort completedFrame = runtime.NmiFrameCounter;
         for (int postDefeatFrame = 0; postDefeatFrame < 60; postDefeatFrame++)
             runtime.StepFrame(controller1Input: 0);
@@ -735,7 +739,130 @@ internal static class KraidAudit
                 $"[{string.Join(',', runtime.Plms.GreyDoors.Select(value => value.Phase))}].");
         }
 
+        VerifyBothDefeatedKraidExits(bus, runtime);
         VerifyDefeatedRoomReload(runtime);
+    }
+
+    /// <summary>
+    /// Drives both cartridge exits after the encounter rather than assuming that fixing
+    /// the shared source bytes is enough. The first transition leaves the completed fight;
+    /// the second reloads the defeated room and leaves through its opposite door. Both
+    /// destinations must retain the restored standard BG3 sheet after their complete
+    /// production door coroutine.
+    /// </summary>
+    private static void VerifyBothDefeatedKraidExits(
+        SuperMetroidAddressSpace bus,
+        SuperMetroidRuntime runtime)
+    {
+        VerifyDefeatedKraidExit(
+            bus,
+            runtime,
+            KraidAuditDefinitions.LeftExitDoor,
+            KraidAuditDefinitions.LeftExitDestination);
+
+        runtime.LoadCartridgeRoomForDebug(RoomPointer, CameraX, CameraY);
+        VerifyDefeatedKraidExit(
+            bus,
+            runtime,
+            KraidAuditDefinitions.RightExitDoor,
+            KraidAuditDefinitions.RightExitDestination);
+    }
+
+    private static void VerifyDefeatedKraidExit(
+        SuperMetroidAddressSpace bus,
+        SuperMetroidRuntime runtime,
+        ushort doorPointer,
+        ushort destinationRoomPointer)
+    {
+        KraidEnemyState state = runtime.Enemies.Kraid ??
+            throw new InvalidDataException("Defeated Kraid exit lost encounter state.");
+        for (int frame = 0; !state.DeathSequenceComplete && frame < 120; frame++)
+            runtime.StepFrame(controller1Input: 0);
+        if (!state.DeathSequenceComplete)
+        {
+            throw new InvalidDataException(
+                "Defeated Kraid room initialization did not complete its background restoration.");
+        }
+
+        PublishRetailDoor(runtime, bus, doorPointer);
+        var transition = new DoorTransitionState();
+        transition.Begin(runtime);
+        var audio = new CartridgeAudioState();
+        for (int frame = 0; transition.IsActive && frame < 320; frame++)
+            transition.Step(runtime, audio, controllerInput: 0);
+
+        if (transition.IsActive || runtime.ActiveRoom?.Pointer != destinationRoomPointer)
+        {
+            throw new InvalidDataException(
+                $"Defeated Kraid exit $83:{doorPointer:X4} did not complete into " +
+                $"$8F:{destinationRoomPointer:X4}.");
+        }
+        VerifyStandardBg3Restored(bus, runtime);
+    }
+
+    private static void PublishRetailDoor(
+        SuperMetroidRuntime runtime,
+        ISnesAddressSpace bus,
+        ushort expectedDoorPointer)
+    {
+        RoomLevelData level = runtime.LevelData ??
+            throw new InvalidDataException("Kraid exit audit has no active room level.");
+        byte pose = runtime.Samus?.Pose ?? 0;
+        for (int blockY = 0; blockY < level.HeightInBlocks; blockY++)
+        {
+            for (int blockX = 0; blockX < level.WidthInBlocks; blockX++)
+            {
+                RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
+                if (block.CollisionType != RoomCollisionType.DoorBlock)
+                    continue;
+                CartridgeDoorHeader candidate = level.ResolveDoorCollision(
+                    bus,
+                    block.Behavior,
+                    pose,
+                    publishDoorSideEffects: false);
+                if (candidate.Pointer != expectedDoorPointer)
+                    continue;
+                _ = level.ResolveDoorCollision(
+                    bus,
+                    block.Behavior,
+                    pose,
+                    publishDoorSideEffects: true);
+                return;
+            }
+        }
+
+        throw new InvalidDataException(
+            $"Kraid room has no collision block for exit $83:{expectedDoorPointer:X4}.");
+    }
+
+    /// <summary>
+    /// Asserts the visual resource that both Kraid-room exits inherit. Kraid's body map
+    /// occupies the ordinary BG3 character range at VRAM word $4000; the four native death
+    /// transfers must restore every byte before either destination selects that character
+    /// base again. A function-counter assertion cannot detect the resulting corrupt tiles.
+    /// </summary>
+    private static void VerifyStandardBg3Restored(
+        SuperMetroidAddressSpace bus,
+        SuperMetroidRuntime runtime)
+    {
+        int byteCount =
+            KraidBackgroundRomData.StandardBg3TransferBytes *
+            KraidBackgroundRomData.StandardBg3TransferCount;
+        int vramByteOffset = KraidBackgroundRomData.StandardBg3VramWord * 2;
+        for (int byteIndex = 0; byteIndex < byteCount; byteIndex++)
+        {
+            byte expected = bus.ReadByte(
+                KraidBackgroundRomData.StandardBg3TilesAddress + byteIndex);
+            byte actual = runtime.Vram.ReadByte(vramByteOffset + byteIndex);
+            if (actual != expected)
+            {
+                throw new InvalidDataException(
+                    $"Reproduced issue #267: Kraid death left corrupt BG3 byte " +
+                    $"${byteIndex:X4} (${actual:X2}, expected {expected:X2}) before either exit; " +
+                    $"room=$8F:{runtime.ActiveRoom?.Pointer ?? 0:X4}, background=" +
+                    $"$8F:{runtime.ActiveRoom?.State.BackgroundDataPointer ?? 0:X4}.");
+            }
+        }
     }
 
     /// <summary>
@@ -1337,12 +1464,13 @@ internal static class KraidAudit
             isAreaBossDefeated: () => true);
         if (defeated.EnemyCount != ExpectedDefinitions.Length || defeated.Kraid is null ||
             !defeated.KraidPlmRequests.SequenceEqual(KraidPlmDefinitions.DefeatedRoom) ||
-            defeated.Slots.Take(ExpectedDefinitions.Length).Any(
+            defeated.Slots[0].VariableA != (ushort)KraidAiFunction.DeathClearTopTilemap ||
+            defeated.Slots.Skip(1).Take(ExpectedDefinitions.Length - 1).Any(
                 slot => !slot.Properties.HasAny(
                     EnemyProperties.Deleted | EnemyProperties.Invisible)))
         {
             throw new InvalidDataException(
-                "Defeated Kraid room did not retain and delete all eight native part records.");
+                "Defeated Kraid room did not retain its body restoration owner and delete the seven parts.");
         }
     }
 

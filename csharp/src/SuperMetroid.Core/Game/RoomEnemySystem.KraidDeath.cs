@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -7,7 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private void RunKraidDeathFunction(RoomEnemySlot body, KraidEnemyState state)
+    private void RunKraidDeathFunction(
+        RoomEnemySlot body,
+        KraidEnemyState state,
+        VramWriteQueue? vramWriteQueue)
     {
         switch ((KraidAiFunction)body.VariableA)
         {
@@ -65,16 +70,36 @@ public sealed partial class RoomEnemySystem
                 ClearKraidBottomTilemapForDeath(state);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter1:
-                AdvanceKraidDeathBg3Transfer(body, state, KraidAiFunction.DeathLoadBg3Quarter2);
+                AdvanceKraidDeathBg3Transfer(
+                    body,
+                    state,
+                    transferIndex: 0,
+                    KraidAiFunction.DeathLoadBg3Quarter2,
+                    vramWriteQueue);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter2:
-                AdvanceKraidDeathBg3Transfer(body, state, KraidAiFunction.DeathLoadBg3Quarter3);
+                AdvanceKraidDeathBg3Transfer(
+                    body,
+                    state,
+                    transferIndex: 1,
+                    KraidAiFunction.DeathLoadBg3Quarter3,
+                    vramWriteQueue);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter3:
-                AdvanceKraidDeathBg3Transfer(body, state, KraidAiFunction.DeathLoadBg3Quarter4);
+                AdvanceKraidDeathBg3Transfer(
+                    body,
+                    state,
+                    transferIndex: 2,
+                    KraidAiFunction.DeathLoadBg3Quarter4,
+                    vramWriteQueue);
                 return;
             case KraidAiFunction.DeathLoadBg3Quarter4:
-                AdvanceKraidDeathBg3Transfer(body, state, KraidAiFunction.DeathFadeInBackground);
+                AdvanceKraidDeathBg3Transfer(
+                    body,
+                    state,
+                    transferIndex: 3,
+                    KraidAiFunction.DeathFadeInBackground,
+                    vramWriteQueue);
                 state.RoomBackgroundFadeStep = 0;
                 return;
             case KraidAiFunction.DeathFadeInBackground:
@@ -198,11 +223,44 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void AdvanceKraidDeathBg3Transfer(
+    private void AdvanceKraidDeathBg3Transfer(
         RoomEnemySlot body,
         KraidEnemyState state,
-        KraidAiFunction next)
+        int transferIndex,
+        KraidAiFunction next,
+        VramWriteQueue? vramWriteQueue)
     {
+        if ((uint)transferIndex >= KraidBackgroundRomData.StandardBg3TransferCount)
+            throw new ArgumentOutOfRangeException(nameof(transferIndex));
+
+        int sourceAddress = checked(
+            KraidBackgroundRomData.StandardBg3TilesAddress +
+            transferIndex * KraidBackgroundRomData.StandardBg3TransferBytes);
+        ushort destinationWord = checked((ushort)(
+            KraidBackgroundRomData.StandardBg3VramWord +
+            transferIndex * (KraidBackgroundRomData.StandardBg3TransferBytes / 2)));
+
+        // `$A7:C777-$C7EF` deliberately spreads the $1000-byte restoration over four
+        // enemy frames. The runtime path appends the same four native seven-byte DMA
+        // records so NMI owns visibility. Isolated enemy audits have no NMI/queue owner;
+        // executing that one frame's transfer directly preserves the identical bytes and
+        // keeps their per-frame sequencing observable without fabricating a host queue.
+        if (vramWriteQueue is not null)
+        {
+            vramWriteQueue.Enqueue(
+                KraidBackgroundRomData.StandardBg3TransferBytes,
+                sourceAddress,
+                destinationWord);
+        }
+        else
+        {
+            _vram!.ExecuteQueuedWrite(
+                _bus!,
+                sourceAddress,
+                KraidBackgroundRomData.StandardBg3TransferBytes,
+                destinationWord);
+        }
+
         state.DeathBg3TransferCount++;
         body.VariableA = (ushort)next;
     }

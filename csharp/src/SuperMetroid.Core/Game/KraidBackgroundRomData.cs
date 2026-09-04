@@ -43,6 +43,33 @@ public static class KraidBackgroundRomData
     /// <summary>Ordinary room BG2 base restored after Kraid has sunk.</summary>
     public const ushort OrdinaryRoomBg2TilemapWord = 0x4800;
 
+    /// <summary>
+    /// <c>Tiles_Standard_BG3</c> at <c>$9A:B200</c>, restored by Kraid death functions
+    /// <c>$A7:C777-$C7EF</c> after the private BG2 map has overwritten VRAM word $4000.
+    /// </summary>
+    public const int StandardBg3TilesAddress = 0x9ab200;
+
+    /// <summary>One of the four $0400-byte standard-BG3 transfers made during Kraid's death.</summary>
+    public const ushort StandardBg3TransferBytes = 0x0400;
+
+    /// <summary>First VRAM word restored by <c>$A7:C777</c>.</summary>
+    public const ushort StandardBg3VramWord = 0x4000;
+
+    /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
+    public const int StandardBg3TransferCount = 4;
+
+    /// <summary>
+    /// <c>Tiles_KraidRoomBackground</c> at <c>$A7:A716</c>, uploaded by defeated Kraid
+    /// initialization so the empty arena retains its authored background character.
+    /// </summary>
+    public const int DefeatedRoomBackgroundTileAddress = 0xa7a716;
+
+    /// <summary>Byte count of the defeated-room background character upload at $A7:A9A9.</summary>
+    public const ushort DefeatedRoomBackgroundTileBytes = 0x0200;
+
+    /// <summary>VRAM word destination computed by $A7:A9BB-$A9C5 for BG1 base zero.</summary>
+    public const ushort DefeatedRoomBackgroundTileVramWord = 0x3f00;
+
     /// <summary>Priority flag cleared while composing Kraid's initial BG2 surface.</summary>
     public const ushort PriorityBit = 0x2000;
 

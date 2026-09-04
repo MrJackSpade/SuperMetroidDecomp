@@ -1978,7 +1978,7 @@ public sealed partial class RoomEnemySystem
                     level);
                 return;
             case EnemyAiCodePointers.MainAI_Kraid when slot.EnemyDefinitionPointer == KraidDefinition:
-                RunKraidBodyMain(slot, samus, cameraX, cameraY);
+                RunKraidBodyMain(slot, samus, cameraX, cameraY, vramWriteQueue);
                 return;
             case EnemyAiCodePointers.MainAI_KraidArm when slot.EnemyDefinitionPointer == KraidArmDefinition:
                 RunKraidArmMain(slot, cameraY);

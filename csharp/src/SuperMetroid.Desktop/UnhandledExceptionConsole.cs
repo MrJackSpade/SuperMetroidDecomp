@@ -10,6 +10,7 @@ namespace SuperMetroid.Desktop;
 public static class UnhandledExceptionConsole
 {
     private static int fatalErrorIsBeingReported;
+    private static Action<Exception>? recoverableUiErrorReporter;
 
     /// <summary>
     /// Routes WinForms event-handler and background-thread failures through the same visible,
@@ -27,6 +28,14 @@ public static class UnhandledExceptionConsole
         // gives us an opportunity to print and wait for acknowledgment.
         AppDomain.CurrentDomain.UnhandledException += HandleBackgroundThreadException;
     }
+
+    /// <summary>
+    /// Installs an opt-in nonfatal sink for exceptions escaping WinForms callbacks.
+    /// Background-thread and startup failures remain fatal because the CLR or message loop
+    /// has already committed to termination by the time their outer boundary observes them.
+    /// </summary>
+    public static void SetRecoverableUiErrorReporter(Action<Exception>? reporter) =>
+        Volatile.Write(ref recoverableUiErrorReporter, reporter);
 
     /// <summary>
     /// Prints a fatal exception, flushes stderr, and waits for Enter before returning failure.
@@ -72,6 +81,23 @@ public static class UnhandledExceptionConsole
 
     private static void HandleUiThreadException(object? sender, ThreadExceptionEventArgs eventArguments)
     {
+        Action<Exception>? reporter = Volatile.Read(ref recoverableUiErrorReporter);
+        if (reporter is not null)
+        {
+            try
+            {
+                reporter(eventArguments.Exception);
+                return;
+            }
+            catch (Exception reportingException)
+            {
+                eventArguments = new ThreadExceptionEventArgs(
+                    new AggregateException(
+                        "A WinForms callback and its recoverable error reporter both failed.",
+                        eventArguments.Exception,
+                        reportingException));
+            }
+        }
         Environment.ExitCode = ReportAndWait(eventArguments.Exception);
         Application.ExitThread();
     }

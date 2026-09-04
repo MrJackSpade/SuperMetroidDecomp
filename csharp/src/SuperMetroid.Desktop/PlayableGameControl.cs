@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Security.Cryptography;
 
 namespace SuperMetroid.Desktop;
@@ -18,6 +19,7 @@ public sealed class PlayableGameControl : UserControl
     private readonly string saveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly ControllerInputRecording? replay;
+    private readonly GitHubErrorReporter? errorReporter;
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
@@ -35,6 +37,7 @@ public sealed class PlayableGameControl : UserControl
     private int replayFrameIndex;
     private ushort? displayedRoomPointer;
     private FrameTimingSnapshot? latestFrameTiming;
+    private string? lastRecoverableError;
 
     // The host's wall clock is intentionally separate from the translated frame counter.
     // A WinForms timer has millisecond granularity and does not promise an exact callback
@@ -46,12 +49,14 @@ public sealed class PlayableGameControl : UserControl
     public PlayableGameControl(
         string romPath,
         SuperMetroidGameOptions gameOptions,
-        ControllerInputRecording? replay = null)
+        ControllerInputRecording? replay = null,
+        GitHubErrorReporter? errorReporter = null)
     {
         this.romPath = romPath;
         saveRamPath = Path.ChangeExtension(Path.GetFullPath(romPath), ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         this.replay = replay;
+        this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;
 
         var toolStrip = new ToolStrip
@@ -383,12 +388,36 @@ public sealed class PlayableGameControl : UserControl
                 // Preserve both failures. Replacing a cartridge/runtime exception with a
                 // secondary diagnostic-write exception would be another silent loss of the
                 // information needed to reproduce the frame.
-                throw new AggregateException(
+                frameException = new AggregateException(
                     "The emulated frame and its emergency input-recording flush both failed.",
                     frameException,
                     recorderException);
             }
-            throw;
+
+            if (errorReporter is null)
+            {
+                ExceptionDispatchInfo.Capture(frameException).Throw();
+                throw new UnreachableException();
+            }
+
+            // A managed exception cannot resume inside the cartridge routine that threw.
+            // The opt-in development mode therefore preserves the complete diagnostic and
+            // tries the next dispatcher frame from whatever state the failed frame reached.
+            // This is intentionally a host recovery boundary, not a claim that the partial
+            // state is cartridge-correct.
+            lastRecoverableError = errorReporter.Report(
+                frameException,
+                new GitHubErrorContext(
+                    Boundary: "playable emulated-frame boundary",
+                    FrameNumber: game.FrameNumber,
+                    GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
+                    Phase: game.CurrentFrame.Phase,
+                    ControllerInput: input,
+                    RoomPointer: game.GameplayActiveRoomPointer,
+                    RoomStatePointer: game.GameplayActiveRoomStatePointer,
+                    DoorPointer: game.GameplayActiveDoorPointer,
+                    InputRecordingPath: inputRecorder?.Path));
+            return game.CurrentFrame;
         }
     }
 
@@ -460,9 +489,12 @@ public sealed class PlayableGameControl : UserControl
         string timingStatus = latestFrameTiming?.ToToolbarText() ??
             "emu --.- | paint --.- | step --.-/--.- ms | late --.-";
         statusLabel.Text = timingStatus;
+        string errorStatus = lastRecoverableError is null
+            ? string.Empty
+            : $"{Environment.NewLine}Last recoverable error: {lastRecoverableError} (see console/GitHub)";
         statusLabel.ToolTipText = latestFrameTiming is FrameTimingSnapshot snapshot
-            ? $"{snapshot.ToDiagnosticText()}{Environment.NewLine}{gameStatus}"
-            : gameStatus;
+            ? $"{snapshot.ToDiagnosticText()}{Environment.NewLine}{gameStatus}{errorStatus}"
+            : gameStatus + errorStatus;
     }
 
     /// <summary>

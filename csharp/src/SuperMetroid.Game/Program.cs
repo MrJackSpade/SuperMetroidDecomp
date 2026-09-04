@@ -18,6 +18,7 @@ UnhandledExceptionConsole.InstallWinFormsHandlers();
 
 ApplicationConfiguration.Initialize();
 
+GitHubErrorReporter? githubErrorReporter = null;
 try
 {
     if (args.Length != 0 &&
@@ -44,6 +45,18 @@ try
         Console.WriteLine(
             $"Keyboard input passed: Enter=${result.EnterControllerWord:X4}, " +
             $"released=${result.ReleasedControllerWord:X4}; no Right bit was emitted.");
+        return 0;
+    }
+
+    if (args.Length != 0 &&
+        args[0].Equals("--github-error-reporter-audit", StringComparison.OrdinalIgnoreCase))
+    {
+        if (args.Length != 1)
+            throw new ArgumentException("--github-error-reporter-audit does not accept arguments.");
+        GitHubErrorReporterSmokeTestResult result = GitHubErrorReporterSmokeTest.Run();
+        Console.WriteLine(
+            $"GitHub error reporter passed: {result.Fingerprint}, " +
+            $"{result.RemoteLookups} distinct lookups, {result.IssuesCreated} issue created.");
         return 0;
     }
 
@@ -175,10 +188,10 @@ try
     }
 
     string romPath = PrivateRomPath.Resolve(romArguments);
+    GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
     SuperMetroidGameOptions gameOptions;
     if (replay is null)
     {
-        GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
         gameOptions = configuration.Options;
         Console.WriteLine(
             $"Loaded {GameConfigurationFile.FileName}: " +
@@ -186,26 +199,51 @@ try
             $"Invincibility={configuration.Options.Invincibility}, " +
             $"InfiniteAmmo={configuration.Options.InfiniteAmmo}, " +
             $"AudioEnabled={configuration.Options.AudioEnabled}, " +
-            $"MasterVolumePercent={configuration.Options.MasterVolumePercent} " +
+            $"MasterVolumePercent={configuration.Options.MasterVolumePercent}, " +
+            $"ReportErrorsToGitHub={configuration.Options.ReportErrorsToGitHub}, " +
+            $"GitHubErrorRepository={configuration.Options.GitHubErrorRepository} " +
             $"({configuration.Path})");
     }
     else
     {
-        // A replay must not inherit today's INI. Its startup option and SRAM image are part
-        // of the deterministic seed, while PlayableGameControl verifies ROM identity.
-        gameOptions = replay.GameOptions;
+        // Gameplay-affecting options and SRAM belong to the deterministic replay seed.
+        // GitHub publication is a host-only diagnostic side channel, so the current INI may
+        // enable or redirect it without changing a single emulated frame.
+        gameOptions = replay.GameOptions with
+        {
+            ReportErrorsToGitHub = configuration.Options.ReportErrorsToGitHub,
+            GitHubErrorRepository = configuration.Options.GitHubErrorRepository,
+        };
         Console.WriteLine(
             $"Replaying {Path.GetFullPath(args[1])}: {replay.ControllerInputs.Length} frames, " +
             $"SkipOpeningCinematic={gameOptions.SkipOpeningCinematic}, " +
             $"Invincibility={gameOptions.Invincibility}, " +
             $"InfiniteAmmo={gameOptions.InfiniteAmmo}, " +
+            $"ReportErrorsToGitHub={gameOptions.ReportErrorsToGitHub}, " +
             $"started {replay.StartedUtc:O}");
     }
-    Application.Run(new GameForm(romPath, gameOptions, replay));
+
+    if (gameOptions.ReportErrorsToGitHub)
+    {
+        githubErrorReporter = new GitHubErrorReporter(gameOptions.GitHubErrorRepository);
+        UnhandledExceptionConsole.SetRecoverableUiErrorReporter(exception =>
+            githubErrorReporter.Report(
+                exception,
+                new GitHubErrorContext("WinForms UI callback outside the emulated-frame boundary")));
+        Console.WriteLine(
+            $"Recoverable errors will be deduplicated and filed in " +
+            $"{gameOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
+    }
+    Application.Run(new GameForm(romPath, gameOptions, replay, githubErrorReporter));
 }
 catch (Exception exception)
 {
     return UnhandledExceptionConsole.ReportAndWait(exception);
+}
+finally
+{
+    UnhandledExceptionConsole.SetRecoverableUiErrorReporter(null);
+    githubErrorReporter?.Dispose();
 }
 
 return Environment.ExitCode;

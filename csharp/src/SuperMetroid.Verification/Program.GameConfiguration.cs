@@ -14,6 +14,10 @@ static void VerifyGameConfigurationIni()
         "game INI template preserves cartridge ammunition");
     AssertEqual(true, defaults.AudioEnabled, "game INI template enables cartridge audio");
     AssertEqual(100, defaults.MasterVolumePercent, "game INI template uses full host gain");
+    AssertEqual(false, defaults.ReportErrorsToGitHub,
+        "game INI template disables automatic external reports");
+    AssertEqual("MrJackSpade/SuperMetroidDecomp", defaults.GitHubErrorRepository,
+        "game INI template names the private development repository");
 
     SuperMetroidGameOptions enabled = SuperMetroidGameOptionsIni.Parse(
         "# local developer convenience\n[game]\nSKIPOPENINGCINEMATIC=TrUe\n" +
@@ -37,12 +41,22 @@ static void VerifyGameConfigurationIni()
         "missing infinite-ammo key retains cartridge ammunition");
     AssertEqual(true, missing.AudioEnabled, "missing audio section enables sound by default");
     AssertEqual(100, missing.MasterVolumePercent, "missing volume retains full gain");
+    AssertEqual(false, missing.ReportErrorsToGitHub,
+        "missing diagnostics section does not publish errors");
 
     SuperMetroidGameOptions audio = SuperMetroidGameOptionsIni.Parse(
         "[Audio]\nEnabled=false\nMasterVolumePercent=37\n",
         "in-memory audio fixture");
     AssertEqual(false, audio.AudioEnabled, "audio INI disable");
     AssertEqual(37, audio.MasterVolumePercent, "audio INI gain");
+
+    SuperMetroidGameOptions diagnostics = SuperMetroidGameOptionsIni.Parse(
+        "[Diagnostics]\nReportErrorsToGitHub=true\nGitHubErrorRepository=owner/repo.name\n",
+        "in-memory diagnostics fixture");
+    AssertEqual(true, diagnostics.ReportErrorsToGitHub,
+        "diagnostics INI enables GitHub error reporting");
+    AssertEqual("owner/repo.name", diagnostics.GitHubErrorRepository,
+        "diagnostics INI selects its repository");
 
     AssertInvalidGameConfiguration(
         "[Game]\nSkipOpeningCinematic=yes\n",
@@ -65,9 +79,18 @@ static void VerifyGameConfigurationIni()
     AssertInvalidGameConfiguration(
         "[Audio]\nEnabeld=true\n",
         "unknown [Audio] option");
+    AssertInvalidGameConfiguration(
+        "[Diagnostics]\nReportErrorsToGitHub=yes\n",
+        "must be either true or false");
+    AssertInvalidGameConfiguration(
+        "[Diagnostics]\nGitHubErrorRepository=not-a-repository\n",
+        "owner/repository form");
+    AssertInvalidGameConfiguration(
+        "[Diagnostics]\nReportErorsToGitHub=true\n",
+        "unknown [Diagnostics] option");
 
     Console.WriteLine(
-        "  Game INI: startup/audio defaults, strict gain, and typo rejection agree.");
+        "  Game INI: startup/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
 private static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)

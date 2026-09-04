@@ -85,6 +85,10 @@ InfiniteAmmo=false
 [Audio]
 Enabled=true
 MasterVolumePercent=100
+
+[Diagnostics]
+ReportErrorsToGitHub=false
+GitHubErrorRepository=MrJackSpade/SuperMetroidDecomp
 ```
 
 `SkipOpeningCinematic=true` preserves the title, file select, and options screens, then enters
@@ -95,8 +99,17 @@ but raises an unlocked type from zero to one at the end of the frame. It does no
 ammo upgrades whose maximum is still zero. The generated defaults are `false`; this private
 workspace's checked-in `../SuperMetroid.ini` is intentionally set to `true` for development.
 Audio is enabled by default; `MasterVolumePercent` is the final host gain from zero through
-100 after SNES mixing. Unknown sections, unknown or duplicate keys, invalid Booleans, and
-out-of-range volume values fail with a file and line number.
+100 after SNES mixing. `ReportErrorsToGitHub=true` makes the desktop host print each distinct
+recoverable error locally, queue a private GitHub issue through the authenticated `gh` CLI,
+and attempt the next emulated frame. Reports include the exception, frame/input, active
+room/state/door pointers, and recording path, but no ROM data. A stable `SMERR-...`
+fingerprint suppresses repeats in the same process and is searched across both open and
+closed issues before creation. Because CLR exceptions cannot resume at their exact throw
+site, a repeatedly retried operation can still stall until its translation is fixed, though
+it no longer terminates the host. Startup and fatal background-thread failures still stop
+because their outer runtime boundary cannot resume. Unknown sections, unknown or duplicate
+keys, invalid Booleans, malformed repository names, and out-of-range volume values fail with
+a file and line number.
 
 Battery-backed data is stored as an 8 KiB `.srm` beside the ROM. The implementation includes
 the redundant cartridge checksums, file-select ENERGY/TIME metadata, inventory and equipment,

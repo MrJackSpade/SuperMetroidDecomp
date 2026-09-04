@@ -42,6 +42,18 @@ public sealed record SuperMetroidGameOptions
 
     /// <summary>Host PCM gain after cartridge mixing, from zero (mute) to 100.</summary>
     public int MasterVolumePercent { get; init; } = 100;
+
+    /// <summary>Whether recoverable desktop-host errors are filed as GitHub issues.</summary>
+    /// <remarks>
+    /// This development convenience is deliberately disabled by default. When enabled, the
+    /// desktop host prints the complete failure locally, queues a deduplicated issue through
+    /// the authenticated GitHub CLI, and attempts the next emulated frame. It is not part of
+    /// cartridge state and is therefore not serialized into deterministic input recordings.
+    /// </remarks>
+    public bool ReportErrorsToGitHub { get; init; }
+
+    /// <summary>GitHub <c>owner/repository</c> receiving automatic private error reports.</summary>
+    public string GitHubErrorRepository { get; init; } = "MrJackSpade/SuperMetroidDecomp";
 }
 
 /// <summary>Strict reader and documented template for the playable executable's INI file.</summary>
@@ -73,7 +85,14 @@ public static class SuperMetroidGameOptionsIni
         "; Enables the cartridge SPC sequencer, BRR samples, DSP mixing, and playback\r\n" +
         "Enabled=true\r\n" +
         "; Final host gain after SNES mixing; integer from 0 through 100\r\n" +
-        "MasterVolumePercent=100\r\n";
+        "MasterVolumePercent=100\r\n" +
+        "\r\n" +
+        "[Diagnostics]\r\n" +
+        "; true files recoverable runtime errors through the authenticated GitHub CLI\r\n" +
+        "; repeated errors share a stable fingerprint and never create duplicate issues\r\n" +
+        "ReportErrorsToGitHub=false\r\n" +
+        "; Private repository in owner/name form; no ROM contents are attached\r\n" +
+        "GitHubErrorRepository=MrJackSpade/SuperMetroidDecomp\r\n";
 
     /// <summary>Parses the supported INI surface and rejects misspelled or ambiguous keys.</summary>
     public static SuperMetroidGameOptions Parse(
@@ -88,6 +107,8 @@ public static class SuperMetroidGameOptionsIni
         bool? infiniteAmmo = null;
         bool? audioEnabled = null;
         int? masterVolumePercent = null;
+        bool? reportErrorsToGitHub = null;
+        string? githubErrorRepository = null;
         string currentSection = string.Empty;
         string[] lines = contents.Replace("\r\n", "\n", StringComparison.Ordinal)
             .Replace('\r', '\n')
@@ -107,7 +128,8 @@ public static class SuperMetroidGameOptionsIni
             {
                 currentSection = line[1..^1].Trim();
                 if (!currentSection.Equals("Game", StringComparison.OrdinalIgnoreCase) &&
-                    !currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase))
+                    !currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase) &&
+                    !currentSection.Equals("Diagnostics", StringComparison.OrdinalIgnoreCase))
                     throw Invalid(sourceName, lineNumber, $"unknown section [{currentSection}]");
                 continue;
             }
@@ -152,7 +174,8 @@ public static class SuperMetroidGameOptionsIni
                 throw Invalid(sourceName, lineNumber, $"unknown [Game] option '{key}'");
             }
 
-            if (key.Equals("Enabled", StringComparison.OrdinalIgnoreCase))
+            if (currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase) &&
+                key.Equals("Enabled", StringComparison.OrdinalIgnoreCase))
             {
                 if (audioEnabled.HasValue)
                     throw Invalid(sourceName, lineNumber, $"duplicate [Audio] option '{key}'");
@@ -160,7 +183,8 @@ public static class SuperMetroidGameOptionsIni
                     throw Invalid(sourceName, lineNumber, $"{key} must be either true or false, not '{value}'");
                 audioEnabled = parsed;
             }
-            else if (key.Equals(nameof(SuperMetroidGameOptions.MasterVolumePercent),
+            else if (currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase) &&
+                     key.Equals(nameof(SuperMetroidGameOptions.MasterVolumePercent),
                          StringComparison.OrdinalIgnoreCase))
             {
                 if (masterVolumePercent.HasValue)
@@ -169,9 +193,34 @@ public static class SuperMetroidGameOptionsIni
                     throw Invalid(sourceName, lineNumber, $"{key} must be an integer from 0 through 100, not '{value}'");
                 masterVolumePercent = parsed;
             }
-            else
+            else if (currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase))
             {
                 throw Invalid(sourceName, lineNumber, $"unknown [Audio] option '{key}'");
+            }
+            else if (key.Equals(nameof(SuperMetroidGameOptions.ReportErrorsToGitHub),
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                if (reportErrorsToGitHub.HasValue)
+                    throw Invalid(sourceName, lineNumber, $"duplicate [Diagnostics] option '{key}'");
+                reportErrorsToGitHub = ParseBoolean(sourceName, lineNumber, key, value);
+            }
+            else if (key.Equals(nameof(SuperMetroidGameOptions.GitHubErrorRepository),
+                         StringComparison.OrdinalIgnoreCase))
+            {
+                if (githubErrorRepository is not null)
+                    throw Invalid(sourceName, lineNumber, $"duplicate [Diagnostics] option '{key}'");
+                if (!IsGitHubRepositoryName(value))
+                {
+                    throw Invalid(
+                        sourceName,
+                        lineNumber,
+                        $"{key} must use owner/repository form, not '{value}'");
+                }
+                githubErrorRepository = value;
+            }
+            else
+            {
+                throw Invalid(sourceName, lineNumber, $"unknown [Diagnostics] option '{key}'");
             }
         }
 
@@ -184,7 +233,19 @@ public static class SuperMetroidGameOptionsIni
             InfiniteAmmo = infiniteAmmo ?? false,
             AudioEnabled = audioEnabled ?? true,
             MasterVolumePercent = masterVolumePercent ?? 100,
+            ReportErrorsToGitHub = reportErrorsToGitHub ?? false,
+            GitHubErrorRepository = githubErrorRepository ?? "MrJackSpade/SuperMetroidDecomp",
         };
+    }
+
+    private static bool IsGitHubRepositoryName(string value)
+    {
+        string[] components = value.Split('/');
+        return components.Length == 2 &&
+            components.All(component =>
+                component.Length != 0 &&
+                component.All(character =>
+                    char.IsAsciiLetterOrDigit(character) || character is '-' or '_' or '.'));
     }
 
     private static bool ParseBoolean(

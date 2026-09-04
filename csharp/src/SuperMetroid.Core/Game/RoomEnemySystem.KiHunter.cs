@@ -38,10 +38,18 @@ public enum KiHunterWingFunction : ushort
 public sealed class KiHunterEnemyState
 {
     private readonly RoomEnemySlot _slot;
+    private readonly bool _isWing;
 
-    internal KiHunterEnemyState(RoomEnemySlot slot) => _slot = slot;
+    internal KiHunterEnemyState(RoomEnemySlot slot)
+    {
+        _slot = slot;
+        // The definition word is mutable native storage and is cleared during deletion.
+        // Role is established by the initializer and must survive that later write because
+        // body/wing callbacks continue using physical +/-$40 slot aliases.
+        _isWing = RoomEnemySystem.IsKiHunterWingDefinition(slot.EnemyDefinitionPointer);
+    }
 
-    public bool IsWing => RoomEnemySystem.IsKiHunterWingDefinition(_slot.EnemyDefinitionPointer);
+    public bool IsWing => _isWing;
 
     /// <summary>Native variable A: main-AI dispatcher.</summary>
     public KiHunterEnemyFunction Function
@@ -818,7 +826,14 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private RoomEnemySlot GetKiHunterWings(RoomEnemySlot body)
     {
-        if (!IsKiHunterBodyDefinition(body.EnemyDefinitionPointer) ||
+        // NormalEnemyShotAi clears the complete body record before returning to Ki-Hunter's
+        // private `$A8:F701` tail on a fatal hit. The cartridge nevertheless keeps X as the
+        // dead body's physical slot and accesses `enemy + $40` to delete its wings. Once the
+        // typed state has established this slot as a body, a cleared definition word is
+        // therefore valid until the callback finishes; revalidating only the mutable header
+        // converts the ordinary fatal-shot path into a host exception.
+        bool initializedBody = _kiHunterStates[body.SlotIndex] is { IsWing: false };
+        if ((!IsKiHunterBodyDefinition(body.EnemyDefinitionPointer) && !initializedBody) ||
             body.SlotIndex >= MaximumEnemyCount - 1)
         {
             throw new InvalidDataException(
@@ -826,6 +841,9 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot wings = _slots[body.SlotIndex + 1];
+        if (body.EnemyDefinitionPointer == 0 && initializedBody)
+            return wings;
+
         ushort expected = body.EnemyDefinitionPointer switch
         {
             KiHunterDefinition => KiHunterWingsDefinition,

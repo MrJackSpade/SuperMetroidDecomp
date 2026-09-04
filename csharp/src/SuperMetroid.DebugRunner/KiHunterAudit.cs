@@ -296,8 +296,12 @@ internal static class KiHunterAudit
             killed,
             projectileType: (ushort)SamusProjectileFamily.SuperMissile,
             damage: 300);
+        // Common death AI clears the body before `$A8:F701` executes. The private tail
+        // must still follow the established physical `body + $40` alias and delete the
+        // wing; both auto-errors #244/#245 came from revalidating the now-zero body header.
         if (killed.Body.Health != 0 ||
-            !killed.Body.Properties.HasAny(EnemyProperties.Deleted) ||
+            killed.Body.EnemyDefinitionPointer != 0 ||
+            killed.Body.Properties != 0 ||
             killed.Wings.Properties != (ushort)EnemyProperties.Deleted ||
             killed.Enemies.EnemiesKilled != 1)
         {

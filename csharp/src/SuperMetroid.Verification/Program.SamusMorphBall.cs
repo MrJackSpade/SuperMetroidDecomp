@@ -1361,6 +1361,75 @@ static void VerifySamusMorphBallMovement()
         integratedRevealLevel.GetCollisionBlockByIndex(integratedRevealIndex).LevelWord,
         "same-frame PLM pass reveals required power-bomb block");
 
+    // The player's recording that reached room `$8F:9B9D` detonated a normal bomb beside
+    // a right-facing blue cap (type C/BTS $41). `$94:9EA6` sends that private BTS directly
+    // to Setup_BlueDoor; it is not an out-of-range ordinary shot-block table index. Drive
+    // the complete bomb fuse/cross path so this regression cannot pass through a direct
+    // PLM helper while gameplay still throws before reaching it.
+    var bombDoorWords = new ushort[width * height];
+    var bombDoorBts = new byte[bombDoorWords.Length];
+    const int bombDoorIndex = 3 * width + 3;
+    bombDoorWords[bombDoorIndex] = 0xc000;
+    bombDoorBts[bombDoorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
+    RoomLevelData bombDoorLevel = new(
+        width,
+        height,
+        bombDoorWords,
+        bombDoorBts,
+        new ushort[bombDoorWords.Length],
+        reactionDefinitions);
+    var bombDoorPlms = new RoomPlmSystem();
+    var bombDoorBombs = new SamusBombProjectileSystem();
+    var bombDoorSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = 0x1004,
+        XPosition = 48,
+        YPosition = 48,
+    };
+    bombDoorSamus.RefreshCollisionRadii(bus);
+    bombDoorBombs.StepFrame(
+        bus,
+        bombDoorLevel,
+        bombDoorSamus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        bombDoorPlms);
+    BombProjectileFrameResult bombDoorExplosion = default;
+    while (!bombDoorExplosion.ExplosionStarted)
+    {
+        bombDoorExplosion = bombDoorBombs.StepFrame(
+            bus,
+            bombDoorLevel,
+            bombDoorSamus,
+            0,
+            0,
+            bombDoorPlms);
+    }
+    AssertEqual(1, bombDoorPlms.ActiveCount,
+        "normal bomb allocates one blue-door opening PLM");
+    AssertEqual(RoomCollisionType.SolidBlock,
+        bombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
+        "normal bomb synchronously runs blue-door setup");
+
+    RoomLevelData powerBombDoorLevel = new(
+        width,
+        height,
+        bombDoorWords,
+        bombDoorBts,
+        new ushort[bombDoorWords.Length],
+        reactionDefinitions);
+    var powerBombDoorPlms = new RoomPlmSystem();
+    AssertTrue(!powerBombDoorPlms.TrySpawnBlueDoorOpening(
+            powerBombDoorLevel,
+            bombDoorIndex,
+            RoomBlockBehaviorValues.BlueDoorFacingRight,
+            SamusBombProjectileSystem.PowerBombType),
+        "power-bomb family remains rejected by blue-door setup");
+    AssertEqual(RoomCollisionType.ShootableBlock,
+        powerBombDoorLevel.GetCollisionBlockByIndex(bombDoorIndex).CollisionType,
+        "rejected power bomb leaves blue-door cap collision intact");
+
     // Shootable reaction setup `$84:CE6B` is easy to get subtly wrong because it does not
     // preserve the original low twelve bits. Prove that a type-C/BTS-zero parent becomes
     // temporary `$8052`, begins at the ROM's `$0053` air frame, queues sound `$0A` through

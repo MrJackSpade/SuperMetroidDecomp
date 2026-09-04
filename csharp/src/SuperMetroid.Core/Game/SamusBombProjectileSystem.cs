@@ -799,6 +799,28 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
+        // `$94:9EA6[40..43]` routes the four ordinary blue-door cap orientations to
+        // Setup_BlueDoor regardless of whether the collision came from the shot or bomb
+        // dispatcher. Normal bombs use projectile family `$0500` and are accepted; Power
+        // Bomb family `$0300` is rejected inside the shared bank-$84 setup. Treating these
+        // private door BTS bytes as ordinary table indices both crashed on `$41` and lost
+        // the cartridge behavior that allows a bomb placed beside a blue door to open it.
+        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
+            block.Bts.TryGetBlueDoorOrientation(out _))
+        {
+            if (roomPlms is null)
+            {
+                throw new InvalidOperationException(
+                    $"Bombed blue-door cap at ({x},{y}) requires a room PLM owner.");
+            }
+            roomPlms.TrySpawnBlueDoorOpening(
+                level,
+                block.Index,
+                block.Bts,
+                projectileType);
+            return;
+        }
+
         // $94:A052 dispatches these types to immediate clear/set-carry routines. They
         // spawn no PLM and do not alter the level/BTS arrays, so recording the visit is
         // the complete observable effect for this runtime.

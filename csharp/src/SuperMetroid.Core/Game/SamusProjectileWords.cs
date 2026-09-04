@@ -131,6 +131,12 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     private const ushort DirectionMask = 0x000f;
     private const ushort LowByteLifecycleMask = 0x00f0;
 
+    /// <summary>
+    /// Bit written by the common enemy and enemy-projectile collision walkers to make the
+    /// projectile's own pre-instruction dispose of or otherwise react to the contact.
+    /// </summary>
+    private const ushort CollisionLifecycleState = 0x0010;
+
     public byte DirectionIndex => (byte)(Raw & DirectionMask);
     public SamusProjectileDirection Direction => (SamusProjectileDirection)DirectionIndex;
 
@@ -146,6 +152,13 @@ public readonly record struct SamusProjectileDirectionWord(ushort Raw)
     /// </summary>
     public bool IsValidInitialDirection =>
         !HasLowByteLifecycleState && DirectionIndex <= 9;
+
+    /// <summary>
+    /// Returns the native direction word after installing collision lifecycle state
+    /// <c>$10</c>, without altering its low-nibble direction or unrelated high-byte state.
+    /// </summary>
+    public ushort WithCollisionLifecycleState() =>
+        unchecked((ushort)(Raw | CollisionLifecycleState));
 
     public static implicit operator SamusProjectileDirectionWord(ushort raw) => new(raw);
 }

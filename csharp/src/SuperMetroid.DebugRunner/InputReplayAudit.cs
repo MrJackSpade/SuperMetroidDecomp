@@ -64,6 +64,7 @@ internal static class InputReplayAudit
             ushort xRadiusBeforeStep = samusBeforeStep?.Kinematics.XRadius ?? 0;
             ushort yRadiusBeforeStep = samusBeforeStep?.Kinematics.YRadius ?? 0;
             byte? poseBeforeStep = samusBeforeStep?.Pose;
+            ushort? selectedHudItemBeforeStep = samusBeforeStep?.SelectedHudItem;
             FrontendFrame frontend;
             try
             {
@@ -103,6 +104,58 @@ internal static class InputReplayAudit
             bool ejection = samus?.CeresRidleyEjection.IsActive ?? false;
             int plmCount = runtime?.Plms.ActiveCount ?? 0;
             int scrollPlmCount = runtime?.Plms.ScrollPlms.Count ?? 0;
+
+            // Projectile reports are often intermittent because allocation depends on
+            // which of five shared beam/missile slots still owns an explosion or an
+            // invisible Super-Missile link. Log only producer frames, but retain every
+            // field needed to distinguish a correctly initialized missile from a slot
+            // that inherited its predecessor's animation program. This remains cheap
+            // enough for the always-headless recording audit and avoids modifying live
+            // desktop behavior merely to diagnose a rare visual frame.
+            if (index >= traceStartFrame && index <= traceEndFrame &&
+                selectedHudItemBeforeStep == 2 &&
+                runtime?.Projectiles.LastFrameResult.FiredSlot is int firedSlotIndex)
+            {
+                SamusProjectileSlot firedSlot = runtime.Projectiles.Slots[firedSlotIndex];
+                Console.WriteLine(
+                    $"rec={index,6} projectile spawn slot={firedSlotIndex} " +
+                    $"type=${firedSlot.Type:X4} damage=${firedSlot.Damage:X4} " +
+                    $"instruction=${firedSlot.InstructionPointer:X4}/" +
+                    $"timer=${firedSlot.InstructionTimer:X4} map=${firedSlot.SpritemapPointer:X4} " +
+                    $"pre={firedSlot.PreInstruction} collision=" +
+                    $"{runtime.Projectiles.LastFrameResult.CollisionStartedExplosion} " +
+                    $"counter={runtime.Projectiles.ProjectileCounter}.");
+            }
+
+            if (runtime is not null && index >= traceStartFrame && index <= traceEndFrame)
+            {
+                string projectileState = string.Join(", ", runtime.Projectiles.Slots
+                    .Where(slot => slot.IsActive)
+                    .Select(slot =>
+                        $"{slot.SlotIndex}:${slot.Type:X4}@${slot.XPosition:X4},${slot.YPosition:X4}" +
+                        $"/i${slot.InstructionPointer:X4}/m${slot.SpritemapPointer:X4}/" +
+                        $"{slot.PreInstruction}"));
+                string enemyState = string.Join(", ", runtime.Enemies.Slots
+                    .Where(slot => slot.EnemyDefinitionPointer != 0)
+                    .Select(slot =>
+                        $"{slot.SlotIndex}:${slot.EnemyDefinitionPointer:X4}" +
+                        $"@${slot.XPosition:X4},${slot.YPosition:X4}" +
+                        $"/r${slot.XRadius:X2},${slot.YRadius:X2}" +
+                        $"/hp${slot.Health:X4}/inv${slot.InvincibilityTimer:X4}" +
+                        $"/prop${slot.Properties:X4}"));
+                string enemyProjectileState = string.Join(", ", runtime.Enemies.EnemyProjectiles
+                    .Where(slot => slot.IsActive)
+                    .Select(slot =>
+                        $"{slot.SlotIndex}:{slot.Kind}" +
+                        $"@${slot.XPosition:X4},${slot.YPosition:X4}" +
+                        $"/r${slot.XRadius:X2},${slot.YRadius:X2}" +
+                        $"/block={slot.BlocksSamusProjectiles}" +
+                        $"/option=${slot.CollisionOption:X4}" +
+                        $"/i${slot.InstructionPointer:X4}"));
+                Console.WriteLine(
+                    $"rec={index,6} projectile slots=[{projectileState}] " +
+                    $"enemies=[{enemyState}] enemy-projectiles=[{enemyProjectileState}]");
+            }
 
             // A repeated player report says a downward jump/fall can cross a platform in
             // live Zebes gameplay even though the earlier scripted Climb route landed.

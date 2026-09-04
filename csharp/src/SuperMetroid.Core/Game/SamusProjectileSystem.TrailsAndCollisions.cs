@@ -35,7 +35,7 @@ public sealed partial class SamusProjectileSystem
         }
 
         if (markCollisionState)
-            slot.Direction = unchecked((ushort)(slot.Direction | 0x0010));
+            slot.Direction = slot.PackedDirection.WithCollisionLifecycleState();
     }
 
     /// <summary>

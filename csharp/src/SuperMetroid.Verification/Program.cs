@@ -158,6 +158,7 @@ VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
+VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();
 VerifyPostCeresGunshipLanding();
 VerifyCeresElevatorPlatformAnimation();

@@ -394,12 +394,14 @@ public sealed partial class RoomEnemySystem
                     continue;
                 }
 
-                // Save the live type before the host projectile owner turns the shot into
-                // its bank-$93 impact animation. The cartridge writes this original word
-                // into eproj_G, and Kago's death/drop path exposes it to debugger watches.
+                // `$A0:99F9-$9A07` only sets direction lifecycle bit $10 for non-plasma
+                // shots. It does not call the ordinary enemy-impact routine and therefore
+                // cannot rewrite a freshly fired Super Missile (or its invisible link) to
+                // family $0800 in the producer frame. Its own pre-instruction consumes the
+                // mark on the next projectile pass.
                 ushort collidedProjectileType = shot.Type;
                 if ((collidedProjectileType & 8) == 0)
-                    _ = projectiles.TryStartEnemyImpact(bus, sharedProjectiles, shot.SlotIndex);
+                    shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
 
                 if (enemyProjectile.CollisionOption == 1)
                 {

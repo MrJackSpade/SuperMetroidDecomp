@@ -167,6 +167,90 @@ static void VerifyRoomEnemyLoading()
 }
 
 /// <summary>
+/// Reproduces the rapid-Super visual failure from room $A56B: a fresh owner and its
+/// invisible linked slot occupy the same 32-pixel cell as a blocking eye-door projectile.
+/// Bank $A0 marks both direction words and lets their own next pre-instruction dispose of
+/// them; it never creates either of the visible bank-$93 missile-explosion programs here.
+/// </summary>
+static void VerifyEnemyProjectileCollisionLifecycle()
+{
+    const ushort populationPointer = 0x9400;
+    var bus = new TestAddressSpace();
+    WriteWord(bus, 0xa10000 | populationPointer, 0xffff);
+    bus.WriteByte((0xa10000 | populationPointer) + 2, 0);
+
+    var enemies = new RoomEnemySystem();
+    enemies.Load(
+        bus,
+        populationPointer,
+        0xffff,
+        new SnesVram(),
+        new SnesCgram(),
+        () => 0);
+
+    RoomEnemyProjectileSlot eyeShot = enemies.EnemyProjectiles[17];
+    eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
+    eyeShot.XPosition = 0x01b5;
+    eyeShot.YPosition = 0x0180;
+    eyeShot.BlocksSamusProjectiles = true;
+    eyeShot.CollisionOption = 0;
+    WriteWord(
+        bus,
+        0x860000 | unchecked((ushort)((ushort)eyeShot.Kind + 12)),
+        0xb5fb);
+
+    var shots = new SamusProjectileSystem();
+    SamusProjectileSlot owner = shots.Slots[0];
+    owner.Type = 0x8200;
+    owner.Damage = 0x012c;
+    owner.Direction = (ushort)SamusProjectileDirection.Right;
+    owner.XPosition = 0x01b7;
+    owner.YPosition = 0x0196;
+    owner.InstructionPointer = 0x9f3b;
+    owner.InstructionTimer = 15;
+    owner.SpritemapPointer = 0xae0f;
+    owner.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
+
+    SamusProjectileSlot link = shots.Slots[1];
+    link.Type = 0x8200;
+    link.Damage = 0x012c;
+    link.Direction = (ushort)SamusProjectileDirection.Right;
+    link.XPosition = 0x01af;
+    link.YPosition = 0x0196;
+    link.InstructionPointer = 0x9f7b;
+    link.InstructionTimer = 1;
+    link.SpritemapPointer = 0;
+    link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
+
+    int hits = enemies.ResolveEnemyProjectileSamusProjectileHits(
+        bus,
+        shots,
+        new SamusBombProjectileSystem());
+
+    AssertEqual(2, hits,
+        "blocking enemy projectile visits Super Missile owner and linked slot");
+    AssertEqual(0x8200, owner.Type,
+        "enemy-projectile collision preserves fresh Super Missile family");
+    AssertEqual(0x9f3b, owner.InstructionPointer,
+        "enemy-projectile collision preserves fresh Super Missile animation program");
+    AssertTrue(owner.PackedDirection.HasLowByteLifecycleState,
+        "enemy-projectile collision marks Super Missile owner lifecycle");
+    AssertEqual(0x8200, link.Type,
+        "enemy-projectile collision does not turn invisible link into an explosion");
+    AssertEqual(0, link.SpritemapPointer,
+        "enemy-projectile collision leaves Super Missile link invisible");
+    AssertTrue(link.PackedDirection.HasLowByteLifecycleState,
+        "enemy-projectile collision marks Super Missile link lifecycle");
+    AssertEqual(0, shots.EarthquakeTimer,
+        "enemy-projectile collision does not invent ordinary Super impact quake");
+    AssertTrue(!eyeShot.BlocksSamusProjectiles,
+        "destructible enemy projectile disables subsequent-frame shot collision");
+
+    Console.WriteLine(
+        "  Enemy projectile collision: rapid Super owner/link retain native lifecycle state without false explosion art.");
+}
+
+/// <summary>
 /// Exercises the first ordinary hostile-enemy translation end to end. Every actor pointer,
 /// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
 /// the assertions then enter only through the public loader/frame/contact/projectile seams.

@@ -208,8 +208,8 @@ internal static class EnemyProjectileAuditAssertions
             projectile.ClearFields();
 
         // Type $0001 is the ordinary power beam. Its non-bit-3 form also proves that the
-        // Samus projectile owner receives the native enemy-impact transition before the
-        // enemy projectile installs its own definition-derived shot list.
+        // Samus projectile receives direction lifecycle state, not the unrelated ordinary
+        // enemy-impact animation, before the enemy projectile installs its shot list.
         SamusProjectileSlot shot = samusProjectiles.Slots[0];
         shot.Type = 0x0001;
         shot.Damage = 20;
@@ -257,6 +257,15 @@ internal static class EnemyProjectileAuditAssertions
                 $"{physicalTarget.CanDamageSamus}/{physicalTarget.PersistsOnSamusContact}/" +
                 $"{physicalTarget.BlocksSamusProjectiles}; expected one live $0001 hit, " +
                 $"$86:{expectedShotInstruction:X4}/1/$84FB, true/false/false.");
+        }
+
+        if (shot.Type != 0x0001 || !shot.PackedDirection.HasLowByteLifecycleState ||
+            shot.InstructionPointer != 0x9000)
+        {
+            throw new InvalidDataException(
+                $"Natural enemy projectile {kind} rewrote its Samus shot instead of " +
+                $"marking lifecycle state: type/direction/list=" +
+                $"${shot.Type:X4}/${shot.Direction:X4}/${shot.InstructionPointer:X4}.");
         }
 
         return expectedShotInstruction;

@@ -205,10 +205,19 @@ if (args.Length >= 2 && args[0] == "--parlor-scroll-pose-probe-audit")
     return EarlyControllerRouteAudit.RunParlorScrollPoseProbeAudit(scrollPoseRomPath);
 }
 
-if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
+if (args.Length is 2 or 3 && args[0] == "--blue-hopper-audit")
 {
-    string hopperRomPath = string.Join(' ', args[1..]).Trim('"');
-    return HopperAudit.Run(hopperRomPath);
+    string hopperRomPath = args[1].Trim('"');
+    string? hopperCaptureDirectory = args.Length == 3 ? args[2].Trim('"') : null;
+    return HopperAudit.Run(hopperRomPath, hopperCaptureDirectory);
+}
+
+if (args.Length == 4 && args[0] == "--hopper-recording-audit")
+{
+    return HopperAudit.RunRecording(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        args[3].Trim('"'));
 }
 
 if (args.Length >= 2 && args[0] == "--water-fx-audit")

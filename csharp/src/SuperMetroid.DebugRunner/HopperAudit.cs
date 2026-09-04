@@ -1,8 +1,12 @@
+using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using Audio = SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Cartridge-backed regression for the shared Sidehopper/Dessgeega state machine. Blue
@@ -18,13 +22,16 @@ internal static class HopperAudit
 
         /// <summary>Ceiling Sidehopper's first landed spritemap at <c>$A3:AF34</c>.</summary>
         public const ushort CeilingSidehopperLandedSpritemap = 0xaf34;
+
+        /// <summary>Floor Sidehopper frame mirrored by <c>$A3:AF34</c>.</summary>
+        public const ushort FloorSidehopperLandedSpritemap = 0xaee3;
     }
 
     private const ushort BlueHopperRoomHeader = 0xdc19;
     private const ushort BlueHopperDefaultState = 0xdc2b;
     private const ushort TourianSidehopperDefinition = 0xd9ff;
 
-    public static int Run(string romPath)
+    public static int Run(string romPath, string? outputDirectory = null)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, BlueHopperRoomHeader);
@@ -60,6 +67,9 @@ internal static class HopperAudit
         RoomEnemySlot auditedSlot = enemies.Slots[1];
         HopperEnemyState auditedState = enemies.HopperStates[1]
             ?? throw new InvalidDataException("Blue Hopper slot one has no typed hopper state.");
+        RoomEnemySlot ceilingSlot = enemies.Slots[0];
+        HopperEnemyState ceilingState = enemies.HopperStates[0]
+            ?? throw new InvalidDataException("Blue Hopper slot zero has no typed hopper state.");
         if (auditedSlot.XPosition != 0x0086 || auditedSlot.YPosition != 0x00a9 ||
             auditedSlot.Health != 1500 || auditedSlot.Definition.Damage != 120 ||
             auditedState.UpsideDown || auditedState.HopTableIndex != 2 ||
@@ -76,6 +86,8 @@ internal static class HopperAudit
                 $"function=$A3:{(ushort)auditedState.Function:X4}, " +
                 $"list=$A3:{auditedState.InstalledInstructionList:X4}.");
         }
+        if (!ceilingState.UpsideDown)
+            throw new InvalidDataException("Blue Hopper slot zero did not select ceiling behavior.");
 
         var samus = new SamusState
         {
@@ -88,7 +100,15 @@ internal static class HopperAudit
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
 
-        VerifyBlueHopperFloorOrientation(bus, enemies, assets, auditedSlot, auditedState);
+        VerifyBlueHopperFloorOrientation(
+            bus,
+            enemies,
+            assets,
+            vram,
+            cgram,
+            auditedSlot,
+            auditedState,
+            outputDirectory);
 
         ushort startX = auditedSlot.XPosition;
         ushort startY = auditedSlot.YPosition;
@@ -101,6 +121,7 @@ internal static class HopperAudit
         for (int frame = 0; frame < 600; frame++)
         {
             enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+            VerifyLiveMountingFlags(bus, enemies, ceilingSlot, auditedSlot, frame);
             functions.Add(auditedState.Function);
             maps.Add(auditedSlot.SpritemapPointer);
             minimumY = Math.Min(minimumY, auditedSlot.YPosition);
@@ -147,12 +168,155 @@ internal static class HopperAudit
                 $"knockback={samus.KnockbackActive}.");
         }
 
-        VerifyRoom0102CeilingOrientation(bus);
+        VerifyRoom0102CeilingOrientation(bus, outputDirectory);
 
         Console.WriteLine(
             "Blue Hopper audit passed: two retail Tourian Sidehoppers loaded, both random " +
             $"hop sizes traversed the ROM quadratic arc and landing loop, {maps.Count} maps " +
             $"animated, 120 contact damage resolved, and {oam.LastFinalizedSpriteCount} OBJ pieces rendered.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Verifies all cartridge animation frames, not only the initial landed pose. The two
+    /// Blue Hopper actors are adjacent in native population/OAM order, allowing their
+    /// exact piece ranges to be isolated without guessing from screen coordinates.
+    /// </summary>
+    private static void VerifyLiveMountingFlags(
+        SuperMetroidAddressSpace bus,
+        RoomEnemySystem enemies,
+        RoomEnemySlot ceilingHopper,
+        RoomEnemySlot floorHopper,
+        int frame)
+    {
+        int ceilingPieceCount = ReadSpritemapPieceCount(bus, ceilingHopper);
+        int floorPieceCount = ReadSpritemapPieceCount(bus, floorHopper);
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        enemies.DrawLayers(oam, 0, 0, 0, 7);
+        oam.FinalizeFrame();
+
+        OamEntry[] pieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
+            .Select(oam.GetEntry)
+            .ToArray();
+        if (pieces.Length != ceilingPieceCount + floorPieceCount)
+        {
+            throw new InvalidDataException(
+                $"Blue Hopper frame {frame} emitted {pieces.Length} pieces; cartridge maps " +
+                $"require {ceilingPieceCount}+{floorPieceCount}.");
+        }
+
+        if (pieces.Take(ceilingPieceCount).Any(piece => !piece.FlipY) ||
+            pieces.TakeLast(floorPieceCount).Any(piece => piece.FlipY))
+        {
+            throw new InvalidDataException(
+                $"Blue Hopper frame {frame} mixed mounting orientation: ceiling=" +
+                $"[{string.Join(',', pieces.Take(ceilingPieceCount).Select(piece => piece.FlipY))}], " +
+                $"floor=[{string.Join(',', pieces.TakeLast(floorPieceCount).Select(piece => piece.FlipY))}].");
+        }
+    }
+
+    private static int ReadSpritemapPieceCount(
+        SuperMetroidAddressSpace bus,
+        RoomEnemySlot slot) =>
+        bus.ReadByte((slot.Definition.Bank << 16) | slot.SpritemapPointer) |
+        (bus.ReadByte(
+            (slot.Definition.Bank << 16) |
+            unchecked((ushort)(slot.SpritemapPointer + 1))) << 8);
+
+    /// <summary>
+    /// Replays a player's complete desktop recording and captures the first genuinely
+    /// visible floor- and ceiling-mounted hopper through the integrated frontend renderer.
+    /// This is intentionally separate from <see cref="Run"/>: the cartridge-room fixture
+    /// isolates enemy OAM, while this path proves that room loading, camera subtraction,
+    /// staged OAM, and final PPU composition do not invert the same actor afterward.
+    /// </summary>
+    public static int RunRecording(
+        string recordingPath,
+        string romPath,
+        string outputDirectory)
+    {
+        ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
+        string fullRomPath = Path.GetFullPath(romPath);
+        byte[] digest;
+        using (FileStream rom = File.OpenRead(fullRomPath))
+            digest = SHA256.HashData(rom);
+        if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
+            throw new InvalidDataException("Hopper replay ROM SHA-256 does not match the recording.");
+
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        recording.InitialSaveRam.CopyTo(bus.SaveRam);
+        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var apuPortEchoes = new byte[4];
+        bool capturedFloor = false;
+        bool capturedCeiling = false;
+        Directory.CreateDirectory(outputDirectory);
+
+        for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
+        {
+            FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
+            foreach (Audio.CartridgeAudioCommand command in frame.AudioCommands)
+            {
+                if (command.Kind == Audio.CartridgeAudioCommandKind.WritePort)
+                    apuPortEchoes[command.Port] = command.Value;
+            }
+            game.SetAudioAcknowledgements(new Audio.CartridgeAudioAcknowledgements(
+                apuPortEchoes[0],
+                apuPortEchoes[1],
+                apuPortEchoes[2],
+                apuPortEchoes[3]));
+
+            if (game.RuntimeForVerification is not { ActiveRoom: { } room, Camera: { } camera } runtime)
+                continue;
+
+            foreach (HopperEnemyState state in runtime.Enemies.HopperStates.OfType<HopperEnemyState>())
+            {
+                RoomEnemySlot slot = runtime.Enemies.Slots.Single(
+                    candidate => ReferenceEquals(runtime.Enemies.HopperStates[candidate.SlotIndex], state));
+                int screenX = unchecked((short)(slot.XPosition - camera.XPosition));
+                int screenY = unchecked((short)(slot.YPosition - camera.YPosition));
+                // $804D is the common empty enemy spritemap. Waiting for the actor origin
+                // to enter the visible field also avoids recording a room-transition frame
+                // whose off-screen object has not yet begun its cartridge animation.
+                if (slot.SpritemapPointer is 0 or 0x804d ||
+                    screenX is < 48 or > FrontendFrame.Width - 48 ||
+                    screenY is < 48 or > FrontendFrame.Height - 48)
+                {
+                    continue;
+                }
+
+                bool alreadyCaptured = state.UpsideDown ? capturedCeiling : capturedFloor;
+                if (alreadyCaptured)
+                    continue;
+
+                string mounting = state.UpsideDown ? "ceiling" : "floor";
+                string capturePath = Path.Combine(
+                    outputDirectory,
+                    $"recording-{mounting}-room-{(byte)room.AreaIndex:X2}-{room.RoomIndex:X2}-frame-{frameIndex}.png");
+                PngWriter.WriteRgba(capturePath, FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
+                Console.WriteLine(
+                    $"Captured {mounting} hopper at recording frame {frameIndex}, " +
+                    $"room ${(byte)room.AreaIndex:X2}/${room.RoomIndex:X2}, map " +
+                    $"$A3:{slot.SpritemapPointer:X4}, world (${slot.XPosition:X4},${slot.YPosition:X4}), " +
+                    $"screen ({screenX},{screenY}).");
+                if (state.UpsideDown)
+                    capturedCeiling = true;
+                else
+                    capturedFloor = true;
+            }
+
+            if (capturedFloor && capturedCeiling)
+                break;
+        }
+
+        if (!capturedFloor || !capturedCeiling)
+        {
+            throw new InvalidDataException(
+                $"Recording exposed floor={capturedFloor}, ceiling={capturedCeiling}; " +
+                "both live mounting variants are required for the integrated visual audit.");
+        }
+
+        Console.WriteLine("Integrated hopper recording audit captured both mounting variants.");
         return 0;
     }
 
@@ -167,8 +331,11 @@ internal static class HopperAudit
         SuperMetroidAddressSpace bus,
         RoomEnemySystem enemies,
         CartridgeRoomAssets assets,
+        SnesVram vram,
+        SnesCgram cgram,
         RoomEnemySlot floorHopper,
-        HopperEnemyState floorState)
+        HopperEnemyState floorState,
+        string? outputDirectory)
     {
         enemies.StepFrame(0, 0, false, samus: null, level: assets.LevelData);
         int pieceCount = bus.ReadByte(0xa30000 | floorHopper.SpritemapPointer) |
@@ -183,6 +350,15 @@ internal static class HopperAudit
         oam.BeginFrame();
         enemies.DrawLayers(oam, 0, 0, 0, 7);
         oam.FinalizeFrame();
+        if (outputDirectory is not null)
+        {
+            Directory.CreateDirectory(outputDirectory);
+            PngWriter.WriteRgba(
+                Path.Combine(outputDirectory, "blue-hopper-both-variants.png"),
+                256,
+                224,
+                SnesObjRenderer.Render(oam, vram, cgram, obsel: 0x03));
+        }
         OamEntry[] floorPieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)
             .TakeLast(pieceCount)
@@ -196,7 +372,9 @@ internal static class HopperAudit
         }
     }
 
-    private static void VerifyRoom0102CeilingOrientation(SuperMetroidAddressSpace bus)
+    private static void VerifyRoom0102CeilingOrientation(
+        SuperMetroidAddressSpace bus,
+        string? outputDirectory)
     {
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(
             bus,
@@ -241,6 +419,15 @@ internal static class HopperAudit
         oam.BeginFrame();
         enemies.DrawLayers(oam, cameraX, 0, 0, 7);
         oam.FinalizeFrame();
+        if (outputDirectory is not null)
+        {
+            Directory.CreateDirectory(outputDirectory);
+            PngWriter.WriteRgba(
+                Path.Combine(outputDirectory, "room-01-02-ceiling-hopper.png"),
+                256,
+                224,
+                SnesObjRenderer.Render(oam, vram, cgram, obsel: 0x03));
+        }
         OamEntry[] pieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
             .Select(oam.GetEntry)
             .ToArray();
@@ -251,5 +438,80 @@ internal static class HopperAudit
                 $"Room $01/$02 ceiling Sidehopper emitted {hopperPieces.Length} leading OBJ " +
                 $"pieces with vertical flips [{string.Join(',', hopperPieces.Select(piece => piece.FlipY))}].");
         }
+
+        VerifyRenderedMountingPair(bus, vram, cgram, ceilingHopper);
+    }
+
+    /// <summary>
+    /// Renders the retail floor and ceiling landed maps at a shared origin and proves the
+    /// final RGBA rasters are exact vertical mirrors around the native half-pixel axis.
+    /// This catches tile-row ordering bugs in <see cref="SnesObjRenderer"/> that raw OAM
+    /// flip-bit assertions alone cannot see.
+    /// </summary>
+    private static void VerifyRenderedMountingPair(
+        SuperMetroidAddressSpace bus,
+        SnesVram vram,
+        SnesCgram cgram,
+        RoomEnemySlot hopper)
+    {
+        const ushort originX = 128;
+        const ushort originY = 112;
+        Rgba32[] floor = RenderIsolatedHopper(
+            bus,
+            vram,
+            cgram,
+            hopper,
+            RoomDefinitions.FloorSidehopperLandedSpritemap,
+            originX,
+            originY);
+        Rgba32[] ceiling = RenderIsolatedHopper(
+            bus,
+            vram,
+            cgram,
+            hopper,
+            RoomDefinitions.CeilingSidehopperLandedSpritemap,
+            originX,
+            originY);
+
+        for (int y = 0; y < FrontendFrame.Height; y++)
+        {
+            int mirroredY = originY * 2 - 1 - y;
+            for (int x = 0; x < FrontendFrame.Width; x++)
+            {
+                Rgba32 expected = mirroredY is >= 0 and < FrontendFrame.Height
+                    ? floor[mirroredY * FrontendFrame.Width + x]
+                    : default;
+                Rgba32 actual = ceiling[y * FrontendFrame.Width + x];
+                if (actual != expected)
+                {
+                    throw new InvalidDataException(
+                        $"Rendered ceiling hopper pixel ({x},{y}) is {actual}; " +
+                        $"floor mirror ({x},{mirroredY}) is {expected}.");
+                }
+            }
+        }
+    }
+
+    private static Rgba32[] RenderIsolatedHopper(
+        SuperMetroidAddressSpace bus,
+        SnesVram vram,
+        SnesCgram cgram,
+        RoomEnemySlot hopper,
+        ushort spritemap,
+        ushort originX,
+        ushort originY)
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        oam.AddEnemySpritemap(
+            bus,
+            hopper.Definition.Bank,
+            spritemap,
+            originX,
+            originY,
+            hopper.PaletteIndex,
+            hopper.VramTilesIndex);
+        oam.FinalizeFrame();
+        return SnesObjRenderer.Render(oam, vram, cgram, obsel: 0x03);
     }
 }

@@ -20,6 +20,33 @@ internal static class KraidAuditDefinitions
     /// <summary>Minimum opaque BG1 pixels required for the region assertion to be meaningful.</summary>
     public const int MinimumArtifactRegionBg1Pixels = 1000;
 
+    /// <summary>First CGRAM color used by the HUD's selected-item palette four.</summary>
+    public const int SelectedHudPaletteFirstColor = 17;
+
+    /// <summary>First CGRAM color used by the HUD's unselected-item palette five.</summary>
+    public const int UnselectedHudPaletteFirstColor = 21;
+
+    /// <summary>Number of visible colors in either two-bit HUD item palette.</summary>
+    public const int HudItemVisibleColorCount = 3;
+
+    /// <summary>Screen-space left edge of the three-tile missile icon.</summary>
+    public const int MissileIconLeft = 80;
+
+    /// <summary>Screen-space left edge of the two-tile super-missile icon.</summary>
+    public const int SuperMissileIconLeft = 112;
+
+    /// <summary>Screen-space top edge shared by HUD item icons.</summary>
+    public const int HudItemIconTop = 8;
+
+    /// <summary>Pixel width of the missile icon.</summary>
+    public const int MissileIconWidth = 24;
+
+    /// <summary>Pixel width of an ordinary two-tile item icon.</summary>
+    public const int StandardItemIconWidth = 16;
+
+    /// <summary>Pixel height shared by HUD item icons.</summary>
+    public const int HudItemIconHeight = 16;
+
     /// <summary>Kraid-room door <c>$83:91CE</c>, which exits left after the fight.</summary>
     public const ushort LeftExitDoor = 0x91ce;
 

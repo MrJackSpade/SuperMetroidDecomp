@@ -706,7 +706,8 @@ internal static class KraidAudit
             "cartridge mouth damage, all four rock variants plus every damage-enabled " +
             "projectile contact lifecycle, and " +
             "charged-body eye glow/unglow, ceiling growth, palette fade, second-phase " +
-            $"walking/lint attacks, and {deathFrames}-frame sink/death/persistence.");
+            "walking/lint attacks, cartridge-accurate selected/unselected HUD fading on " +
+            $"both exits, and {deathFrames}-frame sink/death/persistence.");
         return 0;
     }
 
@@ -987,20 +988,190 @@ internal static class KraidAudit
                 "Defeated Kraid room initialization did not complete its background restoration.");
         }
 
+        PrepareKraidExitHud(runtime);
         PublishRetailDoor(runtime, bus, doorPointer);
         var transition = new DoorTransitionState();
         transition.Begin(runtime);
         var audio = new CartridgeAudioState();
+        Rgba32[] hudBeforeFade = RenderHud(runtime);
+        ushort[] paletteBeforeFade = runtime.Cgram.Colors.ToArray();
+        bool verifiedSourceFade = false;
         for (int frame = 0; transition.IsActive && frame < 320; frame++)
+        {
             transition.Step(runtime, audio, controllerInput: 0);
+            if (!verifiedSourceFade && transition.Phase == DoorTransitionPhase.LoadDoorHeader)
+            {
+                VerifyKraidExitHudFade(
+                    runtime,
+                    doorPointer,
+                    paletteBeforeFade,
+                    hudBeforeFade);
+                verifiedSourceFade = true;
+            }
+        }
 
-        if (transition.IsActive || runtime.ActiveRoom?.Pointer != destinationRoomPointer)
+        if (!verifiedSourceFade ||
+            transition.IsActive ||
+            runtime.ActiveRoom?.Pointer != destinationRoomPointer)
         {
             throw new InvalidDataException(
                 $"Defeated Kraid exit $83:{doorPointer:X4} did not complete into " +
-                $"$8F:{destinationRoomPointer:X4}.");
+                $"$8F:{destinationRoomPointer:X4}; sourceFade={verifiedSourceFade}.");
         }
         VerifyStandardBg3Restored(bus, runtime);
+    }
+
+    /// <summary>
+    /// Installs two simultaneously visible item families before each real Kraid-room exit.
+    /// Missile is selected and therefore uses HUD palette four; super missile is unselected
+    /// and uses palette five. This makes issue #271's reported asymmetry observable without
+    /// relying on whichever inventory happened to survive the preceding boss audit.
+    /// </summary>
+    private static void PrepareKraidExitHud(SuperMetroidRuntime runtime)
+    {
+        SamusState samus = runtime.Samus ??
+            throw new InvalidDataException("Kraid HUD fade audit lost Samus.");
+        samus.Missiles = 5;
+        samus.MaxMissiles = 5;
+        samus.SuperMissiles = 5;
+        samus.MaxSuperMissiles = 5;
+        samus.SelectedHudItem = 1;
+        runtime.InitializeHud(new HudSnapshot(
+            Health: samus.Health,
+            MaxHealth: samus.MaxHealth,
+            Missiles: samus.Missiles,
+            MaxMissiles: samus.MaxMissiles,
+            SuperMissiles: samus.SuperMissiles,
+            MaxSuperMissiles: samus.MaxSuperMissiles,
+            PowerBombs: samus.PowerBombs,
+            MaxPowerBombs: samus.MaxPowerBombs,
+            EquippedItems: samus.EquippedItems,
+            SelectedItem: samus.SelectedHudItem,
+            ReserveHealth: samus.ReserveEnergy,
+            ReserveMode: samus.ReserveTankMode));
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    }
+
+    /// <summary>
+    /// Validates issue #271 against the exact source-palette endpoint of both retail exits.
+    /// State $10 preserves CGRAM colors 17-19 unconditionally, but preserves colors 21-23
+    /// only when neither room has CRE bit zero. Kraid has that bit, so its selected missile
+    /// remains visible while the unselected super missile intentionally fades to black.
+    /// </summary>
+    private static void VerifyKraidExitHudFade(
+        SuperMetroidRuntime runtime,
+        ushort doorPointer,
+        ReadOnlySpan<ushort> paletteBeforeFade,
+        ReadOnlySpan<Rgba32> hudBeforeFade)
+    {
+        CartridgeRoomHeader sourceRoom = runtime.ActiveRoom ??
+            throw new InvalidDataException("Kraid HUD fade audit lost its source room.");
+        if ((sourceRoom.CreBitset & RoomCreBitsets.SuppressDoorTransitionBg1) == 0)
+        {
+            throw new InvalidDataException(
+                $"Kraid exit $83:{doorPointer:X4} no longer selects the CRE transition path.");
+        }
+
+        for (int color = 0; color < KraidAuditDefinitions.HudItemVisibleColorCount; color++)
+        {
+            int selectedColor = KraidAuditDefinitions.SelectedHudPaletteFirstColor + color;
+            int unselectedColor = KraidAuditDefinitions.UnselectedHudPaletteFirstColor + color;
+            if (runtime.Cgram.Colors[selectedColor] != paletteBeforeFade[selectedColor] ||
+                runtime.Cgram.Colors[unselectedColor] != 0)
+            {
+                throw new InvalidDataException(
+                    $"Kraid exit $83:{doorPointer:X4} violated the cartridge HUD fade rule " +
+                    $"at palette colors {selectedColor}/{unselectedColor}: " +
+                    $"selected=${runtime.Cgram.Colors[selectedColor]:X4}/" +
+                    $"${paletteBeforeFade[selectedColor]:X4}, " +
+                    $"unselected=${runtime.Cgram.Colors[unselectedColor]:X4}.");
+            }
+        }
+
+        Rgba32[] hudAfterFade = RenderHud(runtime);
+        AssertRegionUnchanged(
+            hudBeforeFade,
+            hudAfterFade,
+            KraidAuditDefinitions.MissileIconLeft,
+            KraidAuditDefinitions.HudItemIconTop,
+            KraidAuditDefinitions.MissileIconWidth,
+            KraidAuditDefinitions.HudItemIconHeight,
+            $"selected missile during Kraid exit $83:{doorPointer:X4}");
+        AssertRegionChanged(
+            hudBeforeFade,
+            hudAfterFade,
+            KraidAuditDefinitions.SuperMissileIconLeft,
+            KraidAuditDefinitions.HudItemIconTop,
+            KraidAuditDefinitions.StandardItemIconWidth,
+            KraidAuditDefinitions.HudItemIconHeight,
+            $"unselected super missile during Kraid exit $83:{doorPointer:X4}");
+    }
+
+    private static Rgba32[] RenderHud(SuperMetroidRuntime runtime)
+    {
+        var pixels = new Rgba32[
+            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.HudHeight];
+        SnesBgTilemapRenderer.Render2Bpp(
+            pixels,
+            runtime.Vram,
+            runtime.Cgram,
+            SnesPpuLayout.GameplayHudTilemapWord,
+            runtime.GameplayHudCharacterBaseWord,
+            rowCount: 4);
+        return pixels;
+    }
+
+    private static void AssertRegionUnchanged(
+        ReadOnlySpan<Rgba32> before,
+        ReadOnlySpan<Rgba32> after,
+        int left,
+        int top,
+        int width,
+        int height,
+        string context)
+    {
+        int compared = 0;
+        for (int y = top; y < top + height; y++)
+        {
+            int row = y * SnesGameplayFrameRenderer.Width;
+            for (int x = left; x < left + width; x++)
+            {
+                compared++;
+                if (before[row + x] != after[row + x])
+                {
+                    throw new InvalidDataException(
+                        $"Issue #271 cartridge check changed {context} at ({x},{y}).");
+                }
+            }
+        }
+        if (compared == 0)
+            throw new InvalidDataException($"Issue #271 did not sample {context}.");
+    }
+
+    private static void AssertRegionChanged(
+        ReadOnlySpan<Rgba32> before,
+        ReadOnlySpan<Rgba32> after,
+        int left,
+        int top,
+        int width,
+        int height,
+        string context)
+    {
+        int changed = 0;
+        for (int y = top; y < top + height; y++)
+        {
+            int row = y * SnesGameplayFrameRenderer.Width;
+            for (int x = left; x < left + width; x++)
+            {
+                if (before[row + x] != after[row + x])
+                    changed++;
+            }
+        }
+        if (changed == 0)
+        {
+            throw new InvalidDataException(
+                $"Issue #271 cartridge check did not fade {context}.");
+        }
     }
 
     private static void PublishRetailDoor(

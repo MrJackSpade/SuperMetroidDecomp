@@ -127,6 +127,17 @@ public enum RoomEnemyProjectileKind : ushort
 }
 
 /// <summary>
+/// The mutually exclusive draw pass selected by enemy-projectile property bit
+/// <c>$1000</c>. Bank <c>$86:8390/$83B2</c> traverses the same physical pool once for
+/// each value, on opposite sides of Samus's OAM submission.
+/// </summary>
+public enum EnemyProjectileDrawPriority : byte
+{
+    Low = 0,
+    High = 1,
+}
+
+/// <summary>
 /// Debugger-visible projection of one of bank $86's eighteen fixed enemy-projectile slots.
 /// Positions retain separate 16-bit subpositions because a fireball's signed 8.8 velocity
 /// is added to the high byte of that fraction by the original movement helpers.
@@ -153,6 +164,11 @@ public sealed class RoomEnemyProjectileSlot
     public ushort YRadius { get; internal set; }
     public ushort Damage { get; internal set; }
     public ushort InvincibilityFrames { get; internal set; }
+    /// <summary>
+    /// Draw pass selected by native enemy-projectile property bit <c>$1000</c>.
+    /// This is independent of the two-bit priority stored in each spritemap's OAM word.
+    /// </summary>
+    public EnemyProjectileDrawPriority DrawPriority { get; internal set; }
     /// <summary>
     /// Bank $86's independent <c>eproj_timers</c> word. This is not the frame-list
     /// instruction timer: projectile bytecode explicitly initializes and decrements this
@@ -209,6 +225,7 @@ public sealed class RoomEnemyProjectileSlot
         XVelocity = YVelocity = 0;
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
         GraphicsIndex = XRadius = YRadius = Damage = InvincibilityFrames = GeneralTimer = 0;
+        DrawPriority = EnemyProjectileDrawPriority.Low;
         RemainingAfterburns = NextAfterburnKind = 0;
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = CollidedProjectileType = KilledEnemyNativeIndex = 0;
@@ -509,23 +526,83 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Emits all live Ridley projectiles through the common bank-$81 enemy-projectile
-    /// spritemap writer. Their cartridge properties are $5003, selecting the first enemy-
-    /// projectile draw phase used by the runtime.
+    /// Emits both native enemy-projectile priority passes for focused diagnostics which do
+    /// not draw Samus between them. Gameplay must call the two phase-specific methods so
+    /// property bit <c>$1000</c> determines which side of Samus owns each OAM record.
     /// </summary>
     public void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
 
-        // `$A0:8855` draws global sprite objects before `$A0:885D` draws high-priority
-        // enemy projectiles. Spark's four-frame trail uses that pool, so preserve its OAM
-        // precedence even though both translated collections are owned here.
         DrawRoomSpriteObjects(oam, cameraX, cameraY);
+        DrawEnemyProjectilePass(
+            oam,
+            cameraX,
+            cameraY,
+            EnemyProjectileDrawPriority.High);
+        DrawEnemyProjectilePass(
+            oam,
+            cameraX,
+            cameraY,
+            EnemyProjectileDrawPriority.Low);
+    }
 
-        foreach (RoomEnemyProjectileSlot projectile in _enemyProjectiles)
+    /// <summary>
+    /// Ports <c>Draw_HighPriority_EnemyProjectile</c> at <c>$86:8390</c>, including the
+    /// preceding room-sprite-object phase at <c>$A0:8855</c>.
+    /// </summary>
+    public void DrawHighPriorityEnemyProjectiles(
+        OamBuffer oam,
+        ushort cameraX,
+        ushort cameraY)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        EnsureLoaded();
+
+        // Sprite objects precede only the high pass. Repeating them in the low pass would
+        // duplicate explosions, dust, and Spark's trail in the same hardware OAM image.
+        DrawRoomSpriteObjects(oam, cameraX, cameraY);
+        DrawEnemyProjectilePass(
+            oam,
+            cameraX,
+            cameraY,
+            EnemyProjectileDrawPriority.High);
+    }
+
+    /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
+    public void DrawLowPriorityEnemyProjectiles(
+        OamBuffer oam,
+        ushort cameraX,
+        ushort cameraY)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        EnsureLoaded();
+
+        DrawEnemyProjectilePass(
+            oam,
+            cameraX,
+            cameraY,
+            EnemyProjectileDrawPriority.Low);
+    }
+
+    private void DrawEnemyProjectilePass(
+        OamBuffer oam,
+        ushort cameraX,
+        ushort cameraY,
+        EnemyProjectileDrawPriority priority)
+    {
+        // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
+        // index seventeen therefore reaches OAM first and wins equal-priority overlap.
+        for (int projectileIndex = _enemyProjectiles.Length - 1;
+             projectileIndex >= 0;
+             projectileIndex--)
         {
-            if (!projectile.IsActive || projectile.SpritemapPointer == 0)
+            RoomEnemyProjectileSlot projectile = _enemyProjectiles[projectileIndex];
+
+            if (!projectile.IsActive ||
+                projectile.DrawPriority != priority ||
+                projectile.SpritemapPointer == 0)
                 continue;
 
             ushort screenX = unchecked((ushort)(projectile.XPosition - cameraX));
@@ -650,6 +727,9 @@ public sealed partial class RoomEnemySystem
         ushort properties = ReadWord(_bus!, definition + 8);
         projectile.Damage = unchecked((ushort)(properties & 0x0fff));
         projectile.InvincibilityFrames = 96;
+        projectile.DrawPriority = (properties & 0x1000) != 0
+            ? EnemyProjectileDrawPriority.High
+            : EnemyProjectileDrawPriority.Low;
         projectile.CanDamageSamus = (properties & 0x2000) == 0;
         projectile.PersistsOnSamusContact = (properties & 0x4000) != 0;
         projectile.BlocksSamusProjectiles = (properties & 0x8000) != 0;
@@ -1361,6 +1441,8 @@ public sealed partial class RoomEnemySystem
                     ushort mask = ReadWord(_bus!, 0x860000 |
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage | (mask & 0x0fff)));
+                    if ((mask & 0x1000) != 0)
+                        projectile.DrawPriority = EnemyProjectileDrawPriority.High;
                     if ((mask & 0x2000) != 0)
                         projectile.CanDamageSamus = false;
                     if ((mask & 0x4000) != 0)
@@ -1375,6 +1457,8 @@ public sealed partial class RoomEnemySystem
                     ushort mask = ReadWord(_bus!, 0x860000 |
                         unchecked((ushort)(cursor + 2)));
                     projectile.Damage = unchecked((ushort)(projectile.Damage & (mask & 0x0fff)));
+                    if ((mask & 0x1000) == 0)
+                        projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
                     if ((mask & 0x2000) == 0)
                         projectile.CanDamageSamus = true;
                     if ((mask & 0x4000) == 0)
@@ -1409,7 +1493,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_SetHighPriority:
+                    projectile.DrawPriority = EnemyProjectileDrawPriority.High;
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case EnemyProjectileCodePointers.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
+                    projectile.DrawPriority = EnemyProjectileDrawPriority.Low;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_XYRadiusInY:

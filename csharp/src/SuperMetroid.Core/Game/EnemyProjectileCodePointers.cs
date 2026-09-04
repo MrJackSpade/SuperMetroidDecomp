@@ -291,10 +291,10 @@ internal static class EnemyProjectileCodePointers
     /// <summary><c>UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A</c> at $86:827A. Delete actor after Samus contact.</summary>
     public const ushort UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A = 0x827a;
 
-    /// <summary><c>Instruction_EnemyProjectile_SetHighPriority</c> at $86:8284. Set low OAM priority; draw queue priority is not split yet.</summary>
+    /// <summary><c>Instruction_EnemyProjectile_SetHighPriority</c> at $86:8284. Set property bit $1000 and select the pre-Samus draw pass.</summary>
     public const ushort Instruction_EnemyProjectile_SetHighPriority = 0x8284;
 
-    /// <summary><c>UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E</c> at $86:828E. Set high OAM priority.</summary>
+    /// <summary><c>UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E</c> at $86:828E. Clear property bit $1000 and select the post-Samus draw pass.</summary>
     public const ushort UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E = 0x828e;
 
     /// <summary><c>Instruction_EnemyProjectile_XYRadiusInY</c> at $86:8298. Set packed {X,Y} collision radii.</summary>

@@ -3679,7 +3679,12 @@ public sealed partial class SuperMetroidRuntime
                 // Samus; lower OAM indices retain their native same-priority overlap win.
                 CeresElevatorArrival?.Draw(Oam, Camera.XPosition, Camera.YPosition);
                 if (Enemies.IsLoaded)
-                    Enemies.DrawEnemyProjectiles(Oam, Camera.XPosition, Camera.YPosition);
+                {
+                    Enemies.DrawHighPriorityEnemyProjectiles(
+                        Oam,
+                        Camera.XPosition,
+                        Camera.YPosition);
+                }
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
             }
 
@@ -3995,6 +4000,14 @@ public sealed partial class SuperMetroidRuntime
             // native source calls this pass DrawHighPriorityEprojs.
             if (!deathOwnsSamus)
                 drawLowPriorityEnemyProjectiles?.Invoke(Oam);
+
+            if (!deathOwnsSamus && Enemies.IsLoaded)
+            {
+                Enemies.DrawLowPriorityEnemyProjectiles(
+                    Oam,
+                    Camera.XPosition,
+                    Camera.YPosition);
+            }
 
             if (!deathOwnsSamus && Enemies.IsLoaded)
                 Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 6, 7);

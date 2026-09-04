@@ -39,26 +39,26 @@ public static class SamusBlockCollision
         RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(state);
-        SamusKinematicsState probe = new()
-        {
-            CollisionPose = state.CollisionPose,
-            XPosition = state.XPosition,
-            XSubposition = state.XSubposition,
-            YPosition = state.YPosition,
-            YSubposition = state.YSubposition,
-            XRadius = state.XRadius,
-            YRadius = state.YRadius,
-            YSpeed = state.YSpeed,
-            YSubspeed = state.YSubspeed,
-            YDirection = state.YDirection,
-            YAcceleration = state.YAcceleration,
-            YSubacceleration = state.YSubacceleration,
-            HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable,
-            PositionAdjustedBySlope = state.PositionAdjustedBySlope,
-            // The enemy entries are immutable value snapshots. Sharing their ordered list is
-            // safe, and lets the observational wall probe see exactly the same native actors.
-            InteractiveEnemies = state.InteractiveEnemies,
-        };
+        SamusKinematicsState probe = state.SamusOwner is null
+            ? new SamusKinematicsState()
+            : new SamusKinematicsState(state.SamusOwner);
+        probe.CollisionPose = state.CollisionPose;
+        probe.XPosition = state.XPosition;
+        probe.XSubposition = state.XSubposition;
+        probe.YPosition = state.YPosition;
+        probe.YSubposition = state.YSubposition;
+        probe.XRadius = state.XRadius;
+        probe.YRadius = state.YRadius;
+        probe.YSpeed = state.YSpeed;
+        probe.YSubspeed = state.YSubspeed;
+        probe.YDirection = state.YDirection;
+        probe.YAcceleration = state.YAcceleration;
+        probe.YSubacceleration = state.YSubacceleration;
+        probe.HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable;
+        probe.PositionAdjustedBySlope = state.PositionAdjustedBySlope;
+        // The enemy entries are immutable value snapshots. Sharing their ordered list is
+        // safe, and lets the observational wall probe see exactly the same native actors.
+        probe.InteractiveEnemies = state.InteractiveEnemies;
 
         // Reusing the translated horizontal dispatcher also preserves square-slope and
         // unsupported-block behavior. Any post-scan slope alignment touches only `probe`,
@@ -245,10 +245,13 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpikeBlock:
-                        // Spike blocks occupy the solid side of `$94:9515`; preserve that
-                        // exact clipping topology here. Their BTS-selected damage writes
-                        // require the full Samus owner and remain an explicitly documented
-                        // producer seam rather than being guessed from kinematics alone.
+                        if (state.SamusOwner is { } horizontalSamus)
+                        {
+                            SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                                bus,
+                                horizontalSamus,
+                                block);
+                        }
                         acceptedDisplacement = ClipHorizontalToSolid(
                             state,
                             acceptedDisplacement,
@@ -537,6 +540,13 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpikeBlock:
+                        if (state.SamusOwner is { } verticalSamus)
+                        {
+                            SamusTerrainHazardCollision.ApplySolidSpikeCollision(
+                                bus,
+                                verticalSamus,
+                                block);
+                        }
                         acceptedDisplacement = ClipVerticalToSolid(
                             state,
                             acceptedDisplacement,

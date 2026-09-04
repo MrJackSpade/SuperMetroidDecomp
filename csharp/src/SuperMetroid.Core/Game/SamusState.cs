@@ -391,10 +391,17 @@ public sealed partial class SamusState
     public byte? PendingTransitionalPose { get; private set; }
 
     /// <summary>Exact fixed-point position/radius words consumed by bank-$94 collision.</summary>
-    public SamusKinematicsState Kinematics { get; } = new();
+    public SamusKinematicsState Kinematics { get; }
+
+    /// <summary>
+    /// Room-dependent admission for spike-block BTS zero, populated by the alpha-phase
+    /// inside-block owner before beta movement reaches a directional collision scan.
+    /// </summary>
+    internal bool OrdinarySpikeBlockBtsZeroDamageEnabled { get; set; } = true;
 
     public SamusState()
     {
+        Kinematics = new SamusKinematicsState(this);
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = _pose;

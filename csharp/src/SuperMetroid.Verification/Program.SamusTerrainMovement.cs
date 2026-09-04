@@ -401,7 +401,165 @@ static void VerifySamusBlockCollision()
             $"body dispatcher type ${(collisionWord >> 12):X1} accepted displacement");
     }
 
-    Console.WriteLine("  Samus blocks: all sixteen dispatcher types, spans, slopes, prefilled edges, and doors agree.");
+    // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
+    // must publish the exact `$94:8E83/$8ECF/$8F0A` spike damage before clipping. Exercise
+    // every damaging table entry plus the harmless entry two with an identical floor hit.
+    bus.WriteByte(
+        SamusMovementRomData.Poses.Definitions +
+            SamusPoseIds.FacingRightNormalPose *
+            SamusMovementRomData.Poses.DefinitionByteCount,
+        (byte)SamusFacingDirection.Right);
+    foreach ((byte spikeBehavior, ushort expectedDamage) in new (byte, ushort)[]
+    {
+        (SamusTerrainHazardRomData.HeavySpikeBlockBehavior,
+            SamusTerrainHazardRomData.HeavySpikeDamage),
+        (SamusTerrainHazardRomData.LightSpikeBlockBehavior,
+            SamusTerrainHazardRomData.LightSpikeDamage),
+        (SamusTerrainHazardRomData.AlternateLightSpikeBlockBehavior,
+            SamusTerrainHazardRomData.LightSpikeDamage),
+        (2, 0),
+    })
+    {
+        var spikeWords = new ushort[width * height];
+        var spikeBehaviors = new byte[spikeWords.Length];
+        spikeWords[2 * width + 1] = 0xa000;
+        spikeBehaviors[2 * width + 1] = spikeBehavior;
+        RoomLevelData spikeLevel = CreateRoom(width, height, spikeWords, spikeBehaviors);
+        var spikeSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 24,
+            YPosition = 26,
+        };
+        spikeSamus.Kinematics.XRadius = 5;
+        spikeSamus.Kinematics.YRadius = 5;
+        SamusTerrainHazardCollision.PrepareFrame(
+            bus,
+            spikeLevel,
+            spikeSamus,
+            AreaId.Norfair,
+            areaBossDefeated: false);
+
+        BlockMoveResult spikeFloor = SamusBlockCollision.MoveVertical(
+            bus,
+            spikeLevel,
+            spikeSamus.Kinematics,
+            displacement: 2 << 16,
+            scanLeftToRight: true);
+        AssertTrue(spikeFloor.Collided,
+            $"spike-block BTS ${spikeBehavior:X2} retains solid collision");
+        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
+            $"spike-block BTS ${spikeBehavior:X2} publishes cartridge damage");
+        AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.InvincibilityFrames,
+            spikeSamus.InvincibilityTimer,
+            $"spike-block BTS ${spikeBehavior:X2} publishes invincibility timer");
+        AssertEqual(expectedDamage == 0 ? 0 : SamusTerrainHazardRomData.KnockbackFrames,
+            spikeSamus.KnockbackTimer,
+            $"spike-block BTS ${spikeBehavior:X2} publishes knockback timer");
+        AssertEqual(0, spikeSamus.KnockbackXDirection,
+            $"right-facing spike-block BTS ${spikeBehavior:X2} knocks left");
+    }
+
+    // BTS-zero Wrecked Ship spikes are the one room-state-dependent table entry. They are
+    // harmless before the area boss bit and become 60-damage spikes after it is set.
+    foreach ((bool bossDefeated, ushort expectedDamage) in new[]
+    {
+        (false, (ushort)0),
+        (true, SamusTerrainHazardRomData.HeavySpikeDamage),
+    })
+    {
+        var spikeWords = new ushort[width * height];
+        var spikeBehaviors = new byte[spikeWords.Length];
+        spikeWords[2 * width + 1] = 0xa000;
+        spikeBehaviors[2 * width + 1] = SamusTerrainHazardRomData.HeavySpikeBlockBehavior;
+        RoomLevelData wreckedShipSpikes = CreateRoom(width, height, spikeWords, spikeBehaviors);
+        var spikeSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 24,
+            YPosition = 26,
+        };
+        spikeSamus.Kinematics.XRadius = 5;
+        spikeSamus.Kinematics.YRadius = 5;
+        SamusTerrainHazardCollision.PrepareFrame(
+            bus,
+            wreckedShipSpikes,
+            spikeSamus,
+            AreaId.WreckedShip,
+            bossDefeated);
+        _ = SamusBlockCollision.MoveVertical(
+            bus,
+            wreckedShipSpikes,
+            spikeSamus.Kinematics,
+            displacement: 2 << 16,
+            scanLeftToRight: true);
+        AssertEqual(expectedDamage, spikeSamus.LiquidPhysics.PeriodicDamage,
+            $"Wrecked Ship BTS-zero spike boss gate {bossDefeated}");
+    }
+
+    // `$94:9B60` visits bottom, center, and top only when they occupy distinct block rows.
+    // Put the damaging spike-air tile at each point in turn and assert the same side effects.
+    foreach (int spikeRow in new[] { 0, 1, 2 })
+    {
+        var spikeAirWords = new ushort[width * height];
+        var spikeAirBehaviors = new byte[spikeAirWords.Length];
+        spikeAirWords[spikeRow * width + 1] = 0x2000;
+        spikeAirBehaviors[spikeRow * width + 1] =
+            SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
+        RoomLevelData spikeAirLevel = CreateRoom(
+            width,
+            height,
+            spikeAirWords,
+            spikeAirBehaviors);
+        var spikeAirSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 24,
+            YPosition = 24,
+        };
+        spikeAirSamus.Kinematics.YRadius = 17;
+        SamusTerrainHazardCollision.PrepareFrame(
+            bus,
+            spikeAirLevel,
+            spikeAirSamus,
+            AreaId.Norfair,
+            areaBossDefeated: false);
+        AssertEqual(SamusTerrainHazardRomData.LightSpikeDamage,
+            spikeAirSamus.LiquidPhysics.PeriodicDamage,
+            $"inside-block spike-air damages at sampled row {spikeRow}");
+        AssertEqual(SamusTerrainHazardRomData.InvincibilityFrames,
+            spikeAirSamus.InvincibilityTimer,
+            $"inside-block spike-air starts invincibility at sampled row {spikeRow}");
+    }
+
+    var contactSafeWords = new ushort[width * height];
+    var contactSafeBehaviors = new byte[contactSafeWords.Length];
+    contactSafeWords[1 * width + 1] = 0x2000;
+    contactSafeBehaviors[1 * width + 1] =
+        SamusTerrainHazardRomData.DamagingSpikeAirBehavior;
+    RoomLevelData contactSafeSpikeAir = CreateRoom(
+        width,
+        height,
+        contactSafeWords,
+        contactSafeBehaviors);
+    var contactSafeSamus = new SamusState
+    {
+        Pose = SamusPoseIds.FacingRightNormalPose,
+        XPosition = 24,
+        YPosition = 24,
+    };
+    contactSafeSamus.Kinematics.YRadius = 5;
+    contactSafeSamus.HorizontalSpeed.ContactDamageIndex = 1;
+    SamusTerrainHazardCollision.PrepareFrame(
+        bus,
+        contactSafeSpikeAir,
+        contactSafeSamus,
+        AreaId.Norfair,
+        areaBossDefeated: false);
+    AssertEqual(0, contactSafeSamus.LiquidPhysics.PeriodicDamage,
+        "active contact-damage body suppresses spike-air damage");
+
+    Console.WriteLine("  Samus blocks: all sixteen dispatchers, spans, slopes, doors, and ordinary spike damage agree.");
 }
 
 /// <summary>

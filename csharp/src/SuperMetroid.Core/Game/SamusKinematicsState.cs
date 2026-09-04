@@ -18,6 +18,24 @@ public sealed class SamusKinematicsState
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 
     /// <summary>
+    /// Full Samus owner for bank-$94 collision side effects that cannot be represented by
+    /// position words alone, notably spike damage and hurt timers. Standalone synthetic
+    /// kinematics remain valid and intentionally have no damage owner.
+    /// </summary>
+    internal SamusState? SamusOwner { get; }
+
+    /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
+    public SamusKinematicsState()
+    {
+    }
+
+    /// <summary>Constructs the live collision child owned by one <see cref="SamusState"/>.</summary>
+    internal SamusKinematicsState(SamusState samusOwner)
+    {
+        SamusOwner = samusOwner ?? throw new ArgumentNullException(nameof(samusOwner));
+    }
+
+    /// <summary>
     /// Current pose byte sampled by bank-$94 collision. Door collision is mostly geometric,
     /// but the elevator pseudo-door handlers admit only poses below $09 before publishing
     /// <c>elevator_flags</c>. Keeping that byte beside the geometry lets every shared block

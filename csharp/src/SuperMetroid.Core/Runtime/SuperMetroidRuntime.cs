@@ -1527,6 +1527,18 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Kinematics.ExtraXDisplacement = 0;
                 Samus.Kinematics.ExtraYSubdisplacement = 0;
                 Samus.Kinematics.ExtraYDisplacement = 0;
+
+                if (LevelData is null || ActiveRoom is null)
+                {
+                    throw new InvalidOperationException(
+                        "Live Samus terrain reactions require an active cartridge room.");
+                }
+                SamusTerrainHazardCollision.PrepareFrame(
+                    _addressSpace,
+                    LevelData,
+                    Samus,
+                    ActiveRoom.AreaIndex,
+                    System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
             }
             Enemies.StepFrame(
                 Camera.XPosition,

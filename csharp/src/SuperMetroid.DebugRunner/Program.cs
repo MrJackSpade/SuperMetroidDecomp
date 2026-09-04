@@ -153,6 +153,14 @@ if (args.Length >= 3 && args[0] == "--save-station-audit")
     return SaveStationAudit.Run(saveStationRomPath, saveStationOutputDirectory);
 }
 
+if (args.Length == 4 && args[0] == "--save-station-recording-audit")
+{
+    return SaveStationAudit.RunRecording(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        args[3].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--early-controller-route-audit")
 {
     string controllerRouteRomPath = string.Join(' ', args[1..]).Trim('"');

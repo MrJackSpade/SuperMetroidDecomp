@@ -6,10 +6,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using System.Security.Cryptography;
 
 /// <summary>Cartridge-room reproduction of the complete save-pod interaction.</summary>
 internal static class SaveStationAudit
 {
+    private const ushort MaridiaSaveRoom = 0xb167;
+
     public static int Run(string romPath, string outputDirectory)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -146,6 +149,116 @@ internal static class SaveStationAudit
             $"Samus X ${unsnappedX:X4}->${expectedSnappedX:X4}, " +
             $"animation {animationFrames} frames, {electricityPixels} visible electricity " +
             "pixels and one-entry lockout verified.");
+        return 0;
+    }
+
+    /// <summary>
+    /// Replays the player's exact room-$02/$32 session for issue #55. Unlike the compact
+    /// synthetic audit above, this retains every preceding door, pose, collision, and
+    /// message-box input so an intermittent failure cannot be hidden by staging Samus in
+    /// an idealized standing pose beside the pod.
+    /// </summary>
+    public static int RunRecording(
+        string recordingPath,
+        string romPath,
+        string outputDirectory)
+    {
+        ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
+        string fullRomPath = Path.GetFullPath(romPath);
+        byte[] digest;
+        using (FileStream rom = File.OpenRead(fullRomPath))
+            digest = SHA256.HashData(rom);
+        if (!CryptographicOperations.FixedTimeEquals(digest, recording.RomSha256))
+            throw new InvalidDataException("Save-station replay ROM digest does not match.");
+
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(fullRomPath);
+        recording.InitialSaveRam.CopyTo(bus.SaveRam);
+        var game = new SuperMetroidGame(bus, recording.GameOptions);
+        var apuPortEchoes = new byte[4];
+        SaveStationPhase? previousPhase = null;
+        GameplayMessageBoxPhase previousMessagePhase = GameplayMessageBoxPhase.Inactive;
+        int roomEntries = 0;
+        int acceptedSaves = 0;
+        ushort? previousRoom = null;
+        ushort previousSamusX = 0;
+        Directory.CreateDirectory(outputDirectory);
+
+        for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
+        {
+            FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
+            foreach (SuperMetroid.Core.Audio.CartridgeAudioCommand command in frame.AudioCommands)
+            {
+                if (command.Kind == SuperMetroid.Core.Audio.CartridgeAudioCommandKind.WritePort)
+                    apuPortEchoes[command.Port] = command.Value;
+            }
+            game.SetAudioAcknowledgements(new SuperMetroid.Core.Audio.CartridgeAudioAcknowledgements(
+                apuPortEchoes[0],
+                apuPortEchoes[1],
+                apuPortEchoes[2],
+                apuPortEchoes[3]));
+
+            SuperMetroidRuntime? runtime = game.RuntimeForVerification;
+            ushort? roomPointer = runtime?.ActiveRoom?.Pointer;
+            if (roomPointer != previousRoom && roomPointer == MaridiaSaveRoom)
+            {
+                roomEntries++;
+                previousPhase = null;
+                previousMessagePhase = GameplayMessageBoxPhase.Inactive;
+            }
+            previousRoom = roomPointer;
+            if (roomPointer != MaridiaSaveRoom || runtime?.Samus is not SamusState samus ||
+                runtime.LevelData is null)
+            {
+                continue;
+            }
+
+            StationPlmSnapshot station = runtime.Plms.Stations.Single(candidate =>
+                candidate.Kind == StationKind.Save);
+            if (station.SavePhase != previousPhase ||
+                runtime.MessageBox.Phase != previousMessagePhase)
+            {
+                Console.WriteLine(
+                    $"save rec={frameIndex} phase={station.SavePhase}, " +
+                    $"message={runtime.MessageBox.Phase}/${runtime.MessageBox.MessageId}, " +
+                    $"pose=${samus.Pose:X2}, xy=(${samus.XPosition:X4},${samus.YPosition:X4}), " +
+                    $"locked={samus.InputLocked}, input=${recording.ControllerInputs[frameIndex]:X4}");
+            }
+
+            if (previousPhase == SaveStationPhase.AwaitingConfirmation &&
+                station.SavePhase == SaveStationPhase.Animating)
+            {
+                acceptedSaves++;
+                // PlaceSamusOnSaveStation does not derive the center from PLM geometry.
+                // It rounds the live actor X at the moment bank $85 returns to the next
+                // sixteen-pixel center, so retain the previous frame's exact position.
+                ushort expectedX = unchecked((ushort)((previousSamusX + 8) & 0xfff0));
+                if (samus.XPosition != expectedX ||
+                    !SamusState.IsForwardFacingPose(samus.Pose) ||
+                    !samus.InputLocked)
+                {
+                    throw new InvalidDataException(
+                        $"Exact room-$02/$32 replay accepted save at frame {frameIndex} " +
+                        $"without native pod placement: X=${samus.XPosition:X4}/" +
+                        $"${expectedX:X4}, pose=${samus.Pose:X2}, locked={samus.InputLocked}.");
+                }
+                WriteFrame(outputDirectory, $"Room-02-32-accepted-{acceptedSaves}.png", runtime);
+            }
+
+            previousPhase = station.SavePhase;
+            previousMessagePhase = runtime.MessageBox.Phase;
+            previousSamusX = samus.XPosition;
+        }
+
+        if (roomEntries != 2 || acceptedSaves == 0)
+        {
+            throw new InvalidDataException(
+                $"Exact save replay visited room $02/$32 {roomEntries} times and accepted " +
+                $"{acceptedSaves} saves; expected two entries and at least one acceptance.");
+        }
+
+        Console.WriteLine(
+            $"Exact room-$02/$32 save replay passed: {roomEntries} entries and " +
+            $"{acceptedSaves} cartridge-aligned accepted saves.");
         return 0;
     }
 

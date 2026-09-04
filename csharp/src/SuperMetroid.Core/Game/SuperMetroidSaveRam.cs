@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// <c>$81:8000-$81:812A</c> stores one contiguous WRAM mirror ($D7C0-$DE1B), then writes
 /// both a checksum and its complement into two redundant SRAM directories. Keeping that
-/// physical layout means the desktop-produced <c>.srm</c> is inspectable by ordinary SNES
-/// tools instead of being a private C# serialization format.
+/// physical layout remains the in-memory cartridge ABI and the lossless source for legacy
+/// emulator-save migration, even though the desktop now persists a named JSON projection.
 /// </remarks>
 public sealed class SuperMetroidSaveRam
 {
@@ -100,6 +100,8 @@ public sealed class SuperMetroidSaveRam
                 AimDown: ReadSramWord(slotOffset + SaveRamLayout.AimDownButtonOffset))
                 .RequireRetailPermutation(),
             MoonwalkEnabled = ReadSramWord(slotOffset + SaveRamLayout.MoonwalkOffset) != 0,
+            DebugFlag = ReadSramWord(slotOffset + SaveRamLayout.DebugFlagOffset),
+            NewFileMarker = ReadSramWord(slotOffset + SaveRamLayout.NewFileMarkerOffset),
             IconCancelEnabled = ReadSramWord(slotOffset + SaveRamLayout.IconCancelOffset) != 0,
         };
     }
@@ -109,10 +111,26 @@ public sealed class SuperMetroidSaveRam
     /// The slot payload and four directory words are byte-for-byte cartridge structures.
     /// </summary>
     public void SaveSlot(int slot, SuperMetroidSaveSnapshot snapshot)
+        => SaveSlot(slot, snapshot, preserveUntranslatedBytes: false);
+
+    /// <summary>
+    /// Writes every translated field while retaining bytes that are not yet represented by
+    /// <see cref="SuperMetroidSaveSnapshot"/>. JSON migration uses this path after restoring
+    /// its preservation image; ordinary cartridge-created saves continue using a clean slot.
+    /// </summary>
+    public void SaveSlotPreservingUntranslatedBytes(int slot, SuperMetroidSaveSnapshot snapshot)
+        => SaveSlot(slot, snapshot, preserveUntranslatedBytes: true);
+
+    private void SaveSlot(
+        int slot,
+        SuperMetroidSaveSnapshot snapshot,
+        bool preserveUntranslatedBytes)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         int slotOffset = GetSlotOffset(slot);
-        var payload = new byte[SlotByteCount];
+        byte[] payload = preserveUntranslatedBytes
+            ? ReadSramBytes(slotOffset, SlotByteCount)
+            : new byte[SlotByteCount];
 
         WriteWord(payload, SaveRamLayout.EquippedItemsOffset, snapshot.EquippedItems);
         WriteWord(payload, SaveRamLayout.CollectedItemsOffset, snapshot.CollectedItems);
@@ -157,10 +175,8 @@ public sealed class SuperMetroidSaveRam
         WriteWord(payload, SaveRamLayout.GameTimeMinutesOffset, snapshot.GameTimeMinutes);
         WriteWord(payload, SaveRamLayout.GameTimeHoursOffset, snapshot.GameTimeHours);
         WriteWord(payload, SaveRamLayout.MoonwalkOffset, snapshot.MoonwalkEnabled ? (ushort)1 : (ushort)0);
-        // NewSaveFile deliberately initializes both of these otherwise obscure words to
-        // one before the intro's first save. They are part of the checksummed 96-byte copy.
-        WriteWord(payload, SaveRamLayout.DebugFlagOffset, 1);
-        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, 1);
+        WriteWord(payload, SaveRamLayout.DebugFlagOffset, snapshot.DebugFlag);
+        WriteWord(payload, SaveRamLayout.NewFileMarkerOffset, snapshot.NewFileMarker);
         WriteWord(payload, SaveRamLayout.IconCancelOffset, snapshot.IconCancelEnabled ? (ushort)1 : (ushort)0);
 
         if (snapshot.EventBytes.Length != Bank80SystemState.EventByteCount)
@@ -434,8 +450,54 @@ public sealed record SuperMetroidSaveSlot(
     /// <summary>Saved nonzero WRAM word <c>$09E4</c>.</summary>
     public bool MoonwalkEnabled { get; init; }
 
+    /// <summary>Checksummed cartridge word at WRAM <c>$09E6</c>.</summary>
+    public ushort DebugFlag { get; init; }
+
+    /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
+    public ushort NewFileMarker { get; init; }
+
     /// <summary>Saved nonzero WRAM word <c>$09EA</c>.</summary>
     public bool IconCancelEnabled { get; init; }
+
+    /// <summary>Creates the complete translated snapshot accepted by the SRAM encoder.</summary>
+    public SuperMetroidSaveSnapshot ToSnapshot() => new()
+    {
+        ControllerBindings = ControllerBindings,
+        MoonwalkEnabled = MoonwalkEnabled,
+        DebugFlag = DebugFlag,
+        NewFileMarker = NewFileMarker,
+        IconCancelEnabled = IconCancelEnabled,
+        EquippedItems = EquippedItems,
+        CollectedItems = CollectedItems,
+        EquippedBeams = EquippedBeams,
+        CollectedBeams = CollectedBeams,
+        ReserveMode = ReserveMode,
+        Health = Health,
+        MaxHealth = MaxHealth,
+        Missiles = Missiles,
+        MaxMissiles = MaxMissiles,
+        SuperMissiles = SuperMissiles,
+        MaxSuperMissiles = MaxSuperMissiles,
+        PowerBombs = PowerBombs,
+        MaxPowerBombs = MaxPowerBombs,
+        HudItem = HudItem,
+        MaxReserveEnergy = MaxReserveEnergy,
+        ReserveEnergy = ReserveEnergy,
+        GameTimeFrames = GameTimeFrames,
+        GameTimeSeconds = GameTimeSeconds,
+        GameTimeMinutes = GameTimeMinutes,
+        GameTimeHours = GameTimeHours,
+        SaveStation = SaveStation,
+        Area = Area,
+        EventBytes = EventBytes.ToArray(),
+        BossBytes = BossBytes.ToArray(),
+        RoomChozoBytes = RoomChozoBytes.ToArray(),
+        CollectedItemBytes = CollectedItemBytes.ToArray(),
+        OpenedDoorBytes = OpenedDoorBytes.ToArray(),
+        UsedSaveStationBytes = UsedSaveStationBytes.ToArray(),
+        MapStationBytes = MapStationBytes.ToArray(),
+        ExploredMapBytes = ExploredMapBytes.ToArray(),
+    };
 
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
     public void ApplyTo(SamusState samus)
@@ -480,6 +542,10 @@ public sealed record SuperMetroidSaveSnapshot
 {
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;
     public bool MoonwalkEnabled { get; init; }
+    /// <summary>Checksummed cartridge word at WRAM <c>$09E6</c>.</summary>
+    public ushort DebugFlag { get; init; } = 1;
+    /// <summary>Checksummed new-file marker at WRAM <c>$09E8</c>.</summary>
+    public ushort NewFileMarker { get; init; } = 1;
     public bool IconCancelEnabled { get; init; }
     public ushort EquippedItems { get; init; }
     public ushort CollectedItems { get; init; }

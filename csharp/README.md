@@ -111,12 +111,23 @@ because their outer runtime boundary cannot resume. Unknown sections, unknown or
 keys, invalid Booleans, malformed repository names, and out-of-range volume values fail with
 a file and line number.
 
-Battery-backed data is stored as an 8 KiB `.srm` beside the ROM. The implementation includes
-the redundant cartridge checksums, file-select ENERGY/TIME metadata, inventory and equipment,
-events, boss bits, Chozo/item bits, explored map data, Ceres automatic checkpoint, natural
-gunship save/reload, and room save-station confirmation/persistence. Existing saves resolve the native area/load-station record. Their native
-load-appearance presentation now runs its ROM palette effect and complete 360-frame locked
-front-facing sequence before restoring ordinary movement.
+Battery-backed data is stored as an indented, versioned `.save.json` beside the ROM. Each
+slot names its checkpoint, resources, equipment, controller bindings, game time, progression
+bit sets, boss state, and explored map coordinates. A clearly labelled preservation section
+retains untranslated native SRAM bytes, while the named fields remain authoritative when the
+file is loaded or edited. Writes use a same-directory temporary file and atomic replacement;
+the previous JSON is retained as `.save.json.bak`.
+
+When no JSON save exists, an existing 8 KiB `.srm` is imported once and immediately written
+as JSON. The legacy `.srm` is left untouched as a migration backup and is no longer updated.
+Malformed JSON, unknown properties, unsupported schema versions, invalid enum/bit values,
+and wrong-sized legacy saves fail with the file and property path instead of being ignored.
+The implementation retains cartridge checksums, file-select ENERGY/TIME metadata, inventory
+and equipment, events, boss bits, Chozo/item bits, explored map data, Ceres automatic
+checkpoint, natural gunship save/reload, and room save-station confirmation/persistence.
+Existing saves resolve the native area/load-station record. Their native load-appearance
+presentation runs its ROM palette effect and complete 360-frame locked front-facing sequence
+before restoring ordinary movement.
 
 ### Automatic input recordings and replay
 
@@ -125,7 +136,7 @@ private ROM. The `.smrec` file contains the reset-time 8 KiB SRAM image, the ROM
 digest, the startup host option, and one raw controller word for every submitted frame. It
 does not contain ROM bytes. Periodic atomic flushes run off the UI thread; closing the game,
 restarting, or exiting after a managed failure waits for a final flush. Because Restart reads
-the current `.srm` before opening a new recording, each session begins from the last durable
+the current `.save.json` before opening a new recording, each session begins from the last durable
 save instead of carrying an earlier in-memory run forward.
 
 Replay a captured failure with the automatically discovered ROM:
@@ -136,7 +147,7 @@ dotnet run --project src/SuperMetroid.Game -- --replay "C:\path\to\input-recordi
 
 An explicit ROM path may follow the recording path. Replay rejects a SHA-256 mismatch, uses
 the recording's SRAM/INI seed, ignores live keyboard/gamepad input, and never writes replay mutations
-back to the user's `.srm`.
+back to the user's `.save.json`.
 
 ### Debugger save states
 

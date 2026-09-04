@@ -143,6 +143,7 @@ VerifyLibraryBackgroundLoader();
 VerifyGameConfigurationIni();
 VerifyControllerInputRecording();
 VerifySaveRamLayout();
+VerifyGameSaveJsonPersistence();
 VerifyFileSelectFreshSaveTilemap();
 VerifySavedGameLoadAppearance();
 VerifyIntroCinematicRomData();

@@ -17,7 +17,8 @@ namespace SuperMetroid.Desktop;
 public sealed class PlayableGameControl : UserControl
 {
     private readonly string romPath;
-    private readonly string saveRamPath;
+    private readonly string saveFilePath;
+    private readonly string legacySaveRamPath;
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly ControllerInputRecording? replay;
     private readonly GitHubErrorReporter? errorReporter;
@@ -57,7 +58,9 @@ public sealed class PlayableGameControl : UserControl
         GitHubErrorReporter? errorReporter = null)
     {
         this.romPath = romPath;
-        saveRamPath = Path.ChangeExtension(Path.GetFullPath(romPath), ".srm");
+        string fullRomPath = Path.GetFullPath(romPath);
+        saveFilePath = Path.ChangeExtension(fullRomPath, GameSaveJsonFormat.FileExtension);
+        legacySaveRamPath = Path.ChangeExtension(fullRomPath, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         this.replay = replay;
         this.errorReporter = errorReporter;
@@ -311,17 +314,16 @@ public sealed class PlayableGameControl : UserControl
     /// </summary>
     private void LoadSaveRamFromDisk()
     {
-        if (!File.Exists(saveRamPath))
-            return;
-
-        byte[] bytes = File.ReadAllBytes(saveRamPath);
-        if (bytes.Length != SuperMetroidAddressSpace.SaveRamByteCount)
+        GameSaveLoadResult result = GameSaveFileStore.LoadOrMigrate(
+            addressSpace,
+            saveFilePath,
+            legacySaveRamPath);
+        if (result.MigratedLegacySram)
         {
-            throw new InvalidDataException(
-                $"Save RAM '{saveRamPath}' contains {bytes.Length} bytes; " +
-                $"Super Metroid requires exactly {SuperMetroidAddressSpace.SaveRamByteCount} bytes.");
+            Console.WriteLine(
+                $"Migrated legacy save RAM '{legacySaveRamPath}' to human-readable " +
+                $"JSON '{result.JsonPath}'. The original .srm was retained unchanged.");
         }
-        bytes.CopyTo(addressSpace.SaveRam);
     }
 
     /// <summary>
@@ -330,7 +332,7 @@ public sealed class PlayableGameControl : UserControl
     /// stopped at a breakpoint or closed immediately after the Ceres checkpoint.
     /// </summary>
     private void PersistSaveRamToDisk() =>
-        File.WriteAllBytes(saveRamPath, addressSpace.SaveRam.ToArray());
+        GameSaveFileStore.WriteAtomic(addressSpace, saveFilePath);
 
     private void StepFrame(ushort? forcedInput = null)
     {

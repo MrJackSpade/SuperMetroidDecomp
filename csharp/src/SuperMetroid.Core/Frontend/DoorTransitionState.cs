@@ -22,6 +22,8 @@ public sealed class DoorTransitionState
     private CartridgeDoorHeader? door;
     private uint sourceSamusXFixed;
     private uint sourceSamusYFixed;
+    private byte sourceCreBitset;
+    private byte destinationCreBitset;
 
     public DoorTransitionPhase Phase { get; private set; } = DoorTransitionPhase.Inactive;
 
@@ -37,6 +39,9 @@ public sealed class DoorTransitionState
 
         runtime.Samus.InputLocked = true;
         door = runtime.PendingDoorTransition;
+        sourceCreBitset = runtime.ActiveRoom?.CreBitset
+            ?? throw new InvalidOperationException("Door transition requires a source room header.");
+        destinationCreBitset = runtime.PendingDoorDestinationCreBitset;
         sourceSamusXFixed = runtime.Samus.Kinematics.XFixed;
         sourceSamusYFixed = runtime.Samus.Kinematics.YFixed;
         paletteTransition = new CartridgePaletteTransition(
@@ -77,6 +82,7 @@ public sealed class DoorTransitionState
                 // header was captured by Begin; retaining this separate call preserves the
                 // coroutine boundary and its one accepted NMI.
                 runtime.RunBlankGameplayFrame(controllerInput);
+                runtime.BeginDoorTransitionIrqDisplay(sourceCreBitset, destinationCreBitset);
                 Phase = DoorTransitionPhase.AlignSourceCamera;
                 break;
 
@@ -164,6 +170,7 @@ public sealed class DoorTransitionState
                 // and music queue are both complete. The atomic loader computed that exact
                 // endpoint, which is restored here rather than during the visible scroll.
                 runtime.FinishDoorOpeningScroll();
+                runtime.EndDoorTransitionIrqDisplay();
 
                 // `$82:E737` begins running enemy/draw owners only after the incremental
                 // door IRQ has replaced the complete viewport. The previous implementation

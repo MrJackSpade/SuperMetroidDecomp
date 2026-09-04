@@ -11,6 +11,12 @@ public sealed partial class SuperMetroidRuntime
     private DoorOpeningScrollState? _doorOpeningScroll;
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
+    /// <summary>
+    /// Main-screen layers selected below the HUD by the active door IRQ, or null while
+    /// ordinary gameplay IRQ commands own <c>TM ($212C)</c>.
+    /// </summary>
+    internal SnesMainScreenLayers? DoorTransitionMainScreenLayers { get; private set; }
+
     /// <summary>The load-station record that most recently established this runtime.</summary>
     public LoadStationEntry? ActiveLoadStation { get; private set; }
 
@@ -317,6 +323,31 @@ public sealed partial class SuperMetroidRuntime
     public byte PendingDoorDestinationCreBitset => PendingDoorTransition is { } door
         ? LoadCartridgeRoomHeader(door.DestinationRoomPointer).CreBitset
         : throw new InvalidOperationException("No pending door destination exists.");
+
+    /// <summary>
+    /// Applies the layer designation shared by start, horizontal, and vertical door IRQs.
+    /// BG2 is always disabled; BG1 is also disabled when either adjacent room requests the
+    /// cartridge's CRE transition path.
+    /// </summary>
+    internal void BeginDoorTransitionIrqDisplay(byte previousCreBitset, byte creBitset)
+    {
+        if (DoorTransitionMainScreenLayers is not null)
+            throw new InvalidOperationException("Door-transition IRQ display is already active.");
+
+        bool suppressBg1 =
+            ((previousCreBitset | creBitset) & RoomCreBitsets.SuppressDoorTransitionBg1) != 0;
+        DoorTransitionMainScreenLayers = suppressBg1
+            ? SnesMainScreenLayers.Obj
+            : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
+    }
+
+    /// <summary>Returns main-screen ownership to the room's ordinary gameplay IRQ.</summary>
+    internal void EndDoorTransitionIrqDisplay()
+    {
+        if (DoorTransitionMainScreenLayers is null)
+            throw new InvalidOperationException("Door-transition IRQ display is not active.");
+        DoorTransitionMainScreenLayers = null;
+    }
 
     /// <summary>
     /// Rewinds an atomically loaded destination to the position established by

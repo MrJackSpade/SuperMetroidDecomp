@@ -313,6 +313,9 @@ internal static class DoorPointers
     /// <summary>Door returning from First Missile to Construction Zone.</summary>
     public const ushort ConstructionZoneFromFirstMissile = 0x8fa6;
 
+    /// <summary>Left-facing door from Warehouse Save into Warehouse Kihunter.</summary>
+    public const ushort WarehouseKihunterFromSave = 0x925e;
+
     /// <summary>Right-hand door from the Ceres magnet-stairs room into the dead-scientist room.</summary>
     public const ushort CeresDeadScientistFromMagnetStairs = 0xab7c;
 

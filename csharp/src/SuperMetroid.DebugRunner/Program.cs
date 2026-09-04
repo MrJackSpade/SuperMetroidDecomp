@@ -173,6 +173,14 @@ if (args.Length >= 2 && args[0] == "--door-transition-visual-audit")
     return EarlyControllerRouteAudit.RunDoorTransitionVisualAudit(doorTransitionRomPath);
 }
 
+if (args.Length == 4 && args[0] == "--warehouse-save-exit-audit")
+{
+    return WarehouseSaveExitAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        args[3].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--construction-zone-door-ghost-audit")
 {
     string doorGhostRomPath = string.Join(' ', args[1..]).Trim('"');

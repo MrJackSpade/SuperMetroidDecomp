@@ -42,6 +42,12 @@ public static class RoomHeaderPointers
     /// <summary>First Missile Room at $8F:A107.</summary>
     public const ushort FirstMissileRoom = 0xa107;
 
+    /// <summary>Warehouse Kihunter room at $8F:A4DA (area $01, room $2C).</summary>
+    public const ushort WarehouseKihunter = 0xa4da;
+
+    /// <summary>Warehouse Save room at $8F:A70B (area $01, room $36).</summary>
+    public const ushort WarehouseSave = 0xa70b;
+
     /// <summary>Blue Brinstar Energy Tank Room at $8F:9F64.</summary>
     public const ushort BlueBrinstarEnergyTankRoom = 0x9f64;
 

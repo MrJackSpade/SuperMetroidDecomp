@@ -171,16 +171,21 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : SnesPpuLayout.GameplayBg2TilemapWord,
                 bg1CharacterBaseWord: bgCharacterBaseWord,
                 bg2CharacterBaseWord: bgCharacterBaseWord,
-                bg3CharacterBaseWord: runtime.GameplayHudCharacterBaseWord);
+                bg3CharacterBaseWord: runtime.GameplayHudCharacterBaseWord,
+                mainScreenLayers: runtime.DoorTransitionMainScreenLayers ??
+                    (SnesMainScreenLayers.Bg1 |
+                     SnesMainScreenLayers.Bg2 |
+                     SnesMainScreenLayers.Obj));
         }
 
-        if (runtime.DisplayedRoomLayer3Fx is { } layer3Fx)
+        bool doorIrqOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
+        if (!doorIrqOwnsDisplay && runtime.DisplayedRoomLayer3Fx is { } layer3Fx)
             SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, runtime.Vram, runtime.Cgram, layer3Fx);
 
         // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
         // Keying the effect from cartridge state avoids applying a guessed “Ceres tint” to
         // scenes that do not spawn the HDMA object.
-        if (runtime.ActiveRoom is { } activeRoom &&
+        if (!doorIrqOwnsDisplay && runtime.ActiveRoom is { } activeRoom &&
             RoomSetupCodePointers.SpawnsCeresHaze(activeRoom.State.SetupCodePointer))
         {
             // FX type $2C selects one of two bank-$88 HDMA definitions from the area's
@@ -193,7 +198,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead);
         }
 
-        if (runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)
+        if (!doorIrqOwnsDisplay && runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)
         {
             SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(
                 frame,

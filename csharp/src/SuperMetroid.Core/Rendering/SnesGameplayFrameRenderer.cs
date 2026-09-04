@@ -206,7 +206,9 @@ public static class SnesGameplayFrameRenderer
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
         ushort bg3CharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord,
-        byte obsel = 0x03)
+        byte obsel = 0x03,
+        SnesMainScreenLayers mainScreenLayers =
+            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj)
     {
         Rgba32[] output = CreateBackdrop(cgram);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
@@ -248,7 +250,8 @@ public static class SnesGameplayFrameRenderer
                 bg2VerticalScrollByLine,
                 bg2TilemapWidthInTiles,
                 bg2TilemapHeightInTiles,
-                bg2TilemapBaseWord);
+                bg2TilemapBaseWord,
+                mainScreenLayers);
         }
         finally
         {
@@ -284,7 +287,8 @@ public static class SnesGameplayFrameRenderer
         IReadOnlyList<ushort>? bg2VerticalScrollByLine,
         int bg2TilemapWidthInTiles,
         int bg2TilemapHeightInTiles,
-        ushort bg2TilemapBaseWord)
+        ushort bg2TilemapBaseWord,
+        SnesMainScreenLayers mainScreenLayers)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -328,6 +332,9 @@ public static class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> vramBytes = vram.Bytes;
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
+        bool bg1Enabled = (mainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
+        bool bg2Enabled = (mainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
+        bool objEnabled = (mainScreenLayers & SnesMainScreenLayers.Obj) != 0;
 
         int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
         int bg2YMask = bg2TilemapHeightInTiles * 8 - 1;
@@ -363,7 +370,7 @@ public static class SnesGameplayFrameRenderer
                 // in Debug builds where these tiny accessors are not reliably inlined.
                 int bg2ScrolledX = unchecked(activeBg2HorizontalScroll + screenX) & bg2XMask;
                 int bg2TileX = bg2ScrolledX >> 3;
-                if (bg2TileX != previousBg2TileX)
+                if (bg2Enabled && bg2TileX != previousBg2TileX)
                 {
                     // BGSC's two size bits select either two horizontal 32x32 screens
                     // (ordinary rooms) or two vertical screens (Landing Site's sky).
@@ -384,7 +391,8 @@ public static class SnesGameplayFrameRenderer
                     previousBg2TileX = bg2TileX;
                 }
 
-                if (TryDecodeOrdinaryGameplayBgPixel(
+                if (bg2Enabled &&
+                    TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
                         bg2Entry,
@@ -400,7 +408,7 @@ public static class SnesGameplayFrameRenderer
 
                 int bg1ScrolledX = unchecked(bg1HorizontalScroll + screenX) & 0x01ff;
                 int bg1TileX = bg1ScrolledX >> 3;
-                if (bg1TileX != previousBg1TileX)
+                if (bg1Enabled && bg1TileX != previousBg1TileX)
                 {
                     int bg1MapWord = (
                         SnesPpuLayout.GameplayBg1TilemapWord +
@@ -414,7 +422,8 @@ public static class SnesGameplayFrameRenderer
                     previousBg1TileX = bg1TileX;
                 }
 
-                if (TryDecodeOrdinaryGameplayBgPixel(
+                if (bg1Enabled &&
+                    TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
                         bg1Entry,
@@ -433,7 +442,8 @@ public static class SnesGameplayFrameRenderer
                 }
 
                 byte objPriority = objectPriorities[destination];
-                if (objPriority != SnesObjRenderer.TransparentPriority)
+                if (objEnabled &&
+                    objPriority != SnesObjRenderer.TransparentPriority)
                 {
                     int objRank = objPriority switch
                     {

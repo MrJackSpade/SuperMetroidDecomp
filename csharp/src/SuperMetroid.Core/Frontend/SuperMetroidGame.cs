@@ -363,6 +363,10 @@ public sealed class SuperMetroidGame
                 // StepFrame consumes the acknowledgement; checking IsActive afterward alone
                 // misses that final suspended frame.
                 bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
+                // Station command six installs an inert new-state handler before this
+                // frame. Retraction can restore normal input later in StepFrame, after the
+                // cartridge's Samus-handler call site has already passed pause-check.
+                bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
                 runtime!.StepFrame(controllerInput);
                 HandleSaveStationPersistence();
                 lastPixels = SuperMetroidRuntimeFrameRenderer.Render(runtime);
@@ -383,7 +387,7 @@ public sealed class SuperMetroidGame
                     runtime.GameplayTimeFrozen = true;
                     GameState = SuperMetroidGameState.SamusEscapesFromZebes;
                 }
-                else if (CanEnterPause(messageBoxOwnedFrame))
+                else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
                 {
                     // Samus_PauseCheck at `$90:EA45` executes during the already-completed
                     // state-eight frame. It initializes both fade counters and publishes
@@ -970,16 +974,22 @@ public sealed class SuperMetroidGame
         _ => GameState.ToString(),
     };
 
-    private bool CanEnterPause(bool messageBoxOwnedFrame)
+    private bool CanEnterPause(
+        bool messageBoxOwnedFrame,
+        bool samusInputLockedAtFrameStart)
     {
         if (runtime?.Samus is not SamusState samus || runtime.ActiveRoom is null)
             return false;
 
-        // This is the complete retail predicate at `$90:EA45` for the translated owners.
-        // HasPendingDoorTransition represents the enemies/door transition flag, X-ray owns
-        // time freeze, and the power-bomb system owns $0CE2. Area six (Ceres) is excluded.
+        // `$90:EA45` only runs from SamusNewStateHandler_Normal. Station command six
+        // replaces that handler with the inert `$90:E8D6`, so its entire insertion,
+        // message/data-load, and retraction sequence bypasses pause-check even though game
+        // state remains eight. InputLocked is the semantic representation of that handler
+        // replacement; the remaining clauses are the predicate inside EA45 itself.
         return !messageBoxOwnedFrame &&
                !runtime.MessageBox.IsActive &&
+               !samusInputLockedAtFrameStart &&
+               !samus.InputLocked &&
                runtime.PowerBombExplosionStatus == 0 &&
                !samus.Xray.TimeIsFrozen &&
                !runtime.HasPendingDoorTransition &&

@@ -37,6 +37,21 @@ public static class RoomPlmInstructionLists
     /// <summary><c>$84:AB67 InstList_PLM_ClearBotwoonWall</c>.</summary>
     public const ushort ClearBotwoonWall = 0xab67;
 
+    /// <summary>Kraid ceiling background-one crumble list at $84:AB6D.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground1 = 0xab6d;
+    /// <summary>Kraid ceiling background-two crumble list at $84:AB7F.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground2 = 0xab7f;
+    /// <summary>Kraid platform variant-one crumble list at $84:AB8B.</summary>
+    public const ushort CrumbleKraidPlatformVariant1 = 0xab8b;
+    /// <summary>Kraid ceiling background-three crumble list at $84:AB91.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground3 = 0xab91;
+    /// <summary>Kraid platform variant-two crumble list at $84:AB9D.</summary>
+    public const ushort CrumbleKraidPlatformVariant2 = 0xab9d;
+    /// <summary>Already-defeated Kraid ceiling clear list at $84:ABA3.</summary>
+    public const ushort ClearKraidCeiling = 0xaba3;
+    /// <summary>Already-defeated Kraid spike clear list at $84:ABDD.</summary>
+    public const ushort ClearKraidSpikes = 0xabdd;
+
     public const ushort FillMotherBrainsWall = 0xac05;
     public const ushort MotherBrainsBackgroundRow2 = 0xac11;
     public const ushort MotherBrainsBackgroundRow3 = 0xac17;

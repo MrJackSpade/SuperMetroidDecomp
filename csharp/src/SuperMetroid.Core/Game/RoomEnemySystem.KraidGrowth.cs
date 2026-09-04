@@ -61,10 +61,12 @@ public sealed partial class RoomEnemySystem
                 body.YPosition = unchecked((ushort)(body.YPosition - 1));
                 if ((body.YPosition & 3) == 0 && body.VariableF < 18)
                 {
+                    int ceilingIndex = body.VariableF / 2;
                     ushort rockX = ReadWord(
                         _bus!, EnemyRomTablePointers.Kraid.CeilingRockXWords + body.VariableF);
                     if (SpawnKraidCeilingRock(rockX))
                         state.CeilingRockSpawnCount++;
+                    _kraidPlmRequests.Add(KraidPlmDefinitions.GrowthCeiling[ceilingIndex]);
                     body.VariableF = unchecked((ushort)(body.VariableF + 2));
                 }
                 if (unchecked((short)(body.YPosition - 296)) < 0)

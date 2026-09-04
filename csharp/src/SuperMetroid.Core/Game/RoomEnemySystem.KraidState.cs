@@ -194,11 +194,19 @@ public sealed partial class RoomEnemySystem
     internal const ushort KraidBadNailDefinition = 0xe47f;
 
     private KraidEnemyState? _kraidState;
+    private readonly List<KraidPlmRequest> _kraidPlmRequests = [];
 
     /// <summary>Active typed state when the loaded room owns retail Kraid slot zero.</summary>
     public KraidEnemyState? Kraid => _kraidState;
 
-    private void ResetKraidRoomState() => _kraidState = null;
+    /// <summary>Hardcoded Kraid room mutations published during the current enemy frame.</summary>
+    public IReadOnlyList<KraidPlmRequest> KraidPlmRequests => _kraidPlmRequests;
+
+    private void ResetKraidRoomState()
+    {
+        _kraidState = null;
+        _kraidPlmRequests.Clear();
+    }
 
     private KraidEnemyState RequireKraidState(RoomEnemySlot slot)
     {

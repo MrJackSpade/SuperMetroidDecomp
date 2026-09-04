@@ -115,6 +115,21 @@ internal static class RoomPlmHeaders
     /// <summary>Crumble Botwoon's wall PLM at $84:B79B.</summary>
     public const ushort CrumbleBotwoonWall = 0xb79b;
 
+    /// <summary>Kraid ceiling crumble using background variant one at $84:B7A3.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground1 = 0xb7a3;
+    /// <summary>Kraid platform crumble using the first floor variant at $84:B7A7.</summary>
+    public const ushort CrumbleKraidPlatformVariant1 = 0xb7a7;
+    /// <summary>Kraid ceiling crumble using background variant two at $84:B7AB.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground2 = 0xb7ab;
+    /// <summary>Kraid platform crumble using the second floor variant at $84:B7AF.</summary>
+    public const ushort CrumbleKraidPlatformVariant2 = 0xb7af;
+    /// <summary>Kraid ceiling crumble using background variant three at $84:B7B3.</summary>
+    public const ushort CrumbleKraidCeilingIntoBackground3 = 0xb7b3;
+    /// <summary>Clear Kraid's ceiling after an already-defeated room load at $84:B7B7.</summary>
+    public const ushort ClearKraidCeiling = 0xb7b7;
+    /// <summary>Clear Kraid-room spikes after an already-defeated room load at $84:B7BB.</summary>
+    public const ushort ClearKraidSpikes = 0xb7bb;
+
     /// <summary>Speed Booster escape lavaquake controller at $84:B8AC.</summary>
     public const ushort SpeedBoosterEscape = 0xb8ac;
 

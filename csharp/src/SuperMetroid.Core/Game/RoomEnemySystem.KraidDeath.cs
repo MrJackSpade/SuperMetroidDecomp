@@ -192,6 +192,8 @@ public sealed partial class RoomEnemySystem
             };
             if (rockX is ushort xPosition)
                 _ = SpawnKraidCeilingRock(xPosition);
+            if (KraidPlmDefinitions.ForSinkCallback(function) is { } request)
+                _kraidPlmRequests.Add(request);
             return;
         }
     }

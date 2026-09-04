@@ -504,6 +504,7 @@ public sealed partial class RoomEnemySystem
         LastFakeKraidSoundEffect = null;
         LastFakeKraidDropRequest = null;
         LastKraidSoundEffect = null;
+        _kraidPlmRequests.Clear();
         LastSpacePirateSoundEffect = null;
         LastEnemyProjectileDudSoundEffect = null;
         if (_ridleyState is not null)

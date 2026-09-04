@@ -1052,6 +1052,27 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Transfers Kraid's bank-$A7 hardcoded ceiling/platform calls into the shared bank-$84
+    /// PLM pool before the current frame's handler pass.
+    /// </summary>
+    private void ApplyPendingKraidPlms()
+    {
+        if (Enemies.KraidPlmRequests.Count == 0)
+            return;
+        if (LevelData is null)
+            throw new InvalidOperationException("Kraid published room PLMs without active level data.");
+
+        foreach (KraidPlmRequest request in Enemies.KraidPlmRequests)
+        {
+            Plms.TrySpawnKraidRoomMutation(
+                LevelData,
+                request.BlockX,
+                request.BlockY,
+                request.Header);
+        }
+    }
+
+    /// <summary>
     /// Transfers Mother Brain's bank-$A9 hardcoded-PLM requests to the shared bank-$84
     /// owner. The enemy state publishes requests in cartridge call order; consuming them
     /// here retains the native descending-slot allocation and one-frame execution seam.

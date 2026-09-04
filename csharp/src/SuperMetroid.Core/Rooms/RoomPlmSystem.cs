@@ -193,6 +193,64 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
+    /// Spawns one hardcoded Kraid ceiling/platform mutation and runs setup $84:B3C1.
+    /// Setup immediately deactivates the collision type while preserving priority and the
+    /// visual block index; the selected ROM list then draws its three crumble frames and
+    /// deletes the finite PLM on the authored cadence.
+    /// </summary>
+    /// <returns>False only when all forty native PLM slots are occupied.</returns>
+    public bool TrySpawnKraidRoomMutation(
+        RoomLevelData level,
+        byte blockX,
+        byte blockY,
+        ushort header)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        ushort instructionPointer = header switch
+        {
+            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground1 =>
+                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground1,
+            RoomPlmHeaders.CrumbleKraidPlatformVariant1 =>
+                RoomPlmInstructionLists.CrumbleKraidPlatformVariant1,
+            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground2 =>
+                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground2,
+            RoomPlmHeaders.CrumbleKraidPlatformVariant2 =>
+                RoomPlmInstructionLists.CrumbleKraidPlatformVariant2,
+            RoomPlmHeaders.CrumbleKraidCeilingIntoBackground3 =>
+                RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3,
+            RoomPlmHeaders.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
+            RoomPlmHeaders.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(header),
+                header,
+                "Kraid room mutation header is outside $B7A3-$B7BB's authored set."),
+        };
+
+        int blockIndex = level.GetBlockIndex(blockX, blockY);
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            ClearSlot(slot);
+            slot.Active = true;
+            slot.HeaderPointer = header;
+            slot.BlockIndex = blockIndex;
+            slot.InstructionPointer = instructionPointer;
+            slot.InstructionTimer = 1;
+
+            // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
+            // bits. Bit 15 is the independent tile priority flag and survives setup.
+            ushort authored = level.GetCollisionBlockByIndex(blockIndex).LevelWord;
+            level.SetForegroundEntry(blockIndex, unchecked((ushort)(authored & 0x8fff)));
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Spawns one of Crocomire's five hardcoded arena PLMs at its literal room-block origin.
     /// </summary>
     /// <remarks>

@@ -378,6 +378,7 @@ internal static class KraidAudit
         var growthFunctions = new HashSet<KraidAiFunction>();
         var secondPhaseFootFunctions = new HashSet<KraidAiFunction>();
         var lintFunctions = new HashSet<KraidAiFunction>();
+        var growthCeilingPlms = new List<KraidPlmRequest>();
         ushort? secondPhaseStartY = null;
         for (int growthFrame = 0; growthFrame < 2600; growthFrame++)
         {
@@ -393,6 +394,7 @@ internal static class KraidAudit
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            growthCeilingPlms.AddRange(enemies.KraidPlmRequests);
             ProbeFirstUnauditedProjectileContact(
                 bus,
                 enemies,
@@ -436,6 +438,7 @@ internal static class KraidAudit
             !growthFunctions.Contains(KraidAiFunction.SecondPhaseThinking) ||
             !state.CameraReleasedForSecondPhase || !state.Bg2PriorityBitsSet ||
             state.CeilingRockSpawnCount == 0 || secondPhaseStartY != 295 ||
+            !growthCeilingPlms.SequenceEqual(KraidPlmDefinitions.GrowthCeiling) ||
             !roomPaletteReachedTarget ||
             !secondPhaseFootFunctions.Contains(KraidAiFunction.FootSecondPhaseWalkToStart) ||
             !secondPhaseFootFunctions.Contains(KraidAiFunction.FootSecondPhaseThinking) ||
@@ -452,10 +455,13 @@ internal static class KraidAudit
                 $"{string.Join(',', lintFunctions)}, phase2 Y={secondPhaseStartY}, " +
                 $"camera/priority={state.CameraReleasedForSecondPhase}/" +
                 $"{state.Bg2PriorityBitsSet}, ceiling={state.CeilingRockSpawnCount}, " +
+                $"ceiling PLMs=[{string.Join(',', growthCeilingPlms)}], " +
                 $"palette={roomPaletteReachedTarget}, missing projectile contact=" +
                 $"[{string.Join(',', missingContactedProjectiles)}], missing observation=" +
                 $"[{string.Join(',', missingObservedProjectiles)}].");
         }
+
+        VerifyKraidCeilingPlms(bus, assets.LevelData, assets.Scrolls, growthCeilingPlms);
 
         VerifyKraidFootCollisionSuppression(bus, enemies, samus);
 
@@ -618,6 +624,84 @@ internal static class KraidAudit
     {
         int byteIndex = checked(wordIndex * 2);
         return unchecked((ushort)(bytes[byteIndex] | (bytes[byteIndex + 1] << 8)));
+    }
+
+    /// <summary>
+    /// Drives the nine published growth requests through the real shared bank-$84 PLM
+    /// interpreter. This asserts the reported property itself: each cartridge ceiling
+    /// origin loses its collision type immediately and receives its authored crumble draw,
+    /// rather than merely proving that Kraid incremented a counter or spawned debris.
+    /// </summary>
+    private static void VerifyKraidCeilingPlms(
+        ISnesAddressSpace bus,
+        RoomLevelData level,
+        RoomScrollGrid scrolls,
+        List<KraidPlmRequest> requests)
+    {
+        if (!requests.SequenceEqual(KraidPlmDefinitions.GrowthCeiling))
+            throw new InvalidDataException("Kraid did not publish all nine ceiling PLMs in ROM order.");
+
+        ushort[] authoredOrigins = requests
+            .Select(request => level.GetCollisionBlock(
+                request.BlockX,
+                request.BlockY).LevelWord)
+            .ToArray();
+        var streamer = new BackgroundTilemapStreamer(
+            level.WidthInBlocks,
+            level.ForegroundEntries.Span,
+            level.BackgroundEntries.Span,
+            level.BlockDefinitions.Span);
+        var plms = new RoomPlmSystem();
+        foreach (KraidPlmRequest request in requests)
+        {
+            if (!plms.TrySpawnKraidRoomMutation(
+                    level,
+                    request.BlockX,
+                    request.BlockY,
+                    request.Header))
+            {
+                throw new InvalidDataException("Kraid ceiling PLM exhausted an empty 40-slot pool.");
+            }
+        }
+
+        if (plms.ActiveCount != requests.Count)
+            throw new InvalidDataException("Kraid ceiling PLMs did not retain one native slot per request.");
+        for (int index = 0; index < requests.Count; index++)
+        {
+            KraidPlmRequest request = requests[index];
+            ushort deactivated = level.GetCollisionBlock(request.BlockX, request.BlockY).LevelWord;
+            ushort expected = unchecked((ushort)(authoredOrigins[index] & 0x8fff));
+            if (deactivated != expected)
+            {
+                throw new InvalidDataException(
+                    $"Kraid ceiling setup at ({request.BlockX},{request.BlockY}) wrote " +
+                    $"${deactivated:X4}, expected ${expected:X4}.");
+            }
+        }
+
+        for (int frame = 0; frame < 16; frame++)
+        {
+            _ = plms.Step(
+                bus,
+                level,
+                streamer,
+                CameraX,
+                CameraY,
+                bg1XOffset: 0,
+                scrolls);
+        }
+        if (plms.ActiveCount != 0)
+            throw new InvalidDataException("Kraid ceiling crumble PLMs did not finish and delete.");
+        for (int index = 0; index < requests.Count; index++)
+        {
+            KraidPlmRequest request = requests[index];
+            ushort final = level.GetCollisionBlock(request.BlockX, request.BlockY).LevelWord;
+            if (final == authoredOrigins[index])
+            {
+                throw new InvalidDataException(
+                    $"Kraid ceiling origin ({request.BlockX},{request.BlockY}) never drew a crumble tile.");
+            }
+        }
     }
 
     /// <summary>

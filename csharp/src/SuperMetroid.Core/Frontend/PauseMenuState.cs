@@ -165,6 +165,17 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>
+    /// Reads the displayed pause-map word for one absolute area-map coordinate. This is a
+    /// diagnostic projection of the same BG1 VRAM image rendered by the pause screen.
+    /// </summary>
+    internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
+    {
+        int wordIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
+        int byteAddress = (PauseMenuLayout.Bg1TilemapWord + wordIndex) * 2;
+        return unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8)));
+    }
+
+    /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
     /// </summary>
@@ -838,10 +849,8 @@ internal sealed class PauseMenuState
 
     private bool ReadMapBit(int mapDataAddress, int mapX, int mapY)
     {
-        int horizontalPageOffset = (mapX & 0x20) != 0 ? 0x80 : 0;
-        int byteColumn = (mapX & 0x1f) >> 3;
-        int byteIndex = horizontalPageOffset + mapY * 4 + byteColumn;
-        return (bus.ReadByte(mapDataAddress + byteIndex) & (0x80 >> (mapX & 7))) != 0;
+        int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
+        return (bus.ReadByte(mapDataAddress + byteIndex) & AreaMapLayout.GetBitMask(mapX)) != 0;
     }
 
     private void UploadEquipmentTilemap() =>

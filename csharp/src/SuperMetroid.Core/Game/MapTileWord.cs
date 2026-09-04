@@ -15,6 +15,53 @@ public static class MapTileWords
     public static readonly MapTileWord HudBlank = new(0x2c1f);
 }
 
+/// <summary>
+/// Native coordinate addressing for one 64-by-32 area map. Both the tilemap and one-bit
+/// presence/exploration planes are stored as two adjacent 32-by-32 pages rather than as
+/// conventional 64-column rows.
+/// </summary>
+public static class AreaMapLayout
+{
+    public const int WidthInTiles = 64;
+    public const int HeightInTiles = 32;
+    public const int PageWidthInTiles = 32;
+    public const int BitPlaneBytesPerPage = 0x80;
+    public const int TilemapWordsPerPage = 0x400;
+
+    /// <summary>Returns the native byte offset containing one map bit.</summary>
+    public static int GetBitByteIndex(int mapX, int mapY)
+    {
+        ValidateCoordinate(mapX, mapY);
+        int pageOffset = mapX >= PageWidthInTiles ? BitPlaneBytesPerPage : 0;
+        int byteColumnWithinPage = (mapX & (PageWidthInTiles - 1)) >> 3;
+        return pageOffset + mapY * 4 + byteColumnWithinPage;
+    }
+
+    /// <summary>Returns the native word offset containing one map tile.</summary>
+    public static int GetTilemapWordIndex(int mapX, int mapY)
+    {
+        ValidateCoordinate(mapX, mapY);
+        int pageOffset = mapX >= PageWidthInTiles ? TilemapWordsPerPage : 0;
+        return pageOffset + mapY * PageWidthInTiles + (mapX & (PageWidthInTiles - 1));
+    }
+
+    /// <summary>Returns the MSB-first mask used by both cartridge one-bit planes.</summary>
+    public static byte GetBitMask(int mapX)
+    {
+        if ((uint)mapX >= WidthInTiles)
+            throw new ArgumentOutOfRangeException(nameof(mapX));
+        return unchecked((byte)(0x80 >> (mapX & 7)));
+    }
+
+    private static void ValidateCoordinate(int mapX, int mapY)
+    {
+        if ((uint)mapX >= WidthInTiles)
+            throw new ArgumentOutOfRangeException(nameof(mapX));
+        if ((uint)mapY >= HeightInTiles)
+            throw new ArgumentOutOfRangeException(nameof(mapY));
+    }
+}
+
 /// <summary>A lossless view over one cartridge map tilemap word.</summary>
 /// <remarks>
 /// Map cells use the ordinary SNES BG tile layout, but bank <c>$82</c> gives one palette

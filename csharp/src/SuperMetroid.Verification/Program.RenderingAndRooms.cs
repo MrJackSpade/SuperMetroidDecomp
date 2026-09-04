@@ -169,6 +169,40 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
+    // Room $01/$27 lives on the right-hand map page. Give only its eastern neighbor an
+    // existence bit. The historical HUD formula counted mapX's page bit twice and read
+    // this coordinate from the following row, while pause used the correct byte. A solid
+    // map plane cannot expose that disagreement, so retain this deliberately sparse case.
+    for (int index = 0; index < 0x100; index++)
+        bus.WriteByte(0x829000 + index, 0);
+    const int rightPageNeighborX = 35;
+    const int rightPageCenterY = 19;
+    int rightPageMapByte = AreaMapLayout.GetBitByteIndex(
+        rightPageNeighborX,
+        rightPageCenterY);
+    bus.WriteByte(
+        0x829000 + rightPageMapByte,
+        AreaMapLayout.GetBitMask(rightPageNeighborX));
+    var rightPageSystem = new Bank80SystemState();
+    rightPageSystem.SetAreaMapAcquired(AreaId.Crateria);
+    hud.UpdateMinimap(
+        bus,
+        rightPageSystem,
+        areaIndex: AreaId.Crateria,
+        roomMapX: 34,
+        roomMapY: 18,
+        roomWidthInBlocks: 2 * 16,
+        roomHeightInBlocks: 16,
+        samusX: 0x0080,
+        samusY: 0x0080,
+        nmiFrameCounter: 8);
+    AssertEqual(34, hud.MinimapCenterX, "right-page minimap absolute X");
+    AssertEqual(rightPageCenterY, hud.MinimapCenterY, "right-page minimap absolute Y");
+    AssertEqual(0x2e63, hud.Tiles[61],
+        "right-page minimap reads the same eastern cell as pause map");
+    AssertEqual(0x2c1f, hud.Tiles[59],
+        "right-page sparse map keeps the western cell blank");
+
     var queue = new VramWriteQueue();
     var vram = new SnesVram();
     hud.QueueUpload(bus, queue);

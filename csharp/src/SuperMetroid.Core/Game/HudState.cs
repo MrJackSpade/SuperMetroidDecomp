@@ -236,8 +236,7 @@ public sealed class HudState
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
-                int tilemapIndex =
-                    (mapX & 31) + mapY * 32 + (mapX >= 32 ? 0x400 : 0);
+                int tilemapIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
                 MapTileWord mapTile = ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
                 _tiles[destination] = (ushort)mapTile.ForHud(explored);
             }
@@ -377,8 +376,8 @@ public sealed class HudState
 
     private static bool ReadMapBit(ISnesAddressSpace bus, int mapDataAddress, int mapX, int mapY)
     {
-        int byteIndex = (mapX >> 3) + 4 * ((mapX & 0x20) + mapY);
-        return (bus.ReadByte(mapDataAddress + byteIndex) & (0x80 >> (mapX & 7))) != 0;
+        int byteIndex = AreaMapLayout.GetBitByteIndex(mapX, mapY);
+        return (bus.ReadByte(mapDataAddress + byteIndex) & AreaMapLayout.GetBitMask(mapX)) != 0;
     }
 }
 

@@ -568,7 +568,7 @@ public sealed class Bank80SystemState
     {
         ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
-        _exploredMapTiles[byteIndex] |= unchecked((byte)(0x80 >> (mapX & 7)));
+        _exploredMapTiles[byteIndex] |= AreaMapLayout.GetBitMask(mapX);
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -580,7 +580,7 @@ public sealed class Bank80SystemState
     {
         ValidateExploredMapCoordinate(areaIndex, mapX, mapY);
         int byteIndex = ResolveExploredMapByteIndex(areaIndex, mapX, mapY);
-        return (_exploredMapTiles[byteIndex] & (0x80 >> (mapX & 7))) != 0;
+        return (_exploredMapTiles[byteIndex] & AreaMapLayout.GetBitMask(mapX)) != 0;
     }
 
     /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>
@@ -749,9 +749,7 @@ public sealed class Bank80SystemState
     private static int ResolveExploredMapByteIndex(int areaIndex, int mapX, int mapY)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
-        int horizontalPageOffset = (mapX & 0x20) != 0 ? 0x80 : 0;
-        int byteColumn = (mapX & 0x1f) >> 3;
-        return areaOffset + horizontalPageOffset + mapY * 4 + byteColumn;
+        return areaOffset + AreaMapLayout.GetBitByteIndex(mapX, mapY);
     }
 
     private static void ValidateExploredMapCoordinate(int areaIndex, int mapX, int mapY)

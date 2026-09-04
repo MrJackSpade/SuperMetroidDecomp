@@ -209,6 +209,12 @@ if (args.Length >= 2 && args[0] == "--water-fx-audit")
     return WaterFxAudit.Run(waterFxRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--map-cross-view-audit")
+{
+    string mapRomPath = string.Join(' ', args[1..]).Trim('"');
+    return MapCrossViewAudit.Run(mapRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--crumble-block-audit")
 {
     string crumbleRomPath = string.Join(' ', args[1..]).Trim('"');

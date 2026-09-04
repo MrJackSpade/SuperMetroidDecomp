@@ -104,6 +104,27 @@ public sealed partial class RoomEnemySystem
         _sporeSpawnDropRequests.Clear();
     }
 
+    /// <summary>
+    /// Runs the global scrolling-finished callback installed by live Spore Spawn at
+    /// <c>$A5:EAD7-$EADA</c>. Bank $90 invokes it after both ordinary camera axes have
+    /// finished and before background streaming observes the final layer-one words.
+    /// </summary>
+    public void RunScrollingFinishedHook(ScrollBoundaryCamera camera)
+    {
+        ArgumentNullException.ThrowIfNull(camera);
+        if (_sporeSpawn?.ScrollClampHookActive != true)
+            return;
+
+        // `$90:9589` loads $01D0, compares it with layer1_y_pos, and returns on BCC.
+        // Equality deliberately performs the harmless native store; a larger camera Y is
+        // already below the arena ceiling and is therefore left untouched.
+        if (SporeSpawnScrollingHooks.FightMinimumLayerOneY < camera.YPosition)
+            return;
+
+        camera.SetLayerOneYFromScrollingFinishedHook(
+            SporeSpawnScrollingHooks.FightMinimumLayerOneY);
+    }
+
     private SporeSpawnEnemyState RequireSporeSpawnState(RoomEnemySlot slot)
     {
         SporeSpawnEnemyState state = _sporeSpawn ?? throw new InvalidOperationException(

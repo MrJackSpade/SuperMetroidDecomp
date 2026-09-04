@@ -11,6 +11,16 @@ internal static class SporeSpawnAuditDefinitions
     public const ushort RoomPointer = 0x9dc7;
     /// <summary>Single-body population at <c>$A1:A0FD</c>.</summary>
     public const ushort PopulationPointer = 0xa0fd;
+    /// <summary>
+    /// Upward door <c>$83:8E3E</c> used by the normal route from the Kihunter hall into
+    /// the bottom of Spore Spawn's room.
+    /// </summary>
+    public const ushort IncomingDoorPointer = 0x8e3e;
+    /// <summary>
+    /// Final layer-one Y produced by the upward door IRQ: destination screen two plus the
+    /// cartridge's <c>$20</c>-pixel upward-transition adjustment.
+    /// </summary>
+    public const ushort IncomingDoorFinalCameraY = 0x0220;
     /// <summary>Bank-$84 PLM which crumbles the live encounter ceiling.</summary>
     public const ushort CrumbleCeilingHeader = 0xb78f;
     /// <summary>Bank-$84 PLM which clears the ceiling on an already-defeated load.</summary>
@@ -18,7 +28,14 @@ internal static class SporeSpawnAuditDefinitions
     /// <summary>Locked one-screen-wide room camera X.</summary>
     public const ushort CameraX = 0;
     /// <summary>Bottom-screen camera Y used when the boss first becomes visible.</summary>
-    public const ushort CameraY = 464;
+    public const ushort CameraY = SporeSpawnScrollingHooks.FightMinimumLayerOneY;
+    /// <summary>
+    /// Last position immediately above the <c>$90:9589</c> encounter camera floor. This
+    /// is the boundary reached while the player climbs from the incoming bottom door.
+    /// </summary>
+    public const ushort CameraYImmediatelyAboveEncounterFloor = 463;
+    /// <summary>Stable bottom-arena Samus Y used while observing the camera hook.</summary>
+    public const ushort EntryAuditSamusY = 0x02c0;
     /// <summary>Cartridge-authored body center X.</summary>
     public const ushort BodyCenterX = 128;
     /// <summary>Initial visible body Y after <c>$A5:EAE1</c>'s 128-pixel subtraction.</summary>
@@ -27,6 +44,11 @@ internal static class SporeSpawnAuditDefinitions
     public const int FirstVisibleLeft = 80;
     /// <summary>Exclusive right edge of the first closed extended spritemap.</summary>
     public const int FirstVisibleRight = 176;
+    /// <summary>
+    /// Closed-map tiles which intersect the 224-line playfield when the encounter hook
+    /// holds the body at screen Y 32. The two highest tiles remain correctly clipped.
+    /// </summary>
+    public const int InitialVisibleBodyTileCount = 24;
 }
 
 /// <summary>
@@ -43,15 +65,85 @@ internal static class SporeSpawnAudit
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, SporeSpawnAuditDefinitions.RoomPointer);
         VerifyRetailRoomAndHeader(bus, room);
+        VerifyLiveEntryCameraAndFirstVisibleBody(bus);
         VerifyLiveEncounterCombatAndDeath(bus, room);
         VerifyAlreadyDefeatedCeiling(bus, room);
         VerifyRuntimeAlreadyDefeatedIntegration(bus);
 
         Console.WriteLine(
-            "Spore Spawn audit passed: retail room/header, stalk interpolation, ceiling " +
-            "emitters, spores, ROM instruction cadence, extended hitboxes, movement and " +
-            "damage reaction, death effects/palettes/drops, boss bit, and both ceiling PLMs.");
+            "Spore Spawn audit passed: real entry camera hook/first visible body, retail " +
+            "room/header, stalk interpolation, ceiling emitters, spores, ROM instruction " +
+            "cadence, extended hitboxes, movement and damage reaction, death effects/" +
+            "palettes/drops, boss bit, and both ceiling PLMs.");
         return 0;
+    }
+
+    private static void VerifyLiveEntryCameraAndFirstVisibleBody(
+        SuperMetroidAddressSpace bus)
+    {
+        CartridgeDoorHeader incomingDoor = CartridgeDoorHeader.Load(
+            bus,
+            SporeSpawnAuditDefinitions.IncomingDoorPointer);
+        if (incomingDoor.DestinationRoomPointer != SporeSpawnAuditDefinitions.RoomPointer ||
+            incomingDoor.Orientation != 7 ||
+            incomingDoor.DestinationScreenY != 2)
+        {
+            throw new InvalidDataException(
+                $"Spore Spawn incoming door $83:{incomingDoor.Pointer:X4} no longer names " +
+                $"the upward bottom-screen entry: destination=$8F:{incomingDoor.DestinationRoomPointer:X4}, " +
+                $"orientation=${incomingDoor.Orientation:X2}, screenY={incomingDoor.DestinationScreenY}.");
+        }
+
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomThroughDoorForVerification(
+            incomingDoor,
+            cameraX: SporeSpawnAuditDefinitions.CameraX,
+            cameraY: SporeSpawnAuditDefinitions.IncomingDoorFinalCameraY);
+
+        // Reproduce the exact encounter boundary reached after the bottom-door climb.
+        // Bank $90 calls its installed scrolling-finished hook after ordinary tracking and
+        // before the enemy draw pass. Starting one pixel above the authored floor makes a
+        // missing hook observable without substituting a guessed boss destination.
+        runtime.Camera!.SetPosition(
+            SporeSpawnAuditDefinitions.CameraX,
+            SporeSpawnAuditDefinitions.CameraYImmediatelyAboveEncounterFloor);
+        runtime.Samus!.XPosition = SporeSpawnAuditDefinitions.BodyCenterX;
+        runtime.Samus.YPosition = SporeSpawnAuditDefinitions.EntryAuditSamusY;
+        runtime.Samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        runtime.Samus.RefreshCollisionRadii(bus);
+        runtime.Samus.InitializeAnimation(bus);
+        runtime.StepFrame(controller1Input: 0);
+
+        SporeSpawnEnemyState state = runtime.Enemies.SporeSpawn ??
+            throw new InvalidDataException("Live room entry did not initialize Spore Spawn.");
+        int bodyScreenY = unchecked((short)(state.Body.YPosition - runtime.Camera.YPosition));
+        var bodyOam = new OamBuffer();
+        bodyOam.BeginFrame();
+        runtime.Enemies.DrawLayers(
+            bodyOam,
+            runtime.Camera.XPosition,
+            runtime.Camera.YPosition,
+            firstLayer: 0,
+            lastLayer: 7);
+        bodyOam.FinalizeFrame();
+        int visibleBodyTiles = Enumerable.Range(0, bodyOam.LastFinalizedSpriteCount)
+            .Select(bodyOam.GetEntry)
+            .Count(entry => entry.Y < 224);
+        if (!state.ScrollClampHookActive ||
+            runtime.Camera.YPosition != SporeSpawnAuditDefinitions.CameraY ||
+            bodyScreenY != 32 ||
+            visibleBodyTiles != SporeSpawnAuditDefinitions.InitialVisibleBodyTileCount)
+        {
+            throw new InvalidDataException(
+                $"Spore Spawn entry camera hook did not expose the body at its cartridge " +
+                $"position: hook={state.ScrollClampHookActive}, cameraY={runtime.Camera.YPosition}, " +
+                $"bodyY={state.Body.YPosition}, screenY={bodyScreenY}, " +
+                $"visibleTiles={visibleBodyTiles}.");
+        }
     }
 
     private static void VerifyRetailRoomAndHeader(

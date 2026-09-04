@@ -3627,6 +3627,12 @@ public sealed partial class SuperMetroidRuntime
                         UpScroller: roomGeometry.UpScroller,
                         DownScroller: roomGeometry.DownScroller));
 
+                // MainScrollingRoutine `$90:9563` invokes the mutable global
+                // scrolling-finished hook after both axes have tracked Samus. Live Spore
+                // Spawn installs `$90:9589`, which owns the arena's vertical camera floor;
+                // it must run before BG streaming and OAM consume layer-one position.
+                Enemies.RunScrollingFinishedHook(Camera);
+
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the
                 // live PPU diagnostic and the following frame see the newly exposed edge.

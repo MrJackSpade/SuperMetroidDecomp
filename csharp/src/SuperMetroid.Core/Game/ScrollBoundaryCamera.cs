@@ -79,6 +79,14 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void SetLayerOneXFromEnemyAi(ushort xPosition) => XPosition = xPosition;
 
+    /// <summary>
+    /// Applies a direct layer-one Y write made by a room-installed scrolling-finished
+    /// hook. The cartridge changes only <c>Layer1YPosition</c> at this point: fractional
+    /// and ideal-camera words retain the values produced by ordinary scrolling.
+    /// </summary>
+    public void SetLayerOneYFromScrollingFinishedHook(ushort yPosition) =>
+        YPosition = yPosition;
+
     /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>
     public void MoveRight(ushort pixelDistance)
     {

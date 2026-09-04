@@ -113,6 +113,21 @@ public sealed partial class RoomPlmSystem
         if (door is null)
             return false;
 
+        // The four ordinary coloured-door closing lists are laid out immediately before
+        // their first lists and deliberately fall through instead of ending in Goto.
+        // Native therefore reaches the same resident owner's first instruction on the
+        // handler pass after the final closing draw. Re-enter the semantic owner at that
+        // exact cursor rather than sending its door-bit opcode through an unrelated PLM
+        // family dispatcher.
+        if (door.Phase == ColoredDoorPhase.Closing &&
+            slot.InstructionPointer == door.InitialList)
+        {
+            slot.PreInstruction = 0;
+            door.Phase = ColoredDoorPhase.Waiting;
+            door.InitialDrawCompleted = true;
+            door.HasPendingHit = false;
+        }
+
         // A room-entry close temporarily runs the header's second cartridge list through
         // the shared interpreter. The semantic owner remains attached so its final Goto
         // can hand the same physical slot back to this family without reconstructing it.

@@ -97,6 +97,7 @@ internal static partial class Program
         VerifyMetroidsClearedStatePlm(bus);
         VerifyMotherBrainEscapeRoomGate(bus);
         VerifyBombTorizoGreyDoorClosingReentry(bus);
+        VerifyStandardGreyDoorClosingFallthrough(bus);
         VerifySpeedBoosterEscapePlm(bus);
         VerifyWreckedShipAtticPlm(bus);
         VerifyUnsupportedPopulationContext(bus);
@@ -228,6 +229,129 @@ internal static partial class Program
             "re-entry draws the locked grey-door frame in the same handler pass");
         AssertEqual(1, plms.ActiveCount,
             "rejoined Bomb Torizo door remains resident for the battle condition");
+    }
+
+    /// <summary>
+    /// Reproduces issue 236's retail <c>$84:C842</c> grey door in room
+    /// <c>$8F:9B9D</c>. Its closing list occupies <c>$BE59..$BE6F</c> and falls directly
+    /// into first list <c>$BE70</c>; it has no Goto like Bomb Torizo's special door.
+    /// </summary>
+    private static void VerifyStandardGreyDoorClosingFallthrough(TestAddressSpace bus)
+    {
+        const ushort population = 0x96d0;
+        const int width = 48;
+        const int height = 16;
+        const int doorX = 0x2e;
+        const int doorY = 6;
+        const ushort roomArgument = 0x0c25;
+        const ushort initialList = 0xbe70;
+        const ushort closingList = 0xbe59;
+        const ushort closedBlueList = 0xc100;
+        const ushort activationList = 0xbe84;
+        const ushort openTriggerList = 0xbea8;
+        const ushort openingList = 0xbead;
+        const ushort closingDraw = 0xa600;
+        const ushort lockedDraw = 0xa610;
+
+        WriteWord(bus, 0x840000 | RoomPlmHeaders.GreyDoorFacingLeft, 0xc794);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmHeaders.GreyDoorFacingLeft + 2)),
+            initialList);
+        WriteWord(bus,
+            0x840000 | unchecked((ushort)(RoomPlmHeaders.GreyDoorFacingLeft + 4)),
+            closingList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 2)), closedBlueList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 6)), activationList);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(initialList + 12)), lockedDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(activationList + 2)), openTriggerList);
+        bus.WriteBytes(0x840000 | unchecked((ushort)(openTriggerList + 2)),
+        [
+            0x01,
+            unchecked((byte)openingList),
+            unchecked((byte)(openingList >> 8)),
+        ]);
+
+        // Preserve the exact byte widths of BE59: five timer/draw pairs with an odd-sized
+        // queue-sound instruction between the second and third pair. The final pair ends
+        // at BE70, the start of the resident door's ordinary first list.
+        WriteWord(bus, 0x840000 | closingList, 2);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 2)), closingDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 4)), 2);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 6)), closingDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 8)),
+            RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6);
+        bus.WriteBytes(0x840000 | unchecked((ushort)(closingList + 10)), [0x08]);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 11)), 2);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 13)), closingDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 15)), 2);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 17)), closingDraw);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 19)), 1);
+        WriteWord(bus, 0x840000 | unchecked((ushort)(closingList + 21)), closingDraw);
+        WriteOneBlockDraw(bus, closingDraw, 0xc123);
+        WriteOneBlockDraw(bus, lockedDraw, 0xc123);
+
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            unchecked((byte)RoomPlmHeaders.GreyDoorFacingLeft),
+            unchecked((byte)(RoomPlmHeaders.GreyDoorFacingLeft >> 8)),
+            doorX,
+            doorY,
+            unchecked((byte)roomArgument),
+            unchecked((byte)(roomArgument >> 8)),
+            0x00, 0x00,
+        ]);
+        RoomLevelData level = CreateRoom(
+            width,
+            height,
+            new ushort[width * height],
+            new byte[width * height],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var system = new Bank80SystemState();
+        var plms = new RoomPlmSystem();
+        AssertEqual(1, plms.LoadRoomPopulation(
+                bus,
+                level,
+                streamer,
+                new SnesVram(),
+                population,
+                system,
+                AreaId.Brinstar,
+                () => new SamusState(),
+                () => false),
+            "Brinstar pre-map grey door loads through the shared population path");
+
+        var enteringDoor = new CartridgeDoorHeader(
+            Pointer: 0x8cb2,
+            DestinationRoomPointer: 0x9b9d,
+            BitFlags: 0,
+            Orientation: 5,
+            PlmX: doorX,
+            PlmY: doorY,
+            DestinationScreenX: 0,
+            DestinationScreenY: 0,
+            SamusDistance: 0x8000,
+            SetupCodePointer: 0);
+        AssertTrue(plms.TrySpawnDoorClosingPlm(bus, level, enteringDoor, system),
+            "room $9B9D redirects its resident grey door to closing list $BE59");
+
+        for (int frame = 0; frame < 10; frame++)
+        {
+            plms.Step(
+                bus, level, streamer, 0, 0, 0,
+                scrolls: null,
+                enemyDeaths: 0,
+                enemyDeathQuota: 1,
+                controllerNewInput: 0,
+                collectedItems: 0);
+        }
+
+        AssertEqual(GreyDoorPhase.Locked, plms.GreyDoors.Single().Phase,
+            "fall-through at $BE70 returns to the resident grey-door owner");
+        AssertEqual(initialList, plms.PopulationSlots.Single().InstructionPointer,
+            "door remains parked at its first list instead of dispatching $8A72 generically");
+        AssertEqual(1, plms.ActiveCount,
+            "room $9B9D grey door remains resident after its entry-closing animation");
     }
 
     /// <summary>

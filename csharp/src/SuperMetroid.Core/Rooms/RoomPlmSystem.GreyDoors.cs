@@ -63,6 +63,20 @@ public sealed partial class RoomPlmSystem
         if (door is null)
             return false;
 
+        // The ordinary grey-door closing list ends immediately before its first list and
+        // intentionally falls through to it; unlike Bomb Torizo's special list, there is
+        // no explicit Goto to intercept. Restore the same resident family when the native
+        // list cursor reaches that boundary. The final closing draw is already the fully
+        // closed frame, so marking it complete also avoids drawing it twice.
+        if (door.Phase == GreyDoorPhase.Closing &&
+            slot.InstructionPointer == door.InitialList)
+        {
+            slot.PreInstruction = 0;
+            door.Phase = GreyDoorPhase.Locked;
+            door.InitialDrawCompleted = true;
+            door.HasPendingHit = false;
+        }
+
         // Resident room-entry closers execute the header's second list in the common
         // interpreter, then return to InitialList. Retaining this discriminator is what
         // lets that return restore the ordinary condition-gated door owner.

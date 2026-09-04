@@ -75,7 +75,7 @@ public sealed class HopperEnemyState
     /// <summary>Twice the header variant, used as a byte offset into four-word list tables.</summary>
     public ushort VariantTableOffset { get; internal set; }
 
-    /// <summary>Population initialization word: zero means floor, nonzero means ceiling.</summary>
+    /// <summary>Population parameter one / native <c>$0FB4</c>: zero means floor, nonzero means ceiling.</summary>
     public bool UpsideDown { get; internal set; }
 }
 
@@ -139,7 +139,7 @@ public sealed partial class RoomEnemySystem
             ReadyToHop = false,
             HopTableIndex = slot.Definition.VariantIndex == 0 ? (ushort)0 : (ushort)2,
             VariantTableOffset = unchecked((ushort)(slot.Definition.VariantIndex * 2)),
-            UpsideDown = slot.Spawn.Population.InitializationParameter != 0,
+            UpsideDown = slot.Parameter1 != 0,
             Function = HopperEnemyFunction.ChooseHopSize,
         };
         _hopperStates[slot.SlotIndex] = state;

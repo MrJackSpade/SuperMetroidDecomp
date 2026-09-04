@@ -11,6 +11,15 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class HopperAudit
 {
+    private static class RoomDefinitions
+    {
+        /// <summary>Room <c>$01/$02</c> header at <c>$8F:9B9D</c>.</summary>
+        public const ushort CrateriaCeilingSidehopper = 0x9b9d;
+
+        /// <summary>Ceiling Sidehopper's first landed spritemap at <c>$A3:AF34</c>.</summary>
+        public const ushort CeilingSidehopperLandedSpritemap = 0xaf34;
+    }
+
     private const ushort BlueHopperRoomHeader = 0xdc19;
     private const ushort BlueHopperDefaultState = 0xdc2b;
     private const ushort TourianSidehopperDefinition = 0xd9ff;
@@ -45,10 +54,13 @@ internal static class HopperAudit
                 $"{enemies.EnemyCount} non-uniform or uninitialized actors.");
         }
 
-        RoomEnemySlot auditedSlot = enemies.Slots[0];
-        HopperEnemyState auditedState = enemies.HopperStates[0]
-            ?? throw new InvalidDataException("Blue Hopper slot zero has no typed hopper state.");
-        if (auditedSlot.XPosition != 0x00f8 || auditedSlot.YPosition != 0x0061 ||
+        // Blue Hopper contains one parameter-$8000 ceiling actor followed by one floor
+        // actor. Exercise the latter here so the long-standing upward-hop assertions retain
+        // their original meaning; room $01/$02 below covers the reported ceiling variant.
+        RoomEnemySlot auditedSlot = enemies.Slots[1];
+        HopperEnemyState auditedState = enemies.HopperStates[1]
+            ?? throw new InvalidDataException("Blue Hopper slot one has no typed hopper state.");
+        if (auditedSlot.XPosition != 0x0086 || auditedSlot.YPosition != 0x00a9 ||
             auditedSlot.Health != 1500 || auditedSlot.Definition.Damage != 120 ||
             auditedState.UpsideDown || auditedState.HopTableIndex != 2 ||
             auditedState.VariantTableOffset != 2 ||
@@ -133,10 +145,69 @@ internal static class HopperAudit
                 $"knockback={samus.KnockbackActive}.");
         }
 
+        VerifyRoom0102CeilingOrientation(bus);
+
         Console.WriteLine(
             "Blue Hopper audit passed: two retail Tourian Sidehoppers loaded, both random " +
             $"hop sizes traversed the ROM quadratic arc and landing loop, {maps.Count} maps " +
             $"animated, 120 contact damage resolved, and {oam.LastFinalizedSpriteCount} OBJ pieces rendered.");
         return 0;
+    }
+
+    private static void VerifyRoom0102CeilingOrientation(SuperMetroidAddressSpace bus)
+    {
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            bus,
+            RoomDefinitions.CrateriaCeilingSidehopper);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+
+        var random = new Bank80SystemState();
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber);
+
+        RoomEnemySlot ceilingHopper = enemies.Slots.Single(
+            slot => slot.EnemyDefinitionPointer == RoomEnemySystem.SidehopperDefinition);
+        HopperEnemyState state = enemies.HopperStates[ceilingHopper.SlotIndex]
+            ?? throw new InvalidDataException("Room $01/$02 Sidehopper has no typed hopper state.");
+        if (ceilingHopper.Parameter1 != 1 || !state.UpsideDown)
+        {
+            throw new InvalidDataException(
+                $"Room $01/$02 ceiling selector mismatch: parameter1=${ceilingHopper.Parameter1:X4}, " +
+                $"upsideDown={state.UpsideDown}.");
+        }
+
+        const ushort cameraX = 0x0180;
+        enemies.StepFrame(cameraX, 0, false, samus: null, level: assets.LevelData);
+        if (ceilingHopper.SpritemapPointer != RoomDefinitions.CeilingSidehopperLandedSpritemap)
+        {
+            throw new InvalidDataException(
+                $"Room $01/$02 ceiling Sidehopper selected map $A3:{ceilingHopper.SpritemapPointer:X4}, " +
+                $"not cartridge ceiling map $A3:{RoomDefinitions.CeilingSidehopperLandedSpritemap:X4}.");
+        }
+
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        enemies.DrawLayers(oam, cameraX, 0, 0, 7);
+        oam.FinalizeFrame();
+        OamEntry[] pieces = Enumerable.Range(0, oam.LastFinalizedSpriteCount)
+            .Select(oam.GetEntry)
+            .ToArray();
+        OamEntry[] hopperPieces = pieces.Take(5).ToArray();
+        if (hopperPieces.Length != 5 || hopperPieces.Any(piece => !piece.FlipY))
+        {
+            throw new InvalidDataException(
+                $"Room $01/$02 ceiling Sidehopper emitted {hopperPieces.Length} leading OBJ " +
+                $"pieces with vertical flips [{string.Join(',', hopperPieces.Select(piece => piece.FlipY))}].");
+        }
     }
 }

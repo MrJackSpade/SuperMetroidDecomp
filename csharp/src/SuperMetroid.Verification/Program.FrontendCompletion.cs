@@ -281,15 +281,28 @@ static void VerifyDoorOpeningTrajectories()
             AssertEqual(frame == expectedFrames - 1, completed,
                 $"door direction {direction} completion call");
             ushort currentCamera = direction < 2 ? trajectory.CameraX : trajectory.CameraY;
-            if (frame != expectedFrames - 1)
-            {
-                short delta = unchecked((short)(currentCamera - previousCamera));
-                AssertEqual(direction is 0 or 2 ? (short)4 : (short)-4, delta,
-                    $"door direction {direction} per-IRQ camera delta");
-            }
+            short delta = unchecked((short)(currentCamera - previousCamera));
+            AssertEqual(direction is 0 or 2 ? (short)4 : (short)-4, delta,
+                $"door direction {direction} per-IRQ camera delta");
             previousCamera = currentCamera;
         }
 
+        ushort preSnapCameraX = trajectory.CameraX;
+        ushort preSnapCameraY = trajectory.CameraY;
+        AssertEqual(direction switch
+        {
+            0 => (ushort)(destinationX + 0x0000),
+            1 => (ushort)(destinationX + 0x0000),
+            _ => destinationX,
+        }, preSnapCameraX, $"door direction {direction} final streamed camera X");
+        AssertEqual(direction switch
+        {
+            2 => destinationY,
+            3 => (ushort)(finalCameraY - 1),
+            _ => finalCameraY,
+        }, preSnapCameraY, $"door direction {direction} final streamed camera Y");
+
+        trajectory.SnapLayerOneToDestination();
         AssertEqual(destinationX, trajectory.CameraX,
             $"door direction {direction} final camera X");
         AssertEqual(finalCameraY, trajectory.CameraY,

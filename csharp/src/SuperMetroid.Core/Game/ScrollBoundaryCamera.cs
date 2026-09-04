@@ -53,6 +53,26 @@ public sealed class ScrollBoundaryCamera
     }
 
     /// <summary>
+    /// Publishes the raw modular layer-one words owned by the door-opening IRQ.
+    /// </summary>
+    /// <remarks>
+    /// The vertical transition routines deliberately begin outside the destination room:
+    /// down starts at destination Y minus <c>$E0</c> (often <c>$FF20</c>) and up starts at
+    /// destination Y plus <c>$FB</c>. These are valid 65C816 coordinates, not entry
+    /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
+    /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
+    /// </remarks>
+    public void SetDoorTransitionPosition(ushort x, ushort y)
+    {
+        XPosition = x;
+        YPosition = y;
+        XSubposition = 0;
+        YSubposition = 0;
+        IdealXPosition = x;
+        IdealYPosition = y;
+    }
+
+    /// <summary>
     /// Applies the direct <c>layer1_x_pos</c> write used by bank-$A9 Shitroid AI. Unlike
     /// entry placement, the cartridge does not clear subposition or replace either ideal
     /// camera coordinate at this point in the gameplay frame.

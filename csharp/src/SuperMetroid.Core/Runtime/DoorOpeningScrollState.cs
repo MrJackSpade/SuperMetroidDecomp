@@ -185,16 +185,25 @@ internal sealed class DoorOpeningScrollState
 
         RemainingFrames--;
         ShouldStreamAfterAdvance = Direction != 3 || frameCounter >= 5;
-        if (RemainingFrames != 0)
-            return false;
+        return RemainingFrames == 0;
+    }
 
-        // Irq_FollowDoorTransition snaps layer one to the destination after the direction
-        // function returns carry set. Layer two has already reached its authored endpoint.
+    /// <summary>
+    /// Applies <c>Irq_FollowDoorTransition</c>'s layer-one destination snap after the
+    /// directional routine has produced its final background-stream request.
+    /// </summary>
+    public void SnapLayerOneToDestination()
+    {
+        if (RemainingFrames != 0)
+            throw new InvalidOperationException(
+                "A door-opening trajectory cannot snap before its final IRQ call.");
+
+        // The cartridge calls $80:A3A0 from DoorTransition_* before control returns to
+        // Irq_FollowDoorTransition. Only then does the wrapper replace $0911/$0915 with
+        // the exact door destination. Layer two reaches its endpoint through the final
+        // directional step and is not rewritten by the wrapper.
         CameraX = FinalCameraX;
         CameraY = FinalCameraY;
-        Layer2X = FinalLayer2X;
-        Layer2Y = FinalLayer2Y;
-        return true;
     }
 
     private static uint ReplaceWholePosition(ushort whole, uint fixedPosition) =>

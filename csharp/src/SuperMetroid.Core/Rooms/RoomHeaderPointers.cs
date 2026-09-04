@@ -24,6 +24,12 @@ public static class RoomHeaderPointers
     /// <summary>Bomb Torizo Room at $8F:9804.</summary>
     public const ushort BombTorizoRoom = 0x9804;
 
+    /// <summary>Green Brinstar elevator room at $8F:9938 (area $00, room $19).</summary>
+    public const ushort GreenBrinstarElevatorRoom = 0x9938;
+
+    /// <summary>Green Brinstar main shaft at $8F:9AD9 (area $01, room $00).</summary>
+    public const ushort GreenBrinstarMainShaft = 0x9ad9;
+
     /// <summary>Flyway at $8F:9879.</summary>
     public const ushort Flyway = 0x9879;
 

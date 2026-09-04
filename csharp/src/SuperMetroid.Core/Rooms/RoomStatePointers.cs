@@ -11,4 +11,10 @@ public static class RoomStatePointers
 
     /// <summary>Blue Brinstar elevator state selected after Morph Ball and Missiles.</summary>
     public const ushort BlueBrinstarElevatorAfterItems = 0x97e0;
+
+    /// <summary>Green Brinstar elevator room's sole state at $8F:9945.</summary>
+    public const ushort GreenBrinstarElevator = 0x9945;
+
+    /// <summary>Green Brinstar main shaft's sole state at $8F:9AE6.</summary>
+    public const ushort GreenBrinstarMainShaft = 0x9ae6;
 }

@@ -89,8 +89,18 @@ public sealed class BackgroundScrollState
         ushort stagedLayer1X,
         ushort stagedLayer1Y)
     {
+        // State $0B preserves BG1's source-room mirrors (with the down-door one-pixel
+        // adjustment already supplied by the caller) and clears both BG2 mirrors before
+        // `$80:AE29` derives the four offsets. Keeping the register writes here makes the
+        // returned offset state and the block snapshot one indivisible cartridge action.
+        Bg1HorizontalScroll = retainedBg1Horizontal;
+        Bg1VerticalScroll = retainedBg1Vertical;
+        Bg2HorizontalScroll = 0;
+        Bg2VerticalScroll = 0;
         Bg1XOffset = unchecked((ushort)(retainedBg1Horizontal - stagedLayer1X));
         Bg1YOffset = unchecked((ushort)(retainedBg1Vertical - stagedLayer1Y));
+        // `$80:AE3B-$80:AE4A` deliberately subtracts layer 1 for both BG2 offsets.
+        // This is not a typo: layer 2's own position is combined with these words later.
         Bg2XOffset = unchecked((ushort)(0 - stagedLayer1X));
         Bg2YOffset = unchecked((ushort)(0 - stagedLayer1Y));
     }
@@ -203,11 +213,15 @@ public sealed class BackgroundScrollState
 
         Layer1YPosition = unchecked((ushort)(Layer1YPosition - 16));
         Layer2YPosition = unchecked((ushort)(Layer2YPosition - 16));
-        CalculateScrollRegisters();
+        // `$80:AFAB` calls only CalculateBlocks before it copies the previous
+        // coordinates. At this instant the BG block words still come from the displayed
+        // PPU scroll registers, while the layer blocks come from this temporary probe.
+        // CalculateBGPositionAndUpdates at $AFB7 recomputes the registers afterwards.
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
         PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock + 1));
         PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock + 1));
+        CalculateScrollRegisters();
         IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
 
         Layer1YPosition = savedLayer1Y;
@@ -238,7 +252,9 @@ public sealed class BackgroundScrollState
         ushort actualLayer2Y = Layer2YPosition;
         Layer1YPosition = stagedLayer1Y;
         Layer2YPosition = stagedLayer2Y;
-        CalculateScrollRegisters();
+        // Both `$80:AF24` (down) and `$80:AFAB` (up) calculate block coordinates before
+        // their temporary layer position is reflected into the PPU scroll mirrors. This
+        // mixed old-register/new-layer snapshot is intentional circular-buffer state.
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
 
@@ -260,11 +276,11 @@ public sealed class BackgroundScrollState
         ushort savedBg2Vertical = Bg2VerticalScroll;
         Layer1YPosition = unchecked((ushort)(stagedLayer1Y - 15));
         Layer2YPosition = unchecked((ushort)(stagedLayer2Y - 15));
-        CalculateScrollRegisters();
         CalculateBlockCoordinates();
         CopyCurrentBlocksToPrevious();
         PreviousLayer1YBlock = unchecked((ushort)(PreviousLayer1YBlock - 1));
         PreviousLayer2YBlock = unchecked((ushort)(PreviousLayer2YBlock - 1));
+        CalculateScrollRegisters();
         IReadOnlyList<BackgroundUpdateRequest> requests = CalculateBlocksAndUpdates();
         Layer1YPosition = actualLayer1Y;
         Layer2YPosition = actualLayer2Y;

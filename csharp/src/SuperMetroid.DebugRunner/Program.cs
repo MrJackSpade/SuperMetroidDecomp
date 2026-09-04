@@ -63,6 +63,15 @@ if (args.Length >= 3 && args[0] == "--input-replay-audit")
         string.Join(' ', args[2..]).Trim('"'));
 }
 
+if (args.Length == 5 && args[0] == "--input-replay-trace")
+{
+    return InputReplayAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'),
+        traceStartFrame: int.Parse(args[3]),
+        traceEndFrame: int.Parse(args[4]));
+}
+
 if (args.Length == 4 && args[0] == "--start-input-visual-audit")
 {
     return StartInputVisualAudit.Run(
@@ -170,6 +179,15 @@ if (args.Length >= 2 && args[0] == "--vertical-room-entry-audit")
     string? captureDirectory = args.Length == 2 ? null : args[^1].Trim('"');
     return EarlyControllerRouteAudit.RunVerticalRoomEntryAudit(
         verticalEntryRomPath,
+        captureDirectory);
+}
+
+if (args.Length >= 2 && args[0] == "--green-brinstar-elevator-audit")
+{
+    string elevatorRomPath = args[1].Trim('"');
+    string? captureDirectory = args.Length >= 3 ? args[2].Trim('"') : null;
+    return EarlyControllerRouteAudit.RunGreenBrinstarElevatorAudit(
+        elevatorRomPath,
         captureDirectory);
 }
 

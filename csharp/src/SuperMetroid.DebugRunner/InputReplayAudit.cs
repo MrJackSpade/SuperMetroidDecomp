@@ -24,10 +24,15 @@ internal static class InputReplayAudit
     public static int Run(
         string recordingPath,
         string romPath,
-        bool enforcePlatformCrossingInvariant = false)
+        bool enforcePlatformCrossingInvariant = false,
+        int traceStartFrame = -1,
+        int traceEndFrame = -1)
     {
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
-        PrintInputRuns(recording.ControllerInputs, startFrame: 5400);
+        PrintInputRuns(
+            recording.ControllerInputs,
+            startFrame: traceStartFrame >= 0 ? traceStartFrame : 5400,
+            endFrame: traceEndFrame);
         string fullRomPath = Path.GetFullPath(romPath);
         byte[] digest;
         using (FileStream rom = File.OpenRead(fullRomPath))
@@ -42,6 +47,7 @@ internal static class InputReplayAudit
         var tail = new Queue<ReplayFrameState>(RetainedTailFrames);
         ushort? previousRoom = null;
         ushort previousCeresStatus = ushort.MaxValue;
+        ElevatorActorStatus? previousElevatorStatus = null;
         bool previousEjection = false;
         int previousPlmCount = -1;
         int previousScrollPlmCount = -1;
@@ -93,6 +99,7 @@ internal static class InputReplayAudit
             RidleyEnemyState? ridley = runtime?.Enemies.CeresRidley;
             ushort? room = runtime?.ActiveRoom?.Pointer;
             ushort ceresStatus = runtime?.Enemies.CeresStatus ?? 0;
+            ElevatorActorStatus? elevatorStatus = runtime?.Enemies.ElevatorStatus;
             bool ejection = samus?.CeresRidleyEjection.IsActive ?? false;
             int plmCount = runtime?.Plms.ActiveCount ?? 0;
             int scrollPlmCount = runtime?.Plms.ScrollPlms.Count ?? 0;
@@ -156,6 +163,12 @@ internal static class InputReplayAudit
                 samus?.Pose,
                 samus?.XPosition,
                 samus?.YPosition,
+                runtime?.Camera?.XPosition,
+                runtime?.Camera?.YPosition,
+                runtime?.BackgroundScroll.Bg1HorizontalScroll,
+                runtime?.BackgroundScroll.Bg1VerticalScroll,
+                elevatorStatus,
+                runtime?.Enemies.LastElevatorEvent,
                 samus?.Health,
                 ceresStatus,
                 ejection,
@@ -172,7 +185,10 @@ internal static class InputReplayAudit
                 tail.Dequeue();
             tail.Enqueue(state);
 
-            if (room != previousRoom || ceresStatus != previousCeresStatus || ejection != previousEjection)
+            if (room != previousRoom || ceresStatus != previousCeresStatus ||
+                elevatorStatus != previousElevatorStatus || ejection != previousEjection)
+                Console.WriteLine(state.Format());
+            else if (index >= traceStartFrame && index <= traceEndFrame)
                 Console.WriteLine(state.Format());
             if (plmCount != previousPlmCount || scrollPlmCount != previousScrollPlmCount)
             {
@@ -182,9 +198,16 @@ internal static class InputReplayAudit
             }
             previousRoom = room;
             previousCeresStatus = ceresStatus;
+            previousElevatorStatus = elevatorStatus;
             previousEjection = ejection;
             previousPlmCount = plmCount;
             previousScrollPlmCount = scrollPlmCount;
+
+            // A bounded trace is an investigation tool, not a semantic full-recording
+            // replay. Stop at its requested endpoint so inspecting a late transition does
+            // not spend another minute simulating unrelated gameplay after the evidence.
+            if (traceEndFrame >= 0 && index >= traceEndFrame)
+                break;
         }
 
         Console.WriteLine($"Replay completed {recording.ControllerInputs.Length} recorded calls. Tail:");
@@ -223,13 +246,19 @@ internal static class InputReplayAudit
     /// a cartridge state that rejected player input from a session in which the controller
     /// was actually neutral, without flooding the diagnostic with one line per video frame.
     /// </summary>
-    private static void PrintInputRuns(ReadOnlySpan<ushort> inputs, int startFrame)
+    private static void PrintInputRuns(
+        ReadOnlySpan<ushort> inputs,
+        int startFrame,
+        int endFrame = -1)
     {
-        for (int start = Math.Max(0, startFrame); start < inputs.Length;)
+        int exclusiveEnd = endFrame >= 0
+            ? Math.Min(inputs.Length, endFrame + 1)
+            : inputs.Length;
+        for (int start = Math.Max(0, startFrame); start < exclusiveEnd;)
         {
             ushort value = inputs[start];
             int end = start + 1;
-            while (end < inputs.Length && inputs[end] == value)
+            while (end < exclusiveEnd && inputs[end] == value)
                 end++;
             if (value != 0)
                 Console.WriteLine($"input rec={start}..{end - 1} value=${value:X4}");
@@ -246,6 +275,12 @@ internal static class InputReplayAudit
         byte? Pose,
         ushort? X,
         ushort? Y,
+        ushort? CameraX,
+        ushort? CameraY,
+        ushort? Bg1ScrollX,
+        ushort? Bg1ScrollY,
+        ElevatorActorStatus? ElevatorStatus,
+        ElevatorFrameEvent? ElevatorEvent,
         ushort? Health,
         ushort CeresStatus,
         bool EjectionActive,
@@ -265,6 +300,15 @@ internal static class InputReplayAudit
             $" in=${Input:X4}/${NewInput:X4} pose=" +
             (Pose is byte pose ? $"${pose:X2}" : "--") +
             $" xy=" + (X is ushort x && Y is ushort y ? $"${x:X4},${y:X4}" : "----,----") +
+            $" cam=" + (CameraX is ushort cameraX && CameraY is ushort cameraY
+                ? $"${cameraX:X4},${cameraY:X4}"
+                : "----,----") +
+            $" bg1=" + (Bg1ScrollX is ushort bg1X && Bg1ScrollY is ushort bg1Y
+                ? $"${bg1X:X4},${bg1Y:X4}"
+                : "----,----") +
+            " elev=" + (ElevatorStatus is { } elevatorStatus
+                ? $"{elevatorStatus}/{ElevatorEvent}"
+                : "--/--") +
             $" hp={Health?.ToString() ?? "-"} ceres=${CeresStatus:X4}" +
             $" eject={EjectionActive}/{EjectionPending} lock={InputLocked}" +
             $" kb={KnockbackActive}/${KnockbackTimer}/${KnockbackDirection}/{KnockbackXDirection} ridley=" +

@@ -356,13 +356,23 @@ public sealed partial class SuperMetroidRuntime
             3 => unchecked((ushort)(_doorOpeningScroll.CameraY + 5)),
             _ => _doorOpeningScroll.CameraY,
         };
+        ushort stagedLayer2Y = direction switch
+        {
+            2 => _doorOpeningScroll.Layer2Y,
+            3 => unchecked((ushort)(_doorOpeningScroll.Layer2Y + 4)),
+            _ => _doorOpeningScroll.Layer2Y,
+        };
         BackgroundScroll.ConfigureDoorOpeningOffsets(
             sourceScroll.Bg1Horizontal,
-            sourceScroll.Bg1Vertical,
+            direction == 2
+                ? unchecked((ushort)(sourceScroll.Bg1Vertical + 1))
+                : sourceScroll.Bg1Vertical,
             stagedLayer1X,
             stagedLayer1Y);
         _pendingDoorOpeningPpuScroll = null;
-        Camera.SetPosition(_doorOpeningScroll.CameraX, _doorOpeningScroll.CameraY);
+        Camera.SetDoorTransitionPosition(
+            _doorOpeningScroll.CameraX,
+            _doorOpeningScroll.CameraY);
         BackgroundScroll.Layer1XPosition = _doorOpeningScroll.CameraX;
         BackgroundScroll.Layer1YPosition = _doorOpeningScroll.CameraY;
         BackgroundScroll.Layer2XPosition = _doorOpeningScroll.Layer2X;
@@ -384,9 +394,6 @@ public sealed partial class SuperMetroidRuntime
         }
         else
         {
-            ushort stagedLayer2Y = direction == 2
-                ? _doorOpeningScroll.Layer2Y
-                : unchecked((ushort)(_doorOpeningScroll.Layer2Y + 4));
             IReadOnlyList<BackgroundUpdateRequest> initialRequests =
                 BackgroundScroll.PrimeVerticalDoorOpeningBlocks(
                     door.Orientation,
@@ -409,7 +416,7 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is null || Samus is null)
             throw new InvalidOperationException("Door-opening scroll lost its room actors.");
         bool completed = state.Advance();
-        Camera.SetPosition(state.CameraX, state.CameraY);
+        Camera.SetDoorTransitionPosition(state.CameraX, state.CameraY);
         BackgroundScroll.Layer1XPosition = state.CameraX;
         BackgroundScroll.Layer1YPosition = state.CameraY;
         BackgroundScroll.Layer2XPosition = state.Layer2X;
@@ -423,6 +430,20 @@ public sealed partial class SuperMetroidRuntime
             ? BackgroundScroll.CalculateScrollsAndUpdates()
             : Array.Empty<BackgroundUpdateRequest>();
         ExecuteBackgroundStreamRequests(requests, "door-opening scroll");
+
+        if (completed)
+        {
+            // `$80:AE4E` calls the direction routine first. That routine performs the
+            // last `$80:A3A0` row/column calculation using the stepped coordinates.
+            // The wrapper then snaps only layer one to the exact destination without
+            // recalculating PPU scroll or streaming another row. Publishing the snap
+            // before CalculateScrollsAndUpdates shifted an upward door's last request
+            // into the next 16-pixel row and corrupted the elevator shaft ring buffer.
+            state.SnapLayerOneToDestination();
+            Camera.SetDoorTransitionPosition(state.CameraX, state.CameraY);
+            BackgroundScroll.Layer1XPosition = state.CameraX;
+            BackgroundScroll.Layer1YPosition = state.CameraY;
+        }
         Samus.Kinematics.SetXFixed(state.SamusXFixed);
         Samus.Kinematics.SetYFixed(state.SamusYFixed);
         return completed;
@@ -648,7 +669,10 @@ public sealed partial class SuperMetroidRuntime
         DisplayedSamusMode7Transform = initialMode7Transform;
         LevelData = assets.LevelData;
         Camera = new ScrollBoundaryCamera(assets.Scrolls);
-        Camera.SetPosition(cameraX, cameraY);
+        if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
+            Camera.SetDoorTransitionPosition(cameraX, cameraY);
+        else
+            Camera.SetPosition(cameraX, cameraY);
         BackgroundScroll.Layer2ScrollX = room.State.Layer2ScrollX;
         BackgroundScroll.Layer2ScrollY = room.State.Layer2ScrollY;
         if (viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport)

@@ -10,6 +10,353 @@ using SuperMetroid.Core.Runtime;
 internal static partial class EarlyControllerRouteAudit
 {
     /// <summary>
+    /// Reproduces the player's exact ordinary-elevator pair between area-$00 room-$19 and
+    /// area-$01 room-$00. Both directions use the real room data, type-$9 pseudo-door,
+    /// bank-$83 header, state-$0B transition, destination enemy, camera, BG streaming, and
+    /// gameplay compositor. Optional captures make tile-ring and OBJ alignment inspectable.
+    /// </summary>
+    public static int RunGreenBrinstarElevatorAudit(
+        string romPath,
+        string? captureDirectory = null)
+    {
+        SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        SuperMetroidRuntime runtime = CreateInitializedRuntime(bus);
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException(
+            "Green Brinstar elevator audit initialized without Samus.");
+        samus.CollectedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.EquippedItems |= (ushort)SamusEquipmentFlags.MorphBall;
+        samus.MaxMissiles = 5;
+        samus.Missiles = 5;
+
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenBrinstarElevatorRoom);
+        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
+        PublishRetailDoor(runtime, bus, DoorPointers.GreenBrinstarMainShaftFromElevator);
+        RunGreenBrinstarElevatorTransition(
+            runtime,
+            RoomHeaderPointers.GreenBrinstarMainShaft,
+            RoomStatePointers.GreenBrinstarMainShaft,
+            "downward",
+            captureDirectory);
+
+        int downwardReturnFrames = RunElevatorToRest(
+            runtime,
+            "downward Green Brinstar arrival",
+            captureDirectory,
+            "issue-234-235-downward");
+        (int DownBg1, int DownBg2, int DownShift) = CompareWithDirectElevatorReference(
+            bus,
+            runtime,
+            RoomHeaderPointers.GreenBrinstarMainShaft,
+            captureDirectory,
+            "issue-234-235-downward-reference.png");
+
+        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
+        PublishRetailDoor(runtime, bus, DoorPointers.GreenBrinstarElevatorFromMainShaft);
+        RunGreenBrinstarElevatorTransition(
+            runtime,
+            RoomHeaderPointers.GreenBrinstarElevatorRoom,
+            RoomStatePointers.GreenBrinstarElevator,
+            "upward",
+            captureDirectory);
+        int upwardReturnFrames = RunElevatorToRest(
+            runtime,
+            "upward Green Brinstar arrival",
+            captureDirectory,
+            "issue-233-upward");
+        (int UpBg1, int UpBg2, int UpShift) = CompareWithDirectElevatorReference(
+            bus,
+            runtime,
+            RoomHeaderPointers.GreenBrinstarElevatorRoom,
+            captureDirectory,
+            "issue-233-upward-reference.png");
+
+        ScrollBoundaryCamera camera = runtime.Camera ?? throw new InvalidDataException(
+            "Green Brinstar upward arrival lost its camera.");
+        GameplayPpuRenderSnapshot displayed = runtime.DisplayedGameplayPpu;
+        Console.WriteLine(
+            $"Green Brinstar elevator audit: down={downwardReturnFrames} frames, " +
+            $"up={upwardReturnFrames} frames; settled Samus/camera/layer/display=" +
+            $"${samus.YPosition:X4}/${camera.YPosition:X4}/" +
+            $"${runtime.BackgroundScroll.Layer1YPosition:X4}/${displayed.Layer1YPosition:X4}; " +
+            $"BG1VOFS/offset=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}/" +
+            $"${runtime.BackgroundScroll.Bg1YOffset:X4}; " +
+            $"visible BG1 mismatches down/up={DownBg1}/{UpBg1}; " +
+            $"BG2={DownBg2}/{UpBg2}; best row shifts={DownShift}/{UpShift}.");
+
+        // The direct-load reference has not executed the elevator PLM, so its 18
+        // platform blocks retain their original two-tile-wide level entries. Those 36
+        // BG1 words are the sole expected difference after the downward trip. BG2 must
+        // match exactly, the upward room has no such mutation, and—most importantly for
+        // the reported corruption—neither room may match better with a displaced row.
+        const int expectedElevatorPlmTileDifferences = 36;
+        if (DownBg1 != expectedElevatorPlmTileDifferences || UpBg1 != 0 ||
+            DownBg2 != 0 || UpBg2 != 0 || DownShift != 0 || UpShift != 0)
+        {
+            throw new InvalidDataException(
+                $"Green Brinstar elevator left incorrect visible tiles: " +
+                $"down BG1/BG2={DownBg1}/{DownBg2}, " +
+                $"up={UpBg1}/{UpBg2}, best row shifts={DownShift}/{UpShift}.");
+        }
+        return 0;
+    }
+
+    private static void RunGreenBrinstarElevatorTransition(
+        SuperMetroidRuntime runtime,
+        ushort expectedRoom,
+        ushort expectedState,
+        string direction,
+        string? captureDirectory)
+    {
+        CartridgeDoorHeader pendingDoor = runtime.PendingDoorTransition
+            ?? throw new InvalidDataException($"Green Brinstar {direction} transition has no door.");
+        Console.WriteLine(
+            $"  {direction} door ${pendingDoor.Pointer:X4}: orientation=" +
+            $"${pendingDoor.Orientation:X2}, destination=" +
+            $"${pendingDoor.DestinationScreenX:X2}/${pendingDoor.DestinationScreenY:X2}.");
+        var transition = new DoorTransitionState();
+        transition.Begin(runtime);
+        var audio = new CartridgeAudioState();
+        int openingFrame = 0;
+        for (int frame = 0; transition.IsActive && frame < 400; frame++)
+        {
+            DoorTransitionPhase phaseBefore = transition.Phase;
+            transition.Step(runtime, audio, controllerInput: 0);
+            if (phaseBefore == DoorTransitionPhase.LoadMoreThingsAndOpenDoor)
+            {
+                ushort destinationY = unchecked((ushort)(pendingDoor.DestinationScreenY << 8));
+                ushort expectedInitialCameraY = (pendingDoor.Orientation & 3) switch
+                {
+                    2 => unchecked((ushort)(destinationY - 224)),
+                    3 => unchecked((ushort)(destinationY + 251)),
+                    _ => throw new InvalidDataException(
+                        $"Green Brinstar {direction} audit received a horizontal door."),
+                };
+                if (runtime.Camera?.YPosition != expectedInitialCameraY)
+                {
+                    throw new InvalidDataException(
+                        $"Green Brinstar {direction} opening clamped its native modular " +
+                        $"camera Y: expected ${expectedInitialCameraY:X4}, observed " +
+                        $"${runtime.Camera?.YPosition:X4}.");
+                }
+                Console.WriteLine(
+                    $"  {direction} opening start: cameraY=${runtime.Camera?.YPosition:X4}, " +
+                    $"layer2Y=${runtime.BackgroundScroll.Layer2YPosition:X4}, " +
+                    $"BG1VOFS/offset=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}/" +
+                    $"${runtime.BackgroundScroll.Bg1YOffset:X4}, " +
+                    $"blocks L1/BG1/prev=${runtime.BackgroundScroll.Layer1YBlock:X4}/" +
+                    $"${runtime.BackgroundScroll.Bg1YBlock:X4}/" +
+                    $"${runtime.BackgroundScroll.PreviousLayer1YBlock:X4}.");
+            }
+            if (phaseBefore == DoorTransitionPhase.WaitForDoorOpeningScroll)
+            {
+                openingFrame++;
+                if (runtime.LastBackgroundUpdateCount > 0)
+                {
+                    Console.WriteLine(
+                        $"    {direction} IRQ {openingFrame:D2}: " +
+                        $"L1Y/BG1Y/prev=${runtime.BackgroundScroll.Layer1YBlock:X4}/" +
+                        $"${runtime.BackgroundScroll.Bg1YBlock:X4}/" +
+                        $"${runtime.BackgroundScroll.PreviousLayer1YBlock:X4}; " +
+                        $"scroll=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}.");
+                }
+                if (captureDirectory is not null && openingFrame is 1 or 16 or 32 or 48 or 56)
+                {
+                    WriteElevatorFrame(
+                        runtime,
+                        captureDirectory,
+                        $"green-brinstar-{direction}-door-{openingFrame:D2}.png");
+                }
+            }
+        }
+
+        if (transition.IsActive)
+            throw new InvalidDataException($"Green Brinstar {direction} transition did not finish.");
+        AssertRoom(runtime, expectedRoom, expectedState, $"Green Brinstar {direction} transition");
+    }
+
+    private static int RunElevatorToRest(
+        SuperMetroidRuntime runtime,
+        string description,
+        string? captureDirectory,
+        string capturePrefix)
+    {
+        int frames = 0;
+        int captureIndex = 0;
+        while (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive && frames < 1200)
+        {
+            runtime.StepFrame(0);
+            runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+            frames++;
+            int elevatorActors = runtime.Enemies.Slots.Count(
+                enemy => enemy.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
+            if (elevatorActors != 1)
+            {
+                throw new InvalidDataException(
+                    $"{description} rendered {elevatorActors} elevator actors on frame {frames}; " +
+                    "the platform must have exactly one OBJ owner.");
+            }
+            if (captureDirectory is not null && frames % 96 == 0)
+            {
+                RoomEnemySlot? elevator = runtime.Enemies.Slots.FirstOrDefault(
+                    enemy => enemy.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
+                Console.WriteLine(
+                    $"  {capturePrefix} frame {frames}: SamusY=${runtime.Samus?.YPosition:X4}, " +
+                    $"cameraY=${runtime.Camera?.YPosition:X4}, " +
+                    $"BG1VOFS=${runtime.BackgroundScroll.Bg1VerticalScroll:X4}, " +
+                    $"elevatorY=${elevator?.YPosition:X4}");
+                WriteElevatorFrame(
+                    runtime,
+                    captureDirectory,
+                    $"{capturePrefix}-{++captureIndex:D2}.png");
+            }
+        }
+
+        if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive)
+            throw new InvalidDataException($"{description} did not reach the resting platform.");
+
+        runtime.StepFrame(0);
+        runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        if (captureDirectory is not null)
+            WriteElevatorFrame(runtime, captureDirectory, $"{capturePrefix}-settled.png");
+        return frames;
+    }
+
+    private static void WriteElevatorFrame(
+        SuperMetroidRuntime runtime,
+        string captureDirectory,
+        string fileName)
+    {
+        Directory.CreateDirectory(captureDirectory);
+        PngWriter.WriteRgba(
+            Path.Combine(captureDirectory, fileName),
+            FrontendFrame.Width,
+            FrontendFrame.Height,
+            SuperMetroidRuntimeFrameRenderer.Render(runtime));
+    }
+
+    private static (int Bg1, int Bg2, int BestBg1Shift) CompareWithDirectElevatorReference(
+        ISnesAddressSpace bus,
+        SuperMetroidRuntime observed,
+        ushort roomPointer,
+        string? captureDirectory,
+        string fileName)
+    {
+        ScrollBoundaryCamera observedCamera = observed.Camera ?? throw new InvalidDataException(
+            "Elevator reference has no observed camera.");
+        SamusState observedSamus = observed.Samus ?? throw new InvalidDataException(
+            "Elevator reference has no observed Samus.");
+        SuperMetroidRuntime reference = CreateInitializedRuntime(bus);
+        reference.LoadCartridgeRoomForDebug(
+            roomPointer,
+            observedCamera.XPosition,
+            observedCamera.YPosition);
+        // Rebuild an authoritative full viewport using the transition's retained PPU
+        // phase. Comparing against a zero-offset debug load is invalid: the cartridge
+        // intentionally carries BG offsets across doors and maps world blocks into a
+        // different part of the circular tilemap while preserving the same picture.
+        reference.BackgroundScroll.ConfigureDoorOpeningOffsets(
+            observed.BackgroundScroll.Bg1XOffset,
+            observed.BackgroundScroll.Bg1YOffset,
+            stagedLayer1X: 0,
+            stagedLayer1Y: 0);
+        reference.BackgroundScroll.Layer1XPosition = observedCamera.XPosition;
+        reference.BackgroundScroll.Layer1YPosition = observedCamera.YPosition;
+        reference.ExecuteBackgroundStreamRequests(
+            reference.BackgroundScroll.BuildInitialViewportRequests(),
+            "Green Brinstar offset-preserving reference fill");
+        reference.BackgroundScroll.PrimePreviousBlocks();
+        SamusState referenceSamus = reference.Samus ?? throw new InvalidDataException(
+            "Elevator reference room lost Samus.");
+        referenceSamus.Pose = observedSamus.Pose;
+        referenceSamus.XPosition = observedSamus.XPosition;
+        referenceSamus.YPosition = observedSamus.YPosition;
+        referenceSamus.RefreshCollisionRadii(bus);
+        referenceSamus.InitializeAnimation(bus);
+        reference.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        if (captureDirectory is not null)
+            WriteElevatorFrame(reference, captureDirectory, fileName);
+
+        ushort[] observedBg1 = SnapshotVisibleBgTiles(observed, backgroundLayer: false);
+        ushort[] referenceBg1 = SnapshotVisibleBgTiles(reference, backgroundLayer: false);
+        ushort[] observedBg2 = SnapshotVisibleBgTiles(observed, backgroundLayer: true);
+        ushort[] referenceBg2 = SnapshotVisibleBgTiles(reference, backgroundLayer: true);
+        int bg1Mismatches = 0;
+        int bg2Mismatches = 0;
+        for (int tile = 0; tile < observedBg1.Length; tile++)
+        {
+            if (observedBg1[tile] != referenceBg1[tile])
+                bg1Mismatches++;
+            if (observedBg2[tile] != referenceBg2[tile])
+                bg2Mismatches++;
+        }
+        Console.WriteLine(
+            $"  {fileName}: BG1 mismatched rows=" +
+            string.Join(',', Enumerable.Range(0, 24)
+                .Select(row => Enumerable.Range(0, 32).Count(column =>
+                    observedBg1[row * 32 + column] != referenceBg1[row * 32 + column]))) +
+            "; BG2=" +
+            string.Join(',', Enumerable.Range(0, 24)
+                .Select(row => Enumerable.Range(0, 32).Count(column =>
+                    observedBg2[row * 32 + column] != referenceBg2[row * 32 + column]))));
+        int[] shiftMismatches = Enumerable.Range(-4, 9)
+            .Select(shift =>
+                {
+                    int count = 0;
+                    for (int row = Math.Max(0, -shift); row < Math.Min(24, 24 - shift); row++)
+                    {
+                        for (int column = 0; column < 32; column++)
+                        {
+                            if (observedBg1[row * 32 + column] !=
+                                referenceBg1[(row + shift) * 32 + column])
+                                count++;
+                        }
+                    }
+                    return count;
+                })
+            .ToArray();
+        int bestBg1Shift = Enumerable.Range(-4, 9)
+            .MinBy(shift => shiftMismatches[shift + 4]);
+        Console.WriteLine(
+            "    BG1 shift mismatches=" + string.Join(',', Enumerable.Range(-4, 9)
+                .Select(shift => $"{shift}:{shiftMismatches[shift + 4]}")));
+        return (bg1Mismatches, bg2Mismatches, bestBg1Shift);
+    }
+
+    private static ushort[] SnapshotVisibleBgTiles(
+        SuperMetroidRuntime runtime,
+        bool backgroundLayer)
+    {
+        const int tileColumns = FrontendFrame.Width / 8;
+        const int tileRows = (FrontendFrame.Height - SnesGameplayFrameRenderer.HudHeight) / 8;
+        var result = new ushort[tileColumns * tileRows];
+        ushort horizontal = backgroundLayer
+            ? runtime.BackgroundScroll.Bg2HorizontalScroll
+            : runtime.BackgroundScroll.Bg1HorizontalScroll;
+        ushort vertical = unchecked((ushort)(
+            (backgroundLayer
+                ? runtime.BackgroundScroll.Bg2VerticalScroll
+                : runtime.BackgroundScroll.Bg1VerticalScroll) +
+            SnesGameplayFrameRenderer.HudHeight));
+        ushort tilemapBase = backgroundLayer
+            ? SnesPpuLayout.GameplayBg2TilemapWord
+            : SnesPpuLayout.GameplayBg1TilemapWord;
+
+        for (int row = 0; row < tileRows; row++)
+        {
+            int tileY = ((vertical + row * 8) & 0x00ff) >> 3;
+            for (int column = 0; column < tileColumns; column++)
+            {
+                int tileX = ((horizontal + column * 8) & 0x01ff) >> 3;
+                int screenWordOffset = (tileX >> 5) * 0x0400;
+                int mapWord = tilemapBase + screenWordOffset +
+                    tileY * 32 + (tileX & 31);
+                result[row * tileColumns + column] = runtime.Vram.ReadWord(mapWord);
+            }
+        }
+        return result;
+    }
+
+    /// <summary>
     /// Reproduces the two repeatedly reported vertical-entry defects without traversing
     /// unrelated rooms: Morph Ball-to-elevator attachment/camera and Climb-to-Parlor's
     /// south-door floor clearance. Both use real bank-$83 headers and the production room

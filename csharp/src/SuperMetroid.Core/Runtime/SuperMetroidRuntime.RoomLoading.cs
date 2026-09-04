@@ -529,7 +529,8 @@ public sealed partial class SuperMetroidRuntime
         if (LevelData is null || Samus is null)
             throw new InvalidOperationException("A live room and Samus are required for a door transition.");
 
-        CartridgeDoorHeader door = LevelData.ConsumePendingDoorTransition()
+        RoomLevelData sourceLevel = LevelData;
+        CartridgeDoorHeader door = sourceLevel.PendingDoorTransition
             ?? throw new InvalidOperationException("No type-$9 door collision is pending.");
         if ((door.DestinationRoomPointer & 0x8000) == 0)
         {
@@ -539,6 +540,22 @@ public sealed partial class SuperMetroidRuntime
 
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
+
+        // The desktop's opt-in error reporter resumes at the next emulated-frame boundary.
+        // Cartridge code cannot throw, but translated room construction can still reject an
+        // unsupported definition. Build the read-only asset graph before consuming the
+        // source room's pending door so such a failure remains retryable instead of leaving
+        // state $0B with no destination on the following frame.
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
+        CartridgeDoorHeader consumedDoor = sourceLevel.ConsumePendingDoorTransition()
+            ?? throw new InvalidOperationException(
+                "Pending door disappeared while its destination assets were prepared.");
+        if (consumedDoor.Pointer != door.Pointer)
+        {
+            throw new InvalidOperationException(
+                $"Pending door changed from $83:{door.Pointer:X4} to " +
+                $"$83:{consumedDoor.Pointer:X4} while its destination assets were prepared.");
+        }
 
         // `$82:E8DD/$82:EB93` promotes a departing elevator's global status from one to
         // two after the destination PLMs, door ASM, and setup ASM have been created. Our
@@ -574,7 +591,8 @@ public sealed partial class SuperMetroidRuntime
             placement.CameraX,
             placement.CameraY,
             viewportLoadMode,
-            runDoorClosingPlm: true);
+            runDoorClosingPlm: true,
+            preloadedAssets: assets);
 
         // `$82:E4B6` calls Samus_LoadSuitTargetPalette after room/enemy palettes have been
         // loaded and before state $0B captures the destination fade target. The source fade
@@ -667,7 +685,8 @@ public sealed partial class SuperMetroidRuntime
         ushort cameraY,
         RoomViewportLoadMode viewportLoadMode,
         GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
-        bool runDoorClosingPlm = false)
+        bool runDoorClosingPlm = false,
+        CartridgeRoomAssets? preloadedAssets = null)
     {
         DoorOpeningPpuScroll? doorOpeningPpuScroll = viewportLoadMode switch
         {
@@ -678,7 +697,7 @@ public sealed partial class SuperMetroidRuntime
             _ => throw new ArgumentOutOfRangeException(
                 nameof(viewportLoadMode), viewportLoadMode, "Unknown room viewport load mode."),
         };
-        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(_addressSpace, room);
+        CartridgeRoomAssets assets = preloadedAssets ?? CartridgeRoomAssets.Load(_addressSpace, room);
 
         ActiveDoor = door;
         ActiveRoom = room;

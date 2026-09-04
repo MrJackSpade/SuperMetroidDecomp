@@ -55,12 +55,6 @@ public sealed class RoomScrollGrid
         for (int index = 0; index < StorageByteCount; index++)
         {
             byte value = bus.ReadByte((int)source.AddWithinBank(index));
-            if (index < grid.LogicalCellCount)
-            {
-                _ = RoomScrollStates.FromCartridge(
-                    value,
-                    $"scroll table {source} logical cell {index}");
-            }
             grid._cells[index] = value;
             bus.WriteByte(WorkRamAddress + index, value);
         }

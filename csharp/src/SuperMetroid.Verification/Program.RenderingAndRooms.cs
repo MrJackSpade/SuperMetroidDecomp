@@ -325,18 +325,24 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
     AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
 
-    // Only the width*height logical cells are scroll discriminators. The remaining bytes
-    // deliberately preserve the native 50-byte overread above, but an unknown value inside
-    // the room itself must fail at the ROM boundary instead of becoming a phantom camera mode.
-    var invalidBus = new TestAddressSpace();
-    invalidBus.WriteByte(source, 3);
-    NotSupportedException invalidScroll = AssertThrows<NotSupportedException>(
-        () => RoomScrollGrid.LoadExplicit(
-            invalidBus, source, widthInScreens: 1, heightInScreens: 1),
-        "unknown logical room scroll state fails loudly");
-    AssertTrue(invalidScroll.Message.Contains("$03", StringComparison.Ordinal) &&
-        invalidScroll.Message.Contains("logical cell 0", StringComparison.Ordinal),
-        "unknown scroll diagnostic identifies value and logical cell");
+    // Single Chamber's neighboring room uses a four-byte explicit table for a 4x2 room.
+    // The native fixed-size copy makes the following room header ($1F,$02,$1D,$04) its
+    // logical second row. Those bytes are not corrupt enum values: bank $80 compares them
+    // only with zero (blocked) and one (blue alignment), treating every other nonzero byte
+    // like the conventional green value. Preserve that exact cartridge behavior.
+    var shortTableBus = new TestAddressSpace();
+    byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
+    for (int index = 0; index < shortTableAndFollowingHeader.Length; index++)
+        shortTableBus.WriteByte(source + index, shortTableAndFollowingHeader[index]);
+    RoomScrollGrid shortTableGrid = RoomScrollGrid.LoadExplicit(
+        shortTableBus,
+        source,
+        widthInScreens: 4,
+        heightInScreens: 2);
+    AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
+        "short explicit scroll table preserves following room-header byte");
+    AssertEqual(0x04, shortTableGrid.ReadStorage(7),
+        "short explicit scroll table preserves complete logical overread row");
 
     var camera = new ScrollBoundaryCamera(grid);
 

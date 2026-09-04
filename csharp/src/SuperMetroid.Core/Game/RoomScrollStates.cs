@@ -1,9 +1,15 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Validation boundary for the three exclusive byte values stored in the room-scroll grid.
-/// A cell is red, blue, or green; the values are not combinable flags.
+/// Named values written deliberately into the room-scroll grid by cartridge code.
+/// A cell is conventionally red, blue, or green; the values are not combinable flags.
 /// </summary>
+/// <remarks>
+/// Explicit room tables are copied as a fixed 50-byte native overread. Some retail tables
+/// are shorter than the logical room dimensions and intentionally expose bytes belonging
+/// to the following bank-$8F definition. Camera code distinguishes zero, one, and nonzero;
+/// it does not validate every copied byte as one of these named values.
+/// </remarks>
 public static class RoomScrollStates
 {
     /// <summary>

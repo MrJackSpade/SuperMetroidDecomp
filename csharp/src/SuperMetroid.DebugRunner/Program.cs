@@ -578,6 +578,12 @@ if (args.Length >= 2 && args[0] == "--norfair-barrier-collision-audit")
         norfairBarrierRecordingPath);
 }
 
+if (args.Length >= 2 && args[0] == "--breakable-block-initial-state-audit")
+{
+    string breakableBlockRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BreakableBlockInitialStateAudit.Run(breakableBlockRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
 {
     string pipeBugRomPath = string.Join(' ', args[1..]).Trim('"');

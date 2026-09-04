@@ -1,4 +1,5 @@
 using System.Reflection;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -15,6 +16,7 @@ internal static partial class Program
         AssertPaletteFxCatalog(typeof(PaletteFxSetupCodes), expectedCount: 4);
         AssertPaletteFxCatalog(typeof(PaletteFxPreInstructionCodes), expectedCount: 9);
         AssertPaletteFxCatalog(typeof(PaletteFxInstructionListPointers), expectedCount: 5);
+        VerifyConstructedAudioInstructions();
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -42,9 +44,137 @@ internal static partial class Program
             }
         }
 
+        VerifyBeaconSoundInstruction(bus);
+
         Console.WriteLine(
-            "  Palette FX: all 37 translated instruction, setup, pre-instruction, " +
-            "and direct-list pointers are named and ROM-readable.");
+            "  Palette FX: all 37 code/list pointers are ROM-readable; all four audio " +
+            "opcodes and retail $F781's byte/cursor handoff agree.");
+    }
+
+    private static void VerifyConstructedAudioInstructions()
+    {
+        VerifyConstructedSoundInstruction(
+            PaletteFxInstructionCodes.QueueSfx1,
+            SoundEffectLibrary.Library1,
+            sound: 0x11);
+        VerifyConstructedSoundInstruction(
+            PaletteFxInstructionCodes.QueueSfx2,
+            SoundEffectLibrary.Library2,
+            sound: 0x22);
+        VerifyConstructedSoundInstruction(
+            PaletteFxInstructionCodes.QueueSfx3,
+            SoundEffectLibrary.Library3,
+            sound: 0x33);
+
+        (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
+            CreateSingleAudioInstruction(PaletteFxInstructionCodes.QueueMusic, operand: 0x05);
+        paletteFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        AssertEqual(1, paletteFx.MusicRequests.Count,
+            "constructed palette-FX music opcode publishes once");
+        AssertEqual(MusicCommand.SelectTrack(5), paletteFx.MusicRequests[0].Command,
+            "constructed palette-FX music opcode preserves its byte operand");
+        AssertEqual(MusicCommandDelay.EightFrames, paletteFx.MusicRequests[0].Delay,
+            "constructed palette-FX music opcode selects QueueMusic_Delayed8");
+    }
+
+    private static void VerifyConstructedSoundInstruction(
+        ushort instruction,
+        SoundEffectLibrary expectedLibrary,
+        byte sound)
+    {
+        (RoomPaletteFxSystem paletteFx, TestAddressSpace bus) =
+            CreateSingleAudioInstruction(instruction, sound);
+        paletteFx.Step(bus, new SnesCgram(), 0, 0, false, false);
+        AssertEqual(1, paletteFx.SoundRequests.Count,
+            $"constructed {expectedLibrary} palette-FX sound opcode publishes once");
+        AssertEqual(new SoundEffectId(expectedLibrary, sound),
+            paletteFx.SoundRequests[0].SoundEffect,
+            $"constructed {expectedLibrary} palette-FX opcode preserves its byte operand");
+        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects,
+            paletteFx.SoundRequests[0].MaximumQueued,
+            $"constructed {expectedLibrary} palette-FX opcode selects Max6");
+    }
+
+    private static (RoomPaletteFxSystem PaletteFx, TestAddressSpace Bus)
+        CreateSingleAudioInstruction(ushort instruction, byte operand)
+    {
+        const ushort definition = 0x9000;
+        const ushort instructionList = 0x9100;
+        var bus = new TestAddressSpace();
+        bus.WriteBytes(
+            0x8d0000 | definition,
+            [
+                unchecked((byte)PaletteFxSetupCodes.Null),
+                (byte)(PaletteFxSetupCodes.Null >> 8),
+                unchecked((byte)instructionList),
+                (byte)(instructionList >> 8),
+            ]);
+        bus.WriteBytes(
+            0x8d0000 | instructionList,
+            [
+                unchecked((byte)instruction),
+                (byte)(instruction >> 8),
+                operand,
+                0x01, 0x00,
+                unchecked((byte)PaletteFxInstructionCodes.Wait),
+                (byte)(PaletteFxInstructionCodes.Wait >> 8),
+            ]);
+
+        var paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(bus, definition, equippedItems: 0);
+        return (paletteFx, bus);
+    }
+
+    /// <summary>
+    /// Reproduces the reported $F781 crash against its real retail bytecode. The assertion
+    /// covers the exact native side effect and the odd one-byte operand/cursor advancement:
+    /// if the interpreter accidentally advances a word, the following timed record fails.
+    /// </summary>
+    private static void VerifyBeaconSoundInstruction(SuperMetroidAddressSpace bus)
+    {
+        var paletteFx = new RoomPaletteFxSystem();
+        var cgram = new SnesCgram();
+        paletteFx.SpawnDefinition(bus, definition: 0xf781, equippedItems: 0);
+
+        int soundFrame = -1;
+        PaletteFxSoundRequest soundRequest = default;
+        for (int frame = 0; frame < 256; frame++)
+        {
+            paletteFx.Step(
+                bus,
+                cgram,
+                samusY: 0,
+                equippedItems: 0,
+                enemyZeroIsDead: false,
+                areaMiniBossDefeated: false);
+            if (paletteFx.SoundRequests.Count == 0)
+                continue;
+            AssertEqual(1, paletteFx.SoundRequests.Count,
+                "$F781 beacon publishes one palette-FX sound call");
+            soundFrame = frame;
+            soundRequest = paletteFx.SoundRequests[0];
+            break;
+        }
+
+        AssertTrue(soundFrame >= 0, "$F781 beacon reaches its sound opcode");
+        AssertEqual(SoundEffectLibrary.Library2, soundRequest.SoundEffect.Library,
+            "$F781 beacon sound uses library two");
+        AssertEqual((byte)0x18, soundRequest.SoundEffect.Value,
+            "$F781 beacon sound preserves byte operand $18");
+        AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.MaximumQueued,
+            "$F781 beacon sound uses QueueSfx2_Max6");
+
+        // The next call must parse the timed palette record immediately after the byte
+        // operand. This is the observable consequence of returning Y+1 at $8D:C67A.
+        paletteFx.Step(
+            bus,
+            cgram,
+            samusY: 0,
+            equippedItems: 0,
+            enemyZeroIsDead: false,
+            areaMiniBossDefeated: false);
+        AssertEqual(0, paletteFx.SoundRequests.Count,
+            "$F781 advances beyond its one-byte sound operand");
     }
 
     // Keeping this tiny helper avoids a name collision between the method and the catalog

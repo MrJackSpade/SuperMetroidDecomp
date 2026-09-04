@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -20,9 +21,17 @@ public sealed class RoomPaletteFxSystem
     private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    private readonly List<PaletteFxMusicRequest> musicRequests = [];
 
     /// <summary>Number of bank-$8D objects currently occupying native slots.</summary>
     public int ActiveCount => slots.Count(slot => slot.Id != 0);
+
+    /// <summary>Sound calls published by palette bytecode during the current frame.</summary>
+    public IReadOnlyList<PaletteFxSoundRequest> SoundRequests => soundRequests;
+
+    /// <summary>Music calls published by palette bytecode during the current frame.</summary>
+    public IReadOnlyList<PaletteFxMusicRequest> MusicRequests => musicRequests;
 
     /// <summary>Whether a particular cartridge definition currently owns a native slot.</summary>
     public bool IsDefinitionActive(ushort definition) =>
@@ -63,6 +72,8 @@ public sealed class RoomPaletteFxSystem
         ArgumentNullException.ThrowIfNull(bus);
         foreach (PaletteFxSlot slot in slots)
             slot.Clear();
+        soundRequests.Clear();
+        musicRequests.Clear();
 
         if (fxPointer == 0)
             return;
@@ -108,6 +119,11 @@ public sealed class RoomPaletteFxSystem
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
+
+        // PaletteFXObject_Handler owns a new publication window on every game frame.
+        // Requests are momentary calls into bank $80, not persistent object state.
+        soundRequests.Clear();
+        musicRequests.Clear();
 
         for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
         {
@@ -248,7 +264,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
-    private static void ExecuteProgram(
+    private void ExecuteProgram(
         ISnesAddressSpace bus,
         SnesCgram cgram,
         PaletteFxSlot slot)
@@ -307,12 +323,33 @@ public sealed class RoomPaletteFxSystem
                     break;
 
                 case PaletteFxInstructionCodes.QueueMusic:
+                    musicRequests.Add(new PaletteFxMusicRequest(
+                        MusicCommand.FromCartridge(ReadBank8dByte(
+                            bus,
+                            unchecked((ushort)(cursor + 2)))),
+                        MusicCommandDelay.EightFrames));
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
+
                 case PaletteFxInstructionCodes.QueueSfx1:
                 case PaletteFxInstructionCodes.QueueSfx2:
                 case PaletteFxInstructionCodes.QueueSfx3:
-                    throw new NotSupportedException(
-                        $"Room palette-FX object $8D:{slot.Id:X4} requested audio command " +
-                        $"$8D:{word:X4} at $8D:{cursor:X4}; its queue handoff is not translated.");
+                    // This case group has already excluded every other word. A final
+                    // library-three fallback mirrors the third opcode without introducing
+                    // an impossible/error branch into an otherwise exhaustive dispatcher.
+                    SoundEffectLibrary library =
+                        word == PaletteFxInstructionCodes.QueueSfx1
+                            ? SoundEffectLibrary.Library1
+                            : word == PaletteFxInstructionCodes.QueueSfx2
+                                ? SoundEffectLibrary.Library2
+                                : SoundEffectLibrary.Library3;
+                    soundRequests.Add(new PaletteFxSoundRequest(
+                        SoundEffectId.FromCartridge(
+                            library,
+                            ReadBank8dByte(bus, unchecked((ushort)(cursor + 2)))),
+                        PaletteFxAudioQueueLimits.SoundEffects));
+                    cursor = unchecked((ushort)(cursor + 3));
+                    break;
 
                 case PaletteFxInstructionCodes.SetPaletteFxIndex:
                     throw new NotSupportedException(
@@ -398,6 +435,9 @@ public sealed class RoomPaletteFxSystem
 
     private static ushort ReadBank8dWord(ISnesAddressSpace bus, ushort pointer) =>
         ReadWord(bus, RoomFxRomData.Banks.PaletteFx | pointer);
+
+    private static byte ReadBank8dByte(ISnesAddressSpace bus, ushort pointer) =>
+        bus.ReadByte(RoomFxRomData.Banks.PaletteFx | pointer);
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(bus, address);

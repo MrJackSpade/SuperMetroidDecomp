@@ -96,3 +96,13 @@ public static class PaletteFxInstructionListPointers
     /// <summary>Second vertical-switch continuation list at $8D:EC76.</summary>
     public const ushort AboveY380Second = 0xec76;
 }
+
+/// <summary>Native queue-admission limits selected by palette-FX audio instructions.</summary>
+public static class PaletteFxAudioQueueLimits
+{
+    /// <summary>
+    /// All three palette-FX SFX opcodes call the corresponding bank-$80
+    /// <c>QueueSfxN_Max6</c> routine.
+    /// </summary>
+    public const byte SoundEffects = 6;
+}

@@ -863,6 +863,14 @@ public sealed class SuperMetroidGame
             return;
         lastAudioRuntimeNmiFrame = runtime.NmiFrameCounter;
 
+        // Bank $8D runs before Samus, projectiles, PLMs, and enemies in state eight. Queue
+        // its calls first so a full SFX ring retains the same higher-priority request the
+        // cartridge would retain when several producers fire during one frame.
+        foreach (PaletteFxSoundRequest request in runtime.RoomPaletteFx.SoundRequests)
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+        foreach (PaletteFxMusicRequest request in runtime.RoomPaletteFx.MusicRequests)
+            audio.QueueMusicDelayed(request.Command, request.Delay);
+
         if (runtime.Samus is { } samus)
         {
             if (runtime.MessageBoxSelectionSoundRequestedThisFrame)

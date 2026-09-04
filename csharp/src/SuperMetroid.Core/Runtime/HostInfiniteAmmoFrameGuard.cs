@@ -13,17 +13,32 @@ namespace SuperMetroid.Core.Runtime;
 /// then removes that loan. Locked counters are identified solely by their zero maximum and
 /// are never changed.
 /// </remarks>
-internal readonly record struct HostInfiniteAmmoFrameGuard(
-    SamusState? Actor,
-    bool MissilesBuffered,
-    bool SuperMissilesBuffered,
-    bool PowerBombsBuffered)
+internal sealed class HostInfiniteAmmoFrameGuard
 {
+    private bool _completed;
+
+    private HostInfiniteAmmoFrameGuard(
+        SamusState? actor,
+        bool missilesBuffered,
+        bool superMissilesBuffered,
+        bool powerBombsBuffered)
+    {
+        Actor = actor;
+        MissilesBuffered = missilesBuffered;
+        SuperMissilesBuffered = superMissilesBuffered;
+        PowerBombsBuffered = powerBombsBuffered;
+    }
+
+    private SamusState? Actor { get; }
+    private bool MissilesBuffered { get; }
+    private bool SuperMissilesBuffered { get; }
+    private bool PowerBombsBuffered { get; }
+
     /// <summary>Prepares the three counters before any frame logic can observe them.</summary>
     public static HostInfiniteAmmoFrameGuard Begin(bool enabled, SamusState? samus)
     {
         if (!enabled || samus is null)
-            return default;
+            return new HostInfiniteAmmoFrameGuard(null, false, false, false);
 
         bool missilesBuffered = PrepareCounter(
             samus.Missiles,
@@ -50,6 +65,15 @@ internal readonly record struct HostInfiniteAmmoFrameGuard(
     /// <summary>Removes any borrowed units and applies the unlocked one-unit floor.</summary>
     public void Complete(SamusState? currentActor)
     {
+        // Gameplay publishes the HUD before its ordinary return, while the host error
+        // boundary may instead unwind through an exception. Both paths call Complete;
+        // making reconciliation idempotent prevents the borrowed unit from being removed
+        // twice while guaranteeing that a caught exception cannot strand the visible count
+        // at the temporary value two.
+        if (_completed)
+            return;
+        _completed = true;
+
         // Room loading can replace Samus during a frame. A loan belongs to the exact actor
         // that received it and must never be reconciled against a newly loaded save/room actor.
         if (Actor is null || !ReferenceEquals(Actor, currentActor))

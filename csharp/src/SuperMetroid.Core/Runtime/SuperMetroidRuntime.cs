@@ -1266,6 +1266,35 @@ public sealed partial class SuperMetroidRuntime
     {
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
+        try
+        {
+            return StepFrameGuarded(
+                controller1Input,
+                drawHighPriorityEnemyProjectiles,
+                drawLowPriorityEnemyProjectiles,
+                allowCeresElevatorDeparture,
+                afterAcceptedNmi,
+                advanceGameTime,
+                infiniteAmmoGuard);
+        }
+        finally
+        {
+            // The desktop error reporter deliberately catches translated exceptions and
+            // attempts another frame. A finally seam is therefore mandatory: otherwise a
+            // frame that throws after borrowing the last round leaves live ammo at two.
+            infiniteAmmoGuard.Complete(Samus);
+        }
+    }
+
+    private RuntimeFrameResult StepFrameGuarded(
+        ushort controller1Input,
+        Action<OamBuffer>? drawHighPriorityEnemyProjectiles,
+        Action<OamBuffer>? drawLowPriorityEnemyProjectiles,
+        bool allowCeresElevatorDeparture,
+        Action? afterAcceptedNmi,
+        bool advanceGameTime,
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+    {
 
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
@@ -3959,6 +3988,11 @@ public sealed partial class SuperMetroidRuntime
         // initialization upload has already been consumed earlier in this StepFrame call.
         if (Hud.IsInitialized)
         {
+            // The loan exists only so cartridge firing logic does not observe zero and
+            // auto-cancel the selected weapon. Remove it before `$80:9B44` converts the
+            // live counters into HUD tile words; publishing first made the on-screen
+            // minimum read two even though Snapshot later restored the actor to one.
+            infiniteAmmoGuard.Complete(Samus);
             // `$80:9B44` rebuilds live energy/ammo words before appending the HUD transfer.
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.

@@ -453,6 +453,18 @@ static void VerifyFrameRuntime()
         "infinite ammo retains the unlocked one-unit floor");
     AssertEqual((ushort)0, infiniteAmmoSamus.PowerBombs,
         "infinite ammo leaves locked ammunition at zero");
+    ammoGuard.Complete(infiniteAmmoSamus);
+    AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
+        "repeated frame-exit reconciliation cannot remove the one-unit floor");
+
+    var pickupDuringLoan = new SamusState { Missiles = 1, MaxMissiles = 5 };
+    HostInfiniteAmmoFrameGuard pickupGuard =
+        HostInfiniteAmmoFrameGuard.Begin(enabled: true, pickupDuringLoan);
+    pickupDuringLoan.Missiles += 2;
+    pickupGuard.Complete(pickupDuringLoan);
+    pickupGuard.Complete(pickupDuringLoan);
+    AssertEqual((ushort)3, pickupDuringLoan.Missiles,
+        "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var bus = new TestAddressSpace();
     bus.WriteBytes(0x7e1234, [0xca, 0xfe]);

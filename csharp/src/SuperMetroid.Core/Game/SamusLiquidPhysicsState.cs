@@ -124,6 +124,19 @@ public sealed class SamusLiquidPhysicsState
         LiquidOptions = 0;
     }
 
+    /// <summary>
+    /// Selects a non-liquid room FX while restoring the two negative liquid sentinels.
+    /// Rain and other atmospheric owners still need their cartridge type in <c>$196E</c>,
+    /// so clearing the entire state would discard observable animation behavior.
+    /// </summary>
+    public void ConfigureNonLiquidRoomFx(RoomFxType type)
+    {
+        if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+            throw new ArgumentOutOfRangeException(nameof(type), type, "Use the liquid-specific configuration method.");
+        Clear();
+        FxType = type;
+    }
+
     /// <summary>Restores the no-FX sentinel state used by dry rooms.</summary>
     public void Clear()
     {

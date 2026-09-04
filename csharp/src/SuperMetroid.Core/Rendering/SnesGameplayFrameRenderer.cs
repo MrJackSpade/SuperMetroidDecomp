@@ -946,11 +946,21 @@ public static class SnesGameplayFrameRenderer
             throw new ArgumentException("Room FX compositor requires one complete 256x224 frame.", nameof(frame));
         LayerBlendingConfiguration expectedConfiguration = fx.Type switch
         {
+            RoomFxType.Water => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             _ => throw new NotSupportedException(
                 $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
         };
+        if (fx.Type == RoomFxType.Water && fx.LayerBlendConfiguration is not (
+                LayerBlendingConfiguration.WaterSubtractive or
+                LayerBlendingConfiguration.WaterfallSubtractive or
+                LayerBlendingConfiguration.LiquidOrFogAdditive))
+        {
+            throw new InvalidDataException(
+                $"Water FX requires a cartridge water layer-blending configuration, not " +
+                $"${(ushort)fx.LayerBlendConfiguration:X2}.");
+        }
         if (fx.LayerBlendConfiguration != expectedConfiguration)
         {
             throw new InvalidDataException(
@@ -960,16 +970,27 @@ public static class SnesGameplayFrameRenderer
         }
 
         // Rain ($0E) keeps BG1/BG2/OBJ on main and BG3 on sub; fog ($30) reverses those
-        // screens. Both configurations enable additive math for the BG3 result, so the
-        // final visible equation is identical even though the hardware ownership differs.
+        // screens. Water selects either the additive route ($18) or one of the two
+        // subtractive routes ($14/$16). Compositing the already-resolved scene with the
+        // nontransparent BG3 pixel reproduces that final PPU equation without flattening
+        // the cartridge's animated surface into a host-authored rectangle.
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
+            if (fx.Type == RoomFxType.Water && screenY <= fx.WaterSurfaceScreenY)
+                continue;
             int scrolledY = unchecked(fx.VerticalScroll + screenY) & 0xff;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
+            int waveDisplacement = fx.Type == RoomFxType.Water
+                ? RoomFxRomData.Water.WaveDisplacements[
+                    (screenY - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
+                        RoomFxRomData.Water.WaveDisplacementCount) %
+                    RoomFxRomData.Water.WaveDisplacementCount]
+                : 0;
             for (int screenX = 0; screenX < Width; screenX++)
             {
-                int scrolledX = unchecked(fx.HorizontalScroll + screenX) & 0xff;
+                int scrolledX = unchecked(
+                    fx.HorizontalScroll + waveDisplacement + screenX) & 0xff;
                 int tileX = scrolledX >> 3;
                 int pixelX = scrolledX & 7;
                 SnesBgTilemapWord entry = vram.ReadWord(
@@ -988,13 +1009,51 @@ public static class SnesGameplayFrameRenderer
                 Rgba32 overlay = cgram.GetRgba(entry.PaletteIndex * 4 + color);
                 int destination = screenY * Width + screenX;
                 Rgba32 source = frame[destination];
-                frame[destination] = new Rgba32(
-                    SaturatingAdd(source.R, overlay.R),
-                    SaturatingAdd(source.G, overlay.G),
-                    SaturatingAdd(source.B, overlay.B),
-                    source.A);
+                bool subtract = fx.Type == RoomFxType.Water &&
+                    fx.LayerBlendConfiguration is
+                        LayerBlendingConfiguration.WaterSubtractive or
+                        LayerBlendingConfiguration.WaterfallSubtractive;
+                frame[destination] = subtract
+                    ? new Rgba32(
+                        SaturatingSubtract(source.R, overlay.R),
+                        SaturatingSubtract(source.G, overlay.G),
+                        SaturatingSubtract(source.B, overlay.B),
+                        source.A)
+                    : new Rgba32(
+                        SaturatingAdd(source.R, overlay.R),
+                        SaturatingAdd(source.G, overlay.G),
+                        SaturatingAdd(source.B, overlay.B),
+                        source.A);
             }
         }
+    }
+
+    /// <summary>
+    /// Resolves water's optional per-scanline BG2 distortion from <c>$88:C5E4</c>. The
+    /// ordinary compositor already accepts the resulting 192-line HDMA projection.
+    /// </summary>
+    public static ushort[]? BuildWaterBg2HorizontalScrolls(
+        RoomLayer3FxRenderSnapshot fx,
+        ushort bg2HorizontalScroll,
+        ushort bg2VerticalScroll)
+    {
+        if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & 2) == 0)
+            return null;
+
+        var result = Enumerable.Repeat(bg2HorizontalScroll, Height - HudHeight).ToArray();
+        int verticalPhase = bg2VerticalScroll & 0x000f;
+        ReadOnlySpan<short> wave = RoomFxRomData.Water.WaveDisplacements;
+        for (int screenY = Math.Max(HudHeight, fx.WaterSurfaceScreenY + 1);
+             screenY < Height;
+             screenY++)
+        {
+            int index = (fx.WaterBg2WavePhase + verticalPhase +
+                screenY - fx.WaterSurfaceScreenY - 1) &
+                (RoomFxRomData.Water.WaveDisplacementCount - 1);
+            result[screenY - HudHeight] = unchecked((ushort)(
+                bg2HorizontalScroll + wave[index]));
+        }
+        return result;
     }
 
     /// <summary>
@@ -1157,6 +1216,9 @@ public static class SnesGameplayFrameRenderer
 
     private static byte SaturatingAdd(byte left, byte right) =>
         (byte)Math.Min(byte.MaxValue, left + right);
+
+    private static byte SaturatingSubtract(byte left, byte right) =>
+        (byte)Math.Max(byte.MinValue, left - right);
 
     private static XrayDirection ReadXrayDirection(ISnesAddressSpace bus, int angle)
     {

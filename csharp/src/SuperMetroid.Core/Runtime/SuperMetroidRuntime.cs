@@ -1437,6 +1437,9 @@ public sealed partial class SuperMetroidRuntime
                 Camera.XPosition,
                 Camera.YPosition,
                 TimeIsFrozen);
+            if (Samus is not null && RoomLayer3Fx.Type is
+                    RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
+                RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
         }
 
         // `$0B14/$0B16` retain the unsigned horizontal distance accepted during the prior

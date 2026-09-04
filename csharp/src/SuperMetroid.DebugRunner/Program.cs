@@ -203,6 +203,12 @@ if (args.Length >= 2 && args[0] == "--blue-hopper-audit")
     return HopperAudit.Run(hopperRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--water-fx-audit")
+{
+    string waterFxRomPath = string.Join(' ', args[1..]).Trim('"');
+    return WaterFxAudit.Run(waterFxRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--crumble-block-audit")
 {
     string crumbleRomPath = string.Join(' ', args[1..]).Trim('"');

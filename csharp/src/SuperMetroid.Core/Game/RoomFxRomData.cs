@@ -81,6 +81,29 @@ public static class RoomFxRomData
             [0xfa00, 0x0600, 0xfc00, 0x0400];
     }
 
+    /// <summary>Bank-$88 water-surface HDMA constants at <c>$88:C3FF-$C644</c>.</summary>
+    public static class Water
+    {
+        /// <summary>Frames between BG3 wave-table rotations.</summary>
+        public const ushort Bg3WavePhaseDuration = 10;
+
+        /// <summary>Frames between optional BG2 wave-table rotations.</summary>
+        public const ushort Bg2WavePhaseDuration = 6;
+
+        /// <summary>Fractional 8.8 X-scroll increment selected by liquid-options bit zero.</summary>
+        public const ushort HorizontalSubscrollVelocity = 0x0040;
+
+        /// <summary>Number of signed words in the circular water displacement table.</summary>
+        public const int WaveDisplacementCount = 16;
+
+        /// <summary>
+        /// Signed per-scanline offsets from <c>WaveDisplacementTable_Water</c> at
+        /// <c>$88:C46E</c>. The repeated eight-value waveform is intentional.
+        /// </summary>
+        public static ReadOnlySpan<short> WaveDisplacements =>
+            [0, 1, 1, 0, 0, -1, -1, 0, 0, 1, 1, 0, 0, -1, -1, 0];
+    }
+
     /// <summary>Climb fog fixed-point BG3 velocities.</summary>
     public static class Fog
     {

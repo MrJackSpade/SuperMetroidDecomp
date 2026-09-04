@@ -36,6 +36,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         ushort bg2VerticalScroll = AddShake(
             displayedPpu.Bg2VerticalScroll,
             shake.Bg2Y);
+        RoomLayer3FxRenderSnapshot? displayedRoomFx = runtime.DisplayedRoomLayer3Fx;
 
         Rgba32[] frame;
         if (runtime.Enemies.CeresRidley is { Mode7Active: true } getaway)
@@ -117,6 +118,12 @@ public static class SuperMetroidRuntimeFrameRenderer
                 for (int line = 0; line < skyHorizontalScrolls.Length; line++)
                     skyHorizontalScrolls[line] = AddShake(skyHorizontalScrolls[line], shake.Bg2X);
             }
+            ushort[]? waterBg2HorizontalScrolls = displayedRoomFx is { } waterFx
+                ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
+                    waterFx,
+                    bg2HorizontalScroll,
+                    bg2VerticalScroll)
+                : null;
             frame = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
                 runtime.Vram,
                 runtime.Cgram,
@@ -131,7 +138,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : scrollingSky is not null
                         ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
                         : bg2VerticalScroll,
-                bg2HorizontalScrollByLine: skyHorizontalScrolls,
+                bg2HorizontalScrollByLine: waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
                     : null,

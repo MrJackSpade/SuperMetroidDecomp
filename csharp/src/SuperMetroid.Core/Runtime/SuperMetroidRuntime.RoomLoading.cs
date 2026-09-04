@@ -728,6 +728,9 @@ public sealed partial class SuperMetroidRuntime
             room.State.FxPointer,
             door.Pointer,
             System.RandomNumber);
+        RoomLayer3Fx.PrimeViewport(Camera.XPosition, Camera.YPosition);
+        if (Samus is not null)
+            RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
 
         // `$82:E4A9` calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The bank-$8D half must

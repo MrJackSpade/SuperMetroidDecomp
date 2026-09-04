@@ -100,7 +100,6 @@ internal static partial class Program
 
         RoomFxType[] nonLayer3Types =
         [
-            RoomFxType.Water,
             RoomFxType.Lava,
             RoomFxType.Acid,
             RoomFxType.ScrollingSky,
@@ -120,6 +119,7 @@ internal static partial class Program
             AssertTrue(!state.IsRenderable, $"{type} does not impersonate rain/fog BG3");
         }
 
+        VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Water);
         VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Rain);
         VerifyRenderableLayer3Fx(bus, vram, cgram, state, record, RoomFxType.Fog);
     }
@@ -142,9 +142,13 @@ internal static partial class Program
             RoomFxRomData.Banks.RoomDefinitions |
                 unchecked((ushort)(record + RoomFxRomData.Record.TypeOffset)),
             (byte)type);
-        LayerBlendingConfiguration layerBlend = type == RoomFxType.Rain
-            ? LayerBlendingConfiguration.Rain
-            : LayerBlendingConfiguration.FogAdditive;
+        LayerBlendingConfiguration layerBlend = type switch
+        {
+            RoomFxType.Water => LayerBlendingConfiguration.LiquidOrFogAdditive,
+            RoomFxType.Rain => LayerBlendingConfiguration.Rain,
+            RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
+        };
         bus.WriteByte(
             RoomFxRomData.Banks.RoomDefinitions |
                 unchecked((ushort)(record +
@@ -152,6 +156,21 @@ internal static partial class Program
             (byte)layerBlend);
 
         state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+        if (type == RoomFxType.Water)
+        {
+            const ushort surfaceY = 100;
+            bus.WriteByte(
+                RoomFxRomData.Banks.RoomDefinitions |
+                    unchecked((ushort)(record + RoomFxRomData.Record.LiquidOptionsOffset)),
+                3);
+            WriteTestWord(
+                bus,
+                RoomFxRomData.Banks.RoomDefinitions |
+                    unchecked((ushort)(record + RoomFxRomData.Record.BaseYPositionOffset)),
+                surfaceY);
+            state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+            state.PrimeViewport(cameraX: 0x0100, cameraY: 0);
+        }
         AssertEqual(type, state.Type, $"{type} layer-three type");
         AssertTrue(state.IsRenderable, $"{type} owns a translated layer-three plane");
         RoomLayer3FxRenderSnapshot snapshot = state.CaptureForDisplay()!.Value;
@@ -160,6 +179,27 @@ internal static partial class Program
             snapshot.LayerBlendConfiguration,
             $"{type} render snapshot retains typed blending");
 
+        if (type == RoomFxType.Water)
+        {
+            AssertEqual(100, snapshot.WaterSurfaceScreenY,
+                "water surface retains room-relative scanline");
+            AssertEqual((ushort)3, snapshot.LiquidOptions,
+                "water render snapshot retains both wave options");
+
+            // Give the water page one opaque two-bit tile and a visible blue color. The
+            // exact surface assertion proves the compositor leaves the air row untouched
+            // and applies the cartridge layer-three plane below it.
+            vram.ExecuteWordTransfer(
+                Enumerable.Repeat((ushort)1, 32 * 32).ToArray(),
+                SnesPpuLayout.RoomFxTilemapWord,
+                wordIncrement: 1);
+            var character = new byte[16];
+            for (int row = 0; row < 8; row++)
+                character[row * 2] = 0xff;
+            vram.LoadBytes((0x4000 + 8) * 2, character);
+            cgram.SetColor(1, 0x7c00);
+        }
+
         // The software compositor now consumes the same typed dispatcher identity as the
         // room loader. Rain and fog use different main/subscreen ownership in hardware even
         // though both resolve to additive BG3 pixels, so neither pairing may be substituted.
@@ -167,9 +207,34 @@ internal static partial class Program
             SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
             frame, vram, cgram, snapshot);
-        LayerBlendingConfiguration wrongBlend = type == RoomFxType.Rain
-            ? LayerBlendingConfiguration.FogAdditive
-            : LayerBlendingConfiguration.Rain;
+        if (type == RoomFxType.Water)
+        {
+            int above = 90 * SnesGameplayFrameRenderer.Width + 20;
+            int below = 110 * SnesGameplayFrameRenderer.Width + 20;
+            AssertEqual(new Rgba32(0, 0, 0, 0), frame[above],
+                "water leaves pixels above its surface untouched");
+            AssertTrue(frame[below].B != 0,
+                "water applies its visible BG3 color below the surface");
+
+            ushort[] bg2Scroll = SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(
+                snapshot,
+                bg2HorizontalScroll: 0x0200,
+                bg2VerticalScroll: 0) ?? throw new InvalidDataException(
+                    "Wavy water did not publish a BG2 HDMA scroll table.");
+            AssertEqual(SnesGameplayFrameRenderer.Height - SnesGameplayFrameRenderer.HudHeight,
+                bg2Scroll.Length,
+                "water BG2 wave table covers gameplay scanlines");
+            AssertEqual((ushort)0x0200, bg2Scroll[90 - SnesGameplayFrameRenderer.HudHeight],
+                "water leaves BG2 undistorted above the surface");
+            AssertTrue(bg2Scroll.Skip(101 - SnesGameplayFrameRenderer.HudHeight).Distinct().Count() > 1,
+                "water distorts BG2 below the surface");
+        }
+        LayerBlendingConfiguration wrongBlend = type switch
+        {
+            RoomFxType.Water => LayerBlendingConfiguration.NormalGameplay,
+            RoomFxType.Rain => LayerBlendingConfiguration.FogAdditive,
+            _ => LayerBlendingConfiguration.Rain,
+        };
         AssertThrows<InvalidDataException>(
             () => SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
                 frame,

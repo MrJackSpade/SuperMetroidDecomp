@@ -23,6 +23,12 @@ public sealed class RoomLayer3FxState
     private ushort previousCameraX;
     private ushort animationTimer;
     private int animationFrame;
+    private ushort waterHorizontalSubscroll;
+    private ushort waterBg3WaveTimer;
+    private ushort waterBg2WaveTimer;
+    private int waterBg3WavePhase;
+    private int waterBg2WavePhase;
+    private short waterSurfaceScreenY;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; private set; }
@@ -52,7 +58,13 @@ public sealed class RoomLayer3FxState
     public ushort VerticalScroll { get; private set; }
 
     /// <summary>Whether the translated effect supplies a gameplay-region BG3 plane.</summary>
-    public bool IsRenderable => Type is RoomFxType.Rain or RoomFxType.Fog;
+    public bool IsRenderable => Type is RoomFxType.Water or RoomFxType.Rain or RoomFxType.Fog;
+
+    /// <summary>Live liquid surface used by bank-$88 after rising/tide processing.</summary>
+    public ushort CurrentYPosition { get; private set; } = ushort.MaxValue;
+
+    /// <summary>Native liquid-options byte, zero-extended for consumers of WRAM <c>$197E</c>.</summary>
+    public ushort LiquidOptions { get; private set; }
 
     /// <summary>Clears the prior room and selects the current door's native FX record.</summary>
     public void Load(
@@ -90,6 +102,11 @@ public sealed class RoomLayer3FxState
             bus,
             record,
             RoomFxRomData.Record.TimerOffset);
+        LiquidOptions = RoomFxRomData.ReadRecordByte(
+            bus,
+            record,
+            RoomFxRomData.Record.LiquidOptionsOffset);
+        CurrentYPosition = BaseYPosition;
 
         Type = RoomFxTypes.FromCartridge(
             RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TypeOffset),
@@ -137,7 +154,14 @@ public sealed class RoomLayer3FxState
             RoomFxRomData.Layer3.TilemapByteCount,
             RoomFxRomData.Layer3.TilemapDestinationWord);
 
-        if (Type == RoomFxType.Rain)
+        if (Type == RoomFxType.Water)
+        {
+            // Both spawned HDMA objects execute their phase initializer on the first
+            // handler pass. A one-frame timer reproduces that first-call rotation.
+            waterBg3WaveTimer = 1;
+            waterBg2WaveTimer = 1;
+        }
+        else if (Type == RoomFxType.Rain)
         {
             ReadOnlySpan<ushort> velocities = RoomFxRomData.Rain.HorizontalVelocities;
             // `$88:C4B9` masks the random word with six *after* shifting it once,
@@ -160,6 +184,12 @@ public sealed class RoomLayer3FxState
         ArgumentNullException.ThrowIfNull(vram);
         if (!IsRenderable || timeIsFrozen)
             return;
+
+        if (Type == RoomFxType.Water)
+        {
+            StepWater(cameraX, cameraY);
+            return;
+        }
 
         if (Type == RoomFxType.Rain)
         {
@@ -186,14 +216,61 @@ public sealed class RoomLayer3FxState
             horizontalAccumulator + RoomFxRomData.Fog.HorizontalVelocity));
     }
 
+    /// <summary>
+    /// Seeds camera-dependent water registers during a room transition without advancing
+    /// either wave clock. Destination rendering can therefore show the correct surface on
+    /// its first accepted NMI instead of waiting for the first gameplay handler call.
+    /// </summary>
+    public void PrimeViewport(ushort cameraX, ushort cameraY)
+    {
+        if (Type != RoomFxType.Water)
+            return;
+        CurrentYPosition = BaseYPosition;
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
+        HorizontalScroll = cameraX;
+        VerticalScroll = ComputeWaterVerticalScroll(CurrentYPosition, cameraY);
+    }
+
     /// <summary>Captures values visible alongside the current accepted NMI's OAM upload.</summary>
     public RoomLayer3FxRenderSnapshot? CaptureForDisplay() => IsRenderable
         ? new RoomLayer3FxRenderSnapshot(
             Type,
             LayerBlendConfiguration,
             HorizontalScroll,
-            VerticalScroll)
+            VerticalScroll,
+            CurrentYPosition,
+            LiquidOptions,
+            waterBg3WavePhase,
+            waterBg2WavePhase,
+            waterSurfaceScreenY)
         : null;
+
+    /// <summary>
+    /// Publishes the selected room FX into Samus's native liquid words. Room rendering and
+    /// movement therefore consume one cartridge-owned surface instead of independently
+    /// configured debug values.
+    /// </summary>
+    public void ApplyToSamusLiquidPhysics(SamusLiquidPhysicsState liquid)
+    {
+        ArgumentNullException.ThrowIfNull(liquid);
+        switch (Type)
+        {
+            case RoomFxType.Water:
+                liquid.ConfigureWater(CurrentYPosition, LiquidOptions);
+                return;
+            case RoomFxType.Lava:
+                liquid.ConfigureLavaAcid(BaseYPosition);
+                return;
+            case RoomFxType.Acid:
+                liquid.ConfigureLavaAcid(BaseYPosition, acid: true);
+                return;
+            default:
+                // Non-liquid FX still own $196E. Preserve that identity for atmospheric
+                // effects while restoring both liquid positions to their negative sentinel.
+                liquid.ConfigureNonLiquidRoomFx(Type);
+                return;
+        }
+    }
 
     /// <summary>
     /// Applies the exact shared WRAM writes made by the Speed Booster escape PLM. These are
@@ -233,6 +310,56 @@ public sealed class RoomLayer3FxState
         animationTimer = RoomFxRomData.Rain.AnimationFrameDuration;
     }
 
+    /// <summary>
+    /// Ports the observable static-water path of <c>$88:C48E</c> and both circular wave
+    /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
+    /// room has zero velocity and therefore exercises the cartridge's normal static branch.
+    /// </summary>
+    private void StepWater(ushort cameraX, ushort cameraY)
+    {
+        CurrentYPosition = BaseYPosition;
+        waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
+        HorizontalScroll = unchecked((ushort)(
+            cameraX + unchecked((sbyte)(waterHorizontalSubscroll >> 8))));
+        VerticalScroll = ComputeWaterVerticalScroll(CurrentYPosition, cameraY);
+
+        waterBg3WaveTimer = unchecked((ushort)(waterBg3WaveTimer - 1));
+        if (waterBg3WaveTimer == 0)
+        {
+            waterBg3WaveTimer = RoomFxRomData.Water.Bg3WavePhaseDuration;
+            waterBg3WavePhase =
+                (waterBg3WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
+        }
+
+        if ((LiquidOptions & 1) != 0)
+        {
+            waterHorizontalSubscroll = unchecked((ushort)(
+                waterHorizontalSubscroll + RoomFxRomData.Water.HorizontalSubscrollVelocity));
+        }
+
+        if ((LiquidOptions & 2) == 0)
+            return;
+        waterBg2WaveTimer = unchecked((ushort)(waterBg2WaveTimer - 1));
+        if (waterBg2WaveTimer == 0)
+        {
+            waterBg2WaveTimer = RoomFxRomData.Water.Bg2WavePhaseDuration;
+            waterBg2WavePhase =
+                (waterBg2WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
+        }
+    }
+
+    private static ushort ComputeWaterVerticalScroll(ushort surfaceY, ushort cameraY)
+    {
+        if (unchecked((short)surfaceY) < 0)
+            return 0;
+        short relative = unchecked((short)(surfaceY - cameraY));
+        if (relative <= 0)
+            return unchecked((ushort)(((relative ^ 0x001f) & 0x001f) | 0x0100));
+        return relative < 0x0100
+            ? unchecked((ushort)((~relative) & 0x00ff))
+            : (ushort)0;
+    }
+
     private void Reset()
     {
         Type = RoomFxType.None;
@@ -246,6 +373,12 @@ public sealed class RoomLayer3FxState
         previousCameraY = previousCameraX = 0;
         animationTimer = 0;
         animationFrame = 0;
+        CurrentYPosition = ushort.MaxValue;
+        LiquidOptions = 0;
+        waterHorizontalSubscroll = 0;
+        waterBg3WaveTimer = waterBg2WaveTimer = 0;
+        waterBg3WavePhase = waterBg2WavePhase = 0;
+        waterSurfaceScreenY = short.MaxValue;
     }
 
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
@@ -259,4 +392,9 @@ public readonly record struct RoomLayer3FxRenderSnapshot(
     RoomFxType Type,
     LayerBlendingConfiguration LayerBlendConfiguration,
     ushort HorizontalScroll,
-    ushort VerticalScroll);
+    ushort VerticalScroll,
+    ushort CurrentYPosition = ushort.MaxValue,
+    ushort LiquidOptions = 0,
+    int WaterBg3WavePhase = 0,
+    int WaterBg2WavePhase = 0,
+    short WaterSurfaceScreenY = short.MaxValue);

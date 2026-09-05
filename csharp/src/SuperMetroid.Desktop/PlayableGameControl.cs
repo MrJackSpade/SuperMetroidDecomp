@@ -232,6 +232,22 @@ public sealed class PlayableGameControl : UserControl
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
 
+        // Probe the slot before stopping playback or disposing the current recorder/audio
+        // graph. An empty slot is a normal ten-slot UI state, not a runtime failure, and the
+        // live game must remain fully usable after the informational message is dismissed.
+        if (!stateStore.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
+        {
+            statusLabel.Text = $"state slot {slot} is empty";
+            MessageBox.Show(
+                this,
+                $"Debugger save-state slot {slot} is empty.",
+                "Load State",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            canvas.Focus();
+            return;
+        }
+
         bool resumePlayback = playbackTimer.Enabled;
         SetPlaying(playing: false);
         keyboard.Clear();
@@ -242,7 +258,6 @@ public sealed class PlayableGameControl : UserControl
         audioEngine?.Dispose();
         audioEngine = null;
 
-        DebuggerSaveStateLoadResult loaded = stateStore.Load(slot);
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
         game.SaveRamChanged += PersistSaveRamToDisk;

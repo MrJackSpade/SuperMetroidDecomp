@@ -8,7 +8,8 @@ public readonly record struct DebuggerSaveStateSmokeTestResult(
     ushort SavedFrame,
     int ContinuationFrames,
     long StateFileBytes,
-    bool WrongRomRejected);
+    bool WrongRomRejected,
+    bool EmptySlotReported);
 
 /// <summary>Headless save/advance/load deterministic-continuation audit.</summary>
 public static class DebuggerSaveStateSmokeTest
@@ -33,6 +34,9 @@ public static class DebuggerSaveStateSmokeTest
         try
         {
             var store = new DebuggerSaveStateStore(fullRomPath, bus.Rom, temporaryDirectory);
+            bool emptySlotReported = !store.TryLoad(9, out _);
+            if (!emptySlotReported)
+                throw new InvalidDataException("An empty debugger slot was reported as occupied.");
             DebuggerSaveStateMetadata saved = store.Save(0, bus, game, audio.Player);
             long stateBytes = new FileInfo(saved.Path).Length;
             const int continuationFrames = 45;
@@ -102,7 +106,8 @@ public static class DebuggerSaveStateSmokeTest
                 saved.FrameNumber,
                 continuationFrames,
                 stateBytes,
-                wrongRomRejected);
+                wrongRomRejected,
+                emptySlotReported);
         }
         finally
         {

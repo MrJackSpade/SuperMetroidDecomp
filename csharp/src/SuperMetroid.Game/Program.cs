@@ -97,7 +97,8 @@ try
         Console.WriteLine(
             $"Debugger state passed: frame {result.SavedFrame}, " +
             $"{result.ContinuationFrames} deterministic continuation frames, " +
-            $"{result.StateFileBytes} bytes, wrong-ROM rejection={result.WrongRomRejected}.");
+            $"{result.StateFileBytes} bytes, wrong-ROM rejection={result.WrongRomRejected}, " +
+            $"empty-slot report={result.EmptySlotReported}.");
         return 0;
     }
 

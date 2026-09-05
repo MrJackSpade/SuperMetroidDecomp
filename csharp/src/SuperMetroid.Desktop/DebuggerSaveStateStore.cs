@@ -158,6 +158,24 @@ internal sealed class DebuggerSaveStateStore
             new DebuggerSaveStateMetadata(slot, savedUtc, frame, gameState, room, roomState, path));
     }
 
+    /// <summary>
+    /// Loads an occupied debugger slot without treating an empty slot as corrupted state.
+    /// Every malformed, incompatible, or wrong-ROM file still throws: only the ordinary
+    /// absence represented by the ten-slot UI returns <see langword="false"/>.
+    /// </summary>
+    public bool TryLoad(int slot, out DebuggerSaveStateLoadResult result)
+    {
+        ValidateSlot(slot);
+        if (!File.Exists(GetSlotPath(slot)))
+        {
+            result = default;
+            return false;
+        }
+
+        result = Load(slot);
+        return true;
+    }
+
     private void EnsureRomMatches(SuperMetroidAddressSpace addressSpace)
     {
         byte[] actual = SHA256.HashData(addressSpace.Rom);

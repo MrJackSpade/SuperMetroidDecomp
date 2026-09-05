@@ -23,6 +23,18 @@ internal static class PauseMenuLayout
     public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;
+    /// <summary>
+    /// Byte offset of the reserve-supply hundreds digit in the mutable equipment tilemap,
+    /// matching <c>EquipmentScreenBG1Tilemap+$310</c> at $82:8FCE.
+    /// </summary>
+    public const int ReserveSupplyDigitsByteOffset = 0x0310;
+    /// <summary>Number of decimal digits written by $82:8F70.</summary>
+    public const int ReserveSupplyDigitCount = 3;
+    /// <summary>
+    /// Tilemap word for decimal zero used by $82:8F70; decimal digit values are added to
+    /// this word without altering its palette or priority fields.
+    /// </summary>
+    public const ushort ReserveSupplyDigitZeroTile = 0x0804;
 }
 
 /// <summary>Cartridge-authored four-frame animation for Samus's pause-map marker.</summary>

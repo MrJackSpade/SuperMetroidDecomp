@@ -162,6 +162,8 @@ internal static partial class Program
         {
             CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            MaxReserveEnergy = 100,
+            ReserveEnergy = 47,
             XPosition = 0x0200,
             YPosition = 0x0300,
         };
@@ -178,6 +180,12 @@ internal static partial class Program
             gameplayVram: gameplayVram);
 
         AssertEqual(0, pause.ScreenMode, "pause begins on map page");
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(0).Raw,
+            "pause equipment reserve-supply hundreds digit renders current supply");
+        AssertEqual(0x0808, pause.ReadReserveSupplyDigit(1).Raw,
+            "pause equipment reserve-supply tens digit renders current supply");
+        AssertEqual(0x080b, pause.ReadReserveSupplyDigit(2).Raw,
+            "pause equipment reserve-supply ones digit renders current supply");
         Rgba32[] firstPauseFrame = pause.Render();
         AssertEqual(new Rgba32(255, 255, 255, 255), firstPauseFrame[0],
             "pause retains and draws gameplay BG3 HUD tilemap");
@@ -210,6 +218,18 @@ internal static partial class Program
             "pause map label dims on equipment page");
         AssertEqual(0x1400, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
             "pause equipment label brightens on equipment page");
+
+        // Rebuilding after a live supply change must replace the displayed tile words;
+        // this catches the original frozen-ROM-template failure rather than merely proving
+        // that Samus's underlying reserve field changed.
+        samus.ReserveEnergy = 100;
+        pause.Step(0, (ushort)SnesButton.A);
+        AssertEqual(0x0805, pause.ReadReserveSupplyDigit(0).Raw,
+            "pause equipment reserve-supply hundreds digit refreshes after rebuild");
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(1).Raw,
+            "pause equipment reserve-supply tens digit refreshes after rebuild");
+        AssertEqual(0x0804, pause.ReadReserveSupplyDigit(2).Raw,
+            "pause equipment reserve-supply ones digit refreshes after rebuild");
 
         // D-pad and A use joypad1_newkeys, not the delayed-held word used by L/R/Start.
         pause.Step(0, (ushort)SnesButton.Down);

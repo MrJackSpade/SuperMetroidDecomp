@@ -181,6 +181,20 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>
+    /// Reads one of the three reserve-supply digits from the mutable equipment tilemap.
+    /// This exposes rendered menu state to focused tests without exposing mutation.
+    /// </summary>
+    internal SnesBgTilemapWord ReadReserveSupplyDigit(int digitIndex)
+    {
+        if ((uint)digitIndex >= PauseMenuLayout.ReserveSupplyDigitCount)
+            throw new ArgumentOutOfRangeException(nameof(digitIndex));
+
+        int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
+        return unchecked((ushort)(
+            equipmentTilemap[byteOffset] | (equipmentTilemap[byteOffset + 1] << 8)));
+    }
+
+    /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
     /// </summary>
@@ -490,6 +504,35 @@ internal sealed class PauseMenuState
         }
 
         WriteSamusWireframe();
+        WriteReserveSupplyDigits();
+    }
+
+    /// <summary>
+    /// Translates <c>Load_EquipmentScreen_ReserveHealth_Tilemap</c> at $82:8F70.
+    /// The cartridge displays current reserve supply, not maximum normal Energy Tank
+    /// capacity. It leaves the authored template untouched until at least one Reserve Tank
+    /// exists, then writes hundreds, tens, and ones as three consecutive BG1 words.
+    /// </summary>
+    private void WriteReserveSupplyDigits()
+    {
+        if (samus.MaxReserveEnergy == 0)
+            return;
+
+        int supply = samus.ReserveEnergy;
+        Span<int> decimalPlaceValues = stackalloc int[]
+        {
+            supply / 100,
+            supply % 100 / 10,
+            supply % 10,
+        };
+        for (int digitIndex = 0; digitIndex < decimalPlaceValues.Length; digitIndex++)
+        {
+            ushort word = unchecked((ushort)(
+                PauseMenuLayout.ReserveSupplyDigitZeroTile + decimalPlaceValues[digitIndex]));
+            int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
+            equipmentTilemap[byteOffset] = unchecked((byte)word);
+            equipmentTilemap[byteOffset + 1] = unchecked((byte)(word >> 8));
+        }
     }
 
     private void WriteSamusWireframe()

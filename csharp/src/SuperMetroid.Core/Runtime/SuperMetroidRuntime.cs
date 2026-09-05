@@ -3028,13 +3028,17 @@ public sealed partial class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
-                // A failed grounding probe publishes result two. For admitted standing,
-                // running, and stable crouching types, data zero at `$90:E65A` selects
-                // airborne family zero and `$91:E8F2` chooses falling art from pose metadata.
+                // An unobstructed DOWNWARD grounding probe publishes result two. An
+                // unobstructed upward platform carry publishes result zero at `$90:E606`
+                // and must leave the pose alone; treating every non-collision as result two
+                // made rising Kamers repeatedly alternate falling and landing. For admitted
+                // standing, running, and stable crouching types, data zero at `$90:E65A`
+                // selects airborne family zero and `$91:E8F2` chooses falling art.
                 // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
                 // they finish `$F8`, then the destination pose detects the missing floor.
                 if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is { Vertical.Collided: false } &&
+                    LastGroundedSamusMovement is
+                        { Vertical.IsUnobstructedDownwardMovement: true } &&
                     (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
@@ -3054,7 +3058,8 @@ public sealed partial class SuperMetroidRuntime
                 // no-speed grounding probe finds no floor. The shared rolling animation is
                 // preserved, while Y speed starts at zero/down exactly like `$91:E8F2`.
                 if (!animationTransitionApplied &&
-                    LastMorphBallMovement is { Vertical.Collided: false } &&
+                    LastMorphBallMovement is
+                        { Vertical.IsUnobstructedDownwardMovement: true } &&
                     (SamusState.IsGroundedMorphBallPose(poseAtFrameStart) ||
                      SamusState.IsGroundedSpringBallPose(poseAtFrameStart)))
                 {

@@ -20,6 +20,7 @@ internal static class PlatformAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        VerifyRoom021eRisingPlatform(bus);
         KamerResult kamer = VerifyEastOceanKamer(bus);
         TripperResult tripper = VerifyIceBeamAcidTrippers(bus);
         VerifyRightFacingTripperFreeze(bus);
@@ -401,7 +402,7 @@ internal static class PlatformAudit
                 projectiles,
                 sharedProjectiles,
                 samus) != 1 || lethalTarget.Health != 0 ||
-            !lethalTarget.Properties.HasAny(EnemyProperties.Deleted))
+            lethalTarget.EnemyDefinitionPointer != 0 || lethalTarget.Properties != 0)
         {
             throw new InvalidDataException(
                 $"Tripper lethal damage failed: health={lethalTarget.Health}, " +
@@ -417,6 +418,65 @@ internal static class PlatformAudit
             throw new InvalidDataException("Ice Beam Acid Trippers emitted no live ROM OBJ.");
 
         return new TripperResult(minimumX, maximumX, maps.Count);
+    }
+
+    private static void VerifyRoom021eRisingPlatform(SuperMetroidAddressSpace bus)
+    {
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(
+            PlatformAuditRomData.Room021eHeaderPointer,
+            cameraX: 0,
+            cameraY: 0);
+        SamusState samus = runtime.Samus ?? throw new InvalidDataException("Room $02/$1E omitted Samus.");
+        int platformSlot = PlatformAuditRomData.Room021eRisingKamerSlot;
+        RoomEnemySlot platform = runtime.Enemies.Slots[platformSlot];
+        VerticalShutterEnemyState state = runtime.Enemies.VerticalShutterStates[platformSlot] ??
+            throw new InvalidDataException("Room $02/$1E slot three omitted vertical-platform state.");
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.InputLocked = false;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        samus.XPosition = platform.XPosition;
+        samus.YPosition = unchecked((ushort)(
+            platform.YPosition - platform.YRadius - samus.Kinematics.YRadius));
+        ushort platformStartY = platform.YPosition;
+        ushort samusStartY = samus.YPosition;
+        int largestSupportGap = 0;
+        for (int frame = 0; frame < 48; frame++)
+        {
+            runtime.StepFrame(0);
+            int supportGap = platform.YPosition - platform.YRadius -
+                (samus.YPosition + samus.Kinematics.YRadius);
+            largestSupportGap = Math.Max(largestSupportGap, Math.Abs(supportGap));
+            if (samus.ReadMovementType(bus) != SamusMovementType.Standing)
+            {
+                throw new InvalidDataException(
+                    $"Room $02/$1E rising platform changed Samus to pose ${samus.Pose:X2}/" +
+                    $"{samus.ReadMovementType(bus)} on frame {frame}; platform/Samus Y=" +
+                    $"${platform.YPosition:X4}/${samus.YPosition:X4}, gap={supportGap}.");
+            }
+        }
+
+        short platformTravel = unchecked((short)(platform.YPosition - platformStartY));
+        short samusTravel = unchecked((short)(samus.YPosition - samusStartY));
+        if (state.Function != VerticalShutterFunction.MovingUp || platformTravel >= 0 ||
+            samusTravel != platformTravel || largestSupportGap != 0)
+        {
+            throw new InvalidDataException(
+                $"Room $02/$1E rising-platform attachment failed: function={state.Function}, " +
+                $"platform={platformTravel}, Samus={samusTravel}, max-gap={largestSupportGap}.");
+        }
+
+        runtime.StepFrame(runtime.ControllerBindings.Jump);
+        if (samus.ReadMovementType(bus) != SamusMovementType.NormalJumping)
+        {
+            throw new InvalidDataException(
+                $"Room $02/$1E rising platform rejected Jump: pose=${samus.Pose:X2}/" +
+                $"{samus.ReadMovementType(bus)}.");
+        }
     }
 
     private static void VerifyRightFacingTripperFreeze(SuperMetroidAddressSpace bus)
@@ -493,7 +553,7 @@ internal static class PlatformAudit
             "Runtime East Ocean load omitted Samus.");
         RoomEnemySlot platform = runtime.Enemies.Slots[10];
         samus.Pose = SamusPoseIds.FacingRightNormalPose;
-        samus.InputLocked = true;
+        samus.InputLocked = false;
         samus.Health = 999;
         PlaceSamusOnPlatform(samus, platform);
         samus.RefreshCollisionRadii(bus);

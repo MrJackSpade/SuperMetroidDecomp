@@ -1012,4 +1012,13 @@ public readonly record struct BlockMoveResult(
     RoomCollisionBlock? FloorSlopeBlock,
     RoomCollisionBlock? CeilingSlopeBlock,
     RoomCollisionBlock? BrokenBombBlock = null,
-    SolidEnemyCollisionResult? EnemyCollision = null);
+    SolidEnemyCollisionResult? EnemyCollision = null)
+{
+    /// <summary>
+    /// True when bank $90 selected downward movement and neither terrain nor a solid enemy
+    /// stopped it. This is the condition that publishes solid-vertical result two
+    /// (falling); an unobstructed upward carry instead publishes result zero (no change).
+    /// </summary>
+    public bool IsUnobstructedDownwardMovement =>
+        !Collided && AcceptedDisplacement >= 0;
+}

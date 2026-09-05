@@ -643,6 +643,11 @@ static void VerifySamusMorphBallMovement()
         0x01, 0x00, 0xa5, 0xab, 0x04, 0x04, 0x00, 0x00,
         0x39, 0x82, 0xa3, 0x9f,
     ]);
+    bus.WriteBytes(0x93ab97, [
+        0x01, 0x00, 0xfc, 0x01, 0xfc, 0x26, 0x3a,
+        0x01, 0x00, 0xfc, 0x01, 0xfc, 0x27, 0x3a,
+        0x01, 0x00, 0xfc, 0x01, 0xfc, 0x7b, 0x3a,
+    ]);
 
     // `$88:9079` and `$88:8D85` are the fixed-color tables indexed by the high byte of
     // the two authentic 8.8 radii. Keeping the retail bytes makes phase/color assertions
@@ -1139,6 +1144,11 @@ static void VerifySamusMorphBallMovement()
         powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
     AssertTrue(powerBombs.Slots[0].InstructionPointer >= 0x9fa3,
         "power-bomb timer fifteen enters retail fast list");
+    var armedPowerBombOam = new OamBuffer();
+    armedPowerBombOam.BeginFrame();
+    powerBombs.Draw(bus, armedPowerBombOam, layer1X: 0, layer1Y: 0);
+    AssertTrue(armedPowerBombOam.NextByteOffset > 0,
+        "armed Power Bomb draws its fast-list spritemap before detonation");
 
     BombProjectileFrameResult powerBombFuse = default;
     while (!powerBombFuse.ExplosionStarted)
@@ -1158,6 +1168,11 @@ static void VerifySamusMorphBallMovement()
         new SamusSoundRequest(SoundEffectLibrary1Sounds.PowerBombExplosion, 15),
         powerBombFuse.SoundRequests!.Single(),
         "power-bomb spawn queues cartridge library-one explosion sound");
+    var detonatedPowerBombOam = new OamBuffer();
+    detonatedPowerBombOam.BeginFrame();
+    powerBombs.Draw(bus, detonatedPowerBombOam, layer1X: 0, layer1Y: 0);
+    AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
+        "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
     // HDMA executes before the next projectile pass. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated

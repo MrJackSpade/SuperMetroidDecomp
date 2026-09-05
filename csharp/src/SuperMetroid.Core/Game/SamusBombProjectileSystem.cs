@@ -229,6 +229,14 @@ public sealed class SamusBombProjectileSystem
                 family is not (SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb))
                 continue;
 
+            // `$93:835F-$8364` suppresses family `$0300` as soon as its shared
+            // projectile-variable word reaches zero. `$90:C157` publishes that zero on
+            // the detonation frame, so the small placed-bomb OBJ must disappear exactly
+            // when bank $88 begins the large HDMA explosion. Normal bomb explosions keep
+            // drawing their bank-$93 spritemaps with a zero BombTimer and are unaffected.
+            if (family == SamusProjectileFamily.PowerBomb && slot.BombTimer == 0)
+                continue;
+
             // $93:837F admits X in [-48,304). Y is admitted only when the high byte of
             // the wrapped room-relative word is zero, i.e. [0,255]. OAM itself clips the
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.

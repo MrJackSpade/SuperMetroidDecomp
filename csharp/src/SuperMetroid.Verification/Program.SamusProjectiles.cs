@@ -607,6 +607,20 @@ static void VerifySamusPowerBeamProjectiles()
             chargeBombs);
         if (frame == 0)
             AssertEqual((int?)0, chargeFrame.FiredSlot, "charge press fires initial ordinary shot");
+        else if (frame == 15)
+        {
+            AssertEqual(
+                (SoundEffectId?)SoundEffectLibrary1Sounds.ChargeBeamStart,
+                chargeFrame.QueuedSoundEffect,
+                "charge counter sixteen queues the cartridge startup sound");
+            AssertEqual((byte)9, chargeFrame.QueuedSoundMaximum,
+                "charge startup uses QueueSfx1_Max9");
+        }
+        else
+        {
+            AssertEqual((SoundEffectId?)null, chargeFrame.QueuedSoundEffect,
+                $"charge held frame {frame + 1} does not restart its sustained sound");
+        }
 
         flareOam.BeginFrame();
         chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0);
@@ -619,6 +633,44 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+
+    // Make the release allocation fail through the real shared-cooldown gate. Native
+    // FireUnchargedBeam still stops a charge that reached sound-start counter sixteen,
+    // even though no replacement firing sequence can be queued.
+    var rejectedReleaseSamus = new SamusState
+    {
+        Pose = rightPose,
+        XPosition = 128,
+        YPosition = 96,
+        EquippedBeams = (ushort)SamusBeamFlags.Charge,
+    };
+    var rejectedReleaseBombs = new SamusBombProjectileSystem();
+    var rejectedReleaseProjectiles = new SamusProjectileSystem();
+    for (int frame = 0;
+        frame < SamusProjectileRomData.Beams.ChargeSoundStartCounter;
+        frame++)
+    {
+        rejectedReleaseBombs.StepFrame(bus, air, rejectedReleaseSamus, 0, 0);
+        rejectedReleaseProjectiles.StepFrame(
+            bus,
+            air,
+            rejectedReleaseSamus,
+            (ushort)SnesButton.X,
+            frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+            0,
+            0,
+            rejectedReleaseBombs);
+    }
+    rejectedReleaseBombs.SetSharedCooldown(1);
+    SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(
+        bus, air, rejectedReleaseSamus, 0, 0, 0, 0, rejectedReleaseBombs);
+    AssertEqual((int?)null, rejectedRelease.FiredSlot,
+        "cooldown gate rejects charged-audio release fixture");
+    AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
+        rejectedRelease.QueuedSoundEffect,
+        "rejected post-sound charge release queues cartridge cancellation");
+    AssertEqual((byte)15, rejectedRelease.QueuedSoundMaximum,
+        "rejected charge release uses QueueSfx1_Max15 cancellation");
 
     // Build two identical fifteen-call charge states so their central flare frame and
     // spritemap are identical. Rotating Samus's (+8,0) displacement around (120,96) by

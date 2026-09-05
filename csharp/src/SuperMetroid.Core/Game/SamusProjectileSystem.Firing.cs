@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -31,7 +32,7 @@ public sealed partial class SamusProjectileSystem
         ClearFlareAnimationState();
     }
 
-    private (int? Slot, ushort Sound) HandleBeamInput(
+    private (int? Slot, ushort Sound, byte MaximumQueued) HandleBeamInput(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
@@ -47,9 +48,12 @@ public sealed partial class SamusProjectileSystem
         // held Shoot rather than a new edge, with its own 21-frame cooldown preventing a
         // desktop-held button from allocating more frequently than the cartridge.
         if (samus.HyperBeam != 0)
-            return (controllerInput & shoot) != 0
+        {
+            (int? slot, ushort sound) = (controllerInput & shoot) != 0
                 ? TryFireHyperBeam(bus, level, samus, sharedProjectiles, roomPlms)
                 : (null, 0);
+            return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
+        }
 
         // Retail owns twelve low-nibble beam combinations: power through ice+wave+plasma.
         // Spazer and plasma are mutually exclusive in normal inventory state, which is why
@@ -57,7 +61,7 @@ public sealed partial class SamusProjectileSystem
         SamusBeamLoadoutWord beamLoadout = samus.EquippedBeams;
         int beamType = beamLoadout.CombinationIndex;
         if ((uint)beamType >= 12)
-            return (null, 0);
+            return (null, 0, 0);
 
         bool chargeEquipped = beamLoadout.HasAny(SamusBeamFlags.Charge);
         bool held = (controllerInput & shoot) != 0;
@@ -65,7 +69,7 @@ public sealed partial class SamusProjectileSystem
         {
             FlareCounter = 0;
             ClearFlareAnimationState();
-            return held
+            (int? slot, ushort sound) = held
                 ? TryFireBeam(
                     bus,
                     level,
@@ -75,6 +79,7 @@ public sealed partial class SamusProjectileSystem
                     roomPlms,
                     charged: false)
                 : (null, 0);
+            return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
         }
 
         if (samus.PoseTransitionShotDirection != 0)
@@ -83,17 +88,18 @@ public sealed partial class SamusProjectileSystem
             // charged beam can leave the OLD gun direction while a normal-jump or moonwalk
             // transition installs new body art. Values below 60 release an ordinary beam;
             // values 60+ release the charged family through the same allocation gate.
-            bool forcedChargedRelease = FlareCounter >= 60;
+            bool forcedChargedRelease =
+                FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
             FlareCounter = 0;
             ClearFlareAnimationState();
-            return TryFireBeam(
+            return CompleteBeamRelease(TryFireBeam(
                 bus,
                 level,
                 samus,
                 controllerNewInput,
                 sharedProjectiles,
                 roomPlms,
-                charged: forcedChargedRelease);
+                charged: forcedChargedRelease));
         }
 
         if (held)
@@ -101,13 +107,13 @@ public sealed partial class SamusProjectileSystem
             // `$90:B843` increments through 120 and fires one ordinary shot on the first
             // held frame. Charge Beam therefore changes sustained-fire semantics rather
             // than suppressing the familiar initial power shot.
-            if (FlareCounter < 120)
+            if (FlareCounter < SamusProjectileRomData.Beams.SpecialAttackCounter)
             {
                 FlareCounter++;
                 if (FlareCounter == 1)
                 {
                     ClearFlareAnimationState();
-                    return TryFireBeam(
+                    (int? slot, ushort sound) = TryFireBeam(
                         bus,
                         level,
                         samus,
@@ -115,25 +121,57 @@ public sealed partial class SamusProjectileSystem
                         sharedProjectiles,
                         roomPlms,
                         charged: false);
+                    return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
+                }
+
+                // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call
+                // queues library-one sequence `$08` exactly once at counter sixteen. The
+                // C# renderer is intentionally side-effect free, so publish the same command
+                // here, on the alpha pass that advances the counter to sixteen.
+                if (FlareCounter == SamusProjectileRomData.Beams.ChargeSoundStartCounter)
+                {
+                    return (
+                        null,
+                        SoundEffectLibrary1Sounds.ChargeBeamStart.Value,
+                        MaximumQueued: 9);
                 }
             }
-            return (null, 0);
+            return (null, 0, 0);
         }
 
         if (FlareCounter == 0)
-            return (null, 0);
+            return (null, 0, 0);
 
-        bool releaseCharged = FlareCounter >= 60;
+        bool releaseCharged =
+            FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
         FlareCounter = 0;
         ClearFlareAnimationState();
-        return TryFireBeam(
+        return CompleteBeamRelease(TryFireBeam(
             bus,
             level,
             samus,
             controllerNewInput,
             sharedProjectiles,
             roomPlms,
-            charged: releaseCharged);
+            charged: releaseCharged));
+    }
+
+    /// <summary>
+    /// Applies the shared tail of <c>FireUnchargedBeam</c>/<c>FireChargedBeam</c>. A
+    /// successful shot's own Max15 sequence replaces the charging sound. If allocation or
+    /// muzzle initialization rejects a release after counter sixteen, the cartridge queues
+    /// library-one `$02` instead so the sustained charge cannot remain audible.
+    /// </summary>
+    private (int? Slot, ushort Sound, byte MaximumQueued) CompleteBeamRelease(
+        (int? Slot, ushort Sound) firing)
+    {
+        if (firing.Sound != 0)
+            return (firing.Slot, firing.Sound, MaximumQueued: 15);
+
+        return PreviousBeamChargeCounter >=
+            SamusProjectileRomData.Beams.ChargeSoundStartCounter
+            ? (null, SoundEffectLibrary1Sounds.CancelAll.Value, MaximumQueued: 15)
+            : (null, 0, 0);
     }
 
     private (int? Slot, ushort Sound) TryFireBeam(

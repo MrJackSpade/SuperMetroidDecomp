@@ -55,6 +55,12 @@ public static class SamusProjectileRomData
     /// <summary>Beam cooldown, audio, speed, acceleration, graphics, and palette tables.</summary>
     public static class Beams
     {
+        /// <summary>Flare-counter value at which <c>$90:BAFC</c> starts SFX `$08`.</summary>
+        public const ushort ChargeSoundStartCounter = 16;
+        /// <summary>Flare-counter value at which release selects the charged beam family.</summary>
+        public const ushort FullyChargedCounter = 60;
+        /// <summary>Flare-counter clamp at which bank $90 begins testing special beam attacks.</summary>
+        public const ushort SpecialAttackCounter = 120;
         /// <summary>Normal and cooldown-cancel delays indexed by beam combination.</summary>
         public const int UnchargedCooldowns = 0x90c254;
         /// <summary>Offset from normal delays to the cooldown-cancel delay row.</summary>

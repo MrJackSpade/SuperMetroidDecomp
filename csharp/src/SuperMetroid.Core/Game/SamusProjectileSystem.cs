@@ -384,6 +384,7 @@ public sealed partial class SamusProjectileSystem
 
         int? firedSlot = null;
         ushort queuedSound = 0;
+        byte queuedSoundMaximum = 0;
 
         // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
         // share `$90:B80D`; index one reaches `$90:BE62`'s missile producer. Ball poses still
@@ -393,7 +394,7 @@ public sealed partial class SamusProjectileSystem
         {
             if (samus.SelectedHudItem is 0 or 3)
             {
-                (firedSlot, queuedSound) = HandleBeamInput(
+                (firedSlot, queuedSound, queuedSoundMaximum) = HandleBeamInput(
                     bus,
                     level,
                     samus,
@@ -410,6 +411,8 @@ public sealed partial class SamusProjectileSystem
                     controllerNewInput,
                     controllerPreviousNewInput,
                     sharedProjectiles);
+                if (queuedSound != 0)
+                    queuedSoundMaximum = 6;
             }
         }
 
@@ -499,11 +502,7 @@ public sealed partial class SamusProjectileSystem
             queuedSound == 0
                 ? null
                 : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, queuedSound),
-            queuedSound == 0
-                ? (byte)0
-                : samus.SelectedHudItem is 0 or 3
-                    ? (byte)15 // QueueSfx1_Max15 in the power-beam producer.
-                    : (byte)6, // QueueSfx1_Max6 in the missile/super-missile producer.
+            queuedSoundMaximum,
             collisionStartedExplosion,
             projectileDeleted);
         return LastFrameResult;

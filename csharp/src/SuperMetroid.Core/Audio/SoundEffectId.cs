@@ -65,6 +65,13 @@ public static class SoundEffectLibrary1Sounds
     /// <summary>Uncharged Power Beam projectile launch.</summary>
     public static readonly SoundEffectId PowerBeam = new(SoundEffectLibrary.Library1, 0x0b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>
+    /// Starts the sustained Charge Beam sound when <c>HandleChargingBeamGfxAudio</c> sees
+    /// flare counter sixteen at <c>$90:BB45-$BB4B</c>.
+    /// </summary>
+    public static readonly SoundEffectId ChargeBeamStart =
+        new(SoundEffectLibrary.Library1, 0x08); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Moves a cursor among file, options, game-over, or pause-menu entries.</summary>
     public static readonly SoundEffectId MenuCursor = new(SoundEffectLibrary.Library1, 0x37);
 

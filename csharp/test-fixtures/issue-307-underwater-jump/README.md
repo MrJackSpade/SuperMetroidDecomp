@@ -62,3 +62,22 @@ matched 100 frames of position, fractional velocity, animation and spritemap
 origin in a constructed empty water room. This does not reproduce or disprove
 the player's roughly one-tile difference relative to the real-room flowers.
 No jump-height adjustment has been made from that limited comparison.
+
+## Standing-turn investigation (unresolved)
+
+Player confirmed this local ROM matches the managed jump height. Their other
+emulator setup differs in jump height, but its cause/revision is not established.
+Both emulator setups reportedly return Samus to the same spot after an underwater
+standing turn; the managed game instead moves her far enough to leave a ledge.
+
+`--underwater-turn-probe <rom>` records both a stationary single-tap turn on
+the lower sloped floor in CEFB and mirrored isolated turns on a constructed flat
+floor. The flat case moves 5.25 pixels over the turn. The headless cartridge
+probe in `native-turn-probe.patch` also moves 5.25 pixels with this constructed
+setup (see `native-turn-trace.txt`). It includes input, movement, animation,
+block-collision transitions and pose transitions. Thus this is NOT a reproduction
+of the player's native/managed difference, nor a passing regression/fix claim.
+
+Requested next evidence: a SNES9X freeze state while stationary on the player's
+actual ledge before turning. Do not introduce a compensating offset on the basis
+of this limited fixture or close the turnaround report.

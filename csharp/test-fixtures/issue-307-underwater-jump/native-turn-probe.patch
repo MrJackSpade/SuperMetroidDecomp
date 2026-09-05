@@ -1,0 +1,67 @@
+diff --git a/src/main.c b/src/main.c
+index 64ececa..7a74b82 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -313,6 +313,10 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 3 && strcmp(argv[1], "--turn-probe") == 0) {
++    extern int DiagnosticTurn(const char *rom);
++    return DiagnosticTurn(argv[2]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+index cea7f4c..27c0f88 100644
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -9,6 +9,48 @@
+ 
+ struct StateRecorder;
+ 
++int DiagnosticTurn(const char *rom) {
++  if (!SnesInit(rom)) return 2;
++  cpu_reset(g_snes->cpu);
++  memset(g_ram, 0, sizeof(g_ram));
++  g_snes->cpu->e = false;
++  g_snes->cpu->sp = 0x1ff0;
++  g_snes->cpu->dp = 0;
++  room_width_in_blocks = 16;
++  room_height_in_blocks = 32;
++  interactive_enemy_indexes[0] = 0xffff;
++  for (int i = 256; i < 272; i++) level_data[i] = 0x8000;
++  equipped_items = 0x3105;
++  fx_y_pos = 8;
++  lava_acid_y_pos = 0xffff;
++  fx_liquid_options = 0x80;
++  fx_type = 6;
++  liquid_physics_type = 1;
++  samus_x_pos = 128;
++  samus_y_pos = 235;
++  samus_x_radius = 5;
++  samus_y_radius = 21;
++  samus_pose = samus_prev_pose = 1;
++  samus_pose_x_dir = samus_prev_pose_x_dir = 8;
++  samus_movement_type = 0;
++  samus_x_accel_mode = 0;
++  samus_input_handler = 0xe913;
++  samus_health = 405;
++  samus_anim_frame_timer = 5;
++  for (int frame = 0; frame < 50; frame++) {
++    samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
++    samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
++    joypad1_lastkeys = joypad1_newkeys = frame == 20 ? 0x200 : 0;
++    RunAsmCode(0x918000, 0, 0, 0, 0);
++    RunAsmCode(0x90a337, 0, 0, 0, 0);
++    RunAsmCode(0x908000, 0, 0, 0, 0);
++    RunAsmCode(0x91e8b6, 0, 0, 0, 0);
++    RunAsmCode(0x91eb88, 0, 0, 0, 0);
++    printf("TURN frame=%d x=%04X.%04X speed=%04X.%04X mode=%d anim=%d/%d pose=%04X\n", frame, samus_x_pos, samus_x_subpos, samus_x_base_speed, samus_x_base_subspeed, samus_x_accel_mode, samus_anim_frame, samus_anim_frame_timer, samus_pose);
++  }
++  return 0;
++}
++
+ static void RtlSaveMusicStateToRam_Locked();
+ static void RtlRestoreMusicAfterLoad_Locked(bool is_reset);

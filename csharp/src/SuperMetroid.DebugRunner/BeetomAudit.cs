@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -86,6 +87,7 @@ internal static class BeetomAudit
         BeetomEnemyState actorState = RequireState(enemies, actor);
         VerifyNaturalMovement(enemies, assets, room, samus, actor, actorState);
         VerifyLatchDrainAndEscape(enemies, assets, room, samus, actor, actorState);
+        VerifyCenteredNormalBombDamage(bus, room, assets);
         VerifyShotDetach(bus, room, assets);
 
         var oam = new OamBuffer();
@@ -100,8 +102,93 @@ internal static class BeetomAudit
             $"jump indexes {actorState.InitialShortLeapYSpeedIndex}/" +
             $"{actorState.InitialLongLeapYSpeedIndex}/{actorState.InitialLungeYSpeedIndex}, " +
             $"natural crawl/hop/lunge movement, latch/drain, 64-change escape, freeze detach, " +
-            $"ordinary damage, and {oam.LastFinalizedSpriteCount} OBJ pieces were verified.");
+            $"ordinary damage, centered latched-enemy bomb damage, and " +
+            $"{oam.LastFinalizedSpriteCount} OBJ pieces were verified.");
         return 0;
+    }
+
+    /// <summary>
+    /// Reproduces issue #295 through the real room population, Beetom touch/latch path,
+    /// Morph-Ball bomb placement, sixty-frame fuse, bank-$93 explosion radii, and shared
+    /// bank-$A0 enemy/bomb dispatcher. The bomb and Samus remain exactly centered: an
+    /// offset-only assertion would miss the reported failure mode.
+    /// </summary>
+    private static void VerifyCenteredNormalBombDamage(
+        SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        SamusState samus = CreateSamus(bus, 0x0050, 0x00b8);
+        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        var random = new Bank80SystemState();
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            readRandomNumber: () => random.RandomNumber,
+            level: assets.LevelData,
+            samus: samus);
+        RoomEnemySlot actor = enemies.Slots[0];
+        BeetomEnemyState state = RequireState(enemies, actor);
+
+        StepCentered(enemies, assets, room, samus, actor, 0);
+        samus.XPosition = actor.XPosition;
+        samus.YPosition = actor.YPosition;
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0) || !state.AttachedToSamus)
+            throw new InvalidDataException("Centered Beetom fixture did not enter the latched state.");
+        StepCentered(enemies, assets, room, samus, actor, 0);
+
+        var bombs = new SamusBombProjectileSystem();
+        var shots = new SamusProjectileSystem();
+        BombProjectileFrameResult placement = bombs.StepFrame(
+            bus,
+            assets.LevelData,
+            samus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X);
+        if (placement.PlacedSlot != 0 ||
+            bombs.Slots[0].XPosition != samus.XPosition ||
+            bombs.Slots[0].YPosition != samus.YPosition)
+        {
+            throw new InvalidDataException(
+                $"Centered bomb placement failed: slot={placement.PlacedSlot}, " +
+                $"bomb=({bombs.Slots[0].XPosition:X4},{bombs.Slots[0].YPosition:X4}), " +
+                $"Samus=({samus.XPosition:X4},{samus.YPosition:X4}).");
+        }
+
+        ushort healthBefore = actor.Health;
+        int hitCount = 0;
+        for (int frame = 0; frame < 80 && bombs.Slots[0].IsActive; frame++)
+        {
+            StepCentered(enemies, assets, room, samus, actor, 0);
+            bombs.StepFrame(bus, assets.LevelData, samus, 0, 0);
+            hitCount += enemies.ResolveOrdinaryBombHits(bombs, shots, samus);
+        }
+
+        // Beetom's bomb multiplier is four, while common shot AI halves the projectile's
+        // ROM-authored damage 30 before multiplication. One centered blast therefore deals
+        // exactly 60 HP and clears the latched actor. Its private bank-$A8 tail still runs
+        // after common death has cleared the physical slot and must release attached state.
+        if (hitCount != 1 || healthBefore != 60 || actor.Health != 0 ||
+            actor.EnemyDefinitionPointer != 0 || state.AttachedToSamus)
+        {
+            throw new InvalidDataException(
+                $"Centered latched Beetom bomb collision diverged: hits={hitCount}, " +
+                $"health={healthBefore}->{actor.Health}, attached={state.AttachedToSamus}, " +
+                $"definition=${actor.EnemyDefinitionPointer:X4}.");
+        }
     }
 
     private static void VerifyNaturalMovement(
@@ -279,12 +366,11 @@ internal static class BeetomAudit
         shared = new SamusBombProjectileSystem();
         ArmProjectile(projectiles.Slots[0], lethalTarget, projectileType: 0x0200, damage: 1000);
         if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
-            lethalTarget.Health != 0 ||
-            !lethalTarget.Properties.HasAny(EnemyProperties.Deleted))
+            lethalTarget.Health != 0 || lethalTarget.EnemyDefinitionPointer != 0)
         {
             throw new InvalidDataException(
                 $"Beetom lethal shot failed: health={lethalTarget.Health}, " +
-                $"properties=${lethalTarget.Properties:X4}.");
+                $"definition=${lethalTarget.EnemyDefinitionPointer:X4}.");
         }
     }
 

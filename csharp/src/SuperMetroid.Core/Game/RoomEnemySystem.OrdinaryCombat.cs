@@ -1706,6 +1706,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
             bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
                 enemy.Definition.ShotAiPointer == MetroidShotAi;
+            bool isBeetom = enemy.EnemyDefinitionPointer == BeetomDefinition &&
+                enemy.Definition.ShotAiPointer == BeetomShotAi;
             bool usesCommonShotAi = enemy.Definition.ShotAiPointer == CommonNormalEnemyShotAi;
             bool usesLiteralNoOpShotAi = IsLiteralNoOpEnemyAi(
                 enemy.Definition.Bank,
@@ -2142,8 +2144,11 @@ public sealed partial class RoomEnemySystem
                             if (enemy.EnemyDefinitionPointer == MagdolliteDefinition &&
                                 selectedShotAi == MagdolliteShotAi)
                                 ResolveMagdolliteCombatAfterCommon(enemy);
-                            if (enemy.EnemyDefinitionPointer == BeetomDefinition &&
-                                selectedShotAi == BeetomShotAi)
+                            // Common damage can clear a lethally hit slot before this
+                            // private tail runs. Bank $A8 still clears Beetom's separate
+                            // attached flag after returning from common shot AI, so use the
+                            // identity captured before dispatch rather than the cleared slot.
+                            if (isBeetom && selectedShotAi == BeetomShotAi)
                                 ResolveBeetomShotAfterCommon(enemy, RequireBeetomState(enemy));
                             if (isPowamp)
                                 ResolvePowampShotAfterCommon(enemy);

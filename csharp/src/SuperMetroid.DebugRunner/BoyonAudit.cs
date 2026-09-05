@@ -6,6 +6,9 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Retail cartridge identities used by the Alpha Power Bomb Boyon audit.</summary>
 internal static class BoyonAuditDefinitions
 {
+    /// <summary>Crateria Super room <c>$00/$1D</c> header at <c>$8F:99F9</c>.</summary>
+    public const ushort CrateriaSuperRoomHeader = 0x99f9;
+
     /// <summary>Alpha Power Bomb room <c>$01/$26</c> header at <c>$8F:A3AE</c>.</summary>
     public const ushort AlphaPowerBombRoomHeader = 0xa3ae;
 
@@ -278,14 +281,177 @@ internal static class BoyonAudit
         }
 
         VerifyIntegratedRoomActivation(bus);
+        VerifyCrateriaSuperFreezePuzzle(bus);
 
         Console.WriteLine(
             "Boyon audit passed: four untouched Alpha Power Bomb actors loaded; the exact " +
             $"curve produced a {arcFrames}-frame arc over Y ${minimumY:X4}-${0x00a8:X4}; " +
             "idle/bounce bytecode covered all seven ROM maps and off-screen flags; body " +
-            "contact, beam immunity, Ice freeze, Super Missile/power-bomb damage, Grapple " +
+            "contact, beam immunity, exact $00/$1D Ice projectile/freeze timing, " +
+            "Super Missile/power-bomb damage, Grapple " +
             $"cancellation, death, and {oam.LastFinalizedSpriteCount} OBJ pieces passed.");
         return 0;
+    }
+
+    /// <summary>
+    /// Resolves issue #294 against the reported retail room rather than inferring its
+    /// behavior from the mechanically similar Alpha Power Bomb population used above.
+    /// </summary>
+    private static void VerifyCrateriaSuperFreezePuzzle(SuperMetroidAddressSpace bus)
+    {
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            bus,
+            BoyonAuditDefinitions.CrateriaSuperRoomHeader);
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            EquippedBeams = (ushort)SamusBeamFlags.Ice,
+            CollectedBeams = (ushort)SamusBeamFlags.Ice,
+            XPosition = 0,
+            YPosition = 0x07a8,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        var random = new Bank80SystemState();
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber,
+            level: assets.LevelData,
+            samus: samus);
+        RoomEnemySlot[] boyons = enemies.Slots
+            .Take(enemies.EnemyCount)
+            .Where(slot => slot.EnemyDefinitionPointer == BoyonAuditDefinitions.BoyonEnemyDefinition)
+            .ToArray();
+        if (room.AreaIndex != 0 || room.RoomIndex != 0x1d ||
+            room.State.Pointer != 0x9a06 || boyons.Length != 4 ||
+            boyons.Any(slot => slot.Parameter1 != 0x0103 || slot.Parameter2 != 0x0020))
+        {
+            throw new InvalidDataException(
+                $"Crateria Super fixture diverged: identity=${room.AreaIndex:X2}/" +
+                $"${room.RoomIndex:X2}, state=${room.State.Pointer:X4}, Boyons=" +
+                $"{boyons.Length}, params=" +
+                string.Join(',', boyons.Select(slot =>
+                    $"${slot.Parameter1:X4}/${slot.Parameter2:X4}")));
+        }
+
+        RoomEnemySlot target = boyons[0];
+        const ushort cameraX = 0x0200;
+        const ushort cameraY = 0x0700;
+
+        // The first actor frame performs Boyon's one-time curve integration. At exactly
+        // 32 pixels the cartridge's CMP/BPL rejects proximity; 31 pixels starts the bounce.
+        enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
+        BoyonEnemyState state = State(enemies, target);
+        samus.XPosition = unchecked((ushort)(target.XPosition + 32));
+        enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
+        if (state.Bouncing || !state.BounceDisabled)
+            throw new InvalidDataException("Crateria Super Boyon activated at the excluded 32-pixel boundary.");
+        samus.XPosition = unchecked((ushort)(target.XPosition + 31));
+        enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
+        if (!state.Bouncing || state.BounceDisabled)
+            throw new InvalidDataException("Crateria Super Boyon did not activate inside its 32-pixel threshold.");
+
+        // Sample the complete player projectile producer in empty terrain first. This
+        // captures the standing-pose muzzle offset plus the same-frame four-pixel movement,
+        // then lets the second produced shot end exactly on the real room actor without
+        // replacing its ROM-derived speed, radius, type, or instruction list by hand.
+        const int emptyBlocksWide = 64;
+        const int emptyBlocksHigh = 128;
+        var empty = new RoomLevelData(
+            emptyBlocksWide,
+            emptyBlocksHigh,
+            new ushort[emptyBlocksWide * emptyBlocksHigh],
+            new byte[emptyBlocksWide * emptyBlocksHigh],
+            new ushort[emptyBlocksWide * emptyBlocksHigh],
+            []);
+        var sampleSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            EquippedBeams = (ushort)SamusBeamFlags.Ice,
+            XPosition = 0x0100,
+            YPosition = 0x0100,
+        };
+        sampleSamus.RefreshCollisionRadii(bus);
+        var sampleShots = new SamusProjectileSystem();
+        var sampleBombs = new SamusBombProjectileSystem();
+        SamusProjectileFrameResult sampleResult = sampleShots.StepFrame(
+            bus,
+            empty,
+            sampleSamus,
+            (ushort)SuperMetroid.Core.Input.SnesButton.X,
+            (ushort)SuperMetroid.Core.Input.SnesButton.X,
+            0,
+            0,
+            sampleBombs);
+        SamusProjectileSlot sample = sampleShots.Slots[
+            sampleResult.FiredSlot ?? throw new InvalidDataException("Ice shot sampler did not allocate a projectile.")];
+        SamusProjectileSpawnSnapshot initialShot = sampleShots.LastFiredProjectileSnapshot ??
+            throw new InvalidDataException("Ice shot sampler did not publish its initial trajectory.");
+        short shotXOffset = unchecked((short)(sample.XPosition - sampleSamus.XPosition));
+        short shotYOffset = unchecked((short)(sample.YPosition - sampleSamus.YPosition));
+        if (sample.PackedType.BeamCombinationIndex != 2 || sample.Damage != 30 ||
+            initialShot.XVelocity != 0x0400 || initialShot.YVelocity != 0 ||
+            sample.XVelocity != 0x0410 || sample.YVelocity != 0 ||
+            sample.XRadius != 8 || sample.YRadius != 8)
+        {
+            throw new InvalidDataException(
+                $"Produced Ice shot diverged: type=${sample.Type:X4}, damage={sample.Damage}, " +
+                $"velocity=${initialShot.XVelocity:X4}->${sample.XVelocity:X4}/" +
+                $"${initialShot.YVelocity:X4}->${sample.YVelocity:X4}, " +
+                $"radii={sample.XRadius}/{sample.YRadius}.");
+        }
+
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.XPosition = unchecked((ushort)(target.XPosition - shotXOffset));
+        samus.YPosition = unchecked((ushort)(target.YPosition - shotYOffset));
+        samus.RefreshCollisionRadii(bus);
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        SamusProjectileFrameResult fired = shots.StepFrame(
+            bus,
+            empty,
+            samus,
+            (ushort)SuperMetroid.Core.Input.SnesButton.X,
+            (ushort)SuperMetroid.Core.Input.SnesButton.X,
+            cameraX,
+            cameraY,
+            bombs);
+        SamusProjectileSlot ice = shots.Slots[
+            fired.FiredSlot ?? throw new InvalidDataException("Centered Ice shot did not allocate a projectile.")];
+        if (ice.XPosition != target.XPosition || ice.YPosition != target.YPosition ||
+            enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
+            target.FrozenTimer != 400)
+        {
+            throw new InvalidDataException(
+                $"Crateria Super centered Ice collision diverged: shot=" +
+                $"({ice.XPosition:X4},{ice.YPosition:X4}), target=" +
+                $"({target.XPosition:X4},{target.YPosition:X4}), freeze={target.FrozenTimer}.");
+        }
+
+        // Crateria is not the cartridge's shorter Norfair case. A frozen Boyon must remain
+        // solid/paused for exactly 400 enemy frames while Ice stays equipped, reaching one
+        // after 399 steps and thawing only on step 400.
+        for (int frame = 0; frame < 399; frame++)
+            enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
+        if (target.FrozenTimer != 1 || (target.AiHandlerBits & 0x0004) == 0)
+            throw new InvalidDataException($"Crateria Super freeze expired early at {target.FrozenTimer} frames.");
+        enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
+        if (target.FrozenTimer != 0 || (target.AiHandlerBits & 0x0004) != 0)
+            throw new InvalidDataException($"Crateria Super freeze did not thaw on frame 400: {target.FrozenTimer}.");
     }
 
     private static void VerifyHeader(ISnesAddressSpace bus)

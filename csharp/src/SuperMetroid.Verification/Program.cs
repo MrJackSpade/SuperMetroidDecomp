@@ -106,6 +106,7 @@ VerifySamusAimedAerialMovement();
 VerifySamusGunExtendedMovement();
 VerifySamusSlopePhysics();
 VerifySamusBlockCollision();
+VerifySpeedBoosterCollisionBlocks();
 VerifySamusGroundedMovement();
 VerifySamusGroundedReversal();
 VerifySamusMoonwalking();

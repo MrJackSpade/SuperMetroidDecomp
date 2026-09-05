@@ -274,6 +274,20 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        // `$94:90CB` dispatches the speed-block entries through setup
+                        // `$84:CDEA`. A stage-four boost or directional shinespark clears
+                        // collision synchronously, so this same horizontal scan continues
+                        // through the newly non-solid cell.
+                        if (state.SamusOwner is { } speedBoostingSamus &&
+                            plms is not null &&
+                            plms.TrySpawnSamusSpeedBoosterBlock(
+                                level,
+                                block.Index,
+                                block.Bts,
+                                speedBoostingSamus))
+                        {
+                            break;
+                        }
                         if (block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
@@ -565,6 +579,19 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        // The vertical special-solid dispatcher shares setup `$84:CDEA`
+                        // with horizontal collision. Accepted boost contact becomes air
+                        // before clipping; rejected/non-speed special blocks remain solid.
+                        if (state.SamusOwner is { } speedBoostingSamus &&
+                            plms is not null &&
+                            plms.TrySpawnSamusSpeedBoosterBlock(
+                                level,
+                                block.Index,
+                                block.Bts,
+                                speedBoostingSamus))
+                        {
+                            break;
+                        }
                         if (!block.Bts.UsesAreaReactionTable &&
                             block.Bts.IsNormalReactionIndex(8) &&
                             acceptedDisplacement > 0)

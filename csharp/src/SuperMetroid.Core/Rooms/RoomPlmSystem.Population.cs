@@ -80,6 +80,7 @@ public sealed partial class RoomPlmSystem
         _coloredDoorSystem = system;
         _greyDoorSystem = system;
         _greyDoorArea = areaIndex;
+        _activeAreaIndex = areaIndex;
         _isTourianStatueFinished = isTourianStatueFinished;
         _collectibleSystem = system;
         _collectibleSamus = getSamus;

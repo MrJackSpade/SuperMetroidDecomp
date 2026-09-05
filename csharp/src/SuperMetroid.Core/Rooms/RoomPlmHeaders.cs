@@ -188,6 +188,36 @@ internal static class RoomPlmHeaders
     /// </summary>
     public const ushort MotherBrainEscapeRoomGateClosing = 0xc8d0;
 
+    /// <summary>
+    /// <c>$84:D030 PLMEntries_Collision_BTS82</c>: Brinstar BTS <c>$82</c>, a
+    /// respawning Speed Booster block with the slower crumble animation.
+    /// </summary>
+    public const ushort SpeedBlockBrinstarSlowRespawning = 0xd030;
+
+    /// <summary>
+    /// <c>$84:D034 PLMEntries_Collision_BTS83</c>: Brinstar BTS <c>$83</c>, a
+    /// permanent Speed Booster block with the slower crumble animation.
+    /// </summary>
+    public const ushort SpeedBlockBrinstarSlowPermanent = 0xd034;
+
+    /// <summary>
+    /// <c>$84:D038 PLMEntries_Collision_RespawningSpeedBoostBlock</c>: the
+    /// area-independent BTS <c>$0E</c> respawning Speed Booster block.
+    /// </summary>
+    public const ushort SpeedBlockRespawning = 0xd038;
+
+    /// <summary>
+    /// <c>$84:D03C PLMEntries_Collision_DachoraRespawningSpeedBoostBlock</c>:
+    /// Brinstar BTS <c>$84</c>, the Dachora-room respawning Speed Booster block.
+    /// </summary>
+    public const ushort SpeedBlockDachoraRespawning = 0xd03c;
+
+    /// <summary>
+    /// <c>$84:D040 PLMEntries_Collision_SpeedBoostBlock</c>: area-independent
+    /// BTS <c>$0F</c> and Brinstar BTS <c>$85</c>, a permanent Speed Booster block.
+    /// </summary>
+    public const ushort SpeedBlockPermanent = 0xd040;
+
     /// <summary>Respawning 1x1 Samus-contact crumble block at <c>$84:D044</c>.</summary>
     public const ushort ContactCrumble1x1Respawning = 0xd044;
     /// <summary>Respawning 2x1 Samus-contact crumble block at <c>$84:D048</c>.</summary>

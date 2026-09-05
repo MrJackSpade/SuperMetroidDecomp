@@ -160,6 +160,17 @@ public static class RoomPlmInstructionLists
     public const ushort BombedSuperMissileBlockUnused = 0xc922;
     public const ushort BombReactionSpeedBlock = 0xc928;
 
+    /// <summary>Brinstar BTS <c>$82</c> slow respawning speed-block list at <c>$84:C951</c>.</summary>
+    public const ushort SpeedBlockBrinstarSlowRespawning = 0xc951;
+    /// <summary>Area-independent BTS <c>$0E</c> respawning speed-block list at <c>$84:C974</c>.</summary>
+    public const ushort SpeedBlockRespawning = 0xc974;
+    /// <summary>Dachora-room BTS <c>$84</c> respawning speed-block list at <c>$84:C997</c>.</summary>
+    public const ushort SpeedBlockDachoraRespawning = 0xc997;
+    /// <summary>Brinstar BTS <c>$83</c> slow permanent speed-block list at <c>$84:C9CF</c>.</summary>
+    public const ushort SpeedBlockBrinstarSlowPermanent = 0xc9cf;
+    /// <summary>Area-independent BTS <c>$0F</c> permanent speed-block list at <c>$84:C9E4</c>.</summary>
+    public const ushort SpeedBlockPermanent = 0xc9e4;
+
     public const ushort RespawningShotBlock1x1 = 0xcadf;
     public const ushort RespawningShotBlock2x1 = 0xcb02;
     public const ushort RespawningShotBlock1x2 = 0xcb27;

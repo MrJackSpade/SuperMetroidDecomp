@@ -30,6 +30,7 @@ public sealed partial class RoomPlmSystem
         .ToArray();
     private readonly List<PlmSoundRequest> _soundRequests = new();
     private readonly List<PlmTilemapUpdate> _tilemapUpdates = new();
+    private AreaId _activeAreaIndex = AreaId.Crateria;
 
     /// <summary>Sound commands emitted during the most recent handler pass.</summary>
     public IReadOnlyList<PlmSoundRequest> SoundRequests => _soundRequests;
@@ -84,6 +85,7 @@ public sealed partial class RoomPlmSystem
         _coloredDoorSystem = null;
         _greyDoorSystem = null;
         _greyDoorArea = AreaId.Crateria;
+        _activeAreaIndex = AreaId.Crateria;
         _isTourianStatueFinished = null;
         _hasEvent = null;
         _setEvent = null;
@@ -579,6 +581,67 @@ public sealed partial class RoomPlmSystem
             level.SetForegroundEntry(
                 blockIndex,
                 restoreWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Runs setup <c>$84:CDEA</c> for a type-$B special block selected by either the
+    /// area-independent BTS <c>$0E/$0F</c> entries or Brinstar's BTS <c>$82-$85</c> table.
+    /// </summary>
+    /// <remarks>
+    /// Native setup accepts boost-counter stage four and all six directional shinespark
+    /// poses. On acceptance it preserves the collision nibble in the eventual restore word,
+    /// substitutes visual block <c>$0B6</c>, and clears the live collision nibble before the
+    /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
+    /// slot synchronously and remains solid in the caller.
+    /// </remarks>
+    /// <returns>True only when the block was accepted and made non-solid.</returns>
+    public bool TrySpawnSamusSpeedBoosterBlock(
+        RoomLevelData level,
+        int blockIndex,
+        RoomBlockBehavior bts,
+        SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(level);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (!SpeedBoosterBlockPlmDefinitions.TryResolve(
+                bts,
+                _activeAreaIndex,
+                out SpeedBoosterBlockPlmDefinition definition))
+        {
+            return false;
+        }
+
+        bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
+        bool activeShinespark = samus.Pose is >= SamusPoseIds.ShinesparkHorizontalRightPose
+            and <= SamusPoseIds.ShinesparkDiagonalLeftPose;
+        if (!activeSpeedBooster && !activeShinespark)
+            return false;
+
+        for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
+        {
+            PlmSlot slot = _slots[slotIndex];
+            if (slot.Active)
+                continue;
+
+            RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
+            ClearSlot(slot);
+            slot.Active = true;
+            slot.HeaderPointer = definition.HeaderPointer;
+            slot.BlockIndex = blockIndex;
+            slot.RestoreLevelWord = new RoomLevelWord(block.LevelWord)
+                .WithVisualBlockIndex(RoomPlmVisualBlockIndexes.SpeedBoosterParent)
+                .Raw;
+            slot.InstructionPointer = definition.InstructionPointer;
+            slot.InstructionTimer = 1;
+            level.SetForegroundEntry(
+                blockIndex,
+                new RoomLevelWord(slot.RestoreLevelWord)
+                    .WithCollisionType(RoomCollisionType.Air)
+                    .Raw);
             return true;
         }
 

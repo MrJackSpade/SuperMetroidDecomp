@@ -39,6 +39,14 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public ushort SpeedBoostCounter { get; set; }
 
+    /// <summary>
+    /// Whether the counter's stage field is four, the cartridge condition used by
+    /// Speed Booster block setup and active-boost contact behavior.
+    /// </summary>
+    public bool IsActivelySpeedBoosting =>
+        (SpeedBoostCounter & SamusMovementRomData.HorizontalMotion.SpeedBoostStageMask) ==
+        SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage;
+
     /// <summary>WRAM <c>$0ACE</c>, reset when Speed Booster momentum begins/cancels.</summary>
     public ushort SpecialPaletteFrame { get; set; }
 

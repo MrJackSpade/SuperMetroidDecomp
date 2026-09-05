@@ -58,6 +58,12 @@ public static class SamusMovementRomData
 
         /// <summary><c>$91:B5DE</c>, animation-delay-list pointer for each boost stage.</summary>
         public const int SpeedBoostAnimationDelayListPointers = 0x91b5de;
+
+        /// <summary>High-nibble stage mask used by setup <c>$84:CDEA</c>.</summary>
+        public const ushort SpeedBoostStageMask = 0x0f00;
+
+        /// <summary>Stage-four value that marks an actively speed-boosting Samus.</summary>
+        public const ushort ActiveSpeedBoostStage = 0x0400;
     }
 
     /// <summary>Vertical launch velocities and gravity constants in bank $90.</summary>

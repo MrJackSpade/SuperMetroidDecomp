@@ -8,6 +8,12 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RoomPlmVisualBlockIndexes
 {
     /// <summary>
+    /// Speed-block parent visual block <c>$0B6</c>, synthesized by setup
+    /// <c>$84:CDEA</c> before its authored animation list replaces it.
+    /// </summary>
+    public const ushort SpeedBoosterParent = 0x00b6;
+
+    /// <summary>
     /// Contact-crumble parent visual block `$0BC`, written by setup `$84:CE37` before its
     /// authored animation list replaces it.
     /// </summary>

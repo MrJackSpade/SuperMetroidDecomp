@@ -1,0 +1,44 @@
+diff --git a/src/main.c b/src/main.c
+index 64ececa..cf720b9 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -313,6 +313,10 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--save-load-probe") == 0) {
++    extern int DiagnosticSaveLoad(const char *rom, const char *sram);
++    return DiagnosticSaveLoad(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+index cea7f4c..635898a 100644
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -9,6 +9,25 @@
+ 
+ struct StateRecorder;
+ 
++int DiagnosticSaveLoad(const char *rom, const char *sram) {
++  if (!SnesInit(rom)) return 2;
++  FILE *file = fopen(sram, "rb");
++  if (!file) return 3;
++  size_t count = fread(g_sram, 1, 8192, file);
++  fclose(file);
++  if (count != 8192) return 4;
++  cpu_reset(g_snes->cpu);
++  memset(g_ram, 0, sizeof(g_ram));
++  g_snes->cpu->e = false;
++  g_snes->cpu->sp = 0x1ff0;
++  g_snes->cpu->dp = 0;
++  RunAsmCode(0x818085, 2, 0, 0, 0);
++  printf("ROM LOAD: carry=%d loading=%04X area=%04X station=%04X equipment=%04X\n", g_snes->cpu->c, loading_game_state, area_index, load_station_index, equipped_items);
++  RunAsmCode(0x82eeb4, 0, 0, 0, 0);
++  printf("ROM START: game_state=%04X (0005=map,001E=intro)\n", game_state);
++  return 0;
++}
++
+ static void RtlSaveMusicStateToRam_Locked();
+ static void RtlRestoreMusicAfterLoad_Locked(bool is_reset);

@@ -62,6 +62,8 @@ public static class SaveRamLayout
     public const int OpenedDoorBitsOffset = 0x00f0;
     public const int UsedSaveStationsOffset = 0x0138;
     public const int MapStationsOffset = 0x0148;
+    /// <summary>$7E:D914 loading_game_state, relative to the saved mirror at $7E:D7C0; consumed by $82:EEB4 before choosing intro or gameplay.</summary>
+    public const int LoadingGameStateOffset = 0x0154;
     public const int SaveStationOffset = 0x0156;
     public const int AreaOffset = 0x0158;
     public const int CompressedMapDataOffset = 0x015c;

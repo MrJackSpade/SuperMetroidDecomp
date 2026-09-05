@@ -22,8 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
-if (args.Length == 4 && args[0] == "--export-replay-sram")
-    return ReplaySaveRamExporter.Run(args[1], args[2], args[3]);
+if (args.Length is 4 or 5 && args[0] == "--export-replay-sram")
+    return ReplaySaveRamExporter.Run(args[1], args[2], args[3], args.Length == 5 ? int.Parse(args[4]) : null);
 if (args.Length <= 2 && args.Length >= 1 && args[0] == "--magic-number-audit")
 {
     bool printBaseline = args.Length == 2 && args[1] == "--print-baseline";

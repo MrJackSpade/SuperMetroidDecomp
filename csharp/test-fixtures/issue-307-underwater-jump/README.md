@@ -1,5 +1,40 @@
 # Underwater jump comparison (#307)
 
+## Corrected native-emulator save
+
+Use `Maridia Jump Test.srm` with a ROM named `Maridia Jump Test.smc`.
+FILE C in the original raw export below incorrectly enters the intro: the
+managed save writer leaves loading_game_state at payload offset $0154 zero.
+Cartridge $81:8085 accepts its checksum, then $82:EEB4 chooses state $001E.
+The corrected fixture explicitly sets FILE C's entry point to $0005 and
+updates both checksum/complement pairs. All other bytes remain unchanged.
+The general managed save writer has not been changed by this export repair.
+
+Export command: `--export-replay-sram <recording> <rom> <new-output> 2`.
+The optional zero-based slot argument requests main-game entry explicitly;
+omitting it still exports the original bytes without modification.
+
+Verified with real 65816 ROM subroutine execution, not just managed decoding:
+
+```
+Original:  ROM LOAD carry=0 loading=0000 area=0004 station=0000 equipment=3105
+           ROM START game_state=001E
+Corrected: ROM LOAD carry=0 loading=0005 area=0004 station=0000 equipment=3105
+           ROM START game_state=0005
+```
+
+`native-save-load-probe.patch` preserves the temporary headless probe for
+reproduction against upstream-sm. Build and invoke its executable with
+`--save-load-probe <rom> <sram>`; it does not initialize SDL or open a window.
+The patch is not left applied to the upstream working tree.
+`Verify-Export.ps1` checks a fresh export byte-for-byte against this verified
+fixture and asserts that nothing beyond the entry point/checksums changes.
+
+Corrected SRAM SHA-256:
+`10C4EC00EA3683E545A278F4B3D453A144EC11711CB19DB87797C6FFCB01FF8D`.
+
+## Original raw export (retained as failing fixture)
+
 `Super Metroid.srm` is the unchanged 8192-byte initial SRAM from
 `input-recordings/SuperMetroid-input-20260905-174826-322.smrec`.
 Choose FILE C: Maridia save room $CED2, equipped items $3105 (including

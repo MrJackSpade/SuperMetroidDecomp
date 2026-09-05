@@ -922,11 +922,12 @@ public sealed class SamusBombProjectileSystem
                 block.Bts.UsesAreaReactionTable)
                 return;
             if (!block.Bts.UsesAreaReactionTable &&
-                !block.Bts.IsNormalReactionIndex(16))
+                !block.Bts.IsNormalReactionIndex(16) &&
+                !block.Bts.IsShootableCollisionProbe)
             {
                 throw new InvalidDataException(
                     $"Shootable block {block.Index} has BTS ${block.Behavior:X2} outside " +
-                    "the native normal-bomb table range.");
+                    "the translated native bomb-reaction table range.");
             }
             if (block.Bts.UsesAreaReactionTable &&
                 !block.Bts.IsAreaReactionIndex(8))

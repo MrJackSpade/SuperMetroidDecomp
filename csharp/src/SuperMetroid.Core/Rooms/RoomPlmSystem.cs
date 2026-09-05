@@ -815,7 +815,8 @@ public sealed partial class RoomPlmSystem
     /// Entries zero through three select `$84:CE6B`'s respawning shot-block setup; entries
     /// four through seven select `$84:B3C1`'s permanent deactivation setup. Entries eight
     /// and nine run `$84:CF2E`'s power-bomb-family gate, while A and B run `$84:CF67`'s
-    /// Super-Missile-family gate. Entries C through F are the retail no-op PLM header.
+    /// Super-Missile-family gate. Entries C through F are the retail no-op PLM header,
+    /// and the deliberate seventeenth entry $10 selects one-frame header `$84:B974`.
     ///
     /// Negative BTS behaves differently for the two collision nibbles. Shootable air exits
     /// without spawning anything, while shootable solid indexes an area table whose retail
@@ -853,11 +854,13 @@ public sealed partial class RoomPlmSystem
                 nameof(bts),
                 "Area-dependent shootable BTS must address one of its eight native entries.");
         }
-        if (!areaDependent && !bts.IsNormalReactionIndex(16))
+        if (!areaDependent &&
+            !bts.IsNormalReactionIndex(16) &&
+            !bts.IsShootableCollisionProbe)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(bts),
-                "Area-independent shootable BTS must be zero through fifteen.");
+                "Area-independent shootable BTS must be zero through sixteen.");
         }
 
         // `$94:9E55` checks the sign bit before Spawn_PLM for shootable air. Its solid-block
@@ -896,6 +899,16 @@ public sealed partial class RoomPlmSystem
             {
                 // Every retail area-table target at `$94:9FC6-$9FD4` is the nothing entry.
                 // Spawn_PLM still consumes a slot until its delete instruction runs.
+                slot.InstructionPointer = RoomPlmInstructionLists.Delete;
+                return true;
+            }
+
+            if (bts.IsShootableCollisionProbe)
+            {
+                // `$94:9EA6[10]` is `$84:B974`: its setup is intentionally empty and its
+                // `$AAE3` instruction list deletes on the next PLM handler pass. The
+                // collision-result sentinel is owned by the calling bank-$94 dispatcher;
+                // the PLM itself performs no terrain mutation.
                 slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }
@@ -983,7 +996,8 @@ public sealed partial class RoomPlmSystem
     }
 
     /// <summary>
-    /// Spawns the special-block reveal selected by <c>$94:9D71-$9E53</c> for a normal bomb.
+    /// Spawns the special-block reveal selected by <c>$94:9D71-$9E53</c> for a bomb-family
+    /// boundary visit.
     /// </summary>
     /// <remarks>
     /// Nonnegative BTS 0..7 selects a dimensioned crumble reveal, 8..D selects the native
@@ -991,7 +1005,9 @@ public sealed partial class RoomPlmSystem
     /// eight-word area table: only Brinstar entries 2..5 reveal speed blocks; every other
     /// bomb-special area entry is <c>PLMEntries_nothing</c>. Setup <c>$84:CFA0</c> accepts
     /// normal bombs without mutating terrain, so the visible type-$B word arrives on the
-    /// first PLM handler pass and the object deletes on the following pass.
+    /// first PLM handler pass and the object deletes on the following pass. Power Bomb
+    /// family `$0300` still reaches Spawn_PLM, but `$84:CFA0` clears the new PLM header
+    /// synchronously; observably no terrain changes and no active slot survives.
     /// </remarks>
     public bool TrySpawnBombedSpecialBlock(
         RoomLevelData level,
@@ -1016,11 +1032,13 @@ public sealed partial class RoomPlmSystem
     {
         ArgumentNullException.ThrowIfNull(level);
         _ = AreaIds.ToIndex(areaIndex);
+        if (projectileType.Family == SamusProjectileFamily.PowerBomb)
+            return false;
         if (projectileType.Family != SamusProjectileFamily.Bomb)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(projectileType),
-                "The bomb-special setup accepts the normal-bomb family in this translated path.");
+                "The bomb-special setup accepts only normal-bomb and Power-Bomb families.");
         }
 
         ushort instructionPointer;

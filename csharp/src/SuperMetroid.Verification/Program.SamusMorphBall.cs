@@ -1643,6 +1643,40 @@ static void VerifySamusMorphBallMovement()
         integratedPowerBombLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "integrated power-bomb reaction draws the first cleared-air frame");
 
+    // Issue #298 reached the deliberate seventeenth `$94:9EA6` table entry through the
+    // same expanding-radius dispatcher. Keep this separate from the direct PLM test below:
+    // the production boundary collector used to reject BTS $10 before it could call the
+    // correctly translated `$84:B974` one-frame owner.
+    var collisionProbeWords = new ushort[width * height];
+    var collisionProbeBts = new byte[collisionProbeWords.Length];
+    collisionProbeWords[shotIndex] = 0xc321;
+    collisionProbeBts[shotIndex] = 0x10;
+    RoomLevelData collisionProbeLevel = new(
+        width,
+        height,
+        collisionProbeWords,
+        collisionProbeBts,
+        new ushort[collisionProbeWords.Length],
+        reactionDefinitions);
+    var collisionProbePlms = new RoomPlmSystem();
+    BombProjectileFrameResult collisionProbeRadius =
+        RunPowerBombToInitialBoundary(
+            bus,
+            collisionProbeLevel,
+            collisionProbePlms,
+            xPosition: 48,
+            yPosition: 48);
+    AssertTrue(collisionProbeRadius.BlockReactions!.Any(reaction =>
+            reaction.BlockX == 3 && reaction.BlockY == 3 &&
+            reaction.CollisionType == RoomCollisionType.ShootableBlock &&
+            reaction.Behavior == new RoomBlockBehavior(0x10)),
+        "expanding power bomb visits native BTS-ten collision-probe entry");
+    AssertEqual(4, collisionProbePlms.ActiveCount,
+        "zero-radius border visits its center four times and allocates four B974 PLMs");
+    AssertEqual(0xc321,
+        collisionProbeLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
+        "B974 boundary reaction leaves terrain unchanged");
+
     // `$84:D08C` is the corresponding Super Missile block. CF67 accepts family `$0200`,
     // synthesizes `$C09F`, and retains `$CB71`'s max-six sound plus the same 384-frame
     // blank hold. An ordinary missile must fail that setup without touching terrain or
@@ -1762,8 +1796,15 @@ static void VerifySamusMorphBallMovement()
             projectileType: 0,
             solidBlock: false),
         "negative type-four BTS exits before shot PLM allocation");
-    AssertEqual(2, noOpShotPlms.ActiveCount,
-        "only the two solid/no-op reactions occupy native slots");
+    AssertTrue(noOpShotPlms.TrySpawnProjectileShotBlock(
+            noOpShotLevel,
+            shotIndex,
+            behavior: 0x10,
+            projectileType: 0x0300,
+            solidBlock: true),
+        "BTS-ten allocates the native B974 collision-probe PLM");
+    AssertEqual(3, noOpShotPlms.ActiveCount,
+        "the three solid/no-op reactions occupy native slots");
     AssertEqual(0xc321,
         noOpShotLevel.GetCollisionBlockByIndex(shotIndex).LevelWord,
         "all no-op shot reactions preserve terrain");
@@ -1843,6 +1884,12 @@ static void VerifySamusMorphBallMovement()
         specialPlms.TrySpawnBombedSpecialBlock(
             specialLevel, speedIndex, 0x82, AreaId.Brinstar, 0x0500),
         "Brinstar negative BTS two allocates speed-block reveal");
+    AssertTrue(
+        !specialPlms.TrySpawnBombedSpecialBlock(
+            specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0300),
+        "Power Bomb visits special block but CFA0 synchronously clears its PLM header");
+    AssertEqual(2, specialPlms.ActiveCount,
+        "rejected Power Bomb special reveal leaves no active PLM slot");
     specialPlms.Step(bus, specialLevel, specialStreamer, 0, 0, 0);
     AssertEqual(0xb0bc,
         specialLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
@@ -1965,6 +2012,42 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(1, straightBombJump.MorphBallBounceState, "post-bomb-jump landing enters bounce one");
 
     Console.WriteLine("  Morph Ball: entry, bomb spread, bomb jump, reaction PLMs, bounce, and tunnel collision agree.");
+}
+
+private static BombProjectileFrameResult RunPowerBombToInitialBoundary(
+    ISnesAddressSpace bus,
+    RoomLevelData level,
+    RoomPlmSystem plms,
+    ushort xPosition,
+    ushort yPosition)
+{
+    var samus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)SamusEquipmentFlags.MorphBall,
+        SelectedHudItem = 3,
+        PowerBombs = 1,
+        MaxPowerBombs = 5,
+        XPosition = xPosition,
+        YPosition = yPosition,
+    };
+    samus.RefreshCollisionRadii(bus);
+    var bombs = new SamusBombProjectileSystem();
+    bombs.StepFrame(
+        bus,
+        level,
+        samus,
+        (ushort)SnesButton.X,
+        (ushort)SnesButton.X,
+        plms);
+
+    BombProjectileFrameResult fuseFrame = default;
+    while (!fuseFrame.ExplosionStarted)
+        fuseFrame = bombs.StepFrame(bus, level, samus, 0, 0, plms);
+
+    // `$90:C157` first turns the fuse-expiration sentinel into zero. The following frame
+    // is the first `$94:A06A` boundary scan, initially the single center block.
+    return bombs.StepFrame(bus, level, samus, 0, 0, plms);
 }
 
 }

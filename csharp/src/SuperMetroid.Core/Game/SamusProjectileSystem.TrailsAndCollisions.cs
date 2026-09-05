@@ -643,13 +643,15 @@ public sealed partial class SamusProjectileSystem
             return;
         }
 
-        // Nonnegative BTS 0..F indexes the complete retail `$94:9EA6` table. Negative BTS
+        // Nonnegative BTS 0..F indexes the ordinary retail `$94:9EA6` entries, and $10 is
+        // the table's deliberate `$84:B974` collision-probe/no-op PLM. Negative BTS
         // 0..7 is also admitted so shootable-solid can preserve its native area-table no-op
         // slot; shootable-air's method exits without allocating. The RoomPlm owner performs
         // the power-bomb/Super-Missile family checks for entries 8..B synchronously, just as
         // each bank-$84 setup sees the current native projectile type during Spawn_PLM.
         bool translatedBehavior = block.Bts.IsAreaReactionIndex(8) ||
-            block.Bts.IsNormalReactionIndex(16);
+            block.Bts.IsNormalReactionIndex(16) ||
+            block.Bts.IsShootableCollisionProbe;
         if (translatedBehavior)
         {
             roomPlms.TrySpawnProjectileShotBlock(

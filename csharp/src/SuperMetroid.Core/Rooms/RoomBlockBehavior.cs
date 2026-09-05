@@ -78,6 +78,12 @@ public readonly record struct RoomBlockBehavior(byte Value)
     public bool RequiresSuperMissileReaction =>
         !UsesAreaReactionTable && Value is 10 or 11;
 
+    /// <summary>
+    /// Shootable-table entry $10 selects header <c>$84:B974</c>. Bank $94 also publishes
+    /// its collision-result sentinel before spawning that one-frame no-op PLM.
+    /// </summary>
+    public bool IsShootableCollisionProbe => Value == 0x10;
+
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation)
     {

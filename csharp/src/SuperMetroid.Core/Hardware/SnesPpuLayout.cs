@@ -70,8 +70,11 @@ public static class SnesPpuLayout
     /// <summary>Ordinary gameplay BG3 character base selected by BG34NBA=$04.</summary>
     public const ushort GameplayHudCharacterBaseWord = 0x4000;
 
-    /// <summary>Rain/fog BG3 tilemap installed immediately after the HUD page.</summary>
-    public const ushort RoomFxTilemapWord = 0x5c00;
+    /// <summary>
+    /// Gameplay BG3's 32-by-64 tilemap base selected by BG3SC <c>$5A</c>. The HUD uses
+    /// rows zero through three; room FX use the cleared lower rows and vertical page.
+    /// </summary>
+    public const ushort RoomFxTilemapWord = 0x5800;
 
     /// <summary>Shared menu BG1 tilemap location.</summary>
     public const ushort MenuBg1TilemapWord = 0x5000;

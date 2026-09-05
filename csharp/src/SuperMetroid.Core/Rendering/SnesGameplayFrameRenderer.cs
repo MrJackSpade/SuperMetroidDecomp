@@ -1003,15 +1003,23 @@ public static class SnesGameplayFrameRenderer
         // subtractive routes ($14/$16). Compositing the already-resolved scene with the
         // nontransparent BG3 pixel reproduces that final PPU equation without flattening
         // the cartridge's animated surface into a host-authored rectangle.
+        bool liquid = fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
+        int firstLiquidScrollLine = fx.WaterSurfaceScreenY -
+            (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            if (fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid &&
-                screenY <= fx.WaterSurfaceScreenY)
-                continue;
-            int scrolledY = unchecked(fx.VerticalScroll + screenY) & 0xff;
+            // `$88:B3B0` leaves BG3VOFS zero above the effect and switches to the
+            // surface-relative value eight scanlines before the liquid coordinate. Lava's
+            // animated surface occupies that preceding tile row at VRAM $5BE0; clipping at
+            // the liquid Y coordinate erased it and exposed only dotted body tile $53.
+            ushort verticalScroll = liquid && screenY < firstLiquidScrollLine
+                ? (ushort)0
+                : fx.VerticalScroll;
+            int scrolledY = unchecked(verticalScroll + screenY) & 0x01ff;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
-            int waveDisplacement = fx.Type == RoomFxType.Water
+            int waveDisplacement = fx.Type == RoomFxType.Water &&
+                screenY > fx.WaterSurfaceScreenY
                 ? RoomFxRomData.Water.WaveDisplacements[
                     (screenY - fx.WaterSurfaceScreenY - 1 - fx.WaterBg3WavePhase +
                         RoomFxRomData.Water.WaveDisplacementCount) %

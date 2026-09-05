@@ -201,8 +201,8 @@ internal static partial class Program
             // exact surface assertion proves the compositor leaves the air row untouched
             // and applies the cartridge layer-three plane below it.
             vram.ExecuteWordTransfer(
-                Enumerable.Repeat((ushort)1, 32 * 32).ToArray(),
-                SnesPpuLayout.RoomFxTilemapWord,
+                Enumerable.Repeat((ushort)1, 33 * 32).ToArray(),
+                RoomFxRomData.Layer3.TilemapDestinationWord,
                 wordIncrement: 1);
             var character = new byte[16];
             for (int row = 0; row < 8; row++)

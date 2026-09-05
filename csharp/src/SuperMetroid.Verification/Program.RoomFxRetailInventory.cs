@@ -57,6 +57,7 @@ internal static partial class Program
         AssertEqual(RetailRoomFxDoorCount, doors.Length,
             "retail room-FX inventory physical door count");
         VerifyRetailRoomFxAnimatedTileHeaders(bus);
+        VerifyRetailLavaSurface(bus, states);
 
         var doorByPointer = doors.ToDictionary(door => door.Pointer);
         ILookup<ushort, CartridgeDoorHeader> incomingDoors = doors
@@ -351,6 +352,91 @@ internal static partial class Program
             RoomFxRomData.Layer3AnimatedTiles.RainFirstFrame,
             "rain");
     }
+
+    /// <summary>
+    /// Reproduces issue #274 against Business Center's real lava record, tilemap, and
+    /// bank-$87 animation. The body alone is insufficient: the first source row begins one
+    /// tile above the liquid coordinate and must remain visible as the bubbling boundary.
+    /// </summary>
+    private static void VerifyRetailLavaSurface(
+        SuperMetroidAddressSpace bus,
+        IReadOnlyList<RetailFxRoomState> states)
+    {
+        CartridgeRoomHeader room = LoadRoomByIdentity(
+            bus,
+            states,
+            RetailRoomFxDefinitions.VisibleLavaRoom);
+        ushort record = RoomFxRomData.SelectRecord(
+            bus,
+            room.State.FxPointer,
+            doorPointer: 0);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        var fx = new RoomLayer3FxState();
+        fx.Load(bus, vram, cgram, room.State.FxPointer, doorPointer: 0, randomNumber: 0);
+
+        // Give the three nontransparent two-bit values distinct colors so the assertion
+        // observes changes in the ROM pixels, not merely a still opaque rectangle.
+        cgram.SetColor(25, 0x001f);
+        cgram.SetColor(26, 0x03e0);
+        cgram.SetColor(27, 0x7c00);
+        ushort cameraY = unchecked((ushort)(
+            fx.BaseYPosition - RetailRoomFxDefinitions.AuditSurfaceScreenY));
+        fx.PrimeViewport(cameraX: 0, cameraY);
+        fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+
+        RoomLayer3FxRenderSnapshot firstSnapshot = fx.CaptureForDisplay()
+            ?? throw new InvalidDataException("Business Center lava published no render snapshot.");
+        Rgba32[] first = RenderRoomFx(vram, cgram, firstSnapshot);
+        int surfaceFirstRow = firstSnapshot.WaterSurfaceScreenY -
+            (SnesPpuLayout.BackgroundTileSizePixels - 1);
+        Rgba32[] firstSurface = ReadRows(
+            first,
+            surfaceFirstRow,
+            firstSnapshot.WaterSurfaceScreenY + 1);
+        AssertTrue(firstSurface.Any(pixel => pixel != default),
+            "room $02/$01 renders the animated lava surface through its production compositor");
+        AssertTrue(ReadRows(
+                first,
+                firstSnapshot.WaterSurfaceScreenY + 1,
+                firstSnapshot.WaterSurfaceScreenY + 9)
+            .Any(pixel => pixel != default),
+            "room $02/$01 renders the lava body below its surface");
+
+        for (int frame = 0;
+             frame < RetailRoomFxDefinitions.LavaSurfaceFrameDuration;
+             frame++)
+        {
+            fx.Step(bus, vram, cameraX: 0, cameraY, timeIsFrozen: false);
+        }
+        Rgba32[] second = RenderRoomFx(
+            vram,
+            cgram,
+            fx.CaptureForDisplay()!.Value);
+        Rgba32[] secondSurface = ReadRows(
+            second,
+            surfaceFirstRow,
+            firstSnapshot.WaterSurfaceScreenY + 1);
+        AssertTrue(!firstSurface.SequenceEqual(secondSurface),
+            "room $02/$01 lava surface advances to the next bank-$87 animation frame");
+    }
+
+    private static Rgba32[] RenderRoomFx(
+        SnesVram vram,
+        SnesCgram cgram,
+        RoomLayer3FxRenderSnapshot snapshot)
+    {
+        var frame = new Rgba32[
+            SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
+        SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, snapshot);
+        return frame;
+    }
+
+    private static Rgba32[] ReadRows(Rgba32[] frame, int firstRow, int endRow) =>
+        frame.AsSpan(
+            firstRow * SnesGameplayFrameRenderer.Width,
+            (endRow - firstRow) * SnesGameplayFrameRenderer.Width)
+        .ToArray();
 
     private static void VerifyRetailRoomFxAnimatedTileHeader(
         SuperMetroidAddressSpace bus,
@@ -789,6 +875,9 @@ internal static partial class Program
 
         /// <summary>Chosen screen-relative surface position for path-independent visibility.</summary>
         public const ushort AuditSurfaceScreenY = 96;
+
+        /// <summary>Frame duration of each lava character set in list <c>$87:8293</c>.</summary>
+        public const int LavaSurfaceFrameDuration = 13;
 
         /// <summary>Guard comfortably above the slowest retail liquid rise.</summary>
         public const int MaximumRiseAuditFrames = 20000;

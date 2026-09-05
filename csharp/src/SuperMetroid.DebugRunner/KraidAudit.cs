@@ -796,6 +796,13 @@ internal static class KraidAudit
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomThroughDoorForVerification(door, CameraX, CameraY);
         VerifyKraidHudCharacterBase(runtime);
+        RoomLevelData liveLevel = runtime.LevelData ??
+            throw new InvalidDataException("Kraid runtime load did not install level data.");
+        KraidPlmRequest defeatedRoomSpikeClear = KraidPlmDefinitions.DefeatedRoom.Single(
+            request => request.Header == RoomPlmHeaders.ClearKraidSpikes);
+        ushort authoredLiveSpikes = liveLevel.GetCollisionBlock(
+            defeatedRoomSpikeClear.BlockX,
+            defeatedRoomSpikeClear.BlockY).LevelWord;
 
         SamusState samus = runtime.Samus ??
             throw new InvalidDataException("Kraid runtime load did not retain Samus.");
@@ -865,6 +872,11 @@ internal static class KraidAudit
         }
 
         VerifyStandardBg3Restored(bus, runtime);
+        VerifyLiveDefeatRetainsSpikes(
+            runtime,
+            liveLevel,
+            defeatedRoomSpikeClear,
+            authoredLiveSpikes);
 
         ushort completedFrame = runtime.NmiFrameCounter;
         for (int postDefeatFrame = 0; postDefeatFrame < 60; postDefeatFrame++)
@@ -882,6 +894,34 @@ internal static class KraidAudit
 
         VerifyBothDefeatedKraidExits(bus, runtime);
         VerifyDefeatedRoomReload(runtime);
+    }
+
+    /// <summary>
+    /// Locks down the cartridge result behind issue #269's clarified observation. The live
+    /// death coroutine never calls <c>$A7:C171</c>; that spike-clear PLM belongs exclusively
+    /// to the already-defeated initialization branch. The authored floor therefore remains
+    /// through the completed fight and is removed only when the room is loaded again.
+    /// </summary>
+    private static void VerifyLiveDefeatRetainsSpikes(
+        SuperMetroidRuntime runtime,
+        RoomLevelData level,
+        KraidPlmRequest spikeClear,
+        ushort authoredLiveSpikes)
+    {
+        ushort liveSpikesAfterDeath = level.GetCollisionBlock(
+            spikeClear.BlockX,
+            spikeClear.BlockY).LevelWord;
+        if (liveSpikesAfterDeath != authoredLiveSpikes ||
+            runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes) ||
+            runtime.Enemies.KraidPlmRequests.Contains(spikeClear))
+        {
+            throw new InvalidDataException(
+                $"Kraid's live death incorrectly ran the reload-only spike clear: " +
+                $"block (${spikeClear.BlockX:X2},${spikeClear.BlockY:X2}) " +
+                $"${authoredLiveSpikes:X4}->${liveSpikesAfterDeath:X4}, " +
+                $"active={runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes)}, " +
+                $"requested={runtime.Enemies.KraidPlmRequests.Contains(spikeClear)}.");
+        }
     }
 
     /// <summary>

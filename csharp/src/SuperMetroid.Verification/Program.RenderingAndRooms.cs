@@ -84,6 +84,21 @@ static void VerifyHudStateAndBg3Rendering()
 {
     var bus = new TestAddressSpace();
 
+    // State-$05's direct BG3-page DMA is part of HUD initialization even though only its
+    // first four rows contain the visible HUD. The remaining rows must name blank
+    // character $6F; zero names the orange `1` glyph and becomes visible above water/acid.
+    var runtime = new SuperMetroidRuntime(bus);
+    runtime.InitializeHud(HudSnapshot.CeresDebug);
+    runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+    AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
+        runtime.Vram.ReadWord(RoomFxRomData.Layer3.PaddingDestinationWord),
+        "gameplay BG3 first padding word uses cartridge blank character");
+    AssertEqual(RoomFxRomData.Layer3.PaddingTilemapWord,
+        runtime.Vram.ReadWord(unchecked((ushort)(
+            RoomFxRomData.Layer3.PaddingDestinationWord +
+            RoomFxRomData.Layer3.PaddingWordCount - 1))),
+        "gameplay BG3 final padding word uses cartridge blank character");
+
     // Seed the three-row ROM template entirely with the canonical blank HUD tile $2C0F.
     // The synthetic digit table uses conspicuous character names $100-$109.
     for (int tile = 0; tile < HudState.MutableTileCount; tile++)

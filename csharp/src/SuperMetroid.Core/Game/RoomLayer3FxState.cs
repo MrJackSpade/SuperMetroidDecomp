@@ -101,6 +101,20 @@ public sealed class RoomLayer3FxState
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
         Reset();
+
+        // Both native room-load paths clear VRAM $5880-$5FFF to $184E immediately before
+        // copying the selected bank-$8A effect tilemap at $5BE0. This is not optional
+        // cleanup for rooms without FX: liquids deliberately expose the cleared first page
+        // above their surface. Retaining zeros or a previous room's HUD/effect words makes
+        // the standard orange `1` glyph (and sometimes a displaced HUD clone) scroll with
+        // the atmosphere.
+        var clearedTilemap = new ushort[RoomFxRomData.Layer3.ClearWordCount];
+        Array.Fill(clearedTilemap, RoomFxRomData.Layer3.ClearTilemapWord);
+        vram.ExecuteWordTransfer(
+            clearedTilemap,
+            RoomFxRomData.Layer3.ClearDestinationWord,
+            wordIncrement: 1);
+
         if (RoomFxRomData.Earthquake.SoundSuppressedRooms.All.Contains(roomHeaderPointer))
             earthquakeSoundTimer = ushort.MaxValue;
         if (fxPointer == 0)

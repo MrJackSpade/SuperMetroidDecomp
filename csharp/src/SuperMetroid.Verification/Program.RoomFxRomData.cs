@@ -160,6 +160,9 @@ internal static partial class Program
             (byte)layerBlend);
 
         state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+        AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
+            vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
+            $"{type} room load clears the first gameplay BG3 FX word");
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             const ushort surfaceY = 100;
@@ -209,6 +212,33 @@ internal static partial class Program
                 character[row * 2] = 0xff;
             vram.LoadBytes((0x4000 + 8) * 2, character);
             cgram.SetColor(1, 0x7c00);
+        }
+        else
+        {
+            // Rain/fog write BG3SC=$5C and therefore address the second page as a
+            // standalone 32x32 tilemap. Give the ordinary $5800 page a red decoy and the
+            // real $5C00 page a blue source. This reproduces the former HUD-clone failure:
+            // indexing from $5800 sampled the first page and moved it with the effect.
+            vram.ExecuteWordTransfer(
+                Enumerable.Repeat((ushort)1, SnesPpuLayout.TilemapPageWordCount).ToArray(),
+                RoomFxRomData.Layer3.LiquidTilemapBaseWord,
+                wordIncrement: 1);
+            vram.ExecuteWordTransfer(
+                Enumerable.Repeat((ushort)2, SnesPpuLayout.TilemapPageWordCount).ToArray(),
+                RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord,
+                wordIncrement: 1);
+            var redDecoyCharacter = new byte[16];
+            var blueEffectCharacter = new byte[16];
+            for (int row = 0; row < 8; row++)
+            {
+                redDecoyCharacter[row * 2] = 0xff;
+                blueEffectCharacter[row * 2 + 1] = 0xff;
+            }
+            vram.LoadBytes((0x4000 + 1 * 8) * 2, redDecoyCharacter);
+            vram.LoadBytes((0x4000 + 2 * 8) * 2, blueEffectCharacter);
+            cgram.SetColor(1, 0x001f);
+            cgram.SetColor(2, 0x7c00);
+            snapshot = snapshot with { HorizontalScroll = 0, VerticalScroll = 0 };
         }
 
         // The software compositor now consumes the same typed dispatcher identity as the
@@ -282,6 +312,24 @@ internal static partial class Program
                 AssertEqual(15, state.CaptureForDisplay()!.Value.LavaAcidBg2WavePhase,
                     $"{type} heat wave rotates backward on frame four");
             }
+        }
+        else
+        {
+            Rgba32 firstEffectPixel = frame[
+                SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
+            AssertTrue(firstEffectPixel.B != 0 && firstEffectPixel.R == 0,
+                $"{type} samples the $5C00 effect page instead of the $5800 HUD page");
+
+            var wrappedFrame = new Rgba32[frame.Length];
+            SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(
+                wrappedFrame,
+                vram,
+                cgram,
+                snapshot with { VerticalScroll = 0x0100 });
+            Rgba32 wrappedEffectPixel = wrappedFrame[
+                SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width];
+            AssertTrue(wrappedEffectPixel.B != 0 && wrappedEffectPixel.R == 0,
+                $"{type} wraps vertical scroll within its 32-row $5C00 page");
         }
         LayerBlendingConfiguration wrongBlend = type switch
         {

@@ -725,6 +725,18 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)
     {
+        // Load_StandardBG3Tiles_SpriteTiles_ClearTilemaps at `$82:82E2` directly DMAs a
+        // prefilled WRAM page to VRAM $5800. Rows zero through three are replaced by the
+        // live HUD below; rows four through 31 must remain character $6F padding. A fresh
+        // host VRAM previously left those words at zero, selecting the visible orange `1`
+        // glyph whenever liquid HDMA exposed the above-surface portion of the BG3 page.
+        var roomFxPadding = new ushort[RoomFxRomData.Layer3.PaddingWordCount];
+        Array.Fill(roomFxPadding, RoomFxRomData.Layer3.PaddingTilemapWord);
+        Vram.ExecuteWordTransfer(
+            roomFxPadding,
+            RoomFxRomData.Layer3.PaddingDestinationWord,
+            wordIncrement: 1);
+
         // The original copies $2000 bytes even though the named standard BG3 graphics are
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.

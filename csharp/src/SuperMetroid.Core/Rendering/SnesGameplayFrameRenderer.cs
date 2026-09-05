@@ -1004,6 +1004,13 @@ public static class SnesGameplayFrameRenderer
         // nontransparent BG3 pixel reproduces that final PPU equation without flattening
         // the cartridge's animated surface into a host-authored rectangle.
         bool liquid = fx.Type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid;
+        bool fullScreenAtmosphere = fx.Type is RoomFxType.Rain or RoomFxType.Fog;
+        ushort tilemapBaseWord = fullScreenAtmosphere
+            ? RoomFxRomData.Layer3.FullScreenAtmosphereTilemapBaseWord
+            : RoomFxRomData.Layer3.LiquidTilemapBaseWord;
+        int verticalCoordinateMask = fullScreenAtmosphere
+            ? RoomFxRomData.Layer3.FullScreenAtmosphereVerticalCoordinateMask
+            : RoomFxRomData.Layer3.LiquidVerticalCoordinateMask;
         int firstLiquidScrollLine = fx.WaterSurfaceScreenY -
             (SnesPpuLayout.BackgroundTileSizePixels - 1);
         for (int screenY = HudHeight; screenY < Height; screenY++)
@@ -1015,7 +1022,7 @@ public static class SnesGameplayFrameRenderer
             ushort verticalScroll = liquid && screenY < firstLiquidScrollLine
                 ? (ushort)0
                 : fx.VerticalScroll;
-            int scrolledY = unchecked(verticalScroll + screenY) & 0x01ff;
+            int scrolledY = unchecked(verticalScroll + screenY) & verticalCoordinateMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
             int waveDisplacement = fx.Type == RoomFxType.Water &&
@@ -1032,7 +1039,7 @@ public static class SnesGameplayFrameRenderer
                 int tileX = scrolledX >> 3;
                 int pixelX = scrolledX & 7;
                 SnesBgTilemapWord entry = vram.ReadWord(
-                    SnesPpuLayout.RoomFxTilemapWord +
+                    tilemapBaseWord +
                     tileY * SnesPpuLayout.TilemapPageWidthInTiles + tileX);
                 int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
                 int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;

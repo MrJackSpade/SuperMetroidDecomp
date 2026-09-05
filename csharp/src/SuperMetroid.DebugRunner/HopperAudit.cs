@@ -224,6 +224,9 @@ internal static class HopperAudit
                 $"Room $02/$04 exposes {dessgeegas.Length} Small Dessgeegas without both mountings.");
         }
 
+        foreach (RoomEnemySlot slot in dessgeegas)
+            VerifyPhysicalHopperMounting(assets.LevelData, slot);
+
         var samus = new SamusState
         {
             Health = 999,
@@ -393,6 +396,79 @@ internal static class HopperAudit
             }
         }
     }
+
+    /// <summary>
+    /// Classifies the retail actor from the room's physical terrain rather than trusting
+    /// parameter one or the translated <see cref="HopperEnemyState.UpsideDown"/> flag.
+    /// This prevents a perfectly mirrored pair from passing while the names of the two
+    /// cartridge tables are accidentally swapped: floor actors have blocking terrain
+    /// below their spawn, while the ceiling actor has blocking terrain above it.
+    /// </summary>
+    private static void VerifyPhysicalHopperMounting(RoomLevelData level, RoomEnemySlot slot)
+    {
+        const int MaximumSurfaceDistanceInBlocks = 3;
+
+        int centerBlockY = slot.YPosition >> 4;
+        int leftBlockX = Math.Max(0, (slot.XPosition - slot.XRadius) >> 4);
+        int rightBlockX = Math.Min(
+            level.WidthInBlocks - 1,
+            (slot.XPosition + slot.XRadius - 1) >> 4);
+        bool hasCeiling = HasHopperSurface(
+            level,
+            leftBlockX,
+            rightBlockX,
+            centerBlockY,
+            direction: -1,
+            MaximumSurfaceDistanceInBlocks);
+        bool hasFloor = HasHopperSurface(
+            level,
+            leftBlockX,
+            rightBlockX,
+            centerBlockY,
+            direction: 1,
+            MaximumSurfaceDistanceInBlocks);
+        bool parameterSelectsCeiling = slot.Parameter1 != 0;
+        if (hasCeiling == parameterSelectsCeiling && hasFloor != parameterSelectsCeiling)
+            return;
+
+        throw new InvalidDataException(
+            $"Small Dessgeega slot {slot.SlotIndex} parameter one ${slot.Parameter1:X4} " +
+            $"does not match physical mounting: ceiling={hasCeiling}, floor={hasFloor}, " +
+            $"position=(${slot.XPosition:X4},${slot.YPosition:X4}).");
+    }
+
+    private static bool HasHopperSurface(
+        RoomLevelData level,
+        int leftBlockX,
+        int rightBlockX,
+        int centerBlockY,
+        int direction,
+        int maximumDistance)
+    {
+        for (int distance = 1; distance <= maximumDistance; distance++)
+        {
+            int blockY = centerBlockY + direction * distance;
+            if ((uint)blockY >= (uint)level.HeightInBlocks)
+                continue;
+            for (int blockX = leftBlockX; blockX <= rightBlockX; blockX++)
+            {
+                if (IsHopperSurface(level.GetCollisionBlock(blockX, blockY).CollisionType))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsHopperSurface(RoomCollisionType collisionType) => collisionType is
+        RoomCollisionType.Slope or
+        RoomCollisionType.SolidBlock or
+        RoomCollisionType.DoorBlock or
+        RoomCollisionType.SpikeBlock or
+        RoomCollisionType.SpecialBlock or
+        RoomCollisionType.ShootableBlock or
+        RoomCollisionType.GrappleBlock or
+        RoomCollisionType.BombableBlock;
 
     /// <summary>
     /// Verifies all cartridge animation frames, not only the initial landed pose. The two

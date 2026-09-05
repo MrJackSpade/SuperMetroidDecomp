@@ -963,6 +963,41 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, spreadSamus.BombSpreadChargeTimeoutCounter,
         "bomb spread clears its timeout counter");
 
+    // `$90:BF9D` gives selected HUD item three priority over `$90:C0AB`. A charge
+    // carried through the morph transition therefore cannot start BombSpread while
+    // Power Bombs remain selected: held Shoot without a new edge leaves both projectile
+    // families untouched, exactly as the cartridge does. This is intentionally distinct
+    // from selecting no HUD item and releasing Down in the spread test above.
+    var selectedPowerBombSpreadSamus = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallGroundRightPose,
+        EquippedItems = (ushort)(
+            SamusEquipmentFlags.MorphBall |
+            SamusEquipmentFlags.Bombs),
+        SelectedHudItem = 3,
+        PowerBombs = 2,
+        XPosition = 80,
+        YPosition = 80,
+        ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames,
+    };
+    selectedPowerBombSpreadSamus.RefreshCollisionRadii(bus);
+    var selectedPowerBombSpreadBombs = new SamusBombProjectileSystem();
+    BombProjectileFrameResult selectedPowerBombHeld =
+        selectedPowerBombSpreadBombs.StepFrame(
+            bus,
+            empty,
+            selectedPowerBombSpreadSamus,
+            (ushort)SnesButton.X,
+            0);
+    AssertTrue(!selectedPowerBombHeld.BombSpreadStarted,
+        "selected Power Bomb bypasses charged regular-bomb spread");
+    AssertEqual<int?>(null, selectedPowerBombHeld.PlacedSlot,
+        "held Shoot without a new edge does not place the selected Power Bomb");
+    AssertEqual(0, selectedPowerBombSpreadBombs.BombCounter,
+        "selected Power Bomb charge state leaves all five bomb slots unused");
+    AssertEqual(2, selectedPowerBombSpreadSamus.PowerBombs,
+        "selected Power Bomb charge state does not consume ammunition without a new edge");
+
     ushort[] expectedSpreadTimers = [119, 109, 99, 109, 119];
     ushort[] expectedSpreadX = [79, 79, 80, 80, 81];
     ushort[] expectedSpreadXSub = [0, 0x8000, 0, 0x8000, 0];

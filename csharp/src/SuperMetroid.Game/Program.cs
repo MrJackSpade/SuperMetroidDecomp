@@ -136,13 +136,17 @@ try
     if (args.Length != 0 &&
         args[0].Equals("--recorded-pause-audio-audit", StringComparison.OrdinalIgnoreCase))
     {
-        if (args.Length != 3)
+        if (args.Length is < 3 or > 4)
         {
             throw new ArgumentException(
-                "--recorded-pause-audio-audit requires a .smrec path and private ROM path.");
+                "--recorded-pause-audio-audit requires a .smrec path and private ROM path, " +
+                "then accepts an optional maximum frame count.");
         }
+        int maximumFrames = args.Length == 4
+            ? int.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture)
+            : int.MaxValue;
         IReadOnlyList<RecordedPauseAudioResult> pauses =
-            AudioInputReplaySmokeTest.AnalyzeRecordedPauses(args[1], args[2]);
+            AudioInputReplaySmokeTest.AnalyzeRecordedPauses(args[1], args[2], maximumFrames);
         foreach (RecordedPauseAudioResult pause in pauses)
         {
             Console.WriteLine(

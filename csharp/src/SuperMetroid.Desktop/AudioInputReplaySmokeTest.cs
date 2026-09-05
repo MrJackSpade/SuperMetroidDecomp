@@ -202,8 +202,10 @@ public static class AudioInputReplaySmokeTest
     /// </summary>
     public static IReadOnlyList<RecordedPauseAudioResult> AnalyzeRecordedPauses(
         string recordingPath,
-        string romPath)
+        string romPath,
+        int maximumFrames = int.MaxValue)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximumFrames);
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
         string fullRomPath = Path.GetFullPath(romPath);
         byte[] actualRomDigest;
@@ -219,7 +221,8 @@ public static class AudioInputReplaySmokeTest
         var completed = new List<RecordedPauseAudioResult>();
         PauseAccumulator? active = null;
 
-        for (int frameIndex = 0; frameIndex < recording.ControllerInputs.Length; frameIndex++)
+        int framesToReplay = Math.Min(recording.ControllerInputs.Length, maximumFrames);
+        for (int frameIndex = 0; frameIndex < framesToReplay; frameIndex++)
         {
             FrontendFrame frame = game.Step(recording.ControllerInputs[frameIndex]);
             bool pauseOwned = frame.GameState is >= SuperMetroidGameState.PausingDarkening and

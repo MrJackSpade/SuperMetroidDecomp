@@ -253,20 +253,16 @@ public sealed class ManagedSnesDsp
         }
     }
 
-    /// <summary>Nearest-neighbor resampling used by the pinned native reference bridge.</summary>
+    /// <summary>
+    /// Converts the native 32.04-kHz frame to the host rate without zero-order-hold imaging.
+    /// </summary>
     public void CopyResampledSamples(Span<short> destination, int stereoFrameCount)
     {
         if (stereoFrameCount <= 0 || destination.Length < stereoFrameCount * 2)
             throw new ArgumentOutOfRangeException(nameof(stereoFrameCount));
-        double increment = (double)NativeStereoFramesPerVideoFrame / stereoFrameCount;
-        double location = 0;
-        for (int frame = 0; frame < stereoFrameCount; frame++)
-        {
-            int source = (int)location * 2;
-            destination[frame * 2] = sampleBuffer[source];
-            destination[frame * 2 + 1] = sampleBuffer[source + 1];
-            location += increment;
-        }
+        PcmFrameResampler.ResampleStereoLinear(
+            sampleBuffer,
+            destination[..(stereoFrameCount * 2)]);
         sampleOffset = 0;
     }
 

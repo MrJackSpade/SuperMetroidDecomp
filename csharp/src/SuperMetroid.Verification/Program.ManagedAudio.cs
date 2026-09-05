@@ -11,6 +11,7 @@ internal static partial class Program
         VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
+        VerifyLinearStereoResampler();
         VerifyManagedSpcUsesAddressedFirCoefficients();
         VerifyManagedSpcSoundOwnershipPreservesPhase();
     }
@@ -146,6 +147,38 @@ internal static partial class Program
         AssertTrue(output.Any(sample => sample != 0), "constructed PCM waveform is audible");
         AssertEqual(output[0], output[1], "constructed PCM waveform uses equal stereo volumes");
         AssertTrue((dsp.ReadRegister(0x7c) & 1) != 0, "constructed PCM loop raises ENDX");
+    }
+
+    /// <summary>
+    /// Reproduces the zero-order hold behind issue #54 without a room or audio device. A
+    /// monotonic native-rate signal must remain monotonic at 48 kHz; duplicating 266 of its
+    /// 799 output intervals is the audible imaging/static defect, not valid source content.
+    /// </summary>
+    private static void VerifyLinearStereoResampler()
+    {
+        short[] source = new short[ManagedSnesDsp.NativeStereoFramesPerVideoFrame * 2];
+        for (int frame = 0; frame < source.Length / 2; frame++)
+        {
+            source[frame * 2] = unchecked((short)((frame - 267) * 100));
+            source[frame * 2 + 1] = unchecked((short)((267 - frame) * 100));
+        }
+        short[] output = new short[SpcDriverData.HostStereoFramesPerVideoFrame * 2];
+        PcmFrameResampler.ResampleStereoLinear(source, output);
+
+        int repeatedStereoFrames = 0;
+        for (int frame = 1; frame < output.Length / 2; frame++)
+        {
+            int previous = (frame - 1) * 2;
+            int current = frame * 2;
+            if (output[current] == output[previous] && output[current + 1] == output[previous + 1])
+                repeatedStereoFrames++;
+        }
+
+        AssertEqual(-26_700, output[0], "linear resampler first left sample");
+        AssertEqual(-26_634, output[2], "linear resampler interpolated left sample");
+        AssertTrue(
+            repeatedStereoFrames <= 1,
+            $"linear 32.04-to-48-kHz ramp duplicated {repeatedStereoFrames}/799 intervals");
     }
 
     /// <summary>

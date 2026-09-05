@@ -1,10 +1,12 @@
 using System.Globalization;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -164,6 +166,7 @@ internal static partial class Program
         AssertKnownRetailLiquidExamples(knownExamples);
         VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom21);
         VerifyRetailLiquidRise(bus, states, doors, RetailRoomFxDefinitions.RisingLavaRoom28);
+        VerifyRetailRisingLavaFeedback(bus, doors);
         VerifyRetailFxTransitionReset(bus, states);
 
         string inventoryPath = Path.GetFullPath(
@@ -450,7 +453,14 @@ internal static partial class Program
         var cgram = new SnesCgram();
         SeedVisibleRoomFxPalette(cgram);
         var fx = new RoomLayer3FxState();
-        fx.Load(bus, vram, cgram, room.State.FxPointer, door.Pointer, randomNumber: 0);
+        fx.Load(
+            bus,
+            vram,
+            cgram,
+            room.State.FxPointer,
+            door.Pointer,
+            randomNumber: 0,
+            roomHeaderPointer: room.Pointer);
         AssertEqual(RoomFxType.Lava, fx.Type, $"room {definition.Room} rising FX type");
         AssertEqual(definition.InitialY, fx.BaseYPosition,
             $"room {definition.Room} initial lava Y");
@@ -486,6 +496,105 @@ internal static partial class Program
         SnesGameplayFrameRenderer.ApplyRoomLayer3FxColorMath(frame, vram, cgram, finalSnapshot);
         AssertTrue(frame.Any(pixel => pixel != default),
             $"room {definition.Room} risen lava is visibly composed");
+    }
+
+    /// <summary>
+    /// Drives room $02/$28 through its real $83:929A entry and asserts the bank-$88
+    /// audiovisual outputs at the full runtime seam. This specifically guards the missing
+    /// rumble and shake report rather than accepting liquid position as a proxy.
+    /// </summary>
+    private static void VerifyRetailRisingLavaFeedback(
+        SuperMetroidAddressSpace bus,
+        IReadOnlyList<CartridgeDoorHeader> doors)
+    {
+        CartridgeDoorHeader door = doors.Single(candidate =>
+            candidate.Pointer == RetailRoomFxDefinitions.RisingLavaRoom28.EntryDoor);
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomThroughDoorForVerification(door);
+        if (runtime.Samus is null)
+            throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
+        runtime.Samus.InputLocked = true;
+
+        runtime.StepFrame(0);
+        RoomShakeFrameResult dormantShake = runtime.Enemies.LastRoomShake;
+        AssertTrue(!dormantShake.Applied,
+            "room $02/$28 dormant rise initializer does not shake one frame early");
+        AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count,
+            "room $02/$28 dormant rise initializer does not sound one frame early");
+
+        runtime.StepFrame(0);
+        RoomShakeFrameResult firstActiveShake = runtime.Enemies.LastRoomShake;
+        AssertEqual(1, runtime.RoomLayer3Fx.SoundRequests.Count,
+            "room $02/$28 first wait frame emits one earthquake sound");
+        RoomFxSoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
+        AssertEqual(SoundEffectLibrary2Sounds.Earthquake, sound.SoundEffect,
+            "room $02/$28 earthquake sound identity");
+        AssertEqual((byte)6, sound.MaximumQueued,
+            "room $02/$28 earthquake sound queue cap");
+        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.EarthquakeType,
+            "room $02/$28 earthquake type");
+        AssertTrue(firstActiveShake.Applied && firstActiveShake.ShakesEnemies,
+            "room $02/$28 first wait frame shakes backgrounds and enemies");
+
+        int table = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
+            RoomFxRomData.Earthquake.RisingLiquidType *
+            RoomFxRomData.Earthquake.BytesPerType;
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table)),
+            firstActiveShake.Bg1X, "room $02/$28 first shake BG1 X");
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 2)),
+            firstActiveShake.Bg1Y, "room $02/$28 first shake BG1 Y");
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 4)),
+            firstActiveShake.Bg2X, "room $02/$28 first shake BG2 X");
+        AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
+            firstActiveShake.Bg2Y, "room $02/$28 first shake BG2 Y");
+
+        runtime.StepFrame(0);
+        RoomShakeFrameResult secondActiveShake = runtime.Enemies.LastRoomShake;
+        AssertEqual(unchecked((short)-firstActiveShake.Bg1X), secondActiveShake.Bg1X,
+            "room $02/$28 alternating shake BG1 X");
+        AssertEqual(unchecked((short)-firstActiveShake.Bg1Y), secondActiveShake.Bg1Y,
+            "room $02/$28 alternating shake BG1 Y");
+        AssertEqual(unchecked((short)-firstActiveShake.Bg2X), secondActiveShake.Bg2X,
+            "room $02/$28 alternating shake BG2 X");
+        AssertEqual(unchecked((short)-firstActiveShake.Bg2Y), secondActiveShake.Bg2Y,
+            "room $02/$28 alternating shake BG2 Y");
+
+        int appliedFrames = 2;
+        int emittedSounds = 1 + runtime.RoomLayer3Fx.SoundRequests.Count;
+        int firstMovementFrame = -1;
+        int targetFrame = -1;
+        int lastShakeFrame = 2;
+        ushort initialY = runtime.RoomLayer3Fx.BaseYPosition;
+        for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
+        {
+            runtime.StepFrame(0);
+            if (runtime.Enemies.LastRoomShake.Applied)
+            {
+                appliedFrames++;
+                lastShakeFrame = frame;
+            }
+            emittedSounds += runtime.RoomLayer3Fx.SoundRequests.Count;
+            if (firstMovementFrame < 0 && runtime.RoomLayer3Fx.BaseYPosition != initialY)
+                firstMovementFrame = frame;
+            if (targetFrame < 0 && runtime.RoomLayer3Fx.PackedYVelocity == 0)
+                targetFrame = frame;
+            if (targetFrame >= 0 && runtime.Enemies.EarthquakeTimer == 0)
+                break;
+        }
+
+        AssertEqual(RetailRoomFxDefinitions.Room28FirstMovementFrame, firstMovementFrame,
+            "room $02/$28 first lava movement frame");
+        AssertEqual(RetailRoomFxDefinitions.Room28TargetFrame, targetFrame,
+            "room $02/$28 lava target frame");
+        AssertEqual(RetailRoomFxDefinitions.Room28LastShakeFrame, lastShakeFrame,
+            "room $02/$28 final shake frame");
+        AssertEqual(RetailRoomFxDefinitions.Room28ShakeFrameCount, appliedFrames,
+            "room $02/$28 total shake frames");
+        AssertEqual(RetailRoomFxDefinitions.Room28SoundCount, emittedSounds,
+            "room $02/$28 deterministic earthquake sound count");
     }
 
     private static void VerifyRetailLiquidTide(
@@ -686,6 +795,24 @@ internal static partial class Program
 
         /// <summary>Enough frames to traverse both halves of every native tide waveform.</summary>
         public const int TideAuditFrames = 768;
+
+        /// <summary>First full-runtime frame whose room-$28 lava whole Y position changes.</summary>
+        public const int Room28FirstMovementFrame = 69;
+
+        /// <summary>Full-runtime frame on which room-$28 lava reaches target Y <c>$00C0</c>.</summary>
+        public const int Room28TargetFrame = 637;
+
+        /// <summary>Final frame reached by the draining TSB-fed room-$28 quake timer.</summary>
+        public const int Room28LastShakeFrame = 672;
+
+        /// <summary>Applied shake frames from frame one through frame 672 inclusive.</summary>
+        public const int Room28ShakeFrameCount = 672;
+
+        /// <summary>
+        /// Library-two <c>$46</c> requests produced by room $28 using the deterministic
+        /// power-on RNG sequence across its wait and movement interval.
+        /// </summary>
+        public const int Room28SoundCount = 154;
 
         /// <summary>Business Center, whose default record exposes lava at world Y $01B1.</summary>
         public static RoomIdentity VisibleLavaRoom { get; } = new(AreaId.Norfair, 0x01);

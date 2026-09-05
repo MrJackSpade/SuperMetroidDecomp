@@ -266,6 +266,51 @@ public static class RoomFxRomData
         public const int BytesPerType = 8;
         public const ushort AlternatingDirectionTimerMask = 2;
         public const ushort EnemyShakeDuration = 2;
+
+        /// <summary>Room-shake type written every active lava/acid rise frame.</summary>
+        public const ushort RisingLiquidType = 0x0015;
+
+        /// <summary>
+        /// Bits set in the global earthquake timer every active lava/acid rise frame.
+        /// Native uses <c>TSB</c>, so existing low bits are preserved.
+        /// </summary>
+        public const ushort RisingLiquidTimerBits = 0x0020;
+
+        /// <summary>
+        /// Base delays paired with the eight <c>$46</c> entries at
+        /// <c>$88:B256-$B276</c>. The live RNG low two bits are added at each emission.
+        /// </summary>
+        public static ReadOnlySpan<ushort> RisingLiquidSoundBaseTimers =>
+            [1, 3, 2, 1, 1, 2, 2, 1];
+
+        /// <summary>Rooms whose special-FX initialization suppresses quake sounds.</summary>
+        public static class SoundSuppressedRooms
+        {
+            /// <summary>Bomb Torizo room header <c>$8F:9804</c>.</summary>
+            public const ushort BombTorizo = 0x9804;
+
+            /// <summary>Climb room header <c>$8F:96BA</c>.</summary>
+            public const ushort Climb = 0x96ba;
+
+            /// <summary>Ridley room header <c>$8F:B32E</c>.</summary>
+            public const ushort Ridley = 0xb32e;
+
+            /// <summary>Pillar room header <c>$8F:B457</c>.</summary>
+            public const ushort Pillar = 0xb457;
+
+            /// <summary>Mother Brain room header <c>$8F:DD58</c>.</summary>
+            public const ushort MotherBrain = 0xdd58;
+
+            /// <summary>Fourth Tourian escape room header <c>$8F:DEDE</c>.</summary>
+            public const ushort TourianEscape4 = 0xdede;
+
+            /// <summary>
+            /// Exact comparison set at <c>$88:82CD-$82E9</c>. Matching rooms initialize
+            /// the earthquake-sound timer to <c>$FFFF</c>.
+            /// </summary>
+            public static ReadOnlySpan<ushort> All =>
+                [BombTorizo, Climb, Ridley, Pillar, MotherBrain, TourianEscape4];
+        }
     }
 
     /// <summary>

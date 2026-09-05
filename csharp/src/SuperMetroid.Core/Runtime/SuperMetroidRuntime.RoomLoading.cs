@@ -789,7 +789,8 @@ public sealed partial class SuperMetroidRuntime
             Cgram,
             room.State.FxPointer,
             door.Pointer,
-            System.RandomNumber);
+            System.RandomNumber,
+            room.Pointer);
         RoomLayer3Fx.PrimeViewport(Camera.XPosition, Camera.YPosition);
         if (Samus is not null)
             RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);

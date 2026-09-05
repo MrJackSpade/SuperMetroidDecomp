@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -33,6 +34,9 @@ public sealed class RoomLayer3FxState
     private ushort lavaAcidBg2WaveTimer;
     private int lavaAcidBg2WavePhase;
     private LiquidRisePhase liquidRisePhase;
+    private readonly List<RoomFxSoundRequest> soundRequests = [];
+    private ushort earthquakeSoundTimer;
+    private int earthquakeSoundSequenceIndex;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; private set; }
@@ -71,6 +75,18 @@ public sealed class RoomLayer3FxState
     /// <summary>Native liquid-options byte, zero-extended for consumers of WRAM <c>$197E</c>.</summary>
     public ushort LiquidOptions { get; private set; }
 
+    /// <summary>
+    /// Sound requests emitted by the current bank-$88 effect pass in cartridge queue order.
+    /// The list is cleared at the beginning of every <see cref="Step"/> call.
+    /// </summary>
+    public IReadOnlyList<RoomFxSoundRequest> SoundRequests => soundRequests;
+
+    /// <summary>
+    /// Global earthquake words requested by the current effect pass. The timer value is a
+    /// bit mask because the cartridge uses <c>TSB</c>, not assignment.
+    /// </summary>
+    public RoomFxEarthquakeRequest? EarthquakeRequest { get; private set; }
+
     /// <summary>Clears the prior room and selects the current door's native FX record.</summary>
     public void Load(
         ISnesAddressSpace bus,
@@ -78,12 +94,15 @@ public sealed class RoomLayer3FxState
         SnesCgram cgram,
         ushort fxPointer,
         ushort doorPointer,
-        ushort randomNumber)
+        ushort randomNumber,
+        ushort roomHeaderPointer = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
         Reset();
+        if (RoomFxRomData.Earthquake.SoundSuppressedRooms.All.Contains(roomHeaderPointer))
+            earthquakeSoundTimer = ushort.MaxValue;
         if (fxPointer == 0)
             return;
 
@@ -193,10 +212,13 @@ public sealed class RoomLayer3FxState
         SnesVram vram,
         ushort cameraX,
         ushort cameraY,
-        bool timeIsFrozen)
+        bool timeIsFrozen,
+        ushort randomNumber = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
+        soundRequests.Clear();
+        EarthquakeRequest = null;
         if (!IsRenderable || timeIsFrozen)
             return;
 
@@ -207,13 +229,13 @@ public sealed class RoomLayer3FxState
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
-            StepLavaAcid(bus, cameraX, cameraY);
+            StepLavaAcid(bus, cameraX, cameraY, randomNumber);
             return;
         }
 
         if (Type == RoomFxType.Water)
         {
-            StepWater(bus, cameraX, cameraY);
+            StepWater(bus, cameraX, cameraY, randomNumber);
             return;
         }
 
@@ -327,9 +349,13 @@ public sealed class RoomLayer3FxState
     /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.
     /// </summary>
-    private void StepWater(ISnesAddressSpace bus, ushort cameraX, ushort cameraY)
+    private void StepWater(
+        ISnesAddressSpace bus,
+        ushort cameraX,
+        ushort cameraY,
+        ushort randomNumber)
     {
-        StepLiquidRise();
+        StepLiquidRise(randomNumber);
         StepLiquidTide(bus);
         CurrentYPosition = ComputeTidalYPosition();
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
@@ -367,9 +393,13 @@ public sealed class RoomLayer3FxState
     /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
-    private void StepLavaAcid(ISnesAddressSpace bus, ushort cameraX, ushort cameraY)
+    private void StepLavaAcid(
+        ISnesAddressSpace bus,
+        ushort cameraX,
+        ushort cameraY,
+        ushort randomNumber)
     {
-        StepLiquidRise();
+        StepLiquidRise(randomNumber);
         StepLiquidTide(bus);
         CurrentYPosition = ComputeTidalYPosition();
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
@@ -400,7 +430,7 @@ public sealed class RoomLayer3FxState
     /// 16.16 base position toward the target. Door-specific Norfair entries rely on this
     /// sequence to raise lava into the visible viewport.
     /// </summary>
-    private void StepLiquidRise()
+    private void StepLiquidRise(ushort randomNumber = 0)
     {
         switch (liquidRisePhase)
         {
@@ -416,12 +446,14 @@ public sealed class RoomLayer3FxState
             }
 
             case LiquidRisePhase.Waiting:
+                PublishRisingLiquidFeedback(randomNumber);
                 Timer = unchecked((ushort)(Timer - 1));
                 if (Timer == 0)
                     liquidRisePhase = LiquidRisePhase.Moving;
                 return;
 
             case LiquidRisePhase.Moving:
+                PublishRisingLiquidFeedback(randomNumber);
                 if (AdvanceBaseYToTarget())
                 {
                     PackedYVelocity = 0;
@@ -433,6 +465,42 @@ public sealed class RoomLayer3FxState
                 throw new InvalidDataException(
                     $"Unknown room-liquid rise phase {liquidRisePhase}.");
         }
+    }
+
+    /// <summary>
+    /// Executes <c>$88:B21D</c> and the shared <c>$88:B36A-$B373/$B385-$B38E</c>
+    /// writes used while lava or acid waits and moves. Sound cadence and screen shake are
+    /// parallel outputs of the cartridge FX actor; neither is inferred by the renderer.
+    /// </summary>
+    private void PublishRisingLiquidFeedback(ushort randomNumber)
+    {
+        HandleEarthquakeSoundEffect(randomNumber);
+        EarthquakeRequest = new RoomFxEarthquakeRequest(
+            RoomFxRomData.Earthquake.RisingLiquidType,
+            RoomFxRomData.Earthquake.RisingLiquidTimerBits);
+    }
+
+    /// <summary>Ports the signed timer and eight-entry loop at <c>$88:B21D-$B254</c>.</summary>
+    private void HandleEarthquakeSoundEffect(ushort randomNumber)
+    {
+        if (unchecked((short)earthquakeSoundTimer) < 0)
+            return;
+
+        earthquakeSoundTimer = unchecked((ushort)(earthquakeSoundTimer - 1));
+        if (unchecked((short)earthquakeSoundTimer) >= 0)
+            return;
+
+        ReadOnlySpan<ushort> baseTimers =
+            RoomFxRomData.Earthquake.RisingLiquidSoundBaseTimers;
+        if ((uint)earthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
+            earthquakeSoundSequenceIndex = 0;
+
+        soundRequests.Add(new RoomFxSoundRequest(
+            SoundEffectLibrary2Sounds.Earthquake,
+            MaximumQueued: 6));
+        earthquakeSoundTimer = unchecked((ushort)(
+            baseTimers[earthquakeSoundSequenceIndex] + (randomNumber & 3)));
+        earthquakeSoundSequenceIndex++;
     }
 
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
@@ -554,6 +622,10 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WaveTimer = 0;
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
+        soundRequests.Clear();
+        EarthquakeRequest = null;
+        earthquakeSoundTimer = 0;
+        earthquakeSoundSequenceIndex = 0;
     }
 
     private static short SignedHighByte(ushort value) => unchecked((sbyte)(value >> 8));
@@ -569,6 +641,16 @@ public sealed class RoomLayer3FxState
         Moving,
     }
 }
+
+/// <summary>One bank-$88 room-FX request for the global cartridge sound queue.</summary>
+public readonly record struct RoomFxSoundRequest(
+    SoundEffectId SoundEffect,
+    byte MaximumQueued);
+
+/// <summary>One bank-$88 request for the global room-shake type and timer bits.</summary>
+public readonly record struct RoomFxEarthquakeRequest(
+    ushort Type,
+    ushort TimerBits);
 
 /// <summary>Immutable gameplay BG3 values published by one accepted NMI.</summary>
 public readonly record struct RoomLayer3FxRenderSnapshot(

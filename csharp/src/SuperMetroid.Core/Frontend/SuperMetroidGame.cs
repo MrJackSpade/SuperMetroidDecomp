@@ -898,9 +898,12 @@ public sealed class SuperMetroidGame
         lastAudioRuntimeGameplayPublication =
             runtime.CompletedGameplayAudioPublication;
 
-        // Bank $8D runs before Samus, projectiles, PLMs, and enemies in state eight. Queue
-        // its calls first so a full SFX ring retains the same higher-priority request the
-        // cartridge would retain when several producers fire during one frame.
+        // Bank $88 room-effect actors and bank $8D palette objects run before Samus,
+        // projectiles, PLMs, and enemies in state eight. Queue their calls first so a full
+        // SFX ring retains the same higher-priority request the cartridge would retain
+        // when several producers fire during one frame.
+        foreach (RoomFxSoundRequest request in runtime.RoomLayer3Fx.SoundRequests)
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (PaletteFxSoundRequest request in runtime.RoomPaletteFx.SoundRequests)
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (PaletteFxMusicRequest request in runtime.RoomPaletteFx.MusicRequests)

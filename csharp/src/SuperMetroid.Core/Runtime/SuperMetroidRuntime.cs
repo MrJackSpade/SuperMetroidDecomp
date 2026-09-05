@@ -1451,7 +1451,17 @@ public sealed partial class SuperMetroidRuntime
                 Vram,
                 Camera.XPosition,
                 Camera.YPosition,
-                TimeIsFrozen);
+                TimeIsFrozen,
+                System.RandomNumber);
+            if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
+            {
+                // Lava/acid rise pre-instructions use TSB on the shared timer after writing
+                // type $15. Apply that global side effect before the ordinary shake handler
+                // later in this frame so its first displacement is visible immediately.
+                Enemies.EarthquakeType = roomFxEarthquake.Type;
+                Enemies.EarthquakeTimer = unchecked((ushort)(
+                    Enemies.EarthquakeTimer | roomFxEarthquake.TimerBits));
+            }
             if (Samus is not null && RoomLayer3Fx.Type is
                     RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
                 RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);

@@ -53,8 +53,8 @@ internal static partial class Program
             "unknown layer blend identifies value and record context");
 
         Console.WriteLine(
-            "  Room FX: shared record/table catalog, typed blending, liquid, sky, haze, " +
-            "Ceres, rain, and fog states agree.");
+            "  Room FX: shared record/table catalog, typed blending, liquid rise " +
+            "sound/shake, sky, haze, Ceres, rain, and fog states agree.");
     }
 
     private static void VerifyRoomFxRecordSelection()

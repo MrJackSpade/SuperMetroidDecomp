@@ -89,6 +89,12 @@ public static class SoundEffectLibrary2Sounds
     /// <c>$90:C128</c> when the bomb fuse reaches zero.
     /// </summary>
     public static readonly SoundEffectId BombExplosion = new(SoundEffectLibrary.Library2, 0x08); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>
+    /// Repeating lavaquake/Tourian-reveal rumble queued by
+    /// <c>Handle_Earthquake_SoundEffect</c> at <c>$88:B21D</c>.
+    /// </summary>
+    public static readonly SoundEffectId Earthquake = new(SoundEffectLibrary.Library2, 0x46); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 }
 
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>

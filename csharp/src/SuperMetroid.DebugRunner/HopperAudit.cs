@@ -29,6 +29,12 @@ internal static class HopperAudit
         /// <summary>Upper Norfair room <c>$02/$04</c> header at <c>$8F:A815</c>.</summary>
         public const ushort UpperNorfairDessgeegaRoom = 0xa815;
 
+        /// <summary>
+        /// Red Brinstar giant Sidehopper room <c>$01/$25</c> at <c>$8F:A37C</c>, captured
+        /// by the player in debugger state slot two for issue 248.
+        /// </summary>
+        public const ushort RedBrinstarGiantSidehopperRoom = 0xa37c;
+
         /// <summary>Small Dessgeega enemy definition at <c>$A0:D97F</c>.</summary>
         public const ushort SmallDessgeegaDefinition = 0xd97f;
     }
@@ -176,12 +182,103 @@ internal static class HopperAudit
 
         VerifyRoom0102CeilingOrientation(bus, outputDirectory);
         VerifyUpperNorfairSmallDessgeegaCycle(bus, outputDirectory);
+        VerifyRedBrinstarCeilingSidehoppersMoveAwayFromCeiling(bus);
 
         Console.WriteLine(
             "Blue Hopper audit passed: two retail Tourian Sidehoppers loaded, both random " +
             $"hop sizes traversed the ROM quadratic arc and landing loop, {maps.Count} maps " +
             $"animated, 120 contact damage resolved, and {oam.LastFinalizedSpriteCount} OBJ pieces rendered.");
         return 0;
+    }
+
+    /// <summary>
+    /// Reproduces the player's exact issue-248 room without depending on mutable debugger
+    /// state. All three giant Sidehoppers in room $01/$25 are authored at Y=$58 with
+    /// parameter one $8000, selecting the cartridge's ceiling-mounted movement. Their first
+    /// unobstructed jump step must therefore increase Y, away from the ceiling. Moving up
+    /// immediately collides with that ceiling and eventually strands the ceiling-oriented
+    /// sprite on the floor, which is the visible failure captured in slot two.
+    /// </summary>
+    private static void VerifyRedBrinstarCeilingSidehoppersMoveAwayFromCeiling(
+        SuperMetroidAddressSpace bus)
+    {
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(
+            bus,
+            RoomDefinitions.RedBrinstarGiantSidehopperRoom);
+        if (room.Identity != new RoomIdentity(AreaId.Brinstar, 0x25))
+            throw new InvalidDataException($"Giant Sidehopper audit selected {room.Identity}, expected $01/$25.");
+
+        CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        var vram = new SnesVram();
+        var cgram = new SnesCgram();
+        assets.LoadGraphics(vram, cgram);
+        var random = new Bank80SystemState();
+        var enemies = new RoomEnemySystem();
+        enemies.Load(
+            bus,
+            room.State.EnemyPopulationPointer,
+            room.State.EnemyTilesetPointer,
+            vram,
+            cgram,
+            random.NextRandom,
+            random.SetRandomNumber);
+
+        RoomEnemySlot[] hoppers = enemies.Slots
+            .Where(slot => slot.EnemyDefinitionPointer == RoomEnemySystem.LargeSidehopperDefinition)
+            .ToArray();
+        if (hoppers.Length != 3 || hoppers.Any(slot => slot.Parameter1 != 0x8000))
+        {
+            throw new InvalidDataException(
+                $"Room $01/$25 exposed {hoppers.Length} giant Sidehoppers with parameters " +
+                $"[{string.Join(',', hoppers.Select(slot => $"${slot.Parameter1:X4}"))}].");
+        }
+
+        var samus = new SamusState
+        {
+            Health = 999,
+            MaxHealth = 999,
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 0x0180,
+            YPosition = 0x0080,
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+
+        for (int targetIndex = 0; targetIndex < hoppers.Length; targetIndex++)
+        {
+            RoomEnemySlot target = hoppers[targetIndex];
+            ushort cameraX = unchecked((ushort)Math.Max(0, target.XPosition - 128));
+            bool observedFirstMovement = false;
+            for (int frame = 0; frame < 120; frame++)
+            {
+                HopperEnemyState state = enemies.HopperStates[target.SlotIndex]
+                    ?? throw new InvalidDataException(
+                        $"Giant Sidehopper slot {target.SlotIndex} has no typed hopper state.");
+                bool aboutToMove = !state.Falling && state.Function is
+                    HopperEnemyFunction.JumpingUpsideDownBackward or
+                    HopperEnemyFunction.JumpingUpsideDownForward;
+                ushort beforeY = target.YPosition;
+                enemies.StepFrame(cameraX, 0, false, samus, level: assets.LevelData);
+                if (!aboutToMove)
+                    continue;
+                if (target.YPosition <= beforeY)
+                {
+                    throw new InvalidDataException(
+                        $"Issue #248 reproduced: ceiling Sidehopper slot {target.SlotIndex} " +
+                        $"began its jump at Y=${beforeY:X4} but moved to " +
+                        $"Y=${target.YPosition:X4} instead of moving down away from the ceiling.");
+                }
+                observedFirstMovement = true;
+                break;
+            }
+
+            if (!observedFirstMovement)
+            {
+                throw new InvalidDataException(
+                    $"Room $01/$25 ceiling Sidehopper slot {target.SlotIndex} did not begin " +
+                    "a natural jump within 120 on-screen frames.");
+            }
+        }
     }
 
     /// <summary>

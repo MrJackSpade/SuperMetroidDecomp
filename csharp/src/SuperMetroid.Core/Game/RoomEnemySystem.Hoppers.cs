@@ -304,7 +304,11 @@ public sealed partial class RoomEnemySystem
         bool upsideDown)
     {
         bool movingAwayFromSurface = !state.Falling;
-        bool useNegativeSpeed = upsideDown == movingAwayFromSurface;
+        // Native has four movement routines: floor actors use the negative half while
+        // jumping and the positive half while falling; ceiling actors do the inverse.
+        // Inequality expresses that table exactly. Equality reverses both phases, making
+        // each actor collide with its starting surface and then migrate to the opposite one.
+        bool useNegativeSpeed = upsideDown != movingAwayFromSurface;
         int verticalDisplacement = ReadQuadraticEnemySpeed(
             state.YSpeedTableIndex,
             negative: useNegativeSpeed);

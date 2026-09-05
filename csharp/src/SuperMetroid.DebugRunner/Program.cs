@@ -175,6 +175,9 @@ if (args.Length >= 3 && args[0] == "--save-station-audit")
     return SaveStationAudit.Run(saveStationRomPath, saveStationOutputDirectory);
 }
 
+if (args.Length == 2 && args[0] == "--save-station-activation-audit")
+    return SaveStationActivationAudit.Run(args[1]);
+
 if (args.Length == 4 && args[0] == "--save-station-recording-audit")
 {
     return SaveStationAudit.RunRecording(

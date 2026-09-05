@@ -295,7 +295,8 @@ public static class SamusBlockCollision
                                  block.Bts,
                                  state.CollisionPose,
                                  horizontal: true,
-                                 movingPositive: acceptedDisplacement > 0)))
+                                 movingPositive: acceptedDisplacement > 0,
+                                 roomWidthInBlocks: level.WidthInBlocks)))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} BTS ${block.Behavior:X2} " +
@@ -618,7 +619,8 @@ public static class SamusBlockCollision
                                  block.Bts,
                                  state.CollisionPose,
                                  horizontal: false,
-                                 movingPositive: acceptedDisplacement > 0)))
+                                 movingPositive: acceptedDisplacement > 0,
+                                 roomWidthInBlocks: level.WidthInBlocks)))
                         {
                             throw new InvalidOperationException(
                                 $"Station access block {block.Index} BTS ${block.Behavior:X2} " +

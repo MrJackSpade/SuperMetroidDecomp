@@ -279,6 +279,7 @@ public sealed partial class RoomPlmSystem
             collisionPose: byte.MaxValue,
             horizontal: true,
             movingPositive: true,
+            roomWidthInBlocks: 0,
             bypassSetupGate: true);
 
     /// <summary>
@@ -291,13 +292,15 @@ public sealed partial class RoomPlmSystem
         byte behavior,
         byte collisionPose,
         bool horizontal,
-        bool movingPositive)
+        bool movingPositive,
+        int roomWidthInBlocks)
         => TryNotifyStationCollision(
             accessBlockIndex,
             new RoomBlockBehavior(behavior),
             collisionPose,
             horizontal,
-            movingPositive);
+            movingPositive,
+            roomWidthInBlocks);
 
     /// <summary>Typed BTS overload used by room collision dispatch.</summary>
     public bool TryNotifyStationCollision(
@@ -305,13 +308,15 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior behavior,
         byte collisionPose,
         bool horizontal,
-        bool movingPositive)
+        bool movingPositive,
+        int roomWidthInBlocks)
         => TryNotifyStationCollision(
             accessBlockIndex,
             behavior,
             collisionPose,
             horizontal,
             movingPositive,
+            roomWidthInBlocks,
             bypassSetupGate: false);
 
     private bool TryNotifyStationCollision(
@@ -320,6 +325,7 @@ public sealed partial class RoomPlmSystem
         byte collisionPose,
         bool horizontal,
         bool movingPositive,
+        int roomWidthInBlocks,
         bool bypassSetupGate)
     {
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
@@ -357,10 +363,12 @@ public sealed partial class RoomPlmSystem
                     StationAccessBehavior.MissileLeft =>
                     horizontal && movingPositive &&
                     collisionPose == SamusPoseIds.RanIntoWallRightPose,
-                // Save trigger B590 accepts a downward floor probe only while standing.
+                // A foot can touch the floor trigger before the body's biased center
+                // reaches its column. Native accepts only the latter, narrower range.
                 StationAccessBehavior.SaveFloor => !horizontal && movingPositive &&
-                    collisionPose is SamusPoseIds.FacingRightNormalPose or
-                        SamusPoseIds.FacingLeftNormalPose,
+                    (collisionPose is SamusPoseIds.FacingRightNormalPose or
+                        SamusPoseIds.FacingLeftNormalPose) &&
+                    IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
                 _ => false,
             };
             if (setupAccepted && slot.Station.OperationPhase == StationOperationPhase.Idle &&
@@ -374,6 +382,16 @@ public sealed partial class RoomPlmSystem
             return true;
         }
         return false;
+    }
+
+    /// <summary>Applies the cartridge's wrapping coordinate test before queuing any save side effect.</summary>
+    private bool IsSaveStationTriggerCentered(int blockIndex, int roomWidthInBlocks)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
+        SamusState samus = _collectibleSamus?.Invoke()
+            ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
+        ushort probeX = unchecked((ushort)(samus.XPosition - SaveStationTriggerGeometry.HorizontalProbeOffset));
+        return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 
     private bool TryStepStation(

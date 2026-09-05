@@ -53,7 +53,8 @@ internal static class SaveStationAudit
                 behavior: 0x4d,
                 collisionPose: samus.Pose,
                 horizontal: false,
-                movingPositive: true))
+                movingPositive: true,
+                roomWidthInBlocks: level.WidthInBlocks))
         {
             throw new InvalidDataException("Crateria save trigger did not resolve its resident PLM.");
         }
@@ -137,7 +138,8 @@ internal static class SaveStationAudit
                 0x4d,
                 samus.Pose,
                 horizontal: false,
-                movingPositive: true))
+                movingPositive: true,
+                roomWidthInBlocks: level.WidthInBlocks))
         {
             runtime.StepFrame(0);
         }

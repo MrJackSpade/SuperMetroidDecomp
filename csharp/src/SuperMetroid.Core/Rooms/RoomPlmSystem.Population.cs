@@ -89,6 +89,7 @@ public sealed partial class RoomPlmSystem
         _hasEvent = hasEvent;
         _setEvent = setEvent;
         _speedBoosterEscapeFx = roomFx;
+        _noobTubeRoomFx = roomFx;
         _writeEarthquakeTimer = setEarthquakeTimer;
         _writeNoobTubeEarthquakeType = setEarthquakeType;
         _spawnNoobTubeProjectile = spawnNoobTubeProjectile;

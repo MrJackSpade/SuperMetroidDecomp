@@ -12,11 +12,13 @@ public sealed partial class RoomPlmSystem
 {
     private Action<ushort>? _writeNoobTubeEarthquakeType;
     private Action<NoobTubeProjectileRequest>? _spawnNoobTubeProjectile;
+    private RoomLayer3FxState? _noobTubeRoomFx;
 
     private void ResetNoobTubeState()
     {
         _writeNoobTubeEarthquakeType = null;
         _spawnNoobTubeProjectile = null;
+        _noobTubeRoomFx = null;
     }
 
     /// <summary>Runs setup $84:D6CC by replacing the complete origin level word.</summary>
@@ -153,10 +155,12 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics:
+                RoomLayer3FxState roomFx = _noobTubeRoomFx
+                    ?? throw new InvalidOperationException(
+                        "N00b tube has no room-FX owner for its water-physics write.");
+                roomFx.EnableWaterPhysics();
                 SamusState samus = RequireNoobTubeSamus();
-                samus.LiquidPhysics.LiquidOptions = unchecked((ushort)(
-                    samus.LiquidPhysics.LiquidOptions &
-                    ~NoobTubePlmRomData.WaterPhysicsDisabledMask));
+                roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 

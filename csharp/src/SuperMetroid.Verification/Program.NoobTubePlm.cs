@@ -33,7 +33,9 @@ internal static partial class Program
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
-        samus.LiquidPhysics.LiquidOptions = NoobTubePlmRomData.WaterPhysicsDisabledMask;
+        samus.YPosition = 0x0100;
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var projectiles = new List<NoobTubeProjectileRequest>();
         var earthquakes = new List<ushort>();
         bool brokenEvent = false;
@@ -56,6 +58,7 @@ internal static partial class Program
                     "n00b tube writes its cartridge event");
                 brokenEvent = true;
             },
+            roomFx: roomFx,
             setEarthquakeTimer: earthquakes.Add,
             setEarthquakeType: earthquakes.Add,
             spawnNoobTubeProjectile: projectiles.Add);
@@ -157,8 +160,16 @@ internal static partial class Program
             StepNoobTube(plms, bus, level, streamer);
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
         AssertTrue(!samus.InputLocked, "n00b-tube completion unlocks Samus");
-        AssertEqual((ushort)0, samus.LiquidPhysics.LiquidOptions,
-            "n00b-tube completion enables water physics");
+        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+            roomFx.LiquidOptions,
+            "n00b-tube completion clears the disable bit on shared room FX");
+        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+            samus.LiquidPhysics.LiquidOptions,
+            "next room-FX publication preserves enabled water physics");
+        AssertEqual(SamusLiquidPhysicsState.Water,
+            samus.LiquidPhysics.DetermineMovementMedium(samus),
+            "fully submerged Samus uses underwater movement after tube break");
         AssertEqual(0, plms.ActiveCount, "completed n00b-tube PLM deletes itself");
 
         VerifyNoobTubeProjectileInitializers(bus, level, blockIndex, projectiles);
@@ -254,7 +265,8 @@ internal static partial class Program
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
         samus.InputLocked = false;
-        samus.LiquidPhysics.LiquidOptions = NoobTubePlmRomData.WaterPhysicsDisabledMask;
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var plms = new RoomPlmSystem();
         plms.LoadRoomPopulation(
             bus,
@@ -269,6 +281,7 @@ internal static partial class Program
             hasEvent: eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent,
             setEvent: _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not set its event again."),
+            roomFx: roomFx,
             setEarthquakeTimer: _ => throw new InvalidOperationException(
                 "Already-broken n00b tube must not start an earthquake."),
             setEarthquakeType: _ => throw new InvalidOperationException(
@@ -278,8 +291,45 @@ internal static partial class Program
         StepNoobTube(plms, bus, level, streamer);
         AssertEqual(0, plms.ActiveCount, "event-$0B n00b tube deletes on its first step");
         AssertEqual(0, projectiles.Count, "event-$0B n00b tube spawns no break debris");
-        AssertEqual((ushort)0, samus.LiquidPhysics.LiquidOptions,
-            "event-$0B room load still enables water physics");
+        AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
+            roomFx.LiquidOptions,
+            "event-$0B room load clears the shared water-disable bit");
+        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        AssertEqual(SamusLiquidPhysicsState.Water,
+            samus.LiquidPhysics.DetermineMovementMedium(samus),
+            "event-$0B reload keeps fully submerged movement underwater");
+    }
+
+    /// <summary>
+    /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide
+    /// option and the bit that suppresses water physics until the tube breaks.
+    /// </summary>
+    private static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
+    {
+        const ushort record = 0x9600;
+        const ushort tilemap = 0x9800;
+        int recordAddress = RoomFxRomData.Banks.RoomDefinitions | record;
+        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.DoorPointerOffset, 0);
+        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.BaseYPositionOffset, 0x0010);
+        WriteTestWord(bus, recordAddress + RoomFxRomData.Record.TargetYPositionOffset,
+            ushort.MaxValue);
+        bus.WriteByte(recordAddress + RoomFxRomData.Record.TypeOffset, (byte)RoomFxType.Water);
+        bus.WriteByte(
+            recordAddress + RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset,
+            (byte)LayerBlendingConfiguration.LiquidOrFogAdditive);
+        bus.WriteByte(recordAddress + RoomFxRomData.Record.LiquidOptionsOffset,
+            (byte)(RoomFxRomData.LiquidTide.SmallTideOption |
+                RoomFxRomData.Water.PhysicsDisabledOption));
+        int typeIndex = ((byte)RoomFxType.Water) >> 1;
+        WriteTestWord(bus,
+            RoomFxRomData.Tables.Layer3TilemapPointers + typeIndex * sizeof(ushort),
+            tilemap);
+        SeedRoomFxAnimatedTileObject(bus, RoomFxType.Water);
+
+        var roomFx = new RoomLayer3FxState();
+        roomFx.Load(bus, new SnesVram(), new SnesCgram(), record, doorPointer: 0,
+            randomNumber: 0);
+        return roomFx;
     }
 
     private static void StepNoobTube(

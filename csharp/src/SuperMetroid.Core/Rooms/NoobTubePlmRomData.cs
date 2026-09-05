@@ -35,9 +35,6 @@ public static class NoobTubePlmRomData
     /// <summary>Native earthquake duration written by instruction $D536.</summary>
     public const ushort EarthquakeTimer = 0x0040;
 
-    /// <summary>FX option bit cleared by instruction $D525 to restore water physics.</summary>
-    public const ushort WaterPhysicsDisabledMask = 0x0004;
-
     /// <summary>Bank-$86 n00b-tube crack projectile definition.</summary>
     public const ushort CrackProjectile = 0xd904;
 

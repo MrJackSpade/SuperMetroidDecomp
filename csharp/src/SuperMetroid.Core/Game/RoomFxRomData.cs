@@ -158,6 +158,13 @@ public static class RoomFxRomData
     /// <summary>Bank-$88 water-surface HDMA constants at <c>$88:C3FF-$C644</c>.</summary>
     public static class Water
     {
+        /// <summary>
+        /// Liquid-options bit two at WRAM <c>$197E</c>. When set, Samus movement ignores
+        /// the water surface; the n00b-tube PLM clears this bit at <c>$84:D525</c> after
+        /// the glass breaks.
+        /// </summary>
+        public const ushort PhysicsDisabledOption = 0x0004;
+
         /// <summary>Frames between BG3 wave-table rotations.</summary>
         public const ushort Bg3WavePhaseDuration = 10;
 

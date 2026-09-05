@@ -359,6 +359,16 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
+    /// Applies <c>Instruction_PLM_EnableWaterPhysics</c> at <c>$84:D525</c> to the
+    /// cartridge-owned liquid-options word. Bank $84 uses <c>TRB</c> on WRAM $197E, so
+    /// this mutation must live on the room-FX owner that republishes the word to Samus;
+    /// changing only Samus's projected copy would be undone by the next FX frame.
+    /// </summary>
+    internal void EnableWaterPhysics() =>
+        LiquidOptions = unchecked((ushort)(
+            LiquidOptions & ~RoomFxRomData.Water.PhysicsDisabledOption));
+
+    /// <summary>
     /// Ports the observable static-water path of <c>$88:C48E</c> and both circular wave
     /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.

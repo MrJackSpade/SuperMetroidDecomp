@@ -795,7 +795,8 @@ public sealed class SamusLiquidPhysicsState
     }
 
     private bool WaterAffectsBoundary(ushort boundary) =>
-        (LiquidOptions & 0x0004) == 0 && IsBelowSurface(FxYPosition, boundary);
+        (LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) == 0 &&
+        IsBelowSurface(FxYPosition, boundary);
 
     private static bool IsBelowSurface(ushort surface, ushort boundary) =>
         unchecked((short)surface) >= 0 &&

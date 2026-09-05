@@ -301,6 +301,15 @@ internal static class InputReplayAudit
         Console.WriteLine($"Replay completed {recording.ControllerInputs.Length} recorded calls. Tail:");
         foreach (ReplayFrameState state in tail)
             Console.WriteLine(state.Format());
+        if (lastRuntime?.Samus is SamusState finalSamus)
+        {
+            Console.WriteLine(
+                $"Final liquid: type={lastRuntime.RoomLayer3Fx.Type}, " +
+                $"surface=${lastRuntime.RoomLayer3Fx.CurrentYPosition:X4}, " +
+                $"options=${lastRuntime.RoomLayer3Fx.LiquidOptions:X4}, " +
+                $"movement-medium=" +
+                $"{finalSamus.LiquidPhysics.DetermineMovementMedium(finalSamus)}.");
+        }
 
         // A controller trace is most useful when it also preserves the exact final image
         // produced from that deterministic state. Render only once after replay: the

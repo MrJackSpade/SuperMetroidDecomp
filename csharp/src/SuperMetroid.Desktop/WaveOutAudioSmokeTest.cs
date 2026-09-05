@@ -36,6 +36,23 @@ public static class WaveOutAudioSmokeTest
         }
 
         short[] silence = new short[StereoFramesPerVideoFrame * ChannelCount];
+        using (var startup = new WaveOutAudioDevice(
+            SampleRate,
+            ChannelCount,
+            silence.Length))
+        {
+            startup.Submit(silence);
+            startup.WaitForPendingSubmissions();
+            int expectedPrepared = WaveOutAudioPolicy.PrerollSilenceBufferCount + 1;
+            if (startup.PreparedBufferCountForVerification != expectedPrepared)
+            {
+                throw new InvalidDataException(
+                    $"The first emulated PCM frame prepared " +
+                    $"{startup.PreparedBufferCountForVerification} waveOut buffers; " +
+                    $"expected {expectedPrepared} including startup scheduling reserve.");
+            }
+        }
+
         using var device = new WaveOutAudioDevice(
             SampleRate,
             ChannelCount,

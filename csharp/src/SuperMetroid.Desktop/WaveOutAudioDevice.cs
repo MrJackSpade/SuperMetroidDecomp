@@ -18,6 +18,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     private const uint HeaderDone = 0x0000_0001;
     private const uint MultimediaSuccess = 0;
     private readonly BufferSlot[] slots = [];
+    private readonly short[] prerollSilence = [];
     private readonly int volumePercent;
     private readonly BlockingCollection<QueuedPcmFrame> pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
@@ -29,6 +30,7 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     private long enqueuedFrames;
     private long completedFrames;
     private ExceptionDispatchInfo? workerFailure;
+    private bool prerollRequired = true;
     private bool disposed;
 
     public WaveOutAudioDevice(
@@ -62,6 +64,12 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
             slots = Enumerable.Range(0, WaveOutAudioPolicy.HardwareBufferCount)
                 .Select(_ => new BufferSlot(samplesPerBuffer))
                 .ToArray();
+            if (WaveOutAudioPolicy.PrerollSilenceBufferCount >= slots.Length)
+            {
+                throw new InvalidOperationException(
+                    "waveOut preroll must leave at least one hardware slot for emulated PCM.");
+            }
+            prerollSilence = new short[samplesPerBuffer];
             submissionWorker = new Thread(ProcessPendingFrames)
             {
                 IsBackground = true,
@@ -129,7 +137,10 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
                         // A frame already removed by the worker must receive the same test
                         // after acquiring the device gate or it could sound after Pause.
                         if (queued.Generation == queueGeneration)
+                        {
+                            PrimeDeviceBeforeFirstFrame();
                             SubmitToDevice(queued.Samples.AsSpan(0, queued.SampleCount));
+                        }
                     }
                     Interlocked.Increment(ref completedFrames);
                 }
@@ -177,6 +188,22 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
             "waveOutPrepareHeader");
         available.Prepared = true;
         ThrowOnError(NativeMethods.Write(device, available.Header, WaveHeader.Size), "waveOutWrite");
+    }
+
+    /// <summary>
+    /// Establishes a small playback lead before the first real block. Merely allocating six
+    /// native buffers provides no tolerance: without this fill, the device starts consuming
+    /// the sole submitted 16.7-ms frame immediately while the WinForms producer runs at the
+    /// same average cadence. A few silent frames absorb ordinary scheduling/RDP jitter and
+    /// preserve every later emulated sample instead of repeating or dropping audio.
+    /// </summary>
+    private void PrimeDeviceBeforeFirstFrame()
+    {
+        if (!prerollRequired)
+            return;
+        for (int index = 0; index < WaveOutAudioPolicy.PrerollSilenceBufferCount; index++)
+            SubmitToDevice(prerollSilence);
+        prerollRequired = false;
     }
 
     /// <summary>
@@ -237,7 +264,10 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
         Interlocked.Increment(ref queueGeneration);
         ReturnPendingFramesToPool();
         lock (deviceGate)
+        {
             ResetDeviceBuffers();
+            prerollRequired = true;
+        }
         ThrowWorkerFailure();
     }
 
@@ -330,6 +360,20 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
             Thread.Sleep(1);
         }
         ThrowWorkerFailure();
+    }
+
+    /// <summary>
+    /// Number of pinned headers that have entered waveOut ownership at least once. Unlike
+    /// WHDR_DONE this remains deterministic after playback consumes a short buffer, making
+    /// it suitable for verifying startup preroll without racing the physical device clock.
+    /// </summary>
+    internal int PreparedBufferCountForVerification
+    {
+        get
+        {
+            lock (deviceGate)
+                return slots.Count(slot => slot.Prepared);
+        }
     }
 
     /// <summary>Returns queued pool arrays when Reset, failure, or disposal abandons them.</summary>

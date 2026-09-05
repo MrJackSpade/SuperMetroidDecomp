@@ -7,6 +7,13 @@ internal static class WaveOutAudioPolicy
     public const int HardwareBufferCount = 6;
 
     /// <summary>
+    /// Silent buffers queued before the first emulated PCM frame. Three frames provide
+    /// 50 ms of host/RDP scheduling tolerance without making controller-driven sound feel
+    /// detached from the corresponding video frame.
+    /// </summary>
+    public const int PrerollSilenceBufferCount = 3;
+
+    /// <summary>
     /// Additional frames the worker may hold during brief Windows/RDP scheduling stalls.
     /// At 60 Hz this is 400 ms; filling it indicates a real producer/consumer failure.
     /// </summary>

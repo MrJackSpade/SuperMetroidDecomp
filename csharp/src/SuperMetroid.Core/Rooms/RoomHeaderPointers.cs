@@ -51,6 +51,12 @@ public static class RoomHeaderPointers
     /// <summary>Blue Brinstar Energy Tank Room at $8F:9F64.</summary>
     public const ushort BlueBrinstarEnergyTankRoom = 0x9f64;
 
+    /// <summary>Blue Brinstar boulder room at $8F:A1AD (area $01, room $1C).</summary>
+    public const ushort BlueBrinstarBoulders = 0xa1ad;
+
+    /// <summary>Blue Brinstar double-missile room at $8F:A1D8 (area $01, room $1D).</summary>
+    public const ushort BlueBrinstarDoubleMissile = 0xa1d8;
+
     /// <summary>Ceres elevator shaft at $8F:DF45.</summary>
     public const ushort CeresElevatorShaft = 0xdf45;
 

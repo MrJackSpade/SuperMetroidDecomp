@@ -52,6 +52,10 @@ public static class RoomIdentities
     /// <summary>Blue Brinstar's Construction Zone, room pair <c>$01/$0F</c>.</summary>
     public static readonly RoomIdentity ConstructionZone = new(AreaId.Brinstar, 0x0f);
 
+    /// <summary>Blue Brinstar's double-missile room, room pair <c>$01/$1D</c>.</summary>
+    public static readonly RoomIdentity BlueBrinstarDoubleMissile =
+        new(AreaId.Brinstar, 0x1d);
+
     /// <summary>Ceres's initial elevator room, room pair <c>$06/$00</c>.</summary>
     public static readonly RoomIdentity CeresElevatorRoom = new(AreaId.Ceres, 0x00);
 

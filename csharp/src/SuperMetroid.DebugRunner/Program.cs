@@ -62,6 +62,12 @@ if (args.Length >= 2 && args[0] == "--power-bomb-runtime-audit")
     return PowerBombRuntimeAudit.Run(powerBombRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--blue-brinstar-door-audit")
+{
+    string blueDoorRomPath = string.Join(' ', args[1..]).Trim('"');
+    return BlueBrinstarDoorAudit.Run(blueDoorRomPath);
+}
+
 if (args.Length >= 2 && args[0] == "--spike-hazard-audit")
 {
     string spikeHazardRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -17,6 +17,44 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusKnockbackMovement
 {
+    /// <summary>
+    /// Consumes the damage request that terrain collision publishes before bank
+    /// <c>$90:DDE9</c> runs in the normal Samus new-state handler.
+    /// </summary>
+    /// <remarks>
+    /// Bank $94 deliberately does not install a hurt pose itself. It writes the shared
+    /// knockback timer and horizontal direction; the later hit-interruption routine admits
+    /// or suppresses that request according to the current movement type. Keeping this as
+    /// a shared handoff prevents spike blocks and spike-air from inventing bespoke motion.
+    /// </remarks>
+    public static bool TryStartPendingHitInterruption(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        ushort controllerInput,
+        bool timeIsFrozen)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+
+        // `$90:DDEC-$DE09` requires a live producer timer, unfrozen time, and zero in the
+        // installed direction word. A nonzero direction means a previous request already
+        // owns the special movement handler; it must finish instead of being restarted.
+        if (samus.KnockbackTimer == 0 ||
+            timeIsFrozen ||
+            samus.KnockbackDirection != 0 ||
+            samus.KnockbackActive)
+        {
+            return false;
+        }
+
+        return Start(
+            bus,
+            samus,
+            controllerInput,
+            samus.KnockbackXDirection,
+            samus.KnockbackTimer);
+    }
+
     // The selector routine is `$90:99D6`, but its two three-word data arrays live later in
     // bank $90 at `$9EE9/$9EEF` (named exactly that way in the disassembly): whole speeds
     // `{5,2,2}` followed by subspeeds `{0,0,0}`. Do not infer data placement from the C

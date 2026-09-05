@@ -403,6 +403,43 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(SamusPoseIds.KnockbackRightPose, introTimedKnockback.Pose,
         "intro Rinka enters visible humanoid hurt pose");
 
+    // Bank-$94 terrain hazards publish the request words without calling the pose
+    // initializer. The later `$90:DDE9` interruption must consume the producer-owned
+    // ten-frame timer, while frozen time leaves the exact same request pending.
+    var pendingTerrainHit = new SamusState
+    {
+        Pose = SamusPoseIds.FacingRightNormalPose,
+        XPosition = 96,
+        YPosition = 96,
+        KnockbackTimer = SamusTerrainHazardRomData.KnockbackFrames,
+        KnockbackXDirection = 0,
+    };
+    AssertTrue(
+        !SamusKnockbackMovement.TryStartPendingHitInterruption(
+            bus,
+            pendingTerrainHit,
+            controllerInput: 0,
+            timeIsFrozen: true),
+        "frozen hit interruption leaves terrain request pending");
+    AssertTrue(!pendingTerrainHit.KnockbackActive,
+        "frozen terrain request does not install special movement");
+    AssertTrue(
+        SamusKnockbackMovement.TryStartPendingHitInterruption(
+            bus,
+            pendingTerrainHit,
+            controllerInput: 0,
+            timeIsFrozen: false),
+        "active hit interruption consumes terrain request");
+    AssertEqual(SamusTerrainHazardRomData.KnockbackFrames,
+        pendingTerrainHit.KnockbackTimer,
+        "terrain hit interruption preserves ten-frame producer timer");
+    AssertEqual(SamusPoseIds.KnockbackRightPose, pendingTerrainHit.Pose,
+        "terrain hit interruption installs visible hurt pose");
+    AssertEqual(1, pendingTerrainHit.KnockbackDirection,
+        "right-facing terrain contact launches up-left");
+    AssertTrue(pendingTerrainHit.KnockbackActive,
+        "terrain hit interruption installs special movement handler");
+
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.

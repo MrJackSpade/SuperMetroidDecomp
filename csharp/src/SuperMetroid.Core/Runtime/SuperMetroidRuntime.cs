@@ -2928,6 +2928,24 @@ public sealed partial class SuperMetroidRuntime
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 
+                // `$90:DDE9` runs after AnimateSamus and before UpdateSamusPose. Terrain
+                // spike reactions only publish `$18A8/$18AA/$0A54`; this common interruption
+                // converts that request into the same hurt pose and special movement handler
+                // used by every cartridge damage producer. Animation command three retains
+                // its higher UpdateSamusPose priority and therefore suppresses this branch.
+                if (!animationTransitionApplied &&
+                    SamusKnockbackMovement.TryStartPendingHitInterruption(
+                        _addressSpace,
+                        Samus,
+                        Controller1.Current,
+                        TimeIsFrozen))
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // `$91:EADE` runs inside UpdateSamusPose after beta movement/animation and
                 // only when no super-special animation command has already won. Its first
                 // branch consumes the X-speed-killed flag produced by CURRENT type-one

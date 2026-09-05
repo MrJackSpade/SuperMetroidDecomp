@@ -88,6 +88,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     private const ushort SpazerSbaMarker = 0x0020;
     private const ushort FamilyMask = 0x0f00;
     private const ushort LiveMarker = 0x8000;
+    private const ushort ResidentPlmPayloadMask = 0x1fff;
 
     public int BeamCombinationIndex => Raw & BeamCombinationMask;
     public ushort FamilyValue => (ushort)(Raw & FamilyMask);
@@ -105,6 +106,13 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// </summary>
     public bool HasPlainFamilyPayload(SamusProjectileFamily family) =>
         (Raw & 0x0fff) == (ushort)family;
+
+    /// <summary>
+    /// Reproduces generic PLM trigger setup <c>$84:C7E2</c>: retain projectile payload
+    /// bits 0-12 and set the native live/collision marker before writing PLM_Timers.
+    /// </summary>
+    public ushort AsResidentPlmTriggerWord() =>
+        (ushort)((Raw & ResidentPlmPayloadMask) | LiveMarker);
 
     /// <summary>
     /// Replaces only the verified family nibble. Every beam/control bit outside that field

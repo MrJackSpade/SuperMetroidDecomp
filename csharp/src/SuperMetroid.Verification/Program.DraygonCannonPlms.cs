@@ -67,14 +67,14 @@ internal static partial class Program
             "pre-destroyed cannon immediately writes its bank-$A5 control word");
         AssertDestroyedCannon(level, preDestroyedBlock, roomWidth, "pre-destroyed cannon");
 
-        AssertTrue(plms.TryNotifyProjectileHit(rightBlock, 0x0000),
+        AssertTrue(plms.TryNotifyResidentProjectileHit(rightBlock, 0x0000),
             "beam collision reaches the right cannon PLM");
         StepDraygonCannonPlms(plms, bus, level, streamer);
         AssertEqual(1, disabledWords.Count, "beam cannot damage a Draygon cannon");
 
         for (int hit = 0; hit < 3; hit++)
         {
-            AssertTrue(plms.TryNotifyProjectileHit(rightBlock, 0x0100),
+            AssertTrue(plms.TryNotifyResidentProjectileHit(rightBlock, 0x0100),
                 $"missile hit {hit + 1} reaches right cannon");
             SettleDraygonCannonHit(plms, bus, level, streamer);
         }
@@ -82,7 +82,7 @@ internal static partial class Program
             "third missile disables the lower-left firing word");
         AssertDestroyedCannon(level, rightBlock, roomWidth, "right cannon");
 
-        AssertTrue(plms.TryNotifyProjectileHit(upperLeftBlock, 0x0200),
+        AssertTrue(plms.TryNotifyResidentProjectileHit(upperLeftBlock, 0x0200),
             "Super Missile collision reaches left cannon");
         SettleDraygonCannonHit(plms, bus, level, streamer);
         AssertTrue(disabledWords.Contains(DraygonCannonData.UpperRightDisabledWord),

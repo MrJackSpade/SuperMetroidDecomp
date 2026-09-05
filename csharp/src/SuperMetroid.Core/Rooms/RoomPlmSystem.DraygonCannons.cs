@@ -67,20 +67,6 @@ public sealed partial class RoomPlmSystem
             DraygonCannonRomData.CannonExtensionWord);
     }
 
-    private bool TryNotifyDraygonCannonHit(int blockIndex, SamusProjectileTypeWord projectileType)
-    {
-        foreach (PlmSlot slot in _slots)
-        {
-            if (!slot.Active || slot.BlockIndex != blockIndex || slot.DraygonCannon is null)
-                continue;
-
-            slot.LoopTimer = projectileType.Raw;
-            slot.DraygonCannon.HasPendingHit = true;
-            return true;
-        }
-        return false;
-    }
-
     private static void RunDraygonCannonPreInstruction(PlmSlot slot)
     {
         DraygonCannonPlmState? state = slot.DraygonCannon;

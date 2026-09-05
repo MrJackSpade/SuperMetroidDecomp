@@ -81,7 +81,7 @@ internal static partial class Program
 
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
-        AssertTrue(plms.TryNotifyProjectileHit(blockIndex, 0x0100),
+        AssertTrue(plms.TryNotifyResidentProjectileHit(blockIndex, 0x0100),
             "n00b-tube collision block locates its resident PLM");
         StepNoobTube(plms, bus, level, streamer);
         AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(
@@ -93,10 +93,30 @@ internal static partial class Program
         AssertEqual((ushort)0, plms.PopulationSlots.Single().LoopTimer,
             "projectile notification is consumed exactly once");
 
-        // A power bomb wakes the first sleep and enters the second, controller-edge-driven
-        // stage. Holding a button without a newly pressed edge cannot advance this API.
-        AssertTrue(plms.TryNotifyProjectileHit(blockIndex, 0x0300),
-            "power bomb reaches the n00b-tube PLM");
+        // The intact retail draw changes the origin from setup's type $8 to type $C while
+        // retaining BTS $44. Issue #304 reached this exact state through the expanding
+        // Power Bomb boundary and previously threw before notifying the resident tube.
+        AssertEqual((int)RoomCollisionType.ShootableBlock,
+            (int)level.GetCollisionBlockByIndex(blockIndex).CollisionType,
+            "intact n00b-tube draw installs live type-$C collision");
+        var reactions = new List<BombBlockReaction>();
+        SamusBombProjectileSystem.CollectSingleBombedBlockReaction(
+            level,
+            blockX,
+            blockY,
+            reactions,
+            plms,
+            AreaId.Maridia,
+            SamusBombProjectileSystem.PowerBombType);
+        AssertEqual(1, reactions.Count,
+            "Power Bomb boundary visits the live n00b-tube origin");
+        AssertEqual(RoomCollisionType.ShootableBlock, reactions[0].CollisionType,
+            "Power Bomb observes the intact tube's type-$C collision");
+        AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger,
+            reactions[0].Behavior,
+            "Power Bomb observes the intact tube's BTS-$44 trigger");
+        AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
+            "generic trigger publishes the native marked Power Bomb word");
         StepNoobTube(plms, bus, level, streamer);
         RoomPlmSlotSnapshot armed = plms.PopulationSlots.Single();
         AssertEqual(NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
@@ -332,7 +352,8 @@ internal static partial class Program
         WriteWord(bus, 0x84d521, RoomPlmInstructionCodes.EnableNoobTubeWaterPhysics);
         WriteWord(bus, 0x84d523, RoomPlmInstructionCodes.Delete);
 
-        WriteOneBlockDraw(bus, 0x98d1, 0x8001);
+        WriteOneBlockDraw(bus, 0x98d1,
+            unchecked((ushort)(((ushort)RoomCollisionType.ShootableBlock << 12) | 0x0001)));
         WriteOneBlockDraw(bus, 0x98d7, 0x8002);
         WriteOneBlockDraw(bus, 0x9991, 0x8003);
         WriteOneBlockDraw(bus, 0x99e5, 0x8004);

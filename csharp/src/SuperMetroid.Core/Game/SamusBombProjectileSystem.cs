@@ -786,7 +786,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
-    private static void CollectSingleBombedBlockReaction(
+    internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         int x,
         int y,
@@ -820,13 +820,20 @@ public sealed class SamusBombProjectileSystem
             return;
         }
 
-        // Power Bombs reach the same colored-door pre-instruction as beams and missiles.
-        // This is the only accepted yellow-door family; normal bombs are still published
-        // and rejected with the cartridge's dud sound by the resident PLM.
-        if (block.CollisionType == RoomCollisionType.ShootableBlock &&
-            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger &&
-            roomPlms?.TryNotifyColoredDoorHit(block.Index, projectileType) == true)
+        // `$94:9F2E` selects temporary PLM $C83E for both type-$8 special collision and
+        // type-$C shootable collision with BTS $44. Setup $84:C7E2 deletes that temporary
+        // slot, finds the resident actor at the same block, and publishes this projectile
+        // word. The n00b tube begins as type $8 but its intact draw changes the live origin
+        // to type $C, so narrowing this seam to colored doors strands the progression PLM.
+        if (block.CollisionType is RoomCollisionType.SolidBlock or RoomCollisionType.ShootableBlock &&
+            block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
+            if (roomPlms is null ||
+                !roomPlms.TryNotifyResidentProjectileHit(block.Index, projectileType))
+            {
+                throw new InvalidOperationException(
+                    $"Bombed resident-trigger block {block.Index} has no active PLM owner.");
+            }
             return;
         }
 

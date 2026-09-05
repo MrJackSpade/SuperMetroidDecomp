@@ -101,28 +101,6 @@ public sealed partial class RoomPlmSystem
                 _motherBrainGlassLastRoomArgument + 1));
     }
 
-    /// <summary>
-    /// Publishes the projectile family to the existing PLM at this block. Setup `$D5F6`
-    /// changes the origin to type-$8/BTS-$44`; its pre-instruction accepts only family
-    /// <c>$0100</c> missiles and <c>$0200</c> supers, then clears this timer word every frame.
-    /// </summary>
-    /// <summary>
-    /// Publishes a projectile collision to the resident type-$8/BTS-$44 actor occupying
-    /// <paramref name="blockIndex"/>. Mother Brain's glass and the n00b tube share this
-    /// cartridge collision route; their own pre-instructions interpret the projectile family.
-    /// </summary>
-    public bool TryNotifyProjectileHit(int blockIndex, ushort projectileType)
-    {
-        if (TryNotifyDraygonCannonHit(blockIndex, new SamusProjectileTypeWord(projectileType)))
-            return true;
-        if (TryGetMotherBrainGlassSlot(out PlmSlot? slot) && slot!.BlockIndex == blockIndex)
-        {
-            slot.LoopTimer = projectileType;
-            return true;
-        }
-        return TryNotifyNoobTubeProjectileHit(blockIndex, projectileType);
-    }
-
     private void BeginMotherBrainGlassFrame() => _motherBrainGlassProjectileRequests.Clear();
 
     private void ResetMotherBrainGlassState()

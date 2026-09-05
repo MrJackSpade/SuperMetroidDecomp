@@ -177,15 +177,4 @@ public sealed partial class RoomPlmSystem
             "N00b tube has no enemy-projectile spawner."))(
             new NoobTubeProjectileRequest(definition, parameter, slot.BlockIndex));
 
-    private bool TryNotifyNoobTubeProjectileHit(int blockIndex, ushort projectileType)
-    {
-        PlmSlot? slot = _slots.FirstOrDefault(candidate =>
-            candidate.Active &&
-            candidate.HeaderPointer == RoomPlmHeaders.NoobTube &&
-            candidate.BlockIndex == blockIndex);
-        if (slot is null)
-            return false;
-        slot.LoopTimer = projectileType;
-        return true;
-    }
 }

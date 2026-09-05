@@ -541,13 +541,14 @@ public sealed partial class SamusProjectileSystem
             return true;
         }
 
-        // Special-block collision first searches the loaded PLM pool for the object whose
-        // origin matches this block. Mother Brain's type-$8/BTS-$44 glass consumes the live
-        // projectile type through its pre-instruction on the later PLM-handler seam; it does
-        // not allocate a second reaction PLM or mutate the shot-block tables below.
+        // Both type-$8 and type-$C BTS-$44 collision routes allocate generic trigger $C83E,
+        // which publishes the live projectile word to the resident PLM at this block.
         if (block.CollisionType == RoomCollisionType.SolidBlock &&
             block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
-            _ = roomPlms?.TryNotifyProjectileHit(block.Index, slot.Type);
+        {
+            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
+            return true;
+        }
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
@@ -619,12 +620,12 @@ public sealed partial class SamusProjectileSystem
             return;
         }
 
-        // Setup_ColoredDoor installs type-$C/BTS-$44 at the cap origin. Its resident
-        // pre-instruction consumes the current projectile family; the ordinary shot-block
-        // table must never see this private door-dispatch value.
-        if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger &&
-            roomPlms.TryNotifyColoredDoorHit(block.Index, slot.Type))
+        // The intact n00b tube, colored doors, eye doors, grey doors, and other resident
+        // actors all share type-$C/BTS-$44. The resident PLM determines the accepted family
+        // after generic trigger $C83E publishes the projectile word.
+        if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
         {
+            NotifyResidentProjectileHit(roomPlms, block, slot.Type);
             return;
         }
 
@@ -661,6 +662,21 @@ public sealed partial class SamusProjectileSystem
                 slot.Type,
                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
         }
+    }
+
+    private static void NotifyResidentProjectileHit(
+        RoomPlmSystem? roomPlms,
+        RoomCollisionBlock block,
+        SamusProjectileTypeWord projectileType)
+    {
+        if (roomPlms is not null &&
+            roomPlms.TryNotifyResidentProjectileHit(block.Index, projectileType))
+        {
+            return;
+        }
+
+        throw new InvalidOperationException(
+            $"Projectile hit resident-trigger block {block.Index} with no active PLM owner.");
     }
 
     private static (ushort Position, ushort Subposition) AddVelocity(

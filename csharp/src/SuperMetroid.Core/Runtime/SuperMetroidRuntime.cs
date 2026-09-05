@@ -708,6 +708,18 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Queues <c>Update_Beam_Tiles_and_Palette</c> at <c>$90:AC8D</c> for the live beam
+    /// word supplied by pause teardown. State `$11` performs this restore under forced
+    /// blank so the first resumed gameplay frame uses the newly equipped combination.
+    /// </summary>
+    internal void QueueGameplayBeamTilesAndLoadPalette(ushort equippedBeams) =>
+        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+            _addressSpace,
+            VramWrites,
+            Cgram,
+            equippedBeams);
+
+    /// <summary>
     /// Loads standard 2-bpp BG3 graphics and initializes the HUD tilemap using the exact
     /// ROM/WRAM/VRAM destinations from <c>$82:82E2</c> and <c>$80:9A79</c>.
     /// </summary>

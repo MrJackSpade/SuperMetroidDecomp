@@ -661,6 +661,15 @@ public sealed class SuperMetroidGame
                 // hooks, HDMA, and animtiles under forced blank. Pause graphics live in a
                 // separate PPU image here, so discarding it restores the untouched runtime
                 // image without a host-authored reconstruction.
+                SamusState resumedSamus = runtime!.Samus ??
+                    throw new InvalidOperationException(
+                        "Pause teardown requires live Samus equipment state.");
+                // EquipmentScreenCategory_ButtonResponse mutates the live equipped word,
+                // but projectile character data and CGRAM are cached PPU resources. State
+                // `$11` reruns `$90:AC8D` before its accepted NMI; omitting that handoff
+                // made the new damage/type word immediate while art stayed stale until the
+                // next room load happened to invoke the same routine.
+                runtime.QueueGameplayBeamTilesAndLoadPalette(resumedSamus.EquippedBeams);
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 pauseBrightness = 0;

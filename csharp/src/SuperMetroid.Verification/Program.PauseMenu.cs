@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
@@ -143,6 +144,17 @@ internal static partial class Program
         WriteRomByte(rom, 0x9ab210, 0x80);
         WriteRomWord(rom, 0xb6f002, 0x7fff);
         WriteRomWord(rom, 0xb6f004, 0x03e0);
+
+        // Give Wave Beam its own unmistakable character bytes and palette. This is the
+        // PPU state that unpause must rebuild from the live word after an equipment toggle;
+        // no room load participates in the regression.
+        WriteRomWord(rom, SamusProjectileRomData.Beams.TilePointers + 2, 0x9000);
+        WriteRomWord(rom, SamusProjectileRomData.Beams.PalettePointers + 2, 0x9100);
+        for (int index = 0; index < 0x0100; index++)
+            WriteRomByte(rom, 0x9a9000 + index, unchecked((byte)(0x40 + index)));
+        for (int color = 0; color < SamusProjectileRomData.Palettes.ColorCount; color++)
+            WriteRomWord(rom, 0x909100 + color * 2, unchecked((ushort)(0x3200 + color)));
+
         var gameplayVram = new SnesVram();
         gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
         var bus = new SuperMetroidAddressSpace(rom);
@@ -216,6 +228,40 @@ internal static partial class Program
             "pause delayed Start requests outer unpause state");
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(812) & 0x1c00,
             "pause Start label switches to the native unpause palette");
+
+        // Re-enter the equipment page with only Wave collected so the pause code itself
+        // performs the mutation under test. The runtime handoff then consumes that same
+        // Samus word and the accepted NMI must expose Wave art immediately.
+        samus.CollectedBeams = (ushort)SamusBeamFlags.Wave;
+        samus.EquippedBeams = 0;
+        var beamPause = new PauseMenuState(
+            bus,
+            samus,
+            system,
+            areaIndex: AreaId.Crateria,
+            roomMapX: 28,
+            roomMapY: 1,
+            gameplayVram: gameplayVram);
+        beamPause.Step((ushort)SnesButton.R, 0);
+        for (int frame = 0; frame < 32; frame++)
+            beamPause.Step(0, 0);
+        AssertEqual(1, beamPause.SelectedCategory,
+            "Wave-only pause fixture selects beam category");
+        beamPause.Step(0, (ushort)SnesButton.A);
+        AssertEqual((ushort)SamusBeamFlags.Wave, samus.EquippedBeams,
+            "pause toggle immediately mutates live Wave equipment word");
+
+        var resumeRuntime = new SuperMetroidRuntime(bus);
+        resumeRuntime.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
+        resumeRuntime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+        AssertEqual(0x40, resumeRuntime.Vram.ReadByte(0x6300 * 2),
+            "unpause NMI exposes newly equipped Wave character data");
+        AssertEqual(0x3f, resumeRuntime.Vram.ReadByte(0x6300 * 2 + 0xff),
+            "unpause NMI transfers the complete Wave character range");
+        AssertEqual(0x3200, resumeRuntime.Cgram.Colors[0xe0],
+            "unpause immediately installs newly equipped Wave palette");
+        AssertEqual(0x320f, resumeRuntime.Cgram.Colors[0xef],
+            "unpause installs all sixteen Wave palette colors");
 
         // Use a second page with no map acquisition or explored cells so BG1 is blank at
         // the sampled point. BG2 is also transparent there. The pixel must therefore be

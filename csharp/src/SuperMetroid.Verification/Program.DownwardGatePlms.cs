@@ -14,12 +14,12 @@ internal static partial class Program
 
         var cases = new (DownwardGateTriggerBehavior Trigger, ushort Projectile, bool Accepted)[]
         {
+            (DownwardGateTriggerBehavior.BlueLeft, 0x0004, true),
+            (DownwardGateTriggerBehavior.BlueRight, 0x0300, false),
             (DownwardGateTriggerBehavior.GreenLeft, 0x0200, true),
             (DownwardGateTriggerBehavior.GreenRight, 0x0000, false),
             (DownwardGateTriggerBehavior.RedLeft, 0x0100, true),
             (DownwardGateTriggerBehavior.RedRight, 0x0200, true),
-            (DownwardGateTriggerBehavior.BlueLeft, 0x0300, false),
-            (DownwardGateTriggerBehavior.BlueRight, 0x0010, true),
             (DownwardGateTriggerBehavior.YellowLeft, 0x0300, true),
             // This counterintuitive inequality is present in the retail right-hand routine.
             (DownwardGateTriggerBehavior.YellowRight, 0x0000, true),
@@ -35,7 +35,7 @@ internal static partial class Program
     {
         (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
             RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
-                DownwardGateTriggerBehavior.GreenLeft);
+                DownwardGateTriggerBehavior.BlueLeft);
 
         AssertEqual(2, plms.ActiveCount, "gate and shot-block records retain separate PLM slots");
         RoomPlmSlotSnapshot[] slots = plms.PopulationSlots.ToArray();
@@ -43,8 +43,8 @@ internal static partial class Program
         AssertEqual(RoomPlmHeaders.DownwardGate, slots[0].HeaderPointer,
             "first resident slot is the closed downward gate");
         AssertEqual(38, slots[1].NativeSlotIndex, "shot block receives the next native slot");
-        AssertEqual(RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
-            slots[1].InstructionPointer, "shot block selects its ROM table instruction list");
+        AssertEqual(RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
+            slots[1].InstructionPointer, "argument zero selects the retail blue-left list");
 
         for (int row = 0; row < DownwardGatePlmRomData.GateHeightInBlocks; row++)
         {
@@ -55,9 +55,9 @@ internal static partial class Program
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(gateBlockIndex - 1).CollisionType,
             "left trigger table installs a shootable block");
-        AssertEqual((int)DownwardGateTriggerBehavior.GreenLeft,
+        AssertEqual((int)DownwardGateTriggerBehavior.BlueLeft,
             level.GetCollisionBlockByIndex(gateBlockIndex - 1).Behavior,
-            "left trigger table installs green-left BTS");
+            "argument zero installs retail blue-left BTS $46");
 
         DownwardGateProjectileRequest request = plms.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Spawn, request.Operation,
@@ -93,15 +93,16 @@ internal static partial class Program
             "closed gate actor reaches its cartridge sleep before a shot can wake it");
 
         // The closed resident list first draws its collision state and then sleeps under
-        // $BB6B. A valid left-green super hit wakes both the PLM and its associated actor.
+        // $BB6B. The Green Hill Zone fixture uses room argument zero, so an ordinary beam
+        // must wake its blue-left gate exactly as it does in room $8F:9E52.
         StepDownwardGatePlm(plms, bus, level, streamer);
         StepDownwardGatePlm(plms, bus, level, streamer);
         AssertTrue(plms.TrySpawnDownwardGateTrigger(
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
-                0x0200),
-            "super missile reaches the sleeping closed gate");
+                0x0004),
+            "power beam reaches the sleeping blue gate");
         StepDownwardGatePlm(plms, bus, level, streamer);
         DownwardGateProjectileRequest wake = plms.TakeDownwardGateProjectileRequests().Single();
         AssertEqual(DownwardGateProjectileOperation.Wake, wake.Operation,
@@ -131,8 +132,8 @@ internal static partial class Program
                 level,
                 gateBlockIndex - 1,
                 level.GetCollisionBlockByIndex(gateBlockIndex - 1).Bts,
-                0x0200),
-            "second super missile reaches the sleeping open gate");
+                0x0004),
+            "second power beam reaches the sleeping open blue gate");
         // The open-state collision image remains for sixteen frames before $BBE1 spawns
         // the downward-moving actor, exactly as list $BC13 specifies.
         for (int frame = 0; frame < 17; frame++)
@@ -192,12 +193,12 @@ internal static partial class Program
 
         ushort[] lists =
         [
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
             RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
             RoomPlmInstructionLists.DownwardGateShotBlockBlueRight,
+            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
+            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
+            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
+            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
             RoomPlmInstructionLists.DownwardGateShotBlockYellowLeft,
             RoomPlmInstructionLists.DownwardGateShotBlockYellowRight,
         ];
@@ -273,12 +274,12 @@ internal static partial class Program
 
         ushort[] triggerLists =
         [
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
-            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
             RoomPlmInstructionLists.DownwardGateShotBlockBlueLeft,
             RoomPlmInstructionLists.DownwardGateShotBlockBlueRight,
+            RoomPlmInstructionLists.DownwardGateShotBlockRedLeft,
+            RoomPlmInstructionLists.DownwardGateShotBlockRedRight,
+            RoomPlmInstructionLists.DownwardGateShotBlockGreenLeft,
+            RoomPlmInstructionLists.DownwardGateShotBlockGreenRight,
             RoomPlmInstructionLists.DownwardGateShotBlockYellowLeft,
             RoomPlmInstructionLists.DownwardGateShotBlockYellowRight,
         ];

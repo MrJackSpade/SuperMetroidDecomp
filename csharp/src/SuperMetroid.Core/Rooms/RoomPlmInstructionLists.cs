@@ -14,13 +14,21 @@ public static class RoomPlmInstructionLists
     /// <summary>Downward gate's open-and-wait loop at <c>$84:BC3A</c>.</summary>
     public const ushort DownwardGateOpening = 0xbc3a;
 
-    public const ushort DownwardGateShotBlockGreenLeft = 0xbcaf;
-    public const ushort DownwardGateShotBlockGreenRight = 0xbcb5;
+    /// <summary><c>$84:BCAF InstList_PLM_DownwardsGateShotblock_BlueLeft</c>.</summary>
+    public const ushort DownwardGateShotBlockBlueLeft = 0xbcaf;
+    /// <summary><c>$84:BCB5 InstList_PLM_DownwardsGateShotblock_BlueRight</c>.</summary>
+    public const ushort DownwardGateShotBlockBlueRight = 0xbcb5;
+    /// <summary><c>$84:BCBB InstList_PLM_DownwardsGateShotblock_RedLeft</c>.</summary>
     public const ushort DownwardGateShotBlockRedLeft = 0xbcbb;
+    /// <summary><c>$84:BCC1 InstList_PLM_DownwardsGateShotblock_RedRight</c>.</summary>
     public const ushort DownwardGateShotBlockRedRight = 0xbcc1;
-    public const ushort DownwardGateShotBlockBlueLeft = 0xbcc7;
-    public const ushort DownwardGateShotBlockBlueRight = 0xbccd;
+    /// <summary><c>$84:BCC7 InstList_PLM_DownwardsGateShotblock_GreenLeft</c>.</summary>
+    public const ushort DownwardGateShotBlockGreenLeft = 0xbcc7;
+    /// <summary><c>$84:BCCD InstList_PLM_DownwardsGateShotblock_GreenRight</c>.</summary>
+    public const ushort DownwardGateShotBlockGreenRight = 0xbccd;
+    /// <summary><c>$84:BCD3 InstList_PLM_DownwardsGateShotblock_YellowLeft</c>.</summary>
     public const ushort DownwardGateShotBlockYellowLeft = 0xbcd3;
+    /// <summary><c>$84:BCD9 InstList_PLM_DownwardsGateShotblock_YellowRight</c>.</summary>
     public const ushort DownwardGateShotBlockYellowRight = 0xbcd9;
     /// <summary><c>$84:AAE3 InstList_PLM_Delete</c>.</summary>
     public const ushort Delete = 0xaae3;

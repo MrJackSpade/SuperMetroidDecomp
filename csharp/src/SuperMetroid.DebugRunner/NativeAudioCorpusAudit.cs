@@ -2,6 +2,8 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Rechecks the desktop's shared-cue corpus against native BRR playback before accepting
@@ -9,7 +11,7 @@ using SuperMetroid.Core.Audio;
 /// </summary>
 internal static class NativeAudioCorpusAudit
 {
-    public static int Run(string audioDirectory, string dllPath)
+    public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -19,12 +21,34 @@ internal static class NativeAudioCorpusAudit
         var upload = Export<Upload>("sm_audio_upload");
         var write = Export<Write>("sm_audio_write_port");
         var read = Export<Read>("sm_audio_read_port");
+        var readDsp = Export<Read>("sm_audio_read_dsp_register");
         var generate = Export<Generate>("sm_audio_generate_frame");
         using var pcmHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using var portHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         int totalFrames = 0;
         try
         {
+            if (recordingPath is not null)
+            {
+                var recording = ControllerInputRecording.Read(recordingPath);
+                string rom = romPath ?? throw new ArgumentNullException(nameof(romPath));
+                if (!SHA256.HashData(File.ReadAllBytes(rom)).AsSpan().SequenceEqual(recording.RomSha256))
+                    throw new InvalidDataException("Recorded audio probe ROM digest mismatch.");
+                var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+                recording.InitialSaveRam.CopyTo(bus.SaveRam);
+                var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
+                int pausedFrames = 0;
+                Scenario("recorded-player-audio", recording.ControllerInputs.Length, frame =>
+                {
+                    var result = game.Step(recording.ControllerInputs[frame]);
+                    if (result.GameState == SuperMetroidGameState.PausedB) pausedFrames++;
+                    return result.AudioCommands.ToArray();
+                }, ports => game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3])));
+                if (pausedFrames == 0) throw new InvalidDataException("Recording did not reach an active pause menu.");
+                Console.WriteLine($"Recorded audio matched {totalFrames} complete PCM/acknowledgement frames, including {pausedFrames} stable pause frames; PCM={Convert.ToHexString(pcmHash.GetHashAndReset())}.");
+                Console.WriteLine("This compares generated PCM, not Windows/RDP endpoint playback; it does not establish that the reported audible defect is fixed.");
+                return 0;
+            }
             Music("title-long", AudioAssetCatalogData.Music[0].SnesAddress, 600);
             foreach (var bank in AudioAssetCatalogData.Music) Music(bank.Name, bank.SnesAddress, 120);
             Sound("library-1-power-beam", [(1, SoundEffectLibrary1Sounds.PowerBeam.Value)]);
@@ -68,7 +92,7 @@ internal static class NativeAudioCorpusAudit
             frame => frame == 0 ? new[] { U(AudioUploadAddresses.SpcEngine) }.Concat(start.Select(c => W(c.Port, c.Command))).ToArray()
             : cancel && frame == 60 ? [W(1, SoundEffectLibrary1Sounds.CancelAll.Value), W(2, SoundEffectLibrary2Sounds.CancelAll.Value), W(3, SoundEffectLibrary3Sounds.CancelAll.Value)] : []);
 
-        void Scenario(string name, int frames, Func<int, CartridgeAudioCommand[]> commands)
+        void Scenario(string name, int frames, Func<int, CartridgeAudioCommand[]> commands, Action<byte[]>? acknowledge = null)
         {
             nint native = create();
             if (native == 0) throw new InvalidOperationException("Native audio allocation failed.");
@@ -80,10 +104,13 @@ internal static class NativeAudioCorpusAudit
                 var actual = new short[1600];
                 byte[] nameBytes = Encoding.UTF8.GetBytes(name);
                 var ports = new byte[4];
+                var recentCommands = new Queue<string>();
                 for (int frame = 0; frame < frames; frame++)
                 {
                     foreach (var command in commands(frame))
                     {
+                        recentCommands.Enqueue($"frame={frame} {command}");
+                        if (recentCommands.Count > 12) recentCommands.Dequeue();
                         if (command.Kind == CartridgeAudioCommandKind.Upload)
                         {
                             byte[] stream = assets.GetUpload(command.UploadAddress).ToArray();
@@ -104,6 +131,13 @@ internal static class NativeAudioCorpusAudit
                     managed.GenerateFrame(actual);
                     if (!actual.AsSpan().SequenceEqual(nativeHost))
                     {
+                        foreach (string recent in recentCommands) Console.WriteLine(recent);
+                        for (byte register = 0; register < 128; register++)
+                        {
+                            int expected = readDsp(native, register);
+                            int value = managed.ReadDspRegisterForVerification(register);
+                            if (value != expected) Console.WriteLine($"DSP ${register:X2}: managed=${value:X2}, native=${expected:X2}");
+                        }
                         int first = Enumerable.Range(0, actual.Length).First(i => actual[i] != nativeHost[i]);
                         throw new InvalidDataException($"Native corpus {name} frame={frame} sample={first}: managed={actual[first]}, native={nativeHost[first]}.");
                     }
@@ -117,6 +151,7 @@ internal static class NativeAudioCorpusAudit
                     pcmHash.AppendData(MemoryMarshal.AsBytes(nativeHost.AsSpan()));
                     portHash.AppendData(nameBytes);
                     portHash.AppendData(ports);
+                    acknowledge?.Invoke(ports);
                     totalFrames++;
                 }
             }

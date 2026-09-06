@@ -11,6 +11,7 @@ internal static partial class Program
     {
         VerifyFileSelectStationMarker();
         VerifyFileSelectMapScroll();
+        VerifyFileSelectMapNavigation();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -64,6 +65,53 @@ internal static partial class Program
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
         }
+    }
+
+    private static void VerifyFileSelectMapNavigation()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach (ushort confirm in new ushort[] { 0x1000, 0x0080 })
+        {
+            var navigation = new FileSelectMapNavigation(bus, 4, confirm);
+            navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase,
+                "options confirmation carried into map must not immediately confirm the area");
+            navigation.Step(0x0f20);
+            AssertEqual(FileSelectMapNavigationPhase.Area, navigation.Phase, "non-debug direction/select cannot cycle area");
+            navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.PreparingWindow, navigation.Phase, "area confirm preserves prep boundary");
+            navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.ExpandingWindow, navigation.Phase, "map prep initializes expansion separately");
+            for (int frame = 0; frame < 52; frame++) navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.InitializingRoom, navigation.Phase,
+                "Maridia window completes before installing room map");
+            navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.Room, navigation.Phase, "room map requires separate confirmation");
+            for (int frame = 0; frame < 20; frame++) navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.Room, navigation.Phase, "holding confirm cannot skip room map");
+            navigation.Step(0);
+            navigation.Step(confirm);
+            AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "fresh second confirm requests gameplay");
+            navigation.Step(0x8000);
+            AssertEqual(FileSelectMapNavigationPhase.LoadRequested, navigation.Phase, "load request remains pending until frontend handles it");
+        }
+        var cancel = new FileSelectMapNavigation(bus, 4);
+        cancel.Step(0x9180);
+        AssertEqual(FileSelectMapNavigationPhase.Area, cancel.Phase,
+            "native non-debug direction branch suppresses simultaneous cancel and confirm");
+        cancel.Step(0);
+        cancel.Step(0x9080);
+        AssertEqual(FileSelectMapNavigationPhase.OptionsRequested, cancel.Phase, "B takes precedence over confirm on area map");
+        var back = new FileSelectMapNavigation(bus, 4);
+        back.Step(0x1000);
+        for (int frame = 0; frame < 54; frame++) back.Step(0);
+        back.Step(0x8000);
+        AssertEqual(FileSelectMapNavigationPhase.AreaReturnRequested, back.Phase, "room cancel requests animated return");
+        back.Step(0x1000);
+        back.CompleteAreaReturn();
+        back.Step(0x1000);
+        AssertEqual(FileSelectMapNavigationPhase.Area, back.Phase, "return transition consumes held input without deferred confirmation");
+        AssertThrows<InvalidOperationException>(() => back.CompleteAreaReturn(), "unsolicited area-return completion fails");
     }
 
     private static void VerifyFileSelectMapScroll()

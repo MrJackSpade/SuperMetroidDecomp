@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--quicksand-comparison-audit")
+    return QuicksandComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--missile-reuse-audit")
     return MissileReuseAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--sand-physics-audit")

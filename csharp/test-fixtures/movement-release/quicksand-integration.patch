@@ -1,0 +1,20 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -315,2 +315,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 3 && strcmp(argv[1], "--quicksand-probe") == 0) {
++    extern int DiagnosticQuicksand(const char *rom);
++    return DiagnosticQuicksand(argv[2]);
++  }
+ #ifdef __SWITCH__
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -10,3 +10,6 @@
+ struct StateRecorder;
++
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-quicksand-probe.h"
+ 
+ static void RtlSaveMusicStateToRam_Locked();

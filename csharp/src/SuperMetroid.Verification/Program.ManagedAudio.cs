@@ -12,8 +12,27 @@ internal static partial class Program
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
         VerifyLinearStereoResampler();
+        VerifyStereoPcmContinuityMeter();
         VerifyManagedSpcUsesAddressedFirCoefficients();
         VerifyManagedSpcSoundOwnershipPreservesPhase();
+    }
+
+    private static void VerifyStereoPcmContinuityMeter()
+    {
+        var meter = new StereoPcmContinuityMeter();
+        // Opposite full-scale channels are individually constant, including at seams.
+        short[] constant = [short.MaxValue, short.MinValue, short.MaxValue, short.MinValue];
+        meter.Observe(constant);
+        meter.Observe([]);
+        meter.Observe(constant);
+        AssertEqual(0, meter.MaximumWithinBufferDelta, "stereo separation is not temporal noise");
+        AssertEqual(0, meter.MaximumBoundaryDelta, "boundary compares matching channels");
+
+        meter.Observe([short.MaxValue, short.MaxValue]);
+        AssertEqual(65535, meter.MaximumBoundaryDelta, "right-only full-range seam is measured without overflow");
+        meter.Observe([short.MaxValue, short.MaxValue, short.MaxValue, short.MinValue]);
+        AssertEqual(65535, meter.MaximumWithinBufferDelta, "right-only within-buffer step is measured");
+        AssertThrows<ArgumentException>(() => meter.Observe(new short[1]), "half stereo frame rejected");
     }
 
     /// <summary>

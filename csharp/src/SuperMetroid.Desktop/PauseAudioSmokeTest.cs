@@ -28,21 +28,15 @@ public static class PauseAudioSmokeTest
         int frames = 0;
         int pauseFrames = 0;
         int commandCount = 0;
-        int maximumAdjacentDelta = 0;
-        int maximumBoundaryDelta = 0;
+        var continuity = new StereoPcmContinuityMeter();
         var pauseSetupPortWrites = new List<(byte Port, byte Value)>();
-        short? precedingSample = null;
 
         FrontendFrame Step(ushort input)
         {
             FrontendFrame next = game.Step(input);
             ReadOnlySpan<short> samples = audio.RenderFrame(next.AudioCommands);
             commandCount += next.AudioCommands.Count;
-            if (precedingSample is short previous)
-                maximumBoundaryDelta = Math.Max(maximumBoundaryDelta, Math.Abs(samples[0] - previous));
-            for (int index = 1; index < samples.Length; index++)
-                maximumAdjacentDelta = Math.Max(maximumAdjacentDelta, Math.Abs(samples[index] - samples[index - 1]));
-            precedingSample = samples[^1];
+            continuity.Observe(samples);
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             frames++;
             if (next.GameState is >= SuperMetroidGameState.PausingDarkening and
@@ -117,6 +111,8 @@ public static class PauseAudioSmokeTest
                 $"in order; writes=[{string.Join(',', pauseSetupPortWrites.Select(write =>
                     $"{write.Port}:{write.Value:X2}"))}].");
         }
+        int maximumBoundaryDelta = continuity.MaximumBoundaryDelta;
+        int maximumAdjacentDelta = continuity.MaximumWithinBufferDelta;
         if (maximumBoundaryDelta > maximumAdjacentDelta)
         {
             throw new InvalidDataException(

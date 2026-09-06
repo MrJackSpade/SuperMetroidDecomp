@@ -11,9 +11,7 @@ diff --git a/src/main.c b/src/main.c
 diff --git a/src/sm_rtl.c b/src/sm_rtl.c
 --- a/src/sm_rtl.c
 +++ b/src/sm_rtl.c
-@@ -10,3 +10,6 @@
- struct StateRecorder;
- 
+@@ -12 +12,4 @@
 +#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
 +#include "../../csharp/test-fixtures/movement-release/native-jump-turn-probe.h"
 +

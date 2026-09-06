@@ -26,3 +26,14 @@ accepted cartridge expectations or proof of a fix. Compare the corresponding
 native speed/pose sequence before changing production movement code.
 
 This fixture contains no player SRAM, controller history or debugger snapshot.
+
+## Cartridge comparison: falling speed
+
+The headless `--movement-release-probe` now also executes the original
+`$90:9B1F` routine directly for twenty calls, starting from base `2.9800` and
+acceleration mode two, using the retail air and water falling records. Both
+produce `1.0000, 1.C000, 1.0000, 1.C000, ...`. The signed fractional comparison
+permits this alternation in the cartridge too. The Verification suite asserts
+these CPU-observed base-speed sequences against the production calculation.
+This rules out the observed alternating falling base speeds as a discrepancy
+for that initial state. It does not establish parity for the complete door exit.

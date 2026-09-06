@@ -83,5 +83,20 @@ int DiagnosticMovementRelease(const char *rom) {
       if (frame == 99) printf("STOP water=%d keep-direction=%d distance=%08X pose=%04X speed=%04X.%04X\n", water, keep_direction, travelled, samus_pose, samus_x_base_speed, samus_x_base_subspeed);
     }
   }
+  // Isolate the post-ledge falling speed calculation from collision and rendering.
+  // Mode two is the retained no-input running-release mode; the no-deceleration
+  // entry point accelerates it. Its signed fractional cap can visibly alternate.
+  for (int water = 0; water < 2; water++) {
+    memset(g_ram, 0, sizeof(g_ram));
+    samus_x_accel_mode = 2;
+    samus_x_base_speed = 2;
+    samus_x_base_subspeed = 0x9800;
+    uint16 entry = (water ? 0xa08d : 0x9f55) + 12 * 6;
+    for (int frame = 0; frame < 20; frame++) {
+      RunAsmCode(0x909b1f, 0, entry, 0, 0);
+      printf("FALL_SPEED water=%d frame=%d base=%04X.%04X mode=%d\n",
+        water, frame, samus_x_base_speed, samus_x_base_subspeed, samus_x_accel_mode);
+    }
+  }
   return 0;
 }

@@ -30,6 +30,7 @@ Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();
         VerifyQuicksand();
+        VerifyPausePaletteSound();
 VerifyKnownRandomSequence();
 VerifyTimedHeldInputTimeline();
 VerifyEventBitfield();

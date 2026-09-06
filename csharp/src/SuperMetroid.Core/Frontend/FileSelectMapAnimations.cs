@@ -8,12 +8,12 @@ public sealed class FileSelectMapAnimations
 {
     private readonly ISnesAddressSpace bus;
     private readonly Arrow[] arrows = new Arrow[4];
-    private byte paletteTimer = 1;
-    private byte paletteFrame;
+    private readonly MapPaletteAnimation palette;
 
     public FileSelectMapAnimations(ISnesAddressSpace bus)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        palette = new MapPaletteAnimation(bus);
         for (int index = 0; index < arrows.Length; index++)
         {
             int record = FileSelectMapRomData.ScrollArrows + index * 10;
@@ -27,27 +27,10 @@ public sealed class FileSelectMapAnimations
     }
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
-    public void ResetPalette() { paletteTimer = 1; paletteFrame = 0; }
+    public void ResetPalette() => palette.Reset();
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
-    public bool StepPalette(SnesCgram cgram)
-    {
-        if (paletteTimer == 0 || --paletteTimer != 0) return false;
-        paletteFrame++;
-        byte delay = bus.ReadByte(MapAnimationRomData.PaletteTiming + paletteFrame * 3);
-        bool looped = delay == byte.MaxValue;
-        if (looped)
-        {
-            paletteFrame = 0;
-            delay = bus.ReadByte(MapAnimationRomData.PaletteTiming);
-            if (delay == byte.MaxValue) throw new InvalidDataException("Map palette animation has no frames.");
-        }
-        paletteTimer = delay;
-        for (int color = 0; color < 16; color++)
-            cgram.SetColor(MapAnimationRomData.PaletteDestination + color,
-                Read(MapAnimationRomData.PaletteColors + paletteFrame * 32 + color * 2));
-        return looped;
-    }
+    public bool StepPalette(SnesCgram cgram) => palette.Step(cgram);
 
     /// <summary>Arrows advance only when their native boundary test allows them to be drawn.</summary>
     public void StepArrows(Func<MapScrollDirection, bool> available)

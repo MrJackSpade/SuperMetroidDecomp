@@ -23,6 +23,7 @@ internal sealed class PauseMenuState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
+    private readonly MapPaletteAnimation paletteAnimation;
     private readonly SamusState samus;
     private readonly Bank80SystemState system;
     private readonly AreaId area;
@@ -63,6 +64,7 @@ internal sealed class PauseMenuState
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
+        paletteAnimation = new MapPaletteAnimation(bus);
         area = areaIndex;
         _ = AreaIds.ToIndex(areaIndex);
         this.roomMapX = roomMapX;
@@ -259,6 +261,8 @@ internal sealed class PauseMenuState
     /// </remarks>
     public void AdvanceAnimations()
     {
+        if (paletteAnimation.Step(cgram))
+            audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == 0)
             StepMapIndicatorAnimation();
         else

@@ -43,3 +43,30 @@ engine, Lower Crateria and Upper Norfair streams all retain track one's pointer
 `530E`; their track-five pointers differ (`582E`, `582C`, `582A`). Keep the old
 hashes as coverage of shared cues/upload handling, not evidence that room songs
 match. No fix or player validation is claimed by this experiment.
+
+## Tick-aligned sequencer comparison
+
+With the same integration patch applied and native build completed:
+
+```powershell
+& './upstream-sm/build/bin-x64-Release/sm.exe' --spc-cpu-tick-probe standalone-assets/audio/streams/00-SPCEngine.spcu standalone-assets/audio/streams/09-Music_LowerCrateria.spcu | Out-File -Encoding ascii csharp/test-temp/spc-ticks.log
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --spc-tick-comparison-audit standalone-assets/audio D288CA csharp/test-temp/spc-ticks.log
+```
+
+The original interpreter is sampled at its loop synchronization PCs `15C4/15C5`.
+Each record includes elapsed timer ticks, all DSP registers, and latched input
+bytes. The managed probe calls the actual private driver methods through a
+diagnostic-only reflection adapter, using those same timer ticks and newly
+latched input changes. It reconstructs reset before stepping: calling reset twice
+without clearing cached echo-delay state is not equivalent to a fresh CPU reset.
+
+This compares register state after each driver iteration, excluding DSP-generated
+ENVX, OUTX and ENDX. It does not compare write order, sample-cycle timing, PCM,
+input-port latency or host output. Music begins after tick 500, Charge Beam after
+1800, and cancellation after 2300; the run stops at 3000 ticks. Missing ticks,
+malformed register records or any differing compared register produce failure.
+
+Verified: Lower Crateria (`D288CA`), Green Brinstar (`D3933C`), Upper Norfair
+(`D4B86C`), and Maridia (`D5C844`) each matched all 3000 ticks, including active
+Charge Beam cancellation. This narrows the investigation toward sample rendering,
+DSP timing or host playback for these scenarios; it does not resolve #54.

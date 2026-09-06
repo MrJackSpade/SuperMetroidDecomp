@@ -23,7 +23,7 @@ static bool ProbeLoadSpcStream(Apu *apu, const char *path) {
   return false;
 }
 
-int DiagnosticSpcCpu(const char *engine, const char *music) {
+int DiagnosticSpcCpu(const char *engine, const char *music, bool tickTrace) {
 #ifdef _WIN32
   SetErrorMode(1 | 2);
 #endif
@@ -36,6 +36,33 @@ int DiagnosticSpcCpu(const char *engine, const char *music) {
   // Execute initialization from the uploaded driver's entry, not the IPL upload
   // handshake. Commands wait a full second for initialization to finish.
   apu->spc->pc = 0x1500;
+  if (tickTrace) {
+    int target = 0x15c4, tick = 0;
+    uint8 elapsed = 0;
+    // These are the same two synchronization PCs used by the upstream SPC
+    // translation comparator. Bound cycles as well as ticks to catch a stuck CPU.
+    for (unsigned cycle = 0; cycle < 20000000 && tick < 3000; cycle++) {
+      apu_cycle(apu);
+      if (apu->dsp->sampleOffset == 534) apu->dsp->sampleOffset = 0;
+      if (apu->spc->pc != target) continue;
+      target ^= 0x15c4 ^ 0x15c5;
+      if (target != 0x15c4) continue;
+      printf("T %d %u ", tick, elapsed);
+      for (int reg = 0; reg < 128; reg++) printf("%02X", apu->dsp->ram[reg]);
+      printf(" ");
+      for (int port = 0; port < 4; port++) printf("%02X", apu->ram[port]);
+      printf("\n");
+      elapsed = apu->spc->y;
+      if (tick == 500) apu->inPorts[0] = 5;
+      if (tick == 1800) apu->inPorts[1] = 8;
+      if (tick == 2300) { apu->inPorts[1] = 2; apu->inPorts[2] = 0x71; apu->inPorts[3] = 1; }
+      tick++;
+      apu->hist.count = 0;
+    }
+    apu_free(apu);
+    if (tick != 3000) { fprintf(stderr, "SPC tick trace timed out at %d\n", tick); return 4; }
+    return 0;
+  }
   bool heard = false;
   for (int frame = 0; frame < 600; frame++) {
     if (frame == 60) apu->inPorts[0] = 5;

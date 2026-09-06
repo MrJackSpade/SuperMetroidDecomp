@@ -1349,6 +1349,8 @@ public sealed partial class SuperMetroidRuntime
             // attempts another frame. A finally seam is therefore mandatory: otherwise a
             // frame that throws after borrowing the last round leaves live ammo at two.
             infiniteAmmoGuard.Complete(Samus);
+            // A failed demo frame must not leak scripted input into the player latch.
+            RestoreAttractPlayerInput();
         }
     }
 
@@ -1697,6 +1699,7 @@ public sealed partial class SuperMetroidRuntime
             // animation later in this same frame. Native alpha/beta/transition phases all
             // agree on that order; using the mutable value afterward would apply an input
             // match selected for the old pose to the newly installed one.
+            BeginAttractSamusInput();
             byte poseAtFrameStart = Samus.Pose;
             SamusMovementType movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
 
@@ -3746,8 +3749,10 @@ public sealed partial class SuperMetroidRuntime
                     MapRevealMode);
             }
 
-            if (!deathOwnsSamus)
+            RestoreAttractPlayerInput();
+            if (!deathOwnsSamus && !IsAttractDemo)
             {
+                // Demo beta omits periodic liquid damage and the pause/low-health calls.
                 // `$90:E74D` consumes the lava/acid words produced during AnimateSamus.
                 // X-ray freezes time and therefore clears rather than applies accumulated
                 // damage; fatal zero-energy game-state acquisition remains the outer seam.

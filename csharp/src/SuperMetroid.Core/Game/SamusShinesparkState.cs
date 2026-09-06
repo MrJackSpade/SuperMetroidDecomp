@@ -143,6 +143,19 @@ public sealed class SamusShinesparkState
         if (Phase != ShinesparkPhase.Stored || ShineTimer == 0)
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
+        InitializeWindup(samus);
+    }
+
+    /// <summary>DemoSetFunc_5/6 call the native windup initializer without a stored shine.</summary>
+    internal void BeginDemoLaunch(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    {
+        InitializeWindup(samus);
+        BeginDirectionalLaunch(bus, samus, targetPose);
+    }
+
+    private void InitializeWindup(SamusState samus)
+    {
+
         // These are literal native writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.
         samus.Kinematics.YDirection = 1;

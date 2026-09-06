@@ -83,6 +83,50 @@ internal static class SandRoomAudit
                 Console.WriteLine($"  {group.Key}: {group.Count()} blocks; first={group.First().Index}");
             if (room.RoomIndex == 0x24)
             {
+                Console.WriteLine($"  Room main=${room.State.MainCodePointer:X4}, setup=${room.State.SetupCodePointer:X4}");
+                if (room.State.MainCodePointer != 0 || bus.ReadByte(0x8f0000 | room.State.SetupCodePointer) != 0x60)
+                    throw new InvalidDataException("The reported room unexpectedly has executable room setup/main behavior.");
+                for (int row = 60; row < level.HeightInBlocks; row++)
+                {
+                    var resolved = Enumerable.Range(0, level.WidthInBlocks).Select(x =>
+                    {
+                        var block = level.GetCollisionBlockOrPrefilledSolid(x, row);
+                        SamusBlockCollision.TryResolveExtension(level, ref block);
+                        if (row == level.HeightInBlocks - 1 && block.CollisionType != RoomCollisionType.SolidBlock)
+                            throw new InvalidDataException("The reported room no longer has an entirely solid bottom boundary.");
+                        return $"{x}:{block.CollisionType}/{block.Behavior:X2}";
+                    });
+                    Console.WriteLine($"  Lower row {row}: {string.Join(' ', resolved)}");
+                }
+                foreach (byte doorIndex in new byte[] { 0, 1, 2, 3 })
+                {
+                    var door = level.ResolveDoorCollision(bus, doorIndex, 1, publishDoorSideEffects: false);
+                    var destination = CartridgeRoomHeader.Load(bus, door.DestinationRoomPointer);
+                    if (door.Orientation is not (4 or 5))
+                        throw new InvalidDataException("The reported room contains an unexpected vertical door.");
+                    Console.WriteLine($"  Door {doorIndex}: {door} -> {destination.Identity}");
+                }
+                var floorSamus = runtime.Samus!;
+                floorSamus.InputLocked = false;
+                floorSamus.Pose = 1;
+                floorSamus.InitializeAnimation(bus);
+                floorSamus.EquippedItems = 0;
+                floorSamus.Kinematics.YRadius = 16;
+                floorSamus.XPosition = 88;
+                floorSamus.YPosition = 961;
+                floorSamus.Kinematics.YDirection = 0;
+                for (int frame = 0; frame < 240; frame++)
+                {
+                    floorSamus.InvincibilityTimer = ushort.MaxValue;
+                    runtime.StepFrame(0);
+                    runtime.RunNmi(0, true);
+                    if (runtime.HasPendingDoorTransition)
+                        throw new InvalidDataException($"Unexpected sand-floor door at frame {frame}.");
+                }
+                uint expectedStop = ((uint)((level.HeightInBlocks - 1) * 16 - floorSamus.Kinematics.YRadius) << 16) | ushort.MaxValue;
+                if (floorSamus.Kinematics.YFixed != expectedStop)
+                    throw new InvalidDataException($"Sand floor expected Y=${expectedStop:X8}, got ${floorSamus.Kinematics.YFixed:X8}.");
+                Console.WriteLine("  PASS: 240 sand-floor frames reach the cartridge's solid bottom boundary without inventing a door transition.");
                 if (runtime.SandAnimatedTiles.Count != 0)
                     throw new InvalidDataException("$04/$24 has no sand animation bits and must not inherit the preceding room's objects.");
                 continue;

@@ -1,4 +1,4 @@
-# Movement-release cartridge probe — diagnostic, not a passing regression
+# Movement-release cartridge probe and runtime regression
 
 This console-only experiment constructs a flat floor and running-left Samus at
 full base speed, then releases all input in dry and submerged variants. It has
@@ -6,19 +6,30 @@ no player recording, SRAM, or ROM bytes. Supply a local cartridge separately.
 
 ## Status / limitations
 
-**Do not use this probe's current trajectory as a golden expected result.**
-The dry control unexpectedly clears base speed on the first movement call, and
-the submerged trace gains a further one-pixel left shift between movement and
-the end of the pose/animation calls. The starting state or callable-routine
-boundaries need investigation before this can establish gameplay parity.
+The dry-control initialization was corrected: ordinary air starts at `$90:9F55`,
+not the preceding `$90:9F49` standalone grapple record. Both previous-movement
+bytes now agree with the running pose. The extra one-pixel pose-stage movement
+was traced to `$91:EADE` / `$91:EB48` and is **real cartridge behavior**, not a
+fixture error. The disassembly explicitly identifies the retained forward move.
+
+The C# runtime passed only matched input poses to this check, omitting a running
+pose retained by no-input fallback. `--running-release-audit ROM` reproduces this
+through `StepFrame`: before the fix, its first X was `$00C5.4000` instead of the
+CPU's `$00C4.4000`. After the fix, four exact X positions, base speeds, and retained
+one-pixel probe displacements pass for both directions in dry and water fixtures.
+
+For left-facing water, the first four CPU X values are `$00C4.4000`, `$00C0.8800`,
+`$00BC.D800`, `$00B9.3000`. Dry values are `$00C4.4000`, `$00C1.0000`, `$00BE.4000`,
+`$00BC.0000`. These are synthetic experiment results, not player-recording data.
 
 The probe explicitly restores cartridge bytes after `SnesInit`: the upstream
 comparison harness patches carry instructions, which must not silently become
-the reference for a retail comparison. This alone did not correct the control.
+the reference for a retail comparison.
 
-Next: isolate each native call, validate its entry prerequisites, and establish
-a stable dry-floor control before comparing the managed runtime. Do not clamp
-door-exit speed based on this experiment. Issues #312/#313 remain unresolved.
+Scope: this proves the no-input release-path defect, not the original pipe-exit
+speed (#312), full stopping trajectories, or release of Dash while direction is
+still held. The player's exact meaning of release in #313 remains ambiguous.
+Do not declare either whole ticket resolved from these four-frame fixtures.
 
 ## Running
 

@@ -46,10 +46,10 @@ int DiagnosticMovementRelease(const char *rom) {
     samus_y_radius = 21;
     samus_pose = samus_prev_pose = 10; // Running left.
     samus_pose_x_dir = samus_prev_pose_x_dir = 4;
-    samus_movement_type = samus_prev_movement_type = 1;
+    samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = 1;
     samus_x_base_speed = 2;
     samus_x_base_subspeed = 0xc000; // Full running base speed, no extra run speed.
-    samus_x_speed_table_pointer = 0x9f49; // Normal table; water selector overrides it.
+    samus_x_speed_table_pointer = 0x9f55; // Retail normal table, not preceding grapple entry.
     samus_input_handler = 0xe913;
     samus_health = 99;
     samus_anim_frame_timer = 5;

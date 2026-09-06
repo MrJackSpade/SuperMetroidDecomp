@@ -2988,7 +2988,13 @@ public sealed partial class SuperMetroidRuntime
                     byte? prospectiveRunningPose =
                         ProspectiveSamusPose is { ProspectivePose: <= byte.MaxValue } prospective
                             ? unchecked((byte)prospective.ProspectivePose)
-                            : null;
+                            // Native alpha writes the same prospective-pose slot for a
+                            // table match and a no-input fallback. A decelerating run
+                            // retains its running pose and must still take EADE's real
+                            // one-pixel forward move; omitting it shortens release drift.
+                            : ProspectiveSamusFallbackPose is <= byte.MaxValue
+                                ? (byte)ProspectiveSamusFallbackPose.Value
+                                : null;
                     ProspectiveSamusWallCollisionPose =
                         Samus.CheckProspectiveRunningPoseForWall(
                             _addressSpace,

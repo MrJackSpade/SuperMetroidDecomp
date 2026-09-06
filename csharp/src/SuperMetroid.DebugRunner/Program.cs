@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--short-tap-audit")
+    return ShortTapAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--running-release-audit")
     return RunningReleaseAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

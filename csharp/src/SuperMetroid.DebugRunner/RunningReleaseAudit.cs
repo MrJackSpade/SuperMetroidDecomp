@@ -13,23 +13,7 @@ internal static class RunningReleaseAudit
         foreach (bool left in new[] { true, false })
         foreach (bool keepDirection in new[] { false, true })
         {
-            var runtime = new SuperMetroidRuntime(bus);
-            runtime.InitializeHud(HudSnapshot.CeresDebug);
-            runtime.RunNmi(0, true);
-            runtime.InitializeStartingCeresRoom();
-            runtime.InitializeCeresStartSamus();
-            // Ordinary room loading clears the fresh-game elevator arrival coroutine;
-            // leaving it live would teleport the test actor after sixty frames.
-            runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, 0, 0);
-            var level = runtime.LevelData!;
-            // Replace the test area's geometry. The Ceres scaffold supplies the
-            // runtime owners; these deliberately constructed liquid conditions match
-            // the CPU fixture, not a claim about the retail room's water height.
-            for (int y = 0; y <= 16; y++)
-                for (int x = 0; x < level.WidthInBlocks; x++)
-                    level.SetForegroundEntry(y * level.WidthInBlocks + x,
-                        y == 16 ? (ushort)0x8000 : (ushort)0);
-            runtime.InitializeDebugGroundedSamus(200, 166, 16);
+            var runtime = FlatFloorMovementFixture.Create(bus, water);
             var samus = runtime.Samus!;
             if (left)
             {

@@ -1,0 +1,63 @@
+using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rom;
+
+namespace SuperMetroid.Core.Frontend;
+
+/// <summary>Room-select BG1 map and BG2 frame installed by $81:A725 and $82:9517.</summary>
+/// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
+public sealed class FileSelectRoomMapGraphics
+{
+    private readonly MenuPpuState ppu;
+    public SnesVram Vram => ppu.Vram;
+    public SnesCgram Cgram => ppu.Cgram;
+
+    public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
+        MapRevealMode revealMode = MapRevealMode.None)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(system);
+        int index = AreaIds.ToIndex(area);
+        if (index >= FileSelectMapRomData.AreaCount)
+            throw new ArgumentOutOfRangeException(nameof(area));
+        ppu = new MenuPpuState(bus);
+        MapTileWord hidden = system.HasAreaMap(area)
+            ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
+        ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
+            AreaMapTilemapBuilder.Build(AreaMapRomData.Load(bus, area), system, hidden, revealMode));
+
+        var frame = new byte[FileSelectMapRomData.TilemapBytes];
+        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrame, 1600).CopyTo(frame, 0);
+        for (int word = 800; word < frame.Length / 2; word++)
+            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), FileSelectMapRomData.RoomFrameBlank);
+        // Native copies backwards from footer word 160 through word 1, not word 0.
+        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrameFooter + 2, 320).CopyTo(frame, 1600);
+        ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + index * 2);
+        for (int word = 0; word < 12; word++)
+            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((170 + word) * 2),
+                (ushort)(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (label + word * 2))
+                    & FileSelectMapRomData.RoomLabelMask));
+        ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
+    }
+
+    /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>
+    public Rgba32[] RenderBackgrounds(ushort horizontalScroll, ushort verticalScroll)
+    {
+        var pixels = new Rgba32[256 * 224];
+        Array.Fill(pixels, ppu.Cgram.GetRgba(0));
+        foreach (bool priority in new[] { false, true })
+        {
+            // Mode 1 orders BG2 before BG1 within each background priority tier.
+            SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+                Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
+                0, 24, 256, 224, 32, 32, priority: priority));
+            SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+                Vram, Cgram, MenuPpuState.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
+                horizontalScroll, verticalScroll, 256, 224, priority: priority));
+        }
+        return pixels;
+    }
+}

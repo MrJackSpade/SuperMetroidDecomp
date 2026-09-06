@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyFileSelectMapWindow()
     {
         VerifyFileSelectAreaMapGraphics();
+        VerifyFileSelectRoomMapGraphics();
         var fake = new TestAddressSpace();
         WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
         // The lower-bound clamp must preserve .C000, or frame two will still

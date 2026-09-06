@@ -37,6 +37,18 @@ public static class FileSelectMapRomData
     public const int DisplayAreaIndices = 0x81aaa0;
     /// <summary>Six Zebes areas participate; Ceres has no world-map selection entry.</summary>
     public const int AreaCount = 6;
+    /// <summary>$B6:E000, first 800 words of the room-selection BG2 frame.</summary>
+    public const int RoomFrame = 0xb6e000;
+    /// <summary>$81:B14B, words 1..160 supply BG2 frame words 800..959.</summary>
+    public const int RoomFrameFooter = 0x81b14b;
+    /// <summary>$82:965F, twelve-word area label pointers in bank $82.</summary>
+    public const int RoomLabelPointers = 0x82965f;
+    /// <summary>BG12NBA=$33 selects the map and frame character base.</summary>
+    public const ushort RoomCharacters = 0x3000;
+    /// <summary>$81:A725 fills the unused BG2 frame words with $2801.</summary>
+    public const ushort RoomFrameBlank = 0x2801;
+    /// <summary>$82:9628 clears palette bit $1000 in the room-select area label.</summary>
+    public const ushort RoomLabelMask = 0xefff;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

@@ -570,37 +570,8 @@ internal sealed class PauseMenuState
     {
         int areaIndex = AreaIds.ToIndex(area);
         AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
-        byte[] mapTilemap = map.RawTilemapBytes.ToArray();
-        bool hasAreaMap = system.HasAreaMap(areaIndex);
-
-        // `$82:943D` combines three independent cartridge structures: the literal 64x32
-        // tilemap, the one-bit "a room exists here" map, and the persistent one-bit
-        // exploration plane. A downloaded map reveals existing-but-unvisited rooms with
-        // palette $0400; without one, only visited cells survive. Applying this when the
-        // page is loaded also means a save/reload cannot turn the pause screen into the
-        // fully revealed debug map used by the first implementation.
-        for (int tilemapIndex = 0; tilemapIndex < 0x800; tilemapIndex++)
-        {
-            int pageIndex = tilemapIndex & 0x3ff;
-            int mapX = pageIndex % 32 + (tilemapIndex >= 0x400 ? 32 : 0);
-            int mapY = pageIndex / 32;
-            bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-            bool stationVisible = map.IsRevealedByMapStation(mapX, mapY);
-            int byteOffset = tilemapIndex * 2;
-            MapTileWord word = unchecked((ushort)(
-                mapTilemap[byteOffset] | (mapTilemap[byteOffset + 1] << 8)));
-            if (explored)
-                word = word.AsExplored();
-            else if (!AreaMapVisibility.IsVisible(
-                         explored,
-                         hasAreaMap,
-                         stationVisible,
-                         !word.IsBlank,
-                         mapRevealMode))
-                word = MapTileWords.PauseBlank;
-            mapTilemap[byteOffset] = unchecked((byte)word.Raw);
-            mapTilemap[byteOffset + 1] = unchecked((byte)(word.Raw >> 8));
-        }
+        byte[] mapTilemap = AreaMapTilemapBuilder.Build(
+            map, system, MapTileWords.PauseBlank, mapRevealMode);
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
 
         // The area name is a 24-byte bank-$82 tilemap fragment copied to VMADD $38AA.

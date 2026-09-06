@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class MapTileWords
 {
+    /// <summary>$82:9517 uses character $00F for hidden cells without a downloaded map.</summary>
+    public static readonly MapTileWord FileSelectUndownloadedBlank = new(0x000f);
+
     /// <summary>The cartridge's character-$01F empty map cell, without display attributes.</summary>
     public static readonly MapTileWord PauseBlank = new(0x001f);
 

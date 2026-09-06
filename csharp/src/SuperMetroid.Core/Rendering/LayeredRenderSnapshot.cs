@@ -16,7 +16,7 @@ public sealed class LayeredRenderSnapshot
         byte objectSelection, byte brightness)
     {
         ArgumentNullException.ThrowIfNull(memory);
-        if (brightness > 15) throw new ArgumentOutOfRangeException(nameof(brightness));
+        if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
         // Each accepted record is sealed and value-only. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)

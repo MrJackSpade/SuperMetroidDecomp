@@ -31,6 +31,7 @@ VerifyPpuMemorySnapshotOwnership();
 VerifyTitleRenderSnapshots();
 VerifyPauseRenderSnapshots();
 VerifyFileMenuRenderSnapshots();
+VerifyRenderFrameHandoff();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

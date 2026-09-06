@@ -23,7 +23,7 @@ public sealed record Mode7ObjRenderSnapshot
         byte objectSelection, byte brightness)
     {
         ArgumentNullException.ThrowIfNull(memory);
-        if (brightness > 15) throw new ArgumentOutOfRangeException(nameof(brightness));
+        if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
         Memory = memory;
         Background = background;
         ObjectSelection = objectSelection;

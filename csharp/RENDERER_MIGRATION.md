@@ -176,3 +176,18 @@ unfiltered plane operation; an explicit whole-OBJ insertion retains OAM preceden
 confirmation/completion, controller-page scrolling and special settings, including
 fade frames and packets retained across later state changes. Save operations affect
 only a fresh in-memory address space. Frontend output is still the legacy path.
+
+`RenderFrameSnapshot` now envelopes the supported composition shapes (and explicit
+solid frames) with positive host sequence/generation and the independent cartridge
+frame counter. Outer brightness passes are owned and applied in order, preserving
+per-pass integer rounding. It does not yet carry every gameplay effect or a durable
+serialization version; those gates remain pending.
+
+`LatestRenderFrameMailbox` holds at most one pending visual packet. Its short lock
+contains pointer/counter operations only. `RenderFrameHandoffTests` publishes 1,000
+packets while a consumer holds an old frame and remains blocked for at least 250ms;
+the next acquisition returns the latest packet and accounting balances. It also
+checks cartridge-counter wrap, non-rewinding host sequence, generation invalidation
+and ordered fades. This is component evidence only, not a live audio/simulation
+stress result. The presenter must still coordinate final submission with reset;
+an `IsCurrent` check alone is not an atomic check-and-Present guarantee.

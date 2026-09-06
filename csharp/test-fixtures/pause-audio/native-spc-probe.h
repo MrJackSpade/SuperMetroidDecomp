@@ -1,0 +1,71 @@
+// Console-only original-SPC-driver probe for #54. Include from sm_rtl.c.
+// Inputs are extracted cartridge upload streams; this file contains no ROM data.
+#include "snes/apu.h"
+#ifdef _WIN32
+__declspec(dllimport) unsigned int __stdcall SetErrorMode(unsigned int mode);
+#endif
+
+static bool ProbeLoadSpcStream(Apu *apu, const char *path) {
+  size_t length = 0, cursor = 0;
+  uint8 *data = ReadWholeFile(path, &length);
+  if (!data) return false;
+  while (cursor + 4 <= length) {
+    unsigned count = data[cursor] | data[cursor + 1] << 8;
+    unsigned address = data[cursor + 2] | data[cursor + 3] << 8;
+    cursor += 4;
+    if (!count) { free(data); return true; }
+    if (count > length - cursor) break;
+    for (unsigned i = 0; i < count; i++) apu->ram[(address + i) & 0xffff] = data[cursor + i];
+    cursor += count;
+  }
+  free(data);
+  fprintf(stderr, "Malformed SPC upload: %s\n", path);
+  return false;
+}
+
+int DiagnosticSpcCpu(const char *engine, const char *music) {
+#ifdef _WIN32
+  SetErrorMode(1 | 2);
+#endif
+  Apu *apu = apu_init();
+  apu_reset(apu);
+  if (!ProbeLoadSpcStream(apu, engine) || !ProbeLoadSpcStream(apu, music)) {
+    apu_free(apu);
+    return 2;
+  }
+  // Execute initialization from the uploaded driver's entry, not the IPL upload
+  // handshake. Commands wait a full second for initialization to finish.
+  apu->spc->pc = 0x1500;
+  bool heard = false;
+  for (int frame = 0; frame < 600; frame++) {
+    if (frame == 60) apu->inPorts[0] = 5;
+    // $82:BE17's cancellation messages, after four seconds of ordinary music.
+    if (frame == 300) { apu->inPorts[1] = 2; apu->inPorts[2] = 0x71; apu->inPorts[3] = 1; }
+    apu->hist.count = 0;
+    while (apu->dsp->sampleOffset < 534) {
+      apu_cycle(apu);
+      if (apu->spc->stopped) {
+        fprintf(stderr, "SPC stopped at frame %d PC=%04X\n", frame, apu->spc->pc);
+        apu_free(apu);
+        return 3;
+      }
+    }
+    long long energy = 0;
+    int peak = 0;
+    for (int i = 0; i < 534 * 2; i++) {
+      int value = apu->dsp->sampleBuffer[i];
+      energy += (long long)value * value;
+      int magnitude = value < 0 ? -value : value;
+      if (magnitude > peak) peak = magnitude;
+    }
+    if (!heard && peak) { printf("FIRST_PCM frame=%d\n", frame); heard = true; }
+    if (frame % 30 == 0 || (frame >= 298 && frame <= 305)) {
+      printf("SPC frame=%d pc=%04X ports=%02X,%02X,%02X,%02X peak=%d mean-square=%lld FLG=%02X NON=%02X EON=%02X\n",
+        frame, apu->spc->pc, apu->outPorts[0], apu->outPorts[1], apu->outPorts[2], apu->outPorts[3],
+        peak, energy / (534 * 2), apu->dsp->ram[0x6c], apu->dsp->ram[0x3d], apu->dsp->ram[0x4d]);
+    }
+    apu->dsp->sampleOffset = 0;
+  }
+  apu_free(apu);
+  return 0;
+}

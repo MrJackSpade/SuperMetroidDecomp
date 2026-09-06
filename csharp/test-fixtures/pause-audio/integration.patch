@@ -1,0 +1,17 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -315,2 +315,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--spc-cpu-probe") == 0) {
++    extern int DiagnosticSpcCpu(const char *engine, const char *music);
++    return DiagnosticSpcCpu(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -12,1 +12,3 @@
++#include "../../csharp/test-fixtures/pause-audio/native-spc-probe.h"
++
+ static void RtlSaveMusicStateToRam_Locked();

@@ -14,6 +14,7 @@ internal static partial class Program
         VerifyFileSelectMapNavigation();
         VerifySavedGameMapFrontend();
         VerifyFileSelectMapIcons();
+        VerifyFileSelectMapAnimations();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -75,6 +76,70 @@ internal static partial class Program
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
         }
+    }
+
+    private static void VerifyFileSelectMapAnimations()
+    {
+        var bus = new TestAddressSpace();
+        for (int arrow = 0; arrow < 4; arrow++)
+        {
+            int record = FileSelectMapRomData.ScrollArrows + arrow * 10;
+            WriteTestWord(bus, record, (ushort)(32 + arrow * 24));
+            WriteTestWord(bus, record + 2, 80);
+            WriteTestWord(bus, record + 4, (ushort)(arrow + 1));
+            WriteTestWord(bus, MapAnimationRomData.SpritePrograms + arrow * 2, 0x9000);
+            WriteTestWord(bus, MapAnimationRomData.SpriteBases + arrow * 2, 0x9100);
+        }
+        WriteTestWord(bus, 0x829100, 0x10);
+        bus.WriteByte(0x829000, 3); bus.WriteByte(0x829002, 0);
+        bus.WriteByte(0x829003, 2); bus.WriteByte(0x829005, 1);
+        bus.WriteByte(0x829006, 0xff);
+        for (ushort id = 0x10; id <= 0x11; id++)
+        {
+            ushort pointer = (ushort)(0xa000 + id * 8);
+            WriteTestWord(bus, 0x82c569 + id * 2, pointer);
+            WriteTestWord(bus, 0x820000 | pointer, 1);
+            WriteTestWord(bus, 0x820000 | (pointer + 2), 0);
+            WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
+        }
+        bus.WriteByte(MapAnimationRomData.PaletteTiming, 3);
+        bus.WriteByte(MapAnimationRomData.PaletteTiming + 3, 2);
+        bus.WriteByte(MapAnimationRomData.PaletteTiming + 6, 0xff);
+        for (int color = 0; color < 32; color++)
+            WriteTestWord(bus, MapAnimationRomData.PaletteColors + color * 2, (ushort)(100 + color));
+        var animations = new FileSelectMapAnimations(bus);
+        var cgram = new SnesCgram();
+        cgram.SetColor(175, 77); cgram.SetColor(192, 88);
+        AssertTrue(!animations.StepPalette(cgram), "initial map palette tick advances to frame one without loop sound");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(116 + color, cgram.Colors[176 + color], "map palette copies frame one including transparent entry");
+        AssertTrue(!animations.StepPalette(cgram), "palette delay does not queue a sound");
+        AssertTrue(animations.StepPalette(cgram), "palette sentinel queues exactly one loop sound");
+        for (int color = 0; color < 16; color++)
+            AssertEqual(100 + color, cgram.Colors[176 + color], "palette sentinel restores frame zero");
+        AssertEqual(77, cgram.Colors[175], "palette update preserves preceding color");
+        AssertEqual(88, cgram.Colors[192], "palette update preserves following color");
+        animations.StepArrows(direction => direction == MapScrollDirection.Left);
+        OamBuffer Draw()
+        {
+            var oam = new OamBuffer(); oam.BeginFrame(); animations.DrawArrows(oam); oam.FinalizeFrame(); return oam;
+        }
+        OamBuffer first = Draw();
+        AssertEqual(1, first.LastFinalizedSpriteCount, "only available arrows draw");
+        AssertEqual(32, first.LowTable[0], "arrow uses cartridge X");
+        AssertEqual(79, first.LowTable[1], "arrow subtracts native one-pixel Y offset");
+        AssertEqual(0x11, first.LowTable[2], "zero-initialized arrow timer advances before drawing");
+        AssertTrue(first.LowTable.ToArray().SequenceEqual(Draw().LowTable.ToArray()), "repaint does not advance arrow animation");
+        animations.StepArrows(direction => direction == MapScrollDirection.Left);
+        AssertEqual(0x11, Draw().LowTable[2], "arrow holds its full two-tick delay");
+        animations.StepArrows(direction => direction == MapScrollDirection.Left);
+        AssertEqual(0x10, Draw().LowTable[2], "arrow sentinel wraps to frame zero");
+        for (int i = 0; i < 10; i++) animations.StepArrows(_ => false);
+        AssertEqual(0, Draw().LastFinalizedSpriteCount, "unavailable arrows disappear");
+        animations.StepArrows(direction => direction is MapScrollDirection.Left or MapScrollDirection.Right);
+        OamBuffer resumed = Draw();
+        AssertEqual(0x10, resumed.LowTable[2], "hidden arrow timer pauses");
+        AssertEqual(0x11, resumed.LowTable[6], "newly visible arrow owns an independent timer");
     }
 
     private static void VerifyFileSelectMapIcons()

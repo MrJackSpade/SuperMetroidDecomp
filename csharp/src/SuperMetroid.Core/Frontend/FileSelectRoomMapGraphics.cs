@@ -59,7 +59,8 @@ public sealed class FileSelectRoomMapGraphics
     }
 
     /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
-    public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker)
+    public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
+        FileSelectMapAnimations? animations = null)
     {
         ArgumentNullException.ThrowIfNull(marker);
         Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
@@ -67,7 +68,8 @@ public sealed class FileSelectRoomMapGraphics
         oam.BeginFrame();
         icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
         marker.Draw(bus, oam, horizontalScroll, verticalScroll);
-        icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll);
+        icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll,
+            animations is null ? null : () => animations.DrawArrows(oam));
         oam.FinalizeFrame();
         SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
         return pixels;

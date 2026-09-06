@@ -113,6 +113,8 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$82:A92B queues library-three $2A when the pause/map palette animation loops.</summary>
+    public static readonly SoundEffectId MapPaletteLoop = new(SoundEffectLibrary.Library3, 0x2a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>Stops/cancels every currently active library-three sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library3, 0x01);
 

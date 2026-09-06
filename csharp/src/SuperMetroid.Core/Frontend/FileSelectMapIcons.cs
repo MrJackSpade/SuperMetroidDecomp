@@ -62,7 +62,7 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     }
 
     /// <summary>Normal file select adds the gunship and downloaded elevator labels, not debug save icons.</summary>
-    public void DrawAfterMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
+    public void DrawAfterMarker(OamBuffer oam, ushort scrollX, ushort scrollY, Action? drawArrows = null)
     {
         if (area == AreaId.Crateria)
         {
@@ -70,6 +70,7 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
             Add(oam, FileSelectMapIconRomData.Gunship, Read(list, 0), Read(list, 2),
                 scrollX, scrollY, FileSelectMapRomData.StationMarkerPalette);
         }
+        drawArrows?.Invoke();
         if (!system.HasAreaMap(area)) return;
         ushort pointer = Pointer(FileSelectMapIconRomData.ElevatorLists);
         for (int record = 0; ; record++)

@@ -26,6 +26,8 @@ public sealed class FileSelectMapMenuState
     private readonly Func<FileSelectMapScroll> createScroll;
     private readonly ushort stationIndex;
     private bool markerDrawn;
+    private readonly FileSelectMapAnimations animations;
+    private bool drawArrows;
     private readonly FileSelectMapNavigation navigation;
     private FileSelectMapWindow? returnWindow;
     private int pendingFrames;
@@ -58,6 +60,7 @@ public sealed class FileSelectMapMenuState
         scroll = createScroll();
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
+        animations = new FileSelectMapAnimations(bus);
     }
 
     public FileSelectMapNavigationPhase Phase => navigation.Phase;
@@ -67,10 +70,13 @@ public sealed class FileSelectMapMenuState
     public void Step(ushort input)
     {
         FileSelectMapNavigationPhase before = Phase;
+        drawArrows = before == FileSelectMapNavigationPhase.Room;
+        if (drawArrows) animations.StepArrows(scroll.CanScroll);
         // Native draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
         {
+            if (animations.StepPalette(roomGraphics.Cgram)) Queue(SoundEffectLibrary3Sounds.MapPaletteLoop);
             marker.Step();
             markerDrawn = true;
         }
@@ -89,6 +95,7 @@ public sealed class FileSelectMapMenuState
                 scroll = createScroll();
                 marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex);
                 markerDrawn = false;
+                animations.ResetPalette();
             }
             return;
         }
@@ -129,7 +136,7 @@ public sealed class FileSelectMapMenuState
                     roomGraphics.RenderFrameOnly(), navigation.Window!),
             FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Horizontal, scroll.Vertical),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
-                roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker),
+                roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null =>
                 FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
                     roomGraphics.RenderFrameOnly(), returnWindow),

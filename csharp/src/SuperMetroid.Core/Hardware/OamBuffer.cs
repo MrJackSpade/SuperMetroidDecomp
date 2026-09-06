@@ -489,6 +489,23 @@ public sealed class OamBuffer
     }
 
     /// <summary>
+    /// Restores a complete physical OAM image for a software render consumer. The
+    /// physical image has no construction cursor. Retain the producer's modeled
+    /// sprite count because existing raster kernels deliberately stop at that count.
+    /// </summary>
+    public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)
+    {
+        if ((uint)modeledSpriteCount > SpriteCount)
+            throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
+        if (payload.Length != UploadByteCount)
+            throw new ArgumentException("OAM requires a complete low/high table image.", nameof(payload));
+        payload[..LowTableByteCount].CopyTo(_lowTable);
+        payload[LowTableByteCount..].CopyTo(_highTable);
+        NextByteOffset = 0;
+        LastFinalizedSpriteCount = modeledSpriteCount;
+    }
+
+    /// <summary>
     /// Copies a finalized 544-byte staging image into a second OAM model, corresponding to
     /// DMA channel 0 in <c>UpdateOAM_CGRAM</c> at <c>$80:933A</c>.
     /// </summary>

@@ -325,6 +325,39 @@ public sealed class TitleSequenceState
             SnesLayerCompositor.Composite(background, mode7Layer);
         }
 
+        PrepareRenderOam();
+        Rgba32[] objects = SnesObjRenderer.Render(
+            oam,
+            vram,
+            cgram,
+            obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
+        SnesLayerCompositor.Composite(background, objects);
+        for (int pixel = 0; pixel < background.Length; pixel++)
+            background[pixel] = ApplyBrightness(background[pixel], brightness);
+
+        return background;
+    }
+
+    /// <summary>
+    /// Builds the cartridge's OAM on the simulation owner and captures its display.
+    /// No pixels are composed, and the returned value retains no live scene references.
+    /// Call at the same display boundary as Render, before subsequent state changes.
+    /// </summary>
+    public Mode7ObjRenderSnapshot CaptureRenderSnapshot()
+    {
+        PrepareRenderOam();
+        short scale = unchecked((short)zoom);
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam),
+            mode7BackgroundEnabled
+                ? new Mode7RenderRegisters(scale, TitleSequenceRomData.Scenes.Rotation.TableIndex,
+                    0, scale, 128, 128, unchecked((short)mode7X), unchecked((short)mode7Y))
+                : null,
+            TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
+            checked((byte)brightness));
+    }
+
+    private void PrepareRenderOam()
+    {
         oam.BeginFrame();
         if (activeSpritemap != TitleSequenceRomData.Sprites.Blank)
         {
@@ -352,16 +385,6 @@ public sealed class TitleSequenceState
         }
 
         oam.FinalizeFrame();
-        Rgba32[] objects = SnesObjRenderer.Render(
-            oam,
-            vram,
-            cgram,
-            obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
-        SnesLayerCompositor.Composite(background, objects);
-        for (int pixel = 0; pixel < background.Length; pixel++)
-            background[pixel] = ApplyBrightness(background[pixel], brightness);
-
-        return background;
     }
 
     private void StepTextSequence()

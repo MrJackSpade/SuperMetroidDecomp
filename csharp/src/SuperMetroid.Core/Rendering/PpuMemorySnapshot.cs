@@ -28,12 +28,21 @@ public sealed class PpuMemorySnapshot
     public ReadOnlySpan<byte> Oam => oam;
 
     /// <summary>
+    /// Existing software OBJ kernels inspect only finalized records. This host-model
+    /// metadata is preserved separately from physical OAM so migration does not change
+    /// hidden-sprite or large-object wrapping behaviour.
+    /// </summary>
+    public int ModeledSpriteCount { get; }
+
+    /// <summary>
     /// Copies complete memory images. No caller-owned arrays or mutable hardware
     /// references survive construction, including when loading a serialized fixture.
     /// </summary>
     public PpuMemorySnapshot(ReadOnlySpan<byte> vram, ReadOnlySpan<ushort> cgram,
-        ReadOnlySpan<byte> oam)
+        ReadOnlySpan<byte> oam, int modeledSpriteCount = SnesPpuLayout.OamSpriteCount)
     {
+        if ((uint)modeledSpriteCount > SnesPpuLayout.OamSpriteCount)
+            throw new ArgumentOutOfRangeException(nameof(modeledSpriteCount));
         if (vram.Length != SnesPpuLayout.VramByteCount)
             throw new ArgumentException("A frame requires a complete VRAM image.", nameof(vram));
         if (cgram.Length != SnesPpuLayout.CgramColorCount)
@@ -43,6 +52,7 @@ public sealed class PpuMemorySnapshot
         this.vram = vram.ToArray();
         this.cgram = cgram.ToArray();
         this.oam = oam.ToArray();
+        ModeledSpriteCount = modeledSpriteCount;
     }
 
     /// <summary>Captures currently published memories without changing their owners.</summary>
@@ -54,6 +64,6 @@ public sealed class PpuMemorySnapshot
         Span<byte> payload = stackalloc byte[SnesPpuLayout.OamUploadByteCount];
         oam.LowTable.CopyTo(payload);
         oam.HighTable.CopyTo(payload[SnesPpuLayout.OamLowTableByteCount..]);
-        return new(vram.Bytes, cgram.Colors, payload);
+        return new(vram.Bytes, cgram.Colors, payload, oam.LastFinalizedSpriteCount);
     }
 }

@@ -131,3 +131,24 @@ synchronous ownership. Do not make it concurrent by retaining runtime references
 
 No acceptance checkbox is satisfied solely by this plan. Remaining work stays in
 the original issue rather than being deferred into narrower completion goals.
+
+## Boundary extraction evidence
+
+The title producer now exposes `CaptureRenderSnapshot`, which prepares OAM on the
+simulation owner and returns owned Mode 7/OBJ composition data without rasterizing.
+`SoftwareMode7ObjSnapshotRenderer` consumes it without a scene/ROM reference.
+The legacy `Render` path remains independent for parity checks during migration;
+the frontend is not yet switched and this is not a scheduling/performance change.
+
+`TitleSnapshotTests` compares 101 constructed and 131 retail frames across twelve
+natural title phases, including motion samples and confirmation fades. It checks
+repeat rendering and retains packets across subsequent scene steps. Both paths
+produce byte-identical pixels. This is software-boundary evidence, not GPU parity
+or complete gameplay/audio determinism evidence.
+
+The first retail comparison failed at YearText frame 68: OBJ pixels were absent.
+Investigation showed existing OBJ kernels use `LastFinalizedSpriteCount` rather
+than inspecting all physical records. The memory contract now retains that modeled
+count alongside raw OAM. Restoring only physical bytes is insufficient to preserve
+this implementation's sprite semantics. The same comparison passes after capture
+and restore preserve the count. Do not replace it with inferred off-screen markers.

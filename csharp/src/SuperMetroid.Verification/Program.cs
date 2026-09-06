@@ -28,6 +28,7 @@ try
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyViewportTileRowParity();
 VerifyPpuMemorySnapshotOwnership();
+VerifyTitleRenderSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

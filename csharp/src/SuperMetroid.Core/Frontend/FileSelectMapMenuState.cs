@@ -43,6 +43,7 @@ public sealed class FileSelectMapMenuState
             throw new ArgumentOutOfRangeException(nameof(slot), "Ceres does not use the Zebes save-selection map.");
         var system = new Bank80SystemState();
         system.LoadMapStationBytes(slot.MapStationBytes);
+        system.LoadBossBytes(slot.BossBytes);
         system.LoadExploredMapBytes(slot.ExploredMapBytes);
         for (int index = 0; index < usedStations.Length; index++)
             usedStations[index] = BinaryPrimitives.ReadUInt16LittleEndian(slot.UsedSaveStationBytes.AsSpan(index * 2));

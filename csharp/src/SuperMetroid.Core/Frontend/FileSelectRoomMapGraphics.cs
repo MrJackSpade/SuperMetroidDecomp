@@ -13,6 +13,7 @@ public sealed class FileSelectRoomMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
+    private readonly FileSelectMapIcons icons;
     public SnesVram Vram => ppu.Vram;
     public SnesCgram Cgram => ppu.Cgram;
 
@@ -22,6 +23,7 @@ public sealed class FileSelectRoomMapGraphics
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
         this.bus = bus;
+        icons = new FileSelectMapIcons(bus, system, area);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -63,7 +65,9 @@ public sealed class FileSelectRoomMapGraphics
         Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
         var oam = new OamBuffer();
         oam.BeginFrame();
+        icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
         marker.Draw(bus, oam, horizontalScroll, verticalScroll);
+        icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll);
         oam.FinalizeFrame();
         SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
         return pixels;

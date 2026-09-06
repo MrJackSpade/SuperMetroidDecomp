@@ -13,6 +13,7 @@ internal static partial class Program
         VerifyFileSelectMapScroll();
         VerifyFileSelectMapNavigation();
         VerifySavedGameMapFrontend();
+        VerifyFileSelectMapIcons();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -63,9 +64,70 @@ internal static partial class Program
             Rgba32[] pixels = graphics.RenderBackgrounds(0, unchecked((ushort)-40));
             AssertEqual(256 * 224, pixels.Length, "room map visible viewport");
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
+            var retailIcons = new FileSelectMapIcons(bus, system, area);
+            var retailOam = new OamBuffer();
+            retailOam.BeginFrame();
+            retailIcons.DrawBeforeMarker(retailOam, 0, 0);
+            retailIcons.DrawAfterMarker(retailOam, 0, 0);
+            retailOam.FinalizeFrame();
+            AssertTrue(retailOam.LastFinalizedSpriteCount < OamBuffer.SpriteCount,
+                $"area {areaIndex} retail map-icon lists fit OAM");
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
         }
+    }
+
+    private static void VerifyFileSelectMapIcons()
+    {
+        var bus = new TestAddressSpace();
+        var system = new Bank80SystemState();
+        WriteTestWord(bus, FileSelectMapIconRomData.BossLists + 2, 0x9000);
+        WriteTestWord(bus, FileSelectMapIconRomData.MissileLists + 2, 0x9100);
+        WriteTestWord(bus, FileSelectMapIconRomData.ElevatorLists + 2, 0x9200);
+        WriteTestWord(bus, 0x829000, 32); WriteTestWord(bus, 0x829002, 40); WriteTestWord(bus, 0x829004, 0xffff);
+        WriteTestWord(bus, 0x829100, 64); WriteTestWord(bus, 0x829102, 80); WriteTestWord(bus, 0x829104, 0xffff);
+        WriteTestWord(bus, 0x829200, 96); WriteTestWord(bus, 0x829202, 112);
+        WriteTestWord(bus, 0x829204, 0x50); WriteTestWord(bus, 0x829206, 0xffff);
+        foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x50 })
+        {
+            ushort pointer = (ushort)(0xa000 + id * 8);
+            WriteTestWord(bus, 0x82c569 + id * 2, pointer);
+            WriteTestWord(bus, 0x820000 | pointer, 1);
+            WriteTestWord(bus, 0x820000 | (pointer + 2), 0);
+            bus.WriteByte(0x820000 | (pointer + 4), 0);
+            WriteTestWord(bus, 0x820000 | (pointer + 5), (ushort)(0x3000 | id));
+        }
+        var icons = new FileSelectMapIcons(bus, system, AreaId.Brinstar);
+        OamBuffer Draw()
+        {
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            icons.DrawBeforeMarker(oam, 8, 16);
+            icons.DrawAfterMarker(oam, 8, 16);
+            oam.FinalizeFrame();
+            return oam;
+        }
+        AssertEqual(0, Draw().LastFinalizedSpriteCount, "unexplored map hides station, live boss and destination icons");
+        system.SetAreaMapAcquired(AreaId.Brinstar);
+        OamBuffer downloaded = Draw();
+        AssertEqual(2, downloaded.LastFinalizedSpriteCount, "download reveals boss and destination but not unvisited refill");
+        AssertEqual(9, downloaded.LowTable[2], "live boss uses native marker");
+        AssertEqual(0x50, downloaded.LowTable[6], "destination reads its own ROM spritemap");
+        AssertEqual(88, downloaded.LowTable[4], "destination subtracts map X scroll");
+        AssertEqual(96, downloaded.LowTable[5], "destination subtracts map Y scroll");
+        AssertEqual(0x30, downloaded.LowTable[7], "destination uses palette zero and retained priority");
+        system.MarkExploredMapTile(AreaId.Brinstar, 8, 10);
+        OamBuffer explored = Draw();
+        AssertEqual(3, explored.LastFinalizedSpriteCount, "visited refill adds one icon");
+        AssertEqual(0x0b, explored.LowTable[6], "refill draws between boss and destination");
+        AssertEqual(56, explored.LowTable[4], "refill exact scrolled X");
+        AssertEqual(64, explored.LowTable[5], "refill exact scrolled Y");
+        system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
+        OamBuffer defeated = Draw();
+        AssertEqual(4, defeated.LastFinalizedSpriteCount, "defeated boss emits overlay and dim marker");
+        AssertEqual(0x62, defeated.LowTable[2], "defeated overlay precedes boss marker");
+        AssertEqual(9, defeated.LowTable[6], "defeated boss retains marker identity");
+        AssertEqual(0x3c, defeated.LowTable[7], "defeated boss changes to palette six");
     }
 
     private static void VerifySavedGameMapFrontend()

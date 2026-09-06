@@ -69,9 +69,18 @@ public static class PauseAudioSmokeTest
         frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.GameOptionsMenu, 180);
         for (int index = 0; index < 16; index++) frame = Step(0);
         frame = Step((ushort)SnesButton.A);
-        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.SetUpNewGame, 180);
-        frame = Step(0);
-        frame = StepUntil(frame, _ => game.GameplayMovementEnabled, 400);
+        // This fixture loads existing SRAM, so follow both saved-game map confirmations.
+        // Waiting for the new-game setup state would now stall on the area map and never
+        // exercise pause audio. Keep the real frontend path and audio acknowledgements.
+        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap &&
+            candidate.Phase == nameof(FileSelectMapNavigationPhase.Area), 240);
+        frame = Step((ushort)SnesButton.A);
+        frame = StepUntil(frame, candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap &&
+            candidate.Phase == nameof(FileSelectMapNavigationPhase.Room), 120);
+        frame = Step((ushort)SnesButton.A);
+        // Include the map's confirmation fade/black hold, gameplay fade-in, and the
+        // cartridge's 360-call saved-game appearance before attempting to pause.
+        frame = StepUntil(frame, _ => game.GameplayMovementEnabled, 600);
 
         // Establish ordinary room music before measuring the exact pause sequence.
         for (int index = 0; index < 120; index++) frame = Step(0);

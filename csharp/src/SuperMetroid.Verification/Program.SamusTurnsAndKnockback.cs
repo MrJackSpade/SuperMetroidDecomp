@@ -107,6 +107,52 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(0xf8, turn.LastAnimationDelayCommand!.Value, "aerial turn reaches F8");
     AssertTrue(turn.ApplyPendingVerifiedAnimationTransition(bus), "aerial turn F8 applies");
     AssertEqual(0x6a, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
+    AssertEqual(0, turn.HorizontalSpeed.AccelerationMode,
+        "finished aerial turn reinitializes normal-jump acceleration instead of retaining reverse drift");
+
+    // Cover both jumping/falling endpoints and both facings. These animation-owned
+    // transitions preserve speed words; only extra dash speed chooses mode two.
+    foreach (bool falling in new[] { false, true })
+    foreach (bool left in new[] { false, true })
+    foreach (uint extra in new uint[] { 0, 1, 0x10000 })
+    {
+        byte source = falling
+            ? left ? SamusPoseIds.TurningRightToLeftFallingPose : SamusPoseIds.TurningLeftToRightFallingPose
+            : left ? SamusPoseIds.TurningRightToLeftJumpPose : SamusPoseIds.TurningLeftToRightJumpPose;
+        byte target = falling
+            ? left ? SamusPoseIds.FallingLeftPose : SamusPoseIds.FallingRightPose
+            : left ? SamusPoseIds.NormalJumpForwardLeftPose : SamusPoseIds.NormalJumpForwardRightPose;
+        byte direction = left ? (byte)4 : (byte)8;
+        WritePoseDefinition(bus, source, [direction, falling ? (byte)24 : (byte)23, 0xff, 0xfb, 8, 0, 19, 0]);
+        WritePoseDefinition(bus, target, [direction, falling ? (byte)6 : (byte)2, 0xff, 2, 8, 0, 19, 0]);
+        WriteTestWord(bus, 0x91b010 + source * 2, 0xc100);
+        WriteTestWord(bus, 0x91b010 + target * 2, 0xc110);
+        bus.WriteBytes(0x91c100, [1, 0xf8, target]);
+        bus.WriteBytes(0x91c110, [3]);
+        var endpoint = new SamusState { Pose = source, XPosition = 128, YPosition = 96 };
+        endpoint.RefreshCollisionRadii(bus);
+        endpoint.InitializeAnimation(bus);
+        endpoint.HorizontalSpeed.BaseSubspeed = 0x4800;
+        endpoint.HorizontalSpeed.AccelerationMode = 1;
+        endpoint.HorizontalSpeed.ExtraRunSpeed = (ushort)(extra >> 16);
+        endpoint.HorizontalSpeed.ExtraRunSubspeed = (ushort)extra;
+        endpoint.AnimateNoFx(bus);
+        AssertTrue(endpoint.ApplyPendingVerifiedAnimationTransition(bus), "turn endpoint command consumed");
+        AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
+        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
+        AssertEqual((ushort)(extra >> 16), endpoint.HorizontalSpeed.ExtraRunSpeed, "turn endpoint retains whole dash speed");
+        AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSubspeed, "turn endpoint retains fractional dash speed");
+
+        endpoint.Pose = source;
+        endpoint.InitializeAnimation(bus);
+        endpoint.HorizontalSpeed.AccelerationMode = 1;
+        ushort timerBeforeRelease = endpoint.AnimationFrameTimer;
+        endpoint.ApplyAerialTurnInputFallback(bus);
+        AssertEqual(0, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
+        AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
+        AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer, "released turn does not restart animation");
+        AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "released turn retains base speed until next movement");
+    }
 
     // Ordinary spin art, wall-jump art, and both dry launch table pairs.
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);

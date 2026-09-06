@@ -3662,6 +3662,14 @@ public sealed partial class SuperMetroidRuntime
                         unchecked((byte)aimFallback));
                 }
                 else if (!animationTransitionApplied &&
+                         usePoseDefinitionFallback && ProspectiveSamusPose is null &&
+                         Samus.Pose == poseAtFrameStart && SamusState.IsAerialTurnPose(poseAtFrameStart))
+                {
+                    // A $FF definition fallback retains the animation, not the momentum
+                    // command. Native command two still cancels reverse acceleration.
+                    Samus.ApplyAerialTurnInputFallback(_addressSpace);
+                }
+                else if (!animationTransitionApplied &&
                          SamusState.IsAimedAerialPose(poseAtFrameStart) &&
                          ProspectiveSamusFallbackPose is { } aerialFallback)
                 {

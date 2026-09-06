@@ -10,6 +10,31 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusState
 {
     /// <summary>
+    /// Shared momentum initialization in SamusFunc_F468_NormalJump ($91:F543) and
+    /// SamusFunc_F468_Falling ($91:F60D). Base velocity survives; extra dash momentum
+    /// alone selects deceleration mode two instead of ordinary acceleration.
+    /// </summary>
+    private void InitializeOrdinaryAerialAcceleration()
+    {
+        HorizontalSpeed.AccelerationMode =
+            HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
+                ? SamusHorizontalAccelerationModes.Decelerating
+                : SamusHorizontalAccelerationModes.Accelerating;
+    }
+
+    /// <summary>
+    /// Applies Samus_HandleTransitionsA_2 ($91:ECD0) when an aerial turn's input
+    /// lookup selects the same-pose definition fallback. This stops reverse acceleration
+    /// without restarting the unfinished turn animation or erasing velocity words.
+    /// </summary>
+    public void ApplyAerialTurnInputFallback(ISnesAddressSpace bus)
+    {
+        if (!IsAerialTurnPose(Pose))
+            throw new InvalidOperationException("Aerial turn fallback requires an aerial turn pose.");
+        HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
+        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
+    }
+    /// <summary>
     /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
     /// Screw Attack, or wall-jump pose. This is the shared
     /// <c>$19/$1A/$1B/$1C/$81-$84 -&gt; movement-type-$02</c> route through
@@ -66,10 +91,7 @@ public sealed partial class SamusState
 
         // InitializeSamusPose_NormalJumping chooses acceleration mode two only while some
         // stored extra-run speed remains. It never clears either speed pair on this route.
-        HorizontalSpeed.AccelerationMode =
-            HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
-                ? (ushort)2
-                : (ushort)0;
+        InitializeOrdinaryAerialAcceleration();
 
         // SamusFunc_F433 reloads the ordinary suit palette whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source

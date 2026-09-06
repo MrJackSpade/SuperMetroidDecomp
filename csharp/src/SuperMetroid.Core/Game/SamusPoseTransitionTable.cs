@@ -40,7 +40,8 @@ public static class SamusPoseTransitionTable
     /// </summary>
     /// <remarks>
     /// There are two observably different ways to return without a prospective pose.
-    /// Zero input or reaching the <c>$FFFF</c> table terminator calls <c>$91:82D9</c>;
+    /// Zero input or exhausting a nonempty table calls <c>$91:82D9</c>. A table
+    /// beginning with <c>$FFFF</c> returns directly while any input is held;
     /// matching a record whose target is the current pose returns directly. A nullable
     /// transition alone cannot represent that distinction. In particular, running-gun
     /// pose <c>$0B</c> matches itself while Right+Shoot is held, but Shoot alone reaches
@@ -79,7 +80,7 @@ public static class SamusPoseTransitionTable
             {
                 return new SamusPoseTransitionLookup(
                     null,
-                    UsesPoseDefinitionFallback: true);
+                    UsesPoseDefinitionFallback: entryIndex != 0);
             }
 
             ushort requiredHeld = ReadWord(bus, AddWithinBank(entryAddress, 2));

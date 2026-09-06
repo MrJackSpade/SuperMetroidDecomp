@@ -641,10 +641,7 @@ public sealed partial class SamusState
         // before command five initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
         // Base speed itself survives until the next aerial movement routine consumes it.
-        HorizontalSpeed.AccelerationMode =
-            HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
-                ? (ushort)2
-                : (ushort)0;
+        InitializeOrdinaryAerialAcceleration();
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -1010,6 +1007,12 @@ public sealed partial class SamusState
             byte installedPose = startsMoonwalkJump
                 ? SelectEquippedSpinPose(targetPose)
                 : targetPose;
+            // Animation-owned pose changes still run the target movement initializer.
+            // In particular an aerial turn must stop decelerating in the old direction
+            // when its final normal-jump/falling pose is installed, even if water made
+            // the turn finish before base speed reached zero. Do not clear that speed.
+            if (ReadMovementType(bus, installedPose) is SamusMovementType.NormalJumping or SamusMovementType.Falling)
+                InitializeOrdinaryAerialAcceleration();
             ApplySimpleGroundedPoseChange(bus, sourcePose, installedPose, "Animation command");
         }
         if (sourcePose is SamusPoseIds.DrainedCrouchingRightPose or SamusPoseIds.DrainedCrouchingLeftPose or

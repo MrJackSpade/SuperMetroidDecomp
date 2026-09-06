@@ -73,6 +73,14 @@ static void VerifySamusPoseTransitionMatching()
     AssertTrue(terminator.UsesPoseDefinitionFallback,
         "Samus unmatched nonzero input enters pose-definition fallback");
 
+    // Aerial turns have empty lists. The first-word terminator is a direct return
+    // for held input, unlike exhaustion after at least one unmatched record.
+    WriteTestWord(bus, 0x91a0ec, 0xffff);
+    AssertTrue(!SamusPoseTransitionTable.Lookup(bus, 1, (ushort)SnesButton.A, 0).UsesPoseDefinitionFallback,
+        "empty pose table preserves turn momentum while Jump remains held");
+    AssertTrue(SamusPoseTransitionTable.Lookup(bus, 1, 0, 0).UsesPoseDefinitionFallback,
+        "releasing all input still invokes fallback before reading an empty table");
+
     Console.WriteLine(
         "  Samus input: ROM transition masks, priority, same-pose return, and fallback agree.");
 }

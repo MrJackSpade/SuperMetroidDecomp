@@ -11,7 +11,8 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class NativeAudioCorpusAudit
 {
-    public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false)
+    public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
+        string? captureDirectory = null)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -45,6 +46,7 @@ internal static class NativeAudioCorpusAudit
                 bool paused = false;
                 int mismatchedFrames = 0, mismatchedPauseFrames = 0;
                 int mismatchStart = -1;
+                using var capture = captureDirectory is null ? null : new PausePcmCapture(captureDirectory);
                 Scenario("recorded-player-audio", recording.ControllerInputs.Length, frame =>
                 {
                     FrontendFrame result;
@@ -63,6 +65,7 @@ internal static class NativeAudioCorpusAudit
                 }, ports => game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3])),
                 survey ? (frame, actual, expected) =>
                 {
+                    capture?.Observe(frame, paused, actual);
                     bool differs = !actual.AsSpan().SequenceEqual(expected);
                     if (differs)
                     {

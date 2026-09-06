@@ -60,3 +60,18 @@ special-block BTS range exception. With the complete normal reaction table,
 all 20,874 recorded frames execute: 320 PCM frames differ, but all 2,127 stable
 pause frames and every port acknowledgement match. The survey still exits 1
 for those real non-pause PCM differences; this is not an audio-fix pass.
+
+## Listening capture, before host playback
+
+`--capture-recorded-pause-audio ROM RECORDING NATIVE_DLL OUTPUT_DIRECTORY` runs
+the same survey and writes one stereo PCM16 WAV per contiguous stable pause.
+It preserves all samples without normalization, resampling, channel folding,
+or concatenating separate intervals. Existing output files are never replaced.
+The capture uses 48 kHz, matching the live engine's output format.
+
+`pause-audio/current-pause.wav` preserves frames [9659,11786) of the recording
+above: 35.45 seconds, 6,806,400 PCM bytes, 2 channels, 16 bits/sample. Its SHA-256
+is `101552A120F8664938FDA90E90EAE9FCCF7CD7FA106D84EA44232F6411DC161B`.
+All captured frames matched the native reference. This is a listening fixture,
+not proof of audible correctness: ask whether the reported artifact is present
+in this file, versus only in the live desktop game's playback.

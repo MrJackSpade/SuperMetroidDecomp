@@ -26,6 +26,8 @@ if (args.Length == 4 && args[0] == "--recorded-native-audio-audit")
     return NativeAudioCorpusAudit.Run("standalone-assets/audio", args[3], args[1], args[2]);
 if (args.Length == 4 && args[0] == "--recorded-native-audio-survey")
     return NativeAudioCorpusAudit.Run("standalone-assets/audio", args[3], args[1], args[2], survey: true);
+if (args.Length == 5 && args[0] == "--capture-recorded-pause-audio")
+    return NativeAudioCorpusAudit.Run("standalone-assets/audio", args[3], args[1], args[2], survey: true, captureDirectory: args[4]);
 if (args.Length == 3 && args[0] == "--quicksand-comparison-audit")
     return QuicksandComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--missile-reuse-audit")

@@ -637,6 +637,14 @@ public sealed partial class SamusState
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         Pose = targetPose;
         RefreshCollisionRadii(bus);
+        // SamusFunc_F433 dispatches the new falling movement type through $91:F60D
+        // before command five initializes the downward state. That initializer derives
+        // the mode from extra dash speed; it must not retain the grounded release mode.
+        // Base speed itself survives until the next aerial movement routine consumes it.
+        HorizontalSpeed.AccelerationMode =
+            HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
+                ? (ushort)2
+                : (ushort)0;
         InitializeAnimation(bus, initialFrame: 0);
     }
 

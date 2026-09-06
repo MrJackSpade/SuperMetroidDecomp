@@ -1,5 +1,41 @@
 # Movement-release cartridge probe and runtime regression
 
+## Falling-entry correction (#312)
+
+The isolated `$90:9B1F` recurrence below is valid for mode two, but does **not**
+establish that mode two is valid after walking off a ledge. A room-seeded original
+CPU comparison exposed the missing `$91:F60D` falling-pose initializer: entry sets
+mode zero without extra dash speed, or two if either extra-speed word is nonzero.
+The managed walk-off previously retained the grounded release mode.
+
+`--walk-off-momentum-audit ROM` reproduces that defect through the full runtime on
+a finite synthetic ledge in both directions, dry and underwater. It failed before
+the fix and now asserts stationary horizontal position throughout neutral-input
+falling. Verification also covers zero/nonzero whole and fractional dash speed,
+all three incoming modes, and preservation of base/extra speed on pose entry.
+
+### Repeating the room-seeded CPU comparison
+
+The door audit accepts `ROM source destination X Y [Xfraction Yfraction items
+[seed-prefix]]`, with numeric arguments in hex. It prints four transition variants
+and optionally exports one private `.movement-seed` per variant. Use the supplied
+integration patch, build the native runner, and execute:
+
+```powershell
+./upstream-sm/build/bin-x64-Release/sm.exe --room-release-probe ROM seed-prefix-True-True.movement-seed
+```
+
+Capture native and managed console output, then run `compare-room-release.ps1`
+with `-NativeTrace` and `-ManagedTrace`. It compares twenty frames of exact X, Y,
+pose, base speed, and acceleration mode. All twenty matched for the locally
+reconstructed reported doorway entry after the fix. Private recording, seed,
+and cartridge-derived room data remain local and are not included here.
+
+Scope: the seed restores running Samus and room blocks, not enemies, live PLM
+execution, or moving liquid surfaces. Only compare an interval independent of
+those actors. This verifies the excessive post-ledge momentum defect, not the
+separate report about automatic travel distance during the door transition.
+
 ## Short-tap trajectory comparison (#314)
 
 The same native command also prints 720 `TAP` records: dry/submerged, both turn

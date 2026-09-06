@@ -1,11 +1,15 @@
 diff --git a/src/main.c b/src/main.c
 --- a/src/main.c
 +++ b/src/main.c
-@@ -316,2 +316,6 @@
+@@ -316,2 +316,10 @@
  int main(int argc, char** argv) {
 +  if (argc == 3 && strcmp(argv[1], "--movement-release-probe") == 0) {
 +    extern int DiagnosticMovementRelease(const char *rom);
 +    return DiagnosticMovementRelease(argv[2]);
++  }
++  if (argc == 4 && strcmp(argv[1], "--room-release-probe") == 0) {
++    extern int DiagnosticRoomRelease(const char *rom, const char *seed);
++    return DiagnosticRoomRelease(argv[2], argv[3]);
 +  }
  #ifdef __SWITCH__
 diff --git a/src/sm_rtl.c b/src/sm_rtl.c

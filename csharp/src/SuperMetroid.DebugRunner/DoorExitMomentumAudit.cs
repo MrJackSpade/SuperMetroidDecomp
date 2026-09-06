@@ -12,7 +12,9 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static class DoorExitMomentumAudit
 {
-    public static int Run(string romPath, ushort source, ushort destination, ushort x, ushort y)
+    public static int Run(string romPath, ushort source, ushort destination, ushort x, ushort y,
+        ushort xSubposition = 0, ushort ySubposition = 0, ushort equippedItems = 0,
+        string? seedPrefix = null)
     {
         foreach (bool tubeBroken in new[] { false, true })
         foreach (bool carriedSpeed in new[] { false, true })
@@ -46,8 +48,9 @@ internal static class DoorExitMomentumAudit
             else samus.ApplyStandingRightToRunningRight(bus);
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            samus.Kinematics.SetXFixed((uint)x << 16);
-            samus.Kinematics.SetYFixed((uint)y << 16);
+            samus.Kinematics.SetXFixed(((uint)x << 16) | xSubposition);
+            samus.Kinematics.SetYFixed(((uint)y << 16) | ySubposition);
+            samus.EquippedItems = equippedItems;
             samus.HorizontalSpeed.BaseSpeed = carriedSpeed ? (ushort)2 : (ushort)0;
             samus.HorizontalSpeed.BaseSubspeed = carriedSpeed ? (ushort)0xc000 : (ushort)0;
             var transition = new DoorTransitionState();
@@ -63,6 +66,9 @@ internal static class DoorExitMomentumAudit
                 Trace(before.ToString(), previousX);
             }
             if (transition.IsActive) throw new InvalidDataException("Door coroutine did not finish within 300 calls.");
+            if (seedPrefix is not null)
+                RoomMovementSeedExporter.Write(runtime,
+                    $"{seedPrefix}-{tubeBroken}-{carriedSpeed}.movement-seed");
             for (int tick = 0; tick < 20; tick++, frame++)
             {
                 uint previousX = samus.Kinematics.XFixed;
@@ -73,7 +79,7 @@ internal static class DoorExitMomentumAudit
             void Trace(string phase, uint previousX) => Console.WriteLine(
                 $"frame={frame} phase={phase} x={samus.Kinematics.XFixed:X8} dx={unchecked((int)(samus.Kinematics.XFixed - previousX)) / 65536.0:F4} " +
                 $"y={samus.Kinematics.YFixed:X8} base={samus.HorizontalSpeed.BaseFixed:X8} " +
-                $"extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} " +
+                $"extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} mode={samus.HorizontalSpeed.AccelerationMode} " +
                 $"medium={samus.LiquidPhysics.DetermineMovementMedium(samus)} fx={samus.LiquidPhysics.FxType} surface={samus.LiquidPhysics.FxYPosition:X4} pose={samus.Pose:X2} locked={samus.InputLocked}");
         }
         return 0;

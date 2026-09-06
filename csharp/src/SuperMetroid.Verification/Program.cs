@@ -30,6 +30,7 @@ VerifyViewportTileRowParity();
 VerifyPpuMemorySnapshotOwnership();
 VerifyTitleRenderSnapshots();
 VerifyPauseRenderSnapshots();
+VerifyFileMenuRenderSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

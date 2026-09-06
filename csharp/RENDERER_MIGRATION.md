@@ -167,3 +167,12 @@ Software memory rehydration is shared with the Mode 7 consumer and remains local
 to each render call. These temporary software scratch copies are not GPU requirements.
 Frontend publication and scheduling are still pending; neither capture API is yet
 the default frontend output.
+
+File select and options now expose the same capture boundary. Shared menu capture
+retains their established whole-BG2, whole-BG1, whole-OBJ ordering rather than
+substituting the gameplay priority ladder. Nullable BG priority means the existing
+unfiltered plane operation; an explicit whole-OBJ insertion retains OAM precedence.
+`FileMenuSnapshotTests` checks 284 retail-data frames through COPY/CLEAR selection,
+confirmation/completion, controller-page scrolling and special settings, including
+fade frames and packets retained across later state changes. Save operations affect
+only a fresh in-memory address space. Frontend output is still the legacy path.

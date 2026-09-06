@@ -20,6 +20,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case ObjRenderLayer:
+                    SnesLayerCompositor.Composite(output, objects.Pixels);
+                    break;
                 case ObjPriorityRenderLayer obj:
                     for (int pixel = 0; pixel < output.Length; pixel++)
                         if (objects.Priorities[pixel] == obj.Priority)

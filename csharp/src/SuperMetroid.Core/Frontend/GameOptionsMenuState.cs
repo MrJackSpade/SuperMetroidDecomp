@@ -184,6 +184,24 @@ public sealed class GameOptionsMenuState
         SnesLayerCompositor.Composite(background, backgroundLayer);
         SnesLayerCompositor.Composite(background, foreground);
 
+        PrepareRenderOam();
+        SnesLayerCompositor.Composite(
+            background,
+            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection));
+        ApplyBrightness(background);
+        return background;
+    }
+
+    /// <summary>Captures the scrolled options page and selector without composing pixels.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        PrepareRenderOam();
+        return MenuRenderSnapshotCapture.Capture(ppu, oam,
+            unchecked((ushort)bg1VerticalScroll), checked((byte)brightness));
+    }
+
+    private void PrepareRenderOam()
+    {
         oam.BeginFrame();
         DrawMenuSpritemap(
             GameOptionsRomData.Spritemaps.OptionModeBorder,
@@ -192,11 +210,6 @@ public sealed class GameOptionsMenuState
         (ushort cursorX, ushort cursorY) = CursorPosition();
         DrawMenuSpritemap(GameOptionsRomData.Spritemaps.MissileFrameIds[missileFrame], cursorX, cursorY);
         oam.FinalizeFrame();
-        SnesLayerCompositor.Composite(
-            background,
-            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03));
-        ApplyBrightness(background);
-        return background;
     }
 
     private void StepPrimary(SnesButton pressed)

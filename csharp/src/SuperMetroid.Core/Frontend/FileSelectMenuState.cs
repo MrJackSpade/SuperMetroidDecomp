@@ -164,6 +164,22 @@ public sealed partial class FileSelectMenuState
         SnesLayerCompositor.Composite(background, backgroundLayer);
         SnesLayerCompositor.Composite(background, foreground);
 
+        PrepareRenderOam();
+        Rgba32[] objects = SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection);
+        SnesLayerCompositor.Composite(background, objects);
+        ApplyBrightness(background);
+        return background;
+    }
+
+    /// <summary>Captures file-menu display state after simulation-owned OAM preparation.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        PrepareRenderOam();
+        return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, checked((byte)brightness));
+    }
+
+    private void PrepareRenderOam()
+    {
         oam.BeginFrame();
         bool mainScreen = IsMainScreenPhase;
         ushort border = IsCopyPhase
@@ -197,10 +213,6 @@ public sealed partial class FileSelectMenuState
         }
         oam.FinalizeFrame();
 
-        Rgba32[] objects = SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03);
-        SnesLayerCompositor.Composite(background, objects);
-        ApplyBrightness(background);
-        return background;
     }
 
     private void BuildSaveTilemap()

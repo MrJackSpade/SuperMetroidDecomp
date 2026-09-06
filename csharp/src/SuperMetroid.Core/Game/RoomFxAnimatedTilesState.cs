@@ -35,15 +35,22 @@ internal sealed class RoomFxAnimatedTilesState
     public void Load(ISnesAddressSpace bus, RoomFxType type)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        Reset();
-
-        objectPointer = type switch
+        ushort definition = type switch
         {
             RoomFxType.Lava => AnimatedTileObjectPointers.Lava,
             RoomFxType.Acid => AnimatedTileObjectPointers.Acid,
             RoomFxType.Rain => AnimatedTileObjectPointers.Rain,
             _ => 0,
         };
+        LoadDefinition(bus, definition);
+    }
+
+    /// <summary>Loads a timed looping object selected by a cartridge header, independent of FX type.</summary>
+    public void LoadDefinition(ISnesAddressSpace bus, ushort definition)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        Reset();
+        objectPointer = definition;
         if (objectPointer == 0)
             return;
 
@@ -62,10 +69,10 @@ internal sealed class RoomFxAnimatedTilesState
 
     /// <summary>
     /// Executes one <c>AnimtilesHandler</c> pass and performs the NMI-visible transfer.
-    /// These three retail lists contain timed source frames, <c>goto</c>, and no other
+    /// Supported retail lists contain timed source frames, <c>goto</c>, and no other
     /// commands; encountering anything else fails loudly instead of freezing the texture.
     /// </summary>
-    public void Step(ISnesAddressSpace bus, SnesVram vram)
+    public void Step(ISnesAddressSpace bus, SnesVram vram, VramWriteQueue? writes = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
@@ -94,11 +101,10 @@ internal sealed class RoomFxAnimatedTilesState
                 instructionTimer = instructionOrDuration;
                 instructionPointer = unchecked((ushort)(cursor + 4));
                 LastSourceAddress = RoomFxRomData.Banks.AnimatedTiles | sourcePointer;
-                vram.ExecuteHardwareDmaWrite(
-                    bus,
-                    LastSourceAddress.Value,
-                    transferByteCount,
-                    encodedVramDestination);
+                if (writes is not null)
+                    writes.Enqueue(transferByteCount, LastSourceAddress.Value, encodedVramDestination);
+                else
+                    vram.ExecuteHardwareDmaWrite(bus, LastSourceAddress.Value, transferByteCount, encodedVramDestination);
                 return;
             }
 

@@ -36,6 +36,10 @@ public static class AnimatedTileInstructionCodes
 /// <summary>Bank-$87 object headers selected directly by translated room setup code.</summary>
 public static class AnimatedTileObjectPointers
 {
+    /// <summary>kAnimtiles_MaridiaSandCeiling, $87:8287, selected by room FX animation bits.</summary>
+    public const ushort MaridiaSandCeiling = 0x8287;
+    /// <summary>kAnimtiles_MaridiaSandFalling, $87:828D, selected by room FX animation bits.</summary>
+    public const ushort MaridiaSandFalling = 0x828d;
     /// <summary>Wrecked Ship rightward treadmill object at $87:8275.</summary>
     public const ushort WreckedShipTreadmillRightwards = 0x8275;
     /// <summary>Wrecked Ship leftward treadmill object at $87:827B.</summary>

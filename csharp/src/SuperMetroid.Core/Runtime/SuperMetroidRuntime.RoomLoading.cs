@@ -792,6 +792,7 @@ public sealed partial class SuperMetroidRuntime
             System.RandomNumber,
             room.Pointer);
         RoomLayer3Fx.PrimeViewport(Camera.XPosition, Camera.YPosition);
+        SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer, room.AreaIndex);
         if (Samus is not null)
             RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
 

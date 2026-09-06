@@ -12,7 +12,7 @@ internal static partial class Program
     static void VerifyAnimatedTileInstructionCodeCatalog()
     {
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionCodes), 14);
-        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 5);
+        AssertAnimatedTileCatalog(typeof(AnimatedTileObjectPointers), 7);
         AssertAnimatedTileCatalog(typeof(AnimatedTileInstructionListPointers), 4);
         VerifyConstructedAnimatedTileStreams();
 
@@ -46,7 +46,7 @@ internal static partial class Program
             ]);
 
         Console.WriteLine(
-            "  Animated tiles: 20 named bank-$87 pointers, constructed fail-loud " +
+            "  Animated tiles: 25 named bank-$87 pointers, constructed fail-loud " +
             "dispatch, and both retail treadmill streams agree.");
     }
 

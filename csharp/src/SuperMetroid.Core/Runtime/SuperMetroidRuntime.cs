@@ -399,6 +399,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; } = new();
 
+    /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
+    public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
+
     /// <summary>Room-main owner for Maridia elevatube routine $8F:E2B6.</summary>
     public MaridiaElevatubeRoomMainState MaridiaElevatube { get; } = new();
 
@@ -4170,6 +4173,8 @@ public sealed partial class SuperMetroidRuntime
                 timeIsFrozen: TimeIsFrozen,
                 VramWrites);
         }
+
+        SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
         // handler publishes one 32-byte source per frame only after Phantoon's area-boss

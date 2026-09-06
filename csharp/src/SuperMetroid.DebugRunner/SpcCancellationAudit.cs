@@ -15,6 +15,7 @@ internal static class SpcCancellationAudit
         for (int frame = 0; frame < 600; frame++)
         {
             if (frame == 60) player.WritePort(0, 5);
+            if (frame == 240) player.WritePort(1, SoundEffectLibrary1Sounds.ChargeBeamStart.Value);
             if (frame == 300)
             {
                 player.WritePort(1, SoundEffectLibrary1Sounds.CancelAll.Value);
@@ -30,7 +31,7 @@ internal static class SpcCancellationAudit
                 peak = Math.Max(peak, Math.Abs((int)sample));
             }
             if (!heard && peak != 0) { Console.WriteLine($"FIRST_PCM frame={frame}"); heard = true; }
-            if (frame % 30 != 0 && (frame < 298 || frame > 305)) continue;
+            if (frame % 30 != 0 && (frame < 298 || frame > 315)) continue;
             // Host-rate PCM cannot be compared sample-for-sample to the CPU probe's
             // native-rate PCM. These metrics locate gross divergence; DSP registers
             // and acknowledgements expose command handling independently of resampling.
@@ -38,7 +39,8 @@ internal static class SpcCancellationAudit
                 $"peak={peak} mean-square={energy / samples.Length} " +
                 $"FLG={player.ReadDspRegisterForVerification(SnesDspRegisterMap.Global.Flags):X2} " +
                 $"NON={player.ReadDspRegisterForVerification(SnesDspRegisterMap.Global.NoiseEnable):X2} " +
-                $"EON={player.ReadDspRegisterForVerification(SnesDspRegisterMap.Global.EchoEnable):X2}");
+                $"EON={player.ReadDspRegisterForVerification(SnesDspRegisterMap.Global.EchoEnable):X2} " +
+                $"SRC=[{string.Join(',', Enumerable.Range(0, 8).Select(voice => player.ReadDspRegisterForVerification((byte)(voice * 16 + 4)).ToString("X2")))}]");
         }
         return 0;
     }

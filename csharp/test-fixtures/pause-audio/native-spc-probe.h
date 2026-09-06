@@ -39,6 +39,7 @@ int DiagnosticSpcCpu(const char *engine, const char *music) {
   bool heard = false;
   for (int frame = 0; frame < 600; frame++) {
     if (frame == 60) apu->inPorts[0] = 5;
+    if (frame == 240) apu->inPorts[1] = 8; // Sustained Charge Beam, library one.
     // $82:BE17's cancellation messages, after four seconds of ordinary music.
     if (frame == 300) { apu->inPorts[1] = 2; apu->inPorts[2] = 0x71; apu->inPorts[3] = 1; }
     apu->hist.count = 0;
@@ -59,10 +60,12 @@ int DiagnosticSpcCpu(const char *engine, const char *music) {
       if (magnitude > peak) peak = magnitude;
     }
     if (!heard && peak) { printf("FIRST_PCM frame=%d\n", frame); heard = true; }
-    if (frame % 30 == 0 || (frame >= 298 && frame <= 305)) {
-      printf("SPC frame=%d pc=%04X ports=%02X,%02X,%02X,%02X peak=%d mean-square=%lld FLG=%02X NON=%02X EON=%02X\n",
+    if (frame % 30 == 0 || (frame >= 298 && frame <= 315)) {
+      printf("SPC frame=%d pc=%04X ports=%02X,%02X,%02X,%02X peak=%d mean-square=%lld FLG=%02X NON=%02X EON=%02X SRC=[",
         frame, apu->spc->pc, apu->outPorts[0], apu->outPorts[1], apu->outPorts[2], apu->outPorts[3],
         peak, energy / (534 * 2), apu->dsp->ram[0x6c], apu->dsp->ram[0x3d], apu->dsp->ram[0x4d]);
+      for (int voice = 0; voice < 8; voice++) printf("%s%02X", voice ? "," : "", apu->dsp->ram[voice * 16 + 4]);
+      printf("]\n");
     }
     apu->dsp->sampleOffset = 0;
   }

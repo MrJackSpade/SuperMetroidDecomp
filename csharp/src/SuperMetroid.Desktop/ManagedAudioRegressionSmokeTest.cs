@@ -15,8 +15,11 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
 
 /// <summary>
 /// Permanent, ROM-free regression corpus captured only after every byte matched the pinned
-/// native oracle. It covers every music bank, three SFX libraries, overlap/cancellation,
-/// bank changes, stop, pause/resume, and track restoration.
+/// native translation. It covers every music-bank upload, three SFX libraries,
+/// overlap/cancellation, bank changes, stop, pause/resume, and shared-cue restoration.
+/// The music scenarios request shared track one, not bank-specific track five; their
+/// hashes therefore do not establish room-music correctness. The original SPC CPU
+/// cancellation probe exercises bank music separately and is not this corpus's oracle.
 /// </summary>
 public static class ManagedAudioRegressionSmokeTest
 {

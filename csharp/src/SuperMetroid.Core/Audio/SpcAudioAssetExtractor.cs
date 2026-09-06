@@ -190,7 +190,8 @@ public static class SpcAudioAssetExtractor
         return libraries;
     }
 
-    private static bool TryDecodeBrr(
+    /// <summary>Builds an exact finite PCM prefix and recurring loop from BRR predictor states.</summary>
+    internal static bool TryDecodeBrr(
         byte[] ram,
         bool[] written,
         ushort start,
@@ -201,13 +202,16 @@ public static class SpcAudioAssetExtractor
     {
         List<short> samples = [];
         HashSet<ushort> blockAddresses = [];
+        Dictionary<(int Old, int Older), int> loopHistories = [];
         int address = start;
         int old = 0;
         int older = 0;
-        bool loops = false;
+        bool followingLoop = false;
         blockCount = 0;
-        while (blockCount < MaximumBrrBlocks)
+        while (samples.Count < BrrExtractionLimits.MaximumDecodedLoopSamples)
         {
+            if (!followingLoop && blockCount >= MaximumBrrBlocks)
+                break;
             if (address > ushort.MaxValue - BrrBlockByteLength)
                 break;
             for (int index = 0; index < BrrBlockByteLength; index++)
@@ -220,6 +224,20 @@ public static class SpcAudioAssetExtractor
             byte header = ram[address];
             int shift = header >> 4;
             int filter = (header >> 2) & 3;
+            if (address == loop)
+            {
+                // A loop is repeatable only when it returns to the same predictor
+                // history, not merely the same BRR address. Filter zero discards both
+                // history words, so its entry state can be normalized immediately.
+                var history = filter == 0 ? (0, 0) : (old, older);
+                if (followingLoop && loopHistories.TryGetValue(history, out int repeatAt))
+                {
+                    pcm = [.. samples];
+                    loopSampleIndex = repeatAt;
+                    return true;
+                }
+                loopHistories.TryAdd(history, samples.Count);
+            }
             for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
             {
                 byte packed = ram[address + 1 + sampleIndex / 2];
@@ -242,17 +260,28 @@ public static class SpcAudioAssetExtractor
                 samples.Add(unchecked((short)sample));
             }
             address += BrrBlockByteLength;
-            blockCount++;
+            if (!followingLoop) blockCount++;
             if ((header & 1) != 0)
             {
-                loops = (header & 2) != 0;
-                loopSampleIndex = loops && blockAddresses.Contains(loop)
-                    ? ((loop - start) / BrrBlockByteLength) * PcmSampleFormat.StreamingWindowSampleCount
-                    : null;
-                pcm = [.. samples];
-                return !loops || loopSampleIndex is not null;
+                if ((header & 2) == 0)
+                {
+                    pcm = [.. samples];
+                    loopSampleIndex = null;
+                    return true;
+                }
+                if (!blockAddresses.Contains(loop)) goto Invalid;
+                // Keep transient loop passes in the WAV prefix. Once the exact
+                // history repeats, the remaining cycle is ordinary replaceable PCM;
+                // the runtime needs neither a BRR decoder nor special loop effects.
+                followingLoop = true;
+                address = loop;
             }
         }
+
+        if (followingLoop)
+            throw new InvalidDataException(
+                $"BRR sample ${start:X4} loop ${loop:X4} did not reach a repeated decoder state " +
+                $"within {BrrExtractionLimits.MaximumDecodedLoopSamples} PCM frames.");
 
     Invalid:
         pcm = [];

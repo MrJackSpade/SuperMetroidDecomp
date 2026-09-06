@@ -103,3 +103,43 @@ decodes one pass with zero initial BRR history and repeats its PCM loop. Native
 BRR decoding carries the last two decoded values into the loop, so filtered loop
 heads can differ on later passes. This is a reproduced waveform defect, not yet
 a verified fix or proof that it explains every reported pause-audio symptom.
+
+## Verified extractor correction
+
+The extractor now unfolds BRR loop passes until the loop entry repeats the exact
+two-sample predictor history. It retains changing passes in the WAV prefix and
+points the PCM loop at the recurring state. Filter-zero loop heads discard history
+and keep their original compact loop. Non-looping sources are unchanged. A bounded
+search fails loudly rather than accepting an approximate loop.
+
+The failing sources above now match every native PCM block. The complete catalog
+also passed: all 112 canonical sources, 128 blocks each, with zero mismatches.
+38 WAVs changed; all 112 stable IDs and all 935 aliases remain intact. The runtime
+still plays replaceable PCM and has no added BRR decoder.
+
+`VerifyBrrLoopExtractionRetainsPredictorHistory` adds a one-block constructed
+filtered loop, checks 1024 samples against its independent integer recurrence,
+and checks filter-zero, one-shot, and invalid-loop-address cases.
+
+The native DLL remains an optional diagnostic dependency only. This command
+compares complete managed/native PCM and acknowledgement frames, using native-rate
+output from the DLL and the tested host resampler:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --native-audio-corpus-audit standalone-assets/audio csharp/native/SuperMetroid.AudioNative/bin/x64/Release/SuperMetroid.AudioNative.dll
+```
+
+It matched all 4560 frames of the historical shared-cue corpus, independently
+establishing its updated PCM SHA-256
+`06FE91966B29B05F2012C6A542864B5692B178A7B028C2A4A56F6D34E8F8D06C`.
+The acknowledgement hash is unchanged. It additionally matched all 24 bank-specific
+track-five scenarios for 600 frames each, including active Charge Beam cancellation:
+14,400 additional complete PCM/acknowledgement frames. This latter oracle is the
+native translated driver/DSP; the separate SPC700 interpreter comparison above
+checks original-driver sequencer behavior for four selected banks.
+
+The full Verification suite, Game Release build, managed-audio corpus, and live
+frontend pause-audio route pass. #54 should remain open for player listening
+confirmation: mathematical waveform parity does not itself confirm what the
+player hears through their host/RDP audio path. Restart and load ordinary SRAM
+for validation so the new sample assets, not an existing audio session, are used.

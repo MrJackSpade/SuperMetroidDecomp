@@ -15,6 +15,7 @@ internal static partial class Program
         VerifyStereoPcmContinuityMeter();
         VerifyManagedSpcUsesAddressedFirCoefficients();
         VerifyManagedSpcSoundOwnershipPreservesPhase();
+        VerifyBrrLoopExtractionRetainsPredictorHistory();
     }
 
     private static void VerifyStereoPcmContinuityMeter()

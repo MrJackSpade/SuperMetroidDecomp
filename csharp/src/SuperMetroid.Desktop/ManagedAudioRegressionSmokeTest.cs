@@ -24,7 +24,7 @@ public readonly record struct ManagedAudioRegressionSmokeTestResult(
 public static class ManagedAudioRegressionSmokeTest
 {
     private const string ExpectedPcmSha256 =
-        "378294FC5F8D4188378D6AF110AC32D008B39BA3BE4A6936B245A07D6864CC35";
+        "06FE91966B29B05F2012C6A542864B5692B178A7B028C2A4A56F6D34E8F8D06C";
     private const string ExpectedAcknowledgementSha256 =
         "DF414B59F7CA21C4BBAD7ABA9C379C8296DCA454B480BFCEFCB8B35123D851FD";
     private const int ShortScenarioFrames = 120;

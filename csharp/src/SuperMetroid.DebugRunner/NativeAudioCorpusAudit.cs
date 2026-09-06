@@ -1,0 +1,132 @@
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+using SuperMetroid.Core.Audio;
+
+/// <summary>
+/// Rechecks the desktop's shared-cue corpus against native BRR playback before accepting
+/// a changed PCM golden hash. The native DLL is diagnostic-only and supplied explicitly.
+/// </summary>
+internal static class NativeAudioCorpusAudit
+{
+    public static int Run(string audioDirectory, string dllPath)
+    {
+        var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
+        nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
+        T Export<T>(string name) where T : Delegate => Marshal.GetDelegateForFunctionPointer<T>(NativeLibrary.GetExport(library, name));
+        var create = Export<Create>("sm_audio_create");
+        var destroy = Export<Destroy>("sm_audio_destroy");
+        var upload = Export<Upload>("sm_audio_upload");
+        var write = Export<Write>("sm_audio_write_port");
+        var read = Export<Read>("sm_audio_read_port");
+        var generate = Export<Generate>("sm_audio_generate_frame");
+        using var pcmHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        using var portHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        int totalFrames = 0;
+        try
+        {
+            Music("title-long", AudioAssetCatalogData.Music[0].SnesAddress, 600);
+            foreach (var bank in AudioAssetCatalogData.Music) Music(bank.Name, bank.SnesAddress, 120);
+            Sound("library-1-power-beam", [(1, SoundEffectLibrary1Sounds.PowerBeam.Value)]);
+            Sound("library-2-door", [(2, SoundEffectLibrary2Sounds.DoorOpening.Value)]);
+            Sound("library-3-cinematic", [(3, 0x23)]);
+            Sound("three-library-overlap-and-cancel", [(1, SoundEffectLibrary1Sounds.PowerBeam.Value),
+                (2, SoundEffectLibrary2Sounds.DoorOpening.Value), (3, 0x23)], true);
+            Scenario("music-lifecycle", 600, frame => frame switch
+            {
+                0 => [U(AudioUploadAddresses.SpcEngine), U(AudioAssetCatalogData.Music[3].SnesAddress), W(0, 1)],
+                120 => [W(0, 0)],
+                150 => [U(AudioAssetCatalogData.Music[4].SnesAddress), W(0, 1)],
+                270 => [W(0, AudioRomData.Apu.PauseMusic)],
+                330 => [W(0, AudioRomData.Apu.ResumeMusic)],
+                390 => [W(0, 2)],
+                510 => [W(0, 1)],
+                _ => [],
+            });
+            Console.WriteLine($"Native corpus matched {totalFrames} complete frames; PCM={Convert.ToHexString(pcmHash.GetHashAndReset())}; ports={Convert.ToHexString(portHash.GetHashAndReset())}");
+            int sharedCueFrames = totalFrames;
+            // Unlike the historical shared-cue hash, exercise each bank's actual
+            // track-five sequence, with a sustained SFX and pause cancellation.
+            foreach (var bank in AudioAssetCatalogData.Music)
+                Scenario("bank-music-" + bank.Name, 600, frame => frame switch
+                {
+                    0 => [U(AudioUploadAddresses.SpcEngine), U(bank.SnesAddress), W(0, 5)],
+                    240 => [W(1, SoundEffectLibrary1Sounds.ChargeBeamStart.Value)],
+                    300 => [W(1, SoundEffectLibrary1Sounds.CancelAll.Value), W(2, SoundEffectLibrary2Sounds.CancelAll.Value), W(3, SoundEffectLibrary3Sounds.CancelAll.Value)],
+                    _ => [],
+                });
+            Console.WriteLine($"Native bank-music comparison matched {totalFrames - sharedCueFrames} additional complete PCM/acknowledgement frames.");
+            return 0;
+        }
+        finally { NativeLibrary.Free(library); }
+
+        static CartridgeAudioCommand U(int address) => CartridgeAudioCommand.Upload(address);
+        static CartridgeAudioCommand W(byte port, byte command) => CartridgeAudioCommand.WritePort(port, command);
+        void Music(string name, int address, int frames) => Scenario(name, frames, frame => frame == 0
+            ? [U(AudioUploadAddresses.SpcEngine), U(address), W(0, 1)] : []);
+        void Sound(string name, (byte Port, byte Command)[] start, bool cancel = false) => Scenario(name, 120,
+            frame => frame == 0 ? new[] { U(AudioUploadAddresses.SpcEngine) }.Concat(start.Select(c => W(c.Port, c.Command))).ToArray()
+            : cancel && frame == 60 ? [W(1, SoundEffectLibrary1Sounds.CancelAll.Value), W(2, SoundEffectLibrary2Sounds.CancelAll.Value), W(3, SoundEffectLibrary3Sounds.CancelAll.Value)] : []);
+
+        void Scenario(string name, int frames, Func<int, CartridgeAudioCommand[]> commands)
+        {
+            nint native = create();
+            if (native == 0) throw new InvalidOperationException("Native audio allocation failed.");
+            try
+            {
+                var managed = new ManagedSpcPlayer();
+                var nativeRaw = new short[1068];
+                var nativeHost = new short[1600];
+                var actual = new short[1600];
+                byte[] nameBytes = Encoding.UTF8.GetBytes(name);
+                var ports = new byte[4];
+                for (int frame = 0; frame < frames; frame++)
+                {
+                    foreach (var command in commands(frame))
+                    {
+                        if (command.Kind == CartridgeAudioCommandKind.Upload)
+                        {
+                            byte[] stream = assets.GetUpload(command.UploadAddress).ToArray();
+                            if (upload(native, stream, stream.Length) != 1) throw new InvalidDataException("Native upload rejected.");
+                            managed.Upload(stream);
+                            managed.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
+                        }
+                        else
+                        {
+                            if (write(native, command.Port, command.Value) != 1) throw new InvalidDataException("Native port write rejected.");
+                            managed.WritePort(command.Port, command.Value);
+                        }
+                    }
+                    // Read native samples at native rate, then use the independently tested
+                    // host conversion. The DLL's old nearest-neighbor resampler is bypassed.
+                    if (generate(native, nativeRaw, 534) != 534) throw new InvalidDataException("Native PCM frame incomplete.");
+                    PcmFrameResampler.ResampleStereoLinear(nativeRaw, nativeHost);
+                    managed.GenerateFrame(actual);
+                    if (!actual.AsSpan().SequenceEqual(nativeHost))
+                    {
+                        int first = Enumerable.Range(0, actual.Length).First(i => actual[i] != nativeHost[i]);
+                        throw new InvalidDataException($"Native corpus {name} frame={frame} sample={first}: managed={actual[first]}, native={nativeHost[first]}.");
+                    }
+                    for (int port = 0; port < 4; port++)
+                    {
+                        int expected = read(native, port);
+                        if (expected != managed.ReadPort(port)) throw new InvalidDataException($"Native port mismatch in {name}/{frame}/{port}.");
+                        ports[port] = checked((byte)expected);
+                    }
+                    pcmHash.AppendData(nameBytes);
+                    pcmHash.AppendData(MemoryMarshal.AsBytes(nativeHost.AsSpan()));
+                    portHash.AppendData(nameBytes);
+                    portHash.AppendData(ports);
+                    totalFrames++;
+                }
+            }
+            finally { destroy(native); }
+        }
+    }
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate nint Create();
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate void Destroy(nint player);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Upload(nint player, byte[] data, int length);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Write(nint player, int port, byte value);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Read(nint player, int port);
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Generate(nint player, [Out] short[] data, int frames);
+}

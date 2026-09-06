@@ -44,10 +44,22 @@ internal static class FrontendAuditDriver
         frame = StepUntil(
             game,
             frame,
-            candidate => candidate.GameState == SuperMetroidGameState.SetUpNewGame,
+            candidate => candidate.GameState == SuperMetroidGameState.FileSelectMap,
             maximumFrames: 180,
-            "restarted options did not request saved-game setup");
-        return game.Step(0);
+            "restarted options did not request saved-game map selection");
+        frame = game.Step(0);
+        if (frame.GameState == SuperMetroidGameState.FileSelectMap)
+        {
+            frame = game.Step((ushort)SnesButton.A);
+            frame = StepUntil(game, frame,
+                candidate => candidate.Phase == nameof(FileSelectMapNavigationPhase.Room),
+                120, "saved-game area confirmation did not reach the room map");
+            frame = game.Step((ushort)SnesButton.A);
+            frame = StepUntil(game, frame,
+                _ => game.RuntimeForVerification is not null,
+                120, "saved-game room confirmation did not load the selected station");
+        }
+        return frame;
     }
 
     public static FrontendFrame StepUntil(

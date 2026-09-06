@@ -26,6 +26,7 @@ public sealed partial class SuperMetroidGame
     private readonly CartridgeAudioState audio = new();
     private TitleSequenceState? title;
     private FileSelectMenuState? fileSelect;
+    private FileSelectMapMenuState? fileSelectMap;
     private GameOptionsMenuState? options;
     private GameOverMenuState? gameOver;
     private IntroCinematicState? intro;
@@ -250,6 +251,7 @@ public sealed partial class SuperMetroidGame
                 lastAudioRuntimeGameplayPublication = null;
                 lastAudioRoomStatePointer = null;
                 fileSelect = null;
+                fileSelectMap = null;
                 gameOver = null;
                 GameState = SuperMetroidGameState.OpeningCinematic;
                 lastPixels = title.Render();
@@ -319,7 +321,13 @@ public sealed partial class SuperMetroidGame
                 }
                 else if (options.IntroRequested)
                 {
-                    if (loadingExistingSave || gameOptions.SkipOpeningCinematic)
+                    if (loadingExistingSave)
+                    {
+                        fileSelectMap = null;
+                        GameState = SuperMetroidGameState.FileSelectMap;
+                        lastPixels = CreateBlackFrame();
+                    }
+                    else if (gameOptions.SkipOpeningCinematic)
                     {
                         // This is the same dispatcher boundary reached by `$8B:C100` after
                         // the SPACE COLONY fade. Do not fake Start presses or build a host-
@@ -573,10 +581,33 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.FileSelectMap:
-                // The game-over route has already selected and loaded the active slot in
-                // native WRAM. Recreate that load from the same checksummed SRAM image, then
-                // enter the ordinary gameplay fade rather than retaining the dead runtime.
                 loadingExistingSave = true;
+                SuperMetroidSaveSlot mapSlot = saveRam.ReadSlot(selectedSaveSlot)
+                    ?? throw new InvalidDataException("The selected save became invalid before map selection.");
+                if (mapSlot.Area != (ushort)AreaId.Ceres)
+                {
+                    if (fileSelectMap is null)
+                    {
+                        // Menu construction consumes only save/map data. A dead runtime
+                        // must not keep publishing gameplay audio during map selection.
+                        runtime = null;
+                        fileSelectMap = new FileSelectMapMenuState(bus, audio, mapSlot, controllerInput);
+                    }
+                    else fileSelectMap.Step(controllerInput);
+                    lastPixels = fileSelectMap.Render();
+                    if (fileSelectMap.OptionsRequested)
+                    {
+                        options = new GameOptionsMenuState(bus, audio, mapSlot.ControllerBindings,
+                            mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled);
+                        fileSelectMap = null;
+                        GameState = SuperMetroidGameState.GameOptionsMenu;
+                        lastPixels = options.Render();
+                        break;
+                    }
+                    if (!fileSelectMap.LoadRequested) break;
+                    fileSelectMap = null;
+                }
+                // Ceres has no world-map entry; preserve its checkpoint arrival path.
                 bool continueUsesCeresArrival = SetupSelectedGame();
                 if (continueUsesCeresArrival)
                 {
@@ -1006,6 +1037,7 @@ public sealed partial class SuperMetroidGame
         SuperMetroidGameState.OpeningCinematic => title!.Phase.ToString(),
         SuperMetroidGameState.FileSelectMenus => fileSelect!.Phase.ToString(),
         SuperMetroidGameState.GameOptionsMenu => options!.Phase.ToString(),
+        SuperMetroidGameState.FileSelectMap => fileSelectMap?.Phase.ToString() ?? "Preparing saved-game map",
         SuperMetroidGameState.IntroCinematic => intro!.Phase.ToString(),
         SuperMetroidGameState.SetUpNewGame =>
             loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",

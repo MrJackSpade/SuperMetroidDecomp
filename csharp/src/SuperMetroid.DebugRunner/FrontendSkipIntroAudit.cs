@@ -176,7 +176,7 @@ internal static class FrontendSkipIntroAudit
             bus,
             areaIndex: AreaId.Crateria,
             stationIndex: 0);
-        if (crateriaFrame.GameState != SuperMetroidGameState.MainGameplay ||
+        if (crateriaFrame.GameState != SuperMetroidGameState.MainGameplayFadeIn ||
             crateriaReload.GameplayActiveRoomPointer != crateriaStation.RoomPointer ||
             crateriaReload.GameplayHealth != 87 ||
             crateriaReload.GameplayMaxHealth != 199 ||

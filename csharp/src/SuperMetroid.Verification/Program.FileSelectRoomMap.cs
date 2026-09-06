@@ -12,6 +12,7 @@ internal static partial class Program
         VerifyFileSelectStationMarker();
         VerifyFileSelectMapScroll();
         VerifyFileSelectMapNavigation();
+        VerifySavedGameMapFrontend();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -64,6 +65,76 @@ internal static partial class Program
             AssertTrue(pixels.All(pixel => pixel.A == 255), "room map has opaque backdrop");
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
+        }
+    }
+
+    private static void VerifySavedGameMapFrontend()
+    {
+        VerifySavedGameMapFrontend(4);
+        VerifySavedGameMapFrontend(6);
+    }
+
+    private static void VerifySavedGameMapFrontend(ushort savedArea)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var saves = new SuperMetroidSaveRam(bus);
+        var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99 };
+        snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
+        if (savedArea < 6)
+        {
+            var station = SuperMetroid.Core.Rooms.LoadStationEntry.Load(bus, (AreaId)savedArea, 0);
+            var room = SuperMetroid.Core.Rooms.CartridgeRoomHeader.Load(bus, station.RoomPointer);
+            int x = room.MapX + (station.SamusX >> 8);
+            int y = room.MapY + (station.SamusY >> 8) + 1;
+            snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(x, y)] |= AreaMapLayout.GetBitMask(x);
+        }
+        saves.SaveSlot(0, snapshot);
+        saves.SelectSlot(0);
+        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        FrontendFrame frame = game.Step(0);
+        frame = game.Step(0x1000);
+        Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
+        frame = game.Step(0x1000);
+        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMenus, 150);
+        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        frame = game.Step(0x0080);
+        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 200);
+        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        frame = game.Step(0x0080);
+        if (savedArea == 6)
+        {
+            Until(() => game.RuntimeForVerification is not null, 200);
+            AssertEqual(AreaId.Ceres, game.RuntimeForVerification!.ActiveRoom!.AreaIndex,
+                "Ceres checkpoint bypasses Zebes map and retains elevator arrival");
+            AssertTrue(game.RuntimeForVerification.CeresElevatorArrival is not null,
+                "Ceres checkpoint still owns its arrival sequence");
+            return;
+        }
+        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
+        AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
+        frame = game.Step(0x8000);
+        Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
+        for (int i = 0; i < 16; i++) frame = game.Step(0);
+        frame = game.Step(0x0080);
+        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
+        for (int i = 0; i < 10; i++) frame = game.Step(0);
+        frame = game.Step(0x1000);
+        Until(() => frame.Phase == "Room", 80);
+        for (int i = 0; i < 15; i++) frame = game.Step(0);
+        PngWriter.WriteRgba(Path.GetFullPath("csharp/test-temp/file-select-map/live-maridia-room.png"), 256, 224, frame.Pixels);
+        AssertTrue(game.RuntimeForVerification is null, "room map does not implicitly load the save");
+        frame = game.Step(0x8000);
+        Until(() => frame.Phase == "Area", 80);
+        frame = game.Step(0x1000);
+        Until(() => frame.Phase == "Room", 80);
+        frame = game.Step(0x1000);
+        Until(() => game.RuntimeForVerification is not null, 100);
+        AssertEqual(SuperMetroid.Core.Rooms.LoadStationEntry.Load(bus, AreaId.Maridia, 0).RoomPointer,
+            game.RuntimeForVerification!.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
+        void Until(Func<bool> predicate, int limit)
+        {
+            for (int tick = 0; tick < limit && !predicate(); tick++) frame = game.Step(0);
+            AssertTrue(predicate(), $"saved map frontend reached requested boundary; current {frame.GameState}/{frame.Phase}");
         }
     }
 

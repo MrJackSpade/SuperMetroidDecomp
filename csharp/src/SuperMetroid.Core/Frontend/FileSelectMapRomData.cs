@@ -65,6 +65,12 @@ public static class FileSelectMapRomData
     public const int ReturnWindowTimerReduction = 12;
     /// <summary>$81:AFF6 starts the return window eight pixels inside the viewport.</summary>
     public const int ReturnWindowInset = 8;
+    /// <summary>$81:AF5A handles both dispatcher entries eleven and twelve before fading.</summary>
+    public const int LoadPreludeFrames = 2;
+    /// <summary>$81:AF83 waits thirty-two black frames before advancing to gameplay setup.</summary>
+    public const int LoadBlackFrames = 32;
+    /// <summary>Return setup runs entries fifteen through twenty before window contraction.</summary>
+    public const int ReturnSetupFrames = 6;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

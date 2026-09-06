@@ -77,6 +77,12 @@ public static class SoundEffectLibrary1Sounds
 
     /// <summary>Accepts the currently highlighted menu or pause-screen entry.</summary>
     public static readonly SoundEffectId MenuConfirm = new(SoundEffectLibrary.Library1, 0x38);
+    /// <summary>$82:9299 completes an eight-tick map scroll.</summary>
+    public static readonly SoundEffectId MapScroll = new(SoundEffectLibrary.Library1, 0x36); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+    /// <summary>$81:AAAC begins the area-to-room expanding window.</summary>
+    public static readonly SoundEffectId MapExpand = new(SoundEffectLibrary.Library1, 0x3b); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+    /// <summary>$81:AD7F/$81:AFF6 return from the room map to the area map.</summary>
+    public static readonly SoundEffectId MapReturn = new(SoundEffectLibrary.Library1, 0x3c); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 }
 
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>

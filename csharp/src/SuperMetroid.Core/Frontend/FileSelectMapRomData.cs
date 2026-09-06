@@ -71,6 +71,18 @@ public static class FileSelectMapRomData
     public const int LoadBlackFrames = 32;
     /// <summary>Return setup runs entries fifteen through twenty before window contraction.</summary>
     public const int ReturnSetupFrames = 6;
+    /// <summary>$8E:E400, LoadFileSelectPalettes reloads the full menu CGRAM image.</summary>
+    public const int EntryPalette = 0x8ee400;
+    /// <summary>$82:D9B8 uses denominator fifteen and calls transition colors starting at step one.</summary>
+    public const int EntryPaletteDenominator = 15;
+    /// <summary>$81:A61C initializes the entry window's upper margin to 111 scanlines.</summary>
+    public const int EntryWindowTop = 111;
+    /// <summary>$81:A61C initializes the entry window's inclusive left edge at 127.</summary>
+    public const int EntryWindowLeft = 127;
+    /// <summary>$81:A61C initializes the entry window's inclusive right edge at 129.</summary>
+    public const int EntryWindowRight = 129;
+    /// <summary>$81:A725 expands each window edge four pixels per update.</summary>
+    public const int EntryWindowSpeed = 4;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

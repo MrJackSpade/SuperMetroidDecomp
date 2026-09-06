@@ -237,7 +237,9 @@ internal static partial class Program
                 "Ceres checkpoint still owns its arrival sequence");
             return;
         }
-        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap && frame.Phase == "Area", 200);
+        Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
+        for (int i = 0; i < 70; i++) frame = game.Step(0x1000);
+        AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
         frame = game.Step(0x8000);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);

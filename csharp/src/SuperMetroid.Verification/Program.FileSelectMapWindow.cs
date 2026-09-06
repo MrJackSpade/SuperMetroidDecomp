@@ -11,6 +11,7 @@ internal static partial class Program
         VerifyFileSelectAreaMapGraphics();
         VerifyFileSelectRoomMapGraphics();
         VerifyFileSelectMapWindowComposition();
+        VerifyFileSelectMapEntry();
         var fake = new TestAddressSpace();
         WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
         // The lower-bound clamp must preserve .C000, or frame two will still

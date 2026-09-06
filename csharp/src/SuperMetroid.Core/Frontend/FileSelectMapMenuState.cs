@@ -10,8 +10,8 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Coordinates existing-save map navigation without loading a gameplay room early.</summary>
 /// <remarks>
-/// The initial options-to-area reveal and ancillary map icons remain separate unfinished
-/// presentation work. Core area/room confirmation, scrolling, return and load handoff live here.
+/// Entry, area/room confirmation, scrolling, return and load handoff each retain their
+/// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
 public sealed class FileSelectMapMenuState
 {
@@ -29,6 +29,7 @@ public sealed class FileSelectMapMenuState
     private readonly FileSelectMapAnimations animations;
     private bool drawArrows;
     private readonly FileSelectMapNavigation navigation;
+    private readonly FileSelectMapEntry entry;
     private FileSelectMapWindow? returnWindow;
     private int pendingFrames;
     private byte brightness = 15;
@@ -61,14 +62,21 @@ public sealed class FileSelectMapMenuState
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         animations = new FileSelectMapAnimations(bus);
+        entry = new FileSelectMapEntry(bus);
     }
 
-    public FileSelectMapNavigationPhase Phase => navigation.Phase;
+    public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
     public bool LoadRequested { get; private set; }
     public bool OptionsRequested { get; private set; }
 
     public void Step(ushort input)
     {
+        if (!entry.IsComplete)
+        {
+            navigation.LatchInputWithoutNavigation(input);
+            entry.Step();
+            return;
+        }
         FileSelectMapNavigationPhase before = Phase;
         drawArrows = before == FileSelectMapNavigationPhase.Room;
         if (drawArrows) animations.StepArrows(scroll.CanScroll);
@@ -129,6 +137,7 @@ public sealed class FileSelectMapMenuState
 
     public Rgba32[] Render()
     {
+        if (!entry.IsComplete) return entry.Render(areaGraphics.Render(usedStations));
         Rgba32[] pixels = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>

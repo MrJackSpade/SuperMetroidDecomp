@@ -25,6 +25,8 @@ public sealed class FileSelectMapNavigation
 
     public FileSelectMapNavigationPhase Phase { get; private set; } = FileSelectMapNavigationPhase.Area;
     public FileSelectMapWindow? Window { get; private set; }
+    /// <summary>Entry/fade owners consume controller samples without executing menu actions.</summary>
+    public void LatchInputWithoutNavigation(ushort heldInput) => previousInput = heldInput;
 
     /// <summary>
     /// Consumes one held-controller sample. Edges are latched even during transitions:
@@ -94,4 +96,5 @@ public enum FileSelectMapNavigationPhase
     AreaReturnRequested,
     OptionsRequested,
     LoadRequested,
+    EnteringArea,
 }

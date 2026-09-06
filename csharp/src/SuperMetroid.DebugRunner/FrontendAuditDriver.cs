@@ -50,6 +50,9 @@ internal static class FrontendAuditDriver
         frame = game.Step(0);
         if (frame.GameState == SuperMetroidGameState.FileSelectMap)
         {
+            frame = StepUntil(game, frame,
+                candidate => candidate.Phase == nameof(FileSelectMapNavigationPhase.Area),
+                100, "saved-game map entry reveal did not finish");
             frame = game.Step((ushort)SnesButton.A);
             frame = StepUntil(game, frame,
                 candidate => candidate.Phase == nameof(FileSelectMapNavigationPhase.Room),

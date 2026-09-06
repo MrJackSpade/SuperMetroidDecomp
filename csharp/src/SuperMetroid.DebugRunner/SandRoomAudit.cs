@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Reads the reported retail sand rooms and verifies their real animation bytes and cadence.</summary>
 internal static class SandRoomAudit
 {
-    public static int Run(string romPath)
+    public static int Run(string romPath, bool verifyPhysics = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var rooms = File.ReadLines("upstream-sm/assets/names.txt")
@@ -30,6 +30,33 @@ internal static class SandRoomAudit
             runtime.LoadCartridgeRoomForDebug(room.Pointer, 0, 0);
             runtime.Samus!.InputLocked = true;
             var level = runtime.LevelData!;
+            if (verifyPhysics && room.RoomIndex == 0x1a)
+            {
+                // The first surface block is outside the falling-sand columns. Place the
+                // bottom sample inside that real block, not on an artificial solid floor.
+                var surface = Enumerable.Range(0, level.ForegroundEntries.Length)
+                    .Select(i => level.GetCollisionBlockOrPrefilledSolid(i % level.WidthInBlocks, i / level.WidthInBlocks))
+                    .First(b => b.CollisionType == RoomCollisionType.SpecialAir && b.Behavior == 0x82);
+                var samus = runtime.Samus!;
+                samus.InputLocked = false;
+                samus.Pose = 1;
+                samus.InitializeAnimation(bus);
+                samus.EquippedItems = 0;
+                samus.Kinematics.YRadius = 16;
+                samus.XPosition = (ushort)((surface.Index % level.WidthInBlocks) * 16 + 8);
+                samus.YPosition = (ushort)((surface.Index / level.WidthInBlocks) * 16 - 15);
+                samus.Kinematics.YDirection = 0;
+                samus.Kinematics.YSpeed = 0;
+                samus.Kinematics.YSubspeed = 0;
+                uint before = samus.Kinematics.YFixed;
+                runtime.StepFrame(0);
+                Console.WriteLine($"Quicksand surface block {surface.Index}: Y delta={(int)(samus.Kinematics.YFixed - before) / 65536.0:F6}, extra Y={samus.Kinematics.ExtraYFixed / 65536.0:F6}");
+                // $84:B447 selects $0120 in 8.8 fixed point for a stationary body
+                // without Gravity Suit. The inside-block handler must publish it in alpha.
+                if (samus.Kinematics.ExtraYFixed != 0x12000)
+                    throw new InvalidDataException("Quicksand alpha did not publish the cartridge's 1.125-pixel sinking displacement.");
+                return 0;
+            }
             Console.WriteLine($"Room {room.Identity} ${room.Pointer:X4}: {level.WidthInBlocks}x{level.HeightInBlocks}; sand animations={runtime.SandAnimatedTiles.Count}");
             foreach (var group in Enumerable.Range(0, level.ForegroundEntries.Length)
                 .Select(i => level.GetCollisionBlockOrPrefilledSolid(i % level.WidthInBlocks, i / level.WidthInBlocks))

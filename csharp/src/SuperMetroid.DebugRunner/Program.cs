@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--sand-physics-audit")
+    return SandRoomAudit.Run(args[1], verifyPhysics: true);
 if (args.Length == 2 && args[0] == "--sand-room-audit")
     return SandRoomAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--native-audio-corpus-audit")

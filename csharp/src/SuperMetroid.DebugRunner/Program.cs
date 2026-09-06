@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 5 && args[0] == "--dsp-sample-comparison-audit")
+    return DspSampleComparisonAudit.Run(args[1], Convert.ToInt32(args[2], 16), Convert.ToByte(args[3], 16), args[4]);
 if (args.Length == 4 && args[0] == "--spc-tick-comparison-audit")
     return SpcTickComparisonAudit.Run(args[1], Convert.ToInt32(args[2], 16), args[3]);
 if (args.Length == 3 && args[0] == "--spc-cancellation-audit")

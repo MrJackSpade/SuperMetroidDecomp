@@ -1,8 +1,12 @@
 diff --git a/src/main.c b/src/main.c
 --- a/src/main.c
 +++ b/src/main.c
-@@ -315,2 +315,6 @@
+@@ -315,2 +315,10 @@
  int main(int argc, char** argv) {
++  if (argc == 5 && strcmp(argv[1], "--dsp-sample-probe") == 0) {
++    extern int DiagnosticDspSample(const char *engine, const char *music, unsigned source);
++    return DiagnosticDspSample(argv[2], argv[3], (unsigned)strtoul(argv[4], NULL, 16));
++  }
 +  if (argc == 4 && (strcmp(argv[1], "--spc-cpu-probe") == 0 || strcmp(argv[1], "--spc-cpu-tick-probe") == 0)) {
 +    extern int DiagnosticSpcCpu(const char *engine, const char *music, bool tickTrace);
 +    return DiagnosticSpcCpu(argv[2], argv[3], strcmp(argv[1], "--spc-cpu-tick-probe") == 0);

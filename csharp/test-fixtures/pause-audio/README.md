@@ -70,3 +70,36 @@ Verified: Lower Crateria (`D288CA`), Green Brinstar (`D3933C`), Upper Norfair
 (`D4B86C`), and Maridia (`D5C844`) each matched all 3000 ticks, including active
 Charge Beam cancellation. This narrows the investigation toward sample rendering,
 DSP timing or host playback for these scenarios; it does not resolve #54.
+
+## Native-rate BRR versus extracted PCM reproduction
+
+The same integration patch also enables an isolated DSP source test:
+
+```powershell
+& './upstream-sm/build/bin-x64-Release/sm.exe' --dsp-sample-probe standalone-assets/audio/streams/00-SPCEngine.spcu standalone-assets/audio/streams/09-Music_LowerCrateria.spcu 19 | Out-File -Encoding ascii csharp/test-temp/dsp-sample-19.log
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --dsp-sample-comparison-audit standalone-assets/audio D288CA 19 csharp/test-temp/dsp-sample-19.log
+```
+
+Both render one voice at native rate and unit pitch, with matching gain/volume,
+echo disabled, and no sound-driver timing involved. Compare 128 consecutive
+534-sample stereo blocks by deterministic hash. The managed resampler is an
+identity here, so host interpolation cannot explain a difference. The command
+fails on any mismatching block or incomplete trace.
+
+Reproduced before an extractor fix, Lower Crateria bank:
+
+| Source | PCM length / loop | Mismatching blocks | First mismatch |
+| --- | --- | --- | --- |
+| 18 | 4224 / none | 0 | none |
+| 19 | 160 / 96 | 128 | block 0 |
+| 1B | 7952 / 80 | 20 | block 14 |
+| 1C | 9456 / 3680 | 11 | block 17 |
+| 02 | 1408 / 64 | 55 | block 2 |
+| 05 | 1760 / 64 | 0 | none |
+| 07 | 1392 / 48 | 0 | none |
+
+The first mismatch tracks the first loop boundary. The extractor currently
+decodes one pass with zero initial BRR history and repeats its PCM loop. Native
+BRR decoding carries the last two decoded values into the loop, so filtered loop
+heads can differ on later passes. This is a reproduced waveform defect, not yet
+a verified fix or proof that it explains every reported pause-audio symptom.

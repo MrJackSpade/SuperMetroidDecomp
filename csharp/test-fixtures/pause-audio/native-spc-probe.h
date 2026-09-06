@@ -99,3 +99,33 @@ int DiagnosticSpcCpu(const char *engine, const char *music, bool tickTrace) {
   apu_free(apu);
   return 0;
 }
+
+int DiagnosticDspSample(const char *engine, const char *music, unsigned source) {
+#ifdef _WIN32
+  SetErrorMode(1 | 2);
+#endif
+  if (source > 255) return 2;
+  Apu *apu = apu_init();
+  apu_reset(apu);
+  if (!ProbeLoadSpcStream(apu, engine) || !ProbeLoadSpcStream(apu, music)) {
+    apu_free(apu); return 2;
+  }
+  Dsp *dsp = apu->dsp;
+  dsp_write(dsp, 0x6c, 0x20); // Echo writes disabled, no reset/mute.
+  dsp_write(dsp, 0x5d, 0x6d); // Resident sample directory.
+  dsp_write(dsp, 0x0c, 0x7f); dsp_write(dsp, 0x1c, 0x7f);
+  dsp_write(dsp, 0x00, 0x7f); dsp_write(dsp, 0x01, 0x7f);
+  dsp_write(dsp, 0x02, 0); dsp_write(dsp, 0x03, 0x10);
+  dsp_write(dsp, 0x04, (uint8)source);
+  dsp_write(dsp, 0x05, 0); dsp_write(dsp, 0x07, 0x7f);
+  dsp_write(dsp, 0x5c, 0); dsp_write(dsp, 0x4c, 1);
+  for (int frame = 0; frame < 128; frame++) {
+    while (dsp->sampleOffset < 534) dsp_cycle(dsp);
+    uint32 hash = 2166136261u;
+    for (int i = 0; i < 534 * 2; i++) hash = (hash ^ (uint16)dsp->sampleBuffer[i]) * 16777619u;
+    printf("S %d %08X\n", frame, hash);
+    dsp->sampleOffset = 0;
+  }
+  apu_free(apu);
+  return 0;
+}

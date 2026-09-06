@@ -25,7 +25,8 @@ int DiagnosticMovementRelease(const char *rom) {
   }
   memcpy(g_snes->cart->rom, retail + header, rom_length - header);
   free(retail);
-  for (int water = 0; water < 2; water++) {
+  for (int water = 0; water < 2; water++)
+  for (int keep_direction = 0; keep_direction < 2; keep_direction++) {
     cpu_reset(g_snes->cpu);
     memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false;
@@ -52,11 +53,18 @@ int DiagnosticMovementRelease(const char *rom) {
     samus_x_speed_table_pointer = 0x9f55; // Retail normal table, not preceding grapple entry.
     samus_input_handler = 0xe913;
     samus_health = 99;
+    button_config_run_b = 0x8000;
     samus_anim_frame_timer = 5;
-    for (int frame = 0; frame < 16; frame++) {
+    int32 travelled = 0;
+    for (int frame = 0; frame < 100; frame++) {
+      // Recenter between samples to keep the finite synthetic floor from ending.
+      // Accumulate accepted movement separately; do not reset velocity or pose.
+      samus_x_pos = 200;
+      samus_x_subpos = 0;
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
-      joypad1_lastkeys = joypad1_newkeys = 0;
+      joypad1_lastkeys = keep_direction ? 0x200 : 0;
+      joypad1_newkeys = 0;
       // Retail alpha input, beta movement/animation, then collision and pose
       // transitions. Execute the actual 65816 instructions, not translated C.
       RunAsmCode(0x918000, 0, 0, 0, 0);
@@ -68,9 +76,11 @@ int DiagnosticMovementRelease(const char *rom) {
       RunAsmCode(0x908000, 0, 0, 0, 0);
       RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0);
+      travelled += (200 << 16) - ((samus_x_pos << 16) | samus_x_subpos);
       printf("RELEASE water=%d frame=%d x=%04X.%04X speed=%04X.%04X mode=%d pose=%04X\n",
         water, frame, samus_x_pos, samus_x_subpos, samus_x_base_speed,
         samus_x_base_subspeed, samus_x_accel_mode, samus_pose);
+      if (frame == 99) printf("STOP water=%d keep-direction=%d distance=%08X pose=%04X speed=%04X.%04X\n", water, keep_direction, travelled, samus_pose, samus_x_base_speed, samus_x_base_subspeed);
     }
   }
   return 0;

@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyFileSelectRoomMapGraphics()
     {
         VerifyFileSelectStationMarker();
+        VerifyFileSelectMapScroll();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -63,6 +64,48 @@ internal static partial class Program
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
         }
+    }
+
+    private static void VerifyFileSelectMapScroll()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AreaMapCartridgeData map = AreaMapRomData.Load(bus, AreaId.Crateria);
+        var system = new Bank80SystemState();
+        system.MarkExploredMapTile(AreaId.Crateria, 0, 0);
+        system.MarkExploredMapTile(AreaId.Crateria, 63, 31);
+        ushort[] inputs = [0x0200, 0x0100, 0x0800, 0x0400];
+        for (int direction = 1; direction <= 4; direction++)
+        {
+            var scroll = new FileSelectMapScroll(bus, map, system, 240, 128);
+            AssertEqual(124, scroll.Horizontal, "room map centers native horizontal bounds");
+            AssertEqual(32, scroll.Vertical, "room map rounds the 112px center offset down to a tile boundary");
+            AssertEqual(24, scroll.MinimumY, "room-select upper arrow boundary gets delayed 24px adjustment");
+            for (int frame = 1; frame <= 8; frame++)
+            {
+                bool sound = scroll.Step(frame == 1 ? inputs[direction - 1] : (ushort)0);
+                int delta = frame >= 4 ? 8 : 0;
+                AssertEqual(124 + (direction == 1 ? -delta : direction == 2 ? delta : 0), scroll.Horizontal,
+                    "map scroll horizontal exact pulse frame");
+                AssertEqual(32 + (direction == 3 ? -delta : direction == 4 ? delta : 0), scroll.Vertical,
+                    "map scroll vertical exact pulse frame");
+                AssertEqual(frame == 8, sound, "map scroll sound occurs at completion, not displacement");
+            }
+            AssertEqual(MapScrollDirection.None, scroll.Direction, "released direction completes its accepted step");
+        }
+        var precedence = new FileSelectMapScroll(bus, map, system, 240, 128);
+        precedence.Step(0x0f00);
+        AssertEqual(MapScrollDirection.Left, precedence.Direction, "simultaneous map input uses native arrow order");
+        var empty = new FileSelectMapScroll(bus, map, new Bank80SystemState(), 216, 48);
+        AssertEqual(208, empty.MinimumX, "empty map uses retail left default");
+        AssertEqual(224, empty.MaximumX, "empty map uses retail right default");
+        AssertEqual(32, empty.MinimumY, "empty map uses top default then file-select adjustment");
+        AssertEqual(88, empty.MaximumY, "empty map uses retail bottom default");
+        // Repeated stepping must stop at the native inequality, not run past the edge.
+        for (int frame = 0; frame < 1000; frame++) precedence.Step(0x0200);
+        AssertTrue(!precedence.CanScroll(MapScrollDirection.Left), "held left stops at map boundary");
+        ushort stoppedX = precedence.Horizontal;
+        for (int frame = 0; frame < 16; frame++) precedence.Step(0x0200);
+        AssertEqual(stoppedX, precedence.Horizontal, "held input cannot scroll beyond unavailable arrow");
     }
 
     private static void VerifyFileSelectStationMarker()

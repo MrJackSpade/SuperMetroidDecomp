@@ -53,6 +53,14 @@ public static class FileSelectMapRomData
     public const ushort StationMarkerBacking = 0x12;
     /// <summary>$82:B6DD selects OBJ palette seven for the load-station marker.</summary>
     public const ushort StationMarkerPalette = 0x0e00;
+    /// <summary>$81:AF32, four ten-byte arrow records: X, Y, animation, held-button mask, direction.</summary>
+    public const int ScrollArrows = 0x81af32;
+    /// <summary>MapScrolling speed table emits its eight-pixel pulse on the fourth update.</summary>
+    public const int ScrollPulseTick = 4;
+    /// <summary>$82:9299 completes a step when its two-byte speed index reaches $10.</summary>
+    public const int ScrollStepTicks = 8;
+    /// <summary>MapScrolling speed table's only nonzero displacement is one eight-pixel map cell.</summary>
+    public const int ScrollStepPixels = 8;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

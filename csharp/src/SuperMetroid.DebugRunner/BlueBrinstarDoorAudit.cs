@@ -26,11 +26,61 @@ internal static class BlueBrinstarDoorAudit
         return 0;
     }
 
-    private static void RunProjectileCase(
+    /// <summary>Checks shot timing against the still-running entry-door close actor.</summary>
+    public static int RunTimingSweep(string romPath)
+    {
+        int failures = 0;
+        int earlyMisses = 0;
+        for (int closeFrames = 0; closeFrames <= 32; closeFrames++)
+        foreach (ushort selection in new ushort[] { 0, 1, 2 })
+        {
+            try
+            {
+                if (!RunProjectileCase(romPath, selection, SamusBeamFlags.None,
+                    $"close={closeFrames} selection={selection}", closeFrames, retryAfterClosing: true))
+                    earlyMisses++;
+            }
+            catch (InvalidDataException exception)
+            {
+                failures++;
+                Console.WriteLine($"FAIL close={closeFrames} selection={selection}: {exception.Message}");
+            }
+        }
+        Console.WriteLine($"Door timing: 99 cases, {earlyMisses} early misses, {failures} persistent failures after retry. Native closing timing is not asserted.");
+        return failures == 0 ? 0 : 1;
+    }
+
+    public static int RunContactSweep(string romPath)
+    {
+        int failures = 0;
+        foreach (int distance in new[] { 5, 6, 7, 8, 12, 16, 24 })
+        foreach (int height in new[] { 24, 32, 40 })
+        foreach (ushort selection in new ushort[] { 0, 1, 2 })
+        {
+            try
+            {
+                RunProjectileCase(romPath, selection, SamusBeamFlags.None,
+                    $"distance={distance} height={height} selection={selection}", 32, distance, height);
+            }
+            catch (InvalidDataException exception)
+            {
+                failures++;
+                Console.WriteLine($"FAIL distance={distance} height={height} selection={selection}: {exception.Message}");
+            }
+        }
+        Console.WriteLine($"Door contact: 63 cases, {failures} failures.");
+        return failures == 0 ? 0 : 1;
+    }
+
+    private static bool RunProjectileCase(
         string romPath,
         ushort selectedHudItem,
         SamusBeamFlags equippedBeams,
-        string name)
+        string name,
+        int closeFrames = 32,
+        int contactDistance = 6,
+        int heightOffset = 24,
+        bool retryAfterClosing = false)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(
             Path.GetFullPath(romPath));
@@ -96,10 +146,11 @@ internal static class BlueBrinstarDoorAudit
         samus.Pose = orientation == ColoredDoorOrientation.Left
             ? SamusPoseIds.FacingRightNormalPose
             : SamusPoseIds.FacingLeftNormalPose;
+        samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.XPosition = unchecked((ushort)((capX << 4) +
-            (orientation == ColoredDoorOrientation.Left ? -6 : 6)));
-        samus.YPosition = unchecked((ushort)((capY << 4) + 24));
+            (orientation == ColoredDoorOrientation.Left ? -contactDistance : contactDistance)));
+        samus.YPosition = unchecked((ushort)((capY << 4) + heightOffset));
         samus.SelectedHudItem = selectedHudItem;
         samus.EquippedBeams = equippedBeams.ToNativeWord();
         samus.Missiles = 10;
@@ -108,7 +159,7 @@ internal static class BlueBrinstarDoorAudit
         // Finish the room-entry door-closing actor before firing back into the cap. This
         // matches the player's settled-room report and prevents two legitimate door actors
         // from racing only because the diagnostic bypassed frontend transition timing.
-        for (int frame = 0; frame < 32; frame++)
+        for (int frame = 0; frame < closeFrames; frame++)
             StepPlms(runtime, bus, level);
 
         bool collided = false;
@@ -125,6 +176,16 @@ internal static class BlueBrinstarDoorAudit
         RoomCollisionBlock after = level.GetCollisionBlockByIndex(cap.Index);
         if (!fired)
             throw new InvalidDataException($"{name} did not fire in room $01/$1D.");
+        bool openedOnFirstShot = after.CollisionType == RoomCollisionType.Air;
+        if (!openedOnFirstShot && retryAfterClosing)
+        {
+            // An early shot may meet a not-yet-shootable closing tile. Distinguish
+            // that transient from a permanently locked cap by retrying the SAME
+            // weapon after the closing actor finishes. Do not substitute a Super.
+            for (int frame = 0; frame < 96; frame++)
+                runtime.StepFrame(frame < 2 ? (ushort)SnesButton.X : (ushort)0);
+            after = level.GetCollisionBlockByIndex(cap.Index);
+        }
         if (after.CollisionType != RoomCollisionType.Air)
         {
             throw new InvalidDataException(
@@ -133,8 +194,9 @@ internal static class BlueBrinstarDoorAudit
         }
         Console.WriteLine(
             $"{name}: cap={cap.Index} ({capX},{capY}) bts={cap.Bts} orientation={orientation}, " +
-            $"fired={fired}, impact={collided}, type={after.CollisionType}, " +
+            $"fired={fired}, impact={collided}, first-shot-open={openedOnFirstShot}, type={after.CollisionType}, " +
             $"active-plms={runtime.Plms.ActiveCount}, shots=[{string.Join(';', runtime.Projectiles.Slots.Where(slot => slot.IsActive).Select(slot => $"${slot.Type:X4}@{slot.XPosition},{slot.YPosition}"))}].");
+        return openedOnFirstShot;
     }
 
     private static void PublishRetailDoor(

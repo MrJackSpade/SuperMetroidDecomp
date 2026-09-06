@@ -100,6 +100,10 @@ if (args.Length >= 2 && args[0] == "--blue-brinstar-door-audit")
     string blueDoorRomPath = string.Join(' ', args[1..]).Trim('"');
     return BlueBrinstarDoorAudit.Run(blueDoorRomPath);
 }
+if (args.Length == 2 && args[0] == "--blue-door-timing-audit")
+    return BlueBrinstarDoorAudit.RunTimingSweep(args[1]);
+if (args.Length == 2 && args[0] == "--blue-door-contact-audit")
+    return BlueBrinstarDoorAudit.RunContactSweep(args[1]);
 
 if (args.Length >= 2 && args[0] == "--spike-hazard-audit")
 {

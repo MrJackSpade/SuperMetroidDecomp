@@ -146,8 +146,15 @@ public sealed class FileSelectMapMenuState
             FileSelectMapNavigationPhase.Room when !markerDrawn => roomGraphics.RenderBackgrounds(scroll.Horizontal, scroll.Vertical),
             FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested =>
                 roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
+            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 =>
+                roomGraphics.Render(scroll.Horizontal, scroll.Vertical, marker, drawArrows ? animations : null),
+            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
+                FileSelectMapWindowCompositor.CompositeInitialEntryWindow(
+                    areaGraphics.Render(usedStations), roomGraphics.RenderFrameOnly()),
             FileSelectMapNavigationPhase.AreaReturnRequested when returnWindow is not null =>
-                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations, false),
+                // Return setup calls $81:A5B3 (CGADSUB=$25); unlike the forward
+                // expansion's $05, this retains backdrop addition outside the window.
+                FileSelectMapWindowCompositor.Composite(areaGraphics.Render(usedStations),
                     roomGraphics.RenderFrameOnly(), returnWindow),
             FileSelectMapNavigationPhase.AreaReturnRequested => roomGraphics.RenderFrameOnly(),
             _ => areaGraphics.Render(usedStations),

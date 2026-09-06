@@ -15,6 +15,7 @@ internal static partial class Program
         VerifySavedGameMapFrontend();
         VerifyFileSelectMapIcons();
         VerifyFileSelectMapAnimations();
+        VerifyMapCancelPresentation();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int areaIndex = 0; areaIndex < FileSelectMapRomData.AreaCount; areaIndex++)
         foreach (bool downloaded in new[] { false, true })
@@ -76,6 +77,50 @@ internal static partial class Program
             if (downloaded)
                 PngWriter.WriteRgba(Path.GetFullPath($"csharp/test-temp/file-select-map/room-{areaIndex}.png"), 256, 224, pixels);
         }
+    }
+
+    private static void VerifyMapCancelPresentation()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var saves = new SuperMetroidSaveRam(bus);
+        var snapshot = new SuperMetroidSaveSnapshot { Area = 4, SaveStation = 0, Health = 99, MaxHealth = 99 };
+        snapshot.MapStationBytes[4] = 1;
+        snapshot.UsedSaveStationBytes[8] = 1;
+        saves.SaveSlot(0, snapshot);
+        var slot = saves.ReadSlot(0)!;
+        var cancel = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+        var control = new FileSelectMapMenuState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), slot, 0);
+        foreach (var menu in new[] { cancel, control })
+        {
+            for (int i = 0; i < 48; i++) menu.Step(0);
+            AssertEqual(FileSelectMapNavigationPhase.Area, menu.Phase, "cancel fixture finishes area reveal");
+            menu.Step(0x1000);
+            for (int i = 0; i < 54; i++) menu.Step(0);
+            AssertEqual(FileSelectMapNavigationPhase.Room, menu.Phase, "cancel fixture reaches live room map");
+        }
+        cancel.Step(0x8000);
+        control.Step(0);
+        AssertTrue(cancel.Render().SequenceEqual(control.Render()),
+            "room cancel must retain the map/icons drawn before input until next coroutine call");
+        var system = new Bank80SystemState();
+        system.LoadMapStationBytes(slot.MapStationBytes);
+        Rgba32[] roomFrame = new FileSelectRoomMapGraphics(bus, system, AreaId.Maridia).RenderFrameOnly();
+        Rgba32[] area = new FileSelectAreaMapGraphics(bus, 4).Render(new ushort[] { 0, 0, 0, 0, 1, 0 });
+        for (int tick = 1; tick <= 4; tick++)
+        {
+            cancel.Step(0);
+            AssertTrue(cancel.Render().SequenceEqual(roomFrame), "return transfer stages retain only BG2 frame");
+        }
+        cancel.Step(0);
+        Rgba32[] setup = cancel.Render();
+        for (int y = 0; y < 224; y++)
+        for (int x = 0; x < 256; x++)
+            AssertEqual(x >= 127 && x <= 129 && y >= 111 && y < 113 ? area[y * 256 + x] : roomFrame[y * 256 + x],
+                setup[y * 256 + x], "return setup temporarily exposes native centered entry window");
+        cancel.Step(0);
+        AssertTrue(cancel.Render().SequenceEqual(FileSelectMapWindowCompositor.Composite(area, roomFrame,
+                FileSelectMapWindow.CreateReturn(bus, 4))),
+            "return contraction uses normal area backdrop addition, unlike forward transition");
     }
 
     private static void VerifyFileSelectMapAnimations()
@@ -219,6 +264,7 @@ internal static partial class Program
         saves.SelectSlot(0);
         var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
         FrontendFrame frame = game.Step(0);
+        int expansionFrames = 0, returnFrames = 0;
         frame = game.Step(0x1000);
         Until(() => frame.Phase == nameof(TitleSequencePhase.TitleScreen), 150);
         frame = game.Step(0x1000);
@@ -238,8 +284,13 @@ internal static partial class Program
             return;
         }
         Until(() => frame.GameState == SuperMetroidGameState.FileSelectMap, 200);
-        for (int i = 0; i < 70; i++) frame = game.Step(0x1000);
+        for (int i = 0; i < 70; i++)
+        {
+            frame = game.Step(0x1000);
+            if (i == 32) Capture("live-entry-reveal");
+        }
         AssertEqual("Area", frame.Phase, "holding confirm during initial reveal cannot skip area selection");
+        Capture("live-area");
         AssertTrue(game.RuntimeForVerification is null, "saved-game map does not construct gameplay before confirmation");
         frame = game.Step(0x8000);
         Until(() => frame.GameState == SuperMetroidGameState.GameOptionsMenu, 30);
@@ -262,9 +313,16 @@ internal static partial class Program
             game.RuntimeForVerification!.ActiveRoom!.Pointer, "second map confirmation loads selected SRAM station");
         void Until(Func<bool> predicate, int limit)
         {
-            for (int tick = 0; tick < limit && !predicate(); tick++) frame = game.Step(0);
+            for (int tick = 0; tick < limit && !predicate(); tick++)
+            {
+                frame = game.Step(0);
+                if (frame.Phase == "ExpandingWindow" && ++expansionFrames == 20) Capture("live-area-to-room");
+                if (frame.Phase == "AreaReturnRequested" && ++returnFrames == 20) Capture("live-room-to-area");
+            }
             AssertTrue(predicate(), $"saved map frontend reached requested boundary; current {frame.GameState}/{frame.Phase}");
         }
+        void Capture(string name) => PngWriter.WriteRgba(
+            Path.GetFullPath($"csharp/test-temp/file-select-map/{name}.png"), 256, 224, frame.Pixels);
     }
 
     private static void VerifyFileSelectMapNavigation()

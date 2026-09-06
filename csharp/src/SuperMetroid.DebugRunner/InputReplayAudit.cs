@@ -26,7 +26,8 @@ internal static class InputReplayAudit
         string romPath,
         bool enforcePlatformCrossingInvariant = false,
         int traceStartFrame = -1,
-        int traceEndFrame = -1)
+        int traceEndFrame = -1,
+        bool enforceStationaryMissileExplosions = false)
     {
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
         PrintInputRuns(
@@ -47,6 +48,7 @@ internal static class InputReplayAudit
             recording.GameOptions,
             renderGameplayFrames: false);
         var apuPortEchoes = new byte[4];
+        var movingExplosions = new MovingMissileExplosionAudit(bus, enforceStationaryMissileExplosions);
         var tail = new Queue<ReplayFrameState>(RetainedTailFrames);
         ushort? previousRoom = null;
         ushort previousCeresStatus = ushort.MaxValue;
@@ -103,6 +105,7 @@ internal static class InputReplayAudit
                 apuPortEchoes[3]));
             SuperMetroidRuntime? runtime = game.RuntimeForVerification;
             lastRuntime = runtime;
+            if (runtime is not null) movingExplosions.Observe(index, runtime.ActiveRoom?.Pointer, runtime.Projectiles);
             SamusState? samus = runtime?.Samus;
             RidleyEnemyState? ridley = runtime?.Enemies.CeresRidley;
             ushort? room = runtime?.ActiveRoom?.Pointer;

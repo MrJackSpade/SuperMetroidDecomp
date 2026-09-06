@@ -133,6 +133,8 @@ if (args.Length >= 3 && args[0] == "--input-replay-audit")
         args[1].Trim('"'),
         string.Join(' ', args[2..]).Trim('"'));
 }
+if (args.Length == 3 && args[0] == "--moving-missile-explosion-audit")
+    return InputReplayAudit.Run(args[1], args[2], enforceStationaryMissileExplosions: true);
 
 if (args.Length == 5 && args[0] == "--input-replay-trace")
 {

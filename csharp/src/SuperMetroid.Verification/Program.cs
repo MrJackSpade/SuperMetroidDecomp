@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 try
 {
 Console.WriteLine("Verifying translated Super Metroid routines...");
+VerifyViewportTileRowParity();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

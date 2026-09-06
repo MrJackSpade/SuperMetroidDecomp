@@ -80,6 +80,11 @@ public static class SnesBgTilemapRenderer
         if (horizontalScrollByLine is not null && horizontalScrollByLine.Count != height)
             throw new ArgumentException("Per-line scroll list must contain exactly one word per output line.", nameof(horizontalScrollByLine));
 
+        // A tile row shares its map entry, four bitplanes and palette. Decode those
+        // once for the visible run, including partial tiles at either viewport edge.
+        // Palette colors are local to this call so live palette animation stays visible.
+        Span<Rgba32> colors = stackalloc Rgba32[128];
+        for (int color = 0; color < colors.Length; color++) colors[color] = cgram.GetRgba(color);
         for (int screenY = 0; screenY < height; screenY++)
         {
             // BGSC bits 0-1 select one, two horizontal, two vertical, or four 32x32-tile
@@ -93,7 +98,7 @@ public static class SnesBgTilemapRenderer
                 ? horizontalScroll
                 : horizontalScrollByLine[screenY];
 
-            for (int screenX = 0; screenX < width; screenX++)
+            for (int screenX = 0; screenX < width;)
             {
                 // Each BGSC screen is a contiguous $400-word 32x32 tilemap. Screen blocks
                 // are laid out top-left, top-right, bottom-left, bottom-right. Therefore a
@@ -102,6 +107,7 @@ public static class SnesBgTilemapRenderer
                 int scrolledX = unchecked(lineHorizontalScroll + screenX) & xMask;
                 int tileX = scrolledX >> 3;
                 int pixelX = scrolledX & 7;
+                int runLength = Math.Min(8 - pixelX, width - screenX);
                 int screenColumn = tileX >> 5;
                 int screenRow = tileY >> 5;
                 int screensPerRow = tilemapWidthInTiles >> 5;
@@ -116,22 +122,30 @@ public static class SnesBgTilemapRenderer
                 // A null filter decodes the complete layer for legacy single-layer users.
                 // Multi-layer PPU composition requests one priority plane at a time.
                 if (priority.HasValue && entry.HasPriority != priority.Value)
+                {
+                    screenX += runLength;
                     continue;
+                }
 
                 int character = entry.CharacterIndex;
                 int palette = entry.PaletteIndex;
-                int sourceX = entry.FlipHorizontally ? 7 - pixelX : pixelX;
                 int sourceY = entry.FlipVertically ? 7 - pixelY : pixelY;
                 int characterByteAddress = ((characterBaseWord + character * 16) & 0x7fff) * 2;
-                int mask = 1 << (7 - sourceX);
                 int rowAddress = characterByteAddress + sourceY * 2;
-                int color = ((vram.ReadByte(rowAddress) & mask) != 0 ? 1 : 0)
-                          | ((vram.ReadByte(rowAddress + 1) & mask) != 0 ? 2 : 0)
-                          | ((vram.ReadByte(rowAddress + 16) & mask) != 0 ? 4 : 0)
-                          | ((vram.ReadByte(rowAddress + 17) & mask) != 0 ? 8 : 0);
-
-                if (color != 0)
-                    output[screenY * width + screenX] = cgram.GetRgba(palette * 16 + color);
+                byte plane0 = vram.ReadByte(rowAddress), plane1 = vram.ReadByte(rowAddress + 1);
+                byte plane2 = vram.ReadByte(rowAddress + 16), plane3 = vram.ReadByte(rowAddress + 17);
+                for (int offset = 0; offset < runLength; offset++)
+                {
+                    int sourceX = entry.FlipHorizontally ? 7 - pixelX - offset : pixelX + offset;
+                    int mask = 1 << (7 - sourceX);
+                    int color = ((plane0 & mask) != 0 ? 1 : 0)
+                              | ((plane1 & mask) != 0 ? 2 : 0)
+                              | ((plane2 & mask) != 0 ? 4 : 0)
+                              | ((plane3 & mask) != 0 ? 8 : 0);
+                    if (color != 0)
+                        output[screenY * width + screenX + offset] = colors[palette * 16 + color];
+                }
+                screenX += runLength;
             }
         }
     }

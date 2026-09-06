@@ -49,6 +49,7 @@ VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();
 VerifyGenericGamepadInput();
 VerifyDemoInputObject();
+VerifyAttractDemoScene();
 VerifyFrameRuntime();
 VerifyGameTimeState();
 VerifySuperMetroidAddressSpace();

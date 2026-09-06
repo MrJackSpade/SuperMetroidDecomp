@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--attract-demo-data-audit")
+    return AttractDemoDataAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--title-console-palette-audit")
     return TitleConsolePaletteAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--underwater-turn-probe")

@@ -113,6 +113,9 @@ public sealed class SamusKinematicsState
     /// </summary>
     public ushort YDirection { get; set; }
 
+    /// <summary>Area-table selector used by bank-$94 sand reactions; refreshed before movement.</summary>
+    public AreaId SandCollisionArea { get; set; }
+
     /// <summary>Whole gravity word at WRAM <c>$0B34</c>.</summary>
     public ushort YAcceleration { get; set; }
 

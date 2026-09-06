@@ -591,7 +591,8 @@ public sealed partial class SamusState
                 CopyKinematics(Kinematics),
                 displacement: intermediateWhole << 16,
                 scanLeftToRight: scanLeftToRight,
-                plms: plms);
+                plms: plms,
+                publishQuicksandGrounding: false);
             if (intermediate.Collided)
                 return intermediate;
         }
@@ -602,7 +603,8 @@ public sealed partial class SamusState
             CopyKinematics(Kinematics),
             displacement,
             scanLeftToRight,
-            plms: plms);
+            plms: plms,
+            publishQuicksandGrounding: false);
     }
 
     /// <summary>
@@ -643,6 +645,7 @@ public sealed partial class SamusState
         YSpeed = source.YSpeed,
         YSubspeed = source.YSubspeed,
         YDirection = source.YDirection,
+        SandCollisionArea = source.SandCollisionArea,
         YAcceleration = source.YAcceleration,
         YSubacceleration = source.YSubacceleration,
         HorizontalSlopeCollisionEnable = source.HorizontalSlopeCollisionEnable,

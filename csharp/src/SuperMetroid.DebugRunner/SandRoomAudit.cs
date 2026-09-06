@@ -49,12 +49,30 @@ internal static class SandRoomAudit
                 samus.Kinematics.YSpeed = 0;
                 samus.Kinematics.YSubspeed = 0;
                 uint before = samus.Kinematics.YFixed;
+                int floorRow = surface.Index / level.WidthInBlocks + 1;
+                var floor = level.GetCollisionBlockOrPrefilledSolid(surface.Index % level.WidthInBlocks, floorRow);
+                if (floor.CollisionType != RoomCollisionType.SolidBlock)
+                    throw new InvalidDataException("The shallow-sand regression requires the retail solid floor below its surface.");
+                uint floorStop = ((uint)(floorRow * 16 - samus.Kinematics.YRadius) << 16) | ushort.MaxValue;
                 runtime.StepFrame(0);
                 Console.WriteLine($"Quicksand surface block {surface.Index}: Y delta={(int)(samus.Kinematics.YFixed - before) / 65536.0:F6}, extra Y={samus.Kinematics.ExtraYFixed / 65536.0:F6}");
                 // $84:B447 selects $0120 in 8.8 fixed point for a stationary body
                 // without Gravity Suit. The inside-block handler must publish it in alpha.
                 if (samus.Kinematics.ExtraYFixed != 0x12000)
                     throw new InvalidDataException("Quicksand alpha did not publish the cartridge's 1.125-pixel sinking displacement.");
+                if (samus.Kinematics.YFixed - before != 0x3000 || samus.Pose != 1)
+                    throw new InvalidDataException("Surface collision must retain standing while sinking exactly 0.1875 pixels.");
+                for (int frame = 1; frame < 80; frame++)
+                {
+                    runtime.RunNmi(0, true);
+                    runtime.StepFrame(0);
+                    // At frame 74 the un-clamped probe reaches the real solid floor
+                    // underneath this shallow surface. Solid clipping then wins over sand.
+                    uint expectedY = frame < 74 ? before + (uint)((frame + 1) * 0x3000) : floorStop;
+                    if (samus.Kinematics.YFixed != expectedY || samus.Pose != 1)
+                        throw new InvalidDataException($"Surface frame {frame}: Y={samus.YPosition}.{samus.Kinematics.YSubposition:X4}, delta={(samus.Kinematics.YFixed-before)/65536.0}, pose={samus.Pose:X2}, extra={samus.Kinematics.ExtraYFixed/65536.0}.");
+                }
+                Console.WriteLine("PASS: 74 surface frames sink 13.875 pixels, then six frames remain grounded on the underlying solid floor.");
                 return 0;
             }
             Console.WriteLine($"Room {room.Identity} ${room.Pointer:X4}: {level.WidthInBlocks}x{level.HeightInBlocks}; sand animations={runtime.SandAnimatedTiles.Count}");

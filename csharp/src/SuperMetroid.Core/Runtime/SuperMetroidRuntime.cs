@@ -1891,6 +1891,9 @@ public sealed partial class SuperMetroidRuntime
                 // any pose transition that would otherwise reinitialize acceleration.
                 SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
 
+                if (!TimeIsFrozen && !Samus.InputLocked && ActiveRoom is { } sandRoom)
+                    SamusQuicksandPhysics.PrepareFrame(_addressSpace, LevelData, Samus, sandRoom.AreaIndex);
+
                 // Alpha order is cooldown -> movement-type HUD projectile producer ->
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and

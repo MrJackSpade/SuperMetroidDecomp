@@ -28,7 +28,8 @@ try
 Console.WriteLine("Verifying translated Super Metroid routines...");
 
 VerifyRandomNumberGeneratorExhaustively();
-VerifySandAnimatedTiles();
+        VerifySandAnimatedTiles();
+        VerifyQuicksand();
 VerifyKnownRandomSequence();
 VerifyTimedHeldInputTimeline();
 VerifyEventBitfield();

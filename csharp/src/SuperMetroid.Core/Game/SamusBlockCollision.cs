@@ -231,10 +231,10 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialAir:
-                        // Nonnegative special-air BTS spawns a room PLM but explicitly
-                        // discards its carry. The negative area-table family can publish
-                        // carry from setup; none of the retail movement-owned entries in
-                        // the translated room set do so, so its collision result is air.
+                        // Sand's submerging callback clears vertical speed/gravity even
+                        // when reached through the horizontal dispatcher.
+                        SamusQuicksandPhysics.ReactCollision(bus, state, block, false,
+                            ref acceptedDisplacement, out _);
                         if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
                         {
@@ -391,7 +391,8 @@ public static class SamusBlockCollision
         bool canBreakBombBlocks = false,
         bool includeSolidEnemies = true,
         RoomPlmSystem? plms = null,
-        bool publishDoorSideEffects = true)
+        bool publishDoorSideEffects = true,
+        bool publishQuicksandGrounding = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -399,6 +400,7 @@ public static class SamusBlockCollision
 
         int acceptedDisplacement = displacement;
         bool collided = false;
+        bool sandContact = false;
         SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
@@ -536,6 +538,13 @@ public static class SamusBlockCollision
 
                     case RoomCollisionType.SpikeAir:
                     case RoomCollisionType.SpecialAir:
+                        if (block.CollisionType == RoomCollisionType.SpecialAir)
+                        {
+                            collided = SamusQuicksandPhysics.ReactCollision(bus, state, block, true,
+                                ref acceptedDisplacement, out bool touchedSand);
+                            sandContact |= touchedSand;
+                            if (collided) collisionBlock = block;
+                        }
                         if (block.CollisionType == RoomCollisionType.SpecialAir &&
                             block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
@@ -544,8 +553,8 @@ public static class SamusBlockCollision
                                 $"Scroll trigger block {block.Index} has no active $B703 PLM owner; " +
                                 $"live=[{string.Join(',', plms?.ScrollPlms.Select(scroll => scroll.BlockIndex) ?? [])}].");
                         }
-                        // Every special-air setup on this route returns carry clear, so the
-                        // wake-up side effect never turns the invisible trigger into terrain.
+                        // Scroll wake-up itself remains carry-clear; sand has a separate
+                        // carry/contact contract handled above.
                         break;
                     case RoomCollisionType.ShootableAir:
                     case RoomCollisionType.UnusedAir:
@@ -671,6 +680,8 @@ public static class SamusBlockCollision
         }
 
         state.SetYFixed(unchecked(state.YFixed + (uint)acceptedDisplacement));
+        if (publishQuicksandGrounding && displacement > 0 && sandContact)
+            collided = true;
         return new BlockMoveResult(
             acceptedDisplacement,
             collided,

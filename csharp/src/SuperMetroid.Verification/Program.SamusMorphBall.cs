@@ -1889,8 +1889,26 @@ static void VerifySamusMorphBallMovement()
         new byte[specialWords.Length],
         new ushort[specialWords.Length],
         reactionDefinitions);
-    BackgroundTilemapStreamer specialStreamer = specialLevel.CreateBackgroundStreamer();
-    var specialPlms = new RoomPlmSystem();
+        BackgroundTilemapStreamer specialStreamer = specialLevel.CreateBackgroundStreamer();
+    // #320: the cartridge's normal table extends through BTS $4F, not $0F.
+    // Exercise actual bomb collision dispatch and assert the resulting terrain.
+    for (byte behavior = 16; behavior < 80; behavior++)
+    {
+        var words = new ushort[width * height];
+        var behaviors = new byte[words.Length];
+        words[crumbleIndex] = 0xb000;
+        behaviors[crumbleIndex] = behavior;
+        var tableLevel = new RoomLevelData(width, height, words, behaviors,
+            new ushort[words.Length], reactionDefinitions);
+        var tablePlms = new RoomPlmSystem();
+        SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
+            2, 2, new(), tablePlms, AreaId.Crateria, 0x0500);
+        tablePlms.Step(bus, tableLevel, tableLevel.CreateBackgroundStreamer(), 0, 0, 0);
+        AssertEqual(behavior is >= 0x1a and <= 0x1d ? 0xb0b6 : 0xb000,
+            tableLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,
+            $"extended bomb-special BTS {behavior:X2} native reveal/no-op terrain");
+    }
+        var specialPlms = new RoomPlmSystem();
     AssertTrue(
         specialPlms.TrySpawnBombedSpecialBlock(
             specialLevel, crumbleIndex, 3, AreaId.Crateria, 0x0500),

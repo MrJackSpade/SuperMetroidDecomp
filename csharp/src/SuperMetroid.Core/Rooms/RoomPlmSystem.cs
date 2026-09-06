@@ -1107,19 +1107,11 @@ public sealed partial class RoomPlmSystem
         ushort instructionPointer;
         if (!bts.UsesAreaReactionTable)
         {
-            if (!bts.IsNormalReactionIndex(16))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(bts),
-                    "Area-independent special-block BTS must be zero through fifteen.");
-            }
+            if (!bts.IsNormalReactionIndex(BombSpecialBlockReactions.InstructionLists.Length))
+                throw new ArgumentOutOfRangeException(nameof(bts),
+                    "Area-independent special-block BTS is outside the cartridge reaction table.");
 
-            instructionPointer = bts.NormalReactionIndex switch
-            {
-                <= 7 => RoomPlmInstructionLists.CrumbleRevealBySize[bts.ReactionSizeIndex],
-                >= 14 => RoomPlmInstructionLists.BombReactionSpeedBlock,
-                _ => RoomPlmInstructionLists.Delete,
-            };
+            instructionPointer = BombSpecialBlockReactions.InstructionLists[bts.NormalReactionIndex];
         }
         else
         {

@@ -55,5 +55,8 @@ playback, RDP delivery, or the translated native reference against original SPC
 hardware. Runtime revisions have also changed the pause boundaries relative to
 older replay reports; these are the boundaries observed by the current frontend.
 
-The replay subsequently stops at frame 17,691 on a separate bomb special-block
-BTS range exception. No claim is made about unexecuted later frames.
+Before the #320 fix, replay stopped at frame 17,691 on a separate bomb
+special-block BTS range exception. With the complete normal reaction table,
+all 20,874 recorded frames execute: 320 PCM frames differ, but all 2,127 stable
+pause frames and every port acknowledgement match. The survey still exits 1
+for those real non-pause PCM differences; this is not an audio-fix pass.

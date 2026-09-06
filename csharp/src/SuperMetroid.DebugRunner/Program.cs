@@ -22,6 +22,9 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 6 && args[0] == "--door-exit-momentum-audit")
+    return DoorExitMomentumAudit.Run(args[1], Convert.ToUInt16(args[2], 16),
+        Convert.ToUInt16(args[3], 16), Convert.ToUInt16(args[4], 16), Convert.ToUInt16(args[5], 16));
 if (args.Length == 2 && args[0] == "--short-tap-audit")
     return ShortTapAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--running-release-audit")

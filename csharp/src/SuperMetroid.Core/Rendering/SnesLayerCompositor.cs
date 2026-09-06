@@ -7,6 +7,26 @@ namespace SuperMetroid.Core.Rendering;
 public static class SnesLayerCompositor
 {
     /// <summary>
+    /// Adds a decoded subscreen to an already opaque main screen in five-bit SNES
+    /// color space, without halving. Keyed sub pixels select black fixed color.
+    /// Callers own CGADSUB layer eligibility and window masking before this stage.
+    /// </summary>
+    public static void AddSubscreen(Span<Rgba32> main, ReadOnlySpan<Rgba32> sub)
+    {
+        if (main.Length != sub.Length)
+            throw new ArgumentException("SNES screens must have identical pixel counts.", nameof(sub));
+        for (int i = 0; i < main.Length; i++)
+        {
+            if (sub[i].A == 0) continue;
+            main[i] = new Rgba32(Add(main[i].R, sub[i].R), Add(main[i].G, sub[i].G), Add(main[i].B, sub[i].B));
+        }
+        static byte Add(byte first, byte second)
+        {
+            int fiveBit = Math.Min(31, (first >> 3) + (second >> 3));
+            return (byte)((fiveBit << 3) | (fiveBit >> 2));
+        }
+    }
+    /// <summary>
     /// Creates an opaque PPU backdrop from CGRAM color zero.
     /// </summary>
     /// <remarks>

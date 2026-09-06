@@ -11,7 +11,7 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class NativeAudioCorpusAudit
 {
-    public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null)
+    public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -42,13 +42,47 @@ internal static class NativeAudioCorpusAudit
                 recording.InitialSaveRam.CopyTo(bus.SaveRam);
                 var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
                 int pausedFrames = 0;
+                bool paused = false;
+                int mismatchedFrames = 0, mismatchedPauseFrames = 0;
+                int mismatchStart = -1;
                 Scenario("recorded-player-audio", recording.ControllerInputs.Length, frame =>
                 {
-                    var result = game.Step(recording.ControllerInputs[frame]);
-                    if (result.GameState == SuperMetroidGameState.PausedB) pausedFrames++;
+                    FrontendFrame result;
+                    try { result = game.Step(recording.ControllerInputs[frame]); }
+                    catch (Exception error)
+                    {
+                        Console.WriteLine($"Replay failed at frame {frame}; compared {pausedFrames} stable pause frames, {mismatchedPauseFrames} differed.");
+                        throw new InvalidOperationException($"Recorded audio replay failed at frame {frame}.", error);
+                    }
+                    bool nextPaused = result.GameState == SuperMetroidGameState.PausedB;
+                    if (survey && paused && !nextPaused)
+                        Console.WriteLine($"Pause exited at frame {frame}: cumulative {mismatchedPauseFrames}/{pausedFrames} mismatched stable pause frames.");
+                    paused = nextPaused;
+                    if (paused) pausedFrames++;
                     return result.AudioCommands.ToArray();
-                }, ports => game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3])));
+                }, ports => game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3])),
+                survey ? (frame, actual, expected) =>
+                {
+                    bool differs = !actual.AsSpan().SequenceEqual(expected);
+                    if (differs)
+                    {
+                        mismatchedFrames++;
+                        if (paused) mismatchedPauseFrames++;
+                        if (mismatchStart < 0) mismatchStart = frame;
+                    }
+                    else if (mismatchStart >= 0)
+                    {
+                        Console.WriteLine($"PCM mismatch interval [{mismatchStart},{frame}); now paused={paused}.");
+                        mismatchStart = -1;
+                    }
+                } : null);
                 if (pausedFrames == 0) throw new InvalidDataException("Recording did not reach an active pause menu.");
+                if (survey)
+                {
+                    if (mismatchStart >= 0) Console.WriteLine($"PCM mismatch interval [{mismatchStart},{totalFrames}).");
+                    Console.WriteLine($"Survey: {mismatchedFrames}/{totalFrames} mismatched frames; {mismatchedPauseFrames}/{pausedFrames} mismatched stable pause frames. All port acknowledgements matched.");
+                    return mismatchedFrames == 0 ? 0 : 1;
+                }
                 Console.WriteLine($"Recorded audio matched {totalFrames} complete PCM/acknowledgement frames, including {pausedFrames} stable pause frames; PCM={Convert.ToHexString(pcmHash.GetHashAndReset())}.");
                 Console.WriteLine("This compares generated PCM, not Windows/RDP endpoint playback; it does not establish that the reported audible defect is fixed.");
                 return 0;
@@ -103,7 +137,8 @@ internal static class NativeAudioCorpusAudit
             frame => frame == 0 ? new[] { U(AudioUploadAddresses.SpcEngine) }.Concat(start.Select(c => W(c.Port, c.Command))).ToArray()
             : cancel && frame == 60 ? [W(1, SoundEffectLibrary1Sounds.CancelAll.Value), W(2, SoundEffectLibrary2Sounds.CancelAll.Value), W(3, SoundEffectLibrary3Sounds.CancelAll.Value)] : []);
 
-        void Scenario(string name, int frames, Func<int, CartridgeAudioCommand[]> commands, Action<byte[]>? acknowledge = null)
+        void Scenario(string name, int frames, Func<int, CartridgeAudioCommand[]> commands, Action<byte[]>? acknowledge = null,
+            Action<int, short[], short[]>? observePcm = null)
         {
             nint native = create();
             if (native == 0) throw new InvalidOperationException("Native audio allocation failed.");
@@ -141,7 +176,8 @@ internal static class NativeAudioCorpusAudit
                     if (generate(native, nativeRaw, 534) != 534) throw new InvalidDataException("Native PCM frame incomplete.");
                     PcmFrameResampler.ResampleStereoLinear(nativeRaw, nativeHost);
                     managed.GenerateFrame(actual);
-                    if (!actual.AsSpan().SequenceEqual(nativeHost))
+                    observePcm?.Invoke(frame, actual, nativeHost);
+                    if (observePcm is null && !actual.AsSpan().SequenceEqual(nativeHost))
                     {
                         foreach (string recent in recentCommands) Console.WriteLine(recent);
                         for (int index = 0; index < writeCount(native); index++)

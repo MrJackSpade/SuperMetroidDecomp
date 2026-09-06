@@ -39,3 +39,21 @@ An experimental live-source lookup at the loop boundary moved the first mismatch
 to sample 1476 but did not establish parity; that production experiment was
 removed. Predictor history and the precise source-directory loop target still
 need investigation. This is not a completed fix for #54.
+
+## Whole-recording survey
+
+Use `--recorded-native-audio-survey` in place of `--recorded-native-audio-audit`
+to collect contiguous mismatch intervals rather than stopping at the first PCM
+difference. Port mismatches and gameplay exceptions still stop immediately;
+any PCM mismatch yields a nonzero final result. This is a diagnostic survey,
+not a weakened passing regression.
+
+On the current replay, all 2,127 stable pause frames match native PCM exactly;
+pause exits at frame 11,786. Thus the early sample-switch discrepancy does not
+explain distortion during this pause interval. This does not validate Windows
+playback, RDP delivery, or the translated native reference against original SPC
+hardware. Runtime revisions have also changed the pause boundaries relative to
+older replay reports; these are the boundaries observed by the current frontend.
+
+The replay subsequently stops at frame 17,691 on a separate bomb special-block
+BTS range exception. No claim is made about unexecuted later frames.

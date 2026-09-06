@@ -144,6 +144,18 @@ internal static class InputReplayAudit
 
             if (runtime is not null && index >= traceStartFrame && index <= traceEndFrame)
             {
+                // Door-exit and short-input reports require the speed owners, not just
+                // integer positions: base speed, retained run momentum, deceleration,
+                // and liquid selection can produce the same displacement differently.
+                if (samus is not null)
+                    Console.WriteLine($"rec={index,6} movement " +
+                        $"x={samus.Kinematics.XFixed:X8} " +
+                        $"base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} " +
+                        $"extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} " +
+                        $"accel={samus.HorizontalSpeed.AccelerationMode} momentum={samus.HorizontalSpeed.HasRunningMomentum} " +
+                        $"medium={samus.LiquidPhysics.DetermineMovementMedium(samus)} " +
+                        $"fx={samus.LiquidPhysics.FxType} water={samus.LiquidPhysics.FxYPosition:X4} " +
+                        $"lava={samus.LiquidPhysics.LavaAcidYPosition:X4}");
                 string projectileState = string.Join(", ", runtime.Projectiles.Slots
                     .Where(slot => slot.IsActive)
                     .Select(slot =>

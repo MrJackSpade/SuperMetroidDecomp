@@ -148,6 +148,7 @@ VerifyControllerInputRecording();
 VerifySaveRamLayout();
 VerifyGameSaveJsonPersistence();
 VerifyFileSelectFreshSaveTilemap();
+VerifyFileSelectMapWindow();
 VerifySavedGameLoadAppearance();
 VerifyIntroCinematicRomData();
 VerifyIntroGameplayFlashbackVerticalScroll();

@@ -64,14 +64,20 @@ public sealed class FileSelectAreaMapGraphics
     /// Steady state six leaves BG1 on main and BG3 on sub, with additive color math
     /// enabled for BG1 and backdrop. Menu OBJ labels must be composed afterwards.
     /// </summary>
-    public Rgba32[] RenderBackgrounds()
+    public Rgba32[] RenderBackgrounds(bool includeBackdropInColorMath = true)
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, 256 * 224);
-        SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32));
+        Rgba32[] foreground = SnesBgTilemapRenderer.Render4BppViewport(
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0, 256, 224, 32, 32);
+        SnesLayerCompositor.Composite(pixels, foreground);
         Rgba32[] subscreen = SnesBgTilemapRenderer.Render2Bpp(ppu.Vram, ppu.Cgram,
             FileSelectMapRomData.AreaBackgroundVram, FileSelectMapRomData.AreaBackgroundCharacters,
             28, transparentColorZero: true);
+        // $81:AAAC changes CGADSUB from $25 to $05: BG1 still adds BG3, but
+        // transparent BG1 cells now retain the backdrop instead of adding BG3 to it.
+        if (!includeBackdropInColorMath)
+            for (int pixel = 0; pixel < subscreen.Length; pixel++)
+                if (foreground[pixel].A == 0) subscreen[pixel] = default;
         SnesLayerCompositor.AddSubscreen(pixels, subscreen);
         return pixels;
     }
@@ -81,11 +87,11 @@ public sealed class FileSelectAreaMapGraphics
     /// bit refers to a real map coordinate, not an unused $FFFE or end $FFFF entry.
     /// Debug-only area/station navigation is deliberately not enabled here.
     /// </summary>
-    public Rgba32[] Render(ReadOnlySpan<ushort> usedStationMasks)
+    public Rgba32[] Render(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
-        Rgba32[] frame = RenderBackgrounds();
+        Rgba32[] frame = RenderBackgrounds(includeBackdropInColorMath);
         var oam = new OamBuffer();
         oam.BeginFrame();
         ushort title = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase);

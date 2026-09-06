@@ -10,6 +10,7 @@ internal static partial class Program
     {
         VerifyFileSelectAreaMapGraphics();
         VerifyFileSelectRoomMapGraphics();
+        VerifyFileSelectMapWindowComposition();
         var fake = new TestAddressSpace();
         WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
         // The lower-bound clamp must preserve .C000, or frame two will still
@@ -49,6 +50,56 @@ internal static partial class Program
             AssertEqual(1, window.Top, $"area {area} expanded top edge");
             AssertEqual(224, window.Bottom, $"area {area} expanded bottom edge");
         }
+    }
+
+    private static void VerifyFileSelectMapWindowComposition()
+    {
+        var fake = new TestAddressSpace();
+        WriteTestWord(fake, FileSelectMapRomData.LabelPositions, 40);
+        WriteTestWord(fake, FileSelectMapRomData.LabelPositions + 2, 30);
+        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 2);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 2, 0xffff);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
+        var window = new FileSelectMapWindow(fake, 0);
+        Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
+        Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
+        Rgba32[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();
+        Rgba32[] start = FileSelectMapWindowCompositor.Composite(area, frame, window);
+        AssertEqual(1, start.Count(pixel => pixel == frameColor), "zero-size HDMA window still covers one pixel on one row");
+        AssertEqual(frameColor, start[30 * 256 + 40], "initial window is anchored at area label");
+        window.Step();
+        Rgba32[] next = FileSelectMapWindowCompositor.Composite(area, frame, window);
+        for (int y = 0; y < 224; y++)
+        for (int x = 0; x < 256; x++)
+            AssertEqual(y >= 29 && y < 31 && x >= 39 && x <= 41 ? frameColor : areaColor,
+                next[y * 256 + x], "window uses inclusive horizontal and exclusive bottom bounds");
+        window.Step(); window.Step();
+        AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, window).All(pixel => pixel == frameColor),
+            "completed expansion disables window and displays entire empty room frame");
+
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var returning = FileSelectMapWindow.CreateReturn(bus, 4);
+        AssertEqual(8, returning.Left, "native return rectangle left inset");
+        AssertEqual(248, returning.Right, "native return rectangle right inset");
+        AssertEqual(8, returning.Top, "native return rectangle top inset");
+        AssertEqual(216, returning.Bottom, "native return rectangle bottom inset");
+        for (int tick = 1; tick <= 40; tick++)
+        {
+            AssertEqual(tick == 40, returning.Step(), "Maridia return is twelve updates shorter than expansion");
+            AssertEqual(8 + 4 * tick, returning.Left, "return subtracts native negative left velocity");
+            AssertEqual((248 * 65536 - 0xf800 * tick) >> 16, returning.Right, "return retains right fraction");
+            AssertEqual((8 * 65536 + 0x31400 * tick) >> 16, returning.Top, "return retains top fraction");
+            AssertEqual((216 * 65536 - 0x1e000 * tick) >> 16, returning.Bottom, "return retains bottom fraction");
+        }
+        AssertTrue(FileSelectMapWindowCompositor.Composite(area, frame, returning).All(pixel => pixel == areaColor),
+            "completed return disables room frame and restores entire area scene");
+        var graphics = new FileSelectRoomMapGraphics(bus, new SuperMetroid.Core.Game.Bank80SystemState(),
+            SuperMetroid.Core.Game.AreaId.Maridia);
+        Rgba32[] frameOnly = graphics.RenderFrameOnly();
+        graphics.Vram.LoadBytes(0xa000, new byte[] { 0x34, 0x12 });
+        AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
     private static void VerifyFileSelectAreaMapGraphics()

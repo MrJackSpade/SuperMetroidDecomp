@@ -61,6 +61,10 @@ public static class FileSelectMapRomData
     public const int ScrollStepTicks = 8;
     /// <summary>MapScrolling speed table's only nonzero displacement is one eight-pixel map cell.</summary>
     public const int ScrollStepPixels = 8;
+    /// <summary>$81:AFF6 shortens the return window's area timer by twelve updates.</summary>
+    public const int ReturnWindowTimerReduction = 12;
+    /// <summary>$81:AFF6 starts the return window eight pixels inside the viewport.</summary>
+    public const int ReturnWindowInset = 8;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

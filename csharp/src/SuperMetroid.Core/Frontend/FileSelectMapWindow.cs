@@ -38,6 +38,20 @@ public sealed class FileSelectMapWindow
     public ushort Top => (ushort)(edges[2] >> 16);
     public ushort Bottom => (ushort)(edges[3] >> 16);
     public bool IsComplete { get; private set; }
+    public bool IsReturning { get; private set; }
+
+    /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
+    public static FileSelectMapWindow CreateReturn(ISnesAddressSpace bus, int area)
+    {
+        var window = new FileSelectMapWindow(bus, area);
+        window.IsReturning = true;
+        window.timer = unchecked((ushort)(window.timer - FileSelectMapRomData.ReturnWindowTimerReduction));
+        int inset = FileSelectMapRomData.ReturnWindowInset;
+        window.edges[0] = window.edges[2] = (uint)inset << 16;
+        window.edges[1] = (uint)(FrontendFrame.Width - inset) << 16;
+        window.edges[3] = (uint)(FrontendFrame.Height - inset) << 16;
+        return window;
+    }
 
     /// <summary>
     /// Advances all four 16.16 positions, clamps only their whole words, and then
@@ -47,11 +61,16 @@ public sealed class FileSelectMapWindow
     {
         if (IsComplete) return true;
         for (int edge = 0; edge < edges.Length; edge++)
-            edges[edge] = unchecked(edges[edge] + velocities[edge]);
-        ClampWholeWord(0, 1, lowerBound: true);
-        ClampWholeWord(1, 255, lowerBound: false);
-        ClampWholeWord(2, 1, lowerBound: true);
-        ClampWholeWord(3, 224, lowerBound: false);
+            edges[edge] = IsReturning
+                ? unchecked(edges[edge] - velocities[edge])
+                : unchecked(edges[edge] + velocities[edge]);
+        if (!IsReturning)
+        {
+            ClampWholeWord(0, 1, lowerBound: true);
+            ClampWholeWord(1, 255, lowerBound: false);
+            ClampWholeWord(2, 1, lowerBound: true);
+            ClampWholeWord(3, 224, lowerBound: false);
+        }
         timer = unchecked((ushort)(timer - 1));
         IsComplete = (short)timer < 0;
         return IsComplete;

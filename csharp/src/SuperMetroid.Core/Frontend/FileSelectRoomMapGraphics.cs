@@ -45,6 +45,17 @@ public sealed class FileSelectRoomMapGraphics
         ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
     }
 
+    /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>
+    public Rgba32[] RenderFrameOnly()
+    {
+        var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
+        Array.Fill(pixels, Cgram.GetRgba(0));
+        SnesLayerCompositor.Composite(pixels, SnesBgTilemapRenderer.Render4BppViewport(
+            Vram, Cgram, MenuPpuState.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
+            0, 24, FrontendFrame.Width, FrontendFrame.Height, 32, 32));
+        return pixels;
+    }
+
     /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
     public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker)
     {

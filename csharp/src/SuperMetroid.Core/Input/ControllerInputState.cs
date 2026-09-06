@@ -53,6 +53,33 @@ public sealed class ControllerInputState
     /// <summary>Current 16-bit repeat countdown at direct page <c>$9B</c>.</summary>
     public ushort RepeatTimer { get; private set; }
 
+    /// <summary>
+    /// Temporarily publishes the demo's explicit held/edge pair, as bank-$90 demo alpha
+    /// does. Disposing restores the real NMI sample for the demo-cancellation check.
+    /// This is deliberately not Latch: recorded edges need not equal held-input changes.
+    /// </summary>
+    internal IDisposable UseDemoInput(ushort held, ushort newlyPressed)
+    {
+        ushort validatedHeld = (ushort)SnesButtons.FromRaw(held, "demo controller override");
+        ushort validatedNew = (ushort)SnesButtons.FromRaw(newlyPressed, "demo controller edge override");
+        var restore = new DemoInputRestore(this, Current, NewlyPressed);
+        Current = validatedHeld;
+        NewlyPressed = validatedNew;
+        return restore;
+    }
+
+    private sealed class DemoInputRestore(ControllerInputState owner, ushort held, ushort newlyPressed) : IDisposable
+    {
+        private bool disposed;
+        public void Dispose()
+        {
+            if (disposed) return;
+            owner.Current = held;
+            owner.NewlyPressed = newlyPressed;
+            disposed = true;
+        }
+    }
+
     /// <summary>Latches one completed SNES automatic joypad sample.</summary>
     public void Latch(ushort rawInput)
     {

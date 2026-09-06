@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Game;
 
 /// <summary>Enumerates every retail attract scene before connecting the gameplay dispatcher.</summary>
 internal static class AttractDemoDataAudit
@@ -27,6 +28,14 @@ internal static class AttractDemoDataAudit
                     $"duration={entry.Duration} room-setup={entry.RoomSetupPointer:X4} " +
                     $"samus-setup={entry.SamusSetupPointer:X4} input={entry.InputObject:X4} " +
                     $"initializer={initializer:X4} instructions={instructions:X4}");
+                var input = new AttractDemoInput(bus, entry);
+                // This is interpreter coverage, not a gameplay trajectory test. A fixed
+                // movement type cannot stand in for the real demo's changing actor state.
+                for (int frame = 0; frame < entry.Duration; frame++)
+                    input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+                input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
+                if (input.Script.InstructionPointer != 0 || input.Script.Held != 0 || input.Script.NewlyPressed != 0)
+                    throw new InvalidDataException($"Demo {set}/{scene} did not clear its input on departure.");
                 scene++;
             }
             if (scene != expectedCounts[set])

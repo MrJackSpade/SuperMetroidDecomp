@@ -1,5 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
@@ -15,6 +17,17 @@ internal static partial class Program
         for (int word = 0; word < equipment.Length; word++) WriteRomWord(rom, 0x91a000 + word * 2, equipment[word]);
         WriteRomWord(rom, 0x91b000, 0x8a53);
         WriteRomWord(rom, 0x829012, AttractDemoRomData.EndOfSet);
+        WriteRomWord(rom, 0x919000, DemoInputRomData.Routines.NoOp);
+        WriteRomWord(rom, 0x919002, DemoInputRomData.Attract.CheckLeave);
+        WriteRomWord(rom, 0x919004, 0xc000);
+        WriteRomWord(rom, 0x91c000, 5);
+        WriteRomWord(rom, 0x91c002, (ushort)SnesButton.Left);
+        WriteRomWord(rom, 0x91c004, 0);
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.DeleteList,
+            DemoInputRomData.Instructions.Delete);
+        WriteRomWord(rom, DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation, 7);
+        WriteRomWord(rom, (DemoInputRomData.BankBase | DemoInputRomData.Attract.ShinesparkContinuation) + 2,
+            (ushort)SnesButton.Right);
         var bus = new SuperMetroidAddressSpace(rom);
         var expected = new AttractDemoScene(0x91f8, 0x8000, 1, 0x100, 0x200, 0x40, -46,
             0x151, 0x8924, 0x8a53, 0x3105, 10, 5, 2, 399, 0x100f, 0x100b, 0x9000);
@@ -24,6 +37,22 @@ internal static partial class Program
             throw new InvalidDataException("Demo offsets lost their native X-center/Y-top interpretation.");
         if (AttractDemoScene.Read(bus, 0, 1) is not null)
             throw new InvalidDataException("Demo room sentinel did not terminate the set.");
+        var input = new AttractDemoInput(bus, expected);
+        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        if (input.Script.Held != (ushort)SnesButton.Left || input.Script.InstructionTimer != 5)
+            throw new InvalidDataException("Title demo did not publish its first timed input record.");
+        input.Step(bus, SuperMetroidGameState.TransitionFromDemoB, SamusMovementType.Standing);
+        if (input.Script.InstructionPointer != 0 || input.Script.Held != 0)
+            throw new InvalidDataException("Title demo departure did not delete input in the same handler call.");
+        input = new AttractDemoInput(bus, expected);
+        input.Script.Redirect(DemoInputRomData.Attract.ShinesparkPreInstruction, 0xc000);
+        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.DraygonHeld);
+        if (input.Script.Held != (ushort)SnesButton.Left)
+            throw new InvalidDataException("Native type-$1A branch should leave the current script intact.");
+        input.Step(bus, SuperMetroidGameState.PlayingDemo, SamusMovementType.Standing);
+        if (input.Script.Held != (ushort)SnesButton.Right || input.Script.InstructionTimer != 7 ||
+            input.Script.PreInstructionPointer != DemoInputRomData.Attract.CheckLeave)
+            throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
     }
 }

@@ -22,3 +22,20 @@ The reference is the native translated SPC player/BRR decoder, not an original
 SPC700 CPU execution. This probe does not exercise Windows/RDP audio delivery or
 establish that the audible player report is resolved. A mismatch exits with a
 console stack trace; it must not be silenced or replaced with a passing golden.
+
+## Reduced menu sound sequence
+
+The normal `--native-audio-corpus-audit AUDIO_DIRECTORY NATIVE_DLL` command now
+includes `map-scroll-confirm-overlap`: upload the engine and start map-scroll
+plus palette-loop sounds at frame 0, clear both input ports at frame 3, then
+request menu confirmation at frame 4. It reproduces a PCM mismatch at frame 4,
+sample 1448 (managed -3459, native -3457), without any gameplay or music upload.
+The frame's DSP writes restore voice 7's source to zero before key-off; its
+envelope is still nonzero. This exposes live source/loop behavior omitted from
+the earlier isolated-cue corpus. Full DSP writes and voice sources/envelopes are
+printed on failure to support further diagnosis.
+
+An experimental live-source lookup at the loop boundary moved the first mismatch
+to sample 1476 but did not establish parity; that production experiment was
+removed. Predictor history and the precise source-directory loop target still
+need investigation. This is not a completed fix for #54.

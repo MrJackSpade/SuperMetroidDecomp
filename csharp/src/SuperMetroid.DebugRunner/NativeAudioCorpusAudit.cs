@@ -22,6 +22,10 @@ internal static class NativeAudioCorpusAudit
         var write = Export<Write>("sm_audio_write_port");
         var read = Export<Read>("sm_audio_read_port");
         var readDsp = Export<Read>("sm_audio_read_dsp_register");
+        var beginCapture = Export<Count>("sm_audio_begin_dsp_write_capture");
+        var writeCount = Export<Count>("sm_audio_dsp_write_count");
+        var writeAddress = Export<Read>("sm_audio_dsp_write_address");
+        var writeValue = Export<Read>("sm_audio_dsp_write_value");
         var generate = Export<Generate>("sm_audio_generate_frame");
         using var pcmHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using var portHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
@@ -54,6 +58,13 @@ internal static class NativeAudioCorpusAudit
             Sound("library-1-power-beam", [(1, SoundEffectLibrary1Sounds.PowerBeam.Value)]);
             Sound("library-2-door", [(2, SoundEffectLibrary2Sounds.DoorOpening.Value)]);
             Sound("library-3-cinematic", [(3, 0x23)]);
+            Scenario("map-scroll-confirm-overlap", 120, frame => frame switch
+            {
+                0 => [U(AudioUploadAddresses.SpcEngine), W(1, SoundEffectLibrary1Sounds.MapScroll.Value), W(3, SoundEffectLibrary3Sounds.MapPaletteLoop.Value)],
+                3 => [W(1, 0), W(3, 0)],
+                4 => [W(1, SoundEffectLibrary1Sounds.MenuConfirm.Value)],
+                _ => [],
+            });
             Sound("three-library-overlap-and-cancel", [(1, SoundEffectLibrary1Sounds.PowerBeam.Value),
                 (2, SoundEffectLibrary2Sounds.DoorOpening.Value), (3, 0x23)], true);
             Scenario("music-lifecycle", 600, frame => frame switch
@@ -107,6 +118,7 @@ internal static class NativeAudioCorpusAudit
                 var recentCommands = new Queue<string>();
                 for (int frame = 0; frame < frames; frame++)
                 {
+                    if (beginCapture(native) != 1) throw new InvalidOperationException("Native DSP capture allocation failed.");
                     foreach (var command in commands(frame))
                     {
                         recentCommands.Enqueue($"frame={frame} {command}");
@@ -132,6 +144,10 @@ internal static class NativeAudioCorpusAudit
                     if (!actual.AsSpan().SequenceEqual(nativeHost))
                     {
                         foreach (string recent in recentCommands) Console.WriteLine(recent);
+                        for (int index = 0; index < writeCount(native); index++)
+                            Console.WriteLine($"DSP write {index}: ${writeAddress(native, index):X2}=${writeValue(native, index):X2}");
+                        for (int voice = 0; voice < 8; voice++)
+                            Console.WriteLine($"Voice {voice}: source=${readDsp(native, voice * 16 + 4):X2} envelope=${readDsp(native, voice * 16 + 8):X2}");
                         for (byte register = 0; register < 128; register++)
                         {
                             int expected = readDsp(native, register);
@@ -159,6 +175,7 @@ internal static class NativeAudioCorpusAudit
         }
     }
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate nint Create();
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Count(nint player);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate void Destroy(nint player);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Upload(nint player, byte[] data, int length);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] private delegate int Write(nint player, int port, byte value);

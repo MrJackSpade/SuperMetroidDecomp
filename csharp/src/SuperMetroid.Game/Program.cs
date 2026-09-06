@@ -71,6 +71,13 @@ try
         return 0;
     }
 
+    if (args.Length == 1 && args[0] == "--input-batch-audit")
+    {
+        PlaybackFrameBatchSmokeTest.Run();
+        Console.WriteLine("Input batch passed: short press/release, exhausted replay, and empty batch.");
+        return 0;
+    }
+
     if (args.Length != 0 &&
         args[0].Equals("--frame-timing-audit", StringComparison.OrdinalIgnoreCase))
     {

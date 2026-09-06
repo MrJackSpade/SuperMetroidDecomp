@@ -466,20 +466,10 @@ public sealed class PlayableGameControl : UserControl
         if (framesToRun == 0)
             return;
 
-        FrontendFrame frame = default;
-        int framesActuallyRun = 0;
-        ushort liveInput = BuildControllerWord();
-        for (int frameIndex = 0; frameIndex < framesToRun; frameIndex++)
-        {
-            FrontendFrame? next = AdvanceOneFrame(liveInput);
-            if (next is null)
-                break;
-            frame = next.Value;
-            framesActuallyRun++;
-        }
-
-        pendingPlaybackFrames -= framesActuallyRun;
-        if (framesActuallyRun != 0)
+        var batch = PlaybackFrameBatch.Run(
+            framesToRun, BuildControllerWord, input => AdvanceOneFrame(input));
+        pendingPlaybackFrames -= batch.CompletedFrames;
+        if (batch.LastFrame is { } frame)
             RefreshFrame(frame);
     }
 

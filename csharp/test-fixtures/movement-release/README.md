@@ -21,6 +21,20 @@ on this result. Animation frame/timer values are printed for diagnostics but are
 not asserted by this comparison. No player recording or cartridge bytes are
 included in this fixture.
 
+### Host catch-up input regression
+
+`SuperMetroid.Game --input-batch-audit` separately exercises the exact batch owner
+used by `PlayableGameControl`. Its synthetic clock advances 20 ms inside each
+frame while a gamepad press lasts from 10 to 30 ms. The original once-per-batch
+poll returned `[0,0,0]`; per-frame polling returns `[0,Left,0]`. The regression
+also checks release, zero-frame batches, and stopping on an exhausted replay.
+It opens no windows and needs no ROM or physical controller.
+
+This fixes a demonstrated dropped-input path under catch-up load. It does not
+prove that this was the only cause of the player's underwater-only observation;
+player confirmation remains necessary. A pulse entirely between two individual
+frame polls remains outside this polling adapter's guarantees.
+
 This console-only experiment constructs a flat floor and running-left Samus at
 full base speed, then releases all input in dry and submerged variants. It has
 no player recording, SRAM, or ROM bytes. Supply a local cartridge separately.

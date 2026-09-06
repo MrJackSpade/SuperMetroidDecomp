@@ -49,6 +49,10 @@ public static class FileSelectMapRomData
     public const ushort RoomFrameBlank = 0x2801;
     /// <summary>$82:9628 clears palette bit $1000 in the room-select area label.</summary>
     public const ushort RoomLabelMask = 0xefff;
+    /// <summary>$82:B6DD draws spritemap $12 behind the station marker on even animation loops.</summary>
+    public const ushort StationMarkerBacking = 0x12;
+    /// <summary>$82:B6DD selects OBJ palette seven for the load-station marker.</summary>
+    public const ushort StationMarkerPalette = 0x0e00;
     /// <summary>Four signed 16.16 edge velocities, stored low word then high word.</summary>
     public const int VelocityRecordBytes = 16;
 }

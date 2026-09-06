@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
 public sealed class FileSelectRoomMapGraphics
 {
+    private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
     public SnesVram Vram => ppu.Vram;
     public SnesCgram Cgram => ppu.Cgram;
@@ -20,6 +21,7 @@ public sealed class FileSelectRoomMapGraphics
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
+        this.bus = bus;
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -41,6 +43,19 @@ public sealed class FileSelectRoomMapGraphics
                 (ushort)(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (label + word * 2))
                     & FileSelectMapRomData.RoomLabelMask));
         ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
+    }
+
+    /// <summary>Draws the saved-station marker over the room map without advancing its animation.</summary>
+    public Rgba32[] Render(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker)
+    {
+        ArgumentNullException.ThrowIfNull(marker);
+        Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        marker.Draw(bus, oam, horizontalScroll, verticalScroll);
+        oam.FinalizeFrame();
+        SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
+        return pixels;
     }
 
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--missile-reuse-audit")
+    return MissileReuseAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--sand-physics-audit")
     return SandRoomAudit.Run(args[1], verifyPhysics: true);
 if (args.Length == 2 && args[0] == "--sand-room-audit")

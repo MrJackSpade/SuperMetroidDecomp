@@ -13,13 +13,10 @@ public static class SoftwareMode7ObjSnapshotRenderer
         // scratch models during boundary extraction; never return them to simulation.
         // A later direct-span consumer can eliminate these copies without changing the
         // packet or requiring GPU consumers to construct hardware objects.
-        var vram = new SnesVram();
-        vram.LoadBytes(0, snapshot.Memory.Vram);
-        var cgram = new SnesCgram();
-        for (int index = 0; index < SnesCgram.ColorCount; index++)
-            cgram.SetColor(index, snapshot.Memory.Cgram[index]);
-        var oam = new OamBuffer();
-        oam.LoadUploadPayload(snapshot.Memory.Oam, snapshot.Memory.ModeledSpriteCount);
+        var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
+        SnesVram vram = memory.Vram;
+        SnesCgram cgram = memory.Cgram;
+        OamBuffer oam = memory.Oam;
 
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram,
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);

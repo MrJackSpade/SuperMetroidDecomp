@@ -277,12 +277,7 @@ internal sealed class PauseMenuState
         // complete BG2 followed by complete BG1, which ignored tile priority and allowed
         // the low-priority full-area map to paint over BG2's high-priority holder/chrome.
         // Build OAM first and then follow the literal Mode-1-with-BG3-priority ladder.
-        oam.BeginFrame();
-        if (ScreenMode == 0)
-            DrawMapPositionIndicator();
-        else
-            DrawEquipmentItemSelector();
-        oam.FinalizeFrame();
+        PrepareRenderOam();
         ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(
             oam, vram, cgram, PauseMenuLayout.ObjectSelection, 256, 224);
 
@@ -306,6 +301,36 @@ internal sealed class PauseMenuState
         if (transition != PauseMenuTransition.None)
             MasterBrightnessFilter.Apply(output, transitionBrightness);
         return output;
+    }
+
+    /// <summary>Prepares OAM on the simulation owner, then captures without raster work.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        PrepareRenderOam();
+        ushort mapX = ScreenMode == 0 ? mapHorizontalScroll : (ushort)0;
+        ushort mapY = ScreenMode == 0 ? mapVerticalScroll : (ushort)0;
+        var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, mapX, mapY, 64, 32, false);
+        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, 0, 0, 32, 32, false);
+        var bg3 = new Bg2BppRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
+            SnesPpuLayout.GameplayHudCharacterBaseWord,
+            SnesPpuLayout.ScreenHeightPixels / SnesPpuLayout.BackgroundTileSizePixels, false);
+        RenderLayer[] layers =
+        [
+            new ObjPriorityRenderLayer(0), bg3,
+            new ObjPriorityRenderLayer(1), bg2, bg1,
+            new ObjPriorityRenderLayer(2), bg2 with { Priority = true }, bg1 with { Priority = true },
+            new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
+        ];
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
+            PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
+    }
+
+    private void PrepareRenderOam()
+    {
+        oam.BeginFrame();
+        if (ScreenMode == 0) DrawMapPositionIndicator();
+        else DrawEquipmentItemSelector();
+        oam.FinalizeFrame();
     }
 
     private void CompositePauseBg(

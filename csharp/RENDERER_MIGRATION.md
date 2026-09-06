@@ -152,3 +152,18 @@ than inspecting all physical records. The memory contract now retains that model
 count alongside raw OAM. Restoring only physical bytes is insufficient to preserve
 this implementation's sprite semantics. The same comparison passes after capture
 and restore preserve the count. Do not replace it with inferred off-screen markers.
+
+Pause now has a capture producer and an observational layered reference consumer.
+The packet owns its ordered sealed BG/OBJ records, memory image, OBSEL and page
+brightness. `PauseSnapshotTests` covers 128 retail-data frames in Maridia across
+both pages and every fade level, with constructed retained HUD data. Pixels match
+the independent legacy Render path, including when packets are rendered repeatedly
+or retained across later menu steps. This is a focused fixture, not replay of the
+player's exact debugger-state save and not yet a performance qualification.
+
+The layered consumer resolves OAM once before inserting priority planes. Filtering
+and drawing each priority's sprite list independently would change OBJ-vs-OBJ ties.
+Software memory rehydration is shared with the Mode 7 consumer and remains local
+to each render call. These temporary software scratch copies are not GPU requirements.
+Frontend publication and scheduling are still pending; neither capture API is yet
+the default frontend output.

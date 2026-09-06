@@ -35,6 +35,8 @@ if (args.Length == 6 && args[0] == "--door-exit-momentum-audit")
         Convert.ToUInt16(args[3], 16), Convert.ToUInt16(args[4], 16), Convert.ToUInt16(args[5], 16));
 if (args.Length == 2 && args[0] == "--short-tap-audit")
     return ShortTapAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--short-tap-comparison-audit")
+    return ShortTapComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--running-release-audit")
     return RunningReleaseAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

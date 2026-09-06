@@ -1,5 +1,26 @@
 # Movement-release cartridge probe and runtime regression
 
+## Short-tap trajectory comparison (#314)
+
+The same native command also prints 720 `TAP` records: dry/submerged, both turn
+directions, presses lasting one to three frames, and 60 recorded frames per case.
+Each case starts standing and warms up for 24 neutral frames. The actual cartridge
+CPU runs input, movement, animation, pose transition, and collision/pose checks.
+
+Capture its console output, then compare with the production managed dispatcher:
+
+```powershell
+dotnet csharp/src/SuperMetroid.DebugRunner/bin/Release/net10.0/SuperMetroid.DebugRunner.dll --short-tap-comparison-audit "Super Metroid.smc" native-trace.log
+```
+
+All 720 samples currently match **exact X position, pose, and base speed**. This
+is stronger than checking eventual facing, but it does not reproduce #314's
+physical-controller discrepancy. The comparison bypasses WinMM polling, UI
+scheduling, and display presentation. Do not mark the player report fixed based
+on this result. Animation frame/timer values are printed for diagnostics but are
+not asserted by this comparison. No player recording or cartridge bytes are
+included in this fixture.
+
 This console-only experiment constructs a flat floor and running-left Samus at
 full base speed, then releases all input in dry and submerged variants. It has
 no player recording, SRAM, or ROM bytes. Supply a local cartridge separately.

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
@@ -91,6 +92,15 @@ internal static partial class Program
     private static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+        // Phase-chain fixtures supply valid empty palette programs. The separate retail
+        // console audit checks the real color words, timing, and rendered blinking.
+        foreach (ushort definition in new[] { TitleSequenceRomData.ConsolePaletteFx.SlowLights,
+                     TitleSequenceRomData.ConsolePaletteFx.FastLights })
+        {
+            WriteRomWord(rom, 0x8d0000 | definition, PaletteFxSetupCodes.Null);
+            WriteRomWord(rom, (0x8d0000 | definition) + 2, 0xf000);
+        }
+        WriteRomWord(rom, 0x8df000, PaletteFxInstructionCodes.Delete);
         WriteRepeatedCompressedStream(
             rom,
             TitleSequenceRomData.Assets.Mode7CharactersAddress,

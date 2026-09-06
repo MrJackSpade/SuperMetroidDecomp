@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -21,6 +22,7 @@ public sealed class TitleSequenceState
     private readonly CartridgeAudioState? audio;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
+    private RoomPaletteFxSystem consolePaletteFx = new();
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
     private readonly byte[] babyMetroidCharacters;
@@ -75,6 +77,7 @@ public sealed class TitleSequenceState
                     TitleSequenceRomData.Vram.ObjectCharacterByteCount,
                     objectCharacters.Length)));
         cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
+        ResetConsolePaletteFx();
 
         // The first object is definition `$A0EF`: 1994 text at (129,112), character
         // offset `$0400`, instruction list `$A03D`. Its pre-instruction forces full
@@ -89,6 +92,9 @@ public sealed class TitleSequenceState
 
     /// <summary>Current INIDISP brightness nibble; zero is black and fifteen is full.</summary>
     public byte Brightness => (byte)brightness;
+
+    /// <summary>Current title CGRAM, including cartridge palette-animation writes.</summary>
+    public ReadOnlySpan<ushort> PaletteColors => cgram.Colors;
 
     /// <summary>Current native Mode-7 A/D scalar, exposed for transform regression audits.</summary>
     public ushort Mode7MatrixScale => unchecked((ushort)zoom);
@@ -109,6 +115,7 @@ public sealed class TitleSequenceState
     public void Step(ushort controllerInput)
     {
         controller.Latch(controllerInput);
+        bool rebuildConsolePaletteFxAfterStep = false;
 
         // `$8B:9A48` admits B, Start, or A during every pre-title cinematic function. The
         // original performs a fast fade-out, reconstructs the final title objects, then a
@@ -200,6 +207,7 @@ public sealed class TitleSequenceState
                     audio?.QueueMusicDelayed8(
                         MusicCommand.SelectTrack(TitleSequenceRomData.Music.ImmediateTitleTrack));
                     EnterImmediateTitleObjects();
+                    rebuildConsolePaletteFxAfterStep = true;
                     phase = TitleSequencePhase.TitleScreenFadeIn;
                 }
                 break;
@@ -239,6 +247,20 @@ public sealed class TitleSequenceState
         }
 
         StepBabyMetroidAnimation();
+        // The title calls the same bank-$8D interpreter as rooms. Its two console
+        // programs own their colors and timers; the host must not synthesize a blink.
+        consolePaletteFx.Step(bus, cgram, 0, 0, false, false);
+        // Native skip reconstruction follows PaletteFxHandler for this frame. Restart
+        // only here, not when the subsequent fade-in arms the title idle countdown.
+        if (rebuildConsolePaletteFxAfterStep)
+            ResetConsolePaletteFx();
+    }
+
+    private void ResetConsolePaletteFx()
+    {
+        consolePaletteFx = new RoomPaletteFxSystem();
+        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.SlowLights, 0);
+        consolePaletteFx.SpawnDefinition(bus, TitleSequenceRomData.ConsolePaletteFx.FastLights, 0);
     }
 
     /// <summary>Renders the current Mode 7 background and bank-$8C title spritemaps.</summary>

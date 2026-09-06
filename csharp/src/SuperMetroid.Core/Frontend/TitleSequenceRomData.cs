@@ -6,6 +6,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Verified cartridge assets and immutable layout for the title sequence.</summary>
 public static class TitleSequenceRomData
 {
+    /// <summary>Console-light objects spawned by title setup and skip reconstruction.</summary>
+    public static class ConsolePaletteFx
+    {
+        /// <summary>$8D:E1A0, kPalfx_E1A0: ten-frame console colors at CGRAM 42–45.</summary>
+        public const ushort SlowLights = 0xe1a0;
+
+        /// <summary>$8D:E1A4, kPalfx_E1A4: alternating console colors at CGRAM 46–47.</summary>
+        public const ushort FastLights = 0xe1a4;
+    }
+
     /// <summary>Compressed graphics and the complete title CGRAM image.</summary>
     public static class Assets
     {

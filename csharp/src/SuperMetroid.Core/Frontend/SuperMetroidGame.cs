@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 /// every supported state owns its cartridge-derived logic and framebuffer, and unsupported
 /// transitions stop on a named native state instead of silently jumping to a debug room.
 /// </remarks>
-public sealed class SuperMetroidGame
+public sealed partial class SuperMetroidGame
 {
     private readonly ISnesAddressSpace bus;
     private readonly SuperMetroidGameOptions gameOptions;
@@ -240,6 +240,9 @@ public sealed class SuperMetroidGame
         switch (GameState)
         {
             case SuperMetroidGameState.Reset:
+                demoSet = 0;
+                demoScene = 0;
+                demoLoadFramesRemaining = -1;
                 // `Vector_RESET_Async` ultimately stores state one and initializes
                 // `cinematic_function` to `CinematicFunctionOpening` at $8B:9B68.
                 audio.Reset();
@@ -261,6 +264,13 @@ public sealed class SuperMetroidGame
                     fileSelect = new FileSelectMenuState(bus, audio);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     lastPixels = fileSelect.Render();
+                }
+                else if (title.DemoRequested)
+                {
+                    demoScene = 0;
+                    demoLoadFramesRemaining = -1;
+                    GameState = SuperMetroidGameState.TransitionToDemoA;
+                    lastPixels = CreateBlackFrame();
                 }
                 break;
 
@@ -853,6 +863,14 @@ public sealed class SuperMetroidGame
                 lastPixels = endingCredits.Render();
                 break;
 
+            case SuperMetroidGameState.TransitionToDemoA:
+            case SuperMetroidGameState.TransitionToDemoB:
+            case SuperMetroidGameState.PlayingDemo:
+            case SuperMetroidGameState.TransitionFromDemoA:
+            case SuperMetroidGameState.TransitionFromDemoB:
+                StepAttractDemo(controllerInput);
+                break;
+
             default:
                 // GameState has a private setter and every translated producer writes one
                 // of the explicit states above. Pause/death/ending will gain named cases as
@@ -882,6 +900,11 @@ public sealed class SuperMetroidGame
     /// </remarks>
     private void CollectTranslatedAudioRequests()
     {
+        // Demo loading suppresses room music; native debug_disable_sounds suppresses
+        // scene SFX while the title track continues. Do not let runtime publishers
+        // replace it with each demo room's normal area music.
+        if (runtime?.IsAttractDemo == true)
+            return;
         if (runtime?.ActiveRoom?.State is { } roomState &&
             roomState.Pointer != lastAudioRoomStatePointer)
         {

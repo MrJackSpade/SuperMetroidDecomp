@@ -81,6 +81,12 @@ internal static partial class Program
             "title skip rebuilds objects before fading back in");
         AssertEqual(TitleSequenceRomData.Timing.MaximumBrightness, skipped.Brightness,
             "title skip returns at full brightness");
+        for (int idle = 1; idle < TitleSequenceRomData.Timing.TitleScreenNtscFrames; idle++)
+            skipped.Step(0);
+        skipped.Step((ushort)SnesButton.Start);
+        StepUntil(() => skipped.DemoRequested, _ => skipped.Step(0), 40,
+            "title timeout takes priority over same-frame confirmation");
+        AssertTrue(!skipped.FileSelectRequested, "timeout routes only to the attract dispatcher");
 
         AssertEqual(SnesAngle.Zero, TitleSequenceRomData.Scenes.Rotation,
             "title Mode-7 scenes use typed zero rotation");

@@ -44,16 +44,25 @@ public sealed class TitleSequenceState
     private int babyFrame;
     private int babyFrameTimer;
     private bool mode7BackgroundEnabled;
+    private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
     public TitleSequenceState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
+        : this(bus, audio, queueOpeningMusic: true)
+    {
+    }
+
+    private TitleSequenceState(ISnesAddressSpace bus, CartridgeAudioState? audio, bool queueOpeningMusic)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        audio?.QueueMusicDelayed8(
-            MusicCommand.LoadData(TitleSequenceRomData.Music.DataIndex));
-        audio?.QueueMusicDelayed8(
-            MusicCommand.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
+        if (queueOpeningMusic)
+        {
+            audio?.QueueMusicDelayed8(
+                MusicCommand.LoadData(TitleSequenceRomData.Music.DataIndex));
+            audio?.QueueMusicDelayed8(
+                MusicCommand.SelectTrack(TitleSequenceRomData.Music.OpeningTrack));
+        }
 
         // `$8B:9B87` expands these four independent streams to bank-$7F. Recreate the
         // subsequent DMA destinations rather than keeping an invented host texture format.
@@ -110,6 +119,18 @@ public sealed class TitleSequenceState
 
     /// <summary>True after the title's slow fade has handed control to file select.</summary>
     public bool FileSelectRequested { get; private set; }
+    /// <summary>True after the idle timeout's slow fade reaches native demo state $28.</summary>
+    public bool DemoRequested { get; private set; }
+
+    /// <summary>State $2C's player-cancelled return skips the introductory title cards.</summary>
+    internal static TitleSequenceState ReturnFromDemo(ISnesAddressSpace bus, CartridgeAudioState audio)
+    {
+        var title = new TitleSequenceState(bus, audio, queueOpeningMusic: false);
+        title.EnterImmediateTitleObjects();
+        title.brightness = 0;
+        title.phase = TitleSequencePhase.TitleScreenFadeIn;
+        return title;
+    }
 
     /// <summary>Runs one accepted title-sequence frame.</summary>
     public void Step(ushort controllerInput)
@@ -221,17 +242,17 @@ public sealed class TitleSequenceState
                 break;
 
             case TitleSequencePhase.TitleScreen:
-                if (confirmPressed)
+                // The native timeout check wins over confirmation on its final frame.
+                if (--phaseTimer <= 0)
                 {
+                    fadingToDemo = true;
                     phase = TitleSequencePhase.TitleScreenFadeOut;
                     phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
-                else if (--phaseTimer <= 0)
+                else if (confirmPressed)
                 {
-                    // The native timeout enters the attract-mode dispatcher. The playable
-                    // C# milestone keeps the title resident until demo playback is ported;
-                    // resetting the exact 900-frame counter avoids an invented auto-start.
-                    phaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
+                    phase = TitleSequencePhase.TitleScreenFadeOut;
+                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 break;
 
@@ -241,7 +262,10 @@ public sealed class TitleSequenceState
                     phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                     brightness = Math.Max(0, brightness - 1);
                     if (brightness == 0)
-                        FileSelectRequested = true;
+                    {
+                        DemoRequested = fadingToDemo;
+                        FileSelectRequested = !fadingToDemo;
+                    }
                 }
                 break;
         }

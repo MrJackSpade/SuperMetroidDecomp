@@ -54,5 +54,18 @@ internal static partial class Program
             input.Script.PreInstructionPointer != DemoInputRomData.Attract.CheckLeave)
             throw new InvalidDataException("Demo pre-instruction redirect lost its list, timer, or normal callback.");
         Console.WriteLine("  Attract demo data: joined fields, signed placement, and end-of-set sentinel agree.");
+        var frontend = new SuperMetroidGame(bus);
+        if (frontend.AvailableDemoSetCount() != 3)
+            throw new InvalidDataException("An empty save must expose only the three ordinary demo sets.");
+        for (int index = 0; index < AttractDemoRomData.CompletionMarker.Length; index++)
+            bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress + index, AttractDemoRomData.CompletionMarker[index]);
+        if (frontend.AvailableDemoSetCount() != 3)
+            throw new InvalidDataException("Completion marker without any valid save incorrectly unlocked set four.");
+        new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+        if (frontend.AvailableDemoSetCount() != 4)
+            throw new InvalidDataException("Valid completed-game save did not unlock the fourth demo set.");
+        bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress, 0);
+        if (frontend.AvailableDemoSetCount() != 3)
+            throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 }

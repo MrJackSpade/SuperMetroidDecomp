@@ -3,6 +3,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge definition tables consumed by the title-demo loaders.</summary>
 public static class AttractDemoRomData
 {
+    /// <summary>$82:8548 waits ninety NMI calls on the completed demo's final image.</summary>
+    public const int FinalImageHoldFrames = 90;
+    /// <summary>$82:8000 demo enemy-graphics loop starts at six and includes zero.</summary>
+    public const int EnemyTransferFrames = 7;
+    /// <summary>$80:8261 enables three sets before the completed-game SRAM marker.</summary>
+    public const int DefaultSetCount = 3;
+    /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
+    public const int CompletionMarkerAddress = 0x701fe0;
+    /// <summary>VerifySRAM compares twelve bytes, including the trailing NUL.</summary>
+    public static ReadOnlySpan<byte> CompletionMarker => "supermetroid\0"u8;
     /// <summary>Literal state writes in the demo setup routines.</summary>
     public static class SetupValues
     {

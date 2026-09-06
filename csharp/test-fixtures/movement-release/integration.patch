@@ -1,0 +1,19 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -316,2 +316,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 3 && strcmp(argv[1], "--movement-release-probe") == 0) {
++    extern int DiagnosticMovementRelease(const char *rom);
++    return DiagnosticMovementRelease(argv[2]);
++  }
+ #ifdef __SWITCH__
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -10,3 +10,5 @@
+ struct StateRecorder;
+ 
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++
+ static void RtlSaveMusicStateToRam_Locked();

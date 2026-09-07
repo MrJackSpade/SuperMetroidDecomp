@@ -52,6 +52,8 @@ if (args.Length == 2 && args[0] == "--crocomire-bg2-audit")
 
 if (args.Length == 2 && args[0] == "--grapple-hud-audit")
     return GrappleHudAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--grapple-demo-trace")
+    return GrappleDemoTrace.Run(args[1]);
 
 if (args.Length == 2 && args[0] == "--saved-room-music-audit")
     return SavedRoomMusicAudit.Run(args[1]);

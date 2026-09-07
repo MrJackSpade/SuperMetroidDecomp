@@ -3,6 +3,14 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge definition tables consumed by the title-demo loaders.</summary>
 public static class AttractDemoRomData
 {
+    /// <summary>Bank-$91 input-object identities for the two grapple demonstrations.</summary>
+    public static class InputObjects
+    {
+        /// <summary>$91:9EB2, DemoInputObjects_Title_GrappleBeam, ordinary grapple demonstration.</summary>
+        public const ushort GrappleBeam = 0x9eb2;
+        /// <summary>$91:9EC4, DemoInputObjects_Title_AdvancedGrappleBeam, advanced grapple demonstration.</summary>
+        public const ushort AdvancedGrappleBeam = 0x9ec4;
+    }
     /// <summary>$82:8548 waits ninety NMI calls on the completed demo's final image.</summary>
     public const int FinalImageHoldFrames = 90;
     /// <summary>$82:8000 demo enemy-graphics loop starts at six and includes zero.</summary>

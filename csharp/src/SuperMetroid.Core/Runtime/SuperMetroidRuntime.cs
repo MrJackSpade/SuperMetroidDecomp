@@ -2134,8 +2134,16 @@ public sealed partial class SuperMetroidRuntime
                 // where the native bank-$9B handler does.
                 SamusGrappleMovement.RefreshLiquidPhysicsFlag(Samus);
 
+                bool grappleReleaseAcceptsPoseInput = false;
                 if (Samus.Grapple.ReleasedMovementActive)
                 {
+                    // The replacement beta mover does not replace normal airborne alpha
+                    // input. Preserve its pending aim/turn transition after release cleanup;
+                    // the connection/release frames that themselves replace the pose still
+                    // invalidate a lookup sampled from their previous grapple body.
+                    grappleReleaseAcceptsPoseInput =
+                        movementTypeAtFrameStart != SamusMovementType.Grappling &&
+                        Samus.Pose == poseAtFrameStart;
                     // `$9B:C7C1` replaces the normal beta movement-handler pointer on the
                     // release-input frame. It remains independent of the beam function, so
                     // it must also run after `$9B:CB8B` has made that function inactive.
@@ -2173,8 +2181,11 @@ public sealed partial class SuperMetroidRuntime
                 {
                     // Movement type $16's beta handler is empty. Discard input transitions
                     // sampled from the pre-grapple pose once connection installs $B2/$B3.
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
+                    if (!grappleReleaseAcceptsPoseInput)
+                    {
+                        ProspectiveSamusPose = null;
+                        ProspectiveSamusFallbackPose = null;
+                    }
                 }
                 // The real grabbed route uses the explicit RTS handler installed at
                 // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep

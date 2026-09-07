@@ -86,6 +86,7 @@ VerifyGenericGamepadInput();
 VerifyDemoInputObject();
 VerifyAttractDemoScene();
 VerifyAttractDemoControllerOverride();
+VerifyGrappleDemoTrajectory();
 VerifyFrameRuntime();
 VerifyGameTimeState();
 VerifySuperMetroidAddressSpace();

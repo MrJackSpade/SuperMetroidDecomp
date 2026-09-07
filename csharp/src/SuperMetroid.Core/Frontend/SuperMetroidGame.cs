@@ -923,6 +923,10 @@ public sealed partial class SuperMetroidGame
     }
 
     /// <summary>Last completed frame, useful for repainting without advancing emulation.</summary>
+    /// <summary>Reads frontend status and audio commands without materializing a retained display.</summary>
+    public FrontendFrame CurrentFrameMetadata =>
+        new(GameState, PhaseName, FrameNumber, Array.Empty<Rgba32>(), lastAudioCommands);
+
     public FrontendFrame CurrentFrame =>
         new(GameState, PhaseName, FrameNumber,
             captureIdentity is not null && capturedDisplay is not null ? Array.Empty<Rgba32>() : lastPixels,

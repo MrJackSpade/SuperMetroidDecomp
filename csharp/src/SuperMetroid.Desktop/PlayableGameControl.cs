@@ -297,7 +297,9 @@ public sealed partial class PlayableGameControl : UserControl
             $"Recording post-state controller input to {inputRecorder.Path}");
 
         PublishGpuDisplay();
-        RefreshFrame(game.CurrentFrame);
+        // The retained packet already owns the display. Reading CurrentFrame here
+        // would rasterize it solely to populate status labels, even in GPU mode.
+        RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
         statusLabel.Text =
             $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
             FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);

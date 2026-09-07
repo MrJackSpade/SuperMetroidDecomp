@@ -32,6 +32,16 @@ internal static partial class Program
             {
                 AssertTrue(!actual.UsedLegacyRaster, "converted frame reports packet output");
                 AssertEqual(0, actual.Frame.Pixels.Length, "captured Step returns no raster buffer");
+                long allocationStart = GC.GetAllocatedBytesForCurrentThread();
+                var metadata = captured.CurrentFrameMetadata;
+                long metadataBytes = GC.GetAllocatedBytesForCurrentThread() - allocationStart;
+                AssertTrue(metadataBytes < FrontendFrame.Width * FrontendFrame.Height,
+                    "metadata access must not allocate even a one-byte-per-pixel raster");
+                AssertEqual(0, metadata.Pixels.Length, "metadata has no raster");
+                AssertEqual(expected.GameState, metadata.GameState, "metadata state");
+                AssertEqual(expected.Phase, metadata.Phase, "metadata phase");
+                AssertEqual(expected.FrameNumber, metadata.FrameNumber, "metadata frame identity");
+                AssertSequenceEqual(expected.AudioCommands, metadata.AudioCommands, "metadata preserves audio commands");
                 AssertEqual(tick + 1L, packet.Identity.Sequence, "host sequence is not cartridge frame");
                 AssertEqual(7L, packet.Identity.Generation, "host generation preserved");
                 AssertEqual(expected.FrameNumber, packet.Identity.SimulationFrame, "snapshot tracks completed simulation call");

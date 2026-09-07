@@ -33,7 +33,7 @@ Current GPU comparisons against software/legacy output include:
 | Title/frontend | 131 title samples and 251 frontend steps |
 | Intro | 275 samples across 34 phases |
 | Ceres/Zebes and game-over | 143 flight/destruction samples and 101 game-over frames |
-| Saved-file maps | 502 frames, six areas, wrapped scroll, zoom, load/cancel |
+| Saved-file maps/load | 502 map frames, six areas, wrapped scroll, zoom, load/cancel; 583 additional frontend map/load/appearance frames through control release, with appearance-counter parity |
 | Ending | 444 samples across all three reward branches, repeat-render/cadence checks |
 | Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |

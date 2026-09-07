@@ -60,5 +60,6 @@ internal static class RetailFileMapTests
                 throw new InvalidOperationException("GPU file-map route did not complete its expected coverage.");
         }
         Console.WriteLine($"{device.Kind}: {samples} exact retail file-map frames; all areas, wrapped scroll, zoom, load/cancel routes passed.");
+        RetailLoadAppearanceTests.Run(device, renderer);
     }
 }

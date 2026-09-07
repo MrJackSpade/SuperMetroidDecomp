@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$EmulatorDirectory,
-    [ValidateRange(1,30)][int]$Seconds = 8
+    [ValidateRange(1,30)][int]$Seconds = 8,
+    [string]$FreezeState
 )
 $ErrorActionPreference = 'Stop'
 $repository = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -12,6 +13,7 @@ foreach ($folder in @('Screenshots','Saves','Cheats','Patches')) {
 Copy-Item -LiteralPath (Join-Path $EmulatorDirectory 'snes9x-x64.exe') -Destination $captureRoot
 Copy-Item -LiteralPath (Join-Path $repository 'Super Metroid.smc') -Destination (Join-Path $captureRoot 'Reference.smc')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'snes9x-reference.ini') -Destination (Join-Path $captureRoot 'snes9x.conf')
+if ($FreezeState) { Copy-Item -LiteralPath $FreezeState -Destination (Join-Path $captureRoot 'Saves/Reference.000') }
 Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
@@ -39,6 +41,10 @@ try {
     if ($captureProcess.HasExited -or $captureProcess.MainWindowHandle -eq 0) { throw 'Reference emulator has no live window' }
     [ReferenceWindowInput]::Key($captureProcess.MainWindowHandle, 0x13) # VK_PAUSE
     Start-Sleep -Milliseconds 250
+    if ($FreezeState) {
+        [ReferenceWindowInput]::Key($captureProcess.MainWindowHandle, 0x70) # VK_F1: load slot zero
+        Start-Sleep -Milliseconds 250
+    }
     [ReferenceWindowInput]::Key($captureProcess.MainWindowHandle, 0x7b) # VK_F12: screenshot
     # Snes9x fulfills screenshot requests on its next rendered frame, even paused.
     [ReferenceWindowInput]::Key($captureProcess.MainWindowHandle, 0xdc) # VK_OEM_5: frame advance

@@ -5,6 +5,17 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--reference-startup"])
+    {
+        byte[] rom = File.ReadAllBytes("Super Metroid.smc");
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            StartupReferenceTests.Run(device, renderer, rom);
+        }
+        return;
+    }
     if (args.Length == 1 && RetailSceneTests.TryRun(args[0])) return;
     if (args.Length == 1 && args[0] == "--profile-simulation")
     {

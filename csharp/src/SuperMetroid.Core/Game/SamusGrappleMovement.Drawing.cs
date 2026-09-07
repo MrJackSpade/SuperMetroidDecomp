@@ -149,6 +149,7 @@ public static partial class SamusGrappleMovement
             throw new InvalidOperationException("A grapple firing cancellation is not queued.");
 
         bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
+        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         if (cancelledConnectedPose)
         {

@@ -209,6 +209,7 @@ public static partial class SamusGrappleMovement
         bool validateAnchorBlock = true,
         bool validateAnchorEnemy = false)
     {
+        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
         // Movement type $1A is the Draygon-held actor route at $9B:B98C. It bypasses all
         // three direction tables and depends on untranslated enemy ownership/positioning.
         // A room-block connection should never normally arrive here in that pose, but an

@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grapple-sounds"])
+{
+    VerifyGrappleSounds();
+    return 0;
+}
 if (args is ["--grapple-doors"])
 {
     VerifyGrappleBlueDoors();
@@ -36,7 +41,7 @@ if (args is ["--phantoon-position"])
     return 0;
 }
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
-    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --grapple-doors]");
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --grapple-doors | --grapple-sounds]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyGameConfigurationIni();
 VerifyViewportTileRowParity();
@@ -147,6 +152,7 @@ VerifySamusAerialTurnsAndWallJump();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();
+VerifyGrappleSounds();
 VerifyBreakableGrapplePlms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();

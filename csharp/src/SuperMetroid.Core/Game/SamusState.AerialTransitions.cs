@@ -337,7 +337,7 @@ public sealed partial class SamusState
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
         // It also tears down the active beam flare so the wall-jump's charged-contact path
         // cannot inherit charge accumulated before grapple became active.
-        LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x07), maximumQueued: 15);
+        LiquidPhysics.QueueMovementSound(SamusGrappleRomData.Sounds.Stop.SoundEffect, SamusGrappleRomData.Sounds.Stop.MaximumQueued);
         ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(bus, this);

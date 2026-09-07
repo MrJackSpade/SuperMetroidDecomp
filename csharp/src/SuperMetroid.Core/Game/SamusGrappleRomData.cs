@@ -8,6 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusGrappleRomData
 {
+    /// <summary>Exact sound queue commands issued by bank-$9B grapple functions.</summary>
+    public static class Sounds
+    {
+        /// <summary>$9B:C51E firing tail: QueueSfx1_Max1(5), start the extending beam.</summary>
+        public static readonly SamusSoundRequest Fire = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 5), 1);
+        /// <summary>$9B:C703 accepted-contact tail: QueueSfx1_Max6(6), attached beam sound.</summary>
+        public static readonly SamusSoundRequest Attach = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 6), 6);
+        /// <summary>$9B:C856/C8C5/C9CE/CB8B: QueueSfx1_Max15(7), stop the active grapple sound.</summary>
+        public static readonly SamusSoundRequest Stop = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 7), 15);
+    }
     /// <summary>Native banks used by grapple's same-bank pointers.</summary>
     public static class Banks
     {

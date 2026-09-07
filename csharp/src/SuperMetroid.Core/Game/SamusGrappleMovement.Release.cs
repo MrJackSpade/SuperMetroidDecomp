@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static partial class SamusGrappleMovement
 {
+    private static void QueueGrappleSound(SamusState samus, SamusSoundRequest request) =>
+        samus.LiquidPhysics.QueueMovementSound(request.SoundEffect, request.MaximumQueued);
+
     private static void PositionSamusFromPendulum(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -83,6 +86,7 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple)
     {
+        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         // $9B:CB8B bases facing on the angular-velocity word retained from the swing. A
         // nonnegative value selects left-facing $52; a negative value selects right $51.

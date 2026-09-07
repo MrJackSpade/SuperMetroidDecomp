@@ -131,6 +131,7 @@ public static partial class SamusGrappleMovement
         grapple.CancelFromConnectedPose = false;
         InitializeBeamAnimation(grapple);
 
+        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Fire);
         // Native WRAM has two easily conflated coordinate pairs. Start is the hand/rope
         // origin used by connection positioning; Flare is the small-OBJ draw origin used
         // by $94:AFBA. They coincide while swinging but can differ while firing or locked.
@@ -820,6 +821,7 @@ public static partial class SamusGrappleMovement
         RoomPlmSystem? plms)
     {
         byte targetPose = SelectDroppedPose(bus, samus);
+        QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);

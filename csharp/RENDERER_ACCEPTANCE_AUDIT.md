@@ -1,0 +1,41 @@
+# Issue 321 acceptance audit
+
+Audit checkpoint: `3c201b3`, September 7, 2026. This is a completion checklist,
+not a replacement for the full issue specification. A passing sampled fixture
+does not prove untested paths. The goal remains incomplete.
+
+## Definition-of-done evidence
+
+| Required gate | Current evidence | Outstanding proof/action |
+| --- | --- | --- |
+| Inventory and ownership | `RENDERER_MIGRATION.md`, `SuperMetroidGame.RenderCapture.cs`, ordered `RetailSceneTests` registry | Finish tracing each currently implemented frontend publication and special runtime composition to its coverage; do not count the registry length as exhaustive proof. |
+| Portable contract/reference | Core targets plain `net10.0`; `PORTABLE_RENDER_TESTS.md` records isolated Linux build and execution at `16e7099` | Revalidate final Core changes on Linux before final handoff. This does not require a second hardware backend. |
+| GPU coverage without raster/readback | Captured menu/intro/gameplay/ending publication, integer shaders, explicit readback API; implicit intro/gameplay raster fallbacks removed in `47239b2` | Complete publication audit; retain explicit legacy software diagnostics, not implicit GPU scene fallback. |
+| Ownership and lifetimes | Owned packet/codec tests, retained replay, generation gate, blocked consumer, device recreation; close-during-load race fixed in `6d0881c` | Review final changes together; distinguish immutable packet proof from merely matching one frame. |
+| Simulation/input/audio independence | Eight cases at `399f666`: two rooms, normal/blocked, hardware/WARP; software/GPU/headless runtime graphs and 974,400 PCM samples per case | The exact graph is the runtime graph, not the whole frontend graph. Confirm required frontend/save transitions through their separate state/audio tests; do not claim every field in every scene was compared. |
+| Exact images and regression scenes | Full 20-suite Release aggregate at `399f666`; 18-suite Debug aggregate at `bc2c5ae` plus later individual tests; blocked doors added at `3c201b3` | Index retained independent cartridge/emulator evidence for historical regressions. GPU/legacy equality alone is not that evidence. |
+| Selection and lifecycle | Explicit Software/Direct3D11/Auto; logged Auto startup fallback; injected device-loss/reset, bounded retries, resize/suspension, shutdown tests | Visible minimize/restore, monitor/DPI and RDP reconnect checks remain unperformed. Default is still Software. Qualify and enable the hardware selection policy before completion. |
+| Performance | Visible Debug and Release five-minute gameplay/pause reports meet measured CPU/GPU budgets; full-history Debug and hidden Release memory/late-frame evidence | Preserve separate sampling scopes: older visible Release GPU percentiles are rolling; Debug visible uses whole post-warmup history. Do not claim 60 delivered RDP FPS. |
+| Clean packaging/tools/save boundary | Clean game publication revalidated at `fb34cc7`; four rebuilt shaders, matching assemblies/assets, desktop lifecycle and short audio smoke. Failure artifacts and packet replay verified in `fb34cc7` | Final package regression after remaining host changes. Final docs must distinguish framework-dependent Windows app from portable Core. |
+| Commit/push and handoff | Scoped changes pushed; evidence attached to issue | Final requirement audit, remaining unrelated-bug summary, usage/validation directions, then awaiting-player-validation label. Do not close without player confirmation. |
+
+## Interactive work still requiring coordination
+
+Visible minimize/restore approval has been requested and not yet received. The
+hidden test explicitly raises a form Resize event; it cannot establish native
+visible-window event delivery. No RDP disconnect, monitor configuration change,
+or physical driver reset has been performed. Injected HRESULT recovery is useful
+code-path evidence but does not prove those external lifecycle events.
+
+Do not replace these tests with repeated unrelated scene tests or silently lower
+the gate. Likewise, pending interactive work does not prevent the remaining safe
+source/fixture audit, Linux gate, or preparation of a reproducible lifecycle harness.
+
+## Reference-evidence distinction
+
+The checked-in issue-321 packet fixture proves a renderer byte-selection defect
+and its reproduction. Performance JSON proves only the stated measured workload.
+Neither is an emulator capture. The current scene matrix explicitly identifies
+GPU/software comparisons as such. A final audit must locate and link any retained
+known-correct cartridge captures for the historically reported regressions, or
+record the missing evidence and obtain it; do not relabel legacy output as ROM proof.

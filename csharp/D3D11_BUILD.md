@@ -222,3 +222,22 @@ The first tile comparison caught a pinned-FXC optimization problem in dynamic by
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and
 pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.
+
+## Clean desktop package qualification
+
+Run `powershell -NoProfile -ExecutionPolicy Bypass -File csharp/tools/verify-desktop-publish.ps1`
+from the checkout with its private ROM and extracted audio available. The script uses
+a fresh intermediate/output tree, locked restore, and source shader compilation.
+It publishes the actual game and desktop verifier, requires identical Core/Desktop/
+D3D11 assembly hashes, checks renderer notices, and verifies every extracted audio
+file's hash in both outputs (138 files in the September 7 run).
+
+It runs the game's console/keyboard/viewport audits from its published directory,
+then exercises identical published dependencies through hidden desktop lifecycle,
+async load/reset, and five-second gameplay/pause audio-render checks. Both clean runs
+passed on this Windows host with .NET 10.0.11 and the pinned shader compiler installed.
+This is a framework-dependent package: it does not prove installation on a machine
+without the .NET Desktop Runtime, and is not a visible presentation or long-soak gate.
+The script retains its GUID-named outputs under `csharp/test-temp/desktop-publish`,
+including a private ROM copy, for inspection. These disposable outputs are not player
+saves; remove only the exact run directory after inspection.

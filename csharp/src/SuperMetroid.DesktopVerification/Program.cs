@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--chozo-state-audit"])
+                {
+                    VerifyChozoStatueState();
+                    return;
+                }
                 if (args is ["--visible-minimize-restore"])
                 {
                     await VerifyVisibleMinimizeRestore();

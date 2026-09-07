@@ -12,4 +12,28 @@ animation from being triggered and blocking the Gravity Suit route.
   This does not establish which build the player's running process used.
 
 Private cartridge-derived debugger fixture; do not distribute publicly.
-Preservation is not a claim of reproduction, diagnosis, or correction.
+## Reproduction
+
+From the repository root, run the console-only diagnostic:
+
+```powershell
+dotnet run --no-restore --no-launch-profile --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --chozo-state-audit
+```
+
+The diagnostic loads this immutable fixture through the production state reader
+in a temporary slot directory, advances one normal game frame, and asserts the
+hand block's actual collision type and BTS. It never overwrites a live slot.
+
+Before the fix, the command exits 1: room `$C98E`, hand block `(74,23)` is
+`$00FF` / BTS `$00`, while the enemy's `$D6EE` and `$D6FC` requests remain pending.
+This is not merely old saved terrain: the pending initialization requests still
+have not been consumed after the normal frame.
+
+Native evidence: `$AA:E725` publishes `$D6EE` at `(74,23)`. Its synchronous
+`$84:D616` setup writes type/BTS `$B080`, preserving the visual tile. That hand
+must be solid even before morph-pose admission through `$84:D620`. The runtime
+currently transfers other enemy PLM requests but never the Chozo requests.
+
+This diagnostic reproduces the missing hand collision, not completion of the
+walk sequence. A fix must additionally exercise the physical trigger, authored
+terrain changes, transport, and control release before player validation.

@@ -40,6 +40,11 @@ if (args is ["--xray-input"])
     VerifyXrayInput();
     return 0;
 }
+if (args is ["--xray-window-geometry"])
+{
+    VerifyXrayWindowGeometry();
+    return 0;
+}
 if (args is ["--xray-reveal"])
 {
     VerifyXrayRevealTable();
@@ -196,6 +201,7 @@ VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
 VerifyXrayInput();
+VerifyXrayWindowGeometry();
 VerifyXrayRevealTable();
 VerifyXrayExtensions();
 VerifyXrayTilemap();

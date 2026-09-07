@@ -1,0 +1,98 @@
+{
+  "Scope": "Unpaced captured simulation \u002B real managed desktop audio adapter; no GPU, waveOut or presentation",
+  "TimestampUtc": "2026-09-07T09:11:41.4721892+00:00",
+  "OS": "Microsoft Windows 10.0.26200",
+  "Runtime": ".NET 10.0.11",
+  "Cpu": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+  "ProcessArchitecture": "X64",
+  "CoreBuild": "59acf452-3c07-4cfb-b77b-366a215363be",
+  "DiagnosticBuild": "38194291-86e3-4b50-bf20-f7b60f3080b0",
+  "WarmupFrames": 120,
+  "MeasuredFrames": 600,
+  "Results": [
+    {
+      "Room": "8F:A3AE",
+      "Paused": false,
+      "CaptureMs": {
+        "P50": 0.0827,
+        "P95": 0.1243,
+        "P99": 0.1697,
+        "Maximum": 2.0146
+      },
+      "AudioMs": {
+        "P50": 0.1068,
+        "P95": 0.5141,
+        "P99": 0.5988,
+        "Maximum": 0.7506
+      },
+      "PublicationMs": {
+        "P50": 0.0091,
+        "P95": 0.0125,
+        "P99": 0.0231,
+        "Maximum": 0.1221
+      },
+      "PublicationAllocationBytes": {
+        "P50": 67240,
+        "P95": 67240,
+        "P99": 67240,
+        "Maximum": 67240
+      },
+      "TotalMs": {
+        "P50": 0.1886,
+        "P95": 0.657,
+        "P99": 0.7565,
+        "Maximum": 2.6074
+      },
+      "AllocationBytes": {
+        "P50": 67776,
+        "P95": 67920,
+        "P99": 67920,
+        "Maximum": 67920
+      },
+      "PcmSamples": 960000,
+      "NonzeroPcmSamples": 957990
+    },
+    {
+      "Room": "8F:CEFB",
+      "Paused": true,
+      "CaptureMs": {
+        "P50": 0.0227,
+        "P95": 0.026,
+        "P99": 0.0484,
+        "Maximum": 0.1363
+      },
+      "AudioMs": {
+        "P50": 0.0872,
+        "P95": 0.0923,
+        "P99": 0.1191,
+        "Maximum": 0.1964
+      },
+      "PublicationMs": {
+        "P50": 0.0066,
+        "P95": 0.0085,
+        "P99": 0.0219,
+        "Maximum": 0.12
+      },
+      "PublicationAllocationBytes": {
+        "P50": 67440,
+        "P95": 67440,
+        "P99": 67440,
+        "Maximum": 67440
+      },
+      "TotalMs": {
+        "P50": 0.1099,
+        "P95": 0.1232,
+        "P99": 0.1778,
+        "Maximum": 0.2584
+      },
+      "AllocationBytes": {
+        "P50": 67512,
+        "P95": 67512,
+        "P99": 67656,
+        "Maximum": 67656
+      },
+      "PcmSamples": 960000,
+      "NonzeroPcmSamples": 955888
+    }
+  ]
+}

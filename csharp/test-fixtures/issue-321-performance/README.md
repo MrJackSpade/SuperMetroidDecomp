@@ -25,6 +25,25 @@ five-minute host-60-Hz gameplay/pause soak requirement. Those gates remain outst
 Do not infer whole-game performance from these two fixtures or add their independently
 calculated percentiles together.
 
+## Separate publication CPU profile
+
+`publication-profile-release.json` and `publication-profile-debug.json` extend the
+unpaced two-room baseline with opt-in, owner-thread publication timing/allocation.
+`PublicationMs` includes scene snapshot construction, memory copies, brightness
+publication and retained identity reframing, excluding simulation and audio work.
+It is a subset of the existing `CaptureMs` interval, not an additional cost to sum.
+The active profiler is thread-local diagnostic state, never serialized game state.
+Normal unprofiled publication does not read the clock and allocates no measurement
+objects after CLR thread-static initialization.
+
+Release gameplay/pause publication p95: 0.0125/0.0085 ms; Debug: 0.0122/0.0102 ms.
+Publication allocation is 67,240/67,440 bytes per frame in both configurations.
+There are 120 warmup and 600 measured frames per scene, with complete distributions,
+maximums and build MVIDs in JSON. This is a baseline for future copy optimizations,
+not a justification to replace owned snapshots with concurrently mutable buffers.
+Disabled-allocation, reset, nested-scope rejection and enclosing-frame accounting
+checks pass. These runs do not measure host presentation or native audio queues.
+
 ## Five-minute hidden-HWND paced run
 
 ```powershell

@@ -49,7 +49,10 @@ public sealed partial class SuperMetroidGame
             // immutable content this host publication's identity without recapturing a
             // scene that has already advanced into the next state.
             if (capturedDisplay is not null)
+            {
+                using var publicationTiming = RenderPublicationProfile.Measure();
                 capturedDisplay = Reframe(capturedDisplay, identity, capturedDisplay.BrightnessPasses);
+            }
             return new(frame, capturedDisplay);
         }
         finally { captureIdentity = null; }
@@ -57,30 +60,35 @@ public sealed partial class SuperMetroidGame
 
     private void PublishMenu(TitleSequenceState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishMenu(FileSelectMenuState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishMenu(GameOptionsMenuState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishMenu(PauseMenuState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void ApplyDisplayBrightness(byte brightness)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is not null && capturedDisplay is { } frame)
         {
             byte[] passes = [.. frame.BrightnessPasses, brightness];
@@ -96,30 +104,35 @@ public sealed partial class SuperMetroidGame
 
     private void PublishMenu(GameOverMenuState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishCeresDestruction(CeresDestructionCinematicState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishEnding(EndingCreditsState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishFileMap(FileSelectMapMenuState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
         else lastPixels = scene.Render();
     }
 
     private void PublishIntro(IntroCinematicState scene)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         if (captureIdentity is { } identity && scene.CaptureTranslatedRenderSnapshot() is { } snapshot)
             capturedDisplay = new(identity, snapshot);
         else lastPixels = scene.Render();
@@ -127,6 +140,7 @@ public sealed partial class SuperMetroidGame
 
     private void PublishGameplay(SuperMetroidRuntime activeRuntime)
     {
+        using var publicationTiming = RenderPublicationProfile.Measure();
         // The diagnostic no-render mode deliberately retains the prior display. Do not
         // materialize a stored packet simply because this simulation-only caller steps.
         if (!renderGameplayFrames) return;

@@ -21,7 +21,7 @@ public sealed class LayeredRenderSnapshot
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)
         {
-            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer))
+            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer or ScanlineColorAddRenderLayer or MessageBoxRenderLayer or Bg2BppColorMathRenderLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
             if (layer is FixedColorAddRenderLayer fixedColor && (fixedColor.Red > 31 || fixedColor.Green > 31 || fixedColor.Blue > 31))
                 throw new ArgumentException("Fixed color components must be five-bit values.", nameof(layers));

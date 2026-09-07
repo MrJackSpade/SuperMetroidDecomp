@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–7
+# Portable display fixtures (.smframe), versions 1–8
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 7, reader supports 1 through 7 |
+| Version | UInt16; writer emits 8, reader supports 1 through 8 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -67,6 +67,7 @@ Every record begins with a byte discriminator:
 | 8: ordinary gameplay base (version 5+) | Register block and optional HDMA tables described below |
 | 9: scanline color add (version 6+) | Exactly 224 rows, each five bytes: left, right, red, green, blue |
 | 10: message overlay (version 7+) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words |
+| 11: BG color math (version 8+) | UInt16 tilemap/character words; Int32 map height in tiles and first scanline; byte equation; 224 pairs of UInt16 X/Y scroll registers |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -120,6 +121,16 @@ message compositor. Palette indices 25/26 use the temporary BGR555 words $0BB1/$
 without mutating the packet's CGRAM. This operation is ordered after room effects
 and before a suit window by the gameplay producer. Invalid rows/radius, truncated
 tile words and use under an old-version header are rejected.
+
+Version eight adds a 32-tile-wide 2-bpp color-math plane. Height is 32 or 64 tiles
+and map rows are contiguous. The first scanline is 0–224 (224 is empty). Coordinates
+use `(X + screenX) & 255` and `(Y + screenY) & (height*8-1)`. Tilemap and character
+addresses wrap to 15-bit VRAM words; flips/palette selection use native tile bits.
+Color index zero does nothing. Equation 0 adds expanded palette bytes and clamps
+at 255; equation 1 subtracts them and clamps at zero, preserving source alpha.
+The producer has resolved liquid visibility/waves and supplies no room identity.
+Unknown equations, invalid geometry/scanline, truncated registers and older headers
+are rejected. This preserves existing byte-domain FX math, not general SNES math.
 
 The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation

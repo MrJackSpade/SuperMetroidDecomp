@@ -6,6 +6,12 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case Bg2BppColorMathRenderLayer bgMath:
+                writer.Write((byte)RenderPacketLayerKind.BgColorMath);
+                writer.Write(bgMath.TilemapWord); writer.Write(bgMath.CharacterWord);
+                writer.Write(bgMath.MapHeightTiles); writer.Write(bgMath.FirstScanline); writer.Write((byte)bgMath.Operation);
+                foreach (BackgroundLineScroll line in bgMath.Scrolls) { writer.Write(line.X); writer.Write(line.Y); }
+                break;
             case MessageBoxRenderLayer message:
                 writer.Write((byte)RenderPacketLayerKind.MessageBox);
                 writer.Write((byte)message.RowCount); writer.Write((byte)message.RadiusPixels);
@@ -69,6 +75,7 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
             ReadColorWindows(reader),
@@ -90,6 +97,16 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)
+    {
+        ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
+        int height = reader.ReadInt32(), firstLine = reader.ReadInt32();
+        var operation = (ExpandedColorMathOperation)reader.ReadByte();
+        var lines = new BackgroundLineScroll[Hardware.SnesPpuLayout.ScreenHeightPixels];
+        for (int y = 0; y < lines.Length; y++) lines[y] = new(reader.ReadUInt16(), reader.ReadUInt16());
+        return new(map, characters, height, firstLine, operation, lines);
+    }
 
     private static MessageBoxRenderLayer ReadMessageLayer(BinaryReader reader)
     {

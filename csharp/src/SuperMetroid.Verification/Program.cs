@@ -39,6 +39,7 @@ VerifyGameplaySnapshots();
 VerifyColorWindowSnapshots();
 VerifyMessageSnapshots();
 VerifyEyeWindowSnapshots();
+VerifyRoomFxSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

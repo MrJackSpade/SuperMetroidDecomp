@@ -314,3 +314,13 @@ against the original pixel loop, including all 256 angle indices and signed came
 wrap. A separate 6,859-case integer inequality oracle checks both endpoint rounding
 directions. This is extraction parity, not a correction of eye placement, and is
 not yet connected to the complete frontend gameplay packet.
+
+Room layer-three FX now captures a generic 2-bpp color-math plane with owned physical
+scanline scroll pairs. The producer resolves water wave phase, signed liquid absence,
+surface-relative scroll, atmosphere geometry and add/subtract selection. Consumers
+receive no room/FX object. Format eight carries the plane geometry/equation/registers.
+`RoomFxSnapshotTests` compares 252 constructed cases across the five FX types and
+seven valid blend configurations, six surface positions, three wave phases and
+visible/absent liquid state. The HUD stays untouched; ownership, invalid inputs and
+format rejection are checked. Runtime/frontend integration and real-room qualification
+remain pending; this is parity with the existing software effect, not a lava fix.

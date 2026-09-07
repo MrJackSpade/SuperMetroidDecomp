@@ -24,6 +24,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case Bg2BppColorMathRenderLayer bgMath:
+                    SoftwareBgColorMathRenderer.Composite(output, memory.Vram, memory.Cgram, bgMath);
+                    break;
                 case MessageBoxRenderLayer message:
                     GameplayMessageBoxRenderer.Composite(output, message, memory.Vram, memory.Cgram);
                     break;

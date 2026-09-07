@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--boost-floor-audit"])
+{
+    AuditBoostFloor();
+    return 0;
+}
 if (args is ["--ocean-sky"])
 {
     VerifyOceanSky();
@@ -274,6 +279,7 @@ VerifyPowerBombRuntimeRendererIntegration();
 VerifyRoomFxRomData();
 VerifyScrollingSkyState();
 VerifyOceanSky();
+AuditBoostFloor();
 VerifyEnemyAiCodePointerCatalog();
 VerifyEnemyInstructionCodePointerCatalogs();
 VerifyEnemyRomTablePointerCatalog();

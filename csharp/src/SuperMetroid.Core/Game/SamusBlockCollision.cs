@@ -365,7 +365,10 @@ public static partial class SamusBlockCollision
             state.YRadius,
             horizontalSlopeCollisionEnabled: (state.HorizontalSlopeCollisionEnable & 2) != 0);
         state.YPosition = alignment.YPosition;
-        state.PositionAdjustedBySlope = alignment.Adjusted;
+        // $94:87F4 only sets this latch; it does not clear a square-floor contact
+        // published by the previous vertical pass. $90:923F consumes it before
+        // $94:9763 clears it on entry to the next nonzero terrain Y move.
+        state.PositionAdjustedBySlope |= alignment.Adjusted;
 
         return new BlockMoveResult(
             acceptedDisplacement,
@@ -404,7 +407,6 @@ public static partial class SamusBlockCollision
         SolidEnemyCollisionResult? enemyCollision = null;
         RoomCollisionBlock? collisionBlock = null;
         RoomCollisionBlock? brokenBombBlock = null;
-        state.PositionAdjustedBySlope = false;
 
         // Most bank-$90 callers enter through MoveSamus_Up/Down and therefore probe the
         // native solid-enemy list before dispatching bank-$94 terrain. A few callers use
@@ -445,6 +447,9 @@ public static partial class SamusBlockCollision
 
         if (!collided && acceptedDisplacement != 0)
         {
+            // Only the nonzero terrain entry $94:9763 clears this latch. A solid-enemy
+            // stop bypasses that entry, and a zero movement does not clear it either.
+            state.PositionAdjustedBySlope = false;
             ushort targetCenter = unchecked((ushort)(
                 unchecked(state.YFixed + (uint)acceptedDisplacement) >> 16));
             ushort leadingBoundary = acceptedDisplacement >= 0
@@ -888,6 +893,10 @@ public static partial class SamusBlockCollision
             state,
             displacement,
             leadingBoundary);
+        // $94:8E43 publishes support on a downward square-slope hit. Without this
+        // latch, fast running probes farther than the eight-pixel floor thickness
+        // on the next frame and can embed Samus below its surface.
+        if (displacement >= 0) state.PositionAdjustedBySlope = true;
         return true;
     }
 

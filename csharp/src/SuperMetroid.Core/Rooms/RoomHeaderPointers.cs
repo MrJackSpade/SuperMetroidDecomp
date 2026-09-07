@@ -15,6 +15,9 @@ public static class RoomHeaderPointers
     /// <summary>West Ocean at $8F:93FE (area $00, room $05), using the ocean sky main routine.</summary>
     public const ushort WestOcean = 0x93fe;
 
+    /// <summary>Retail Norfair room $1E at $8F:ADAD; its lower floor includes half-height square slopes.</summary>
+    public const ushort NorfairRoom1E = 0xadad;
+
     /// <summary>Climb at $8F:96BA.</summary>
     public const ushort Climb = 0x96ba;
 

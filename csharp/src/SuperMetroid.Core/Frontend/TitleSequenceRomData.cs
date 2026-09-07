@@ -37,8 +37,9 @@ public static class TitleSequenceRomData
     /// <summary>Bank-$8B text-object lists, origins, and character offsets.</summary>
     public static class TextSequences
     {
+        /// <summary>$8B:9CBC initializes the $8B:A03D Year text at (129,112) with OBJ palette 1 ($0200).</summary>
         public static readonly TitleTextSequenceDefinition Year =
-            new(TitleSequencePhase.YearText, 0x8ba03d, 129, 112, 0x0400);
+            new(TitleSequencePhase.YearText, 0x8ba03d, 129, 112, SnesObjPalettes.Index1.Raw);
         public static readonly TitleTextSequenceDefinition Nintendo =
             new(TitleSequencePhase.NintendoText, 0x8ba055, 129, 112, 0x0200);
         public static readonly TitleTextSequenceDefinition Presents =

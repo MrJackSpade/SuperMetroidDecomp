@@ -37,18 +37,25 @@ Tracked separately as [issue #335](https://github.com/MrJackSpade/SuperMetroidDe
 Follow-up diagnostic verifies explicit R/G/B/A bytes equal the record's memory
 layout on every tested frame, ruling out that hash-encoding mistake. The maximum
 red value across the whole managed YearText phase is 198, so no frame in that phase
-reaches the reference's red 255. Production rendering has not been changed.
+reached the reference's red 255 before the palette-definition correction below.
 
-`RenderVerification --reference-startup` is a separate, currently failing independent
-reference diagnostic, not part of the GPU/software parity suite. It searches only
+`RenderVerification --reference-startup` is an independent reference regression
+also run by the retail frontend suite. It searches only
 the managed YearText phase for the decoded reference RGBA hash
 `6F57F4B36C71E9112DE91312B6EDAAD0004D676C4C38B9EB61F0D399C88771A8`.
-No exact match was found. Its last YearText frame differs in 152 red glyph pixels:
+Before the fix, no exact match was found. Its last YearText frame differed in 152 red glyph pixels:
 the emulator reference has R=255, managed has R=198, with matching positions and
 otherwise black background. This observation does not yet isolate whether the
 cause is palette, phase timing or another native-state difference. Do not change
 the reference to make it pass. The diagnostic writes its last managed image on
 failure. Native startup frame timing is not inferred from the host delay.
+
+Root cause and fix: native initializer $8B:9CBC writes $0200 to the cinematic OBJ
+palette field ($8B:9CC8 LDA immediate); the managed Year definition incorrectly
+used $0400. Selecting `SnesObjPalettes.Index1` restores that native palette, without
+changing the palette data, brightness, screenshot golden or shader. The independent
+RGBA reference now matches managed output and GPU readback on hardware and WARP at
+managed tick 85. This proves the captured visual state, not startup timing parity.
 
 This provides independent evidence for the historical report about the background
 when `1994` appears. It does not yet assert a matched managed capture, all startup

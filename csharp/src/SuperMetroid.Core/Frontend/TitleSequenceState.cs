@@ -88,9 +88,8 @@ public sealed class TitleSequenceState
         cgram.LoadFromBus(bus, TitleSequenceRomData.Assets.PaletteAddress);
         ResetConsolePaletteFx();
 
-        // The first object is definition `$A0EF`: 1994 text at (129,112), character
-        // offset `$0400`, instruction list `$A03D`. Its pre-instruction forces full
-        // brightness on the first processing frame.
+        // The Year object's pre-instruction forces full brightness on the first
+        // processing frame; its position and palette come from the native definition.
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceRomData.TextSequences.Year);
         UpdateBabyMetroidCharacterFrame();

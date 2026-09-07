@@ -11,6 +11,7 @@ internal static class RetailFrontendTests
         // Required fixture, not an optional skip. SRAM is private to these address
         // spaces; no player save files are loaded or modified.
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
+        StartupReferenceTests.Run(device, renderer, rom);
         var title = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
         var phases = new HashSet<TitleSequencePhase>();
         int titleCount = 0;

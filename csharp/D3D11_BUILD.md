@@ -11,7 +11,7 @@ The console verification project never substitutes the CPU reference for GPU wor
 
 The portable INI contract now accepts `[Video] Renderer=Software|Direct3D11|Auto`
 (case-insensitive names; numbers, combinations, duplicates and unknown keys fail).
-Software remains the temporary migration default. Direct3D11 selects the hardware
+Auto is the default, including existing INIs without a Video section. Direct3D11 selects the hardware
 worker; Auto logs hardware startup failure before selecting software. Neither mode
 silently substitutes CPU raster output for an unsupported GPU scene. Existing local
 INI files are unchanged.

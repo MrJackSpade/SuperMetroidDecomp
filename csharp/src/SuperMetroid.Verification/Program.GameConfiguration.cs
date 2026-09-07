@@ -5,8 +5,13 @@ internal static partial class Program
 {
 static void VerifyGameConfigurationIni()
 {
-    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Software,
-        SuperMetroidGameOptionsIni.Parse("").Renderer, "renderer migration default");
+    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
+        SuperMetroidGameOptionsIni.Parse("").Renderer, "omitted renderer prefers hardware");
+    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
+        new SuperMetroidGameOptions().Renderer, "programmatic renderer prefers hardware");
+    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
+        SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents).Renderer,
+        "generated INI renderer prefers hardware");
     foreach (var selection in Enum.GetValues<SuperMetroid.Core.Rendering.RendererSelection>())
         AssertEqual(selection, SuperMetroidGameOptionsIni.Parse($"[Video]\nRenderer={selection.ToString().ToLowerInvariant()}").Renderer,
             "explicit renderer names parse case-insensitively");

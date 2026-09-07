@@ -14,8 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed record SuperMetroidGameOptions
 {
-    /// <summary>Host renderer selection. Software remains the migration default until GPU desktop integration is verified.</summary>
-    public RendererSelection Renderer { get; init; } = RendererSelection.Software;
+    /// <summary>Prefer hardware rendering; report startup failure before selecting the software reference backend.</summary>
+    public RendererSelection Renderer { get; init; } = RendererSelection.Auto;
     /// <summary>
     /// Skips the story sequence between accepting the options screen and arriving at Ceres.
     /// </summary>
@@ -105,9 +105,9 @@ public static class SuperMetroidGameOptionsIni
         "MasterVolumePercent=100\r\n" +
         "\r\n" +
         "[Video]\r\n" +
-        "; Software | Direct3D11 | Auto; Software remains the migration default\r\n" +
+        "; Software | Direct3D11 | Auto; Auto prefers hardware and is the default\r\n" +
         "; Auto logs hardware startup failure and falls back to Software\r\n" +
-        "Renderer=Software\r\n" +
+        "Renderer=Auto\r\n" +
         "\r\n" +
         "[Diagnostics]\r\n" +
         "; true files recoverable runtime errors through the authenticated GitHub CLI\r\n" +
@@ -289,7 +289,7 @@ public static class SuperMetroidGameOptionsIni
             InfiniteAmmo = infiniteAmmo ?? false,
             MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
-            Renderer = renderer ?? RendererSelection.Software,
+            Renderer = renderer ?? RendererSelection.Auto,
             MasterVolumePercent = masterVolumePercent ?? 100,
             ReportErrorsToGitHub = reportErrorsToGitHub ?? false,
             GitHubErrorRepository = githubErrorRepository ?? "MrJackSpade/SuperMetroidDecomp",

@@ -75,7 +75,7 @@ public sealed partial class PlayableGameControl
 
     /// <summary>
     /// Starts the window-owned renderer with the UI message pump free to service DXGI.
-    /// Call once after showing the form. Software remains the migration default.
+    /// Call once after showing the form. Auto prefers hardware with logged startup fallback.
     /// </summary>
     public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, width, height, generation) =>
         new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware));

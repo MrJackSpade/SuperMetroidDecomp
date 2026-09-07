@@ -2,7 +2,8 @@
 
 Status: all modeled packet layer kinds have GPU implementations, and the desktop
 can select the captured software path or the dedicated Direct3D11 worker. Software
-remains the migration default. Full qualification is **incomplete**. The acceptance authority is
+is an explicit reference selection; Auto now prefers hardware with logged startup fallback.
+Full qualification is **incomplete**. The acceptance authority is
 [issue 321](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/321).
 
 ## Current integration and evidence (September 7, 2026)
@@ -25,7 +26,7 @@ that a slow software paint cannot affect the current UI-owned producer.
 `[Video] Renderer=Direct3D11` selects hardware. `Auto` permits a logged hardware
 startup failure to choose software; it does not suppress runtime/coverage failures.
 Hardware/WARP selection is explicit in the diagnostic renderer. The player INI has
-not been switched. Form closing awaits GPU shutdown before destroying its HWND.
+no Video override, so it now uses the Auto default. Form closing awaits GPU shutdown before destroying its HWND.
 Restart/load advances host generation independently of saved cartridge counters.
 Captured states can republish a retained display without stepping. Legacy-only
 debugger states require the software selection rather than a fabricated GPU packet.

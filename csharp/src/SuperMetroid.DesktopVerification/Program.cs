@@ -50,6 +50,7 @@ internal static partial class Program
                 if (args.Length != 0) throw new ArgumentException("Usage: DesktopVerification [--audio-queue]");
                 await Verify(RendererSelection.Software);
                 await Verify(RendererSelection.Direct3D11);
+                await Verify(RendererSelection.Auto);
                 await VerifyFormClose(RendererSelection.Software, duringStartup: false);
                 await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false);
                 await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true);
@@ -89,7 +90,7 @@ internal static partial class Program
             var expected = SoftwareFrameSnapshotRenderer.Render(before);
             Call(control, "SaveDebuggerState", 0);
             for (int i = 0; i < 10; i++) Call(control, "StepFrame", (ushort)0);
-            if (renderer == RendererSelection.Direct3D11)
+            if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control);
             else await CallAsync(control, "LoadDebuggerState", 0);
             var restored = Field<RenderFrameSnapshot>(control, "pendingDisplay");
@@ -98,7 +99,7 @@ internal static partial class Program
             Check(Field<SuperMetroidGame>(control, "game").FrameNumber == frameNumber, "load must not step game");
             Check(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)), "loaded display must match saved pixels");
             form.ClientSize = new(700, 500);
-            if (renderer == RendererSelection.Direct3D11)
+            if (renderer != RendererSelection.Software)
             {
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 await Until(() => worker.LastConsumedSequence == restored.Identity.Sequence, worker);
@@ -118,12 +119,12 @@ internal static partial class Program
                     .GetProperty("LastDrawnSize", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!
                     == (canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
             }
-            if (renderer == RendererSelection.Direct3D11)
+            if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control, restart: true);
             else await CallAsync(control, "RestartAsync");
             var reset = Field<RenderFrameSnapshot>(control, "pendingDisplay");
             Check(reset.Identity.Generation > restored.Identity.Generation, "restart must advance generation");
-            if (renderer == RendererSelection.Direct3D11)
+            if (renderer != RendererSelection.Software)
             {
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 await Until(() => worker.LastConsumedSequence == reset.Identity.Sequence, worker);

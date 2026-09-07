@@ -28,6 +28,7 @@ try
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
     throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
+VerifyGameConfigurationIni();
 VerifyViewportTileRowParity();
 VerifyPpuMemorySnapshotOwnership();
 VerifyTitleRenderSnapshots();
@@ -178,7 +179,6 @@ VerifyMode7Rendering();
 VerifyLayerCompositorBackdrop();
 VerifyBgPriorityPlaneRendering();
 VerifyLibraryBackgroundLoader();
-VerifyGameConfigurationIni();
 VerifyControllerInputRecording();
 VerifySaveRamLayout();
 VerifyGameSaveJsonPersistence();

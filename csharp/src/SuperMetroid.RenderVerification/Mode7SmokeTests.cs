@@ -27,6 +27,19 @@ internal static class Mode7SmokeTests
                     new FixedColorAddRenderLayer(3, 7, 11) }, 3, 15)));
         }
         Check(new RenderFrameSnapshot(new(++count, 1, 0), new Mode7ObjRenderSnapshot(memory, null, 3, 15)));
+        foreach (int hud in new[] { 0, 8, 32, 208 })
+        foreach (int? floorStart in new int?[] { null, 208, 223 })
+        foreach (short scale in new short[] { 256, -113, 511, 0 })
+        {
+            var band = floorStart is { } start
+                ? new Mode1FloorBand(start, 0x4000, 0x6000, 17, 65535, 64, 32)
+                : (Mode1FloorBand?)null;
+            var layer = new Mode7GameplayRenderLayer(
+                new(scale, 71, -71, scale, 128, 112, -17, 211, true),
+                0x5800, 0x4000, hud, band);
+            Check(new RenderFrameSnapshot(new(++count, 1, 0),
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 13)));
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact Mode 7 comparisons passed.");
 
         void Check(RenderFrameSnapshot frame) => PixelComparison.Verify(frame,

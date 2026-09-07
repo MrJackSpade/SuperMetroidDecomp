@@ -64,12 +64,15 @@ holes. The GPU resolves the first opaque OAM pixel before filtering its BG prior
 so filtering cannot resurrect a later hidden sprite. Raw OAM bytes are uploaded;
 no CPU sprite raster is supplied. These remain correctness checks, not GPU timings.
 
-`--mode7-smoke` checks 193 exact comparisons per device in Debug and Release,
+`--mode7-smoke` checks 241 exact comparisons per device in Debug and Release,
 including signed matrix/offset extremes, transparent overflow, character-zero fill,
 disabled background, OBJ composition and ordered-layer composition. Projection and
 interleaved tile/character sampling execute on GPU from raw memory/registers. These
 comparisons establish software-reference parity, not independent cartridge fidelity.
-Mixed-mode gameplay HUD/floor bands remain pending.
+This includes 48 mixed-mode gameplay HUD/floor cases. Physical scanline clipping
+keeps projection coordinates intact; the floor composites from backdrop with its
+own BG/OBJ ordering, and HUD color zero is opaque. Retail scene-matrix coverage
+and overlays/effects on these bands remain to be verified as the backend expands.
 
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the

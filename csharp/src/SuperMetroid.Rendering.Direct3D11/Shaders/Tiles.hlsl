@@ -11,7 +11,7 @@ cbuffer TileParameters : register(b0)
     uint AddB, ObjectCount, ObjectSelection, Reserved3;
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
-    uint FillCharacterZero;
+    uint FillCharacterZero, FirstScanline, EndScanline;
 };
 StructuredBuffer<uint> Memory : register(t0);
 RWTexture2D<uint> Output : register(u0);
@@ -49,6 +49,7 @@ uint Palette(uint index)
 void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
+    if (id.y < FirstScanline || id.y >= EndScanline) return;
     if (Operation == OpMode7)
     {
         int relativeX = (int)id.x + OffsetX - CenterX;

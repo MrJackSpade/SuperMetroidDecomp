@@ -10,7 +10,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -24,13 +24,16 @@ public sealed partial class D3D11FrameRenderer
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop);
         bool needsObjects = false;
-        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer;
+        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer;
         if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, objectCount: (uint)scene.Memory.ModeledSpriteCount,
             objectSelection: scene.ObjectSelection);
         foreach (RenderLayer layer in scene.Layers)
         {
             switch (layer)
             {
+                case Mode7GameplayRenderLayer gameplay:
+                    DispatchMode7Gameplay(gameplay);
+                    break;
                 case Mode7RenderLayer mode7:
                     DispatchMode7(mode7.Registers);
                     break;
@@ -64,22 +67,23 @@ public sealed partial class D3D11FrameRenderer
     private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,
         uint x = 0, uint y = 0, uint width = 32, uint height = 32, uint priority = 0,
         uint transparentZero = 1, uint level = 15, uint red = 0, uint green = 0, uint blue = 0,
-        uint objectCount = 0, uint objectSelection = 0)
+        uint objectCount = 0, uint objectSelection = 0, uint firstScanline = 0, uint endScanline = 224)
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
-        // a short managed array. Only the first sixteen words are used by Tiles.hlsl.
+        // a short managed array. The trailing header words supply scanline clipping.
         var data = new uint[D3D11ShaderLayout.SolidConstantWords];
         data[0] = (uint)operation; data[1] = map; data[2] = characters; data[3] = x;
         data[4] = y; data[5] = width; data[6] = height; data[7] = priority;
         data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
         data[13] = objectCount; data[14] = objectSelection;
+        data[25] = firstScanline; data[26] = endScanline;
         fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
         owner.Context.Dispatch(32, 28, 1);
     }
 
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
-    private unsafe void DispatchMode7(Mode7RenderRegisters registers)
+    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
@@ -90,6 +94,7 @@ public sealed partial class D3D11FrameRenderer
         data[20] = registers.CenterX; data[21] = registers.CenterY;
         data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
         data[24] = registers.FillOutsideWithCharacterZero ? 1 : 0;
+        data[25] = firstScanline; data[26] = endScanline;
         fixed (int* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
         owner.Context.Dispatch(32, 28, 1);
     }

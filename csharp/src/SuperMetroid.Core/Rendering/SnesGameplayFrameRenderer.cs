@@ -1361,15 +1361,15 @@ public static partial class SnesGameplayFrameRenderer
 
     internal static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
     {
-        // `$88:8709-$8716` loads COLDATA component seven when the room has revealable
-        // blocks, and `$88:817B/$81A4` selects addition followed by SNES half-color math.
+        // This fixed-color operation applies only where half-color math is enabled;
+        // window/subscreen selection is the compositor's responsibility.
         // All compositor colors originated as expanded BGR555, so reducing with `>> 3`,
-        // saturating in five-bit space, halving, and expanding again is lossless here.
-        const int FixedComponent = 7;
+        // halving the full sum BEFORE saturation, and expanding again preserves the carry.
+        const int FixedComponent = XrayWindowRenderDefinitions.FixedColorComponent;
         return new Rgba32(
-            ExpandFiveBit((byte)(Math.Min(31, (source.R >> 3) + FixedComponent) >> 1)),
-            ExpandFiveBit((byte)(Math.Min(31, (source.G >> 3) + FixedComponent) >> 1)),
-            ExpandFiveBit((byte)(Math.Min(31, (source.B >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)Math.Min(31, ((source.R >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)Math.Min(31, ((source.G >> 3) + FixedComponent) >> 1)),
+            ExpandFiveBit((byte)Math.Min(31, ((source.B >> 3) + FixedComponent) >> 1)),
             source.A);
     }
 

@@ -13,11 +13,14 @@ internal static class XrayWindowTests
             return new(new byte[SnesPpuLayout.VramByteCount], palette,
                 new byte[SnesPpuLayout.OamUploadByteCount], 0);
         }
-        var parent = Memory(0x1234);
         var child = new LayeredRenderSnapshot(Memory(0x6A93), Array.Empty<RenderLayer>(), 0, 15);
         int count = 0;
+        // Cover every five-bit input, particularly bright components whose addition
+        // overflows five bits. CPU/GPU parity alone cannot detect a shared wrong equation.
+        foreach (int component in Enumerable.Range(0, 32))
         foreach (var endpoints in new[] { (0, 255), (255, 0), (0, 0), (255, 255), (31, 192) })
         {
+            var parent = Memory((ushort)(component | component << 5 | component << 10));
             var lines = Enumerable.Repeat(new XrayWindowLine((byte)endpoints.Item1, (byte)endpoints.Item2), 224).ToArray();
             // A slanted interval exercises per-line copies, including both inclusive endpoints.
             lines[80] = new(17, 36);
@@ -38,7 +41,9 @@ internal static class XrayWindowTests
                 Rgba32 p = baseline[index];
                 byte Dim(byte value)
                 {
-                    int component = Math.Min(31, (value >> 3) + 7) / 2;
+                    // The PPU retains the carry from addition for half-color math;
+                    // saturation happens after division, not before it.
+                    int component = Math.Min(31, ((value >> 3) + 7) / 2);
                     return (byte)(component * 8 + component / 4);
                 }
                 expected[index] = x >= line.Left && x <= line.Right ? revealed[index]

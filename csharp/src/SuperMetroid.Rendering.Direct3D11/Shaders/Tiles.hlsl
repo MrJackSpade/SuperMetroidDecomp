@@ -77,7 +77,8 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpXrayHalfColor)
     {
         uint pixel = Output[id.xy];
-        uint3 c = min(31, (Unpack(pixel) >> 3) + 7) >> 1;
+        // Keep the addition carry until after halving, as the PPU does.
+        uint3 c = min(31, ((Unpack(pixel) >> 3) + 7) >> 1);
         Output[id.xy] = Pack((c << 3) | (c >> 2), pixel >> 24);
         return;
     }

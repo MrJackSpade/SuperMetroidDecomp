@@ -400,11 +400,11 @@ static void VerifySamusXray()
         layer1Y: 0);
     AssertEqual(248, xrayFrame[184 * 256 + 255].R,
         "X-ray horizontal center remains inside window");
-    AssertEqual(123, xrayFrame[184 * 256].R,
+    AssertEqual(156, xrayFrame[184 * 256].R,
         "X-ray opposite half-plane receives outside half color math");
     AssertEqual(248, xrayFrame[174 * 256 + 142].R,
         "X-ray upper tangent boundary is inclusive after 8.8 truncation");
-    AssertEqual(123, xrayFrame[174 * 256 + 141].R,
+    AssertEqual(156, xrayFrame[174 * 256 + 141].R,
         "X-ray pixel beyond upper tangent boundary is outside");
     AssertEqual(248, xrayFrame[194 * 256 + 142].R,
         "X-ray lower tangent boundary mirrors upper boundary");

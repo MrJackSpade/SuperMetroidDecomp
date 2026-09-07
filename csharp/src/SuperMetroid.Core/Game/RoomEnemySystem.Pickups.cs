@@ -63,6 +63,14 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot enemy,
         ushort deathAnimation)
     {
+        // $A0:A3AF installs the dropped-grapple function before clearing the enemy.
+        // Equality is deliberate: this is not a general test for any set grapple bit.
+        if (enemy.AiHandlerBits == 1)
+        {
+            if (_samusForEnemyDrops is null)
+                throw new InvalidOperationException("Grapple enemy death requires the live Samus owner.");
+            _samusForEnemyDrops.Grapple.Phase = GrapplePhase.Dropped;
+        }
         if (deathAnimation >= 5)
             deathAnimation = 0;
 

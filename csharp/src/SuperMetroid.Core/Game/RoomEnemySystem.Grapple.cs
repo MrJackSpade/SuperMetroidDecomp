@@ -105,10 +105,11 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case GrappleKill:
-                enemy.Health = 0;
-                enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+                // $A0:9FC4 always selects explosion variant zero. The shared death
+                // routine preserves the actor's position/drop identity and any respawn
+                // marker; directly deleting the enemy loses the complete visual tail.
+                StartGenericEnemyDeath(enemy, deathAnimation: 0);
                 enemy.AiHandlerBits = 0;
-                EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
                 return true;
 
             case GrappleCancel:

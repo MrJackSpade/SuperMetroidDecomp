@@ -60,10 +60,15 @@ public static partial class SamusGrappleMovement
             throw new InvalidOperationException("A grapple state is already active.");
 
         byte direction = samus.ReadShotDirection(bus);
-        if ((direction & 0xf0) != 0 || direction >= 10)
+        if ((direction & 0xf0) != 0)
         {
-            // Grapple input is normally gated before this initializer. A sentinel or
-            // out-of-range direction means the caller bypassed that pose-level gate.
+            // $9B:C53F-C547 treats ROM sentinel directions as ordinary cancellation,
+            // including a shot arriving while a permitted posture is transitioning.
+            grapple.Phase = GrapplePhase.CancelPending;
+            return;
+        }
+        if (direction >= 10)
+        {
             throw new InvalidOperationException(
                 $"Pose ${samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
         }

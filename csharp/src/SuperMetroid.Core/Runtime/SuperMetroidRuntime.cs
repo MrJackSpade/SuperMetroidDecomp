@@ -2110,20 +2110,20 @@ public sealed partial class SuperMetroidRuntime
                         Plms);
                     grappleOwnsMovement = true;
                 }
-                else if (DebugGrappleItemSelected &&
+                else if (!TimeIsFrozen &&
+                         (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
                          (Controller1.NewlyPressed & (ushort)SnesButton.X) != 0)
                 {
-                    // This is the one untranslated producer seam: the real HUD item index
-                    // would choose GrappleBeamHandler instead of ordinary beam/bomb fire.
-                    // Everything after selection is the bank-$9B/$94 implementation.
+                    // Normal HUD item four now reaches the same bank-$9B actor as the
+                    // diagnostic entry point, after bank-$90's movement-type admission.
                     SamusGrappleMovement.BeginFiring(_addressSpace, Samus);
                     LastGrappleMovement = new GrappleMovementResult(
-                        GrapplePhase.Firing,
+                        Samus.Grapple.Phase,
                         Released: false,
                         ReleaseQueued: false,
-                        Fired: true,
+                        Fired: Samus.Grapple.Phase == GrapplePhase.Firing,
                         Connected: false,
-                        CancelQueued: false,
+                        CancelQueued: Samus.Grapple.Phase == GrapplePhase.CancelPending,
                         Cancelled: false,
                         OwnsMovement: false);
                 }

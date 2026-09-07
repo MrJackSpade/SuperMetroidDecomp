@@ -3,7 +3,7 @@
 Captured from the player's live slots on 2026-09-06 without loading, advancing,
 replacing or rebuilding the running game. These reports have only been logged;
 The original captures remain unchanged. The #329 investigation below records subsequent
-reproduction and diagnosis; #330 still requires investigation.
+reproduction and diagnosis for both reports.
 
 - #329: `slot-0.smstate`, Crocomire sprite corruption.
 - #330: `slot-1.smstate`, Grapple Beam not working.
@@ -50,3 +50,20 @@ phases on both hardware and WARP. Fresh-runtime frames are not exact-state compa
 their purpose is to reproduce the same faulty register selection and verify the new code.
 The old capture and corrected example were visually inspected; player validation remains
 required before closing #329.
+
+## #330 reproduction and fix
+
+Run the same inspector command with slot `1`. The captured room is AC2B, Samus (39,155),
+camera (0,11), equipment word 7105. Its initial HUD selection is Power Bomb (3), not
+Grapple. The inspector applies an ordinary Select edge to choose Grapple (4), then holds
+Fire for 60 frames. The pinned build stays Inactive throughout.
+
+Current production independently reproduced the same missing dispatch: the start branch
+required `DebugGrappleItemSelected`, regardless of the normal selected HUD item. Normal
+item four now enters the existing bank-$9B actor after bank-$90 movement-type admission.
+ROM direction sentinels select cancellation as at $9B:C53F, rather than throwing.
+
+DebugRunner `--grapple-hud-audit 'Super Metroid.smc'` checks normal Select/Fire/drawing/release
+in the reported room, then connects to its actual ceiling grapple tiles. It also checks
+standing/aim/posture admission and ball/spin/forward-facing/input-lock exclusion without
+turning on the diagnostic selector. Player validation remains required.

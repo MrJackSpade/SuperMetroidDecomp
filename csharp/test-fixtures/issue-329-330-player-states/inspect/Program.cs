@@ -52,6 +52,15 @@ try
     foreach (var enemy in runtime.Enemies.Slots.Where(e => e.EnemyDefinitionPointer != 0))
         Console.WriteLine($"Enemy {enemy.SlotIndex} def={enemy.EnemyDefinitionPointer:X4} xy={enemy.XPosition:X4},{enemy.YPosition:X4} map={enemy.SpritemapPointer:X4} tiles={enemy.VramTilesIndex:X4} palette={enemy.PaletteIndex:X4}");
     Console.WriteLine($"Crocomire phase={runtime.Enemies.Crocomire?.DeathSequenceIndex:X4}");
+    if (slot == 1)
+    {
+        Console.WriteLine($"Grapple before: HUD={runtime.Samus.SelectedHudItem}, equipped={runtime.Samus.EquippedItems:X4}, phase={runtime.Samus.Grapple.Phase}");
+        Step(0);
+        Step(0x2000);
+        Step(0);
+        for (int tick = 0; tick < 60; tick++) Step(0x0040);
+        Console.WriteLine($"Grapple after 60 Fire frames: HUD={runtime.Samus.SelectedHudItem}, phase={runtime.Samus.Grapple.Phase}");
+    }
     if (game.GameState == SuperMetroidGameState.PausedB)
     {
         for (int tick = 0; tick < 30; tick++) Step(0);

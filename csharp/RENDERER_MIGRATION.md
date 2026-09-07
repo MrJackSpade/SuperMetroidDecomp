@@ -7,6 +7,13 @@ remains the migration default. Full qualification is **incomplete**. The accepta
 
 ## Current integration and evidence (September 7, 2026)
 
+Diagnostic failure artifacts are exercised by `ComparisonArtifactTests` in
+`--solid-smoke`: two deliberately wrong pixels verify exact first coordinate,
+inclusive bounds, count and color metadata; expected/actual/difference PNGs match
+the intended images; the saved packet is byte-identical to the input and replays
+exactly on GPU. Debug/Release hardware/WARP pass. Only test-created artifact
+directories are removed after success; genuine comparison failures retain theirs.
+
 The UI owns input/recording, game stepping, snapshot creation and managed audio
 generation. The existing waveOut worker owns native audio submission. A separate
 GPU thread owns device/context, composition, swapchain and presentation. Its bounded

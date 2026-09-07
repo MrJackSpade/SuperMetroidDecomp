@@ -46,6 +46,7 @@ try
         ShaderFailureTests.Run(device);
         try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException("Readback before submission was accepted.");
+        ComparisonArtifactTests.Run(device, renderer);
         RenderFrameSnapshot? last = null;
         for (int i = 0; i < 64; i++)
         {

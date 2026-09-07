@@ -33,7 +33,8 @@ internal static class CrocomireAudit
         VerifyInitializationAndWake(bus, room, assets);
         VerifyInstructionMovementAndProjectile(bus, room, assets);
         VerifyMouthAndPowerBombReactions(bus, room, assets);
-        VerifyCompleteDeathSequence(bus, room, assets);
+        foreach (var radii in new (byte X, byte Y)[] { (0, 0), (0, 1), (1, 0), (1, 1) })
+            VerifyCompleteDeathSequence(bus, room, assets, radii.X, radii.Y);
 
         Console.WriteLine(
             "Crocomire audit passed: retail body/tongue records, palette/list setup, " +
@@ -355,7 +356,9 @@ internal static class CrocomireAudit
     private static void VerifyCompleteDeathSequence(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
-        CartridgeRoomAssets assets)
+        CartridgeRoomAssets assets,
+        byte probeXRadius,
+        byte probeYRadius)
     {
         LoadedCrocomire loaded = Load(bus, room, assets);
         CrocomireEnemyState state = RequireState(loaded);
@@ -386,6 +389,7 @@ internal static class CrocomireAudit
             loaded.Enemies.CrocomirePlmRequests.Select(request => request.Header));
         bool sawBridgeFragment = false;
         bool sawSpikeWallPiece = false;
+        bool probedSpikeWallContact = false;
         bool sawNonUniformMeltingScroll = false;
         bool sawItemDrop = false;
         bool sawDeathMusic = false;
@@ -403,6 +407,26 @@ internal static class CrocomireAudit
 
             Step(loaded);
             visited.Add(state.DeathSequenceIndex);
+            if (state.DeathSequenceIndex is >= CrocomireDeathPhases.RumbleHiddenWall and <= CrocomireDeathPhases.InertCorpse)
+            {
+                // Probe actual extended contact geometry throughout the fake second
+                // phase, not only the final defeated bit. Preserve the player position
+                // driving the state graph after each independent collision sample.
+                ushort savedX = loaded.Samus.XPosition, savedY = loaded.Samus.YPosition;
+                for (int x = -96; x <= 96; x += 16)
+                for (int y = -64; y <= 64; y += 16)
+                {
+                    loaded.Samus.XPosition = unchecked((ushort)(state.Body.XPosition + x));
+                    loaded.Samus.YPosition = unchecked((ushort)(state.Body.YPosition + y));
+                    loaded.Samus.Health = 999;
+                    loaded.Samus.InvincibilityTimer = 0;
+                    loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0, loaded.Level);
+                    if (loaded.Samus.Health != 999 || loaded.Samus.InvincibilityTimer != 0)
+                        throw new InvalidDataException($"Crocomire fake phase {state.DeathSequenceIndex:X2} hurts Samus at offset {x}/{y}, frame {frame}.");
+                }
+                loaded.Samus.XPosition = savedX;
+                loaded.Samus.YPosition = savedY;
+            }
             foreach (CrocomirePlmRequest request in loaded.Enemies.CrocomirePlmRequests)
                 publishedPlmHeaders.Add(request.Header);
             sawItemDrop |= loaded.Enemies.LastCrocomireDropRequest is not null;
@@ -413,11 +437,35 @@ internal static class CrocomireAudit
             // changing typed debugger state.
             oam.BeginFrame();
             loaded.Enemies.DrawLayers(oam, 0x0400, 0, firstLayer: 0, lastLayer: 7);
+            var shard = !probedSpikeWallContact ? loaded.Enemies.EnemyProjectiles.FirstOrDefault(
+                projectile => projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.CrocomireSpikeWallPieces) : null;
+            ushort playerX = loaded.Samus.XPosition, playerY = loaded.Samus.YPosition;
+            if (shard is not null)
+            {
+                // Native shard radii are zero/zero. The other three constructed
+                // variants test each early-out independently and a collidable control.
+                shard.XRadius = probeXRadius;
+                shard.YRadius = probeYRadius;
+                loaded.Samus.XPosition = shard.XPosition;
+                loaded.Samus.YPosition = shard.YPosition;
+                loaded.Samus.Health = 999;
+                loaded.Samus.InvincibilityTimer = 0;
+            }
             loaded.Enemies.StepEnemyProjectiles(
                 loaded.Level,
                 loaded.Samus,
                 cameraX: 0x0400,
                 cameraY: 0);
+            if (shard is not null)
+            {
+                bool expectedHit = probeXRadius != 0 && probeYRadius != 0;
+                if (loaded.Samus.Health != 999 || (loaded.Samus.InvincibilityTimer != 0) != expectedHit)
+                    throw new InvalidDataException($"Crocomire spike debris radii {probeXRadius}/{probeYRadius}, expected hit={expectedHit}: health={loaded.Samus.Health}, invincibility={loaded.Samus.InvincibilityTimer}.");
+                loaded.Samus.InvincibilityTimer = 0;
+                probedSpikeWallContact = true;
+                loaded.Samus.XPosition = playerX;
+                loaded.Samus.YPosition = playerY;
+            }
 
             sawBridgeFragment |= loaded.Enemies.EnemyProjectiles.Any(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.CrocomireBridgeCrumbling);
@@ -449,7 +497,7 @@ internal static class CrocomireAudit
             .All(height => height == 48);
         if (frame == maximumFrames || state.DeathSequenceIndex != 0x0052 ||
             missingStates.Length != 0 || missingHeaders.Length != 0 ||
-            !sawBridgeFragment || !sawSpikeWallPiece || !sawNonUniformMeltingScroll ||
+            !sawBridgeFragment || !sawSpikeWallPiece || !probedSpikeWallContact || !sawNonUniformMeltingScroll ||
             !allColumnsMelted || !sawItemDrop || !sawDeathMusic ||
             !loaded.IsMiniBossDefeated())
         {
@@ -495,6 +543,7 @@ internal static class CrocomireAudit
             system.NextRandom,
             system.SetRandomNumber,
             readRandomNumber: () => system.RandomNumber,
+            setRoomScrollState: assets.Scrolls.SetStorage,
             level: assets.LevelData,
             samus: samus,
             cameraX: 0x0400,

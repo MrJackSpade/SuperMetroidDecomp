@@ -489,7 +489,7 @@ public sealed partial class RoomEnemySystem
         }
 
         // Native gameplay runs `$86:868B` for every projectile first, then enters the
-        // separate `$A0:A306` Samus-collision pass. That pass samples invincibility and
+        // separate `$A0:9894` Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
         // not abort the remaining descending-slot scan. This distinction is observable for
         // Puromi/Nuclear Waffle, whose four persistent body links begin co-located.
@@ -1362,10 +1362,13 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
-        // `$A0:A306` already made the pass-level invincibility/contact-damage decision.
+        // `$A0:9894` already made the pass-level invincibility/contact-damage decision.
         // Do not re-read the timer here: the first hit writes it, but the original loop
         // deliberately continues testing the other projectile slots in this same pass.
-        if (!projectile.CanDamageSamus)
+        // $A0:98C7-98DB skips either zero radius before overlap testing. A zero
+        // radius is not a point-shaped hazard: decorative wall shards use it to
+        // remain harmless even while passing straight through Samus's body.
+        if (!projectile.CanDamageSamus || projectile.XRadius == 0 || projectile.YRadius == 0)
             return null;
 
         int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.XPosition)));

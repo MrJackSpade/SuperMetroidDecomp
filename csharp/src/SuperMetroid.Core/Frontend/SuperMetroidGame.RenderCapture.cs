@@ -133,8 +133,9 @@ public sealed partial class SuperMetroidGame
     private void PublishIntro(IntroCinematicState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        if (captureIdentity is { } identity && scene.CaptureTranslatedRenderSnapshot() is { } snapshot)
-            capturedDisplay = new(identity, snapshot);
+        if (captureIdentity is { } identity)
+            capturedDisplay = new(identity, scene.CaptureTranslatedRenderSnapshot()
+                ?? throw new InvalidOperationException("Intro publication omitted its render snapshot."));
         else lastPixels = scene.Render();
     }
 
@@ -144,8 +145,9 @@ public sealed partial class SuperMetroidGame
         // The diagnostic no-render mode deliberately retains the prior display. Do not
         // materialize a stored packet simply because this simulation-only caller steps.
         if (!renderGameplayFrames) return;
-        if (captureIdentity is { } identity && GameplayDisplayCapture.TryCaptureFrame(activeRuntime) is { } packet)
-            capturedDisplay = new(identity, packet);
+        if (captureIdentity is { } identity)
+            capturedDisplay = new(identity, GameplayDisplayCapture.TryCaptureFrame(activeRuntime)
+                ?? throw new InvalidOperationException("Gameplay publication omitted its render snapshot."));
         else lastPixels = SuperMetroidRuntimeFrameRenderer.Render(activeRuntime);
     }
 
@@ -168,7 +170,8 @@ public sealed partial class SuperMetroidGame
 /// <summary>
 /// Explicit staged output: Snapshot is GPU-ready data for extracted scenes; otherwise
 /// Frame.Pixels contains legacy raster output. This distinction must remain visible in
-/// backend coverage/telemetry. No normal host has been switched to this API yet.
+/// backend coverage/telemetry. The normal desktop uses captured output; legacy
+/// callers can still explicitly request raster output through Step.
 /// </summary>
 public readonly record struct CapturedFrontendFrame(FrontendFrame Frame, RenderFrameSnapshot? Snapshot)
 {

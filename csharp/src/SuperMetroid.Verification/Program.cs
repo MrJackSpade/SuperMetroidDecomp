@@ -47,6 +47,7 @@ if (args is ["--xray-window-geometry"])
 }
 if (args is ["--xray-reveal"])
 {
+    VerifyXrayRoomDisplayRules();
     VerifyXrayRevealTable();
     VerifyXrayExtensions();
     VerifyXrayTilemap();
@@ -202,6 +203,7 @@ VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
 VerifyXrayInput();
 VerifyXrayWindowGeometry();
+VerifyXrayRoomDisplayRules();
 VerifyXrayRevealTable();
 VerifyXrayExtensions();
 VerifyXrayTilemap();

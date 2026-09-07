@@ -40,7 +40,7 @@ Current GPU comparisons against software/legacy output include:
 | Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
 | Room publications | 78 frames plus retained checks across Landing Site, Parlor, Blue Brinstar elevator room, Green Brinstar shaft, Morph Ball room and Ceres scientist room; 13 runtime ticks each |
 | Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
-| Kraid rise/growth/death | Real incoming door and runtime rise: 105 samples/seven AI states; collision-triggered growth: 95/eight with camera/BG2 priority handoff; lethal collision-triggered death: 97/13 with sinking, fade and four BG3 restore assertions; exits remain uncovered |
+| Kraid encounter/exits | Real incoming door and rise: 105 samples/seven AI states; collision-triggered growth: 95/eight with camera/BG2 priority handoff; death: 97/13 with sinking, fade and four BG3 restore assertions; left/right exits: 104 frames each including 63 scroll frames, with defeated-room reload before the right exit |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
 These are rendering-equivalence checks, not new claims of cartridge correctness.

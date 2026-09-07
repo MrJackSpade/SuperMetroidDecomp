@@ -24,6 +24,13 @@ internal static class RetailDoorCaptureTests
                 left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0);
             runtime.Samus!.Kinematics.SetXFixed(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed);
             runtime.Samus.Kinematics.SetYFixed(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed);
+            VerifyTransition(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
+        }
+    }
+
+    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer,
+        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
+    {
             PublishDoor(runtime, bus, door);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
@@ -37,12 +44,11 @@ internal static class RetailDoorCaptureTests
                 var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: door {door:X4}, left={left}, frame={frames}, phase={transition.Phase}");
+                    $"{device.Kind}: door {door:X4}, {context}, frame={frames}, phase={transition.Phase}");
             }
             if (transition.IsActive || scrollFrames < 60 || runtime.ActiveDoor?.DestinationRoomPointer != destination)
-                throw new InvalidOperationException($"Door fixture missed complete scrolling/destination: left={left}, scroll={scrollFrames}.");
-            Console.WriteLine($"{device.Kind}: {(left ? "left" : "right")} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
-        }
+                throw new InvalidOperationException($"Door fixture missed complete scrolling/destination: {context}, scroll={scrollFrames}.");
+            Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }
 
     private static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)

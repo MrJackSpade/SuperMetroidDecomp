@@ -5,6 +5,7 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../SuperMetroid.DebugRunner/KraidAuditDefinitions.cs" Link="Fixtures/KraidAuditDefinitions.cs" />
     <Compile Include="../SuperMetroid.DebugRunner/DoorTransitionAuditDefinitions.cs" Link="Fixtures/DoorTransitionAuditDefinitions.cs" />
     <Content Include="../../test-fixtures/issue-321-tile-byte-selection/frame.smframe" Link="fixtures/tile-byte-selection.smframe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Compile Include="../SuperMetroid.Desktop/DebuggerObjectGraphSerializer.cs" Link="HostState/DebuggerObjectGraphSerializer.cs" />

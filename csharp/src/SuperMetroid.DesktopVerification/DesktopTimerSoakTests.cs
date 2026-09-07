@@ -10,7 +10,7 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class Program
 {
-    private static async Task RunDesktopTimerSoak(int seconds)
+    private static async Task RunDesktopTimerSoak(int seconds, bool visible = false)
     {
         if (seconds is < 5 or > 300) throw new ArgumentOutOfRangeException(nameof(seconds));
         var results = new List<object>();
@@ -40,6 +40,8 @@ internal static partial class Program
             {
                 await control.InitializeRendererAsync();
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
+                string adapter = await worker.Ready;
+                if (visible) VisibleSoakWindow.ShowWithoutActivation(form.Handle);
                 var output = Field<WaveOutAudioDevice>(control, "audioDevice");
                 counter.EmulatedFrameMeasured += Measure;
                 ushort startFrame = game.FrameNumber;
@@ -63,6 +65,7 @@ internal static partial class Program
                 // Take health before SetPlaying(false) intentionally resets the native queue.
                 var health = output.QueueHealth;
                 var renderer = worker.CaptureTimings();
+                if (visible) Check(worker.PresentedFrames > 0, "visible soak produced no successful Present calls");
                 Call(control, "SetPlaying", false);
                 counter.EmulatedFrameMeasured -= Measure;
                 Check(unchecked((ushort)(game.FrameNumber - startFrame)) == samples.Count, "desktop frame/timing count mismatch");
@@ -70,7 +73,8 @@ internal static partial class Program
                 double Percentile(double p) => samples[(int)Math.Ceiling(samples.Count * p) - 1];
                 results.Add(new { Paused = paused, Seconds = elapsed, Frames = samples.Count, Fps = samples.Count / elapsed,
                     ProducerP50Ms = Percentile(.5), ProducerP95Ms = Percentile(.95), ProducerP99Ms = Percentile(.99),
-                    Audio = health, Renderer = renderer, worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
+                    Adapter = adapter, Visible = visible, Audio = health, Renderer = renderer,
+                    worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
                 Console.WriteLine($"Desktop timer paused={paused}: {samples.Count / elapsed:F3} fps, p95={Percentile(.95):F3}ms, drains={health.EmptyBeforeRefill}.");
             }
             finally
@@ -84,7 +88,11 @@ internal static partial class Program
         string reportDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-performance", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(reportDirectory);
         string report = Path.Combine(reportDirectory, "desktop-timer-soak.json");
-        File.WriteAllText(report, JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; hidden HWND, not visible presentation.",
+        File.WriteAllText(report, JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
+            (visible ? "visible nonactivating HWND; successful Present is not proof of RDP delivery." : "hidden HWND, not visible presentation."),
+            OperatingSystem = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
+            Runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
+            Processor = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
             TimestampUtc = DateTimeOffset.UtcNow, CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
             DesktopBuild = typeof(PlayableGameControl).Module.ModuleVersionId, Results = results },
             new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
@@ -113,4 +121,30 @@ internal static partial class Program
         for (int warmup = 0; warmup < 120; warmup++) Step(0);
         new DebuggerSaveStateStore(rom, bus.Rom).Save(0, bus, game, audio.Player);
     }
+}
+
+/// <summary>Opt-in diagnostic display; does not focus the game or initialize its renderer twice.</summary>
+internal static partial class VisibleSoakWindow
+{
+
+    internal static void ShowWithoutActivation(nint window)
+    {
+        // The renderer was explicitly initialized while hidden. Native showing avoids
+        // GameForm.OnShown's second initialization and leaves foreground input alone.
+        ShowWindow(window, VisibleSoakWindowCommands.ShowNoActivate);
+        if (!IsWindowVisible(window)) throw new InvalidOperationException("Could not show visible soak window.");
+    }
+
+    [System.Runtime.InteropServices.LibraryImport("user32.dll")]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static partial bool ShowWindow(nint window, int command);
+    [System.Runtime.InteropServices.LibraryImport("user32.dll")]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static partial bool IsWindowVisible(nint window);
+}
+
+internal static class VisibleSoakWindowCommands
+{
+    /// <summary>WinUser.h SW_SHOWNOACTIVATE: show at the current size without activating.</summary>
+    internal const int ShowNoActivate = 4;
 }

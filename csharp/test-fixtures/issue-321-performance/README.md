@@ -70,3 +70,17 @@ This establishes production-timer independence under hidden presentation load. V
 presentation, whole-run GPU timing, complete scene coverage, and full cross-backend
 state/PCM parity remain separate gates; no renderer-default change is justified by
 these results alone.
+
+## Opt-in visible production timer run
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-visible 300
+```
+
+This opens a nonactivating window for each of the same two scenes, with isolated
+state files and muted real audio output. Keep it unobscured; do not interact with
+the controller during measurement. It requires at least one successful Present
+per scene and records adapter, OS/runtime and CPU identity in the report. Successful
+Present calls still do not measure frames delivered to an RDP client. The initial
+implementation is prepared but **not yet visibly executed/qualified**. The hidden
+five-second regression smoke passes; do not substitute that for the visible gate.

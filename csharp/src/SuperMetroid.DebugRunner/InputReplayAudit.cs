@@ -61,6 +61,7 @@ internal static class InputReplayAudit
         bool previousPowerBombSlotActive = false;
         bool previousPowerBombDamagingRadius = false;
         SuperMetroidRuntime? lastRuntime = null;
+        int wallJumpFrames = 0;
 
         for (int index = 0; index < recording.ControllerInputs.Length; index++)
         {
@@ -73,6 +74,7 @@ internal static class InputReplayAudit
             ushort xRadiusBeforeStep = samusBeforeStep?.Kinematics.XRadius ?? 0;
             ushort yRadiusBeforeStep = samusBeforeStep?.Kinematics.YRadius ?? 0;
             byte? poseBeforeStep = samusBeforeStep?.Pose;
+            if (poseBeforeStep is byte wallPose && SamusState.IsWallJumpPose(wallPose)) wallJumpFrames++;
             ushort? selectedHudItemBeforeStep = samusBeforeStep?.SelectedHudItem;
             FrontendFrame frontend;
             try
@@ -107,6 +109,11 @@ internal static class InputReplayAudit
             lastRuntime = runtime;
             if (runtime is not null) movingExplosions.Observe(index, runtime.ActiveRoom?.Pointer, runtime.Projectiles);
             SamusState? samus = runtime?.Samus;
+            if (poseBeforeStep is byte beforePose && SamusState.IsWallJumpPose(beforePose) &&
+                samus is not null && !SamusState.IsWallJumpPose(samus.Pose) && !SamusState.IsSpinJumpPose(samus.Pose))
+                Console.WriteLine($"WALL-JUMP EXIT frame={index} room={runtime!.ActiveRoom?.Pointer:X4} " +
+                    $"pose={beforePose:X2}->{samus.Pose:X2} input={runtime.Controller1.Current:X4} " +
+                    $"landed={runtime.LastAerialSamusMovement?.Landed} ceiling={runtime.LastAerialSamusMovement?.HitCeiling}");
             RidleyEnemyState? ridley = runtime?.Enemies.CeresRidley;
             ushort? room = runtime?.ActiveRoom?.Pointer;
             ushort ceresStatus = runtime?.Enemies.CeresStatus ?? 0;
@@ -350,6 +357,7 @@ internal static class InputReplayAudit
                       $"C=${transform.MatrixC:X4}, center=(${transform.CenterX:X4},${transform.CenterY:X4})"
                     : "inactive"));
         }
+        Console.WriteLine($"Wall-jump audit observed {wallJumpFrames} wall-jump frames.");
         return 0;
     }
 

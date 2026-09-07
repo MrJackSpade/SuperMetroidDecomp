@@ -5,6 +5,18 @@ internal static partial class Program
 {
 static void VerifyGameConfigurationIni()
 {
+    AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Software,
+        SuperMetroidGameOptionsIni.Parse("").Renderer, "renderer migration default");
+    foreach (var selection in Enum.GetValues<SuperMetroid.Core.Rendering.RendererSelection>())
+        AssertEqual(selection, SuperMetroidGameOptionsIni.Parse($"[Video]\nRenderer={selection.ToString().ToLowerInvariant()}").Renderer,
+            "explicit renderer names parse case-insensitively");
+    foreach (string invalid in new[] { "0", "1", "Vulkan", "Software,Auto", "" })
+        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse($"[Video]\nRenderer={invalid}"),
+            "unknown or numeric renderer rejected");
+    AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Video]\nRenderer=Auto\nrenderer=Software"),
+        "duplicate renderer rejected");
+    AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Video]\nReportErrorsToGitHub=true"),
+        "wrong-section renderer key rejected");
     SuperMetroidGameOptions defaults =
         SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents);
     AssertEqual(false, defaults.SkipOpeningCinematic,

@@ -7,6 +7,12 @@ mixed-mode gameplay, color effects, messages and windowed child scenes. Full ret
 scene verification, presentation, desktop selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
+The portable INI contract now accepts `[Video] Renderer=Software|Direct3D11|Auto`
+(case-insensitive names; numbers, combinations, duplicates and unknown keys fail).
+Software remains the temporary migration default. The current desktop explicitly
+rejects the other two selections until its GPU lifecycle wiring is installed; the
+setting is not silently ignored. Existing local INI files are unchanged.
+
 `D3D11FrameRenderer.Render` submits composition without readback or staging allocation.
 `Readback` is an explicit diagnostic operation; `RenderForReadback` combines them for
 comparison tests. Staging storage is allocated lazily, so child scenes and future

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -13,6 +14,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed record SuperMetroidGameOptions
 {
+    /// <summary>Host renderer selection. Software remains the migration default until GPU desktop integration is verified.</summary>
+    public RendererSelection Renderer { get; init; } = RendererSelection.Software;
     /// <summary>
     /// Skips the story sequence between accepting the options screen and arriving at Ceres.
     /// </summary>
@@ -101,6 +104,11 @@ public static class SuperMetroidGameOptionsIni
         "; Final host gain after SNES mixing; integer from 0 through 100\r\n" +
         "MasterVolumePercent=100\r\n" +
         "\r\n" +
+        "[Video]\r\n" +
+        "; Software | Direct3D11 | Auto; GPU desktop integration is still in progress\r\n" +
+        "; Non-Software selections currently fail explicitly in the desktop host\r\n" +
+        "Renderer=Software\r\n" +
+        "\r\n" +
         "[Diagnostics]\r\n" +
         "; true files recoverable runtime errors through the authenticated GitHub CLI\r\n" +
         "; repeated errors share a stable fingerprint and never create duplicate issues\r\n" +
@@ -121,6 +129,7 @@ public static class SuperMetroidGameOptionsIni
         bool? infiniteAmmo = null;
         MapRevealMode? mapReveal = null;
         bool? audioEnabled = null;
+        RendererSelection? renderer = null;
         int? masterVolumePercent = null;
         bool? reportErrorsToGitHub = null;
         string? githubErrorRepository = null;
@@ -144,6 +153,7 @@ public static class SuperMetroidGameOptionsIni
                 currentSection = line[1..^1].Trim();
                 if (!currentSection.Equals("Game", StringComparison.OrdinalIgnoreCase) &&
                     !currentSection.Equals("Audio", StringComparison.OrdinalIgnoreCase) &&
+                    !currentSection.Equals("Video", StringComparison.OrdinalIgnoreCase) &&
                     !currentSection.Equals("Diagnostics", StringComparison.OrdinalIgnoreCase))
                     throw Invalid(sourceName, lineNumber, $"unknown section [{currentSection}]");
                 continue;
@@ -157,6 +167,20 @@ public static class SuperMetroidGameOptionsIni
 
             string key = line[..equals].Trim();
             string value = line[(equals + 1)..].Trim();
+            if (currentSection.Equals("Video", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!key.Equals(nameof(SuperMetroidGameOptions.Renderer), StringComparison.OrdinalIgnoreCase))
+                    throw Invalid(sourceName, lineNumber, $"unknown [Video] option '{key}'");
+                if (renderer.HasValue) throw Invalid(sourceName, lineNumber, "duplicate [Video] Renderer option");
+                renderer = value.ToUpperInvariant() switch
+                {
+                    "SOFTWARE" => RendererSelection.Software,
+                    "DIRECT3D11" => RendererSelection.Direct3D11,
+                    "AUTO" => RendererSelection.Auto,
+                    _ => throw Invalid(sourceName, lineNumber, "Renderer must be Software, Direct3D11 or Auto")
+                };
+                continue;
+            }
             if (currentSection.Equals("Game", StringComparison.OrdinalIgnoreCase))
             {
                 if (key.Equals(nameof(SuperMetroidGameOptions.SkipOpeningCinematic),
@@ -265,6 +289,7 @@ public static class SuperMetroidGameOptionsIni
             InfiniteAmmo = infiniteAmmo ?? false,
             MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
+            Renderer = renderer ?? RendererSelection.Software,
             MasterVolumePercent = masterVolumePercent ?? 100,
             ReportErrorsToGitHub = reportErrorsToGitHub ?? false,
             GitHubErrorRepository = githubErrorRepository ?? "MrJackSpade/SuperMetroidDecomp",

@@ -62,6 +62,8 @@ public sealed class PlayableGameControl : UserControl
         saveFilePath = Path.ChangeExtension(fullRomPath, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(fullRomPath, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
+        if (gameOptions.Renderer != SuperMetroid.Core.Rendering.RendererSelection.Software)
+            throw new NotSupportedException("Desktop Direct3D11 integration is not enabled yet. Use [Video] Renderer=Software during migration.");
         this.replay = replay;
         this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;

@@ -520,6 +520,13 @@ public sealed partial class PlayableGameControl : UserControl
             ? $"{snapshot.ToDiagnosticText()}{Environment.NewLine}{gameStatus}{errorStatus}"
             : gameStatus + errorStatus;
         statusLabel.ToolTipText += rendererTimingDetail;
+        if (audioDevice is { } outputAudio)
+        {
+            var health = outputAudio.QueueHealth;
+            statusLabel.ToolTipText += $"{Environment.NewLine}Audio queue: managed {health.ManagedQueued}; " +
+                $"native before refill min/max {health.MinimumNativeQueued}/{health.MaximumNativeQueued}; " +
+                $"observed empty refills {health.EmptyBeforeRefill}/{health.RefillObservations} (startup/reset excluded)";
+        }
     }
 
     /// <summary>

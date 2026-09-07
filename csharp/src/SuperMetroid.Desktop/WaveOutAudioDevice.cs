@@ -32,6 +32,8 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
     private ExceptionDispatchInfo? workerFailure;
     private bool prerollRequired = true;
     private bool disposed;
+    private readonly WaveOutQueueHealth queueHealth = new();
+    internal WaveOutQueueHealthSnapshot QueueHealth => queueHealth.Snapshot(pendingFrames.Count);
 
     public WaveOutAudioDevice(
         int sampleRate,
@@ -138,6 +140,12 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
                         // after acquiring the device gate or it could sound after Pause.
                         if (queued.Generation == queueGeneration)
                         {
+                            // Read ownership only on the device owner, never by taking the
+                            // potentially pacing deviceGate from the UI diagnostics path.
+                            int nativeQueued = 0;
+                            foreach (BufferSlot slot in slots)
+                                if (slot.Prepared && !slot.IsDone) nativeQueued++;
+                            queueHealth.Observe(nativeQueued, prerollRequired);
                             PrimeDeviceBeforeFirstFrame();
                             SubmitToDevice(queued.Samples.AsSpan(0, queued.SampleCount));
                         }
@@ -373,6 +381,15 @@ internal sealed partial class WaveOutAudioDevice : IDisposable
         {
             lock (deviceGate)
                 return slots.Count(slot => slot.Prepared);
+        }
+    }
+
+    /// <summary>Diagnostic-only ownership probe; live UI telemetry never waits on the device gate.</summary>
+    internal int NativeQueuedBufferCountForVerification
+    {
+        get
+        {
+            lock (deviceGate) return slots.Count(slot => slot.Prepared && !slot.IsDone);
         }
     }
 

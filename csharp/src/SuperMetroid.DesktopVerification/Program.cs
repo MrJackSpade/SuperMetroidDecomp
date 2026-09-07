@@ -8,7 +8,7 @@ using SuperMetroid.Rendering.Direct3D11;
 internal static partial class Program
 {
     [STAThread]
-    private static void Main()
+    private static void Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
@@ -21,6 +21,13 @@ internal static partial class Program
             started = true;
             try
             {
+                VerifyAudioQueueHealth();
+                if (args is ["--audio-queue"])
+                {
+                    await VerifyNativeAudioQueueHealth();
+                    return;
+                }
+                if (args.Length != 0) throw new ArgumentException("Usage: DesktopVerification [--audio-queue]");
                 await Verify(RendererSelection.Software);
                 await Verify(RendererSelection.Direct3D11);
                 await VerifyFormClose(RendererSelection.Software, duringStartup: false);

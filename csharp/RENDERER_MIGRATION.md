@@ -1,11 +1,89 @@
 # Renderer migration — issue 321
 
-Status: frontend software packet extraction is implemented; isolated D3D11
-solid and tile-background compute paths are verified. Compound gameplay GPU layers, presentation and live
-scheduling remain unimplemented; the desktop still uses software. The acceptance authority is
+Status: all modeled packet layer kinds have GPU implementations, and the desktop
+can select the captured software path or the dedicated Direct3D11 worker. Software
+remains the migration default. Full qualification is **incomplete**. The acceptance authority is
 [issue 321](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/321).
 
-## Inspection baseline
+## Current integration and evidence (September 7, 2026)
+
+The UI owns input/recording, game stepping, snapshot creation and managed audio
+generation. The existing waveOut worker owns native audio submission. A separate
+GPU thread owns device/context, composition, swapchain and presentation. Its bounded
+latest-frame mailbox may replace visuals, never inputs or PCM. Software now consumes
+the same captured packets at display refresh instead of rasterizing every catch-up
+step. Software rendering still runs on the UI; it is the reference backend, not proof
+that a slow software paint cannot affect the current UI-owned producer.
+
+`[Video] Renderer=Direct3D11` selects hardware. `Auto` permits a logged hardware
+startup failure to choose software; it does not suppress runtime/coverage failures.
+Hardware/WARP selection is explicit in the diagnostic renderer. The player INI has
+not been switched. Form closing awaits GPU shutdown before destroying its HWND.
+Restart/load advances host generation independently of saved cartridge counters.
+Captured states can republish a retained display without stepping. Legacy-only
+debugger states require the software selection rather than a fabricated GPU packet.
+
+Current GPU comparisons against software/legacy output include:
+
+| Coverage | Evidence per hardware/WARP device |
+| --- | --- |
+| Tiles, OBJ, Mode 7 | 108 tile, 197 OBJ, 241 Mode-7 comparisons |
+| Color effects, messages, child windows | 254 effect/message and 112 windowed-scene comparisons |
+| Ordinary gameplay | 96 layer-mask/geometry/scanline cases |
+| Title/frontend | 131 title samples and 251 frontend steps |
+| Intro | 275 samples across 34 phases |
+| Ceres/Zebes and game-over | 143 flight/destruction samples and 101 game-over frames |
+| Saved-file maps | 502 frames, six areas, wrapped scroll, zoom, load/cancel |
+| Ending | 444 samples across all three reward branches, repeat-render/cadence checks |
+| Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
+
+These are rendering-equivalence checks, not new claims of cartridge correctness.
+Some gameplay effects have stronger constructed coverage than retail integrated
+coverage. The complete boss/door/elevator/liquid/effect scene matrix remains a gate.
+
+Device removal/reset HRESULTs rebuild resources on the GPU owner, retaining only
+CPU packet data. Tests inject the actual SharpGen failure codes and cover retained
+frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual
+driver reset, monitor/DPI/RDP changes and visible presentation remain unqualified.
+No machine-wide forced GPU reset has been performed.
+
+GPU timestamp queries use a bounded nonblocking ring. The tooltip reports rolling
+p50/p95/p99 CPU composition, display/Present and GPU composition histories, excluding
+60 warmup samples. GPU composition excludes scaling/Present. Audio telemetry counts
+native-empty-before-refill observations, excluding startup/reset; this is not an
+endpoint-reported underrun duration. The real silent waveOut drain/refill test passes.
+
+Ordinary GPU submission allocation fell from 116,760 to zero bytes/frame in the
+focused test (capture/readback excluded). Reproducible unpaced CPU results are in
+`test-fixtures/issue-321-performance`; they are not paced or whole-game results.
+
+Additional commands, run from the repository root:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-file-map
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ending
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300
+```
+
+The last command runs five minutes per scene with a standalone paced producer,
+managed audio, silent real waveOut and a hidden hardware HWND. It deliberately does
+not count as visible-presentation or production-WinForms-clock qualification. Reports
+state that scope and retain PCM counts, queue observations, timings and adapter.
+Its long-run results must be inspected before claiming even that narrower gate.
+
+Still required: full retail scene matrix, complete cross-backend state/PCM evidence,
+visible and production-clock soaks, presentation-inclusive GPU budgeting, automatic
+startup-failure qualification, real recovery/DPI/RDP evidence, portable build/run,
+clean packaging, final documentation and player-validation handoff. Do not close
+#321 or mark its completion goal achieved from the milestones above.
+
+## Historical inspection and incremental notes
+
+The sections below record earlier stages in chronological context. Statements such
+as "not integrated yet" describe that increment, not current status; use the current
+section above and the issue's acceptance checklist for remaining work.
 
 GPU tile increment: packed VRAM/CGRAM upload feeds shader-side 4-bpp and 2-bpp
 decoding, flips, BGSC pages, priority filters and transparency; fixed-color addition

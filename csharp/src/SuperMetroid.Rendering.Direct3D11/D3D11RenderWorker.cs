@@ -21,6 +21,8 @@ public sealed class D3D11RenderWorker
     private long lastConsumedSequence;
     private long retainedRedraws;
     private long lastDrawnSize;
+    private long deviceRecoveries;
+    public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
     private readonly Action? beforeRenderForVerification;
 
     public Task<string> Ready => ready.Task;
@@ -93,61 +95,27 @@ public sealed class D3D11RenderWorker
     {
         try
         {
-            using var device = new D3D11RenderDevice(kind);
-            using var renderer = new D3D11FrameRenderer(device);
-            using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
-            ready.SetResult(device.AdapterDescription);
-            bool suspended = false;
-            bool opportunity = false, wasOccluded = false;
             RenderFrameSnapshot? retained = null;
-            bool redraw = false;
+            bool suspended = false;
+            int consecutiveLosses = 0;
             while (true)
             {
-                (int Width, int Height)? nextSize;
-                lock (lifecycle)
+                // Complete startup even if Stop raced thread entry, so a UI awaiting
+                // Ready is never stranded while simultaneously awaiting shutdown.
+                lock (lifecycle) { if (stopping && ready.Task.IsCompleted) break; }
+                try
                 {
-                    if (stopping) break;
-                    nextSize = resize; resize = null;
+                    RunDevice(window, ref width, ref height, kind, ref retained, ref suspended, ref consecutiveLosses);
+                    break;
                 }
-                if (nextSize is { } size)
+                catch (Exception error) when (ready.Task.IsCompletedSuccessfully &&
+                    D3D11RecoveryPolicy.IsDeviceLoss(error.HResult) &&
+                    consecutiveLosses++ < D3D11RecoveryPolicy.MaximumConsecutiveRecreations)
                 {
-                    suspended = size.Width == 0 || size.Height == 0;
-                    if (!suspended)
-                    {
-                        presenter.Resize(size.Width, size.Height);
-                        width = size.Width; height = size.Height;
-                        redraw = true;
-                    }
+                    // RunDevice's using scopes release every old-device reference before
+                    // recreating the HWND swapchain. Keep only immutable CPU display data.
+                    Console.Error.WriteLine($"GPU device lost; recreating resources (attempt {consecutiveLosses}): {error}");
                 }
-                opportunity |= !suspended && (wasOccluded || presenter.TryAcquireFrameOpportunity());
-                if (!suspended && opportunity)
-                {
-                    var packet = mailbox.TakeLatest();
-                    bool newlyTaken = packet is not null;
-                    if (retained is not null && !mailbox.IsCurrent(retained)) retained = null;
-                    packet ??= redraw || wasOccluded ? retained : null;
-                    if (packet is not null)
-                    {
-                        beforeRenderForVerification?.Invoke();
-                        renderer.Render(packet);
-                        switch (presenter.Present(renderer, packet.Identity, gate))
-                        {
-                            case D3D11PresentationResult.Presented:
-                                opportunity = false; wasOccluded = false; Interlocked.Increment(ref presented); break;
-                            case D3D11PresentationResult.Occluded:
-                                opportunity = false; wasOccluded = true; Interlocked.Increment(ref occluded); break;
-                            case D3D11PresentationResult.StaleGeneration: Interlocked.Increment(ref stale); break;
-                        }
-                        retained = packet;
-                        Interlocked.Exchange(ref lastDrawnSize, ((long)width << 32) | (uint)height);
-                        redraw = false;
-                        if (newlyTaken) Interlocked.Exchange(ref lastConsumedSequence, packet.Identity.Sequence);
-                        else Interlocked.Increment(ref retainedRedraws);
-                    }
-                }
-                // A wake expedites publication/resize/shutdown. This bounded wait is
-                // exclusively on the render owner, never on simulation or audio.
-                wake.WaitOne(wasOccluded ? 100 : 8);
             }
         }
         catch (Exception exception)
@@ -161,5 +129,69 @@ public sealed class D3D11RenderWorker
             lock (lifecycle) { stopping = true; wake.Dispose(); }
             completion.TrySetResult();
         }
+    }
+
+    private void RunDevice(nint window, ref int width, ref int height, D3D11DeviceKind kind,
+        ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
+    {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
+            if (!ready.TrySetResult(device.AdapterDescription)) Interlocked.Increment(ref deviceRecoveries);
+            bool opportunity = false, wasOccluded = false;
+            bool redraw = retained is not null;
+            while (true)
+            {
+                (int Width, int Height)? nextSize;
+                lock (lifecycle)
+                {
+                    if (stopping) break;
+                    nextSize = resize; resize = null;
+                }
+                if (nextSize is { } size)
+                {
+                    suspended = size.Width == 0 || size.Height == 0;
+                    if (!suspended)
+                    {
+                        width = size.Width; height = size.Height;
+                        presenter.Resize(width, height);
+                        redraw = true;
+                    }
+                }
+                opportunity |= !suspended && (wasOccluded || presenter.TryAcquireFrameOpportunity());
+                if (!suspended && opportunity)
+                {
+                    var packet = mailbox.TakeLatest();
+                    bool newlyTaken = packet is not null;
+                    if (retained is not null && !mailbox.IsCurrent(retained)) retained = null;
+                    packet ??= redraw || wasOccluded ? retained : null;
+                    if (packet is not null)
+                    {
+                        // Preserve a just-taken packet even if submission loses the device.
+                        // A newer mailbox packet or generation always supersedes it on retry.
+                        retained = packet;
+                        beforeRenderForVerification?.Invoke();
+                        renderer.Render(packet);
+                        switch (presenter.Present(renderer, packet.Identity, gate))
+                        {
+                            case D3D11PresentationResult.Presented:
+                                opportunity = false; wasOccluded = false; Interlocked.Increment(ref presented); break;
+                            case D3D11PresentationResult.Occluded:
+                                opportunity = false; wasOccluded = true; Interlocked.Increment(ref occluded); break;
+                            case D3D11PresentationResult.StaleGeneration: Interlocked.Increment(ref stale); break;
+                        }
+                        retained = packet;
+                        consecutiveLosses = 0;
+                        Interlocked.Exchange(ref lastDrawnSize, ((long)width << 32) | (uint)height);
+                        redraw = false;
+                        if (newlyTaken || packet.Identity.Sequence > Interlocked.Read(ref lastConsumedSequence))
+                            Interlocked.Exchange(ref lastConsumedSequence, packet.Identity.Sequence);
+                        else Interlocked.Increment(ref retainedRedraws);
+                    }
+                }
+                // A wake expedites publication/resize/shutdown. This bounded wait is
+                // exclusively on the render owner, never on simulation or audio.
+                wake.WaitOne(wasOccluded ? 100 : 8);
+            }
     }
 }

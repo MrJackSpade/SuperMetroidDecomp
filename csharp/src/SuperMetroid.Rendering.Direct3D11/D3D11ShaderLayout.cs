@@ -10,6 +10,8 @@ internal static class D3D11ShaderLayout
     internal const int ScanlineParametersWordOffset = 32;
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
+    internal const string DisplayVertexResourceName = "SuperMetroid.Shaders.DisplayVertex.cso";
+    internal const string DisplayPixelResourceName = "SuperMetroid.Shaders.DisplayPixel.cso";
     internal const int VramPackedWords = Core.Hardware.SnesPpuLayout.VramByteCount / sizeof(uint);
     internal const int OamPackedWordOffset = VramPackedWords + Core.Hardware.SnesPpuLayout.CgramColorCount;
     internal const int PpuMemoryWords = OamPackedWordOffset + Core.Hardware.SnesPpuLayout.OamUploadByteCount / sizeof(uint);

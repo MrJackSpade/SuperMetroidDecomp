@@ -16,6 +16,9 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private ID3D11Texture2D? staging;
     private RenderFrameIdentity? renderedIdentity;
     private readonly ID3D11UnorderedAccessView view;
+    private readonly ID3D11ShaderResourceView displaySource;
+    private readonly ID3D11VertexShader displayVertexShader;
+    private readonly ID3D11PixelShader displayPixelShader;
     private readonly ID3D11Buffer constants;
     private readonly ID3D11ComputeShader tileShader;
     private readonly ID3D11Buffer memoryBuffer;
@@ -34,8 +37,11 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             shader = Own(LoadShader(D3D11ShaderLayout.SolidResourceName));
             tileShader = Own(LoadShader(D3D11ShaderLayout.TileResourceName));
             output = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
-                SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
+                SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.ShaderResource)));
             view = Own(owner.Device.CreateUnorderedAccessView(output));
+            displaySource = Own(owner.Device.CreateShaderResourceView(output));
+            displayVertexShader = Own(owner.Device.CreateVertexShader(LoadShaderBytes(D3D11ShaderLayout.DisplayVertexResourceName)));
+            displayPixelShader = Own(owner.Device.CreatePixelShader(LoadShaderBytes(D3D11ShaderLayout.DisplayPixelResourceName)));
             constants = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.SolidConstantWords * sizeof(uint), BindFlags.ConstantBuffer)));
             memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PpuMemoryWords * sizeof(uint),
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
@@ -125,6 +131,10 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         if (disposed) return;
         owner.VerifyOwner();
         owner.Context.CSSetShader(null);
+        owner.Context.VSSetShader(null!);
+        owner.Context.PSSetShader(null!);
+        owner.Context.PSSetShaderResource(0, null!);
+        owner.Context.PSSetConstantBuffer(0, null!);
         owner.Context.CSSetConstantBuffer(0, null);
         owner.Context.CSSetShaderResource(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
@@ -139,10 +149,13 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         resources.Clear();
     }
     private ID3D11ComputeShader LoadShader(string name)
+        => owner.Device.CreateComputeShader(LoadShaderBytes(name));
+
+    private static byte[] LoadShaderBytes(string name)
     {
         using Stream resource = typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)
             ?? throw new InvalidDataException($"Build-generated shader {name} is missing.");
         using var bytes = new MemoryStream(); resource.CopyTo(bytes);
-        return owner.Device.CreateComputeShader(bytes.ToArray());
+        return bytes.ToArray();
     }
 }

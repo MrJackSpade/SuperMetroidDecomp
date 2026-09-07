@@ -38,11 +38,15 @@ Current GPU comparisons against software/legacy output include:
 | Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
 | Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
+| Room publications | 78 frames plus retained checks across Landing Site, Parlor, Blue Brinstar elevator room, Green Brinstar shaft, Morph Ball room and Ceres scientist room; 13 runtime ticks each |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
 These are rendering-equivalence checks, not new claims of cartridge correctness.
 Some gameplay effects have stronger constructed coverage than retail integrated
 coverage. The complete boss/door/elevator/liquid/effect scene matrix remains a gate.
+The room-publication fixtures use the direct room-load seam, not native incoming
+door setup. They verify publication/composition while the room advances, not complete
+elevator travel, door scrolling, landing animation or every room-specific effect.
 
 The slow-consumer room/pause test compares legacy software, GPU-captured and
 headless-captured owners in separate Alpha Power Bomb and Maridia tube slices,
@@ -86,6 +90,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-attract
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --runtime-overlays
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ridley
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-rooms
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300

@@ -5,7 +5,7 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
-    if (args.Length == 1 && args[0] is "--retail-ending" or "--retail-file-map" or "--retail-attract" or "--runtime-overlays" or "--retail-ridley")
+    if (args.Length == 1 && args[0] is "--retail-ending" or "--retail-file-map" or "--retail-attract" or "--runtime-overlays" or "--retail-ridley" or "--retail-rooms")
     {
         foreach (var kind in Enum.GetValues<D3D11DeviceKind>())
         {
@@ -15,7 +15,8 @@ try
             else if (args[0] == "--retail-file-map") RetailFileMapTests.Run(device, renderer);
             else if (args[0] == "--retail-attract") RetailAttractTests.Run(device, renderer);
             else if (args[0] == "--runtime-overlays") RuntimeOverlayTests.Run(device, renderer);
-            else RetailRidleyCaptureTests.Run(device, renderer);
+            else if (args[0] == "--retail-ridley") RetailRidleyCaptureTests.Run(device, renderer);
+            else RetailRoomPublicationTests.Run(device, renderer);
         }
         return;
     }

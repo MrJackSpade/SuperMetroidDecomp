@@ -19,6 +19,19 @@ internal static class RetailCrocomireCaptureTests
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var boss = runtime.Enemies.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
         var death = runtime.Enemies.CrocomireDeath!;
+        // Before either melting object is spawned, BG2 must use the actor's ordinary
+        // scroll register. Comparing two renderers alone missed this shared defect.
+        for (int tick = 0; tick < 60; tick++)
+        {
+            runtime.StepFrame(0);
+            var scene = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            var baseLayer = (OrdinaryGameplayRenderLayer)scene.Layers[0];
+            if (!baseLayer.VerticalScrolls.IsEmpty || death.MeltingHdmaActive)
+                throw new InvalidOperationException("Crocomire fight incorrectly enabled melting HDMA.");
+            var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), scene);
+            PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime),
+                renderer.RenderForReadback(packet), $"{device.Kind}: Crocomire fight {tick}");
+        }
         // Reuse the cartridge audit's bridge threshold, then let the complete
         // runtime execute every death state, PLM, DMA and scanline publication.
         boss.Body.XPosition = CrocomireCaptureFixture.BridgeThreshold;
@@ -30,6 +43,9 @@ internal static class RetailCrocomireCaptureTests
             if (boss.DeathSequenceIndex == CrocomireDeathPhases.WaitForSamusAtWall)
                 samus.XPosition = CrocomireCaptureFixture.ReturnSamusX;
             runtime.StepFrame(0);
+            bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhases.DissolveFirstImage or CrocomireDeathPhases.DissolveSecondImage;
+            if (death.MeltingHdmaActive != shouldMelt)
+                throw new InvalidOperationException($"Crocomire HDMA lifecycle disagrees in phase {boss.DeathSequenceIndex:X2}.");
             bool changed = phases.Add(boss.DeathSequenceIndex);
             bool nonuniform = death.Bg2ScrollByScanline.Any(y => y != death.Bg2ScrollByScanline[0]);
             bool firstDistortion = nonuniform && !distorted;

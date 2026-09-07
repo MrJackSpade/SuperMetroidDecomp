@@ -92,7 +92,10 @@ public static partial class GameplayDisplayCapture
         // gameplay region. Own exactly those visible register values in the packet.
         var layer = new OrdinaryGameplayRenderLayer(registers,
             VisibleLines(lavaX ?? waterX ?? skyX),
-            VisibleLines(crocomireBg ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline : lavaY));
+            VisibleLines(crocomireBg
+                ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
+                    ? melting.Bg2ScrollByScanline : null
+                : lavaY));
         return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),
             new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection,
             SnesPpuLayout.MaximumMasterBrightness);

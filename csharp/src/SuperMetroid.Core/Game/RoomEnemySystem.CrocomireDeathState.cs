@@ -104,6 +104,12 @@ public sealed class CrocomireDeathState
     /// <summary>Resultant 256-line BG2 vertical-scroll table used by the melting window.</summary>
     public IReadOnlyList<ushort> Bg2ScrollByScanline => _bg2ScrollByScanline;
 
+    /// <summary>
+    /// Whether $A4:9555 has spawned the melting scroll HDMA object and $A4:95CE has
+    /// not cleared its channel. Allocated scratch table storage alone does not enable HDMA.
+    /// </summary>
+    public bool MeltingHdmaActive { get; internal set; }
+
     internal Span<byte> MutableMeltingColumnHeights => _meltingColumnHeights;
     internal Span<byte> MutableMeltingGraphics => _meltingGraphics;
     internal Span<ushort> MutableBg2WorkingTilemap => _bg2WorkingTilemap;

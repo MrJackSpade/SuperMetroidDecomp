@@ -158,7 +158,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 bg2HorizontalScrollByLine:
                     lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
-                    ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline
+                    ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
+                        ? melting.Bg2ScrollByScanline : null
                     : lavaAcidBg2VerticalScrolls,
                 bg2TilemapWidthInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapWidthInTiles

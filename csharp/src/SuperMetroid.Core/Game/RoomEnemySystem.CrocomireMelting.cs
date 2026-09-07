@@ -145,6 +145,7 @@ public sealed partial class RoomEnemySystem
     private void BeginCrocomireMelting(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
+        death.MeltingHdmaActive = true;
         int lineCount = Math.Clamp((state.Tongue?.YPosition ?? state.Body.YPosition) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
         scrolls.Slice(0, lineCount).Fill(CrocomireBg2VerticalScroll);
@@ -278,6 +279,7 @@ public sealed partial class RoomEnemySystem
     private void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)
     {
         CrocomireDeathState death = RequireCrocomireDeath();
+        death.MeltingHdmaActive = false;
         state.DeathSequenceIndex += 2;
 
         int offset = death.MeltingTableOffset;

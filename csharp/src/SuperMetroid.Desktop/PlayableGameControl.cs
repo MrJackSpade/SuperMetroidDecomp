@@ -272,7 +272,7 @@ public sealed partial class PlayableGameControl : UserControl
         // Await keeps the UI pump alive; restore only after old GPU work loses
         // authority to present. No new simulation tick runs across this boundary.
         Enabled = false;
-        try { await BeginDisplayGenerationAsync(); }
+        try { if (!await BeginDisplayGenerationAsync()) return; }
         finally { if (!IsDisposed) Enabled = true; }
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;

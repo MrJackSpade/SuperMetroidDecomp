@@ -47,12 +47,14 @@ public sealed partial class PlayableGameControl
         pendingDisplay = null;
     }
 
-    private async Task BeginDisplayGenerationAsync()
+    private async Task<bool> BeginDisplayGenerationAsync()
     {
         long next = checked(displayGeneration + 1);
-        if (gpuWorker is { } worker) await worker.AdvanceGenerationAsync(next);
+        if (gpuWorker is { } worker && !await worker.AdvanceGenerationAsync(next)) return false;
+        if (rendererStopping || IsDisposed) return false;
         displayGeneration = next;
         pendingDisplay = null;
+        return true;
     }
 
     private async Task RestartAsync()
@@ -62,7 +64,7 @@ public sealed partial class PlayableGameControl
         Enabled = false;
         try
         {
-            await BeginDisplayGenerationAsync();
+            if (!await BeginDisplayGenerationAsync()) return;
             if (rendererStopping || IsDisposed) return;
             RestartCore();
             SetPlaying(resume);

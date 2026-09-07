@@ -82,6 +82,15 @@ frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual
 driver reset and monitor/DPI/RDP changes remain unqualified.
 No machine-wide forced GPU reset has been performed.
 
+Closing the actual GameForm while a load/restart awaited the presentation gate
+previously reproduced `InvalidOperationException: GPU worker is stopping`.
+The asynchronous generation handoff now reports orderly shutdown cancellation
+explicitly, and the host does not replace the game after that result. Genuine
+worker faults are still rethrown. `CloseDuringLoadTests` holds the real gate,
+starts each operation, closes the form, and releases the gate; both cases assert
+successful worker shutdown and unchanged game ownership. Full DesktopVerification
+passes in Debug and Release, including normal load/reset and startup failures.
+
 The worker's zero-sized-surface branch is verified separately by
 `SurfaceSuspensionTests` under `--swapchain-smoke` in Debug/Release on hardware
 and WARP. Zero width, zero height and both zero each suspend submission; 32

@@ -5,7 +5,7 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
-    if (args.Length == 1 && args[0] is "--retail-ending" or "--retail-file-map" or "--retail-attract" or "--runtime-overlays" or "--retail-ridley" or "--retail-rooms" or "--retail-doors" or "--retail-kraid" or "--retail-eye")
+    if (args.Length == 1 && args[0] is "--retail-ending" or "--retail-file-map" or "--retail-attract" or "--runtime-overlays" or "--retail-ridley" or "--retail-rooms" or "--retail-doors" or "--retail-kraid" or "--retail-eye" or "--retail-death")
     {
         foreach (var kind in Enum.GetValues<D3D11DeviceKind>())
         {
@@ -19,7 +19,8 @@ try
             else if (args[0] == "--retail-rooms") RetailRoomPublicationTests.Run(device, renderer);
             else if (args[0] == "--retail-doors") RetailDoorCaptureTests.Run(device, renderer);
             else if (args[0] == "--retail-kraid") RetailKraidCaptureTests.Run(device, renderer);
-            else RetailEyeCaptureTests.Run(device, renderer);
+            else if (args[0] == "--retail-eye") RetailEyeCaptureTests.Run(device, renderer);
+            else RetailDeathCaptureTests.Run(device, renderer);
         }
         return;
     }

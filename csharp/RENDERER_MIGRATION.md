@@ -191,3 +191,10 @@ checks cartridge-counter wrap, non-rewinding host sequence, generation invalidat
 and ordered fades. This is component evidence only, not a live audio/simulation
 stress result. The presenter must still coordinate final submission with reset;
 an `IsCurrent` check alone is not an atomic check-and-Present guarantee.
+
+Portable fixture format version one is documented in `RENDER_PACKET_FORMAT.md`.
+The codec round-trips all 644 sampled title/pause/file/options frames with exact
+pixel and byte equality, as well as solid/ordered-fade packets. Structural-error
+tests cover truncation, signature/version, size and trailing data. GPU comparison
+CLI and a preserved packet corpus remain pending. Debugger-state files are not
+modified or converted by this display-only codec.

@@ -73,6 +73,8 @@ internal static partial class Program
         {
             Rgba32[] expected = legacy();
             LayeredRenderSnapshot snapshot = capture();
+            Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
+                new RenderFrameSnapshot(new(comparisons + 1, 1, (ushort)comparisons), snapshot))));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(snapshot));
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(capture()));
             step();

@@ -25,6 +25,12 @@ public sealed class LayeredRenderSnapshot
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
             if (layer is ObjPriorityRenderLayer { Priority: > 3 })
                 throw new ArgumentException("OBJ priority must be between zero and three.", nameof(layers));
+            if (layer is Bg4BppRenderLayer bg4 &&
+                (bg4.MapWidthTiles is not (32 or 64) || bg4.MapHeightTiles is not (32 or 64)))
+                throw new ArgumentException("BGSC geometry must be 32 or 64 tiles on each axis.", nameof(layers));
+            if (layer is Bg2BppRenderLayer bg2 && bg2.RowCount !=
+                Hardware.SnesPpuLayout.ScreenHeightPixels / Hardware.SnesPpuLayout.BackgroundTileSizePixels)
+                throw new ArgumentException("This full-frame 2-bpp operation requires exactly the visible tile rows.", nameof(layers));
         }
         Memory = memory;
         this.layers = layers.ToArray();

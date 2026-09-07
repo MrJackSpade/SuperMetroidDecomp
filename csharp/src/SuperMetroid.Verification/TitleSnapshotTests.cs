@@ -30,6 +30,8 @@ internal static partial class Program
                     // endpoints. It remains the reference until extraction is qualified.
                     Rgba32[] expected = scene.Render();
                     Mode7ObjRenderSnapshot packet = scene.CaptureRenderSnapshot();
+                    Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
+                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet))), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);
                     Mode7ObjRenderSnapshot repeat = scene.CaptureRenderSnapshot();

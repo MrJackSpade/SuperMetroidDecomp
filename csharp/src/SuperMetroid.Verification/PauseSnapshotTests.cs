@@ -33,6 +33,8 @@ internal static partial class Program
         {
             Rgba32[] expected = pause.Render();
             LayeredRenderSnapshot packet = pause.CaptureRenderSnapshot();
+            Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
+                new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet))), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
             LayeredRenderSnapshot repeated = pause.CaptureRenderSnapshot();

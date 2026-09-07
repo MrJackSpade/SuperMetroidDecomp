@@ -4,29 +4,33 @@ The isolated Windows assembly implements device ownership and integer compute fo
 solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, raw OAM sprites,
 fixed-color addition, signed Mode 7 projection and ordered brightness, ordinary and
 mixed-mode gameplay, color effects, messages and windowed child scenes. Full retail
-scene verification, presentation, desktop selection and scheduling are still pending.
+scene verification and live performance/recovery qualification are still pending.
+Desktop selection and a dedicated GPU/presentation owner are implemented; see
+`RENDERER_MIGRATION.md` for the current evidence matrix and remaining gates.
 The console verification project never substitutes the CPU reference for GPU work.
 
 The portable INI contract now accepts `[Video] Renderer=Software|Direct3D11|Auto`
 (case-insensitive names; numbers, combinations, duplicates and unknown keys fail).
-Software remains the temporary migration default. The current desktop explicitly
-rejects the other two selections until its GPU lifecycle wiring is installed; the
-setting is not silently ignored. Existing local INI files are unchanged.
+Software remains the temporary migration default. Direct3D11 selects the hardware
+worker; Auto logs hardware startup failure before selecting software. Neither mode
+silently substitutes CPU raster output for an unsupported GPU scene. Existing local
+INI files are unchanged.
 
 `D3D11FrameRenderer.Render` submits composition without readback or staging allocation.
 `Readback` is an explicit diagnostic operation; `RenderForReadback` combines them for
 comparison tests. Staging storage is allocated lazily, so child scenes and future
 presentation-only consumers do not allocate CPU-readable textures. Solid smoke tests
 cover 64 submissions before readback, repeated readback and the uninitialized guard
-on both devices in Debug/Release. This is not yet swapchain/desktop integration.
+on both devices in Debug/Release. The desktop uses Render without normal readback.
 
 The portable `RenderPresentationGate` provides atomic generation-check/presentation
 ordering relative to load/reset. Its lock is separate from `LatestRenderFrameMailbox`:
 ordinary publication never waits on presentation. Reset waits for a presentation
 already inside the gate, then rejects that generation thereafter. GPU completion and
 waitable-swapchain waits must stay outside the gate. Component tests cover stale work,
-concurrent reset, exceptions and reentrant reset rejection; the desktop still needs
-to wire this boundary and verify it against actual presentation/recovery.
+concurrent reset, exceptions and reentrant reset rejection. Desktop load/reset is
+wired to this boundary; hidden tests exercise it with actual swapchains. Visible
+presentation and real device/RDP transitions still require qualification.
 
 The GPU display pass samples the integer native frame directly into a BGRA render
 target, using nearest-neighbor scaling and the desktop's centered 4:3 TV correction
@@ -45,7 +49,8 @@ successful displayed frame. Positive-dimension resize releases and recreates the
 `--swapchain-smoke` uses a hidden HWND, checks creation/readiness, three resizes,
 mismatched identities and stale generations, then disposes everything. Both devices
 pass Debug/Release and return Occluded as expected. Visible presentation, minimization,
-DPI/RDP/device-loss recovery, host scheduling and pacing remain unverified/unintegrated.
+DPI/RDP transitions and production-clock pacing remain unverified. Device-loss
+recreation now has injected-HRESULT tests; those are not actual driver-reset evidence.
 
 `D3D11RenderWorker` owns device/render/present/disposal on one background thread.
 Publication sends owned snapshots through the latest-frame mailbox, resize requests
@@ -55,8 +60,8 @@ keeping the HWND and message pump alive. An acquired latency opportunity is reta
 when no frame is queued; consuming it too early would stall first publication.
 The hidden swapchain suite also tests idle startup followed by 1001 publications,
 new-generation resize, bounded mailbox accounting and shutdown on both devices in
-Debug/Release. It does not yet connect the desktop game/audio loop or establish the
-required real-game slow-consumer/audio determinism and performance gates.
+Debug/Release. The desktop game/audio loop now publishes to this worker. The hidden
+tests do not establish visible presentation or the complete performance gates.
 
 `--slow-consumer-audio` now covers a bounded real-game slow-consumer test: separate
 legacy/captured game owners, the actual desktop managed audio adapter, and a GPU

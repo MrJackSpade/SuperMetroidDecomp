@@ -6,6 +6,18 @@ does not prove untested paths. The goal remains incomplete.
 
 ## Definition-of-done evidence
 
+Current-build aggregate revalidation at `e2b74b7`: Release `--retail-all` completed
+with exit code 0, all 20 suites on both hardware and WARP. This includes the newly
+fixed independent startup reference, blocked left/right doors, both elevator
+directions, native Ridley escape branches and the save/death/reserve/ending paths.
+It remains exact GPU/software coverage, not a claim that every scene matches an
+independent emulator image. The separate title-pan reference diagnostic tracks #336.
+
+The attempted Linux rerun after #335 did not execute: the permission checker
+rejected exposing the private repository to the container. No workaround was used.
+The previous successful Linux run at `d4aa15c` remains the recorded evidence, not a
+new pass at this checkpoint. Any repeat of that container access needs approval.
+
 Scope amendment (September 7, 2026): the user explicitly deferred the RDP
 disconnect/reconnect test because it is not a standard use case for them. That
 test is not a completion blocker for issue 321. Recovery across an actual RDP

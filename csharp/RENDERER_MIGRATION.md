@@ -39,6 +39,7 @@ Current GPU comparisons against software/legacy output include:
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
 | Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
 | Room publications | 78 frames plus retained checks across Landing Site, Parlor, Blue Brinstar elevator room, Green Brinstar shaft, Morph Ball room and Ceres scientist room; 13 runtime ticks each |
+| Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
 These are rendering-equivalence checks, not new claims of cartridge correctness.
@@ -91,6 +92,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --runtime-overlays
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ridley
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-rooms
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-doors
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300

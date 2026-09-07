@@ -2312,7 +2312,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        samus.Health = RestoreTwo(samus.Health, samus.MaxHealth);
+        SamusEnergyRestoration.Restore(samus, 2);
         samus.Missiles = RestoreTwo(samus.Missiles, samus.MaxMissiles);
         samus.SuperMissiles = RestoreTwo(samus.SuperMissiles, samus.MaxSuperMissiles);
         samus.PowerBombs = RestoreTwo(samus.PowerBombs, samus.MaxPowerBombs);

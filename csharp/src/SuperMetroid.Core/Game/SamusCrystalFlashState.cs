@@ -240,7 +240,7 @@ public sealed class SamusCrystalFlashState
                     $"Crystal Flash ammo pointer index ${AmmoDecrementIndex:X4} is invalid.");
         }
 
-        RestoreEnergy(samus, 50);
+        SamusEnergyRestoration.Restore(samus, 50);
         NativeWordCounterStep ammoTimer = NativeWordCounter.Decrement(AmmoDecrementTimer);
         AmmoDecrementTimer = ammoTimer.Value;
         bool timerExpired = ammoTimer.IsZeroOrNegative;
@@ -378,27 +378,6 @@ public sealed class SamusCrystalFlashState
         // expires. The outer palette dispatcher must therefore suppress its normal copy.
         PublishSharedPaletteWords(samus);
         return true;
-    }
-
-    /// <summary>Exact ordinary-value behavior of <c>Restore_A_Energy_ToSamus</c> at `$91:DF12`.</summary>
-    private static void RestoreEnergy(SamusState samus, ushort amount)
-    {
-        ushort restored = unchecked((ushort)(samus.Health + amount));
-        samus.Health = restored;
-        if (SignedLessThan(restored, samus.MaxHealth))
-            return;
-
-        ushort overflow = unchecked((ushort)(restored - samus.MaxHealth));
-        ushort reserve = unchecked((ushort)(samus.ReserveEnergy + overflow));
-        if (!SignedLessThan(reserve, samus.MaxReserveEnergy))
-            reserve = samus.MaxReserveEnergy;
-        samus.ReserveEnergy = reserve;
-
-        // A newly nonempty reserve is automatically enabled only from mode zero. Manual
-        // mode and an already enabled auto mode remain untouched.
-        if (reserve != 0 && samus.ReserveTankMode == 0)
-            samus.ReserveTankMode = 1;
-        samus.Health = samus.MaxHealth;
     }
 
     private static bool SignedLessThan(ushort left, ushort right) =>

@@ -22,6 +22,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--soak-hidden", var durationText] && int.TryParse(durationText, out int seconds))
+                {
+                    await RunHiddenSoak(seconds);
+                    return;
+                }
                 if (args is ["--audio-queue"])
                 {
                     await VerifyNativeAudioQueueHealth();

@@ -4,4 +4,5 @@ using System.Runtime.CompilerServices;
 // Production hosts still see only the public game-facing API.
 [assembly: InternalsVisibleTo("SuperMetroid.Verification")]
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]

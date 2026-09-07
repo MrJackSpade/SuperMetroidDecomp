@@ -1,8 +1,8 @@
 # Direct3D11 backend build and current scope
 
 The isolated Windows assembly implements device ownership and integer compute for
-solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, fixed-color addition and
-ordered brightness. OBJ, Mode 7, compound gameplay/effects, presentation, desktop
+solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, raw OAM sprites,
+fixed-color addition and ordered brightness. Mode 7, compound gameplay/effects, presentation, desktop
 selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
@@ -56,6 +56,13 @@ cases plus a focused packed-byte regression on both devices. `--compare <frame.s
 Failures write the packet, expected/actual/difference PNGs, first pixel, mismatch count
 and bounding rectangle into a unique `csharp/test-temp/render-comparison` directory.
 Unsupported layer types fail before GPU submission; there is no raster fallback.
+
+`--obj-smoke` checks 197 exact comparisons per device in Debug and Release:
+all eight size modes, varying name-table selection, zero through 128 modeled sprites,
+mixed BG/OBJ priority insertion and deliberately overlapping sprites with transparent
+holes. The GPU resolves the first opaque OAM pixel before filtering its BG priority,
+so filtering cannot resurrect a later hidden sprite. Raw OAM bytes are uploaded;
+no CPU sprite raster is supplied. These remain correctness checks, not GPU timings.
 
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the

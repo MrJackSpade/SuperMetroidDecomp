@@ -19,6 +19,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11ComputeShader tileShader;
     private readonly ID3D11Buffer memoryBuffer;
     private readonly ID3D11ShaderResourceView memoryView;
+    private readonly ID3D11Texture2D resolvedObjects;
+    private readonly ID3D11UnorderedAccessView objectView;
     private readonly List<IDisposable> resources = [];
     private bool disposed;
 
@@ -40,6 +42,9 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PpuMemoryWords * sizeof(uint),
                 BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferStructured, sizeof(uint))));
             memoryView = Own(owner.Device.CreateShaderResourceView(memoryBuffer));
+            resolvedObjects = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32G32_UInt,
+                SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
+            objectView = Own(owner.Device.CreateUnorderedAccessView(resolvedObjects));
         }
         catch { DisposeResources(); throw; }
     }
@@ -68,6 +73,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private unsafe Rgba32[] Readback(int width, int height)
     {
         owner.Context.CSSetUnorderedAccessView(0, null);
+        owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.CopyResource(staging, output);
         MappedSubresource mapped = owner.Context.Map(staging, 0, MapMode.Read);
         try
@@ -94,6 +100,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetShader(null);
         owner.Context.CSSetConstantBuffer(0, null);
         owner.Context.CSSetShaderResource(0, null);
+        owner.Context.CSSetUnorderedAccessView(1, null);
         DisposeResources();
         disposed = true;
     }

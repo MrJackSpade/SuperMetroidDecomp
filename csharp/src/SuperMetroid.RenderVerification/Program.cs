@@ -18,12 +18,13 @@ try
         Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frame.Width}x{frame.Height}.");
         return;
     }
-    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke"))
-        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --compare <frame.smframe> --device hardware|warp");
+    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke"))
+        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --compare <frame.smframe> --device hardware|warp");
     foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
     {
         using var device = new D3D11RenderDevice(kind);
         using var renderer = new D3D11FrameRenderer(device);
+        if (args[0] == "--obj-smoke") { ObjectSmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }
         int samples = 0;
         foreach (byte alpha in new byte[] { 0, 1, 128, 255 })

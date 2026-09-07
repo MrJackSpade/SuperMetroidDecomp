@@ -1,15 +1,17 @@
 // These operation IDs and the packed memory layout match D3D11ShaderLayout.cs.
 static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixedAdd = 4;
+static const uint OpResolveObj = 5, OpInsertObj = 6;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
     uint Operation, TilemapWord, CharacterWord, HorizontalScroll;
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
-    uint AddB, Reserved1, Reserved2, Reserved3;
+    uint AddB, ObjectCount, ObjectSelection, Reserved3;
 };
 StructuredBuffer<uint> Memory : register(t0);
 RWTexture2D<uint> Output : register(u0);
+RWTexture2D<uint2> Objects : register(u1);
 
 uint ReadByte(uint address)
 {
@@ -37,10 +39,19 @@ uint Palette(uint index)
     return Pack((c << 3) | (c >> 2), 255);
 }
 
+#include "Objects.hlsli"
+
 [numthreads(8, 8, 1)]
 void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
+    if (Operation == OpResolveObj) { Objects[id.xy] = ResolveObject(id.xy); return; }
+    if (Operation == OpInsertObj)
+    {
+        uint2 winner = Objects[id.xy];
+        if (winner.y != 255 && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y)) Output[id.xy] = winner.x;
+        return;
+    }
     if (Operation == OpBackdrop) { Output[id.xy] = Palette(0); return; }
     if (Operation == OpBrightness)
     {

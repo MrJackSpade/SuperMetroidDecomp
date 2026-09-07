@@ -41,6 +41,7 @@ internal sealed class PauseMenuState
     private int selectedItem;
     private ushort mapHorizontalScroll;
     private ushort mapVerticalScroll;
+    private PauseMapScroll mapScroll = null!;
     private int mapIndicatorAnimationFrame;
     private int mapIndicatorAnimationTimer;
     private int itemSelectorAnimationFrame;
@@ -200,7 +201,7 @@ internal sealed class PauseMenuState
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
     /// </summary>
-    public bool Step(ushort delayedHeldInput, ushort newlyPressedInput)
+    public bool Step(ushort delayedHeldInput, ushort newlyPressedInput, ushort? heldInput = null)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
@@ -225,6 +226,10 @@ internal sealed class PauseMenuState
 
         if (ScreenMode == 0)
         {
+            // Map arrows read the ordinary held controller word, not the delayed chrome
+            // input. An accepted pulse keeps running after release, as on the cartridge.
+            if (mapScroll.Step(heldInput ?? delayedHeldInput, ref mapHorizontalScroll, ref mapVerticalScroll))
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MapScroll, maximumQueued: 6);
             if ((delayedPressed & SnesButton.R) != 0)
             {
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
@@ -673,6 +678,7 @@ internal sealed class PauseMenuState
         ushort maximumX = unchecked((ushort)(right * 8));
         ushort minimumY = unchecked((ushort)(top * 8));
         ushort maximumY = unchecked((ushort)(bottom * 8));
+        mapScroll = new PauseMapScroll(minimumX, maximumX, minimumY, maximumY);
 
         // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
         // helpers retain wrapping before every signed branch so an edge-of-map position

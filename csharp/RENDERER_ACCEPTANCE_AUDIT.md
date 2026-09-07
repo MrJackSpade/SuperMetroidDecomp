@@ -33,9 +33,45 @@ source/fixture audit, Linux gate, or preparation of a reproducible lifecycle har
 
 ## Reference-evidence distinction
 
+Repository search at `2225f92` found emulator setup notes in
+`test-fixtures/issue-307-underwater-jump/README.md`, but no indexed independent
+emulator captures for the renderer regression matrix. Files named
+`pause-map-retail*.png` under test-temp are not evidence of emulator provenance
+merely because their filenames say retail. This search does not establish that
+no screenshots exist elsewhere on the player's machine. Their source, matching
+ROM/state and correspondence to the tested render property still need confirmation.
+
 The checked-in issue-321 packet fixture proves a renderer byte-selection defect
 and its reproduction. Performance JSON proves only the stated measured workload.
 Neither is an emulator capture. The current scene matrix explicitly identifies
 GPU/software comparisons as such. A final audit must locate and link any retained
 known-correct cartridge captures for the historically reported regressions, or
 record the missing evidence and obtain it; do not relabel legacy output as ROM proof.
+
+## Frontend publication routing audit
+
+Inspected publication call sites in `SuperMetroidGame.cs`,
+`SuperMetroidGame.AttractDemo.cs` and `SuperMetroidGame.RenderCapture.cs`.
+
+| Implemented dispatcher family | Publication owner | Current verification family |
+| --- | --- | --- |
+| Reset/title, file select/options | Typed PublishMenu overloads | frontend/title, file/options |
+| Intro and Ceres flight | PublishIntro | intro/transition fixtures |
+| New-game/load fade, Ceres arrival, ordinary gameplay | PublishGameplay/PublishBlack | room publications, elevator, saved-file load |
+| Pause and unpause | PublishGameplay, pause PublishMenu, ordered brightness/black | pause map/equipment/fade and slow-consumer slice |
+| Reserve recovery | PublishGameplay | automatic reserve frontend fixture |
+| Death/game over | PublishGameplay, brightness, game-over PublishMenu | death PCM/frontend and game-over fixtures |
+| File map/load | PublishFileMap/PublishBlack | file-map and saved-file appearance fixtures |
+| Door transition | Held source display then PublishGameplay | left/right, elevators, blocked-door fixtures |
+| Ceres departure/destruction | PublishGameplay, PublishCeresDestruction, black/fade | Ceres/Zebes transition fixtures; runtime escape fixtures are separate |
+| Zebes escape/ending | PublishGameplay, brightness/black, PublishEnding | native-event handoff and all ending reward branches |
+| Attract demo states | PublishGameplay, title PublishMenu, PublishBlack/retained display | attract fixture |
+
+All explicit raster calls in these frontend partials are behind the legacy branch
+of a publication helper or the explicitly requested CurrentFrame pixel adapter.
+Intro/gameplay missing captures throw in captured mode. `renderGameplayFrames=false`
+is an intentional diagnostic retained-display mode, not the normal GPU desktop.
+This routing audit identifies no additional implemented frontend scene family
+requiring a new GPU compositor. It is not proof of every state combination or of
+cartridge correctness; those remain bounded by the listed fixtures and reference
+evidence. Unsupported enum values still fail in the dispatcher's default branch.

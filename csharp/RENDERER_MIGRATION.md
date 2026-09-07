@@ -198,3 +198,25 @@ pixel and byte equality, as well as solid/ordered-fade packets. Structural-error
 tests cover truncation, signature/version, size and trailing data. GPU comparison
 CLI and a preserved packet corpus remain pending. Debugger-state files are not
 modified or converted by this display-only codec.
+
+## Staged frontend entry point
+
+`SuperMetroidGame.StepCaptured(input, hostSequence, hostGeneration)` now invokes
+the extracted title/file/options/pause producers at their original display call
+sites. Converted frames return an immutable snapshot and no raster buffer. Other
+scenes explicitly return `UsedLegacyRaster=true`; this must remain visible until
+their extraction is complete. The normal desktop still calls the unchanged
+compatibility `Step` entry point and has not switched rendering backends.
+
+Outer pause fades append ordered packet operations. Replacing a display with a
+legacy or black frame clears the prior captured content; retained display states
+reidentify their existing packet rather than recapturing mutated scene state.
+Host identity is supplied outside the game graph on every captured call, including
+after restoration. Game-side stored packet identity is not a host sequence source.
+
+`FrontendRenderCaptureTests` compares 250 captured frontend frames through title,
+file select and options against an independent normal dispatcher, asserting exact
+pixels, game-state/phase cadence and audio-command order. It verifies explicit
+intro fallback, retained title packet lifetime and switching back to normal Step.
+This does not establish gameplay/PCM determinism or live scheduling independence;
+pause frontend integration and remaining scenes still need their own gates.

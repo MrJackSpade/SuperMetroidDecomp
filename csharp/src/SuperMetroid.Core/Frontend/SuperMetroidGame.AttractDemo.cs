@@ -110,7 +110,7 @@ public sealed partial class SuperMetroidGame
                         title = new TitleSequenceState(bus, audio);
                     }
                     GameState = SuperMetroidGameState.OpeningCinematic;
-                    lastPixels = title.Render();
+                    PublishMenu(title);
                 }
                 break;
         }

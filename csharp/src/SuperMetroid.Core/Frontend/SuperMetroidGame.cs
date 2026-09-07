@@ -37,7 +37,12 @@ public sealed partial class SuperMetroidGame
     private readonly CeresDepartureState ceresDeparture = new();
     private readonly SamusReserveAutoRecoveryState reserveRecovery = new();
     private readonly DoorTransitionState doorTransition = new();
-    private Rgba32[] lastPixels = CreateBlackFrame();
+    private Rgba32[] legacyPixels = CreateBlackFrame();
+    private Rgba32[] lastPixels
+    {
+        get => capturedDisplay is null ? legacyPixels : SoftwareFrameSnapshotRenderer.Render(capturedDisplay);
+        set { legacyPixels = value; capturedDisplay = null; }
+    }
     private int selectedSaveSlot;
     private bool loadingExistingSave;
     private int postCeresLoadFramesRemaining = -1;
@@ -254,18 +259,18 @@ public sealed partial class SuperMetroidGame
                 fileSelectMap = null;
                 gameOver = null;
                 GameState = SuperMetroidGameState.OpeningCinematic;
-                lastPixels = title.Render();
+                PublishMenu(title);
                 break;
 
             case SuperMetroidGameState.OpeningCinematic:
                 title!.Step(controllerInput);
-                lastPixels = title.Render();
+                PublishMenu(title);
                 if (title.FileSelectRequested)
                 {
                     // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
                     fileSelect = new FileSelectMenuState(bus, audio);
                     GameState = SuperMetroidGameState.FileSelectMenus;
-                    lastPixels = fileSelect.Render();
+                    PublishMenu(fileSelect);
                 }
                 else if (title.DemoRequested)
                 {
@@ -280,7 +285,7 @@ public sealed partial class SuperMetroidGame
                 fileSelect!.Step(controllerInput);
                 if (fileSelect.SaveRamChangedThisFrame)
                     SaveRamChanged?.Invoke();
-                lastPixels = fileSelect.Render();
+                PublishMenu(fileSelect);
                 if (fileSelect.TitleRequested)
                 {
                     // The assembly calls SoftReset from menu index 33. Re-entering state
@@ -306,18 +311,18 @@ public sealed partial class SuperMetroidGame
                         optionSlot?.IconCancelEnabled ?? false,
                         optionSlot?.MoonwalkEnabled ?? false);
                     GameState = SuperMetroidGameState.GameOptionsMenu;
-                    lastPixels = options.Render();
+                    PublishMenu(options);
                 }
                 break;
 
             case SuperMetroidGameState.GameOptionsMenu:
                 options!.Step(controllerInput);
-                lastPixels = options.Render();
+                PublishMenu(options);
                 if (options.FileSelectRequested)
                 {
                     fileSelect = new FileSelectMenuState(bus, audio);
                     GameState = SuperMetroidGameState.FileSelectMenus;
-                    lastPixels = fileSelect.Render();
+                    PublishMenu(fileSelect);
                 }
                 else if (options.IntroRequested)
                 {
@@ -601,7 +606,7 @@ public sealed partial class SuperMetroidGame
                             mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled);
                         fileSelectMap = null;
                         GameState = SuperMetroidGameState.GameOptionsMenu;
-                        lastPixels = options.Render();
+                        PublishMenu(options);
                         break;
                     }
                     if (!fileSelectMap.LoadRequested) break;
@@ -658,8 +663,8 @@ public sealed partial class SuperMetroidGame
                     runtime.Vram,
                     gameOptions.MapReveal);
                 pauseBrightness = 0;
-                lastPixels = pauseMenu.Render();
-                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                PublishMenu(pauseMenu);
+                ApplyDisplayBrightness(pauseBrightness);
                 GameState = SuperMetroidGameState.PausedA;
                 break;
 
@@ -667,8 +672,8 @@ public sealed partial class SuperMetroidGame
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
                 pauseMenu!.AdvanceAnimations();
-                lastPixels = pauseMenu!.Render();
-                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                PublishMenu(pauseMenu!);
+                ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 15)
                     GameState = SuperMetroidGameState.PausedB;
                 break;
@@ -679,7 +684,7 @@ public sealed partial class SuperMetroidGame
                 bool unpauseRequested = pauseMenu!.Step(
                     runtime.System.TimedHeldInput,
                     runtime.Controller1.NewlyPressed);
-                lastPixels = pauseMenu.Render();
+                PublishMenu(pauseMenu);
                 if (unpauseRequested)
                 {
                     pauseBrightness = 15;
@@ -690,9 +695,9 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.UnpausingA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu!.AdvanceAnimations();
-                lastPixels = pauseMenu!.Render();
+                PublishMenu(pauseMenu!);
                 pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
-                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
                     GameState = SuperMetroidGameState.UnpausingB;
                 break;
@@ -919,7 +924,9 @@ public sealed partial class SuperMetroidGame
 
     /// <summary>Last completed frame, useful for repainting without advancing emulation.</summary>
     public FrontendFrame CurrentFrame =>
-        new(GameState, PhaseName, FrameNumber, lastPixels, lastAudioCommands);
+        new(GameState, PhaseName, FrameNumber,
+            captureIdentity is not null && capturedDisplay is not null ? Array.Empty<Rgba32>() : lastPixels,
+            lastAudioCommands);
 
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.

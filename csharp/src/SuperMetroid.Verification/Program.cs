@@ -33,6 +33,7 @@ VerifyPauseRenderSnapshots();
 VerifyFileMenuRenderSnapshots();
 VerifyRenderFrameHandoff();
 VerifyRenderPacketCodec();
+VerifyFrontendRenderCapture();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

@@ -104,6 +104,13 @@ source/fixture audit, Linux gate, or preparation of a reproducible lifecycle har
 
 ## Reference-evidence distinction
 
+New controlled independent Snes9x captures are retained in
+`test-fixtures/issue-321-snes9x-startup` and `issue-321-snes9x-title-pan`, with
+ROM/executable/artifact hashes and isolated capture procedure. Startup freeze reload
+reproduces its native PNG exactly; the managed startup color difference is separately
+tracked as #335. The pan fixture is a native scene reference, not yet a matched-frame
+comparison. Neither substitutes for other historical scene references.
+
 Follow-up inspection located the player's two original Maridia clipboard images
 outside the repository. They are now preserved unchanged with SHA-256 and provenance
 in `test-fixtures/issue-321-player-references/README.md`. The Snes9x window title and

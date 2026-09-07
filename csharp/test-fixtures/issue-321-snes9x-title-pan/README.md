@@ -1,0 +1,28 @@
+# Independent native Mode-7 title-pan reference (#321)
+
+Captured September 7, 2026 with Snes9x 1.60 in the isolated approved session using
+`capture-snes9x-reference.ps1 -Seconds 25`. Native screenshot output, not a desktop
+crop or a generated managed image. It shows the vertical machinery column and
+baby Metroid during the pre-title pan, including clipped content at the viewport.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `title-pan.png` | `3EC67A32D45C1E3A327512A6E0438F1A42BEDF89900A72F46ED1B76A0AEF1A91` |
+| `Reference.000` | `4039A5651071BC409F9BCA7937294144B18F655713AD5A6E1FA1D7ED01D9720E` |
+
+The unchanged source ROM SHA-256 is
+`12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`;
+the emulator executable SHA-256 is
+`B9FE59605EB0773A0B50F4166E42984FE7A724FEF949A43A86F4A7B722A550B7`.
+It reported checksum OK, NTSC, CRC32 D63ED5F8. No SRAM, patches or cheats were
+provided. Configuration is checked in as `csharp/tools/snes9x-reference.ini`.
+
+`Reference.000` was saved after the screenshot's frame advance while paused.
+Reload screenshot parity is not yet verified. The 25-second host wait is not an
+emulated frame number and must not be used as a managed timing assertion. This is
+a preserved independent scene reference, not evidence of byte equality against a
+corresponding managed frame or of the entire title pan/zoom trajectory.
+
+Only the isolated test process was closed. Its disposable ROM/executable copies
+were removed after retaining these artifacts; player saves and emulator settings
+were untouched. Keep this private ROM-derived fixture in the private repository.

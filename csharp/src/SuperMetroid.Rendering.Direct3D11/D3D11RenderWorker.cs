@@ -25,8 +25,9 @@ public sealed class D3D11RenderWorker
     private readonly RenderTimingWindow cpuCompositionTiming = new();
     private readonly RenderTimingWindow cpuPresentationTiming = new();
     private readonly RenderTimingWindow gpuCompositionTiming = new();
+    private readonly RenderTimingWindow gpuFrameTiming = new();
     public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
-        cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot());
+        cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
     private double gpuCompositionMilliseconds = double.NaN;
     private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
     /// <summary>Latest asynchronous GPU composition duration; excludes display scaling/Present.</summary>
@@ -159,8 +160,9 @@ public sealed class D3D11RenderWorker
                 {
                     if (measurement.Valid)
                     {
-                        Volatile.Write(ref gpuCompositionMilliseconds, measurement.Milliseconds);
-                        gpuCompositionTiming.Record(measurement.Milliseconds);
+                        Volatile.Write(ref gpuCompositionMilliseconds, measurement.CompositionMilliseconds);
+                        gpuCompositionTiming.Record(measurement.CompositionMilliseconds);
+                        gpuFrameTiming.Record(measurement.Milliseconds);
                         Interlocked.Increment(ref validGpuTimingSamples);
                     }
                     else Interlocked.Increment(ref invalidGpuTimingSamples);
@@ -199,9 +201,9 @@ public sealed class D3D11RenderWorker
                         long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         renderer.Render(packet);
                         cpuCompositionTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds);
-                        if (timed) gpuTimer.End();
+                        if (timed) gpuTimer.MarkCompositionFinished();
                         long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
-                        var presentationResult = presenter.Present(renderer, packet.Identity, gate);
+                        var presentationResult = presenter.Present(renderer, packet.Identity, gate, timed ? gpuTimer : null);
                         cpuPresentationTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds);
                         switch (presentationResult)
                         {

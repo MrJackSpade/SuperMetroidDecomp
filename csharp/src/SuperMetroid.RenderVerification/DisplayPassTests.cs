@@ -12,6 +12,7 @@ internal static class DisplayPassTests
             "csharp/test-fixtures/issue-321-tile-byte-selection/frame.smframe"));
         var native = SoftwareFrameSnapshotRenderer.Render(packet);
         int count = 0;
+        using var timer = new D3D11GpuTimer(device);
         foreach (var size in new[] { (256,224), (512,448), (800,600), (1920,1080), (319,601), (1,1), (1,224), (256,1) })
         {
             int width = size.Item1, height = size.Item2;
@@ -20,8 +21,11 @@ internal static class DisplayPassTests
             using var view = device.Device.CreateRenderTargetView(target);
             using var staging = device.Device.CreateTexture2D(new Texture2DDescription(Format.B8G8R8A8_UNorm,
                 (uint)width, (uint)height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read));
+            if (!timer.TryBegin(packet.Identity)) throw new InvalidOperationException("Display timing ring unexpectedly full.");
             renderer.Render(packet);
+            timer.MarkCompositionFinished();
             renderer.DrawDisplay(view, width, height);
+            timer.End();
             device.Context.CopyResource(staging, target);
             var mapped = device.Context.Map(staging, 0, MapMode.Read);
             try
@@ -42,6 +46,8 @@ internal static class DisplayPassTests
                 }
             }
             finally { device.Context.Unmap(staging, 0); }
+            if (!timer.TryRead(out var timing) || !timing.Valid || timing.CompositionMilliseconds > timing.Milliseconds)
+                throw new InvalidOperationException("GPU display timing did not preserve ordered composition/display boundaries.");
             // Display SRV binding must not poison subsequent compute UAV use.
             PixelComparison.Verify(packet, native, renderer.RenderForReadback(packet), $"{device.Kind}: compute after display {size}");
             count++;

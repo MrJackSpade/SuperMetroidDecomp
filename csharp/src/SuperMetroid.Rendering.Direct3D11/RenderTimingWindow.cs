@@ -47,4 +47,5 @@ public readonly record struct RenderTimingDistribution(long Observed, long Warmu
 
 /// <summary>Independent windows: GPU results arrive asynchronously; Present includes display submission and host waiting.</summary>
 public readonly record struct RenderWorkerTimings(RenderTimingDistribution CpuComposition,
-    RenderTimingDistribution CpuDisplayAndPresent, RenderTimingDistribution GpuComposition);
+    RenderTimingDistribution CpuDisplayAndPresent, RenderTimingDistribution GpuComposition,
+    RenderTimingDistribution GpuCompositionAndDisplay);

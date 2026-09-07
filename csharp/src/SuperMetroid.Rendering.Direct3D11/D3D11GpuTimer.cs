@@ -33,10 +33,21 @@ internal sealed class D3D11GpuTimer : IDisposable
         if (pending == slots.Length) { SkippedSamples++; return false; }
         Slot slot = slots[head];
         slot.Identity = identity;
+        slot.HasCompositionBoundary = false;
         owner.Context.Begin(slot.Disjoint);
         owner.Context.End(slot.Start);
         active = true;
         return true;
+    }
+
+    /// <summary>Splits composition from display inside the same disjoint clock interval.</summary>
+    internal void MarkCompositionFinished()
+    {
+        CheckOwner();
+        if (!active || slots[head].HasCompositionBoundary)
+            throw new InvalidOperationException("GPU composition boundary requires one active, unmarked interval.");
+        owner.Context.End(slots[head].CompositionFinished);
+        slots[head].HasCompositionBoundary = true;
     }
 
     internal void End()
@@ -59,8 +70,11 @@ internal sealed class D3D11GpuTimer : IDisposable
         Slot slot = slots[tail];
         if (!Read(slot.Disjoint, out QueryDataTimestampDisjoint clock) ||
             !Read(slot.Start, out ulong start) || !Read(slot.Finish, out ulong finish)) return false;
-        bool valid = !clock.Disjoint && clock.Frequency != 0 && finish >= start;
-        sample = new(slot.Identity, valid, valid ? (finish - start) * 1000.0 / clock.Frequency : double.NaN);
+        ulong compositionFinished = finish;
+        if (slot.HasCompositionBoundary && !Read(slot.CompositionFinished, out compositionFinished)) return false;
+        bool valid = !clock.Disjoint && clock.Frequency != 0 && finish >= compositionFinished && compositionFinished >= start;
+        sample = new(slot.Identity, valid, valid ? (finish - start) * 1000.0 / clock.Frequency : double.NaN,
+            valid ? (compositionFinished - start) * 1000.0 / clock.Frequency : double.NaN);
         tail = (tail + 1) % slots.Length;
         pending--;
         return true;
@@ -91,7 +105,8 @@ internal sealed class D3D11GpuTimer : IDisposable
 
     private sealed class Slot : IDisposable
     {
-        internal readonly ID3D11Query Disjoint, Start, Finish;
+        internal readonly ID3D11Query Disjoint, Start, Finish, CompositionFinished;
+        internal bool HasCompositionBoundary;
         internal RenderFrameIdentity Identity;
         internal Slot(D3D11RenderDevice owner)
         {
@@ -99,13 +114,18 @@ internal sealed class D3D11GpuTimer : IDisposable
             try
             {
                 Start = owner.Device.CreateQuery(new QueryDescription(QueryType.Timestamp));
-                try { Finish = owner.Device.CreateQuery(new QueryDescription(QueryType.Timestamp)); }
+                try
+                {
+                    Finish = owner.Device.CreateQuery(new QueryDescription(QueryType.Timestamp));
+                    try { CompositionFinished = owner.Device.CreateQuery(new QueryDescription(QueryType.Timestamp)); }
+                    catch { Finish.Dispose(); throw; }
+                }
                 catch { Start.Dispose(); throw; }
             }
             catch { Disjoint.Dispose(); throw; }
         }
-        public void Dispose() { Finish.Dispose(); Start.Dispose(); Disjoint.Dispose(); }
+        public void Dispose() { CompositionFinished.Dispose(); Finish.Dispose(); Start.Dispose(); Disjoint.Dispose(); }
     }
 }
 
-internal readonly record struct GpuTimingSample(RenderFrameIdentity Identity, bool Valid, double Milliseconds);
+internal readonly record struct GpuTimingSample(RenderFrameIdentity Identity, bool Valid, double Milliseconds, double CompositionMilliseconds);

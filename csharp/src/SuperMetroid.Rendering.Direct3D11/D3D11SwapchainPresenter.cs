@@ -48,12 +48,19 @@ public sealed class D3D11SwapchainPresenter : IDisposable
 
     /// <summary>Draws and presents only if the frame still belongs to the current load/reset generation.</summary>
     public D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity, RenderPresentationGate gate)
+        => Present(renderer, identity, gate, null);
+
+    internal D3D11PresentationResult Present(D3D11FrameRenderer renderer, RenderFrameIdentity identity,
+        RenderPresentationGate gate, D3D11GpuTimer? timer)
     {
         Verify();
         if (!ReferenceEquals(renderer.DeviceOwner, owner)) throw new InvalidOperationException("Renderer and swapchain must share a device owner.");
         if (target is null) throw new InvalidOperationException("Swapchain target is unavailable after failed resize.");
         if (renderer.SubmittedIdentity != identity) throw new InvalidOperationException("Presentation identity does not match the rendered frame.");
         renderer.DrawDisplay(target!, width, height);
+        // Finish GPU timing after display commands, before the CPU's blocking Present.
+        // This remains one timestamp-disjoint interval for the whole rendered frame.
+        timer?.End();
         D3D11PresentationResult outcome = D3D11PresentationResult.StaleGeneration;
         gate.TryPresent(identity, () =>
         {

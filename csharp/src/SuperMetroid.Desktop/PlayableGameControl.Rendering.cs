@@ -29,6 +29,7 @@ public sealed partial class PlayableGameControl
             Format("CPU composition submission", timings.CpuComposition),
             Format("CPU display + Present (includes wait)", timings.CpuDisplayAndPresent),
             Format("GPU composition (excludes display/Present)", timings.GpuComposition),
+            Format("GPU composition + display (excludes CPU Present wait)", timings.GpuCompositionAndDisplay),
             $"GPU samples skipped {worker.SkippedGpuTimingSamples}, invalid {worker.InvalidGpuTimingSamples}; recoveries {worker.DeviceRecoveries}");
     }
     private readonly System.Windows.Forms.Timer rendererHealthTimer = new() { Interval = 250 };

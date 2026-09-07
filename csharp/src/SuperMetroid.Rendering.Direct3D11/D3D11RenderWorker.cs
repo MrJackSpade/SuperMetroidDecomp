@@ -22,6 +22,13 @@ public sealed class D3D11RenderWorker
     private long retainedRedraws;
     private long lastDrawnSize;
     private long deviceRecoveries;
+    private double gpuCompositionMilliseconds = double.NaN;
+    private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
+    /// <summary>Latest asynchronous GPU composition duration; excludes display scaling/Present.</summary>
+    public double GpuCompositionMilliseconds => Volatile.Read(ref gpuCompositionMilliseconds);
+    public long ValidGpuTimingSamples => Interlocked.Read(ref validGpuTimingSamples);
+    public long InvalidGpuTimingSamples => Interlocked.Read(ref invalidGpuTimingSamples);
+    public long SkippedGpuTimingSamples => Interlocked.Read(ref skippedGpuTimingSamples);
     public long DeviceRecoveries => Interlocked.Read(ref deviceRecoveries);
     private readonly Action? beforeRenderForVerification;
 
@@ -137,11 +144,21 @@ public sealed class D3D11RenderWorker
             using var device = new D3D11RenderDevice(kind);
             using var renderer = new D3D11FrameRenderer(device);
             using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
+            using var gpuTimer = new D3D11GpuTimer(device);
             if (!ready.TrySetResult(device.AdapterDescription)) Interlocked.Increment(ref deviceRecoveries);
             bool opportunity = false, wasOccluded = false;
             bool redraw = retained is not null;
             while (true)
             {
+                while (gpuTimer.TryRead(out GpuTimingSample measurement))
+                {
+                    if (measurement.Valid)
+                    {
+                        Volatile.Write(ref gpuCompositionMilliseconds, measurement.Milliseconds);
+                        Interlocked.Increment(ref validGpuTimingSamples);
+                    }
+                    else Interlocked.Increment(ref invalidGpuTimingSamples);
+                }
                 (int Width, int Height)? nextSize;
                 lock (lifecycle)
                 {
@@ -171,7 +188,10 @@ public sealed class D3D11RenderWorker
                         // A newer mailbox packet or generation always supersedes it on retry.
                         retained = packet;
                         beforeRenderForVerification?.Invoke();
+                        bool timed = gpuTimer.TryBegin(packet.Identity);
+                        if (!timed) Interlocked.Increment(ref skippedGpuTimingSamples);
                         renderer.Render(packet);
+                        if (timed) gpuTimer.End();
                         switch (presenter.Present(renderer, packet.Identity, gate))
                         {
                             case D3D11PresentationResult.Presented:

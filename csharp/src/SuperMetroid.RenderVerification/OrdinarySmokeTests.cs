@@ -37,6 +37,7 @@ internal static class OrdinarySmokeTests
                 long allocated = (GC.GetAllocatedBytesForCurrentThread() - before) / 32;
                 Console.WriteLine($"{device.Kind}: ordinary CPU submission allocates {allocated} bytes/frame (capture/readback excluded).");
                 if (allocated > 4096) throw new InvalidOperationException($"Ordinary submission allocates {allocated} bytes/frame; upload scratch must be reused.");
+                GpuTimingTests.Run(device, renderer, frame);
             }
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");

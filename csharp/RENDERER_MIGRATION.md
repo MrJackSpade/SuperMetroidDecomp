@@ -117,7 +117,8 @@ All tests below are in `src/SuperMetroid.Verification`; no row claims GPU parity
 | Game-over menu | `CinematicSnapshotTests`: 101 samples, both choices |
 | Envelope/retained frame/fades | `RenderFrameHandoffTests`, `RenderPacketCodecTests`, `FrontendRenderCaptureTests`; component and menu-handoff evidence only |
 
-Gameplay, saved-file maps, endings, and runtime-dependent overlays remain pending.
+Gameplay base extraction is partial (see below); full gameplay, saved-file maps,
+endings, and runtime-dependent overlays remain pending.
 The general tile/OBJ/Mode7/compositor/brightness kernels additionally require
 synthetic edge coverage; scene screenshots alone cannot cover memory boundaries.
 
@@ -266,3 +267,18 @@ Another 24 constructed cases cover vertical wrap, priority and opacity. These ar
 software-reference parity checks, not GPU or PCM determinism evidence. Earlier
 notes about the intro's legacy fallback describe the preceding migration stage;
 gameplay, other remaining scenes, the GPU backend and live scheduling are pending.
+
+`GameplayDisplayCapture.CaptureOrdinaryBase` now resolves ordinary room register
+selection, shakes, sky/liquid BG2 scroll tables, boss-owned BG2 geometry, HUD
+character base and door TM selection into owned data. It explicitly rejects Mode 7
+and does not claim to include final FX/windows/messages/suit overlays. It is not
+yet wired to the frontend; the player's normal renderer is unchanged.
+
+The sealed `OrdinaryGameplayRenderLayer` owns its two optional 192-word tables.
+Its software consumer reuses the existing fused Mode-1/HUD compositor. Format five
+serializes registers and tables; earlier formats cannot contain the new operation.
+`GameplaySnapshotTests` covers 96 mask/HDMA/geometry combinations, mutation of caller
+scroll arrays, malformed table length/operation order, a retail Alpha Power Bomb
+room with inactive overlays, and retained output after replacing live VRAM/CGRAM.
+These tests verify extraction and ownership against the existing reference, not
+independent cartridge correctness or complete gameplay visual coverage.

@@ -6,6 +6,10 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case OrdinaryGameplayRenderLayer gameplay:
+                writer.Write((byte)RenderPacketLayerKind.OrdinaryGameplay);
+                WriteGameplayLayer(writer, gameplay);
+                break;
             case Bg2BppViewportRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg2Viewport);
                 writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord); writer.Write(bg.VerticalScroll);
@@ -52,6 +56,8 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.OrdinaryGameplay when version >= RenderPacketFormat.OrdinaryGameplayLayerVersion =>
+            ReadGameplayLayer(reader),
         RenderPacketLayerKind.Bg2Viewport when version >= RenderPacketFormat.Bg2ViewportLayerVersion =>
             new Bg2BppViewportRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
                 ReadBoolean(reader), ReadPriority(reader)),

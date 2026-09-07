@@ -17,11 +17,11 @@ public sealed class LayeredRenderSnapshot
     {
         ArgumentNullException.ThrowIfNull(memory);
         if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
-        // Each accepted record is sealed and value-only. Copy the sequence so a scene
+        // Each accepted record is sealed and owns any array data. Copy the sequence so a scene
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)
         {
-            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer))
+            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or Mode7RenderLayer or FixedColorAddRenderLayer or OrdinaryGameplayRenderLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
             if (layer is FixedColorAddRenderLayer fixedColor && (fixedColor.Red > 31 || fixedColor.Green > 31 || fixedColor.Blue > 31))
                 throw new ArgumentException("Fixed color components must be five-bit values.", nameof(layers));
@@ -34,6 +34,9 @@ public sealed class LayeredRenderSnapshot
                 Hardware.SnesPpuLayout.ScreenHeightPixels / Hardware.SnesPpuLayout.BackgroundTileSizePixels)
                 throw new ArgumentException("This full-frame 2-bpp operation requires exactly the visible tile rows.", nameof(layers));
         }
+        for (int i = 1; i < layers.Length; i++)
+            if (layers[i] is OrdinaryGameplayRenderLayer)
+                throw new ArgumentException("The fused gameplay base must be the first operation.", nameof(layers));
         Memory = memory;
         this.layers = layers.ToArray();
         ObjectSelection = objectSelection;

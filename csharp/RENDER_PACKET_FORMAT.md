@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–4
+# Portable display fixtures (.smframe), versions 1–5
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 4, reader supports 1 through 4 |
+| Version | UInt16; writer emits 5, reader supports 1 through 5 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -64,6 +64,7 @@ Every record begins with a byte discriminator:
 | 5: Mode 7 (version 2+) | Eight Int16 values A/B/C/D, center X/Y, horizontal/vertical offset; boolean character-zero-outside-map |
 | 6: fixed-color add (version 3+) | Three bytes red/green/blue, each 0–31 |
 | 7: 2-bpp viewport (version 4+) | UInt16 tilemap word, character word, vertical scroll; boolean transparent color zero; byte priority selector |
+| 8: ordinary gameplay base (version 5+) | Register block and optional HDMA tables described below |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -86,6 +87,21 @@ Version four adds a 256-by-224 viewport into a 32-by-32 tile 2-bpp map. Source Y
 all/low/high selector as 4-bpp. Color-zero opacity is explicit. This supports both
 the opaque first narration card and the transparent, eight-pixel-scrolled intro
 text. Kind 7 is rejected under older headers; existing kind 4 retains its semantics.
+
+Version five adds a fused ordinary gameplay base, which must be the first operation.
+Its register block is, in order: UInt16 BG1 X/Y and BG2 X/Y; Int32 BG2 width/height
+in tiles (64x32, 32x64 or 64x64); UInt16 BG2 tilemap word, BG1 character word, BG2
+character word, HUD character word; byte TM layer mask. Then horizontal and vertical
+HDMA tables each have a boolean presence byte followed, when present, by exactly
+192 UInt16 register values. They correspond to physical lines 32 through 223;
+source Y includes the physical screen line, not a restarted gameplay coordinate.
+
+The base replaces the backdrop, renders the four-row opaque BG3 HUD using its
+cartridge tilemap address, and composes BG1/BG2/OBJ below the HUD. BG1 uses the
+gameplay 64x32 tilemap. The back-to-front ranks are OBJ0, OBJ1, BG2-low, BG1-low,
+OBJ2, BG2-high, BG1-high, OBJ3. BG1/BG2/OBJ enable bits affect the gameplay region
+only. This operation does not include subsequent liquid/window/message effects.
+No previously supported layer encoding changes; older headers reject kind 8.
 
 The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation

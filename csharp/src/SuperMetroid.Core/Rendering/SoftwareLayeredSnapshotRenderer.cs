@@ -14,12 +14,26 @@ public static class SoftwareLayeredSnapshotRenderer
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
         // wrongly allow a higher-numbered record to shine through the winning record.
-        ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram,
-            memory.Cgram, snapshot.ObjectSelection);
+        bool usesObjInsertion = false;
+        foreach (RenderLayer layer in snapshot.Layers)
+            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer;
+        ResolvedObjFrame objects = usesObjInsertion
+            ? SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection)
+            : default;
         foreach (RenderLayer layer in snapshot.Layers)
         {
             switch (layer)
             {
+                case OrdinaryGameplayRenderLayer gameplay:
+                    OrdinaryGameplayRegisters r = gameplay.Registers;
+                    output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
+                        memory.Vram, memory.Cgram, memory.Oam, r.Bg1X, r.Bg1Y, r.Bg2X, r.Bg2Y,
+                        gameplay.HorizontalScrolls.IsEmpty ? null : gameplay.HorizontalScrolls.ToArray(),
+                        gameplay.VerticalScrolls.IsEmpty ? null : gameplay.VerticalScrolls.ToArray(),
+                        r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
+                        r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
+                        snapshot.ObjectSelection, r.MainScreenLayers);
+                    break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
                         bg.TilemapWord, bg.CharacterWord, rowCount: 32,

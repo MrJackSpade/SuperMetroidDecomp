@@ -1,0 +1,82 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+
+namespace SuperMetroid.Core.Rendering;
+
+/// <summary>Simulation-side resolution of live room state into owned PPU composition inputs.</summary>
+public static class GameplayDisplayCapture
+{
+    /// <summary>
+    /// Captures the ordinary Mode-1 base only. Room color math, windows, messages and
+    /// suit effects are not included yet; this is not a substitute for a complete frame.
+    /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
+    /// </summary>
+    public static LayeredRenderSnapshot CaptureOrdinaryBase(SuperMetroidRuntime runtime)
+    {
+        ArgumentNullException.ThrowIfNull(runtime);
+        if (runtime.ActiveDoor is null)
+            throw new InvalidOperationException("A cartridge room and door must be loaded before capture.");
+        if (runtime.ActiveDoor.UsesCeresElevatorMode7 || runtime.Enemies.CeresRidley is { Mode7Active: true })
+            throw new InvalidOperationException("Ordinary base capture cannot represent a Mode-7 scene.");
+
+        GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        RoomShakeFrameResult shake = ppu.RoomShake;
+        ushort bg1X = Add(ppu.Bg1HorizontalScroll, shake.Bg1X);
+        ushort bg1Y = Add(ppu.Bg1VerticalScroll, shake.Bg1Y);
+        ushort bg2X = Add(ppu.Bg2HorizontalScroll, shake.Bg2X);
+        ushort bg2Y = Add(ppu.Bg2VerticalScroll, shake.Bg2Y);
+        RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
+        ScrollingSkyState? sky = runtime.ScrollingSky;
+        ushort[]? skyX = sky?.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition
+            ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera."));
+        if (skyX is not null)
+            for (int line = 0; line < skyX.Length; line++) skyX[line] = Add(skyX[line], shake.Bg2X);
+
+        ushort[]? waterX = fx is { } water
+            ? SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(water, bg2X, bg2Y) : null;
+        ushort[]? lavaX = fx is { } lava
+            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2HorizontalScrolls(lava, bg2X, bg2Y) : null;
+        ushort[]? lavaY = fx is { } vertical
+            ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Y) : null;
+        KraidEnemyState? kraid = runtime.Enemies.Kraid;
+        bool kraidBg = kraid is { OwnsBg2Tilemap: true };
+        bool crocomireBg = runtime.Enemies.Crocomire is not null;
+        ushort character = runtime.ActiveRoom?.State.SetupCodePointer ==
+            RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze
+            ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
+        var registers = new OrdinaryGameplayRegisters(bg1X, bg1Y,
+            kraidBg ? Add(kraid!.Bg2HorizontalScroll, shake.Bg2X)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X) : bg2X,
+            kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2Y)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
+                : sky is not null ? Add(sky.VerticalScroll, shake.Bg2Y) : bg2Y,
+            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : sky is null ? 64 : 32,
+            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : sky is null ? 32 : 64,
+            kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
+            character, character, runtime.GameplayHudCharacterBaseWord,
+            runtime.DoorTransitionMainScreenLayers ??
+                (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj));
+        // Producers can return longer HDMA storage; the renderer consumes only the
+        // gameplay region. Own exactly those visible register values in the packet.
+        var layer = new OrdinaryGameplayRenderLayer(registers,
+            VisibleLines(lavaX ?? waterX ?? skyX),
+            VisibleLines(crocomireBg ? runtime.Enemies.CrocomireDeath?.Bg2ScrollByScanline : lavaY));
+        return new(PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedOam),
+            new RenderLayer[] { layer }, GameplayRenderDefinitions.ObjectSelection,
+            SnesPpuLayout.MaximumMasterBrightness);
+    }
+
+    private static ushort[] VisibleLines(IReadOnlyList<ushort>? values)
+    {
+        if (values is null) return [];
+        int count = SnesPpuLayout.ScreenHeightPixels - SnesPpuLayout.GameplayHudHeightPixels;
+        if (values.Count < count) throw new InvalidDataException("Published HDMA does not cover the gameplay viewport.");
+        var result = new ushort[count];
+        for (int i = 0; i < count; i++) result[i] = values[i];
+        return result;
+    }
+
+    private static ushort Add(ushort scroll, short shake) => unchecked((ushort)(scroll + shake));
+}

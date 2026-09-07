@@ -6,6 +6,14 @@ or selected by this document. The acceptance authority is
 
 ## Inspection baseline
 
+Ending extraction increment: the state-$27 display call now publishes owned layers
+in StepCaptured, including Mode-7 escape/explosion, scrolling credits, blank reward
+transition and post-credit art/OBJ. Existing layer operations suffice, so there is
+no format revision. Independent scene owners compare 444 sampled frames across all
+three time-based rewards; retained packets are checked after subsequent simulation
+updates. This is software-reference parity, not GPU or cartridge acceptance. The
+saved-file map selection path still needs extraction.
+
 Latest extraction increment: Mode-7 gameplay is now captured, superseding the
 ordinary-integration section's historical fallback limitation. Explicit HUD and
 optional Mode-1 floor bands carry physical scanline boundaries, transform and tile

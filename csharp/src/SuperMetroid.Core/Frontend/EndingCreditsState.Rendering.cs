@@ -33,12 +33,12 @@ internal sealed partial class EndingCreditsState
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
             RenderPostCreditsBackground(pixels);
-            RenderSprites(pixels, obsel: 3);
+            RenderSprites(pixels, obsel: EndingCreditsRomData.Rendering.RewardObjectSelection);
         }
         else
         {
             RenderMode7Background(pixels);
-            RenderSprites(pixels, obsel: 2);
+            RenderSprites(pixels, obsel: EndingCreditsRomData.Rendering.EscapeObjectSelection);
         }
 
         MasterBrightnessFilter.Apply(pixels, brightness);
@@ -61,8 +61,8 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: 56,
-            centerY: 24,
+            centerX: EndingCreditsRomData.Rendering.Mode7CenterX,
+            centerY: EndingCreditsRomData.Rendering.Mode7CenterY,
             horizontalOffset: unchecked((short)mode7X),
             verticalOffset: unchecked((short)mode7Y));
         SnesLayerCompositor.Composite(pixels, mode7);
@@ -91,13 +91,21 @@ internal sealed partial class EndingCreditsState
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)
     {
+        OamBuffer oam = PrepareSprites();
+        Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel);
+        SnesLayerCompositor.Composite(pixels, objects);
+    }
+
+    // Keep sprite drawing on the simulation-side display boundary. Neither the
+    // immutable packet consumer nor repeated rendering may advance sprite state.
+    private OamBuffer PrepareSprites()
+    {
         var oam = new OamBuffer();
         oam.BeginFrame();
         foreach (EndingSprite wrapper in sprites)
             wrapper.Sprite.Draw(bus, oam);
         oam.FinalizeFrame();
-        Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel);
-        SnesLayerCompositor.Composite(pixels, objects);
+        return oam;
     }
 
     private short ReadSine(byte index) => unchecked((short)

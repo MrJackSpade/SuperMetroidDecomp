@@ -47,6 +47,14 @@ public static class EndingCreditsRomData
 
     public static class Rendering
     {
+        /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
+        public const short Mode7CenterX = 56;
+        /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
+        public const short Mode7CenterY = 24;
+        /// <summary>Ending OBSEL=$02 selects the escape/explosion OBJ character base.</summary>
+        public const byte EscapeObjectSelection = 2;
+        /// <summary>Post-credits OBSEL=$03 selects the reward OBJ character base.</summary>
+        public const byte RewardObjectSelection = 3;
         public const ushort BlankTile = 0x007f;
         public const int TilemapWidth = 32;
         public const int TilemapHeight = 32;

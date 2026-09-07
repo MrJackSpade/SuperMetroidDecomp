@@ -896,7 +896,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.EndingAndCredits:
                 endingCredits!.Step();
-                lastPixels = endingCredits.Render();
+                PublishEnding(endingCredits);
                 break;
 
             case SuperMetroidGameState.TransitionToDemoA:

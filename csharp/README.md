@@ -47,6 +47,32 @@ The host uses a 256x224 game framebuffer and scales it by an integer factor when
 allows. Click the game image if keyboard focus has moved to the toolbar. Gamepad polling does
 not depend on window focus.
 
+### Renderer selection and diagnostics
+
+The normal Windows host defaults to `Auto`: Direct3D11 hardware first, with a
+console-reported software fallback if hardware initialization fails. To select
+explicitly, add this section beside the ROM in `SuperMetroid.ini`:
+
+```ini
+[Video]
+Renderer=Auto
+```
+
+`Software` selects the reference renderer. `Direct3D11` requires hardware and fails
+loudly on startup errors. Neither GPU selection hides missing scene support behind
+a CPU raster fallback. WARP is an explicit verification-tool option, not the normal
+game's hardware fallback. The console reports the selected backend and adapter.
+
+Simulation/audio and GPU presentation rates are separate: low displayed FPS over
+RDP does not by itself mean slow gameplay. The GPU worker uses a bounded latest-frame
+mailbox; superseded pictures may be discarded, not simulation inputs or audio.
+The native image stays 256x224 with TV-aspect scaling and letterboxing. Per-monitor
+DPI awareness is enabled; an actual cross-monitor transition remains unverified.
+
+See [build and packaging](D3D11_BUILD.md), [coverage and performance](RENDERER_MIGRATION.md),
+and the [remaining acceptance gates](RENDERER_ACCEPTANCE_AUDIT.md). Issue #321 is
+not yet fully qualified. RDP reconnect testing is explicitly deferred by the user.
+
 ### Controls
 
 | Keyboard | SNES input | Game use |

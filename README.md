@@ -35,8 +35,9 @@ The following large subsystem passes are implemented:
 - HUD, minimap exploration, pause map/equipment screens, SRAM encoding/checksums, file-select
   save metadata, Ceres automatic save, gunship save/reload, and restoration of inventory and
   world-state bits; and
-- software rendering of the translated BG/OAM/CGRAM/Mode-7/color-math paths used by the
-  implemented frontend and playable route; and
+- hardware-first Direct3D11 rendering of the implemented frontend/gameplay paths,
+  with an explicit software reference backend and portable owned render packets;
+  [renderer qualification and remaining gates](csharp/RENDERER_ACCEPTANCE_AUDIT.md); and
 - cartridge-derived audio: the translated SPC sequencer and SNES DSP/BRR mixer, retail
   bank-$80 music/SFX queues and acknowledgements, and buffered Windows PCM playback; and
 - the outer frontend paths for options submenus, reserve-tank recovery, fatal damage,

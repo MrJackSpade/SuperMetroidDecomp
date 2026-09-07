@@ -1,6 +1,6 @@
 # Issue 321 acceptance audit
 
-Audit checkpoint: `07b8e40`, September 7, 2026. This is a completion checklist,
+Audit checkpoint: `78a6d1d`, September 7, 2026. This is a completion checklist,
 not a replacement for the full issue specification. A passing sampled fixture
 does not prove untested paths. The goal remains incomplete.
 
@@ -43,6 +43,17 @@ external test remains outstanding. Microsoft documents the default and per-monit
 configuration in [WinForms automatic scaling](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/forms/autoscale).
 
 ### Latest clean-package evidence
+
+Final production DPI-policy package at `78a6d1d` passed the entire clean publish
+script with exit code 0, including the effective PerMonitorV2 assertion, rebuilt
+shaders, asset hashes, game audits, full hidden desktop lifecycle suite and short
+gameplay/pause smoke (59.678/59.670 FPS; producer p95 0.884/0.145 ms; zero audio
+drains). The owned `0ef94cc02afb43d2931b926d33de86a6` output was removed afterward.
+The most recent portable Linux pass is at `d4aa15c`; no Core change followed it.
+
+Read-only display enumeration on September 7 found one screen, DISPLAY209,
+1920x1080. A real cross-monitor transition cannot be performed in that session
+without an external setup change. No such change was attempted.
 
 Revalidated after hardware-default selection at `d4aa15c`: the clean publish script
 finished with exit code 0, rebuilt all four shaders, checked identical dependencies

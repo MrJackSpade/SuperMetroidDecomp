@@ -240,10 +240,11 @@ observed no audio queue drains; it is packaging evidence, not a substitute for t
 separate five-minute performance reports. The isolated publish directory was
 removed after verification, including its copied ROM and synthetic save fixtures.
 
-Still required: finish the scene/publication and cross-backend state/PCM acceptance
-audit (room-runtime fixtures do not independently prove every frontend handoff),
-real recovery/DPI/RDP evidence, verified hardware-default selection,
-final documentation and player-validation handoff. Do not close
+Current completion checklist: see `RENDERER_ACCEPTANCE_AUDIT.md`. Publication
+routing is audited and Auto now selects hardware by default. RDP reconnect testing
+is explicitly deferred by the user. Independent cartridge-reference evidence,
+actual monitor/DPI transition verification, final acceptance review and
+player-validation handoff remain outstanding. Do not close
 #321 or mark its completion goal achieved from the milestones above.
 
 ## Historical inspection and incremental notes

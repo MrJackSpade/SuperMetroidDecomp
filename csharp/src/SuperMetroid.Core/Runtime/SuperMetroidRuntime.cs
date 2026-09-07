@@ -1619,6 +1619,15 @@ public sealed partial class SuperMetroidRuntime
                 ActiveSamusMode7Transform,
                 BombProjectiles,
                 VramWrites);
+            if (Enemies.Phantoon is { } phantoon)
+            {
+                // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
+                // while eye/tentacle collision follows enemy positions. Publish those
+                // writes before the next accepted NMI latches the matching OAM frame.
+                // The room's fixed layer-two axes preserve them during camera scrolling.
+                BackgroundScroll.SetBg2ScrollRegisters(
+                    phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll);
+            }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
                 // $A6:C117 publishes these global side effects on the same EnemyMain call

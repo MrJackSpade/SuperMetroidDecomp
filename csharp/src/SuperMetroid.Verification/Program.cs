@@ -25,8 +25,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--phantoon-position"])
+{
+    VerifyPhantoonPosition();
+    return 0;
+}
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
-    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract]");
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyGameConfigurationIni();
 VerifyViewportTileRowParity();
@@ -63,6 +68,7 @@ VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();
         VerifyQuicksand();
         VerifyTreadmillPhysics();
+        VerifyPhantoonPosition();
         VerifyPausePaletteSound();
 VerifyKnownRandomSequence();
 VerifyTimedHeldInputTimeline();

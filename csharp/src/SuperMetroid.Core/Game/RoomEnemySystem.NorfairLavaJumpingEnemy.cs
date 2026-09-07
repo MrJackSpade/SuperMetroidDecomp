@@ -246,10 +246,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        // A live source must still be the paired parent. A dead parent's definition can be
-        // cleared by DetermineWhichEnemiesToProcess before the follower gets its last AI
-        // frame, which is why the health-zero exit deliberately precedes this validation.
-        ValidateNorfairLavaJumpingEnemyParent(follower);
+        // Pair identity is checked at population initialization, not on every AI frame.
+        // The native flame routine reads the preceding physical record even after its
+        // header has been cleared: script deletion does not zero health or movement words.
+        // Requiring a live definition here rejects valid retained-WRAM reads (#322).
 
         follower.FrozenTimer = parent.FrozenTimer;
         if (parent.FrozenTimer != 0 || (parent.VariableC & 0x8000) == 0)
@@ -283,7 +283,9 @@ public sealed partial class RoomEnemySystem
         {
             throw new InvalidDataException(
                 $"Norfair lava-jumping follower in slot {follower.SlotIndex} must immediately follow " +
-                "a parent record of the same definition.");
+                "a parent record of the same definition. " +
+                $"Preceding slot: definition=${parent.EnemyDefinitionPointer:X4}, " +
+                $"health=${parent.Health:X4}, parameter=${parent.Parameter1:X4}, properties={parent.Properties}.");
         }
     }
 

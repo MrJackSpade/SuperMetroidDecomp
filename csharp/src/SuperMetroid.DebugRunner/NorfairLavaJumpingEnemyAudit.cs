@@ -18,7 +18,7 @@ internal static class NorfairLavaJumpingEnemyAudit
     private const ushort CameraX = 0x0000;
     private const ushort CameraY = 0x0000;
 
-    public static int Run(string romPath)
+    public static int Run(string romPath, bool deletedParentOnly = false)
     {
         SuperMetroidAddressSpace retailBus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         VerifyHeader(retailBus);
@@ -42,6 +42,13 @@ internal static class NorfairLavaJumpingEnemyAudit
                 $"population=${room.State.EnemyPopulationPointer:X4}, tileset=" +
                 $"${room.State.EnemyTilesetPointer:X4}, dimensions=" +
                 $"{room.WidthInScreens}x{room.HeightInScreens}.");
+        }
+
+        if (deletedParentOnly)
+        {
+            VerifyDeletedParentRetainsFollowerReads(retailBus, room, assets);
+            Console.WriteLine("Deleted-parent flame regression passed: retained position, health and freeze reads after header deletion (#322).");
+            return 0;
         }
 
         VerifyJumpAnimationAndFollower(retailBus, room, assets);
@@ -165,6 +172,33 @@ internal static class NorfairLavaJumpingEnemyAudit
                 $"{loaded.Parent.FrozenTimer}/{loaded.Follower.FrozenTimer}, hidden=" +
                 $"{loaded.Follower.Properties.HasAny(EnemyProperties.Invisible)}.");
         }
+    }
+
+    /// <summary>
+    /// Reproduces #322's nonzero-health deleted parent. DetermineWhichEnemiesToProcess
+    /// clears only its header; the cartridge flame routine still reads the retained words.
+    /// This is distinct from the zero-health combat-death test below.
+    /// </summary>
+    private static void VerifyDeletedParentRetainsFollowerReads(
+        SuperMetroidAddressSpace retailBus,
+        CartridgeRoomHeader room,
+        CartridgeRoomAssets assets)
+    {
+        LoadedPair loaded = LoadPair(retailBus, room, assets);
+        loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
+        loaded.Parent.Properties = loaded.Parent.Properties.With(EnemyProperties.Deleted);
+        ushort health = loaded.Parent.Health;
+        ushort position = loaded.Parent.YPosition;
+        loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
+        if (loaded.Parent.EnemyDefinitionPointer != 0 || loaded.Parent.Health != health ||
+            loaded.Follower.Properties.HasAny(EnemyProperties.Deleted | EnemyProperties.Invisible) ||
+            loaded.Follower.YPosition != position)
+            throw new InvalidDataException("Deleted Squeept parent must retain the native flame's live-word following behavior.");
+
+        loaded.Parent.FrozenTimer = 10;
+        loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
+        if (loaded.Follower.FrozenTimer != 10 || !loaded.Follower.Properties.HasAny(EnemyProperties.Invisible))
+            throw new InvalidDataException("Flame must mirror retained parent freeze state even after its header is cleared.");
     }
 
     private static void VerifyContactAndWeaponDamage(

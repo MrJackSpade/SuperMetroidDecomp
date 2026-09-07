@@ -14,6 +14,12 @@ animation from being triggered and blocking the Gravity Suit route.
 Private cartridge-derived debugger fixture; do not distribute publicly.
 ## Reproduction
 
+`slot-9-named.smstate` is a schema-3 copy converted by the known-compatible
+`61edf37` core using the production load/save path, without advancing frame 13184.
+SHA-256: `80DF0F0D6FBA1E088952988F3AC8D61918128D4A1C0BA9D7D21C3D25231B10D0`.
+The original schema-2 fixture is retained unchanged. The named copy avoids legacy
+compiler-token drift when adding production methods during this fix.
+
 From the repository root, run the console-only diagnostic:
 
 ```powershell

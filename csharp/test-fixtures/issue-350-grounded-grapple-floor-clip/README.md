@@ -14,3 +14,9 @@ into the floor. Exact timing and root cause have not yet been investigated.
 
 Private debugger-state fixture; may contain cartridge-derived data. Do not
 distribute publicly. No reproduction or fix is claimed by preserving this file.
+
+`slot-0-named.smstate` is a schema-3 copy converted by the known-compatible
+`61edf37` core using the production load/save path, without advancing frame 8187.
+SHA-256: `B67621C554E56AD77A4357E071D522EA7D3B202D5C9E9E85D3673B0ADE0FC0E9`.
+The original remains unchanged. This companion conversion was performed alongside
+issue #353 to preserve both fixtures before compiler method tokens shifted.

@@ -18,7 +18,7 @@ public sealed partial class D3D11FrameRenderer
             data[offset] = layer.Scrolls[y].X;
             data[offset + 1] = layer.Scrolls[y].Y;
         }
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 
@@ -36,7 +36,7 @@ public sealed partial class D3D11FrameRenderer
             data[offset + 2] = line.Green;
             data[offset + 3] = line.Blue;
         }
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 }

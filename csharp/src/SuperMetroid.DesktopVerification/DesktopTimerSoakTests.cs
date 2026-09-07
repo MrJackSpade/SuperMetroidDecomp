@@ -65,6 +65,8 @@ internal static partial class Program
                 // Take health before SetPlaying(false) intentionally resets the native queue.
                 var health = output.QueueHealth;
                 var renderer = worker.CaptureTimings();
+                Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
+                    && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
                 if (visible) Check(worker.PresentedFrames > 0, "visible soak produced no successful Present calls");
                 Call(control, "SetPlaying", false);
                 counter.EmulatedFrameMeasured -= Measure;
@@ -74,6 +76,7 @@ internal static partial class Program
                 results.Add(new { Paused = paused, Seconds = elapsed, Frames = samples.Count, Fps = samples.Count / elapsed,
                     ProducerP50Ms = Percentile(.5), ProducerP95Ms = Percentile(.95), ProducerP99Ms = Percentile(.99),
                     Adapter = adapter, Visible = visible, Audio = health, Renderer = renderer,
+                    UploadCpu = worker.CaptureUploadTimings(), worker.SubmittedUploadBytes, worker.SubmittedUploadCalls,
                     worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
                 Console.WriteLine($"Desktop timer paused={paused}: {samples.Count / elapsed:F3} fps, p95={Percentile(.95):F3}ms, drains={health.EmptyBeforeRefill}.");
             }

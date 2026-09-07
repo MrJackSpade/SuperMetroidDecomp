@@ -104,7 +104,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         data[1] = (uint)packet.BrightnessPasses.Length;
         data[2] = (uint)packet.Width; data[3] = (uint)packet.Height;
         for (int i = 0; i < packet.BrightnessPasses.Length; i++) data[D3D11ShaderLayout.SolidHeaderWords + i] = packet.BrightnessPasses[i];
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetShader(shader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetUnorderedAccessView(0, view);

@@ -20,7 +20,7 @@ public sealed partial class D3D11FrameRenderer
         data[26] = (uint)(GameplayMessageRomData.Layout.WindowCenterY + layer.RadiusPixels);
         for (int i = 0; i < layer.Tilemap.Length; i++)
             data[D3D11ShaderLayout.ScanlineParametersWordOffset + i * 4] = layer.Tilemap[i];
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 }

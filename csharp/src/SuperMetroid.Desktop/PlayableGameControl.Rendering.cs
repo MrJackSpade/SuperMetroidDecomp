@@ -27,6 +27,8 @@ public sealed partial class PlayableGameControl
             $"window {value.Retained}, warmup excluded {value.WarmupExcluded}, observed {value.Observed}";
         rendererTimingDetail = Environment.NewLine + string.Join(Environment.NewLine,
             Format("CPU composition submission", timings.CpuComposition),
+            Format("CPU upload submission (within composition/display)", worker.CaptureUploadTimings()),
+            $"Upload bytes {worker.SubmittedUploadBytes}, calls {worker.SubmittedUploadCalls}",
             Format("CPU display + Present (includes wait)", timings.CpuDisplayAndPresent),
             Format("GPU composition (excludes display/Present)", timings.GpuComposition),
             Format("GPU composition + display (excludes CPU Present wait)", timings.GpuCompositionAndDisplay),

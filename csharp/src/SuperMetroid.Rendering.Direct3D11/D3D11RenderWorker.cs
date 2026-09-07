@@ -28,6 +28,12 @@ public sealed class D3D11RenderWorker
     private readonly RenderTimingWindow cpuPresentationTiming = new();
     private readonly RenderTimingWindow gpuCompositionTiming = new();
     private readonly RenderTimingWindow gpuFrameTiming = new();
+    private readonly RenderTimingWindow cpuUploadTiming = new();
+    private long submittedUploadBytes, submittedUploadCalls;
+    public long SubmittedUploadBytes => Interlocked.Read(ref submittedUploadBytes);
+    public long SubmittedUploadCalls => Interlocked.Read(ref submittedUploadCalls);
+    /// <summary>Per-present CPU UpdateSubresource time, including composition and display constants.</summary>
+    public RenderTimingDistribution CaptureUploadTimings() => cpuUploadTiming.Snapshot();
     public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
         cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot(), gpuFrameTiming.Snapshot());
     private double gpuCompositionMilliseconds = double.NaN;
@@ -203,12 +209,17 @@ public sealed class D3D11RenderWorker
                         bool timed = gpuTimer.TryBegin(packet.Identity);
                         if (!timed) Interlocked.Increment(ref skippedGpuTimingSamples);
                         long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                        var uploadBefore = renderer.UploadStatistics;
                         renderer.Render(packet);
                         cpuCompositionTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds);
                         if (timed) gpuTimer.MarkCompositionFinished();
                         long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         var presentationResult = presenter.Present(renderer, packet.Identity, gate, timed ? gpuTimer : null);
                         cpuPresentationTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds);
+                        var uploadAfter = renderer.UploadStatistics;
+                        cpuUploadTiming.Record(uploadAfter.CpuMilliseconds - uploadBefore.CpuMilliseconds);
+                        Interlocked.Add(ref submittedUploadBytes, uploadAfter.Bytes - uploadBefore.Bytes);
+                        Interlocked.Add(ref submittedUploadCalls, uploadAfter.Calls - uploadBefore.Calls);
                         switch (presentationResult)
                         {
                             case D3D11PresentationResult.Presented:

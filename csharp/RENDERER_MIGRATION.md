@@ -77,6 +77,13 @@ driver reset and monitor/DPI/RDP changes remain unqualified.
 No machine-wide forced GPU reset has been performed.
 
 GPU timestamp queries use a bounded nonblocking ring. The tooltip reports rolling
+upload CPU submission percentiles and cumulative uploaded bytes/calls separately.
+These count every UpdateSubresource, including reusable window children and display
+constants. Upload time is already included in composition/display CPU intervals;
+do not add it again. It excludes source packing and does not time asynchronous GPU
+transfer completion. Exact parent/child byte and call totals are tested, including
+empty windows; ordinary submission remains allocation-free.
+The tooltip also reports rolling
 p50/p95/p99 CPU composition, display/Present and GPU composition histories, excluding
 60 warmup samples. GPU composition excludes scaling/Present; a second timestamp
 interval includes display drawing but ends before the CPU Present call. Audio telemetry counts

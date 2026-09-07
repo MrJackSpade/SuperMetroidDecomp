@@ -16,7 +16,7 @@ public sealed partial class D3D11FrameRenderer
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
         for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Oam).CopyTo(memory.AsSpan(D3D11ShaderLayout.OamPackedWordOffset));
-        fixed (uint* source = memory) owner.Context.UpdateSubresource(memoryBuffer, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = memory) UploadBuffer(memoryBuffer, (nint)source, memory.Length * sizeof(uint));
         owner.Context.CSSetShader(tileShader);
         owner.Context.CSSetConstantBuffer(0, constants);
         owner.Context.CSSetShaderResource(0, memoryView);
@@ -94,7 +94,7 @@ public sealed partial class D3D11FrameRenderer
         data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
         data[13] = objectCount; data[14] = objectSelection;
         data[25] = firstScanline; data[26] = endScanline;
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 
@@ -112,7 +112,7 @@ public sealed partial class D3D11FrameRenderer
         data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
         data[24] = registers.FillOutsideWithCharacterZero ? 1 : 0;
         data[25] = firstScanline; data[26] = endScanline;
-        fixed (int* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 }

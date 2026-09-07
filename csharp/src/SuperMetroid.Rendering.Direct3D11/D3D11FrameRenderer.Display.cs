@@ -18,7 +18,7 @@ public sealed partial class D3D11FrameRenderer
         var data = System.Runtime.InteropServices.MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = viewport.Left; data[1] = viewport.Top;
         data[2] = viewport.Width; data[3] = viewport.Height;
-        fixed (int* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.OMSetRenderTargets(target);

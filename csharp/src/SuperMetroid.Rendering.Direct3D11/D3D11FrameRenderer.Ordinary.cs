@@ -50,7 +50,7 @@ public sealed partial class D3D11FrameRenderer
             data[offset] = layer.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.HorizontalScrolls[line];
             data[offset + 1] = layer.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.VerticalScrolls[line];
         }
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }
 }

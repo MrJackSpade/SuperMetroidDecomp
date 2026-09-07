@@ -1,0 +1,50 @@
+# Direct3D11 backend build and current scope
+
+The isolated Windows assembly currently implements device ownership and a real
+integer compute path for solid display packets with ordered brightness. It does
+**not** yet implement gameplay layers, presentation, desktop selection or threading.
+The console verification project never substitutes the CPU reference for GPU work.
+
+## Reproducible inputs
+
+- .NET SDK 10.0.400, as used for current project verification.
+- Vortice.Direct3D11 exactly 3.8.3, with checked-in `packages.lock.json` files.
+  Use `dotnet restore csharp/src/SuperMetroid.RenderVerification --locked-mode`.
+  The resolved Vortice packages are 3.8.3, Mathematics 2.1.0, and SharpGen Runtime/COM
+  2.4.2-beta. The beta is an upstream transitive runtime dependency, explicitly
+  recorded here rather than represented as entirely stable dependencies.
+- Windows SDK directory 10.0.26100.0, x64 FXC file version 10.0.26100.8249,
+  SHA256 `005EFF830845789C7EFB2831A0B41950EE6954E9BCD93BAF50DE67AD537728B2`.
+  `ShaderBuild.targets` verifies the compiler bytes and compiles source before
+  resource discovery with `/Ges /WX /O3 /T cs_5_0`. The bytecode is embedded in the
+  assembly, not compiled at runtime or loaded from an untracked binary.
+  Other serviced compiler versions fail the build and need an explicit reviewed
+  tool-pin update. The SDK/compiler is not redistributed in this repository.
+
+Run `dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --solid-smoke`
+and repeat with Debug. Native error boxes are disabled and managed exceptions go
+to stderr with exit code one. There is no interactive window or game launch.
+
+## Dependency and ownership review
+
+[Vortice 3.8.3](https://www.nuget.org/packages/Vortice.Direct3D11/3.8.3) provides
+managed D3D11/DXGI COM bindings, not an application-specific native renderer DLL.
+Its package source revision is `9e609cb9439c9872aa1b339f177e40ec96f77239`.
+Vortice/Mathematics and SharpGen package manifests declare MIT licenses; attribution
+and license text are included in `D3D11_THIRD_PARTY_NOTICES.txt` and copied to output.
+Native D3D11/DXGI runtime and display-driver behavior remain Windows dependencies.
+
+The device, immediate context, shaders and views have explicit disposal. Constructor
+failure releases previously created resources. Calls on a different managed thread
+are rejected before submitting context work, consistent with Microsoft's
+[D3D11 threading rules](https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-intro).
+This is ownership enforcement, not the still-pending simulation/render scheduling split.
+
+Hardware mode explicitly enumerates a non-software DXGI adapter and creates the
+device with that adapter. A default driver-type request was experimentally found
+to select Microsoft Basic Render Driver in this environment; that route is not used.
+WARP must be explicitly requested and is reported separately. No automatic fallback.
+
+Current smoke coverage: exact RGBA for 64 solid/fade/alpha combinations on each of
+RTX 3090 and WARP, plus wrong-thread rejection, in Debug and Release. These results
+are functional checks, not performance gates or a claim that the game renders on GPU.

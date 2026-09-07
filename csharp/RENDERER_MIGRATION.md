@@ -1,10 +1,21 @@
 # Renderer migration — issue 321
 
-Status: software packet extraction in progress. No GPU backend is implemented
-or selected by this document. The acceptance authority is
+Status: frontend software packet extraction is implemented; an isolated D3D11
+solid-packet compute path is verified. Gameplay GPU layers, presentation and live
+scheduling remain unimplemented; the desktop still uses software. The acceptance authority is
 [issue 321](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/321).
 
 ## Inspection baseline
+
+Initial GPU increment: `SuperMetroid.Rendering.Direct3D11` owns an explicit hardware
+or WARP device/context and builds an integer solid/fade shader from source.
+`SuperMetroid.RenderVerification --solid-smoke` dispatches that shader and compares
+readback to the reference: 64 RGBA/fade cases per device, Debug and Release, plus
+wrong-thread rejection. Hardware enumeration was necessary because the default
+driver-type request selected Basic Render Driver in this environment; explicit
+enumeration now reports RTX 3090. See `D3D11_BUILD.md` for locked dependencies,
+compiler hash, license review and commands. This is the beginning of the GPU
+implementation, not satisfaction of any full-scene or performance acceptance gate.
 
 Attract-demo capture: reproduced a legacy-raster fallback at tick 2469 entering the
 first demo, then replaced all three demo-owned black allocations with PublishBlack.

@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <!-- Pin both SDK directory and compiler bytes; a serviced SDK must be reviewed explicitly. -->
+    <ShaderCompiler>$(MSBuildProgramFiles32)\Windows Kits\10\bin\10.0.26100.0\x64\fxc.exe</ShaderCompiler>
+    <ShaderCompilerSha256>005EFF830845789C7EFB2831A0B41950EE6954E9BCD93BAF50DE67AD537728B2</ShaderCompilerSha256>
+  </PropertyGroup>
+  <Target Name="CompileDisplayShaders" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(ShaderCompiler)')" Text="Install Windows SDK 10.0.26100.0 x64 shader compiler; see D3D11_BUILD.md." />
+    <GetFileHash Files="$(ShaderCompiler)" Algorithm="SHA256">
+      <Output TaskParameter="Items" ItemName="VerifiedShaderCompiler" />
+    </GetFileHash>
+    <Error Condition="'%(VerifiedShaderCompiler.FileHash)' != '$(ShaderCompilerSha256)'" Text="Shader compiler SHA256 differs from the reviewed build tool." />
+    <MakeDir Directories="$(IntermediateOutputPath)Shaders" />
+    <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E Main /Fo &quot;$(IntermediateOutputPath)Shaders\Solid.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Solid.hlsl&quot;" />
+    <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\Solid.cso" LogicalName="SuperMetroid.Shaders.Solid.cso" />
+    </ItemGroup>
+  </Target>
+</Project>

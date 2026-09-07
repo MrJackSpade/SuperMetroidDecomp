@@ -9,4 +9,6 @@
   <Project Path="src/SuperMetroid.RoomViewer/SuperMetroid.RoomViewer.csproj" />
   <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />
   <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />
+  <Project Path="src/SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
+  <Project Path="src/SuperMetroid.RenderVerification/SuperMetroid.RenderVerification.csproj" />
 </Solution>

@@ -25,6 +25,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shutter-morph-repro"])
+{
+    AuditMorphShutterApproaches(reproduceOnly: true);
+    return 0;
+}
+if (args is ["--shutter-morph-approaches"])
+{
+    AuditMorphShutterApproaches();
+    return 0;
+}
 if (args is ["--shutter-repeat"])
 {
     AuditRepeatedShutterBombs();

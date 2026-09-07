@@ -1,0 +1,59 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
+
+internal static partial class Program
+{
+    private static void AuditMorphShutterApproaches(bool reproduceOnly = false)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        int cases = 0, worstGap = 0;
+        foreach (int slotIndex in new[] { 0, 1 })
+        foreach (bool approach in new[] { false, true })
+        foreach (int interval in new[] { 8, 20, 40 })
+        foreach (int rollAt in new[] { 30, 45, 60, 75, 90, 105, 120, 150 })
+        foreach (int duration in new[] { 4, 8, 16 })
+        {
+            if (reproduceOnly && (slotIndex != 0 || approach || interval != 8 || rollAt != 75 || duration != 4)) continue;
+            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            runtime.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.InitializeStartingCeresRoom();
+            runtime.InitializeCeresStartSamus();
+            runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom);
+            var samus = runtime.Samus!;
+            var platform = runtime.Enemies.Slots[slotIndex];
+            samus.InputLocked = false;
+            samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+            samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            int toward = slotIndex == 0 ? -1 : 1;
+            samus.XPosition = (ushort)(platform.XPosition - (approach ? toward * 32 : 0));
+            samus.YPosition = (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.YRadius);
+            runtime.StepFrame(0);
+            for (int frame = 0; frame < 260; frame++)
+            {
+                ushort input = frame < 220 && frame % interval == 0 ? runtime.ControllerBindings.Shoot : (ushort)0;
+                int direction = approach && frame < 12 ? toward : 0;
+                if (frame >= rollAt && frame < rollAt + duration) direction = -toward;
+                if (frame >= rollAt + duration && frame < rollAt + duration * 2) direction = toward;
+                if (direction != 0) input |= (ushort)(direction < 0 ? SnesButton.Left : SnesButton.Right);
+                runtime.StepFrame(input);
+                int gap = platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius;
+                if (Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
+                    samus.YPosition < platform.YPosition && gap < worstGap)
+                {
+                    worstGap = gap;
+                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition}");
+                }
+                AssertTrue(samus.Kinematics.YRadius == 7, "morph-only approach never enters a standing/unmorph posture");
+                if (reproduceOnly && Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
+                    samus.YPosition < platform.YPosition)
+                    AssertTrue(gap >= -1, $"unresolved #347: morph rider embeds at frame {frame}, gap={gap}, Samus=({samus.XPosition},{samus.YPosition}), platformY={platform.YPosition}");
+            }
+            cases++;
+        }
+        Console.WriteLine($"{cases} morph-only bomb/roll/return sequences; minimum gap={worstGap}. Investigation, not a resolved-issue assertion.");
+    }
+}

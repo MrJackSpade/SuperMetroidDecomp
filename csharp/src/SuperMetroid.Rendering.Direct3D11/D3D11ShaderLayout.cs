@@ -8,4 +8,10 @@ internal static class D3D11ShaderLayout
     internal const int SolidConstantWords = SolidHeaderWords + MaximumBrightnessPasses;
     internal const int DispatchTileEdge = 8;
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
+    internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
+    internal const int VramPackedWords = Core.Hardware.SnesPpuLayout.VramByteCount / sizeof(uint);
+    internal const int PpuMemoryWords = VramPackedWords + Core.Hardware.SnesPpuLayout.CgramColorCount;
 }
+
+/// <summary>Exclusive compute operations shared with Tiles.hlsl.</summary>
+internal enum D3D11TileOperation : uint { Backdrop = 0, Bg4 = 1, Bg2 = 2, Brightness = 3, FixedAdd = 4 }

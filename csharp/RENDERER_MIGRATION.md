@@ -1,11 +1,20 @@
 # Renderer migration — issue 321
 
-Status: frontend software packet extraction is implemented; an isolated D3D11
-solid-packet compute path is verified. Gameplay GPU layers, presentation and live
+Status: frontend software packet extraction is implemented; isolated D3D11
+solid and tile-background compute paths are verified. Compound gameplay GPU layers, presentation and live
 scheduling remain unimplemented; the desktop still uses software. The acceptance authority is
 [issue 321](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/321).
 
 ## Inspection baseline
+
+GPU tile increment: packed VRAM/CGRAM upload feeds shader-side 4-bpp and 2-bpp
+decoding, flips, BGSC pages, priority filters and transparency; fixed-color addition
+and ordered fades also execute on GPU. No composed CPU image is uploaded. Both RTX
+3090 and WARP pass 108 cases plus the exact packed-byte regression in Debug/Release.
+The first comparison exposed an optimized-byte-extraction miscompile; the failing
+packet is preserved, and an equivalent explicit bit-selection path passes with
+optimization retained. The comparison CLI now saves packet/pixel/difference artifacts
+on mismatch. OBJ, Mode 7 and the remaining compound/effect operations are next.
 
 Initial GPU increment: `SuperMetroid.Rendering.Direct3D11` owns an explicit hardware
 or WARP device/context and builds an integer solid/fade shader from source.

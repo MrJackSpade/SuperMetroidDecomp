@@ -1,0 +1,19 @@
+{
+  "Context": "Hardware: 4bpp geometry/priority/scroll #1",
+  "Identity": {
+    "Sequence": 1,
+    "Generation": 1,
+    "SimulationFrame": 0
+  },
+  "MismatchedPixels": 14377,
+  "FirstX": 0,
+  "FirstY": 0,
+  "Expected": "Rgba32 { R = 104, G = 25, B = 114, A = 255 }",
+  "Actual": "Rgba32 { R = 25, G = 67, B = 93, A = 255 }",
+  "Bounds": {
+    "Left": 0,
+    "Top": 0,
+    "RightInclusive": 255,
+    "BottomInclusive": 223
+  }
+}

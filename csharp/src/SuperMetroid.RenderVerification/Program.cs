@@ -5,12 +5,26 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
-    if (args.Length != 1 || args[0] != "--solid-smoke")
-        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke");
+    if (args.Length == 4 && args[0] == "--compare" && args[2] == "--device")
+    {
+        D3D11DeviceKind kind = args[3] switch {
+            "hardware" => D3D11DeviceKind.Hardware, "warp" => D3D11DeviceKind.Warp,
+            _ => throw new ArgumentException("Device must be hardware or warp.") };
+        var frame = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(args[1]));
+        using var device = new D3D11RenderDevice(kind);
+        using var renderer = new D3D11FrameRenderer(device);
+        PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+            $"{kind}: {device.AdapterDescription}; {Path.GetFullPath(args[1])}");
+        Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frame.Width}x{frame.Height}.");
+        return;
+    }
+    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke"))
+        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --compare <frame.smframe> --device hardware|warp");
     foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
     {
         using var device = new D3D11RenderDevice(kind);
-        using var renderer = new D3D11SolidRenderer(device);
+        using var renderer = new D3D11FrameRenderer(device);
+        if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }
         int samples = 0;
         foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
         for (byte brightness = 0; brightness <= 15; brightness++)
@@ -18,7 +32,7 @@ try
             var frame = new RenderFrameSnapshot(new(++samples, 1, 0), new Rgba32(231, 123, 47, alpha), new byte[] { brightness, 11 });
             Rgba32[] expected = SoftwareFrameSnapshotRenderer.Render(frame);
             Rgba32[] actual = renderer.RenderForReadback(frame);
-            if (!expected.AsSpan().SequenceEqual(actual)) throw new InvalidOperationException($"{kind}: solid compute mismatch at sample {samples}.");
+            PixelComparison.Verify(frame, expected, actual, $"{kind}: solid compute sample {samples}");
         }
         // A wrong-thread call must fail before issuing any D3D context operation.
         Exception? wrongThread = Task.Run(() =>

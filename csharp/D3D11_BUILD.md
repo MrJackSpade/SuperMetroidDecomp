@@ -1,8 +1,9 @@
 # Direct3D11 backend build and current scope
 
-The isolated Windows assembly currently implements device ownership and a real
-integer compute path for solid display packets with ordered brightness. It does
-**not** yet implement gameplay layers, presentation, desktop selection or threading.
+The isolated Windows assembly implements device ownership and integer compute for
+solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, fixed-color addition and
+ordered brightness. OBJ, Mode 7, compound gameplay/effects, presentation, desktop
+selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
 ## Reproducible inputs
@@ -48,3 +49,15 @@ WARP must be explicitly requested and is reported separately. No automatic fallb
 Current smoke coverage: exact RGBA for 64 solid/fade/alpha combinations on each of
 RTX 3090 and WARP, plus wrong-thread rejection, in Debug and Release. These results
 are functional checks, not performance gates or a claim that the game renders on GPU.
+
+`--tile-smoke` additionally checks 108 geometry/priority/scroll/transparency/color
+cases plus a focused packed-byte regression on both devices. `--compare <frame.smframe>
+--device hardware|warp` compares a portable fixture on the explicitly selected device.
+Failures write the packet, expected/actual/difference PNGs, first pixel, mismatch count
+and bounding rectangle into a unique `csharp/test-temp/render-comparison` directory.
+Unsupported layer types fail before GPU submission; there is no raster fallback.
+
+The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
+extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
+wrong byte. Two explicit byte-selection steps preserve optimized compilation and
+pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.

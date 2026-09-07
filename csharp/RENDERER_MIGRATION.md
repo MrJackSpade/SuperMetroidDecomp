@@ -174,17 +174,29 @@ five-minute scenes: 59.997/59.994 simulation FPS, zero observed audio queue drai
 GPU composition p95 3.1908/1.8637 ms and composition-plus-display p95
 3.2594/1.9333 ms. Successful presentation was about 32 FPS under RDP, with zero
 occluded Presents. The committed visible report documents sampling and driver
-details; it does not establish RDP delivery rate or the remaining Debug gates.
+details; it does not establish RDP delivery rate.
+The subsequent visible Debug run also passed five minutes per scene, retaining
+all post-warmup observations: 59.995/59.992 simulation FPS, producer p95
+0.9083/0.7065 ms, GPU composition p95 3.1560/3.1928 ms, no observed audio
+queue drains and no discarded wall-clock frames. Its report includes memory,
+maximum producer duration, p99 and upload telemetry. Both measured configurations
+meet the specified budgets in these workloads, not a whole-game performance guarantee.
 Auto startup failure and strict explicit-GPU failure policies now have hidden-host tests.
 
 Portable Core/contract/software tests now build and pass on Ubuntu 24.04.4 LTS
 with .NET 10.0.11 in an isolated Linux SDK container. See `PORTABLE_RENDER_TESTS.md`
 for the pinned image, read-only staging command, coverage and scope limits.
 
-Still required: full retail scene matrix, complete cross-backend state/PCM evidence,
-Debug soaks and remaining performance telemetry,
-real recovery/DPI/RDP evidence,
-clean packaging, final documentation and player-validation handoff. Do not close
+Clean isolated publication has also passed through `tools/verify-desktop-publish.ps1`:
+actual game entry-point audits, matching published verifier assemblies, all 138 audio
+asset hashes, required notices and a short published production-timer run. This is a
+framework-dependent Windows package; a fresh machine still requires the documented
+.NET Desktop Runtime. See the script and performance notes for reproducibility.
+
+Still required: finish the scene/publication and cross-backend state/PCM acceptance
+audit (room-runtime fixtures do not independently prove every frontend handoff),
+real recovery/DPI/RDP evidence, verified hardware-default selection,
+final documentation and player-validation handoff. Do not close
 #321 or mark its completion goal achieved from the milestones above.
 
 ## Historical inspection and incremental notes

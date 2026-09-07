@@ -30,6 +30,16 @@ against a coordinate/color oracle, then checks compute rendering after each disp
 pass for binding hazards. Hardware/WARP pass Debug/Release. This is an offscreen
 display-target test, not an actual swapchain, DPI lifecycle or RDP recovery test.
 
+`D3D11SwapchainPresenter` owns a two-buffer flip-discard BGRA swapchain with a
+frame-latency waitable object and maximum latency one. Readiness polling is nonblocking;
+rendering and waits stay outside the generation gate, which wraps the actual Present
+call. Renderer device/identity must match. Occlusion is an explicit result, not a
+successful displayed frame. Positive-dimension resize releases and recreates the view.
+`--swapchain-smoke` uses a hidden HWND, checks creation/readiness, three resizes,
+mismatched identities and stale generations, then disposes everything. Both devices
+pass Debug/Release and return Occluded as expected. Visible presentation, minimization,
+DPI/RDP/device-loss recovery, host scheduling and pacing remain unverified/unintegrated.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

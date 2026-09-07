@@ -15,6 +15,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11Texture2D output;
     private ID3D11Texture2D? staging;
     private RenderFrameIdentity? renderedIdentity;
+    internal RenderFrameIdentity? SubmittedIdentity => renderedIdentity;
+    internal D3D11RenderDevice DeviceOwner => owner;
     private readonly ID3D11UnorderedAccessView view;
     private readonly ID3D11ShaderResourceView displaySource;
     private readonly ID3D11VertexShader displayVertexShader;

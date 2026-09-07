@@ -10,7 +10,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -24,13 +24,16 @@ public sealed partial class D3D11FrameRenderer
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop);
         bool needsObjects = false;
-        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer;
+        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer;
         if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, objectCount: (uint)scene.Memory.ModeledSpriteCount,
             objectSelection: scene.ObjectSelection);
         foreach (RenderLayer layer in scene.Layers)
         {
             switch (layer)
             {
+                case OrdinaryGameplayRenderLayer ordinary:
+                    DispatchOrdinaryGameplay(ordinary);
+                    break;
                 case MessageBoxRenderLayer message:
                     DispatchMessage(message);
                     break;

@@ -138,7 +138,7 @@ void Main(uint3 id : SV_DispatchThreadID)
         Output[id.xy] = Pack((c << 3) | (c >> 2), 255); return;
     }
     bool backgroundMath = Operation == OpBgAdd || Operation == OpBgSubtract;
-    uint2 scroll = backgroundMath ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
+    uint2 scroll = (backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
     uint x = (id.x + scroll.x) & (MapWidth * 8 - 1);
     uint y = (id.y + scroll.y) & (MapHeight * 8 - 1);
     uint tileX = x >> 3, tileY = y >> 3;

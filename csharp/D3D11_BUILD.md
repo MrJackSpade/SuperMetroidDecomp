@@ -89,6 +89,13 @@ The additional 100 message cases cover every supported row count (3–6) and rev
 radius (0–24), random tile flips/palettes and the two temporary message colors.
 Glyphs are decoded on GPU from captured VRAM; gameplay CGRAM remains unchanged.
 
+`--ordinary-smoke` checks 96 exact ordinary gameplay comparisons on both devices in
+Debug and Release. All eight BG1/BG2/OBJ enable combinations, three BG2 geometries,
+and independent X/Y HDMA tables are covered. The GPU composes the Mode-1 priority
+ladder below an opaque HUD, using physical scanline scroll registers. This establishes
+reference parity for constructed inputs; retail gameplay capture coverage, desktop
+integration and timing gates remain outstanding.
+
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and

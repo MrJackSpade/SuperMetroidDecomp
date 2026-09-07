@@ -6,6 +6,9 @@ namespace SuperMetroid.Game;
 /// <summary>The normal reset-to-gameplay desktop shell for the translated game.</summary>
 internal sealed class GameForm : Form
 {
+    private readonly PlayableGameControl gameControl;
+    private bool closingRenderer;
+    private bool rendererStopped;
     public GameForm(
         string romPath,
         SuperMetroidGameOptions gameOptions,
@@ -21,6 +24,29 @@ internal sealed class GameForm : Form
         // ordinary 1080p desktop. RuntimeCanvas automatically chooses a smaller integer
         // scale if the user resizes the window.
         ClientSize = new Size(900, 760);
-        Controls.Add(new PlayableGameControl(romPath, gameOptions, replay, errorReporter));
+        gameControl = new PlayableGameControl(romPath, gameOptions, replay, errorReporter);
+        Controls.Add(gameControl);
+    }
+
+    protected override async void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        await gameControl.InitializeRendererAsync();
+    }
+
+    protected override async void OnFormClosing(FormClosingEventArgs e)
+    {
+        base.OnFormClosing(e);
+        if (e.Cancel || rendererStopped) return;
+        e.Cancel = true;
+        if (closingRenderer) return;
+        closingRenderer = true;
+        try { await gameControl.StopRendererAsync(); }
+        catch (Exception error) { Console.Error.WriteLine($"Renderer shutdown failed: {error}"); }
+        finally
+        {
+            rendererStopped = true;
+            Close();
+        }
     }
 }

@@ -7,6 +7,20 @@ namespace SuperMetroid.Desktop;
 public sealed class RuntimeCanvas : Control
 {
     private Bitmap? frame;
+    private bool gpuOwned;
+
+    /// <summary>Excludes GDI paint/erase from the swapchain-owned HWND.</summary>
+    public void SetGpuOwned(bool value)
+    {
+        gpuOwned = value;
+        SetStyle(ControlStyles.OptimizedDoubleBuffer, !value);
+        if (!value) Invalidate();
+    }
+
+    protected override void OnPaintBackground(PaintEventArgs e)
+    {
+        if (!gpuOwned) base.OnPaintBackground(e);
+    }
 
     /// <summary>
     /// Reports the local cost of a completed canvas paint. This measures WinForms scaling
@@ -68,6 +82,7 @@ public sealed class RuntimeCanvas : Control
 
     protected override void OnPaint(PaintEventArgs e)
     {
+        if (gpuOwned) return;
         base.OnPaint(e);
         if (frame is null)
             return;

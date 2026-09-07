@@ -105,8 +105,8 @@ public static class SuperMetroidGameOptionsIni
         "MasterVolumePercent=100\r\n" +
         "\r\n" +
         "[Video]\r\n" +
-        "; Software | Direct3D11 | Auto; GPU desktop integration is still in progress\r\n" +
-        "; Non-Software selections currently fail explicitly in the desktop host\r\n" +
+        "; Software | Direct3D11 | Auto; Software remains the migration default\r\n" +
+        "; Auto logs hardware startup failure and falls back to Software\r\n" +
         "Renderer=Software\r\n" +
         "\r\n" +
         "[Diagnostics]\r\n" +

@@ -14,7 +14,7 @@ namespace SuperMetroid.Desktop;
 /// <summary>
 /// Thin keyboard/gamepad/debugger host for the cartridge-backed top-level game dispatcher.
 /// </summary>
-public sealed class PlayableGameControl : UserControl
+public sealed partial class PlayableGameControl : UserControl
 {
     private readonly string romPath;
     private readonly string saveFilePath;
@@ -62,8 +62,6 @@ public sealed class PlayableGameControl : UserControl
         saveFilePath = Path.ChangeExtension(fullRomPath, GameSaveJsonFormat.FileExtension);
         legacySaveRamPath = Path.ChangeExtension(fullRomPath, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
-        if (gameOptions.Renderer != SuperMetroid.Core.Rendering.RendererSelection.Software)
-            throw new NotSupportedException("Desktop Direct3D11 integration is not enabled yet. Use [Video] Renderer=Software during migration.");
         this.replay = replay;
         this.errorReporter = errorReporter;
         Dock = DockStyle.Fill;
@@ -167,6 +165,7 @@ public sealed class PlayableGameControl : UserControl
 
     private void Restart()
     {
+        BeginDisplayGeneration();
         keyboard.Clear();
         // waveOut may still own several queued buffers when Restart is clicked. Dispose the
         // device before its pinned storage and dispose the SPC player before replacing the
@@ -250,6 +249,9 @@ public sealed class PlayableGameControl : UserControl
             return;
         }
 
+        if (gpuWorker is not null && loaded.Game.GetRetainedDisplay(displaySequence + 1, displayGeneration + 1) is null)
+            throw new NotSupportedException("This debugger state contains legacy pixels, not a captured scene. Load it with Renderer=Software.");
+
         bool resumePlayback = playbackTimer.Enabled;
         SetPlaying(playing: false);
         keyboard.Clear();
@@ -262,6 +264,8 @@ public sealed class PlayableGameControl : UserControl
 
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
+        BeginDisplayGeneration();
+        pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;
         pendingPlaybackFrames = 0;
@@ -292,6 +296,7 @@ public sealed class PlayableGameControl : UserControl
             $"Loaded debugger state slot {slot}: {loaded.Metadata.Path}{Environment.NewLine}" +
             $"Recording post-state controller input to {inputRecorder.Path}");
 
+        PublishGpuDisplay();
         RefreshFrame(game.CurrentFrame);
         statusLabel.Text =
             $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
@@ -382,7 +387,9 @@ public sealed class PlayableGameControl : UserControl
         try
         {
             long frameStarted = Stopwatch.GetTimestamp();
-            FrontendFrame frame = game.Step(input);
+            var captured = game.StepCaptured(input, ++displaySequence, displayGeneration);
+            pendingDisplay = captured.Snapshot;
+            FrontendFrame frame = captured.Frame;
 
             // Apply every bank upload/port write before generating this NMI's samples.
             // Acknowledgements are fed back for bank $82's next-frame SFX handshake; they
@@ -394,6 +401,7 @@ public sealed class PlayableGameControl : UserControl
                 game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
             }
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
+            PublishGpuDisplay();
             return frame;
         }
         catch (Exception frameException)
@@ -488,7 +496,7 @@ public sealed class PlayableGameControl : UserControl
 
     private void RefreshFrame(FrontendFrame frame)
     {
-        canvas.ReplaceFrame(FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
+        RefreshDisplay(frame);
         RefreshRoomIdentity();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
             latestFrameTiming = timing;
@@ -501,7 +509,7 @@ public sealed class PlayableGameControl : UserControl
                 : $"  |  replay {replayFrameIndex}/{replay.ControllerInputs.Length}");
         string timingStatus = latestFrameTiming?.ToToolbarText() ??
             "emu --.- | paint --.- | step --.-/--.- ms | late --.-";
-        statusLabel.Text = timingStatus;
+        statusLabel.Text = timingStatus + GpuTimingText;
         string errorStatus = lastRecoverableError is null
             ? string.Empty
             : $"{Environment.NewLine}Last recoverable error: {lastRecoverableError} (see console/GitHub)";
@@ -657,6 +665,7 @@ public sealed class PlayableGameControl : UserControl
     {
         if (disposing)
         {
+            DisposeRendererHost();
             if (sessionSwitchAttached)
             {
                 SystemEvents.SessionSwitch -= OnWindowsSessionSwitch;

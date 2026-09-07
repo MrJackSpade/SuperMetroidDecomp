@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Content Include="../../../standalone-assets/audio/**/*">
       <Link>audio/%(RecursiveDir)%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

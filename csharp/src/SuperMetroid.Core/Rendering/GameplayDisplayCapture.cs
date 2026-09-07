@@ -9,6 +9,38 @@ namespace SuperMetroid.Core.Rendering;
 public static class GameplayDisplayCapture
 {
     /// <summary>
+    /// Captures the full currently modeled ordinary-room composition. Null explicitly
+    /// denotes the not-yet-extracted Mode-7 gameplay path; it is not an error fallback.
+    /// </summary>
+    public static LayeredRenderSnapshot? TryCaptureFrame(SuperMetroidRuntime runtime)
+    {
+        ArgumentNullException.ThrowIfNull(runtime);
+        if (runtime.ActiveDoor?.UsesCeresElevatorMode7 == true || runtime.Enemies.CeresRidley is { Mode7Active: true })
+            return null;
+        LayeredRenderSnapshot basis = CaptureOrdinaryBase(runtime);
+        var layers = new List<RenderLayer>(basis.Layers.ToArray());
+        GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        bool doorOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
+        if (!doorOwnsDisplay)
+        {
+            if (runtime.DisplayedRoomLayer3Fx is { } fx) AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
+            if (runtime.ActiveRoom is { } room && RoomSetupCodePointers.SpawnsCeresHaze(room.State.SetupCodePointer))
+                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss)));
+            if (runtime.DisplayedMorphBallEyeBeam is { } eye)
+                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1XPosition, ppu.Layer1YPosition));
+        }
+        // Preserve the reference ordering, including the effects which remain enabled
+        // during the door IRQ. Message glyphs precede the suit's final color window.
+        AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(runtime.AddressSpace,
+            runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1XPosition, ppu.Layer1YPosition));
+        AddLayer(GameplayMessageBoxRenderer.Capture(runtime.MessageBox));
+        AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
+        return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
+
+        void AddLayer(RenderLayer? layer) { if (layer is not null) layers.Add(layer); }
+    }
+
+    /// <summary>
     /// Captures the ordinary Mode-1 base only. Room color math, windows, messages and
     /// suit effects are not included yet; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -90,6 +91,22 @@ public sealed partial class SuperMetroidGame
         if (captureIdentity is { } identity && scene.CaptureTranslatedRenderSnapshot() is { } snapshot)
             capturedDisplay = new(identity, snapshot);
         else lastPixels = scene.Render();
+    }
+
+    private void PublishGameplay(SuperMetroidRuntime activeRuntime)
+    {
+        // The diagnostic no-render mode deliberately retains the prior display. Do not
+        // materialize a stored packet simply because this simulation-only caller steps.
+        if (!renderGameplayFrames) return;
+        if (captureIdentity is { } identity && GameplayDisplayCapture.TryCaptureFrame(activeRuntime) is { } packet)
+            capturedDisplay = new(identity, packet);
+        else lastPixels = SuperMetroidRuntimeFrameRenderer.Render(activeRuntime);
+    }
+
+    private void PublishBlack()
+    {
+        if (captureIdentity is { } identity) capturedDisplay = new(identity, new Rgba32(0, 0, 0, 255));
+        else lastPixels = CreateBlackFrame();
     }
 
     private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,

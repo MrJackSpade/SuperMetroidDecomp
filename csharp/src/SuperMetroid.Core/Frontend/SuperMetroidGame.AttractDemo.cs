@@ -51,7 +51,7 @@ public sealed partial class SuperMetroidGame
                 // State $29 runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the state-$2A demo countdown.
                 runtime!.StepFrame(controllerInput, advanceGameTime: false);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 GameState = SuperMetroidGameState.PlayingDemo;
                 break;
 
@@ -69,7 +69,7 @@ public sealed partial class SuperMetroidGame
                 else
                 {
                     runtime!.StepFrame(controllerInput, advanceGameTime: false);
-                    lastPixels = RenderGameplayFrame(runtime);
+                    PublishGameplay(runtime);
                     // Demo beta has restored the physical controller pair at this point.
                     if (runtime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(cancelled: true);

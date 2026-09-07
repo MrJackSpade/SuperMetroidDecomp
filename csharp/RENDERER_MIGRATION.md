@@ -324,3 +324,25 @@ seven valid blend configurations, six surface positions, three wave phases and
 visible/absent liquid state. The HUD stays untouched; ownership, invalid inputs and
 format rejection are checked. Runtime/frontend integration and real-room qualification
 remain pending; this is parity with the existing software effect, not a lava fix.
+
+`GameplayDisplayCapture.TryCaptureFrame` now assembles the ordinary base and all
+effects used by `SuperMetroidRuntimeFrameRenderer`, preserving door-IRQ suppression
+and the ordering FX/haze/eye/Power Bomb/message/suit. Its null result explicitly
+identifies Mode-7 gameplay, which still uses the legacy raster. `StepCaptured` calls
+this producer at every existing gameplay display point, including death, doors,
+pause fades and attract gameplay. Outer gameplay brightness is recorded as ordered
+passes rather than forcing a raster. Normal `Step` remains the compatibility path.
+
+`GameplayCaptureIntegrationTests` verifies a composed overlapping Power Bomb,
+message and suit fixture, then independent frontend owners through startup and a
+160-frame directly loaded ordinary-room pause/unpause slice. Pixels, game/phase,
+Samus position/pose and emitted audio-command order match. Mode-7 fallback is checked
+explicitly. This is not yet PCM/slow-consumer independence or the full real-room
+matrix; those scheduling and qualification gates still remain. The desktop has
+not switched to `StepCaptured` or gained a GPU backend.
+
+The ordinary frontend slice explicitly requires return to MainGameplay after
+unpause. Its Start hold uses the existing delayed-held menu filter. Tightening this
+gate exposed UnpausingB's legacy black bitmap; shared forced-blank publication now
+uses a solid packet in capture mode. The same producer covers other explicit
+black-frame call sites while retaining the normal software compatibility behavior.

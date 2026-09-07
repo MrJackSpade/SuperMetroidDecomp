@@ -277,7 +277,7 @@ public sealed partial class SuperMetroidGame
                     demoScene = 0;
                     demoLoadFramesRemaining = -1;
                     GameState = SuperMetroidGameState.TransitionToDemoA;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -330,7 +330,7 @@ public sealed partial class SuperMetroidGame
                     {
                         fileSelectMap = null;
                         GameState = SuperMetroidGameState.FileSelectMap;
-                        lastPixels = CreateBlackFrame();
+                        PublishBlack();
                     }
                     else if (gameOptions.SkipOpeningCinematic)
                     {
@@ -340,7 +340,7 @@ public sealed partial class SuperMetroidGame
                         // new-game loader, elevator arrival, and movement-unlock sequence.
                         intro = null;
                         GameState = SuperMetroidGameState.SetUpNewGame;
-                        lastPixels = CreateBlackFrame();
+                        PublishBlack();
                     }
                     else
                     {
@@ -361,7 +361,7 @@ public sealed partial class SuperMetroidGame
                     // intervening dispatcher state instead of constructing a debug room
                     // directly from cinematic code.
                     GameState = SuperMetroidGameState.SetUpNewGame;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -370,12 +370,12 @@ public sealed partial class SuperMetroidGame
                 if (usesCeresArrival)
                 {
                     BeginGameplayFadeIn(leadsToCeresArrival: true);
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 else
                 {
                     GameState = SuperMetroidGameState.MainGameplay;
-                    lastPixels = RenderGameplayFrame(runtime!);
+                    PublishGameplay(runtime!);
                 }
                 break;
 
@@ -383,7 +383,7 @@ public sealed partial class SuperMetroidGame
                 runtime!.StepFrame(
                     controllerInput,
                     allowCeresElevatorDeparture: false);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
                 {
                     if (ceresDeparture.StepHoldAfterGameplay())
@@ -411,7 +411,7 @@ public sealed partial class SuperMetroidGame
                 bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
                 runtime!.StepFrame(controllerInput);
                 HandleSaveStationPersistence();
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 HandleGunshipLandingSave();
                 if (RouteOutOfHealth())
                 {
@@ -468,7 +468,7 @@ public sealed partial class SuperMetroidGame
                             samus,
                             runtime.NmiFrameCounter);
                     });
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (reserveStep.RefillSoundRequested)
                     audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
                 if (reserveStep.Completed)
@@ -483,7 +483,7 @@ public sealed partial class SuperMetroidGame
                 // global freeze word, then snapshots the visible palette and makes every
                 // target row black except Samus's sixteen-color suit row.
                 runtime!.StepFrame(controllerInput, advanceGameTime: false);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 PrepareDeathPaletteFade();
                 SamusState dyingSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
@@ -498,7 +498,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.DeathBlackOutSurroundings:
                 runtime!.StepFrame(controllerInput, advanceGameTime: false);
                 bool paletteBlackoutComplete = StepDeathPaletteFade();
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (paletteBlackoutComplete)
                 {
                     // `$82:DCE0` cancels all three SFX libraries, then installs the death
@@ -515,7 +515,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.DeathWaitForMusic:
                 runtime!.DrawFatalSamusFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (!audio.HasQueuedMusic)
                 {
                     runtime.BeginDeathSequenceAfterMusicWait();
@@ -528,7 +528,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.DeathExplosionWhiteOut:
                 SamusDeathSequenceStepResult deathStep =
                     runtime!.StepDeathSequenceFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (deathStep.PhaseAfterStep == SamusDeathSequencePhase.Flashing)
                     GameState = SuperMetroidGameState.DeathFlashing;
                 else if (deathStep.PhaseAfterStep == SamusDeathSequencePhase.SuitExplosion)
@@ -543,7 +543,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.DeathFinalBlackOut:
                 runtime!.RunBlankGameplayFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (deathFadeCounter == 0)
                 {
                     deathFadeCounter = 1;
@@ -556,7 +556,7 @@ public sealed partial class SuperMetroidGame
                 {
                     deathFadeCounter--;
                 }
-                MasterBrightnessFilter.Apply(lastPixels, deathFadeBrightness);
+                ApplyDisplayBrightness(deathFadeBrightness);
                 if (deathFadeBrightness == 0)
                 {
                     runtime.GameplayTimeFrozen = false;
@@ -574,14 +574,14 @@ public sealed partial class SuperMetroidGame
                     // frame. Keep that dispatcher boundary separate from SRAM reload.
                     gameOver = null;
                     GameState = SuperMetroidGameState.FileSelectMap;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 else if (gameOver.TitleRequested)
                 {
                     // GameOverMenu_7 invokes SoftReset only after its fade reaches black.
                     gameOver = null;
                     GameState = SuperMetroidGameState.Reset;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -617,12 +617,12 @@ public sealed partial class SuperMetroidGame
                 if (continueUsesCeresArrival)
                 {
                     BeginGameplayFadeIn(leadsToCeresArrival: true);
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 else
                 {
                     BeginGameplayFadeIn(leadsToCeresArrival: false);
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -631,9 +631,9 @@ public sealed partial class SuperMetroidGame
                 // This matters for moving enemies/projectiles and is why pause cannot be
                 // represented as a desktop-only frozen bitmap.
                 runtime!.StepFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
-                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
                     GameState = SuperMetroidGameState.Pausing;
                 break;
@@ -719,16 +719,16 @@ public sealed partial class SuperMetroidGame
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 pauseBrightness = 0;
-                lastPixels = CreateBlackFrame();
+                PublishBlack();
                 GameState = SuperMetroidGameState.Unpausing;
                 break;
 
             case SuperMetroidGameState.Unpausing:
                 // State $12 resumes the full state-eight loop behind an INIDISP fade.
                 runtime!.StepFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
-                MasterBrightnessFilter.Apply(lastPixels, pauseBrightness);
+                ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 15)
                     GameState = SuperMetroidGameState.MainGameplay;
                 break;
@@ -737,9 +737,9 @@ public sealed partial class SuperMetroidGame
                 runtime!.StepFrame(
                     controllerInput,
                     allowCeresElevatorDeparture: false);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
-                ceresDeparture.ApplyBrightness(lastPixels);
+                ApplyDisplayBrightness(ceresDeparture.Brightness);
                 if (ceresReachedForcedBlank)
                 {
                     // GameState_33 saves the live area-six/station-zero slot only after
@@ -764,7 +764,7 @@ public sealed partial class SuperMetroidGame
                     runtime.EscapeTimer.Clear();
                     ceresDestruction = new CeresDestructionCinematicState(bus, audio);
                     GameState = SuperMetroidGameState.CeresGoesBoom;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -778,7 +778,7 @@ public sealed partial class SuperMetroidGame
                     // `$22` branch—not cinematic code—selects area zero/station eighteen.
                     GameState = SuperMetroidGameState.LoadingGameData;
                     postCeresLoadFramesRemaining = -1;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -794,13 +794,13 @@ public sealed partial class SuperMetroidGame
                 {
                     BeginGameplayFadeIn(leadsToCeresArrival: false);
                 }
-                lastPixels = CreateBlackFrame();
+                PublishBlack();
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
                 runtime!.StepFrame(controllerInput);
-                lastPixels = RenderGameplayFrame(runtime);
-                MasterBrightnessFilter.Apply(lastPixels, postCeresFadeBrightness);
+                PublishGameplay(runtime);
+                ApplyDisplayBrightness(postCeresFadeBrightness);
                 HandleGunshipLandingSave();
                 if (postCeresFadeCounter-- <= 0)
                 {
@@ -846,7 +846,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.LoadingNextRoomB:
                 doorTransition.Step(runtime!, audio, controllerInput);
-                lastPixels = RenderGameplayFrame(runtime!);
+                PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                     GameState = SuperMetroidGameState.MainGameplay;
                 break;
@@ -856,13 +856,13 @@ public sealed partial class SuperMetroidGame
                 // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
                 // therefore continue behind every darkening frame.
                 runtime!.StepFrame(controllerInput, advanceGameTime: false);
-                lastPixels = RenderGameplayFrame(runtime);
+                PublishGameplay(runtime);
                 if (endingFadeCounter-- <= 0)
                 {
                     endingFadeCounter = 1;
                     endingFadeBrightness = (byte)Math.Max(0, endingFadeBrightness - 1);
                 }
-                MasterBrightnessFilter.Apply(lastPixels, endingFadeBrightness);
+                ApplyDisplayBrightness(endingFadeBrightness);
                 if (endingFadeBrightness == 0)
                 {
                     // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,
@@ -890,7 +890,7 @@ public sealed partial class SuperMetroidGame
                             endingSamus.CollectedBeams),
                         runtime.JapaneseText);
                     GameState = SuperMetroidGameState.EndingAndCredits;
-                    lastPixels = CreateBlackFrame();
+                    PublishBlack();
                 }
                 break;
 
@@ -1305,11 +1305,6 @@ public sealed partial class SuperMetroidGame
                 iconCancelEnabled: runtime.IconCancelEnabled));
         SaveRamChanged?.Invoke();
     }
-
-    private Rgba32[] RenderGameplayFrame(SuperMetroidRuntime activeRuntime) =>
-        renderGameplayFrames
-            ? SuperMetroidRuntimeFrameRenderer.Render(activeRuntime)
-            : lastPixels;
 
     private static Rgba32[] CreateBlackFrame()
     {

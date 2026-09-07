@@ -5,6 +5,16 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--xray-window"])
+    {
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            XrayWindowTests.Run(device, renderer);
+        }
+        return;
+    }
     if (args is ["--minimap-blink"])
     {
         foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

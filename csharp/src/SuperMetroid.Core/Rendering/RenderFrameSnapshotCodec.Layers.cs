@@ -6,6 +6,14 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case XrayWindowRenderLayer xray:
+                writer.Write((byte)RenderPacketLayerKind.XrayWindow);
+                foreach (XrayWindowLine line in xray.Lines) { writer.Write(line.Left); writer.Write(line.Right); }
+                WriteMemory(writer, xray.Reveal.Memory);
+                writer.Write(xray.Reveal.ObjectSelection); writer.Write(xray.Reveal.Brightness);
+                WriteCount(writer, xray.Reveal.Layers.Length);
+                foreach (RenderLayer child in xray.Reveal.Layers) WriteLayer(writer, child);
+                break;
             case WindowedSceneRenderLayer window:
                 writer.Write((byte)RenderPacketLayerKind.WindowedScene);
                 writer.Write(window.Left); writer.Write(window.Top); writer.Write(window.Right); writer.Write(window.Bottom);
@@ -93,6 +101,7 @@ public static partial class RenderFrameSnapshotCodec
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
         RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
+        RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader),
         RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
@@ -117,6 +126,17 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static XrayWindowRenderLayer ReadXrayWindow(BinaryReader reader, ushort version)
+    {
+        var lines = new XrayWindowLine[Hardware.SnesPpuLayout.ScreenHeightPixels];
+        for (int i = 0; i < lines.Length; i++) lines[i] = new(reader.ReadByte(), reader.ReadByte());
+        PpuMemorySnapshot memory = ReadMemory(reader);
+        byte obsel = reader.ReadByte(), brightness = reader.ReadByte();
+        var layers = new RenderLayer[ReadCount(reader)];
+        for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, childScene: true);
+        return new(new(memory, layers, obsel, brightness), lines);
+    }
 
     private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)
     {

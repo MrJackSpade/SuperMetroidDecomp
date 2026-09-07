@@ -18,7 +18,7 @@ public sealed record WindowedSceneRenderLayer : RenderLayer
             right > SnesPpuLayout.ScreenWidthPixels || bottom > SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentOutOfRangeException(nameof(left));
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is WindowedSceneRenderLayer) throw new ArgumentException("Nested scene insertions are unsupported.", nameof(scene));
+            if (layer is WindowedSceneRenderLayer or XrayWindowRenderLayer) throw new ArgumentException("Nested scene insertions are unsupported.", nameof(scene));
         Scene = scene; Left = left; Top = top; Right = right; Bottom = bottom;
     }
 }

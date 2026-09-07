@@ -1359,7 +1359,7 @@ public static partial class SnesGameplayFrameRenderer
         return new XrayDirection(-tangent, -SamusXrayRomData.Window.UnitVector);
     }
 
-    private static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
+    internal static Rgba32 ApplyXrayOutsideHalfColor(Rgba32 source)
     {
         // `$88:8709-$8716` loads COLDATA component seven when the room has revealable
         // blocks, and `$88:817B/$81A4` selects addition followed by SNES half-color math.

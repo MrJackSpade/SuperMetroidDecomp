@@ -10,6 +10,26 @@ public sealed partial class SuperMetroidGame
     private RenderFrameSnapshot? capturedDisplay;
 
     /// <summary>
+    /// Republishes the retained immutable display under a fresh host identity without
+    /// advancing simulation, audio, or draw-owned state. Used after restoring a captured
+    /// debugger state and when attaching a presenter to an already paused game.
+    /// </summary>
+    /// <remarks>
+    /// Returns null when this game has only produced legacy pixels. The host must handle
+    /// that explicitly; this method never fabricates a GPU packet from a CPU raster or
+    /// calls a scene draw routine to reconstruct an earlier display.
+    /// </remarks>
+    public RenderFrameSnapshot? GetRetainedDisplay(long hostSequence, long hostGeneration)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostSequence);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(hostGeneration);
+        if (captureIdentity is not null) throw new InvalidOperationException("Cannot republish during display capture.");
+        return capturedDisplay is { } display
+            ? Reframe(display, new(hostSequence, hostGeneration, FrameNumber), display.BrightnessPasses)
+            : null;
+    }
+
+    /// <summary>
     /// Advances one frame, capturing extracted scenes instead of rasterizing them.
     /// Unconverted scenes are explicitly reported as legacy pixel output. The host
     /// supplies sequence/generation outside the saved game graph, so restoring game

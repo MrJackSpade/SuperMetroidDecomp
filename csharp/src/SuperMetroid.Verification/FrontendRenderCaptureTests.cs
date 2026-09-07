@@ -11,6 +11,8 @@ internal static partial class Program
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
         var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
+        AssertTrue(captured.GetRetainedDisplay(1, 1) is null,
+            "legacy-only initial display is not disguised as a captured packet");
         var states = new HashSet<SuperMetroidGameState>();
         int packetCount = 0;
         RenderFrameSnapshot? held = null;
@@ -34,6 +36,21 @@ internal static partial class Program
                 AssertEqual(7L, packet.Identity.Generation, "host generation preserved");
                 AssertEqual(expected.FrameNumber, packet.Identity.SimulationFrame, "snapshot tracks completed simulation call");
                 actualPixels = SoftwareFrameSnapshotRenderer.Render(packet);
+                // Republish twice, as a paused host may attach/resize or load a new
+                // presentation generation. Neither operation may replay draw effects.
+                RenderFrameSnapshot retained = captured.GetRetainedDisplay(10000 + tick, 8)
+                    ?? throw new InvalidOperationException("Captured display was not retained.");
+                RenderFrameSnapshot repeated = captured.GetRetainedDisplay(20000 + tick, 9)
+                    ?? throw new InvalidOperationException("Republishing discarded the display.");
+                AssertEqual(10000L + tick, retained.Identity.Sequence, "retained display gets host sequence");
+                AssertEqual(8L, retained.Identity.Generation, "retained display gets new generation");
+                AssertEqual(expected.FrameNumber, retained.Identity.SimulationFrame, "republish retains simulation identity");
+                AssertEqual(expected.FrameNumber, captured.FrameNumber, "republish does not step simulation");
+                AssertEqual(7L, packet.Identity.Generation, "republish does not mutate in-flight identity");
+                AssertTrue(actualPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(retained)),
+                    "republished display preserves exact pixels and outer fades");
+                AssertTrue(actualPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(repeated)),
+                    "repeated republish preserves exact display");
                 packetCount++;
                 if (held is null) { held = packet; heldPixels = actualPixels; }
             }

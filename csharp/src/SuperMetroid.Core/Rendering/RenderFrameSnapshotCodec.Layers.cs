@@ -6,6 +6,10 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case Mode7GameplayRenderLayer gameplay7:
+                writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
+                WriteMode7Gameplay(writer, gameplay7);
+                break;
             case Bg2BppColorMathRenderLayer bgMath:
                 writer.Write((byte)RenderPacketLayerKind.BgColorMath);
                 writer.Write(bgMath.TilemapWord); writer.Write(bgMath.CharacterWord);
@@ -75,6 +79,7 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>

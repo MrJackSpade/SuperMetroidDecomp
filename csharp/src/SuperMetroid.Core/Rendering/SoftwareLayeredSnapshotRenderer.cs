@@ -24,6 +24,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case Mode7GameplayRenderLayer gameplay7:
+                    output = SoftwareMode7GameplayRenderer.Render(memory, gameplay7, snapshot.ObjectSelection);
+                    break;
                 case Bg2BppColorMathRenderLayer bgMath:
                     SoftwareBgColorMathRenderer.Composite(output, memory.Vram, memory.Cgram, bgMath);
                     break;

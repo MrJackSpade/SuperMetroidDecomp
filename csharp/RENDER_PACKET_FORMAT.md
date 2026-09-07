@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–8
+# Portable display fixtures (.smframe), versions 1–9
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 8, reader supports 1 through 8 |
+| Version | UInt16; writer emits 9, reader supports 1 through 9 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -68,6 +68,7 @@ Every record begins with a byte discriminator:
 | 9: scanline color add (version 6+) | Exactly 224 rows, each five bytes: left, right, red, green, blue |
 | 10: message overlay (version 7+) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words |
 | 11: BG color math (version 8+) | UInt16 tilemap/character words; Int32 map height in tiles and first scanline; byte equation; 224 pairs of UInt16 X/Y scroll registers |
+| 12: Mode-7 gameplay bands (version 9+) | Mode-7 registers, HUD registers, optional Mode-1 floor band, as below |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -135,6 +136,21 @@ are rejected. This preserves existing byte-domain FX math, not general SNES math
 The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation
 or silent clipping by the reader.
+
+## Mode-7 gameplay bands (version 9)
+
+Kind 12 is a base operation and must be first. It contains eight Int16 values
+(A/B/C/D, center X/Y, horizontal/vertical offset), a boolean character-zero-outside-map,
+UInt16 HUD tilemap and character words, Int32 HUD scanline count (0–224, multiple of 8),
+and a boolean floor-present. When present, the floor is Int32 first scanline,
+UInt16 tilemap/character/horizontal-scroll/vertical-scroll, and Int32 map width/height
+(each 32 or 64). The floor begins at or below the HUD end and before scanline 224.
+
+The HUD is opaque 2-bpp without OBJ. Mode 7 uses physical screen coordinates between
+the HUD and floor, with winning OBJ pixels above it. The optional floor starts from
+backdrop, not Mode 7, and inserts OBJ0, OBJ1, BG2-low, OBJ2, BG2-high, OBJ3 in that
+order. OAM precedence is resolved once before these insertions. Older versions reject
+this operation; no existing operation encoding changes.
 
 ## Compatibility and error policy
 

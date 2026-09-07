@@ -6,6 +6,18 @@ or selected by this document. The acceptance authority is
 
 ## Inspection baseline
 
+Latest extraction increment: Mode-7 gameplay is now captured, superseding the
+ordinary-integration section's historical fallback limitation. Explicit HUD and
+optional Mode-1 floor bands carry physical scanline boundaries, transform and tile
+registers. The software consumer has no Ceres/Ridley identity checks. Format version
+9 adds this operation without changing older encodings. Ceres startup now requires
+packet output. Forty-eight synthetic full-frame matrix/scroll/floor cases match the
+independent legacy compositor, and a retail Ridley room with constructed getaway
+registers checks producer parity and retained ownership after mode exit/memory
+replacement. This is not a controller-driven battle or new cartridge-correctness
+claim. Desktop still uses legacy Step; saved-file maps and ending capture, D3D11,
+live scheduling, PCM determinism, device recovery and performance gates remain pending.
+
 Inspected revision: `8e0b7b71f2c73808f0b9834f53146e32b1945a75` (2026-09-06).
 SDK: 10.0.400. Host reports a Ryzen 9 5900X, RTX 3090 driver 32.0.15.9636,
 and Microsoft Remote Display Adapter driver 10.0.26100.8972. Adapter enumeration

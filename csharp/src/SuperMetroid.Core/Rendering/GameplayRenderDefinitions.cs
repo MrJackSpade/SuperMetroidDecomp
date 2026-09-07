@@ -7,4 +7,6 @@ internal static class GameplayRenderDefinitions
     internal const byte ObjectSelection = 0x03;
     /// <summary>Setup ASM $8F:C97B sets BG12NBA=$66: both Mode-1 character bases are word $6000.</summary>
     internal const ushort CeresCharacterWord = 0x6000;
+    /// <summary>Bank-$88 Ceres Ridley getaway HDMA returns to Mode 1 for the final sixteen visible scanlines.</summary>
+    internal const int CeresFloorFirstScanline = Hardware.SnesPpuLayout.ScreenHeightPixels - 16;
 }

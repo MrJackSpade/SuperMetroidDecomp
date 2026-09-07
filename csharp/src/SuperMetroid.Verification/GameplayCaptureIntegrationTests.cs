@@ -15,7 +15,9 @@ internal static partial class Program
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        AssertTrue(GameplayDisplayCapture.TryCaptureFrame(runtime) is null, "Mode-7 capture remains explicitly unavailable");
+        runtime.RunNmi(0, true);
+        AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).AsSpan().SequenceEqual(
+            SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!)), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
         runtime.RunNmi(0, true);
         runtime.BombProjectiles.PowerBombExplosion.Arm();
@@ -41,16 +43,20 @@ internal static partial class Program
         var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom), options);
         var packets = new SuperMetroidGame(new SuperMetroidAddressSpace(rom), options);
         long sequence = 0;
-        bool sawMode7Fallback = false;
+        bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
             ushort input = tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
-            sawMode7Fallback |= actual.UsedLegacyRaster && packets.RuntimeForVerification?.ActiveDoor?.UsesCeresElevatorMode7 == true;
+            if (packets.RuntimeForVerification?.ActiveDoor?.UsesCeresElevatorMode7 == true)
+            {
+                AssertTrue(!actual.UsedLegacyRaster, "Ceres startup uses captured packets");
+                sawMode7Packet = true;
+            }
         }
-        AssertTrue(legacy.GameState == SuperMetroidGameState.MainGameplay && sawMode7Fallback, "startup reaches playable Ceres with explicit fallback");
+        AssertTrue(legacy.GameState == SuperMetroidGameState.MainGameplay && sawMode7Packet, "startup reaches playable Ceres through packets");
         // Direct fixture room loading avoids a cross-room controller marathon. The
         // following slice only exercises one room and its pause/fade dispatch states.
         foreach (SuperMetroidGame game in new[] { legacy, packets })

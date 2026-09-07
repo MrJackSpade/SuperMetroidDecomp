@@ -6,18 +6,16 @@ using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Simulation-side resolution of live room state into owned PPU composition inputs.</summary>
-public static class GameplayDisplayCapture
+public static partial class GameplayDisplayCapture
 {
     /// <summary>
-    /// Captures the full currently modeled ordinary-room composition. Null explicitly
-    /// denotes the not-yet-extracted Mode-7 gameplay path; it is not an error fallback.
+    /// Captures the full currently modeled gameplay composition, including mixed video-mode bands.
     /// </summary>
     public static LayeredRenderSnapshot? TryCaptureFrame(SuperMetroidRuntime runtime)
     {
         ArgumentNullException.ThrowIfNull(runtime);
-        if (runtime.ActiveDoor?.UsesCeresElevatorMode7 == true || runtime.Enemies.CeresRidley is { Mode7Active: true })
-            return null;
-        LayeredRenderSnapshot basis = CaptureOrdinaryBase(runtime);
+        LayeredRenderSnapshot basis = runtime.ActiveDoor?.UsesCeresElevatorMode7 == true || runtime.Enemies.CeresRidley is { Mode7Active: true }
+            ? CaptureMode7Base(runtime) : CaptureOrdinaryBase(runtime);
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         bool doorOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
@@ -42,7 +40,7 @@ public static class GameplayDisplayCapture
 
     /// <summary>
     /// Captures the ordinary Mode-1 base only. Room color math, windows, messages and
-    /// suit effects are not included yet; this is not a substitute for a complete frame.
+    /// suit effects are deliberately excluded; this is not a substitute for a complete frame.
     /// Mode-7 rooms are rejected rather than silently interpreting their memory as tiles.
     /// </summary>
     public static LayeredRenderSnapshot CaptureOrdinaryBase(SuperMetroidRuntime runtime)

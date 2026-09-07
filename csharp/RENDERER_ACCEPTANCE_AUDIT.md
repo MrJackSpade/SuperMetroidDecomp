@@ -101,6 +101,12 @@ source/fixture audit, Linux gate, or preparation of a reproducible lifecycle har
 
 ## Reference-evidence distinction
 
+Follow-up inspection located the player's two original Maridia clipboard images
+outside the repository. They are now preserved unchanged with SHA-256 and provenance
+in `test-fixtures/issue-321-player-references/README.md`. The Snes9x window title and
+the original report identify an independent emulator image, but this is not a matched
+frame/state golden and cannot qualify the other historical regression scenes.
+
 Repository search at `2225f92` found emulator setup notes in
 `test-fixtures/issue-307-underwater-jump/README.md`, but no indexed independent
 emulator captures for the renderer regression matrix. Files named

@@ -61,13 +61,16 @@ headless-captured owners in separate Alpha Power Bomb and Maridia tube slices,
 with both normally consuming and deliberately blocked GPU workers.
 The headless owner never requests pixels or publishes to a renderer. It compares
 the complete runtime graph using
-the exact-build debugger serializer at six checkpoints: before blocking, every
-40 ticks of the 160-tick slice, and after GPU consumption resumes. Approximately
+the exact-build debugger serializer at ten checkpoints: before blocking, every
+40 ticks of the 160-tick pause slice, every 16 ticks of a subsequent 64-tick
+movement/short-input slice, and after GPU consumption resumes. Position and pose
+also agree every tick across all three owners. The movement slice requires actual
+position/pose changes and rejects room-boundary crossings. Approximately
 5.3 MB of private fields, arrays, reference topology and delegate state agree at
 each checkpoint, without test-specific exclusions or normalization. The serializer's
 existing external `SaveRamChanged` subscription exclusion remains unchanged; this
 is not an assertion about host event subscribers. Hardware and WARP also match
-872,000 PCM samples per room including startup (814,672/818,857 nonzero), with the GPU owner held
+974,400 PCM samples per room including startup (917,035/919,838 nonzero), with the GPU owner held
 for at least 250 ms. This strengthens runtime-state coverage for that slice; it
 does not establish the full frontend/save/backend/scene determinism matrix.
 These are independent room-local fixtures, not traversal tests; the normal consumer

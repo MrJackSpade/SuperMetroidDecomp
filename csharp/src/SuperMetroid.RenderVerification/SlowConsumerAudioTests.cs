@@ -54,7 +54,9 @@ internal static partial class SwapchainTests
             captured.SetAudioAcknowledgements(capturedAudio.ReadAcknowledgements());
             headless.SetAudioAcknowledgements(headlessAudio.ReadAcknowledgements());
             if (legacy.GameplaySamusX != captured.GameplaySamusX || legacy.GameplaySamusY != captured.GameplaySamusY ||
-                legacy.GameplaySamusPose != captured.GameplaySamusPose)
+                legacy.GameplaySamusPose != captured.GameplaySamusPose ||
+                headless.GameplaySamusX != captured.GameplaySamusX || headless.GameplaySamusY != captured.GameplaySamusY ||
+                headless.GameplaySamusPose != captured.GameplaySamusPose)
                 throw new InvalidOperationException($"Samus state divergence at {sequence}.");
             return actual;
         }
@@ -92,14 +94,40 @@ internal static partial class SwapchainTests
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
                 if (tick % 40 == 39) CompareRuntimeGraphs($"room slice tick {tick}");
             }
+            var positions = new HashSet<(ushort?, ushort?)>();
+            var poses = new HashSet<byte?>();
+            var roomBeforeMovement = legacy.GameplayActiveRoomIdentity;
+            // Bounded room-local inputs: held movement, single-tick direction taps,
+            // jump/shoot edges and explicit releases. No room traversal is intended.
+            for (int tick = 0; tick < 64; tick++)
+            {
+                ushort input = tick switch
+                {
+                    < 8 => (ushort)SnesButton.Right,
+                    10 or 12 => (ushort)SnesButton.Left,
+                    >= 16 and < 24 => (ushort)(SnesButton.Left | SnesButton.B),
+                    28 or 30 => (ushort)SnesButton.X,
+                    >= 40 and < 48 => (ushort)SnesButton.Right,
+                    _ => 0,
+                };
+                var actual = Step(input);
+                worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Movement capture fell back to raster."));
+                positions.Add((legacy.GameplaySamusX, legacy.GameplaySamusY));
+                poses.Add(legacy.GameplaySamusPose);
+                if (legacy.GameplayActiveRoomIdentity != roomBeforeMovement)
+                    throw new InvalidOperationException("Movement scheduling fixture crossed a room boundary.");
+                if (tick % 16 == 15) CompareRuntimeGraphs($"movement input tick {tick}");
+            }
+            if (positions.Count < 2 || poses.Count < 2)
+                throw new InvalidOperationException("Movement input fixture did not change position and pose.");
             if (blockConsumer) PumpUntil(() => blockedTime.ElapsedMilliseconds >= 250);
             if ((blockConsumer && release.IsSet) || !paused || nonzero == 0 || legacy.GameState != SuperMetroidGameState.MainGameplay)
                 throw new InvalidOperationException("Slow-consumer coverage incomplete.");
             release.Set();
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
-            if (blockConsumer && worker.MailboxMetrics.Replaced < 159) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
+            if (blockConsumer && worker.MailboxMetrics.Replaced < 223) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
             CompareRuntimeGraphs("after GPU resumes");
-            Console.WriteLine($"{selection.Kind}: room {room:X4}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause frames advanced; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
+            Console.WriteLine($"{selection.Kind}: room {room:X4}, software/GPU/headless agree; deliberate GPU block={blockConsumer}; 160 room/pause + 64 movement/input frames; {positions.Count} positions, {poses.Count} poses; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
         }
         finally
         {

@@ -26,9 +26,9 @@ internal static class DisplayPassTests
             var mapped = device.Context.Map(staging, 0, MapMode.Read);
             try
             {
-                int w = width, h = width * 224 / 256;
-                if (h > height) { h = height; w = height * 256 / 224; }
-                w = Math.Max(1, w); h = Math.Max(1, h);
+                // Independent legacy desktop layout oracle, not the shared helper.
+                int scale = Math.Max(1, Math.Min(width / 299, height / 224));
+                int w = 299 * scale, h = 224 * scale;
                 int left = (width - w) / 2, top = (height - h) / 2;
                 for (int y = 0; y < height; y++)
                 for (int x = 0; x < width; x++)

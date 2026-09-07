@@ -1,6 +1,7 @@
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
@@ -13,17 +14,11 @@ public sealed partial class D3D11FrameRenderer
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
         if (renderedIdentity is null) throw new InvalidOperationException("No frame has been submitted for display.");
-        int displayWidth = width, displayHeight = (int)((long)width * SnesPpuLayout.ScreenHeightPixels / SnesPpuLayout.ScreenWidthPixels);
-        if (displayHeight > height)
-        {
-            displayHeight = height;
-            displayWidth = (int)((long)height * SnesPpuLayout.ScreenWidthPixels / SnesPpuLayout.ScreenHeightPixels);
-        }
-        displayWidth = Math.Max(1, displayWidth); displayHeight = Math.Max(1, displayHeight);
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
-        data[0] = (uint)((width - displayWidth) / 2); data[1] = (uint)((height - displayHeight) / 2);
-        data[2] = (uint)displayWidth; data[3] = (uint)displayHeight;
-        fixed (uint* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        var viewport = DisplayViewport.ForClient(width, height);
+        var data = new int[D3D11ShaderLayout.SolidConstantWords];
+        data[0] = viewport.Left; data[1] = viewport.Top;
+        data[2] = viewport.Width; data[3] = viewport.Height;
+        fixed (int* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.OMSetRenderTargets(target);

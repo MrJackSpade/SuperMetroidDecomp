@@ -23,7 +23,8 @@ concurrent reset, exceptions and reentrant reset rejection; the desktop still ne
 to wire this boundary and verify it against actual presentation/recovery.
 
 The GPU display pass samples the integer native frame directly into a BGRA render
-target, using nearest-neighbor scaling and centered native-aspect letterboxing. Its
+target, using nearest-neighbor scaling and the desktop's centered 4:3 TV correction
+with integral vertical scaling (small clients clip the minimum-sized image). Its
 vertex/pixel shaders are build-generated with the same pinned compiler. No CPU frame
 copy is involved. `--display-smoke` verifies eight target sizes from 1x1 to 1920x1080
 against a coordinate/color oracle, then checks compute rendering after each display

@@ -103,6 +103,14 @@ public sealed class D3D11RenderWorker
         lock (lifecycle) { VerifyRunning(); mailbox.AdvanceGeneration(generation); wake.Set(); }
     }
 
+    /// <summary>Async load/reset boundary; callers must suspend stepping until it completes.</summary>
+    public async Task AdvanceGenerationAsync(long generation)
+    {
+        ThrowIfFaulted();
+        await gate.AdvanceGenerationAsync(generation).ConfigureAwait(false);
+        lock (lifecycle) { VerifyRunning(); mailbox.AdvanceGeneration(generation); wake.Set(); }
+    }
+
     public void ThrowIfFaulted() => Volatile.Read(ref fault)?.Throw();
 
     public Task StopAsync()

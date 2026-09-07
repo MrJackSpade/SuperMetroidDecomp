@@ -128,7 +128,7 @@ public sealed partial class PlayableGameControl : UserControl
         Controls.Add(layout);
         Controls.Add(help);
 
-        restartButton.Click += (_, _) => Restart();
+        restartButton.Click += async (_, _) => await RestartAsync();
         playButton.CheckedChanged += (_, _) =>
         {
             playButton.Text = playButton.Checked ? "Pause" : "Play";
@@ -142,9 +142,9 @@ public sealed partial class PlayableGameControl : UserControl
             SaveDebuggerState(stateSlot.SelectedIndex);
             canvas.Focus();
         };
-        loadStateButton.Click += (_, _) =>
+        loadStateButton.Click += async (_, _) =>
         {
-            LoadDebuggerState(stateSlot.SelectedIndex);
+            await LoadDebuggerState(stateSlot.SelectedIndex);
             canvas.Focus();
         };
         playbackTimer.Tick += (_, _) => AdvancePlaybackClock();
@@ -165,7 +165,13 @@ public sealed partial class PlayableGameControl : UserControl
 
     private void Restart()
     {
+        if (gpuWorker is not null) throw new InvalidOperationException("Live restart must use the asynchronous generation boundary.");
         BeginDisplayGeneration();
+        RestartCore();
+    }
+
+    private void RestartCore()
+    {
         keyboard.Clear();
         // waveOut may still own several queued buffers when Restart is clicked. Dispose the
         // device before its pinned storage and dispose the SPC player before replacing the
@@ -228,7 +234,7 @@ public sealed partial class PlayableGameControl : UserControl
         Console.WriteLine($"Saved debugger state slot {slot}: {metadata.Path}");
     }
 
-    private void LoadDebuggerState(int slot)
+    private async Task LoadDebuggerState(int slot)
     {
         if (replay is not null)
             throw new InvalidOperationException("Debugger states are disabled during an input replay.");
@@ -262,9 +268,15 @@ public sealed partial class PlayableGameControl : UserControl
         audioEngine?.Dispose();
         audioEngine = null;
 
+        // Disable frame-affecting controls while the old presentation drains.
+        // Await keeps the UI pump alive; restore only after old GPU work loses
+        // authority to present. No new simulation tick runs across this boundary.
+        Enabled = false;
+        try { await BeginDisplayGenerationAsync(); }
+        finally { if (!IsDisposed) Enabled = true; }
+        if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
-        BeginDisplayGeneration();
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;

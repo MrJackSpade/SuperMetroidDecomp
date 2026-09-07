@@ -82,7 +82,9 @@ internal static partial class Program
             var expected = SoftwareFrameSnapshotRenderer.Render(before);
             Call(control, "SaveDebuggerState", 0);
             for (int i = 0; i < 10; i++) Call(control, "StepFrame", (ushort)0);
-            Call(control, "LoadDebuggerState", 0);
+            if (renderer == RendererSelection.Direct3D11)
+                await VerifyAsyncLoadBoundary(control);
+            else await CallAsync(control, "LoadDebuggerState", 0);
             var restored = Field<RenderFrameSnapshot>(control, "pendingDisplay");
             Check(restored.Identity.Generation > before.Identity.Generation, "load must advance host generation");
             Check(restored.Identity.Sequence > before.Identity.Sequence, "load must not rewind host sequence");
@@ -99,7 +101,9 @@ internal static partial class Program
                     .GetProperty("LastDrawnSize", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!
                     == (canvas.ClientSize.Width, canvas.ClientSize.Height), worker);
             }
-            Call(control, "Restart");
+            if (renderer == RendererSelection.Direct3D11)
+                await VerifyAsyncLoadBoundary(control, restart: true);
+            else await CallAsync(control, "RestartAsync");
             var reset = Field<RenderFrameSnapshot>(control, "pendingDisplay");
             Check(reset.Identity.Generation > restored.Identity.Generation, "restart must advance generation");
             if (renderer == RendererSelection.Direct3D11)
@@ -132,6 +136,10 @@ internal static partial class Program
     private static void Call(object owner, string name, params object[] args) =>
         (owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
             ?? throw new MissingMethodException(name)).Invoke(owner, args);
+    private static Task CallAsync(object owner, string name, params object[] args) =>
+        (Task)((owner.GetType().GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic)
+            ?? throw new MissingMethodException(name)).Invoke(owner, args)
+            ?? throw new InvalidOperationException("Async handler returned no task."));
     private static T Field<T>(object owner, string name) =>
         (T)(owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(owner)
             ?? throw new MissingFieldException(name));

@@ -25,12 +25,17 @@ on both devices in Debug/Release. The desktop uses Render without normal readbac
 
 The portable `RenderPresentationGate` provides atomic generation-check/presentation
 ordering relative to load/reset. Its lock is separate from `LatestRenderFrameMailbox`:
-ordinary publication never waits on presentation. Reset waits for a presentation
-already inside the gate, then rejects that generation thereafter. GPU completion and
+ordinary publication never waits on presentation. Desktop load/reset asynchronously
+awaits a presentation already inside the gate, then rejects that generation before
+replacing game state. Playback and frame-affecting controls are suspended during this
+handoff, but the UI message pump remains free. GPU completion and
 waitable-swapchain waits must stay outside the gate. Component tests cover stale work,
 concurrent reset, exceptions and reentrant reset rejection. Desktop load/reset is
-wired to this boundary; hidden tests exercise it with actual swapchains. Visible
-presentation and real device/RDP transitions still require qualification.
+wired to this boundary; hidden tests hold the gate while actual Load State and Restart
+handlers return incomplete tasks, service UI continuations, and preserve old state
+until release. Retained-pixel and stale-generation assertions pass afterward.
+Visible Release soak evidence is recorded separately; real device/RDP transitions
+still require qualification.
 
 The GPU display pass samples the integer native frame directly into a BGRA render
 target, using nearest-neighbor scaling and the desktop's centered 4:3 TV correction

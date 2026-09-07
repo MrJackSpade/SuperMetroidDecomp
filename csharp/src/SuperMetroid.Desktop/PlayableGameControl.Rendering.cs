@@ -47,6 +47,29 @@ public sealed partial class PlayableGameControl
         pendingDisplay = null;
     }
 
+    private async Task BeginDisplayGenerationAsync()
+    {
+        long next = checked(displayGeneration + 1);
+        if (gpuWorker is { } worker) await worker.AdvanceGenerationAsync(next);
+        displayGeneration = next;
+        pendingDisplay = null;
+    }
+
+    private async Task RestartAsync()
+    {
+        bool resume = playbackTimer.Enabled;
+        SetPlaying(false);
+        Enabled = false;
+        try
+        {
+            await BeginDisplayGenerationAsync();
+            if (rendererStopping || IsDisposed) return;
+            RestartCore();
+            SetPlaying(resume);
+        }
+        finally { if (!IsDisposed) Enabled = true; }
+    }
+
     /// <summary>
     /// Starts the window-owned renderer with the UI message pump free to service DXGI.
     /// Call once after showing the form. Software remains the migration default.

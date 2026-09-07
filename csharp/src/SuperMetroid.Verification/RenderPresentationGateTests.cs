@@ -19,7 +19,6 @@ internal static partial class Program
 
         using var entered = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();
-        using var resetStarted = new ManualResetEventSlim();
         Task presentation = Task.Run(() => gate.TryPresent(current, () =>
         {
             entered.Set();
@@ -29,8 +28,9 @@ internal static partial class Program
         try
         {
             AssertTrue(entered.Wait(TimeSpan.FromSeconds(10)), "presentation entered before reset");
-            reset = Task.Run(() => { resetStarted.Set(); gate.AdvanceGeneration(3); });
-            AssertTrue(resetStarted.Wait(TimeSpan.FromSeconds(10)), "reset task started");
+            // Invoke on this thread: it must return an incomplete Task, not block
+            // this caller until the present callback is released below.
+            reset = gate.AdvanceGenerationAsync(3);
             AssertTrue(!reset.IsCompleted, "reset cannot finish while presentation owns boundary");
             // Mailbox operations deliberately use a different lock and remain available.
             var mailbox = new LatestRenderFrameMailbox(2);

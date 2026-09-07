@@ -27,7 +27,7 @@ internal static partial class Program
             var control = Field<PlayableGameControl>(form, "gameControl");
             _ = form.Handle; _ = control.Handle;
             Call(control, "SetPlaying", false);
-            Call(control, "LoadDebuggerState", 0);
+            await CallAsync(control, "LoadDebuggerState", 0);
             var game = Field<SuperMetroidGame>(control, "game");
             var counter = Field<FrameTimingCounter>(control, "frameTimings");
             var samples = new List<double>(seconds * 60 + 120);

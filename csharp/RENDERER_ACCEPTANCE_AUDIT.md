@@ -10,7 +10,10 @@ Scope amendment (September 7, 2026): the user explicitly deferred the RDP
 disconnect/reconnect test because it is not a standard use case for them. That
 test is not a completion blocker for issue 321. Recovery across an actual RDP
 reconnect remains unverified, not passed. This deferral does not waive the other
-lifecycle, correctness, performance or hardware-default requirements.
+lifecycle, correctness, performance or hardware-default requirements except as
+amended next: the user subsequently also explicitly deferred actual cross-monitor
+testing. That external transition test is unverified and non-blocking. The enabled
+PerMonitorV2 policy and automated resize/lifecycle checks remain in scope.
 
 | Required gate | Current evidence | Outstanding proof/action |
 | --- | --- | --- |

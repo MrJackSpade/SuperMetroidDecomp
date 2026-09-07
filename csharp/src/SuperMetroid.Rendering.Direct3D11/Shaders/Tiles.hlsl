@@ -5,6 +5,7 @@ static const uint OpMode7 = 7;
 static const uint OpScanlineAdd = 8;
 static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint OpSubscreenAdd = 11;
+static const uint OpMessage = 12;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -72,6 +73,26 @@ void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
+    if (Operation == OpMessage)
+    {
+        if (id.y < TilemapWord || id.y >= TilemapWord + HorizontalScroll * 8) return;
+        uint y = id.y - TilemapWord;
+        uint entry = ScanlineParameters[(y >> 3) * 32 + (id.x >> 3)].x;
+        uint px = (entry & 16384) != 0 ? 7 - (id.x & 7) : id.x & 7;
+        uint py = (entry & 32768) != 0 ? 7 - (y & 7) : y & 7;
+        uint row = ((CharacterWord + (entry & 1023) * 8) & 32767) * 2 + py * 2;
+        uint color = ((ReadByte(row) >> (7 - px)) & 1) | (((ReadByte(row + 1) >> (7 - px)) & 1) << 1);
+        if (color == 0) return;
+        uint index = ((entry >> 10) & 7) * 4 + color;
+        if (index == AddB || index == ObjectCount)
+        {
+            uint word = index == AddB ? AddR : AddG;
+            uint3 c = uint3(word & 31, (word >> 5) & 31, (word >> 10) & 31);
+            Output[id.xy] = Pack((c << 3) | (c >> 2), 255);
+        }
+        else Output[id.xy] = Palette(index);
+        return;
+    }
     if (Operation == OpScanlineAdd)
     {
         uint4 window = ScanlineParameters[id.y];

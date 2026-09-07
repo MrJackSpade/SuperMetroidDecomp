@@ -52,7 +52,17 @@ internal static class ColorWindowSmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
         }
-        Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-effect comparisons passed.");
+        for (int rows = 3; rows <= 6; rows++)
+        for (int radius = 0; radius <= 24; radius++)
+        {
+            ushort[] tiles = Enumerable.Range(0, rows * 32).Select(_ => (ushort)random.Next(65536)).ToArray();
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null),
+                    new MessageBoxRenderLayer(tiles, radius) }, 3, 13));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: message {count}, rows {rows}, radius {radius}");
+        }
+        Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-effect/message comparisons passed.");
 
         void Check(ScanlineColorAddRenderLayer windows)
         {

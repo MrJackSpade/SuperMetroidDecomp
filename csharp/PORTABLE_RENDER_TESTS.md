@@ -28,6 +28,12 @@ Release build and execution passed on Ubuntu 24.04.4 LTS, linux-x64, SDK 10.0.40
 MSBuild 18.9.6, runtime .NET 10.0.11, using the image digest above. The same command
 also passed on Windows 10.0.26200 with .NET 10.0.11.
 
+Revalidated at `16e7099` after the async generation-boundary change (`f51fd05`)
+and opt-in publication profiler (`01ac279`). The same pinned Linux image rebuilt
+from fresh disposable outputs and passed the complete `--render-contract` suite,
+including asynchronous reset ordering and capture/reference parity. No Windows
+graphics, desktop or shader compiler was present in the staged build graph.
+
 The gate includes all existing snapshot/reference-renderer tests at the beginning
 of Verification: viewport parity (120), constructed/retail title (101/131), pause
 (128), file/options (284), frontend (251), intro (275), Ceres flight (108), Ceres/

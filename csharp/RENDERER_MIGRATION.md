@@ -48,6 +48,7 @@ Current GPU comparisons against software/legacy output include:
 | Ceres escape quakes | Dead-scientist room and final hallway: 240 exact runtime frames each, four native displacement states per room. Escape status seeded; native door actors generate the quakes. GPU/software parity, not new independent cartridge evidence. |
 | Crocomire death | 180 exact samples across 42 production death phases, including both dissolves, nonuniform BG2 scanlines, skeleton return and corpse. Boss placed at bridge trigger; Samus repositioned only at the wall-return gate. No controller battle claim. |
 | Samus death | 283 frontend frames from zero health through blackout, explosion, final fade and game-over handoff; independent legacy/captured owners, exact pixels and PCM |
+| Automatic reserve recovery | 100 frontend frames from zero health through automatic refill and gameplay return; independent legacy/captured owners compare pixels, PCM, audio commands, health/reserves and lock/time-freeze state. Debug/Release hardware/WARP verified. |
 | Save station | 230 exact Crateria save-room frames through confirmation, visibly colored electricity, completion and control release; room-local runtime test, not disk/SRAM persistence verification |
 | Kraid encounter/exits | Real incoming door and rise: 105 samples/seven AI states; collision-triggered growth: 95/eight with camera/BG2 priority handoff; death: 97/13 with sinking, fade and four BG3 restore assertions; left/right exits: 104 frames each including 63 scroll frames, with defeated-room reload before the right exit |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
@@ -125,10 +126,14 @@ focused test (capture/readback excluded). Reproducible unpaced CPU results are i
 
 Additional commands, run from the repository root:
 
-`--retail-all` runs the complete current 18-suite retail inventory in order on one
+`--retail-all` runs the complete current 19-suite retail inventory in order on one
 renderer per device, so GPU resources are reused across scene families. Individual
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.
+
+The 18-suite Debug aggregate at `bc2c5ae` passed on both hardware and WARP,
+including both elevator directions and native Ridley escape branches. Reserve
+recovery was added afterward and verified separately; it was not part of that run.
 
 The complete 17-suite Release aggregate passed on hardware and WARP at
 `119198f`. The same build's visible Debug five-minute gameplay/pause runs met

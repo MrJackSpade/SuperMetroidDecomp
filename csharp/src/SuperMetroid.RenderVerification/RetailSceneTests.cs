@@ -22,6 +22,7 @@ internal static class RetailSceneTests
         ("--retail-ceres-quakes", RetailCeresQuakeTests.Run),
         ("--retail-save", RetailSaveCaptureTests.Run),
         ("--retail-death", RetailDeathCaptureTests.Run),
+        ("--retail-reserves", RetailDeathCaptureTests.RunReserveRecovery),
         ("--retail-ending", RetailEndingTests.Run),
     ];
 

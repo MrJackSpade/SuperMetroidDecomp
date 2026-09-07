@@ -14,6 +14,14 @@ presentation-only consumers do not allocate CPU-readable textures. Solid smoke t
 cover 64 submissions before readback, repeated readback and the uninitialized guard
 on both devices in Debug/Release. This is not yet swapchain/desktop integration.
 
+The portable `RenderPresentationGate` provides atomic generation-check/presentation
+ordering relative to load/reset. Its lock is separate from `LatestRenderFrameMailbox`:
+ordinary publication never waits on presentation. Reset waits for a presentation
+already inside the gate, then rejects that generation thereafter. GPU completion and
+waitable-swapchain waits must stay outside the gate. Component tests cover stale work,
+concurrent reset, exceptions and reentrant reset rejection; the desktop still needs
+to wire this boundary and verify it against actual presentation/recovery.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

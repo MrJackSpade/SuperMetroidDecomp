@@ -32,6 +32,7 @@ VerifyTitleRenderSnapshots();
 VerifyPauseRenderSnapshots();
 VerifyFileMenuRenderSnapshots();
 VerifyRenderFrameHandoff();
+VerifyRenderPresentationGate();
 VerifyRenderPacketCodec();
 VerifyFrontendRenderCapture();
 VerifyCinematicRenderSnapshots();

@@ -98,6 +98,14 @@ internal static partial class Program
     private static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+        // Valid constructed fixed-color/control streams; retail tests check the real
+        // gradient bands separately. Every zoom index selects the same black run.
+        for (int index = 0; index < 16; index++)
+            WriteRomWord(rom, TitleGradientRomData.FixedColorPointers + index * 2, 0xbc7d);
+        WriteRomWord(rom, 0x8cbc7d, 0xe07f);
+        WriteRomWord(rom, 0x8cbc7f, 0xe07f);
+        WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);
+        WriteRomWord(rom, TitleGradientRomData.ControlTable + 2, 0x317f);
         // Phase-chain fixtures supply valid empty palette programs. The separate retail
         // console audit checks the real color words, timing, and rendered blinking.
         foreach (ushort definition in new[] { TitleSequenceRomData.ConsolePaletteFx.SlowLights,

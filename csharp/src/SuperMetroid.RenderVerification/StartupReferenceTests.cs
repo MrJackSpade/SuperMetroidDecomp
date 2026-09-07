@@ -66,6 +66,13 @@ internal static class StartupReferenceTests
             if (digest == referenceDigest)
             {
                 var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), title.CaptureRenderSnapshot());
+                if (!yearOnly)
+                {
+                    if (!NativeMode7Probe.Render(packet.Mode7!, 1).AsSpan().SequenceEqual(pixels))
+                        throw new InvalidOperationException("Native Mode-7 reference calculation differs from matched frame.");
+                    if (NativeMode7Probe.Render(packet.Mode7!, 0).AsSpan().SequenceEqual(pixels))
+                        throw new InvalidOperationException("Title fixture no longer distinguishes the reported scanline-origin defect.");
+                }
                 PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet),
                     $"{device.Kind}: independent Snes9x {scene} reference at managed tick {tick}");
                 Console.WriteLine($"{device.Kind}: native Snes9x {scene} RGBA reference matches managed/GPU at tick {tick}, phase {title.Phase}.");

@@ -108,18 +108,25 @@ public static class SnesMode7Renderer
         for (int color = 0; color < palette.Length; color++)
             palette[color] = SnesGraphics.DecodeBgr555Color(cgramWords[color]);
 
+        int signedCenterX = (centerX << 19) >> 19;
+        int signedCenterY = (centerY << 19) >> 19;
+        int clippedH = ((horizontalOffset << 19) >> 19) - signedCenterX;
+        int clippedV = ((verticalOffset << 19) >> 19) - signedCenterY;
+        clippedH = (clippedH & 0x2000) != 0 ? clippedH | ~1023 : clippedH & 1023;
+        clippedV = (clippedV & 0x2000) != 0 ? clippedV | ~1023 : clippedV & 1023;
         for (int screenY = 0; screenY < height; screenY++)
         {
-            // The hardware transforms `(screen + scroll - center)`, then adds the center
-            // back. Scroll therefore moves along the already-rotated map axes. Adding it
-            // after the matrix happens to work for an identity transform but rotates the
-            // transparent-overflow boundary around the wrong point in every Ceres shot.
-            int relativeY = screenY + verticalOffset - centerY;
+            // Mode 7 uses physical scanline one for the first displayed row. Truncate
+            // each start-product's low six bits before adding, as the PPU does; one
+            // algebraically combined matrix expression loses these hardware roundings.
+            int startX = ((matrixA * clippedH) & ~63) + ((matrixB * (screenY + 1)) & ~63)
+                + ((matrixB * clippedV) & ~63) + (signedCenterX << 8);
+            int startY = ((matrixC * clippedH) & ~63) + ((matrixD * (screenY + 1)) & ~63)
+                + ((matrixD * clippedV) & ~63) + (signedCenterY << 8);
             for (int screenX = 0; screenX < width; screenX++)
             {
-                int relativeX = screenX + horizontalOffset - centerX;
-                int sourceX = ((matrixA * relativeX + matrixB * relativeY) >> 8) + centerX;
-                int sourceY = ((matrixC * relativeX + matrixD * relativeY) >> 8) + centerY;
+                int sourceX = (startX + matrixA * screenX) >> 8;
+                int sourceY = (startY + matrixC * screenX) >> 8;
 
                 bool outside = (uint)sourceX >= 1024 || (uint)sourceY >= 1024;
                 if (outside && !fillOutsideWithCharacterZero)

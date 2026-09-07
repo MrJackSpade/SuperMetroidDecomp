@@ -53,16 +53,18 @@ static void VerifyMode7Rendering()
         horizontalOffset: 0, verticalOffset: 0,
         width: 8, height: 8);
     AssertEqual(64, identity.Length, "Mode 7 identity dimensions");
-    AssertTrue(identity.All(pixel => pixel.R == 255 && pixel.G == 0 && pixel.B == 0),
-        "Mode 7 identity reads map low bytes and character high bytes");
+    AssertTrue(identity.Take(56).All(pixel => pixel.R == 255 && pixel.G == 0 && pixel.B == 0),
+        "Mode 7 identity reads character rows one through seven on physical scanlines one through seven");
+    AssertTrue(identity.Skip(56).All(pixel => pixel.A == 0),
+        "Mode 7 physical scanline eight samples the next tile row");
 
-    // An offset of 1024 is outside the 10-bit map. M7SEL=$80 disables wrapping and keeps
+    // A center and offset of 1024 place the result outside the 10-bit map. M7SEL=$80 keeps
     // that overflow transparent; character-zero fill would require both bits ($C0).
     Rgba32[] outside = SnesMode7Renderer.RenderViewport(
         vram, cgram,
         matrixA: 0x0100, matrixB: 0,
         matrixC: 0, matrixD: 0x0100,
-        centerX: 0, centerY: 0,
+        centerX: 1024, centerY: 0,
         horizontalOffset: 1024, verticalOffset: 0,
         width: 1, height: 1);
     AssertEqual(0, outside[0].A, "Mode 7 transparent outside fill");
@@ -106,10 +108,10 @@ static void VerifyMode7Rendering()
     splitCgram.SetColor(1, 0x001f); // Red Mode-1 BG2 floor.
     splitCgram.SetColor(2, 0x03e0); // Green Mode-7 arena.
 
-    // Identity Mode 7 maps physical scanline 207 through map row 25. Character two is a
+    // Display row 207 uses physical Mode-7 scanline 208, hence map row 26. Character two is a
     // solid green tile. The following physical line is deliberately covered by the Mode-1
     // floor setup below, so its Mode-7 contents cannot influence the expected result.
-    splitVram.LoadMode7MapBytes([2], destinationWord: 25 * 128);
+    splitVram.LoadMode7MapBytes([2], destinationWord: 26 * 128);
     splitVram.LoadMode7CharacterBytes(Enumerable.Repeat((byte)2, 64).ToArray(), destinationWord: 2 * 64);
 
     // At screen Y=208 with zero BG2VOFS, tile row 26/pixel row zero is sampled from BG2SC

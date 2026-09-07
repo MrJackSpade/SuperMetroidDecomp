@@ -107,10 +107,15 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     if (Operation == OpMode7)
     {
-        int relativeX = (int)id.x + OffsetX - CenterX;
-        int relativeY = (int)id.y + OffsetY - CenterY;
-        int x = ((MatrixA * relativeX + MatrixB * relativeY) >> 8) + CenterX;
-        int y = ((MatrixC * relativeX + MatrixD * relativeY) >> 8) + CenterY;
+        int cx = (CenterX << 19) >> 19, cy = (CenterY << 19) >> 19;
+        int h = ((OffsetX << 19) >> 19) - cx, v = ((OffsetY << 19) >> 19) - cy;
+        h = (h & 8192) != 0 ? h | ~1023 : h & 1023;
+        v = (v & 8192) != 0 ? v | ~1023 : v & 1023;
+        int physicalY = (int)id.y + 1;
+        int startX = ((MatrixA * h) & ~63) + ((MatrixB * physicalY) & ~63) + ((MatrixB * v) & ~63) + (cx << 8);
+        int startY = ((MatrixC * h) & ~63) + ((MatrixD * physicalY) & ~63) + ((MatrixD * v) & ~63) + (cy << 8);
+        int x = (startX + MatrixA * (int)id.x) >> 8;
+        int y = (startY + MatrixC * (int)id.x) >> 8;
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
         if (outside && FillCharacterZero == 0) return;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;

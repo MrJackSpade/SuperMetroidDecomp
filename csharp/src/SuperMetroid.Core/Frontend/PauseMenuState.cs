@@ -621,6 +621,11 @@ internal sealed class PauseMenuState
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(areaIndex, x, y);
+            // Native scroll bounds select one bit plane, unlike tile rendering, which
+            // also displays explored secrets. Unioning the planes moves the map's center
+            // after a secret is explored even though the downloaded bounds are unchanged.
+            if (mapRevealMode == MapRevealMode.None)
+                return hasAreaMap ? map.IsRevealedByMapStation(x, y) : explored;
             return AreaMapVisibility.IsVisible(
                 explored,
                 hasAreaMap,
@@ -647,14 +652,16 @@ internal sealed class PauseMenuState
             right = x;
             break;
         }
-        for (int y = 0; y < 32; y++)
+        // Native vertical scans return their defaults before checking the final row
+        // in either direction. Match those boundary cases for sparse explored maps.
+        for (int y = 0; y < 31; y++)
         {
             if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
                 continue;
             top = y;
             break;
         }
-        for (int y = 31; y >= 0; y--)
+        for (int y = 31; y > 0; y--)
         {
             if (!Enumerable.Range(0, 64).Any(x => IsVisible(x, y)))
                 continue;

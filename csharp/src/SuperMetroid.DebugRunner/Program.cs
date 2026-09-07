@@ -32,6 +32,8 @@ if (args.Length == 3 && args[0] == "--quicksand-comparison-audit")
     return QuicksandComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--missile-reuse-audit")
     return MissileReuseAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--pause-map-centering-audit")
+    return PauseMapCenteringAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--deleted-squeept-parent-audit")
     return NorfairLavaJumpingEnemyAudit.Run(args[1], deletedParentOnly: true);
 if (args.Length == 2 && args[0] == "--sand-physics-audit")

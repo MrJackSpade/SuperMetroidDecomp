@@ -107,6 +107,14 @@ renderer per device, so GPU resources are reused across scene families. Individu
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.
 
+The complete 17-suite Release aggregate passed on hardware and WARP at
+`119198f`. The same build's visible Debug five-minute gameplay/pause runs met
+the measured CPU/GPU budgets with whole-run timing histories, no observed audio
+queue drains, and no discarded wall-clock frames. See
+`test-fixtures/issue-321-performance/desktop-visible-soak-debug.json` and its
+README for scope, memory samples and RDP presentation limitations. These results
+do not qualify the remaining scene/lifecycle gates or change the default backend.
+
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-all
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-file-map

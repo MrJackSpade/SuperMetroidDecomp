@@ -25,6 +25,38 @@ five-minute host-60-Hz gameplay/pause soak requirement. Those gates remain outst
 Do not infer whole-game performance from these two fixtures or add their independently
 calculated percentiles together.
 
+## Full-history visible Debug qualification
+
+`desktop-visible-soak-debug.json` records commit `119198f`, using
+`--soak-desktop-visible 300` on the interactive RDP desktop with an RTX 3090.
+Gameplay and Maridia pause each ran for 300 seconds with isolated saves and muted
+real waveOut output. Simulation reached 59.995/59.992 FPS; producer p95 was
+0.9083/0.7065 ms, p99 1.0461/0.7862 ms, and maximum 2.447/1.349 ms.
+Both had zero producer frames over 16.67 ms, zero discarded wall-clock frames,
+and zero native-empty-before-refill observations. Native occupancy stayed at
+four to six buffers; managed queues ended at four/two frames.
+
+CPU composition submission p95 was 0.0938/0.0772 ms, upload submission p95
+0.0349/0.0341 ms (included, not additive), and GPU composition p95
+3.1560/3.1928 ms. GPU composition p99 was 3.8226/3.8574 ms; full GPU
+composition/display p95 was 3.2256/3.2625 ms. All observed post-warmup timing
+samples were retained; each stream excludes its first 60 observations. GPU
+queries still in flight at the endpoint are not included.
+
+Each scene had 9,602 successful Presents, zero occluded Presents and no pending
+mailbox frame at the endpoint. Visual replacements were 8,399/8,398. The roughly
+32-Hz presentation rate did not throttle simulation/audio. Successful Present
+is not measurement of delivery to the RDP client. Producer p95 leaves over 94%
+of the nominal CPU deadline free in these workloads; this is not a whole-game
+performance guarantee.
+
+After startup, sampled private memory settled around 121-123 MB for gameplay
+and 137 MB for pause. Managed memory cycled with GC; neither fixture showed
+sustained growth over the five-minute interval. These whole-process samples
+include runtime/driver caches and cannot prove the absence of all resource leaks.
+The harness removed both isolated runtime directories; player states were untouched.
+Physical device reset, monitor/DPI changes and RDP reconnection remain separate gates.
+
 ## Full-history Release deadline/memory soak
 
 `desktop-memory-soak-release.json` records commit `e0078be`: 300 seconds each of

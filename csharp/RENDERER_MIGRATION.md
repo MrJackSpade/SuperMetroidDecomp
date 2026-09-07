@@ -205,6 +205,14 @@ asset hashes, required notices and a short published production-timer run. This 
 framework-dependent Windows package; a fresh machine still requires the documented
 .NET Desktop Runtime. See the script and performance notes for reproducibility.
 
+Revalidated this clean publication at `fb34cc7`: fresh shader compilation, identical
+game/verifier dependency hashes, audio asset checks, actual game entry-point audits,
+complete hidden desktop lifecycle checks (including close during load/restart),
+and five-second gameplay/pause production-timer smoke all passed. The short smoke
+observed no audio queue drains; it is packaging evidence, not a substitute for the
+separate five-minute performance reports. The isolated publish directory was
+removed after verification, including its copied ROM and synthetic save fixtures.
+
 Still required: finish the scene/publication and cross-backend state/PCM acceptance
 audit (room-runtime fixtures do not independently prove every frontend handoff),
 real recovery/DPI/RDP evidence, verified hardware-default selection,

@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--grapple-release-state-audit"])
+                {
+                    VerifyGrappleReleaseState();
+                    return;
+                }
                 if (args is ["--chozo-state-audit"])
                 {
                     VerifyChozoStatueState();

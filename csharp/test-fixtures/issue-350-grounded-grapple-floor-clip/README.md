@@ -20,3 +20,30 @@ distribute publicly. No reproduction or fix is claimed by preserving this file.
 SHA-256: `B67621C554E56AD77A4357E071D522EA7D3B202D5C9E9E85D3673B0ADE0FC0E9`.
 The original remains unchanged. This companion conversion was performed alongside
 issue #353 to preserve both fixtures before compiler method tokens shifted.
+
+## Reproduction and diagnosis
+
+```powershell
+dotnet run --no-restore --no-launch-profile --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --grapple-release-state-audit
+```
+
+Loads the named copy through the production loader and advances with input zero
+(release Shoot). No position or room-data modifications are needed. Before the
+fix, frame 2 is inactive grapple / pose `$52`, center `$0542,$04A1`, radius 19,
+and overlaps solid ledge block `(83,74)` (`$8311`). The center is above air;
+checking only the center/feet point misses the left-side overlap. The regression
+checks the complete collision rectangle once release completes.
+
+`before-release.png` and `embedded-after-release.png` preserve rendered frames
+0 and 12 from the failing run. The latter shows Samus's lower body embedded at
+the ledge. The diagnostic writes fresh screenshots under its own test-temp folder.
+
+Native `$9B:CBEB` invokes `PostGrappleCollisionDetection` (`$90:EF22`) after
+release cleanup. That routine samples both axes with bank-$94 post-grapple
+collision dispatchers, suppresses ejection when both ceiling and floor overlap,
+and ejects upward in up to two passes. The C# release path currently omits this
+routine. Ordinary grounding then clips against a lower tile row and leaves Samus
+embedded. A fix must implement the native post-grapple behavior, including slope
+semantics, rather than add an arbitrary upward offset.
+
+This is a failing reproduction, not a completed fix or a request for validation.

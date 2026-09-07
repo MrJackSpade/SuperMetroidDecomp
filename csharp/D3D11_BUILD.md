@@ -81,6 +81,18 @@ publication/consumption sequence. Visible expose/recovery remains a separate gat
 
 ## Reproducible inputs
 
+`powershell -NoProfile -File csharp/tools/verify-render-publish.ps1` performs a
+locked Release restore/publish using a fresh GUID-named artifacts tree, rebuilding
+all four embedded shaders from source. It runs solid, ordinary gameplay and display
+tests on hardware and WARP from the published directory, with no ROM or loose shader
+files. The display fixture is copied alongside the diagnostic and resolved relative
+to its application directory, not the repository working directory. Dependency
+notices are required in the output. This gate passed September 7, 2026: 64 solid,
+96 ordinary and eight display-size comparisons per device. Outputs are retained
+under `test-temp/render-publish` for inspection; they are disposable diagnostics,
+not alternate playable builds. This verifies renderer packaging, not the complete
+desktop/audio-asset distribution or a fresh machine's prerequisite installation.
+
 - .NET SDK 10.0.400, as used for current project verification.
 - Vortice.Direct3D11 exactly 3.8.3, with checked-in `packages.lock.json` files.
   Use `dotnet restore csharp/src/SuperMetroid.RenderVerification --locked-mode`.

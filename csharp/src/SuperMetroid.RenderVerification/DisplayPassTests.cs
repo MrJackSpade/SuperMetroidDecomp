@@ -9,7 +9,7 @@ internal static class DisplayPassTests
     internal static unsafe void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(
-            "csharp/test-fixtures/issue-321-tile-byte-selection/frame.smframe"));
+            Path.Combine(AppContext.BaseDirectory, "fixtures", "tile-byte-selection.smframe")));
         var native = SoftwareFrameSnapshotRenderer.Render(packet);
         int count = 0;
         using var timer = new D3D11GpuTimer(device);

@@ -73,6 +73,7 @@ internal static partial class SwapchainTests
         }
         VerifyRecoveryFailure(selection.Kind, repeatDeviceLoss: true);
         VerifyRecoveryFailure(selection.Kind, repeatDeviceLoss: false);
+        VerifySurfaceSuspension(selection.Kind);
     }
 
     private static void PumpUntil(Func<bool> finished)

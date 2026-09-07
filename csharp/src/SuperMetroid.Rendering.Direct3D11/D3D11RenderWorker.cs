@@ -21,6 +21,9 @@ public sealed class D3D11RenderWorker
     private long lastConsumedSequence;
     private long retainedRedraws;
     private long lastDrawnSize;
+    private bool surfaceSuspended;
+    /// <summary>Render-owner acknowledgement of a zero-sized surface; not a host resize request.</summary>
+    internal bool IsSurfaceSuspended => Volatile.Read(ref surfaceSuspended);
     private long deviceRecoveries;
     private D3D11DeviceLossDiagnostic? lastDeviceLoss;
     public D3D11DeviceLossDiagnostic? LastDeviceLoss => Volatile.Read(ref lastDeviceLoss);
@@ -212,6 +215,7 @@ public sealed class D3D11RenderWorker
                         presenter.Resize(width, height);
                         redraw = true;
                     }
+                    Volatile.Write(ref surfaceSuspended, suspended);
                 }
                 opportunity |= !suspended && (wasOccluded || presenter.TryAcquireFrameOpportunity());
                 if (!suspended && opportunity)

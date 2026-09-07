@@ -82,6 +82,17 @@ frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual
 driver reset and monitor/DPI/RDP changes remain unqualified.
 No machine-wide forced GPU reset has been performed.
 
+The worker's zero-sized-surface branch is verified separately by
+`SurfaceSuspensionTests` under `--swapchain-smoke` in Debug/Release on hardware
+and WARP. Zero width, zero height and both zero each suspend submission; 32
+publications remain bounded to one pending frame with 31 replacements and no
+uploads or presentations over a 250-ms interval. Generation changes invalidate
+that pending frame; restoring the surface consumes the latest new-generation
+frame at the requested size. Shutdown also completes while suspended with a
+pending frame. An internal render-owner acknowledgement makes these assertions
+independent of host/worker scheduling races. This exercises the actual worker
+and hidden swapchain, not an OS minimize, DPI change or RDP reconnect event.
+
 GPU timestamp queries use a bounded nonblocking ring. The tooltip reports rolling
 upload CPU submission percentiles and cumulative uploaded bytes/calls separately.
 These count every UpdateSubresource, including reusable window children and display

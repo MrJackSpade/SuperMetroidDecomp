@@ -35,6 +35,11 @@ if (args is ["--shutter-embedding"])
     VerifyShutterEmbedding();
     return 0;
 }
+if (args is ["--xray-input"])
+{
+    VerifyXrayInput();
+    return 0;
+}
 if (args is ["--grapple-enemy-death"])
 {
     VerifyGrappleEnemyDeath();
@@ -182,6 +187,7 @@ VerifyGrappleSpinInput();
 VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
+VerifyXrayInput();
 VerifyBreakableGrapplePlms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();

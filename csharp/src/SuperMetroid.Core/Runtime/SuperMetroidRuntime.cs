@@ -1939,6 +1939,19 @@ public sealed partial class SuperMetroidRuntime
                         Samus.ProjectileFlareCounter = 0;
                     }
 
+                    // The selected scope uses held Run, not Fire. Setup installs its
+                    // own pose handlers, superseding alpha's ordinary pending pose.
+                    if (!Samus.InputLocked && !SamusState.IsForwardFacingPose(Samus.Pose) &&
+                        Samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
+                        Samus.Grapple.Phase == GrapplePhase.Inactive &&
+                        (Controller1.Current & (ushort)SnesButton.B) != 0 &&
+                        TryBeginXrayFromSelectedHudItem())
+                    {
+                        xrayOwnsPoseInput = true;
+                        ProspectiveSamusPose = null;
+                        ProspectiveSamusFallbackPose = null;
+                    }
+
                     // `$91:E231-$E23D` disables enemy projectiles, PLMs, animated tiles,
                     // and palette FX while time is frozen. Normal bombs cannot be placed or
                     // advanced through this translated producer during the X-ray interval.

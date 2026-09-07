@@ -111,6 +111,13 @@ Paired simulation instances also compare frontend state, frame identity and orde
 audio commands. SRAM is private in memory. PCM output, other scenes and host pacing
 are not established by this test.
 
+`--retail-intro` compares 275 samples across all 34 intro phases, through completed
+Ceres flight, using independent legacy and captured display owners. Each retained
+packet is also rendered after the simulation advances. Samus coordinates, projectile
+count, Mother Brain hits and phase agree between owners. The verification assembly
+has internal capture access, like the existing portable verification harness; the GPU
+production assembly does not. This is not a PCM or desktop scheduling test.
+
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and

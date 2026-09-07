@@ -84,9 +84,13 @@ zero observed audio queue drains. Both reports and precise scope limitations are
 The full GPU interval measured about 31.7 ms; visible display budgeting remains open.
 Auto startup failure and strict explicit-GPU failure policies now have hidden-host tests.
 
+Portable Core/contract/software tests now build and pass on Ubuntu 24.04.4 LTS
+with .NET 10.0.11 in an isolated Linux SDK container. See `PORTABLE_RENDER_TESTS.md`
+for the pinned image, read-only staging command, coverage and scope limits.
+
 Still required: full retail scene matrix, complete cross-backend state/PCM evidence,
 visible soaks, presentation-inclusive GPU budgeting,
-real recovery/DPI/RDP evidence, portable build/run,
+real recovery/DPI/RDP evidence,
 clean packaging, final documentation and player-validation handoff. Do not close
 #321 or mark its completion goal achieved from the milestones above.
 

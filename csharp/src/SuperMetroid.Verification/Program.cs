@@ -12,7 +12,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-private static int Main()
+private static int Main(string[] args)
 {
 // This is deliberately a plain console executable rather than an xUnit/MSTest project.
 // It keeps the reverse-engineering workspace dependency-free and makes every check easy
@@ -25,6 +25,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyViewportTileRowParity();
 VerifyPpuMemorySnapshotOwnership();
@@ -46,6 +48,15 @@ VerifyMode7GameplaySnapshots();
 VerifyEndingRenderSnapshots();
 VerifyFileMapSnapshots();
 VerifyAttractCapture();
+
+// This portable gate retains every snapshot, codec, publication, scene-capture and
+// software parity check above. It deliberately excludes unrelated gameplay audits,
+// and never loads the Windows desktop or a graphics backend.
+if (args.Length == 1)
+{
+    Console.WriteLine($"Portable render contract passed on {RuntimeInformation.OSDescription}; {RuntimeInformation.FrameworkDescription}.");
+    return 0;
+}
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

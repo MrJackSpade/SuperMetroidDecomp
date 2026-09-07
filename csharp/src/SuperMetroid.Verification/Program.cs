@@ -43,6 +43,7 @@ if (args is ["--xray-input"])
 if (args is ["--xray-reveal"])
 {
     VerifyXrayRevealTable();
+    VerifyXrayExtensions();
     return 0;
 }
 if (args is ["--grapple-enemy-death"])
@@ -194,6 +195,7 @@ VerifyGrappleEnemyDeath();
 VerifyShutterRiding();
 VerifyXrayInput();
 VerifyXrayRevealTable();
+VerifyXrayExtensions();
 VerifyBreakableGrapplePlms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();

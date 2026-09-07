@@ -932,6 +932,7 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingKraidPlms();
         ApplyPendingMotherBrainPlms();
         ApplyPendingShitroidWallPlms();
+        ApplyPendingChozoStatuePlms();
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay
@@ -1091,10 +1092,21 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
+    /// Binds transient Chozo services and consumes pending bank-$AA terrain publications.
+    /// Also runs before movement so restored states cannot collide before their pending
+    /// initialization setup has installed the hand block.
+    /// </summary>
+    private void ApplyPendingChozoStatuePlms()
+    {
+        Plms.BindChozoStatueContext(Enemies, RoomLayer3Fx);
+        if (LevelData is not null)
+            Enemies.ApplyPendingChozoStatuePlms(_addressSpace, LevelData, Plms);
+    }
+
+    /// <summary>
     /// Applies Crocomire's bank-$A4 hardcoded arena mutations through the shared bank-$84
-    /// PLM owner. The enemy publishes a frame-local list because one collapse step can clear
-    /// ten bridge cells before adding its invisible wall; consuming the entire list here
-    /// preserves both native order and fixed-pool exhaustion behavior.
+    /// PLM owner. Consuming the full frame-local list preserves native publication order
+    /// and fixed-pool exhaustion behavior.
     /// </summary>
     private void ApplyPendingCrocomireArenaPlms()
     {

@@ -1367,6 +1367,7 @@ public sealed partial class SuperMetroidRuntime
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
     {
 
+        ApplyPendingChozoStatuePlms();
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
 
@@ -2857,6 +2858,7 @@ public sealed partial class SuperMetroidRuntime
                 ApplyPendingKraidPlms();
                 ApplyPendingMotherBrainPlms();
                 ApplyPendingShitroidWallPlms();
+                ApplyPendingChozoStatuePlms();
 
                 IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
                     _addressSpace,

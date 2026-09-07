@@ -40,6 +40,17 @@ Native evidence: `$AA:E725` publishes `$D6EE` at `(74,23)`. Its synchronous
 must be solid even before morph-pose admission through `$84:D620`. The runtime
 currently transfers other enemy PLM requests but never the Chozo requests.
 
-This diagnostic reproduces the missing hand collision, not completion of the
-walk sequence. A fix must additionally exercise the physical trigger, authored
-terrain changes, transport, and control release before player validation.
+The completed diagnostic also constructs the approach immediately above the hand
+without changing room terrain, enemy state, or boss flags. It invokes the real
+vertical collision dispatcher and verifies that standing contact and a living
+Phantoon cannot activate the hand. Admitted morph contact must both collide and
+disable controls. It then runs the full room sequence through ordinary game frames:
+
+- 1,938 frames to release in this fixture; Samus ends at `$0134,$027D`.
+- Samus matches the native hand-offset tables on every carried frame.
+- The two authored slopes open during the sequence and return to spikes afterward.
+- 33 enemy-sound publication frames, instead of replaying the last sound every frame.
+
+This is a real-room integration regression with a constructed approach, not a
+controller-only climb from the original standing position. Player confirmation
+of the Gravity Suit route remains required.

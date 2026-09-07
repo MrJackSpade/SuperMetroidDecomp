@@ -337,12 +337,12 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
-    /// Applies the exact shared WRAM writes made by the Speed Booster escape PLM. These are
+    /// Applies shared liquid WRAM writes made by room PLMs and enemy instructions. These are
     /// intentionally not a rendering shortcut: bank $84 writes the same fields loaded by
     /// <c>$89:AB82</c>. The translated bank-$88 liquid handler consumes those shared words
     /// on its next ordinary effect pass, just as the cartridge does.
     /// </summary>
-    internal void ApplySpeedBoosterEscapeWrite(
+    internal void ApplyCartridgeMotionWrites(
         ushort? baseYPosition = null,
         ushort? targetYPosition = null,
         ushort? packedYVelocity = null,

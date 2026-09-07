@@ -127,14 +127,14 @@ public static class DebuggerSaveStateSmokeTest
             string repository = Path.GetDirectoryName(fullRomPath)!;
             foreach (var fixture in new[]
             {
-                ("issue-350-grounded-grapple-floor-clip", "slot-0.smstate"),
-                ("issue-353-gravity-chozo-hands", "slot-9.smstate"),
+                ("issue-350-grounded-grapple-floor-clip", "slot-0-named.smstate"),
+                ("issue-353-gravity-chozo-hands", "slot-9-named.smstate"),
             })
             {
                 string fixturePath = Path.Combine(repository, "csharp", "test-fixtures", fixture.Item1, fixture.Item2);
                 File.Copy(fixturePath, store.GetSlotPath(2), overwrite: true);
-                DebuggerSaveStateLoadResult legacy = store.Load(2);
-                Console.WriteLine($"Loaded preserved legacy fixture {fixture.Item1}: room={legacy.Metadata.RoomPointer:X4}.");
+                DebuggerSaveStateLoadResult preserved = store.Load(2);
+                Console.WriteLine($"Loaded preserved named fixture {fixture.Item1}: room={preserved.Metadata.RoomPointer:X4}.");
             }
             Console.WriteLine("Debugger compatibility: build warnings allow exact continuation; schema/ROM rejection and named delegates agree.");
 

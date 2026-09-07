@@ -108,7 +108,6 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastHibashiSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastNuclearWaffleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastFakeKraidSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastChozoStatueSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastWorkRobotSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastSpacePirateSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastRioSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);

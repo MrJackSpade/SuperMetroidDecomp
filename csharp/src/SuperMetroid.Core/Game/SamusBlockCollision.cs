@@ -589,6 +589,11 @@ public static class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        // Hand reactions change state but return unconditional collision:
+                        // even an admitted morph contact is clipped by this same scan.
+                        if (state.SamusOwner is { } chozoSamus)
+                            plms?.NotifyChozoStatueHandCollision(bus, level, block, chozoSamus,
+                                state.CollisionPose, movingDown: acceptedDisplacement > 0);
                         // The vertical special-solid dispatcher shares setup `$84:CDEA`
                         // with horizontal collision. Accepted boost contact becomes air
                         // before clipping; rejected/non-speed special blocks remain solid.

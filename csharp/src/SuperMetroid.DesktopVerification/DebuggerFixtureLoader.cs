@@ -14,7 +14,7 @@ internal static class DebuggerFixtureLoader
         string destination = store.GetSlotPath(slot);
         try
         {
-            File.Copy(Path.Combine("csharp", "test-fixtures", fixtureName, $"slot-{slot}.smstate"), destination);
+            File.Copy(Path.Combine("csharp", "test-fixtures", fixtureName, $"slot-{slot}-named.smstate"), destination);
             return store.Load(slot);
         }
         finally

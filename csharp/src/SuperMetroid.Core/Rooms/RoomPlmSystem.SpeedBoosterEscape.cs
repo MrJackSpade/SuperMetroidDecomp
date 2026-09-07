@@ -59,7 +59,7 @@ public sealed partial class RoomPlmSystem
             case SpeedBoosterEscapePlmRomData.WaitForSamusLeftPreInstruction:
                 if (samus.XPosition > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
                     return;
-                fx.ApplySpeedBoosterEscapeWrite(timer: 1);
+                fx.ApplyCartridgeMotionWrites(timer: 1);
                 WakeAtNextInstruction(slot);
                 return;
 
@@ -81,7 +81,7 @@ public sealed partial class RoomPlmSystem
     {
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
-            fx.ApplySpeedBoosterEscapeWrite(
+            fx.ApplyCartridgeMotionWrites(
                 targetYPosition: ushort.MaxValue,
                 packedYVelocity: 0,
                 timer: 0);
@@ -98,7 +98,7 @@ public sealed partial class RoomPlmSystem
             return;
         }
 
-        fx.ApplySpeedBoosterEscapeWrite(
+        fx.ApplyCartridgeMotionWrites(
             packedYVelocity: SpeedBoosterEscapePlmRomData.InitialLavaquakeVelocity);
         WakeAtNextInstruction(slot);
     }
@@ -134,7 +134,7 @@ public sealed partial class RoomPlmSystem
 
         ushort maximumFxY = ReadBank84Word(bus, unchecked((ushort)(row + 2)));
         ushort packedVelocity = ReadBank84Word(bus, unchecked((ushort)(row + 4)));
-        fx.ApplySpeedBoosterEscapeWrite(
+        fx.ApplyCartridgeMotionWrites(
             baseYPosition: maximumFxY < fx.BaseYPosition ? maximumFxY : null,
             packedYVelocity: packedVelocity);
         slot.LoopTimer = unchecked((ushort)(

@@ -48,6 +48,8 @@ public sealed partial class RoomPlmSystem
     /// </summary>
     public void Reset()
     {
+        _chozoEnemies = null;
+        _chozoRoomFx = null;
         foreach (PlmSlot slot in _slots)
         {
             slot.Active = false;
@@ -1262,6 +1264,7 @@ public sealed partial class RoomPlmSystem
             RunSpeedBoosterEscapePreInstruction(bus, slot);
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
+            RunChozoStatuePreInstruction(level, slot);
             RunMotherBrainGlassPreInstruction(slot);
             RunNoobTubePreInstruction(slot, controllerNewInput);
             RunDownwardGatePreInstruction(slot);
@@ -1545,6 +1548,8 @@ public sealed partial class RoomPlmSystem
                     return;
 
                 default:
+                    if (TryExecuteChozoStatueInstruction(level, slot, instruction))
+                        continue;
                     if (TryExecuteBombTorizoHandInstruction(bus, slot, instruction))
                         continue;
                     if (TryExecuteMotherBrainGlassInstruction(bus, slot, instruction))

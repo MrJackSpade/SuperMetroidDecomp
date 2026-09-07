@@ -86,12 +86,6 @@ public sealed partial class RoomEnemySystem
     private const ushort WreckedShipChozoActiveInstructionList = 0xe461;
     private const ushort EmptyBankAaSpritemap = 0x804d;
 
-    private const ushort LowerNorfairHandPlm = 0xd6d6;
-    private const ushort WreckedShipHandTriggerPlm = 0xd6ee;
-    private const ushort WreckedShipWakePlm = 0xd6f8;
-    private const ushort WreckedShipSpikeTerrainPlm = 0xd6fc;
-    private const ushort ChozoSpikeFootstepTerrainPlm = 0xd113;
-
     private readonly ChozoStatueState?[] _chozoStatueStates =
         new ChozoStatueState?[MaximumEnemyCount];
     private readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
@@ -102,11 +96,21 @@ public sealed partial class RoomEnemySystem
     public IReadOnlyList<ChozoStatueState?> ChozoStatueStates => _chozoStatueStates;
 
     /// <summary>
-    /// Exact bank-$84 requests emitted since the room was loaded. They are publications, not
-    /// fabricated terrain edits: the still-independent PLM owner can consume each header.
+    /// Pending bank-$84 requests in publication order. Runtime consumes each header once
+    /// through the shared PLM pool; actor-only diagnostics may inspect them before handoff.
     /// </summary>
     public IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
         _chozoStatuePlmRequests;
+
+    /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
+    public void ApplyPendingChozoStatuePlms(ISnesAddressSpace bus, RoomLevelData level, RoomPlmSystem plms)
+    {
+        while (_chozoStatuePlmRequests.Count != 0)
+        {
+            plms.TrySpawnChozoStatuePlm(bus, level, _chozoStatuePlmRequests[0]);
+            _chozoStatuePlmRequests.RemoveAt(0);
+        }
+    }
 
     /// <summary>Last library-two sound requested by either walking sequence.</summary>
     public ushort? LastChozoStatueSoundEffect { get; private set; }
@@ -189,14 +193,14 @@ public sealed partial class RoomEnemySystem
         {
             statue.CurrentInstruction = WreckedShipChozoInstructionList;
             LoadChozoStatuePalette(rowNineSource: 0xaae31d, rowTenSource: 0xaae33d);
-            PublishHardcodedChozoPlm(WreckedShipHandTriggerPlm, blockX: 0x4a, blockY: 0x17);
-            PublishHardcodedChozoPlm(WreckedShipSpikeTerrainPlm, blockX: 0x17, blockY: 0x1d);
+            PublishHardcodedChozoPlm(ChozoStatuePlmRomData.WreckedShipHand, blockX: 0x4a, blockY: 0x17);
+            PublishHardcodedChozoPlm(ChozoStatuePlmRomData.BlockSlopeAccess, blockX: 0x17, blockY: 0x1d);
         }
         else
         {
             statue.CurrentInstruction = LowerNorfairChozoInstructionList;
             LoadChozoStatuePalette(rowNineSource: 0xaae35d, rowTenSource: 0xaae37d);
-            PublishHardcodedChozoPlm(LowerNorfairHandPlm, blockX: 0x0c, blockY: 0x1d);
+            PublishHardcodedChozoPlm(ChozoStatuePlmRomData.LowerNorfairHand, blockX: 0x0c, blockY: 0x1d);
         }
     }
 
@@ -214,7 +218,7 @@ public sealed partial class RoomEnemySystem
     /// trigger. Collision/pose/item admission remains the PLM owner's responsibility; once
     /// admitted, both native trigger setups write parameter one and disable Samus controls.
     /// </summary>
-    public void ActivateChozoStatueHandTrigger(RoomLevelData level)
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, int? collisionBlockIndex = null)
     {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
@@ -222,9 +226,9 @@ public sealed partial class RoomEnemySystem
         if (statue.EnemyDefinitionPointer != ChozoStatueDefinition)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
-        int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : 0x0c;
-        int triggerBlockY = statue.Parameter2 == 0 ? 0x17 : 0x1d;
-        int triggerBlockIndex = level.GetBlockIndex(triggerBlockX, triggerBlockY);
+        int triggerBlockX = statue.Parameter2 == 0 ? 0x4a : ChozoStatuePlmRomData.LowerNorfairTriggerX;
+        int triggerBlockY = statue.Parameter2 == 0 ? 0x17 : ChozoStatuePlmRomData.LowerNorfairTriggerY;
+        int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(triggerBlockX, triggerBlockY);
         RoomCollisionBlock triggerBlock = level.GetCollisionBlockByIndex(triggerBlockIndex);
 
         // Both setup routines clear only the block-type nibble. The parallel BTS byte and
@@ -239,7 +243,7 @@ public sealed partial class RoomEnemySystem
             // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
             RequireSetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
-                ChozoSpikeFootstepTerrainPlm,
+                ChozoStatuePlmRomData.CrumblePlug,
                 blockX: 0x0c,
                 blockY: 0x1d);
         }
@@ -247,13 +251,13 @@ public sealed partial class RoomEnemySystem
         {
             // $84:D620 performs two little-endian word stores before handing the statue to
             // $E7AE: scroll bytes 7/8 become green and 13/14 become blue. PLM $D6F8 then
-            // queues the authored music/terrain transition in bank $84.
+            // queues the authored slope-access terrain transition in bank $84.
             RequireSetRoomScrollState(7, RoomScrollState.Green);
             RequireSetRoomScrollState(8, RoomScrollState.Green);
             RequireSetRoomScrollState(13, RoomScrollState.Blue);
             RequireSetRoomScrollState(14, RoomScrollState.Blue);
             PublishHardcodedChozoPlm(
-                WreckedShipWakePlm,
+                ChozoStatuePlmRomData.ClearSlopeAccess,
                 blockX: 0x17,
                 blockY: 0x1d);
         }
@@ -334,11 +338,15 @@ public sealed partial class RoomEnemySystem
 
             case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoGrabsSamusSFX:
                 LastChozoStatueSoundEffect = 0x001c;
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case ChozoStatueInstructionCodes.Instruction_Chozo_PlayChozoFootstepsSFX:
                 LastChozoStatueSoundEffect = 0x004b;
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2,
+                    LastChozoStatueSoundEffect.Value), maximumQueued: 6);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
@@ -429,7 +437,7 @@ public sealed partial class RoomEnemySystem
         }
 
         _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
-            ChozoSpikeFootstepTerrainPlm,
+            ChozoStatuePlmRomData.CrumblePlug,
             probeX >> 4,
             probeY >> 4,
             IsHardcoded: false));
@@ -462,7 +470,7 @@ public sealed partial class RoomEnemySystem
         RequireSetRoomScrollState(14, RoomScrollState.RedBoundary);
 
         PublishHardcodedChozoPlm(
-            WreckedShipSpikeTerrainPlm,
+            ChozoStatuePlmRomData.BlockSlopeAccess,
             blockX: 0x17,
             blockY: 0x1d);
     }

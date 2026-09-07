@@ -4,6 +4,7 @@ static const uint OpResolveObj = 5, OpInsertObj = 6;
 static const uint OpMode7 = 7;
 static const uint OpScanlineAdd = 8;
 static const uint OpBgAdd = 9, OpBgSubtract = 10;
+static const uint OpSubscreenAdd = 11;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -49,6 +50,22 @@ uint Palette(uint index)
 }
 
 #include "Objects.hlsli"
+
+bool MainCoverage(uint2 screen)
+{
+    uint4 geometry = ScanlineParameters[1];
+    if (geometry.w == 0) return true;
+    uint4 map = ScanlineParameters[0];
+    uint2 position = (screen + map.zw) & (geometry.xy * 8 - 1);
+    uint2 tile = position >> 3;
+    uint page = ((tile.y >> 5) * (geometry.x >> 5) + (tile.x >> 5)) * 1024;
+    uint entry = ReadWord(map.x + page + (tile.y & 31) * 32 + (tile.x & 31));
+    if (geometry.z != 0 && ((entry >> 13) & 1) != geometry.z - 1) return false;
+    uint px = (entry & 16384) != 0 ? 7 - (position.x & 7) : position.x & 7;
+    uint py = (entry & 32768) != 0 ? 7 - (position.y & 7) : position.y & 7;
+    uint row = ((map.y + (entry & 1023) * 16) & 32767) * 2 + py * 2;
+    return (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
+}
 
 [numthreads(8, 8, 1)]
 void Main(uint3 id : SV_DispatchThreadID)
@@ -117,7 +134,13 @@ void Main(uint3 id : SV_DispatchThreadID)
         color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
     if (color == 0 && TransparentZero != 0) return;
     uint sampled = Palette(((entry >> 10) & 7) * (Operation == OpBg4 ? 16 : 4) + color);
-    if (backgroundMath)
+    if (Operation == OpSubscreenAdd)
+    {
+        if (!MainCoverage(id.xy)) return;
+        uint3 sum = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(sampled) >> 3));
+        Output[id.xy] = Pack((sum << 3) | (sum >> 2), 255);
+    }
+    else if (backgroundMath)
     {
         uint pixel = Output[id.xy];
         int3 baseColor = int3(Unpack(pixel)), overlay = int3(Unpack(sampled));

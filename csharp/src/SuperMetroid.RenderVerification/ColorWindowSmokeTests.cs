@@ -40,7 +40,19 @@ internal static class ColorWindowSmokeTests
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
         }
-        Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-window comparisons passed.");
+        foreach (int width in new[] { 32, 64 })
+        foreach (int height in new[] { 32, 64 })
+        foreach (bool? priority in new bool?[] { null, false, true })
+        foreach (bool masked in new[] { false, true })
+        {
+            var coverage = masked ? new Bg4BppRenderLayer(0x7ffe, 0x6000, 65535, 511, width, height, priority) : null;
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null),
+                    new FixedColorAddRenderLayer(1, 2, 3), new BgSubscreenAddRenderLayer(0x5800, 0x4000, coverage) }, 3, 13));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: subscreen {count}, masked {masked}, geometry {width}x{height}, priority {priority}");
+        }
+        Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-effect comparisons passed.");
 
         void Check(ScanlineColorAddRenderLayer windows)
         {

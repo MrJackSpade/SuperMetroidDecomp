@@ -40,6 +40,8 @@ public readonly record struct FrameTimingSnapshot(
 /// </summary>
 public sealed class FrameTimingCounter
 {
+    /// <summary>Optional owner-thread diagnostic observer; the normal host has no subscriber.</summary>
+    internal event Action<long>? EmulatedFrameMeasured;
     private readonly long timestampFrequency;
     private readonly long reportingIntervalTicks;
     private long intervalStarted;
@@ -81,6 +83,7 @@ public sealed class FrameTimingCounter
         ArgumentOutOfRangeException.ThrowIfNegative(elapsedTicks);
         emulatedFrames++;
         emulationTicks += elapsedTicks;
+        EmulatedFrameMeasured?.Invoke(elapsedTicks);
         worstEmulationTicks = Math.Max(worstEmulationTicks, elapsedTicks);
     }
 

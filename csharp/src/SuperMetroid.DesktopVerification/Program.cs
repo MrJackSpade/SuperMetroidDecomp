@@ -22,6 +22,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--soak-desktop-hidden", var desktopDuration] && int.TryParse(desktopDuration, out int desktopSeconds))
+                {
+                    await RunDesktopTimerSoak(desktopSeconds);
+                    return;
+                }
                 if (args is ["--soak-hidden", var durationText] && int.TryParse(durationText, out int seconds))
                 {
                     await RunHiddenSoak(seconds);

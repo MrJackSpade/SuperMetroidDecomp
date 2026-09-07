@@ -34,6 +34,11 @@ from fresh disposable outputs and passed the complete `--render-contract` suite,
 including asynchronous reset ordering and capture/reference parity. No Windows
 graphics, desktop or shader compiler was present in the staged build graph.
 
+Revalidated again at `16d33cd` after strict captured intro/gameplay publication
+replaced the old implicit raster fallback. Fresh container outputs built and the
+complete portable suite passed on Ubuntu 24.04.4 / .NET 10.0.11 using the same
+pinned image. No Windows renderer or desktop assembly entered this build graph.
+
 The gate includes all existing snapshot/reference-renderer tests at the beginning
 of Verification: viewport parity (120), constructed/retail title (101/131), pause
 (128), file/options (284), frontend (251), intro (275), Ceres flight (108), Ceres/

@@ -2157,6 +2157,51 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(1, superProjectiles.ProjectileCounter,
         "super explosion retains only its visible owner count");
 
+    // Issue #283: reproduce the narrow-pillar helper impact from the player's recording.
+    // Original-ROM execution in native/ProjectileLinkAudit proves that the exploded helper
+    // continues following over air. Preserve that quirk, but require the cartridge's exact
+    // impact position and deletion on a second collision (not an explosion restart).
+    var pillarWords = new ushort[64 * 16];
+    pillarWords[851] = 0x8119;
+    var pillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
+    var pillarSamus = new SamusState
+    {
+        Pose = rightPose, XPosition = 64, YPosition = 96,
+        SelectedHudItem = 2, SuperMissiles = 3,
+    };
+    var pillarBombs = new SamusBombProjectileSystem();
+    var pillarProjectiles = new SamusProjectileSystem();
+    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus,
+        (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, pillarBombs);
+    var pillarOwner = pillarProjectiles.Slots[0];
+    var pillarLink = pillarProjectiles.Slots[1];
+    pillarOwner.XPosition = 0x12f;
+    pillarOwner.YPosition = pillarLink.YPosition = 0xd1;
+    pillarOwner.XVelocity = 0x1100;
+    pillarOwner.XSubposition = 0;
+    pillarLink.XPosition = 0x128;
+    pillarLink.XRadius = 8;
+    // Keep the constructed animation alive long enough to observe the second collision.
+    ushort oldExplosionDuration = (ushort)(bus.ReadByte(0x939340) |
+        bus.ReadByte(0x939341) << 8);
+    WriteTestWord(bus, 0x939340, 20);
+    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
+    AssertEqual(0x139, pillarLink.XPosition,
+        "native missile helper impact does not apply the beam leading-edge radius");
+    AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.PackedType.Family,
+        "supplemental pillar collision explodes the helper, not its owner");
+    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
+    AssertEqual(0x14b, pillarLink.XPosition,
+        "original ROM repositions an exploded helper over air");
+    pillarWords[853] = 0x8119;
+    var secondPillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
+    pillarProjectiles.StepFrame(bus, secondPillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
+    AssertTrue(!pillarLink.IsActive,
+        "native second collision deletes the explosion instead of restarting it");
+    AssertEqual(1, pillarProjectiles.ProjectileCounter,
+        "second helper collision decrements its counted slot exactly once");
+    WriteTestWord(bus, 0x939340, oldExplosionDuration);
+
     // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM
     // owner directly. `$90:B00E`'s invisible linked point probe and the visible owner both
     // carry family `$0200`; whichever reaches the column first must publish `$84:D08C`, run

@@ -53,8 +53,15 @@ evidence of a second shot inheriting a previous slot's animation.
 Separate calls to `$90:AE06` also assert two genuine translation discrepancies
 found during this investigation: missile impacts do **not** add the beam's
 leading-edge radius, and another impact on an existing explosion clears its
-slot instead of restarting its explosion. At the time this diagnostic was
-introduced, the C# implementation still differed on those two properties.
+slot instead of restarting its explosion. The C# impact handler now matches
+both properties; the focused managed regression exercises the real projectile
+producer and frame handler, including a second pillar collision. The original
+player replay now matches all three native helper positions above.
+
+`--moving-missile-explosion-audit` remains a symptom finder: it deliberately
+reports travelling explosions, including this native-ROM quirk. It is not a
+cartridge-parity pass/fail gate. Suppressing all helper movement would change
+the original game and is not part of this translation correction.
 
 The hardware multiply registers are implemented synchronously; the tested ROM
 routine already waits enough instructions before reading their result. No game

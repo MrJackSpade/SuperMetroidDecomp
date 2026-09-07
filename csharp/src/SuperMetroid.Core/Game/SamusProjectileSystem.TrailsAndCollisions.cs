@@ -723,19 +723,17 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles)
     {
-        // The shared `$90:AE3A` leading-edge correction runs for beams and missiles alike.
-        // Missiles use point collision while travelling, but their explosion is deliberately
-        // anchored one current animation radius farther in the fired direction.
-        byte direction = unchecked((byte)(slot.Direction & 0x0f));
-        if (direction is 1 or 2 or 3)
-            slot.XPosition = unchecked((ushort)(slot.XPosition + slot.XRadius));
-        else if (direction is 6 or 7 or 8)
-            slot.XPosition = unchecked((ushort)(slot.XPosition - slot.XRadius));
+        // The native kill dispatcher clears families beyond missiles immediately. A Super
+        // Missile's supplemental probe can collide again after becoming an explosion;
+        // restarting its animation here would extend both its lifetime and damage.
+        if (slot.PackedType.FamilyValue >= (ushort)SamusProjectileFamily.PowerBomb)
+        {
+            ClearProjectile(slot);
+            return;
+        }
 
-        if (direction is 0 or 1 or 8 or 9)
-            slot.YPosition = unchecked((ushort)(slot.YPosition - slot.YRadius));
-        else if (direction is 3 or 4 or 5 or 6)
-            slot.YPosition = unchecked((ushort)(slot.YPosition + slot.YRadius));
+        // Missile point collisions already supply the impact coordinate. Only the beam
+        // branch of the native dispatcher applies a leading-edge radius adjustment.
 
         // `$93:80CF` queues library-two sound seven, converts non-beams to family `$0800`,
         // selects `$86:7F`, and leaves the slot counted until its delete opcode. Sound-library

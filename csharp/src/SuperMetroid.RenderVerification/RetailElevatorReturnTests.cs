@@ -12,6 +12,12 @@ internal static class RetailElevatorReturnTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
+        RunUpward(device, renderer);
+        RetailElevatorDepartureTests.Run(device, renderer);
+    }
+
+    private static void RunUpward(D3D11RenderDevice device, D3D11FrameRenderer renderer)
+    {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

@@ -1,5 +1,11 @@
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
+  /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */
+  NativePostGrappleCollision = 0x90ef22,
+  /* Native room/body and collision-plane WRAM identities. */
+  RoomWidth = 0x7a5, SamusX = 0xaf6, SamusY = 0xafa,
+  SamusRadiusX = 0xafe, SamusRadiusY = 0xb00,
+  LevelWords = 0x10002, BlockBts = 0x16402,
   /* $91:8000, NormalSamusPoseInputHandler; long-call entry point. */
   NativePoseInput = 0x918000,
   /* WRAM $0A1C/$0A1F/$0A28: Pose, MovementType, ProspectivePose. */

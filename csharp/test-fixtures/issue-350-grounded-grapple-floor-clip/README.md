@@ -47,3 +47,13 @@ embedded. A fix must implement the native post-grapple behavior, including slope
 semantics, rather than add an arbitrary upward offset.
 
 This is a failing reproduction, not a completed fix or a request for validation.
+
+## Independent cartridge reference
+
+`csharp/native/GrapplePoseAudit` now also executes `$90:EF22` directly from the
+ROM using the captured body's center/radii and surrounding ledge blocks. With
+the original swing radius 17, the cartridge changes Y from `$04A1` to `$048F`
+(18 pixels upward). This occurs before applying the queued release pose. The
+fixture asserts that exact result and preserves the existing left/right released
+pose-input checks. It does not yet prove a corrected C# release or its subsequent
+pose-expansion handling; those still need implementation and verification.

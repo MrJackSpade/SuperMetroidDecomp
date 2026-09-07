@@ -106,7 +106,10 @@ public sealed class SamusBombProjectileSystem
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
-        StepCooldown();
+        // The forward-facing branch at $90:DCE3/$90:DCE8 skips this call as well
+        // as the HUD producer, but must still run the existing projectile slots below.
+        if (!SamusState.IsForwardFacingPose(samus.Pose))
+            StepCooldown();
 
         int? placedSlot = null;
         bool bombSpreadStarted = false;

@@ -1923,7 +1923,7 @@ public sealed partial class SuperMetroidRuntime
                     // Consequently a Select edge can choose missiles and an X edge can
                     // fire one during this same alpha pass. Input-locked message/elevator
                     // handlers do not execute the normal selection owner.
-                    if (!Samus.InputLocked && Samus.HandleHudSelection(
+                    if (!Samus.InputLocked && !SamusState.IsForwardFacingPose(Samus.Pose) && Samus.HandleHudSelection(
                             Controller1.Current,
                             Controller1.NewlyPressed))
                     {

@@ -390,7 +390,11 @@ public sealed partial class SamusProjectileSystem
         // share `$90:B80D`; index one reaches `$90:BE62`'s missile producer. Ball poses still
         // dispatch to the companion bomb owner, and the debug grapple route disables this
         // producer explicitly while it owns Shoot.
-        if (projectileProducerEnabled && !SamusState.IsStableBallPose(samus.Pose))
+        // $90:DCE0-DCE8 branches straight to Handle_Projectiles for either
+        // forward-facing pose. In particular an elevator may keep accepting physical
+        // controller samples without allowing them to charge or fire a weapon.
+        if (projectileProducerEnabled && !SamusState.IsForwardFacingPose(samus.Pose) &&
+            !SamusState.IsStableBallPose(samus.Pose))
         {
             if (samus.SelectedHudItem is 0 or 3)
             {

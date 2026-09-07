@@ -44,6 +44,9 @@ if (args.Length == 2 && args[0] == "--gunship-recharge-audit")
 if (args.Length == 2 && args[0] == "--gunship-save-audit")
     return GunshipSaveAudit.Run(args[1]);
 
+if (args.Length == 2 && args[0] == "--forward-facing-projectile-audit")
+    return ForwardFacingProjectileAudit.Run(args[1]);
+
 if (args.Length == 2 && args[0] == "--wall-jump-spin-audit")
     return WallJumpSpinAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--deleted-squeept-parent-audit")

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// ROM-backed end-to-end audit for normal elevator enemy $D73F. It inventories every named
@@ -257,6 +258,24 @@ internal static class ElevatorAudit
         Step(loaded, newlyPressedInput: 0);
         if (FixedY(slot) != after)
             throw new InvalidDataException("Elevator moved while the door-transition gate was active.");
+
+        // Continue the actual departing elevator with held Fire. Its command-seven
+        // forward-facing pose must bypass weapon production on every travel frame.
+        loaded.Enemies.ElevatorDoorTransitionActive = false;
+        loaded.Samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
+        var air = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], []);
+        var bombs = new SamusBombProjectileSystem();
+        for (int tick = 0; tick < 90; tick++)
+        {
+            Step(loaded, 0);
+            loaded.Projectiles.StepFrame(loaded.Bus, air, loaded.Samus,
+                (ushort)SnesButton.X, tick == 0 ? (ushort)SnesButton.X : (ushort)0,
+                CameraX(slot), CameraY(slot), bombs);
+            if (loaded.Projectiles.FlareCounter != 0 || loaded.Projectiles.Slots.Any(projectile => projectile.IsActive))
+                throw new InvalidDataException("Held Fire charged/fired while the real elevator actor was travelling.");
+        }
+        if (FixedY(slot) == after || !loaded.Samus.InputLocked)
+            throw new InvalidDataException("Elevator charge fixture did not keep moving with locked Samus.");
         return new DepartureResult(unchecked(after - before));
     }
 

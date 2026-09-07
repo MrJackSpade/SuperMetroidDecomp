@@ -5,14 +5,15 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
-    if (args is ["--reference-startup"])
+    if (args is ["--reference-startup"] or ["--reference-title-pan"])
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
         foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
         {
             using var device = new D3D11RenderDevice(kind);
             using var renderer = new D3D11FrameRenderer(device);
-            StartupReferenceTests.Run(device, renderer, rom);
+            if (args[0] == "--reference-startup") StartupReferenceTests.Run(device, renderer, rom);
+            else StartupReferenceTests.RunPan(device, renderer, rom);
         }
         return;
     }

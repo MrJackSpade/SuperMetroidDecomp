@@ -26,3 +26,24 @@ corresponding managed frame or of the entire title pan/zoom trajectory.
 Only the isolated test process was closed. Its disposable ROM/executable copies
 were removed after retaining these artifacts; player saves and emulator settings
 were untouched. Keep this private ROM-derived fixture in the private repository.
+
+## Independent comparison diagnostic (#336)
+
+`title-pan.rgba` is the PNG decoded without alteration into row-major RGBA8 by
+`csharp/tools/decode-reference-png.ps1`. Its SHA-256 is
+`D3B61C24CF7D6D4FECC0E44CBC29D46A92CD9606EA4787A191151E6EAAAE045C`.
+The decoder refuses to overwrite an existing fixture. The comparison checks this
+digest before using the data.
+
+`RenderVerification --reference-title-pan` currently fails after searching 2500
+managed frames. Closest candidate: tick 1146, 23,205 different pixels. The exact
+candidate packet passes GPU/software parity before the native comparison fails.
+Failure emits native expected, actual and difference images plus a replayable
+packet through the ordinary comparison artifact pipeline.
+
+Native background bands contain green/blue 8, 16 and 24 where managed is black;
+other pixels similarly suggest additive green/blue. A missing title gradient or
+color-math state is a hypothesis, not a confirmed diagnosis. Track separately in
+[issue #336](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/336). Do not
+weaken equality or modify the native golden. Closest-image selection is diagnostic,
+not proof of native frame/timing correspondence.

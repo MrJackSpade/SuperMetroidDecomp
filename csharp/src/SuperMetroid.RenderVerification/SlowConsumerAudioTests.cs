@@ -63,6 +63,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => worker.Ready.IsCompleted); worker.Ready.GetAwaiter().GetResult();
             worker.Publish(Step(0).Snapshot!);
             PumpUntil(() => entered.IsSet);
+            CompareRuntimeGraphs("before blocked slice");
             var blockedTime = System.Diagnostics.Stopwatch.StartNew();
             bool paused = false;
             for (int tick = 0; tick < 160; tick++)
@@ -70,6 +71,7 @@ internal static partial class SwapchainTests
                 var actual = Step(tick == 10 || tick is >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0);
                 worker.Publish(actual.Snapshot ?? throw new InvalidOperationException("Capture fell back to raster."));
                 paused |= actual.Frame.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB;
+                if (tick % 40 == 39) CompareRuntimeGraphs($"blocked slice tick {tick}");
             }
             PumpUntil(() => blockedTime.ElapsedMilliseconds >= 250);
             if (release.IsSet || !paused || nonzero == 0 || legacy.GameState != SuperMetroidGameState.MainGameplay)
@@ -77,6 +79,7 @@ internal static partial class SwapchainTests
             release.Set();
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == sequence; });
             if (worker.MailboxMetrics.Replaced < 159) throw new InvalidOperationException("Blocked visuals were not superseded as expected.");
+            CompareRuntimeGraphs("after GPU resumes");
             Console.WriteLine($"{selection.Kind}: blocked GPU owner >250ms; 160 room/pause frames advanced; {pcmSamples} exact PCM samples ({nonzero} nonzero); latest frame consumed.");
         }
         finally
@@ -84,6 +87,21 @@ internal static partial class SwapchainTests
             release.Set();
             if (worker is not null) { var stop = worker.StopAsync(); PumpUntil(() => stop.IsCompleted); stop.GetAwaiter().GetResult(); }
             if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+
+        void CompareRuntimeGraphs(string context)
+        {
+            // Reuse the exact-build debugger graph writer rather than a hand-picked
+            // list of gameplay properties. Private fields, arrays, aliases, cycles
+            // and delegates are included. No state is deserialized or normalized.
+            using var expected = new MemoryStream();
+            using var actual = new MemoryStream();
+            DebuggerObjectGraphSerializer.Serialize(expected, legacy.RuntimeForVerification!);
+            DebuggerObjectGraphSerializer.Serialize(actual, captured.RuntimeForVerification!);
+            if (!expected.GetBuffer().AsSpan(0, checked((int)expected.Length))
+                .SequenceEqual(actual.GetBuffer().AsSpan(0, checked((int)actual.Length))))
+                throw new InvalidOperationException($"Exact runtime graph diverged: {context} (lengths {expected.Length}/{actual.Length}).");
+            Console.WriteLine($"  Exact runtime graph agrees: {context}, {expected.Length} bytes.");
         }
     }
 }

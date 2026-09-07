@@ -43,6 +43,17 @@ These are rendering-equivalence checks, not new claims of cartridge correctness.
 Some gameplay effects have stronger constructed coverage than retail integrated
 coverage. The complete boss/door/elevator/liquid/effect scene matrix remains a gate.
 
+The slow-consumer room/pause test now compares the complete runtime graph using
+the exact-build debugger serializer at six checkpoints: before blocking, every
+40 ticks of the 160-tick slice, and after GPU consumption resumes. Approximately
+5.3 MB of private fields, arrays, reference topology and delegate state agree at
+each checkpoint, without test-specific exclusions or normalization. The serializer's
+existing external `SaveRamChanged` subscription exclusion remains unchanged; this
+is not an assertion about host event subscribers. Hardware and WARP also match
+872,000 PCM samples including startup (814,672 nonzero), with the GPU owner held
+for at least 250 ms. This strengthens runtime-state coverage for that slice; it
+does not establish the full frontend/save/backend/scene determinism matrix.
+
 Device removal/reset HRESULTs rebuild resources on the GPU owner, retaining only
 CPU packet data. Tests inject the actual SharpGen failure codes and cover retained
 frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual

@@ -5,6 +5,7 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../SuperMetroid.Desktop/DebuggerObjectGraphSerializer.cs" Link="HostState/DebuggerObjectGraphSerializer.cs" />
     <Compile Include="../SuperMetroid.Desktop/ManagedSpcAudioEngine.cs" Link="HostAudio/ManagedSpcAudioEngine.cs" />
     <Compile Include="../SuperMetroid.Desktop/ExtractedAudioAssetLocator.cs" Link="HostAudio/ExtractedAudioAssetLocator.cs" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />

@@ -16,6 +16,21 @@ public sealed partial class PlayableGameControl
     private long previousPresentCount;
     private long previousPresentTimestamp;
     private double gpuFramesPerSecond;
+    private string rendererTimingDetail = string.Empty;
+
+    private void RefreshRendererTimingDetail()
+    {
+        if (gpuWorker is not { } worker) { rendererTimingDetail = string.Empty; return; }
+        var timings = worker.CaptureTimings();
+        static string Format(string name, RenderTimingDistribution value) =>
+            $"{name}: p50/p95/p99 {value.P50Milliseconds:F3}/{value.P95Milliseconds:F3}/{value.P99Milliseconds:F3} ms; " +
+            $"window {value.Retained}, warmup excluded {value.WarmupExcluded}, observed {value.Observed}";
+        rendererTimingDetail = Environment.NewLine + string.Join(Environment.NewLine,
+            Format("CPU composition submission", timings.CpuComposition),
+            Format("CPU display + Present (includes wait)", timings.CpuDisplayAndPresent),
+            Format("GPU composition (excludes display/Present)", timings.GpuComposition),
+            $"GPU samples skipped {worker.SkippedGpuTimingSamples}, invalid {worker.InvalidGpuTimingSamples}; recoveries {worker.DeviceRecoveries}");
+    }
     private readonly System.Windows.Forms.Timer rendererHealthTimer = new() { Interval = 250 };
 
     private string GpuTimingText => gpuWorker is { } worker

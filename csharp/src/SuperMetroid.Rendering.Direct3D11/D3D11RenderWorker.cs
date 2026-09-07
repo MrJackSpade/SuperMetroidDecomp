@@ -22,6 +22,11 @@ public sealed class D3D11RenderWorker
     private long retainedRedraws;
     private long lastDrawnSize;
     private long deviceRecoveries;
+    private readonly RenderTimingWindow cpuCompositionTiming = new();
+    private readonly RenderTimingWindow cpuPresentationTiming = new();
+    private readonly RenderTimingWindow gpuCompositionTiming = new();
+    public RenderWorkerTimings CaptureTimings() => new(cpuCompositionTiming.Snapshot(),
+        cpuPresentationTiming.Snapshot(), gpuCompositionTiming.Snapshot());
     private double gpuCompositionMilliseconds = double.NaN;
     private long validGpuTimingSamples, invalidGpuTimingSamples, skippedGpuTimingSamples;
     /// <summary>Latest asynchronous GPU composition duration; excludes display scaling/Present.</summary>
@@ -155,6 +160,7 @@ public sealed class D3D11RenderWorker
                     if (measurement.Valid)
                     {
                         Volatile.Write(ref gpuCompositionMilliseconds, measurement.Milliseconds);
+                        gpuCompositionTiming.Record(measurement.Milliseconds);
                         Interlocked.Increment(ref validGpuTimingSamples);
                     }
                     else Interlocked.Increment(ref invalidGpuTimingSamples);
@@ -190,9 +196,14 @@ public sealed class D3D11RenderWorker
                         beforeRenderForVerification?.Invoke();
                         bool timed = gpuTimer.TryBegin(packet.Identity);
                         if (!timed) Interlocked.Increment(ref skippedGpuTimingSamples);
+                        long submissionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
                         renderer.Render(packet);
+                        cpuCompositionTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(submissionStarted).TotalMilliseconds);
                         if (timed) gpuTimer.End();
-                        switch (presenter.Present(renderer, packet.Identity, gate))
+                        long presentationStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+                        var presentationResult = presenter.Present(renderer, packet.Identity, gate);
+                        cpuPresentationTiming.Record(System.Diagnostics.Stopwatch.GetElapsedTime(presentationStarted).TotalMilliseconds);
+                        switch (presentationResult)
                         {
                             case D3D11PresentationResult.Presented:
                                 opportunity = false; wasOccluded = false; Interlocked.Increment(ref presented); break;

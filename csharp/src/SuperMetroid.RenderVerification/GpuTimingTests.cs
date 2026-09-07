@@ -5,6 +5,7 @@ internal static class GpuTimingTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, RenderFrameSnapshot frame)
     {
+        VerifyTimingWindow();
         using var timer = new D3D11GpuTimer(device, capacity: 2);
         if (timer.TryRead(out _)) throw new InvalidOperationException("Empty timer produced a measurement.");
         var samples = new List<double>();
@@ -32,5 +33,28 @@ internal static class GpuTimingTests
         }
         samples.Sort();
         Console.WriteLine($"{device.Kind}: bounded timestamp ring/parity passed; 16 diagnostic composition samples median={samples[8]:F3}ms max={samples[^1]:F3}ms (not a paced soak).");
+    }
+
+    private static void VerifyTimingWindow()
+    {
+        var window = new RenderTimingWindow(capacity: 4, warmup: 2);
+        var empty = window.Snapshot();
+        if (empty.Retained != 0 || !double.IsNaN(empty.P50Milliseconds))
+            throw new InvalidOperationException("Empty timing history must not report zero latency.");
+        foreach (double value in new double[] { 999, 999, 1, 2, 3, 4, 5, 6 }) window.Record(value);
+        var result = window.Snapshot();
+        if (result.Observed != 8 || result.WarmupExcluded != 2 || result.Retained != 4 ||
+            result.P50Milliseconds != 4 || result.P95Milliseconds != 6 || result.P99Milliseconds != 6)
+            throw new InvalidOperationException("Rolling timing warmup/eviction/nearest-rank calculation failed.");
+        foreach (double invalid in new[] { double.NaN, double.PositiveInfinity, -1.0 })
+        {
+            bool rejected = false;
+            try { window.Record(invalid); } catch (ArgumentOutOfRangeException) { rejected = true; }
+            if (!rejected) throw new InvalidOperationException("Invalid timing sample was accepted.");
+        }
+        long before = GC.GetAllocatedBytesForCurrentThread();
+        for (int i = 0; i < 1000; i++) window.Record(i);
+        if (GC.GetAllocatedBytesForCurrentThread() != before)
+            throw new InvalidOperationException("Timing recording allocated managed memory.");
     }
 }

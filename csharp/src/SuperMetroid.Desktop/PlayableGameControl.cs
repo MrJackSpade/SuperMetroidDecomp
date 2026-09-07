@@ -499,7 +499,10 @@ public sealed partial class PlayableGameControl : UserControl
         RefreshDisplay(frame);
         RefreshRoomIdentity();
         if (frameTimings.TryTakeSnapshot(Stopwatch.GetTimestamp(), out FrameTimingSnapshot timing))
+        {
             latestFrameTiming = timing;
+            RefreshRendererTimingDetail();
+        }
 
         string gameStatus =
             $"state ${((ushort)frame.GameState):X2} {frame.GameState}  |  {frame.Phase}  |  frame {frame.FrameNumber}" +
@@ -516,6 +519,7 @@ public sealed partial class PlayableGameControl : UserControl
         statusLabel.ToolTipText = latestFrameTiming is FrameTimingSnapshot snapshot
             ? $"{snapshot.ToDiagnosticText()}{Environment.NewLine}{gameStatus}{errorStatus}"
             : gameStatus + errorStatus;
+        statusLabel.ToolTipText += rendererTimingDetail;
     }
 
     /// <summary>

@@ -45,6 +45,9 @@ internal static partial class SwapchainTests
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
             var metrics = worker.MailboxMetrics;
+            var timings = worker.CaptureTimings();
+            if (timings.CpuComposition.Observed == 0 || timings.CpuDisplayAndPresent.Observed == 0)
+                throw new InvalidOperationException("Worker did not record CPU submission/presentation timings.");
             if (metrics.HasPendingFrame || metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
                 throw new InvalidOperationException("GPU worker lost mailbox accounting.");
             Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, retained redraw, two device-loss recoveries, generation/resize, bounded accounting passed.");

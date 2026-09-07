@@ -8,6 +8,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class MapTileWords
 {
+    /// <summary>$90:AAFD masks the center tile to nine character bits, ignoring flips and bit nine.</summary>
+    public const ushort SlopedHallwayIdentityMask = 0x01ff;
+
+    /// <summary>$90:AB00 recognizes character $028 and marks the map cell above Samus explored.</summary>
+    public const ushort SlopedHallwayCharacter = 0x0028;
     /// <summary>$82:9517 uses character $00F for hidden cells without a downloaded map.</summary>
     public static readonly MapTileWord FileSelectUndownloadedBlank = new(0x000f);
 

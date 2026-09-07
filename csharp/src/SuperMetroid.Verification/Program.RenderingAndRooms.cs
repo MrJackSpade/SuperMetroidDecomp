@@ -184,6 +184,36 @@ static void VerifyHudStateAndBg3Rendering()
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
 
+    // The sloping hall character explores the corner above the current cell. Native
+    // renders the upper row before setting this bit, so its palette changes next update.
+    foreach (int x in new[] { 31, 32 })
+    foreach (ushort slope in new ushort[] { 0x0028, 0x4228, 0x8028, 0xc228 })
+    {
+        var slopeSystem = new Bank80SystemState();
+        int currentAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 5) * 2;
+        int aboveAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(x, 4) * 2;
+        ushort savedCurrent = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, currentAddress);
+        ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, aboveAddress);
+        WriteTestWord(bus, currentAddress, slope);
+        WriteTestWord(bus, aboveAddress, 0x0029);
+        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8);
+        AssertTrue(slopeSystem.IsMapTileExplored(0, x, 4), "sloped hallway explores its upper corner on either map page");
+        AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
+        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8);
+        AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
+        WriteTestWord(bus, currentAddress, savedCurrent);
+        WriteTestWord(bus, aboveAddress, savedAbove);
+    }
+    var ordinaryCornerSystem = new Bank80SystemState();
+    // Character $029 is adjacent in the graphics catalog but must not get the $028
+    // exploration side effect; this also rejects indiscriminate upper-cell revealing.
+    int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(30, 5) * 2;
+    ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(bus, ordinaryAddress);
+    WriteTestWord(bus, ordinaryAddress, 0x0029);
+    hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, 30, 4, 16, 16, 128, 128, 8);
+    AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, 30, 4), "ordinary map character does not explore upper corner");
+    WriteTestWord(bus, ordinaryAddress, ordinarySaved);
+
     // A reveal override combines with display state only. Remove the station-mask bit from
     // the top-left HUD cell while leaving its cartridge tile nonblank, giving Public and
     // Secret modes an observable difference without manufacturing a room approximation.

@@ -246,6 +246,12 @@ public sealed class HudState
                 }
 
                 _tiles[destination] = (ushort)mapTile.ForHud(explored);
+                // The center slope also explores the corner above it. The native top
+                // row has already been rendered and its explored bits latched, so that
+                // cell acquires the explored palette on the next minimap update.
+                if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
+                    (mapTile.Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter)
+                    system.MarkExploredMapTile(areaIndex, centerX, centerY - 1);
             }
         }
 

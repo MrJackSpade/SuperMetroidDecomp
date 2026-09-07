@@ -48,6 +48,7 @@ internal static partial class Program
         VerifyBeaconSoundInstruction(bus);
         VerifyNorfairHeatPaletteHandshake(bus);
         VerifyNorfairGlowCycles(bus);
+        VerifyTitleGradientTables(bus);
 
         Console.WriteLine(
             "  Palette FX: all 37 code/list pointers are ROM-readable; all four audio " +

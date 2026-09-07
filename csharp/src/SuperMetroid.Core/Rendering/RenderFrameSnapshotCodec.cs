@@ -52,6 +52,8 @@ public static partial class RenderFrameSnapshotCodec
         }
         else throw new InvalidDataException("Display fixture has no supported composition.");
         writer.Flush();
+        if (stream.Length > RenderPacketFormat.MaximumPacketBytes)
+            throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
         return stream.ToArray();
     }
 

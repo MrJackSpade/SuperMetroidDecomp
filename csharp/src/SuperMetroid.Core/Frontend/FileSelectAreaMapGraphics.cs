@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Tile and palette owners for the saved-game world map, from $81:A37C-$81:A58A.
 /// Labels and transition windows are separate owners; this renders the unmasked BGs.
 /// </summary>
-public sealed class FileSelectAreaMapGraphics
+public sealed partial class FileSelectAreaMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
@@ -92,6 +92,16 @@ public sealed class FileSelectAreaMapGraphics
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         Rgba32[] frame = RenderBackgrounds(includeBackdropInColorMath);
+        OamBuffer oam = PrepareLabels(usedStationMasks);
+        // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
+        SnesLayerCompositor.Composite(frame, SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03));
+        return frame;
+    }
+
+    private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
+    {
+        if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)
+            throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         var oam = new OamBuffer();
         oam.BeginFrame();
         ushort title = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase);
@@ -114,9 +124,7 @@ public sealed class FileSelectAreaMapGraphics
             }
         }
         oam.FinalizeFrame();
-        // CGADSUB excludes OBJ: labels are composited after BG1/subscreen addition.
-        SnesLayerCompositor.Composite(frame, SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03));
-        return frame;
+        return oam;
 
         void Draw(ushort id, ushort x, ushort y, ushort palette)
         {

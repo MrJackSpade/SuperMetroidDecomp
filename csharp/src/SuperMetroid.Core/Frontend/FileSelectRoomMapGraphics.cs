@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Room-select BG1 map and BG2 frame installed by $81:A725 and $82:9517.</summary>
 /// <remarks>Owns graphics only; selection, scrolling, windows and station markers belong to the menu state.</remarks>
-public sealed class FileSelectRoomMapGraphics
+public sealed partial class FileSelectRoomMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
@@ -64,6 +64,14 @@ public sealed class FileSelectRoomMapGraphics
     {
         ArgumentNullException.ThrowIfNull(marker);
         Rgba32[] pixels = RenderBackgrounds(horizontalScroll, verticalScroll);
+        OamBuffer oam = PrepareIcons(horizontalScroll, verticalScroll, marker, animations);
+        SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
+        return pixels;
+    }
+
+    private OamBuffer PrepareIcons(ushort horizontalScroll, ushort verticalScroll, FileSelectStationMarker marker,
+        FileSelectMapAnimations? animations)
+    {
         var oam = new OamBuffer();
         oam.BeginFrame();
         icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
@@ -71,8 +79,7 @@ public sealed class FileSelectRoomMapGraphics
         icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll,
             animations is null ? null : () => animations.DrawArrows(oam));
         oam.FinalizeFrame();
-        SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, Vram, Cgram, obsel: 0x03));
-        return pixels;
+        return oam;
     }
 
     /// <summary>Renders Mode-1 BG priorities with independent scrolling for map and fixed frame.</summary>

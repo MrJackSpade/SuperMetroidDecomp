@@ -43,6 +43,7 @@ VerifyRoomFxSnapshots();
 VerifyGameplayCaptureIntegration();
 VerifyMode7GameplaySnapshots();
 VerifyEndingRenderSnapshots();
+VerifyFileMapSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

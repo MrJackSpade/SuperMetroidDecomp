@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Frontend;
 /// Entry, area/room confirmation, scrolling, return and load handoff each retain their
 /// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
-public sealed class FileSelectMapMenuState
+public sealed partial class FileSelectMapMenuState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState audio;

@@ -24,6 +24,27 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case WindowedSceneRenderLayer window:
+                    Rgba32[] scene = Render(window.Scene);
+                    for (int y = window.Top; y < window.Bottom; y++)
+                    {
+                        int offset = y * SnesPpuLayout.ScreenWidthPixels + window.Left;
+                        scene.AsSpan(offset, window.Right - window.Left).CopyTo(output.AsSpan(offset));
+                    }
+                    break;
+                case BgSubscreenAddRenderLayer sub:
+                    Rgba32[] subscreen = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
+                        sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
+                    if (sub.MainCoverage is { } coverage)
+                    {
+                        Rgba32[] mask = SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
+                            coverage.TilemapWord, coverage.CharacterWord, coverage.HorizontalScroll, coverage.VerticalScroll,
+                            SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels,
+                            coverage.MapWidthTiles, coverage.MapHeightTiles, priority: coverage.Priority);
+                        for (int i = 0; i < subscreen.Length; i++) if (mask[i].A == 0) subscreen[i] = default;
+                    }
+                    SnesLayerCompositor.AddSubscreen(output, subscreen);
+                    break;
                 case Mode7GameplayRenderLayer gameplay7:
                     output = SoftwareMode7GameplayRenderer.Render(memory, gameplay7, snapshot.ObjectSelection);
                     break;

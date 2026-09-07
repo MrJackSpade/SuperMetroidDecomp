@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–9
+# Portable display fixtures (.smframe), versions 1–10
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 9, reader supports 1 through 9 |
+| Version | UInt16; writer emits 10, reader supports 1 through 10 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -69,6 +69,8 @@ Every record begins with a byte discriminator:
 | 10: message overlay (version 7+) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words |
 | 11: BG color math (version 8+) | UInt16 tilemap/character words; Int32 map height in tiles and first scanline; byte equation; 224 pairs of UInt16 X/Y scroll registers |
 | 12: Mode-7 gameplay bands (version 9+) | Mode-7 registers, HUD registers, optional Mode-1 floor band, as below |
+| 13: BG subscreen add (version 10+) | UInt16 tilemap/character words; boolean coverage-present; optional kind-3 BG4 descriptor |
+| 14: windowed scene (version 10+) | Int32 left/top/right/bottom; memory image; OBSEL and brightness bytes; Int32 layer count; child layers |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -153,6 +155,20 @@ order. OAM precedence is resolved once before these insertions. Older versions r
 this operation; no existing operation encoding changes.
 
 ## Compatibility and error policy
+
+Version ten adds unscrolled 2-bpp subscreen addition in five-bit color space:
+`sum=min(31,(main>>3)+(sub>>3))`, expanded by `(sum<<3)|(sum>>2)`.
+Transparent sub pixels do not contribute. When coverage is present, only nontransparent
+pixels of its 4-bpp plane permit addition. The coverage descriptor must be kind 3;
+it cannot contain another operation.
+
+Windowed scenes replace pixels in a half-open rectangle, including the child's
+backdrop; they do not alpha-blend or stretch. Bounds must satisfy
+`0 <= left <= right <= 256` and `0 <= top <= bottom <= 224`.
+Child scenes have independent owned PPU memory and scene brightness. They cannot
+contain windowed-scene operations; both construction and decoding enforce that
+depth limit. The parent brightness applies after insertion. Empty windows are valid.
+The same 4-MiB packet limit applies on serialization and deserialization.
 
 - Never renumber discriminants or change field meaning within version one.
 - Reject unknown versions/kinds, invalid booleans/selectors, out-of-range identity,

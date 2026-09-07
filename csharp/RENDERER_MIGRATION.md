@@ -6,6 +6,17 @@ or selected by this document. The acceptance authority is
 
 ## Inspection baseline
 
+Saved-file map extraction increment: the live file-map display now publishes owned
+area/room scenes in StepCaptured. Format ten adds 2-bpp subscreen addition with
+optional foreground coverage and a rectangular child-scene insertion (no nested
+insertions). Tests cover 502 exact area/room/reveal/return/load/cancel samples,
+all six area maps, malformed window packets, retained ownership, and a saved-file
+frontend sequence reaching gameplay with matching pixels/state/audio commands and
+no legacy-raster fallback. The final call-site inventory still found three explicit
+black-frame assignments in attract-demo dispatch; those need conversion and a demo
+capture test before declaring the staged frontend fully extracted. No desktop
+scheduling or GPU backend has been switched on by this increment.
+
 Ending extraction increment: the state-$27 display call now publishes owned layers
 in StepCaptured, including Mode-7 escape/explosion, scrolling credits, blank reward
 transition and post-credit art/OBJ. Existing layer operations suffice, so there is

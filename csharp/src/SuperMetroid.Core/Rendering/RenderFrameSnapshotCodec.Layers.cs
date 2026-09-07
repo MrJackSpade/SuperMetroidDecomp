@@ -6,6 +6,19 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case WindowedSceneRenderLayer window:
+                writer.Write((byte)RenderPacketLayerKind.WindowedScene);
+                writer.Write(window.Left); writer.Write(window.Top); writer.Write(window.Right); writer.Write(window.Bottom);
+                WriteMemory(writer, window.Scene.Memory);
+                writer.Write(window.Scene.ObjectSelection); writer.Write(window.Scene.Brightness);
+                WriteCount(writer, window.Scene.Layers.Length);
+                foreach (RenderLayer child in window.Scene.Layers) WriteLayer(writer, child);
+                break;
+            case BgSubscreenAddRenderLayer sub:
+                writer.Write((byte)RenderPacketLayerKind.BgSubscreenAdd);
+                writer.Write(sub.TilemapWord); writer.Write(sub.CharacterWord); writer.Write(sub.MainCoverage is not null);
+                if (sub.MainCoverage is { } coverage) WriteLayer(writer, coverage);
+                break;
             case Mode7GameplayRenderLayer gameplay7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
                 WriteMode7Gameplay(writer, gameplay7);
@@ -77,8 +90,10 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
-    private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
+    private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
+        RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader),
         RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
@@ -102,6 +117,31 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static WindowedSceneRenderLayer ReadWindowedScene(BinaryReader reader, ushort version)
+    {
+        int left = reader.ReadInt32(), top = reader.ReadInt32(), right = reader.ReadInt32(), bottom = reader.ReadInt32();
+        PpuMemorySnapshot memory = ReadMemory(reader);
+        byte obsel = reader.ReadByte(), brightness = reader.ReadByte();
+        var layers = new RenderLayer[ReadCount(reader)];
+        for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version, childScene: true);
+        return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
+    }
+
+    private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader)
+    {
+        ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
+        Bg4BppRenderLayer? coverage = null;
+        if (ReadBoolean(reader))
+        {
+            // Require the fixed-size BG4 descriptor before parsing any recursive data.
+            if ((RenderPacketLayerKind)reader.ReadByte() != RenderPacketLayerKind.Bg4Bpp)
+                throw new InvalidDataException("Subscreen coverage must be a BG4 descriptor.");
+            coverage = new(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
+                reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader));
+        }
+        return new(map, characters, coverage);
+    }
 
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)
     {

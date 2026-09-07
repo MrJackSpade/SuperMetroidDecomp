@@ -599,7 +599,7 @@ public sealed partial class SuperMetroidGame
                         fileSelectMap = new FileSelectMapMenuState(bus, audio, mapSlot, controllerInput);
                     }
                     else fileSelectMap.Step(controllerInput);
-                    lastPixels = fileSelectMap.Render();
+                    PublishFileMap(fileSelectMap);
                     if (fileSelectMap.OptionsRequested)
                     {
                         options = new GameOptionsMenuState(bus, audio, mapSlot.ControllerBindings,

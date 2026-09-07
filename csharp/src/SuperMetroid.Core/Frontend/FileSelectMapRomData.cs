@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$81 definition tables shared by the saved-game area and room maps.</summary>
 public static class FileSelectMapRomData
 {
+    /// <summary>Menu OBSEL=$03 selects the shared menu OBJ character base and size pair.</summary>
+    public const byte ObjectSelection = 3;
+    /// <summary>Room-select BG2 vertical scroll, aligning the fixed frame to the visible map viewport.</summary>
+    public const ushort RoomFrameVerticalScroll = 24;
     /// <summary>Bank $82 contains menu spritemaps and save-point coordinate lists.</summary>
     public const int MenuObjectBank = 0x820000;
     /// <summary><c>$81:B71A</c>, AreaSelectForegroundTilemap, one 32x32 BG1 page.</summary>

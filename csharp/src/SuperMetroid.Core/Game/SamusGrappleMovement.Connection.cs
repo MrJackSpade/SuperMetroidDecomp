@@ -167,7 +167,9 @@ public static partial class SamusGrappleMovement
                     // select door PLMs. Grapple's negative projectile index bypasses the
                     // power-bomb rejection in Setup_BlueDoor; the ordinary opening owner
                     // supplies all four cap tiles, timing, collision changes, and sound.
-                    if (block.Bts.TryGetBlueDoorOrientation(out _))
+                    if (block.Bts.TryGetDownwardGateTrigger(out _))
+                        plms.TrySpawnDownwardGateTrigger(level, block.Index, block.Bts, projectileType: 0);
+                    else if (block.Bts.TryGetBlueDoorOrientation(out _))
                         plms.TrySpawnBlueDoorOpening(level, block.Index, block.Bts, projectileType: 0);
                     else
                         plms.TrySpawnProjectileShotBlock(

@@ -6,6 +6,13 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case Bg2BppViewportRenderLayer bg:
+                writer.Write((byte)RenderPacketLayerKind.Bg2Viewport);
+                writer.Write(bg.TilemapWord); writer.Write(bg.CharacterWord); writer.Write(bg.VerticalScroll);
+                writer.Write(bg.TransparentColorZero);
+                writer.Write((byte)(bg.Priority is null ? RenderPacketPriority.All
+                    : bg.Priority.Value ? RenderPacketPriority.High : RenderPacketPriority.Low));
+                break;
             case FixedColorAddRenderLayer color:
                 writer.Write((byte)RenderPacketLayerKind.FixedColorAdd);
                 writer.Write(color.Red); writer.Write(color.Green); writer.Write(color.Blue);
@@ -45,6 +52,9 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.Bg2Viewport when version >= RenderPacketFormat.Bg2ViewportLayerVersion =>
+            new Bg2BppViewportRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
+                ReadBoolean(reader), ReadPriority(reader)),
         RenderPacketLayerKind.FixedColorAdd when version >= RenderPacketFormat.FixedColorLayerVersion =>
             new FixedColorAddRenderLayer(reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
         RenderPacketLayerKind.Mode7 when version >= RenderPacketFormat.Mode7LayerVersion => new Mode7RenderLayer(

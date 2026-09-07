@@ -1,6 +1,6 @@
 # Renderer migration — issue 321
 
-Status: inventory and architecture gate in progress. No GPU backend is implemented
+Status: software packet extraction in progress. No GPU backend is implemented
 or selected by this document. The acceptance authority is
 [issue 321](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/321).
 
@@ -72,8 +72,9 @@ verify against supported current packages; no wrapper is selected by this note.
 
 ## Scene coverage ledger
 
-Paths below are relative to `src/SuperMetroid.Core`. Every row is **pending** for
-packet extraction, reference parity, D3D parity and real-state qualification.
+Paths below are relative to `src/SuperMetroid.Core`. D3D parity and real-state
+qualification remain pending for every row. Software extraction evidence follows
+the inventory; rows not covered by that evidence remain unextracted.
 Listing a producer does not claim its nested methods are already observational.
 
 | Scene family | Current producer(s) | Required state / extraction hazards |
@@ -102,7 +103,21 @@ Listing a producer does not claim its nested methods are already observational.
 | Attract gameplay | `Frontend/SuperMetroidGame.AttractDemo.cs` | Gameplay render path with demo input/state cadence unchanged |
 | Ending, credits, post-credits | `Frontend/EndingCreditsState.Rendering.cs` | Mode 7 and post-credit backgrounds, variable OBSEL; RenderSprites rebuilds OAM |
 
-The ledger must gain fixture identifiers and test results as each row is migrated.
+### Current software extraction evidence
+
+All tests below are in `src/SuperMetroid.Verification`; no row claims GPU parity.
+
+| Extracted family | Reference evidence |
+| --- | --- |
+| Title/cards | `TitleSnapshotTests`: 101 constructed and 131 retail samples |
+| File select/options | `FileMenuSnapshotTests`: 284 samples; does not cover saved-file area/station map |
+| Pause map/equipment | `PauseSnapshotTests`: 128 samples with retained HUD |
+| Entire intro, including flashbacks and approach | `CinematicSnapshotTests`: 275 samples across 34 phases, independent scene owners; separate 108-sample approach test |
+| Ceres destruction/Zebes descent | `CinematicSnapshotTests`: 143 samples across 15 phases |
+| Game-over menu | `CinematicSnapshotTests`: 101 samples, both choices |
+| Envelope/retained frame/fades | `RenderFrameHandoffTests`, `RenderPacketCodecTests`, `FrontendRenderCaptureTests`; component and menu-handoff evidence only |
+
+Gameplay, saved-file maps, endings, and runtime-dependent overlays remain pending.
 The general tile/OBJ/Mode7/compositor/brightness kernels additionally require
 synthetic edge coverage; scene screenshots alone cannot cover memory boundaries.
 
@@ -238,3 +253,16 @@ and codec round trips. Format version three adds the full-screen fixed-color
 operation; versions one/two remain readable and cannot falsely contain the new kind.
 This preserves the existing five-bit reduction/expansion rules without introducing
 general main/subscreen/window semantics prematurely.
+
+The complete intro now publishes packets, including narration, Mother Brain,
+SR388 discovery, delivery/examination and Ceres flight. Format four adds an explicit
+wrapping 2-bpp viewport with priority and color-zero opacity; older formats remain
+readable. OAM preparation and draw-owned projectile-trail updates still execute
+once at the producer's original display boundary, never on the consumer.
+Independent legacy/capture scene owners complete all 34 intro phases and match
+275 sampled displays through serialization and after subsequent state advances.
+The test also checks actor positions, hit and projectile counts, and phase cadence.
+Another 24 constructed cases cover vertical wrap, priority and opacity. These are
+software-reference parity checks, not GPU or PCM determinism evidence. Earlier
+notes about the intro's legacy fallback describe the preceding migration stage;
+gameplay, other remaining scenes, the GPU backend and live scheduling are pending.

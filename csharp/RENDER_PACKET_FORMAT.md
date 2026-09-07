@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–3
+# Portable display fixtures (.smframe), versions 1–4
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 3, reader supports 1, 2 and 3 |
+| Version | UInt16; writer emits 4, reader supports 1 through 4 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -63,6 +63,7 @@ Every record begins with a byte discriminator:
 | 4: 2-bpp BG | UInt16 tilemap word, character word; Int32 visible row count (28); boolean priority |
 | 5: Mode 7 (version 2+) | Eight Int16 values A/B/C/D, center X/Y, horizontal/vertical offset; boolean character-zero-outside-map |
 | 6: fixed-color add (version 3+) | Three bytes red/green/blue, each 0–31 |
+| 7: 2-bpp viewport (version 4+) | UInt16 tilemap word, character word, vertical scroll; boolean transparent color zero; byte priority selector |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -80,7 +81,13 @@ clamp at 31, then expand via `(value << 3) | (value >> 2)` and set alpha to 255.
 This is not a replacement for masked main/subscreen color math. Old-version headers
 cannot contain this operation. Prior supported packets remain readable unchanged.
 
-The current 2-bpp operation is an unscrolled full visible plane. Partial-row or
+Version four adds a 256-by-224 viewport into a 32-by-32 tile 2-bpp map. Source Y is
+`(screenY + verticalScroll) & 255`; X is unscrolled. Priority uses the same
+all/low/high selector as 4-bpp. Color-zero opacity is explicit. This supports both
+the opaque first narration card and the transparent, eight-pixel-scrolled intro
+text. Kind 7 is rejected under older headers; existing kind 4 retains its semantics.
+
+The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation
 or silent clipping by the reader.
 

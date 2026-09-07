@@ -20,6 +20,16 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case Bg2BppViewportRenderLayer bg:
+                    Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
+                        bg.TilemapWord, bg.CharacterWord, rowCount: 32,
+                        transparentColorZero: bg.TransparentColorZero, priority: bg.Priority);
+                    for (int y = 0; y < SnesPpuLayout.ScreenHeightPixels; y++)
+                        SnesLayerCompositor.Composite(output.AsSpan(y * SnesPpuLayout.ScreenWidthPixels,
+                            SnesPpuLayout.ScreenWidthPixels), plane.AsSpan(
+                            ((y + bg.VerticalScroll) & 255) * SnesPpuLayout.ScreenWidthPixels,
+                            SnesPpuLayout.ScreenWidthPixels));
+                    break;
                 case FixedColorAddRenderLayer color:
                     for (int pixel = 0; pixel < output.Length; pixel++)
                     {

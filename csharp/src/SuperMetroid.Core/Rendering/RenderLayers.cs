@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>One immutable insertion into an explicitly ordered PPU priority ladder.</summary>
 public abstract record RenderLayer;
 
+/// <summary>A 256-pixel-wide window into a wrapping 32-row 2-bpp tilemap.</summary>
+public sealed record Bg2BppViewportRenderLayer(ushort TilemapWord, ushort CharacterWord,
+    ushort VerticalScroll, bool TransparentColorZero, bool? Priority) : RenderLayer;
+
 /// <summary>Adds fixed five-bit RGB to the composed screen, saturating each component.</summary>
 public sealed record FixedColorAddRenderLayer(byte Red, byte Green, byte Blue) : RenderLayer;
 

@@ -46,7 +46,7 @@ internal static partial class Program
                 $"frontend packet pixel parity at tick {tick}, {expected.Phase}");
             if (expected.GameState == SuperMetroidGameState.IntroCinematic)
             {
-                AssertTrue(actual.UsedLegacyRaster, "unconverted intro must not claim packet support");
+                AssertTrue(!actual.UsedLegacyRaster, "intro publishes captured display data");
                 AssertTrue(states.Contains(SuperMetroidGameState.FileSelectMenus), "capture path covers file menu");
                 AssertTrue(states.Contains(SuperMetroidGameState.GameOptionsMenu), "capture path covers options");
                 AssertTrue(held is not null && heldPixels is not null && heldPixels.AsSpan().SequenceEqual(
@@ -55,7 +55,7 @@ internal static partial class Program
                 FrontendFrame legacyNext = legacy.Step(0);
                 FrontendFrame capturedNext = captured.Step(0);
                 AssertTrue(legacyNext.Pixels.AsSpan().SequenceEqual(capturedNext.Pixels), "legacy Step after captured Step");
-                Console.WriteLine($"  Frontend capture: {packetCount} packet frames preserve state/audio/pixels through title/file/options; intro fallback explicit.");
+                Console.WriteLine($"  Frontend capture: {packetCount} packet frames preserve state/audio/pixels through title/file/options and intro handoff.");
                 return;
             }
         }

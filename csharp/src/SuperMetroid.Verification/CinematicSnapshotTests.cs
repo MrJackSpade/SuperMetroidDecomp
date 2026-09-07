@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyCinematicRenderSnapshots()
     {
+        VerifyIntroDisplayCapture();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus);
         var flightPhases = new HashSet<IntroCeresFlightPhase>();
@@ -92,5 +93,46 @@ internal static partial class Program
                 if (pixels[i] != expected[i])
                     throw new InvalidOperationException($"Cinematic snapshot tick {tick}, pixel ({i % FrontendFrame.Width},{i / FrontendFrame.Width}): {expected[i]} != {pixels[i]}.");
         }
+    }
+
+    private static void VerifyIntroDisplayCapture()
+    {
+        byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
+        var legacy = new IntroCinematicState(new SuperMetroidAddressSpace(rom));
+        var captured = new IntroCinematicState(new SuperMetroidAddressSpace(rom));
+        var phases = new HashSet<IntroCinematicPhase>();
+        int samples = 0;
+        for (int tick = 0; tick < 20000 && !legacy.CeresFlightFinished; tick++)
+        {
+            // Independent owners are essential: legacy draw advances projectile trails.
+            // Calling both producers on one scene would run those side effects twice.
+            Rgba32[] expected = legacy.Render();
+            LayeredRenderSnapshot snapshot = captured.CaptureTranslatedRenderSnapshot();
+            bool newPhase = phases.Add(legacy.Phase);
+            bool sample = newPhase || tick % 31 == 0;
+            if (sample)
+            {
+                RenderFrameSnapshot packet = RoundTripRenderPacket(new(new(tick + 1, 1, (ushort)tick), snapshot));
+                AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)),
+                    $"intro captured pixels: {legacy.Phase}, tick {tick}");
+                samples++;
+            }
+            ushort input = tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0;
+            legacy.Step(input);
+            captured.Step(input);
+            AssertEqual(legacy.Phase, captured.Phase, "intro phase after draw");
+            AssertEqual(legacy.MotherBrainHitCount, captured.MotherBrainHitCount, "intro hits after draw");
+            AssertEqual(legacy.FlashbackSamusX, captured.FlashbackSamusX, "intro Samus X after draw");
+            AssertEqual(legacy.FlashbackSamusY, captured.FlashbackSamusY, "intro Samus Y after draw");
+            AssertEqual(legacy.ActiveFlashbackProjectileCount, captured.ActiveFlashbackProjectileCount, "intro projectiles after draw");
+            if (sample)
+                AssertTrue(expected.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(snapshot)),
+                    "intro packet survives subsequent simulation mutations");
+        }
+        AssertTrue(legacy.CeresFlightFinished && captured.CeresFlightFinished, "full intro capture reaches completed flight");
+        AssertTrue(phases.Contains(IntroCinematicPhase.MotherBrainFlashback)
+            && phases.Contains(IntroCinematicPhase.BabyDiscovery)
+            && phases.Contains(IntroCinematicPhase.BabyMetroidExamination), "full intro covers each illustration family");
+        Console.WriteLine($"  Intro snapshots: {samples} sampled frames across {phases.Count} phases agree with independent legacy display owner.");
     }
 }

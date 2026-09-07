@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Frontend;
 /// continues through the first narration card, the complete first illustrated/typewriter
 /// page, and the native palette transition into the Mother Brain gameplay flashback.
 /// </remarks>
-public sealed class IntroCinematicState
+public sealed partial class IntroCinematicState
 {
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
@@ -499,11 +499,6 @@ public sealed class IntroCinematicState
         if (scientistCutsceneExistedBeforeThisFrame)
             scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
     }
-
-    /// <summary>Returns the extracted flight display; other intro phases remain explicit legacy paths.</summary>
-    internal LayeredRenderSnapshot? CaptureTranslatedRenderSnapshot() =>
-        ceresFlight is not null && Phase == IntroCinematicPhase.CeresFlight
-            ? ceresFlight.CaptureRenderSnapshot() : null;
 
     public Rgba32[] Render()
     {
@@ -996,6 +991,23 @@ public sealed class IntroCinematicState
     private Rgba32[] RenderMotherBrainFlashback()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        OamBuffer oam = PrepareMotherBrainOam();
+
+        CompositeObjPriority(pixels, oam, 0);
+        CompositeTextPriority(pixels, priority: false);
+        CompositeObjPriority(pixels, oam, 1);
+        CompositeMotherBrainRoomPriority(pixels, priority: false);
+        CompositeObjPriority(pixels, oam, 2);
+        CompositeMotherBrainRoomPriority(pixels, priority: true);
+        CompositeObjPriority(pixels, oam, 3);
+        CompositeTextPriority(pixels, priority: true);
+        return pixels;
+    }
+
+    // Preparation remains on the simulation/display boundary: trail drawing advances
+    // trail state, so a consumer must never call it to redraw an already captured frame.
+    private OamBuffer PrepareMotherBrainOam()
+    {
         var oam = new OamBuffer();
         oam.BeginFrame();
         if (flashbackMotherBrain!.IsVisible)
@@ -1025,32 +1037,13 @@ public sealed class IntroCinematicState
         }
         oam.FinalizeFrame();
 
-        // Final TM=$15 Mode-1 ordering, back to front. BG2 is disabled; the surviving BG3
-        // ornamental rows and text plane bracket BG1 and OBJ according to priority bits.
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositeMotherBrainRoomPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositeMotherBrainRoomPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-        return pixels;
+        return oam;
     }
 
     private Rgba32[] RenderBabyDiscovery()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        babyDiscovery!.DrawActors(oam);
-
-        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
-        // outside the 256-pixel viewport, and the demo makes her enter from the right; the
-        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
-        babyDiscovery.Samus.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
-        oam.FinalizeFrame();
+        OamBuffer oam = PrepareBabyDiscoveryOam();
 
         CompositeObjPriority(pixels, oam, 0);
         CompositeTextPriority(pixels, priority: false);
@@ -1063,13 +1056,26 @@ public sealed class IntroCinematicState
         return pixels;
     }
 
+    private OamBuffer PrepareBabyDiscoveryOam()
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        babyDiscovery!.DrawActors(oam);
+
+        // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
+        // outside the 256-pixel viewport, and the demo makes her enter from the right; the
+        // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
+        babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
+        babyDiscovery.Samus.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
+        oam.FinalizeFrame();
+
+        return oam;
+    }
+
     private Rgba32[] RenderScientistCutscene()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        scientistCutscene!.Draw(bus, oam);
-        oam.FinalizeFrame();
+        OamBuffer oam = PrepareScientistOam();
 
         // TM=$15 uses the same BG1/BG3/OBJ priority ladder as the gameplay flashbacks.
         // BG1SC=$58 selects the first laboratory page; its crossfade pan is real PPU scroll.
@@ -1082,6 +1088,15 @@ public sealed class IntroCinematicState
         CompositeObjPriority(pixels, oam, 3);
         CompositeTextPriority(pixels, priority: true);
         return pixels;
+    }
+
+    private OamBuffer PrepareScientistOam()
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        scientistCutscene!.Draw(bus, oam);
+        oam.FinalizeFrame();
+        return oam;
     }
 
     private void CompositeScientistRoomPriority(Span<Rgba32> pixels, bool priority)
@@ -1155,6 +1170,20 @@ public sealed class IntroCinematicState
         // BG3 is the progressively written 2-bpp narration at SC=$4C. Both vertical scroll
         // registers are eight, so source scanline eight is the first visible output line.
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, ScreenWidth * ScreenHeight);
+        OamBuffer oam = PrepareIllustratedPageOam();
+        CompositeObjPriority(pixels, oam, 0);
+        CompositeTextPriority(pixels, priority: false);
+        CompositeObjPriority(pixels, oam, 1);
+        CompositePortraitPriority(pixels, priority: false);
+        CompositeObjPriority(pixels, oam, 2);
+        CompositePortraitPriority(pixels, priority: true);
+        CompositeObjPriority(pixels, oam, 3);
+        CompositeTextPriority(pixels, priority: true);
+        return pixels;
+    }
+
+    private OamBuffer PrepareIllustratedPageOam()
+    {
         var oam = new OamBuffer();
         oam.BeginFrame();
         if (objects!.SpriteMapPointer != 0)
@@ -1174,20 +1203,7 @@ public sealed class IntroCinematicState
         }
         oam.FinalizeFrame();
 
-        // BGMODE=$09 selects Mode 1 with BG3-priority enabled. With BG1 disabled by TM,
-        // the back-to-front order is OBJ0, BG3-low, OBJ1, BG2-low, OBJ2, BG2-high, OBJ3,
-        // BG3-high. Rendering priority planes separately is essential: blank low-priority
-        // text tiles sit behind the portrait, while the green narration sits above it.
-        CompositeObjPriority(pixels, oam, 0);
-        CompositeTextPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 1);
-        CompositePortraitPriority(pixels, priority: false);
-        CompositeObjPriority(pixels, oam, 2);
-        CompositePortraitPriority(pixels, priority: true);
-        CompositeObjPriority(pixels, oam, 3);
-        CompositeTextPriority(pixels, priority: true);
-
-        return pixels;
+        return oam;
     }
 
     private void CompositePortraitPriority(Span<Rgba32> pixels, bool priority)

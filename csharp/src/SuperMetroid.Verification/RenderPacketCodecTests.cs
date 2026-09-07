@@ -68,6 +68,14 @@ internal static partial class Program
             versionTwo.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7LayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionTwo),
             "version-two cannot claim a version-three color operation");
+        var viewport = new RenderFrameSnapshot(new(4, 1, 0), new LayeredRenderSnapshot(memory,
+            new RenderLayer[] { new Bg2BppViewportRenderLayer(0, 0, 255, true, null) }, 3, 15));
+        byte[] versionThree = RenderFrameSnapshotCodec.Serialize(viewport);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+            versionThree.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FixedColorLayerVersion);
+        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionThree),
+            "version-three cannot claim a version-four viewport operation");
+        VerifyBg2ViewportPackets();
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
@@ -79,5 +87,37 @@ internal static partial class Program
         AssertTrue(bytes.AsSpan().SequenceEqual(RenderFrameSnapshotCodec.Serialize(restored)),
             "canonical fixture round trip preserves every encoded field");
         return restored;
+    }
+
+    private static void VerifyBg2ViewportPackets()
+    {
+        var random = new Random(321);
+        byte[] vramBytes = new byte[Hardware.SnesPpuLayout.VramByteCount];
+        random.NextBytes(vramBytes);
+        ushort[] colors = Enumerable.Range(0, Hardware.SnesPpuLayout.CgramColorCount)
+            .Select(_ => (ushort)random.Next(32768)).ToArray();
+        var memory = new PpuMemorySnapshot(vramBytes, colors,
+            new byte[Hardware.SnesPpuLayout.OamUploadByteCount], 0);
+        var scratch = new SoftwarePpuSnapshotMemory(memory);
+        foreach (ushort scroll in new ushort[] { 0, 8, 255, ushort.MaxValue })
+        foreach (bool transparent in new[] { false, true })
+        foreach (bool? priority in new bool?[] { null, false, true })
+        {
+            var layer = new Bg2BppViewportRenderLayer(0, 0x4000, scroll, transparent, priority);
+            var frame = new RenderFrameSnapshot(new(1, 1, 0),
+                new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
+            Rgba32[] full = SnesBgTilemapRenderer.Render2Bpp(scratch.Vram, scratch.Cgram,
+                layer.TilemapWord, layer.CharacterWord, rowCount: 32,
+                transparentColorZero: transparent, priority: priority);
+            Rgba32[] expected = SnesLayerCompositor.CreateBackdrop(scratch.Cgram, 256 * 224);
+            for (int y = 0; y < 224; y++)
+                for (int x = 0; x < 256; x++)
+                {
+                    Rgba32 pixel = full[((y + scroll) % 256) * 256 + x];
+                    if (pixel.A != 0) expected[y * 256 + x] = pixel;
+                }
+            AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(frame))),
+                $"2bpp viewport scroll={scroll}, transparent={transparent}, priority={priority}");
+        }
     }
 }

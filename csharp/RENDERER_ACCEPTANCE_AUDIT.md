@@ -27,6 +27,21 @@ lifecycle, correctness, performance or hardware-default requirements.
 
 ## Interactive work still requiring coordination
 
+### DPI policy implementation
+
+The game now explicitly selects `ApplicationHighDpiMode=PerMonitorV2` instead of
+the SDK's SystemAware default. The desktop verifier uses the same policy before
+creating HWNDs. The actual game entry point exposes `--dpi-awareness-audit`, also
+run by clean publication, to assert the effective mode. Release game audit and the
+full hidden desktop suite passed after this change. The existing child-canvas
+SizeChanged path queues physical surface dimensions to the renderer; native frame
+composition remains 256x224. No Windows monitor settings were modified.
+
+This fixes the missing awareness configuration identified by source inspection;
+it does not claim an actual cross-monitor DPI transition was reproduced. That
+external test remains outstanding. Microsoft documents the default and per-monitor
+configuration in [WinForms automatic scaling](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/forms/autoscale).
+
 ### Latest clean-package evidence
 
 Revalidated after hardware-default selection at `d4aa15c`: the clean publish script

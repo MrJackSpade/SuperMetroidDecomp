@@ -21,6 +21,13 @@ ApplicationConfiguration.Initialize();
 GitHubErrorReporter? githubErrorReporter = null;
 try
 {
+    if (args is ["--dpi-awareness-audit"])
+    {
+        if (Application.HighDpiMode != HighDpiMode.PerMonitorV2)
+            throw new InvalidOperationException($"Expected PerMonitorV2; actual DPI mode is {Application.HighDpiMode}.");
+        Console.WriteLine("Game entry point: PerMonitorV2 DPI awareness verified.");
+        return 0;
+    }
     if (args.Length != 0 &&
         args[0].Equals("--unhandled-exception-console-audit", StringComparison.OrdinalIgnoreCase))
     {

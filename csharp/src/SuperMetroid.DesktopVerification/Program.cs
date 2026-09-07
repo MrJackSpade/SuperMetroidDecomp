@@ -11,6 +11,8 @@ internal static partial class Program
     private static void Main(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();
+        if (!Application.SetHighDpiMode(HighDpiMode.PerMonitorV2))
+            throw new InvalidOperationException("Could not initialize desktop verification with the game's PerMonitorV2 DPI policy.");
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.ThrowException);
         Application.EnableVisualStyles();
         using var context = new ApplicationContext();

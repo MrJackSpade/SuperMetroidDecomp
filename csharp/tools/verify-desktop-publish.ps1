@@ -46,7 +46,7 @@ Write-Output "Verified $($audioFiles.Count) audio asset hashes in both packages.
 
 Push-Location $gameOutput
 try {
-    foreach ($audit in @('--unhandled-exception-console-audit', '--viewport-layout-audit', '--keyboard-input-audit')) {
+    foreach ($audit in @('--unhandled-exception-console-audit', '--viewport-layout-audit', '--keyboard-input-audit', '--dpi-awareness-audit')) {
         dotnet ./SuperMetroid.Game.dll $audit
         if ($LASTEXITCODE -ne 0) { throw "Published game failed $audit" }
     }

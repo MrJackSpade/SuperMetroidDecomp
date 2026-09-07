@@ -18,6 +18,7 @@ internal static class RetailSceneTests
         ("--retail-crocomire", RetailCrocomireCaptureTests.Run),
         ("--retail-eye", RetailEyeCaptureTests.Run),
         ("--retail-elevator", RetailElevatorCaptureTests.Run),
+        ("--retail-elevator-return", RetailElevatorReturnTests.Run),
         ("--retail-ceres-quakes", RetailCeresQuakeTests.Run),
         ("--retail-save", RetailSaveCaptureTests.Run),
         ("--retail-death", RetailDeathCaptureTests.Run),

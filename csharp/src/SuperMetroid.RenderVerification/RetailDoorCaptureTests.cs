@@ -51,7 +51,7 @@ internal static class RetailDoorCaptureTests
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }
 
-    private static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)
+    internal static void PublishDoor(SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort pointer)
     {
         // Same staged approach as the existing visual regression: discover the real
         // authored door via its collision block, then run the production dispatcher.

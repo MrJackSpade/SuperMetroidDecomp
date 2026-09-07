@@ -42,6 +42,7 @@ Current GPU comparisons against software/legacy output include:
 | Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
 | Retail eye cone | Morph Ball room production apex fixture: 96 exact frames covering activation, first visible beam, widening and full beam |
 | Ceres elevator arrival | 192 exact frontend frames: fade, 73 pad positions, landing and 60 released-control frames; Debug/Release hardware/WARP. Does not cover general inter-area elevator travel or escape quakes. |
+| Blue Brinstar upward elevator return | 209 exact frames through production vertical DoorTransitionState and destination actor: 55 scroll frames, 105 return frames, 25 camera positions, release and settled camera/BG1 up-scroller alignment; Debug/Release hardware/WARP. Source elevator status and authored door contact staged from the existing regression. Downward departure and the full frontend scheduler remain distinct coverage. |
 | Ceres escape quakes | Dead-scientist room and final hallway: 240 exact runtime frames each, four native displacement states per room. Escape status seeded; native door actors generate the quakes. GPU/software parity, not new independent cartridge evidence. |
 | Crocomire death | 180 exact samples across 42 production death phases, including both dissolves, nonuniform BG2 scanlines, skeleton return and corpse. Boss placed at bridge trigger; Samus repositioned only at the wall-return gate. No controller battle claim. |
 | Samus death | 283 frontend frames from zero health through blackout, explosion, final fade and game-over handoff; independent legacy/captured owners, exact pixels and PCM |
@@ -122,7 +123,7 @@ focused test (capture/readback excluded). Reproducible unpaced CPU results are i
 
 Additional commands, run from the repository root:
 
-`--retail-all` runs the complete current 17-suite retail inventory in order on one
+`--retail-all` runs the complete current 18-suite retail inventory in order on one
 renderer per device, so GPU resources are reused across scene families. Individual
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.

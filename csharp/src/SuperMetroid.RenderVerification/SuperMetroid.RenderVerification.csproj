@@ -5,6 +5,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../SuperMetroid.DebugRunner/MinimapBlinkAudit.cs" Link="Fixtures/MinimapBlinkAudit.cs" />
+    <Compile Include="../SuperMetroid.DebugRunner/MapCrossViewAudit.cs" Link="Fixtures/MapCrossViewAudit.cs" />
     <Compile Include="../SuperMetroid.DebugRunner/KraidAuditDefinitions.cs" Link="Fixtures/KraidAuditDefinitions.cs" />
     <Compile Include="../SuperMetroid.DebugRunner/DoorTransitionAuditDefinitions.cs" Link="Fixtures/DoorTransitionAuditDefinitions.cs" />
     <Content Include="../../test-fixtures/issue-321-tile-byte-selection/frame.smframe" Link="fixtures/tile-byte-selection.smframe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

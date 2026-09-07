@@ -5,6 +5,26 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--minimap-blink"])
+    {
+        foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
+        {
+            using var device = new D3D11RenderDevice(kind);
+            using var renderer = new D3D11FrameRenderer(device);
+            long sequence = 0;
+            MinimapBlinkAudit.Run("Super Metroid.smc", runtime =>
+            {
+                var packet = new RenderFrameSnapshot(new(++sequence, 1, runtime.NmiFrameCounter),
+                    GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                var pixels = renderer.RenderForReadback(packet);
+                PixelComparison.Verify(packet, SuperMetroidRuntimeFrameRenderer.Render(runtime), pixels,
+                    $"{kind}: minimap blink frame {sequence}");
+                return pixels;
+            });
+            Console.WriteLine($"{kind}: {sequence} full frames match software and preserve visible minimap flashing.");
+        }
+        return;
+    }
     if (args is ["--reference-startup"] or ["--reference-title-pan"])
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

@@ -127,7 +127,8 @@ public static class SnesObjRenderer
         Span<Rgba32> pixels,
         Span<byte> priorities,
         int width = SnesPpuLayout.ScreenWidthPixels,
-        int height = SnesPpuLayout.ScreenHeightPixels)
+        int height = SnesPpuLayout.ScreenHeightPixels,
+        Span<byte> palettes = default)
     {
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(vram);
@@ -139,9 +140,12 @@ public static class SnesObjRenderer
             throw new ArgumentException("OBJ color scratch buffer has the wrong size.", nameof(pixels));
         if (priorities.Length != pixelCount)
             throw new ArgumentException("OBJ priority scratch buffer has the wrong size.", nameof(priorities));
+        if (!palettes.IsEmpty && palettes.Length != pixelCount)
+            throw new ArgumentException("OBJ palette scratch buffer has the wrong size.", nameof(palettes));
 
         pixels.Clear();
         priorities.Fill(TransparentPriority);
+        palettes.Fill(TransparentPriority);
 
         // As in Render, walking backwards makes each successively lower OAM number replace
         // the previous winner. Unlike a priority-filtered plane, the resolved buffer keeps
@@ -159,7 +163,8 @@ public static class SnesObjRenderer
                 cgram,
                 obsel,
                 selectedPriority: null,
-                priorities);
+                priorities,
+                palettes);
         }
 
     }
@@ -174,7 +179,8 @@ public static class SnesObjRenderer
         SnesCgram cgram,
         byte obsel,
         int? selectedPriority,
-        Span<byte> resolvedPriorities = default)
+        Span<byte> resolvedPriorities = default,
+        Span<byte> resolvedPalettes = default)
     {
         var mode = SizeModes[(obsel >> 5) & 7];
         int objectWidth = entry.IsLarge ? mode.LargeWidth : mode.SmallWidth;
@@ -226,6 +232,10 @@ public static class SnesObjRenderer
                     int resolvedCgramIndex = 128 + entry.Palette * 16 + colorIndex;
                     output[destination] = cgram.GetRgba(resolvedCgramIndex);
                     resolvedPriorities[destination] = (byte)entry.Priority;
+                    // Color math eligibility depends on the winning OAM palette, not
+                    // RGB: different palettes may contain exactly the same color.
+                    if (!resolvedPalettes.IsEmpty)
+                        resolvedPalettes[destination] = (byte)entry.Palette;
                     continue;
                 }
 

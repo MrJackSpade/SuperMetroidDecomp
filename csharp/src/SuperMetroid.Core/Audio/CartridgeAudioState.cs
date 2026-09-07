@@ -111,12 +111,7 @@ public sealed class CartridgeAudioState
     {
         // LoadRoomMusic first silences the current track and uploads a changed nonzero
         // room data set. LoadNewMusicTrackIfChanged then queues the room's selected track.
-        bool changesMusicData = dataIndex != 0 && dataIndex != MusicDataIndex;
-        if (changesMusicData)
-        {
-            QueueMusicDelayed8(MusicCommand.Stop);
-            QueueMusicDelayed8(MusicCommand.LoadData(dataIndex));
-        }
+        bool changesMusicData = QueueRoomMusicData(dataIndex);
         // `$82:E0E1` returns immediately for a zero room track. Most post-Ridley Ceres
         // states deliberately contain music `(0, 0)` so track seven and its alarm bed
         // continue through every door. Treating zero as a request to stop replaced that
@@ -130,6 +125,19 @@ public sealed class CartridgeAudioState
             QueueMusicDelayed(
                 MusicCommand.SelectTrack(trackIndex),
                 MusicCommandDelay.FromDelayedYArgument(6));
+    }
+
+    /// <summary>
+    /// Queues only $82:E071's changed nonzero music data bank. Saved-game loading
+    /// shares this operation but lets the appearance coroutine schedule its own tracks.
+    /// </summary>
+    public bool QueueRoomMusicData(byte dataIndex)
+    {
+        if (dataIndex == 0 || dataIndex == MusicDataIndex)
+            return false;
+        QueueMusicDelayed8(MusicCommand.Stop);
+        QueueMusicDelayed8(MusicCommand.LoadData(dataIndex));
+        return true;
     }
 
     /// <summary>

@@ -1234,6 +1234,10 @@ public sealed partial class SuperMetroidGame
             // call, schedules the room track 360 frames later. Mark this room state as
             // already handled so the generic room-change collector cannot overwrite the
             // fanfare with an immediate track request.
+            // Loading from file select still has the title's SPC song data installed.
+            // Preserve the appearance track sequence, but upload the room's bank first
+            // just as ordinary room loading does; track numbers alone are bank-local.
+            audio.QueueRoomMusicData(loadedState.MusicDataIndex);
             audio.QueueMusicDelayed(MusicCommand.SelectTrack(1), MusicCommandDelay.FromDelayedYArgument(0x000e));
             audio.QueueMusicDelayed(
                 MusicCommand.SelectTrackOrStop(loadedState.MusicTrackIndex),

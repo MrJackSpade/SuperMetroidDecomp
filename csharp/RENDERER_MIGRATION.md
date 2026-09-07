@@ -94,6 +94,13 @@ frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual
 driver reset and monitor/DPI/RDP changes remain unqualified.
 No machine-wide forced GPU reset has been performed.
 
+The host also watches its form's Resize event and forwards a zero-sized surface
+while minimized, even if the child canvas keeps its previous dimensions. Restore
+forwards the current canvas size. DesktopVerification exercises both states using
+an explicitly raised form event on a hidden window; this verifies host wiring and
+worker acknowledgement, not native visible minimize-message delivery. The event
+subscription is detached before renderer shutdown.
+
 Closing the actual GameForm while a load/restart awaited the presentation gate
 previously reproduced `InvalidOperationException: GPU worker is stopping`.
 The asynchronous generation handoff now reports orderly shutdown cancellation

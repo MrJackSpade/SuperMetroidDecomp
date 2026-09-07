@@ -98,6 +98,16 @@ internal static partial class Program
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 await Until(() => worker.LastConsumedSequence == restored.Identity.Sequence, worker);
                 Check(worker.MailboxMetrics.Generation == restored.Identity.Generation, "worker must use loaded generation");
+                form.WindowState = FormWindowState.Minimized;
+                // Hidden forms do not receive native minimize messages. Raise the
+                // real host event explicitly while retaining their child dimensions.
+                typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
+                await Until(() => (bool)typeof(D3D11RenderWorker).GetProperty("IsSurfaceSuspended",
+                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!, worker);
+                form.WindowState = FormWindowState.Normal;
+                typeof(Form).GetMethod("OnResize", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(form, [EventArgs.Empty]);
+                await Until(() => !(bool)typeof(D3D11RenderWorker).GetProperty("IsSurfaceSuspended",
+                    BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!, worker);
                 var canvas = Field<RuntimeCanvas>(control, "canvas");
                 await Until(() => ((int Width, int Height))typeof(D3D11RenderWorker)
                     .GetProperty("LastDrawnSize", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(worker)!

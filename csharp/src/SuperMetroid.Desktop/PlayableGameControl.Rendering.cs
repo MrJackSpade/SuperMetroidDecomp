@@ -13,6 +13,7 @@ public sealed partial class PlayableGameControl
     private D3D11RenderWorker? gpuWorker;
     private bool rendererStarted;
     private bool rendererStopping;
+    private Form? rendererHost;
     private long previousPresentCount;
     private long previousPresentTimestamp;
     private double gpuFramesPerSecond;
@@ -112,6 +113,8 @@ public sealed partial class PlayableGameControl
         if (rendererStopping) return;
         canvas.SetGpuOwned(true);
         canvas.SizeChanged += ResizeGpu;
+        rendererHost = FindForm();
+        if (rendererHost is not null) rendererHost.Resize += ResizeGpu;
         ResizeGpu(this, EventArgs.Empty);
         // A publication may already have occurred during asynchronous startup.
         // Fresh identity makes this safe without advancing a paused game. Coverage or
@@ -126,7 +129,11 @@ public sealed partial class PlayableGameControl
 
     private void ResizeGpu(object? sender, EventArgs e)
     {
-        if (!rendererStopping) gpuWorker?.Resize(canvas.ClientSize.Width, canvas.ClientSize.Height);
+        if (rendererStopping) return;
+        // Minimization may retain the child canvas dimensions. The form's state,
+        // not just its child SizeChanged event, owns presentation suspension.
+        bool minimized = rendererHost?.WindowState == FormWindowState.Minimized;
+        gpuWorker?.Resize(minimized ? 0 : canvas.ClientSize.Width, minimized ? 0 : canvas.ClientSize.Height);
     }
 
     private void CheckRendererHealth(object? sender, EventArgs e)
@@ -172,6 +179,8 @@ public sealed partial class PlayableGameControl
         SetPlaying(false);
         rendererHealthTimer.Stop();
         canvas.SizeChanged -= ResizeGpu;
+        if (rendererHost is not null) rendererHost.Resize -= ResizeGpu;
+        rendererHost = null;
         if (gpuWorker is { } worker) await worker.StopAsync();
     }
 

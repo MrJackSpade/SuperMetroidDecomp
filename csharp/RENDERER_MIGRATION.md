@@ -303,3 +303,14 @@ goldens), and an independent solid-glyph oracle across 3–6 rows and every radi
 message owner; caller-array mutation, invalid shapes and codec failures are tested.
 Temporary palette colors and clipping remain reference behavior, not new effects.
 This completes the message producer's extraction, not full gameplay integration.
+
+The Morph Ball security-eye producer now resolves its published origin/angle and
+ROM tangent values into the same owned scanline color-window operation. It solves
+the reference cross-product inequalities with signed floor/ceiling division once
+per line, retaining the one-line apex offset, fractional tolerance, horizontal-ray
+special cases and HUD exclusion. No per-pixel capture raster or new packet version
+is needed. `EyeWindowSnapshotTests` matches 933 angle/width/clipped-origin cases
+against the original pixel loop, including all 256 angle indices and signed camera
+wrap. A separate 6,859-case integer inequality oracle checks both endpoint rounding
+directions. This is extraction parity, not a correction of eye placement, and is
+not yet connected to the complete frontend gameplay packet.

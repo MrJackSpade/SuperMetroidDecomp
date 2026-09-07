@@ -177,7 +177,11 @@ public sealed class D3D11RenderWorker
             using var renderer = new D3D11FrameRenderer(device);
             using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
             using var gpuTimer = new D3D11GpuTimer(device);
-            if (!ready.TrySetResult(device.AdapterDescription)) Interlocked.Increment(ref deviceRecoveries);
+            if (!ready.TrySetResult(device.DiagnosticDescription))
+            {
+                Interlocked.Increment(ref deviceRecoveries);
+                Console.WriteLine($"Renderer recovered: {device.DiagnosticDescription}");
+            }
             bool opportunity = false, wasOccluded = false;
             bool redraw = retained is not null;
             while (true)

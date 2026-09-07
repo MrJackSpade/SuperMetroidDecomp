@@ -16,6 +16,9 @@ public sealed class D3D11RenderDevice : IDisposable
     internal ID3D11DeviceContext Context { get; }
     public string AdapterDescription { get; }
     public D3D11DeviceKind Kind { get; }
+    /// <summary>Actual feature level returned by the created device, not an inferred adapter capability.</summary>
+    public FeatureLevel ActualFeatureLevel { get; }
+    public string DiagnosticDescription => $"{AdapterDescription}; backend={Kind}; feature level={ActualFeatureLevel}";
 
     public D3D11RenderDevice(D3D11DeviceKind kind)
     {
@@ -28,6 +31,7 @@ public sealed class D3D11RenderDevice : IDisposable
         Device = device; Context = context;
         try
         {
+            ActualFeatureLevel = device.FeatureLevel;
             using IDXGIDevice dxgi = device.QueryInterface<IDXGIDevice>();
             using IDXGIAdapter adapter = dxgi.GetAdapter();
             AdapterDescription = adapter.Description.Description;

@@ -21,6 +21,9 @@ internal static partial class SwapchainTests
             });
             PumpUntil(() => worker.Ready.IsCompleted);
             string adapter = worker.Ready.GetAwaiter().GetResult();
+            if (!adapter.Contains($"backend={selection.Kind}") ||
+                !adapter.Contains($"feature level={selection.ActualFeatureLevel}"))
+                throw new InvalidOperationException("Worker startup omitted actual backend/feature-level diagnostics.");
             // Allow the worker to observe initial readiness while the mailbox is empty.
             var idle = System.Diagnostics.Stopwatch.StartNew();
             PumpUntil(() => idle.ElapsedMilliseconds >= 40);
@@ -41,7 +44,7 @@ internal static partial class SwapchainTests
                 throw new InvalidOperationException("Device recovery manufactured a simulation frame.");
             var loss = worker.LastDeviceLoss;
             if (loss is null || loss.FailureHResult != D3D11RecoveryPolicy.DeviceRemoved ||
-                loss.RemovalReason != 0 || loss.Adapter != adapter || loss.Backend != selection.Kind ||
+                loss.RemovalReason != 0 || loss.Adapter != selection.AdapterDescription || loss.Backend != selection.Kind ||
                 loss.Width != 801 || loss.Height != 601 || loss.Frame?.Sequence != 1000)
                 throw new InvalidOperationException("Device-loss diagnostic lost original failure/device/frame context.");
             worker.AdvanceGeneration(2);

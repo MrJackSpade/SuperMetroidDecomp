@@ -225,6 +225,11 @@ pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.
 
 ## Clean desktop package qualification
 
+Startup and recovery diagnostics include adapter name, explicit Hardware/WARP backend,
+and the actual feature level returned by the created device (`Level_11_0` on both
+qualified adapters). This capability is queried from the device, not inferred from
+the adapter's name. Device-loss records retain their separate raw adapter field.
+
 Run `powershell -NoProfile -ExecutionPolicy Bypass -File csharp/tools/verify-desktop-publish.ps1`
 from the checkout with its private ROM and extracted audio available. The script uses
 a fresh intermediate/output tree, locked restore, and source shader compilation.

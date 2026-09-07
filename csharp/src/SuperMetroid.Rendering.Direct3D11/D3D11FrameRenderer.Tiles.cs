@@ -10,7 +10,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -31,6 +31,9 @@ public sealed partial class D3D11FrameRenderer
         {
             switch (layer)
             {
+                case Mode7RenderLayer mode7:
+                    DispatchMode7(mode7.Registers);
+                    break;
                 case ObjRenderLayer:
                     DispatchTile(D3D11TileOperation.InsertObj);
                     break;
@@ -75,4 +78,19 @@ public sealed partial class D3D11FrameRenderer
     }
 
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
+
+    private unsafe void DispatchMode7(Mode7RenderRegisters registers)
+    {
+        // Preserve signed register values, including negative products and arithmetic
+        // right shifts. No projected coordinates or raster pixels are uploaded.
+        var data = new int[D3D11ShaderLayout.SolidConstantWords];
+        data[0] = (int)D3D11TileOperation.Mode7;
+        data[16] = registers.MatrixA; data[17] = registers.MatrixB;
+        data[18] = registers.MatrixC; data[19] = registers.MatrixD;
+        data[20] = registers.CenterX; data[21] = registers.CenterY;
+        data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
+        data[24] = registers.FillOutsideWithCharacterZero ? 1 : 0;
+        fixed (int* source = data) owner.Context.UpdateSubresource(constants, 0, null, (nint)source, 0, 0);
+        owner.Context.Dispatch(32, 28, 1);
+    }
 }

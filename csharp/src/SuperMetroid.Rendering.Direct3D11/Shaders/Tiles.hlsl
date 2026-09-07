@@ -1,6 +1,7 @@
 // These operation IDs and the packed memory layout match D3D11ShaderLayout.cs.
 static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixedAdd = 4;
 static const uint OpResolveObj = 5, OpInsertObj = 6;
+static const uint OpMode7 = 7;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -8,6 +9,9 @@ cbuffer TileParameters : register(b0)
     uint VerticalScroll, MapWidth, MapHeight, PriorityFilter;
     uint TransparentZero, Level, AddR, AddG;
     uint AddB, ObjectCount, ObjectSelection, Reserved3;
+    int MatrixA, MatrixB, MatrixC, MatrixD;
+    int CenterX, CenterY, OffsetX, OffsetY;
+    uint FillCharacterZero;
 };
 StructuredBuffer<uint> Memory : register(t0);
 RWTexture2D<uint> Output : register(u0);
@@ -45,6 +49,20 @@ uint Palette(uint index)
 void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
+    if (Operation == OpMode7)
+    {
+        int relativeX = (int)id.x + OffsetX - CenterX;
+        int relativeY = (int)id.y + OffsetY - CenterY;
+        int x = ((MatrixA * relativeX + MatrixB * relativeY) >> 8) + CenterX;
+        int y = ((MatrixC * relativeX + MatrixD * relativeY) >> 8) + CenterY;
+        bool outside = (uint)x >= 1024 || (uint)y >= 1024;
+        if (outside && FillCharacterZero == 0) return;
+        uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
+        uint character = outside ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
+        uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
+        if (color != 0) Output[id.xy] = Palette(color);
+        return;
+    }
     if (Operation == OpResolveObj) { Objects[id.xy] = ResolveObject(id.xy); return; }
     if (Operation == OpInsertObj)
     {

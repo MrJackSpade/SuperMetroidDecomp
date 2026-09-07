@@ -2,7 +2,7 @@
 
 The isolated Windows assembly implements device ownership and integer compute for
 solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, raw OAM sprites,
-fixed-color addition and ordered brightness. Mode 7, compound gameplay/effects, presentation, desktop
+fixed-color addition, signed Mode 7 projection and ordered brightness. Compound gameplay/effects, presentation, desktop
 selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
@@ -63,6 +63,13 @@ mixed BG/OBJ priority insertion and deliberately overlapping sprites with transp
 holes. The GPU resolves the first opaque OAM pixel before filtering its BG priority,
 so filtering cannot resurrect a later hidden sprite. Raw OAM bytes are uploaded;
 no CPU sprite raster is supplied. These remain correctness checks, not GPU timings.
+
+`--mode7-smoke` checks 193 exact comparisons per device in Debug and Release,
+including signed matrix/offset extremes, transparent overflow, character-zero fill,
+disabled background, OBJ composition and ordered-layer composition. Projection and
+interleaved tile/character sampling execute on GPU from raw memory/registers. These
+comparisons establish software-reference parity, not independent cartridge fidelity.
+Mixed-mode gameplay HUD/floor bands remain pending.
 
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the

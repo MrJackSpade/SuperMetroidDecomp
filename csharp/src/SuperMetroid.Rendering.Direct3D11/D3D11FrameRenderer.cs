@@ -54,6 +54,14 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentNullException.ThrowIfNull(packet);
         if (packet.Layers is { } layers) return RenderLayersForReadback(packet, layers);
+        if (packet.Mode7 is { } mode7)
+        {
+            var operations = new List<RenderLayer>();
+            if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background));
+            operations.Add(new ObjRenderLayer());
+            return RenderLayersForReadback(packet, new LayeredRenderSnapshot(mode7.Memory,
+                operations.ToArray(), mode7.ObjectSelection, mode7.Brightness));
+        }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
         if (packet.BrightnessPasses.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
         uint[] data = new uint[D3D11ShaderLayout.SolidConstantWords];

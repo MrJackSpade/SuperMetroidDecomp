@@ -23,6 +23,8 @@ internal static partial class Program
             runtime.LoadCartridgeRoomForDebug(ShutterRidingRomData.XrayScopeRoom);
             var samus = runtime.Samus!;
             var platform = runtime.Enemies.Slots[slotIndex];
+            if (reproduceOnly)
+                Console.WriteLine($"Native contact seed: platform radii={platform.XRadius},{platform.YRadius}; ceiling (23,3)={runtime.LevelData!.GetCollisionBlock(23, 3).CollisionType}");
             samus.InputLocked = false;
             samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
@@ -39,7 +41,11 @@ internal static partial class Program
                 if (frame >= rollAt && frame < rollAt + duration) direction = -toward;
                 if (frame >= rollAt + duration && frame < rollAt + duration * 2) direction = toward;
                 if (direction != 0) input |= (ushort)(direction < 0 ? SnesButton.Left : SnesButton.Right);
+                string before = reproduceOnly && frame >= 110
+                    ? $"X={samus.Kinematics.XFixed:X8} Y={samus.Kinematics.YFixed:X8} VY={samus.Kinematics.VerticalSpeedFixed:X8}/{samus.Kinematics.YDirection} pose={samus.Pose:X2} bomb={samus.BombJumpActive} platform={platform.YPosition}.{platform.YSubposition:X4}" : "";
                 runtime.StepFrame(input);
+                if (before.Length != 0)
+                    Console.WriteLine($"trace {frame}: {before} -> Y={samus.Kinematics.YFixed:X8} VY={samus.Kinematics.VerticalSpeedFixed:X8}/{samus.Kinematics.YDirection} pose={samus.Pose:X2} extra={samus.Kinematics.ExtraYFixed} platform={platform.YPosition}.{platform.YSubposition:X4}");
                 int gap = platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius;
                 if (Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
                     samus.YPosition < platform.YPosition && gap < worstGap)

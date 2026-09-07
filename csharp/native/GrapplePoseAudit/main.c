@@ -63,10 +63,30 @@ static void run(unsigned address) {
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
 int main(int argc, char **argv) {
-  if (argc != 2) { fprintf(stderr, "Usage: audit <unheadered-rom>\n"); return 2; }
+  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3) {
+    if (strcmp(argv[2], "shutter-ceiling")) Die("Unknown native audit case\n");
+    memset(ram, 0, sizeof(ram));
+    word(RoomWidth, 32); word(SamusX, 371); word(SamusY, 71);
+    word(SamusRadiusX, 5); word(SamusRadiusY, 7);
+    /* The ball's right edge meets the solid ceiling beside the open shaft. */
+    word(LevelWords + (3 * 32 + 23) * 2, 0x8000);
+    word(InteractiveEnemyBytes, 2); word(InteractiveEnemyList, 0); word(InteractiveEnemyList + 2, 0xffff);
+    word(EnemyX, 360); word(EnemyY, 109); word(EnemyRadiusX, 8); word(EnemyRadiusY, 32);
+    word(EnemyPropertiesWord, 0x8000);
+    word(ExtraYWhole, 0xffff);
+    run(NativeGroundedY);
+    unsigned after_up = readword(SamusY);
+    word(ExtraYWhole, 0);
+    run(NativeGroundedY);
+    unsigned after_down = readword(SamusY);
+    printf("Native shutter ceiling: upward carry Y=71 -> %u; following zero-carry grounding -> %u\n", after_up, after_down);
+    if (after_up != 71 || after_down != 72) Die("Unexpected native ceiling/contact result\n");
+    return 0;
+  }
   for (int left = 0; left < 2; left++) {
     memset(ram, 0, sizeof(ram));
     word(Pose, left ? 0x14 : 0x13); ram[MovementType] = NormalJumping;

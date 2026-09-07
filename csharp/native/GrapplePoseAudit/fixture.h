@@ -1,3 +1,11 @@
+/* #347: original-ROM no-speed Y entry and its solid-platform scratch state. */
+enum ShutterCeilingFixture {
+  NativeGroundedY = 0x90923f,
+  ExtraYWhole = 0xb5c, InteractiveEnemyBytes = 0x17a6, InteractiveEnemyList = 0x17ec,
+  EnemyX = 0xf7a, EnemyY = 0xf7e, EnemyRadiusX = 0xf82, EnemyRadiusY = 0xf84,
+  EnemyPropertiesWord = 0xf86
+};
+
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */

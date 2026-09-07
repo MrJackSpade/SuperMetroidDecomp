@@ -18,12 +18,13 @@ try
         Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frame.Width}x{frame.Height}.");
         return;
     }
-    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke"))
-        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --compare <frame.smframe> --device hardware|warp");
+    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke" or "--ordinary-smoke" or "--scene-window-smoke" or "--retail-frontend" or "--retail-intro" or "--retail-transitions" or "--display-smoke" or "--swapchain-smoke" or "--slow-consumer-audio"))
+        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --ordinary-smoke | --scene-window-smoke | --retail-frontend | --retail-intro | --retail-transitions | --display-smoke | --swapchain-smoke | --slow-consumer-audio | --compare <frame.smframe> --device hardware|warp");
     foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
     {
         using var device = new D3D11RenderDevice(kind);
         using var renderer = new D3D11FrameRenderer(device);
+        if (args[0] == "--slow-consumer-audio") { SwapchainTests.RunSlowConsumerAudio(device); continue; }
         if (args[0] == "--swapchain-smoke") { SwapchainTests.Run(device, renderer); SwapchainTests.RunWorker(device); continue; }
         if (args[0] == "--display-smoke") { DisplayPassTests.Run(device, renderer); continue; }
         if (args[0] == "--retail-transitions") { RetailTransitionTests.Run(device, renderer); continue; }

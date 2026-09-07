@@ -19,6 +19,7 @@ public sealed class D3D11RenderWorker
     private (int Width, int Height)? resize;
     private long presented, occluded, stale;
     private long lastConsumedSequence;
+    private readonly Action? beforeRenderForVerification;
 
     public Task<string> Ready => ready.Task;
     public Task Completion => completion.Task;
@@ -29,7 +30,12 @@ public sealed class D3D11RenderWorker
     public long LastConsumedSequence => Interlocked.Read(ref lastConsumedSequence);
 
     public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind)
+        : this(window, width, height, generation, kind, null) { }
+
+    internal D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
+        Action? beforeRenderForVerification)
     {
+        this.beforeRenderForVerification = beforeRenderForVerification;
         mailbox = new(generation); gate = new(generation);
         var thread = new Thread(() => Run(window, width, height, kind))
         { IsBackground = true, Name = "Super Metroid GPU owner" };
@@ -105,6 +111,7 @@ public sealed class D3D11RenderWorker
                     var packet = mailbox.TakeLatest();
                     if (packet is not null)
                     {
+                        beforeRenderForVerification?.Invoke();
                         renderer.Render(packet);
                         switch (presenter.Present(renderer, packet.Identity, gate))
                         {

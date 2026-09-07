@@ -51,6 +51,16 @@ new-generation resize, bounded mailbox accounting and shutdown on both devices i
 Debug/Release. It does not yet connect the desktop game/audio loop or establish the
 required real-game slow-consumer/audio determinism and performance gates.
 
+`--slow-consumer-audio` now covers a bounded real-game slow-consumer test: separate
+legacy/captured game owners, the actual desktop managed audio adapter, and a GPU
+worker held after taking a frame for at least 250 ms. A 160-frame single-room/pause
+slice continues while blocked; 872,000 PCM samples (814,672 nonzero, including startup)
+match exactly, along with commands, frame/state and Samus position/pose. At least 159
+visual packets are superseded and the worker resumes with the latest. Both devices
+pass Debug/Release. This is not host wall-clock pacing, a five-minute soak, or complete
+cross-backend state/PCM coverage. The test compiles the desktop adapter source directly
+to avoid a duplicate audio implementation or a WinForms dependency.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

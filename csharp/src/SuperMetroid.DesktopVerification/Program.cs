@@ -5,7 +5,7 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 
 /// <summary>Hidden-HWND integration checks: no visible window, native dialog, or player save mutation.</summary>
-internal static class Program
+internal static partial class Program
 {
     [STAThread]
     private static void Main()
@@ -23,6 +23,9 @@ internal static class Program
             {
                 await Verify(RendererSelection.Software);
                 await Verify(RendererSelection.Direct3D11);
+                await VerifyFormClose(RendererSelection.Software, duringStartup: false);
+                await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false);
+                await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true);
                 Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }

@@ -1713,6 +1713,7 @@ public sealed partial class SuperMetroidRuntime
             LastDeathSequenceStep = null;
             if (Samus.Xray.IsActive && !Samus.DeathSequence.IsActive)
             {
+                PrepareXrayTilemap(Samus.Xray.SetupStage);
                 LastXrayBeamStep = Samus.Xray.StepBeam(
                     _addressSpace,
                     Samus,
@@ -4348,6 +4349,7 @@ public sealed partial class SuperMetroidRuntime
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             VramWrites.DrainTo(Vram, _addressSpace);
+            TransferXrayBg1Read();
             // Menu code consumes raw physical buttons before a runtime exists. Once room
             // gameplay owns the controller, all bank-$90/$91 action checks use the seven
             // configurable WRAM masks. Canonicalizing here preserves one shared rising-edge

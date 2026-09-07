@@ -51,6 +51,11 @@ mismatched identities and stale generations, then disposes everything. Both devi
 pass Debug/Release and return Occluded as expected. Visible presentation, minimization,
 DPI/RDP transitions and production-clock pacing remain unverified. Device-loss
 recreation now has injected-HRESULT tests; those are not actual driver-reset evidence.
+Device-loss diagnostics now query the original device before disposal and report
+the thrown HRESULT, device removal reason, adapter/backend, target size and retained
+frame identity. `LastDeviceLoss` retains that immutable context across recreation.
+Injected failures correctly show removal reason S_OK because the physical device
+was not removed; the test asserts this distinction rather than fabricating a reason.
 
 `D3D11RenderWorker` owns device/render/present/disposal on one background thread.
 Publication sends owned snapshots through the latest-frame mailbox, resize requests

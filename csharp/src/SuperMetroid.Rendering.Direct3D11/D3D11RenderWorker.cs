@@ -22,6 +22,8 @@ public sealed class D3D11RenderWorker
     private long retainedRedraws;
     private long lastDrawnSize;
     private long deviceRecoveries;
+    private D3D11DeviceLossDiagnostic? lastDeviceLoss;
+    public D3D11DeviceLossDiagnostic? LastDeviceLoss => Volatile.Read(ref lastDeviceLoss);
     private readonly RenderTimingWindow cpuCompositionTiming = new();
     private readonly RenderTimingWindow cpuPresentationTiming = new();
     private readonly RenderTimingWindow gpuCompositionTiming = new();
@@ -148,6 +150,8 @@ public sealed class D3D11RenderWorker
         ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
     {
             using var device = new D3D11RenderDevice(kind);
+            try
+            {
             using var renderer = new D3D11FrameRenderer(device);
             using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
             using var gpuTimer = new D3D11GpuTimer(device);
@@ -225,6 +229,18 @@ public sealed class D3D11RenderWorker
                 // A wake expedites publication/resize/shutdown. This bounded wait is
                 // exclusively on the render owner, never on simulation or audio.
                 wake.WaitOne(wasOccluded ? 100 : 8);
+            }
+            }
+            catch (Exception error) when (D3D11RecoveryPolicy.IsDeviceLoss(error.HResult))
+            {
+                // Query the still-live device, not its replacement. A synthetic test
+                // HRESULT correctly reports S_OK here; do not invent a removal cause.
+                var diagnostic = new D3D11DeviceLossDiagnostic(error.HResult,
+                    device.Device.DeviceRemovedReason.Code, device.AdapterDescription,
+                    kind, width, height, retained?.Identity);
+                Volatile.Write(ref lastDeviceLoss, diagnostic);
+                Console.Error.WriteLine(diagnostic);
+                throw; // Preserve the HRESULT used by bounded recovery and strict failure.
             }
     }
 }

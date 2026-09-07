@@ -88,6 +88,15 @@ does not establish the full frontend/save/backend/scene determinism matrix.
 These are independent room-local fixtures, not traversal tests; the normal consumer
 still uses a hidden/occluded HWND and is not a visible-presentation speed guarantee.
 
+`--retail-doors` also holds a real worker before submission for at least 250 ms
+while each left/right production transition completes. All 104 transition packets
+still receive exact reference/GPU comparisons on a separate offscreen renderer;
+the held worker replaces 103 packets, then consumes only the initial and latest
+destination packets. The retained destination packet is compared again after
+resumption. Debug/Release hardware/WARP pass. This verifies bounded visual backlog
+across a door boundary; it does not replace the separate input/PCM or generation
+reset tests, and the worker HWND remains hidden.
+
 Device removal/reset HRESULTs rebuild resources on the GPU owner, retaining only
 CPU packet data. Tests inject the actual SharpGen failure codes and cover retained
 frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual

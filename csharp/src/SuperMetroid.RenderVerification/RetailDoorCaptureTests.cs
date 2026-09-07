@@ -24,12 +24,13 @@ internal static class RetailDoorCaptureTests
                 left ? DoorTransitionAuditPositions.Origin : DoorTransitionAuditPositions.SecondScreenCameraX, 0);
             runtime.Samus!.Kinematics.SetXFixed(left ? DoorTransitionAuditPositions.LeftDoorSamusXFixed : DoorTransitionAuditPositions.SecondScreenRightDoorSamusXFixed);
             runtime.Samus.Kinematics.SetYFixed(DoorTransitionAuditPositions.CeresCorridorDoorSamusYFixed);
-            VerifyTransition(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
+            SwapchainTests.VerifyBlockedDoor(device, renderer, runtime, bus, door, destination, left ? "left" : "right");
         }
     }
 
     internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context)
+        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context,
+        Action<RenderFrameSnapshot>? publish = null)
     {
             PublishDoor(runtime, bus, door);
             var transition = new DoorTransitionState();
@@ -43,6 +44,7 @@ internal static class RetailDoorCaptureTests
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                publish?.Invoke(packet);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: door {door:X4}, {context}, frame={frames}, phase={transition.Phase}");
             }

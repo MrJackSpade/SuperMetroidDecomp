@@ -10,7 +10,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -31,6 +31,9 @@ public sealed partial class D3D11FrameRenderer
         {
             switch (layer)
             {
+                case ScanlineColorAddRenderLayer windows:
+                    DispatchColorWindows(windows);
+                    break;
                 case Mode7GameplayRenderLayer gameplay:
                     DispatchMode7Gameplay(gameplay);
                     break;

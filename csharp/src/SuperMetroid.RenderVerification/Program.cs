@@ -18,12 +18,13 @@ try
         Console.WriteLine($"Exact match: {kind}, {device.AdapterDescription}, {frame.Width}x{frame.Height}.");
         return;
     }
-    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke"))
-        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --compare <frame.smframe> --device hardware|warp");
+    if (args.Length != 1 || args[0] is not ("--solid-smoke" or "--tile-smoke" or "--obj-smoke" or "--mode7-smoke" or "--window-smoke"))
+        throw new ArgumentException("Usage: SuperMetroid.RenderVerification --solid-smoke | --tile-smoke | --obj-smoke | --mode7-smoke | --window-smoke | --compare <frame.smframe> --device hardware|warp");
     foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())
     {
         using var device = new D3D11RenderDevice(kind);
         using var renderer = new D3D11FrameRenderer(device);
+        if (args[0] == "--window-smoke") { ColorWindowSmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--mode7-smoke") { Mode7SmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--obj-smoke") { ObjectSmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }

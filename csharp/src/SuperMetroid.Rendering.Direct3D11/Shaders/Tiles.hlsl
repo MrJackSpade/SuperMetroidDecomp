@@ -2,6 +2,7 @@
 static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixedAdd = 4;
 static const uint OpResolveObj = 5, OpInsertObj = 6;
 static const uint OpMode7 = 7;
+static const uint OpScanlineAdd = 8;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -12,6 +13,9 @@ cbuffer TileParameters : register(b0)
     int MatrixA, MatrixB, MatrixC, MatrixD;
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FillCharacterZero, FirstScanline, EndScanline;
+    uint Reserved27;
+    uint4 Reserved28;
+    uint4 ScanlineParameters[224];
 };
 StructuredBuffer<uint> Memory : register(t0);
 RWTexture2D<uint> Output : register(u0);
@@ -50,6 +54,17 @@ void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
+    if (Operation == OpScanlineAdd)
+    {
+        uint4 window = ScanlineParameters[id.y];
+        uint left = window.x & 255, right = (window.x >> 8) & 255;
+        if (id.x >= left && id.x <= right)
+        {
+            uint pixel = Output[id.xy];
+            Output[id.xy] = Pack(min(255, Unpack(pixel) + window.yzw), pixel >> 24);
+        }
+        return;
+    }
     if (Operation == OpMode7)
     {
         int relativeX = (int)id.x + OffsetX - CenterX;

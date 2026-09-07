@@ -38,6 +38,8 @@ internal static partial class Program
                 await VerifyFormClose(RendererSelection.Software, duringStartup: false);
                 await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: false);
                 await VerifyFormClose(RendererSelection.Direct3D11, duringStartup: true);
+                await VerifyRendererStartupFailure(RendererSelection.Auto);
+                await VerifyRendererStartupFailure(RendererSelection.Direct3D11);
                 Console.WriteLine("Desktop capture: software/GPU stepping, resize, paused state restore, generation reset and asynchronous shutdown passed.");
             }
             catch (Exception error) { Console.Error.WriteLine(error); Environment.ExitCode = 1; }

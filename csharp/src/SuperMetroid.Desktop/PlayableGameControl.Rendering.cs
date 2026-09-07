@@ -48,14 +48,21 @@ public sealed partial class PlayableGameControl
     /// Starts the window-owned renderer with the UI message pump free to service DXGI.
     /// Call once after showing the form. Software remains the migration default.
     /// </summary>
-    public async Task InitializeRendererAsync()
+    public Task InitializeRendererAsync() => InitializeRendererAsync(static (window, width, height, generation) =>
+        new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware));
+
+    /// <summary>Verification seam for a worker that genuinely fails asynchronous device/window startup.</summary>
+    internal async Task InitializeRendererAsync(Func<nint, int, int, long, D3D11RenderWorker> createWorker)
     {
+        ArgumentNullException.ThrowIfNull(createWorker);
+        ObjectDisposedException.ThrowIf(IsDisposed, this);
+        if (rendererStopping) throw new InvalidOperationException("Renderer has already been stopped.");
         if (rendererStarted) throw new InvalidOperationException("Renderer already initialized.");
         rendererStarted = true;
         if (gameOptions.Renderer == RendererSelection.Software) return;
-        var worker = new D3D11RenderWorker(canvas.Handle,
+        var worker = createWorker(canvas.Handle,
             Math.Max(1, canvas.ClientSize.Width), Math.Max(1, canvas.ClientSize.Height),
-            displayGeneration, D3D11DeviceKind.Hardware);
+            displayGeneration);
         gpuWorker = worker;
         string adapter;
         try

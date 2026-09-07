@@ -1404,6 +1404,11 @@ public sealed partial class SuperMetroidRuntime
         // music, and sound engines. Audio mixing lives in the frontend, but this translated
         // runtime must still latch controller input and block every gameplay owner during
         // those waits. This early seam is shared by all permanent-item identities.
+        // EnemyMain suspended at $A2:AB1F requests its distinct bank-$85 coroutine.
+        // Keep the ship waiting until the entire YES/NO/completion chain has returned.
+        if (Enemies.GunshipSavePromptPending && !MessageBox.IsActive)
+            MessageBox.Begin(_addressSpace, GameplayMessageIds.GunshipSaveConfirmation);
+
         if (MessageBox.IsActive)
         {
             MessageBox.Step(Controller1.Current);
@@ -1411,6 +1416,20 @@ public sealed partial class SuperMetroidRuntime
                 MessageBoxSelectionSoundRequestedThisFrame = true;
             if (MessageBox.IsActive)
                 return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+
+            if (Enemies.GunshipSavePromptPending)
+            {
+                bool accepted = MessageBox.ConsumeConfirmationResult()
+                    ?? throw new InvalidDataException("Gunship message closed without a save selection.");
+                Enemies.AnswerGunshipSavePrompt(accepted);
+                _gunshipExitSoundRequested = true;
+                if (accepted)
+                {
+                    System.MarkSaveStationUsed(AreaId.Crateria, 0);
+                    _completedSaveStation = new SaveStationPersistenceRequest(AreaId.Crateria, 0);
+                }
+                return Snapshot(escapeTimerExpired: false, infiniteAmmoGuard);
+            }
 
             if (_pendingSaveStation is { } saveStation)
             {

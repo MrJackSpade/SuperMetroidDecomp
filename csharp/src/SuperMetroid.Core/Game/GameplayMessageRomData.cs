@@ -44,6 +44,8 @@ public static class GameplayMessageRomData
 
     public static class Timing
     {
+        /// <summary>$85:8122: Play_Saving_Sound_Effect waits 160 accepted lag frames.</summary>
+        public const int GunshipSavingSoundFrames = 160;
         public const int MaximumRadiusPixels = 24;
         public const int RadiusStepPixels = 2;
         public const int ItemMinimumDisplayFrames = 360;

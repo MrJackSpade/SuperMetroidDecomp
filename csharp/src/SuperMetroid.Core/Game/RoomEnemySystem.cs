@@ -2342,6 +2342,7 @@ public sealed partial class RoomEnemySystem
         pad.CurrentInstruction = GunshipInstructionLists.EntrancePadClosing;
         top.VariableA = 144;
         LastGunshipEvent = GunshipFrameEvent.ExitPadClosing;
+        QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePadClosing, maximumQueued: 6);
     }
 
     /// <summary>Ports gunship function 17 at <c>$A2:ABC7</c>.</summary>

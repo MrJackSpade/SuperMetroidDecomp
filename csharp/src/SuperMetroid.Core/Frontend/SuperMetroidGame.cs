@@ -960,6 +960,10 @@ public sealed partial class SuperMetroidGame
         // request remains audible without making stale enemy/PLM lists eligible again.
         if (runtime?.ConsumeMessageBoxSelectionSoundRequest() == true)
             audio.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+        if (runtime?.MessageBox.ConsumeSavingSoundRequest() == true)
+            audio.QueueSound(SoundEffectLibrary1Sounds.Saving, maximumQueued: 6);
+        if (runtime?.ConsumeGunshipExitSoundRequest() == true)
+            audio.QueueSound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
 
         // Frontend states sometimes accept NMIs without running the state-eight owner list.
         // In particular, the door coroutine waits for all unread sound-ring entries to

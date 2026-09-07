@@ -16,9 +16,8 @@ namespace SuperMetroid.Core.Game;
 /// returned while its lag-frame loops were running.
 /// </para>
 /// <para>
-/// This type handles the complete translated definition range (IDs 1-26), including the
-/// save-station confirmation loop at ID 23. The gunship's distinct ID-28 polling contract
-/// remains outside this owner until that cartridge coroutine is translated.
+/// This type handles definitions 1-26 and the gunship's ID-28 confirmation. On YES the
+/// ship branch retains gameplay ownership through the saving sound and completion notice.
 /// </para>
 /// </remarks>
 public sealed class GameplayMessageBoxState
@@ -29,6 +28,20 @@ public sealed class GameplayMessageBoxState
     private int _nextOpeningRadiusPixels;
     private int _nextClosingRadiusPixels;
     private bool? _closingConfirmationResult;
+    private bool _gunshipCompletion;
+    private bool _savingSoundRequested;
+    private int _savingFramesRemaining;
+
+    /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
+    public bool ConsumeSavingSoundRequest()
+    {
+        bool requested = _savingSoundRequested;
+        _savingSoundRequested = false;
+        return requested;
+    }
+
+    private bool IsSaveConfirmation => MessageId is GameplayMessageId.SaveConfirmation or
+        GameplayMessageId.GunshipSaveConfirmation;
 
     /// <summary>Whether bank-$85 currently owns the gameplay main loop and BG3 window.</summary>
     public bool IsActive => Phase != GameplayMessageBoxPhase.Inactive;
@@ -84,7 +97,8 @@ public sealed class GameplayMessageBoxState
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte rawMessageId = (byte)messageId;
-        if (messageId is < GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit)
+        if ((messageId is < GameplayMessageId.EnergyTank or > GameplayMessageId.GravitySuit) &&
+            messageId != GameplayMessageId.GunshipSaveConfirmation)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(messageId),
@@ -170,6 +184,7 @@ public sealed class GameplayMessageBoxState
         _nextOpeningRadiusPixels = 0;
         _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
         _closingConfirmationResult = null;
+        _gunshipCompletion = false;
         CompletedConfirmationResult = null;
         ConfirmationSelectionYes = true;
         DrawSaveConfirmationSelection();
@@ -205,7 +220,7 @@ public sealed class GameplayMessageBoxState
                 RadiusPixels = _nextOpeningRadiusPixels;
                 if (RadiusPixels == GameplayMessageRomData.Timing.MaximumRadiusPixels)
                 {
-                    if (MessageId == GameplayMessageIds.SaveConfirmation)
+                    if (IsSaveConfirmation)
                     {
                         MinimumDisplayFramesRemaining = 0;
                         Phase = GameplayMessageBoxPhase.AwaitingInput;
@@ -236,7 +251,7 @@ public sealed class GameplayMessageBoxState
                 return;
 
             case GameplayMessageBoxPhase.AwaitingInput:
-                if (MessageId == GameplayMessageIds.SaveConfirmation)
+                if (IsSaveConfirmation)
                 {
                     // Bank $85's save selector owns the same synchronous window as item
                     // boxes. Horizontal input changes the two-choice cursor; A confirms the
@@ -278,15 +293,36 @@ public sealed class GameplayMessageBoxState
                 }
                 return;
 
+            case GameplayMessageBoxPhase.GunshipSavingSound:
+                if (--_savingFramesRemaining == 0)
+                {
+                    // $85:80D9 opens the ordinary completion notice only after the
+                    // saving sound's synchronous wait. Preserve YES across that message.
+                    ISnesAddressSpace bus = _activeBus!;
+                    Phase = GameplayMessageBoxPhase.Inactive;
+                    Begin(bus, GameplayMessageIds.SaveCompleted);
+                    _gunshipCompletion = true;
+                }
+                return;
+
             case GameplayMessageBoxPhase.Closing:
                 RadiusPixels = _nextClosingRadiusPixels;
                 _nextClosingRadiusPixels -= GameplayMessageRomData.Timing.RadiusStepPixels;
                 if (_nextClosingRadiusPixels < 0)
                 {
+                    if (MessageId == GameplayMessageIds.GunshipSaveConfirmation &&
+                        _closingConfirmationResult == true)
+                    {
+                        Phase = GameplayMessageBoxPhase.GunshipSavingSound;
+                        _savingFramesRemaining = GameplayMessageRomData.Timing.GunshipSavingSoundFrames;
+                        _savingSoundRequested = true;
+                        return;
+                    }
                     // Radius zero has no visible pixels, so restoring gameplay state at
                     // this point preserves the final native wait without losing artwork.
                     Phase = GameplayMessageBoxPhase.Inactive;
-                    CompletedConfirmationResult = _closingConfirmationResult;
+                    CompletedConfirmationResult = _gunshipCompletion ? true : _closingConfirmationResult;
+                    _gunshipCompletion = false;
                     _closingConfirmationResult = null;
                     MessageId = GameplayMessageId.None;
                     MinimumDisplayFramesRemaining = 0;
@@ -307,7 +343,7 @@ public sealed class GameplayMessageBoxState
     /// </summary>
     private void DrawSaveConfirmationSelection()
     {
-        if (MessageId != GameplayMessageIds.SaveConfirmation && MessageId != GameplayMessageId.None)
+        if (!IsSaveConfirmation && MessageId != GameplayMessageId.None)
             return;
         ISnesAddressSpace source = _activeBus
             ?? throw new InvalidOperationException(
@@ -369,4 +405,6 @@ public enum GameplayMessageBoxPhase : byte
     MinimumDisplay,
     AwaitingInput,
     Closing,
+    /// <summary>The gunship's $85:8119 sound wait before SAVE COMPLETED.</summary>
+    GunshipSavingSound,
 }

@@ -52,6 +52,8 @@ public readonly record struct SoundEffectId
 /// <summary>Named, proven sound sequences in cartridge SFX library one.</summary>
 public static class SoundEffectLibrary1Sounds
 {
+    /// <summary>$85:811B queues library-one $2E for the gunship saving wait.</summary>
+    public static readonly SoundEffectId Saving = new(SoundEffectLibrary.Library1, 0x2e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>
     /// Starts the Power Bomb explosion at <c>$88:8AA9-$8AAC</c> through the library-one
     /// max-fifteen queue entry.
@@ -113,6 +115,10 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$A2:AB58 queues library-three $14 as the ship's entrance pad opens.</summary>
+    public static readonly SoundEffectId GunshipEntrancePad = new(SoundEffectLibrary.Library3, 0x14); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+    /// <summary>$A2:AB9D queues library-three $15 as the ship's entrance pad closes after exit.</summary>
+    public static readonly SoundEffectId GunshipEntrancePadClosing = new(SoundEffectLibrary.Library3, 0x15); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$82:A92B queues library-three $2A when the pause/map palette animation loops.</summary>
     public static readonly SoundEffectId MapPaletteLoop = new(SoundEffectLibrary.Library3, 0x2a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>Stops/cancels every currently active library-three sound.</summary>

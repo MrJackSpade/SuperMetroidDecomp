@@ -33,6 +33,8 @@ public static class GameplayMessageIds
     public const GameplayMessageId SaveCompleted = GameplayMessageId.SaveCompleted;
     public const GameplayMessageId ReserveTank = GameplayMessageId.ReserveTank;
     public const GameplayMessageId GravitySuit = GameplayMessageId.GravitySuit;
+    /// <summary>$85:873D definition; $A2:AB1F requests the gunship save/completion coroutine.</summary>
+    public const GameplayMessageId GunshipSaveConfirmation = GameplayMessageId.GunshipSaveConfirmation;
 
     /// <summary>
     /// Converts a byte read from a translated cartridge owner into the closed retail
@@ -41,7 +43,8 @@ public static class GameplayMessageIds
     /// </summary>
     public static GameplayMessageId FromCartridge(byte value, string sourceContext)
     {
-        if (value is < (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit)
+        if ((value is < (byte)GameplayMessageId.EnergyTank or > (byte)GameplayMessageId.GravitySuit) &&
+            value != (byte)GameplayMessageId.GunshipSaveConfirmation)
         {
             throw new NotSupportedException(
                 $"Gameplay message ${value:X2} from {sourceContext} is not translated.");
@@ -52,8 +55,8 @@ public static class GameplayMessageIds
 }
 
 /// <summary>
-/// Native one-based indices into <c>$85:869B</c>. Every value through Gravity Suit has a
-/// complete definition consumed by the shared translated message coroutine.
+/// Native one-based indices into <c>$85:869B</c>. Ordinary definitions run through Gravity
+/// Suit; the gunship uses its additional confirmation definition after the terminator.
 /// </summary>
 public enum GameplayMessageId : byte
 {
@@ -84,4 +87,6 @@ public enum GameplayMessageId : byte
     SaveCompleted = 0x18,
     ReserveTank = 0x19,
     GravitySuit = 0x1a,
+    /// <summary>$85:873D: ship confirmation followed by saving sound and completion notice on YES.</summary>
+    GunshipSaveConfirmation = 0x1c,
 }

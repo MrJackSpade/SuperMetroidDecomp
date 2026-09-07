@@ -103,6 +103,14 @@ and child memory, repeated insertions and parent overlays after child rendering.
 reusable child renderer bounds scratch resources; GPU region copies replace pixels
 including backdrop. No child raster is read back or uploaded from the CPU.
 
+`--retail-frontend` requires `Super Metroid.smc` in the working directory (absence
+fails, not skips). On each device in Debug and Release it compares 131 sampled
+natural-title frames, including zoom, and all 251 frontend frames through title,
+file select, options and intro handoff directly against the legacy live renderer.
+Paired simulation instances also compare frontend state, frame identity and ordered
+audio commands. SRAM is private in memory. PCM output, other scenes and host pacing
+are not established by this test.
+
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and

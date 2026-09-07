@@ -40,6 +40,11 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(bg.HorizontalOffset); writer.Write(bg.VerticalOffset);
                 writer.Write(bg.FillOutsideWithCharacterZero);
             }
+            writer.Write(mode7.Gradient.Length != 0);
+            foreach (var line in mode7.Gradient)
+            {
+                writer.Write(line.Red); writer.Write(line.Green); writer.Write(line.Blue); writer.Write(line.Control);
+            }
         }
         else if (frame.Layers is { } layers)
         {
@@ -87,7 +92,14 @@ public static partial class RenderFrameSnapshotCodec
                         ? new Mode7RenderRegisters(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
                             reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))
                         : null;
-                    frame = new(identity, new Mode7ObjRenderSnapshot(memory, bg, obsel, brightness), fades);
+                    var gradient = Array.Empty<Frontend.TitleGradientLine>();
+                    if (version >= RenderPacketFormat.TitleGradientVersion && ReadBoolean(reader))
+                    {
+                        gradient = new Frontend.TitleGradientLine[SnesPpuLayout.ScreenHeightPixels];
+                        for (int i = 0; i < gradient.Length; i++)
+                            gradient[i] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+                    }
+                    frame = new(identity, new Mode7ObjRenderSnapshot(memory, bg, obsel, brightness, gradient), fades);
                 }
                 else
                 {

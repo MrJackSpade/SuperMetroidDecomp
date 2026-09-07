@@ -44,6 +44,7 @@ public sealed class TitleSequenceState
     private int babyFrame;
     private int babyFrameTimer;
     private bool mode7BackgroundEnabled;
+    private bool gradientEnabled;
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
@@ -331,6 +332,16 @@ public sealed class TitleSequenceState
             cgram,
             obsel: TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector);
         SnesLayerCompositor.Composite(background, objects);
+        if (gradientEnabled)
+        {
+            var palettes = new byte[background.Length];
+            SnesObjRenderer.RenderResolved(oam, vram, cgram,
+                TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector, objects, new byte[background.Length], palettes: palettes);
+            var gradient = TitleGradient.Decode(bus, (ushort)zoom);
+            for (int pixel = 0; pixel < background.Length; pixel++)
+                background[pixel] = TitleGradientColorMath.Apply(background[pixel], gradient[pixel / 256],
+                    palettes[pixel] == byte.MaxValue ? null : palettes[pixel]);
+        }
         for (int pixel = 0; pixel < background.Length; pixel++)
             background[pixel] = ApplyBrightness(background[pixel], brightness);
 
@@ -352,7 +363,7 @@ public sealed class TitleSequenceState
                     0, scale, 128, 128, unchecked((short)mode7X), unchecked((short)mode7Y))
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
-            checked((byte)brightness));
+            checked((byte)brightness), gradientEnabled ? TitleGradient.Decode(bus, (ushort)zoom) : default);
     }
 
     private void PrepareRenderOam()
@@ -430,6 +441,7 @@ public sealed class TitleSequenceState
 
                 case CinematicCodePointers.Instruction_TriggerTitleSequenceScene3:
                     phase = TitleSequencePhase.SceneThreeZoom;
+                    gradientEnabled = true;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
                     phaseTimer = 0;
                     ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
@@ -468,6 +480,7 @@ public sealed class TitleSequenceState
 
     private void EnterImmediateTitleObjects()
     {
+        gradientEnabled = true;
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
         cgram.SetColor(

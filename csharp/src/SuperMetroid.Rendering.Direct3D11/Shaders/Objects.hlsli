@@ -13,8 +13,9 @@ uint ReadOamByte(uint address)
     return word & 255;
 }
 
-uint2 ResolveObject(uint2 screen)
+uint2 ResolveObjectWithPalette(uint2 screen, out uint palette)
 {
+    palette = 255;
     // Ascending OAM order makes the first opaque pixel the winner, independently
     // of its BG priority. Insertion filters the winner later, not this scan.
     [loop]
@@ -41,7 +42,14 @@ uint2 ResolveObject(uint2 screen)
         uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1)
             | (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
         if (color == 0) continue;
-        return uint2(Palette(128 + ((attributes >> 1) & 7) * 16 + color), (attributes >> 4) & 3);
+        palette = (attributes >> 1) & 7;
+        return uint2(Palette(128 + palette * 16 + color), (attributes >> 4) & 3);
     }
     return uint2(0, 255);
+}
+
+uint2 ResolveObject(uint2 screen)
+{
+    uint palette;
+    return ResolveObjectWithPalette(screen, palette);
 }

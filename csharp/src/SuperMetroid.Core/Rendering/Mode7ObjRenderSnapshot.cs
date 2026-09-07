@@ -18,9 +18,11 @@ public sealed record Mode7ObjRenderSnapshot
     public Mode7RenderRegisters? Background { get; }
     public byte ObjectSelection { get; }
     public byte Brightness { get; }
+    private readonly Frontend.TitleGradientLine[] gradient;
+    public ReadOnlySpan<Frontend.TitleGradientLine> Gradient => gradient;
 
     public Mode7ObjRenderSnapshot(PpuMemorySnapshot memory, Mode7RenderRegisters? background,
-        byte objectSelection, byte brightness)
+        byte objectSelection, byte brightness, ReadOnlySpan<Frontend.TitleGradientLine> gradient = default)
     {
         ArgumentNullException.ThrowIfNull(memory);
         if (brightness > Hardware.SnesPpuLayout.MaximumMasterBrightness) throw new ArgumentOutOfRangeException(nameof(brightness));
@@ -28,5 +30,11 @@ public sealed record Mode7ObjRenderSnapshot
         Background = background;
         ObjectSelection = objectSelection;
         Brightness = brightness;
+        if (!gradient.IsEmpty && gradient.Length != Hardware.SnesPpuLayout.ScreenHeightPixels)
+            throw new ArgumentException("Title gradient requires 224 scanlines.", nameof(gradient));
+        foreach (var line in gradient)
+            if (line.Red > 31 || line.Green > 31 || line.Blue > 31 || line.Control is not (0xa1 or 0x31))
+                throw new ArgumentException("Title gradient has invalid fixed color or unsupported CGADSUB control.", nameof(gradient));
+        this.gradient = gradient.ToArray();
     }
 }

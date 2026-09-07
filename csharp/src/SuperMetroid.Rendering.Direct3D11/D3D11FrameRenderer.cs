@@ -100,7 +100,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background));
             operations.Add(new ObjRenderLayer());
             DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
-                operations.ToArray(), mode7.ObjectSelection, mode7.Brightness));
+                operations.ToArray(), mode7.ObjectSelection, mode7.Brightness), mode7.Gradient);
             return;
         }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");

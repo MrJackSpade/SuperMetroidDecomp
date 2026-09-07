@@ -6,7 +6,8 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
-    private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene)
+    private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene,
+        ReadOnlySpan<Core.Frontend.TitleGradientLine> gradient = default)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
@@ -77,6 +78,7 @@ public sealed partial class D3D11FrameRenderer
                     break;
             }
         }
+        if (!gradient.IsEmpty) DispatchTitleGradient(gradient, scene.Memory.ModeledSpriteCount, scene.ObjectSelection);
         DispatchTile(D3D11TileOperation.Brightness, level: scene.Brightness);
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, level: level);
     }

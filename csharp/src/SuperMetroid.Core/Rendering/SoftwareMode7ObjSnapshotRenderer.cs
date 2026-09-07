@@ -27,8 +27,19 @@ public static class SoftwareMode7ObjSnapshotRenderer
                 bg.HorizontalOffset, bg.VerticalOffset,
                 fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero));
         }
-        SnesLayerCompositor.Composite(pixels,
-            SnesObjRenderer.Render(oam, vram, cgram, snapshot.ObjectSelection));
+        if (snapshot.Gradient.IsEmpty)
+            SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, vram, cgram, snapshot.ObjectSelection));
+        else
+        {
+            var objects = new Rgba32[pixels.Length];
+            var priorities = new byte[pixels.Length];
+            var palettes = new byte[pixels.Length];
+            SnesObjRenderer.RenderResolved(oam, vram, cgram, snapshot.ObjectSelection, objects, priorities, palettes: palettes);
+            SnesLayerCompositor.Composite(pixels, objects);
+            for (int i = 0; i < pixels.Length; i++)
+                pixels[i] = TitleGradientColorMath.Apply(pixels[i], snapshot.Gradient[i / 256],
+                    palettes[i] == byte.MaxValue ? null : palettes[i]);
+        }
         MasterBrightnessFilter.Apply(pixels, snapshot.Brightness);
         return pixels;
     }

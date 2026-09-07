@@ -35,6 +35,8 @@ Current GPU comparisons against software/legacy output include:
 | Ceres/Zebes and game-over | 143 flight/destruction samples and 101 game-over frames |
 | Saved-file maps | 502 frames, six areas, wrapped scroll, zoom, load/cancel |
 | Ending | 444 samples across all three reward branches, repeat-render/cadence checks |
+| Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
+| Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
 These are rendering-equivalence checks, not new claims of cartridge correctness.
@@ -49,7 +51,8 @@ No machine-wide forced GPU reset has been performed.
 
 GPU timestamp queries use a bounded nonblocking ring. The tooltip reports rolling
 p50/p95/p99 CPU composition, display/Present and GPU composition histories, excluding
-60 warmup samples. GPU composition excludes scaling/Present. Audio telemetry counts
+60 warmup samples. GPU composition excludes scaling/Present; a second timestamp
+interval includes display drawing but ends before the CPU Present call. Audio telemetry counts
 native-empty-before-refill observations, excluding startup/reset; this is not an
 endpoint-reported underrun duration. The real silent waveOut drain/refill test passes.
 
@@ -62,6 +65,8 @@ Additional commands, run from the repository root:
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-file-map
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ending
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-attract
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --runtime-overlays
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300
@@ -71,11 +76,17 @@ The last command runs five minutes per scene with a standalone paced producer,
 managed audio, silent real waveOut and a hidden hardware HWND. It deliberately does
 not count as visible-presentation or production-WinForms-clock qualification. Reports
 state that scope and retain PCM counts, queue observations, timings and adapter.
-Its long-run results must be inspected before claiming even that narrower gate.
+The preserved report confirms 60-Hz production with zero observed queue drains.
+The separate `--soak-desktop-hidden 300` command also passed five minutes per scene
+using the actual production WinForms timer: 59.994 FPS, producer p95 0.2027/0.1383 ms,
+zero observed audio queue drains. Both reports and precise scope limitations are in
+`test-fixtures/issue-321-performance`. All presentations were occluded, not visible.
+The full GPU interval measured about 31.7 ms; visible display budgeting remains open.
+Auto startup failure and strict explicit-GPU failure policies now have hidden-host tests.
 
 Still required: full retail scene matrix, complete cross-backend state/PCM evidence,
-visible and production-clock soaks, presentation-inclusive GPU budgeting, automatic
-startup-failure qualification, real recovery/DPI/RDP evidence, portable build/run,
+visible soaks, presentation-inclusive GPU budgeting,
+real recovery/DPI/RDP evidence, portable build/run,
 clean packaging, final documentation and player-validation handoff. Do not close
 #321 or mark its completion goal achieved from the milestones above.
 

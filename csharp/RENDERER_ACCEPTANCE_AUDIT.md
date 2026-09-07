@@ -1,6 +1,6 @@
 # Issue 321 acceptance audit
 
-Audit checkpoint: `78a6d1d`, September 7, 2026. This is a completion checklist,
+Audit checkpoint: `55d57db`, September 7, 2026. This is a completion checklist,
 not a replacement for the full issue specification. A passing sampled fixture
 does not prove untested paths. The goal remains incomplete.
 
@@ -30,12 +30,12 @@ PerMonitorV2 policy and automated resize/lifecycle checks remain in scope.
 | Required gate | Current evidence | Outstanding proof/action |
 | --- | --- | --- |
 | Inventory and ownership | `RENDERER_MIGRATION.md`, `SuperMetroidGame.RenderCapture.cs`, ordered `RetailSceneTests` registry; publication routing audit below completed at `75ecdc1` | Review final changes against this inventory; do not count the registry length as exhaustive proof. |
-| Portable contract/reference | Core targets plain `net10.0`; `PORTABLE_RENDER_TESTS.md` records isolated Linux build and execution, most recently at `16d33cd` | Latest Core changes pass. Recheck if further portable code changes land; this does not require a second hardware backend. |
+| Portable contract/reference | Core targets plain `net10.0`; `PORTABLE_RENDER_TESTS.md` records isolated Linux build and execution, most recently at `d4aa15c` | Post-#335 rerun requires approval following the container-access rejection above. No second hardware backend is required. |
 | GPU coverage without raster/readback | Captured menu/intro/gameplay/ending publication, integer shaders, explicit readback API; implicit intro/gameplay raster fallbacks removed in `47239b2` | Complete publication audit; retain explicit legacy software diagnostics, not implicit GPU scene fallback. |
 | Ownership and lifetimes | Owned packet/codec tests, retained replay, generation gate, blocked consumer, device recreation; close-during-load race fixed in `6d0881c` | Review final changes together; distinguish immutable packet proof from merely matching one frame. |
 | Simulation/input/audio independence | Eight cases at `399f666`: two rooms, normal/blocked, hardware/WARP; software/GPU/headless runtime graphs and 974,400 PCM samples per case | The exact graph is the runtime graph, not the whole frontend graph. Confirm required frontend/save transitions through their separate state/audio tests; do not claim every field in every scene was compared. |
 | Exact images and regression scenes | Full 20-suite Release aggregate at `399f666`; 18-suite Debug aggregate at `bc2c5ae` plus later individual tests; blocked doors added at `3c201b3` | Index retained independent cartridge/emulator evidence for historical regressions. GPU/legacy equality alone is not that evidence. |
-| Selection and lifecycle | Auto now defaults to hardware with logged startup fallback; explicit Software/Direct3D11 retained; injected device-loss/reset, bounded retries, resize/suspension, shutdown tests; visible minimize/restore passed at `07b8e40` | Monitor/DPI checks remain unperformed. RDP reconnect testing is explicitly deferred by the user and non-blocking. Default selection is implemented; final qualification remains incomplete. |
+| Selection and lifecycle | Auto defaults to hardware with logged startup fallback; explicit Software/Direct3D11 retained; injected device-loss/reset, bounded retries, resize/suspension, shutdown tests; visible minimize/restore passed at `07b8e40`; PerMonitorV2 entry-point assertion passes | Actual cross-monitor and RDP reconnect tests are explicitly deferred by the user, unverified and non-blocking. No physical driver reset is claimed. |
 | Performance | Visible Debug and Release five-minute gameplay/pause reports meet measured CPU/GPU budgets; full-history Debug and hidden Release memory/late-frame evidence | Preserve separate sampling scopes: older visible Release GPU percentiles are rolling; Debug visible uses whole post-warmup history. Do not claim 60 delivered RDP FPS. |
 | Clean packaging/tools/save boundary | Clean game publication revalidated at `75ecdc1`, including minimized host wiring; four rebuilt shaders, matching assemblies/assets, desktop lifecycle and short audio smoke. Failure artifacts and packet replay verified in `fb34cc7` | Recheck if production host changes. Final docs must distinguish framework-dependent Windows app from portable Core. |
 | Commit/push and handoff | Scoped changes pushed; evidence attached to issue | Final requirement audit, remaining unrelated-bug summary, usage/validation directions, then awaiting-player-validation label. Do not close without player confirmation. |
@@ -58,6 +58,13 @@ external test remains outstanding. Microsoft documents the default and per-monit
 configuration in [WinForms automatic scaling](https://learn.microsoft.com/en-us/dotnet/desktop/winforms/forms/autoscale).
 
 ### Latest clean-package evidence
+
+After the #335 palette correction, clean publication at `55d57db` completed with
+exit code 0. Shader/dependency/audio-asset checks, game startup/DPI audits and full
+desktop lifecycle checks passed. Short gameplay/pause smoke measured 59.619/59.641
+FPS, producer p95 0.8752/0.1508 ms, zero audio queue drains. These five-second checks
+verify packaging, not the separate five-minute performance requirement. The owned
+output `3e565f0e5bf4474d82f78067581674e8` was removed after recording its results.
 
 Final production DPI-policy package at `78a6d1d` passed the entire clean publish
 script with exit code 0, including the effective PerMonitorV2 assertion, rebuilt

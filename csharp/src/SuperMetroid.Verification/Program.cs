@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shutter-repeat"])
+{
+    AuditRepeatedShutterBombs();
+    return 0;
+}
 if (args is ["--boost-floor-audit"])
 {
     AuditBoostFloor();

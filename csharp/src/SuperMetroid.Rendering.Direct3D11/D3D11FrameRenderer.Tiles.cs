@@ -6,12 +6,6 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
-    private unsafe Rgba32[] RenderLayersForReadback(RenderFrameSnapshot packet, LayeredRenderSnapshot scene)
-    {
-        DrawLayers(packet, scene);
-        return Readback(packet.Width, packet.Height);
-    }
-
     private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene)
     {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.

@@ -13,7 +13,8 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly D3D11RenderDevice owner;
     private readonly ID3D11ComputeShader shader;
     private readonly ID3D11Texture2D output;
-    private readonly ID3D11Texture2D staging;
+    private ID3D11Texture2D? staging;
+    private RenderFrameIdentity? renderedIdentity;
     private readonly ID3D11UnorderedAccessView view;
     private readonly ID3D11Buffer constants;
     private readonly ID3D11ComputeShader tileShader;
@@ -34,9 +35,6 @@ public sealed partial class D3D11FrameRenderer : IDisposable
             tileShader = Own(LoadShader(D3D11ShaderLayout.TileResourceName));
             output = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess)));
-            staging = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
-                SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.None,
-                ResourceUsage.Staging, CpuAccessFlags.Read)));
             view = Own(owner.Device.CreateUnorderedAccessView(output));
             constants = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.SolidConstantWords * sizeof(uint), BindFlags.ConstantBuffer)));
             memoryBuffer = Own(owner.Device.CreateBuffer(new BufferDescription(D3D11ShaderLayout.PpuMemoryWords * sizeof(uint),
@@ -49,18 +47,34 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         catch { DisposeResources(); throw; }
     }
 
-    public unsafe Rgba32[] RenderForReadback(RenderFrameSnapshot packet)
+    /// <summary>Submits GPU composition without staging allocation, readback or a CPU raster.</summary>
+    public void Render(RenderFrameSnapshot packet)
     {
         owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentNullException.ThrowIfNull(packet);
-        if (packet.Layers is { } layers) return RenderLayersForReadback(packet, layers);
+        renderedIdentity = null;
+        RenderCore(packet);
+        renderedIdentity = packet.Identity;
+    }
+
+    /// <summary>Diagnostic convenience; production presentation must use Render without readback.</summary>
+    public Rgba32[] RenderForReadback(RenderFrameSnapshot packet)
+    {
+        Render(packet);
+        return Readback();
+    }
+
+    private unsafe void RenderCore(RenderFrameSnapshot packet)
+    {
+        if (packet.Layers is { } layers) { DrawLayers(packet, layers); return; }
         if (packet.Mode7 is { } mode7)
         {
             var operations = new List<RenderLayer>();
             if (mode7.Background is { } background) operations.Add(new Mode7RenderLayer(background));
             operations.Add(new ObjRenderLayer());
-            return RenderLayersForReadback(packet, new LayeredRenderSnapshot(mode7.Memory,
+            DrawLayers(packet, new LayeredRenderSnapshot(mode7.Memory,
                 operations.ToArray(), mode7.ObjectSelection, mode7.Brightness));
+            return;
         }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
         if (packet.BrightnessPasses.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
@@ -75,11 +89,16 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         owner.Context.CSSetUnorderedAccessView(0, view);
         owner.Context.Dispatch((uint)((packet.Width + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge),
             (uint)((packet.Height + D3D11ShaderLayout.DispatchTileEdge - 1) / D3D11ShaderLayout.DispatchTileEdge), 1);
-        return Readback(packet.Width, packet.Height);
     }
 
-    private unsafe Rgba32[] Readback(int width, int height)
+    /// <summary>Reads the last completed submission for diagnostics; never advances simulation.</summary>
+    public unsafe Rgba32[] Readback()
     {
+        owner.VerifyOwner(); ObjectDisposedException.ThrowIf(disposed, this);
+        if (renderedIdentity is null) throw new InvalidOperationException("No successful frame submission is available for readback.");
+        const int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
+        staging ??= Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
+            width, height, 1, 1, BindFlags.None, ResourceUsage.Staging, CpuAccessFlags.Read)));
         owner.Context.CSSetUnorderedAccessView(0, null);
         owner.Context.CSSetUnorderedAccessView(1, null);
         owner.Context.CopyResource(staging, output);

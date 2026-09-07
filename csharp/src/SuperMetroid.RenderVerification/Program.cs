@@ -33,6 +33,20 @@ try
         if (args[0] == "--mode7-smoke") { Mode7SmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--obj-smoke") { ObjectSmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }
+        bool rejected = false;
+        try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }
+        if (!rejected) throw new InvalidOperationException("Readback before submission was accepted.");
+        RenderFrameSnapshot? last = null;
+        for (int i = 0; i < 64; i++)
+        {
+            last = new(new(i + 1, 1, 0), new Rgba32((byte)i, 73, 129));
+            renderer.Render(last);
+        }
+        PixelComparison.Verify(last!, SoftwareFrameSnapshotRenderer.Render(last!), renderer.Readback(),
+            $"{kind}: 64 submissions with deferred readback");
+        PixelComparison.Verify(last!, SoftwareFrameSnapshotRenderer.Render(last!), renderer.Readback(),
+            $"{kind}: repeat deferred readback");
+        Console.WriteLine($"{kind}: deferred submission/readback and uninitialized readback guard passed.");
         int samples = 0;
         foreach (byte alpha in new byte[] { 0, 1, 128, 255 })
         for (byte brightness = 0; brightness <= 15; brightness++)

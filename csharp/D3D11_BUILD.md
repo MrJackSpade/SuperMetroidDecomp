@@ -7,6 +7,13 @@ mixed-mode gameplay, color effects, messages and windowed child scenes. Full ret
 scene verification, presentation, desktop selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
+`D3D11FrameRenderer.Render` submits composition without readback or staging allocation.
+`Readback` is an explicit diagnostic operation; `RenderForReadback` combines them for
+comparison tests. Staging storage is allocated lazily, so child scenes and future
+presentation-only consumers do not allocate CPU-readable textures. Solid smoke tests
+cover 64 submissions before readback, repeated readback and the uninitialized guard
+on both devices in Debug/Release. This is not yet swapchain/desktop integration.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

@@ -139,6 +139,15 @@ renderer per device, so GPU resources are reused across scene families. Individu
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.
 
+At `399f666`, the complete current 20-suite Release aggregate passed on both
+hardware and WARP using one renderer per device. This includes reserve recovery,
+the gameplay-to-ending handoff, both elevator directions and native Ridley escapes.
+The same build passed all eight Release `--slow-consumer-audio` cases (two rooms,
+normal/blocked consumers, hardware/WARP): ten exact runtime-graph checkpoints and
+974,400 exact PCM samples per case across software, captured GPU and headless
+owners. These are current aggregate/ownership results, not OS lifecycle evidence
+or proof beyond the explicitly described fixtures.
+
 The 18-suite Debug aggregate at `bc2c5ae` passed on both hardware and WARP,
 including both elevator directions and native Ridley escape branches. Reserve
 recovery was added afterward and verified separately; it was not part of that run.

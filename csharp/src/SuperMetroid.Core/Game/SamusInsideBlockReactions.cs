@@ -4,11 +4,12 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Sand-family inside-body reactions from BlockInsideDetection and bank-$84 setup.</summary>
-public static class SamusQuicksandPhysics
+/// <summary>Body-overlap conveyor and sand reactions from bank-$94 BlockInsideDetection.</summary>
+public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in native order, visiting each block row only once.</summary>
-    public static void PrepareFrame(ISnesAddressSpace bus, RoomLevelData level, SamusState samus, AreaId area)
+    public static void PrepareFrame(ISnesAddressSpace bus, RoomLevelData level, SamusState samus,
+        AreaId area, bool areaBossDefeated = false)
     {
         var body = samus.Kinematics;
         body.SandCollisionArea = area;
@@ -22,8 +23,15 @@ public static class SamusQuicksandPhysics
         {
             var block = level.GetCollisionBlockOrPrefilledSolid(body.XPosition >> 4, y >> 4);
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
-                block.CollisionType != RoomCollisionType.SpecialAir || !block.Bts.UsesAreaReactionTable)
+                block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
+            if (!block.Bts.UsesAreaReactionTable)
+            {
+                // The normal table contains conveyors; area-table entries below own
+                // sand. Both must be visited in the same bottom/center/top order.
+                ApplyConveyor(block.Behavior);
+                return;
+            }
             ushort table = Word(QuicksandRomData.InsideAreaTables + AreaIds.ToIndex(area) * 2);
             ushort header = Word(QuicksandRomData.CollisionBank | unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
             if (header == 0) return;
@@ -75,6 +83,20 @@ public static class SamusQuicksandPhysics
             }
         }
         ushort Word(int address) => RomDataReader.ReadWordFixedBank(bus, address);
+        void ApplyConveyor(byte bts)
+        {
+            bool groundedOnly = bts is ConveyorBlockRomData.GroundedRight or ConveyorBlockRomData.GroundedLeft;
+            bool always = bts is ConveyorBlockRomData.UnconditionalRight or ConveyorBlockRomData.UnconditionalLeft;
+            if (!groundedOnly && !always) return;
+            samus.HorizontalSpeed.SelectNormalAirSpeedTable();
+            if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed != 0))
+                return;
+            // The original checks only whole Y speed: fractional vertical motion does
+            // not suppress carry. This replaces external X displacement, never adds to it.
+            body.ExtraXSubdisplacement = 0;
+            body.ExtraXDisplacement = bts is ConveyorBlockRomData.GroundedRight or ConveyorBlockRomData.UnconditionalRight
+                ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement;
+        }
         void SetExtra(int displacement)
         {
             body.ExtraYDisplacement = (ushort)(displacement >> 16);

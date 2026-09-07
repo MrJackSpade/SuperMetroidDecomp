@@ -1911,8 +1911,9 @@ public sealed partial class SuperMetroidRuntime
                 // any pose transition that would otherwise reinitialize acceleration.
                 SamusAerialMovement.ConfigureEnvironmentGravity(_addressSpace, Samus);
 
-                if (!TimeIsFrozen && !Samus.InputLocked && ActiveRoom is { } sandRoom)
-                    SamusQuicksandPhysics.PrepareFrame(_addressSpace, LevelData, Samus, sandRoom.AreaIndex);
+                if (!TimeIsFrozen && !Samus.InputLocked && ActiveRoom is { } insideRoom)
+                    SamusInsideBlockReactions.PrepareFrame(_addressSpace, LevelData, Samus, insideRoom.AreaIndex,
+                        System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss));
 
                 // Alpha order is cooldown -> movement-type HUD projectile producer ->
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap

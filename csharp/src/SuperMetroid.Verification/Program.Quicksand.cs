@@ -39,7 +39,7 @@ internal static partial class Program
             samus.HorizontalSpeed.BaseSpeed = 4;
             samus.HorizontalSpeed.BaseSubspeed = 0xffff;
             samus.HorizontalSpeed.HasRunningMomentum = true;
-            SamusQuicksandPhysics.PrepareFrame(bus, level, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(bus, level, samus, AreaId.Maridia);
             AssertEqual(direction is 0 or 3 ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
                 body.ExtraYFixed, "quicksand per-direction/suit displacement");
             AssertEqual(direction is 0 or 3 ? 0u : direction == 1 ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
@@ -62,7 +62,7 @@ internal static partial class Program
             samus.Kinematics.YSpeed = 4;
             samus.Kinematics.YSubacceleration = 0x1c00;
             var sand = Room((byte)(0x80 + kind));
-            SamusQuicksandPhysics.PrepareFrame(bus, sand, samus, AreaId.Maridia);
+            SamusInsideBlockReactions.PrepareFrame(bus, sand, samus, AreaId.Maridia);
             AssertEqual(kind == 1 ? 0x12000 : kind == 2 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraYFixed, "submerging and sandfall forces");
             SamusBlockCollision.MoveHorizontal(bus, sand, samus.Kinematics, 1 << 16);

@@ -62,6 +62,7 @@ if (args.Length == 1)
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();
         VerifyQuicksand();
+        VerifyTreadmillPhysics();
         VerifyPausePaletteSound();
 VerifyKnownRandomSequence();
 VerifyTimedHeldInputTimeline();

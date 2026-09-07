@@ -170,6 +170,7 @@ internal static class InputReplayAudit
                     .Where(slot => slot.IsActive)
                     .Select(slot =>
                         $"{slot.SlotIndex}:${slot.Type:X4}@${slot.XPosition:X4},${slot.YPosition:X4}" +
+                        $"/v${slot.XVelocity:X4},${slot.YVelocity:X4}/var${slot.Variable:X4}" +
                         $"/i${slot.InstructionPointer:X4}/m${slot.SpritemapPointer:X4}/" +
                         $"{slot.PreInstruction}"));
                 string enemyState = string.Join(", ", runtime.Enemies.Slots
@@ -192,6 +193,14 @@ internal static class InputReplayAudit
                 Console.WriteLine(
                     $"rec={index,6} projectile slots=[{projectileState}] " +
                     $"enemies=[{enemyState}] enemy-projectiles=[{enemyProjectileState}]");
+                if (runtime.LevelData is { } collisionLevel)
+                    foreach (var slot in runtime.Projectiles.Slots.Where(slot => slot.IsActive))
+                        for (int dx = -16; dx <= 16; dx += 8)
+                        {
+                            int bx = (slot.XPosition + dx) >> 4, by = slot.YPosition >> 4;
+                            if ((uint)bx < collisionLevel.WidthInBlocks && (uint)by < collisionLevel.HeightInBlocks)
+                                Console.WriteLine($"rec={index} slot={slot.SlotIndex} sample-x={slot.XPosition + dx:X4} block={collisionLevel.GetCollisionBlock(bx, by)}");
+                        }
             }
 
             // A repeated player report says a downward jump/fall can cross a platform in

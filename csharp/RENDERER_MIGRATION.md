@@ -229,3 +229,12 @@ insertion between OBJ priorities, not a room-specific shader rule. Format versio
 two adds that operation while retaining version-one decoding and rejecting new
 operations falsely marked as old-version data. Existing omitted mosaic behavior
 is preserved as a known reference limitation, not silently corrected in the port.
+
+Ceres approach now supplies an ordered layered snapshot through the intro's staged
+capture dispatcher. Earlier intro pages still explicitly fall back. Its five active
+phases match across 108 retail samples, including nonzero rear-view fixed-color
+addition, caption priority and fades, repeated rendering after scene advancement,
+and codec round trips. Format version three adds the full-screen fixed-color
+operation; versions one/two remain readable and cannot falsely contain the new kind.
+This preserves the existing five-bit reduction/expansion rules without introducing
+general main/subscreen/window semantics prematurely.

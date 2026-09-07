@@ -10,6 +10,29 @@ internal static partial class Program
     private static void VerifyCinematicRenderSnapshots()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var flight = new IntroCeresFlightState(bus);
+        var flightPhases = new HashSet<IntroCeresFlightPhase>();
+        int flightSamples = 0;
+        bool coloredRearView = false;
+        for (int tick = 0; tick < 4000 && !flight.Finished; tick++)
+        {
+            bool changed = flightPhases.Add(flight.Phase);
+            if (changed || tick % 7 == 0)
+            {
+                Rgba32[] expected = flight.Render();
+                LayeredRenderSnapshot snapshot = flight.CaptureRenderSnapshot();
+                coloredRearView |= snapshot.Layers.ToArray().Any(layer => layer is FixedColorAddRenderLayer c
+                    && (c.Red != 0 || c.Green != 0 || c.Blue != 0));
+                Compare(expected, snapshot, tick);
+                flight.Step();
+                Compare(expected, snapshot, tick);
+                flightSamples++;
+            }
+            else flight.Step();
+        }
+        AssertTrue(flight.Finished && coloredRearView, "flight fixture completes and exercises nonzero fixed color");
+        AssertTrue(flightPhases.Contains(IntroCeresFlightPhase.SpaceColonyTitle), "flight caption captured");
+        Console.WriteLine($"  Ceres flight snapshots: {flightSamples} samples across {flightPhases.Count} phases match, including fixed-color rear view.");
         var destruction = new CeresDestructionCinematicState(bus);
         var phases = new HashSet<CeresDestructionPhase>();
         int samples = 0;

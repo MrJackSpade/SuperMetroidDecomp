@@ -6,6 +6,10 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case FixedColorAddRenderLayer color:
+                writer.Write((byte)RenderPacketLayerKind.FixedColorAdd);
+                writer.Write(color.Red); writer.Write(color.Green); writer.Write(color.Blue);
+                break;
             case Mode7RenderLayer layer7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7);
                 Mode7RenderRegisters m = layer7.Registers;
@@ -41,6 +45,8 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.FixedColorAdd when version >= RenderPacketFormat.FixedColorLayerVersion =>
+            new FixedColorAddRenderLayer(reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
         RenderPacketLayerKind.Mode7 when version >= RenderPacketFormat.Mode7LayerVersion => new Mode7RenderLayer(
             new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
                 reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))),

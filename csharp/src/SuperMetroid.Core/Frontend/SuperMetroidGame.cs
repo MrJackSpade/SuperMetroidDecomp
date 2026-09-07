@@ -346,14 +346,14 @@ public sealed partial class SuperMetroidGame
                     {
                         intro = new IntroCinematicState(bus, audio);
                         GameState = SuperMetroidGameState.IntroCinematic;
-                        lastPixels = intro.Render();
+                        PublishIntro(intro);
                     }
                 }
                 break;
 
             case SuperMetroidGameState.IntroCinematic:
                 intro!.Step(controllerInput);
-                lastPixels = intro.Render();
+                PublishIntro(intro);
                 if (intro.CeresFlightFinished)
                 {
                     // `$8B:C100` writes state $1F, area six, and load-station zero only

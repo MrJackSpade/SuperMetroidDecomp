@@ -143,21 +143,7 @@ internal sealed class IntroCeresFlightState
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
 
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        bool rearViewVisible = Phase is IntroCeresFlightPhase.FlyingTowardCeres or
-            IntroCeresFlightPhase.SpaceColonyTitle or
-            IntroCeresFlightPhase.FadeOut;
-        if (rearViewVisible)
-        {
-            foreach (IntroDiscoverySprite actor in rearViewActors)
-                actor.Draw(bus, oam);
-        }
-        else
-        {
-            stars.Draw(bus, oam);
-        }
-        oam.FinalizeFrame();
+        OamBuffer oam = PrepareRenderOam();
 
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or
             IntroCeresFlightPhase.FadeOut or
@@ -178,8 +164,8 @@ internal sealed class IntroCeresFlightState
                 matrixB,
                 matrixC,
                 matrixD,
-                centerX: 0x0038,
-                centerY: 0x0018,
+                centerX: CeresFlightRenderDefinitions.CenterX,
+                centerY: CeresFlightRenderDefinitions.CenterY,
                 horizontalOffset: unchecked((short)backgroundX),
                 verticalOffset: unchecked((short)backgroundY));
             SnesLayerCompositor.Composite(pixels, mode7);
@@ -204,6 +190,46 @@ internal sealed class IntroCeresFlightState
             }
         }
         return pixels;
+    }
+
+    /// <summary>Captures matrix, ordered layers and rear-view fixed-color registers without rasterizing.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        OamBuffer oam = PrepareRenderOam();
+        var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
+        if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or IntroCeresFlightPhase.Finished)
+        {
+            var caption = new Bg4BppRenderLayer(SpaceColonyTilemapWord, SpaceColonyCharacterWord, 0, 0, 32, 32, false);
+            layers.Add(caption);
+            layers.Add(new ObjPriorityRenderLayer(1));
+            layers.Add(caption with { Priority = true });
+        }
+        else
+        {
+            var (a, b, c, d) = CalculateMatrix();
+            layers.Add(new Mode7RenderLayer(new(a, b, c, d,
+                CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY,
+                unchecked((short)backgroundX), unchecked((short)backgroundY))));
+            layers.Add(new ObjPriorityRenderLayer(1));
+        }
+        layers.Add(new ObjPriorityRenderLayer(2));
+        layers.Add(new ObjPriorityRenderLayer(3));
+        if (Phase == IntroCeresFlightPhase.FlyingTowardCeres)
+            layers.Add(new FixedColorAddRenderLayer((byte)(fixedColorRed & 31),
+                (byte)(fixedColorGreen & 31), (byte)(fixedColorBlue & 31)));
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(),
+            MenuRenderDefinitions.ObjectSelection, brightness);
+    }
+
+    private OamBuffer PrepareRenderOam()
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
+            foreach (IntroDiscoverySprite actor in rearViewActors) actor.Draw(bus, oam);
+        else stars.Draw(bus, oam);
+        oam.FinalizeFrame();
+        return oam;
     }
 
     private void SetupRearView()

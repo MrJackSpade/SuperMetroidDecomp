@@ -500,6 +500,11 @@ public sealed class IntroCinematicState
             scientistCutscene?.Step(bus, crossfadeCounter, introCrossfadeCounter);
     }
 
+    /// <summary>Returns the extracted flight display; other intro phases remain explicit legacy paths.</summary>
+    internal LayeredRenderSnapshot? CaptureTranslatedRenderSnapshot() =>
+        ceresFlight is not null && Phase == IntroCinematicPhase.CeresFlight
+            ? ceresFlight.CaptureRenderSnapshot() : null;
+
     public Rgba32[] Render()
     {
         // The Mode 7 flight owns a fresh PPU setup and INIDISP value. Returning its frame

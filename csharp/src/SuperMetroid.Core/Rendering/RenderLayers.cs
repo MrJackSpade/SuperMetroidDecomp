@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>One immutable insertion into an explicitly ordered PPU priority ladder.</summary>
 public abstract record RenderLayer;
 
+/// <summary>Adds fixed five-bit RGB to the composed screen, saturating each component.</summary>
+public sealed record FixedColorAddRenderLayer(byte Red, byte Green, byte Blue) : RenderLayer;
+
 /// <summary>Inserts a Mode 7 plane at an explicit position in the OBJ priority ladder.</summary>
 public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers) : RenderLayer;
 

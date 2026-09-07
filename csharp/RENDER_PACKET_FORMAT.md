@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–2
+# Portable display fixtures (.smframe), versions 1–3
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 2, reader supports 1 and 2 |
+| Version | UInt16; writer emits 3, reader supports 1, 2 and 3 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -62,6 +62,7 @@ Every record begins with a byte discriminator:
 | 3: 4-bpp BG | UInt16 tilemap word, character word, horizontal scroll, vertical scroll; Int32 tilemap width and height (32 or 64); byte priority selector |
 | 4: 2-bpp BG | UInt16 tilemap word, character word; Int32 visible row count (28); boolean priority |
 | 5: Mode 7 (version 2+) | Eight Int16 values A/B/C/D, center X/Y, horizontal/vertical offset; boolean character-zero-outside-map |
+| 6: fixed-color add (version 3+) | Three bytes red/green/blue, each 0–31 |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -70,7 +71,14 @@ the same winner, not an independently filtered sprite list.
 Version two adds only layer kind 5, allowing a Mode 7 plane between OBJ priority
 insertions. All version-one fields retain their meanings. The reader rejects
 kind 5 under a version-one header; old supported packets remain readable and are
-upgraded to version two when serialized again.
+upgraded to the current version when serialized again.
+
+Version three adds whole-screen saturating fixed-color addition, inserted before
+scene brightness for the Ceres rear view. Its software-reference semantics reduce
+each byte component with `(component * 31 + 127) / 255`, add the five-bit operand,
+clamp at 31, then expand via `(value << 3) | (value >> 2)` and set alpha to 255.
+This is not a replacement for masked main/subscreen color math. Old-version headers
+cannot contain this operation. Prior supported packets remain readable unchanged.
 
 The current 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation

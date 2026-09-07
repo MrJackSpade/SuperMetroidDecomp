@@ -20,6 +20,14 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case FixedColorAddRenderLayer color:
+                    for (int pixel = 0; pixel < output.Length; pixel++)
+                    {
+                        Rgba32 before = output[pixel];
+                        output[pixel] = new(AddFixed(before.R, color.Red), AddFixed(before.G, color.Green),
+                            AddFixed(before.B, color.Blue), 255);
+                    }
+                    break;
                 case Mode7RenderLayer mode7:
                     Mode7RenderRegisters m = mode7.Registers;
                     SnesLayerCompositor.Composite(output, SnesMode7Renderer.RenderViewport(
@@ -52,5 +60,12 @@ public static class SoftwareLayeredSnapshotRenderer
         }
         MasterBrightnessFilter.Apply(output, snapshot.Brightness);
         return output;
+    }
+
+    private static byte AddFixed(byte component, byte addend)
+    {
+        int reduced = (component * 31 + 127) / 255;
+        int sum = Math.Min(31, reduced + addend);
+        return (byte)((sum << 3) | (sum >> 2));
     }
 }

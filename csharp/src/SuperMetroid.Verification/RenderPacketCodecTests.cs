@@ -61,6 +61,13 @@ internal static partial class Program
         byte[] badLayer = RenderFrameSnapshotCodec.Serialize(layered);
         badLayer[^1] = byte.MaxValue;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badLayer), "reject unknown layer kind");
+        var fixedColor = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(memory,
+            new RenderLayer[] { new FixedColorAddRenderLayer(31, 15, 1) }, 3, 15));
+        byte[] versionTwo = RenderFrameSnapshotCodec.Serialize(fixedColor);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+            versionTwo.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7LayerVersion);
+        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionTwo),
+            "version-two cannot claim a version-three color operation");
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 

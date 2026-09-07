@@ -85,6 +85,13 @@ public sealed partial class SuperMetroidGame
         else lastPixels = scene.Render();
     }
 
+    private void PublishIntro(IntroCinematicState scene)
+    {
+        if (captureIdentity is { } identity && scene.CaptureTranslatedRenderSnapshot() is { } snapshot)
+            capturedDisplay = new(identity, snapshot);
+        else lastPixels = scene.Render();
+    }
+
     private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,
         ReadOnlySpan<byte> passes)
     {

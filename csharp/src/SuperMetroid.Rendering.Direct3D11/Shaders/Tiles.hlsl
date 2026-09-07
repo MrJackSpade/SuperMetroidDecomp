@@ -7,6 +7,7 @@ static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint OpSubscreenAdd = 11;
 static const uint OpMessage = 12;
 static const uint OpXrayHalfColor = 13;
+static const uint OpXrayGameplay = 14;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -52,6 +53,7 @@ uint Palette(uint index)
 }
 
 #include "Objects.hlsli"
+#include "Xray.hlsli"
 
 bool MainCoverage(uint2 screen)
 {
@@ -74,6 +76,7 @@ void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
+    if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpXrayHalfColor)
     {
         uint pixel = Output[id.xy];

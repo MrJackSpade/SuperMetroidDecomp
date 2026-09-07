@@ -19,4 +19,4 @@ internal static class D3D11ShaderLayout
 }
 
 /// <summary>Exclusive compute operations shared with Tiles.hlsl.</summary>
-internal enum D3D11TileOperation : uint { Backdrop = 0, Bg4 = 1, Bg2 = 2, Brightness = 3, FixedAdd = 4, ResolveObj = 5, InsertObj = 6, Mode7 = 7, ScanlineAdd = 8, BgAdd = 9, BgSubtract = 10, SubscreenAdd = 11, Message = 12, XrayHalfColor = 13 }
+internal enum D3D11TileOperation : uint { Backdrop = 0, Bg4 = 1, Bg2 = 2, Brightness = 3, FixedAdd = 4, ResolveObj = 5, InsertObj = 6, Mode7 = 7, ScanlineAdd = 8, BgAdd = 9, BgSubtract = 10, SubscreenAdd = 11, Message = 12, XrayHalfColor = 13, XrayGameplay = 14 }

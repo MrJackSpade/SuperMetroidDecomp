@@ -6,6 +6,16 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case XrayGameplayRenderLayer gameplayXray:
+                writer.Write((byte)RenderPacketLayerKind.XrayGameplay);
+                WriteGameplayLayer(writer, gameplayXray.Gameplay);
+                foreach (XrayWindowLine line in gameplayXray.Lines) { writer.Write(line.Left); writer.Write(line.Right); }
+                writer.Write(gameplayXray.RevealBlocks); writer.Write((byte)gameplayXray.ColorMath);
+                writer.Write(gameplayXray.AddSubscreen);
+                writer.Write(gameplayXray.FixedRed); writer.Write(gameplayXray.FixedGreen); writer.Write(gameplayXray.FixedBlue);
+                writer.Write(gameplayXray.Subscreen is not null);
+                if (gameplayXray.Subscreen is { } bg3) WriteLayer(writer, bg3);
+                break;
             case XrayWindowRenderLayer xray:
                 writer.Write((byte)RenderPacketLayerKind.XrayWindow);
                 foreach (XrayWindowLine line in xray.Lines) { writer.Write(line.Left); writer.Write(line.Right); }
@@ -100,6 +110,7 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader),
         RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
         RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader),
@@ -126,6 +137,25 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static XrayGameplayRenderLayer ReadXrayGameplay(BinaryReader reader)
+    {
+        var gameplay = ReadGameplayLayer(reader);
+        var lines = new XrayWindowLine[Hardware.SnesPpuLayout.ScreenHeightPixels];
+        for (int i = 0; i < lines.Length; i++) lines[i] = new(reader.ReadByte(), reader.ReadByte());
+        bool reveal = ReadBoolean(reader);
+        var control = (SnesColorMathControl)reader.ReadByte();
+        bool addSubscreen = ReadBoolean(reader);
+        byte red = reader.ReadByte(), green = reader.ReadByte(), blue = reader.ReadByte();
+        Bg2BppColorMathRenderLayer? sub = null;
+        if (ReadBoolean(reader))
+        {
+            if ((RenderPacketLayerKind)reader.ReadByte() != RenderPacketLayerKind.BgColorMath)
+                throw new InvalidDataException("X-ray subscreen must be a BG3 plane.");
+            sub = ReadBgColorMath(reader);
+        }
+        return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub);
+    }
 
     private static XrayWindowRenderLayer ReadXrayWindow(BinaryReader reader, ushort version)
     {

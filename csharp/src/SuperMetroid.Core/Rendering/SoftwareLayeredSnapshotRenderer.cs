@@ -24,6 +24,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case XrayGameplayRenderLayer gameplayXray:
+                    output = SoftwareXrayGameplayRenderer.Render(snapshot.Memory, gameplayXray, snapshot.ObjectSelection);
+                    break;
                 case XrayWindowRenderLayer xray:
                     Rgba32[] revealed = Render(xray.Reveal);
                     for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)

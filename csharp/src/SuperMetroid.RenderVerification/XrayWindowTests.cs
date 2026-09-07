@@ -7,6 +7,7 @@ internal static class XrayWindowTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
+        XrayGameplayTests.Run(device, renderer);
         PpuMemorySnapshot Memory(ushort backdrop)
         {
             var palette = new ushort[256]; palette[0] = backdrop;

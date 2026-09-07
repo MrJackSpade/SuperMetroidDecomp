@@ -42,6 +42,7 @@ Current GPU comparisons against software/legacy output include:
 | Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
 | Retail eye cone | Morph Ball room production apex fixture: 96 exact frames covering activation, first visible beam, widening and full beam |
 | Samus death | 283 frontend frames from zero health through blackout, explosion, final fade and game-over handoff; independent legacy/captured owners, exact pixels and PCM |
+| Save station | 230 exact Crateria save-room frames through confirmation, visibly colored electricity, completion and control release; room-local runtime test, not disk/SRAM persistence verification |
 | Kraid encounter/exits | Real incoming door and rise: 105 samples/seven AI states; collision-triggered growth: 95/eight with camera/BG2 priority handoff; death: 97/13 with sinking, fade and four BG3 restore assertions; left/right exits: 104 frames each including 63 scroll frames, with defeated-room reload before the right exit |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
@@ -99,6 +100,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-kraid
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-eye
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-death
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-save
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300

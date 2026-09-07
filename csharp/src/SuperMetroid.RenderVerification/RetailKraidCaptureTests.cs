@@ -76,6 +76,38 @@ internal static class RetailKraidCaptureTests
         if (!completed || !boss.CameraReleasedForSecondPhase || !boss.Bg2PriorityBitsSet)
             throw new InvalidOperationException("Kraid growth missed camera/priority/second-phase handoff.");
         Console.WriteLine($"{device.Kind}: Kraid growth: {growthSamples} exact samples across {growthPhases.Count} AI states, camera and BG2 priority handoff verified.");
+        int deathWait = 0;
+        while (!(body.VariableA is (ushort)KraidAiFunction.MainAttackWithMouthOpen or (ushort)KraidAiFunction.MouthOpenReaction
+            && boss.InvulnerableMouthHitbox != ushort.MaxValue) && deathWait++ < 1400)
+            runtime.StepFrame(0);
+        if (deathWait >= 1400) throw new InvalidOperationException("Kraid death fixture never reached an open mouth.");
+        // Shorten combat only, as in the established runtime audit. The lethal hit
+        // still runs collision and initializes the real death coroutine.
+        body.Health = 100;
+        StrikeMouth(bus, runtime, body, boss);
+        if (body.Health != 0 || body.VariableA != (ushort)KraidAiFunction.DeathInitialize)
+            throw new InvalidOperationException("Kraid lethal hit did not start death.");
+        int deathSamples = 0;
+        var deathPhases = new HashSet<ushort>();
+        for (int tick = 0; tick < 1200; tick++)
+        {
+            bool changed = deathPhases.Add(body.VariableA);
+            if (changed || tick % 4 == 0 || boss.DeathSequenceComplete)
+            {
+                var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
+                var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={body.VariableA:X4}");
+                deathSamples++;
+            }
+            if (boss.DeathSequenceComplete) break;
+            runtime.StepFrame(0);
+        }
+        if (!boss.DeathSequenceComplete || boss.DeathBg3TransferCount != 4 ||
+            !deathPhases.Contains((ushort)KraidAiFunction.DeathSink) ||
+            !deathPhases.Contains((ushort)KraidAiFunction.DeathFadeInBackground))
+            throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
+        Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade and BG3 restore verified.");
     }
 
     private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)

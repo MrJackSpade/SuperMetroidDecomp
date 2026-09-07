@@ -111,6 +111,13 @@ reproduces its native PNG exactly; the managed startup color difference is separ
 tracked as #335. The pan fixture is a native scene reference, not yet a matched-frame
 comparison. Neither substitutes for other historical scene references.
 
+The startup reference defect #335 is fixed and passes exact native/managed/GPU
+comparison. The pan difference #336 is traced to missing native COLDATA/CGADSUB
+HDMA streams, also absent in the pre-migration title renderer at `8e0b7b7`.
+It is tracked as a pre-existing shared reference omission, not hidden by declaring
+GPU/software parity to be cartridge correctness. See the pan fixture's native
+source diagnosis for the exact routines and implementation constraints.
+
 Follow-up inspection located the player's two original Maridia clipboard images
 outside the repository. They are now preserved unchanged with SHA-256 and provenance
 in `test-fixtures/issue-321-player-references/README.md`. The Snes9x window title and

@@ -47,3 +47,24 @@ color-math state is a hypothesis, not a confirmed diagnosis. Track separately in
 [issue #336](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/336). Do not
 weaken equality or modify the native golden. Closest-image selection is diagnostic,
 not proof of native frame/timing correspondence.
+
+## Native source diagnosis
+
+The gradient is absent from the shared title implementation, including its
+pre-migration version at `8e0b7b7`, not just from the GPU shader. That version's
+Render method composes Mode 7, OBJ and master brightness without the following
+native streams:
+
+- `$88:EB58` spawns HDMA objects writing COLDATA ($2132) and CGADSUB ($2131).
+- `$88:EB95` supplies CGADSUB $A1 for the first $7A scanlines and $31 afterward:
+  subtract on BG1/backdrop above, add on BG1/eligible OBJ/backdrop below.
+- `$8B:A00A` selects the fixed-color table at `$8C:BC5D` using the Mode-7 zoom
+  high nibble and copies it to the live HDMA table. The `$C1/$C2/$C3` lower-screen
+  color writes explain the observed green/blue bands.
+- HDMA pre-instructions maintain the table and remove the actors on title reload.
+
+These addresses are verified in the local bank-$88/$8B/$8C disassembly and the
+corresponding C reconstruction. #336 must implement native scanline state and
+preserve main-screen provenance/OBJ color-math eligibility, not add a flat tinted
+overlay. It remains separate pre-existing visual work under #321's scope boundary;
+the captured evidence and known defect must remain visible in the handoff.

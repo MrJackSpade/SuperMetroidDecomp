@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–5
+# Portable display fixtures (.smframe), versions 1–6
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 5, reader supports 1 through 5 |
+| Version | UInt16; writer emits 6, reader supports 1 through 6 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -65,6 +65,7 @@ Every record begins with a byte discriminator:
 | 6: fixed-color add (version 3+) | Three bytes red/green/blue, each 0–31 |
 | 7: 2-bpp viewport (version 4+) | UInt16 tilemap word, character word, vertical scroll; boolean transparent color zero; byte priority selector |
 | 8: ordinary gameplay base (version 5+) | Register block and optional HDMA tables described below |
+| 9: scanline color add (version 6+) | Exactly 224 rows, each five bytes: left, right, red, green, blue |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -102,6 +103,14 @@ gameplay 64x32 tilemap. The back-to-front ranks are OBJ0, OBJ1, BG2-low, BG1-low
 OBJ2, BG2-high, BG1-high, OBJ3. BG1/BG2/OBJ enable bits affect the gameplay region
 only. This operation does not include subsequent liquid/window/message effects.
 No previously supported layer encoding changes; older headers reject kind 8.
+
+Version six adds inclusive color windows for each physical scanline. Left greater
+than right is an empty window. Inside the window, add each expanded-byte operand
+to the corresponding source component and clamp at 255, preserving source alpha.
+There is no implicit HUD exclusion; the producer supplies empty windows for hidden
+lines. This preserves the existing suit/haze/Power Bomb reference arithmetic and
+must not be replaced with kind 6's five-bit reduction/addition arithmetic.
+The fixed row count bounds decoding; truncated rows and old headers are rejected.
 
 The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation

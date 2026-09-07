@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Composes the currently modeled gameplay PPU layers into one desktop frame.</summary>
-public static class SnesGameplayFrameRenderer
+public static partial class SnesGameplayFrameRenderer
 {
     public const int Width = SnesPpuLayout.ScreenWidthPixels;
     public const int Height = SnesPpuLayout.ScreenHeightPixels;
@@ -737,9 +737,11 @@ public static class SnesGameplayFrameRenderer
 
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            int component = screenY < 64
-                ? 1
-                : Math.Min(16, 2 + (screenY - 64) / 8);
+            int component = screenY < CeresHazeRenderDefinitions.RampFirstLine
+                ? CeresHazeRenderDefinitions.InitialComponent
+                : Math.Min(CeresHazeRenderDefinitions.MaximumComponent,
+                    CeresHazeRenderDefinitions.RampFirstComponent +
+                    (screenY - CeresHazeRenderDefinitions.RampFirstLine) / CeresHazeRenderDefinitions.BandHeight);
             byte addition = ExpandFiveBit((byte)component);
             int row = screenY * Width;
             for (int screenX = 0; screenX < Width; screenX++)

@@ -282,3 +282,14 @@ scroll arrays, malformed table length/operation order, a retail Alpha Power Bomb
 room with inactive overlays, and retained output after replacing live VRAM/CGRAM.
 These tests verify extraction and ownership against the existing reference, not
 independent cartridge correctness or complete gameplay visual coverage.
+
+`ScanlineColorAddRenderLayer` now carries 224 owned inclusive windows and expanded
+RGB byte operands. Suit-pickup, Ceres haze and Power Bomb producers resolve their
+state/ROM-dependent geometry before publication; the consumer needs no live actor
+or bus. Format six serializes the fixed-size table. This intentionally preserves
+the existing byte-domain addition separately from the intro's five-bit operation.
+`ColorWindowSnapshotTests` passes 238 comparisons spanning both suits, both haze
+colors and three Power Bomb centers through their phases, including retained
+packets after state advances, clipping, alpha and saturation, mutation of input
+tables and codec rejection cases. These producers are not yet integrated into a
+complete gameplay capture; the normal desktop renderer remains unchanged.

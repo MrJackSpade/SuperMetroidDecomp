@@ -6,6 +6,14 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case ScanlineColorAddRenderLayer windows:
+                writer.Write((byte)RenderPacketLayerKind.ScanlineColorAdd);
+                foreach (ColorAddWindow line in windows.Windows)
+                {
+                    writer.Write(line.Left); writer.Write(line.Right);
+                    writer.Write(line.Red); writer.Write(line.Green); writer.Write(line.Blue);
+                }
+                break;
             case OrdinaryGameplayRenderLayer gameplay:
                 writer.Write((byte)RenderPacketLayerKind.OrdinaryGameplay);
                 WriteGameplayLayer(writer, gameplay);
@@ -56,6 +64,8 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
+            ReadColorWindows(reader),
         RenderPacketLayerKind.OrdinaryGameplay when version >= RenderPacketFormat.OrdinaryGameplayLayerVersion =>
             ReadGameplayLayer(reader),
         RenderPacketLayerKind.Bg2Viewport when version >= RenderPacketFormat.Bg2ViewportLayerVersion =>
@@ -74,6 +84,14 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static ScanlineColorAddRenderLayer ReadColorWindows(BinaryReader reader)
+    {
+        var windows = new ColorAddWindow[Hardware.SnesPpuLayout.ScreenHeightPixels];
+        for (int y = 0; y < windows.Length; y++)
+            windows[y] = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+        return new(windows);
+    }
 
     private static bool? ReadPriority(BinaryReader reader) => (RenderPacketPriority)reader.ReadByte() switch
     {

@@ -24,6 +24,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case ScanlineColorAddRenderLayer colorWindows:
+                    SoftwareScanlineColorRenderer.Composite(output, colorWindows);
+                    break;
                 case OrdinaryGameplayRenderLayer gameplay:
                     OrdinaryGameplayRegisters r = gameplay.Registers;
                     output = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(

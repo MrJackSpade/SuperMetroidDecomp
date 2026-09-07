@@ -40,6 +40,17 @@ mismatched identities and stale generations, then disposes everything. Both devi
 pass Debug/Release and return Occluded as expected. Visible presentation, minimization,
 DPI/RDP/device-loss recovery, host scheduling and pacing remain unverified/unintegrated.
 
+`D3D11RenderWorker` owns device/render/present/disposal on one background thread.
+Publication sends owned snapshots through the latest-frame mailbox, resize requests
+coalesce, zero client size suspends drawing, and faults surface through Ready,
+Completion and ThrowIfFaulted. Hosts must asynchronously await startup/shutdown while
+keeping the HWND and message pump alive. An acquired latency opportunity is retained
+when no frame is queued; consuming it too early would stall first publication.
+The hidden swapchain suite also tests idle startup followed by 1001 publications,
+new-generation resize, bounded mailbox accounting and shutdown on both devices in
+Debug/Release. It does not yet connect the desktop game/audio loop or establish the
+required real-game slow-consumer/audio determinism and performance gates.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

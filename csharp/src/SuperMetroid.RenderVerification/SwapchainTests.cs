@@ -6,6 +6,68 @@ using SuperMetroid.Rendering.Direct3D11;
 
 internal static partial class SwapchainTests
 {
+    internal static void RunWorker(D3D11RenderDevice selection)
+    {
+        nint window = CreateWindowExW(0, "STATIC", "Hidden GPU worker verification", 0, 0, 0, 640, 480, 0, 0, 0, 0);
+        if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
+        D3D11RenderWorker? worker = null;
+        try
+        {
+            worker = new(window, 640, 480, 1, selection.Kind);
+            PumpUntil(() => worker.Ready.IsCompleted);
+            string adapter = worker.Ready.GetAwaiter().GetResult();
+            // Allow the worker to observe initial readiness while the mailbox is empty.
+            var idle = System.Diagnostics.Stopwatch.StartNew();
+            PumpUntil(() => idle.ElapsedMilliseconds >= 40);
+            for (int sequence = 1; sequence <= 1000; sequence++)
+                worker.Publish(new(new(sequence, 1, 0), new Rgba32(19,73,129)));
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1000; });
+            worker.AdvanceGeneration(2);
+            worker.Resize(319, 601);
+            worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1001; });
+            var metrics = worker.MailboxMetrics;
+            if (metrics.HasPendingFrame || metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
+                throw new InvalidOperationException("GPU worker lost mailbox accounting.");
+            Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, generation/resize, bounded accounting passed.");
+        }
+        finally
+        {
+            if (worker is not null)
+            {
+                Task stop = worker.StopAsync(); PumpUntil(() => stop.IsCompleted); stop.GetAwaiter().GetResult();
+            }
+            if (!DestroyWindow(window)) throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
+    }
+
+    private static void PumpUntil(Func<bool> finished)
+    {
+        var timeout = System.Diagnostics.Stopwatch.StartNew();
+        while (!finished())
+        {
+            if (timeout.Elapsed > TimeSpan.FromSeconds(10)) throw new TimeoutException("GPU worker verification timed out.");
+            while (PeekMessageW(out var message, 0, 0, 0, 1))
+            { TranslateMessage(in message); DispatchMessageW(in message); }
+            Thread.Sleep(1);
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct WindowMessage
+    {
+        public nint Window; public uint Id; public nuint WParam; public nint LParam;
+        public uint Time; public int X, Y; public uint Private;
+    }
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool PeekMessageW(out WindowMessage message, nint window, uint min, uint max, uint flags);
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool TranslateMessage(in WindowMessage message);
+    [LibraryImport("user32.dll")]
+    private static partial nint DispatchMessageW(in WindowMessage message);
+
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Predefined STATIC class, no WS_VISIBLE, no activation or message dialog.

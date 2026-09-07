@@ -24,7 +24,7 @@ try
     {
         using var device = new D3D11RenderDevice(kind);
         using var renderer = new D3D11FrameRenderer(device);
-        if (args[0] == "--swapchain-smoke") { SwapchainTests.Run(device, renderer); continue; }
+        if (args[0] == "--swapchain-smoke") { SwapchainTests.Run(device, renderer); SwapchainTests.RunWorker(device); continue; }
         if (args[0] == "--display-smoke") { DisplayPassTests.Run(device, renderer); continue; }
         if (args[0] == "--retail-transitions") { RetailTransitionTests.Run(device, renderer); continue; }
         if (args[0] == "--retail-intro") { RetailCinematicTests.Run(device, renderer); continue; }

@@ -44,6 +44,7 @@ VerifyGameplayCaptureIntegration();
 VerifyMode7GameplaySnapshots();
 VerifyEndingRenderSnapshots();
 VerifyFileMapSnapshots();
+VerifyAttractCapture();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

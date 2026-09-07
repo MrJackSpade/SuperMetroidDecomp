@@ -6,6 +6,14 @@ or selected by this document. The acceptance authority is
 
 ## Inspection baseline
 
+Attract-demo capture: reproduced a legacy-raster fallback at tick 2469 entering the
+first demo, then replaced all three demo-owned black allocations with PublishBlack.
+The focused fixture retains retail first-room setup/input, shortens its duration to
+sixteen gameplay ticks and ends the set after that room. Both natural completion
+and hold cancellation return to title; 315 sampled frames match pixels and audio
+command order, including the retained final image. Debug and Release suites pass.
+This supersedes the three-black-frame gap noted in the prior increment below.
+
 Saved-file map extraction increment: the live file-map display now publishes owned
 area/room scenes in StepCaptured. Format ten adds 2-bpp subscreen addition with
 optional foreground coverage and a rectangular child-scene insertion (no nested

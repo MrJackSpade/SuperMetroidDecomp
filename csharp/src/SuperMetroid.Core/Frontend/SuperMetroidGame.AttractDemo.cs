@@ -44,7 +44,7 @@ public sealed partial class SuperMetroidGame
                     if (--demoLoadFramesRemaining == 0)
                         GameState = SuperMetroidGameState.TransitionToDemoB;
                 }
-                lastPixels = CreateBlackFrame();
+                PublishBlack();
                 break;
 
             case SuperMetroidGameState.TransitionToDemoB:
@@ -90,7 +90,7 @@ public sealed partial class SuperMetroidGame
                     }
                 }
                 runtime = null;
-                lastPixels = CreateBlackFrame();
+                PublishBlack();
                 GameState = SuperMetroidGameState.TransitionFromDemoB;
                 break;
 
@@ -120,7 +120,7 @@ public sealed partial class SuperMetroidGame
     {
         demoCancelled = cancelled;
         GameState = SuperMetroidGameState.TransitionFromDemoA;
-        lastPixels = CreateBlackFrame();
+        PublishBlack();
     }
 
     internal int AvailableDemoSetCount()

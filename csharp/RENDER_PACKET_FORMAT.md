@@ -1,4 +1,4 @@
-# Portable display fixtures (.smframe), versions 1–6
+# Portable display fixtures (.smframe), versions 1–7
 
 These are display inputs, not gameplay saves. They contain copied PPU memory and
 composition commands, without a ROM path, CLR type name, assembly MVID, object
@@ -15,7 +15,7 @@ compression, optional trailing data or host-native struct layout is used.
 | Field | Encoding |
 | --- | --- |
 | Signature | Eight bytes: ASCII `SMFRAME` followed by zero |
-| Version | UInt16; writer emits 6, reader supports 1 through 6 |
+| Version | UInt16; writer emits 7, reader supports 1 through 7 |
 | Host sequence | Int64, positive |
 | Load/reset generation | Int64, positive |
 | Cartridge frame | UInt16, may wrap independently |
@@ -66,6 +66,7 @@ Every record begins with a byte discriminator:
 | 7: 2-bpp viewport (version 4+) | UInt16 tilemap word, character word, vertical scroll; boolean transparent color zero; byte priority selector |
 | 8: ordinary gameplay base (version 5+) | Register block and optional HDMA tables described below |
 | 9: scanline color add (version 6+) | Exactly 224 rows, each five bytes: left, right, red, green, blue |
+| 10: message overlay (version 7+) | Byte row count (3–6), byte radius (0–24), then row count times 32 UInt16 tile words |
 
 4-bpp priority selector: 0 unfiltered, 1 low, 2 high. Whole OBJ uses the winning
 OAM pixel irrespective of its BG-relative priority. OBJ-priority insertion uses
@@ -111,6 +112,14 @@ There is no implicit HUD exclusion; the producer supplies empty windows for hidd
 lines. This preserves the existing suit/haze/Power Bomb reference arithmetic and
 must not be replaced with kind 6's five-bit reduction/addition arithmetic.
 The fixed row count bounds decoding; truncated rows and old headers are rejected.
+
+Version seven adds the bank-$85 message overlay: a 32-tile-wide, 2-bpp image centered
+at physical Y=124, clipped to `[124-radius, 124+radius)`. Character base is word
+$4000; tile flips, palette selection and transparent index zero follow the existing
+message compositor. Palette indices 25/26 use the temporary BGR555 words $0BB1/$001F
+without mutating the packet's CGRAM. This operation is ordered after room effects
+and before a suit window by the gameplay producer. Invalid rows/radius, truncated
+tile words and use under an old-version header are rejected.
 
 The original kind-4 2-bpp operation is an unscrolled full visible plane. Partial-row or
 scrolled HUD operations need their own defined semantics, not oversized allocation

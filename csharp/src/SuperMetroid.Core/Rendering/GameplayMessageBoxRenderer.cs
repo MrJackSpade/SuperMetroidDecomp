@@ -10,6 +10,21 @@ public static class GameplayMessageBoxRenderer
     private const int ScreenWidth = SnesGameplayFrameRenderer.Width;
     private const int ScreenHeight = SnesGameplayFrameRenderer.Height;
 
+    /// <summary>Copies the currently exposed message; inactive/zero-radius messages emit no overlay.</summary>
+    public static MessageBoxRenderLayer? Capture(GameplayMessageBoxState messageBox)
+    {
+        ArgumentNullException.ThrowIfNull(messageBox);
+        return messageBox.IsActive && messageBox.RadiusPixels != 0
+            ? new(messageBox.Tilemap, messageBox.RadiusPixels) : null;
+    }
+
+    /// <summary>Draws from owned display data without consulting the live message state.</summary>
+    public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, SnesVram vram, SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(layer);
+        CompositeTilemap(frame, layer.Tilemap, layer.RowCount, layer.RadiusPixels, vram, cgram);
+    }
+
     /// <summary>
     /// Draws the currently exposed scanline band. The original uses BG3 vertical-scroll
     /// HDMA to reveal a centered box; evaluating the resulting clipped raster directly is
@@ -31,6 +46,16 @@ public static class GameplayMessageBoxRenderer
 
         ReadOnlySpan<ushort> tilemap = messageBox.Tilemap;
         int rowCount = messageBox.TilemapRowCount;
+        CompositeTilemap(frame, tilemap, rowCount, messageBox.RadiusPixels, vram, cgram);
+    }
+
+    private static void CompositeTilemap(Span<Rgba32> frame, ReadOnlySpan<ushort> tilemap,
+        int rowCount, int radiusPixels, SnesVram vram, SnesCgram cgram)
+    {
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (frame.Length != ScreenWidth * ScreenHeight)
+            throw new ArgumentException("A message overlay requires exactly 256x224 pixels.", nameof(frame));
         // The ROM builder accepts a variable number of content rows. In particular,
         // message $14 uses three content rows plus two small-border rows (five total),
         // so validating only the common 3-row and 6-row shapes rejects retail data.
@@ -46,9 +71,9 @@ public static class GameplayMessageBoxRenderer
 
         int artTop = GameplayMessageRomData.Layout.WindowCenterY -
             rowCount * GameplayMessageRomData.Layout.TilePixels / 2;
-        int clipTop = GameplayMessageRomData.Layout.WindowCenterY - messageBox.RadiusPixels;
+        int clipTop = GameplayMessageRomData.Layout.WindowCenterY - radiusPixels;
         int clipBottomExclusive =
-            GameplayMessageRomData.Layout.WindowCenterY + messageBox.RadiusPixels;
+            GameplayMessageRomData.Layout.WindowCenterY + radiusPixels;
 
         for (int tileY = 0; tileY < rowCount; tileY++)
         {

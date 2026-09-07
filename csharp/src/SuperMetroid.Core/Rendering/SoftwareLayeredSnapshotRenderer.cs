@@ -24,6 +24,9 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case MessageBoxRenderLayer message:
+                    GameplayMessageBoxRenderer.Composite(output, message, memory.Vram, memory.Cgram);
+                    break;
                 case ScanlineColorAddRenderLayer colorWindows:
                     SoftwareScanlineColorRenderer.Composite(output, colorWindows);
                     break;

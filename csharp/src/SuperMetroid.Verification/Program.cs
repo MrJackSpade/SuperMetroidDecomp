@@ -37,6 +37,7 @@ VerifyFrontendRenderCapture();
 VerifyCinematicRenderSnapshots();
 VerifyGameplaySnapshots();
 VerifyColorWindowSnapshots();
+VerifyMessageSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

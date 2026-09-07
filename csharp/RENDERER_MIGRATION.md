@@ -293,3 +293,13 @@ colors and three Power Bomb centers through their phases, including retained
 packets after state advances, clipping, alpha and saturation, mutation of input
 tables and codec rejection cases. These producers are not yet integrated into a
 complete gameplay capture; the normal desktop renderer remains unchanged.
+
+`MessageBoxRenderLayer` owns bank-$85 tile words and reveal radius. The renderer now
+has an overload accepting this data instead of the live message coroutine. Format
+seven adds bounded row/radius/tile serialization. `MessageSnapshotTests` covers all
+26 retail message definitions using constructed glyph memory (not screenshot
+goldens), and an independent solid-glyph oracle across 3–6 rows and every radius
+0–24, plus the save-selection tile change. Retained packets survive closing/reusing the live
+message owner; caller-array mutation, invalid shapes and codec failures are tested.
+Temporary palette colors and clipping remain reference behavior, not new effects.
+This completes the message producer's extraction, not full gameplay integration.

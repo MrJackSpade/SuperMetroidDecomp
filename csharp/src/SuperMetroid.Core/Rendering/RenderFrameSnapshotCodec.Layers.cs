@@ -6,6 +6,11 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case MessageBoxRenderLayer message:
+                writer.Write((byte)RenderPacketLayerKind.MessageBox);
+                writer.Write((byte)message.RowCount); writer.Write((byte)message.RadiusPixels);
+                foreach (ushort tile in message.Tilemap) writer.Write(tile);
+                break;
             case ScanlineColorAddRenderLayer windows:
                 writer.Write((byte)RenderPacketLayerKind.ScanlineColorAdd);
                 foreach (ColorAddWindow line in windows.Windows)
@@ -64,6 +69,7 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
             ReadColorWindows(reader),
         RenderPacketLayerKind.OrdinaryGameplay when version >= RenderPacketFormat.OrdinaryGameplayLayerVersion =>
@@ -84,6 +90,17 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static MessageBoxRenderLayer ReadMessageLayer(BinaryReader reader)
+    {
+        int rows = reader.ReadByte();
+        int radius = reader.ReadByte();
+        if (rows < Game.GameplayMessageRomData.Layout.MinimumRows || rows > Game.GameplayMessageRomData.Layout.MaximumRows)
+            throw new InvalidDataException("Invalid message row count in display fixture.");
+        var tiles = new ushort[rows * Game.GameplayMessageRomData.Layout.TilemapWidth];
+        for (int i = 0; i < tiles.Length; i++) tiles[i] = reader.ReadUInt16();
+        return new(tiles, radius);
+    }
 
     private static ScanlineColorAddRenderLayer ReadColorWindows(BinaryReader reader)
     {

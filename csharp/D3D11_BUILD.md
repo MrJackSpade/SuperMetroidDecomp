@@ -118,6 +118,12 @@ count, Mother Brain hits and phase agree between owners. The verification assemb
 has internal capture access, like the existing portable verification harness; the GPU
 production assembly does not. This is not a PCM or desktop scheduling test.
 
+`--retail-transitions` checks 143 Ceres destruction/Zebes approach samples across
+15 phases and 101 game-over frames covering both choices. Each packet is compared
+again after scene advancement. Mode-1 and Mode-7 coverage and terminal outcomes are
+required. These direct live-renderer comparisons pass hardware/WARP in Debug/Release;
+they do not cover gameplay door transitions or prove independent cartridge fidelity.
+
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and

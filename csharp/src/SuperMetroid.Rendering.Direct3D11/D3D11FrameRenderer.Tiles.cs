@@ -12,7 +12,7 @@ public sealed partial class D3D11FrameRenderer
         foreach (RenderLayer layer in scene.Layers)
             if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
-        var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
+        var memory = memoryUpload;
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
         for (int i = 0; i < scene.Memory.Cgram.Length; i++) memory[D3D11ShaderLayout.VramPackedWords + i] = scene.Memory.Cgram[i];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Oam).CopyTo(memory.AsSpan(D3D11ShaderLayout.OamPackedWordOffset));
@@ -88,7 +88,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
         // a short managed array. The trailing header words supply scanline clipping.
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)operation; data[1] = map; data[2] = characters; data[3] = x;
         data[4] = y; data[5] = width; data[6] = height; data[7] = priority;
         data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
@@ -104,7 +104,7 @@ public sealed partial class D3D11FrameRenderer
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
-        var data = new int[D3D11ShaderLayout.SolidConstantWords];
+        var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;

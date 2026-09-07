@@ -29,6 +29,15 @@ internal static class OrdinarySmokeTests
                 new RenderLayer[] { layer }, 3, 15));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: ordinary {count}, geometry {geometry}, layers {flags}, HDMA {hdma}");
+            if (count == 96)
+            {
+                for (int warmup = 0; warmup < 8; warmup++) renderer.Render(frame);
+                long before = GC.GetAllocatedBytesForCurrentThread();
+                for (int sample = 0; sample < 32; sample++) renderer.Render(frame);
+                long allocated = (GC.GetAllocatedBytesForCurrentThread() - before) / 32;
+                Console.WriteLine($"{device.Kind}: ordinary CPU submission allocates {allocated} bytes/frame (capture/readback excluded).");
+                if (allocated > 4096) throw new InvalidOperationException($"Ordinary submission allocates {allocated} bytes/frame; upload scratch must be reused.");
+            }
         }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact ordinary gameplay comparisons passed.");
     }

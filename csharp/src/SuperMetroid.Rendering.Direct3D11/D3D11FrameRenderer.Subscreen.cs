@@ -6,7 +6,7 @@ public sealed partial class D3D11FrameRenderer
 {
     private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer)
     {
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
         data[1] = layer.TilemapWord; data[2] = layer.CharacterWord;
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;

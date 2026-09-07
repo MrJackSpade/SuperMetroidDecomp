@@ -37,7 +37,7 @@ public sealed partial class D3D11FrameRenderer
     private unsafe void DispatchGameplayBg2(OrdinaryGameplayRenderLayer layer, bool high)
     {
         var r = layer.Registers;
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
         data[1] = r.Bg2TilemapWord; data[2] = r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;

@@ -7,7 +7,7 @@ public sealed partial class D3D11FrameRenderer
 {
     private unsafe void DispatchMessage(MessageBoxRenderLayer layer)
     {
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Message;
         data[1] = (uint)(GameplayMessageRomData.Layout.WindowCenterY - layer.RowCount * 4);
         data[2] = GameplayMessageRomData.Layout.CharacterBaseWord;

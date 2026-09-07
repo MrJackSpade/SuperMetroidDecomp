@@ -29,6 +29,19 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11UnorderedAccessView objectView;
     private readonly List<IDisposable> resources = [];
     private bool disposed;
+    private readonly uint[] memoryUpload = new uint[D3D11ShaderLayout.PpuMemoryWords];
+    private readonly uint[] constantUpload = new uint[D3D11ShaderLayout.SolidConstantWords];
+
+    /// <summary>
+    /// Reuses owner-thread scratch after UpdateSubresource has copied its source.
+    /// Clear every word: optional scanline/coverage fields must never leak across passes.
+    /// Child window renderers own separate scratch and cannot overwrite parent uploads.
+    /// </summary>
+    private uint[] ClearUploadConstants()
+    {
+        Array.Clear(constantUpload);
+        return constantUpload;
+    }
 
     public D3D11FrameRenderer(D3D11RenderDevice owner)
     {
@@ -86,7 +99,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         }
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
         if (packet.BrightnessPasses.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
-        uint[] data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        uint[] data = ClearUploadConstants();
         data[0] = (uint)(color.R | color.G << 8 | color.B << 16 | color.A << 24);
         data[1] = (uint)packet.BrightnessPasses.Length;
         data[2] = (uint)packet.Width; data[3] = (uint)packet.Height;

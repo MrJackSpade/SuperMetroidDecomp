@@ -6,7 +6,7 @@ public sealed partial class D3D11FrameRenderer
 {
     private unsafe void DispatchBackgroundMath(Bg2BppColorMathRenderLayer layer)
     {
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)(layer.Operation == ExpandedColorMathOperation.Add
             ? D3D11TileOperation.BgAdd : D3D11TileOperation.BgSubtract);
         data[1] = layer.TilemapWord; data[2] = layer.CharacterWord;
@@ -24,7 +24,7 @@ public sealed partial class D3D11FrameRenderer
 
     private unsafe void DispatchColorWindows(ScanlineColorAddRenderLayer layer)
     {
-        var data = new uint[D3D11ShaderLayout.SolidConstantWords];
+        var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.ScanlineAdd;
         data[26] = 224;
         for (int y = 0; y < layer.Windows.Length; y++)

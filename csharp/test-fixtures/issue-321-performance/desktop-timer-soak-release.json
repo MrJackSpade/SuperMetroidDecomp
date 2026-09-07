@@ -1,0 +1,128 @@
+{
+  "Scope": "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; hidden HWND, not visible presentation.",
+  "TimestampUtc": "2026-09-07T07:03:29.0456705+00:00",
+  "CoreBuild": "0e5e1fa3-5614-4207-be1e-b6d35978db7d",
+  "DesktopBuild": "ad72d376-b3dc-4942-a73e-695fa8cb66fb",
+  "Results": [
+    {
+      "Paused": false,
+      "Seconds": 300.0131292,
+      "Frames": 17999,
+      "Fps": 59.99404108745252,
+      "ProducerP50Ms": 0.1447,
+      "ProducerP95Ms": 0.2027,
+      "ProducerP99Ms": 0.3525,
+      "Audio": {
+        "RefillObservations": 17993,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 5
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0229,
+          "P95Milliseconds": 0.0327,
+          "P99Milliseconds": 0.0379
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9604,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.1273,
+          "P95Milliseconds": 31.6976,
+          "P99Milliseconds": 31.9122
+        },
+        "GpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.627712,
+          "P95Milliseconds": 0.652288,
+          "P99Milliseconds": 1.81248
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.095808,
+          "P95Milliseconds": 31.681536,
+          "P99Milliseconds": 31.895552
+        }
+      },
+      "PresentedFrames": 0,
+      "OccludedFrames": 9605,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18000,
+        "Taken": 9604,
+        "Replaced": 8396,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    },
+    {
+      "Paused": true,
+      "Seconds": 300.0115264,
+      "Frames": 17999,
+      "Fps": 59.99436160330139,
+      "ProducerP50Ms": 0.1153,
+      "ProducerP95Ms": 0.1383,
+      "ProducerP99Ms": 0.1652,
+      "Audio": {
+        "RefillObservations": 17995,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 3
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9604,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0245,
+          "P95Milliseconds": 0.036,
+          "P99Milliseconds": 0.0445
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9603,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.1363,
+          "P95Milliseconds": 31.6841,
+          "P99Milliseconds": 31.8551
+        },
+        "GpuComposition": {
+          "Observed": 9600,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.656384,
+          "P95Milliseconds": 0.68096,
+          "P99Milliseconds": 1.8432
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9600,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.106048,
+          "P95Milliseconds": 31.67232,
+          "P99Milliseconds": 31.839232
+        }
+      },
+      "PresentedFrames": 0,
+      "OccludedFrames": 9604,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18000,
+        "Taken": 9604,
+        "Replaced": 8396,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    }
+  ]
+}

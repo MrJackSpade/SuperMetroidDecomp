@@ -46,3 +46,27 @@ standalone paced producer, not the production WinForms playback timer.
 
 This does not complete the issue's visible/live-production-loop soak, full scene
 coverage, whole-run GPU timing, or cross-backend state/PCM parity requirements.
+
+## Five-minute production desktop timer run (hidden HWND)
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-hidden 300
+```
+
+`desktop-timer-soak-release.json` exercises the actual PlayableGameControl timer,
+input polling, captured stepping, managed audio engine, real silent waveOut output,
+and hardware GPU worker. Each scene ran for 300 seconds and 17,999 frames (59.994 FPS).
+Producer p95 was 0.2027 ms in gameplay and 0.1383 ms in Maridia pause. Neither run
+observed an empty native audio queue before refill; this is not a hardware underrun
+duration measurement. Managed queues contained five and three frames at the endpoint.
+
+The HWND remained hidden and every Present was occluded. CPU composition p95 was
+0.0327/0.0360 ms; GPU composition p95 was 0.6523/0.6810 ms. The full composition-plus-
+display GPU interval was about 31.7 ms, so this run does **not** establish the visible
+GPU frame budget. Renderer percentiles retain the last 2,048 samples, whereas producer
+percentiles cover the full run. Input was polled by the host, not a prescribed replay.
+
+This establishes production-timer independence under hidden presentation load. Visible
+presentation, whole-run GPU timing, complete scene coverage, and full cross-backend
+state/PCM parity remain separate gates; no renderer-default change is justified by
+these results alone.

@@ -71,6 +71,29 @@ presentation, whole-run GPU timing, complete scene coverage, and full cross-back
 state/PCM parity remain separate gates; no renderer-default change is justified by
 these results alone.
 
+## Five-minute Debug production timer run (hidden HWND)
+
+`desktop-timer-soak-debug.json` records the Debug run of commit `59b500d`, using
+`--soak-desktop-hidden 300`. Gameplay/pause reached 59.993/59.994 simulation FPS.
+Producer p95 was 0.9000/0.7327 ms, p99 1.0302/0.8011 ms, with zero native-empty-
+before-refill observations. Native occupancy stayed between four and six buffers;
+managed queues contained six/three frames at the endpoint. Both CPU workloads
+have more than 25% deadline headroom at p95 relative to 16.67 ms.
+
+CPU composition submission p95 was 0.0758/0.0552 ms; upload submission p95
+0.0283/0.0247 ms (already included, not additive). Cumulative uploads were
+1,157,978,800/1,197,474,560 bytes. GPU composition p95 was 0.6451/0.6769 ms;
+p99 0.6646/1.8555 ms. Each timing stream retains every observed post-warmup
+sample, excluding its first 60 samples. Asynchronous GPU results still in flight
+at the endpoint are not included; independent stream snapshots need not have
+identical counts. Producer percentiles include the whole measured interval.
+
+All 9,605 presentations per scene were occluded; full GPU/display p95 remained
+about 31.7 ms. This demonstrates Debug production/audio independence under hidden
+presentation load, not visible Debug throughput or RDP delivery. Queue observations
+are not a hardware underrun-duration measurement. Private test directories were
+removed by the harness and no player state was changed.
+
 ## Opt-in visible production timer run
 
 New production-timer soak runs request a bounded 65,536-sample history for each

@@ -6,7 +6,6 @@ static const uint OpScanlineAdd = 8;
 static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint OpSubscreenAdd = 11;
 static const uint OpMessage = 12;
-static const uint OpTitleGradient = 13;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -125,21 +124,6 @@ void Main(uint3 id : SV_DispatchThreadID)
         return;
     }
     if (Operation == OpResolveObj) { Objects[id.xy] = ResolveObject(id.xy); return; }
-    if (Operation == OpTitleGradient)
-    {
-        uint palette;
-        uint2 obj = ResolveObjectWithPalette(id.xy, palette);
-        uint4 band = ScanlineParameters[id.y];
-        bool enabled = palette == 255 ? (band.w & 1) != 0 : palette >= 4 && (band.w & 16) != 0;
-        if (enabled)
-        {
-            uint color = Output[id.xy];
-            int3 source = int3(Unpack(color) >> 3);
-            int3 result = (band.w & 128) != 0 ? max(0, source - int3(band.xyz)) : min(31, source + int3(band.xyz));
-            Output[id.xy] = Pack(uint3((result << 3) | (result >> 2)), color >> 24);
-        }
-        return;
-    }
     if (Operation == OpInsertObj)
     {
         uint2 winner = Objects[id.xy];

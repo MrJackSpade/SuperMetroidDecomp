@@ -11,11 +11,13 @@
     </GetFileHash>
     <Error Condition="'%(VerifiedShaderCompiler.FileHash)' != '$(ShaderCompilerSha256)'" Text="Shader compiler SHA256 differs from the reviewed build tool." />
     <MakeDir Directories="$(IntermediateOutputPath)Shaders" />
+    <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E TitleGradientMain /Fo &quot;$(IntermediateOutputPath)Shaders\TitleGradient.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\TitleGradient.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E Main /Fo &quot;$(IntermediateOutputPath)Shaders\Solid.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Solid.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T cs_5_0 /E Main /Fo &quot;$(IntermediateOutputPath)Shaders\Tiles.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Tiles.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T vs_5_0 /E Vertex /Fo &quot;$(IntermediateOutputPath)Shaders\DisplayVertex.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Display.hlsl&quot;" />
     <Exec Command="&quot;$(ShaderCompiler)&quot; /nologo /Ges /WX /O3 /T ps_5_0 /E Pixel /Fo &quot;$(IntermediateOutputPath)Shaders\DisplayPixel.cso&quot; &quot;$(MSBuildProjectDirectory)\Shaders\Display.hlsl&quot;" />
     <ItemGroup>
+      <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\TitleGradient.cso" LogicalName="SuperMetroid.Shaders.TitleGradient.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\DisplayVertex.cso" LogicalName="SuperMetroid.Shaders.DisplayVertex.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\DisplayPixel.cso" LogicalName="SuperMetroid.Shaders.DisplayPixel.cso" />
       <EmbeddedResource Include="$(IntermediateOutputPath)Shaders\Solid.cso" LogicalName="SuperMetroid.Shaders.Solid.cso" />

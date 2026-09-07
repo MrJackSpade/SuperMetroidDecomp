@@ -24,6 +24,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private readonly ID3D11PixelShader displayPixelShader;
     private readonly ID3D11Buffer constants;
     private readonly ID3D11ComputeShader tileShader;
+    private readonly ID3D11ComputeShader titleGradientShader;
     private readonly ID3D11Buffer memoryBuffer;
     private readonly ID3D11ShaderResourceView memoryView;
     private readonly ID3D11Texture2D resolvedObjects;
@@ -57,6 +58,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         {
             shader = Own(LoadShader(D3D11ShaderLayout.SolidResourceName));
             tileShader = Own(LoadShader(D3D11ShaderLayout.TileResourceName));
+            titleGradientShader = Own(LoadShader(D3D11ShaderLayout.TitleGradientResourceName));
             output = Own(owner.Device.CreateTexture2D(new Texture2DDescription(Format.R32_UInt,
                 SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels, 1, 1, BindFlags.UnorderedAccess | BindFlags.ShaderResource)));
             view = Own(owner.Device.CreateUnorderedAccessView(output));

@@ -10,6 +10,7 @@ internal static class D3D11ShaderLayout
     internal const int ScanlineParametersWordOffset = 32;
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
+    internal const string TitleGradientResourceName = "SuperMetroid.Shaders.TitleGradient.cso";
     internal const string DisplayVertexResourceName = "SuperMetroid.Shaders.DisplayVertex.cso";
     internal const string DisplayPixelResourceName = "SuperMetroid.Shaders.DisplayPixel.cso";
     internal const int VramPackedWords = Core.Hardware.SnesPpuLayout.VramByteCount / sizeof(uint);
@@ -18,4 +19,4 @@ internal static class D3D11ShaderLayout
 }
 
 /// <summary>Exclusive compute operations shared with Tiles.hlsl.</summary>
-internal enum D3D11TileOperation : uint { Backdrop = 0, Bg4 = 1, Bg2 = 2, Brightness = 3, FixedAdd = 4, ResolveObj = 5, InsertObj = 6, Mode7 = 7, ScanlineAdd = 8, BgAdd = 9, BgSubtract = 10, SubscreenAdd = 11, Message = 12, TitleGradient = 13 }
+internal enum D3D11TileOperation : uint { Backdrop = 0, Bg4 = 1, Bg2 = 2, Brightness = 3, FixedAdd = 4, ResolveObj = 5, InsertObj = 6, Mode7 = 7, ScanlineAdd = 8, BgAdd = 9, BgSubtract = 10, SubscreenAdd = 11, Message = 12 }

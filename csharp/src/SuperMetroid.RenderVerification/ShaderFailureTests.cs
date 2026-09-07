@@ -7,6 +7,7 @@ internal static class ShaderFailureTests
     internal static void Run(D3D11RenderDevice device)
     {
         foreach (string missing in new[] { D3D11ShaderLayout.SolidResourceName, D3D11ShaderLayout.TileResourceName,
+            D3D11ShaderLayout.TitleGradientResourceName,
             D3D11ShaderLayout.DisplayVertexResourceName, D3D11ShaderLayout.DisplayPixelResourceName })
         {
             bool rejected = false;
@@ -28,6 +29,6 @@ internal static class ShaderFailureTests
             PixelComparison.Verify(packet, SoftwareFrameSnapshotRenderer.Render(packet), recovered.RenderForReadback(packet),
                 $"{device.Kind}: initialization after missing {missing}");
         }
-        Console.WriteLine($"{device.Kind}: all four missing shaders fail with resource identity; subsequent initialization renders exactly.");
+        Console.WriteLine($"{device.Kind}: all five missing shaders fail with resource identity; subsequent initialization renders exactly.");
     }
 }

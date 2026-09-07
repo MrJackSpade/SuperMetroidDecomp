@@ -93,7 +93,7 @@ publication/consumption sequence. Visible expose/recovery remains a separate gat
 
 `powershell -NoProfile -File csharp/tools/verify-render-publish.ps1` performs a
 locked Release restore/publish using a fresh GUID-named artifacts tree, rebuilding
-all four embedded shaders from source. It runs solid, ordinary gameplay and display
+all five embedded shaders from source. It runs solid, ordinary gameplay and display
 tests on hardware and WARP from the published directory, with no ROM or loose shader
 files. The display fixture is copied alongside the diagnostic and resolved relative
 to its application directory, not the repository working directory. Dependency
@@ -223,9 +223,16 @@ extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting t
 wrong byte. Two explicit byte-selection steps preserve optimized compilation and
 pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.
 
+The title gradient has its own `TitleGradientMain` compute entry point and embedded
+shader, compiled with the same pinned toolchain. Adding its fixed-color/OBJ work
+to the shared tile entry point regressed unrelated BG add/subtract output (#337).
+The preceding shader passed the same failing fixture; separate compilation restores
+both `--window-smoke` and the 583-frame Maridia save-load comparison while preserving
+the exact native title reference. Keep those tests paired when changing either shader.
+
 ## Clean desktop package qualification
 
-`--solid-smoke` also removes each of the four embedded shader resources through
+`--solid-smoke` also removes each of the five embedded shader resources through
 an internal lookup seam. Every constructor attempt must throw an identifying
 `InvalidDataException`, including late failures after earlier resources exist.
 A subsequent renderer on the same device must produce exact pixels. These checks

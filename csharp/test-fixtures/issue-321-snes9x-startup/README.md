@@ -34,6 +34,11 @@ overwrite the player's active emulator saves.
 
 Tracked separately as [issue #335](https://github.com/MrJackSpade/SuperMetroidDecomp/issues/335).
 
+Follow-up diagnostic verifies explicit R/G/B/A bytes equal the record's memory
+layout on every tested frame, ruling out that hash-encoding mistake. The maximum
+red value across the whole managed YearText phase is 198, so no frame in that phase
+reaches the reference's red 255. Production rendering has not been changed.
+
 `RenderVerification --reference-startup` is a separate, currently failing independent
 reference diagnostic, not part of the GPU/software parity suite. It searches only
 the managed YearText phase for the decoded reference RGBA hash

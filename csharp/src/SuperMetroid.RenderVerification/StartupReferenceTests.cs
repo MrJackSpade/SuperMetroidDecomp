@@ -12,12 +12,28 @@ internal static class StartupReferenceTests
     {
         var title = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
         SuperMetroid.Core.Assets.Rgba32[]? lastPixels = null;
+        int maximumGlyphRed = 0;
+        byte[] channelBytes = new byte[FrontendFrame.Width * FrontendFrame.Height * 4];
         // Match within the named hold phase, not an assumed wall-clock startup tick.
         // This proves one visual state; it does not establish cartridge timing parity.
         for (int tick = 0; tick < 600 && title.Phase == TitleSequencePhase.YearText; tick++)
         {
             var pixels = title.Render();
             lastPixels = pixels;
+            maximumGlyphRed = Math.Max(maximumGlyphRed, pixels.Max(pixel => (int)pixel.R));
+            // Prove the hash uses explicit RGBA channel order rather than relying
+            // silently on a record struct's in-memory representation.
+            for (int pixelIndex = 0; pixelIndex < pixels.Length; pixelIndex++)
+            {
+                var pixel = pixels[pixelIndex];
+                int offset = pixelIndex * 4;
+                channelBytes[offset] = pixel.R;
+                channelBytes[offset + 1] = pixel.G;
+                channelBytes[offset + 2] = pixel.B;
+                channelBytes[offset + 3] = pixel.A;
+            }
+            if (!channelBytes.AsSpan().SequenceEqual(MemoryMarshal.AsBytes(pixels.AsSpan())))
+                throw new InvalidOperationException("RGBA memory layout differs from explicit channel encoding.");
             string digest = Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pixels.AsSpan())));
             if (digest == StartupReferenceData.YearRgbaSha256)
             {
@@ -32,7 +48,7 @@ internal static class StartupReferenceTests
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
         Directory.CreateDirectory(directory);
         if (lastPixels is not null) SuperMetroid.Core.Assets.PngWriter.WriteRgba(Path.Combine(directory, "managed-year.png"), 256, 224, lastPixels);
-        throw new InvalidOperationException($"Managed YearText never matched the preserved independent Snes9x pixels. Last phase frame: {directory}");
+        throw new InvalidOperationException($"Managed YearText never matched the preserved independent Snes9x pixels. Maximum red during phase: {maximumGlyphRed}. Last phase frame: {directory}");
     }
 }
 

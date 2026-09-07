@@ -24,6 +24,13 @@ cached. There is no upload of the repository or ROM to a service.
 
 ## Recorded result — September 7, 2026
 
+Revalidated at `d4aa15c` after Auto became the default renderer selection. The pinned
+Linux container rebuilt from disposable outputs and completed the full portable
+suite with exit code 0 on Ubuntu 24.04.4 / .NET 10.0.11. The gate now also includes
+the INI configuration assertions (programmatic, omitted-key and template defaults,
+explicit selections and invalid values). Selecting Auto in portable configuration
+does not load a Windows renderer: backend creation remains the desktop host's job.
+
 Release build and execution passed on Ubuntu 24.04.4 LTS, linux-x64, SDK 10.0.400,
 MSBuild 18.9.6, runtime .NET 10.0.11, using the image digest above. The same command
 also passed on Windows 10.0.26200 with .NET 10.0.11.

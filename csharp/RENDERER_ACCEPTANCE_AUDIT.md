@@ -29,6 +29,15 @@ lifecycle, correctness, performance or hardware-default requirements.
 
 ### Latest clean-package evidence
 
+Revalidated after hardware-default selection at `d4aa15c`: the clean publish script
+finished with exit code 0, rebuilt all four shaders, checked identical dependencies
+and audio assets, passed the game audits and full desktop lifecycle suite (including
+successful Auto hardware selection and failure fallback), and completed the short
+production-timer smoke. Gameplay/pause measured 59.672/59.636 FPS, producer p95
+0.8975/0.1491 ms and zero audio queue drains. This remains a packaging smoke, not a
+new five-minute performance qualification. The owned output directory
+`42ee6eb2450d42e290faf24dac82e77e` was removed after recording the result.
+
 The isolated publish at `75ecdc1` reached and wrote its final five-second-per-scene
 desktop timer report at `2026-09-07T10:32:13Z`. The original terminal handle had
 expired when revisited; its exit status was not recovered. The script's preceding

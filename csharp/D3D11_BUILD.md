@@ -74,11 +74,14 @@ keeps projection coordinates intact; the floor composites from backdrop with its
 own BG/OBJ ordering, and HUD color zero is opaque. Retail scene-matrix coverage
 and overlays/effects on these bands remain to be verified as the backend expands.
 
-`--window-smoke` checks 66 exact scanline color-add comparisons on each device in
+`--window-smoke` checks 130 exact color-effect comparisons on each device in
 Debug and Release. Coverage includes empty and single-pixel windows at both edges,
 inclusive endpoints, byte saturation, repeated overlays, fades and both Ceres haze
 captures. Window endpoint/color data is uploaded, not a CPU-rendered overlay. Other
-effect layer kinds and retail effect-scene coverage remain pending.
+effect layer kinds and retail effect-scene coverage remain pending. The suite also
+includes 64 scrolling 2-bpp BG add/subtract cases: both map heights, per-line register
+changes, VRAM/scroll wrapping, bottom-line clipping and disabled planes. The GPU
+samples raw tile/character memory and clamps expanded-byte arithmetic per component.
 
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the

@@ -26,6 +26,20 @@ internal static class ColorWindowSmokeTests
         }
         Check(SnesGameplayFrameRenderer.CaptureCeresHaze(false));
         Check(SnesGameplayFrameRenderer.CaptureCeresHaze(true));
+        foreach (int height in new[] { 32, 64 })
+        foreach (int first in new[] { 0, 32, 223, 224 })
+        foreach (ExpandedColorMathOperation operation in Enum.GetValues<ExpandedColorMathOperation>())
+        foreach (ushort offset in new ushort[] { 0, 255, 511, ushort.MaxValue })
+        {
+            var scrolls = new BackgroundLineScroll[224];
+            for (int y = 0; y < scrolls.Length; y++)
+                scrolls[y] = new(unchecked((ushort)(offset + y * 7)), unchecked((ushort)(offset - y * 3)));
+            var math = new Bg2BppColorMathRenderLayer(0x7ffe, 0x7ff8, height, first, operation, scrolls);
+            var frame = new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 3, 11, 32, 32, null), math }, 3, 15));
+            PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
+                $"{device.Kind}: BG color math {count}, {operation}, height {height}, first {first}, offset {offset}");
+        }
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} exact color-window comparisons passed.");
 
         void Check(ScanlineColorAddRenderLayer windows)

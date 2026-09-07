@@ -3,6 +3,7 @@ static const uint OpBackdrop = 0, OpBg4 = 1, OpBg2 = 2, OpBrightness = 3, OpFixe
 static const uint OpResolveObj = 5, OpInsertObj = 6;
 static const uint OpMode7 = 7;
 static const uint OpScanlineAdd = 8;
+static const uint OpBgAdd = 9, OpBgSubtract = 10;
 static const uint PaletteOffset = 16384;
 cbuffer TileParameters : register(b0)
 {
@@ -98,8 +99,10 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint3 c = min(31, (Unpack(Output[id.xy]) * 31 + 127) / 255 + uint3(AddR, AddG, AddB));
         Output[id.xy] = Pack((c << 3) | (c >> 2), 255); return;
     }
-    uint x = (id.x + HorizontalScroll) & (MapWidth * 8 - 1);
-    uint y = (id.y + VerticalScroll) & (MapHeight * 8 - 1);
+    bool backgroundMath = Operation == OpBgAdd || Operation == OpBgSubtract;
+    uint2 scroll = backgroundMath ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
+    uint x = (id.x + scroll.x) & (MapWidth * 8 - 1);
+    uint y = (id.y + scroll.y) & (MapHeight * 8 - 1);
     uint tileX = x >> 3, tileY = y >> 3;
     uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
     uint entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));
@@ -113,5 +116,13 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpBg4)
         color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
     if (color == 0 && TransparentZero != 0) return;
-    Output[id.xy] = Palette(((entry >> 10) & 7) * (Operation == OpBg4 ? 16 : 4) + color);
+    uint sampled = Palette(((entry >> 10) & 7) * (Operation == OpBg4 ? 16 : 4) + color);
+    if (backgroundMath)
+    {
+        uint pixel = Output[id.xy];
+        int3 baseColor = int3(Unpack(pixel)), overlay = int3(Unpack(sampled));
+        int3 result = Operation == OpBgAdd ? min(255, baseColor + overlay) : max(0, baseColor - overlay);
+        Output[id.xy] = Pack(uint3(result), pixel >> 24);
+    }
+    else Output[id.xy] = sampled;
 }

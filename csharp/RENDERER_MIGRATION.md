@@ -37,6 +37,7 @@ Current GPU comparisons against software/legacy output include:
 | Ending | 444 samples across all three reward branches, repeat-render/cadence checks |
 | Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
+| Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
 | Host display | Eight scaled target sizes; hidden flip HWND resize/generation tests |
 
 These are rendering-equivalence checks, not new claims of cartridge correctness.
@@ -84,6 +85,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ending
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-attract
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --runtime-overlays
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ridley
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --audio-queue
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-hidden 300

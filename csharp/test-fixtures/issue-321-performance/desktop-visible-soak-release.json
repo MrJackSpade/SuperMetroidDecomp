@@ -1,0 +1,135 @@
+{
+  "Scope": "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; visible nonactivating HWND; successful Present is not proof of RDP delivery.",
+  "OperatingSystem": "Microsoft Windows 10.0.26200",
+  "Runtime": ".NET 10.0.11",
+  "Processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+  "TimestampUtc": "2026-09-07T08:25:50.4467338+00:00",
+  "CoreBuild": "964ad6b0-523a-4247-9537-4927d598837b",
+  "DesktopBuild": "0d739e8e-c8a0-4ade-8a3d-12a4c3143534",
+  "Results": [
+    {
+      "Paused": false,
+      "Seconds": 300.0000486,
+      "Frames": 17999,
+      "Fps": 59.99665694720824,
+      "ProducerP50Ms": 0.1581,
+      "ProducerP95Ms": 0.2001,
+      "ProducerP99Ms": 0.3106,
+      "Adapter": "NVIDIA GeForce RTX 3090",
+      "Visible": true,
+      "Audio": {
+        "RefillObservations": 17994,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 4
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9598,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0368,
+          "P95Milliseconds": 0.0795,
+          "P99Milliseconds": 0.1213
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9598,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0828,
+          "P95Milliseconds": 0.1522,
+          "P99Milliseconds": 0.2222
+        },
+        "GpuComposition": {
+          "Observed": 9597,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.626688,
+          "P95Milliseconds": 3.190784,
+          "P99Milliseconds": 3.818496
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9597,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.695296,
+          "P95Milliseconds": 3.259392,
+          "P99Milliseconds": 3.885056
+        }
+      },
+      "PresentedFrames": 9598,
+      "OccludedFrames": 0,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18000,
+        "Taken": 9598,
+        "Replaced": 8402,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    },
+    {
+      "Paused": true,
+      "Seconds": 300.012529,
+      "Frames": 17999,
+      "Fps": 59.99416111051816,
+      "ProducerP50Ms": 0.1236,
+      "ProducerP95Ms": 0.1442,
+      "ProducerP99Ms": 0.2031,
+      "Adapter": "NVIDIA GeForce RTX 3090",
+      "Visible": true,
+      "Audio": {
+        "RefillObservations": 17995,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 3
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.038,
+          "P95Milliseconds": 0.0701,
+          "P99Milliseconds": 0.1868
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0828,
+          "P95Milliseconds": 0.1223,
+          "P99Milliseconds": 0.1996
+        },
+        "GpuComposition": {
+          "Observed": 9600,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.646144,
+          "P95Milliseconds": 1.86368,
+          "P99Milliseconds": 3.250176
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9600,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.714752,
+          "P95Milliseconds": 1.933312,
+          "P99Milliseconds": 3.319808
+        }
+      },
+      "PresentedFrames": 9601,
+      "OccludedFrames": 0,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18000,
+        "Taken": 9601,
+        "Replaced": 8399,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    }
+  ]
+}

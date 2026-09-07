@@ -81,6 +81,31 @@ This opens a nonactivating window for each of the same two scenes, with isolated
 state files and muted real audio output. Keep it unobscured; do not interact with
 the controller during measurement. It requires at least one successful Present
 per scene and records adapter, OS/runtime and CPU identity in the report. Successful
-Present calls still do not measure frames delivered to an RDP client. The initial
-implementation is prepared but **not yet visibly executed/qualified**. The hidden
-five-second regression smoke passes; do not substitute that for the visible gate.
+Present calls still do not measure frames delivered to an RDP client.
+
+`desktop-visible-soak-release.json` preserves the September 7 Release run on the
+interactive RDP desktop: 300 seconds and 17,999 simulation frames per scene.
+Gameplay/pause achieved 59.997/59.994 simulation FPS, with zero empty-before-refill
+observations and native occupancy between four and six buffers. Producer p95 was
+0.2001/0.1442 ms and p99 was 0.3106/0.2031 ms. These measured producer percentiles
+leave substantially more than the required 25% CPU deadline headroom.
+
+GPU composition p95 was 3.1908/1.8637 ms; composition-plus-display p95 was
+3.2594/1.9333 ms. CPU composition submission p95 was 0.0795/0.0701 ms.
+GPU composition p99 was 3.8185/3.2502 ms. Renderer percentiles cover the retained
+2,048 samples after 60 warmup samples, not the entire five-minute interval.
+Producer percentiles cover the entire interval, including startup work.
+
+There were 9,598/9,601 successful presentations (about 32 FPS), zero occluded
+presentations, and 8,402/8,399 replaced visual packets. The bounded mailbox had
+no pending frame at either endpoint. This is simulation/audio independence under
+RDP presentation limits, **not** a claim of 60 displayed FPS or measured RDP delivery.
+Audio queue observations are not an endpoint underrun-duration measurement.
+
+The adapter was an RTX 3090, driver 32.0.15.9636; Microsoft Remote Display Adapter
+driver was 10.0.26100.8972. OS, runtime, CPU identifier and build MVIDs are in JSON.
+Run from the interactive desktop: the initial restricted-execution run reported
+only occluded Presents despite a visible-window flag and failed qualification.
+The unchanged harness passed after execution on the interactive desktop. No
+production rendering fix was necessary. Debug soaks, lifecycle coverage and
+remaining ticket gates are not established by this Release report.

@@ -73,7 +73,7 @@ still uses a hidden/occluded HWND and is not a visible-presentation speed guaran
 Device removal/reset HRESULTs rebuild resources on the GPU owner, retaining only
 CPU packet data. Tests inject the actual SharpGen failure codes and cover retained
 frames, retry of a dequeued frame, bounded failure and normal shutdown. Actual
-driver reset, monitor/DPI/RDP changes and visible presentation remain unqualified.
+driver reset and monitor/DPI/RDP changes remain unqualified.
 No machine-wide forced GPU reset has been performed.
 
 GPU timestamp queries use a bounded nonblocking ring. The tooltip reports rolling
@@ -121,7 +121,13 @@ The separate `--soak-desktop-hidden 300` command also passed five minutes per sc
 using the actual production WinForms timer: 59.994 FPS, producer p95 0.2027/0.1383 ms,
 zero observed audio queue drains. Both reports and precise scope limitations are in
 `test-fixtures/issue-321-performance`. All presentations were occluded, not visible.
-The full GPU interval measured about 31.7 ms; visible display budgeting remains open.
+The full GPU interval measured about 31.7 ms in those hidden runs.
+The subsequent interactive `--soak-desktop-visible 300` Release run passed both
+five-minute scenes: 59.997/59.994 simulation FPS, zero observed audio queue drains,
+GPU composition p95 3.1908/1.8637 ms and composition-plus-display p95
+3.2594/1.9333 ms. Successful presentation was about 32 FPS under RDP, with zero
+occluded Presents. The committed visible report documents sampling and driver
+details; it does not establish RDP delivery rate or the remaining Debug gates.
 Auto startup failure and strict explicit-GPU failure policies now have hidden-host tests.
 
 Portable Core/contract/software tests now build and pass on Ubuntu 24.04.4 LTS
@@ -129,7 +135,7 @@ with .NET 10.0.11 in an isolated Linux SDK container. See `PORTABLE_RENDER_TESTS
 for the pinned image, read-only staging command, coverage and scope limits.
 
 Still required: full retail scene matrix, complete cross-backend state/PCM evidence,
-visible soaks, presentation-inclusive GPU budgeting,
+Debug soaks and remaining performance telemetry,
 real recovery/DPI/RDP evidence,
 clean packaging, final documentation and player-validation handoff. Do not close
 #321 or mark its completion goal achieved from the milestones above.

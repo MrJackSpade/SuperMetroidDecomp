@@ -73,6 +73,12 @@ these results alone.
 
 ## Opt-in visible production timer run
 
+New production-timer soak runs request a bounded 65,536-sample history for each
+renderer timing stream and assert that every post-warmup observation is retained.
+This permits whole-run percentiles for the five-minute workload without changing
+normal desktop workers' 2,048-sample rolling history. Previously committed reports
+retain their original sampling scope; this change does not retroactively expand them.
+
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-visible 300
 ```

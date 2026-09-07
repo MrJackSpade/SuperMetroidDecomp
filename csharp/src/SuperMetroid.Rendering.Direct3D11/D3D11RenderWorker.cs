@@ -24,11 +24,11 @@ public sealed class D3D11RenderWorker
     private long deviceRecoveries;
     private D3D11DeviceLossDiagnostic? lastDeviceLoss;
     public D3D11DeviceLossDiagnostic? LastDeviceLoss => Volatile.Read(ref lastDeviceLoss);
-    private readonly RenderTimingWindow cpuCompositionTiming = new();
-    private readonly RenderTimingWindow cpuPresentationTiming = new();
-    private readonly RenderTimingWindow gpuCompositionTiming = new();
-    private readonly RenderTimingWindow gpuFrameTiming = new();
-    private readonly RenderTimingWindow cpuUploadTiming = new();
+    private readonly RenderTimingWindow cpuCompositionTiming;
+    private readonly RenderTimingWindow cpuPresentationTiming;
+    private readonly RenderTimingWindow gpuCompositionTiming;
+    private readonly RenderTimingWindow gpuFrameTiming;
+    private readonly RenderTimingWindow cpuUploadTiming;
     private long submittedUploadBytes, submittedUploadCalls;
     public long SubmittedUploadBytes => Interlocked.Read(ref submittedUploadBytes);
     public long SubmittedUploadCalls => Interlocked.Read(ref submittedUploadCalls);
@@ -59,12 +59,20 @@ public sealed class D3D11RenderWorker
         get { long size = Interlocked.Read(ref lastDrawnSize); return ((int)(size >> 32), (int)size); }
     }
 
-    public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind)
-        : this(window, width, height, generation, kind, null) { }
+    public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
+        int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
+        : this(window, width, height, generation, kind, null, timingCapacity) { }
 
     internal D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
-        Action? beforeRenderForVerification)
+        Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timingCapacity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(timingCapacity, RenderTelemetryLimits.MaximumHistoryCapacity);
+        cpuCompositionTiming = new(timingCapacity);
+        cpuPresentationTiming = new(timingCapacity);
+        gpuCompositionTiming = new(timingCapacity);
+        gpuFrameTiming = new(timingCapacity);
+        cpuUploadTiming = new(timingCapacity);
         this.beforeRenderForVerification = beforeRenderForVerification;
         mailbox = new(generation); gate = new(generation);
         var thread = new Thread(() => Run(window, width, height, kind))

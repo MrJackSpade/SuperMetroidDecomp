@@ -38,7 +38,11 @@ internal static partial class Program
             }
             try
             {
-                await control.InitializeRendererAsync();
+                // The bounded five-minute run fits completely in this history.
+                // Normal desktop workers retain their smaller rolling window.
+                await control.InitializeRendererAsync((window, width, height, generation) =>
+                    new D3D11RenderWorker(window, width, height, generation, D3D11DeviceKind.Hardware,
+                        RenderTelemetryLimits.MaximumHistoryCapacity));
                 var worker = Field<D3D11RenderWorker>(control, "gpuWorker");
                 string adapter = await worker.Ready;
                 if (visible) VisibleSoakWindow.ShowWithoutActivation(form.Handle);
@@ -65,6 +69,10 @@ internal static partial class Program
                 // Take health before SetPlaying(false) intentionally resets the native queue.
                 var health = output.QueueHealth;
                 var renderer = worker.CaptureTimings();
+                foreach (var history in new[] { renderer.CpuComposition, renderer.CpuDisplayAndPresent,
+                    renderer.GpuComposition, renderer.GpuCompositionAndDisplay, worker.CaptureUploadTimings() })
+                    Check(history.Retained == history.Observed - history.WarmupExcluded,
+                        "soak timing history discarded samples; whole-run percentile claim is invalid");
                 Check(worker.SubmittedUploadBytes > 0 && worker.SubmittedUploadCalls > 0
                     && worker.CaptureUploadTimings().Observed > 0, "desktop renderer did not publish upload telemetry");
                 if (visible) Check(worker.PresentedFrames > 0, "visible soak produced no successful Present calls");

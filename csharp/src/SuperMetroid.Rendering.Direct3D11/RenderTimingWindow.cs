@@ -9,7 +9,7 @@ internal sealed class RenderTimingWindow
     private int count, next;
     private long observed;
 
-    internal RenderTimingWindow(int capacity = 2048, int warmup = 60)
+    internal RenderTimingWindow(int capacity = RenderTelemetryLimits.DefaultHistoryCapacity, int warmup = 60)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
         ArgumentOutOfRangeException.ThrowIfNegative(warmup);

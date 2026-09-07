@@ -56,5 +56,17 @@ internal static class GpuTimingTests
         for (int i = 0; i < 1000; i++) window.Record(i);
         if (GC.GetAllocatedBytesForCurrentThread() != before)
             throw new InvalidOperationException("Timing recording allocated managed memory.");
+        var wholeRun = new RenderTimingWindow(RenderTelemetryLimits.MaximumHistoryCapacity, warmup: 0);
+        for (int i = 0; i < 18000; i++) wholeRun.Record(i < 1800 ? 10 : 1);
+        var whole = wholeRun.Snapshot();
+        if (whole.Retained != 18000 || whole.Observed != 18000 || whole.P95Milliseconds != 10)
+            throw new InvalidOperationException("Whole-run history lost early slow samples.");
+        foreach (int invalid in new[] { 0, RenderTelemetryLimits.MaximumHistoryCapacity + 1 })
+        {
+            bool rejected = false;
+            try { _ = new D3D11RenderWorker(0, 1, 1, 1, D3D11DeviceKind.Hardware, invalid); }
+            catch (ArgumentOutOfRangeException) { rejected = true; }
+            if (!rejected) throw new InvalidOperationException("Unbounded worker timing capacity was accepted.");
+        }
     }
 }

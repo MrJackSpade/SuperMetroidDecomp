@@ -52,5 +52,6 @@ internal static class RetailRidleyCaptureTests
             PixelComparison.Verify(sample.Packet, sample.Expected, renderer.RenderForReadback(sample.Packet),
                 $"{device.Kind}: retained Ridley {sample.Packet.Identity.Sequence}");
         Console.WriteLine($"{device.Kind}: {retained.Count} retail Ridley mixed-mode captures and retained replays match exactly.");
+        RetailRidleyEscapeTests.Run(device, renderer);
     }
 }

@@ -38,6 +38,7 @@ Current GPU comparisons against software/legacy output include:
 | Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
 | Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
+| Native Ceres Ridley escape | Low-energy and hit-threshold branches: 297/342 exact samples over 15/19 AI phases; each includes every one of 113 Mode-7 frames, 87 native matrices and explicit preserved-floor-layer checks. Both reach timer/ejection completion. Termination condition seeded at natural hover; all subsequent transforms are AI-driven. Debug/Release hardware/WARP; runtime-level fixture, not controller battle or new independent cartridge evidence. |
 | Room publications | 104 frames plus retained checks across Landing Site, Parlor, Blue Brinstar elevator room, Green Brinstar shaft, Morph Ball, Ceres scientist, Brinstar water and Norfair Business Center; 13 runtime ticks each; liquid type/surface and three-valued heat distortion assertions |
 | Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
 | Retail eye cone | Morph Ball room production apex fixture: 96 exact frames covering activation, first visible beam, widening and full beam |

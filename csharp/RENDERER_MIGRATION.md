@@ -89,7 +89,13 @@ focused test (capture/readback excluded). Reproducible unpaced CPU results are i
 
 Additional commands, run from the repository root:
 
+`--retail-all` runs the complete current 14-suite retail inventory in order on one
+renderer per device, so GPU resources are reused across scene families. Individual
+commands remain available. This aggregate is the inventory above, not a claim that
+all remaining issue acceptance gates have been completed.
+
 ```powershell
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-all
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-file-map
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-ending
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-attract

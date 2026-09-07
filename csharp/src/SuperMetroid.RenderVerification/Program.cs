@@ -5,26 +5,7 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
-    if (args.Length == 1 && args[0] is "--retail-ending" or "--retail-file-map" or "--retail-attract" or "--runtime-overlays" or "--retail-ridley" or "--retail-rooms" or "--retail-doors" or "--retail-kraid" or "--retail-eye" or "--retail-death" or "--retail-save")
-    {
-        foreach (var kind in Enum.GetValues<D3D11DeviceKind>())
-        {
-            using var device = new D3D11RenderDevice(kind);
-            using var renderer = new D3D11FrameRenderer(device);
-            if (args[0] == "--retail-ending") RetailEndingTests.Run(device, renderer);
-            else if (args[0] == "--retail-file-map") RetailFileMapTests.Run(device, renderer);
-            else if (args[0] == "--retail-attract") RetailAttractTests.Run(device, renderer);
-            else if (args[0] == "--runtime-overlays") RuntimeOverlayTests.Run(device, renderer);
-            else if (args[0] == "--retail-ridley") RetailRidleyCaptureTests.Run(device, renderer);
-            else if (args[0] == "--retail-rooms") RetailRoomPublicationTests.Run(device, renderer);
-            else if (args[0] == "--retail-doors") RetailDoorCaptureTests.Run(device, renderer);
-            else if (args[0] == "--retail-kraid") RetailKraidCaptureTests.Run(device, renderer);
-            else if (args[0] == "--retail-eye") RetailEyeCaptureTests.Run(device, renderer);
-            else if (args[0] == "--retail-death") RetailDeathCaptureTests.Run(device, renderer);
-            else RetailSaveCaptureTests.Run(device, renderer);
-        }
-        return;
-    }
+    if (args.Length == 1 && RetailSceneTests.TryRun(args[0])) return;
     if (args.Length == 1 && args[0] == "--profile-simulation")
     {
         SimulationProfile.Run();

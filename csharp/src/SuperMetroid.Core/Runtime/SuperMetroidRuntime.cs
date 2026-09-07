@@ -4231,7 +4231,8 @@ public sealed partial class SuperMetroidRuntime
             ScrollingSky.ProcessFrame(
                 Camera.YPosition,
                 timeIsFrozen: TimeIsFrozen,
-                VramWrites);
+                VramWrites,
+                ActiveRoom?.State.MainCodePointer ?? RoomMainCodePointers.ScrollingSkyLand);
         }
 
         SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);

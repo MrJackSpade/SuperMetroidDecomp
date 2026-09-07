@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ocean-sky"])
+{
+    VerifyOceanSky();
+    return 0;
+}
 if (args is ["--shutter-riding"])
 {
     VerifyShutterRiding();
@@ -268,6 +273,7 @@ VerifyPowerBombColorMathWindow();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyRoomFxRomData();
 VerifyScrollingSkyState();
+VerifyOceanSky();
 VerifyEnemyAiCodePointerCatalog();
 VerifyEnemyInstructionCodePointerCatalogs();
 VerifyEnemyRomTablePointerCatalog();

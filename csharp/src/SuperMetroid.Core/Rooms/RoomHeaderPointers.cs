@@ -12,6 +12,9 @@ public static class RoomHeaderPointers
     /// <summary>Crateria save station at $8F:93D5.</summary>
     public const ushort CrateriaSaveStation = 0x93d5;
 
+    /// <summary>West Ocean at $8F:93FE (area $00, room $05), using the ocean sky main routine.</summary>
+    public const ushort WestOcean = 0x93fe;
+
     /// <summary>Climb at $8F:96BA.</summary>
     public const ushort Climb = 0x96ba;
 

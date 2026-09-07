@@ -288,6 +288,8 @@ public static class RoomFxRomData
 
         public const ushort Bg2TilemapBaseWord = 0x4800;
         public const int LandChunkPointerTableAddress = 0x88ad9c;
+        /// <summary>$88:ADA6, ocean sky chunk pointers passed by RoomMainAsm_ScrollingSkyOcean ($88:AF99).</summary>
+        public const int OceanChunkPointerTableAddress = 0x88ada6;
         public const int DataSlotCount = 23;
         public const ushort WorldEndPosition = 0x0500;
         public const ushort GameplayFirstScanline = 32;

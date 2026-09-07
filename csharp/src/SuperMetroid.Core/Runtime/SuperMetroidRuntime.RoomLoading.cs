@@ -753,7 +753,8 @@ public sealed partial class SuperMetroidRuntime
 
         // The selected room-state main pointer, rather than the room or entry door, owns
         // the BG2 producer. `$8F:C116` calls the land-sky routine at `$88:AF8D`; `$8F:C120`
-        // calls that same routine before its escape-quake work. Both set BG2SC=$4A and use
+        // calls that same routine before its escape-quake work. The ocean wrapper selects
+        // its own source chunk table but shares this geometry and HDMA. All set BG2SC=$4A and use
         // a 32x64 circular map at $4800. Ordinary gameplay instead uses BG2SC=$49 and keeps
         // its second 32x32 screen horizontally adjacent at $4C00.
         //
@@ -762,11 +763,11 @@ public sealed partial class SuperMetroidRuntime
         // through this method and therefore interpreted the vertical sky page at $4C00 as
         // the right half of a 64x32 map. Depending on BG2HOFS, that stale neighboring page
         // appeared as a broad vertical band of repeating purple tiles.
-        bool usesLandScrollingSky =
-            ScrollingSkyState.IsLandRoomMain(room.State.MainCodePointer);
+        bool usesScrollingSky =
+            ScrollingSkyState.IsScrollingSkyRoomMain(room.State.MainCodePointer);
         BackgroundStreamer = LevelData.CreateBackgroundStreamer(
-            sizeOfBg2: usesLandScrollingSky ? (ushort)0 : (ushort)0x0800);
-        ScrollingSky = usesLandScrollingSky
+            sizeOfBg2: usesScrollingSky ? (ushort)0 : (ushort)0x0800);
+        ScrollingSky = usesScrollingSky
             ? new ScrollingSkyState(_addressSpace)
             : null;
         LandingSiteEntry = null;

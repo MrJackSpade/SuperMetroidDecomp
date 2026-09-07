@@ -463,7 +463,8 @@ public sealed partial class RoomEnemySystem
         byte? nmiFrameCounter8 = null,
         SamusMode7Transform? mode7Transform = null,
         SamusBombProjectileSystem? sharedProjectiles = null,
-        VramWriteQueue? vramWriteQueue = null)
+        VramWriteQueue? vramWriteQueue = null,
+        bool resolveSamusContactBeforeAi = false)
     {
         EnsureLoaded();
         _samusForEnemyDrops = samus;
@@ -553,6 +554,15 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _activeEnemyIndexes)
         {
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+            // EnemyMain checks contact against the pre-movement actor, not the position
+            // just moved into by AI. A rising support temporarily overlaps its rider until
+            // bank $90 consumes the carry; a late touch pass would retrigger that support.
+            if (!timeIsFrozen && resolveSamusContactBeforeAi && samus is not null)
+            {
+                ResolveOrdinarySamusContact(samus, controllerInput, level, nativeIndex);
+                if (slot.EnemyDefinitionPointer == 0)
+                    continue;
+            }
             if (!timeIsFrozen)
             {
                 bool ranActorAi = RunCommonGrappleAi(

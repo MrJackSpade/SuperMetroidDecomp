@@ -81,10 +81,15 @@ public sealed partial class RoomEnemySystem
     private const ushort DefaultEnemyVulnerability = 0xec1c;
 
     /// <summary>Runs the common radius-based Samus/enemy touch pass for translated actors.</summary>
+    /// <param name="samus">Live player state receiving the native touch callback.</param>
+    /// <param name="controllerInput">Current held input used by touch handlers.</param>
+    /// <param name="level">Room terrain required by collision-aware touch handlers.</param>
+    /// <param name="onlyNativeEnemyIndex">EnemyMain's current physical index, or null for a standalone whole-list audit.</param>
     public bool ResolveOrdinarySamusContact(
         SamusState samus,
         ushort controllerInput,
-        RoomLevelData? level = null)
+        RoomLevelData? level = null,
+        ushort? onlyNativeEnemyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(samus);
         EnsureLoaded();
@@ -96,6 +101,8 @@ public sealed partial class RoomEnemySystem
 
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
+            if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
+                continue;
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
                 slot.Definition.TouchAiPointer == FirefleaTouchAi;

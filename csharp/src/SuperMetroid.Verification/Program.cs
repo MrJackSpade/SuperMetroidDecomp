@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shutter-riding"])
+{
+    VerifyShutterRiding();
+    return 0;
+}
 if (args is ["--grapple-enemy-death"])
 {
     VerifyGrappleEnemyDeath();
@@ -56,7 +61,7 @@ if (args is ["--phantoon-position"])
     return 0;
 }
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
-    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death]");
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death | --shutter-riding]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyGameConfigurationIni();
 VerifyViewportTileRowParity();
@@ -171,6 +176,7 @@ VerifyGrappleSounds();
 VerifyGrappleSpinInput();
 VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();
+VerifyShutterRiding();
 VerifyBreakableGrapplePlms();
 VerifyPermanentCollectibles();
 VerifyEnemyDrops();

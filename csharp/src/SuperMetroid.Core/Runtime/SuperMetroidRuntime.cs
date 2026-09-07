@@ -1618,7 +1618,8 @@ public sealed partial class SuperMetroidRuntime
                 NmiFrameCounter8,
                 ActiveSamusMode7Transform,
                 BombProjectiles,
-                VramWrites);
+                VramWrites,
+                resolveSamusContactBeforeAi: true);
             if (Enemies.Phantoon is { } phantoon)
             {
                 // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
@@ -1665,10 +1666,6 @@ public sealed partial class SuperMetroidRuntime
                 Enemies.ResolveRidleySamusContact(
                     Samus,
                     Controller1.Current);
-                Enemies.ResolveOrdinarySamusContact(
-                    Samus,
-                    Controller1.Current,
-                    LevelData);
             }
             if (LevelData is not null && !TimeIsFrozen)
                 Enemies.StepEnemyProjectiles(

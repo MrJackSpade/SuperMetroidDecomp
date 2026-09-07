@@ -21,9 +21,15 @@ does not prove untested paths. The goal remains incomplete.
 
 ## Interactive work still requiring coordination
 
-Visible minimize/restore approval has been requested and not yet received. The
-hidden test explicitly raises a form Resize event; it cannot establish native
-visible-window event delivery. No RDP disconnect, monitor configuration change,
+Visible minimize/restore was approved and passed three Release hardware cycles on
+September 7, 2026 using `DesktopVerification --visible-minimize-restore`.
+The visible HWND delivered native resize events without explicitly raising them:
+the worker suspended, accepted twelve publications without presenting during each
+250 ms suspension, then resumed presentation with matching canvas dimensions.
+The isolated fixture was removed after shutdown; player saves were untouched.
+This does not establish monitor/DPI changes or RDP reconnect behavior.
+The hidden test explicitly raises a form Resize event and remains a separate fixture.
+No RDP disconnect, monitor configuration change,
 or physical driver reset has been performed. Injected HRESULT recovery is useful
 code-path evidence but does not prove those external lifecycle events.
 

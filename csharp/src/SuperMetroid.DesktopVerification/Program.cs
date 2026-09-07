@@ -22,6 +22,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--visible-minimize-restore"])
+                {
+                    await VerifyVisibleMinimizeRestore();
+                    return;
+                }
                 if (args is ["--soak-desktop-visible", var visibleDuration] && int.TryParse(visibleDuration, out int visibleSeconds))
                 {
                     await RunDesktopTimerSoak(visibleSeconds, visible: true);

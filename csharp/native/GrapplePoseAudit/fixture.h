@@ -2,6 +2,12 @@
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */
   NativePostGrappleCollision = 0x90ef22,
+  /* $9B:C4F0 accepts the retained Fire edge when a spin has changed pose. */
+  NativeGrappleInactive = 0x9bc4f0,
+  /* WRAM grapple function and post-draw previous-new-input latch. */
+  GrappleFunction = 0xd32, PreviousDrawNewInput = 0xe00,
+  /* Bank-$9B inactive and extending function identities. */
+  GrappleInactive = 0xc4f0, GrappleFiring = 0xc703,
   /* Native pose dispatcher, per-frame radius refresh, and block-only Y movement. */
   NativeUpdatePose = 0x91eb88, NativeSetRadius = 0x90ec22,
   NativeMoveVertical = 0x949763,

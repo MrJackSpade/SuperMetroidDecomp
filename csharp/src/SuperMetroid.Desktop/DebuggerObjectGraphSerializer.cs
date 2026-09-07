@@ -317,11 +317,7 @@ internal static class DebuggerObjectGraphSerializer
                 Register(referenceId, instance);
             FieldInfo[] expected = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
-            if (count != expected.Length)
-            {
-                throw new InvalidDataException(
-                    $"Serialized {type.FullName} contains {count} fields; this build expects {expected.Length}.");
-            }
+            expected = DebuggerStateFieldMigrations.SelectSerializedFields(type, expected, count);
             foreach (FieldInfo field in expected)
             {
                 string declaringName = reader.ReadString();

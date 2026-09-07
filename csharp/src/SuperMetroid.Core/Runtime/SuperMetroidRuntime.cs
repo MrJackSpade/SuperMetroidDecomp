@@ -2123,7 +2123,7 @@ public sealed partial class SuperMetroidRuntime
                 }
                 else if (!TimeIsFrozen &&
                          (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
-                         (Controller1.NewlyPressed & (ushort)SnesButton.X) != 0)
+                         ((Controller1.NewlyPressed | Samus.PreviousDrawNewInput) & (ushort)SnesButton.X) != 0)
                 {
                     // Normal HUD item four now reaches the same bank-$9B actor as the
                     // diagnostic entry point, after bank-$90's movement-type admission.
@@ -4142,6 +4142,11 @@ public sealed partial class SuperMetroidRuntime
                     Camera.XPosition,
                     Camera.YPosition,
                     TimeIsFrozen);
+
+                // The native post-draw input snapshot survives the next alpha pass. In
+                // particular, Fire can first cancel a spin and then start Grapple without
+                // requiring another physical press after the prospective pose is applied.
+                Samus.PreviousDrawNewInput = Controller1.NewlyPressed;
 
                 // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
                 // may have armed this latch above; consuming it here preserves both the

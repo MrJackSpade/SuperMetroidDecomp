@@ -67,6 +67,16 @@ int main(int argc, char **argv) {
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  for (int left = 0; left < 2; left++) {
+    memset(ram, 0, sizeof(ram));
+    word(Pose, left ? 0x14 : 0x13); ram[MovementType] = NormalJumping;
+    word(Shot, 0x40); word(PreviousDrawNewInput, 0x40);
+    word(GrappleFunction, GrappleInactive);
+    /* Current NMI new keys remain zero: only the post-draw snapshot can fire. */
+    run(NativeGrappleInactive);
+    printf("Native retained Fire edge, facing %s: function=%04X\n", left ? "left" : "right", readword(GrappleFunction));
+    if (readword(GrappleFunction) != GrappleFiring) return 1;
+  }
   /* State 0's ledge geometry: the body's center is over air, but its left
      boundary intersects a solid column. Execute the original ROM routine with
      the swing radius, not a fabricated upward nudge or a center-only probe. */

@@ -13,6 +13,7 @@ public sealed partial class SuperMetroidRuntime
     private void BeginAttractSamusInput()
     {
         if (_attractDemoInput is null) return;
+        Samus!.PreviousDrawNewInput = _attractDemoInput.Script.NewlyPressed;
         _attractDemoInput.Step(_addressSpace, SuperMetroidGameState.PlayingDemo,
             Samus!.ReadMovementType(_addressSpace));
         _attractDemoInputRestore = Controller1.UseDemoInput(

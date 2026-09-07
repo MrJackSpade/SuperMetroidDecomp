@@ -24,6 +24,7 @@ internal static class RetailSceneTests
         ("--retail-death", RetailDeathCaptureTests.Run),
         ("--retail-reserves", RetailDeathCaptureTests.RunReserveRecovery),
         ("--retail-ending", RetailEndingTests.Run),
+        ("--retail-ending-handoff", RetailEndingHandoffTests.Run),
     ];
 
     internal static bool TryRun(string command)

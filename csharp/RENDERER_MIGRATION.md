@@ -42,6 +42,7 @@ Current GPU comparisons against software/legacy output include:
 | Ceres/Zebes and game-over | 143 flight/destruction samples and 101 game-over frames |
 | Saved-file maps/load | 502 map frames, six areas, wrapped scroll, zoom, load/cancel; 583 additional frontend map/load/appearance frames through control release, with appearance-counter parity |
 | Ending | 444 samples across all three reward branches, repeat-render/cadence checks |
+| Gameplay-to-ending handoff | 89 frontend frames: native gunship completion event, gameplay fade and 60 ending frames, with independent legacy/captured pixels, state and PCM parity. Ship integrator staged near the completion threshold with explicit off-screen processing; not a full departure fixture. Debug/Release hardware/WARP. |
 | Attract demo | 315 samples, bounded retail room, held frame, completion/cancellation |
 | Runtime overlays | 182 frames and 90 retained replays: Ceres initial capture, ordinary room, combined Power Bomb/message/suit owners |
 | Ridley mixed-mode room | 27 retail-memory scale/tilt/scroll captures plus reverse-order retained replays after clearing live VRAM/CGRAM; explicit floor/HUD presence assertions |
@@ -133,7 +134,7 @@ focused test (capture/readback excluded). Reproducible unpaced CPU results are i
 
 Additional commands, run from the repository root:
 
-`--retail-all` runs the complete current 19-suite retail inventory in order on one
+`--retail-all` runs the complete current 20-suite retail inventory in order on one
 renderer per device, so GPU resources are reused across scene families. Individual
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.

@@ -22,6 +22,11 @@ internal static partial class SwapchainTests
             for (int sequence = 1; sequence <= 1000; sequence++)
                 worker.Publish(new(new(sequence, 1, 0), new Rgba32(19,73,129)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1000; });
+            long previousRedraws = worker.RetainedRedraws;
+            worker.Resize(800, 600);
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (800, 600); });
+            if (worker.MailboxMetrics.Published != 1000 || worker.LastConsumedSequence != 1000)
+                throw new InvalidOperationException("Retained redraw consumed or manufactured a simulation frame.");
             worker.AdvanceGeneration(2);
             worker.Resize(319, 601);
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
@@ -29,7 +34,7 @@ internal static partial class SwapchainTests
             var metrics = worker.MailboxMetrics;
             if (metrics.HasPendingFrame || metrics.Published != metrics.Taken + metrics.Replaced + metrics.Invalidated)
                 throw new InvalidOperationException("GPU worker lost mailbox accounting.");
-            Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, generation/resize, bounded accounting passed.");
+            Console.WriteLine($"{selection.Kind}: worker {adapter}; idle-start, 1001 publications, retained redraw without simulation, generation/resize, bounded accounting passed.");
         }
         finally
         {

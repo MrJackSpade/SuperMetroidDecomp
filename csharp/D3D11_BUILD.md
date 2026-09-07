@@ -62,6 +62,12 @@ pass Debug/Release. This is not host wall-clock pacing, a five-minute soak, or c
 cross-backend state/PCM coverage. The test compiles the desktop adapter source directly
 to avoid a duplicate audio implementation or a WinForms dependency.
 
+The worker retains one consumed packet for redraw after resize and occlusion, so a
+paused producer need not manufacture a game/audio tick to refill a recreated target.
+Retained packets are checked against the mailbox generation and the final Present
+gate. Hidden worker tests assert a redraw at the new target size with unchanged
+publication/consumption sequence. Visible expose/recovery remains a separate gate.
+
 ## Reproducible inputs
 
 - .NET SDK 10.0.400, as used for current project verification.

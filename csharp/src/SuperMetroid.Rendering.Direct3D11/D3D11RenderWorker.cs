@@ -19,6 +19,8 @@ public sealed class D3D11RenderWorker
     private (int Width, int Height)? resize;
     private long presented, occluded, stale;
     private long lastConsumedSequence;
+    private long retainedRedraws;
+    private long lastDrawnSize;
     private readonly Action? beforeRenderForVerification;
 
     public Task<string> Ready => ready.Task;
@@ -28,6 +30,11 @@ public sealed class D3D11RenderWorker
     public long OccludedFrames => Interlocked.Read(ref occluded);
     public long StaleFrames => Interlocked.Read(ref stale);
     public long LastConsumedSequence => Interlocked.Read(ref lastConsumedSequence);
+    public long RetainedRedraws => Interlocked.Read(ref retainedRedraws);
+    internal (int Width, int Height) LastDrawnSize
+    {
+        get { long size = Interlocked.Read(ref lastDrawnSize); return ((int)(size >> 32), (int)size); }
+    }
 
     public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind)
         : this(window, width, height, generation, kind, null) { }
@@ -92,6 +99,8 @@ public sealed class D3D11RenderWorker
             ready.SetResult(device.AdapterDescription);
             bool suspended = false;
             bool opportunity = false, wasOccluded = false;
+            RenderFrameSnapshot? retained = null;
+            bool redraw = false;
             while (true)
             {
                 (int Width, int Height)? nextSize;
@@ -103,12 +112,20 @@ public sealed class D3D11RenderWorker
                 if (nextSize is { } size)
                 {
                     suspended = size.Width == 0 || size.Height == 0;
-                    if (!suspended) presenter.Resize(size.Width, size.Height);
+                    if (!suspended)
+                    {
+                        presenter.Resize(size.Width, size.Height);
+                        width = size.Width; height = size.Height;
+                        redraw = true;
+                    }
                 }
                 opportunity |= !suspended && (wasOccluded || presenter.TryAcquireFrameOpportunity());
                 if (!suspended && opportunity)
                 {
                     var packet = mailbox.TakeLatest();
+                    bool newlyTaken = packet is not null;
+                    if (retained is not null && !mailbox.IsCurrent(retained)) retained = null;
+                    packet ??= redraw || wasOccluded ? retained : null;
                     if (packet is not null)
                     {
                         beforeRenderForVerification?.Invoke();
@@ -121,7 +138,11 @@ public sealed class D3D11RenderWorker
                                 opportunity = false; wasOccluded = true; Interlocked.Increment(ref occluded); break;
                             case D3D11PresentationResult.StaleGeneration: Interlocked.Increment(ref stale); break;
                         }
-                        Interlocked.Exchange(ref lastConsumedSequence, packet.Identity.Sequence);
+                        retained = packet;
+                        Interlocked.Exchange(ref lastDrawnSize, ((long)width << 32) | (uint)height);
+                        redraw = false;
+                        if (newlyTaken) Interlocked.Exchange(ref lastConsumedSequence, packet.Identity.Sequence);
+                        else Interlocked.Increment(ref retainedRedraws);
                     }
                 }
                 // A wake expedites publication/resize/shutdown. This bounded wait is

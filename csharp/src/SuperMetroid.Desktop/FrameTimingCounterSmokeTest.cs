@@ -18,6 +18,8 @@ public static class FrameTimingCounterSmokeTest
     {
         const long TimestampFrequency = 1_000;
         var counter = new FrameTimingCounter(TimestampFrequency, TimeSpan.FromSeconds(1));
+        double observedDiscards = 0;
+        counter.LateFramesRecorded += count => observedDiscards += count;
         counter.Reset(timestamp: 10_000);
 
         for (int frame = 0; frame < 60; frame++)
@@ -46,6 +48,7 @@ public static class FrameTimingCounterSmokeTest
         AssertNear(empty.EmulatedFramesPerSecond, 0, "cleared emulated FPS");
         AssertNear(empty.PaintedFramesPerSecond, 0, "cleared paint FPS");
         AssertNear(empty.LateFrames, 0, "cleared late frames");
+        AssertNear(observedDiscards, 2.5, "whole-run observer survives interval reset");
 
         return new FrameTimingCounterSmokeTestResult(
             snapshot.EmulatedFramesPerSecond,

@@ -31,6 +31,10 @@ internal static partial class Program
             var game = Field<SuperMetroidGame>(control, "game");
             var counter = Field<FrameTimingCounter>(control, "frameTimings");
             var samples = new List<double>(seconds * 60 + 120);
+            double discardedWallClockFrames = 0;
+            void RecordDiscard(double count) => discardedWallClockFrames += count;
+            using var process = Process.GetCurrentProcess();
+            var memory = new List<SoakMemorySample>(seconds / 30 + 2);
             void Measure(long ticks)
             {
                 if (samples.Count == samples.Capacity) throw new InvalidOperationException("Desktop timer exceeded bounded 60 Hz sample capacity.");
@@ -48,9 +52,11 @@ internal static partial class Program
                 if (visible) VisibleSoakWindow.ShowWithoutActivation(form.Handle);
                 var output = Field<WaveOutAudioDevice>(control, "audioDevice");
                 counter.EmulatedFrameMeasured += Measure;
+                counter.LateFramesRecorded += RecordDiscard;
                 ushort startFrame = game.FrameNumber;
                 Call(control, "SetPlaying", true);
                 var clock = Stopwatch.StartNew();
+                memory.Add(SoakMemorySample.Capture(process, 0));
                 int nextReport = 30;
                 while (clock.Elapsed.TotalSeconds < seconds)
                 {
@@ -62,6 +68,7 @@ internal static partial class Program
                     if (clock.Elapsed.TotalSeconds >= nextReport)
                     {
                         Console.WriteLine($"Desktop timer paused={paused}: {nextReport}/{seconds}s, frames={samples.Count}, drains={output.QueueHealth.EmptyBeforeRefill}");
+                        memory.Add(SoakMemorySample.Capture(process, clock.Elapsed.TotalSeconds));
                         nextReport += 30;
                     }
                 }
@@ -78,11 +85,16 @@ internal static partial class Program
                 if (visible) Check(worker.PresentedFrames > 0, "visible soak produced no successful Present calls");
                 Call(control, "SetPlaying", false);
                 counter.EmulatedFrameMeasured -= Measure;
+                counter.LateFramesRecorded -= RecordDiscard;
+                memory.Add(SoakMemorySample.Capture(process, elapsed));
                 Check(unchecked((ushort)(game.FrameNumber - startFrame)) == samples.Count, "desktop frame/timing count mismatch");
                 samples.Sort();
                 double Percentile(double p) => samples[(int)Math.Ceiling(samples.Count * p) - 1];
                 results.Add(new { Paused = paused, Seconds = elapsed, Frames = samples.Count, Fps = samples.Count / elapsed,
                     ProducerP50Ms = Percentile(.5), ProducerP95Ms = Percentile(.95), ProducerP99Ms = Percentile(.99),
+                    ProducerMaximumMs = samples[^1],
+                    ProducerOverDeadlineFrames = samples.Count(sample => sample > 1000.0 / 60),
+                    DiscardedWallClockFrames = discardedWallClockFrames, Memory = memory,
                     Adapter = adapter, Visible = visible, Audio = health, Renderer = renderer,
                     UploadCpu = worker.CaptureUploadTimings(), worker.SubmittedUploadBytes, worker.SubmittedUploadCalls,
                     worker.PresentedFrames, worker.OccludedFrames, worker.MailboxMetrics });
@@ -91,6 +103,7 @@ internal static partial class Program
             finally
             {
                 counter.EmulatedFrameMeasured -= Measure;
+                counter.LateFramesRecorded -= RecordDiscard;
                 await control.StopRendererAsync();
             }
             form.Dispose();

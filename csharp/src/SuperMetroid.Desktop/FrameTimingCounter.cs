@@ -42,6 +42,8 @@ public sealed class FrameTimingCounter
 {
     /// <summary>Optional owner-thread diagnostic observer; the normal host has no subscriber.</summary>
     internal event Action<long>? EmulatedFrameMeasured;
+    /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
+    internal event Action<double>? LateFramesRecorded;
     private readonly long timestampFrequency;
     private readonly long reportingIntervalTicks;
     private long intervalStarted;
@@ -105,6 +107,7 @@ public sealed class FrameTimingCounter
         if (!double.IsFinite(count) || count < 0)
             throw new ArgumentOutOfRangeException(nameof(count));
         lateFrames += count;
+        LateFramesRecorded?.Invoke(count);
     }
 
     /// <summary>Publishes and clears one interval once enough wall time has elapsed.</summary>

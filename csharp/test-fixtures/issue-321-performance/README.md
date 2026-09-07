@@ -121,6 +121,17 @@ This permits whole-run percentiles for the five-minute workload without changing
 normal desktop workers' 2,048-sample rolling history. Previously committed reports
 retain their original sampling scope; this change does not retroactively expand them.
 
+New soak reports also record `ProducerMaximumMs`, producer frames exceeding the
+nominal 16.67-ms deadline, and whole-run `DiscardedWallClockFrames`. The latter
+comes from the actual host catch-up counter, independently of its resetting toolbar
+intervals; it is not inferred from FPS or producer duration. Memory is sampled at
+start, each 30-second report, and end: whole-process private/working-set bytes plus
+managed heap bytes without forced GC. Samples include runtime/driver caches and
+temporary diagnostic allocations, so short-run increases are not proof of a leak.
+The five-second instrumentation smoke had zero over-deadline producer frames and
+zero discarded wall-clock frames in both scenes; it does not establish long-run
+memory stability. Existing committed reports predate these additional fields.
+
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --soak-desktop-visible 300
 ```

@@ -29,6 +29,14 @@ were untouched. Keep this private ROM-derived fixture in the private repository.
 
 ## Independent comparison diagnostic (#336)
 
+Resolved September 7, 2026 in `7ba14c1` and `8248072`: native HDMA gradient,
+eligible OBJ color math, and native Mode-7 scanline-one/fixed-point sampling are
+implemented. `--reference-title-pan` now matches this unchanged RGBA fixture
+exactly at managed tick 1148 on hardware Direct3D and WARP. The diagnostic
+reference calculation also proves scanline zero fails for that same packet.
+The failure description below is retained as historical reproduction evidence,
+not current status. Full Verification and 241 Mode-7 comparisons per backend pass.
+
 `title-pan.rgba` is the PNG decoded without alteration into row-major RGBA8 by
 `csharp/tools/decode-reference-png.ps1`. Its SHA-256 is
 `D3B61C24CF7D6D4FECC0E44CBC29D46A92CD9606EA4787A191151E6EAAAE045C`.

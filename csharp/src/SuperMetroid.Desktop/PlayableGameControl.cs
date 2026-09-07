@@ -93,7 +93,7 @@ public sealed partial class PlayableGameControl : UserControl
         var loadStateButton = new ToolStripButton("Load State")
         {
             Enabled = replay is null,
-            ToolTipText = "Restore the selected exact-build debugger state",
+            ToolTipText = "Restore the selected debugger state; different builds warn and attempt compatible loading",
         };
         toolStrip.Items.Add(restartButton);
         toolStrip.Items.Add(playButton);
@@ -313,6 +313,7 @@ public sealed partial class PlayableGameControl : UserControl
         // would rasterize it solely to populate status labels, even in GPU mode.
         RefreshFrame(pendingDisplay is not null ? game.CurrentFrameMetadata : game.CurrentFrame);
         statusLabel.Text =
+            (loaded.Warnings.Count != 0 ? "WARNING: state from another build | " : "") +
             $"loaded state {slot} | frame {loaded.Metadata.FrameNumber} | " +
             FormatStateRoom(loaded.Metadata.RoomPointer, loaded.Metadata.RoomStatePointer);
         SetPlaying(resumePlayback);

@@ -6,12 +6,9 @@ using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Persistent ten-slot exact-build debugger states for the desktop host.</summary>
+/// <summary>Persistent ten-slot debugger states with warning-only build identity checks.</summary>
 internal sealed class DebuggerSaveStateStore
 {
-    private static ReadOnlySpan<byte> Magic => "SMCSTATE"u8;
-    private const int FormatVersion = 2;
-    private const int SlotCount = 10;
 
     private readonly string directory;
     private readonly byte[] romDigest;
@@ -73,8 +70,8 @@ internal sealed class DebuggerSaveStateStore
                        FileOptions.WriteThrough))
             using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
             {
-                writer.Write(Magic);
-                writer.Write(FormatVersion);
+                writer.Write(DebuggerStateFormat.Magic);
+                writer.Write(DebuggerStateFormat.CurrentVersion);
                 writer.Write(typeof(SuperMetroidGame).Module.ModuleVersionId.ToByteArray());
                 writer.Write(typeof(DebuggerSaveStateStore).Module.ModuleVersionId.ToByteArray());
                 writer.Write(romDigest);
@@ -116,17 +113,21 @@ internal sealed class DebuggerSaveStateStore
             bufferSize: 128 * 1024,
             FileOptions.SequentialScan);
         using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
-        byte[] magic = reader.ReadBytes(Magic.Length);
-        if (!magic.AsSpan().SequenceEqual(Magic))
+        byte[] magic = reader.ReadBytes(DebuggerStateFormat.Magic.Length);
+        if (!magic.AsSpan().SequenceEqual(DebuggerStateFormat.Magic))
             throw new InvalidDataException($"'{path}' is not a Super Metroid debugger state.");
         int version = reader.ReadInt32();
-        if (version != FormatVersion)
+        if (version is not (DebuggerStateFormat.CurrentVersion or DebuggerStateFormat.LegacyTokenVersion))
         {
             throw new InvalidDataException(
-                $"Debugger state schema {version} is incompatible with schema {FormatVersion}.");
+                $"Debugger state schema {version} is incompatible with schema {DebuggerStateFormat.CurrentVersion}.");
         }
-        VerifyGuid(reader, typeof(SuperMetroidGame).Module.ModuleVersionId, "core build");
-        VerifyGuid(reader, typeof(DebuggerSaveStateStore).Module.ModuleVersionId, "desktop build");
+        var warnings = new List<string>();
+        ReadBuildIdentity(reader, typeof(SuperMetroidGame).Module.ModuleVersionId, "core build", warnings);
+        ReadBuildIdentity(reader, typeof(DebuggerSaveStateStore).Module.ModuleVersionId, "desktop build", warnings);
+        if (warnings.Count != 0 && version == DebuggerStateFormat.LegacyTokenVersion)
+            warnings.Add("Legacy debugger state uses compiler method tokens; cross-build delegate compatibility cannot be guaranteed.");
+        foreach (string warning in warnings) Console.Error.WriteLine($"WARNING: {warning}");
         byte[] storedDigest = reader.ReadBytes(SHA256.HashSizeInBytes);
         if (storedDigest.Length != SHA256.HashSizeInBytes ||
             !CryptographicOperations.FixedTimeEquals(storedDigest, romDigest))
@@ -141,7 +142,8 @@ internal sealed class DebuggerSaveStateStore
         ushort? room = ReadNullableWord(reader);
         ushort? roomState = ReadNullableWord(reader);
         using var compressed = new GZipStream(stream, CompressionMode.Decompress, leaveOpen: true);
-        DebuggerSaveStateRoot root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(compressed);
+        DebuggerSaveStateRoot root = DebuggerObjectGraphSerializer.Deserialize<DebuggerSaveStateRoot>(
+            compressed, legacyDelegateTokens: version == DebuggerStateFormat.LegacyTokenVersion);
         EnsureRomMatches(root.AddressSpace);
         if (root.Game.FrameNumber != frame || root.Game.GameState != gameState ||
             root.Game.GameplayActiveRoomPointer != room ||
@@ -155,7 +157,7 @@ internal sealed class DebuggerSaveStateStore
             root.AddressSpace,
             root.Game,
             root.AudioPlayer,
-            new DebuggerSaveStateMetadata(slot, savedUtc, frame, gameState, room, roomState, path));
+            new DebuggerSaveStateMetadata(slot, savedUtc, frame, gameState, room, roomState, path), warnings.AsReadOnly());
     }
 
     /// <summary>
@@ -183,14 +185,13 @@ internal sealed class DebuggerSaveStateStore
             throw new InvalidDataException("Live address space does not match the configured ROM digest.");
     }
 
-    private static void VerifyGuid(BinaryReader reader, Guid expected, string label)
+    private static void ReadBuildIdentity(BinaryReader reader, Guid expected, string label, List<string> warnings)
     {
-        byte[] bytes = reader.ReadBytes(16);
-        if (bytes.Length != 16 || new Guid(bytes) != expected)
-        {
-            throw new InvalidDataException(
-                $"Debugger state {label} does not match this executable; exact-build restore is required.");
-        }
+        byte[] bytes = reader.ReadBytes(DebuggerStateFormat.GuidBytes);
+        if (bytes.Length != DebuggerStateFormat.GuidBytes)
+            throw new InvalidDataException($"Debugger state {label} identity is truncated.");
+        if (new Guid(bytes) != expected)
+            warnings.Add($"Debugger state {label} differs from this executable; attempting compatible restoration. Behavior may differ from the captured build.");
     }
 
     private static void WriteNullableWord(BinaryWriter writer, ushort? value)
@@ -205,7 +206,7 @@ internal sealed class DebuggerSaveStateStore
 
     private static void ValidateSlot(int slot)
     {
-        if ((uint)slot >= SlotCount)
+        if ((uint)slot >= DebuggerStateFormat.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Debugger state slot must be 0-9.");
     }
 
@@ -233,4 +234,5 @@ internal readonly record struct DebuggerSaveStateLoadResult(
     SuperMetroidAddressSpace AddressSpace,
     SuperMetroidGame Game,
     ManagedSpcPlayer? AudioPlayer,
-    DebuggerSaveStateMetadata Metadata);
+    DebuggerSaveStateMetadata Metadata,
+    IReadOnlyList<string> Warnings);

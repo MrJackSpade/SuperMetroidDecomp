@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Exact-build binary serializer for the managed emulator graph used by debugger states.
+/// Layout-checked binary serializer for the managed emulator graph used by debugger states.
 /// It preserves private fields, reference identity, cycles, arrays, and internal delegates;
-/// this is intentionally not a general interchange format. The outer state header rejects
-/// a different build before this exact-layout payload is read.
+/// this is intentionally not a general interchange format. Build changes are permitted,
+/// but fields and delegate identities must still resolve against the current layout.
 /// </summary>
 internal static class DebuggerObjectGraphSerializer
 {
@@ -19,11 +19,11 @@ internal static class DebuggerObjectGraphSerializer
         new GraphWriter(writer).Write(root);
     }
 
-    public static T Deserialize<T>(Stream source) where T : class
+    public static T Deserialize<T>(Stream source, bool legacyDelegateTokens = false) where T : class
     {
         ArgumentNullException.ThrowIfNull(source);
         using var reader = new BinaryReader(source, System.Text.Encoding.UTF8, leaveOpen: true);
-        object? root = new GraphReader(reader).Read();
+        object? root = new GraphReader(reader, legacyDelegateTokens).Read();
         return root as T ?? throw new InvalidDataException(
             $"Debugger state root is {root?.GetType().FullName ?? "null"}, expected {typeof(T).FullName}.");
     }
@@ -172,13 +172,13 @@ internal static class DebuggerObjectGraphSerializer
                 MethodInfo method = call.Method;
                 writer.Write(method.DeclaringType?.AssemblyQualifiedName ?? throw new InvalidOperationException(
                     $"Delegate method {method.Name} has no declaring type."));
-                writer.Write(method.MetadataToken);
+                DebuggerDelegateIdentity.Write(writer, method);
                 Write(call.Target);
             }
         }
     }
 
-    private sealed class GraphReader(BinaryReader reader)
+    private sealed class GraphReader(BinaryReader reader, bool legacyDelegateTokens)
     {
         private readonly Dictionary<int, object> references = [];
 
@@ -293,10 +293,16 @@ internal static class DebuggerObjectGraphSerializer
             for (int index = 0; index < count; index++)
             {
                 Type declaringType = ResolveAllowedType(reader.ReadString());
-                int token = reader.ReadInt32();
-                MethodInfo method = declaringType.Module.ResolveMethod(token) as MethodInfo
-                    ?? throw new InvalidDataException(
-                        $"Metadata token 0x{token:X8} is not a method on {declaringType.FullName}.");
+                MethodInfo method;
+                if (legacyDelegateTokens)
+                {
+                    int token = reader.ReadInt32();
+                    method = declaringType.Module.ResolveMethod(token) as MethodInfo
+                        ?? throw new InvalidDataException($"Legacy debugger method token 0x{token:X8} is unavailable.");
+                    if (method.DeclaringType != declaringType)
+                        throw new InvalidDataException($"Legacy debugger method token 0x{token:X8} now belongs to a different type.");
+                }
+                else method = DebuggerDelegateIdentity.Read(reader, declaringType, ResolveAllowedType);
                 object? target = Read();
                 Delegate call = method.CreateDelegate(type, target);
                 combined = combined is null ? call : Delegate.Combine(combined, call);

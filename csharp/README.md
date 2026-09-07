@@ -186,8 +186,13 @@ visible frame immediately, restores the managed SPC sequencer/DSP state, resets 
 audio buffers, and begins a new controller recording from the restored boundary.
 
 The state header records the slot, UTC timestamp, frame, game state, active room/state
-pointers, exact core/desktop build IDs, and ROM SHA-256. Missing, malformed, different-ROM,
-different-schema, and different-build states throw instead of falling back. These are private
+pointers, core/desktop build IDs, and ROM SHA-256. A different build produces a console/status
+warning and attempts restoration; it does not require approval or reject the state by itself.
+New schema-three states identify delegates by method name and signature instead of compiler
+token order. Schema-two states remain readable, with an additional cross-build legacy-token
+warning. Actual field/method incompatibilities, malformed data, unsupported schemas, and
+different ROMs still fail clearly. Empty slots show an informational message and keep the
+live game. These are private
 debug artifacts: the compressed payload contains the full emulated address space, including
 ROM and SRAM bytes, and is therefore not suitable for distribution.
 

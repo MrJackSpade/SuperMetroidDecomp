@@ -41,6 +41,7 @@ Current GPU comparisons against software/legacy output include:
 | Room publications | 104 frames plus retained checks across Landing Site, Parlor, Blue Brinstar elevator room, Green Brinstar shaft, Morph Ball, Ceres scientist, Brinstar water and Norfair Business Center; 13 runtime ticks each; liquid type/surface and three-valued heat distortion assertions |
 | Retail doors | Ceres scientist/final-hall pair, left and right: 104 exact frames each, including 63 scrolling frames, through production DoorTransitionState with authored collision/door records |
 | Retail eye cone | Morph Ball room production apex fixture: 96 exact frames covering activation, first visible beam, widening and full beam |
+| Ceres elevator arrival | 192 exact frontend frames: fade, 73 pad positions, landing and 60 released-control frames; Debug/Release hardware/WARP. Does not cover general inter-area elevator travel or escape quakes. |
 | Samus death | 283 frontend frames from zero health through blackout, explosion, final fade and game-over handoff; independent legacy/captured owners, exact pixels and PCM |
 | Save station | 230 exact Crateria save-room frames through confirmation, visibly colored electricity, completion and control release; room-local runtime test, not disk/SRAM persistence verification |
 | Kraid encounter/exits | Real incoming door and rise: 105 samples/seven AI states; collision-triggered growth: 95/eight with camera/BG2 priority handoff; death: 97/13 with sinking, fade and four BG3 restore assertions; left/right exits: 104 frames each including 63 scroll frames, with defeated-room reload before the right exit |
@@ -96,7 +97,7 @@ focused test (capture/readback excluded). Reproducible unpaced CPU results are i
 
 Additional commands, run from the repository root:
 
-`--retail-all` runs the complete current 14-suite retail inventory in order on one
+`--retail-all` runs the complete current 15-suite retail inventory in order on one
 renderer per device, so GPU resources are reused across scene families. Individual
 commands remain available. This aggregate is the inventory above, not a claim that
 all remaining issue acceptance gates have been completed.
@@ -112,6 +113,7 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-doors
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-kraid
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-eye
+dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-elevator
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-death
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --retail-save
 dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --profile-simulation

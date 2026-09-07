@@ -1,0 +1,126 @@
+{
+  "Scope": "Paced standalone producer \u002B real silent waveOut \u002B hidden GPU HWND. Not visible Present or the production WinForms timer loop; not cross-backend PCM parity.",
+  "TimestampUtc": "2026-09-07T06:46:23.9476173+00:00",
+  "Runtime": ".NET 10.0.11",
+  "OS": "Microsoft Windows 10.0.26200",
+  "CoreBuild": "21427649-9726-4174-8033-69f1aa3eea5f",
+  "DiagnosticBuild": "1c231bc5-89d0-44f4-837f-54238d5293ae",
+  "Results": [
+    {
+      "Room": "8F:A3AE",
+      "Paused": false,
+      "Adapter": "NVIDIA GeForce RTX 3090",
+      "Seconds": 300.0951644,
+      "Frames": 18000,
+      "ProducerP50Ms": 0.152,
+      "ProducerP95Ms": 0.1927,
+      "ProducerP99Ms": 0.2828,
+      "MaximumLatenessMs": 16.38870000000736,
+      "AverageAllocatedBytes": 67787,
+      "PcmSamples": 28800000,
+      "NonzeroPcmSamples": 28684079,
+      "Audio": {
+        "RefillObservations": 17999,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 0
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0225,
+          "P95Milliseconds": 0.0336,
+          "P99Milliseconds": 0.0398
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.1386,
+          "P95Milliseconds": 31.6688,
+          "P99Milliseconds": 31.9976
+        },
+        "GpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.628736,
+          "P95Milliseconds": 0.65024,
+          "P99Milliseconds": 0.669696
+        }
+      },
+      "PresentedFrames": 0,
+      "OccludedFrames": 9605,
+      "MailboxMetrics": {
+        "Generation": 1,
+        "Published": 18000,
+        "Taken": 9605,
+        "Replaced": 8395,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      },
+      "DeviceRecoveries": 0
+    },
+    {
+      "Room": "8F:CEFB",
+      "Paused": true,
+      "Adapter": "NVIDIA GeForce RTX 3090",
+      "Seconds": 300.0836942,
+      "Frames": 18000,
+      "ProducerP50Ms": 0.1213,
+      "ProducerP95Ms": 0.1396,
+      "ProducerP99Ms": 0.1713,
+      "MaximumLatenessMs": 16.429700000003322,
+      "AverageAllocatedBytes": 67517,
+      "PcmSamples": 28800000,
+      "NonzeroPcmSamples": 28705520,
+      "Audio": {
+        "RefillObservations": 17999,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 0
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.0237,
+          "P95Milliseconds": 0.0353,
+          "P99Milliseconds": 0.0427
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 31.1404,
+          "P95Milliseconds": 31.7436,
+          "P99Milliseconds": 32.4687
+        },
+        "GpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 2048,
+          "P50Milliseconds": 0.65536,
+          "P95Milliseconds": 0.681984,
+          "P99Milliseconds": 1.8432
+        }
+      },
+      "PresentedFrames": 0,
+      "OccludedFrames": 9605,
+      "MailboxMetrics": {
+        "Generation": 1,
+        "Published": 18000,
+        "Taken": 9605,
+        "Replaced": 8395,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      },
+      "DeviceRecoveries": 0
+    }
+  ]
+}

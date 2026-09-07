@@ -43,6 +43,7 @@ try
         if (args[0] == "--obj-smoke") { ObjectSmokeTests.Run(device, renderer); continue; }
         if (args[0] == "--tile-smoke") { TileSmokeTests.Run(device, renderer); continue; }
         bool rejected = false;
+        ShaderFailureTests.Run(device);
         try { renderer.Readback(); } catch (InvalidOperationException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException("Readback before submission was accepted.");
         RenderFrameSnapshot? last = null;

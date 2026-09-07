@@ -225,6 +225,12 @@ pass the archived fixture in `test-fixtures/issue-321-tile-byte-selection`.
 
 ## Clean desktop package qualification
 
+`--solid-smoke` also removes each of the four embedded shader resources through
+an internal lookup seam. Every constructor attempt must throw an identifying
+`InvalidDataException`, including late failures after earlier resources exist.
+A subsequent renderer on the same device must produce exact pixels. These checks
+pass Debug/Release hardware/WARP; they do not substitute for the clean package test.
+
 Startup and recovery diagnostics include adapter name, explicit Hardware/WARP backend,
 and the actual feature level returned by the created device (`Level_11_0` on both
 qualified adapters). This capability is queried from the device, not inferred from

@@ -11,6 +11,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 public sealed partial class D3D11FrameRenderer : IDisposable
 {
     private readonly D3D11RenderDevice owner;
+    private readonly Func<string, Stream?> openShaderResource;
     private readonly ID3D11ComputeShader shader;
     private readonly ID3D11Texture2D output;
     private ID3D11Texture2D? staging;
@@ -44,8 +45,13 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     }
 
     public D3D11FrameRenderer(D3D11RenderDevice owner)
+        : this(owner, name => typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)) { }
+
+    /// <summary>Resource-lookup seam for strict missing-shader startup verification.</summary>
+    internal D3D11FrameRenderer(D3D11RenderDevice owner, Func<string, Stream?> openShaderResource)
     {
         this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
+        this.openShaderResource = openShaderResource ?? throw new ArgumentNullException(nameof(openShaderResource));
         owner.VerifyOwner();
         try
         {
@@ -166,9 +172,9 @@ public sealed partial class D3D11FrameRenderer : IDisposable
     private ID3D11ComputeShader LoadShader(string name)
         => owner.Device.CreateComputeShader(LoadShaderBytes(name));
 
-    private static byte[] LoadShaderBytes(string name)
+    private byte[] LoadShaderBytes(string name)
     {
-        using Stream resource = typeof(D3D11FrameRenderer).Assembly.GetManifestResourceStream(name)
+        using Stream resource = openShaderResource(name)
             ?? throw new InvalidDataException($"Build-generated shader {name} is missing.");
         using var bytes = new MemoryStream(); resource.CopyTo(bytes);
         return bytes.ToArray();

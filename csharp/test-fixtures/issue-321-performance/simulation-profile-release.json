@@ -1,0 +1,74 @@
+{
+  "Scope": "Unpaced captured simulation \u002B real managed desktop audio adapter; no GPU, waveOut or presentation",
+  "TimestampUtc": "2026-09-07T06:27:03.335344+00:00",
+  "OS": "Microsoft Windows 10.0.26200",
+  "Runtime": ".NET 10.0.11",
+  "Cpu": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+  "ProcessArchitecture": "X64",
+  "CoreBuild": "f216bb91-d620-42f6-ba5c-e8083912e770",
+  "DiagnosticBuild": "dc414c6d-a6a5-44f2-bdd8-d004855df4ab",
+  "WarmupFrames": 120,
+  "MeasuredFrames": 600,
+  "Results": [
+    {
+      "Room": "8F:A3AE",
+      "Paused": false,
+      "CaptureMs": {
+        "P50": 0.0827,
+        "P95": 0.112,
+        "P99": 0.1586,
+        "Maximum": 1.6754
+      },
+      "AudioMs": {
+        "P50": 0.1012,
+        "P95": 0.4636,
+        "P99": 0.5709,
+        "Maximum": 0.6635
+      },
+      "TotalMs": {
+        "P50": 0.1838,
+        "P95": 0.6306,
+        "P99": 0.7125,
+        "Maximum": 2.2929
+      },
+      "AllocationBytes": {
+        "P50": 67776,
+        "P95": 67920,
+        "P99": 67920,
+        "Maximum": 67920
+      },
+      "PcmSamples": 960000,
+      "NonzeroPcmSamples": 957990
+    },
+    {
+      "Room": "8F:CEFB",
+      "Paused": true,
+      "CaptureMs": {
+        "P50": 0.0223,
+        "P95": 0.0245,
+        "P99": 0.0372,
+        "Maximum": 0.1583
+      },
+      "AudioMs": {
+        "P50": 0.0846,
+        "P95": 0.0884,
+        "P99": 0.0903,
+        "Maximum": 0.0948
+      },
+      "TotalMs": {
+        "P50": 0.107,
+        "P95": 0.1121,
+        "P99": 0.1218,
+        "Maximum": 0.2511
+      },
+      "AllocationBytes": {
+        "P50": 67512,
+        "P95": 67512,
+        "P99": 67656,
+        "Maximum": 67656
+      },
+      "PcmSamples": 960000,
+      "NonzeroPcmSamples": 955888
+    }
+  ]
+}

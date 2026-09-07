@@ -5,6 +5,11 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args.Length == 1 && args[0] == "--profile-simulation")
+    {
+        SimulationProfile.Run();
+        return;
+    }
     if (args.Length == 4 && args[0] == "--compare" && args[2] == "--device")
     {
         D3D11DeviceKind kind = args[3] switch {

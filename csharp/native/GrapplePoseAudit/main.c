@@ -52,6 +52,16 @@ void snes_cpuWrite(Snes *snes, uint32_t address, uint8_t value) {
   fprintf(stderr, "Unmapped write %06X\n", address); exit(2);
 }
 static void word(unsigned address, unsigned value) { ram[address] = value; ram[address + 1] = value >> 8; }
+static unsigned readword(unsigned address) { return ram[address] | ram[address + 1] << 8; }
+static void run(unsigned address) {
+  Cpu *cpu = cpu_init(NULL, 0);
+  cpu->pc = address & 0xffff; cpu->k = cpu->db = address >> 16;
+  cpu->sp = cpu->spBreakpoint = 0x1ff;
+  returned = false;
+  for (int i = 0; i < 100000 && !returned; i++) cpu_runOpcode(cpu);
+  cpu_free(cpu);
+  if (!returned) Die("Native fixture exceeded instruction limit\n");
+}
 int main(int argc, char **argv) {
   if (argc != 2) { fprintf(stderr, "Usage: audit <unheadered-rom>\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
@@ -81,6 +91,44 @@ int main(int argc, char **argv) {
   printf("Native post-grapple ledge ejection: Y=%04X (start 04A1, radius 17)\n", ejectedY);
   cpu_free(collision);
   if (!returned || ejectedY != 0x48f) return 1;
+  word(Pose, 0xb2); word(PreviousPose, 0xb2); word(PreviousDirection, 0x1608);
+  word(SuperSpecialPose, ReleasedLeft); word(SuperSpecialCommand, 7);
+  run(NativeUpdatePose);
+  printf("Native queued release pose: Y=%04X pose=%04X radius=%u\n", readword(SamusY), readword(Pose), readword(SamusRadiusY));
+  run(NativeSetRadius);
+  word(DisplacementFraction, 0x1c00); word(DisplacementWhole, 0);
+  run(NativeMoveVertical);
+  word(SuperSpecialPose, 0xffff); word(SpecialPose, 0xffff);
+  word(ProspectivePose, 0xa5); word(PoseCommand, 5);
+  run(NativeUpdatePose);
+  run(NativeSetRadius);
+  printf("Native landing pose: Y=%04X pose=%04X radius=%u\n", readword(SamusY), readword(Pose), readword(SamusRadiusY));
+  if (readword(SamusY) != 0x48d || readword(Pose) != 0xa5 || readword(SamusRadiusY) != 21) return 1;
+  FILE *vectors = fopen("csharp/test-fixtures/issue-350-grounded-grapple-floor-clip/post-grapple-vectors.csv", "wb");
+  if (!vectors) Die("Cannot create post-grapple reference vectors\n");
+  fprintf(vectors, "type,bts,x,y,radius,ceiling,resultY\n");
+  const unsigned low[] = { 0, 7, 8, 15 };
+  for (unsigned type = 0; type < 16; type++)
+  for (unsigned bts = 0; bts < (type == 1 ? 256 : 1); bts++) {
+    if (bts & 0x20) continue; /* Unused bit does not select a new slope. */
+    for (unsigned xi = 0; xi < 4; xi++)
+    for (unsigned yi = 0; yi < 4; yi++)
+    for (unsigned ceiling = 0; ceiling < 2; ceiling++) {
+      memset(ram, 0, sizeof(ram));
+      unsigned x = 80 + low[xi], y = 64 + low[yi];
+      word(RoomWidth, 12); word(SamusX, x); word(SamusY, y);
+      word(SamusRadiusX, 5); word(SamusRadiusY, 17);
+      for (unsigned row = 2; row <= 5; row++)
+      for (unsigned col = 3; col <= 7; col++) {
+        if (row < 4 && !ceiling) continue;
+        unsigned index = row * 12 + col;
+        word(LevelWords + 2 * index, type << 12); ram[BlockBts + index] = bts;
+      }
+      run(NativePostGrappleCollision);
+      fprintf(vectors, "%u,%u,%u,%u,17,%u,%u\n", type, bts, x, y, ceiling, readword(SamusY));
+    }
+  }
+  fclose(vectors);
   for (int left = 0; left < 2; left++) {
     memset(ram, 0, sizeof(ram));
     word(Shot, 0x40); word(Jump, 0x80); word(Dash, 0x8000); word(Cancel, 0x4000);

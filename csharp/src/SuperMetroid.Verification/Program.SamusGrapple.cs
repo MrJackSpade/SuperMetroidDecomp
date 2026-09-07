@@ -410,7 +410,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(cancelQueued.CancelQueued && !cancelQueued.Cancelled,
         "released firing queues cancellation");
     GrappleMovementResult cancelled =
-        SamusGrappleMovement.CompleteFiringCancellation(bus, cancelledSamus);
+        SamusGrappleMovement.CompleteFiringCancellation(bus, firingLevel, cancelledSamus);
     AssertTrue(cancelled.Cancelled && cancelledSamus.Grapple.Phase == GrapplePhase.Inactive,
         "queued firing cancellation clears on following call");
 
@@ -1193,7 +1193,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertTrue(lockedCancelQueued.CancelQueued && lockedCancelQueued.OwnsMovement,
         "locked release queues connected-pose cancellation");
     GrappleMovementResult lockedCancelled =
-        SamusGrappleMovement.CompleteFiringCancellation(bus, lockedSamus);
+        SamusGrappleMovement.CompleteFiringCancellation(bus, specialLevel, lockedSamus);
     AssertTrue(lockedCancelled.Cancelled && lockedCancelled.OwnsMovement,
         "connected cancellation owns pose-fallback frame");
     AssertEqual(SamusPoseIds.CrouchingRightPose, lockedSamus.Pose,

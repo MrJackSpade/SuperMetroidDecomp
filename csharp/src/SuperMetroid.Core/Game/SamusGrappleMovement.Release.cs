@@ -79,9 +79,11 @@ public static partial class SamusGrappleMovement
 
     private static void CompleteQueuedRelease(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
     {
+        SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         // $9B:CB8B bases facing on the angular-velocity word retained from the swing. A
         // nonnegative value selects left-facing $52; a negative value selects right $51.
         samus.Pose = grapple.AngularVelocity >= 0

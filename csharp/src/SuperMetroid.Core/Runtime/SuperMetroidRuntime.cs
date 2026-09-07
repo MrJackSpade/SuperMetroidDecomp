@@ -2101,7 +2101,7 @@ public sealed partial class SuperMetroidRuntime
                 else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
                 {
                     LastGrappleMovement =
-                        SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, Samus);
+                        SamusGrappleMovement.CompleteFiringCancellation(_addressSpace, LevelData, Samus);
                     grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (Samus.Grapple.Phase is

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// damage, door, extension, or square-slope behavior and throw instead of being flattened
 /// to “air” or “solid.”
 /// </remarks>
-public static class SamusBlockCollision
+public static partial class SamusBlockCollision
 {
     // kTab948E54 at $94:8E54 describes the solid/empty 8x8 quadrants of square slope
     // shapes zero through four. Each shape owns four bytes; BTS bits 6-7 rotate/mirror the

@@ -2,6 +2,15 @@
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */
   NativePostGrappleCollision = 0x90ef22,
+  /* Native pose dispatcher, per-frame radius refresh, and block-only Y movement. */
+  NativeUpdatePose = 0x91eb88, NativeSetRadius = 0x90ec22,
+  NativeMoveVertical = 0x949763,
+  /* Prospective pose tiers and their command words in WRAM. */
+  PreviousPose = 0xa20, PreviousDirection = 0xa22,
+  SpecialPose = 0xa2a, SuperSpecialPose = 0xa2c,
+  PoseCommand = 0xa2e, SuperSpecialCommand = 0xa32,
+  /* Direct-page displacement passed to the vertical movement routine. */
+  DisplacementWhole = 0x12, DisplacementFraction = 0x14,
   /* Native room/body and collision-plane WRAM identities. */
   RoomWidth = 0x7a5, SamusX = 0xaf6, SamusY = 0xafa,
   SamusRadiusX = 0xafe, SamusRadiusY = 0xb00,

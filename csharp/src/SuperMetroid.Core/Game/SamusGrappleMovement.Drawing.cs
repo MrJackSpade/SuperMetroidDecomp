@@ -139,6 +139,7 @@ public static partial class SamusGrappleMovement
     /// </summary>
     public static GrappleMovementResult CompleteFiringCancellation(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -148,6 +149,7 @@ public static partial class SamusGrappleMovement
             throw new InvalidOperationException("A grapple firing cancellation is not queued.");
 
         bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
+        SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         if (cancelledConnectedPose)
         {
             // `$9B:C856` calls `$91:82D9` while the current movement type is `$16`.

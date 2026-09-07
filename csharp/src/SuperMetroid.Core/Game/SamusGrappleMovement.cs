@@ -469,7 +469,7 @@ public static partial class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            CompleteQueuedRelease(bus, samus, grapple);
+            CompleteQueuedRelease(bus, level, samus, grapple);
             return new GrappleMovementResult(GrapplePhase.Inactive, Released: true, ReleaseQueued: false);
         }
 
@@ -482,7 +482,7 @@ public static partial class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallGrabRelease)
             return StepWallGrabRelease(bus, level, samus, newlyPressedInput);
         if (grapple.Phase == GrapplePhase.WallJumping)
-            return CompleteGrappleWallJump(bus, samus, grapple);
+            return CompleteGrappleWallJump(bus, level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
             return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter, plms);
 
@@ -794,12 +794,14 @@ public static partial class SamusGrappleMovement
 
     private static GrappleMovementResult CompleteGrappleWallJump(
         ISnesAddressSpace bus,
+        RoomLevelData level,
         SamusState samus,
         SamusGrappleState grapple)
     {
         // `$9B:C9CE` runs one frame after `$C832` selected it, matching every other grapple
         // function-pointer handoff. The Samus helper keeps the peculiar `$B8->$84` and
         // `$B9->$83` reversal separate from ordinary spin-contact wall jumps.
+        SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         samus.ApplyGrappleWallJump(bus);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
@@ -818,6 +820,7 @@ public static partial class SamusGrappleMovement
         RoomPlmSystem? plms)
     {
         byte targetPose = SelectDroppedPose(bus, samus);
+        SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(

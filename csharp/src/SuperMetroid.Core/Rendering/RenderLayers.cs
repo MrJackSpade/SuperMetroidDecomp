@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>One immutable insertion into an explicitly ordered PPU priority ladder.</summary>
 public abstract record RenderLayer;
 
+/// <summary>Inserts a Mode 7 plane at an explicit position in the OBJ priority ladder.</summary>
+public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers) : RenderLayer;
+
 /// <summary>Inserts only pixels whose winning OAM record has this priority.</summary>
 public sealed record ObjPriorityRenderLayer(byte Priority) : RenderLayer;
 

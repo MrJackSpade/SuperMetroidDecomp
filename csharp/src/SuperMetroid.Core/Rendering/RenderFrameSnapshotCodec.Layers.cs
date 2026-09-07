@@ -6,6 +6,14 @@ public static partial class RenderFrameSnapshotCodec
     {
         switch (layer)
         {
+            case Mode7RenderLayer layer7:
+                writer.Write((byte)RenderPacketLayerKind.Mode7);
+                Mode7RenderRegisters m = layer7.Registers;
+                writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
+                writer.Write(m.CenterX); writer.Write(m.CenterY);
+                writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset);
+                writer.Write(m.FillOutsideWithCharacterZero);
+                break;
             case ObjRenderLayer:
                 writer.Write((byte)RenderPacketLayerKind.Obj);
                 break;
@@ -31,8 +39,11 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
-    private static RenderLayer ReadLayer(BinaryReader reader) => (RenderPacketLayerKind)reader.ReadByte() switch
+    private static RenderLayer ReadLayer(BinaryReader reader, ushort version) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
+        RenderPacketLayerKind.Mode7 when version >= RenderPacketFormat.Mode7LayerVersion => new Mode7RenderLayer(
+            new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
+                reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))),
         RenderPacketLayerKind.Obj => new ObjRenderLayer(),
         RenderPacketLayerKind.ObjPriority => new ObjPriorityRenderLayer(reader.ReadByte()),
         RenderPacketLayerKind.Bg4Bpp => new Bg4BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),

@@ -34,6 +34,7 @@ VerifyFileMenuRenderSnapshots();
 VerifyRenderFrameHandoff();
 VerifyRenderPacketCodec();
 VerifyFrontendRenderCapture();
+VerifyCinematicRenderSnapshots();
 
 VerifyRandomNumberGeneratorExhaustively();
         VerifySandAnimatedTiles();

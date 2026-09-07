@@ -220,3 +220,12 @@ pixels, game-state/phase cadence and audio-command order. It verifies explicit
 intro fallback, retained title packet lifetime and switching back to normal Step.
 This does not establish gameplay/PCM determinism or live scheduling independence;
 pause frontend integration and remaining scenes still need their own gates.
+
+Game-over and Ceres destruction/Zebes descent now publish captured displays through
+the staged frontend API. `CinematicSnapshotTests` matches 101 game-over frames
+(both choices and fades) and 143 cinematic samples across 15 phases, retaining
+packets across steps and through codec round trips. Mode 7 is a general layer
+insertion between OBJ priorities, not a room-specific shader rule. Format version
+two adds that operation while retaining version-one decoding and rejecting new
+operations falsely marked as old-version data. Existing omitted mosaic behavior
+is preserved as a known reference limitation, not silently corrected in the port.

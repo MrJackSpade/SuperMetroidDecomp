@@ -567,7 +567,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.GameOverMenu:
                 gameOver ??= new GameOverMenuState(bus, audio);
                 gameOver.Step(controllerInput);
-                lastPixels = gameOver.Render();
+                PublishMenu(gameOver);
                 if (gameOver.ContinueRequested)
                 {
                     // Native menu index six publishes state $05 after the fully black
@@ -771,7 +771,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.CeresGoesBoom:
                 ceresDestruction ??= new CeresDestructionCinematicState(bus, audio);
                 ceresDestruction.Step();
-                lastPixels = ceresDestruction.Render();
+                PublishCeresDestruction(ceresDestruction);
                 if (ceresDestruction.Finished)
                 {
                     // CADF forces blank and publishes state six. The loader's special

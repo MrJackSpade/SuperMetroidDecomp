@@ -46,6 +46,14 @@ public static class CeresDestructionRomData
 
     public static class Rendering
     {
+        /// <summary>M7X center used by the Ceres explosion composition before its fade-out.</summary>
+        public const short CeresCenterX = 52;
+        /// <summary>M7Y center used by the Ceres explosion composition before its fade-out.</summary>
+        public const short CeresCenterY = 48;
+        /// <summary>M7X center used by the following Zebes approach composition.</summary>
+        public const short ZebesCenterX = 56;
+        /// <summary>M7Y center used by the following Zebes approach composition.</summary>
+        public const short ZebesCenterY = 24;
         public const ushort Mode1TilemapWord = 0x5c00;
         public const ushort Mode1CharacterWord = 0x6000;
         public const ushort WorldXMask = 0x01ff;

@@ -73,6 +73,18 @@ public sealed partial class SuperMetroidGame
         }
     }
 
+    private void PublishMenu(GameOverMenuState scene)
+    {
+        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
+        else lastPixels = scene.Render();
+    }
+
+    private void PublishCeresDestruction(CeresDestructionCinematicState scene)
+    {
+        if (captureIdentity is { } identity) capturedDisplay = new(identity, scene.CaptureRenderSnapshot());
+        else lastPixels = scene.Render();
+    }
+
     private static RenderFrameSnapshot Reframe(RenderFrameSnapshot frame, RenderFrameIdentity identity,
         ReadOnlySpan<byte> passes)
     {

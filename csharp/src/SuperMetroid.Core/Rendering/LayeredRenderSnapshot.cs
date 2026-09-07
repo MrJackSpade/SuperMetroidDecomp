@@ -21,7 +21,7 @@ public sealed class LayeredRenderSnapshot
         // cannot rearrange a queued frame's priority ladder after publication.
         foreach (RenderLayer layer in layers)
         {
-            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer))
+            if (layer is not (ObjPriorityRenderLayer or ObjRenderLayer or Bg4BppRenderLayer or Bg2BppRenderLayer or Mode7RenderLayer))
                 throw new ArgumentException("Unrecognized or null render layer.", nameof(layers));
             if (layer is ObjPriorityRenderLayer { Priority: > 3 })
                 throw new ArgumentException("OBJ priority must be between zero and three.", nameof(layers));

@@ -142,6 +142,25 @@ public sealed class GameOverMenuState
             GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight);
         SnesLayerCompositor.Composite(output, foreground);
 
+        PrepareRenderOam();
+        SnesLayerCompositor.Composite(output,
+            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: MenuRenderDefinitions.ObjectSelection));
+        MasterBrightnessFilter.Apply(output, (byte)brightness);
+        return output;
+    }
+
+    /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        PrepareRenderOam();
+        RenderLayer[] layers = [new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0,
+            0, 0, GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight, null), new ObjRenderLayer()];
+        return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,
+            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+    }
+
+    private void PrepareRenderOam()
+    {
         oam.BeginFrame();
         DrawMenuSpritemap(
             babySpritemap,
@@ -162,11 +181,6 @@ public sealed class GameOverMenuState
             missileY,
             MenuPpuState.ObjectPaletteBits);
         oam.FinalizeFrame();
-        SnesLayerCompositor.Composite(
-            output,
-            SnesObjRenderer.Render(oam, ppu.Vram, ppu.Cgram, obsel: 0x03));
-        MasterBrightnessFilter.Apply(output, (byte)brightness);
-        return output;
     }
 
     /// <summary>Ports <c>HandleGameOverBabyMetroid</c>'s six/eight-byte instruction stream.</summary>

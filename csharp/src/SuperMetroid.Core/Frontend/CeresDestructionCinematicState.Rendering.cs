@@ -10,11 +10,7 @@ internal sealed partial class CeresDestructionCinematicState
     public Rgba32[] Render()
     {
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        foreach (IntroDiscoverySprite actor in actors)
-            actor.Draw(bus, oam);
-        oam.FinalizeFrame();
+        OamBuffer oam = PrepareRenderOam();
 
         if (usesMode7)
         {
@@ -27,8 +23,10 @@ internal sealed partial class CeresDestructionCinematicState
                 matrixB,
                 matrixC,
                 matrixD,
-                centerX: Phase <= CeresDestructionPhase.FadeOutCeres ? (short)52 : (short)56,
-                centerY: Phase <= CeresDestructionPhase.FadeOutCeres ? (short)48 : (short)24,
+                centerX: Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX,
+                centerY: Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY,
                 horizontalOffset: unchecked((short)backgroundX),
                 verticalOffset: unchecked((short)backgroundY));
             SnesLayerCompositor.Composite(pixels, mode7);
@@ -58,6 +56,43 @@ internal sealed partial class CeresDestructionCinematicState
 
         MasterBrightnessFilter.Apply(pixels, brightness);
         return pixels;
+    }
+
+    /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
+    public LayeredRenderSnapshot CaptureRenderSnapshot()
+    {
+        OamBuffer oam = PrepareRenderOam();
+        RenderLayer[] layers;
+        if (usesMode7)
+        {
+            var (a, b, c, d) = CalculateMatrix();
+            var mode7 = new Mode7RenderRegisters(a, b, c, d,
+                Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterX : CeresDestructionRomData.Rendering.ZebesCenterX,
+                Phase <= CeresDestructionPhase.FadeOutCeres
+                    ? CeresDestructionRomData.Rendering.CeresCenterY : CeresDestructionRomData.Rendering.ZebesCenterY,
+                unchecked((short)backgroundX), unchecked((short)backgroundY));
+            layers = [new ObjPriorityRenderLayer(0), new Mode7RenderLayer(mode7),
+                new ObjPriorityRenderLayer(1), new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+        }
+        else
+        {
+            // Preserve the existing non-mosaicked Mode 1 path. Mosaic implementation
+            // is a cartridge-correctness change, not an implicit part of this extraction.
+            layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
+                CeresDestructionRomData.Rendering.Mode1CharacterWord, 0, 0, 32, 32, null)];
+        }
+        return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
+            MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
+    }
+
+    private OamBuffer PrepareRenderOam()
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        foreach (IntroDiscoverySprite actor in actors) actor.Draw(bus, oam);
+        oam.FinalizeFrame();
+        return oam;
     }
 
     private (short A, short B, short C, short D) CalculateMatrix()

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Rendering;
 
 /// <summary>
 /// Portable little-endian display fixtures independent of assembly MVID, CLR object
-/// graphs and GPU resources. Version one represents the currently extracted shapes.
+/// graphs and GPU resources. Older supported versions retain their original semantics.
 /// </summary>
 public static partial class RenderFrameSnapshotCodec
 {
@@ -66,7 +66,7 @@ public static partial class RenderFrameSnapshotCodec
             if (!ReadExact(reader, RenderPacketFormat.Signature.Length).AsSpan().SequenceEqual(RenderPacketFormat.Signature))
                 throw new InvalidDataException("Not an SMFRAME display fixture.");
             ushort version = reader.ReadUInt16();
-            if (version != RenderPacketFormat.Version)
+            if (version < RenderPacketFormat.FirstSupportedVersion || version > RenderPacketFormat.Version)
                 throw new InvalidDataException($"Unsupported display fixture version {version}.");
             var identity = new RenderFrameIdentity(reader.ReadInt64(), reader.ReadInt64(), reader.ReadUInt16());
             byte[] fades = ReadExact(reader, ReadCount(reader));
@@ -90,7 +90,7 @@ public static partial class RenderFrameSnapshotCodec
                 else
                 {
                     var layers = new RenderLayer[ReadCount(reader)];
-                    for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader);
+                    for (int i = 0; i < layers.Length; i++) layers[i] = ReadLayer(reader, version);
                     frame = new(identity, new LayeredRenderSnapshot(memory, layers, obsel, brightness), fades);
                 }
             }

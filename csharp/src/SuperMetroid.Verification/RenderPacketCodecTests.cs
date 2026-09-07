@@ -11,6 +11,11 @@ internal static partial class Program
         byte[] bytes = RenderFrameSnapshotCodec.Serialize(frame);
         RenderFrameSnapshot restored = RoundTripRenderPacket(frame);
         AssertEqual(frame.Identity, restored.Identity, "portable fixture host/cartridge identity");
+        byte[] firstVersion = (byte[])bytes.Clone();
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+            firstVersion.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FirstSupportedVersion);
+        AssertEqual(frame.SolidColor, RenderFrameSnapshotCodec.Deserialize(firstVersion).SolidColor,
+            "version-one fixture remains readable after format extension");
         AssertTrue(SoftwareFrameSnapshotRenderer.Render(frame).AsSpan().SequenceEqual(
             SoftwareFrameSnapshotRenderer.Render(restored)), "fixture ordered-fade pixel parity");
         for (int length = 0; length < bytes.Length; length++)
@@ -41,6 +46,13 @@ internal static partial class Program
             -123, 456, -789, 1023, true);
         var mode7 = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, registers, 3, 15));
         AssertEqual(registers, RoundTripRenderPacket(mode7).Mode7!.Background!.Value, "signed matrix and outside policy preserved");
+        var insertedMode7 = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
+            new RenderLayer[] { new Mode7RenderLayer(registers) }, 3, 15));
+        byte[] invalidOldVersion = RenderFrameSnapshotCodec.Serialize(insertedMode7);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+            invalidOldVersion.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FirstSupportedVersion);
+        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(invalidOldVersion),
+            "version-one cannot claim a version-two layer operation");
         byte[] badBool = RenderFrameSnapshotCodec.Serialize(mode7);
         badBool[^1] = 2;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badBool), "reject noncanonical boolean");

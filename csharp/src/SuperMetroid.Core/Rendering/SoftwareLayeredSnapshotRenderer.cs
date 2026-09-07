@@ -20,6 +20,13 @@ public static class SoftwareLayeredSnapshotRenderer
         {
             switch (layer)
             {
+                case Mode7RenderLayer mode7:
+                    Mode7RenderRegisters m = mode7.Registers;
+                    SnesLayerCompositor.Composite(output, SnesMode7Renderer.RenderViewport(
+                        memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
+                        m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
+                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero));
+                    break;
                 case ObjRenderLayer:
                     SnesLayerCompositor.Composite(output, objects.Pixels);
                     break;

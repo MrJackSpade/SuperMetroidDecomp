@@ -8,9 +8,15 @@ public sealed partial class D3D11FrameRenderer
 {
     private unsafe Rgba32[] RenderLayersForReadback(RenderFrameSnapshot packet, LayeredRenderSnapshot scene)
     {
+        DrawLayers(packet, scene);
+        return Readback(packet.Width, packet.Height);
+    }
+
+    private unsafe void DrawLayers(RenderFrameSnapshot packet, LayeredRenderSnapshot scene)
+    {
         // Reject unimplemented operations before changing GPU state. No CPU fallback.
         foreach (RenderLayer layer in scene.Layers)
-            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer))
+            if (layer is not (Bg4BppRenderLayer or Bg2BppRenderLayer or Bg2BppViewportRenderLayer or FixedColorAddRenderLayer or ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer or Mode7GameplayRenderLayer or ScanlineColorAddRenderLayer or Bg2BppColorMathRenderLayer or BgSubscreenAddRenderLayer or MessageBoxRenderLayer or OrdinaryGameplayRenderLayer or WindowedSceneRenderLayer))
                 throw new NotSupportedException($"GPU layer {layer.GetType().Name} is not implemented yet.");
         var memory = new uint[D3D11ShaderLayout.PpuMemoryWords];
         MemoryMarshal.Cast<byte, uint>(scene.Memory.Vram).CopyTo(memory);
@@ -31,6 +37,9 @@ public sealed partial class D3D11FrameRenderer
         {
             switch (layer)
             {
+                case WindowedSceneRenderLayer window:
+                    DrawWindow(packet, window);
+                    break;
                 case OrdinaryGameplayRenderLayer ordinary:
                     DispatchOrdinaryGameplay(ordinary);
                     break;
@@ -76,7 +85,6 @@ public sealed partial class D3D11FrameRenderer
         }
         DispatchTile(D3D11TileOperation.Brightness, level: scene.Brightness);
         foreach (byte level in packet.BrightnessPasses) DispatchTile(D3D11TileOperation.Brightness, level: level);
-        return Readback(packet.Width, packet.Height);
     }
 
     private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,

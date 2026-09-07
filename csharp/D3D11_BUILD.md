@@ -2,8 +2,9 @@
 
 The isolated Windows assembly implements device ownership and integer compute for
 solid packets, 4-bpp backgrounds, 2-bpp planes/viewports, raw OAM sprites,
-fixed-color addition, signed Mode 7 projection and ordered brightness. Compound gameplay/effects, presentation, desktop
-selection and scheduling are still pending.
+fixed-color addition, signed Mode 7 projection and ordered brightness, ordinary and
+mixed-mode gameplay, color effects, messages and windowed child scenes. Full retail
+scene verification, presentation, desktop selection and scheduling are still pending.
 The console verification project never substitutes the CPU reference for GPU work.
 
 ## Reproducible inputs
@@ -95,6 +96,12 @@ and independent X/Y HDMA tables are covered. The GPU composes the Mode-1 priorit
 ladder below an opaque HUD, using physical scanline scroll registers. This establishes
 reference parity for constructed inputs; retail gameplay capture coverage, desktop
 integration and timing gates remain outstanding.
+
+`--scene-window-smoke` checks 112 exact comparisons per device in Debug and Release:
+empty/full/one-pixel/interior rectangles, all child brightness levels, distinct parent
+and child memory, repeated insertions and parent overlays after child rendering. One
+reusable child renderer bounds scratch resources; GPU region copies replace pixels
+including backdrop. No child raster is read back or uploaded from the CPU.
 
 The first tile comparison caught a pinned-FXC optimization problem in dynamic byte
 extraction. `/Od` passed; disassembly and shader probes showed `/O3` selecting the

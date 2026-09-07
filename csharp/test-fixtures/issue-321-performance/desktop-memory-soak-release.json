@@ -1,0 +1,309 @@
+{
+  "Scope": "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; hidden HWND, not visible presentation.",
+  "OperatingSystem": "Microsoft Windows 10.0.26200",
+  "Runtime": ".NET 10.0.11",
+  "Processor": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+  "TimestampUtc": "2026-09-07T09:30:03.5805934+00:00",
+  "CoreBuild": "53a197cb-9e06-4bd8-bd01-b15f96688658",
+  "DesktopBuild": "7cb87887-e2a5-4625-9ff3-f842e344819c",
+  "Results": [
+    {
+      "Paused": false,
+      "Seconds": 300.0065166,
+      "Frames": 17999,
+      "Fps": 59.99536344738186,
+      "ProducerP50Ms": 0.1537,
+      "ProducerP95Ms": 0.1975,
+      "ProducerP99Ms": 0.3228,
+      "ProducerMaximumMs": 6.5103,
+      "ProducerOverDeadlineFrames": 0,
+      "DiscardedWallClockFrames": 0,
+      "Memory": [
+        {
+          "Seconds": 0,
+          "PrivateBytes": 129323008,
+          "WorkingSetBytes": 164089856,
+          "ManagedBytes": 24991544
+        },
+        {
+          "Seconds": 30.0133266,
+          "PrivateBytes": 131293184,
+          "WorkingSetBytes": 172838912,
+          "ManagedBytes": 28870128
+        },
+        {
+          "Seconds": 60.0288873,
+          "PrivateBytes": 124096512,
+          "WorkingSetBytes": 166289408,
+          "ManagedBytes": 23419072
+        },
+        {
+          "Seconds": 90.0163476,
+          "PrivateBytes": 123867136,
+          "WorkingSetBytes": 166285312,
+          "ManagedBytes": 12677040
+        },
+        {
+          "Seconds": 120.0241825,
+          "PrivateBytes": 125345792,
+          "WorkingSetBytes": 167608320,
+          "ManagedBytes": 20797104
+        },
+        {
+          "Seconds": 150.0214546,
+          "PrivateBytes": 123432960,
+          "WorkingSetBytes": 165990400,
+          "ManagedBytes": 28427616
+        },
+        {
+          "Seconds": 180.0107905,
+          "PrivateBytes": 123174912,
+          "WorkingSetBytes": 165933056,
+          "ManagedBytes": 20890952
+        },
+        {
+          "Seconds": 210.0302328,
+          "PrivateBytes": 125034496,
+          "WorkingSetBytes": 167550976,
+          "ManagedBytes": 16451888
+        },
+        {
+          "Seconds": 240.0176592,
+          "PrivateBytes": 123092992,
+          "WorkingSetBytes": 165818368,
+          "ManagedBytes": 27929360
+        },
+        {
+          "Seconds": 270.0004333,
+          "PrivateBytes": 123117568,
+          "WorkingSetBytes": 165842944,
+          "ManagedBytes": 23570624
+        },
+        {
+          "Seconds": 300.0009381,
+          "PrivateBytes": 123379712,
+          "WorkingSetBytes": 166371328,
+          "ManagedBytes": 22358056
+        },
+        {
+          "Seconds": 300.0065166,
+          "PrivateBytes": 123453440,
+          "WorkingSetBytes": 166440960,
+          "ManagedBytes": 22824640
+        }
+      ],
+      "Adapter": "NVIDIA GeForce RTX 3090; backend=Hardware; feature level=Level_11_0",
+      "Visible": false,
+      "Audio": {
+        "RefillObservations": 17993,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 5
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 9545,
+          "P50Milliseconds": 0.0267,
+          "P95Milliseconds": 0.0403,
+          "P99Milliseconds": 0.0559
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9604,
+          "WarmupExcluded": 60,
+          "Retained": 9544,
+          "P50Milliseconds": 31.1194,
+          "P95Milliseconds": 31.688,
+          "P99Milliseconds": 32.0332
+        },
+        "GpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 9541,
+          "P50Milliseconds": 0.626688,
+          "P95Milliseconds": 0.647168,
+          "P99Milliseconds": 1.830912
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 9541,
+          "P50Milliseconds": 31.101952,
+          "P95Milliseconds": 31.67232,
+          "P99Milliseconds": 32.007168
+        }
+      },
+      "UploadCpu": {
+        "Observed": 9604,
+        "WarmupExcluded": 60,
+        "Retained": 9544,
+        "P50Milliseconds": 0.015999999999998238,
+        "P95Milliseconds": 0.023099999999999454,
+        "P99Milliseconds": 0.0326999999999984
+      },
+      "SubmittedUploadBytes": 1157858240,
+      "SubmittedUploadCalls": 134456,
+      "PresentedFrames": 0,
+      "OccludedFrames": 9604,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18000,
+        "Taken": 9603,
+        "Replaced": 8397,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    },
+    {
+      "Paused": true,
+      "Seconds": 300.0355168,
+      "Frames": 18000,
+      "Fps": 59.99289748086251,
+      "ProducerP50Ms": 0.1194,
+      "ProducerP95Ms": 0.1381,
+      "ProducerP99Ms": 0.1984,
+      "ProducerMaximumMs": 1.2207,
+      "ProducerOverDeadlineFrames": 0,
+      "DiscardedWallClockFrames": 0,
+      "Memory": [
+        {
+          "Seconds": 0,
+          "PrivateBytes": 154951680,
+          "WorkingSetBytes": 200060928,
+          "ManagedBytes": 22529168
+        },
+        {
+          "Seconds": 30.0156845,
+          "PrivateBytes": 151207936,
+          "WorkingSetBytes": 198774784,
+          "ManagedBytes": 22097840
+        },
+        {
+          "Seconds": 60.0296088,
+          "PrivateBytes": 150528000,
+          "WorkingSetBytes": 198144000,
+          "ManagedBytes": 17732072
+        },
+        {
+          "Seconds": 90.028306,
+          "PrivateBytes": 150077440,
+          "WorkingSetBytes": 197767168,
+          "ManagedBytes": 23076904
+        },
+        {
+          "Seconds": 120.0059803,
+          "PrivateBytes": 149909504,
+          "WorkingSetBytes": 197685248,
+          "ManagedBytes": 14014144
+        },
+        {
+          "Seconds": 150.0128057,
+          "PrivateBytes": 149860352,
+          "WorkingSetBytes": 197697536,
+          "ManagedBytes": 21219864
+        },
+        {
+          "Seconds": 180.0087665,
+          "PrivateBytes": 149815296,
+          "WorkingSetBytes": 197677056,
+          "ManagedBytes": 12996936
+        },
+        {
+          "Seconds": 210.0232536,
+          "PrivateBytes": 149815296,
+          "WorkingSetBytes": 197681152,
+          "ManagedBytes": 24653120
+        },
+        {
+          "Seconds": 240.0044901,
+          "PrivateBytes": 149868544,
+          "WorkingSetBytes": 197713920,
+          "ManagedBytes": 18925832
+        },
+        {
+          "Seconds": 270.0107215,
+          "PrivateBytes": 149876736,
+          "WorkingSetBytes": 197758976,
+          "ManagedBytes": 14406472
+        },
+        {
+          "Seconds": 300.030115,
+          "PrivateBytes": 149901312,
+          "WorkingSetBytes": 197783552,
+          "ManagedBytes": 28608232
+        },
+        {
+          "Seconds": 300.0355168,
+          "PrivateBytes": 149901312,
+          "WorkingSetBytes": 197783552,
+          "ManagedBytes": 12104712
+        }
+      ],
+      "Adapter": "NVIDIA GeForce RTX 3090; backend=Hardware; feature level=Level_11_0",
+      "Visible": false,
+      "Audio": {
+        "RefillObservations": 17996,
+        "EmptyBeforeRefill": 0,
+        "MinimumNativeQueued": 4,
+        "MaximumNativeQueued": 6,
+        "ManagedQueued": 3
+      },
+      "Renderer": {
+        "CpuComposition": {
+          "Observed": 9605,
+          "WarmupExcluded": 60,
+          "Retained": 9545,
+          "P50Milliseconds": 0.0275,
+          "P95Milliseconds": 0.0395,
+          "P99Milliseconds": 0.0467
+        },
+        "CpuDisplayAndPresent": {
+          "Observed": 9604,
+          "WarmupExcluded": 60,
+          "Retained": 9544,
+          "P50Milliseconds": 31.112,
+          "P95Milliseconds": 31.7305,
+          "P99Milliseconds": 32.2919
+        },
+        "GpuComposition": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 9541,
+          "P50Milliseconds": 0.654336,
+          "P95Milliseconds": 0.683008,
+          "P99Milliseconds": 0.698368
+        },
+        "GpuCompositionAndDisplay": {
+          "Observed": 9601,
+          "WarmupExcluded": 60,
+          "Retained": 9541,
+          "P50Milliseconds": 31.094784,
+          "P95Milliseconds": 31.716352,
+          "P99Milliseconds": 32.283648
+        }
+      },
+      "UploadCpu": {
+        "Observed": 9605,
+        "WarmupExcluded": 60,
+        "Retained": 9545,
+        "P50Milliseconds": 0.01659999999999684,
+        "P95Milliseconds": 0.022999999999996135,
+        "P99Milliseconds": 0.02760000000000673
+      },
+      "SubmittedUploadBytes": 1197474560,
+      "SubmittedUploadCalls": 144075,
+      "PresentedFrames": 0,
+      "OccludedFrames": 9605,
+      "MailboxMetrics": {
+        "Generation": 2,
+        "Published": 18001,
+        "Taken": 9605,
+        "Replaced": 8396,
+        "Invalidated": 0,
+        "HasPendingFrame": false
+      }
+    }
+  ]
+}

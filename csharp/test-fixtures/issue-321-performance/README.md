@@ -25,6 +25,28 @@ five-minute host-60-Hz gameplay/pause soak requirement. Those gates remain outst
 Do not infer whole-game performance from these two fixtures or add their independently
 calculated percentiles together.
 
+## Full-history Release deadline/memory soak
+
+`desktop-memory-soak-release.json` records commit `e0078be`: 300 seconds each of
+gameplay and Maridia pause, using the production timer with a hidden hardware
+renderer and muted real waveOut. Simulation was 59.995/59.993 FPS. Both workloads
+recorded zero producer frames over 16.67 ms, zero discarded wall-clock frames,
+and zero native-empty-before-refill observations. Producer p95 was 0.1975/0.1381 ms,
+p99 0.3228/0.1984 ms, and maximum 6.5103/1.2207 ms. Native queue occupancy was
+four to six buffers; managed queues ended at five/three frames.
+
+The 30-second samples show no sustained memory growth within either workload.
+Gameplay private bytes settled around 123–125 MB after startup and ended at
+123,453,440; pause settled near 150 MB and ended at 149,901,312. Managed heap
+samples cycled with normal GC rather than increasing monotonically. These are
+whole-process observations, including driver/runtime caches, not a proof against
+every possible scene-dependent leak. Separate scene startup may change the baseline.
+
+All renderer histories retain their complete observed post-warmup samples, not
+just a rolling tail. Presentation was hidden/occluded: this does not replace the
+visible Release report or qualify visible Debug/RDP recovery. No forced collections
+or player-state changes were used; the harness removed its private run directories.
+
 ## Separate publication CPU profile
 
 `publication-profile-release.json` and `publication-profile-debug.json` extend the

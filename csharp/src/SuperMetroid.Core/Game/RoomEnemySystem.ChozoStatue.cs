@@ -91,6 +91,13 @@ public sealed partial class RoomEnemySystem
     private readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
     private Action<bool>? _setSamusControlsEnabled;
     private Action<int, RoomScrollState>? _setRoomScrollState;
+    [NonSerialized] private RoomLayer3FxState? _chozoStatueRoomFx;
+
+    /// <summary>
+    /// Binds the shared FX words before gameplay and after debugger restoration. Standalone
+    /// enemy audits can inspect the diagnostic publications without loading a room FX actor.
+    /// </summary>
+    internal void BindChozoStatueFx(RoomLayer3FxState roomFx) => _chozoStatueRoomFx = roomFx;
 
     /// <summary>Typed per-slot state; non-statue slots contain null.</summary>
     public IReadOnlyList<ChozoStatueState?> ChozoStatueStates => _chozoStatueStates;
@@ -321,13 +328,19 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case ChozoStatueInstructionCodes.Instruction_Chozo_StartLoweringAcid:
-                ChozoStatueFxTimer = 32;
-                ChozoStatueFxYVelocity = 64;
+                ChozoStatueFxTimer = ChozoStatueFxData.LoweringDelay;
+                ChozoStatueFxYVelocity = ChozoStatueFxData.LoweringVelocity;
+                // Native AI writes the same FX words consumed by the liquid handler.
+                // Apply once at instruction execution, not every frame from the retained
+                // diagnostic values, which would repeatedly reset the delay.
+                _chozoStatueRoomFx?.ApplyCartridgeMotionWrites(
+                    timer: ChozoStatueFxTimer, packedYVelocity: ChozoStatueFxYVelocity);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 
             case ChozoStatueInstructionCodes.Instruction_Chozo_SetLoweredAcidPosition:
-                ChozoStatueFxBaseYPosition = 722;
+                ChozoStatueFxBaseYPosition = ChozoStatuePlmRomData.LoweredAcidY;
+                _chozoStatueRoomFx?.ApplyCartridgeMotionWrites(baseYPosition: ChozoStatueFxBaseYPosition);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
 

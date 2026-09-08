@@ -15,6 +15,7 @@ public sealed partial class RoomPlmSystem
     {
         _chozoEnemies = enemies;
         _chozoRoomFx = roomFx;
+        enemies.BindChozoStatueFx(roomFx);
     }
 
     /// <summary>Runs the native one-shot special-block setup; the caller still clips to solid.</summary>

@@ -21,6 +21,7 @@ internal static class MotherBrainAudit
 
     public static int Run(string romPath)
     {
+        MotherBrainAcidAudit.Run(romPath);
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);

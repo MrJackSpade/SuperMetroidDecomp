@@ -244,7 +244,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Count of dynamically spawned physical falling-tube enemy records.</summary>
     public int SpawnedFallingTubeCount { get; internal set; }
 
-    /// <summary>FX table entry requested by the body initializer.</summary>
+    /// <summary>Pending nonzero FX entry from initialization/descent; the runtime consumes it once, then clears it.</summary>
     public ushort FxEntry { get; internal set; }
 
     /// <summary>Whether the unpause hook must restore Mother Brain's BG2 image and beam SFX.</summary>

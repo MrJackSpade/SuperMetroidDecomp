@@ -368,6 +368,27 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>
+    /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
+    /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
+    /// </summary>
+    internal LayerBlendingConfiguration ApplyEntry(ISnesAddressSpace bus, SnesCgram cgram, ushort record)
+    {
+        BaseYPosition = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.BaseYPositionOffset);
+        TargetYPosition = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.TargetYPositionOffset);
+        PackedYVelocity = RoomFxRomData.ReadRecordWord(bus, record, RoomFxRomData.Record.YVelocityOffset);
+        Timer = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.TimerOffset);
+        LiquidOptions = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.LiquidOptionsOffset);
+        LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
+            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.Layer3LayerBlendConfigurationOffset), "LoadFxEntry");
+        byte blend = RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.PaletteBlendOffset);
+        if (blend == 0) cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, 0);
+        else cgram.LoadFromBus(bus, RoomFxRomData.Tables.PaletteBlendColors + (blend >> 1) * 2,
+            RoomFxRomData.Layer3.PaletteBlendColorCount, RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
+        return LayerBlendingConfigurations.FromCartridge(
+            RoomFxRomData.ReadRecordByte(bus, record, RoomFxRomData.Record.DefaultLayerBlendConfigurationOffset), "LoadFxEntry");
+    }
+
+    /// <summary>
     /// Applies <c>Instruction_PLM_EnableWaterPhysics</c> at <c>$84:D525</c> to the
     /// cartridge-owned liquid-options word. Bank $84 uses <c>TRB</c> on WRAM $197E, so
     /// this mutation must live on the room-FX owner that republishes the word to Samus;

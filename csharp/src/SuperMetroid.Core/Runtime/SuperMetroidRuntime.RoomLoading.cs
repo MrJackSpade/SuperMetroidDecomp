@@ -1164,6 +1164,15 @@ public sealed partial class SuperMetroidRuntime
     private void ApplyPendingMotherBrainPlms()
     {
         MotherBrainEnemyState? state = Enemies.MotherBrain;
+        if (state is { FxEntry: > 0 })
+        {
+            // The pending native LoadFxEntry call is consumed exactly once. Reapplying it
+            // each frame would reset its delay and prevent the acid from moving.
+            ushort record = unchecked((ushort)(ActiveRoom!.State.FxPointer +
+                state.FxEntry * RoomFxRomData.Record.ByteCount));
+            LayerBlendingDefaultConfig = RoomLayer3Fx.ApplyEntry(_addressSpace, Cgram, record);
+            state.FxEntry = 0;
+        }
         if (state is null || state.PlmRequests.Count == 0)
             return;
         if (LevelData is null)

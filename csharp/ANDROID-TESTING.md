@@ -1,5 +1,39 @@
 # Android diagnostic handoff
 
+## Build and update the private APK
+
+The verified Windows build environment uses .NET SDK 10.0.400 and Android workload
+36.1.69. An Android SDK and supported JDK must be installed/configured for the .NET
+Android workload. The project targets `net10.0-android`, `android-arm64`; it does not
+require Linux, Docker, an emulator, or the Windows Forms executable on the handheld.
+
+From the repository root, with the private ROM and extracted audio assets present:
+
+```powershell
+dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release
+adb install -r csharp/src/SuperMetroid.Android/bin/Release/net10.0-android/android-arm64/org.supermetroid.csharp.testing-Signed.apk
+```
+
+Use the existing wireless-debugging connection or USB. If several devices are
+connected, supply `adb -s DEVICE_SERIAL`. `install -r` updates the existing package;
+do not uninstall or clear app data as an update workaround, because that deletes
+private saves/configuration/recordings. Export a diagnostic bundle before changing
+build machines or signing setup.
+
+This is a private debuggable testing APK, not a store-release package. The project
+currently uses the .NET Android SDK's local default debug keystore, even in Release
+configuration; no custom signing secrets are embedded in the project. Consecutive
+updates from this workspace have preserved the installed app and save hashes.
+Keep that same local signing identity when updating this installation. A newly
+generated key on another machine will not be interchangeable: preserve the keystore
+in a secure private backup, outside Git, or explicitly configure the same identity
+there. Never commit keystores/passwords or regenerate the key to solve an install
+error. `*.keystore` and `*.jks` are ignored as an additional guard.
+
+The APK contains private game assets and must not be distributed publicly.
+
+## Capture on the handheld
+
 Open **Testing tools** with Back/Mode or a long press on the game surface. Choose
 one of the ten state slots and use **Save state** before exporting if you want to
 capture the current position. **Export private diagnostics** exports the already

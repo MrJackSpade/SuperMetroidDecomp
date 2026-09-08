@@ -13,6 +13,9 @@ csharp/**/bin/
 csharp/**/obj/
 csharp/**/altbin/
 *.csproj.user
+# Android signing identities are machine/private backup material, never source artifacts.
+*.keystore
+*.jks
 # Per-user battery-backed cartridge state written beside the private ROM. The old binary
 # file remains a one-time migration source; JSON, atomic backups, and temporary writes are
 # equally local playthrough state.

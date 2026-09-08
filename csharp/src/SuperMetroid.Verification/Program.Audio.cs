@@ -134,6 +134,27 @@ internal static partial class Program
         AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
             "zero room track does not silence escape music");
 
+        // RoomState_CeresRidley_0 ($8F:E0C7) contains music ($24,$80).
+        // $82:E0D5 queues nonzero bytes verbatim; $80:8F0C masks the low seven
+        // bits only at dispatch. Thus $80 means an explicit stop, unlike room byte
+        // zero (inherit). Cover every possible room byte, not only this one room.
+        for (int roomTrack = 0; roomTrack <= byte.MaxValue; roomTrack++)
+        {
+            var roomMusic = new CartridgeAudioState();
+            roomMusic.AdvanceFrame(bus, default);
+            roomMusic.QueueRoomMusic(dataIndex: 0, trackIndex: (byte)roomTrack);
+            var portWrites = new List<CartridgeAudioCommand>();
+            for (int frame = 0; frame < 9; frame++)
+                portWrites.AddRange(roomMusic.AdvanceFrame(bus, default).Where(command =>
+                    command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 0));
+            if (roomTrack == 0)
+                AssertEqual(0, portWrites.Count, "room byte zero inherits rather than queues stop");
+            else
+                AssertSequenceEqual(new[] { CartridgeAudioCommand.WritePort(0,
+                    (byte)(roomTrack & AudioRomData.MusicWireFormat.TrackMask)) }, portWrites,
+                    $"native room track ${roomTrack:X2} dispatches its low seven bits");
+        }
+
         // The Zebes approach interstitial and Landing Site both call their song "track
         // five", but use different SPC data banks. `$82:E0E6-$E104` compares the packed
         // bank/track pair, so the latter track must be resent after bank six uploads.

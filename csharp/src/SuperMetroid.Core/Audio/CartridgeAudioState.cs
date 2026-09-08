@@ -121,9 +121,12 @@ public sealed class CartridgeAudioState
         // use the same numeric track. The Ceres interstitial ends on bank $33/track 5;
         // Landing Site requests bank $06/track 5 and therefore must queue track 5 again
         // after the upload instead of leaving only the periodic gunship-engine SFX audible.
+        // Keep the native byte intact here: room data can request a masked track-zero
+        // command, which is not the same as the zero/inherit sentinel checked above.
+        // The bank-$80 dispatcher performs the seven-bit mask when the delay expires.
         if (trackIndex != 0 && (changesMusicData || trackIndex != MusicTrackIndex))
             QueueMusicDelayed(
-                MusicCommand.SelectTrack(trackIndex),
+                MusicCommand.FromCartridge(trackIndex),
                 MusicCommandDelay.FromDelayedYArgument(6));
     }
 

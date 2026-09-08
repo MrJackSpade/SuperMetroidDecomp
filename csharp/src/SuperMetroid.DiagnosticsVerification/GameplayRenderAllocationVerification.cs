@@ -37,6 +37,21 @@ internal static class GameplayRenderAllocationVerification
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        var xray = new LayeredRenderSnapshot(memory,
+            [new XrayGameplayRenderLayer(new OrdinaryGameplayRenderLayer(registers),
+                Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true,
+                SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half,
+                false, 3, 7, 11)], 3, 15);
+        var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);
+        SoftwareLayeredSnapshotRenderer.Render(xray, reusable); // Warm pooled scratch.
+        Array.Fill(reusable, new SuperMetroid.Core.Assets.Rgba32(255, 0, 255));
+        before = GC.GetAllocatedBytesForCurrentThread();
+        var xrayBorrowed = SoftwareLayeredSnapshotRenderer.Render(xray, reusable);
+        long xrayBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+        Console.WriteLine($"X-ray reused packet: {xrayBytes} bytes.");
+        if (!ReferenceEquals(xrayBorrowed, reusable) || !xrayBorrowed.AsSpan().SequenceEqual(xrayReference))
+            throw new InvalidDataException("X-ray ignores output reuse or retains dirty pixels.");
+        if (xrayBytes >= 100000) throw new InvalidDataException("X-ray allocates redundant full-screen scratch or duplicate PPU memory.");
         var identity = new RenderFrameIdentity(1, 1, 0);
         RenderFrameSnapshot[] packets = [
             new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0), 3, 15)),

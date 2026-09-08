@@ -10,11 +10,11 @@ public static class SoftwareLayeredSnapshotRenderer
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
-        // The fused ordinary-gameplay base owns and fills its output. Creating a
+        // The fused ordinary/X-ray gameplay base owns and fills its output. Creating a
         // backdrop here first would immediately discard a native-sized large object
         // every frame. Other layer sequences still require the initialized backdrop.
-        bool ordinaryBase = !snapshot.Layers.IsEmpty && snapshot.Layers[0] is OrdinaryGameplayRenderLayer;
-        Rgba32[] output = ordinaryBase ? Array.Empty<Rgba32>() : SnesLayerCompositor.CreateBackdrop(memory.Cgram,
+        bool ownsOutput = !snapshot.Layers.IsEmpty && snapshot.Layers[0] is OrdinaryGameplayRenderLayer or XrayGameplayRenderLayer;
+        Rgba32[] output = ownsOutput ? Array.Empty<Rgba32>() : SnesLayerCompositor.CreateBackdrop(memory.Cgram,
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, gameplayOutputBuffer);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
         // wrongly allow a higher-numbered record to shine through the winning record.
@@ -29,7 +29,7 @@ public static class SoftwareLayeredSnapshotRenderer
             switch (layer)
             {
                 case XrayGameplayRenderLayer gameplayXray:
-                    output = SoftwareXrayGameplayRenderer.Render(snapshot.Memory, gameplayXray, snapshot.ObjectSelection);
+                    output = SoftwareXrayGameplayRenderer.Render(memory, gameplayXray, snapshot.ObjectSelection, gameplayOutputBuffer);
                     break;
                 case XrayWindowRenderLayer xray:
                     Rgba32[] revealed = Render(xray.Reveal);

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using System.Buffers;
 
 namespace SuperMetroid.Core.Rendering;
 
@@ -7,14 +8,35 @@ namespace SuperMetroid.Core.Rendering;
 public static class SoftwareXrayGameplayRenderer
 {
     public static Rgba32[] Render(PpuMemorySnapshot snapshot, XrayGameplayRenderLayer layer, byte objectSelection)
+        => Render(new SoftwarePpuSnapshotMemory(snapshot), layer, objectSelection, null);
+
+    internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, XrayGameplayRenderLayer layer,
+        byte objectSelection, Rgba32[]? outputBuffer)
     {
-        var memory = new SoftwarePpuSnapshotMemory(snapshot);
+        int count = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels;
+        if (outputBuffer is not null && outputBuffer.Length != count)
+            throw new ArgumentException("Unexpected X-ray output dimensions.", nameof(outputBuffer));
+        var output = outputBuffer ?? new Rgba32[count];
+        var objects = ArrayPool<Rgba32>.Shared.Rent(count);
+        try
+        {
+            var priorities = ArrayPool<byte>.Shared.Rent(count);
+            try
+            {
+                var palettes = ArrayPool<byte>.Shared.Rent(count);
+                try { return RenderWithScratch(memory, layer, objectSelection, output, objects, priorities, palettes); }
+                finally { ArrayPool<byte>.Shared.Return(palettes); }
+            }
+            finally { ArrayPool<byte>.Shared.Return(priorities); }
+        }
+        finally { ArrayPool<Rgba32>.Shared.Return(objects); }
+    }
+
+    private static Rgba32[] RenderWithScratch(SoftwarePpuSnapshotMemory memory, XrayGameplayRenderLayer layer,
+        byte objectSelection, Rgba32[] output, Rgba32[] objects, byte[] priorities, byte[] palettes)
+    {
         var r = layer.Gameplay.Registers;
         int width = SnesPpuLayout.ScreenWidthPixels, height = SnesPpuLayout.ScreenHeightPixels;
-        var output = new Rgba32[width * height];
-        var objects = new Rgba32[output.Length];
-        var priorities = new byte[output.Length];
-        var palettes = new byte[output.Length];
         // Registers and backdrop are invariant for this immutable packet. Resolve
         // their flags once rather than repeating Enum.HasFlag in the pixel loop;
         // runtime optimization of that API differs between desktop JIT and Mono AOT.
@@ -35,7 +57,8 @@ public static class SoftwareXrayGameplayRenderer
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
             subLayer.TilemapWord, subLayer.CharacterWord, 32, subLayer.MapHeightTiles, false) : null;
         SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, objectSelection,
-            objects, priorities, width, height, palettes);
+            objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), width, height,
+            palettes.AsSpan(0, output.Length));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
             output[y * width + x] = hud.Sample(x, y, opaqueZero: true).Color;

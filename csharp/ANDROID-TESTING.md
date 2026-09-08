@@ -240,6 +240,16 @@ Presentation still ranges 42-51 FPS in this short interval, with mailbox replace
 This removes the measured simulation bottleneck but is not smooth-presentation
 acceptance for #355.
 
+Pooling the X-ray OBJ scratch planes, reusing caller-owned output, and sharing the
+already-created software PPU memory then reduced measured reused-packet allocation
+from 708,432 to 68,080 bytes. The allocation test failed on output identity before
+the change and now checks identity, dirty-output parity, and a 100 KB steady-state
+budget. The exact demo image remains unchanged and the full render contract passes.
+On the same AOT device state, the first resumed window painted at 56.4 FPS, followed
+by 60/59/60/59 FPS at 60 emulation FPS and zero underruns. Render cost is about
+9.9 ms. This verifies the isolated X-ray improvement; broad sustained acceptance
+must still cover the other demanding scenes and transitions.
+
 A subsequent direct `Choreographer.IFrameCallback` experiment (invalidating before
 traversal, with producer invalidations disabled while active) did not fix the AOT
 presentation dips. At host frames 3867–3988 it measured 60 simulation FPS but

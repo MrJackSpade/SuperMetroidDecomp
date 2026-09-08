@@ -259,6 +259,7 @@ VerifySamusLiquidPhysics();
 VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
 VerifyWallJumpDust();
+VerifyCeresHazeLifecycle();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();

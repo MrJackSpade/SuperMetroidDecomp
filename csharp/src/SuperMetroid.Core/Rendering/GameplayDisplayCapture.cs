@@ -25,8 +25,8 @@ public static partial class GameplayDisplayCapture
         if (!doorOwnsDisplay)
         {
             if (runtime.DisplayedRoomLayer3Fx is { } fx) AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
-            if (runtime.ActiveRoom is { } room && RoomSetupCodePointers.SpawnsCeresHaze(room.State.SetupCodePointer))
-                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss)));
+            if (runtime.CeresHaze.Enabled)
+                AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed, runtime.CeresHaze.Intensity));
             if (runtime.DisplayedMorphBallEyeBeam is { } eye)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1XPosition, ppu.Layer1YPosition));
         }

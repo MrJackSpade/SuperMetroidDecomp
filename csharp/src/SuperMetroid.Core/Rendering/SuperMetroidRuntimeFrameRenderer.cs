@@ -191,17 +191,10 @@ public static class SuperMetroidRuntimeFrameRenderer
         // These are the three setup routines that explicitly call FXType_2C_CeresHaze.
         // Keying the effect from cartridge state avoids applying a guessed “Ceres tint” to
         // scenes that do not spawn the HDMA object.
-        if (!doorIrqOwnsDisplay && runtime.ActiveRoom is { } activeRoom &&
-            RoomSetupCodePointers.SpawnsCeresHaze(activeRoom.State.SetupCodePointer))
+        if (!doorIrqOwnsDisplay && runtime.CeresHaze.Enabled)
         {
-            // FX type $2C selects one of two bank-$88 HDMA definitions from the area's
-            // native boss bit. Ridley's retreat sets that bit on the same enemy-main call
-            // which starts the escape timer, and it remains set throughout the return
-            // route. Hard-coding the alive branch kept the lower-screen haze blue even
-            // though every other Ceres system had entered evacuation state.
-            bool ridleyIsDead =
-                runtime.System.HasAnyBossBits(activeRoom.AreaIndex, BossBits.AreaBoss);
-            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, ridleyIsDead);
+            // The HDMA object retains its spawn-time channel while the boss bit changes.
+            SnesGameplayFrameRenderer.ApplyCeresHaze(frame, runtime.CeresHaze.IsRed, runtime.CeresHaze.Intensity);
         }
 
         if (!doorIrqOwnsDisplay && runtime.DisplayedMorphBallEyeBeam is { } eyeBeam)

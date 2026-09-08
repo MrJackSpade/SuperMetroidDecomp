@@ -386,6 +386,7 @@ public sealed partial class SuperMetroidRuntime
 
     /// <summary>Door-selected bank-$83/$88 gameplay BG3 effect.</summary>
     public RoomLayer3FxState RoomLayer3Fx { get; } = new();
+    public CeresHazeState CeresHaze { get; } = new();
 
     /// <summary>
     /// Exact room-main owner for Ceres elevator shaft <c>$DF45</c>. The object persists so
@@ -1380,6 +1381,8 @@ public sealed partial class SuperMetroidRuntime
         // the frame prologue; advancing only at a consumer would change the shared sequence
         // and would be a bespoke behavioral patch rather than the cartridge call order.
         System.NextRandom();
+
+        CeresHaze.Step();
 
         // Ridley's `$90:E119` request is issued by room main after Samus movement in the
         MessageBoxSelectionSoundRequestedThisFrame = false;

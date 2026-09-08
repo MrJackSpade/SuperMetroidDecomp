@@ -730,7 +730,7 @@ public static partial class SnesGameplayFrameRenderer
     /// route uses the same table with a red selector and is retained as an explicit argument
     /// rather than hiding boss-state policy in this renderer.
     /// </remarks>
-    public static void ApplyCeresHaze(Span<Rgba32> frame, bool ridleyIsDead)
+    public static void ApplyCeresHaze(Span<Rgba32> frame, bool ridleyIsDead, int intensity = CeresHazeRenderDefinitions.MaximumComponent)
     {
         if (frame.Length != Width * Height)
             throw new ArgumentException("Ceres haze requires one complete 256x224 frame.", nameof(frame));
@@ -742,6 +742,7 @@ public static partial class SnesGameplayFrameRenderer
                 : Math.Min(CeresHazeRenderDefinitions.MaximumComponent,
                     CeresHazeRenderDefinitions.RampFirstComponent +
                     (screenY - CeresHazeRenderDefinitions.RampFirstLine) / CeresHazeRenderDefinitions.BandHeight);
+            component = Math.Max(0, component + intensity - CeresHazeRenderDefinitions.MaximumComponent);
             byte addition = ExpandFiveBit((byte)component);
             int row = screenY * Width;
             for (int screenX = 0; screenX < Width; screenX++)

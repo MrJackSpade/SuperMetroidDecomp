@@ -9,11 +9,11 @@ tables, retain the selected channel in their hold phase, and enter fade-out on
 door function `$E2DB`. The completed sixteen-byte table contains channel bits
 ORed with values 0..15. The fixture tests ROM instructions, not the C# gradient.
 
-This is diagnostic evidence, not a completed #358 fix. The managed renderer still
-chooses its color from the live boss bit each frame and uses a constant gradient.
-The room-spawn selector at `$88:DDC7` instead chooses the channel once. The next
-implementation must preserve that room ownership and the transition-driven fade
-lifecycle in both legacy rendering and captured display packets.
+The managed room owner now selects its channel once, matching `$88:DDC7`, and
+advances these transition-driven fade phases. Both legacy rendering and captured
+display packets consume its intensity. Verification covers the exact band values
+and the real Ridley-room exit coroutine: changing the boss bit retains source blue,
+while the destination room selects red on load. Player confirmation remains pending.
 
 ## Wall-jump dust reference (#356)
 

@@ -62,6 +62,9 @@ public sealed class DoorTransitionState
         if (!IsActive)
             throw new InvalidOperationException("Door transition has not begun.");
 
+        runtime.CeresHaze.Step(
+            roomFadeIn: Phase == DoorTransitionPhase.FadeInDestinationPalette,
+            roomFadeOut: Phase == DoorTransitionPhase.FadeOutSourcePalette);
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:

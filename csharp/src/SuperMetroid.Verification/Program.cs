@@ -142,6 +142,11 @@ if (args is ["--plm-draw-clone"])
     VerifyPlmDrawClone();
     return 0;
 }
+if (args is ["--grapple-resident-trigger"])
+{
+    VerifyNoobTubePlm();
+    return 0;
+}
 if (args is ["--grapple-gates"])
 {
     VerifyGrappleGreenGateVisibility();

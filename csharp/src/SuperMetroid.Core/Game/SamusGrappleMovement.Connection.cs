@@ -171,6 +171,15 @@ public static partial class SamusGrappleMovement
                         plms.TrySpawnDownwardGateTrigger(level, block.Index, block.Bts, projectileType: 0);
                     else if (block.Bts.TryGetBlueDoorOrientation(out _))
                         plms.TrySpawnBlueDoorOpening(level, block.Index, block.Bts, projectileType: 0);
+                    else if (block.Bts == RoomBlockBehaviorValues.ResidentPlmProjectileTrigger)
+                    {
+                        // Generic shot-trigger setup also belongs to the grapple table.
+                        // Notify the resident actor with no weapon family; its own native
+                        // pre-instruction decides whether to reject the hit or wake up.
+                        if (!plms.TryNotifyResidentProjectileHit(block.Index, projectileType: 0))
+                            throw new InvalidOperationException(
+                                $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
+                    }
                     else
                         plms.TrySpawnProjectileShotBlock(
                             level,

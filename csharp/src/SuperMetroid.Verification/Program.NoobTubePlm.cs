@@ -82,6 +82,27 @@ internal static partial class Program
         AssertEqual(0xd4e6, intact.InstructionPointer,
             "intact tube sleeps after its first draw");
 
+        // Repeated #339: BTS $44 is a resident trigger, not a breakable-block index.
+        // Exercise StepFiring (including endpoint collision), rather than bypassing
+        // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
+        var grappleSamus = new SamusState
+        {
+            XPosition = blockX * 16 + 8,
+            YPosition = blockY * 16 + 8,
+        };
+        grappleSamus.Grapple.Phase = GrapplePhase.Firing;
+        var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
+            (ushort)SnesButton.X, plms);
+        AssertTrue(grappleHit.CancelQueued, "solid resident trigger cancels the grapple endpoint");
+        AssertEqual(0x8000, plms.PopulationSlots.Single().LoopTimer,
+            "grapple publishes the native hit bit without a missile/power-bomb family");
+        StepNoobTube(plms, bus, level, streamer);
+        AssertEqual(0, plms.PopulationSlots.Single().LoopTimer, "resident consumes grapple notification once");
+        AssertTrue(!brokenEvent && projectiles.Count == 0, "grapple must not shatter the power-bomb-only tube");
+        AssertTrue(plms.SoundRequests.Contains(new PlmSoundRequest(
+            SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, NoobTubePlmRomData.IneffectiveShotSound), 6)),
+            "resident emits its cartridge ineffective-shot response to grapple");
+
         // A non-power-bomb hit is consumed by the same resident collision dispatcher but
         // only queues the retail ineffective-shot sound and clears the transient hit word.
         AssertTrue(plms.TryNotifyResidentProjectileHit(blockIndex, 0x0100),

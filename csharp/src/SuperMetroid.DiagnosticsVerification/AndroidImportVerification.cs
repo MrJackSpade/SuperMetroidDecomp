@@ -24,6 +24,10 @@ internal static class AndroidImportVerification
         string backup = Directory.GetFiles(Path.Combine(root, "import-backups")).Single();
         if (!previous.AsSpan().SequenceEqual(File.ReadAllBytes(backup)))
             throw new InvalidDataException("State import did not preserve the exact previous slot.");
+        string emptyResult = AndroidFileImport.ImportState(root, rom, validSeed, 8);
+        if (!emptyResult.Contains("slot was empty", StringComparison.Ordinal) ||
+            Directory.GetFiles(Path.Combine(root, "import-backups")).Length != 1)
+            throw new InvalidDataException("Empty-slot import claimed or created a nonexistent previous-state backup.");
 
         var importedBus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         new SuperMetroidSaveRam(importedBus).SaveSlot(0, new SuperMetroidSaveSnapshot { Health = 17 });

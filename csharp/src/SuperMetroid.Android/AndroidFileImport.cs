@@ -19,8 +19,10 @@ internal static class AndroidFileImport
             File.Copy(source, stagingStore.GetSlotPath(slot));
             var decoded = stagingStore.Load(slot);
             if (decoded.AudioPlayer is null) throw new InvalidDataException("State has no managed audio graph.");
+            bool replacingSlot = File.Exists(destination);
             ReplaceWithBackup(root, stagingStore.GetSlotPath(slot), destination);
-            return $"Imported state into slot {slot}. Use Load state to resume it. Previous slot retained in import-backups." +
+            return $"Imported state into slot {slot}. Use Load state to resume it." +
+                (replacingSlot ? " Previous slot retained in import-backups." : " The slot was empty; no existing state was replaced.") +
                 (decoded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", decoded.Warnings));
         }
         finally { Directory.Delete(staging, recursive: true); }

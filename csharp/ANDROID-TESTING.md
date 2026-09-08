@@ -127,3 +127,22 @@ Both cases passed on the Retroid Pocket Classic on 2026-09-08. Save JSON, its ba
 and debugger slot 0 retained their pre-test SHA-256 values. Rebuild **without**
 `AndroidHostProbes=true` and reinstall afterward; do not leave a probe APK as the
 player's testing build. Broader sustained-performance acceptance remains separate.
+
+## Presenter cadence regression
+
+The Android View maintains its own animation invalidation chain while the session
+is active. Publication still copies into the single pending mailbox, and paint FPS
+counts only newly consumed frames, not redraws of the previous bitmap. Simulation
+and PCM production remain on their independent fixed-step worker.
+
+On 2026-09-08, the same autonomous demo window (recorded host frames 2600–4400,
+30 timing windows per run) painted at 49.26 FPS with producer-only invalidation
+and 59.58 FPS with display-paced invalidation. Both runs simulated at 60.01 FPS
+(rounded); minimum one-second paint rates were 40.3 and 57.1 respectively.
+This comparison excludes startup/loading and is not a claim of flawless audio.
+
+For a lifecycle regression, open the testing menu, allow its animation to settle,
+then compare `adb shell dumpsys gfxinfo org.supermetroid.csharp.testing` twice
+several seconds apart. `Total frames rendered` must stop increasing while the
+native menu is idle. The device check stayed at 6150 over four seconds. Resume
+must restart consumption without requiring fresh input or recreating the Activity.

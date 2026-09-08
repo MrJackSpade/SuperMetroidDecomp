@@ -36,6 +36,7 @@ internal sealed class AndroidGameSession
 
     public void SetActive(bool value)
     {
+        view.SetPresentationActive(value);
         Input.Clear();
         if (value) active.Set();
         else active.Reset();
@@ -67,6 +68,7 @@ internal sealed class AndroidGameSession
 
     public async Task Stop()
     {
+        view.SetPresentationActive(false);
         stopping.Cancel();
         wake.Set();
         await worker;
@@ -240,6 +242,7 @@ internal sealed class AndroidGameSession
 
     private void ReportStopped(Exception error, bool append = false)
     {
+        view.SetPresentationActive(false);
         string report = error.ToString();
         global::Android.Util.Log.Error("SuperMetroid", report);
         try

@@ -27,6 +27,7 @@ internal sealed class AndroidGameView : View
     private long drawTicks;
     private long uploadTicks;
     private long replacedFrames;
+    private bool presentationActive;
 
     public AndroidGameView(Context context) : base(context)
     {
@@ -46,6 +47,16 @@ internal sealed class AndroidGameView : View
 
     /// <summary>Updated per emulated frame; not delayed by the one-second FPS window.</summary>
     public void SetRoomIdentity(string identity) => Volatile.Write(ref roomIdentity, identity);
+
+    /// <summary>
+    /// Enables the display-paced redraw chain without coupling emulation to vsync.
+    /// Already scheduled draws may finish after disabling, but do not rearm themselves.
+    /// </summary>
+    public void SetPresentationActive(bool value)
+    {
+        Volatile.Write(ref presentationActive, value);
+        if (value) PostInvalidateOnAnimation();
+    }
 
     public void Publish(Rgba32[] frame, string description)
     {
@@ -83,6 +94,9 @@ internal sealed class AndroidGameView : View
             viewport.Left + 8, viewport.Top + 56, text);
         canvas.Restore();
         Interlocked.Add(ref drawTicks, Stopwatch.GetTimestamp() - drawStart);
+        // Rearm from the display traversal, independently of producer arrival phase.
+        // A paused/backgrounded session does not maintain a redraw loop.
+        if (Volatile.Read(ref presentationActive)) PostInvalidateOnAnimation();
     }
 
     private void UploadFrame(Rgba32[] frame)

@@ -82,6 +82,7 @@ internal sealed class AndroidGameSession
         try
         {
             using var data = new AndroidSessionData(root);
+            var rasterBuffer = new SuperMetroid.Core.Assets.Rgba32[FrontendFrame.Width * FrontendFrame.Height];
             RefreshEffectiveOptions(data);
             SuperMetroidGameOptions options = data.Options;
             long sequence = 0;
@@ -141,7 +142,7 @@ internal sealed class AndroidGameSession
                     : "No active room");
                 double stepped = clock.Elapsed.TotalMilliseconds;
                 var pixels = frame.Snapshot is { } snapshot
-                    ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
+                    ? SoftwareFrameSnapshotRenderer.Render(snapshot, rasterBuffer) : frame.Frame.Pixels;
                 double rendered = clock.Elapsed.TotalMilliseconds;
                 short[] samples = data.Audio.RenderFrame(frame.Frame.AudioCommands);
                 if (options.MasterVolumePercent != 100)

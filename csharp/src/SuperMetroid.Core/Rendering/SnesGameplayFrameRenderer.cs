@@ -208,9 +208,10 @@ public static partial class SnesGameplayFrameRenderer
         ushort bg3CharacterBaseWord = SnesPpuLayout.GameplayHudCharacterBaseWord,
         byte obsel = 0x03,
         SnesMainScreenLayers mainScreenLayers =
-            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj)
+            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
+        Rgba32[]? outputBuffer = null)
     {
-        Rgba32[] output = CreateBackdrop(cgram);
+        Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
         // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
         // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
@@ -1340,13 +1341,15 @@ public static partial class SnesGameplayFrameRenderer
             source.A);
     }
 
-    private static Rgba32[] CreateBackdrop(SnesCgram cgram)
+    private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(cgram);
 
         // CGRAM color zero is the PPU backdrop. Starting with it (rather than transparent
         // host pixels) matches every screen location no translated layer has covered yet.
-        var output = new Rgba32[Width * Height];
+        var output = outputBuffer ?? new Rgba32[Width * Height];
+        if (output.Length != Width * Height)
+            throw new ArgumentException("Gameplay output must have native frame dimensions.", nameof(outputBuffer));
         Array.Fill(output, cgram.GetRgba(0));
         return output;
     }

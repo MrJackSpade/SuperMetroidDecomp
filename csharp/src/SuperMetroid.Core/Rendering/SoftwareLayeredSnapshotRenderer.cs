@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Reference composition from immutable state, without scene or ROM access.</summary>
 public static class SoftwareLayeredSnapshotRenderer
 {
-    public static Rgba32[] Render(LayeredRenderSnapshot snapshot)
+    public static Rgba32[] Render(LayeredRenderSnapshot snapshot, Rgba32[]? gameplayOutputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
@@ -83,7 +83,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         gameplay.VerticalScrolls.IsEmpty ? null : gameplay.VerticalScrolls.ToArray(),
                         r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
                         r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
-                        snapshot.ObjectSelection, r.MainScreenLayers);
+                        snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,

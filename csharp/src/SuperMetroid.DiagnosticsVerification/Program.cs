@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 try
 {
     AndroidSessionCommandVerification.Run();
+    AndroidFrameMailboxVerification.Run();
     if (args is ["--render-allocation"])
         return GameplayRenderAllocationVerification.Run();
     var boundedTrace = new AndroidResumeTrace(2);

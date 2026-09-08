@@ -25,6 +25,17 @@ internal static class GameplayRenderAllocationVerification
         // Output plus detached PPU memory fit comfortably below this budget. A second
         // native RGBA backdrop (229376 bytes), discarded by the fused pass, does not.
         if (allocated >= 450000) throw new InvalidDataException("Gameplay packet allocates a redundant full-size backdrop.");
+        var reusable = new SuperMetroid.Core.Assets.Rgba32[expected.Length];
+        before = GC.GetAllocatedBytesForCurrentThread();
+        var reused = SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable);
+        allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        if (!ReferenceEquals(reusable, reused) || !reused.AsSpan().SequenceEqual(expected))
+            throw new InvalidDataException("Reusable gameplay output changed ownership or pixels.");
+        if (allocated >= 100000) throw new InvalidDataException("Reusable gameplay rendering still allocates a full pixel buffer.");
+        Array.Fill(reusable, new SuperMetroid.Core.Assets.Rgba32(255, 0, 255));
+        if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).AsSpan().SequenceEqual(expected))
+            throw new InvalidDataException("Reusable output retained previous frame pixels.");
+        Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
         return 0;
     }
 }

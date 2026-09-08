@@ -157,12 +157,12 @@ public sealed partial class RoomEnemySystem
         if (!DecrementMotherBrainTimerPastZero(state))
             return;
 
-        // Samus command zero at `$90:F084` locks input. The room scroll assignment is a
-        // literal byte copy from index zero to index one, not a guessed red/green value.
+        // $A9:8836 loads TWO bytes, masks with $00FF, then stores TWO bytes. This
+        // preserves scroll zero and clears scroll one, locking the arena to screen zero.
         SamusState requiredSamus = samus ?? throw new InvalidOperationException(
             "Mother Brain's fake-death input lock requires the active Samus state.");
         requiredSamus.InputLocked = true;
-        RequireSetRoomScrollState(1, RequireReadRoomScrollState(0));
+        RequireSetRoomScrollState(1, RoomScrollState.RedBoundary);
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;
         state.FunctionTimer = 32;

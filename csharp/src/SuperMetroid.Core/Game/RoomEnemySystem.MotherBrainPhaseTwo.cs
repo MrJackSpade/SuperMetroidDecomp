@@ -806,7 +806,7 @@ public sealed partial class RoomEnemySystem
         RunMotherBrainSecondPhaseThinking(state, samus);
     }
 
-    private static void HandleMotherBrainWalking(MotherBrainEnemyState state)
+    private void HandleMotherBrainWalking(MotherBrainEnemyState state)
     {
         // `$A9:C6B8` alters only the walk accumulator and installs a ROM-authored body list;
         // actual displacement remains bytecode-owned, which also keeps BG2 scroll aligned.
@@ -816,23 +816,34 @@ public sealed partial class RoomEnemySystem
         {
             state.WalkCounter = 1;
             if (state.Body.XPosition >= 0x0030)
-                SetMotherBrainInstructionList(state.Body, 0x983c); // Backwards, fast.
-            else
-                SetMotherBrainInstructionList(state.Body, 0x97a4); // Forwards, medium.
-            return;
+            {
+                SetMotherBrainInstructionList(state.Body, MotherBrainBodyInstructionLists.WalkBackwardsFast);
+                return;
+            }
+        }
+        else
+        {
+            state.WalkCounter = unchecked((ushort)(state.WalkCounter + 6));
+            if (state.WalkCounter >= 0x0100)
+            {
+                StartMotherBrainForwardWalk(state);
+                return;
+            }
+            if (state.Body.XPosition >= 0x0030)
+                return;
         }
 
-        state.WalkCounter = unchecked((ushort)(state.WalkCounter + 6));
-        if (state.WalkCounter >= 0x0100)
-        {
-            state.WalkCounter = 0x0080;
-            if (state.Body.XPosition < 0x0080)
-                SetMotherBrainInstructionList(state.Body, 0x97a4);
-        }
-        else if (state.Body.XPosition < 0x0030)
-        {
-            SetMotherBrainInstructionList(state.Body, 0x97a4);
-        }
+        // The cartridge samples the current RNG word; it does not advance the generator.
+        if ((RequireRandomNumber() & MotherBrainBodyInstructionLists.ForwardWalkRandomMask) >=
+            MotherBrainBodyInstructionLists.ForwardWalkRandomThreshold)
+            StartMotherBrainForwardWalk(state);
+    }
+
+    private static void StartMotherBrainForwardWalk(MotherBrainEnemyState state)
+    {
+        state.WalkCounter = 0x0080;
+        if (state.Body.XPosition < 0x0080)
+            SetMotherBrainInstructionList(state.Body, MotherBrainBodyInstructionLists.WalkForwardsMedium);
     }
 
     /// <summary>

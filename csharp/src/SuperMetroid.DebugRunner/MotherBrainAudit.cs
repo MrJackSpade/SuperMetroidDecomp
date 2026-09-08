@@ -392,7 +392,7 @@ internal static class MotherBrainAudit
             0xb693, 0xb697, 0xb69b, 0xb69f, 0xb6a3, 0xb6a7,
         ];
         if (!reachedPhaseTwoSetup || !observedLockedInput || !observedUnlockAfterLock ||
-            scrollBytes[1] != scrollBytes[0] || state.SpawnedFallingTubeCount != 5 ||
+            scrollBytes[0] != 2 || scrollBytes[1] != 0 || state.SpawnedFallingTubeCount != 5 ||
             observedCeilingTubes.Count != 4 || !observedHeaders.SequenceEqual(expectedHeaders) ||
             !observedMusic.SequenceEqual(new ushort[] { 6, 0, 0xff21 }) ||
             state.RoomPaletteInstructionPointer != 0 || state.RoomPaletteInstructionTimer != 0 ||

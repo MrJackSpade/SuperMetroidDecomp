@@ -795,6 +795,9 @@ if (args.Length >= 2 && args[0] == "--draygon-audit")
 if (args.Length >= 2 && args[0] == "--mother-brain-room-audit")
     return MotherBrainRoomAudit.Run(args[1]);
 
+if (args.Length == 3 && args[0] == "--mother-brain-recording-audit")
+    return MotherBrainRecordingAudit.Run(args[1], args[2]);
+
 if (args.Length >= 2 && args[0] == "--mother-brain-audit")
 {
     string motherBrainRomPath = string.Join(' ', args[1..]).Trim('"');

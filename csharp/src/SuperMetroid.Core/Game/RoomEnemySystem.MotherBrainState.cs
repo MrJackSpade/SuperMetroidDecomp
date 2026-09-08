@@ -275,6 +275,9 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public bool DrawBrain { get; internal set; }
 
+    /// <summary>Byte cursor at $7E:7842 into Mother Brain's native rainbow palette list.</summary>
+    public ushort RainbowPaletteCursor { get; internal set; }
+
     /// <summary>Whether the active bank-$A9 draw hook appends five articulated neck joints.</summary>
     public bool DrawNeck { get; internal set; }
 

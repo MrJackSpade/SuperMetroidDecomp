@@ -23,6 +23,7 @@ public sealed partial class RoomEnemySystem
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         sequence.StartAttackCycle();
         state.RainbowBeamSequence = sequence;
+        state.RainbowPaletteCursor = 0;
         state.RainbowAppliedHeadInstructionList = 0;
         ApplyLiveMotherBrainRainbowState(
             state,
@@ -169,6 +170,10 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.RainbowBeamPaletteRequested = current.PaletteRequested;
+        if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam &&
+            current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding)
+            state.RainbowPaletteCursor = 0;
+        ApplyMotherBrainRainbowPalette(state, current);
         state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff

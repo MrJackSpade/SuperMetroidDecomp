@@ -1892,6 +1892,8 @@ internal static class MotherBrainAudit
         for (; frames < 1400; frames++)
         {
             MotherBrainRainbowBeamAttackPhase phaseBefore = sequence.Phase;
+            ushort paletteCursorBefore = state.RainbowPaletteCursor;
+            ushort bodyFrameBefore = state.Body.FrameCounter;
             ushort healthBefore = samus.Health;
             enemies.StepFrame(
                 cameraX: 0,
@@ -1901,6 +1903,20 @@ internal static class MotherBrainAudit
                 level: level,
                 nmiFrameCounter8: unchecked((byte)frames),
                 sharedProjectiles: sharedProjectiles);
+
+            if (phaseBefore == MotherBrainRainbowBeamAttackPhase.DrainingSamus &&
+                (bodyFrameBefore & 2) != 0)
+            {
+                ushort palette = ReadWord(bus, 0xade434 + paletteCursorBefore);
+                if (palette == 0) palette = ReadWord(bus, 0xade434);
+                for (int color = 0; color < 15; color++)
+                {
+                    ushort expected = ReadWord(bus, 0xad0000 | (palette + color * 2));
+                    if (cgram.Colors[0x41 + color] != expected || cgram.Colors[0x91 + color] != expected ||
+                        cgram.Colors[0xb1 + color] != ReadWord(bus, 0xad0000 | (palette + 30 + color * 2)))
+                        throw new InvalidDataException($"Mother Brain rainbow CGRAM differs at color {color}.");
+                }
+            }
 
             if (phaseBefore == MotherBrainRainbowBeamAttackPhase.StartCharging)
                 firstChargeCalls++;

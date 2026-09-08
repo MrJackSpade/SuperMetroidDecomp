@@ -154,7 +154,7 @@ public sealed partial class RoomEnemySystem
                 RunLiveMotherBrainRainbowBeam(
                     state,
                     RequireMotherBrainCombatSamus(samus),
-                    nmiFrameCounter8,
+                    unchecked((byte)state.Body.FrameCounter),
                     sharedProjectiles);
                 return;
             default:

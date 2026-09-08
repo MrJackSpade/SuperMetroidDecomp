@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
   if (argc == 3 && !strcmp(argv[2], "ceres-haze")) return verify_ceres_haze();
   if (argc == 3 && !strcmp(argv[2], "ridley-wall")) return verify_ridley_wall();
   if (argc == 3 && !strcmp(argv[2], "eye-window")) return dump_eye_windows();
+  if (argc == 3 && !strcmp(argv[2], "eye-window-all")) return dump_all_eye_windows();
   if (argc == 3 && !strcmp(argv[2], "shutter-bomb-arc")) {
     FILE *seed = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.wram", "rb");
     FILE *trace = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", "r");

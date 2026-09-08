@@ -15,11 +15,18 @@ windows with:
 dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --eye-window-native-compare "Super Metroid.smc" csharp/test-temp/issue-51-native-windows.csv
 ```
 
-This comparison intentionally fails until the production geometry agrees with
-the executed cartridge. It compares pixel membership, including empty windows,
+The comparison checks pixel membership, including empty windows,
 and rejects missing or duplicate fixture rows. This is not a screenshot or an
 independent copy of the managed calculation used as its own oracle. It does not
 by itself verify sprite/color-math composition or other camera positions.
+
+`eye-window-all` emits the extended CSV accepted by the same managed comparison:
+all 256 angles, widths 0/1/4, and screen X origins -16/168/272 at Y 104. The
+2,304 cases cover 442,368 gameplay scanlines. The translated accumulator matches
+these executed-ROM windows, including the off-screen up-left first-row register
+quirk and the side-facing rectangle's unconditional initial fill. No analytical
+tolerance or eye-specific positional offset is used. The ordinary verification
+suite retains a compact selection of native endpoints as an independent oracle.
 
 ## Ceres Ridley wall-impact reference (#357)
 

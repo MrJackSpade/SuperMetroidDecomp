@@ -1187,55 +1187,21 @@ public static partial class SnesGameplayFrameRenderer
             return;
         }
 
-        int originX = unchecked((short)(beam.WorldX - layer1X));
-        // Every on-screen branch of CalculateXrayHdmaTableInner writes its apex to
-        // `2 * (r24 - 1)` ($91:C5FF/$C660/$C6C1/$C822/$C998). The body coordinate passed
-        // by $88:E987 is therefore the scanline immediately below the apex, not the apex
-        // itself. Anchoring at WorldY directly made the cone appear to leave the top/back
-        // of the camera-eye art and was especially conspicuous on its first visible frame.
-        int originY = unchecked((short)(beam.WorldY - layer1Y)) - 1;
-        int centerAngle = beam.Angle.TableIndex;
-        int angularWidth = beam.AngularWidth & 0x00ff;
-        XrayDirection leftEdge = ReadXrayDirection(bus, centerAngle - angularWidth);
-        XrayDirection rightEdge = ReadXrayDirection(bus, centerAngle + angularWidth);
-        bool horizontalLine = angularWidth == 0 &&
-            (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
-             centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
-
-        byte addRed = ExpandFiveBit((byte)(beam.Red & 0x1f));
-        byte addGreen = ExpandFiveBit((byte)(beam.Green & 0x1f));
-        byte addBlue = ExpandFiveBit((byte)(beam.Blue & 0x1f));
+        // Both display-packet and immediate rendering consume the same cartridge
+        // endpoint builder. Backend equality is useful coverage, but the separate
+        // executed-ROM fixture is the independent oracle for these endpoints.
+        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1X, layer1Y)!;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
-            int fromOriginY = screenY - originY;
+            ColorAddWindow window = layer.Windows[screenY];
             int row = screenY * Width;
-            for (int screenX = 0; screenX < Width; screenX++)
+            for (int screenX = window.Left; screenX <= window.Right; screenX++)
             {
-                int fromOriginX = screenX - originX;
-                bool inside;
-                if (horizontalLine)
-                {
-                    inside = fromOriginY == 0 &&
-                        (centerAngle == SnesAngle.QuarterTurn.TableIndex
-                            ? fromOriginX >= 0
-                            : fromOriginX <= 0);
-                }
-                else
-                {
-                    long leftCross = (long)leftEdge.X * fromOriginY -
-                        (long)leftEdge.Y * fromOriginX;
-                    long rightCross = (long)rightEdge.X * fromOriginY -
-                        (long)rightEdge.Y * fromOriginX;
-                    inside = leftCross >= -0x00ff && rightCross <= 0x00ff;
-                }
-
-                if (!inside)
-                    continue;
                 Rgba32 source = frame[row + screenX];
                 frame[row + screenX] = new Rgba32(
-                    SaturatingAdd(source.R, addRed),
-                    SaturatingAdd(source.G, addGreen),
-                    SaturatingAdd(source.B, addBlue),
+                    SaturatingAdd(source.R, window.Red),
+                    SaturatingAdd(source.G, window.Green),
+                    SaturatingAdd(source.B, window.Blue),
                     source.A);
             }
         }

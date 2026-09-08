@@ -804,11 +804,12 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = 0x0060;
         ushort direction = samus.XPosition >= damageSourceX ? (ushort)1 : (ushort)0;
-        SamusKnockbackMovement.Start(
-            _bus!,
-            samus,
-            controllerInput,
-            direction,
-            knockbackTimer: 5);
+        // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
+        // knockback direction is installed. Damage can recur after invincibility
+        // expires even if the old movement handler remains active (e.g. a boss grab).
+        samus.KnockbackTimer = 5;
+        samus.KnockbackXDirection = direction;
+        SamusKnockbackMovement.TryStartPendingHitInterruption(
+            _bus!, samus, controllerInput, timeIsFrozen: false);
     }
 }

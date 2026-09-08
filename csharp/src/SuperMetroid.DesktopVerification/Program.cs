@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--enemy-knockback-reentry-audit"])
+                {
+                    VerifyEnemyKnockbackReentry();
+                    return;
+                }
                 if (args is ["--draygon-grapple-audit"])
                 {
                     VerifyDraygonGrapple();

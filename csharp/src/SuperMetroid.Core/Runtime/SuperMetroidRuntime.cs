@@ -4349,6 +4349,11 @@ public sealed partial class SuperMetroidRuntime
             // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
             DisplayedOam.CopyFinalizedFrom(Oam);
             DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
+            var bg2Window = Enemies.Draygon is { } boss
+                ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,
+                    BackgroundScroll.Layer1XPosition, BackgroundScroll.Layer1YPosition,
+                    boss.Body.Properties.HasAny(EnemyProperties.Deleted))
+                : (First: 32, End: 224);
             DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(
                 BackgroundScroll.Layer1XPosition,
                 BackgroundScroll.Layer1YPosition,
@@ -4356,7 +4361,7 @@ public sealed partial class SuperMetroidRuntime
                 BackgroundScroll.Bg1VerticalScroll,
                 BackgroundScroll.Bg2HorizontalScroll,
                 BackgroundScroll.Bg2VerticalScroll,
-                Enemies.LastRoomShake);
+                Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
             DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
@@ -4524,7 +4529,8 @@ public readonly record struct GameplayPpuRenderSnapshot(
     ushort Bg1VerticalScroll,
     ushort Bg2HorizontalScroll,
     ushort Bg2VerticalScroll,
-    RoomShakeFrameResult RoomShake);
+    RoomShakeFrameResult RoomShake,
+    int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
 
 /// <summary>Confirmed native save-point identity handed to the selected-slot SRAM owner.</summary>
 public readonly record struct SaveStationPersistenceRequest(

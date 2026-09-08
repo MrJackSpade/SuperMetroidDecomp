@@ -17,6 +17,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if ((type == typeof(SuperMetroid.Core.Runtime.GameplayPpuRenderSnapshot) && count == 7 && current.Length == 9) ||
+            (type == typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters) && count == 11 && current.Length == 13))
+        {
+            Console.Error.WriteLine("WARNING: Older debugger state has no BG2 scanline window; the next accepted NMI reconstructs it.");
+            return current.Where(field => field.Name is not "<Bg2FirstScanline>k__BackingField" and not "<Bg2EndScanline>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusState) && count == current.Length - 1 &&
             current.Any(field => field.Name == PreviousDrawNewInputField))
         {

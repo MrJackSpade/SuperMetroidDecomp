@@ -209,7 +209,8 @@ public static partial class SnesGameplayFrameRenderer
         byte obsel = 0x03,
         SnesMainScreenLayers mainScreenLayers =
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
-        Rgba32[]? outputBuffer = null)
+        Rgba32[]? outputBuffer = null,
+        int bg2FirstScanline = 32, int bg2EndScanline = 224)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
@@ -252,7 +253,7 @@ public static partial class SnesGameplayFrameRenderer
                 bg2TilemapWidthInTiles,
                 bg2TilemapHeightInTiles,
                 bg2TilemapBaseWord,
-                mainScreenLayers);
+                mainScreenLayers, bg2FirstScanline, bg2EndScanline);
         }
         finally
         {
@@ -289,7 +290,8 @@ public static partial class SnesGameplayFrameRenderer
         int bg2TilemapWidthInTiles,
         int bg2TilemapHeightInTiles,
         ushort bg2TilemapBaseWord,
-        SnesMainScreenLayers mainScreenLayers)
+        SnesMainScreenLayers mainScreenLayers,
+        int bg2FirstScanline, int bg2EndScanline)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -334,7 +336,7 @@ public static partial class SnesGameplayFrameRenderer
         Span<Rgba32> palette = stackalloc Rgba32[SnesCgram.ColorCount];
         ExpandCgram(cgram, palette);
         bool bg1Enabled = (mainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
-        bool bg2Enabled = (mainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
+        bool bg2LayerEnabled = (mainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
         bool objEnabled = (mainScreenLayers & SnesMainScreenLayers.Obj) != 0;
 
         int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
@@ -342,6 +344,7 @@ public static partial class SnesGameplayFrameRenderer
         int bg2ScreensPerRow = bg2TilemapWidthInTiles >> 5;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
+            bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
             int bg1ScrolledY = unchecked(bg1VerticalScroll + screenY) & 0xff;
             ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine is null
                 ? bg2HorizontalScroll

@@ -83,7 +83,8 @@ public static class SoftwareLayeredSnapshotRenderer
                         gameplay.VerticalScrolls.IsEmpty ? null : gameplay.VerticalScrolls.ToArray(),
                         r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
                         r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
-                        snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer);
+                        snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer,
+                        r.Bg2FirstScanline, r.Bg2EndScanline);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,

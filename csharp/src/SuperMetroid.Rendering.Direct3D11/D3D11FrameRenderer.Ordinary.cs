@@ -42,7 +42,7 @@ public sealed partial class D3D11FrameRenderer
         data[1] = r.Bg2TilemapWord; data[2] = r.Bg2CharacterWord;
         data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
-        data[25] = SnesPpuLayout.GameplayHudHeightPixels; data[26] = SnesPpuLayout.ScreenHeightPixels;
+        data[25] = (uint)r.Bg2FirstScanline; data[26] = (uint)r.Bg2EndScanline;
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
         {
             int line = y - SnesPpuLayout.GameplayHudHeightPixels;

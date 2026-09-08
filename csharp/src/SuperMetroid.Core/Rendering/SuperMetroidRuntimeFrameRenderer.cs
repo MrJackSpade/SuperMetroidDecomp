@@ -181,7 +181,9 @@ public static class SuperMetroidRuntimeFrameRenderer
                 mainScreenLayers: runtime.DoorTransitionMainScreenLayers ??
                     (SnesMainScreenLayers.Bg1 |
                      SnesMainScreenLayers.Bg2 |
-                     SnesMainScreenLayers.Obj));
+                     SnesMainScreenLayers.Obj),
+                bg2FirstScanline: runtime.DisplayedGameplayPpu.Bg2FirstScanline,
+                bg2EndScanline: runtime.DisplayedGameplayPpu.Bg2EndScanline);
         }
 
         bool doorIrqOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;

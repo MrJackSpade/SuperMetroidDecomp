@@ -191,7 +191,10 @@ public sealed class DoorTransitionState
                 runtime.Enemies.ConsumeTargetPaletteWrites(paletteTransition!.SetTargetColor);
                 if (paletteTransition!.Step(runtime.Cgram))
                 {
-                    if (runtime.Samus is { } arrivingSamus)
+                    // Elevator arrival retains command zero's lock until the platform
+                    // reaches rest; its actor, not the room fade, restores Samus movement.
+                    if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive &&
+                        runtime.Samus is { } arrivingSamus)
                         arrivingSamus.InputLocked = false;
                     Phase = DoorTransitionPhase.Complete;
                 }

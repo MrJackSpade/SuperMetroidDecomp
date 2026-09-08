@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -29,8 +30,22 @@ internal static partial class EarlyControllerRouteAudit
         samus.Missiles = 5;
 
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GreenBrinstarElevatorRoom);
-        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
-        PublishRetailDoor(runtime, bus, DoorPointers.GreenBrinstarMainShaftFromElevator);
+        RoomEnemySlot sourceElevator = runtime.Enemies.Slots.Single(
+            slot => slot.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
+        samus.ApplyForwardFacingPoseSetup(bus);
+        samus.XPosition = sourceElevator.XPosition;
+        samus.YPosition = unchecked((ushort)(sourceElevator.YPosition - ElevatorActorDefinitions.SamusYOffset));
+        runtime.Enemies.PublishElevatorDoorContact();
+        for (int departureFrame = 0;
+             runtime.PendingDoorTransition is null && departureFrame < 1200;
+             departureFrame++)
+        {
+            ushort input = departureFrame % 30 == 0 ? (ushort)SnesButton.Down : (ushort)0;
+            runtime.StepFrame(input);
+            runtime.RunNmi(controller1Input: input, mainLoopRequestedNmi: true);
+        }
+        if (runtime.PendingDoorTransition?.Pointer != DoorPointers.GreenBrinstarMainShaftFromElevator)
+            throw new InvalidDataException("Green Brinstar downward ride did not reach its retail door.");
         RunGreenBrinstarElevatorTransition(
             runtime,
             RoomHeaderPointers.GreenBrinstarMainShaft,
@@ -50,8 +65,20 @@ internal static partial class EarlyControllerRouteAudit
             captureDirectory,
             "issue-234-235-downward-reference.png");
 
-        runtime.ElevatorStatus = (ushort)ElevatorActorStatus.Departing;
-        PublishRetailDoor(runtime, bus, DoorPointers.GreenBrinstarElevatorFromMainShaft);
+        // Ride back to the source boundary instead of publishing a door at the resting
+        // platform. The native transition retains the source PPU phase, so teleporting
+        // straight into the door coroutine fabricates a different tile-ring alignment.
+        runtime.Enemies.PublishElevatorDoorContact();
+        for (int departureFrame = 0;
+             runtime.PendingDoorTransition is null && departureFrame < 1200;
+             departureFrame++)
+        {
+            ushort input = departureFrame % 30 == 0 ? (ushort)SnesButton.Up : (ushort)0;
+            runtime.StepFrame(input);
+            runtime.RunNmi(controller1Input: input, mainLoopRequestedNmi: true);
+        }
+        if (runtime.PendingDoorTransition?.Pointer != DoorPointers.GreenBrinstarElevatorFromMainShaft)
+            throw new InvalidDataException($"Green Brinstar upward ride did not reach its retail door: Samus={samus.XPosition:X4}/{samus.YPosition:X4}, pose={samus.Pose:X2}, status={runtime.ElevatorStatus}, flags={runtime.Enemies.ElevatorFlags}, pending={runtime.PendingDoorTransition?.Pointer:X4}.");
         RunGreenBrinstarElevatorTransition(
             runtime,
             RoomHeaderPointers.GreenBrinstarElevatorRoom,
@@ -84,13 +111,9 @@ internal static partial class EarlyControllerRouteAudit
             $"visible BG1 mismatches down/up={DownBg1}/{UpBg1}; " +
             $"BG2={DownBg2}/{UpBg2}; best row shifts={DownShift}/{UpShift}.");
 
-        // The direct-load reference has not executed the elevator PLM, so its 18
-        // platform blocks retain their original two-tile-wide level entries. Those 36
-        // BG1 words are the sole expected difference after the downward trip. BG2 must
-        // match exactly, the upward room has no such mutation, and—most importantly for
-        // the reported corruption—neither room may match better with a displaced row.
-        const int expectedElevatorPlmTileDifferences = 36;
-        if (DownBg1 != expectedElevatorPlmTileDifferences || UpBg1 != 0 ||
+        // The reference fills from the same live level words, including elevator PLM
+        // mutations, so every visible tile must match without tolerating a shifted row.
+        if (DownBg1 != 0 || UpBg1 != 0 ||
             DownBg2 != 0 || UpBg2 != 0 || DownShift != 0 || UpShift != 0)
         {
             throw new InvalidDataException(
@@ -274,15 +297,22 @@ internal static partial class EarlyControllerRouteAudit
             roomPointer,
             observedCamera.XPosition,
             observedCamera.YPosition);
-        // Rebuild an authoritative full viewport using the transition's retained PPU
-        // phase. Comparing against a zero-offset debug load is invalid: the cartridge
-        // intentionally carries BG offsets across doors and maps world blocks into a
-        // different part of the circular tilemap while preserving the same picture.
+        RoomLevelData liveLevel = observed.LevelData ?? throw new InvalidDataException("Missing live elevator level.");
+        RoomLevelData referenceLevel = reference.LevelData ?? throw new InvalidDataException("Missing reference elevator level.");
+        for (int block = 0; block < liveLevel.WidthInBlocks * liveLevel.HeightInBlocks; block++)
+        {
+            referenceLevel.SetForegroundEntry(block, liveLevel.GetCollisionBlockByIndex(block).LevelWord);
+            reference.BackgroundStreamer!.SetLevelEntry(block, liveLevel.GetCollisionBlockByIndex(block).LevelWord);
+        }
         reference.BackgroundScroll.ConfigureDoorOpeningOffsets(
             observed.BackgroundScroll.Bg1XOffset,
             observed.BackgroundScroll.Bg1YOffset,
             stagedLayer1X: 0,
             stagedLayer1Y: 0);
+        // Rebuild an authoritative full viewport using the transition's retained PPU
+        // phase. Comparing against a zero-offset debug load is invalid: the cartridge
+        // intentionally carries BG offsets across doors and maps world blocks into a
+        // different part of the circular tilemap while preserving the same picture.
         reference.BackgroundScroll.Layer1XPosition = observedCamera.XPosition;
         reference.BackgroundScroll.Layer1YPosition = observedCamera.YPosition;
         reference.ExecuteBackgroundStreamRequests(
@@ -309,7 +339,11 @@ internal static partial class EarlyControllerRouteAudit
         for (int tile = 0; tile < observedBg1.Length; tile++)
         {
             if (observedBg1[tile] != referenceBg1[tile])
+            {
                 bg1Mismatches++;
+                if (bg1Mismatches <= 12)
+                    Console.WriteLine($"  tile mismatch {tile % 32}/{tile / 32}: {observedBg1[tile]:X4} != {referenceBg1[tile]:X4}");
+            }
             if (observedBg2[tile] != referenceBg2[tile])
                 bg2Mismatches++;
         }

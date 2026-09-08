@@ -56,7 +56,6 @@ public sealed partial class RoomEnemySystem
     private const ushort ElevatorInstructionList = 0x94d6;
     private const int ElevatorInputMaskTable = 0xa394e2;
     private const int ElevatorSpeedFixed = 0x00018000;
-    private const ushort ElevatorSamusYOffset = 26;
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
     private const ushort ElevatorArrivalSoundLibrary3 = 0x0025;
@@ -75,6 +74,15 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>WRAM $0799. Bit 15 means the active elevator is travelling upward.</summary>
     public ushort ElevatorDirection { get; private set; }
+
+    /// <summary>
+    /// Command seven installs the moving Samus beta handler on departure. At $82:E6A2,
+    /// downward arrivals reinstall it, but upward arrivals retain command zero's no-op.
+    /// The signed test reads the native upward-direction bit in $0799.
+    /// </summary>
+    public bool ElevatorRunsSamusMovement =>
+        ElevatorStatus == ElevatorActorStatus.Departing ||
+        (ElevatorStatus != ElevatorActorStatus.Inactive && (short)ElevatorDirection >= 0);
 
     /// <summary>
     /// WRAM $0795. Door-transition code owns this gate; nonzero suppresses actor movement
@@ -328,7 +336,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>Elevator_Func_4</c> at $A3:9612.</summary>
     private static void PinSamusToElevator(RoomEnemySlot slot, SamusState samus)
     {
-        samus.YPosition = unchecked((ushort)(slot.YPosition - ElevatorSamusYOffset));
+        samus.YPosition = unchecked((ushort)(slot.YPosition - ElevatorActorDefinitions.SamusYOffset));
         samus.Kinematics.YSubposition = 0;
         samus.XPosition = slot.XPosition;
         samus.Kinematics.YSpeed = 0;

@@ -211,8 +211,8 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>
     /// Reconstructs the one side effect still owned by the native door-transition caller.
     /// This host resumes gameplay immediately after loading the destination, so the arriving
-    /// actor can cross its pseudo-door while statuses two/three are visible to state eight.
-    /// Retain `$90:A392`'s complete terrain/PLM scan, but permit its type-$9 handler to
+    /// downward actor can cross its pseudo-door while statuses two/three are visible to
+    /// state eight. Retain its moving beta handler, but permit its type-$9 handler to
     /// publish a real transition or elevator flag only for status one; otherwise a
     /// collapsed transition can immediately depart again.
     /// </summary>
@@ -2353,13 +2353,13 @@ public sealed partial class SuperMetroidRuntime
                 // locked standing body must not run generic ground collision or drift while
                 // state $20 waits at the Ceres elevator.
                 else if (Samus.InputLocked &&
-                    !(SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0))
+                    !(SamusState.IsForwardFacingPose(Samus.Pose) &&
+                      Enemies.ElevatorRunsSamusMovement))
                 {
-                    // Controller-locked commands normally install beta no-op. Ordinary
-                    // elevators are the sole exception: every nonzero `$0E18` status
-                    // selects the forward-facing `$90:A392` terrain scan. Destination-side
-                    // statuses two/three need it to wake scroll triggers while input remains
-                    // locked; only their duplicate pseudo-door publication is suppressed.
+                    // Elevator command seven installs the moving beta handler for departure.
+                    // HandleTransition reinstalls it only on downward arrival. Upward arrival
+                    // retains command zero until the actor reaches rest; terrain probes there
+                    // would incorrectly wake the scroll triggers the platform passes.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                 }

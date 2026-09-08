@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+// Legacy namespace is persisted in debugger identities; ownership is now platform-neutral.
 namespace SuperMetroid.Desktop;
 
 /// <summary>Explicit, loss-aware compatibility rules for older debugger object layouts.</summary>

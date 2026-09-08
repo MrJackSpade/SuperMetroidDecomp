@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Always-on desktop journal which turns each reset into a replayable input recording.
+/// Always-on host journal which turns each reset into a replayable input recording.
 /// </summary>
 /// <remarks>
 /// Gameplay never waits for a periodic disk write. Every two seconds the UI thread copies

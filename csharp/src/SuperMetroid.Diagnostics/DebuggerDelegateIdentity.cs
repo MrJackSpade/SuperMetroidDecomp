@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Stable method identities for debugger delegates, independent of compiler token order.</summary>
+/// <summary>Shared stable method identities for debugger delegates, independent of compiler token order.</summary>
 internal static class DebuggerDelegateIdentity
 {
     public static void Write(BinaryWriter writer, MethodInfo method)

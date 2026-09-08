@@ -21,6 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <!-- Private, self-contained testing package; never publish this APK publicly. -->
     <AndroidAsset Include="../../../Super Metroid.smc" LogicalName="game/SuperMetroid.smc" />
     <AndroidAsset Include="../../../standalone-assets/audio/**/*" LogicalName="game/audio/%(RecursiveDir)%(Filename)%(Extension)" />

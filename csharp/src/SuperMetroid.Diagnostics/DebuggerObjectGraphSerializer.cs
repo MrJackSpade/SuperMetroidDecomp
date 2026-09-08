@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 namespace SuperMetroid.Desktop;
 
 /// <summary>
-/// Layout-checked binary serializer for the managed emulator graph used by debugger states.
+/// Shared layout-checked binary serializer for the managed emulator graph used by debugger states.
 /// It preserves private fields, reference identity, cycles, arrays, and internal delegates;
 /// this is intentionally not a general interchange format. Build changes are permitted,
 /// but fields and delegate identities must still resolve against the current layout.
@@ -322,11 +322,11 @@ internal static class DebuggerObjectGraphSerializer
             {
                 string declaringName = reader.ReadString();
                 string fieldName = reader.ReadString();
-                if (declaringName != field.DeclaringType!.AssemblyQualifiedName || fieldName != field.Name)
+                if (ResolveAllowedType(declaringName) != field.DeclaringType || fieldName != field.Name)
                 {
                     throw new InvalidDataException(
                         $"Serialized field {declaringName}.{fieldName} does not match " +
-                        $"{field.DeclaringType.FullName}.{field.Name}.");
+                        $"{field.DeclaringType!.FullName}.{field.Name}.");
                 }
                 field.SetValue(instance, Read());
             }
@@ -393,7 +393,7 @@ internal static class DebuggerObjectGraphSerializer
 
     private static Type ResolveAllowedType(string assemblyQualifiedName)
     {
-        Type type = Type.GetType(assemblyQualifiedName, throwOnError: false)
+        Type type = DebuggerStateTypeIdentity.Resolve(assemblyQualifiedName)
             ?? throw new InvalidDataException(
                 $"Debugger state names unavailable type '{assemblyQualifiedName}'.");
         string assembly = type.Assembly.GetName().Name ?? string.Empty;

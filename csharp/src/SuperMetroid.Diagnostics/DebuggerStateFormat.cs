@@ -1,6 +1,6 @@
 namespace SuperMetroid.Desktop;
 
-/// <summary>On-disk debugger-state header identities and compatibility versions.</summary>
+/// <summary>Shared on-disk debugger-state header identities and compatibility versions.</summary>
 internal static class DebuggerStateFormat
 {
     public static ReadOnlySpan<byte> Magic => "SMCSTATE"u8;

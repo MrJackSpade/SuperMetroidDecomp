@@ -6,7 +6,7 @@ using SuperMetroid.Core.Audio;
 
 namespace SuperMetroid.Desktop;
 
-/// <summary>Persistent ten-slot debugger states with warning-only build identity checks.</summary>
+/// <summary>Host-independent ten-slot debugger states with warning-only build identity checks.</summary>
 internal sealed class DebuggerSaveStateStore
 {
 

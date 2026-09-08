@@ -25,6 +25,9 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+VerifyAndroidHostPolicies();
+if (args is ["--android-host"])
+    return 0;
 if (args is ["--shutter-native-arc"])
 {
     AuditMorphShutterApproaches(reproduceOnly: true, exportNativeArc: true);

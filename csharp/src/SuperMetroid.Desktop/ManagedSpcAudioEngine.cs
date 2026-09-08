@@ -13,9 +13,7 @@ internal sealed class SpcAudioEngine : IDisposable
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
     public const int ChannelCount = 2;
 
-    private readonly ExtractedAudioAssetCatalog assets;
-    private readonly ManagedSpcPlayer player;
-    private readonly short[] sampleBuffer = new short[StereoFramesPerVideoFrame * ChannelCount];
+    private readonly CartridgeAudioRenderer renderer;
     private bool disposed;
 
     public SpcAudioEngine() : this(
@@ -26,42 +24,21 @@ internal sealed class SpcAudioEngine : IDisposable
 
     internal SpcAudioEngine(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer player)
     {
-        this.assets = assets ?? throw new ArgumentNullException(nameof(assets));
-        this.player = player ?? throw new ArgumentNullException(nameof(player));
+        renderer = new CartridgeAudioRenderer(assets, player ?? throw new ArgumentNullException(nameof(player)));
     }
 
     /// <summary>The exact managed APU state persisted with debugger save states.</summary>
-    internal ManagedSpcPlayer Player => player;
+    internal ManagedSpcPlayer Player => renderer.Player;
 
     /// <summary>Applies this NMI's APU operations, then renders one complete audio frame.</summary>
     public ReadOnlySpan<short> RenderFrame(IReadOnlyList<CartridgeAudioCommand> commands)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentNullException.ThrowIfNull(commands);
-        foreach (CartridgeAudioCommand command in commands)
-        {
-            switch (command.Kind)
-            {
-                case CartridgeAudioCommandKind.Upload:
-                    player.Upload(assets.GetUpload(command.UploadAddress).Span);
-                    player.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
-                    break;
-                case CartridgeAudioCommandKind.WritePort:
-                    player.WritePort(command.Port, command.Value);
-                    break;
-                default:
-                    throw new InvalidDataException($"Unknown cartridge audio command {command.Kind}.");
-            }
-        }
-        player.GenerateFrame(sampleBuffer);
-        return sampleBuffer;
+        return renderer.RenderFrame(commands);
     }
 
-    public CartridgeAudioAcknowledgements ReadAcknowledgements() => new(
-        player.ReadPort(0),
-        player.ReadPort(1),
-        player.ReadPort(2),
-        player.ReadPort(3));
+    public CartridgeAudioAcknowledgements ReadAcknowledgements() => renderer.ReadAcknowledgements();
 
     public void Dispose() => disposed = true;
 }

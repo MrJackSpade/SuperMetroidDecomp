@@ -8,5 +8,6 @@
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidControllerPreferences.cs" Link="AndroidControllerPreferences.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidRunPolicy.cs" Link="AndroidRunPolicy.cs" />
+    <Compile Include="../SuperMetroid.Android/AndroidSettingDefinitions.cs" Link="AndroidSettingDefinitions.cs" />
   </ItemGroup>
 </Project>

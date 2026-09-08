@@ -337,7 +337,9 @@ public sealed partial class RoomEnemySystem
             head.SpritemapPointer,
             unchecked((ushort)(head.XPosition + brainShakeX)),
             unchecked((ushort)(head.YPosition + brainShakeY)),
-            state.BrainPaletteIndex,
+            // The custom draw hook bypasses ordinary enemy palette selection. Retail
+            // still selects the shared white hurt palette on odd flash-timer frames.
+            (head.FlashTimer & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
             head.VramTilesIndex,
             cameraX,
             cameraY);

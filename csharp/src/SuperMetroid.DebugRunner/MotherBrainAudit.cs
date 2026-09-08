@@ -165,6 +165,18 @@ internal static class MotherBrainAudit
             throw new InvalidDataException("Mother Brain wraps into the approach hallway 512 pixels away.");
 
         AuditHeadSpinTouch(bus, enemies, samus, head);
+        for (ushort flash = 0; flash < 4; flash++)
+        {
+            head.FlashTimer = flash;
+            var feedback = new OamBuffer();
+            feedback.BeginFrame();
+            enemies.DrawLayers(feedback, 0, 0, firstLayer: 5, lastLayer: 5);
+            int expectedPalette = (flash & 1) != 0 ? 0 : state.BrainPaletteIndex >> 8;
+            for (int offset = 3; offset < feedback.NextByteOffset; offset += 4)
+                if ((feedback.LowTable[offset] & 14) != expectedPalette)
+                    throw new InvalidDataException($"Mother Brain hit flash {flash} did not select palette {expectedPalette}.");
+        }
+        head.FlashTimer = 0;
         AuditTurretRuntime(bus, assets.LevelData, enemies, samus);
         AuditGlassSequence(bus, room);
         AuditFakeDeathSequence(bus, room);

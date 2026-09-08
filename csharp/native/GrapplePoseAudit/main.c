@@ -62,11 +62,13 @@ static void run(unsigned address) {
   cpu_free(cpu);
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
+#include "wall_jump_dust.h"
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall|shutter-bomb-arc]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3 && !strcmp(argv[2], "wall-jump-dust")) return verify_wall_jump_dust();
   if (argc == 3 && !strcmp(argv[2], "shutter-bomb-arc")) {
     FILE *seed = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.wram", "rb");
     FILE *trace = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", "r");

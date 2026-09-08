@@ -258,6 +258,7 @@ VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
 VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
+VerifyWallJumpDust();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();

@@ -238,6 +238,11 @@ static void VerifySamusAerialTurnsAndWallJump()
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
     eligible.ApplyWallJumpTrigger(bus);
+    SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
+    AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
+    AssertEqual(3, wallDust.AnimationTimer, "wall dust begins with timer three");
+    AssertEqual(eligible.XPosition - 6, wallDust.XPosition, "right-facing wall dust is six pixels behind Samus");
+    AssertEqual(eligible.Kinematics.BottomBoundary - 1, wallDust.YPosition, "wall dust is anchored at last occupied bottom pixel");
     AssertEqual(0x83, eligible.Pose, "right-facing spin selects right wall-jump pose");
     AssertEqual(4, eligible.Kinematics.YSpeed, "wall jump reads whole launch speed");
     AssertEqual(0xa000, eligible.Kinematics.YSubspeed, "wall jump reads fractional launch speed");

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// Keeping the literal source words here lets each translated caller reproduce its own
 /// comparison instead of sharing a convenient but incorrect host-side boolean.
 /// </remarks>
-public sealed class SamusLiquidPhysicsState
+public sealed partial class SamusLiquidPhysicsState
 {
     private readonly List<SamusSoundRequest> _soundRequests = [];
     private readonly Bank80SystemState _standaloneRandom = new();

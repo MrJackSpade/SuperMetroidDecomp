@@ -1,5 +1,19 @@
 # Grapple release pose-input reference (#338)
 
+## Wall-jump dust reference (#356)
+
+`audit.exe "Super Metroid.smc" wall-jump-dust` executes cartridge routine
+`$91:FA76` through the same 65816 interpreter. Ten cases cover both facing
+directions, dry air, submerged water/lava, water's interaction-disable option,
+and exact surface equality. Native slot three receives type/frame `$0600`,
+timer 3, X six pixels behind Samus, and the final occupied foot pixel. A
+suppressed spawn preserves the old slot's type, timer, and coordinates.
+
+The managed production regression covers ordinary and grapple wall jumps with
+the same output words. Its ordinary launch assertion failed with an empty slot
+before the missing pose-entry producer was added. Existing atmospheric rendering
+owns the type-six sprite animation; no separate particle renderer is introduced.
+
 From an x64 Visual Studio Native Tools command prompt in the repository root:
 
 ```bat

@@ -299,6 +299,7 @@ public sealed partial class SamusState
         LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), maximumQueued: 6);
 
         SamusAerialMovement.InitializeWallJump(bus, this);
+        LiquidPhysics.SpawnWallJumpDust(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -341,6 +342,7 @@ public sealed partial class SamusState
         ProjectileFlareCounter = 0;
 
         SamusAerialMovement.InitializeWallJump(bus, this);
+        LiquidPhysics.SpawnWallJumpDust(bus, this);
         InitializeAnimation(bus, initialFrame: 0);
     }
 

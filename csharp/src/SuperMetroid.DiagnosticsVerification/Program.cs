@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--compare-file-select-capture", var journalPath, var wavePath])
+        return FileSelectCaptureComparison.Run(journalPath, wavePath);
     if (args is ["--replay-android-bundle", var bundle, var recordingName])
         return AndroidBundleReplay.Run(bundle, recordingName);
     if (args is ["--export-ceres-descent-state", var destination])

@@ -30,17 +30,21 @@ public static class SoftwareMode7ObjSnapshotRenderer
                 fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero);
         }
         if (snapshot.Gradient.IsEmpty)
-            SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, vram, cgram, snapshot.ObjectSelection));
+            SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels);
         else
         {
-            var objects = new Rgba32[pixels.Length];
-            var priorities = new byte[pixels.Length];
-            var palettes = new byte[pixels.Length];
-            SnesObjRenderer.RenderResolved(oam, vram, cgram, snapshot.ObjectSelection, objects, priorities, palettes: palettes);
-            SnesLayerCompositor.Composite(pixels, objects);
-            for (int i = 0; i < pixels.Length; i++)
-                pixels[i] = TitleGradientColorMath.Apply(pixels[i], snapshot.Gradient[i / 256],
-                    palettes[i] == byte.MaxValue ? null : palettes[i]);
+            // Only winning palette identity is needed by title color math. Rent this
+            // small plane per call; the compositor initializes every entry before use.
+            byte[] rented = System.Buffers.ArrayPool<byte>.Shared.Rent(pixels.Length);
+            try
+            {
+                Span<byte> palettes = rented.AsSpan(0, pixels.Length);
+                SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels, palettes);
+                for (int i = 0; i < pixels.Length; i++)
+                    pixels[i] = TitleGradientColorMath.Apply(pixels[i], snapshot.Gradient[i / 256],
+                        palettes[i] == byte.MaxValue ? null : palettes[i]);
+            }
+            finally { System.Buffers.ArrayPool<byte>.Shared.Return(rented); }
         }
         MasterBrightnessFilter.Apply(pixels, snapshot.Brightness);
         return pixels;

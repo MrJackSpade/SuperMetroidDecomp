@@ -72,6 +72,29 @@ public static class SnesObjRenderer
     }
 
     /// <summary>
+    /// Composites the complete OBJ plane over an existing backdrop/BG. This is only
+    /// for compositions without BG insertion between OBJ priorities (such as titles).
+    /// Transparent samples preserve the destination; optional palette ownership is
+    /// reset and follows the winning OAM record for subsequent color math.
+    /// </summary>
+    public static void CompositeUnfiltered(OamBuffer oam, SnesVram vram, SnesCgram cgram,
+        byte obsel, Span<Rgba32> pixels, Span<byte> palettes = default,
+        int width = SnesPpuLayout.ScreenWidthPixels, int height = SnesPpuLayout.ScreenHeightPixels)
+    {
+        ArgumentNullException.ThrowIfNull(oam);
+        ArgumentNullException.ThrowIfNull(vram);
+        ArgumentNullException.ThrowIfNull(cgram);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        if (pixels.Length != checked(width * height) || (!palettes.IsEmpty && palettes.Length != pixels.Length))
+            throw new ArgumentException("Unexpected OBJ composition buffer dimensions.");
+        palettes.Fill(TransparentPriority);
+        for (int spriteIndex = oam.LastFinalizedSpriteCount - 1; spriteIndex >= 0; spriteIndex--)
+            DrawSprite(pixels, width, height, oam.GetEntry(spriteIndex), vram, cgram, obsel,
+                selectedPriority: null, resolvedPalettes: palettes);
+    }
+
+    /// <summary>
     /// Resolves the winning OBJ and its BG-relative priority for every output pixel in one
     /// OAM walk.
     /// </summary>
@@ -255,6 +278,8 @@ public static class SnesObjRenderer
                 // selects one 16-color row: 128 + palette*16 + the 4-bpp pixel value.
                 int cgramIndex = 128 + entry.Palette * 16 + colorIndex;
                 output[destination] = cgram.GetRgba(cgramIndex);
+                if (!resolvedPalettes.IsEmpty)
+                    resolvedPalettes[destination] = (byte)entry.Palette;
             }
         }
     }

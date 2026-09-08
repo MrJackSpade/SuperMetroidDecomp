@@ -62,6 +62,8 @@ internal static class GameplayRenderAllocationVerification
             Console.WriteLine($"Cinematic output reuse: {freshBytes} -> {reuseBytes} allocated bytes; exact pixels.");
             if (packet.Mode7?.Background is not null && reuseBytes >= 400000)
                 throw new InvalidDataException("Mode 7 packet allocates an unnecessary intermediate background plane.");
+            if (packet.Mode7 is not null && reuseBytes >= 100000)
+                throw new InvalidDataException("Mode 7 packet allocates unnecessary OBJ scratch planes.");
         }
         return 0;
     }

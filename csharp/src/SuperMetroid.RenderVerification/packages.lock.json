@@ -51,6 +51,12 @@
       "supermetroid.core": {
         "type": "Project"
       },
+      "supermetroid.diagnostics": {
+        "type": "Project",
+        "dependencies": {
+          "SuperMetroid.Core": "[1.0.0, )"
+        }
+      },
       "supermetroid.rendering.direct3d11": {
         "type": "Project",
         "dependencies": {

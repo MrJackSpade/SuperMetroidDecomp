@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="src/SuperMetroid.Core/SuperMetroid.Core.csproj" />
+  <Project Path="src/SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
   <Project Path="src/SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
   <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
   <Folder Name="/Solution Items/">

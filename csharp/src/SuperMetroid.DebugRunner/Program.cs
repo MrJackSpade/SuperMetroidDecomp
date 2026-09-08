@@ -816,6 +816,9 @@ if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
     return GoldenTorizoAudit.Run(goldenTorizoRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--tourian-palette-fx-audit")
+    return TourianPaletteFxAudit.Run(args[1]);
+
 if (args.Length >= 2 && args[0] == "--tourian-entrance-statue-audit")
 {
     string statueRomPath = string.Join(' ', args[1..]).Trim('"');

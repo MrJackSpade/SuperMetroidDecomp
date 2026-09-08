@@ -150,6 +150,7 @@ public sealed class RoomPaletteFxSystem
             RunPreInstruction(
                 bus,
                 slot,
+                slotIndex,
                 samusY,
                 equippedItems,
                 enemyZeroIsDead,
@@ -231,6 +232,7 @@ public sealed class RoomPaletteFxSystem
     private void RunPreInstruction(
         ISnesAddressSpace bus,
         PaletteFxSlot slot,
+        int slotIndex,
         ushort samusY,
         ushort equippedItems,
         bool enemyZeroIsDead,
@@ -276,8 +278,17 @@ public sealed class RoomPaletteFxSystem
                 return;
 
             case PaletteFxPreInstructionCodes.InspectAdjacentSlot:
-                throw new NotSupportedException(
-                    "Room palette-FX cross-slot pre-instruction $8D:F621 requires untranslated adjacent-WRAM inspection.");
+                // X is the native byte offset, not a count of objects spawned. F621
+                // deliberately indexes from Enable rather than IDs. Use the live owner
+                // arrays so deletions earlier in this descending pass are visible.
+                ushort adjacentWord = slotIndex switch
+                {
+                    0 => PaletteFxMemoryLayout.HandlerEnabled,
+                    PaletteFxMemoryLayout.CurrentIndexWordOffset => (ushort)(slotIndex * sizeof(ushort)),
+                    _ => slots[slotIndex - PaletteFxMemoryLayout.IdArrayWordOffset].Id,
+                };
+                if (adjacentWord != 0) slot.Clear();
+                return;
 
             default:
                 throw new NotSupportedException(

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--compare-assembly-metadata", var originalAssembly, var linkedAssembly])
+        return AssemblyMetadataVerification.Run(originalAssembly, linkedAssembly);
     if (args is ["--rom-decompression"])
         return RomDecompressionVerification.Run();
     AndroidSessionCommandVerification.Run();

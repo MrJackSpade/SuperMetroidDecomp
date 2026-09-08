@@ -19,6 +19,18 @@
     <!-- adb install must work without Visual Studio's separate fast-deployment files. -->
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
+  <!-- Opt-in investigation only: preserve reflection-owned application declarations. -->
+  <PropertyGroup Condition="'$(AndroidExperimentalAot)' == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <RunAOTCompilation>true</RunAOTCompilation>
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(AndroidExperimentalAot)' == 'true'">
+    <TrimmerRootAssembly Include="SuperMetroid.Android" RootMode="All" />
+    <TrimmerRootAssembly Include="SuperMetroid.Core" RootMode="All" />
+    <TrimmerRootAssembly Include="SuperMetroid.Diagnostics" RootMode="All" />
+  </ItemGroup>
   <ItemGroup>
     <!-- Opt-in device probes are excluded from normal player APKs. -->
     <Compile Include="../../tools/android-probes/AudioFocusProbe.cs" Condition="'$(AndroidHostProbes)' == 'true'" />

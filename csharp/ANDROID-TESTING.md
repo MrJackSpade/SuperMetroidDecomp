@@ -146,3 +146,31 @@ then compare `adb shell dumpsys gfxinfo org.supermetroid.csharp.testing` twice
 several seconds apart. `Total frames rendered` must stop increasing while the
 native menu is idle. The device check stayed at 6150 over four seconds. Resume
 must restart consumption without requiring fresh input or recreating the Activity.
+
+## Experimental AOT build (not the default)
+
+`-p:AndroidExperimentalAot=true` enables non-profiled Mono AOT and explicitly roots
+all declarations in the three application assemblies. Android requires linking
+for this build; JSON reflection is explicitly retained. A generic `TrimMode=copy`
+experiment did not preserve application declarations with this SDK and is not a
+substitute for these roots.
+
+Before installing an experimental APK, compare each application assembly with its
+`obj/Release/net10.0-android/android-arm64/linked` counterpart:
+
+```powershell
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
+```
+
+This read-only tool checks named types, fields, properties, events, and method
+overload counts including private declarations without executing either assembly.
+It does **not** establish signature/body equivalence, framework reflection support,
+or debugger-state compatibility. A successful device state load/continuation test
+and performance comparison remain required before making AOT the default.
+
+The rooted experiment on 2026-09-08 built with zero warnings/errors and retained
+34,904 Core, 248 Diagnostics, and 469 Android declarations. Existing debugger slot
+0 loaded with the normal changed-build warning and continued rendering/audio.
+The short opening/demo run recorded zero underruns, but some presentation windows
+still fell into the 40s. This is not full performance or state-portability acceptance.
+The normal APK and exact pre-test save were restored afterward; AOT stays opt-in.

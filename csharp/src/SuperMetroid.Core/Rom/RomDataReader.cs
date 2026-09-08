@@ -107,31 +107,30 @@ public static class RomDataReader
         if (maximumCompressedBytes <= 0 || maximumCompressedBytes > 0x8000)
             throw new ArgumentOutOfRangeException(nameof(maximumCompressedBytes));
 
-        // `DecompressToMem` keeps its data bank fixed while its 16-bit source index wraps.
-        // Read incrementally because an $FF literal byte is not necessarily the stream
-        // terminator; only the compression parser can identify the first complete stream.
+        // Walk command boundaries once; payload bytes (including $FF) are not headers.
+        // Retrying expansion at every payload $FF made ordinary room loads quadratic.
+        // The checked decoder still owns output limits and backreference validation.
         SnesAddress currentAddress = sourceAddress;
         var stored = new byte[maximumCompressedBytes];
-        for (int length = 1; length <= stored.Length; length++)
+        int length = 0;
+        byte Next()
         {
-            stored[length - 1] = bus.ReadByte((int)currentAddress);
+            if (length == stored.Length)
+                throw new InvalidDataException($"Compressed stream at {sourceAddress} exceeds ${maximumCompressedBytes:X} input bytes.");
+            byte value = bus.ReadByte((int)currentAddress);
+            stored[length++] = value;
             currentAddress = currentAddress.NextLoRomByte();
-            if (stored[length - 1] != 0xff)
-                continue;
-
-            if (SmCompression.TryDecompress(
-                    stored.AsSpan(0, length),
-                    out byte[] output,
-                    out int consumed,
-                    maximumOutputBytes) &&
-                consumed == length)
-            {
-                return output;
-            }
+            return value;
         }
-
-        throw new InvalidDataException(
-            $"No complete compressed stream was found at {sourceAddress} " +
-            $"within ${maximumCompressedBytes:X} bytes.");
+        while (true)
+        {
+            byte first = Next();
+            if (first == SmCompressionFormat.Terminator)
+                return SmCompression.Decompress(stored.AsSpan(0, length), maximumOutputBytes);
+            byte? second = SmCompressionFormat.IsLongHeader(first) ? Next() : null;
+            SmCompressionHeader header = SmCompressionHeader.Decode(first, second);
+            for (int operand = 0; operand < header.PayloadByteCount; operand++)
+                Next();
+        }
     }
 }

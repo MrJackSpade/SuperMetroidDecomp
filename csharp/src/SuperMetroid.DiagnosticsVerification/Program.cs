@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--rom-decompression"])
+        return RomDecompressionVerification.Run();
     AndroidSessionCommandVerification.Run();
     AndroidFrameMailboxVerification.Run();
     if (args is ["--render-allocation"])

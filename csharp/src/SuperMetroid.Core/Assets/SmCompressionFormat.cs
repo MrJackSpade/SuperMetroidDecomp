@@ -35,6 +35,14 @@ public readonly record struct SmCompressionHeader
     public SmCompressionCommand Command { get; }
     public int Length { get; }
     public int HeaderByteCount { get; }
+    /// <summary>Encoded operand bytes after this header, independent of expanded run length.</summary>
+    public int PayloadByteCount => IsTerminator ? 0 : Command switch
+    {
+        SmCompressionCommand.Literal => Length,
+        SmCompressionCommand.AlternatePair or SmCompressionCommand.AbsoluteCopy or
+            SmCompressionCommand.AbsoluteCopyInverted => 2,
+        _ => 1,
+    };
     public bool IsTerminator { get; }
     public bool IsCopy => (byte)Command >= (byte)SmCompressionCommand.AbsoluteCopy;
     public bool IsRelativeCopy => (byte)Command >= (byte)SmCompressionCommand.RelativeCopy;

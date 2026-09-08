@@ -230,6 +230,16 @@ and X-ray activation/window/release checks passed. This is a partial optimizatio
 not a fix for the sustained-performance requirement: per-pixel background sampling
 still needs profiling and improvement.
 
+The next sampler revision caches each source tile row and precomputes its palette
+colors once per immutable packet. 98,304 comparisons against the previous scalar
+formula cover both bit depths, both map dimensions, flips, page/address wrapping,
+discontinuous coordinates, priorities and transparent/opaque color zero. The same
+frame-9650 image retains the hash above. Device rendering falls to 12.8-13.1 ms;
+after the first resumed window simulation reaches 60 FPS with zero underruns.
+Presentation still ranges 42-51 FPS in this short interval, with mailbox replacements.
+This removes the measured simulation bottleneck but is not smooth-presentation
+acceptance for #355.
+
 A subsequent direct `Choreographer.IFrameCallback` experiment (invalidating before
 traversal, with producer invalidations disabled while active) did not fix the AOT
 presentation dips. At host frames 3867–3988 it measured 60 simulation FPS but

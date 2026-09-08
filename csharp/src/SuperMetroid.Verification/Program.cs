@@ -27,6 +27,7 @@ try
 {
 VerifyAndroidHostPolicies();
 VerifyIniEditing();
+VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;
 if (args is ["--file-select-sound"])
 {

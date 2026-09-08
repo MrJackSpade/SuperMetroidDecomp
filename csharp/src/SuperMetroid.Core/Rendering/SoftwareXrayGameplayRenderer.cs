@@ -24,12 +24,21 @@ public static class SoftwareXrayGameplayRenderer
         bool halfEnabled = (layer.ColorMath & SnesColorMathControl.Half) != 0;
         bool subtract = (layer.ColorMath & SnesColorMathControl.Subtract) != 0;
         Rgba32 backdrop = memory.Cgram.GetRgba(0);
+        var colors = new Rgba32[256];
+        for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
+        var hud = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayHudTilemapWord,
+            r.HudCharacterWord, 32, 32, false);
+        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, SnesPpuLayout.GameplayBg1TilemapWord,
+            r.Bg1CharacterWord, 64, 32, true);
+        var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, r.Bg2TilemapWord,
+            r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, true);
+        var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
+            subLayer.TilemapWord, subLayer.CharacterWord, 32, subLayer.MapHeightTiles, false) : null;
         SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, objectSelection,
             objects, priorities, width, height, palettes);
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
-            output[y * width + x] = Sample(SnesPpuLayout.GameplayHudTilemapWord, r.HudCharacterWord,
-                32, 32, x, y, fourBit: false, opaqueZero: true).Color;
+            output[y * width + x] = hud.Sample(x, y, opaqueZero: true).Color;
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < height; y++)
         for (int x = 0; x < width; x++)
         {
@@ -45,12 +54,12 @@ public static class SoftwareXrayGameplayRenderer
             {
                 int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
                 int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                var pixel = Sample(r.Bg2TilemapWord, r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, x + sx, y + sy, fourBit: true);
+                var pixel = bg2Sampler.Sample(x + sx, y + sy);
                 Insert(pixel.Color, pixel.High ? 5 : 2, SnesColorMathControl.Bg2);
             }
             if ((!layer.RevealBlocks || !inside) && showBg1)
             {
-                var pixel = Sample(SnesPpuLayout.GameplayBg1TilemapWord, r.Bg1CharacterWord, 64, 32, x + r.Bg1X, y + r.Bg1Y, fourBit: true);
+                var pixel = bg1Sampler.Sample(x + r.Bg1X, y + r.Bg1Y);
                 Insert(pixel.Color, pixel.High ? 6 : 3, SnesColorMathControl.Bg1);
             }
             if (showObjects && priorities[i] != SnesObjRenderer.TransparentPriority)
@@ -66,8 +75,7 @@ public static class SoftwareXrayGameplayRenderer
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {
                     BackgroundLineScroll scroll = bg3.Scrolls[y];
-                    sub = Sample(bg3.TilemapWord, bg3.CharacterWord, 32, bg3.MapHeightTiles,
-                        x + scroll.X, y + scroll.Y, fourBit: false).Color;
+                    sub = subSampler!.Sample(x + scroll.X, y + scroll.Y).Color;
                 }
                 bool useSub = layer.AddSubscreen && sub.A != 0;
                 // A transparent subscreen falls back to COLDATA but disables halving.
@@ -94,20 +102,5 @@ public static class SoftwareXrayGameplayRenderer
         }
         return output;
 
-        (Rgba32 Color, bool High) Sample(int map, int characters, int mapWidth, int mapHeight, int x, int y, bool fourBit, bool opaqueZero = false)
-        {
-            x &= mapWidth * 8 - 1; y &= mapHeight * 8 - 1;
-            int tx = x >> 3, ty = y >> 3;
-            int page = ((ty >> 5) * (mapWidth >> 5) + (tx >> 5)) * 1024;
-            SnesBgTilemapWord tile = memory.Vram.ReadWord((map + page + (ty & 31) * 32 + (tx & 31)) & 32767);
-            int px = tile.FlipHorizontally ? 7 - (x & 7) : x & 7;
-            int py = tile.FlipVertically ? 7 - (y & 7) : y & 7;
-            int row = (((characters + tile.CharacterIndex * (fourBit ? 16 : 8)) & 32767) * 2 + py * 2) & 65535;
-            int shift = 7 - px;
-            int color = (Read(row) >> shift & 1) | (Read(row + 1) >> shift & 1) << 1;
-            if (fourBit) color |= (Read(row + 16) >> shift & 1) << 2 | (Read(row + 17) >> shift & 1) << 3;
-            return (color == 0 && !opaqueZero ? default : memory.Cgram.GetRgba(tile.PaletteIndex * (fourBit ? 16 : 4) + color), tile.HasPriority);
-        }
-        byte Read(int address) => memory.Vram.ReadByte(address & 65535);
     }
 }

@@ -8,6 +8,8 @@ try
         return CeresDescentStateFixture.Export(destination);
     if (args is ["--export-reported-eye-state", var eyeDestination])
         return ReportedEyeStateFixture.Export(eyeDestination);
+    if (args is ["--export-room-performance-state", var scene, var performanceDestination])
+        return RoomPerformanceStateFixture.Export(scene, performanceDestination);
     string root = Directory.CreateTempSubdirectory("SuperMetroid-android-state-test-").FullName;
     try
     {

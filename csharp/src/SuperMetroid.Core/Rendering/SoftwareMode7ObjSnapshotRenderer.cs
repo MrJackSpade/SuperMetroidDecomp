@@ -22,10 +22,12 @@ public static class SoftwareMode7ObjSnapshotRenderer
             SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, outputBuffer);
         if (snapshot.Background is { } bg)
         {
-            SnesLayerCompositor.Composite(pixels, SnesMode7Renderer.RenderViewport(vram, cgram,
+            // The kernel preserves destination pixels for transparent samples, so it
+            // can project directly over the backdrop without allocating a BG plane.
+            SnesMode7Renderer.CompositeViewport(pixels, vram, cgram,
                 bg.MatrixA, bg.MatrixB, bg.MatrixC, bg.MatrixD, bg.CenterX, bg.CenterY,
                 bg.HorizontalOffset, bg.VerticalOffset,
-                fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero));
+                fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero);
         }
         if (snapshot.Gradient.IsEmpty)
             SnesLayerCompositor.Composite(pixels, SnesObjRenderer.Render(oam, vram, cgram, snapshot.ObjectSelection));

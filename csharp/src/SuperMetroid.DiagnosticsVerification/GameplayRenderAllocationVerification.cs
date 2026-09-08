@@ -60,6 +60,8 @@ internal static class GameplayRenderAllocationVerification
             if (freshBytes - reuseBytes < reusable.Length * 4)
                 throw new InvalidDataException("Cinematic packet did not eliminate its output allocation.");
             Console.WriteLine($"Cinematic output reuse: {freshBytes} -> {reuseBytes} allocated bytes; exact pixels.");
+            if (packet.Mode7?.Background is not null && reuseBytes >= 400000)
+                throw new InvalidDataException("Mode 7 packet allocates an unnecessary intermediate background plane.");
         }
         return 0;
     }

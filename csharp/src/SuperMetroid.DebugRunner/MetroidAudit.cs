@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// four untouched actors exercise finite sprite-object allocation while isolated reloads
 /// keep contact, ice, missile, and power-bomb assertions independent.
 /// </summary>
-internal static class MetroidAudit
+internal static partial class MetroidAudit
 {
     private const ushort MetroidRoomHeader = 0xdae1;
     private const ushort MetroidRoomState = 0xdaf3;
@@ -30,6 +30,7 @@ internal static class MetroidAudit
         VerifySuitDrainCadence(bus, room, assets);
         VerifyIceMissilesAndDeath(bus, room, assets);
         VerifyPowerBombReaction(bus, room, assets);
+        VerifyGrappleDamageRules(bus, room, assets);
 
         Console.WriteLine(
             "Ordinary Metroid audit passed: four retail actors and eight composited sprite " +
@@ -335,13 +336,16 @@ internal static class MetroidAudit
         actor.FlashTimer = 0;
         actor.AiHandlerBits = 4;
         actor.FrozenTimer = 200;
+        // Native death clears the enemy slot. Drop origins must be compared with
+        // the last live coordinates, not the cleared X/Y words afterward.
+        ushort deathX = actor.XPosition, deathY = actor.YPosition;
         ArmProjectile(projectiles.Slots[0], actor, 0x0200, 1000);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,
                 shared,
                 loaded.Samus) != 1 ||
-            actor.Health != 0 || !actor.Properties.HasAny(EnemyProperties.Deleted) ||
+            actor.Health != 0 || actor.EnemyDefinitionPointer != 0 || loaded.Enemies.EnemiesKilled != 1 ||
             state.OuterBodyA.IsActive || state.OuterBodyB.IsActive ||
             loaded.Enemies.MetroidDropRequests.Count != 5 ||
             loaded.Samus.SpecialSuperPaletteFlags != 0)
@@ -353,8 +357,8 @@ internal static class MetroidAudit
                 $"palette=${loaded.Samus.SpecialSuperPaletteFlags:X4}.");
         }
         if (loaded.Enemies.MetroidDropRequests.Any(drop =>
-                Math.Abs(unchecked((short)(drop.XPosition - actor.XPosition))) > 16 ||
-                Math.Abs(unchecked((short)(drop.YPosition - actor.YPosition))) > 16 ||
+                Math.Abs(unchecked((short)(drop.XPosition - deathX))) > 16 ||
+                Math.Abs(unchecked((short)(drop.YPosition - deathY))) > 16 ||
                 drop.EnemyDefinitionPointer != MetroidDefinition ||
                 drop.SourceSpriteObjectIndex != state.OuterBodyB.NativeIndex))
         {
@@ -400,7 +404,7 @@ internal static class MetroidAudit
         }
 
         if (reactions == 0 || actor.Health != 0 ||
-            !actor.Properties.HasAny(EnemyProperties.Deleted) ||
+            actor.EnemyDefinitionPointer != 0 || loaded.Enemies.EnemiesKilled != 1 ||
             state.OuterBodyA.IsActive || state.OuterBodyB.IsActive ||
             loaded.Samus.SpecialSuperPaletteFlags != 0)
         {

@@ -1421,7 +1421,7 @@ if (args.Length >= 2 && args[0] == "--colosseum-mochtroid-audit")
     colosseumSamus.YPosition = auditedMochtroid.YPosition;
     if (!colosseumEnemies.ResolveOrdinarySamusContact(colosseumSamus, 0) ||
         auditedMochtroid.Health != 0 ||
-        !auditedMochtroid.Properties.HasAny(EnemyProperties.Deleted))
+        auditedMochtroid.EnemyDefinitionPointer != 0 || colosseumEnemies.EnemiesKilled != 1)
     {
         throw new InvalidDataException(
             $"Screw-Attack contact failed: health={auditedMochtroid.Health}, " +

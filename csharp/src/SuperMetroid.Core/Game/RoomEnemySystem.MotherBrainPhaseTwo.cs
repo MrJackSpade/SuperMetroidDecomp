@@ -718,7 +718,9 @@ public sealed partial class RoomEnemySystem
         if (state.Pose == MotherBrainBodyPose.Crouched)
             return true;
         if (state.Pose == MotherBrainBodyPose.Standing)
-            SetMotherBrainInstructionList(state.Body, MotherBrainCrouchedInstruction);
+            // The static crouched list is only appropriate during ascent initialization.
+            // Combat must first lower the body so the subsequent stand reverses that move.
+            SetMotherBrainInstructionList(state.Body, MotherBrainBodyInstructionLists.CrouchSlow);
         return false;
     }
 

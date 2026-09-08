@@ -1219,6 +1219,7 @@ internal static class MotherBrainAudit
         // which then exercises slow crouch rather than the immediate-fire half.
         state.Body.XPosition = 0x0080;
         random.SetRandomNumber(0x8080);
+        ushort standingYBeforeBomb = state.Body.YPosition;
 
         bool[] bombWasActive = new bool[enemies.EnemyProjectiles.Count];
         bool observedWalk = false;
@@ -1381,6 +1382,10 @@ internal static class MotherBrainAudit
                 $"{observedBounce}/{observedNaturalExpiry}/{observedAfterburn}/" +
                 $"{observedDust}/{observedExpirySound}, counter={state.BombCounter}.");
         }
+
+        if (state.Body.YPosition != standingYBeforeBomb)
+            throw new InvalidDataException(
+                $"Mother Brain crouch/stand drifted from Y={standingYBeforeBomb} to {state.Body.YPosition}.");
 
         AuditMotherBrainBombDestroyedBySamusBomb(
             bus,
@@ -2938,6 +2943,16 @@ internal static class MotherBrainAudit
         // Recoil setup is deliberately deferred until the following body turn. Its native
         // fallthrough immediately consumes one tick, installs `$9BE7`, disables attacks,
         // requests indices eight/eight, and seeds the draw-owned fifty-frame brain shake.
+        // The head scheduler subsequently advances those angles in the same frame; an
+        // angle reaching its limit changes its movement index before StepFrame returns.
+        ushort expectedLowerAngle = state.LowerNeckAngle;
+        ushort expectedUpperAngle = state.UpperNeckAngle;
+        ushort expectedLowerIndex = 8;
+        ushort expectedUpperIndex = 8;
+        MotherBrainNeckKinematics.StepAngles(
+            ref expectedLowerAngle, ref expectedUpperAngle,
+            ref expectedLowerIndex, ref expectedUpperIndex,
+            0x0900, head.YPosition, samus.YPosition);
         frame++;
         random.SetRandomNumber(0xffff);
         enemies.StepFrame(
@@ -2959,7 +2974,9 @@ internal static class MotherBrainAudit
             head.CurrentInstruction != unchecked((ushort)(
                 MotherBrainRainbowBeamAttackSequence.HeadHyperBeamRecoilInstructionList + 6)) ||
             state.NeckAngleDelta != 0x0900 ||
-            state.LowerNeckMovementIndex != 8 || state.UpperNeckMovementIndex != 8 ||
+            state.LowerNeckMovementIndex != expectedLowerIndex ||
+            state.UpperNeckMovementIndex != expectedUpperIndex ||
+            state.LowerNeckAngle != expectedLowerAngle || state.UpperNeckAngle != expectedUpperAngle ||
             state.BrainMainShakeTimer != 0x0032)
         {
             throw new InvalidDataException(

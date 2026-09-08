@@ -53,6 +53,8 @@ public static class SamusGrappleRomData
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
+        /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
+        public const sbyte DraygonMovingGraphicsYOffset = 6;
         /// <summary>Initial X velocities for ten shot directions.</summary>
         public const int XVelocities = 0x9bc0db;
         /// <summary>Initial Y velocities for ten shot directions.</summary>

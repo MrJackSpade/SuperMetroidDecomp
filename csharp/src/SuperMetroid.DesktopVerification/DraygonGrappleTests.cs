@@ -34,6 +34,24 @@ internal static partial class Program
         if (samus.Grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("Held grapple did not cancel on release.");
         CheckHeldBody();
+        foreach (byte pose in new[] { SamusPoseIds.DraygonGrabbedMovingLeftPose, SamusPoseIds.DraygonGrabbedMovingRightPose })
+        {
+            for (int dpad = 0; dpad < 16; dpad++)
+            {
+                samus.Pose = pose;
+                ushort input = (ushort)(dpad << 8);
+                SamusGrappleMovement.BeginFiring(loaded.AddressSpace, samus, input);
+                if (samus.Grapple.Phase != GrapplePhase.Firing)
+                    throw new InvalidOperationException($"Moving held pose {pose:X2} rejects grapple instead of using $9B:C6B2.");
+                bool left = pose == SamusPoseIds.DraygonGrabbedMovingLeftPose;
+                int expected = left ? 7 : 2;
+                if ((input & (left ? 0x200 : 0x100)) != 0)
+                    expected += (input & 0x400) != 0 ? (left ? -1 : 1) : (input & 0x800) != 0 ? (left ? 1 : -1) : 0;
+                if (samus.Grapple.FireDirection != expected)
+                    throw new InvalidOperationException("Held grapple direction differs from native D-pad restriction.");
+                samus.Grapple.Phase = GrapplePhase.Inactive;
+            }
+        }
         Console.WriteLine("Draygon held grapple: runtime input fires/extends; connection locks and release cancels without changing held pose, position or owner.");
 
         void CheckHeldBody()

@@ -2136,7 +2136,7 @@ public sealed partial class SuperMetroidRuntime
                 {
                     // Normal HUD item four now reaches the same bank-$9B actor as the
                     // diagnostic entry point, after bank-$90's movement-type admission.
-                    SamusGrappleMovement.BeginFiring(_addressSpace, Samus);
+                    SamusGrappleMovement.BeginFiring(_addressSpace, Samus, Controller1.Current);
                     LastGrappleMovement = new GrappleMovementResult(
                         Samus.Grapple.Phase,
                         Released: false,

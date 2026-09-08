@@ -51,7 +51,7 @@ public static partial class SamusGrappleMovement
     /// before its function-pointer return. The current pose supplies all direction/origin
     /// policy; no host aiming vector is accepted.
     /// </summary>
-    public static void BeginFiring(ISnesAddressSpace bus, SamusState samus)
+    public static void BeginFiring(ISnesAddressSpace bus, SamusState samus, ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -59,7 +59,9 @@ public static partial class SamusGrappleMovement
         if (grapple.Phase != GrapplePhase.Inactive)
             throw new InvalidOperationException("A grapple state is already active.");
 
-        byte direction = samus.ReadShotDirection(bus);
+        bool movingHeld = samus.Pose is SamusPoseIds.DraygonGrabbedMovingLeftPose or
+            SamusPoseIds.DraygonGrabbedMovingRightPose;
+        byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : samus.ReadShotDirection(bus);
         if ((direction & 0xf0) != 0)
         {
             // $9B:C53F-C547 treats ROM sentinel directions as ordinary cancellation,
@@ -103,7 +105,7 @@ public static partial class SamusGrappleMovement
         int flareYTable = useRunOffsets
             ? SamusGrappleRomData.Firing.RunningFlareY
             : SamusGrappleRomData.Firing.DefaultFlareY;
-        sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
+        sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
 
         grapple.OriginXOffset = unchecked((short)ReadWord(bus, originXTable + tableOffset));
         grapple.OriginYOffset = unchecked((short)(

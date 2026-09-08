@@ -1506,6 +1506,7 @@ public sealed partial class SuperMetroidRuntime
                 TimeIsFrozen,
                 System.RandomNumber,
                 Enemies.FirefleaDarknessLevel);
+            TourianStatues.StepDescent(this);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -4249,6 +4250,7 @@ public sealed partial class SuperMetroidRuntime
         }
 
         SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+        TourianStatues.StepTiles(this);
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
         // handler publishes one 32-byte source per frame only after Phantoon's area-boss
@@ -4363,6 +4365,7 @@ public sealed partial class SuperMetroidRuntime
                 BackgroundScroll.Bg2VerticalScroll,
                 Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
             DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
+            TourianStatues.LatchDisplay();
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             VramWrites.DrainTo(Vram, _addressSpace);

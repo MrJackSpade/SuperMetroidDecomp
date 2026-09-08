@@ -536,6 +536,9 @@ public sealed class RoomLayer3FxState
         earthquakeSoundSequenceIndex++;
     }
 
+    /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
+    internal void PublishStatueEarthquakeSound(ushort randomNumber) => HandleEarthquakeSoundEffect(randomNumber);
+
     /// <summary>Ports <c>RaiseOrLowerFx</c> at $88:868C for the shared liquid words.</summary>
     private bool AdvanceBaseYToTarget()
     {

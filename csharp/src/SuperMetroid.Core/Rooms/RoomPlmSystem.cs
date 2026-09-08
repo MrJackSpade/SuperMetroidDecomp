@@ -1478,6 +1478,7 @@ public sealed partial class RoomPlmSystem
                     continue;
 
                 case RoomPlmInstructionCodes.MoveBotwoonPlmDownOneBlock:
+                case TourianStatueRomData.MoveAccessDown:
                     // Native PLM_BlockIndices are byte offsets, so AB59 adds room width
                     // twice. C# stores logical word indexes; adding width once is identical.
                     slot.BlockIndex = checked(slot.BlockIndex + level.WidthInBlocks);

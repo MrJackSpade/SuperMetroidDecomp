@@ -13,7 +13,9 @@ public sealed partial class RoomEnemySystem
     /// Native <c>tourian_entrance_statue_finished</c> bit $8000. The translated enemy-
     /// projectile pre-instruction publishes the same completion latch for debugger hosts.
     /// </summary>
-    public bool TourianEntranceStatueFinished { get; private set; }
+    public bool TourianEntranceStatueFinished { get; internal set; }
+    /// <summary>Signed BG2 displacement owned by $88:DC69; OBJ follows the same sinking statue.</summary>
+    public short TourianEntranceStatueVerticalOffset { get; internal set; }
 
     /// <summary>
     /// Native <c>tourian_entrance_statue_animstate</c>. Its producers live in the palette-
@@ -25,6 +27,7 @@ public sealed partial class RoomEnemySystem
     {
         TourianEntranceStatueFinished = false;
         TourianEntranceStatueAnimationState = 0;
+        TourianEntranceStatueVerticalOffset = 0;
     }
 
     private void InitializeTourianEntranceStatue(RoomEnemySlot statue)
@@ -107,10 +110,9 @@ public sealed partial class RoomEnemySystem
 
         projectile.XPosition = projectile.Variable0;
 
-        // $86:BA42 adds layer1_y_pos and subtracts the live HDMA reveal boundary. Before
-        // the unlocking HDMA sequence starts both words are zero, leaving the authored
-        // screen-space Y coordinate in variable F. The dedicated HDMA owner can publish a
-        // nonzero offset here later without changing projectile identity or list timing.
-        projectile.YPosition = projectile.Variable1;
+        // $86:BA42 adds layer1_y_pos and subtracts HDMA's layer1_y_pos + displacement.
+        // The camera terms cancel here; ordinary OBJ drawing subtracts the camera once.
+        // This keeps all sprite pieces attached to the descending BG2 statue artwork.
+        projectile.YPosition = unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset));
     }
 }

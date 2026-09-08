@@ -29,6 +29,7 @@ internal static class TourianEntranceStatueAudit
 
         VerifyPopulation(bus);
         VerifyActors(bus, room, assets);
+        VerifyRoomUnlockPipeline(romPath);
         Console.WriteLine(
             "Tourian entrance statue audit passed: three retail enemy records selected " +
             "their ROM lists/palettes, spawned the base/Ridley/Phantoon bank-$86 actors, " +
@@ -70,6 +71,40 @@ internal static class TourianEntranceStatueAudit
                 $"Tourian statue header mismatch: bank=${definition.Bank:X2}, init/main=" +
                 $"${definition.InitializationAiPointer:X4}/${definition.MainAiPointer:X4}, " +
                 $"touch/shot=${definition.TouchAiPointer:X4}/${definition.ShotAiPointer:X4}.");
+        }
+    }
+
+    /// <summary>Checks the production room pipeline, not just its three inert enemy records.</summary>
+    private static void VerifyRoomUnlockPipeline(string romPath)
+    {
+        foreach (int bossCount in new[] { 0, 3, 4 })
+        {
+            bool allBossesDead = bossCount == 4;
+            var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+            var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+            runtime.InitializeHud(HudSnapshot.CeresDebug);
+            runtime.InitializeStartingCeresRoom();
+            runtime.InitializeCeresStartSamus();
+                foreach (AreaId area in new[] { AreaId.Brinstar, AreaId.Norfair, AreaId.WreckedShip, AreaId.Maridia }.Take(bossCount))
+                    runtime.System.SetBossBits(area, BossBits.AreaBoss);
+            runtime.LoadCartridgeRoomForDebug(RoomPointer);
+            var offsets = new HashSet<short>();
+            for (int frame = 0; frame < 3400; frame++)
+            {
+                runtime.StepFrame(0);
+                offsets.Add(runtime.TourianStatues.VerticalOffset);
+            }
+            if (runtime.System.HasEvent(EventNumber.TourianUnlocked) != allBossesDead)
+                throw new InvalidDataException("Statue room ignored the four-boss prerequisite or failed to unlock.");
+            if (!allBossesDead) continue;
+            if (offsets.Count != TourianStatueRomData.DescentDistance + 1)
+                throw new InvalidDataException("Statue descent skipped native intermediate pixel positions.");
+            Console.WriteLine($"Tourian sequence: {offsets.Count} descent positions, all four bosses released.");
+            runtime.LoadCartridgeRoomForDebug(RoomPointer);
+            for (int frame = 0; frame < 4; frame++) runtime.StepFrame(0);
+            if (runtime.TourianStatues.VerticalOffset != -TourianStatueRomData.DescentDistance ||
+                runtime.Camera!.Scrolls.ReadState(1) != RoomScrollState.Green)
+                throw new InvalidDataException("Unlocked statue room did not restore its descent and scroll state on re-entry.");
         }
     }
 

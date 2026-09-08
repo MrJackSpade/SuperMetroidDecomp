@@ -749,6 +749,7 @@ public sealed partial class RoomEnemySystem
         byte nmiFrameCounter8,
         SamusBombProjectileSystem? samusBombs)
     {
+        if (TryStepTourianUnlockEffect(projectile)) return;
         switch (projectile.PreInstruction)
         {
             case 0:
@@ -1436,6 +1437,7 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
+            if (TryExecuteTourianUnlockInstruction(projectile, word, ref cursor)) continue;
             switch (word)
             {
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_Delete:

@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--statue-entry-audit"])
+                {
+                    VerifyStatueEntry();
+                    return;
+                }
                 if (args is ["--metal-pirates-audit"])
                 {
                     VerifyMetalPirates();

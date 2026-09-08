@@ -60,6 +60,8 @@ public static partial class GameplayDisplayCapture
         ushort bg1Y = Add(ppu.Bg1VerticalScroll, shake.Bg1Y);
         ushort bg2X = Add(ppu.Bg2HorizontalScroll, shake.Bg2X);
         ushort bg2Y = Add(ppu.Bg2VerticalScroll, shake.Bg2Y);
+        if (runtime.TourianStatues.Enabled)
+            bg2Y = Add(unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset)), shake.Bg2Y);
         RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
         ScrollingSkyState? sky = runtime.ScrollingSky;
         ushort[]? skyX = sky?.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition
@@ -76,6 +78,7 @@ public static partial class GameplayDisplayCapture
         KraidEnemyState? kraid = runtime.Enemies.Kraid;
         bool kraidBg = kraid is { OwnsBg2Tilemap: true };
         bool crocomireBg = runtime.Enemies.Crocomire is not null;
+        bool verticalStatueMap = runtime.RoomLayer3Fx.Type == RoomFxType.TourianEntranceStatue;
         ushort character = runtime.ActiveRoom?.State.SetupCodePointer ==
             RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze
             ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
@@ -85,8 +88,8 @@ public static partial class GameplayDisplayCapture
             kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2Y)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
                 : sky is not null ? Add(sky.VerticalScroll, shake.Bg2Y) : bg2Y,
-            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : sky is null ? 64 : 32,
-            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : sky is null ? 32 : 64,
+            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : sky is null && !verticalStatueMap ? 64 : 32,
+            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : sky is null && !verticalStatueMap ? 32 : 64,
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??

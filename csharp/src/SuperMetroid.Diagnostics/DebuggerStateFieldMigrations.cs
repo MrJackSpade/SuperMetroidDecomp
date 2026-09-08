@@ -17,6 +17,17 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");
+            return current.Where(field => field.Name != "_tourianStatues").ToArray();
+        }
+        if (type == typeof(RoomEnemySystem) && count == current.Length - 2)
+        {
+            Console.Error.WriteLine("WARNING: Older debugger state has no statue displacement/water surface; initializing to zero.");
+            return current.Where(field => field.Name is not "<TourianEntranceStatueVerticalOffset>k__BackingField"
+                and not "<TourianStatueWaterY>k__BackingField").ToArray();
+        }
         if ((type == typeof(SuperMetroid.Core.Runtime.GameplayPpuRenderSnapshot) && count == 7 && current.Length == 9) ||
             (type == typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters) && count == 11 && current.Length == 13))
         {

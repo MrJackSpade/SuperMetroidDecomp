@@ -937,6 +937,7 @@ public sealed partial class SuperMetroidRuntime
         ApplyPendingMotherBrainPlms();
         ApplyPendingShitroidWallPlms();
         ApplyPendingChozoStatuePlms();
+        TourianStatues.Load(this);
         Enemies.QueueGraphicsUploads(VramWrites);
 
         // `$90:AC8D` follows the standard-sprite and room-enemy uploads during gameplay

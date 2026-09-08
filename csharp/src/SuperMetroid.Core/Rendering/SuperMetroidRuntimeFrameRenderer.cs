@@ -159,7 +159,9 @@ public static class SuperMetroidRuntimeFrameRenderer
                     ? AddShake(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
                     : scrollingSky is not null
                         ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
-                        : bg2VerticalScroll,
+                        : runtime.TourianStatues.Enabled
+                            ? unchecked((ushort)(displayedPpu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2Y))
+                            : bg2VerticalScroll,
                 bg2HorizontalScrollByLine:
                     lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
@@ -168,10 +170,10 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : lavaAcidBg2VerticalScrolls,
                 bg2TilemapWidthInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapWidthInTiles
-                    : scrollingSky is null ? 64 : 32,
+                    : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 64 : 32,
                 bg2TilemapHeightInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapHeightInTiles
-                    : scrollingSky is null ? 32 : 64,
+                    : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 32 : 64,
                 bg2TilemapBaseWord: kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord
                     : SnesPpuLayout.GameplayBg2TilemapWord,

@@ -35,6 +35,38 @@ try
             throw new InvalidDataException("State-load recording omitted its preserved exact seed.");
         string seedPath = Directory.GetFiles(recordings, "*.seed.smstate").Single();
         byte[] originalSeed = File.ReadAllBytes(seedPath);
+        data.PersistSave();
+        string installed = Directory.CreateDirectory(Path.Combine(root, "game")).FullName;
+        File.WriteAllText(Path.Combine(installed, "excluded.smc"), "installed asset sentinel");
+        string unrelatedSlot = Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-8.smstate");
+        File.WriteAllText(unrelatedSlot, "unselected slot sentinel");
+        string exported = Path.Combine(root, "diagnostics.zip");
+        AndroidDiagnosticBundle.Create(root, exported, 0);
+        using (var zip = System.IO.Compression.ZipFile.OpenRead(exported))
+        {
+            foreach (string required in new[] { "bundle.json", "SuperMetroid.save.json", "SuperMetroid.ini",
+                "debug-states/SuperMetroid-debug-slot-0.smstate", "input-recordings/" + Path.GetFileName(seedPath) })
+                if (zip.GetEntry(required) is null) throw new InvalidDataException($"Export omitted {required}.");
+            foreach (string journal in journals)
+            {
+                using var entry = zip.GetEntry("input-recordings/" + Path.GetFileName(journal))!.Open();
+                ControllerInputRecording.Read(entry);
+            }
+            using var seedEntry = zip.GetEntry("input-recordings/" + Path.GetFileName(seedPath))!.Open();
+            using var copy = new MemoryStream();
+            seedEntry.CopyTo(copy);
+            if (!originalSeed.AsSpan().SequenceEqual(copy.ToArray())) throw new InvalidDataException("Export modified the exact replay seed.");
+            if (zip.Entries.Any(entry => entry.FullName.StartsWith("game/", StringComparison.Ordinal)))
+                throw new InvalidDataException("Export included installed game assets.");
+            if (zip.GetEntry("debug-states/SuperMetroid-debug-slot-8.smstate") is not null)
+                throw new InvalidDataException("Export included an unselected user state.");
+        }
+        File.Delete(unrelatedSlot);
+        bool preventedOverwrite = false;
+        try { AndroidDiagnosticBundle.Create(root, exported, 0); }
+        catch (IOException) { preventedOverwrite = true; }
+        if (!preventedOverwrite) throw new InvalidDataException("Export overwrote an existing artifact.");
+        Console.WriteLine("PASS Android diagnostic ZIP: save/config/state/recording inclusion, byte-identical seed, valid recordings, and overwrite refusal.");
         data.SaveSlot(0);
         if (!originalSeed.AsSpan().SequenceEqual(File.ReadAllBytes(seedPath)))
             throw new InvalidDataException("Overwriting the visible slot changed the recording seed.");

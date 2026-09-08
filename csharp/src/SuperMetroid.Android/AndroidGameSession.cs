@@ -46,6 +46,17 @@ internal sealed class AndroidGameSession
     public Task<string> SaveSlot(int slot) => Request(data => data.SaveSlot(slot));
     public Task<string> LoadSlot(int slot) => Request(data => data.LoadSlot(slot));
 
+    public Task<string> ExportDiagnostics(string destination, int slot) => worker.IsCompleted
+        // Fatal runtime errors must not make the already durable crash files inaccessible.
+        ? Task.Run(() => AndroidDiagnosticBundle.Create(root, destination, slot))
+        : Request(data =>
+        {
+            data.PersistSave();
+            data.FlushRecording();
+            AndroidDiagnosticBundle.Create(root, destination, slot);
+            return "Private diagnostic bundle prepared.";
+        });
+
     private Task<string> Request(Func<AndroidSessionData, string> action)
     {
         if (worker.IsCompleted) return Task.FromException<string>(new InvalidOperationException("Game worker stopped; restart before using state tools."));

@@ -102,10 +102,18 @@ public sealed partial class RoomEnemySystem
         {
             // The native post-memset marker keeps the physical slot unavailable until the
             // projectile's $EF10 instruction reconstructs it from the population record.
-            enemy.EnemyDefinitionPointer = 0xdaff;
-            enemy.AiBank = 0xa3;
+            InstallRespawnPlaceholder(enemy);
         }
         EnemiesKilled = unchecked((ushort)(EnemiesKilled + 1));
+    }
+
+    private void InstallRespawnPlaceholder(RoomEnemySlot enemy)
+    {
+        // The cartridge reads the header through the new pointer on every dispatch.
+        // Our cached definition must follow that pointer even during the death frame.
+        enemy.EnemyDefinitionPointer = EnemyLifecycleDefinitions.RespawnPlaceholder;
+        enemy.Definition = ReadDefinition(_bus!, enemy.EnemyDefinitionPointer);
+        enemy.AiBank = enemy.Definition.Bank;
     }
 
     private static ushort SelectNormalShotDeathAnimation(

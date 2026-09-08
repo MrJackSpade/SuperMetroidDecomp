@@ -369,6 +369,9 @@ internal static class EnemyAiCodePointers
     /// <summary><c>RTL_A2804C</c> at $A2:804C.</summary>
     public const int RTL_A2804C = 0xa2804c;
 
+    /// <summary><c>RTL_A3804C</c> at $A3:804C; respawn-placeholder main/hurt/frozen AI.</summary>
+    public const int RTL_A3804C = 0xa3804c;
+
     /// <summary><c>MainAI_DraygonBody</c> at $A5:86FC.</summary>
     public const int MainAI_DraygonBody = 0xa586fc;
 

@@ -87,8 +87,7 @@ public sealed partial class RoomEnemySystem
         _rinkaStates[slotIndex] = null;
         if (respawns)
         {
-            slot.EnemyDefinitionPointer = 0xdaff;
-            slot.AiBank = 0xa3;
+            InstallRespawnPlaceholder(slot);
         }
     }
 

@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 try
 {
 VerifyAndroidHostPolicies();
+if (args is ["--enemy-contact-death"])
+{
+    VerifyContactDeathStopsEnemyDispatch();
+    return 0;
+}
 if (args is ["--android-host"])
     return 0;
 if (args is ["--audio-queues"])

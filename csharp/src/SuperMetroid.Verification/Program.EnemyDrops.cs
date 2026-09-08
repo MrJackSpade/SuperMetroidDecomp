@@ -17,9 +17,44 @@ internal static partial class Program
         VerifyEnemyPickupGrappleDelay();
         VerifyEnemyProjectileSlotZeroDropBug();
         VerifyGenericEnemyDeathDropConversion();
+        VerifyContactDeathStopsEnemyDispatch();
 
         Console.WriteLine(
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");
+    }
+
+    private static void VerifyContactDeathStopsEnemyDispatch()
+    {
+        var samus = CreateDropTestSamus();
+        samus.HorizontalSpeed.ContactDamageIndex = 4;
+        var fixture = CreateEnemyDropFixture(samus, [1]);
+        var enemy = fixture.System.Slots[0];
+        enemy.EnemyDefinitionPointer = 0x9000;
+        enemy.Definition = default(RoomEnemyDefinition) with
+        {
+            Bank = 0xa3,
+            TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
+            VulnerabilityPointer = 0x8000,
+        };
+        fixture.Bus.WriteBytes(0xb48014, [2]);
+        enemy.XPosition = samus.XPosition;
+        enemy.YPosition = samus.YPosition;
+        enemy.XRadius = enemy.YRadius = 8;
+        enemy.Health = 1;
+        enemy.SpritemapPointer = 0x8000;
+        enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
+            resolveSamusContactBeforeAi: true);
+        AssertEqual((ushort)0xdaff, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
+        AssertEqual(1, fixture.System.EnemiesKilled, "contact death counted once");
+        AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
+        AssertEqual(EnemyAiCodePointers.RTL_A3804C,
+            (enemy.Definition.Bank << 16) | enemy.Definition.MainAiPointer,
+            "cached header follows replacement identity into native no-op AI");
+        fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
+            resolveSamusContactBeforeAi: true);
+        AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
+        AssertEqual(1, fixture.System.EnemiesKilled, "placeholder cannot be killed twice");
     }
 
     private static void VerifyEveryEnemyPickupEffect()
@@ -351,6 +386,11 @@ internal static partial class Program
 
     private static void SeedEnemyPickupRom(TestAddressSpace bus)
     {
+        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        byte[] placeholder = new byte[64];
+        for (int i = 0; i < placeholder.Length; i++)
+            placeholder[i] = retail.ReadByte(0xa00000 + EnemyLifecycleDefinitions.RespawnPlaceholder + i);
+        bus.WriteBytes(0xa00000 + EnemyLifecycleDefinitions.RespawnPlaceholder, placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
         bus.WriteBytes(0xa19000, [0xff, 0xff]);
 

@@ -1585,6 +1585,8 @@ public sealed partial class RoomEnemySystem
         int address = (slot.Definition.Bank << 16) | slot.Definition.MainAiPointer;
         switch (address)
         {
+            case EnemyAiCodePointers.RTL_A3804C:
+                return;
             case EnemyAiCodePointers.MainAI_DraygonBody when slot.EnemyDefinitionPointer == DraygonBodyDefinition:
                 RunDraygonBodyMain(slot, samus, nmiFrameCounter8);
                 return;

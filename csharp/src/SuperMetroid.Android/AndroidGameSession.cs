@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Collections.Concurrent;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +18,7 @@ internal sealed class AndroidGameSession
     private readonly AndroidGameView view;
     private readonly ManualResetEventSlim active = new(false);
     private readonly AutoResetEvent wake = new(false);
-    private readonly ConcurrentQueue<(Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result)> commands = new();
+    private readonly AndroidSessionCommands commands = new();
     private readonly CancellationTokenSource stopping = new();
     private readonly Task worker;
     public FrameInputLatch Input { get; } = new();
@@ -61,11 +60,9 @@ internal sealed class AndroidGameSession
 
     private Task<string> Request(Func<AndroidSessionData, string> action)
     {
-        if (worker.IsCompleted) return Task.FromException<string>(new InvalidOperationException("Game worker stopped; restart before using state tools."));
-        var result = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
-        commands.Enqueue((action, result));
+        Task<string> result = commands.Enqueue(action);
         wake.Set();
-        return result.Task;
+        return result;
     }
 
     public async Task Stop()
@@ -210,18 +207,33 @@ internal sealed class AndroidGameSession
         catch (OperationCanceledException) when (stopping.IsCancellationRequested) { }
         catch (Exception error)
         {
-            string report = error.ToString();
-            global::Android.Util.Log.Error("SuperMetroid", report);
-            try { File.WriteAllText(Path.Combine(root, "last-error.txt"), report); }
-            catch (Exception storageError) { global::Android.Util.Log.Error("SuperMetroid", storageError.ToString()); }
-            view.ShowStatus("Stopped: " + error.Message + " (see last-error.txt)");
+            ReportStopped(error);
         }
         finally
         {
-            output?.Dispose();
-            while (commands.TryDequeue(out var request))
-                request.Result.TrySetException(new InvalidOperationException("Game worker stopped before completing the request."));
+            try { output?.Dispose(); }
+            catch (Exception error) { ReportStopped(error, append: true); }
+            finally
+            {
+                // Even a failing audio drain must settle every queued tool request.
+                // Enqueue and closure share one lock, including arrivals during shutdown.
+                commands.Complete(new InvalidOperationException("Game worker stopped; restart before using state tools."));
+            }
         }
+    }
+
+    private void ReportStopped(Exception error, bool append = false)
+    {
+        string report = error.ToString();
+        global::Android.Util.Log.Error("SuperMetroid", report);
+        try
+        {
+            string path = Path.Combine(root, "last-error.txt");
+            if (append) File.AppendAllText(path, "\nAudio shutdown failure:\n" + report);
+            else File.WriteAllText(path, report);
+        }
+        catch (Exception storageError) { global::Android.Util.Log.Error("SuperMetroid", storageError.ToString()); }
+        view.ShowStatus("Stopped: " + error.Message + " (see last-error.txt)");
     }
 
     private void DrainCommands(AndroidSessionData data)

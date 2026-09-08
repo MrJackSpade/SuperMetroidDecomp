@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    AndroidSessionCommandVerification.Run();
     if (args is ["--compare-file-select-capture", var journalPath, var wavePath])
         return FileSelectCaptureComparison.Run(journalPath, wavePath);
     if (args is ["--replay-android-bundle", var bundle, var recordingName])

@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--replay-android-bundle", var bundle, var recordingName])
+        return AndroidBundleReplay.Run(bundle, recordingName);
     if (args is ["--export-ceres-descent-state", var destination])
         return CeresDescentStateFixture.Export(destination);
     if (args is ["--export-reported-eye-state", var eyeDestination])

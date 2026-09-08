@@ -168,12 +168,42 @@ It does **not** establish signature/body equivalence, framework reflection suppo
 or debugger-state compatibility. A successful device state load/continuation test
 and performance comparison remain required before making AOT the default.
 
-The rooted experiment on 2026-09-08 built with zero warnings/errors and retained
+The initial rooted experiment on 2026-09-08 built with zero warnings/errors and retained
 34,904 Core, 248 Diagnostics, and 469 Android declarations. Existing debugger slot
 0 loaded with the normal changed-build warning and continued rendering/audio.
 The short opening/demo run recorded zero underruns, but some presentation windows
 still fell into the 40s. This is not full performance or state-portability acceptance.
-The normal APK and exact pre-test save were restored afterward; AOT stays opt-in.
+The normal APK and exact pre-test save were restored after that initial experiment.
+
+After the raster-allocation reductions through `6688264`, the rooted AOT build
+also passed a full gameplay debugger-graph round trip on the handheld: imported
+the controlled Landing Site fixture into previously unused slot 9, loaded frame
+720 with the expected build warning, continued to frame 1931, saved, and reloaded
+frame 1931 without a build warning. Gameplay continued after reloading. The test
+slot was removed and original regular save/backup and slot 0 hashes were verified
+after restoration. This extends the earlier cinematic-only state check; it does
+not prove portability of every possible runtime graph.
+
+The subsequent `3c433bc` candidate retained all 34,905 Core, 248 Diagnostics, and
+512 Android declarations checked by the metadata tool. Windows Release build,
+the full portable rendering contract, Android host checks, and the diagnostic
+state/import/export suite passed. These checks are prerequisites for the sustained
+device run, not substitutes for its timing/audio results.
+
+The subsequent sustained AOT run beginning 2026-09-08 10:04:47 UTC covered 153
+approximately one-second windows through opening/title and multiple attract demos:
+81 opening windows averaged 59.90 emulation / 59.68 presentation FPS; 70 gameplay
+demo windows averaged 59.99 / 59.88 (minimum paint 58.0); two transition windows
+averaged 60.35 / 59.35. AudioTrack reported zero underruns throughout. State labels
+refer to the end of each window, not every frame within it. This initially favorable
+sample was contradicted by continuing the same run: at 10:07:27 UTC, host frame
+9608, render cost increased from about 5.6 ms to 22.6 ms. Subsequent PlayingDemo
+windows simulated/painted at approximately 36-37 FPS, with cumulative underruns
+reaching 499. Later opening frames returned to 60 FPS without restarting. AOT
+therefore remains opt-in; the proposed default change was not adopted. Investigate
+the exact demo/effect at this host-frame interval before changing scheduling again.
+Thermal service still reports `HAL Ready: false` without temperatures; do not claim
+measured thermal headroom or broad sustained-performance acceptance.
 
 A subsequent direct `Choreographer.IFrameCallback` experiment (invalidating before
 traversal, with producer invalidations disabled while active) did not fix the AOT

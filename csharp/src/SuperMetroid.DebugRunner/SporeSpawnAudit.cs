@@ -3,12 +3,21 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Audio;
 
 /// <summary>Retail room, actor, and viewport identities used by the Spore Spawn audit.</summary>
 internal static class SporeSpawnAuditDefinitions
 {
     /// <summary>Spore Spawn room header at <c>$8F:9DC7</c>, logical room <c>$01/$0B</c>.</summary>
     public const ushort RoomPointer = 0x9dc7;
+    /// <summary>$8F:9D9C, the room containing the upward entrance into Spore Spawn.</summary>
+    public const ushort EntryRoomPointer = 0x9d9c;
+    /// <summary>$A5:E6B9 selects byte offset $C0 in the three death-palette tables.</summary>
+    public const int FinalDeathPaletteOffset = 0xc0;
+    /// <summary>$A5:E91C writes sprite row 9, level row 4, and background row 7.</summary>
+    public static readonly (int Source, int Destination)[] DeathPaletteRows =
+        [(0xa5e3f9, 144), (0xa5e4f9, 64), (0xa5e5d9, 112)];
     /// <summary>Single-body population at <c>$A1:A0FD</c>.</summary>
     public const ushort PopulationPointer = 0xa0fd;
     /// <summary>
@@ -485,6 +494,38 @@ internal static class SporeSpawnAudit
         for (int frame = 0; frame < 8 && !CeilingIsAir(runtime.LevelData); frame++)
             runtime.StepFrame(controller1Input: 0);
         VerifyCeilingIsAir(runtime.LevelData);
+        // Exercise the production door coroutine, including its early palette capture
+        // and later enemy-instruction pass, not just a manually merged target buffer.
+        runtime.LoadCartridgeRoomForDebug(SporeSpawnAuditDefinitions.EntryRoomPointer);
+        runtime.Samus!.XPosition = 128;
+        runtime.Samus.YPosition = 64;
+        var level = runtime.LevelData!;
+        for (int index = 0; index < level.ForegroundEntries.Length; index++)
+        {
+            var block = level.GetCollisionBlockByIndex(index);
+            if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
+            var door = level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus.Pose, false);
+            if (door.Pointer != SporeSpawnAuditDefinitions.IncomingDoorPointer) continue;
+            level.ResolveDoorCollision(bus, block.Behavior, runtime.Samus.Pose, true);
+            break;
+        }
+        var transition = new DoorTransitionState();
+        transition.Begin(runtime);
+        var audio = new CartridgeAudioState();
+        for (int frame = 0; frame < 400 && transition.IsActive; frame++)
+            transition.Step(runtime, audio, 0);
+        if (transition.IsActive) throw new InvalidDataException("Spore Spawn entry fade did not finish.");
+        foreach (var row in SporeSpawnAuditDefinitions.DeathPaletteRows)
+        {
+            for (int color = 0; color < 16; color++)
+            {
+                int address = row.Source + SporeSpawnAuditDefinitions.FinalDeathPaletteOffset + color * 2;
+                ushort expected = (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+                ushort actual = runtime.Cgram.Colors[row.Destination + color];
+                if (actual != expected)
+                    throw new InvalidDataException($"Defeated Spore Spawn re-entry color {row.Destination + color}: {actual:X4}, expected {expected:X4}.");
+            }
+        }
     }
 
     private static void VerifyDefeatedStalkDrawsBehindSamus(

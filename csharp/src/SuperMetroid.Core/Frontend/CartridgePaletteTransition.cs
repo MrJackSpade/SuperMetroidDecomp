@@ -46,6 +46,9 @@ internal sealed class CartridgePaletteTransition
         return false;
     }
 
+    /// <summary>Updates the native target buffer without resetting fade progress or current colors.</summary>
+    internal void SetTargetColor(int index, ushort color) => target[index] = color;
+
     private ushort CalculateColor(int step, ushort current, ushort destination)
     {
         int red = CalculateComponent(step, current & 0x1f, destination & 0x1f);

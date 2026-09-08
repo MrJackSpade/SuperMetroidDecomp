@@ -22,6 +22,7 @@ public enum SporeSpawnFunction : ushort
 public sealed class SporeSpawnEnemyState
 {
     private readonly ushort[] _targetPalette = new ushort[256];
+    private readonly bool[] _targetPaletteWritten = new bool[256];
 
     internal SporeSpawnEnemyState(RoomEnemySlot body) => Body = body;
 
@@ -52,6 +53,22 @@ public sealed class SporeSpawnEnemyState
     /// </summary>
     public ReadOnlyMemory<ushort> TargetPalette => _targetPalette;
     internal Span<ushort> MutableTargetPalette => _targetPalette;
+
+    internal void WriteTargetColor(int index, ushort value)
+    {
+        _targetPalette[index] = value;
+        _targetPaletteWritten[index] = true;
+    }
+
+    internal void ConsumeTargetColors(Action<int, ushort> write)
+    {
+        for (int index = 0; index < _targetPalette.Length; index++)
+        {
+            if (!_targetPaletteWritten[index]) continue;
+            write(index, _targetPalette[index]);
+            _targetPaletteWritten[index] = false;
+        }
+    }
 }
 
 /// <summary>One hardcoded bank-$84 ceiling mutation published by Spore Spawn.</summary>
@@ -156,7 +173,7 @@ public sealed partial class RoomEnemySystem
         for (int color = 0; color < 16; color++)
         {
             ushort value = ReadWord(_bus!, SporeSpawnInitialPaletteSource + color * 2);
-            state.MutableTargetPalette[SporeSpawnInitialPaletteDestination + color] = value;
+            state.WriteTargetColor(SporeSpawnInitialPaletteDestination + color, value);
             _cgram!.SetColor(SporeSpawnInitialPaletteDestination + color, value);
         }
 

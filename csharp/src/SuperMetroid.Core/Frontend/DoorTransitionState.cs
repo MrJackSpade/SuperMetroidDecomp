@@ -186,6 +186,9 @@ public sealed class DoorTransitionState
 
             case DoorTransitionPhase.FadeInDestinationPalette:
                 runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                // Enemy instruction lists run after the initial destination palette copy.
+                // Their target writes belong to this same fade, not a private dead buffer.
+                runtime.Enemies.ConsumeTargetPaletteWrites(paletteTransition!.SetTargetColor);
                 if (paletteTransition!.Step(runtime.Cgram))
                 {
                     if (runtime.Samus is { } arrivingSamus)

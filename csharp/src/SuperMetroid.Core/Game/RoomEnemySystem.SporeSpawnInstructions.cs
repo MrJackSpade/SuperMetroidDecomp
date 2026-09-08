@@ -145,7 +145,7 @@ public sealed partial class RoomEnemySystem
         {
             ushort value = ReadWord(_bus!, source + sourceByteOffset + color * 2);
             if (targetOnly)
-                state.MutableTargetPalette[destination + color] = value;
+                state.WriteTargetColor(destination + color, value);
             else
                 _cgram!.SetColor(destination + color, value);
         }

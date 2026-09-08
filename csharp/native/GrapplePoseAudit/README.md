@@ -1,5 +1,26 @@
 # Grapple release pose-input reference (#338)
 
+## Scanner-eye window reference (#51)
+
+`audit.exe "Super Metroid.smc" eye-window` executes the cartridge's
+`$88:E987` HDMA builder, with eight-bit index registers, using slot-one body
+coordinates `(552,616)` and camera `(384,512)` from the reported `$01/$10`
+room. It emits CSV for five tracking angles at zero and full angular width.
+The horizontal apex is independently checked at scanline 103, spanning X 0..168.
+
+Redirect that output to a local CSV, then compare the production captured
+windows with:
+
+```text
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DebugRunner -c Release -- --eye-window-native-compare "Super Metroid.smc" csharp/test-temp/issue-51-native-windows.csv
+```
+
+This comparison intentionally fails until the production geometry agrees with
+the executed cartridge. It compares pixel membership, including empty windows,
+and rejects missing or duplicate fixture rows. This is not a screenshot or an
+independent copy of the managed calculation used as its own oracle. It does not
+by itself verify sprite/color-math composition or other camera positions.
+
 ## Ceres Ridley wall-impact reference (#357)
 
 `audit.exe "Super Metroid.smc" ridley-wall` executes the full `$A6:D86B`

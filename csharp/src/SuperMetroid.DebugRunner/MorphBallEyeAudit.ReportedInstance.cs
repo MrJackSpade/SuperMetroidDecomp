@@ -51,7 +51,7 @@ internal static partial class MorphBallEyeAudit
             PngWriter.WriteRgba(Path.Combine(directory, name + ".png"),
                 FrontendFrame.Width, FrontendFrame.Height, pixels);
             Console.WriteLine($"01/10 {name}: body={body.XPosition},{body.YPosition}, " +
-                $"map={body.SpritemapPointer:X4}, camera={ppu.Layer1XPosition},{ppu.Layer1YPosition}, " +
+                $"map={body.SpritemapPointer:X4}, palette={body.PaletteIndex:X4}, camera={ppu.Layer1XPosition},{ppu.Layer1YPosition}, " +
                 $"beam={beam.WorldX},{beam.WorldY} angle={beam.Angle.TableIndex} width={beam.AngularWidth}");
         }
     }

@@ -670,6 +670,9 @@ if (args.Length >= 2 && args[0] == "--morph-ball-eye-audit")
     return MorphBallEyeAudit.Run(eyeRomPath);
 }
 
+if (args is ["--eye-window-native-compare", var eyeWindowRom, var eyeWindowCsv])
+    return MorphBallEyeAudit.CompareNativeWindows(eyeWindowRom, eyeWindowCsv);
+
 if (args.Length >= 2 && args[0] == "--wrecked-ship-ghost-audit")
 {
     string ghostRomPath = string.Join(' ', args[1..]).Trim('"');

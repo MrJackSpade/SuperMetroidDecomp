@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleEnemyDeath()
     {
+        VerifyGrappleDeathCleanupOrdinaryPoses();
         var samus = CreateDropTestSamus();
         samus.Health = 50;
         samus.XPosition = 220;
@@ -68,5 +69,46 @@ internal static partial class Program
         AssertTrue(heardDeath,
             "grapple death emits the retail enemy-killed sound from its instruction list");
         Console.WriteLine("  Grapple enemy death: visible animated explosion, drop conversion, position and kill counter agree.");
+    }
+
+    private static void VerifyGrappleDeathCleanupOrdinaryPoses()
+    {
+        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach (byte pose in new[] { SamusPoseIds.StandingAimDiagonalDownRightPose,
+            SamusPoseIds.NormalJumpForwardRightPose, SamusPoseIds.FacingRightNormalPose })
+        {
+            var samus = CreateDropTestSamus();
+            samus.Pose = pose;
+            samus.RefreshCollisionRadii(retail);
+            // The logged 51->01 request used the standing-size live radius, retained
+            // across a pose handoff; C8C5 branches on that word, not pose metadata.
+            samus.Kinematics.YRadius = 17;
+            samus.XPosition = 220;
+            samus.YPosition = 100;
+            var fixture = CreateEnemyDropFixture(samus, [1]);
+            var enemy = fixture.System.Slots[0];
+            enemy.EnemyDefinitionPointer = 0x9000;
+            enemy.Definition = default(RoomEnemyDefinition) with
+            {
+                GrappleAiPointer = EnemyAiCodePointers.BankA0.GrappleKill,
+            };
+            enemy.XPosition = 100; enemy.YPosition = 100;
+            enemy.XRadius = enemy.YRadius = 8;
+            enemy.Health = 500;
+            fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
+            fixture.System.ResolveGrappleEndpoint(100, 100);
+            samus.Grapple.Phase = GrapplePhase.Firing;
+            fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
+            AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
+            var movementRoom = CreateRoom(32, 32, new ushort[32 * 32], new byte[32 * 32]);
+            var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);
+            AssertTrue(result.Dropped, $"reported ordinary pose {pose:X2} completes grapple cleanup");
+            AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");
+            AssertEqual(pose == SamusPoseIds.StandingAimDiagonalDownRightPose ? pose : SamusPoseIds.FacingRightNormalPose,
+                samus.Pose, "native dropped table selects aim or standing body");
+            AssertEqual(0, samus.Kinematics.YSpeed, "drop clears vertical speed");
+            AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "drop clears base horizontal speed");
+        }
+        Console.WriteLine("  Grapple enemy-death cleanup: reported 07->07, 51->01, and 01->01 routes pass.");
     }
 }

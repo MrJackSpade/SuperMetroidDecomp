@@ -365,13 +365,6 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
 
-        bool supportedSource = Pose is
-            SamusPoseIds.GrappleSwingRightPose or SamusPoseIds.GrappleSwingLeftPose or
-            SamusPoseIds.GrappleStandingRightPose or SamusPoseIds.GrappleStandingLeftPose or
-            SamusPoseIds.GrappleStandingDownRightPose or SamusPoseIds.GrappleStandingDownLeftPose or
-            SamusPoseIds.GrappleCrouchingRightPose or SamusPoseIds.GrappleCrouchingLeftPose or
-            SamusPoseIds.GrappleCrouchingDownRightPose or SamusPoseIds.GrappleCrouchingDownLeftPose or
-            SamusPoseIds.GrappleWallContactLeftPose or SamusPoseIds.GrappleWallContactRightPose;
         bool supportedTarget = targetPose is
             SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
             SamusPoseIds.StandingAimUpRightPose or SamusPoseIds.StandingAimUpLeftPose or
@@ -381,7 +374,7 @@ public sealed partial class SamusState
             SamusPoseIds.CrouchingAimUpRightPose or SamusPoseIds.CrouchingAimUpLeftPose or
             SamusPoseIds.CrouchingAimDiagonalUpRightPose or SamusPoseIds.CrouchingAimDiagonalUpLeftPose or
             SamusPoseIds.CrouchingAimDiagonalDownRightPose or SamusPoseIds.CrouchingAimDiagonalDownLeftPose;
-        if (!supportedSource || !supportedTarget)
+        if (!supportedTarget)
         {
             // `$9B:C8C5` chooses from the complete twelve-entry dropped-pose table, whose
             // outputs are exactly the standing/aim/crouch set above. Other releases use
@@ -390,6 +383,10 @@ public sealed partial class SamusState
                 $"Grapple drop transition ${Pose:X2} -> ${targetPose:X2} is not a retail dropped-table route.");
         }
 
+        // EnemyDeathAnimation requests this cleanup for a grapple-killed enemy even
+        // when the beam never attached. Samus can therefore still be standing, aiming,
+        // or jumping. Native C8C5 selects by radius/shot direction in those poses too;
+        // only its output domain is restricted, not the source to connected-grapple art.
         byte sourcePose = Pose;
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus,

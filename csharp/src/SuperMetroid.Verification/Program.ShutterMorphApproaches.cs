@@ -10,6 +10,10 @@ internal static partial class Program
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
         var arc = new List<string>();
+        string[]? nativeCheckedArc = reproduceOnly && !exportNativeArc
+            ? File.ReadAllLines("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv") : null;
+        if (nativeCheckedArc is not null) AssertEqual(143, nativeCheckedArc.Length, "native-checked shutter trajectory covers frames 117..259");
+        using var bombInputs = exportNativeArc ? new BinaryWriter(File.Create("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.projectiles")) : null;
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (bool approach in new[] { false, true })
         foreach (int interval in new[] { 8, 20, 40 })
@@ -46,12 +50,22 @@ internal static partial class Program
                     ? $"X={samus.Kinematics.XFixed:X8} Y={samus.Kinematics.YFixed:X8} VY={samus.Kinematics.VerticalSpeedFixed:X8}/{samus.Kinematics.YDirection} pose={samus.Pose:X2} bomb={samus.BombJumpActive} platform={platform.YPosition}.{platform.YSubposition:X4}" : "";
                 if (exportNativeArc && frame == 117) ExportShutterBombArcSeed(runtime);
                 runtime.StepFrame(input);
+                if (nativeCheckedArc is not null && frame >= 117)
+                {
+                    string actual = $"{frame},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Kinematics.VerticalSpeedFixed},{samus.BombJumpDirection},{platform.YPosition},{platform.YSubposition}";
+                    AssertEqual(nativeCheckedArc[frame - 117], actual, $"native-checked shutter ascent/landing/contact trajectory frame {frame}");
+                }
                 if (exportNativeArc && frame >= 117)
                 {
+                    foreach (var bomb in runtime.BombProjectiles.Slots)
+                    {
+                        bombInputs!.Write(bomb.XPosition); bombInputs.Write(bomb.YPosition);
+                        bombInputs.Write(bomb.XRadius); bombInputs.Write(bomb.YRadius);
+                        bombInputs.Write(bomb.Direction); bombInputs.Write(bomb.Type);
+                        bombInputs.Write(bomb.Damage); bombInputs.Write(bomb.BombTimer);
+                    }
                     arc.Add($"{frame},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Kinematics.VerticalSpeedFixed},{samus.BombJumpDirection},{platform.YPosition},{platform.YSubposition}");
-                    // Frame 179 publishes a new bomb reaction; that requires adding
-                    // native projectile processing, not injecting the port's result.
-                    if (frame == 178)
+                    if (frame == 259)
                     {
                         File.WriteAllLines("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", arc);
                         Console.WriteLine($"Exported {arc.Count} production bomb-ascent/landing frames for native comparison.");
@@ -68,12 +82,10 @@ internal static partial class Program
                     Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition}");
                 }
                 AssertTrue(samus.Kinematics.YRadius == 7, "morph-only approach never enters a standing/unmorph posture");
-                if (reproduceOnly && !exportNativeArc && Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
-                    samus.YPosition < platform.YPosition)
-                    AssertTrue(gap >= -1, $"unresolved #347: morph rider embeds at frame {frame}, gap={gap}, Samus=({samus.XPosition},{samus.YPosition}), platformY={platform.YPosition}");
             }
             cases++;
         }
-        Console.WriteLine($"{cases} morph-only bomb/roll/return sequences; minimum gap={worstGap}. Investigation, not a resolved-issue assertion.");
+        Console.WriteLine($"{cases} morph-only bomb/roll/return sequences; minimum gap={worstGap}. " +
+            (nativeCheckedArc is null ? "Exploratory sweep; not a cartridge-parity assertion." : "143 native-checked trajectory frames agree, including cartridge-permitted ceiling overlap."));
     }
 }

@@ -40,12 +40,20 @@ internal static partial class Program
         {
             int offset = i * 64;
             var slot = runtime.Enemies.Slots[i];
+            Word(0xF78 + offset, slot.EnemyDefinitionPointer);
+            Word(0xF8E + offset, slot.SpritemapPointer);
+            ram[0xFA6 + offset] = slot.Definition.Bank;
             Word(0xF7A + offset, slot.XPosition); Word(0xF7E + offset, slot.YPosition);
             Word(0xF80 + offset, slot.YSubposition); Word(0xF82 + offset, slot.XRadius);
             Word(0xF84 + offset, slot.YRadius); Word(0xF86 + offset, 0x8000);
         }
         var shutter = runtime.Enemies.VerticalShutterStates[0]!;
+        Word(0xFA8, (ushort)shutter.Function);
         Word(0xFB0, shutter.UpSubvelocity); Word(0xFB2, unchecked((ushort)shutter.UpVelocity));
+        Word(0xFAC, shutter.DownSubvelocity); Word(0xFAE, unchecked((ushort)shutter.DownVelocity));
+        Word(0x780E, shutter.InitialFunctionTableOffset); Word(0x7818, shutter.ShotActivated ? 1 : 0);
+        Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.MaximumYPosition);
+        Word(0x8000, shutter.ReactionDirection);
         Word(0x781E, shutter.MinimumYPosition); Word(0x7810, shutter.MovedUpRestTime);
         File.WriteAllBytes("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.wram", ram);
 

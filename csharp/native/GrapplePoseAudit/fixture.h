@@ -26,6 +26,17 @@ enum BombArcPoseFixture {
   NativeGroundedMorphMovement = 0x90a521, NativeFallingMorphMovement = 0x90a5ca
 };
 
+/* Bank-$A0 bomb overlap producer and bank-$90 low-byte request consumer. */
+enum BombArcInteractionFixture {
+  NativeProjectileInteraction = 0xa09785, NativeEnemyBombInteraction = 0xa0a236, NativeEnemySamusInteraction = 0xa0a07a,
+  NativeBombJumpSetup = 0x90df99,
+  NativeBombJumpStart = 0x90e025, SamusMovementHandler = 0xa58,
+  ShutterFunction = 0xfa8, BombCount = 0xcd2,
+  ProjectileX = 0xb64, ProjectileY = 0xb78, ProjectileRadiusX = 0xbb4,
+  ProjectileRadiusY = 0xbc8, ProjectileDirection = 0xc04, ProjectileType = 0xc18,
+  ProjectileDamage = 0xc2c, ProjectileTimer = 0xc7c
+};
+
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */

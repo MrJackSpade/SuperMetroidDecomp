@@ -73,13 +73,37 @@ int main(int argc, char **argv) {
     if (!seed || !trace || fread(ram, 1, sizeof(ram), seed) != sizeof(ram))
       Die("Missing/truncated shutter bomb-arc fixture; run --shutter-native-arc first\n");
     fclose(seed);
+    FILE *bombs = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.projectiles", "rb");
+    if (!bombs) Die("Missing bomb contact input snapshots\n");
+    const unsigned bomb_fields[] = { ProjectileX, ProjectileY, ProjectileRadiusX, ProjectileRadiusY,
+      ProjectileDirection, ProjectileType, ProjectileDamage, ProjectileTimer };
     unsigned frame, x, y, speed, direction, platform, fraction, count = 0;
     int fields;
     while ((fields = fscanf(trace, "%u,%u,%u,%u,%u,%u,%u", &frame, &x, &y, &speed, &direction, &platform, &fraction)) == 7) {
       word(NmiFrameWord, readword(NmiFrameWord) + 1);
+      if (readword(BombJumpDirection) && !(readword(BombJumpDirection) & 0xff00)) {
+        word(SpecialPose, 0xffff); word(SuperSpecialPose, 0xffff); word(ProspectivePose, 0xffff);
+        run(NativeBombJumpSetup);
+        run(NativeUpdatePose);
+      }
       word(ExtraYWhole, 0);
-      run(NativeShutterMovingUp);
-      if (readword(BombJumpDirection)) run(NativeBombJumpMain);
+      run(NativeEnemySamusInteraction);
+      run(0xa20000 | readword(ShutterFunction));
+      /* These are observed projectile inputs, not observed collision/direction
+         outputs. Native $A0:9785 independently computes overlap using native
+         Samus position before beta movement. Projectile lifecycle is not under
+         test in this comparison. */
+      for (unsigned slot = 5; slot < 10; slot++)
+      for (unsigned field = 0; field < 8; field++) {
+        int low = fgetc(bombs), high = fgetc(bombs);
+        if (low == EOF || high == EOF) Die("Truncated bomb contact input snapshots\n");
+        word(bomb_fields[field] + slot * 2, low | high << 8);
+      }
+      word(BombCount, 5);
+      run(NativeProjectileInteraction);
+      run(NativeEnemyBombInteraction);
+      if (readword(SamusMovementHandler) == (NativeBombJumpStart & 0xffff)) run(NativeBombJumpStart);
+      else if (readword(SamusMovementHandler) == (NativeBombJumpMain & 0xffff)) run(NativeBombJumpMain);
       else if (ram[MovementType] == 4) run(NativeGroundedMorphMovement);
       else if (ram[MovementType] == 8) run(NativeFallingMorphMovement);
       else Die("Unexpected posture in native bomb-arc continuation\n");
@@ -105,6 +129,8 @@ int main(int argc, char **argv) {
     }
     if (fields != EOF || !count) Die("Invalid/empty shutter bomb-arc trace\n");
     fclose(trace);
+    if (fgetc(bombs) != EOF) Die("Trailing bomb contact inputs\n");
+    fclose(bombs);
     printf("%u actual-room ascent/landing/carry frames match native movement, pose transitions and platform AI.\n", count);
     return 0;
   }

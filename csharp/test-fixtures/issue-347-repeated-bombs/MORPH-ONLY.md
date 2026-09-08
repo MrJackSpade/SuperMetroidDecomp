@@ -1,6 +1,35 @@
 # Player-confirmed posture: Morph Ball only
 
-## Latest: matched room trajectory and grounded-carry ceiling fix
+## Current validation status
+
+Issue #347 is ready for player validation after two native-verified production
+fixes: side-wall collision no longer cancels a diagonal bomb jump, and upward
+grounded carry applies the normal ceiling-response command.
+
+`--shutter-morph-repro` now verifies the committed, native-checked trajectory
+instead of the disproven blanket `gap >= -1` assertion. All 143 frames 117..259
+match original-ROM movement, solid-collision pose transitions, platform AI,
+Samus/platform touch, and bomb-overlap reactions. The native run independently
+computes the reactions and Samus trajectory; it does not ingest the expected
+coordinates or published bomb directions as inputs.
+
+`bomb-arc.projectiles` contains five slots of eight little-endian words per frame
+(X, Y, X radius, Y radius, direction, type, damage, timer). These snapshots are
+inputs to the native collision routines, not a native projectile-lifecycle replay.
+The initial movement seed still begins at frame 117, not power-on. This evidence
+establishes the compared subsystem trajectory, not complete emulator parity.
+
+Regenerate with `Verification --shutter-native-arc`, then run native
+`GrapplePoseAudit/audit.exe "Super Metroid.smc" shutter-bomb-arc`, and finally
+`Verification --shutter-morph-repro`. Regeneration alone is not validation:
+the native comparison must pass before accepting a changed baseline.
+
+The observed minimum gap is still -17: the cartridge routines also allow overlap
+at this constrained ceiling corner, and their body-touch callback subsequently
+reverses the platform. No custom anti-overlap rule was added. Player confirmation
+is still required; the original issue has not been closed.
+
+## Earlier 62-frame comparison and grounded-carry ceiling fix
 
 The historical conclusions below are refined by `shutter-bomb-arc`: unlike the
 earlier two-routine carry experiment, this comparison includes native solid

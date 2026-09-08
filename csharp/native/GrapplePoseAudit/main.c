@@ -63,10 +63,51 @@ static void run(unsigned address) {
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
 int main(int argc, char **argv) {
-  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall]\n"); return 2; }
+  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall|shutter-bomb-arc]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3 && !strcmp(argv[2], "shutter-bomb-arc")) {
+    FILE *seed = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.wram", "rb");
+    FILE *trace = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", "r");
+    if (!seed || !trace || fread(ram, 1, sizeof(ram), seed) != sizeof(ram))
+      Die("Missing/truncated shutter bomb-arc fixture; run --shutter-native-arc first\n");
+    fclose(seed);
+    unsigned frame, x, y, speed, direction, platform, fraction, count = 0;
+    int fields;
+    while ((fields = fscanf(trace, "%u,%u,%u,%u,%u,%u,%u", &frame, &x, &y, &speed, &direction, &platform, &fraction)) == 7) {
+      word(NmiFrameWord, readword(NmiFrameWord) + 1);
+      word(ExtraYWhole, 0);
+      run(NativeShutterMovingUp);
+      if (readword(BombJumpDirection)) run(NativeBombJumpMain);
+      else if (ram[MovementType] == 4) run(NativeGroundedMorphMovement);
+      else if (ram[MovementType] == 8) run(NativeFallingMorphMovement);
+      else Die("Unexpected posture in native bomb-arc continuation\n");
+      /* The port's public movement seam includes ceiling pose-command side
+         effects. Compare after the cartridge's own selection/pose dispatch,
+         rather than mistaking intermediate nonzero speed for a divergence. */
+      if (readword(CollisionPoseInput)) {
+        word(PreviousPose, readword(Pose));
+        word(PreviousDirection, readword(Pose + 2));
+        word(SpecialPose, 0xffff); word(SuperSpecialPose, 0xffff); word(ProspectivePose, 0xffff);
+        run(NativeCollisionPose);
+        run(NativeUpdatePose);
+      }
+      unsigned actual_x = readword(SamusX) * 65536u + readword(SamusXFraction);
+      unsigned actual_y = readword(SamusY) * 65536u + readword(SamusYFraction);
+      unsigned actual_speed = readword(SamusYSpeed) * 65536u + readword(SamusYSubspeed);
+      printf("frame %u: native X=%08X Y=%08X VY=%08X dir=%04X; port X=%08X Y=%08X VY=%08X dir=%04X\n",
+        frame, actual_x, actual_y, actual_speed, readword(BombJumpDirection), x, y, speed, direction);
+      if (actual_x != x || actual_y != y || actual_speed != speed || readword(BombJumpDirection) != direction ||
+          readword(EnemyY) != platform || readword(EnemyYFraction) != fraction)
+        Die("Native/port bomb-ascent divergence\n");
+      count++;
+    }
+    if (fields != EOF || !count) Die("Invalid/empty shutter bomb-arc trace\n");
+    fclose(trace);
+    printf("%u actual-room ascent/landing/carry frames match native movement, pose transitions and platform AI.\n", count);
+    return 0;
+  }
   if (argc == 3 && !strcmp(argv[2], "bomb-wall")) {
     memset(ram, 0, sizeof(ram));
     word(RoomWidth, 16); word(SamusX, 59); word(SamusY, 80);

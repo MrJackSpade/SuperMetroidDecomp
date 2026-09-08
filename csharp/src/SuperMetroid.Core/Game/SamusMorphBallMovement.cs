@@ -98,7 +98,8 @@ public static class SamusMorphBallMovement
                 level,
                 samus,
                 nmiFrameCounter,
-                plms);
+                plms,
+                out hitCeiling);
 
             // Only the stable-pose branch performs `$90:A551-$90:A561` cleanup, and only
             // after the no-speed Y path. A moving ball retains its newly calculated speed.
@@ -324,7 +325,8 @@ public static class SamusMorphBallMovement
                 level,
                 samus,
                 nmiFrameCounter,
-                plms);
+                plms,
+                out hitCeiling);
         }
         else
         {
@@ -419,18 +421,31 @@ public static class SamusMorphBallMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms)
+        RoomPlmSystem? plms,
+        out bool hitCeiling)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(
             bus,
             level,
             samus.Kinematics,
             displacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             plms: plms);
+        // No-speed Y movement can still go UP when a platform carries Samus. The
+        // cartridge publishes the same ceiling command as a velocity-driven jump;
+        // $91:EFDF clears speed and selects down. Otherwise the next frame repeats
+        // a grounding probe and steps into the platform instead of using zero speed.
+        hitCeiling = displacement < 0 && result.Collided;
+        if (hitCeiling)
+        {
+            samus.Kinematics.YSpeed = 0;
+            samus.Kinematics.YSubspeed = 0;
+            samus.Kinematics.YDirection = 2;
+        }
+        return result;
     }
 
     private static int CalculateDirectedDisplacement(

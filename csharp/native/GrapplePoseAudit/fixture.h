@@ -20,6 +20,12 @@ enum BombJumpWallFixture {
   SamusYSubacceleration = 0xb32, SamusYDirection = 0xb36
 };
 
+/* Native post-movement solid-collision pose selection and result mailbox. */
+enum BombArcPoseFixture {
+  NativeCollisionPose = 0x91e8b6, CollisionPoseInput = 0xdc6, NmiFrameWord = 0x5b6,
+  NativeGroundedMorphMovement = 0x90a521, NativeFallingMorphMovement = 0x90a5ca
+};
+
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */

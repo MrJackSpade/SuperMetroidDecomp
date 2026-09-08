@@ -1,5 +1,38 @@
 # Player-confirmed posture: Morph Ball only
 
+## Latest: matched room trajectory and grounded-carry ceiling fix
+
+The historical conclusions below are refined by `shutter-bomb-arc`: unlike the
+earlier two-routine carry experiment, this comparison includes native solid
+collision pose selection and pose-command side effects.
+
+Run `Verification --shutter-native-arc` to export `bomb-arc.wram` and
+`bomb-arc.csv`, then `GrapplePoseAudit/audit.exe "Super Metroid.smc"
+shutter-bomb-arc`. The WRAM fixture is a minimal state assembled from the actual
+room-local reproduction immediately before frame 117; it includes the complete
+room collision/BTS plane, both platforms and Samus's movement state. It is not a
+full emulator save. The CSV is production output, independently checked against
+original ROM instructions rather than fed back into native movement.
+
+Before the fix, the first final-frame position divergence was frame 161: native
+Samus stayed at Y=71, while the port moved to Y=72. The preceding upward carry
+hit the ceiling, but the no-speed Morph Ball probe omitted command $91:EFDF's
+zero-speed/down-direction side effects. The next call incorrectly used another
+grounding probe. The shared probe now publishes `HitCeiling` and applies those
+native side effects, including for transition poses that use the same probe.
+
+The focused `--bomb-wall` suite includes this ceiling/carry case and failed on
+the missing ceiling result before the fix. Afterward, all 62 native/port frames
+117..178 match X/Y position, vertical velocity, bomb direction, and platform
+position/fraction. Frame 179 introduces a new bomb reaction, so the comparison
+stops before it rather than copying the port's projectile result into the oracle.
+
+The platform continues into Samus at the constrained ceiling corner even in
+the native comparison. Therefore the old blanket `gap >= -1` diagnostic is not
+a valid cartridge-fidelity assertion. This is a verified state-transition fix,
+not proof that every reported embedding trigger has been resolved; #347 remains
+open while the later bomb interaction is investigated.
+
 The player explicitly ruled out unmorphing. The README's earlier unmorph/ceiling case is not a reproduction of their report.
 
 `--shutter-morph-approaches` runs 288 valid room-local Morph Ball-only sequences. It combines both platforms, centered and adjoining-passage starts, repeated bombs, rolling away and rolling back. Every frame asserts that Samus's collision height remains the Morph Ball radius (7). The sweep reaches 38 pixels of overlap.

@@ -30,5 +30,26 @@ internal static partial class Program
         AssertEqual(2, samus.Kinematics.YSpeed, "native bomb-wall next speed");
         AssertEqual(0x8000, samus.Kinematics.YSubspeed, "native bomb-wall next subspeed");
         Console.WriteLine("  Bomb jump: wall-only collision preserves native ascent and handler lifetime.");
+        VerifyCarriedMorphCeiling(bus);
+    }
+
+    private static void VerifyCarriedMorphCeiling(SuperMetroidAddressSpace bus)
+    {
+        var words = new ushort[32 * 16];
+        words[3 * 32 + 23] = 0x8000;
+        var level = new RoomLevelData(32, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
+        var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundLeftPose, XPosition = 371, YPosition = 71 };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        samus.Kinematics.ExtraYDisplacement = 0xFFFF;
+        var hit = SamusMorphBallMovement.StepGrounded(bus, level, samus, 0, new RoomPlmSystem());
+        AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
+        AssertEqual(2, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
+        AssertEqual(71, samus.YPosition, "carried Morph Ball remains at the ceiling boundary");
+        samus.Kinematics.ExtraYDisplacement = 0;
+        samus.Kinematics.YSubacceleration = 0x1C00;
+        SamusMorphBallMovement.StepGrounded(bus, level, samus, 1, new RoomPlmSystem());
+        AssertEqual(71, samus.YPosition, "following frame moves by old zero speed, not a one-pixel grounding probe");
+        AssertEqual(0x1C00, samus.Kinematics.YSubspeed, "following frame stores normal gravity for its successor");
     }
 }

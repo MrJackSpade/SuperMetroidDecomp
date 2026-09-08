@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shutter-native-arc"])
+{
+    AuditMorphShutterApproaches(reproduceOnly: true, exportNativeArc: true);
+    return 0;
+}
 if (args is ["--bomb-wall"])
 {
     VerifyBombJumpWallContact();

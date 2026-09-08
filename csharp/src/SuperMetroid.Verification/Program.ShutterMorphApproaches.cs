@@ -5,10 +5,11 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static void AuditMorphShutterApproaches(bool reproduceOnly = false)
+    private static void AuditMorphShutterApproaches(bool reproduceOnly = false, bool exportNativeArc = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
+        var arc = new List<string>();
         foreach (int slotIndex in new[] { 0, 1 })
         foreach (bool approach in new[] { false, true })
         foreach (int interval in new[] { 8, 20, 40 })
@@ -43,7 +44,20 @@ internal static partial class Program
                 if (direction != 0) input |= (ushort)(direction < 0 ? SnesButton.Left : SnesButton.Right);
                 string before = reproduceOnly && frame >= 110
                     ? $"X={samus.Kinematics.XFixed:X8} Y={samus.Kinematics.YFixed:X8} VY={samus.Kinematics.VerticalSpeedFixed:X8}/{samus.Kinematics.YDirection} pose={samus.Pose:X2} bomb={samus.BombJumpActive} platform={platform.YPosition}.{platform.YSubposition:X4}" : "";
+                if (exportNativeArc && frame == 117) ExportShutterBombArcSeed(runtime);
                 runtime.StepFrame(input);
+                if (exportNativeArc && frame >= 117)
+                {
+                    arc.Add($"{frame},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Kinematics.VerticalSpeedFixed},{samus.BombJumpDirection},{platform.YPosition},{platform.YSubposition}");
+                    // Frame 179 publishes a new bomb reaction; that requires adding
+                    // native projectile processing, not injecting the port's result.
+                    if (frame == 178)
+                    {
+                        File.WriteAllLines("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", arc);
+                        Console.WriteLine($"Exported {arc.Count} production bomb-ascent/landing frames for native comparison.");
+                        return;
+                    }
+                }
                 if (before.Length != 0)
                     Console.WriteLine($"trace {frame}: {before} -> Y={samus.Kinematics.YFixed:X8} VY={samus.Kinematics.VerticalSpeedFixed:X8}/{samus.Kinematics.YDirection} pose={samus.Pose:X2} extra={samus.Kinematics.ExtraYFixed} platform={platform.YPosition}.{platform.YSubposition:X4}");
                 int gap = platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius;
@@ -54,7 +68,7 @@ internal static partial class Program
                     Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{samus.Pose:X2} platformY={platform.YPosition}");
                 }
                 AssertTrue(samus.Kinematics.YRadius == 7, "morph-only approach never enters a standing/unmorph posture");
-                if (reproduceOnly && Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
+                if (reproduceOnly && !exportNativeArc && Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
                     samus.YPosition < platform.YPosition)
                     AssertTrue(gap >= -1, $"unresolved #347: morph rider embeds at frame {frame}, gap={gap}, Samus=({samus.XPosition},{samus.YPosition}), platformY={platform.YPosition}");
             }

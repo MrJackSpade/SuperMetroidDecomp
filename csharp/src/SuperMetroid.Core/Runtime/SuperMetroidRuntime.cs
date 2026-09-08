@@ -4204,6 +4204,11 @@ public sealed partial class SuperMetroidRuntime
                         draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin)));
             }
 
+            // Room scrolling must not replace the persistent body-owned register shadows.
+            // Mother Brain moves BG2 inversely to her physical posture in bank $A9.
+            if (!deathOwnsSamus && Enemies.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
+                BackgroundScroll.SetBg2ScrollRegisters(motherBrain.Bg2XScroll, motherBrain.Bg2YScroll);
+
             if (!deathOwnsSamus && Enemies.IsLoaded)
             {
                 // CeresRidley_Main installs $A6:A2F2 as EnemyGraphicsDrawnHook. It runs

@@ -316,10 +316,10 @@ public static partial class SnesGameplayFrameRenderer
         }
         if (bg2TilemapWidthInTiles is not (32 or 64) ||
             bg2TilemapHeightInTiles is not (32 or 64) ||
-            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles is not (2048 or 4096))
+            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles is not (1024 or 2048 or 4096))
         {
             throw new ArgumentException(
-                "BG2 gameplay tilemaps must be 64x32, 32x64, or 64x64 tiles.",
+                "BG2 gameplay tilemaps must use 32 or 64 tiles on each axis.",
                 nameof(bg2TilemapWidthInTiles));
         }
 

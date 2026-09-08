@@ -170,9 +170,11 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : lavaAcidBg2VerticalScrolls,
                 bg2TilemapWidthInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapWidthInTiles
+                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
                     : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 64 : 32,
                 bg2TilemapHeightInTiles: kraidOwnsBg2
                     ? KraidBackgroundRomData.TilemapHeightInTiles
+                    : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32
                     : scrollingSky is null && runtime.RoomLayer3Fx.Type != RoomFxType.TourianEntranceStatue ? 32 : 64,
                 bg2TilemapBaseWord: kraidOwnsBg2
                     ? KraidBackgroundRomData.LiveBg2TilemapWord

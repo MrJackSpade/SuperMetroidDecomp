@@ -88,8 +88,8 @@ public static partial class GameplayDisplayCapture
             kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2Y)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBg2VerticalScroll, shake.Bg2Y)
                 : sky is not null ? Add(sky.VerticalScroll, shake.Bg2Y) : bg2Y,
-            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : sky is null && !verticalStatueMap ? 64 : 32,
-            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : sky is null && !verticalStatueMap ? 32 : 64,
+            kraidBg ? KraidBackgroundRomData.TilemapWidthInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky is null && !verticalStatueMap ? 64 : 32,
+            kraidBg ? KraidBackgroundRomData.TilemapHeightInTiles : runtime.Enemies.MotherBrain is { HasBg2ScrollOverride: true } ? 32 : sky is null && !verticalStatueMap ? 32 : 64,
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??

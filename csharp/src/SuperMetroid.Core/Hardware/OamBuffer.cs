@@ -66,6 +66,18 @@ public sealed class OamBuffer
         ushort originX,
         ushort originY,
         ushort paletteBits)
+        => AddGenericSpritemap(bus, spritemapAddress, originX, originY, paletteBits, originIsOnScreen: true);
+
+    /// <summary>
+    /// Ports $81:8853, DrawSpritemapOffScreen. It shares the on-screen loader's
+    /// palette/OAM packing but reverses its vertical-wrap parking condition.
+    /// </summary>
+    public void AddOffScreenSpritemap(ISnesAddressSpace bus, int spritemapAddress,
+        ushort originX, ushort originY, ushort paletteBits)
+        => AddGenericSpritemap(bus, spritemapAddress, originX, originY, paletteBits, originIsOnScreen: false);
+
+    private void AddGenericSpritemap(ISnesAddressSpace bus, int spritemapAddress,
+        ushort originX, ushort originY, ushort paletteBits, bool originIsOnScreen)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ValidateAddress(spritemapAddress);
@@ -88,6 +100,8 @@ public sealed class OamBuffer
             int calculatedY = (byte)originY + encodedYOffset;
             bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
             bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
+            if (!originIsOnScreen)
+                hideForVerticalWrap = !hideForVerticalWrap;
 
             if (hideForVerticalWrap)
             {

@@ -168,14 +168,16 @@ internal sealed class IntroDiscoverySprite
     {
         if (!IsActive || SpriteMapPointer == 0)
             return;
-        oam.AddOnScreenSpritemap(
-            bus,
-            (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps,
-                SpriteMapPointer),
-            XPosition,
-            YPosition,
-            PaletteBits);
+        if (unchecked((ushort)(YPosition + CinematicSpriteDrawDefinitions.OriginYBias)) >=
+            CinematicSpriteDrawDefinitions.BiasedOriginYLimit)
+            return;
+        int address = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SpriteMapPointer);
+        // A negative origin still has visible component tiles, but their low-byte Y
+        // arithmetic needs the opposite clipping branch to prevent bottom-edge wrap.
+        if ((YPosition & CinematicSpriteDrawDefinitions.OriginYHighByteMask) != 0)
+            oam.AddOffScreenSpritemap(bus, address, XPosition, YPosition, PaletteBits);
+        else
+            oam.AddOnScreenSpritemap(bus, address, XPosition, YPosition, PaletteBits);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>

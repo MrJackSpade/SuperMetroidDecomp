@@ -10,6 +10,7 @@ internal static partial class Program
     private static void VerifyCinematicRenderSnapshots()
     {
         VerifyCeresExplosionTimeline();
+        VerifyZebesDoesNotWrapDuringDescent();
         VerifyIntroDisplayCapture();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus);

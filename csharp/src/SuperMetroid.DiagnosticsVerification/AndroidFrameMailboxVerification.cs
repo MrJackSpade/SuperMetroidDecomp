@@ -57,7 +57,9 @@ internal static class AndroidFrameMailboxVerification
             throw new InvalidDataException("Handoff trace allocates while recording.");
         string? text = null;
         trace.Flush(value => text = value);
-        if (text is null || !text.EndsWith("990 P 99\n1000 P 100\n1010 P 101\n", StringComparison.Ordinal))
+        if (text is null || !text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)
+                .Select(line => string.Join(' ', line.Split(' ').Take(3)))
+                .SequenceEqual(new[] { "990 P 99", "1000 P 100", "1010 P 101" }))
             throw new InvalidDataException("Rolling handoff trace lost chronological tail.");
         trace.Flush(_ => throw new InvalidDataException("Trace flushed twice."));
         var traced = new AndroidFrameMailbox(2, new AndroidFrameHandoffTrace(10));
@@ -67,9 +69,18 @@ internal static class AndroidFrameMailboxVerification
         traced.Consume(_ => { });
         traced.FlushTrace(value => text = value);
         string[] events = text!.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)
-            .Select(line => string.Join(' ', line.Split(' ').Skip(1))).ToArray();
+            .Select(line => string.Join(' ', line.Split(' ').Skip(1).Take(2))).ToArray();
         if (!events.SequenceEqual(new[] { "P 1", "R 2", "C 2", "U 2", "E 2" }))
             throw new InvalidDataException("Handoff trace does not describe the real mailbox transitions.");
         Console.WriteLine("PASS handoff trace: bounded chronological tail, zero recording allocation, flush once, production event identity.");
+        var gcTrace = new AndroidFrameHandoffTrace(2);
+        gcTrace.Record('P', 1, 1);
+        GC.Collect(2, GCCollectionMode.Forced, blocking: true);
+        gcTrace.Record('P', 2, 2);
+        gcTrace.Flush(value => text = value);
+        int[] collections = text!.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1)
+            .Select(line => int.Parse(line.Split(' ')[4])).ToArray();
+        if (collections[1] <= collections[0]) throw new InvalidDataException("Trace lost the intervening full GC.");
+        Console.WriteLine("PASS handoff GC counters: observed forced full collection between events.");
     }
 }

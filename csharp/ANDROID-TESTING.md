@@ -185,7 +185,8 @@ to invalidation scheduling alone is not supported by these results.
 
 `frame-handoff.log` now retains the last 2048 mailbox events at each stopped
 lifecycle boundary and is included in diagnostic exports. Each row is monotonic
-Stopwatch ticks, event kind, and publication sequence: P=publish into empty mailbox,
+Stopwatch ticks, event kind, publication sequence, and generation-0/generation-2
+collection counts: P=publish into empty mailbox,
 R=replace pending frame, C=begin consuming, U=upload finished, E=draw found no frame.
 Sequence IDs are mailbox-local, not cartridge frame numbers. Recording uses a
 preallocated ring without per-event allocations; formatting/writing happens only

@@ -13,7 +13,7 @@ internal sealed class AndroidFrameHandoffTrace(int capacity = 2048)
     private int next, count;
     public void Record(char kind, long sequence, long ticks)
     {
-        entries[next] = new Entry(ticks, sequence, kind);
+        entries[next] = new Entry(ticks, sequence, kind, GC.CollectionCount(0), GC.CollectionCount(2));
         next = (next + 1) % entries.Length;
         count = Math.Min(count + 1, entries.Length);
     }
@@ -25,11 +25,12 @@ internal sealed class AndroidFrameHandoffTrace(int capacity = 2048)
         for (int i = 0; i < count; i++)
         {
             Entry entry = entries[(next - count + i + entries.Length) % entries.Length];
-            text.Append(entry.Ticks).Append(' ').Append(entry.Kind).Append(' ').Append(entry.Sequence).Append('\n');
+            text.Append(entry.Ticks).Append(' ').Append(entry.Kind).Append(' ').Append(entry.Sequence)
+                .Append(' ').Append(entry.Gen0).Append(' ').Append(entry.Gen2).Append('\n');
         }
         write(text.ToString());
         next = count = 0;
     }
 
-    private readonly record struct Entry(long Ticks, long Sequence, char Kind);
+    private readonly record struct Entry(long Ticks, long Sequence, char Kind, int Gen0, int Gen2);
 }

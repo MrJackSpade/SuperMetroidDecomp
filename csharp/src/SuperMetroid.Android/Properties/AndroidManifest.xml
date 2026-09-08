@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <!-- Saves and private cartridge assets must not enter Android cloud backups. -->
-  <application android:allowBackup="false" android:label="Super Metroid C# Testing" android:supportsRtl="false" />
+  <!-- This is a private diagnostic APK: permit adb run-as for fixture/log retrieval. -->
+  <application android:debuggable="true" android:allowBackup="false" android:label="Super Metroid C# Testing" android:supportsRtl="false" />
 </manifest>

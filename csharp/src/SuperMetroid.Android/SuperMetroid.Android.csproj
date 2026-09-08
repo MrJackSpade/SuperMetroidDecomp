@@ -9,6 +9,12 @@
     <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
     <!-- Reflection-based debugger graphs must remain available in testing builds. -->
     <PublishTrimmed>false</PublishTrimmed>
+    <!-- Initial untrimmed testing baseline; profile before selecting an AOT strategy. -->
+    <RunAOTCompilation>false</RunAOTCompilation>
+    <!-- The private debuggable APK uses dynamic JNI registration. LLVM marshal glue
+         produced an onCreate UnsatisfiedLinkError with this SDK/device combination. -->
+    <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
+    <DebugSymbols>true</DebugSymbols>
     <AndroidPackageFormats>apk</AndroidPackageFormats>
     <!-- adb install must work without Visual Studio's separate fast-deployment files. -->
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>

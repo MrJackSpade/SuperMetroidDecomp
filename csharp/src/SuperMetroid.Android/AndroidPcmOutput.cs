@@ -1,0 +1,61 @@
+using Android.Media;
+using SuperMetroid.Core.Audio;
+
+namespace SuperMetroid.Android;
+
+/// <summary>
+/// Android-only PCM sink. A small bounded AudioTrack buffer applies backpressure rather
+/// than accumulating audio indefinitely. The emulation worker owns writes and disposal.
+/// </summary>
+internal sealed class AndroidPcmOutput : IDisposable
+{
+    private readonly AudioTrack track;
+
+    public AndroidPcmOutput()
+    {
+        int minimumBytes = AudioTrack.GetMinBufferSize(CartridgeAudioRenderer.SampleRate,
+            ChannelOut.Stereo, Encoding.Pcm16bit);
+        if (minimumBytes <= 0) throw new IOException($"AudioTrack minimum buffer query failed: {minimumBytes}.");
+        using var attributes = new AudioAttributes.Builder()
+            .SetUsage(AudioUsageKind.Game)!
+            .SetContentType(AudioContentType.Music)!.Build()!;
+        using var format = new AudioFormat.Builder()
+            .SetSampleRate(CartridgeAudioRenderer.SampleRate)!
+            .SetEncoding(Encoding.Pcm16bit)!
+            .SetChannelMask(ChannelOut.Stereo)!.Build()!;
+        using var builder = new AudioTrack.Builder();
+        track = builder.SetAudioAttributes(attributes)!
+            .SetAudioFormat(format)!
+            .SetTransferMode(AudioTrackMode.Stream)!
+            .SetBufferSizeInBytes(Math.Max(minimumBytes,
+                CartridgeAudioRenderer.StereoFramesPerVideoFrame * CartridgeAudioRenderer.ChannelCount * sizeof(short) * 3))!
+            .Build();
+        if (track.State != AudioTrackState.Initialized)
+        {
+            track.Dispose();
+            throw new IOException("AudioTrack did not initialize.");
+        }
+        track.Play();
+    }
+
+    public int UnderrunCount => track.UnderrunCount;
+
+    public void Submit(short[] samples)
+    {
+        int offset = 0;
+        while (offset < samples.Length)
+        {
+            int written = track.Write(samples, offset, samples.Length - offset, WriteMode.Blocking);
+            if (written <= 0) throw new IOException($"AudioTrack failed to accept PCM: {written}.");
+            offset += written;
+        }
+    }
+
+    public void Dispose()
+    {
+        track.Pause();
+        track.Flush();
+        track.Release();
+        track.Dispose();
+    }
+}

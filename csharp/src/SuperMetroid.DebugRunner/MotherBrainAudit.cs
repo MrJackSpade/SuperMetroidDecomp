@@ -2480,6 +2480,11 @@ internal static class MotherBrainAudit
                 MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
             observedBeamRunOut |= sequence.Phase ==
                 MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut;
+            if (state.LastRainbowBeamStep is
+                { PhaseBefore: MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam,
+                  PhaseAfter: MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut } &&
+                state.LastSoundEffectLibrary1 != 2)
+                throw new InvalidDataException("Baby drain completion did not stop sound library one with command 2.");
             observedRetreat |= sequence.Phase ==
                 MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom;
             observedRetreat |= state.LastRainbowBeamStep is

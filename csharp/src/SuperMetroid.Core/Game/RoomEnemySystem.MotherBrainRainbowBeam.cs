@@ -171,7 +171,11 @@ public sealed partial class RoomEnemySystem
         state.RainbowBeamPaletteRequested = current.PaletteRequested;
         state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
-            state.LastSoundEffectLibrary1 = 0x0040;
+            // A request is not invariably a start: the painful-walk stage-six handoff
+            // stops the same looping voice. Preserve the command selected by the sequence.
+            state.LastSoundEffectLibrary1 = sequence.RainbowBeamSoundPlaying
+                ? MotherBrainSoundCommands.StartRainbowDrain
+                : MotherBrainSoundCommands.StopRainbowDrain;
         if (current.ChargeSoundQueued || current.FinalBeamSoundQueued)
             state.LastSoundEffect = 0x0071;
         if (current.Explosion is not null)

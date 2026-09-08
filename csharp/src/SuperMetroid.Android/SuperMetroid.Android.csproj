@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <ApplicationId>org.supermetroid.csharp.testing</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1</ApplicationDisplayVersion>
+    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+    <!-- Reflection-based debugger graphs must remain available in testing builds. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <AndroidPackageFormats>apk</AndroidPackageFormats>
+    <!-- adb install must work without Visual Studio's separate fast-deployment files. -->
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <!-- Private, self-contained testing package; never publish this APK publicly. -->
+    <AndroidAsset Include="../../../Super Metroid.smc" LogicalName="game/SuperMetroid.smc" />
+    <AndroidAsset Include="../../../standalone-assets/audio/**/*" LogicalName="game/audio/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+</Project>

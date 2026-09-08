@@ -29,6 +29,12 @@ VerifyAndroidHostPolicies();
 VerifyIniEditing();
 VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;
+if (args is ["--grapple-movement"])
+{
+    VerifySamusGrappleRomData();
+    VerifySamusGrappleSwingAndRelease();
+    return 0;
+}
 if (args is ["--shinespark"])
 {
     VerifySamusStoredShineAndShinespark();

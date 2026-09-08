@@ -198,8 +198,11 @@ public static partial class SamusGrappleMovement
         // $9B:BD44 only admits this extra angular impulse during the 16-frame terrain-
         // reflection timer. It is separate from ordinary Samus jump velocity and decays
         // inside bank $94 only after a successful angular movement pass.
+        // Inputs here are normalized: A is Jump, B is Run. The native BIT JumpBinding
+        // must agree with the release-window check, or tight anchors become inescapable
+        // using Jump even though the unrelated Run button accidentally supplies the kick.
         if (grapple.CollisionBounceTimer != 0 &&
-            (newlyPressedInput & (ushort)SnesButton.B) != 0)
+            (newlyPressedInput & (ushort)SnesButton.A) != 0)
         {
             grapple.JumpImpulse = grapple.AngularVelocity switch
             {

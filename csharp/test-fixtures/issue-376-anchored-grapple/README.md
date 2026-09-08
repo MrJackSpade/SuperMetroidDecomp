@@ -62,3 +62,7 @@ This establishes correct wall-grab art in the tested route, not that the player'
 different dangling attempt enters the same state. The issue is active (validation
 label removed); a capture while stuck dangling would distinguish failure to enter
 wall grab from incorrect rendering after entry.
+
+Follow-up: the player supplied that capture. See `../issue-376-stuck-grapple/README.md`.
+It reproduces a wrong Jump/Run binding in the swing kick, which this earlier route
+never needed. The binding is now corrected and both fixtures remain regression tests.

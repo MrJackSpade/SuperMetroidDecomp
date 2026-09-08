@@ -917,8 +917,8 @@ static void VerifySamusGrappleSwingAndRelease()
         bus,
         swingLevel,
         angularCollisionSamus,
-        (ushort)(SnesButton.X | SnesButton.B),
-        newlyPressedInput: (ushort)SnesButton.B);
+        (ushort)(SnesButton.X | SnesButton.A),
+        newlyPressedInput: (ushort)SnesButton.A);
     AssertTrue(!afterAngularCollision.TerrainCollided,
         "collision kick crosses three clear angle-byte terrain sweeps");
     AssertEqual(0x3d11, angularCollisionSamus.Grapple.Angle.RawValue,

@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--stuck-grapple-audit"])
+                {
+                    VerifyStuckGrapple();
+                    return;
+                }
                 if (args is ["--anchored-grapple-audit"])
                 {
                     VerifyAnchoredGrapple();

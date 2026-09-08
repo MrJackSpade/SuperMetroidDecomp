@@ -1,5 +1,18 @@
 # Grapple release pose-input reference (#338)
 
+## Ceres Ridley wall-impact reference (#357)
+
+`audit.exe "Super Metroid.smc" ridley-wall` executes the full `$A6:D86B`
+movement routine. Crossing below the left bound invokes `$A6:D914` before
+clearing horizontal velocity. In Ceres, max(abs(VX), abs(VY)) >= `$0280`
+requests quake type 33 for twelve frames. The fixture also verifies no request
+below threshold, at the right bound, on exact left-bound equality, or in Norfair.
+
+The managed regression continues a real-room lunge into the left boundary,
+checks the quake request and published display displacement, then follows its
+twelve-frame lifetime. It failed with quake type zero before the missing native
+request was restored. Player confirmation remains pending.
+
 ## Ceres haze lifecycle reference (#358)
 
 `audit.exe "Super Metroid.smc" ceres-haze` executes the bank-$88 blue/red

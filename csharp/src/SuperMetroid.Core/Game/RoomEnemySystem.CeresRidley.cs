@@ -427,7 +427,7 @@ public sealed partial class RoomEnemySystem
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled != 0 && CeresStatus == 0)
         {
-            IntegrateRidleyMovement(slot, state);
+            IntegrateRidleyMovement(slot, state, ceresWallImpact: true);
             TickRidleyWingAnimation(state);
             TickRidleyTail(slot, state, samus);
             UpdateCeresRidleyHealthPalette(state);
@@ -840,10 +840,22 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)Math.Clamp(velocity, -1280, 1280));
     }
 
-    private static void IntegrateRidleyMovement(
+    private void IntegrateRidleyMovement(
         RoomEnemySlot slot,
-        RidleyEnemyState state)
+        RidleyEnemyState state,
+        bool ceresWallImpact = false)
     {
+        // $A6:D86B calls the impact routine only when proposed X is strictly below the
+        // left bound, before zeroing X velocity. Vertical speed can meet its threshold
+        // even when horizontal motion is slow; the right and vertical clamps do not call it.
+        var proposedX = IntegrateUnclampedAxis(slot.XPosition, slot.XSubposition, state.HorizontalVelocity);
+        if (ceresWallImpact && unchecked((short)(proposedX.Position - state.MinimumX)) < 0 &&
+            Math.Max(Math.Abs((int)unchecked((short)state.HorizontalVelocity)),
+                Math.Abs((int)unchecked((short)state.VerticalVelocity))) >= RidleyWallImpactDefinitions.MinimumSpeed)
+        {
+            EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
+            EarthquakeTimer = RidleyWallImpactDefinitions.Duration;
+        }
         (slot.XPosition, slot.XSubposition, state.HorizontalVelocity) = IntegrateAxis(
             slot.XPosition,
             slot.XSubposition,

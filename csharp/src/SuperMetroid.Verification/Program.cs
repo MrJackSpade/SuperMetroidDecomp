@@ -260,6 +260,7 @@ VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
 VerifyWallJumpDust();
 VerifyCeresHazeLifecycle();
+VerifyCeresRidleyWallImpact();
 VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();

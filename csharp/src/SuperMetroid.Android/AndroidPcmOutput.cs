@@ -28,9 +28,13 @@ internal sealed class AndroidPcmOutput : IDisposable
             .SetEncoding(Encoding.Pcm16bit)!
             .SetChannelMask(ChannelOut.Stereo)!.Build()!;
         using var builder = new AudioTrack.Builder();
+        // Request the interactive route rather than the device's deep-buffer music
+        // route. Android may still report None if a fast track is not granted; keep
+        // the effective mode in diagnostics instead of assuming the hint was honored.
         track = builder.SetAudioAttributes(attributes)!
             .SetAudioFormat(format)!
             .SetTransferMode(AudioTrackMode.Stream)!
+            .SetPerformanceMode(AudioTrackPerformanceMode.LowLatency)!
             .SetBufferSizeInBytes(Math.Max(minimumBytes,
                 CartridgeAudioRenderer.StereoFramesPerVideoFrame * CartridgeAudioRenderer.ChannelCount * sizeof(short) * 3))!
             .Build();
@@ -40,9 +44,9 @@ internal sealed class AndroidPcmOutput : IDisposable
             throw new IOException("AudioTrack did not initialize.");
         }
         track.Play();
-        trace.Record("play", $"bufferFrames={track.BufferSizeInFrames} head={track.PlaybackHeadPosition}");
-        // This device releases AudioTrack space in roughly 67ms bursts. Eight
-        // video-frame buffers absorb that batching without unbounded latency;
+        trace.Record("play", $"bufferFrames={track.BufferSizeInFrames} mode={track.PerformanceMode} head={track.PlaybackHeadPosition}");
+        // Some routes release AudioTrack space in large bursts. Eight
+        // video-frame buffers absorb batching without unbounded latency;
         // the simulation still owns its ordinary 60Hz deadline and never drops PCM.
         sink = new QueuedPcmSink(WriteToDevice, capacity: 8);
     }

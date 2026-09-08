@@ -72,8 +72,12 @@ internal sealed class AndroidGameView : View
             canvas.DrawBitmap(bitmap, null, destination, pixels);
         }
         // Diagnostic text is an overlay: changes cannot shift or resize the game picture.
-        canvas.DrawText(Volatile.Read(ref status), 8, 28, text);
-        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x", 8, 56, text);
+        canvas.Save();
+        canvas.ClipRect(viewport.Left, viewport.Top, viewport.Left + viewport.Width, viewport.Top + viewport.Height);
+        canvas.DrawText(Volatile.Read(ref status), viewport.Left + 8, viewport.Top + 28, text);
+        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x",
+            viewport.Left + 8, viewport.Top + 56, text);
+        canvas.Restore();
     }
 
     protected override void Dispose(bool disposing)

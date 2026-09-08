@@ -4,6 +4,7 @@ using Android.Views;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
+using System.Diagnostics;
 
 namespace SuperMetroid.Android;
 
@@ -22,6 +23,9 @@ internal sealed class AndroidGameView : View
     private string status = "Starting game...";
     private string roomIdentity = "No active room";
     private long paintCount;
+    private long drawTicks;
+    private long uploadTicks;
+    private long replacedFrames;
 
     public AndroidGameView(Context context) : base(context)
     {
@@ -31,6 +35,12 @@ internal sealed class AndroidGameView : View
     }
 
     public long PaintCount => Interlocked.Read(ref paintCount);
+    /// <summary>Cumulative UI-thread time; excludes deferred GPU execution after OnDraw returns.</summary>
+    public long DrawTicks => Interlocked.Read(ref drawTicks);
+    /// <summary>Cumulative CPU time converting pixels and uploading the small bitmap.</summary>
+    public long UploadTicks => Interlocked.Read(ref uploadTicks);
+    /// <summary>Published game frames replaced before the UI consumed them; never simulation steps skipped.</summary>
+    public long ReplacedFrames => Interlocked.Read(ref replacedFrames);
 
     /// <summary>Updated per emulated frame; not delayed by the one-second FPS window.</summary>
     public void SetRoomIdentity(string identity) => Volatile.Write(ref roomIdentity, identity);
@@ -38,7 +48,8 @@ internal sealed class AndroidGameView : View
     public void Publish(Rgba32[] frame, string description)
     {
         Volatile.Write(ref status, description);
-        Interlocked.Exchange(ref pending, frame);
+        if (Interlocked.Exchange(ref pending, frame) is not null)
+            Interlocked.Increment(ref replacedFrames);
         PostInvalidateOnAnimation();
     }
 
@@ -50,11 +61,13 @@ internal sealed class AndroidGameView : View
 
     protected override void OnDraw(Canvas canvas)
     {
+        long drawStart = Stopwatch.GetTimestamp();
         base.OnDraw(canvas);
         canvas.DrawColor(Color.Black);
         Rgba32[]? frame = Interlocked.Exchange(ref pending, null);
         if (frame is not null)
         {
+            long uploadStart = Stopwatch.GetTimestamp();
             if (frame.Length != argb.Length) throw new InvalidDataException("Unexpected Android framebuffer dimensions.");
             for (int i = 0; i < frame.Length; i++)
             {
@@ -62,6 +75,7 @@ internal sealed class AndroidGameView : View
                 argb[i] = unchecked((int)((uint)p.A << 24 | (uint)p.R << 16 | (uint)p.G << 8 | p.B));
             }
             bitmap.SetPixels(argb, 0, FrontendFrame.Width, 0, 0, FrontendFrame.Width, FrontendFrame.Height);
+            Interlocked.Add(ref uploadTicks, Stopwatch.GetTimestamp() - uploadStart);
             Interlocked.Increment(ref paintCount);
         }
         DisplayViewport viewport = DisplayViewport.IntegerPixels(Width, Height);
@@ -78,6 +92,7 @@ internal sealed class AndroidGameView : View
         canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x",
             viewport.Left + 8, viewport.Top + 56, text);
         canvas.Restore();
+        Interlocked.Add(ref drawTicks, Stopwatch.GetTimestamp() - drawStart);
     }
 
     protected override void Dispose(bool disposing)

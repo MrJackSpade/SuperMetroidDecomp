@@ -78,6 +78,8 @@ internal sealed class AndroidGameSession
             double deadline = clock.Elapsed.TotalSeconds;
             double measuredAt = deadline;
             long measuredFrame = 0, measuredPaint = view.PaintCount;
+            long measuredDrawTicks = view.DrawTicks, measuredUploadTicks = view.UploadTicks;
+            long measuredReplacements = view.ReplacedFrames;
             double stepMilliseconds = 0, renderMilliseconds = 0, audioMilliseconds = 0;
             string status = "Starting cartridge";
 
@@ -129,15 +131,27 @@ internal sealed class AndroidGameSession
                 if (now - measuredAt >= 1)
                 {
                     long count = sequence - measuredFrame;
+                    long paints = view.PaintCount - measuredPaint;
+                    long drawTicks = view.DrawTicks, uploadTicks = view.UploadTicks;
+                    long replacements = view.ReplacedFrames;
+                    // CPU-only presenter measurements distinguish scheduling loss from
+                    // expensive bitmap conversion. GPU timing remains in adb gfxinfo.
+                    double tickMilliseconds = 1000.0 / Stopwatch.Frequency;
+                    double drawMs = paints == 0 ? 0 : (drawTicks - measuredDrawTicks) * tickMilliseconds / paints;
+                    double uploadMs = paints == 0 ? 0 : (uploadTicks - measuredUploadTicks) * tickMilliseconds / paints;
                     status = $"emu {count / (now - measuredAt):F1} paint {(view.PaintCount - measuredPaint) / (now - measuredAt):F1} " +
                         $"step {stepMilliseconds / count:F1} render {renderMilliseconds / count:F1} audio {audioMilliseconds / count:F1} " +
                         $"underrun {output?.UnderrunCount ?? 0} {frame.Frame.GameState}";
                     global::Android.Util.Log.Info("SuperMetroid", status);
                     File.AppendAllText(Path.Combine(root, "timing.log"),
-                        $"{DateTimeOffset.UtcNow:O} {status} frame={sequence} phase={frame.Frame.Phase}\n");
+                        $"{DateTimeOffset.UtcNow:O} {status} frame={sequence} phase={frame.Frame.Phase} " +
+                        $"uiDrawMs={drawMs:F3} uploadMs={uploadMs:F3} replaced={replacements - measuredReplacements}\n");
                     measuredAt = now;
                     measuredFrame = sequence;
                     measuredPaint = view.PaintCount;
+                    measuredDrawTicks = drawTicks;
+                    measuredUploadTicks = uploadTicks;
+                    measuredReplacements = replacements;
                     stepMilliseconds = renderMilliseconds = audioMilliseconds = 0;
                 }
                 view.Publish(pixels, status);

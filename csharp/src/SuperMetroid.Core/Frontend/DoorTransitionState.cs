@@ -174,7 +174,13 @@ public sealed class DoorTransitionState
                 // endpoint, which is restored here rather than during the visible scroll.
                 runtime.FinishDoorOpeningScroll();
                 runtime.EndDoorTransitionIrqDisplay();
+                // Commit the consumed scroll stage before calling destination actors.
+                // A recoverable actor exception must retry drawing, not finalize a scroll
+                // whose owner was already released. The normal path still runs this now.
+                Phase = DoorTransitionPhase.BuildDestinationOam;
+                goto case DoorTransitionPhase.BuildDestinationOam;
 
+            case DoorTransitionPhase.BuildDestinationOam:
                 // `$82:E737` begins running enemy/draw owners only after the incremental
                 // door IRQ has replaced the complete viewport. The previous implementation
                 // called the full gameplay frame immediately after room construction; its
@@ -264,4 +270,6 @@ public enum DoorTransitionPhase
     HandleTransition,
     FadeInDestinationPalette,
     Complete,
+    // Append to preserve numeric identities already stored in debugger states.
+    BuildDestinationOam,
 }

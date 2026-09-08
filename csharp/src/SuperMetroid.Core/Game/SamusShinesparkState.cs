@@ -223,7 +223,8 @@ public sealed class SamusShinesparkState
         SamusState samus,
         ushort nmiFrameCounter,
         ushort projectileCounter = 0,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool playerInvincibilityEnabled = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -282,13 +283,21 @@ public sealed class SamusShinesparkState
             vertical = MoveY(bus, level, samus, nmiFrameCounter, plms);
 
         bool collided = horizontal is { Collided: true } || vertical is { Collided: true };
-        bool lowEnergy = unchecked((short)(samus.Health - 30)) < 0;
+        // The host cheat bypasses only the energy exit. Terrain/enemy collision still
+        // terminates all three launch directions through the ordinary crash handler.
+        bool hasNativeEnergy = unchecked((short)(samus.Health -
+            SamusSpecialSequenceRomData.Shinespark.MinimumSustainingEnergy)) >= 0;
+        bool lowEnergy = !playerInvincibilityEnabled && !hasNativeEnergy;
         if (collided || lowEnergy)
             BeginCrash(bus, samus);
 
         // At exactly 30 energy, this frame still moves and drains to 29. The following
         // frame moves once more before EndSuperJump observes that 29 is below the threshold.
-        bool drained = unchecked((short)(samus.Health - 30)) >= 0;
+        // Invincible playtesting retains energy loss without requiring refills: below
+        // the native cutoff, continue draining to one, never decrementing zero or one.
+        bool drained = playerInvincibilityEnabled
+            ? samus.Health > 1
+            : hasNativeEnergy;
         if (drained)
             samus.Health = unchecked((ushort)(samus.Health - 1));
 

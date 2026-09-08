@@ -106,6 +106,8 @@ public static class SamusSpecialSequenceRomData
     /// <summary>Shared trigonometric and boost-state constants used by shinespark.</summary>
     public static class Shinespark
     {
+        /// <summary><c>$90:D2BD</c>, EndSuperJump's minimum energy to sustain a native shinespark.</summary>
+        public const ushort MinimumSustainingEnergy = 30;
         /// <summary><c>$A0:B443</c>, positive-half signed sine samples.</summary>
         public const int PositiveSineTable = 0xa0b443;
         /// <summary>High-byte state identifying a fully active Speed Booster.</summary>

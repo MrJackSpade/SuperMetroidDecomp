@@ -5,13 +5,15 @@ internal static partial class Program
 {
     /// <summary>
     /// Replays the preserved $03/$00 report without changing live slots or synthesizing
-    /// charge/pose state. Only the comparison run replenishes health; both trajectories
-    /// otherwise use identical controller inputs through the real frontend/runtime.
+    /// charge/pose state. Control runs change only host invincibility or health in memory;
+    /// trajectories use identical controller inputs through the real frontend/runtime.
     /// </summary>
     private static void VerifyShinesparkShaft()
     {
+        ReplayShinesparkShaft(false, invincibility: false);
         ReplayShinesparkShaft(false);
         ReplayShinesparkShaft(true);
+        ReplayShinesparkShaft(false, launchHealth: 30);
         foreach (SnesButton downInput in new[]
         {
             SnesButton.Down,
@@ -22,12 +24,21 @@ internal static partial class Program
             ReplayShinesparkShaft(false, downInput);
     }
 
-    private static void ReplayShinesparkShaft(bool replenishHealth, SnesButton? storageOnlyInput = null)
+    private static void ReplayShinesparkShaft(bool replenishHealth, SnesButton? storageOnlyInput = null,
+        bool invincibility = true, ushort? launchHealth = null)
     {
         var loaded = DebuggerFixtureLoader.Load("issue-371-shinespark-shaft", 0);
         var game = loaded.Game;
         var runtime = game.RuntimeForVerification!;
         var samus = runtime.Samus!;
+        Check(runtime.PlayerInvincibilityEnabled, "The reported fixture must have invincibility enabled.");
+        // Only the control run overrides the captured host option. Never alter the
+        // player's saved graph on disk or add a mutable runtime cheat setter for tests.
+        if (!invincibility)
+            typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                .GetField("<PlayerInvincibilityEnabled>k__BackingField",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                .SetValue(runtime, false);
         Check(samus.Health == 1, "The preserved report must start at one energy.");
         if (replenishHealth) samus.Health = samus.MaxHealth;
         // Walk away from the shaft, boost back, tap Down for one accepted frame, let the
@@ -50,6 +61,8 @@ internal static partial class Program
                 _ => 0,
             };
             game.Step(input);
+            if (launchHealth is { } health && samus.Shinespark.Phase == ShinesparkPhase.Windup)
+                samus.Health = health;
             stageTicks++;
             if (stage == 2)
             {
@@ -65,14 +78,16 @@ internal static partial class Program
             if (samus.Shinespark.Phase == ShinesparkPhase.Crash)
             {
                 var movement = runtime.LastShinesparkMovement!.Value;
-                if (replenishHealth)
+                if (replenishHealth || invincibility)
                 {
                     // The normal room ceiling is at pixel 48; the vertical-spark pose's
                     // center is 19 pixels below it. This checks the entire shaft height,
                     // not simply that Samus moved upward or that the frame did not crash.
                     Check(!movement.EndedByLowEnergy && movement.EndedByCollision && samus.YPosition == 67,
-                        $"Recharged spark failed to clear the shaft: Y={samus.YPosition}, {movement}.");
-                    Console.WriteLine($"PASS recharged replay: reaches shaft ceiling at Y={samus.YPosition}; energy={samus.Health}.");
+                        $"Invincible/recharged spark failed to clear the shaft: Y={samus.YPosition}, {movement}.");
+                    if (!replenishHealth)
+                        Check(samus.Health == 1, "Invincible spark must drain to one without restoring health or underflowing.");
+                    Console.WriteLine($"PASS shaft cleared: invincibility={invincibility}, recharged={replenishHealth}, launchHealth={launchHealth}; Y={samus.YPosition}; energy={samus.Health}.");
                 }
                 else
                 {

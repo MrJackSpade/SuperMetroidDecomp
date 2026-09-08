@@ -30,7 +30,9 @@ public sealed record SuperMetroidGameOptions
     /// <remarks>
     /// This is a host-side testing convenience, not cartridge state. Damage routines still
     /// execute, so energy loss, hit reactions, and collision behavior remain available for
-    /// debugging; the runtime only changes a lethal zero-energy result to one.
+    /// debugging; the runtime changes a lethal zero-energy result to one. Shinesparks
+    /// also bypass their low-energy cutoff and continue draining down to one, so this
+    /// testing mode never requires an energy refill to use them. Collisions still stop them.
     /// </remarks>
     public bool Invincibility { get; init; }
 
@@ -88,6 +90,7 @@ public static partial class SuperMetroidGameOptionsIni
         "; false = play the narration, flashbacks, and Ceres approach before the elevator\r\n" +
         "SkipOpeningCinematic=false\r\n" +
         "; true allows damage but prevents Samus from dropping below 1 energy\r\n" +
+        "; also lets shinesparks continue at low energy, draining down to 1\r\n" +
         "; false preserves normal cartridge damage and death behavior\r\n" +
         "Invincibility=false\r\n" +
         "; true allows normal consumption but keeps unlocked ammo types at 1 or more\r\n" +

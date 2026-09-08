@@ -29,6 +29,12 @@ VerifyAndroidHostPolicies();
 VerifyIniEditing();
 VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;
+if (args is ["--shinespark"])
+{
+    VerifySamusStoredShineAndShinespark();
+    Console.WriteLine("PASS shinespark: native movement, energy cutoff, invincibility, and crash lifecycle.");
+    return 0;
+}
 if (args is ["--file-select-sound"])
 {
     VerifyFileSelectSound();

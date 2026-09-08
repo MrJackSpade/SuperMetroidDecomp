@@ -2340,7 +2340,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         NmiFrameCounter,
                         BombProjectiles.BombCounter,
-                        Plms);
+                        Plms,
+                        playerInvincibilityEnabled: PlayerInvincibilityEnabled);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That

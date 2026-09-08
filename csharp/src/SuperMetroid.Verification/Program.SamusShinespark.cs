@@ -235,6 +235,43 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(ShinesparkPhase.Vertical, shine.Shinespark.Phase,
         "windup timeout installs vertical handler");
 
+    // The testing cheat affects every direction, including energy values on both sides
+    // of the native cutoff. Verify actual movement and drain, not only lack of a crash.
+    foreach (byte targetPose in new[]
+    {
+        SamusPoseIds.ShinesparkHorizontalRightPose,
+        SamusPoseIds.ShinesparkHorizontalLeftPose,
+        SamusPoseIds.ShinesparkVerticalRightPose,
+        SamusPoseIds.ShinesparkVerticalLeftPose,
+        SamusPoseIds.ShinesparkDiagonalRightPose,
+        SamusPoseIds.ShinesparkDiagonalLeftPose,
+    })
+    foreach (ushort energy in new ushort[] { 1, 2, 29, 30 })
+    {
+        var invincible = new SamusState
+        {
+            Pose = SamusPoseIds.ShinesparkWindupRightPose,
+            XPosition = 160,
+            YPosition = 160,
+            Health = energy,
+        };
+        invincible.RefreshCollisionRadii(bus);
+        invincible.InitializeAnimation(bus);
+        invincible.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
+        invincible.Shinespark.BeginWindup(invincible);
+        invincible.Shinespark.BeginDirectionalLaunch(bus, invincible, targetPose);
+        var result = invincible.Shinespark.Step(bus, directionLevel, invincible, 0,
+            playerInvincibilityEnabled: true);
+        AssertTrue(!result.EndedByLowEnergy && !result.EndedByCollision,
+            $"invincible pose {targetPose:X2} continues at {energy} energy");
+        AssertTrue(invincible.XPosition != 160 || invincible.YPosition != 160,
+            "invincible spark actually advances");
+        AssertEqual(Math.Max(1, energy - 1), invincible.Health,
+            "invincible spark drains without underflow or health restoration");
+        AssertEqual(energy > 1, result.EnergyDrained,
+            "drain event reports only a real energy decrement");
+    }
+
     // Use a fresh state so horizontal arithmetic begins from exactly CFFA's writes.
     var horizontal = new SamusState
     {

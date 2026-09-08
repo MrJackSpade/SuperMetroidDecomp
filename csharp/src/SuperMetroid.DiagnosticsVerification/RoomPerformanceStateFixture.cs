@@ -45,12 +45,14 @@ internal static class RoomPerformanceStateFixture
             .SetValue(data.Game, SuperMetroidGameState.MainGameplay);
         double stepMs = 0, renderMs = 0, audioMs = 0;
         Rgba32[]? pixels = null;
+        RenderFrameSnapshot? lastSnapshot = null;
         for (long frame = 1; frame <= 720; frame++)
         {
             data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
             data.Record(0);
             long start = Stopwatch.GetTimestamp();
             var result = data.Game.StepCaptured(0, frame, data.Generation);
+            lastSnapshot = result.Snapshot;
             long stepped = Stopwatch.GetTimestamp();
             pixels = result.Snapshot is { } snapshot ? SoftwareFrameSnapshotRenderer.Render(snapshot) : result.Frame.Pixels;
             long rendered = Stopwatch.GetTimestamp();
@@ -68,6 +70,19 @@ internal static class RoomPerformanceStateFixture
         Console.WriteLine(data.SaveSlot(9));
         Console.WriteLine($"{scene}: room ${(byte?)data.Game.GameplayActiveAreaIndex:X2}/${data.Game.GameplayActiveRoomIndex:X2}; " +
             $"600 measured Windows frames: step={stepMs / 600:F3}ms render={renderMs / 600:F3}ms audio={audioMs / 600:F3}ms.");
+        if (lastSnapshot?.Layers is { } layers)
+        {
+            foreach (RenderLayer layer in layers.Layers)
+            {
+                var isolated = new LayeredRenderSnapshot(layers.Memory, [layer], layers.ObjectSelection, layers.Brightness);
+                // These isolated costs include snapshot-memory setup and backdrop
+                // creation, so they locate expensive operations but are not additive.
+                for (int i = 0; i < 10; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);
+                long start = Stopwatch.GetTimestamp();
+                for (int i = 0; i < 100; i++) SoftwareLayeredSnapshotRenderer.Render(isolated);
+                Console.WriteLine($"  Isolated {layer.GetType().Name}: {Stopwatch.GetElapsedTime(start).TotalMilliseconds / 100:F3}ms");
+            }
+        }
         return 0;
     }
 }

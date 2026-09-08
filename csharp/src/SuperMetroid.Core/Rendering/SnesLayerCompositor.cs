@@ -35,12 +35,14 @@ public static class SnesLayerCompositor
     /// output. A completed frame must begin on the opaque backdrop or PNG/debug hosts expose
     /// the key color as transparency (and may display it using an arbitrary checker/color).
     /// </remarks>
-    public static Rgba32[] CreateBackdrop(SnesCgram cgram, int pixelCount)
+    public static Rgba32[] CreateBackdrop(SnesCgram cgram, int pixelCount, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(cgram);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(pixelCount);
 
-        var pixels = new Rgba32[pixelCount];
+        if (outputBuffer is not null && outputBuffer.Length != pixelCount)
+            throw new ArgumentException("Unexpected backdrop buffer dimensions.", nameof(outputBuffer));
+        var pixels = outputBuffer ?? new Rgba32[pixelCount];
         Array.Fill(pixels, cgram.GetRgba(0));
         return pixels;
     }

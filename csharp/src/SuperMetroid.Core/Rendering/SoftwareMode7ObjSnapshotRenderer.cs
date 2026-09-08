@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <summary>Observational reference consumer; all scratch state belongs to this call.</summary>
 public static class SoftwareMode7ObjSnapshotRenderer
 {
-    public static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot)
+    public static Rgba32[] Render(Mode7ObjRenderSnapshot snapshot, Rgba32[]? outputBuffer = null)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
         // Existing raster kernels consume hardware-model readers. Rehydrate private
@@ -19,7 +19,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
         OamBuffer oam = memory.Oam;
 
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram,
-            SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
+            SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, outputBuffer);
         if (snapshot.Background is { } bg)
         {
             SnesLayerCompositor.Composite(pixels, SnesMode7Renderer.RenderViewport(vram, cgram,

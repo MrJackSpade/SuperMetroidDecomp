@@ -19,6 +19,7 @@ internal static partial class Program
             var control = new TitleSequenceState(new SuperMetroidAddressSpace(rom));
             var phases = new HashSet<TitleSequencePhase>();
             int comparisons = 0;
+            var reusable = new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
             for (int frame = 0; frame < 2500; frame++)
             {
                 TitleSequencePhase phase = scene.Phase;
@@ -30,6 +31,11 @@ internal static partial class Program
                     // endpoints. It remains the reference until extraction is qualified.
                     Rgba32[] expected = scene.Render();
                     Mode7ObjRenderSnapshot packet = scene.CaptureRenderSnapshot();
+                    Array.Fill(reusable, new Rgba32(255, 0, 255));
+                    var reused = SoftwareFrameSnapshotRenderer.Render(
+                        new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet), reusable);
+                    AssertTrue(ReferenceEquals(reusable, reused), "title caller-owned output retained");
+                    Match(expected, reused, frame, phase);
                     Match(expected, SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(
                         new RenderFrameSnapshot(new(frame + 1, 1, (ushort)frame), packet))), frame, phase);
                     Match(expected, SoftwareMode7ObjSnapshotRenderer.Render(packet), frame, phase);

@@ -15,7 +15,7 @@ public static class SoftwareLayeredSnapshotRenderer
         // every frame. Other layer sequences still require the initialized backdrop.
         bool ordinaryBase = !snapshot.Layers.IsEmpty && snapshot.Layers[0] is OrdinaryGameplayRenderLayer;
         Rgba32[] output = ordinaryBase ? Array.Empty<Rgba32>() : SnesLayerCompositor.CreateBackdrop(memory.Cgram,
-            SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels);
+            SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels, gameplayOutputBuffer);
         // Resolve OAM precedence once. Drawing independently filtered OBJ lists would
         // wrongly allow a higher-numbered record to shine through the winning record.
         bool usesObjInsertion = false;

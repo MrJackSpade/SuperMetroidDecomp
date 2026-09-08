@@ -36,6 +36,31 @@ internal static class GameplayRenderAllocationVerification
         if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).AsSpan().SequenceEqual(expected))
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
+        var memory = PpuMemorySnapshot.Capture(vram, cgram, oam);
+        var identity = new RenderFrameIdentity(1, 1, 0);
+        RenderFrameSnapshot[] packets = [
+            new(identity, new Mode7ObjRenderSnapshot(memory, new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0), 3, 15)),
+            new(identity, new Mode7ObjRenderSnapshot(memory, null, 3, 9,
+                Enumerable.Repeat(new SuperMetroid.Core.Frontend.TitleGradientLine(1, 2, 3, 0xa1), 224).ToArray()), new byte[] { 11 }),
+            new(identity, new LayeredRenderSnapshot(memory, [], 3, 15)),
+            new(identity, new SuperMetroid.Core.Assets.Rgba32(90, 130, 210), new byte[] { 7 })
+        ];
+        foreach (var packet in packets)
+        {
+            var reference = SoftwareFrameSnapshotRenderer.Render(packet);
+            Array.Fill(reusable, new SuperMetroid.Core.Assets.Rgba32(255, 0, 255));
+            before = GC.GetAllocatedBytesForCurrentThread();
+            SoftwareFrameSnapshotRenderer.Render(packet);
+            long freshBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+            before = GC.GetAllocatedBytesForCurrentThread();
+            var borrowed = SoftwareFrameSnapshotRenderer.Render(packet, reusable);
+            long reuseBytes = GC.GetAllocatedBytesForCurrentThread() - before;
+            if (!ReferenceEquals(borrowed, reusable) || !borrowed.AsSpan().SequenceEqual(reference))
+                throw new InvalidDataException("Cinematic packet failed dirty-output reuse or pixel parity.");
+            if (freshBytes - reuseBytes < reusable.Length * 4)
+                throw new InvalidDataException("Cinematic packet did not eliminate its output allocation.");
+            Console.WriteLine($"Cinematic output reuse: {freshBytes} -> {reuseBytes} allocated bytes; exact pixels.");
+        }
         return 0;
     }
 }

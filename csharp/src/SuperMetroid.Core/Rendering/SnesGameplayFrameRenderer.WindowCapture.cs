@@ -30,10 +30,13 @@ public static partial class SnesGameplayFrameRenderer
     /// The renderer receives only clipped endpoints/colors, not a bus or projectile owner.
     /// </summary>
     public static ScanlineColorAddRenderLayer? CapturePowerBombColorMath(ISnesAddressSpace bus,
-        SamusPowerBombExplosionState explosion, ushort layer1X, ushort layer1Y)
+        SamusPowerBombExplosionState explosion, ushort layer1X, ushort layer1Y,
+        int firstVisibleScanline = HudHeight)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(explosion);
+        if ((uint)firstVisibleScanline > Height)
+            throw new ArgumentOutOfRangeException(nameof(firstVisibleScanline));
         if (!explosion.IsActive) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
@@ -42,7 +45,9 @@ public static partial class SnesGameplayFrameRenderer
         byte red = ExpandFiveBit(explosion.FixedColorRed);
         byte green = ExpandFiveBit(explosion.FixedColorGreen);
         byte blue = ExpandFiveBit(explosion.FixedColorBlue);
-        for (int y = HudHeight; y < Height; y++)
+        // Gameplay protects its HUD; full-screen cinematics use the same native
+        // window profile starting at scanline zero instead.
+        for (int y = firstVisibleScanline; y < Height; y++)
         {
             int halfWidth = ReadPowerBombHalfWidth(bus, explosion, y - centerY);
             if (halfWidth < 0) continue;

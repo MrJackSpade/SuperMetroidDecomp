@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -24,6 +25,7 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly SnesCgram cgram = new();
     private readonly byte[] ceresTilemaps;
     private readonly List<IntroDiscoverySprite> actors = [];
+    private readonly SamusPowerBombExplosionState stationExplosion = new();
     private IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
 
@@ -89,6 +91,9 @@ internal sealed partial class CeresDestructionCinematicState
     /// <summary>Executes one call through the native state-$22 cinematic dispatcher.</summary>
     public void Step()
     {
+        // The global bank-$82 frame dispatcher runs HDMA before the cinematic. A
+        // newly spawned blast therefore cannot advance until the following call.
+        stationExplosion.StepFrame(bus);
         switch (Phase)
         {
             case CeresDestructionPhase.WaitForMusicQueue:

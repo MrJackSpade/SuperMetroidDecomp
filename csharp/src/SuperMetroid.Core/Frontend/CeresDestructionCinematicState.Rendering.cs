@@ -54,6 +54,8 @@ internal sealed partial class CeresDestructionCinematicState
             SnesLayerCompositor.Composite(pixels, bg1);
         }
 
+        if (CaptureStationExplosion() is { } blast)
+            SoftwareScanlineColorRenderer.Composite(pixels, blast);
         MasterBrightnessFilter.Apply(pixels, brightness);
         return pixels;
     }
@@ -82,9 +84,15 @@ internal sealed partial class CeresDestructionCinematicState
             layers = [new Bg4BppRenderLayer(CeresDestructionRomData.Rendering.Mode1TilemapWord,
                 CeresDestructionRomData.Rendering.Mode1CharacterWord, 0, 0, 32, 32, null)];
         }
+        if (CaptureStationExplosion() is { } blast)
+            layers = [.. layers, blast];
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
+
+    private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
+        SnesGameplayFrameRenderer.CapturePowerBombColorMath(bus, stationExplosion,
+            layer1X: 0, layer1Y: 0, firstVisibleScanline: 0);
 
     private OamBuffer PrepareRenderOam()
     {

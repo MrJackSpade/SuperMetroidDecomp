@@ -71,8 +71,13 @@ internal sealed partial class CeresDestructionCinematicState
 
     private void SpawnFinalCeresExplosion()
     {
-        ushort x = unchecked((ushort)(52 - unchecked((short)backgroundX)));
-        ushort y = unchecked((ushort)(48 - unchecked((short)backgroundY)));
+        ushort x = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - backgroundX));
+        ushort y = unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - backgroundY));
+        // C345 calls the ordinary bank-$88 explosion with screen-space coordinates,
+        // before replacing the station tilemap. Keep its ROM curves/colors/lifetime.
+        stationExplosion.Spawn(x, y);
+        audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
+            maximumQueued: 15);
         actors.Add(new IntroDiscoverySprite(
             x,
             y,

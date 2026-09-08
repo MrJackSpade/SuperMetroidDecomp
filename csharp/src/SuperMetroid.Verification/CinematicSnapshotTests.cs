@@ -9,6 +9,7 @@ internal static partial class Program
 {
     private static void VerifyCinematicRenderSnapshots()
     {
+        VerifyCeresExplosionTimeline();
         VerifyIntroDisplayCapture();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var flight = new IntroCeresFlightState(bus);
@@ -37,7 +38,7 @@ internal static partial class Program
         var destruction = new CeresDestructionCinematicState(bus);
         var phases = new HashSet<CeresDestructionPhase>();
         int samples = 0;
-        bool mode1 = false, mode7 = false;
+        bool mode1 = false, mode7 = false, explosionWindow = false, explosionCoversTop = false;
         for (int tick = 0; tick < 2000 && !destruction.Finished; tick++)
         {
             bool changed = phases.Add(destruction.Phase);
@@ -47,6 +48,14 @@ internal static partial class Program
                 LayeredRenderSnapshot snapshot = destruction.CaptureRenderSnapshot();
                 mode7 |= snapshot.Layers.ToArray().Any(layer => layer is Mode7RenderLayer);
                 mode1 |= snapshot.Layers.ToArray().Any(layer => layer is Bg4BppRenderLayer);
+                foreach (var window in snapshot.Layers.ToArray().OfType<ScanlineColorAddRenderLayer>())
+                {
+                    explosionWindow |= window.Windows.ToArray().Any(row =>
+                        row.Left <= row.Right && (row.Red != 0 || row.Green != 0 || row.Blue != 0));
+                    ColorAddWindow top = window.Windows[0];
+                    explosionCoversTop |= top.Left <= top.Right &&
+                        (top.Red != 0 || top.Green != 0 || top.Blue != 0);
+                }
                 Compare(expected, snapshot, tick);
                 destruction.Step();
                 Compare(expected, snapshot, tick);
@@ -56,6 +65,8 @@ internal static partial class Program
         }
         AssertTrue(destruction.Finished, "destruction snapshot fixture completes");
         AssertTrue(mode1 && mode7, "destruction captures both PPU modes");
+        AssertTrue(explosionWindow, "Ceres destruction publishes the cartridge power-bomb color window");
+        AssertTrue(explosionCoversTop, "Ceres explosion covers the top of the cinematic, without a gameplay HUD exclusion");
         int menuSamples = 0;
         foreach (bool chooseNo in new[] { false, true })
         {

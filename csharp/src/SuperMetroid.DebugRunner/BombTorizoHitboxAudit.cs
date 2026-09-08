@@ -12,6 +12,8 @@ internal static partial class BombTorizoAudit
     private static void VerifyHitboxBoundaries(SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room, CartridgeRoomAssets assets)
     {
+        var projectileRadii = VerifyLiveWeaponRadii(bus);
+        foreach (ushort radius in new ushort[] { 1, 4, 8 }) projectileRadii.Add((radius, radius));
         var animated = Load(bus, room, assets, false, _ => false, () => { });
         var probe = Load(bus, room, assets, false, _ => false, () => { });
         // Collision consumes the frame-built interactive enemy list, not Load's
@@ -30,17 +32,17 @@ internal static partial class BombTorizoAudit
             probe.Head.XPosition = 128;
             probe.Head.YPosition = 160;
             var boxes = ReadBoxes();
-            foreach (ushort radius in new ushort[] { 1, 4, 8 })
+            foreach (var radius in projectileRadii)
             foreach (var box in boxes)
             {
                 int midX = (box.Left + box.Right) / 2;
                 int midY = (box.Top + box.Bottom) / 2;
                 foreach (int delta in new[] { -1, 0, 1 })
                 {
-                    Check(box.Left - radius + delta, midY, radius);
-                    Check(box.Right + radius + delta, midY, radius);
-                    Check(midX, box.Top - radius + delta, radius);
-                    Check(midX, box.Bottom + radius + delta, radius);
+                    Check(box.Left - radius.X + delta, midY, radius);
+                    Check(box.Right + radius.X + delta, midY, radius);
+                    Check(midX, box.Top - radius.Y + delta, radius);
+                    Check(midX, box.Bottom + radius.Y + delta, radius);
                 }
             }
 
@@ -67,12 +69,12 @@ internal static partial class BombTorizoAudit
                 return result;
             }
 
-            void Check(int x, int y, ushort radius)
+            void Check(int x, int y, (ushort X, ushort Y) radius)
             {
                 // Native shot collision takes the first intersecting authored box.
                 // Top/left tangency counts; bottom/right tangency does not.
-                var selected = boxes.FirstOrDefault(b => x + radius >= b.Left &&
-                    x - radius < b.Right && y + radius >= b.Top && y - radius < b.Bottom);
+                var selected = boxes.FirstOrDefault(b => x + radius.X >= b.Left &&
+                    x - radius.X < b.Right && y + radius.Y >= b.Top && y - radius.Y < b.Bottom);
                 bool shouldDamage = selected.Callback == MainShotCallback;
                 probe.Head.Health = 800;
                 probe.Head.Properties = 0;
@@ -84,7 +86,8 @@ internal static partial class BombTorizoAudit
                 var shot = shots.Slots[0];
                 shot.XPosition = unchecked((ushort)x);
                 shot.YPosition = unchecked((ushort)y);
-                shot.XRadius = shot.YRadius = radius;
+                shot.XRadius = radius.X;
+                shot.YRadius = radius.Y;
                 int hits = probe.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
                     new SamusBombProjectileSystem(), probe.Samus);
                 bool shouldHit = selected.Callback != 0;

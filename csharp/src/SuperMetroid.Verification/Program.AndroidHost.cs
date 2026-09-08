@@ -6,6 +6,20 @@ internal static partial class Program
     private static void VerifyAndroidHostPolicies()
     {
         VerifyQueuedPcmSink();
+        var stalled = HostFrameDeadline.AfterFrame(0, 0.060);
+        AssertTrue(stalled.Rebased, "60ms audio stall must not retain catch-up debt indefinitely");
+        AssertTrue(stalled.WaitSeconds > 0, "rebase must not immediately publish another catch-up frame");
+        AssertTrue(!HostFrameDeadline.AfterFrame(0, 0.025).Rebased, "ordinary scheduler jitter retains fractional deadline");
+        double deadline = 0, time = 0;
+        for (int frame = 0; frame < 600; frame++)
+        {
+            time += 0.008;
+            var next = HostFrameDeadline.AfterFrame(deadline, time);
+            AssertTrue(!next.Rebased, "steady eight-millisecond work never rebases");
+            time += next.WaitSeconds;
+            deadline = next.NextDeadline;
+        }
+        AssertTrue(Math.Abs(time - 10) < 0.000001, "600 normal host frames retain exact ten-second cadence");
         AssertEqual(new DisplayViewport(28, 172, 1024, 896), DisplayViewport.IntegerPixels(1080, 1240), "Retroid upright integer viewport");
         AssertEqual(new DisplayViewport(108, 92, 1024, 896), DisplayViewport.IntegerPixels(1240, 1080), "Retroid rotated integer viewport");
         AssertEqual(new DisplayViewport(28, 124, 1024, 896), DisplayViewport.IntegerPixels(1080, 1144), "insets reduce usable surface before scaling");

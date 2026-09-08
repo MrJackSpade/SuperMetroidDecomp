@@ -44,6 +44,7 @@ internal sealed class AndroidPcmOutput : IDisposable
     }
 
     public int UnderrunCount => track.UnderrunCount;
+    public int PendingFrameCount => sink.PendingFrameCount;
 
     public void Submit(short[] samples) => sink.Submit(samples);
 

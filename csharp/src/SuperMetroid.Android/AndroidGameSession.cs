@@ -166,7 +166,8 @@ internal sealed class AndroidGameSession
                         $"{DateTimeOffset.UtcNow:O} {status} frame={sequence} phase={frame.Frame.Phase} " +
                         $"uiDrawMs={drawMs:F3} uploadMs={uploadMs:F3} replaced={replacements - measuredReplacements} " +
                         $"submitMs={submitMilliseconds / count:F3}/{maximumSubmitMilliseconds:F3} " +
-                        $"publicationGapMs={minimumPublicationGap:F3}/{maximumPublicationGap:F3}\n");
+                        $"publicationGapMs={minimumPublicationGap:F3}/{maximumPublicationGap:F3} " +
+                        $"queuedPcm={output?.PendingFrameCount ?? 0} deadlineLagMs={(now - deadline) * 1000:F3}\n");
                     measuredAt = now;
                     measuredFrame = sequence;
                     measuredPaint = view.PaintCount;
@@ -179,16 +180,17 @@ internal sealed class AndroidGameSession
                     maximumPublicationGap = 0;
                 }
                 view.Publish(pixels, status);
-                deadline += 1.0 / 60;
-                double wait = deadline - clock.Elapsed.TotalSeconds;
-                if (wait > 0) stopping.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(wait));
-                else if (wait < -0.25)
+                double completedAt = clock.Elapsed.TotalSeconds;
+                HostFrameDeadline nextFrame = HostFrameDeadline.AfterFrame(deadline, completedAt);
+                if (nextFrame.Rebased)
                 {
                     // Do not skip any emulated frame. Report a missed real-time deadline and
                     // stop accumulating unbounded catch-up debt on an underpowered backend.
-                    global::Android.Util.Log.Warn("SuperMetroid", $"Simulation behind real time by {-wait * 1000:F1} ms.");
-                    deadline = clock.Elapsed.TotalSeconds;
+                    global::Android.Util.Log.Warn("SuperMetroid", $"Rebased stale host deadline; lag {(completedAt - deadline) * 1000:F1} ms; no emulated frames skipped.");
                 }
+                deadline = nextFrame.NextDeadline;
+                if (nextFrame.WaitSeconds > 0)
+                    stopping.Token.WaitHandle.WaitOne(TimeSpan.FromSeconds(nextFrame.WaitSeconds));
             }
             data.PersistSave();
         }

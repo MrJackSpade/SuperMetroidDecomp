@@ -9,6 +9,8 @@ public sealed class QueuedPcmSink : IDisposable
     private readonly BlockingCollection<short[]> queue;
     private readonly Task worker;
     private ExceptionDispatchInfo? failure;
+    /// <summary>Waiting frames only; excludes the frame currently owned by the device writer.</summary>
+    public int PendingFrameCount => queue.Count;
 
     public QueuedPcmSink(Action<short[]> write, int capacity)
     {

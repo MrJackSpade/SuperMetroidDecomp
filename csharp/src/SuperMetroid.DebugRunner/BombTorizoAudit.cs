@@ -27,6 +27,7 @@ internal static partial class BombTorizoAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
+        VerifyHitboxBoundaries(bus, room, assets);
         VerifyEncounter(bus, room, assets);
         VerifyNaturalAttackInteractions(bus, room, assets);
         VerifyLowHealthAndDeathProjectileLifecycles(bus, room, assets);

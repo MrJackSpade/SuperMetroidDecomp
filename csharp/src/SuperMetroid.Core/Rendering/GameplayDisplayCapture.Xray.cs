@@ -10,8 +10,7 @@ public static partial class GameplayDisplayCapture
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
     private static LayeredRenderSnapshot? CaptureXray(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
-        if (runtime.Samus is not { } samus || !samus.Xray.IsActive || samus.Xray.SetupStage != 0 ||
-            samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return null;
+        if (runtime.Samus is not { } samus || !samus.Xray.IsActive || samus.Xray.SetupStage != 0) return null;
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         var room = runtime.ActiveRoom ?? throw new InvalidOperationException("X-ray has no room.");
@@ -56,10 +55,17 @@ public static partial class GameplayDisplayCapture
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         var colors = basis.Memory.Cgram.ToArray();
-        colors[0] = XrayRoomDisplayRules.ActiveBackdrop;
+        bool restoring = samus.Xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
+        colors[0] = restoring ? (ushort)0 : XrayRoomDisplayRules.ActiveBackdrop;
         var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.Oam, basis.Memory.ModeledSpriteCount);
+        // Releasing Run merely advances the native dispatcher to phase three. That
+        // phase closes the HDMA window on the NEXT call and clears the backdrop;
+        // restoration keeps ownership until phase five finally unfreezes gameplay.
+        bool closed = restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
+        var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
+            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition);
         var layer = new XrayGameplayRenderLayer(gameplay,
-            SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition),
+            lines,
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);
         return new(memory, new RenderLayer[] { layer }, basis.ObjectSelection, basis.Brightness);
 

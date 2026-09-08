@@ -79,7 +79,22 @@ internal static partial class Program
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
             PngWriter.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", 256, 224, pixels);
         var beforeRelease = RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured));
-        for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
+        runtime.StepFrame(0);
+        var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        AssertTrue(releaseEdge.Layers[0] is XrayGameplayRenderLayer,
+            "release edge retains the beam until native deactivation executes on the following frame");
+        AssertTrue(((XrayGameplayRenderLayer)releaseEdge.Layers[0]).Lines.SequenceEqual(reveal.Lines),
+            "release edge retains the last HDMA window endpoints");
+        for (int frame = 0; frame < 2; frame++)
+        {
+            runtime.StepFrame(0);
+            var restoring = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+            AssertTrue(restoring.Layers[0] is XrayGameplayRenderLayer, "BG2 restore retains X-ray layer ownership");
+            AssertTrue(((XrayGameplayRenderLayer)restoring.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
+                "deactivation closes the beam while BG2 restore completes");
+            AssertEqual((ushort)0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
+        }
+        for (int frame = 0; frame < 27; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "releasing Run restores ordinary gameplay");
         AssertTrue(!GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers.ToArray().Any(layer => layer is XrayGameplayRenderLayer),
             "release removes the X-ray display window");

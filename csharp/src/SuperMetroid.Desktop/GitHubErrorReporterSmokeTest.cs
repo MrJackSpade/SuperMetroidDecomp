@@ -8,8 +8,6 @@ public static class GitHubErrorReporterSmokeTest
         var client = new RecordingIssueClient();
         Exception repeated = CaptureFixtureException("door callback $8F:B9A2 is untranslated");
         Exception existing = CaptureFixtureException("PLM instruction $84:BA6F is untranslated");
-        string existingFingerprint = GitHubErrorReporter.CreateFingerprint(existing);
-        client.ExistingFingerprints.Add(existingFingerprint);
 
         string repeatedFingerprint;
         string duplicateFingerprint;
@@ -24,16 +22,36 @@ public static class GitHubErrorReporterSmokeTest
                 RoomPointer: 0x96BA,
                 DoorPointer: 0x8BB6,
                 InputRecordingPath: "fixture.smrec");
+            client.ExistingFingerprints.Add(GitHubErrorReporter.CreateFingerprint(existing, context));
             repeatedFingerprint = reporter.Report(repeated, context);
             duplicateFingerprint = reporter.Report(repeated, context);
             _ = reporter.Report(existing, context);
+            var firstDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+                "grapple/type-C/bts-45", "block 12 (2,3)", true);
+            var movedDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+                "grapple/type-C/bts-45", "block 99 (4,5)", true);
+            var otherDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
+                "grapple/type-C/bts-4F", "block 12 (2,3)", true);
+            var otherRoom = context with { RoomPointer = 0xda60, InputRecordingPath = "new-run.smrec" };
+            Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),
+                "Room-independent dispatch split by block/room location.");
+            Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) != GitHubErrorReporter.CreateFingerprint(otherDispatch, context),
+                "Different BTS failures merged.");
+            Require(GitHubErrorReporter.CreateFingerprint(existing, context) != GitHubErrorReporter.CreateFingerprint(existing, otherRoom),
+                "Unclassified room-sensitive failure merged across rooms.");
+            client.ExistingFingerprints.Add(GitHubErrorReporter.CreateFingerprint(firstDispatch, context));
+            reporter.Report(firstDispatch, context);
+            reporter.Report(firstDispatch, context with { FrameNumber = 43 });
+            reporter.Report(movedDispatch, otherRoom);
             reporter.FlushAsync().GetAwaiter().GetResult();
         }
 
         Require(repeatedFingerprint == duplicateFingerprint,
             "Repeated exception did not retain one stable fingerprint.");
-        Require(client.FindCalls.Count == 2,
-            $"Expected two distinct remote lookups, got {client.FindCalls.Count}.");
+        Require(client.FindCalls.Count == 4,
+            $"Expected four distinct occurrence lookups, got {client.FindCalls.Count}.");
+        Require(client.Comments.Count == 3 && client.Comments.Any(body => body.Contains("new-run.smrec")),
+            "Existing ticket did not receive new occurrence context, or repeated frames spammed comments.");
         Require(client.CreatedIssues.Count == 1,
             $"Expected one created issue after remote deduplication, got {client.CreatedIssues.Count}.");
         CreatedIssue created = client.CreatedIssues[0];
@@ -73,6 +91,12 @@ public static class GitHubErrorReporterSmokeTest
 
     private sealed class RecordingIssueClient : IGitHubIssueClient
     {
+        public List<string> Comments { get; } = [];
+        public Task CommentAsync(string repository, string issueUrl, string body)
+        {
+            Comments.Add(body);
+            return Task.CompletedTask;
+        }
         public HashSet<string> ExistingFingerprints { get; } = new(StringComparer.Ordinal);
 
         public List<string> FindCalls { get; } = [];

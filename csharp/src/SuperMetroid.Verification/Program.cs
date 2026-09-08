@@ -145,6 +145,7 @@ if (args is ["--plm-draw-clone"])
 if (args is ["--grapple-resident-trigger"])
 {
     VerifyNoobTubePlm();
+    VerifyPermanentCollectibles();
     return 0;
 }
 if (args is ["--grapple-gates"])

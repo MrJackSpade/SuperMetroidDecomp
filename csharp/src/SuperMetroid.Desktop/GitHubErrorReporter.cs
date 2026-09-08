@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Channels;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Desktop;
 
@@ -26,7 +27,9 @@ public sealed record GitHubErrorContext(
 /// The fingerprint uses exception identities, messages, and managed method identities but
 /// deliberately excludes source paths and line numbers. Moving unchanged code therefore
 /// does not manufacture a new issue, while a different cartridge address in an exception
-/// message remains a distinct defect. The queue is single-reader so two novel failures can
+/// message remains a distinct defect. Unclassified errors also include room/state identity;
+/// typed cartridge dispatch errors can explicitly share a semantic key across rooms.
+/// The queue is single-reader so two novel failures can
 /// never race each other through the remote duplicate check.
 /// </remarks>
 public sealed class GitHubErrorReporter : IDisposable
@@ -63,13 +66,16 @@ public sealed class GitHubErrorReporter : IDisposable
         ArgumentNullException.ThrowIfNull(context);
         ObjectDisposedException.ThrowIf(Volatile.Read(ref disposed) != 0, this);
 
-        string fingerprint = CreateFingerprint(exception);
+        string fingerprint = CreateFingerprint(exception, context);
+        // A repeated frame is throttled, but a new room/recording occurrence must retain
+        // its context even when the underlying dispatch defect has the same identity.
+        string occurrenceKey = fingerprint + (context with { FrameNumber = null, ControllerInput = null }).ToString();
         lock (fingerprintLock)
         {
-            if (sessionOccurrences.TryGetValue(fingerprint, out int occurrences))
+            if (sessionOccurrences.TryGetValue(occurrenceKey, out int occurrences))
             {
                 occurrences++;
-                sessionOccurrences[fingerprint] = occurrences;
+                sessionOccurrences[occurrenceKey] = occurrences;
                 // A dispatcher which retries the same unsupported operation every frame
                 // must not turn the console into a 60-Hz bottleneck. The first failure is
                 // complete and later milestones remain visibly loud without flooding it.
@@ -81,7 +87,7 @@ public sealed class GitHubErrorReporter : IDisposable
                 }
                 return fingerprint;
             }
-            sessionOccurrences.Add(fingerprint, 1);
+            sessionOccurrences.Add(occurrenceKey, 1);
         }
 
         Console.Error.WriteLine();
@@ -89,6 +95,8 @@ public sealed class GitHubErrorReporter : IDisposable
             $"RECOVERABLE ERROR [{fingerprint}] at {context.Boundary}; " +
             "the host will attempt the next frame.");
         Console.Error.WriteLine(exception);
+        Console.Error.WriteLine($"Room $8F:{context.RoomPointer:X4}, state $8F:{context.RoomStatePointer:X4}, " +
+            $"door $83:{context.DoorPointer:X4}, recording {context.InputRecordingPath}");
         Console.Error.WriteLine(
             "The failed frame may have partially mutated emulated state. " +
             "A repeated throw can stall progress until the translation is fixed.");
@@ -120,17 +128,26 @@ public sealed class GitHubErrorReporter : IDisposable
         worker.GetAwaiter().GetResult();
     }
 
-    internal static string CreateFingerprint(Exception exception)
+    internal static string CreateFingerprint(Exception exception, GitHubErrorContext? context = null)
     {
         ArgumentNullException.ThrowIfNull(exception);
         var identity = new StringBuilder();
         AppendExceptionIdentity(identity, exception);
+        // Unknown failures are conservatively room-scoped. Only an explicit cartridge
+        // dispatch identity may declare that room/block location does not change the bug.
+        if (exception is not CartridgeDispatchException { IsRoomIndependent: true } && context is not null)
+            identity.Append($"\nroom:{context.RoomPointer:X4}/state:{context.RoomStatePointer:X4}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";
     }
 
     private static void AppendExceptionIdentity(StringBuilder identity, Exception exception)
     {
+        if (exception is CartridgeDispatchException dispatch)
+        {
+            identity.Append(dispatch.GetType().FullName).Append('\n').Append(dispatch.DispatchIdentity);
+            return;
+        }
         identity.Append(exception.GetType().FullName)
             .Append('\n')
             .Append(exception.Message)
@@ -169,6 +186,8 @@ public sealed class GitHubErrorReporter : IDisposable
                     queued.Fingerprint!).ConfigureAwait(false);
                 if (existingUrl is not null)
                 {
+                    await issueClient.CommentAsync(repository, existingUrl,
+                        BuildBody(queued.Fingerprint!, queued.Exception!, queued.Context!)).ConfigureAwait(false);
                     Console.Error.WriteLine(
                         $"GitHub error [{queued.Fingerprint}] already exists: {existingUrl}");
                     continue;
@@ -211,6 +230,8 @@ public sealed class GitHubErrorReporter : IDisposable
         GitHubErrorContext context)
     {
         var body = new StringBuilder();
+        body.AppendLine($"Core build ID: {typeof(CartridgeDispatchException).Module.ModuleVersionId}");
+        body.AppendLine($"Host build ID: {typeof(GitHubErrorReporter).Module.ModuleVersionId}");
         body.Append("<!-- supermetroid-error-id:")
             .Append(fingerprint)
             .AppendLine(" -->")
@@ -288,6 +309,7 @@ public sealed class GitHubErrorReporter : IDisposable
 
 internal interface IGitHubIssueClient
 {
+    Task CommentAsync(string repository, string issueUrl, string body);
     Task<string?> FindByFingerprintAsync(string repository, string fingerprint);
 
     Task<string> CreateAsync(string repository, string title, string body);

@@ -180,13 +180,28 @@ public static partial class SamusGrappleMovement
                             throw new InvalidOperationException(
                                 $"Grapple trigger block {block.Index} at ({resolvedX},{resolvedY}) has no resident PLM owner.");
                     }
+                    else if (block.Bts == RoomBlockBehaviorValues.CollectibleTrigger)
+                        plms.TryNotifyCollectibleProjectileHit(block.Index, projectileType: 0);
                     else
-                        plms.TrySpawnProjectileShotBlock(
-                            level,
-                            block.Index,
-                            block.Bts,
-                            projectileType: 0,
-                            solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
+                    {
+                        try
+                        {
+                            plms.TrySpawnProjectileShotBlock(
+                                level,
+                                block.Index,
+                                block.Bts,
+                                projectileType: 0,
+                                solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
+                        }
+                        catch (ArgumentOutOfRangeException error) when (error.ParamName == "bts")
+                        {
+                            throw new CartridgeDispatchException(
+                                $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Behavior:X2}",
+                                $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Behavior:X2} " +
+                                $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
+                                isRoomIndependent: true, error);
+                        }
+                    }
                     return new GrappleBlockReaction(
                         Carry: block.CollisionType == RoomCollisionType.ShootableBlock,
                         Overflow: false);

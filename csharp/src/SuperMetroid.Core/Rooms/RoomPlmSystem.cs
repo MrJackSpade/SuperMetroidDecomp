@@ -921,11 +921,11 @@ public sealed partial class RoomPlmSystem
         }
         if (!areaDependent &&
             !bts.IsNormalReactionIndex(16) &&
-            !bts.IsShootableCollisionProbe)
+            !bts.IsShootableCollisionProbe && !bts.IsUnusedShootableReaction)
         {
             throw new ArgumentOutOfRangeException(
                 nameof(bts),
-                "Area-independent shootable BTS must be zero through sixteen.");
+                $"Shootable BTS ${bts.Value:X2} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
         }
 
         // `$94:9E55` checks the sign bit before Spawn_PLM for shootable air. Its solid-block

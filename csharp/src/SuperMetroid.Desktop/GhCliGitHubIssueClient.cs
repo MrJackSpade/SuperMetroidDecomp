@@ -6,6 +6,11 @@ namespace SuperMetroid.Desktop;
 /// <summary>Minimal authenticated GitHub issue client backed by the installed <c>gh</c> CLI.</summary>
 internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
 {
+    public async Task CommentAsync(string repository, string issueUrl, string body)
+    {
+        await RunAsync(body, "issue", "comment", issueUrl, "--repo", repository,
+            "--body-file", "-").ConfigureAwait(false);
+    }
     public async Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
     {
         ProcessResult result = await RunAsync(

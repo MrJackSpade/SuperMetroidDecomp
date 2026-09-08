@@ -16,6 +16,18 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
+        // Full-table audit: unused native entries still allocate a deleting PLM,
+        // not a breakable-block range failure or a fabricated terrain mutation.
+        for (int bts = 0x11; bts <= 0x4e; bts++)
+        {
+            if (bts > 0x3f && bts != 0x4e) continue;
+            var emptyLevel = CreateRoom(16, 16, new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
+            var unusedPlms = new RoomPlmSystem();
+            AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
+                "unused shootable entry allocates native nothing PLM");
+            AssertEqual(1, unusedPlms.ActiveCount, "nothing PLM retains its provisional slot");
+            AssertEqual((ushort)0, emptyLevel.ForegroundEntries.Span[0], "nothing PLM leaves terrain unchanged");
+        }
 
         for (int kindIndex = 0; kindIndex < 21; kindIndex++)
         {
@@ -117,8 +129,13 @@ internal static partial class Program
             roomArgument: 91,
             precollected: false);
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
-        AssertTrue(orb.Plms.TryNotifyCollectibleProjectileHit(orb.BlockIndex, 0x0200),
-            "Chozo orb accepts a projectile reaction");
+        var grappleSamus = new SamusState();
+        grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.WidthInBlocks) * 16 + 8);
+        grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.WidthInBlocks) * 16 + 8);
+        grappleSamus.Grapple.Phase = GrapplePhase.Firing;
+        var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
+            (ushort)SnesButton.X, orb.Plms);
+        AssertTrue(orbHit.CancelQueued, "grapple collides with the solid Chozo orb");
         orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
         AssertTrue(orb.System.HasRoomChozoBit(91),
             "breaking a Chozo orb persists before item acquisition");

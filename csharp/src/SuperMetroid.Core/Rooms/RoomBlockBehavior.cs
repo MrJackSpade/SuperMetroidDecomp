@@ -84,6 +84,9 @@ public readonly record struct RoomBlockBehavior(byte Value)
     /// </summary>
     public bool IsShootableCollisionProbe => Value == 0x10;
 
+    /// <summary>$94:9EA6 entries $11..$3F and $4E point to the native nothing PLM.</summary>
+    public bool IsUnusedShootableReaction => Value is >= 0x11 and <= 0x3f or 0x4e;
+
     /// <summary>Decodes the four contiguous blue-door cap values.</summary>
     public bool TryGetBlueDoorOrientation(out ColoredDoorOrientation orientation)
     {

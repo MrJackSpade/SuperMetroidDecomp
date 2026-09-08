@@ -357,7 +357,7 @@ internal static class MotherBrainAudit
 
             enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: samus,
                 cameraX: 0,
                 cameraY: 0,
                 nmiFrameCounter8: unchecked((byte)frame));
@@ -536,6 +536,11 @@ internal static class MotherBrainAudit
                 $"{finalHeadJoint.Y:X4}), projectiles={observedDrool}/" +
                 $"{observedLargePurpleBreath}, function=$A9:{(ushort)state.Function:X4}.");
         }
+
+        if (enemies.RinkaTerminationFlag != 1 || enemies.Slots.Any(
+                slot => enemies.RinkaStates[slot.SlotIndex] is not null &&
+                    !slot.Properties.HasAny(EnemyProperties.Deleted)))
+            throw new InvalidDataException("Mother Brain did not retire Rinkas before replacing their graphics.");
 
         AuditPhaseTwoShotReactions(bus, assets.LevelData, enemies, state, samus);
         AuditPhaseTwoOnionRingAttack(

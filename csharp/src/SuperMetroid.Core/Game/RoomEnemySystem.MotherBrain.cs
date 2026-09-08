@@ -251,6 +251,9 @@ public sealed partial class RoomEnemySystem
                 // function remains represented by its native pointer so the next frame
                 // enters the real timed descent rather than jumping to standing form.
                 state.DeleteTurretsAndRinkas = true;
+                // Mother Brain and Rinka alias native slot-zero variable $1D. Publish the
+                // shared word before later enemy slots can keep drawing replaced tile art.
+                _rinkaTerminationFlag = 1;
                 state.Form = 1;
                 state.RequestMusic(MusicCommand.SelectTrack(6), MusicCommandDelay.EightFrames);
 

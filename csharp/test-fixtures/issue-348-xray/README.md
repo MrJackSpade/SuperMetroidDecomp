@@ -31,11 +31,21 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 ```
 
 Both comparisons pass exactly. This verifies backend consistency, not an
-independent emulator image comparison. Setup/teardown display timing and the live
-Fireflea fixed-color producer remain to be audited before declaring #348 complete.
+independent emulator image comparison. The live Fireflea fixed-color producer
+remains to be audited before declaring #348 complete.
 
 The release regression now asserts each teardown step: the release edge retains
 the last window, the next two frames keep X-ray ownership with a closed window
 and zero backdrop while BG2 restores, then ordinary rendering resumes. This
 failed before the teardown capture change (the release edge returned the normal
 room immediately). The post-setup NoBeam phase also publishes an empty window.
+
+The startup regression checks all eight setup calls against the instruction list
+at $91:D223: blending first appears on call two, the beam stays closed while its
+maps are copied, and only call eight installs the active backdrop. Before this
+correction, blending did not appear until setup had finished.
+
+The final teardown call also retains the blend selection for its own HDMA pass,
+even though it releases gameplay time and deletes the object. The test asserts
+that retained operation with zero fixed color, followed by normal rendering on
+the next pass. This final-boundary assertion failed before the correction.

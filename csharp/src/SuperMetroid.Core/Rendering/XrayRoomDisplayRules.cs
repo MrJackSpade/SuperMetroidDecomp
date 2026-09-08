@@ -24,6 +24,8 @@ public static class XrayRoomDisplayRules
     public static ReadOnlySpan<ushort> ExcludedBossIds => [3, 6, 7, 8, 10];
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public const ushort ActiveBackdrop = 0x0C63;
+    /// <summary>$91:D223 installs $91:D27F before setup call one; its first execution is call two, leaving next-stage counter three.</summary>
+    public const byte FirstBlendedSetupStage = 3;
     /// <summary>WRAM $0074, the red COLDATA register mirror preserved by excluded-room X-ray.</summary>
     public const int FixedRedMirror = 0x74;
     /// <summary>WRAM $0075, the green COLDATA register mirror.</summary>

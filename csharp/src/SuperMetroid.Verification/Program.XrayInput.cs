@@ -37,6 +37,19 @@ internal static partial class Program
         for (int frame = 0; frame < 90; frame++)
         {
             runtime.StepFrame(runtime.ControllerBindings.Dash);
+            if (frame < 8)
+            {
+                var startup = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                AssertEqual(frame != 0, startup.Layers[0] is XrayGameplayRenderLayer,
+                    "setup pre-instruction starts blending one call after the instruction list installs it");
+                if (frame != 0)
+                {
+                    AssertTrue(((XrayGameplayRenderLayer)startup.Layers[0]).Lines.ToArray().All(line => line.Left > line.Right),
+                        "setup keeps the beam closed while copying tilemaps");
+                    AssertEqual(frame == 7 ? XrayRoomDisplayRules.ActiveBackdrop : (ushort)0, startup.Memory.Cgram[0],
+                        "only setup stage eight installs the X-ray backdrop");
+                }
+            }
             VerifyXrayWindowGeometry(bus, samus);
         }
         AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "held Run widens the X-ray beam fully");
@@ -94,7 +107,14 @@ internal static partial class Program
                 "deactivation closes the beam while BG2 restore completes");
             AssertEqual((ushort)0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
         }
-        for (int frame = 0; frame < 27; frame++) runtime.StepFrame(0);
+        runtime.StepFrame(0);
+        AssertTrue(!runtime.TimeIsFrozen, "phase five releases gameplay time");
+        var finishFrame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+        AssertTrue(finishFrame.Layers[0] is XrayGameplayRenderLayer,
+            "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
+        AssertEqual((byte)0, ((XrayGameplayRenderLayer)finishFrame.Layers[0]).FixedRed,
+            "phase five clears the non-Fireflea fixed color");
+        for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.TimeIsFrozen, "releasing Run restores ordinary gameplay");
         AssertTrue(!GameplayDisplayCapture.TryCaptureFrame(runtime)!.Layers.ToArray().Any(layer => layer is XrayGameplayRenderLayer),
             "release removes the X-ray display window");

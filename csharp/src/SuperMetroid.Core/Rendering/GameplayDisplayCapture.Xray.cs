@@ -10,7 +10,10 @@ public static partial class GameplayDisplayCapture
     /// <summary>Captures X-ray's layer ownership before priority resolution and color math.</summary>
     private static LayeredRenderSnapshot? CaptureXray(SuperMetroidRuntime runtime, LayeredRenderSnapshot basis)
     {
-        if (runtime.Samus is not { } samus || !samus.Xray.IsActive || samus.Xray.SetupStage != 0) return null;
+        bool finishedThisFrame = runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
+        if (runtime.Samus is not { } samus || !samus.Xray.IsActive && !finishedThisFrame) return null;
+        bool settingUp = samus.Xray.SetupStage != 0;
+        if (settingUp && samus.Xray.SetupStage < XrayRoomDisplayRules.FirstBlendedSetupStage) return null;
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         var room = runtime.ActiveRoom ?? throw new InvalidOperationException("X-ray has no room.");
@@ -54,14 +57,17 @@ public static partial class GameplayDisplayCapture
             blue = Fixed(XrayRoomDisplayRules.FixedBlueMirror);
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
+        // Phase five deletes the HDMA object but its blend bits have already been
+        // published for this pass. Only its fixed color is cleared immediately.
+        if (finishedThisFrame && mode != XrayRoomBlendMode.Fireflea) red = green = blue = 0;
         var colors = basis.Memory.Cgram.ToArray();
-        bool restoring = samus.Xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
-        colors[0] = restoring ? (ushort)0 : XrayRoomDisplayRules.ActiveBackdrop;
+        bool restoring = finishedThisFrame || samus.Xray.BeamPhase is XrayBeamPhase.RestoreSecondHalf or XrayBeamPhase.Finish;
+        if (!settingUp) colors[0] = restoring ? (ushort)0 : XrayRoomDisplayRules.ActiveBackdrop;
         var memory = new PpuMemorySnapshot(bytes, colors, basis.Memory.Oam, basis.Memory.ModeledSpriteCount);
         // Releasing Run merely advances the native dispatcher to phase three. That
         // phase closes the HDMA window on the NEXT call and clears the backdrop;
         // restoration keeps ownership until phase five finally unfreezes gameplay.
-        bool closed = restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
+        bool closed = settingUp || restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
             : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition);
         var layer = new XrayGameplayRenderLayer(gameplay,

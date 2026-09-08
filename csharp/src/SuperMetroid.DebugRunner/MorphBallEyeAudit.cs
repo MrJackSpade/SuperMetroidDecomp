@@ -11,7 +11,7 @@ using SuperMetroid.Core.Runtime;
 /// The assertions intentionally cover all three retail populations because their parameter
 /// differences select both body facings and all four possible mount orientations.
 /// </summary>
-internal static class MorphBallEyeAudit
+internal static partial class MorphBallEyeAudit
 {
     private const ushort Definition = 0xe6bf;
     private const ushort FinalMissileRoom = 0x9a90;
@@ -71,6 +71,7 @@ internal static class MorphBallEyeAudit
         VerifyActivationTrackingBeamAndDeactivation(bus, room, assets);
         VerifyMorphBallRoomBeamApex(bus);
         VerifyMorphBallRoomProductionViewport(bus);
+        CaptureReportedBlueBrinstarEye(bus);
         VerifyIntentionalNoCombat(bus, room, assets);
 
         Console.WriteLine(
@@ -524,7 +525,7 @@ internal static class MorphBallEyeAudit
     }
 
     /// <summary>
-    /// Repeats the reported area-$01/room-$10 case through the production runtime and its
+    /// Checks the area-$01/room-$0E eye through the production runtime and its
     /// accepted-NMI snapshots. This specifically guards the old compositor bug that used
     /// BG1's shake/offset-adjusted PPU scroll as a world coordinate and briefly anchored
     /// the cone to the top of the screen.

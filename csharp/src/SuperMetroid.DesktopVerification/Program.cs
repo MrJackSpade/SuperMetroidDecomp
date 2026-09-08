@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--draygon-position-audit"])
+                {
+                    VerifyDraygonPosition();
+                    return;
+                }
                 if (args is ["--grapple-auto-retract-audit"])
                 {
                     VerifyGrappleAutomaticRetraction();

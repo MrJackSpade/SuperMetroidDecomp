@@ -1633,6 +1633,18 @@ public sealed partial class SuperMetroidRuntime
                 BackgroundScroll.SetBg2ScrollRegisters(
                     phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll);
             }
+            if (Enemies.Draygon is { } draygon)
+            {
+                // $A5:9342 is the graphics-drawn hook installed by Draygon's init AI.
+                // The torso is BG2, not OAM: publish its camera-relative anchor after
+                // enemy movement/instructions so the next NMI latches it with the limbs.
+                // Tail-whip instructions can additionally displace the torso artwork.
+                BackgroundScroll.SetBg2ScrollRegisters(
+                    unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.XPosition -
+                        draygon.Body.XPosition - DraygonBackgroundData.HorizontalOrigin)),
+                    unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.YPosition -
+                        draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin)));
+            }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
                 // $A6:C117 publishes these global side effects on the same EnemyMain call

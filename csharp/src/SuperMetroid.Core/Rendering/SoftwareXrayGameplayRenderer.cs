@@ -15,6 +15,15 @@ public static class SoftwareXrayGameplayRenderer
         var objects = new Rgba32[output.Length];
         var priorities = new byte[output.Length];
         var palettes = new byte[output.Length];
+        // Registers and backdrop are invariant for this immutable packet. Resolve
+        // their flags once rather than repeating Enum.HasFlag in the pixel loop;
+        // runtime optimization of that API differs between desktop JIT and Mono AOT.
+        bool showBg1 = (r.MainScreenLayers & SnesMainScreenLayers.Bg1) != 0;
+        bool showBg2 = (r.MainScreenLayers & SnesMainScreenLayers.Bg2) != 0;
+        bool showObjects = (r.MainScreenLayers & SnesMainScreenLayers.Obj) != 0;
+        bool halfEnabled = (layer.ColorMath & SnesColorMathControl.Half) != 0;
+        bool subtract = (layer.ColorMath & SnesColorMathControl.Subtract) != 0;
+        Rgba32 backdrop = memory.Cgram.GetRgba(0);
         SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, objectSelection,
             objects, priorities, width, height, palettes);
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
@@ -27,24 +36,24 @@ public static class SoftwareXrayGameplayRenderer
             int i = y * width + x, lineIndex = y - SnesPpuLayout.GameplayHudHeightPixels;
             XrayWindowLine window = layer.Lines[y];
             bool inside = x >= window.Left && x <= window.Right;
-            var winner = memory.Cgram.GetRgba(0);
+            var winner = backdrop;
             int rank = -1;
             SnesColorMathControl source = SnesColorMathControl.Backdrop;
             // Window selection precedes priority resolution: BG1 is suppressed inside
             // the reveal beam, BG2 outside it. Excluded rooms leave both unmasked.
-            if ((!layer.RevealBlocks || inside) && r.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg2))
+            if ((!layer.RevealBlocks || inside) && showBg2)
             {
                 int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
                 int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
                 var pixel = Sample(r.Bg2TilemapWord, r.Bg2CharacterWord, r.Bg2WidthTiles, r.Bg2HeightTiles, x + sx, y + sy, fourBit: true);
                 Insert(pixel.Color, pixel.High ? 5 : 2, SnesColorMathControl.Bg2);
             }
-            if ((!layer.RevealBlocks || !inside) && r.MainScreenLayers.HasFlag(SnesMainScreenLayers.Bg1))
+            if ((!layer.RevealBlocks || !inside) && showBg1)
             {
                 var pixel = Sample(SnesPpuLayout.GameplayBg1TilemapWord, r.Bg1CharacterWord, 64, 32, x + r.Bg1X, y + r.Bg1Y, fourBit: true);
                 Insert(pixel.Color, pixel.High ? 6 : 3, SnesColorMathControl.Bg1);
             }
-            if (r.MainScreenLayers.HasFlag(SnesMainScreenLayers.Obj) && priorities[i] != SnesObjRenderer.TransparentPriority)
+            if (showObjects && priorities[i] != SnesObjRenderer.TransparentPriority)
             {
                 int objRank = priorities[i] switch { 0 => 0, 1 => 1, 2 => 4, 3 => 7, _ => throw new InvalidDataException("Invalid resolved OBJ priority.") };
                 // OBJ palettes zero through three never participate in SNES color math,
@@ -63,8 +72,7 @@ public static class SoftwareXrayGameplayRenderer
                 bool useSub = layer.AddSubscreen && sub.A != 0;
                 // A transparent subscreen falls back to COLDATA but disables halving.
                 // Fixed-color-only mode does not have that exception.
-                bool half = layer.ColorMath.HasFlag(SnesColorMathControl.Half) && (!layer.AddSubscreen || useSub);
-                bool subtract = layer.ColorMath.HasFlag(SnesColorMathControl.Subtract);
+                bool half = halfEnabled && (!layer.AddSubscreen || useSub);
                 winner = new(Channel(winner.R, useSub ? sub.R >> 3 : layer.FixedRed),
                     Channel(winner.G, useSub ? sub.G >> 3 : layer.FixedGreen),
                     Channel(winner.B, useSub ? sub.B >> 3 : layer.FixedBlue), winner.A);

@@ -205,6 +205,31 @@ the exact demo/effect at this host-frame interval before changing scheduling aga
 Thermal service still reports `HAL Ready: false` without temperatures; do not claim
 measured thermal headroom or broad sustained-performance acceptance.
 
+### Reproducing the late X-ray demo cost
+
+The slow interval is X-ray in room `$01/$06`, using `XrayGameplayRenderLayer`.
+Generate its exact autonomous frame without a three-minute device wait:
+
+```powershell
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release -- --export-autonomous-performance-state 9650 csharp/test-temp/xray-performance-new
+```
+
+The destination must not exist. It contains a private slot-9 state, recording,
+and PNG; it does not touch desktop saves. The command advances the real frontend
+and audio acknowledgements without input, then benchmarks the immutable packet.
+Load the generated state into an unused handheld slot for device measurements;
+preserve and restore the handheld's regular save because loading a state also
+changes its SRAM. Exported states contain private cartridge data, not public assets.
+
+On the AOT handheld, five seconds from this state reproduced 22.5-22.8 ms rendering
+and approximately 37 FPS. Hoisting immutable register flags and backdrop lookup
+outside the X-ray pixel loop reduced rendering to 20.4-20.7 ms, approximately
+41 FPS. The before/after frame-9650 PNG SHA-256 was identical
+(`E10BFC06ED2D822E9C6ABFE692A0C00429A1E947D622319A76CE59C21300389F`),
+and X-ray activation/window/release checks passed. This is a partial optimization,
+not a fix for the sustained-performance requirement: per-pixel background sampling
+still needs profiling and improvement.
+
 A subsequent direct `Choreographer.IFrameCallback` experiment (invalidating before
 traversal, with producer invalidations disabled while active) did not fix the AOT
 presentation dips. At host frames 3867–3988 it measured 60 simulation FPS but

@@ -37,3 +37,21 @@ player's issue is a cartridge bug. The next comparison needs to establish whethe
 the port reaches this ceiling-contact state differently, or reproduce embedding
 away from a blocking ceiling. Do not patch the shared collision code to suppress
 this native result, and do not close #347 on the strength of this fixture.
+
+## Confirmed adjacent bomb-jump divergence
+
+`GrapplePoseAudit/audit.exe "Super Metroid.smc" bomb-wall` executes $90:E032
+with an upward/right bomb jump against a solid vertical wall. The seed is
+X=59.F000, Y=80.0000, radii (5,7), speed 2.C000 and gravity 0.4000.
+Native output is X=59, Y=77.4000, speed 2.8000, bomb direction still $0803.
+The side collision does not end the handler because its branch observes the
+subsequent vertical collision result.
+
+`--bomb-wall` reproduces the same condition through production movement. Before
+the fix, its active-handler assertion failed: the port combined horizontal and
+vertical collisions to terminate the bomb jump. It now tests only the vertical
+result, and the native endpoint/velocity/handler assertions pass.
+
+This fixes a verified bomb-jump divergence, **not the entire #347 report**.
+The room-local `--shutter-morph-repro` still reaches the ceiling-corner overlap
+at frame 161. Keep that issue open while comparing the earlier trajectory.

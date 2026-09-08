@@ -13,6 +13,13 @@ enum ShutterCarryFixture {
   ShutterMovingSamus = 0x7814, ShutterMinimumY = 0x781e
 };
 
+/* #347: diagonal bomb-jump movement immediately beside a vertical shaft wall. */
+enum BombJumpWallFixture {
+  NativeBombJumpMain = 0x90e032, BombJumpDirection = 0xa56,
+  SamusXFraction = 0xaf8, SamusYFraction = 0xafc, SamusYSubspeed = 0xb2c, SamusYSpeed = 0xb2e,
+  SamusYSubacceleration = 0xb32, SamusYDirection = 0xb36
+};
+
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */

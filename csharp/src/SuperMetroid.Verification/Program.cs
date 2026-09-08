@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--bomb-wall"])
+{
+    VerifyBombJumpWallContact();
+    return 0;
+}
 if (args is ["--shutter-morph-repro"])
 {
     AuditMorphShutterApproaches(reproduceOnly: true);
@@ -240,6 +245,7 @@ VerifyXrayInput();
 VerifyXrayWindowGeometry();
 VerifyXraySetupBuffers();
 VerifyFirefleaFx();
+VerifyBombJumpWallContact();
 VerifyXrayRoomDisplayRules();
 VerifyXrayRevealTable();
 VerifyXrayExtensions();

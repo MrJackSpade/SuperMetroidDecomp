@@ -115,7 +115,10 @@ public static class SamusBombJumpMovement
             samus,
             nmiFrameCounter,
             plms);
-        if (vertical.Collided || horizontal is { Collided: true })
+        // The native handler tests samus_collision_flag after moving Y. That move
+        // replaces the horizontal result, so a shaft wall alone must not cancel the
+        // upward bomb arc or return control to ordinary Morph Ball movement early.
+        if (vertical.Collided)
             return End(samus, horizontal, vertical);
 
         return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: false);

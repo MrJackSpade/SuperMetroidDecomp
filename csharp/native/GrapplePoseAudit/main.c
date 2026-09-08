@@ -63,10 +63,28 @@ static void run(unsigned address) {
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
 int main(int argc, char **argv) {
-  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry]\n"); return 2; }
+  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3 && !strcmp(argv[2], "bomb-wall")) {
+    memset(ram, 0, sizeof(ram));
+    word(RoomWidth, 16); word(SamusX, 59); word(SamusY, 80);
+    word(SamusXFraction, 0xf000);
+    word(SamusRadiusX, 5); word(SamusRadiusY, 7);
+    word(Pose, 0x1d); ram[MovementType] = 4;
+    for (int row = 0; row < 10; row++) word(LevelWords + (row * 16 + 4) * 2, 0x8000);
+    word(BombJumpDirection, 0x0803); word(SamusYSpeed, 2); word(SamusYSubspeed, 0xc000);
+    word(SamusYSubacceleration, 0x4000); word(SamusYDirection, 1);
+    run(NativeBombJumpMain);
+    printf("Native diagonal bomb/wall: X=%u Y=%u.%04X direction=%04X speed=%u.%04X\n",
+      readword(SamusX), readword(SamusY), readword(SamusYFraction), readword(BombJumpDirection),
+      readword(SamusYSpeed), readword(SamusYSubspeed));
+    if (readword(SamusX) != 59 || readword(SamusY) != 77 || readword(SamusYFraction) != 0x4000 ||
+        readword(BombJumpDirection) != 0x0803 || readword(SamusYSpeed) != 2 || readword(SamusYSubspeed) != 0x8000)
+      Die("Native bomb-wall baseline changed\n");
+    return 0;
+  }
   if (argc == 3 && !strcmp(argv[2], "shutter-carry")) {
     /* Continue the critical contact through the real platform AI, not a scripted
        upward nudge. No bombs or horizontal movement are simulated here: this

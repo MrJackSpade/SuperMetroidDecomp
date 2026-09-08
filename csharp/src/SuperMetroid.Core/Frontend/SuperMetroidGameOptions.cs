@@ -70,7 +70,7 @@ public sealed record SuperMetroidGameOptions
 }
 
 /// <summary>Strict reader and documented template for the playable executable's INI file.</summary>
-public static class SuperMetroidGameOptionsIni
+public static partial class SuperMetroidGameOptionsIni
 {
     /// <summary>
     /// Contents written when no <c>SuperMetroid.ini</c> exists beside the private ROM.

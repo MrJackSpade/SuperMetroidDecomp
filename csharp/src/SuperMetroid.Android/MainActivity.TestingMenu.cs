@@ -18,7 +18,7 @@ public sealed partial class MainActivity
         session.SetActive(false);
         new AlertDialog.Builder(this)
             .SetTitle($"Testing tools - slot {selectedSlot}")!
-            .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state" }, (_, args) =>
+            .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)" }, (_, args) =>
             {
                 menuOpen = false;
                 switch (args.Which)
@@ -27,6 +27,7 @@ public sealed partial class MainActivity
                     case 1: ChooseStateSlot(); break;
                     case 2: _ = ShowStateResult(session.SaveSlot(selectedSlot)); break;
                     case 3: _ = ShowStateResult(session.LoadSlot(selectedSlot)); break;
+                    case 4: ShowIniSettings(); break;
                 }
             })!
             .SetOnCancelListener(new MenuCancelled(this))!

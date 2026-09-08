@@ -4,6 +4,8 @@ using System.Text;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
 
 /// <summary>
 /// Rechecks the desktop's shared-cue corpus against native BRR playback before accepting
@@ -12,7 +14,7 @@ using SuperMetroid.Core.Hardware;
 internal static class NativeAudioCorpusAudit
 {
     public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
-        string? captureDirectory = null)
+        string? captureDirectory = null, bool fileSelectOnly = false)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -33,6 +35,28 @@ internal static class NativeAudioCorpusAudit
         int totalFrames = 0;
         try
         {
+            if (fileSelectOnly)
+            {
+                foreach (bool saved in new[] { false, true })
+                foreach (SnesButton accept in new[] { SnesButton.A, SnesButton.Start })
+                {
+                    var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath ?? throw new ArgumentNullException(nameof(romPath)));
+                    if (saved) new SuperMetroidSaveRam(bus).SaveSlot(0, new SuperMetroidSaveSnapshot());
+                    var game = new SuperMetroidGame(bus);
+                    int swooshes = 0;
+                    Scenario($"file-select-saved={saved}-accept={accept}", 500, tick =>
+                    {
+                        SnesButton key = game.GameState == SuperMetroidGameState.FileSelectMenus ? accept : SnesButton.Start;
+                        var frame = game.StepCaptured(tick % 47 == 0 ? (ushort)key : (ushort)0, tick + 1, 1).Frame;
+                        swooshes += frame.AudioCommands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort &&
+                            command.Port == 1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
+                        return frame.AudioCommands.ToArray();
+                    }, ports => game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3])));
+                    if (swooshes != 1) throw new InvalidDataException($"File-select audit expected one swoosh, received {swooshes}.");
+                }
+                Console.WriteLine($"File-select native comparison: {totalFrames} complete PCM/acknowledgement frames matched across four routes.");
+                return 0;
+            }
             if (recordingPath is not null)
             {
                 var recording = ControllerInputRecording.Read(recordingPath);

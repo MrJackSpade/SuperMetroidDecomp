@@ -157,6 +157,12 @@ internal static class MotherBrainAudit
                 $"draw={state.DrawBrain}, form={state.Form}, function=$A9:{(ushort)state.Function:X4}.");
         }
 
+        var hallwayOam = new OamBuffer();
+        hallwayOam.BeginFrame();
+        enemies.DrawLayers(hallwayOam, 512, 0, firstLayer: 5, lastLayer: 5);
+        if (hallwayOam.NextByteOffset != 0)
+            throw new InvalidDataException("Mother Brain wraps into the approach hallway 512 pixels away.");
+
         AuditHeadSpinTouch(bus, enemies, samus, head);
         AuditTurretRuntime(bus, assets.LevelData, enemies, samus);
         AuditGlassSequence(bus, room);

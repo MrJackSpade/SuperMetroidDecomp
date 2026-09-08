@@ -325,6 +325,10 @@ public sealed partial class RoomEnemySystem
             return;
 
         (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
+        // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
+        // Otherwise a brain half a room to the left reappears in the approach hallway.
+        if (unchecked((short)(head.XPosition + brainShakeX +
+                MotherBrainDrawData.BrainLeftCullMargin - cameraX)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
             head.SpritemapPointer,

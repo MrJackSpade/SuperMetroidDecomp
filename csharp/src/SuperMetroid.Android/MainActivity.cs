@@ -13,7 +13,7 @@ namespace SuperMetroid.Android;
 /// </summary>
 [Activity(Label = "Super Metroid C# Testing", MainLauncher = true, Exported = true,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
-public sealed class MainActivity : Activity
+public sealed partial class MainActivity : Activity
 {
     private AndroidGameSession? session;
     private bool resumed;
@@ -24,6 +24,7 @@ public sealed class MainActivity : Activity
     {
         base.OnCreate(savedInstanceState);
         ActionBar?.Hide();
+        EnterImmersiveMode();
         var status = new TextView(this) { Text = "Installing private testing assets…" };
         SetContentView(status);
         _ = PrepareAssets(status);
@@ -37,9 +38,10 @@ public sealed class MainActivity : Activity
             await Task.Run(() => AndroidAssetInstaller.Install(Assets!, "game", Path.Combine(root, "game")));
             if (destroyed) return;
             var view = new AndroidGameView(this);
+            view.LongClick += (_, _) => ShowTestingMenu();
             SetContentView(view);
             session = new AndroidGameSession(root, view);
-            session.SetActive(resumed && focused);
+            session.SetActive(resumed && focused && !menuOpen);
         }
         catch (Exception error)
         {
@@ -54,7 +56,8 @@ public sealed class MainActivity : Activity
     {
         base.OnResume();
         resumed = true;
-        session?.SetActive(focused);
+        EnterImmersiveMode();
+        session?.SetActive(focused && !menuOpen);
     }
 
     protected override void OnPause()
@@ -68,7 +71,32 @@ public sealed class MainActivity : Activity
     {
         base.OnWindowFocusChanged(hasFocus);
         focused = hasFocus;
-        session?.SetActive(resumed && focused);
+        if (hasFocus) EnterImmersiveMode();
+        session?.SetActive(resumed && focused && !menuOpen);
+    }
+
+    /// <summary>Keep system chrome out of the game surface, including after dialogs/resume.</summary>
+    private void EnterImmersiveMode()
+    {
+        if (Window is not { } window) return;
+        if (OperatingSystem.IsAndroidVersionAtLeast(30))
+        {
+            // Edge-to-edge is enforced on newer targets; older releases need the opt-in.
+            if (!OperatingSystem.IsAndroidVersionAtLeast(35)) window.SetDecorFitsSystemWindows(false);
+            if (window.InsetsController is { } controller)
+            {
+                controller.SystemBarsBehavior = (int)WindowInsetsControllerBehavior.ShowTransientBarsBySwipe;
+                controller.Hide(WindowInsets.Type.SystemBars());
+            }
+        }
+        else
+        {
+#pragma warning disable CS0618 // API 26-29 compatibility; modern devices use insets above.
+            window.DecorView.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.Fullscreen |
+                SystemUiFlags.HideNavigation | SystemUiFlags.ImmersiveSticky |
+                SystemUiFlags.LayoutFullscreen | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutStable);
+#pragma warning restore CS0618
+        }
     }
 
     public override bool DispatchKeyEvent(KeyEvent? e)
@@ -76,6 +104,13 @@ public sealed class MainActivity : Activity
         if (e is not null && session is not null)
         {
             session.RecordInput($"{e.KeyCode} {e.Action} resumed={resumed} focused={focused}");
+            if (e.KeyCode is Keycode.Back or Keycode.ButtonMode && !menuOpen)
+            {
+                // Open on release so the same Back-up cannot dismiss the new dialog.
+                if (e.Action == KeyEventActions.Up) ShowTestingMenu();
+                return true;
+            }
+            if (menuOpen) return base.DispatchKeyEvent(e);
             SnesButton mapped = AndroidControllerMapping.Map(e.KeyCode);
             if (mapped != SnesButton.None)
             {

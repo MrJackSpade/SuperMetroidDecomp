@@ -55,7 +55,8 @@ internal sealed class ControllerInputRecorder : IDisposable
     public static ControllerInputRecorder Start(
         string romPath,
         ReadOnlySpan<byte> initialSaveRam,
-        SuperMetroidGameOptions gameOptions)
+        SuperMetroidGameOptions gameOptions,
+        string? recordingDirectoryOverride = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentNullException.ThrowIfNull(gameOptions);
@@ -65,7 +66,9 @@ internal sealed class ControllerInputRecorder : IDisposable
         string fullRomPath = System.IO.Path.GetFullPath(romPath);
         string romDirectory = System.IO.Path.GetDirectoryName(fullRomPath)
             ?? throw new InvalidOperationException($"ROM path has no containing directory: {fullRomPath}");
-        string recordingDirectory = System.IO.Path.Combine(romDirectory, RecordingDirectoryName);
+        string recordingDirectory = recordingDirectoryOverride is null
+            ? System.IO.Path.Combine(romDirectory, RecordingDirectoryName)
+            : System.IO.Path.GetFullPath(recordingDirectoryOverride);
         Directory.CreateDirectory(recordingDirectory);
         string timestamp = DateTimeOffset.Now.ToString("yyyyMMdd-HHmmss-fff");
         string path = System.IO.Path.Combine(

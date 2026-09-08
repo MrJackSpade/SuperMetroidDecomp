@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -17,6 +18,8 @@ internal sealed class AndroidGameSession
     private readonly string root;
     private readonly AndroidGameView view;
     private readonly ManualResetEventSlim active = new(false);
+    private readonly AutoResetEvent wake = new(false);
+    private readonly ConcurrentQueue<(Func<AndroidSessionData, string> Action, TaskCompletionSource<string> Result)> commands = new();
     private readonly CancellationTokenSource stopping = new();
     private readonly Task worker;
     public FrameInputLatch Input { get; } = new();
@@ -35,13 +38,28 @@ internal sealed class AndroidGameSession
         Input.Clear();
         if (value) active.Set();
         else active.Reset();
+        wake.Set();
+    }
+
+    public Task<string> SaveSlot(int slot) => Request(data => data.SaveSlot(slot));
+    public Task<string> LoadSlot(int slot) => Request(data => data.LoadSlot(slot));
+
+    private Task<string> Request(Func<AndroidSessionData, string> action)
+    {
+        if (worker.IsCompleted) return Task.FromException<string>(new InvalidOperationException("Game worker stopped; restart before using state tools."));
+        var result = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        commands.Enqueue((action, result));
+        wake.Set();
+        return result.Task;
     }
 
     public async Task Stop()
     {
         stopping.Cancel();
+        wake.Set();
         await worker;
         active.Dispose();
+        wake.Dispose();
         stopping.Dispose();
     }
 
@@ -50,16 +68,8 @@ internal sealed class AndroidGameSession
         AndroidPcmOutput? output = null;
         try
         {
-            string gameRoot = Path.Combine(root, "game");
-            string ini = Path.Combine(root, "SuperMetroid.ini");
-            if (!File.Exists(ini)) File.WriteAllText(ini, SuperMetroidGameOptionsIni.DefaultFileContents);
-            SuperMetroidGameOptions options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.Combine(gameRoot, "SuperMetroid.smc"));
-            string save = Path.Combine(root, "SuperMetroid.save.json");
-            GameSaveFileStore.LoadOrMigrate(bus, save, Path.Combine(root, "SuperMetroid.srm"));
-            var game = new SuperMetroidGame(bus, options);
-            game.SaveRamChanged += () => GameSaveFileStore.WriteAtomic(bus, save);
-            var audio = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load(Path.Combine(gameRoot, "audio")));
+            using var data = new AndroidSessionData(root);
+            SuperMetroidGameOptions options = data.Options;
             long sequence = 0;
             var clock = Stopwatch.StartNew();
             double deadline = clock.Elapsed.TotalSeconds;
@@ -76,23 +86,34 @@ internal sealed class AndroidGameSession
                     output = null;
                     // Native save changes are already atomic. This lifecycle boundary also
                     // persists any unsaved host-side SRAM metadata before the process sleeps.
-                    GameSaveFileStore.WriteAtomic(bus, save);
-                    active.Wait(stopping.Token);
+                    data.PersistSave();
+                    data.FlushRecording();
+                    while (!active.IsSet && !stopping.IsCancellationRequested)
+                    {
+                        DrainCommands(data);
+                        wake.WaitOne();
+                    }
+                    if (stopping.IsCancellationRequested) break;
                     deadline = measuredAt = clock.Elapsed.TotalSeconds;
                     measuredFrame = sequence;
                     measuredPaint = view.PaintCount;
                     stepMilliseconds = renderMilliseconds = audioMilliseconds = 0;
                 }
+                DrainCommands(data);
                 if (options.AudioEnabled) output ??= new AndroidPcmOutput();
                 double start = clock.Elapsed.TotalMilliseconds;
-                game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
+                data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
                 ushort input = Input.Sample();
-                CapturedFrontendFrame frame = game.StepCaptured(input, ++sequence, 1);
+                data.Record(input);
+                CapturedFrontendFrame frame = data.Game.StepCaptured(input, ++sequence, data.Generation);
+                view.SetRoomIdentity(data.Game.GameplayActiveAreaIndex is { } area && data.Game.GameplayActiveRoomIndex is { } room
+                    ? $"Room ${(byte)area:X2}/${room:X2} [$8F:{data.Game.GameplayActiveRoomPointer:X4}, state $8F:{data.Game.GameplayActiveRoomStatePointer:X4}]"
+                    : "No active room");
                 double stepped = clock.Elapsed.TotalMilliseconds;
                 var pixels = frame.Snapshot is { } snapshot
                     ? SoftwareFrameSnapshotRenderer.Render(snapshot) : frame.Frame.Pixels;
                 double rendered = clock.Elapsed.TotalMilliseconds;
-                short[] samples = audio.RenderFrame(frame.Frame.AudioCommands);
+                short[] samples = data.Audio.RenderFrame(frame.Frame.AudioCommands);
                 if (options.MasterVolumePercent != 100)
                     for (int i = 0; i < samples.Length; i++) samples[i] = (short)(samples[i] * options.MasterVolumePercent / 100);
                 double mixed = clock.Elapsed.TotalMilliseconds;
@@ -128,7 +149,7 @@ internal sealed class AndroidGameSession
                     deadline = clock.Elapsed.TotalSeconds;
                 }
             }
-            GameSaveFileStore.WriteAtomic(bus, save);
+            data.PersistSave();
         }
         catch (OperationCanceledException) when (stopping.IsCancellationRequested) { }
         catch (Exception error)
@@ -139,6 +160,27 @@ internal sealed class AndroidGameSession
             catch (Exception storageError) { global::Android.Util.Log.Error("SuperMetroid", storageError.ToString()); }
             view.ShowStatus("Stopped: " + error.Message + " (see last-error.txt)");
         }
-        finally { output?.Dispose(); }
+        finally
+        {
+            output?.Dispose();
+            while (commands.TryDequeue(out var request))
+                request.Result.TrySetException(new InvalidOperationException("Game worker stopped before completing the request."));
+        }
+    }
+
+    private void DrainCommands(AndroidSessionData data)
+    {
+        while (commands.TryDequeue(out var request))
+        {
+            try
+            {
+                string result = request.Action(data);
+                Input.Clear();
+                var retained = data.Game.GetRetainedDisplay(1, data.Generation);
+                if (retained is not null) view.Publish(SoftwareFrameSnapshotRenderer.Render(retained), result);
+                request.Result.TrySetResult(result);
+            }
+            catch (Exception error) { request.Result.TrySetException(error); }
+        }
     }
 }

@@ -66,7 +66,22 @@ Diagnostics are overlays and cannot move the canvas when their text changes.
 The paired Classic reports a physical framebuffer of 1080x1240 but its current display
 rotation exposes 1240x1080. The host follows that configuration rather than forcing a
 phone-style orientation. With the action bar hidden, the measured view was 1240x984,
-giving a 1024x896 image at 4x. System bars still occupy the remaining display area.
+giving a 1024x896 image at 4x. Immersive mode now hides status/navigation bars and
+uses the full 1240x1080 surface, retaining centered 4x scaling. Diagnostics overlay
+the top edge without reserving layout space. System bars can be revealed transiently
+by an edge swipe; focus/resume restores immersive mode.
+
+Back, controller Mode, or a long press opens testing tools, pausing the simulation.
+Ten debugger slots are available. Empty slots show a message, not a fatal error.
+Input journals live in private `files/input-recordings`; state-load journals preserve
+their exact seed separately from the overwritable slot. Regular saves remain in
+`files/SuperMetroid.save.json`. Native file import/export is still pending.
+
+`dotnet run --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release`
+tests the production session data class locally: empty/corrupt slots, 30 identical
+video/audio continuation frames, separate journals, and seed survival after overwrite.
+On-device state saving and the testing menu have been exercised; cross-runtime
+replay and on-device restore verification are still pending.
 
 Default Retroid mapping: reported A=accept/jump, B=back/dash, X=fire, Y=item cancel.
 Player testing confirmed that the Classic reports Nintendo button names rather than

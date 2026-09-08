@@ -20,6 +20,7 @@ internal sealed class AndroidGameView : View
     private readonly int[] argb = new int[FrontendFrame.Width * FrontendFrame.Height];
     private Rgba32[]? pending;
     private string status = "Starting game...";
+    private string roomIdentity = "No active room";
     private long paintCount;
 
     public AndroidGameView(Context context) : base(context)
@@ -30,6 +31,9 @@ internal sealed class AndroidGameView : View
     }
 
     public long PaintCount => Interlocked.Read(ref paintCount);
+
+    /// <summary>Updated per emulated frame; not delayed by the one-second FPS window.</summary>
+    public void SetRoomIdentity(string identity) => Volatile.Write(ref roomIdentity, identity);
 
     public void Publish(Rgba32[] frame, string description)
     {
@@ -69,7 +73,7 @@ internal sealed class AndroidGameView : View
         }
         // Diagnostic text is an overlay: changes cannot shift or resize the game picture.
         canvas.DrawText(Volatile.Read(ref status), 8, 28, text);
-        canvas.DrawText($"surface {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x", 8, 56, text);
+        canvas.DrawText($"{Volatile.Read(ref roomIdentity)} | {Width}x{Height}; integer {viewport.Width / FrontendFrame.Width}x", 8, 56, text);
     }
 
     protected override void Dispose(bool disposing)

@@ -34,6 +34,8 @@ public static class SamusGrappleRomData
     /// <summary>Native angular-physics coefficients embedded in bank-$9B behavior.</summary>
     public static class Physics
     {
+        /// <summary><c>$9B:C745-C74C</c>, firing handler's accepted-connection tail: automatically retract eight pixels per frame after the connection helper clears its delta.</summary>
+        public const short InitialConnectionRetraction = -8;
         /// <summary>Per-frame downward angular acceleration.</summary>
         public const short GravityMagnitude = 24;
         /// <summary>Per-frame angular acceleration contributed by directional input.</summary>

@@ -1,5 +1,24 @@
 # Grapple release pose-input reference (#338)
 
+## Automatic grapple attachment retraction (#376)
+
+`audit.exe "Super Metroid.smc" grapple-attachment` executes `$9B:C742`, including
+the native connection helper **and its caller's continuation**. The helper clears
+rope-length delta, but the caller replaces it with `$FFF8` (minus eight). The port
+had retained zero and therefore required a new Up press to start any retraction.
+
+`DesktopVerification --grapple-auto-retract-audit` reproduces the player's real
+Halfie Climb approach from the preserved original standing fixture. Before the
+fix it connected at frame 42 with length 12/delta zero and stayed dangling for
+the entire 160-frame test. After restoring the missing caller write, the same
+inputs reach the wall-grab pose at frame 56 without any Up input. Assertions
+check the B8 body, minimum rope length, both sprite maps, a successful jump, and
+actual upward/away movement. Older already-dangling saves retain their captured
+zero delta; detach and reattach to exercise the corrected connection lifecycle.
+
+The earlier successful test explicitly pressed Up immediately after attachment,
+masking the missing automatic retraction. The new test intentionally never does.
+
 ## Scanner-eye window reference (#51)
 
 `audit.exe "Super Metroid.smc" eye-window` executes the cartridge's

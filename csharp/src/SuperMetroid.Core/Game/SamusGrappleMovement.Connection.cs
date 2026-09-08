@@ -356,6 +356,12 @@ public static partial class SamusGrappleMovement
         grapple.WallJumpTimer = 0;
         grapple.CancelFromConnectedPose = false;
 
+        // The connection helper clears delta while choosing the new pose, but its caller
+        // immediately starts automatic retraction. Omitting that caller tail leaves Samus
+        // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
+        // both block and enemy connections, never for an arbitrary restored swing state.
+        grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
+
         ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
         ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
         return new GrappleMovementResult(

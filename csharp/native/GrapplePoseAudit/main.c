@@ -68,11 +68,13 @@ static void run(unsigned address) { run_with_index_width(address, false); }
 #include "ceres_haze.h"
 #include "ridley_wall.h"
 #include "eye_window.h"
+#include "grapple_attachment.h"
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall|shutter-bomb-arc]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3 && !strcmp(argv[2], "grapple-attachment")) return verify_grapple_attachment();
   if (argc == 3 && !strcmp(argv[2], "wall-jump-dust")) return verify_wall_jump_dust();
   if (argc == 3 && !strcmp(argv[2], "ceres-haze")) return verify_ceres_haze();
   if (argc == 3 && !strcmp(argv[2], "ridley-wall")) return verify_ridley_wall();

@@ -34,14 +34,15 @@ public sealed partial class MainActivity
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
-        if (requestCode != AndroidDocumentRequests.DiagnosticExport) return;
+        if (requestCode is not (AndroidDocumentRequests.DiagnosticExport or AndroidDocumentRequests.StateImport or AndroidDocumentRequests.SaveImport)) return;
         if (resultCode != Result.Ok || data?.Data is not { } uri)
         {
             menuOpen = false;
             ShowTestingMenu();
             return;
         }
-        _ = ShowStateResult(ExportDiagnostics(uri));
+        _ = ShowStateResult(requestCode == AndroidDocumentRequests.DiagnosticExport
+            ? ExportDiagnostics(uri) : ImportDocument(uri, requestCode == AndroidDocumentRequests.StateImport));
     }
 #pragma warning restore CS0672, CS0618
 

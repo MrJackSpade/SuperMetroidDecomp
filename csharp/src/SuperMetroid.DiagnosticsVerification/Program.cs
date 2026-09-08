@@ -95,6 +95,7 @@ try
                 throw new InvalidDataException("Recording contains an unexpected number of frames.");
         }
         Console.WriteLine("PASS Android session: empty/corrupt slots, 30 exact video/audio continuation frames, separate reset/state journals and seed preserved after slot overwrite.");
+        AndroidImportVerification.Run(root, rom, audio, seedPath);
     }
     finally
     {

@@ -44,5 +44,22 @@ corrupt data fails visibly in the console.
   them in `controller-bindings.json`. Restore defaults returns the Retroid mapping.
   Back/Mode and native menu navigation are independent of gameplay remapping.
 
-User-facing import and the remaining lifecycle/performance acceptance work are
-still tracked in issue #355. Export/replay support is not completion of that issue.
+## Import a save or debugger state
+
+Use **Import debugger state** to choose a trusted `.smstate` file for the selected
+slot. The full graph and ROM identity are checked before replacing the slot. Build
+differences remain warnings. Import does not load the state automatically; use
+**Load state** afterward. Invalid files leave the existing slot untouched.
+
+Use **Import regular save (next launch)** for a JSON save. The file is validated and
+staged separately from the current session, then activated on the next app launch.
+Continuing the current game cannot overwrite the pending import. These actions
+accept individual files, not the diagnostic ZIP itself; extract the wanted file
+from a bundle first. Raw emulator `.srm` import is not exposed by this menu.
+
+Replaced files are retained under the app-private `import-backups` directory with
+unique suffixes. They can be retrieved with the existing private-device diagnostic
+access; a recovery browser is not yet exposed in the menu.
+
+The remaining lifecycle/performance acceptance work is tracked in issue #355.
+Import/export/replay support is not completion of that issue.

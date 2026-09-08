@@ -18,7 +18,7 @@ public sealed partial class MainActivity
         session.SetActive(false);
         new AlertDialog.Builder(this)
             .SetTitle($"Testing tools - slot {selectedSlot}")!
-            .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)", "Controller bindings", "Export private diagnostics" }, (_, args) =>
+            .SetItems(new[] { "Resume", "Choose state slot", "Save state", "Load state", "INI settings (next launch)", "Controller bindings", "Export private diagnostics", "Import debugger state", "Import regular save (next launch)" }, (_, args) =>
             {
                 menuOpen = false;
                 switch (args.Which)
@@ -30,6 +30,8 @@ public sealed partial class MainActivity
                     case 4: ShowIniSettings(); break;
                     case 5: ShowControllerSettings(); break;
                     case 6: ChooseDiagnosticExport(); break;
+                    case 7: ChooseImport(state: true); break;
+                    case 8: ChooseImport(state: false); break;
                 }
             })!
             .SetOnCancelListener(new MenuCancelled(this))!

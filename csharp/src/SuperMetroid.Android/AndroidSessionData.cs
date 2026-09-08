@@ -31,6 +31,7 @@ internal sealed class AndroidSessionData : IDisposable
         Options = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(ini), ini);
         Bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
+        AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
         Game = new SuperMetroidGame(Bus, Options);
         Game.SaveRamChanged += PersistSave;
         assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));
@@ -49,6 +50,9 @@ internal sealed class AndroidSessionData : IDisposable
     public void Record(ushort input) => recorder.RecordFrame(input);
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath);
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
+
+    public string ImportState(string path, int slot) => AndroidFileImport.ImportState(root, romPath, path, slot);
+    public string ImportSave(string path) => AndroidFileImport.StageRegularSave(root, romPath, path);
 
     public string SaveSlot(int slot)
     {

@@ -45,6 +45,8 @@ internal sealed class AndroidGameSession
 
     public Task<string> SaveSlot(int slot) => Request(data => data.SaveSlot(slot));
     public Task<string> LoadSlot(int slot) => Request(data => data.LoadSlot(slot));
+    public Task<string> ImportState(string path, int slot) => Request(data => data.ImportState(path, slot));
+    public Task<string> ImportSave(string path) => Request(data => data.ImportSave(path));
 
     public Task<string> ExportDiagnostics(string destination, int slot) => worker.IsCompleted
         // Fatal runtime errors must not make the already durable crash files inaccessible.

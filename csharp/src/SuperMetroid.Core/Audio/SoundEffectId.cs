@@ -79,6 +79,8 @@ public static class SoundEffectLibrary1Sounds
 
     /// <summary>Accepts the currently highlighted menu or pause-screen entry.</summary>
     public static readonly SoundEffectId MenuConfirm = new(SoundEffectLibrary.Library1, 0x38);
+    /// <summary>$81:A1C2 queues library-one $2A when accepting a file, before the helmet turns.</summary>
+    public static readonly SoundEffectId FileSelectSwoosh = new(SoundEffectLibrary.Library1, 0x2a);
     /// <summary>$82:9299 completes an eight-tick map scroll.</summary>
     public static readonly SoundEffectId MapScroll = new(SoundEffectLibrary.Library1, 0x36); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$81:AAAC begins the area-to-room expanding window.</summary>

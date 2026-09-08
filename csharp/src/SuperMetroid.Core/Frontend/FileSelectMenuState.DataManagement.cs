@@ -57,7 +57,7 @@ public sealed partial class FileSelectMenuState
 
         if (SelectedItem < 3)
         {
-            audio?.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x2a), maximumQueued: 6);
+            audio?.QueueSound(SoundEffectLibrary1Sounds.FileSelectSwoosh, maximumQueued: 6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
             helmetAnimationFrame = 0;
             helmetAnimationTimer = 1;

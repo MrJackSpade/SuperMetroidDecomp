@@ -26,6 +26,11 @@ if (OperatingSystem.IsWindows())
 try
 {
 VerifyAndroidHostPolicies();
+if (args is ["--file-select-sound"])
+{
+    VerifyFileSelectSound();
+    return 0;
+}
 if (args is ["--enemy-contact-death"])
 {
     VerifyContactDeathStopsEnemyDispatch();

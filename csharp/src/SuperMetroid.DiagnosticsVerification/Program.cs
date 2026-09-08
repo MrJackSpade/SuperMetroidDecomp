@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--export-ceres-descent-state", var destination])
+        return CeresDescentStateFixture.Export(destination);
     string root = Directory.CreateTempSubdirectory("SuperMetroid-android-state-test-").FullName;
     try
     {

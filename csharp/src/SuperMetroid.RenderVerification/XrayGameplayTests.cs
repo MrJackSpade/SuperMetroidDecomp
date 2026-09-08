@@ -64,6 +64,26 @@ internal static class XrayGameplayTests
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), $"{device.Kind}: source-aware X-ray {count}");
             var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
             PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "source-aware X-ray packet round trip");
+            if (!reveal && !sub && !half && !subtract && palette == 0)
+            {
+                // Expose BG2 at x64 and the backdrop at x72 using transparent tile
+                // four. Keep foreground at x80 and the OBJ at x16. This distinguishes
+                // native Fireflea source selection from a whole-frame dark overlay.
+                vram.ExecuteWordTransfer(new ushort[] { 4, 4 }, SnesPpuLayout.GameplayBg1TilemapWord + 8 * 32 + 8, 1);
+                vram.ExecuteWordTransfer(new ushort[] { 4 }, SnesPpuLayout.GameplayBg2TilemapWord + 8 * 32 + 9, 1);
+                var dark = new XrayGameplayRenderLayer(new(registers),
+                    Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
+                    SnesColorMathControl.Bg2 | SnesColorMathControl.Backdrop | SnesColorMathControl.Subtract,
+                    false, 18, 18, 18);
+                var darkScene = new LayeredRenderSnapshot(new(vram.Bytes, cgram.Colors, oam, 1), new RenderLayer[] { dark }, 0, 15);
+                var darkPixels = SoftwareLayeredSnapshotRenderer.Render(darkScene);
+                Check(darkPixels[64 * 256 + 64], new(0, 16, 0, 255), "Fireflea BG2 subtraction");
+                Check(darkPixels[64 * 256 + 72], new(0, 0, 0, 255), "Fireflea backdrop subtraction");
+                Check(darkPixels[64 * 256 + 80], new(255, 0, 0, 255), "Fireflea foreground exemption");
+                Check(darkPixels[64 * 256 + 16], new(255, 0, 0, 255), "Fireflea OBJ exemption");
+                var darkPacket = new RenderFrameSnapshot(new(++count, 1, 0), darkScene);
+                PixelComparison.Verify(darkPacket, darkPixels, renderer.RenderForReadback(darkPacket), "normal Fireflea sources");
+            }
         }
         var random = new Random(34813);
         for (int frame = 0; frame < 32; frame++)

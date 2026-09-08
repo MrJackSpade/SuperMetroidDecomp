@@ -31,8 +31,20 @@ dotnet run --project csharp/src/SuperMetroid.RenderVerification -c Release -- --
 ```
 
 Both comparisons pass exactly. This verifies backend consistency, not an
-independent emulator image comparison. The live Fireflea fixed-color producer
-remains to be audited before declaring #348 complete.
+independent emulator image comparison.
+
+Fireflea coverage now runs with `--fireflea-fx` (also included in the full suite).
+It checks the native six-frame flashing cycle, all seven reachable darkness
+offsets, frozen-time retention, and the retail Green Brinstar Fireflea room's
+capture before activation, through 90 X-ray frames, and after release. Normal
+room rendering uses BG2/backdrop-only subtraction; X-ray temporarily selects its
+own source mask and window. Both CPU and Direct3D have explicit pixel assertions
+for background/backdrop darkening and unchanged foreground/OBJ pixels.
+
+The missing normal-room compositor was reproduced by a failing capture assertion
+before implementation. The full Verification suite, Windows Release build, and
+161 source-aware plus 176 window cases per Hardware/WARP device pass. Issue #348
+is ready for player validation; these checks do not claim emulator image parity.
 
 The release regression now asserts each teardown step: the release edge retains
 the last window, the next two frames keep X-ray ownership with a closed window

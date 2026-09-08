@@ -14,9 +14,11 @@ internal static partial class Program
         ushort previousX = 0, previousY = 0;
         for (int frame = 0; frame < 600; frame++)
         {
+            loaded.Game.Step(0);
+            // The graphics-drawn hook uses the final camera, exactly like appendage OAM,
+            // not the camera sampled before Samus movement/scrolling earlier in the frame.
             ushort cameraX = runtime.Camera!.XPosition;
             ushort cameraY = runtime.Camera.YPosition;
-            loaded.Game.Step(0);
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
             ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.XPosition - 450));

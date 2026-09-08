@@ -1633,18 +1633,6 @@ public sealed partial class SuperMetroidRuntime
                 BackgroundScroll.SetBg2ScrollRegisters(
                     phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll);
             }
-            if (Enemies.Draygon is { } draygon)
-            {
-                // $A5:9342 is the graphics-drawn hook installed by Draygon's init AI.
-                // The torso is BG2, not OAM: publish its camera-relative anchor after
-                // enemy movement/instructions so the next NMI latches it with the limbs.
-                // Tail-whip instructions can additionally displace the torso artwork.
-                BackgroundScroll.SetBg2ScrollRegisters(
-                    unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.XPosition -
-                        draygon.Body.XPosition - DraygonBackgroundData.HorizontalOrigin)),
-                    unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.YPosition -
-                        draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin)));
-            }
             if (Enemies.CeresEscapeStartedThisFrame)
             {
                 // $A6:C117 publishes these global side effects on the same EnemyMain call
@@ -4207,6 +4195,19 @@ public sealed partial class SuperMetroidRuntime
 
             if (!deathOwnsSamus && Enemies.IsLoaded)
                 Enemies.DrawLayers(Oam, Camera.XPosition, Camera.YPosition, 6, 7);
+
+            if (!deathOwnsSamus && Enemies.IsLoaded && Enemies.Draygon is { } draygon)
+            {
+                // Native $A5:9342 runs AFTER drawing enemies. Camera scrolling has already
+                // run, so BG2 must use the same final camera as the appendage OAM above.
+                // Publishing during enemy AI instead detaches the torso whenever scrolling
+                // changes the camera between AI and drawing (especially during a grab).
+                BackgroundScroll.SetBg2ScrollRegisters(
+                    unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.XPosition -
+                        draygon.Body.XPosition - DraygonBackgroundData.HorizontalOrigin)),
+                    unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.YPosition -
+                        draygon.Body.YPosition - DraygonBackgroundData.VerticalOrigin)));
+            }
 
             if (!deathOwnsSamus && Enemies.IsLoaded)
             {

@@ -182,3 +182,12 @@ presentation dips. At host frames 3867–3988 it measured 60 simulation FPS but
 audio underruns. The experiment was removed, not adopted. Next investigation must
 correlate mailbox publication and consumption timestamps; another nearby change
 to invalidation scheduling alone is not supported by these results.
+
+`frame-handoff.log` now retains the last 2048 mailbox events at each stopped
+lifecycle boundary and is included in diagnostic exports. Each row is monotonic
+Stopwatch ticks, event kind, and publication sequence: P=publish into empty mailbox,
+R=replace pending frame, C=begin consuming, U=upload finished, E=draw found no frame.
+Sequence IDs are mailbox-local, not cartridge frame numbers. Recording uses a
+preallocated ring without per-event allocations; formatting/writing happens only
+on pause or worker shutdown. Capture immediately after a low-paint window, because
+a later healthy window can overwrite the relevant tail.

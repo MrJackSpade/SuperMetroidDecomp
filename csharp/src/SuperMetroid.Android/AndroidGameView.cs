@@ -19,7 +19,7 @@ internal sealed class AndroidGameView : View
     private readonly Paint pixels = new() { FilterBitmap = false, AntiAlias = false };
     private readonly Paint text = new() { Color = Color.White, TextSize = 24, AntiAlias = true };
     private readonly int[] argb = new int[FrontendFrame.Width * FrontendFrame.Height];
-    private readonly AndroidFrameMailbox frames = new(FrontendFrame.Width * FrontendFrame.Height);
+    private readonly AndroidFrameMailbox frames = new(FrontendFrame.Width * FrontendFrame.Height, new AndroidFrameHandoffTrace());
     private readonly Action<Rgba32[]> uploadFrame;
     private string status = "Starting game...";
     private string roomIdentity = "No active room";
@@ -44,6 +44,7 @@ internal sealed class AndroidGameView : View
     public long UploadTicks => Interlocked.Read(ref uploadTicks);
     /// <summary>Published game frames replaced before the UI consumed them; never simulation steps skipped.</summary>
     public long ReplacedFrames => Interlocked.Read(ref replacedFrames);
+    public void FlushFrameTrace(Action<string> write) => frames.FlushTrace(write);
 
     /// <summary>Updated per emulated frame; not delayed by the one-second FPS window.</summary>
     public void SetRoomIdentity(string identity) => Volatile.Write(ref roomIdentity, identity);

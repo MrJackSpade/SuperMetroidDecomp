@@ -104,6 +104,7 @@ internal sealed class AndroidGameSession
                 if (!active.IsSet)
                 {
                     output?.Dispose();
+                    view.FlushFrameTrace(report => File.AppendAllText(Path.Combine(root, "frame-handoff.log"), report));
                     resumeTrace?.Flush(report => File.AppendAllText(Path.Combine(root, "resume-timing.log"), report));
                     resumeTrace = null;
                     output = null;
@@ -228,6 +229,7 @@ internal sealed class AndroidGameSession
             try
             {
                 output?.Dispose();
+                view.FlushFrameTrace(report => File.AppendAllText(Path.Combine(root, "frame-handoff.log"), report));
                 resumeTrace?.Flush(report => File.AppendAllText(Path.Combine(root, "resume-timing.log"), report));
             }
             catch (Exception error) { ReportStopped(error, append: true); }

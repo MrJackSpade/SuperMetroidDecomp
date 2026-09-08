@@ -64,11 +64,12 @@ try
         string unrelatedSlot = Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-8.smstate");
         File.WriteAllText(unrelatedSlot, "unselected slot sentinel");
         File.WriteAllText(Path.Combine(root, "resume-timing.log"), "synthetic timing trace");
+        File.WriteAllText(Path.Combine(root, "frame-handoff.log"), "synthetic handoff trace");
         string exported = Path.Combine(root, "diagnostics.zip");
         AndroidDiagnosticBundle.Create(root, exported, 0);
         using (var zip = System.IO.Compression.ZipFile.OpenRead(exported))
         {
-            foreach (string required in new[] { "bundle.json", "SuperMetroid.save.json", "SuperMetroid.ini", "resume-timing.log",
+            foreach (string required in new[] { "bundle.json", "SuperMetroid.save.json", "SuperMetroid.ini", "resume-timing.log", "frame-handoff.log",
                 "debug-states/SuperMetroid-debug-slot-0.smstate", "input-recordings/" + Path.GetFileName(seedPath) })
                 if (zip.GetEntry(required) is null) throw new InvalidDataException($"Export omitted {required}.");
             foreach (string journal in journals)

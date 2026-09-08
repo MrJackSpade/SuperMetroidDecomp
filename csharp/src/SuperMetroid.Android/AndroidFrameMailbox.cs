@@ -7,11 +7,12 @@ namespace SuperMetroid.Android;
 /// consumption holds the gate until the UI has uploaded them, so the worker can safely
 /// reuse its raster buffer. Only pending presentation is replaced, never emulation.
 /// </summary>
-internal sealed class AndroidFrameMailbox(int pixelCount)
+internal sealed class AndroidFrameMailbox(int pixelCount, AndroidFrameHandoffTrace? trace = null)
 {
     private readonly object gate = new();
     private readonly Rgba32[] pending = new Rgba32[pixelCount];
     private bool available;
+    private long sequence;
 
     public bool Publish(ReadOnlySpan<Rgba32> frame)
     {
@@ -21,6 +22,7 @@ internal sealed class AndroidFrameMailbox(int pixelCount)
             bool replaced = available;
             frame.CopyTo(pending);
             available = true;
+            trace?.Record(replaced ? 'R' : 'P', ++sequence, System.Diagnostics.Stopwatch.GetTimestamp());
             return replaced;
         }
     }
@@ -30,10 +32,21 @@ internal sealed class AndroidFrameMailbox(int pixelCount)
     {
         lock (gate)
         {
-            if (!available) return false;
+            if (!available)
+            {
+                trace?.Record('E', sequence, System.Diagnostics.Stopwatch.GetTimestamp());
+                return false;
+            }
+            trace?.Record('C', sequence, System.Diagnostics.Stopwatch.GetTimestamp());
             upload(pending);
+            trace?.Record('U', sequence, System.Diagnostics.Stopwatch.GetTimestamp());
             available = false;
             return true;
         }
+    }
+
+    public void FlushTrace(Action<string> write)
+    {
+        lock (gate) trace?.Flush(write);
     }
 }

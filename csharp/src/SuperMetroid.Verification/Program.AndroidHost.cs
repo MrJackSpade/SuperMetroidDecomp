@@ -6,6 +6,16 @@ internal static partial class Program
     private static void VerifyAndroidHostPolicies()
     {
         VerifyQueuedPcmSink();
+        AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, true), "foreground audio owner runs");
+        AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, false), "audio interruption gates simulation even with window focus");
+        AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, false, false), "muted host does not require audio focus");
+        foreach (bool audioFocus in new[] { false, true })
+        {
+            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(false, true, false, false, true, audioFocus), "audio gain cannot resume background activity");
+            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, false, false, false, true, audioFocus), "audio gain cannot bypass window focus");
+            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, true, false, true, audioFocus), "audio gain cannot bypass testing menu");
+            AssertTrue(!SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, true, true, audioFocus), "late audio gain cannot restart destroyed activity");
+        }
         var defaults = new SuperMetroid.Android.AndroidControllerPreferences();
         AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "absent override preserves Retroid default");
         var changed = defaults.WithBinding("ButtonA", SnesButton.B).WithBinding("ButtonX", SnesButton.None);

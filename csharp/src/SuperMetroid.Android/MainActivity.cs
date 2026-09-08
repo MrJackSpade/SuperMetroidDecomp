@@ -34,6 +34,7 @@ public sealed partial class MainActivity : Activity
     {
         try
         {
+            InitializeHostFocus();
             string root = FilesDir?.AbsolutePath ?? throw new IOException("Android did not provide private storage.");
             await Task.Run(() => AndroidAssetInstaller.Install(Assets!, "game", Path.Combine(root, "game")));
             if (destroyed) return;
@@ -42,7 +43,7 @@ public sealed partial class MainActivity : Activity
             view.LongClick += (_, _) => ShowTestingMenu();
             SetContentView(view);
             session = new AndroidGameSession(root, view);
-            session.SetActive(resumed && focused && !menuOpen);
+            RefreshRunGate(requestFocus: true);
         }
         catch (Exception error)
         {
@@ -58,13 +59,14 @@ public sealed partial class MainActivity : Activity
         base.OnResume();
         resumed = true;
         EnterImmersiveMode();
-        session?.SetActive(focused && !menuOpen);
+        RefreshRunGate(requestFocus: true);
     }
 
     protected override void OnPause()
     {
         resumed = false;
         session?.SetActive(false);
+        ReleaseAudioFocus();
         base.OnPause();
     }
 
@@ -73,7 +75,7 @@ public sealed partial class MainActivity : Activity
         base.OnWindowFocusChanged(hasFocus);
         focused = hasFocus;
         if (hasFocus) EnterImmersiveMode();
-        session?.SetActive(resumed && focused && !menuOpen);
+        RefreshRunGate(requestFocus: hasFocus);
     }
 
     /// <summary>Keep system chrome out of the game surface, including after dialogs/resume.</summary>
@@ -115,7 +117,7 @@ public sealed partial class MainActivity : Activity
             SnesButton mapped = controllerPreferences.Resolve(e.KeyCode.ToString(), AndroidControllerMapping.Map(e.KeyCode));
             if (mapped != SnesButton.None)
             {
-                if (resumed && focused && e.Action is KeyEventActions.Down or KeyEventActions.Up)
+                if (CanRun && e.Action is KeyEventActions.Down or KeyEventActions.Up)
                     session.Input.Set((int)e.KeyCode, e.Action == KeyEventActions.Down ? mapped : SnesButton.None);
                 return true;
             }
@@ -126,6 +128,7 @@ public sealed partial class MainActivity : Activity
     protected override void OnDestroy()
     {
         destroyed = true;
+        DisposeHostFocus();
         if (session is not null) _ = session.Stop();
         base.OnDestroy();
     }

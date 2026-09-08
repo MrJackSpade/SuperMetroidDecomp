@@ -23,7 +23,7 @@ public sealed partial class MainActivity
                 menuOpen = false;
                 switch (args.Which)
                 {
-                    case 0: session.SetActive(resumed && focused); break;
+                    case 0: RefreshRunGate(requestFocus: true); break;
                     case 1: ChooseStateSlot(); break;
                     case 2: _ = ShowStateResult(session.SaveSlot(selectedSlot)); break;
                     case 3: _ = ShowStateResult(session.LoadSlot(selectedSlot)); break;
@@ -71,7 +71,7 @@ public sealed partial class MainActivity
         public void OnCancel(global::Android.Content.IDialogInterface? dialog)
         {
             owner.menuOpen = false;
-            owner.session?.SetActive(owner.resumed && owner.focused);
+            owner.RefreshRunGate(requestFocus: true);
         }
     }
 }

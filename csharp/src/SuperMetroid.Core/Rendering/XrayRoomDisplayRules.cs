@@ -26,12 +26,6 @@ public static class XrayRoomDisplayRules
     public const ushort ActiveBackdrop = 0x0C63;
     /// <summary>$91:D223 installs $91:D27F before setup call one; its first execution is call two, leaving next-stage counter three.</summary>
     public const byte FirstBlendedSetupStage = 3;
-    /// <summary>WRAM $0074, the red COLDATA register mirror preserved by excluded-room X-ray.</summary>
-    public const int FixedRedMirror = 0x74;
-    /// <summary>WRAM $0075, the green COLDATA register mirror.</summary>
-    public const int FixedGreenMirror = 0x75;
-    /// <summary>WRAM $0076, the blue COLDATA register mirror.</summary>
-    public const int FixedBlueMirror = 0x76;
 
     /// <summary>CGADSUB assignments from $88:817B, $88:81A4 and $88:81DB, preserving the room's subtraction bit.</summary>
     public static SnesColorMathControl ColorMath(XrayRoomBlendMode mode, bool subtract)

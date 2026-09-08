@@ -175,6 +175,8 @@ public sealed class RoomLayer3FxState
                 destinationIndex: RoomFxRomData.Layer3.PaletteBlendDestinationIndex);
         }
 
+        if (Type == RoomFxType.Fireflea)
+            FirefleaRoomFx.Initialize(bus);
         if (!IsRenderable)
             return;
 
@@ -227,12 +229,19 @@ public sealed class RoomLayer3FxState
         ushort cameraX,
         ushort cameraY,
         bool timeIsFrozen,
-        ushort randomNumber = 0)
+        ushort randomNumber = 0,
+        ushort firefleaDarknessLevel = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
         soundRequests.Clear();
         EarthquakeRequest = null;
+        if (Type == RoomFxType.Fireflea)
+        {
+            LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
+            FirefleaRoomFx.Step(bus, timeIsFrozen, firefleaDarknessLevel);
+            return;
+        }
         if (!IsRenderable || timeIsFrozen)
             return;
 

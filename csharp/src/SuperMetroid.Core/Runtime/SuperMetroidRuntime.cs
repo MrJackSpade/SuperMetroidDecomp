@@ -1501,7 +1501,8 @@ public sealed partial class SuperMetroidRuntime
                 Camera.XPosition,
                 Camera.YPosition,
                 TimeIsFrozen,
-                System.RandomNumber);
+                System.RandomNumber,
+                Enemies.FirefleaDarknessLevel);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing

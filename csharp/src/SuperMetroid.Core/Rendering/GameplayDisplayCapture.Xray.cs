@@ -53,8 +53,8 @@ public static partial class GameplayDisplayCapture
         bool subtract = runtime.RoomLayer3Fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         var control = XrayRoomDisplayRules.ColorMath(mode, subtract);
-        byte red = Fixed(XrayRoomDisplayRules.FixedRedMirror), green = Fixed(XrayRoomDisplayRules.FixedGreenMirror),
-            blue = Fixed(XrayRoomDisplayRules.FixedBlueMirror);
+        byte red = Fixed(PpuFixedColorMirrors.Red), green = Fixed(PpuFixedColorMirrors.Green),
+            blue = Fixed(PpuFixedColorMirrors.Blue);
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         // Phase five deletes the HDMA object but its blend bits have already been

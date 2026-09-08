@@ -63,10 +63,43 @@ static void run(unsigned address) {
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
 int main(int argc, char **argv) {
-  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling]\n"); return 2; }
+  if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
+  if (argc == 3 && !strcmp(argv[2], "shutter-carry")) {
+    /* Continue the critical contact through the real platform AI, not a scripted
+       upward nudge. No bombs or horizontal movement are simulated here: this
+       isolates the post-ceiling carry/grounding feedback loop. */
+    memset(ram, 0, sizeof(ram));
+    word(RoomWidth, 32); word(SamusX, 371); word(SamusY, 71);
+    word(SamusRadiusX, 5); word(SamusRadiusY, 7);
+    word(LevelWords + (3 * 32 + 23) * 2, 0x8000);
+    word(InteractiveEnemyBytes, 2); word(InteractiveEnemyList, 0); word(InteractiveEnemyList + 2, 0xffff);
+    word(EnemyX, 360); word(EnemyY, 110); word(EnemyYFraction, 0x8000);
+    word(EnemyRadiusX, 8); word(EnemyRadiusY, 32); word(EnemyPropertiesWord, 0x8000);
+    word(ShutterUpWhole, 0xffff); word(ShutterUpFraction, 0x8000);
+    word(ShutterMinimumY, 0); /* No stop occurs within this bounded slice. */
+    int minimum_gap = 0;
+    puts("frame,platformY,platformFraction,carrying,extraY,samusY,gap");
+    for (int frame = 0; frame < 64; frame++) {
+      word(ExtraYWhole, 0);
+      run(NativeShutterMovingUp);
+      unsigned extra = readword(ExtraYWhole), carrying = readword(ShutterMovingSamus);
+      run(NativeGroundedY);
+      int gap = (int)readword(EnemyY) - 32 - (int)readword(SamusY) - 7;
+      if (gap < minimum_gap) minimum_gap = gap;
+      printf("%d,%u,%u,%u,%d,%u,%d\n", frame, readword(EnemyY), readword(EnemyYFraction),
+        carrying, (int16_t)extra, readword(SamusY), gap);
+      unsigned expected_y = frame == 0 || (frame & 1) ? 71 : 72;
+      if (readword(SamusY) != expected_y || readword(EnemyY) != 110 - (frame + 1) / 2 ||
+          readword(EnemyYFraction) != ((frame & 1) ? 0x8000 : 0) || carrying != 1 ||
+          (int16_t)extra != ((frame & 1) ? -1 : 0))
+        Die("Native coupled carry/grounding baseline changed\n");
+    }
+    fprintf(stderr, "Native coupled carry/grounding: minimum gap %d; not a complete bomb/input replay.\n", minimum_gap);
+    return 0;
+  }
   if (argc == 3) {
     if (strcmp(argv[2], "shutter-ceiling")) Die("Unknown native audit case\n");
     memset(ram, 0, sizeof(ram));

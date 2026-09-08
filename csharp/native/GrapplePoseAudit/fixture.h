@@ -6,6 +6,13 @@ enum ShutterCeilingFixture {
   EnemyPropertiesWord = 0xf86
 };
 
+/* #347: bank-$A2 moving-up dispatcher and its cartridge-owned carry state. */
+enum ShutterCarryFixture {
+  NativeShutterMovingUp = 0xa2ef68,
+  EnemyYFraction = 0xf80, ShutterUpFraction = 0xfb0, ShutterUpWhole = 0xfb2,
+  ShutterMovingSamus = 0x7814, ShutterMinimumY = 0x781e
+};
+
 /* Original-ROM identities used by the issue #338 post-release input fixture. */
 enum GrapplePoseFixture {
   /* $90:EF22: post-grapple terrain ejection, before the prospective pose applies. */

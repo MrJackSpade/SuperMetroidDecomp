@@ -15,3 +15,25 @@ This supplies the first failing edge-contact assertion for the correct posture. 
 The first excess overlap is **not a demonstrated port difference**. `GrapplePoseAudit/audit.exe "Super Metroid.smc" shutter-ceiling` executes the original $90:923F bytes for the two critical contacts. The room trace confirms platform radii (8,32) and a solid ceiling block at (23,3). Seed Samus at (371,71), radii (5,7), platform at (360,109), with that ceiling corner. Native upward external displacement -1 is blocked at Y=71. On the following zero-carry frame, the ordinary one-pixel downward probe ignores the already-overlapping platform and moves to Y=72, matching the port.
 
 The native fixture isolates these contacts, not the whole bomb/roll sequence. It rules out treating the failing gap assertion alone as proof of incorrect collision behavior. Keep the diagnostic available, but do not change production code merely to make it green. The original player report remains open; further reproduction must establish a cartridge/port difference.
+
+## Coupled native carry/grounding continuation
+
+`GrapplePoseAudit/audit.exe "Super Metroid.smc" shutter-carry` now runs 64
+successive calls of the original moving-up AI ($A2:EF68), followed by original
+grounded Y movement ($90:923F). It starts at the ceiling contact with platform
+Y=110.5 and native upward speed -0.5 pixels/frame; each pass clears external carry
+before allowing the enemy routine to publish it. The native contact predicate,
+platform fractional movement, and terrain/solid-enemy grounding all execute as
+ROM instructions, not reimplementations.
+
+Observed and asserted: Samus alternates Y=71/72 after the first two passes,
+the platform continues moving upward, and the support gap reaches -32 at pass
+62. All 64 platform positions, fractions, carry flags/displacements, and Samus
+positions are checked. Thus the prolonged overlap—not just the first bad gap—
+can result from native carry and grounding at this ceiling corner.
+
+This still does **not** execute the complete bomb/input sequence or prove the
+player's issue is a cartridge bug. The next comparison needs to establish whether
+the port reaches this ceiling-contact state differently, or reproduce embedding
+away from a blocking ceiling. Do not patch the shared collision code to suppress
+this native result, and do not close #347 on the strength of this fixture.

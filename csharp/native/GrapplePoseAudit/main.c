@@ -12,7 +12,7 @@ static uint8_t rom[0x300000], ram[0x20000];
 static bool returned;
 static unsigned multiplier, product, dividend, quotient, remainder;
 void Die(const char *message) { fprintf(stderr, "%s", message); exit(2); }
-int CpuOpcodeHook(uint32_t address) { (void)address; Die("Unexpected CPU opcode hook\n"); return 0; }
+int CpuOpcodeHook(uint32_t address) { fprintf(stderr, "Unexpected CPU opcode hook at %06X\n", address); exit(2); return 0; }
 bool HookedFunctionRts(int is_long) { (void)is_long; returned = true; return true; }
 uint8_t snes_cpuRead(Snes *snes, uint32_t address) {
   (void)snes;
@@ -53,22 +53,26 @@ void snes_cpuWrite(Snes *snes, uint32_t address, uint8_t value) {
 }
 static void word(unsigned address, unsigned value) { ram[address] = value; ram[address + 1] = value >> 8; }
 static unsigned readword(unsigned address) { return ram[address] | ram[address + 1] << 8; }
-static void run(unsigned address) {
+static void run_with_index_width(unsigned address, bool short_indexes) {
   Cpu *cpu = cpu_init(NULL, 0);
   cpu->pc = address & 0xffff; cpu->k = cpu->db = address >> 16;
   cpu->sp = cpu->spBreakpoint = 0x1ff;
+  cpu->xf = short_indexes;
   returned = false;
   for (int i = 0; i < 100000 && !returned; i++) cpu_runOpcode(cpu);
   cpu_free(cpu);
   if (!returned) Die("Native fixture exceeded instruction limit\n");
 }
+static void run(unsigned address) { run_with_index_width(address, false); }
 #include "wall_jump_dust.h"
+#include "ceres_haze.h"
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) { fprintf(stderr, "Usage: audit <unheadered-rom> [shutter-ceiling|shutter-carry|bomb-wall|shutter-bomb-arc]\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom)) return 2;
   fclose(file);
   if (argc == 3 && !strcmp(argv[2], "wall-jump-dust")) return verify_wall_jump_dust();
+  if (argc == 3 && !strcmp(argv[2], "ceres-haze")) return verify_ceres_haze();
   if (argc == 3 && !strcmp(argv[2], "shutter-bomb-arc")) {
     FILE *seed = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.wram", "rb");
     FILE *trace = fopen("csharp/test-fixtures/issue-347-repeated-bombs/bomb-arc.csv", "r");

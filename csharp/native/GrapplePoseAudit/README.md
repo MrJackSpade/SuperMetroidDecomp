@@ -1,5 +1,20 @@
 # Grapple release pose-input reference (#338)
 
+## Ceres haze lifecycle reference (#358)
+
+`audit.exe "Super Metroid.smc" ceres-haze` executes the bank-$88 blue/red
+pre-instructions using the HDMA dispatcher's eight-bit index convention. Both
+branches wait for door function `$E737`, write sixteen progressively brighter
+tables, retain the selected channel in their hold phase, and enter fade-out on
+door function `$E2DB`. The completed sixteen-byte table contains channel bits
+ORed with values 0..15. The fixture tests ROM instructions, not the C# gradient.
+
+This is diagnostic evidence, not a completed #358 fix. The managed renderer still
+chooses its color from the live boss bit each frame and uses a constant gradient.
+The room-spawn selector at `$88:DDC7` instead chooses the channel once. The next
+implementation must preserve that room ownership and the transition-driven fade
+lifecycle in both legacy rendering and captured display packets.
+
 ## Wall-jump dust reference (#356)
 
 `audit.exe "Super Metroid.smc" wall-jump-dust` executes cartridge routine

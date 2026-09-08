@@ -22,6 +22,11 @@ internal static partial class Program
                 XrayRoomDisplayRules.Select(0xCEFB, (RoomFxType)0x24, (ushort)boss), "Fireflea mode takes precedence over exclusions");
         }
         AssertEqual((ushort)3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
+        AssertEqual((byte)0x73, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, false), "reveal CGADSUB");
+        AssertEqual((byte)0xF3, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, true), "subtractive reveal CGADSUB");
+        AssertEqual((byte)0x61, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.PreserveBackgrounds, false), "excluded CGADSUB");
+        AssertEqual((byte)0xE1, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.PreserveBackgrounds, true), "subtractive excluded CGADSUB");
+        AssertEqual((byte)0xB3, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.Fireflea, false), "Fireflea forces subtraction without halving");
         Console.WriteLine("  X-ray room rules: all room/boss words and Fireflea precedence agree with native comparisons.");
     }
 }

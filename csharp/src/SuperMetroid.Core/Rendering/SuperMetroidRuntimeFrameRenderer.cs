@@ -21,6 +21,11 @@ public static class SuperMetroidRuntimeFrameRenderer
         ArgumentNullException.ThrowIfNull(runtime);
         if (runtime.ActiveDoor is null)
             throw new InvalidOperationException("A cartridge room and door must be loaded before rendering gameplay.");
+        // X-ray needs layer/palette identity until the final color-math operation.
+        // Both retained GPU packets and immediate software rendering consume that
+        // capture; a post-composition tint cannot implement its native windows.
+        if (runtime.Samus?.Xray.IsActive == true)
+            return SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!);
 
         GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = displayedPpu.RoomShake;

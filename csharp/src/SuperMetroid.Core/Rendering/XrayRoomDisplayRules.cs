@@ -24,6 +24,23 @@ public static class XrayRoomDisplayRules
     public static ReadOnlySpan<ushort> ExcludedBossIds => [3, 6, 7, 8, 10];
     /// <summary>$91:D2BC installs RGB5(3,3,3) as CGRAM entry zero after setup.</summary>
     public const ushort ActiveBackdrop = 0x0C63;
+    /// <summary>WRAM $0074, the red COLDATA register mirror preserved by excluded-room X-ray.</summary>
+    public const int FixedRedMirror = 0x74;
+    /// <summary>WRAM $0075, the green COLDATA register mirror.</summary>
+    public const int FixedGreenMirror = 0x75;
+    /// <summary>WRAM $0076, the blue COLDATA register mirror.</summary>
+    public const int FixedBlueMirror = 0x76;
+
+    /// <summary>CGADSUB assignments from $88:817B, $88:81A4 and $88:81DB, preserving the room's subtraction bit.</summary>
+    public static SnesColorMathControl ColorMath(XrayRoomBlendMode mode, bool subtract)
+    {
+        if (!Enum.IsDefined(mode)) throw new ArgumentOutOfRangeException(nameof(mode));
+        var sources = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop;
+        if (mode is XrayRoomBlendMode.RevealBlocks or XrayRoomBlendMode.Fireflea)
+            sources |= SnesColorMathControl.Bg2 | SnesColorMathControl.Obj;
+        if (mode == XrayRoomBlendMode.Fireflea) return sources | SnesColorMathControl.Subtract;
+        return sources | SnesColorMathControl.Half | (subtract ? SnesColorMathControl.Subtract : 0);
+    }
 
     /// <summary>Preserves the native Fireflea precedence over the ordinary room/boss exclusions.</summary>
     public static XrayRoomBlendMode Select(ushort roomPointer, RoomFxType fx, ushort bossId)

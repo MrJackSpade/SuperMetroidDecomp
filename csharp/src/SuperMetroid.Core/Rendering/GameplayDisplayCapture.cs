@@ -19,6 +19,7 @@ public static partial class GameplayDisplayCapture
         var layers = new List<RenderLayer>(basis.Layers.ToArray());
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         bool doorOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
+        if (!doorOwnsDisplay && CaptureXray(runtime, basis) is { } xray) return xray;
         if (!doorOwnsDisplay)
         {
             if (runtime.DisplayedRoomLayer3Fx is { } fx) AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));

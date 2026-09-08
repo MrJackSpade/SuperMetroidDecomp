@@ -78,6 +78,7 @@ internal sealed class AndroidGameSession
     private void Run()
     {
         AndroidPcmOutput? output = null;
+        AndroidResumeTrace? resumeTrace = null;
         try
         {
             using var data = new AndroidSessionData(root);
@@ -100,6 +101,8 @@ internal sealed class AndroidGameSession
                 if (!active.IsSet)
                 {
                     output?.Dispose();
+                    resumeTrace?.Flush(report => File.AppendAllText(Path.Combine(root, "resume-timing.log"), report));
+                    resumeTrace = null;
                     output = null;
                     // Native save changes are already atomic. This lifecycle boundary also
                     // persists any unsaved host-side SRAM metadata before the process sleeps.
@@ -123,7 +126,11 @@ internal sealed class AndroidGameSession
                     measuredReplacements = view.ReplacedFrames;
                 }
                 DrainCommands(data);
-                if (options.AudioEnabled) output ??= new AndroidPcmOutput();
+                if (options.AudioEnabled && output is null)
+                {
+                    resumeTrace = new AndroidResumeTrace();
+                    output = new AndroidPcmOutput(resumeTrace);
+                }
                 double start = clock.Elapsed.TotalMilliseconds;
                 data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());
                 ushort input = Input.Sample();
@@ -142,6 +149,10 @@ internal sealed class AndroidGameSession
                 double mixed = clock.Elapsed.TotalMilliseconds;
                 output?.Submit(samples);
                 double submitted = clock.Elapsed.TotalMilliseconds;
+                if (resumeTrace is { Full: false })
+                    resumeTrace.Record("frame", $"sequence={sequence} startMs={start:F3} endMs={submitted:F3} " +
+                        $"stepMs={stepped - start:F3} renderMs={rendered - stepped:F3} mixMs={mixed - rendered:F3} submitMs={submitted - mixed:F3} " +
+                        $"gc0={GC.CollectionCount(0)} gc1={GC.CollectionCount(1)} gc2={GC.CollectionCount(2)}");
                 double submitDuration = submitted - mixed;
                 submitMilliseconds += submitDuration;
                 maximumSubmitMilliseconds = Math.Max(maximumSubmitMilliseconds, submitDuration);
@@ -211,7 +222,11 @@ internal sealed class AndroidGameSession
         }
         finally
         {
-            try { output?.Dispose(); }
+            try
+            {
+                output?.Dispose();
+                resumeTrace?.Flush(report => File.AppendAllText(Path.Combine(root, "resume-timing.log"), report));
+            }
             catch (Exception error) { ReportStopped(error, append: true); }
             finally
             {

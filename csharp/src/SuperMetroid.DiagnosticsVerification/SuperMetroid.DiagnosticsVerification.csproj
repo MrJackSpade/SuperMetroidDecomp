@@ -9,6 +9,7 @@
          storage/state regression tests. This file has no Android platform dependencies. -->
     <Compile Include="../SuperMetroid.Android/AndroidSessionData.cs" Link="AndroidSessionData.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidSessionCommands.cs" Link="AndroidSessionCommands.cs" />
+    <Compile Include="../SuperMetroid.Android/AndroidResumeTrace.cs" Link="AndroidResumeTrace.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidDiagnosticBundle.cs" Link="AndroidDiagnosticBundle.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidFileImport.cs" Link="AndroidFileImport.cs" />
   </ItemGroup>

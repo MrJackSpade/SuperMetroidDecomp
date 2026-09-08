@@ -16,7 +16,7 @@ internal static class AndroidDiagnosticBundle
         string state = $"debug-states/SuperMetroid-debug-slot-{slot}.smstate";
         var files = new List<string>();
         foreach (string name in new[] { "SuperMetroid.save.json", "SuperMetroid.save.json.bak",
-            "SuperMetroid.ini", "controller-bindings.json", "last-error.txt", "timing.log", "input-events.log", state })
+            "SuperMetroid.ini", "controller-bindings.json", "last-error.txt", "timing.log", "resume-timing.log", "input-events.log", state })
             if (File.Exists(Path.Combine(root, name))) files.Add(name);
         string recordings = Path.Combine(root, "input-recordings");
         if (Directory.Exists(recordings))

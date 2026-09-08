@@ -5,6 +5,17 @@ using SuperMetroid.Core.Rendering;
 try
 {
     AndroidSessionCommandVerification.Run();
+    var boundedTrace = new AndroidResumeTrace(2);
+    boundedTrace.Record("frame", "first");
+    boundedTrace.Record("write", "second");
+    boundedTrace.Record("frame", "overflow");
+    if (!boundedTrace.Full) throw new InvalidDataException("Resume trace exceeded its capacity.");
+    string? traceText = null;
+    boundedTrace.Flush(text => traceText = text);
+    if (traceText is null || !traceText.Contains("first") || !traceText.Contains("second") || traceText.Contains("overflow"))
+        throw new InvalidDataException("Resume trace lost or exceeded bounded events.");
+    boundedTrace.Flush(_ => throw new InvalidDataException("Already flushed trace emitted twice."));
+    Console.WriteLine("PASS bounded resume trace: capacity, event retention, flush once.");
     if (args is ["--compare-file-select-capture", var journalPath, var wavePath])
         return FileSelectCaptureComparison.Run(journalPath, wavePath);
     if (args is ["--replay-android-bundle", var bundle, var recordingName])
@@ -45,11 +56,12 @@ try
         File.WriteAllText(Path.Combine(installed, "excluded.smc"), "installed asset sentinel");
         string unrelatedSlot = Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-8.smstate");
         File.WriteAllText(unrelatedSlot, "unselected slot sentinel");
+        File.WriteAllText(Path.Combine(root, "resume-timing.log"), "synthetic timing trace");
         string exported = Path.Combine(root, "diagnostics.zip");
         AndroidDiagnosticBundle.Create(root, exported, 0);
         using (var zip = System.IO.Compression.ZipFile.OpenRead(exported))
         {
-            foreach (string required in new[] { "bundle.json", "SuperMetroid.save.json", "SuperMetroid.ini",
+            foreach (string required in new[] { "bundle.json", "SuperMetroid.save.json", "SuperMetroid.ini", "resume-timing.log",
                 "debug-states/SuperMetroid-debug-slot-0.smstate", "input-recordings/" + Path.GetFileName(seedPath) })
                 if (zip.GetEntry(required) is null) throw new InvalidDataException($"Export omitted {required}.");
             foreach (string journal in journals)

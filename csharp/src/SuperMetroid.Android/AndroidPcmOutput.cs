@@ -11,9 +11,12 @@ internal sealed class AndroidPcmOutput : IDisposable
 {
     private readonly AudioTrack track;
     private readonly QueuedPcmSink sink;
+    private readonly AndroidResumeTrace trace;
+    private long writtenSamples;
 
-    public AndroidPcmOutput()
+    public AndroidPcmOutput(AndroidResumeTrace trace)
     {
+        this.trace = trace;
         int minimumBytes = AudioTrack.GetMinBufferSize(CartridgeAudioRenderer.SampleRate,
             ChannelOut.Stereo, Encoding.Pcm16bit);
         if (minimumBytes <= 0) throw new IOException($"AudioTrack minimum buffer query failed: {minimumBytes}.");
@@ -37,6 +40,7 @@ internal sealed class AndroidPcmOutput : IDisposable
             throw new IOException("AudioTrack did not initialize.");
         }
         track.Play();
+        trace.Record("play", $"bufferFrames={track.BufferSizeInFrames} head={track.PlaybackHeadPosition}");
         // This device releases AudioTrack space in roughly 67ms bursts. Eight
         // video-frame buffers absorb that batching without unbounded latency;
         // the simulation still owns its ordinary 60Hz deadline and never drops PCM.
@@ -50,6 +54,7 @@ internal sealed class AndroidPcmOutput : IDisposable
 
     private void WriteToDevice(short[] samples)
     {
+        long start = System.Diagnostics.Stopwatch.GetTimestamp();
         int offset = 0;
         while (offset < samples.Length)
         {
@@ -57,6 +62,9 @@ internal sealed class AndroidPcmOutput : IDisposable
             if (written <= 0) throw new IOException($"AudioTrack failed to accept PCM: {written}.");
             offset += written;
         }
+        writtenSamples += samples.Length;
+        if (!trace.Full)
+            trace.Record("write", $"start={start} samples={writtenSamples} head={track.PlaybackHeadPosition} underruns={track.UnderrunCount}");
     }
 
     public void Dispose()

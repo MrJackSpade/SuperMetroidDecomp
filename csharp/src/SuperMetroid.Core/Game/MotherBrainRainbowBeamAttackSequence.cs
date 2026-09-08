@@ -62,15 +62,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private static ReadOnlySpan<ushort> PainfulWalkingFunctionTimers =>
         [0x0010, 0x0010, 0x0020, 0x0020, 0x0030, 0x0030, 0x0040, 0x0040];
 
-    // `$A9:8FE5-$9002` contains four 0x200-byte chunks. ProcessSpriteTilesTransfers
-    // publishes exactly one entry per call, so these records also encode the exact four-call
-    // loading delay before `$A9:BDDA` retracts the head and spawns the cutscene enemy.
-    private static ReadOnlySpan<uint> BabyMetroidTileSources =>
-        [0xb18400, 0xb18600, 0xb18800, 0xb18a00];
-
-    private static ReadOnlySpan<ushort> BabyMetroidTileDestinations =>
-        [0x7c00, 0x7d00, 0x7e00, 0x7f00];
-
     // `$A9:9003-$902E` replaces the four attack pages with six pieces of Mother Brain's
     // corpse. Although each source advances by `$200`, the transfer size is only `$1C0`:
     // the final two tile rows in every source page are deliberately skipped.

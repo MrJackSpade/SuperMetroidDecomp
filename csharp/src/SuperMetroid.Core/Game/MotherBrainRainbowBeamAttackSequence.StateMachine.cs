@@ -342,8 +342,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // `$A9:C5BE` processes exactly one seven-byte table entry per call. The
                 // fourth entry sees the following zero terminator, clears its saved pointer,
                 // and returns carry set on that same call.
-                spriteTileTransfer = CreateNextBabyMetroidTileTransfer();
-                if (BabyMetroidTileTransferIndex == BabyMetroidTileSources.Length)
+                spriteTileTransfer = CreateNextBabyMetroidTileTransfer(bus);
+                if (BabyMetroidTileTransferIndex == MotherBrainTileTransferData.BabyTileCount)
                 {
                     RetractHead();
                     BabyMetroidSpawned = true;

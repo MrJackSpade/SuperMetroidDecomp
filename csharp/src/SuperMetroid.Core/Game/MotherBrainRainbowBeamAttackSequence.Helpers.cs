@@ -7,6 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
+    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
+        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+
     private void BeginExtendingNeckForAttack()
     {
         // `$A9:B8EB-$B916` resets the neutral phase-two head program and selects the
@@ -386,17 +389,18 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         return false;
     }
 
-    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer()
+    private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer(ISnesAddressSpace bus)
     {
         int index = BabyMetroidTileTransferIndex;
-        if ((uint)index >= (uint)BabyMetroidTileSources.Length)
+        if ((uint)index >= MotherBrainTileTransferData.BabyTileCount)
             throw new InvalidOperationException("Baby Metroid sprite-tile transfer list is already complete.");
 
+        int record = MotherBrainTileTransferData.BabyTileList + index * MotherBrainTileTransferData.RecordSize;
         var request = new MotherBrainSpriteTileTransferRequest(
             EntryIndex: (ushort)index,
-            Size: 0x0200,
-            SourceAddress: BabyMetroidTileSources[index],
-            VramDestination: BabyMetroidTileDestinations[index]);
+            Size: ReadWord(bus, record),
+            SourceAddress: (uint)(ReadWord(bus, record + 2) | bus.ReadByte(record + 4) << 16),
+            VramDestination: ReadWord(bus, record + 5));
         BabyMetroidTileTransferIndex++;
         return request;
     }

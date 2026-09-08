@@ -2248,7 +2248,7 @@ internal static class MotherBrainAudit
         }
 
         // `$A9:8FE5` copies four complete $200-byte OBJ pages before spawning the actor.
-        ReadOnlySpan<int> tileSources = [0xb18400, 0xb18600, 0xb18800, 0xb18a00];
+        ReadOnlySpan<int> tileSources = [0xb18800, 0xb18a00, 0xb18c00, 0xb18e00];
         ReadOnlySpan<int> tileDestinationWords = [0x7c00, 0x7d00, 0x7e00, 0x7f00];
         for (int page = 0; page < tileSources.Length; page++)
         {

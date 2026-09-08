@@ -119,6 +119,12 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
 static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     var bus = new TestAddressSpace();
+    // Retail $A9:8FE5 transfers start at Baby graphics +$400, not its base address.
+    bus.WriteBytes(0xa98fe5,
+        [0x00, 0x02, 0x00, 0x88, 0xb1, 0x00, 0x7c,
+         0x00, 0x02, 0x00, 0x8a, 0xb1, 0x00, 0x7d,
+         0x00, 0x02, 0x00, 0x8c, 0xb1, 0x00, 0x7e,
+         0x00, 0x02, 0x00, 0x8e, 0xb1, 0x00, 0x7f, 0x00, 0x00]);
 
     // `$B7:CE00` contains two side-by-side corpse frames in the retail ROM. Give every byte
     // in the complete source window a deterministic, nonzero-heavy identity pattern so the
@@ -762,7 +768,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(MotherBrainRainbowBeamAttackSequence.HeadChargingRainbowInstructionList,
         finalAttack.HeadInstructionList, "final charge expiry installs charging head list");
     AssertTrue(firstTile.SpriteTileTransfer is
-        { EntryIndex: 0, Size: 0x0200, SourceAddress: 0xb18400, VramDestination: 0x7c00 },
+        { EntryIndex: 0, Size: 0x0200, SourceAddress: 0xb18800, VramDestination: 0x7c00 },
         "charge underflow falls through into first Baby tile transfer");
 
     var transfers = new List<MotherBrainSpriteTileTransferRequest>
@@ -778,11 +784,11 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
             transfers.Add(transfer);
     }
     AssertEqual(4, transfers.Count, "Baby graphics list emits four frame-spread transfers");
-    AssertEqual(new MotherBrainSpriteTileTransferRequest(1, 0x0200, 0xb18600, 0x7d00),
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(1, 0x0200, 0xb18a00, 0x7d00),
         transfers[1], "Baby transfer entry one");
-    AssertEqual(new MotherBrainSpriteTileTransferRequest(2, 0x0200, 0xb18800, 0x7e00),
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(2, 0x0200, 0xb18c00, 0x7e00),
         transfers[2], "Baby transfer entry two");
-    AssertEqual(new MotherBrainSpriteTileTransferRequest(3, 0x0200, 0xb18a00, 0x7f00),
+    AssertEqual(new MotherBrainSpriteTileTransferRequest(3, 0x0200, 0xb18e00, 0x7f00),
         transfers[3], "Baby transfer entry three");
     AssertTrue(spawnCall.BabySpawnRequested && finalAttack.BabyMetroidSpawned,
         "terminating transfer entry retracts head and requests Baby spawn");

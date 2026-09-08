@@ -95,8 +95,8 @@ Replaced files are retained under the app-private `import-backups` directory wit
 unique suffixes. They can be retrieved with the existing private-device diagnostic
 access; a recovery browser is not yet exposed in the menu.
 
-The remaining lifecycle/performance acceptance work is tracked in issue #355.
-Import/export/replay support is not completion of that issue.
+Player confirmation of the standalone host is tracked in issue #355. Import/export
+and performance evidence below distinguish measured behavior from remaining limits.
 
 ## Opt-in audio-focus device probe
 
@@ -147,13 +147,18 @@ several seconds apart. `Total frames rendered` must stop increasing while the
 native menu is idle. The device check stayed at 6150 over four seconds. Resume
 must restart consumption without requiring fresh input or recreating the Activity.
 
-## Experimental AOT build (not the default)
+## Rooted AOT build and diagnostic fallback
 
-`-p:AndroidExperimentalAot=true` enables non-profiled Mono AOT and explicitly roots
+Release builds now enable non-profiled Mono AOT and explicitly root
 all declarations in the three application assemblies. Android requires linking
 for this build; JSON reflection is explicitly retained. A generic `TrimMode=copy`
 experiment did not preserve application declarations with this SDK and is not a
 substitute for these roots.
+
+Use `-p:AndroidUseAot=false` to build the untrimmed JIT diagnostic fallback. Debug
+defaults to that fallback. The old `AndroidExperimentalAot` property is accepted
+when `AndroidUseAot` is not specified. Historical experiments below explain why
+the default was held back until the X-ray and sustained-run checks passed.
 
 Before installing an experimental APK, compare each application assembly with its
 `obj/Release/net10.0-android/android-arm64/linked` counterpart:
@@ -167,6 +172,41 @@ overload counts including private declarations without executing either assembly
 It does **not** establish signature/body equivalence, framework reflection support,
 or debugger-state compatibility. A successful device state load/continuation test
 and performance comparison remain required before making AOT the default.
+
+### Release acceptance evidence (2026-09-08)
+
+The `b95061d` AOT candidate ran uninterrupted from 10:39 UTC through more than
+21,000 host frames, including the previously failing X-ray interval and later
+demos. At the 351-window audit, 183 gameplay-demo windows averaged 60.00 emulation
+and 59.78 presentation FPS (minimum paint 55.1); 163 opening/title windows averaged
+59.96/59.43, including startup's 45-FPS presentation window. Five transition windows
+were also retained. AudioTrack underruns remained zero throughout. This is observed
+six-minute stability, not a guarantee of perfect delivery in every room.
+
+The standalone testing host is ready for player confirmation on the Classic:
+
+- Actual device saves survived repeated signed APK updates; packaged assets do not
+  depend on a Windows installation. Use the same signing identity described above.
+- Exact 4x native-pixel display, overlay placement, physical controls, persisted
+  remapping, and INI editing were checked on-device. Short input/run gates also have
+  deterministic tests.
+- Save/map rooms and the Landing Site were independently measured near 60/60 on the
+  device (issues #361-363), in addition to the sustained demo and isolated X-ray runs.
+- Home/background, sleep/wake, and transient/duck audio-focus checks passed. The
+  second audio-focus client was in the same app, not an external phone-call test.
+- State slots, invalid/missing-file handling, file-picker imports/exports, and both
+  reset-origin and state-origin recordings were exercised. Exported Android journals
+  replayed deterministically twice on Windows; this is not uncaptured-device hash parity.
+- Full rendering contract, Android host/state/import/export checks, allocation
+  regressions, and Windows Release builds passed. The AOT metadata audit retained
+  all 34,920 Core declarations; actual cinematic and gameplay state round trips also
+  passed before selecting the default.
+
+Known verification limits: the built-in controller was not physically disconnected;
+device-change callbacks clear input, but external-controller reconnection is not a
+hardware-tested claim. Thermal service reports no temperatures (`HAL Ready: false`),
+so sustained FPS is measured but thermal headroom is not. These limits are recorded
+for player confirmation, not silently presented as completed hardware tests.
 
 The initial rooted experiment on 2026-09-08 built with zero warnings/errors and retained
 34,904 Core, 248 Diagnostics, and 469 Android declarations. Existing debugger slot

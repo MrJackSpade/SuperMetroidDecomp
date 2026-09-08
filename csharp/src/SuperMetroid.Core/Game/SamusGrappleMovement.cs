@@ -628,7 +628,7 @@ public static partial class SamusGrappleMovement
         // Both release and block disconnection install `$C856`. Mark the origin because
         // firing cancellation coexists with ordinary movement, whereas a locked type-$16
         // body must own this beta pass until its pose-definition fallback is committed.
-        grapple.CancelFromConnectedPose = true;
+        grapple.CancelFromConnectedPose = !samus.DraygonGrabbed.IsActive;
         grapple.Phase = GrapplePhase.CancelPending;
         return new GrappleMovementResult(
             grapple.Phase,

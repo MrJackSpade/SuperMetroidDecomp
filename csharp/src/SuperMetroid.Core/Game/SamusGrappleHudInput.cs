@@ -15,6 +15,8 @@ internal static class SamusGrappleHudInput
         ushort handler = (ushort)(bus.ReadByte(entry) | bus.ReadByte(entry + 1) << 8);
         if (handler is SamusGrappleHudRomData.StandardHandler or SamusGrappleHudRomData.GrappleHandler)
             return true;
+        if (handler == SamusGrappleHudRomData.DraygonHeldHandler)
+            return samus.ReadMovementType(bus) == SamusMovementType.DraygonHeld;
         if (handler == SamusGrappleHudRomData.TurningHandler)
             return samus.PoseTransitionShotDirection != 0;
         if (handler != SamusGrappleHudRomData.TransitionHandler)

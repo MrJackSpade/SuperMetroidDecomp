@@ -2096,12 +2096,6 @@ public sealed partial class SuperMetroidRuntime
                     // Game states `$15-$18` do not call the ordinary Samus alpha/beta
                     // handlers. The death state advances later at the animation seam.
                 }
-                else if (Samus.DraygonGrabbed.IsActive)
-                {
-                    // `$90:E23B` installs an RTS movement-handler pointer. Bank `$A5`
-                    // may already have called ApplyOwnerPosition this actor frame; no bank-
-                    // `$90` motion or collision is allowed to alter that placement here.
-                }
                 else if (Samus.Grapple.Phase == GrapplePhase.Firing)
                 {
                     LastGrappleMovement = SamusGrappleMovement.StepFiring(

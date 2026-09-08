@@ -11,6 +11,8 @@ internal static class SamusGrappleHudRomData
     public const ushort StandardHandler = 0xdd3d;
     /// <summary>$90:DD6F Grapple HUD handler.</summary>
     public const ushort GrappleHandler = 0xdd6f;
+    /// <summary>$90:DDD8 Draygon-held HUD handler; all held poses use normal weapons.</summary>
+    public const ushort DraygonHeldHandler = 0xddd8;
     /// <summary>$90:DD74 turning HUD handler.</summary>
     public const ushort TurningHandler = 0xdd74;
     /// <summary>$90:DD8C posture-transition HUD handler.</summary>

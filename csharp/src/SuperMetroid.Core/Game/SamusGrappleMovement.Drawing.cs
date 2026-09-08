@@ -150,7 +150,10 @@ public static partial class SamusGrappleMovement
 
         bool cancelledConnectedPose = grapple.CancelFromConnectedPose;
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
-        SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
+        // The held route takes $90:F41E's no-op, not a connected-pose collision exit.
+        // Draygon, rather than terrain ejection, still owns Samus's coordinates.
+        if (!samus.DraygonGrabbed.IsActive)
+            SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
         if (cancelledConnectedPose)
         {
             // `$9B:C856` calls `$91:82D9` while the current movement type is `$16`.

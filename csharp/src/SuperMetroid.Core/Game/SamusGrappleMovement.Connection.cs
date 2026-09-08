@@ -221,15 +221,19 @@ public static partial class SamusGrappleMovement
         bool validateAnchorEnemy = false)
     {
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
-        // Movement type $1A is the Draygon-held actor route at $9B:B98C. It bypasses all
-        // three direction tables and depends on untranslated enemy ownership/positioning.
-        // A room-block connection should never normally arrive here in that pose, but an
-        // explicit boundary is safer than fabricating either of the ordinary routes.
+        // $9B:B98C bypasses ordinary connection pose/position setup while Draygon owns
+        // Samus. Only the beam locks; the enemy continues to place the held body.
         SamusMovementType sourceMovementType = samus.ReadMovementType(bus);
         if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
-            throw new InvalidOperationException(
-                "A room-block grapple connection cannot be installed while Draygon owns Samus.");
+            grapple.Phase = GrapplePhase.ConnectedLocked;
+            grapple.ValidateAnchorBlock = validateAnchorBlock;
+            grapple.ValidateAnchorEnemy = validateAnchorEnemy;
+            grapple.CancelFromConnectedPose = false;
+            // The helper clears delta, then its firing caller immediately writes -8.
+            grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
+            return new GrappleMovementResult(grapple.Phase, Released: false,
+                ReleaseQueued: false, Connected: true, OwnsMovement: false, LockedInPlace: true);
         }
 
         bool movingVertically =

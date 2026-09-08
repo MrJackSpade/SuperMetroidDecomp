@@ -65,6 +65,9 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:8B17 Instruction_PLM_DrawPLMBlock</c>.</summary>
     public const ushort DrawPlmBlock = 0x8b17;
 
+    /// <summary><c>$84:8B05 Instruction_PLM_DrawPLMBlock_Clone</c>: alternate entry that joins the same one-block draw and one-frame yield tail as $8B17.</summary>
+    public const ushort DrawPlmBlockClone = 0x8b05;
+
     /// <summary><c>$84:8C10 Instruction_PLM_QueueSound_Y_Lib2_Max6</c>.</summary>
     public const ushort QueueSoundLibrary2Maximum6 = 0x8c10;
 

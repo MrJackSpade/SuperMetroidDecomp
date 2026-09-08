@@ -1509,6 +1509,9 @@ public sealed partial class RoomPlmSystem
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 3));
                     continue;
 
+                // Both cartridge entries join the same draw-and-yield tail. Neither
+                // consumes an operand, so the next instruction remains pointer + 2.
+                case RoomPlmInstructionCodes.DrawPlmBlockClone:
                 case RoomPlmInstructionCodes.DrawPlmBlock:
                     // $84:8B17 restores PLM_Vars to level data, builds a one-block custom
                     // draw list, sets timer one, and exits the handler. Deletion therefore

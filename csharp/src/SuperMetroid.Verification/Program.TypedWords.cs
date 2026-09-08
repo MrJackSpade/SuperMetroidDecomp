@@ -105,6 +105,7 @@ static void VerifyTypedNativeWords()
         RoomPlmInstructionCodes.GotoIfEventSet,
         RoomPlmInstructionCodes.SetEvent,
         RoomPlmInstructionCodes.DrawPlmBlock,
+        RoomPlmInstructionCodes.DrawPlmBlockClone,
         RoomPlmInstructionCodes.QueueSoundLibrary2Maximum6,
         RoomPlmInstructionCodes.QueueSoundLibrary3Maximum6,
         RoomPlmInstructionCodes.QueueSoundLibrary2Maximum3,

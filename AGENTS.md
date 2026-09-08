@@ -1,5 +1,14 @@
 # Project Working Instructions
 
+## Diagnostic references
+
+- [InsaneFirebat Super Metroid disassembly](https://github.com/InsaneFirebat/sm_disassembly)
+- [Patrick Johnston's bank reference](https://patrickjohnston.org/bank/index.html)
+
+Use these references during cartridge diagnostics to cross-check routines, symbols,
+addresses, and behavior. Confirm findings against the project's ROM revision and
+pinned local sources; reference annotations do not replace reproducing a reported bug.
+
 ## Regression tests
 
 - Tests may use synthetic rooms, constructed cartridge data, fake address spaces, and other focused fixtures. A regression test does not need to drive a real retail room when a smaller fixture faithfully reproduces the reported failure.

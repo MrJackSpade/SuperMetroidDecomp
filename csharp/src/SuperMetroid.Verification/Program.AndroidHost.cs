@@ -6,6 +6,15 @@ internal static partial class Program
     private static void VerifyAndroidHostPolicies()
     {
         VerifyQueuedPcmSink();
+        var defaults = new SuperMetroid.Android.AndroidControllerPreferences();
+        AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "absent override preserves Retroid default");
+        var changed = defaults.WithBinding("ButtonA", SnesButton.B).WithBinding("ButtonX", SnesButton.None);
+        var restored = SuperMetroid.Android.AndroidControllerPreferences.Parse(changed.Serialize());
+        AssertEqual(SnesButton.B, restored.Resolve("ButtonA", SnesButton.A), "remapped button survives JSON roundtrip");
+        AssertEqual(SnesButton.None, restored.Resolve("ButtonX", SnesButton.X), "explicit unbound does not fall back to default");
+        AssertEqual(SnesButton.A, defaults.Resolve("ButtonA", SnesButton.A), "editing preferences does not mutate active mapping before persistence");
+        AssertThrows<System.IO.InvalidDataException>(() => changed.WithBinding("ButtonA", SnesButton.A | SnesButton.B), "combined gameplay bindings rejected");
+        AssertThrows<System.IO.InvalidDataException>(() => SuperMetroid.Android.AndroidControllerPreferences.Parse("{\"ButtonA\":\"bogus\"}"), "bad persisted binding fails visibly");
         var stalled = HostFrameDeadline.AfterFrame(0, 0.060);
         AssertTrue(stalled.Rebased, "60ms audio stall must not retain catch-up debt indefinitely");
         AssertTrue(stalled.WaitSeconds > 0, "rebase must not immediately publish another catch-up frame");

@@ -10,6 +10,14 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal static class AndroidControllerMapping
 {
+    /// <summary>Remappable gameplay keys; Back and Mode remain reserved for host tools.</summary>
+    public static readonly Keycode[] Keys =
+    [
+        Keycode.DpadLeft, Keycode.DpadRight, Keycode.DpadUp, Keycode.DpadDown,
+        Keycode.ButtonA, Keycode.ButtonB, Keycode.ButtonX, Keycode.ButtonY,
+        Keycode.ButtonL1, Keycode.ButtonR1, Keycode.ButtonStart, Keycode.ButtonSelect,
+    ];
+
     public static SnesButton Map(Keycode code) => code switch
     {
         Keycode.DpadLeft => SnesButton.Left,

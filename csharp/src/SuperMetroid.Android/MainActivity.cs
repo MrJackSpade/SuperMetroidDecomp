@@ -37,6 +37,7 @@ public sealed partial class MainActivity : Activity
             string root = FilesDir?.AbsolutePath ?? throw new IOException("Android did not provide private storage.");
             await Task.Run(() => AndroidAssetInstaller.Install(Assets!, "game", Path.Combine(root, "game")));
             if (destroyed) return;
+            LoadControllerPreferences();
             var view = new AndroidGameView(this);
             view.LongClick += (_, _) => ShowTestingMenu();
             SetContentView(view);
@@ -111,7 +112,7 @@ public sealed partial class MainActivity : Activity
                 return true;
             }
             if (menuOpen) return base.DispatchKeyEvent(e);
-            SnesButton mapped = AndroidControllerMapping.Map(e.KeyCode);
+            SnesButton mapped = controllerPreferences.Resolve(e.KeyCode.ToString(), AndroidControllerMapping.Map(e.KeyCode));
             if (mapped != SnesButton.None)
             {
                 if (resumed && focused && e.Action is KeyEventActions.Down or KeyEventActions.Up)

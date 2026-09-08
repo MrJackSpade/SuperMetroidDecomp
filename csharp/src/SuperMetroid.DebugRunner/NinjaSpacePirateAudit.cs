@@ -26,6 +26,7 @@ internal static class NinjaSpacePirateAudit
 
         VerifyDefinitionsAndBytecode(bus);
         VerifyUntouchedPopulation(bus, room, assets);
+        VerifyIdleLoopReactivatesBothPirates(bus, room, assets);
         MotionResult leftToRight = VerifyMotionFamily(bus, room, assets, actorIndex: 0);
         MotionResult rightToLeft = VerifyMotionFamily(bus, room, assets, actorIndex: 1);
         ClawResult claw = VerifyClawAttack(bus, room, assets);
@@ -42,6 +43,32 @@ internal static class NinjaSpacePirateAudit
             $"rendering passed across {leftToRight.FunctionCount + rightToLeft.FunctionCount} " +
             "observed movement functions.");
         return 0;
+    }
+
+    /// <summary>Both native facing lists must return to active AI after their idle animation.</summary>
+    private static void VerifyIdleLoopReactivatesBothPirates(
+        SuperMetroidAddressSpace bus, CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        for (int index = 0; index < 2; index++)
+        {
+            LoadedNinjas loaded = Load(bus, room, assets);
+            RoomEnemySlot actor = KeepOnly(loaded, index);
+            NinjaSpacePirateEnemyState state = State(loaded.Enemies, actor);
+            // Outside the kick and midpoint gates, but inside initial activation range.
+            // Unlike the old claw audit, do not synchronize entry with the claw timer:
+            // this forces an idle cycle before the periodic attack becomes eligible.
+            loaded.Samus.XPosition = unchecked((ushort)(actor.XPosition + (index == 0 ? -96 : 96)));
+            loaded.Samus.YPosition = state.SpawnY;
+            for (int frame = 0; frame < 400; frame++)
+            {
+                loaded.Enemies.StepFrame(0, 0, false, loaded.Samus,
+                    level: assets.LevelData, samusProjectiles: loaded.Projectiles);
+                loaded.Enemies.StepEnemyProjectiles(assets.LevelData, null, cameraX: 0, cameraY: 0);
+            }
+            if (state.SpawnedClawCount < 4)
+                throw new InvalidDataException($"Pirate {index} stalled after idle: only {state.SpawnedClawCount} claws.");
+        }
+        Console.WriteLine("Both pirate facing lists resume repeated attacks after idle cycles.");
     }
 
     private static void VerifyDefinitionsAndBytecode(ISnesAddressSpace bus)

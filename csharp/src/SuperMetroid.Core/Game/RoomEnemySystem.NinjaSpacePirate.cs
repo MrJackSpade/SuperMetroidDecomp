@@ -695,7 +695,10 @@ public sealed partial class RoomEnemySystem
                     ? NinjaPirateActiveFacingRight
                     : NinjaPirateActiveFacingLeft;
                 slot.InstructionTimer = 1;
-                cursor = unchecked((ushort)(cursor + 2));
+                // The native instruction returns the selected list, not its next word.
+                // Re-entering that list executes FunctionInY and restores decision AI
+                // after the idle animation explicitly installed the no-op function.
+                cursor = state.ActiveInstruction;
                 return true;
             case SpacePirateInstructionCodes.Instruction_PirateNinja_ResetSpeed:
                 state.Speed = 0;

@@ -4,12 +4,13 @@ using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Android;
 
 /// <summary>
-/// Android-only PCM sink. A small bounded AudioTrack buffer applies backpressure rather
-/// than accumulating audio indefinitely. The emulation worker owns writes and disposal.
+/// Android-only PCM sink. A bounded worker isolates AudioTrack's bursty blocking
+/// writes. The emulation owner submits copied frames and drains before disposal.
 /// </summary>
 internal sealed class AndroidPcmOutput : IDisposable
 {
     private readonly AudioTrack track;
+    private readonly QueuedPcmSink sink;
 
     public AndroidPcmOutput()
     {
@@ -36,11 +37,17 @@ internal sealed class AndroidPcmOutput : IDisposable
             throw new IOException("AudioTrack did not initialize.");
         }
         track.Play();
+        // This device releases AudioTrack space in roughly 67ms bursts. Eight
+        // video-frame buffers absorb that batching without unbounded latency;
+        // the simulation still owns its ordinary 60Hz deadline and never drops PCM.
+        sink = new QueuedPcmSink(WriteToDevice, capacity: 8);
     }
 
     public int UnderrunCount => track.UnderrunCount;
 
-    public void Submit(short[] samples)
+    public void Submit(short[] samples) => sink.Submit(samples);
+
+    private void WriteToDevice(short[] samples)
     {
         int offset = 0;
         while (offset < samples.Length)
@@ -53,9 +60,13 @@ internal sealed class AndroidPcmOutput : IDisposable
 
     public void Dispose()
     {
-        track.Pause();
-        track.Flush();
-        track.Release();
-        track.Dispose();
+        try { sink.Dispose(); }
+        finally
+        {
+            track.Pause();
+            track.Flush();
+            track.Release();
+            track.Dispose();
+        }
     }
 }

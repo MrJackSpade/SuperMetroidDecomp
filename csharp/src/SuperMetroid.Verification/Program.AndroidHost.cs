@@ -5,6 +5,7 @@ internal static partial class Program
 {
     private static void VerifyAndroidHostPolicies()
     {
+        VerifyQueuedPcmSink();
         AssertEqual(new DisplayViewport(28, 172, 1024, 896), DisplayViewport.IntegerPixels(1080, 1240), "Retroid upright integer viewport");
         AssertEqual(new DisplayViewport(108, 92, 1024, 896), DisplayViewport.IntegerPixels(1240, 1080), "Retroid rotated integer viewport");
         AssertEqual(new DisplayViewport(28, 124, 1024, 896), DisplayViewport.IntegerPixels(1080, 1144), "insets reduce usable surface before scaling");

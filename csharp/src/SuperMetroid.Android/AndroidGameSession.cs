@@ -81,6 +81,8 @@ internal sealed class AndroidGameSession
             long measuredDrawTicks = view.DrawTicks, measuredUploadTicks = view.UploadTicks;
             long measuredReplacements = view.ReplacedFrames;
             double stepMilliseconds = 0, renderMilliseconds = 0, audioMilliseconds = 0;
+            double submitMilliseconds = 0, maximumSubmitMilliseconds = 0;
+            double previousPublication = 0, minimumPublicationGap = double.PositiveInfinity, maximumPublicationGap = 0;
             string status = "Starting cartridge";
 
             while (!stopping.IsCancellationRequested)
@@ -103,6 +105,12 @@ internal sealed class AndroidGameSession
                     measuredFrame = sequence;
                     measuredPaint = view.PaintCount;
                     stepMilliseconds = renderMilliseconds = audioMilliseconds = 0;
+                    submitMilliseconds = maximumSubmitMilliseconds = previousPublication = 0;
+                    minimumPublicationGap = double.PositiveInfinity;
+                    maximumPublicationGap = 0;
+                    measuredDrawTicks = view.DrawTicks;
+                    measuredUploadTicks = view.UploadTicks;
+                    measuredReplacements = view.ReplacedFrames;
                 }
                 DrainCommands(data);
                 if (options.AudioEnabled) output ??= new AndroidPcmOutput();
@@ -123,6 +131,17 @@ internal sealed class AndroidGameSession
                     for (int i = 0; i < samples.Length; i++) samples[i] = (short)(samples[i] * options.MasterVolumePercent / 100);
                 double mixed = clock.Elapsed.TotalMilliseconds;
                 output?.Submit(samples);
+                double submitted = clock.Elapsed.TotalMilliseconds;
+                double submitDuration = submitted - mixed;
+                submitMilliseconds += submitDuration;
+                maximumSubmitMilliseconds = Math.Max(maximumSubmitMilliseconds, submitDuration);
+                if (previousPublication != 0)
+                {
+                    double gap = submitted - previousPublication;
+                    minimumPublicationGap = Math.Min(minimumPublicationGap, gap);
+                    maximumPublicationGap = Math.Max(maximumPublicationGap, gap);
+                }
+                previousPublication = submitted;
                 stepMilliseconds += stepped - start;
                 renderMilliseconds += rendered - stepped;
                 audioMilliseconds += mixed - rendered;
@@ -145,7 +164,9 @@ internal sealed class AndroidGameSession
                     global::Android.Util.Log.Info("SuperMetroid", status);
                     File.AppendAllText(Path.Combine(root, "timing.log"),
                         $"{DateTimeOffset.UtcNow:O} {status} frame={sequence} phase={frame.Frame.Phase} " +
-                        $"uiDrawMs={drawMs:F3} uploadMs={uploadMs:F3} replaced={replacements - measuredReplacements}\n");
+                        $"uiDrawMs={drawMs:F3} uploadMs={uploadMs:F3} replaced={replacements - measuredReplacements} " +
+                        $"submitMs={submitMilliseconds / count:F3}/{maximumSubmitMilliseconds:F3} " +
+                        $"publicationGapMs={minimumPublicationGap:F3}/{maximumPublicationGap:F3}\n");
                     measuredAt = now;
                     measuredFrame = sequence;
                     measuredPaint = view.PaintCount;
@@ -153,6 +174,9 @@ internal sealed class AndroidGameSession
                     measuredUploadTicks = uploadTicks;
                     measuredReplacements = replacements;
                     stepMilliseconds = renderMilliseconds = audioMilliseconds = 0;
+                    submitMilliseconds = maximumSubmitMilliseconds = 0;
+                    minimumPublicationGap = double.PositiveInfinity;
+                    maximumPublicationGap = 0;
                 }
                 view.Publish(pixels, status);
                 deadline += 1.0 / 60;

@@ -97,3 +97,33 @@ access; a recovery browser is not yet exposed in the menu.
 
 The remaining lifecycle/performance acceptance work is tracked in issue #355.
 Import/export/replay support is not completion of that issue.
+
+## Opt-in audio-focus device probe
+
+Normal APKs exclude this diagnostic. To exercise real Android focus callbacks
+without another app taking window focus, build with:
+
+```powershell
+dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release -p:AndroidHostProbes=true
+```
+
+Install that APK, launch the game, and leave the testing menu closed. Deliver an
+intent to the already running Activity:
+
+```powershell
+adb shell am start --activity-single-top -n org.supermetroid.csharp.testing/crc641619a672f3a517b4.MainActivity --es audio-focus-probe transient
+adb shell run-as org.supermetroid.csharp.testing cat files/audio-focus-probe.log
+```
+
+Wait at least five seconds before repeating with `duck` instead of `transient`.
+The probe waits for intent-delivery resume, then creates a second AudioManager
+client for three seconds. It does not play or record audio. The log must show
+`LossTransient`/`LossTransientCanDuck`, `canRun=False`, unchanged timing while held,
+and `Gain` with `canRun=True`, with `focused=True resumed=True` throughout the
+audio interruption. This checks actual framework callbacks from a second client
+in the same application, not another application's UID or a phone call.
+
+Both cases passed on the Retroid Pocket Classic on 2026-09-08. Save JSON, its backup,
+and debugger slot 0 retained their pre-test SHA-256 values. Rebuild **without**
+`AndroidHostProbes=true` and reinstall afterward; do not leave a probe APK as the
+player's testing build. Broader sustained-performance acceptance remains separate.

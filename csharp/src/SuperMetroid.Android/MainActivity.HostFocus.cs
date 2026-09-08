@@ -13,6 +13,8 @@ public sealed partial class MainActivity
     private Handler? hostHandler;
     private bool audioFocusRequested;
     private bool audioFocusGranted;
+    // Compiled away in normal APKs; implemented only by opt-in device probes.
+    partial void ObserveAudioFocus(string change);
 
     private bool AudioEnabled => session?.EffectiveOptions?.AudioEnabled ?? true;
     private bool CanRun => AndroidRunPolicy.CanRun(resumed, focused, menuOpen, destroyed,
@@ -79,6 +81,7 @@ public sealed partial class MainActivity
             // Pausing for duck requests preserves game/audio synchronization. Crucially,
             // this callback never requests focus back from the interrupting application.
             owner.RefreshRunGate();
+            owner.ObserveAudioFocus(change.ToString());
         }
 
         public void OnInputDeviceAdded(int deviceId) => ClearInput(deviceId, "added");

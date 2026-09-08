@@ -20,6 +20,8 @@
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Opt-in device probes are excluded from normal player APKs. -->
+    <Compile Include="../../tools/android-probes/AudioFocusProbe.cs" Condition="'$(AndroidHostProbes)' == 'true'" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <!-- Private, self-contained testing package; never publish this APK publicly. -->

@@ -99,10 +99,23 @@ public sealed partial class RoomPlmSystem
         level.SetBehavior(index, bts);
     }
 
-    private bool TryExecuteChozoStatueInstruction(RoomLevelData level, PlmSlot slot, ushort instruction)
+    private bool TryExecuteChozoStatueInstruction(ISnesAddressSpace bus, RoomLevelData level, PlmSlot slot, ushort instruction)
     {
         switch (instruction)
         {
+            case RoomPlmInstructionCodes.GotoIfEventSet when
+                slot.HeaderPointer == ChozoStatuePlmRomData.LowerNorfairHand:
+                ushort eventNumber = ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 2)));
+                if (eventNumber != (ushort)EventNumber.LowerNorfairChozoLoweredAcid)
+                    throw new InvalidDataException($"Lower Norfair hand referenced unexpected event ${eventNumber:X4}.");
+                // The same list initializes the intact hand or restores drained acid on
+                // re-entry. Do not bypass this branch by installing collision at spawn.
+                slot.InstructionPointer = (_coloredDoorSystem ??
+                    throw new InvalidOperationException("Chozo hand has no progression owner."))
+                    .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)
+                    ? ReadBank84Word(bus, unchecked((ushort)(slot.InstructionPointer + 4)))
+                    : unchecked((ushort)(slot.InstructionPointer + 6));
+                return true;
             case ChozoStatuePlmRomData.TransformSpikesToSlopes:
                 WriteChozoBlock(level, ChozoStatuePlmRomData.FirstSlopeBlockIndex,
                     RoomCollisionType.Slope, ChozoStatuePlmRomData.FirstSlopeBts);

@@ -1551,7 +1551,7 @@ public sealed partial class RoomPlmSystem
                     return;
 
                 default:
-                    if (TryExecuteChozoStatueInstruction(level, slot, instruction))
+                    if (TryExecuteChozoStatueInstruction(bus, level, slot, instruction))
                         continue;
                     if (TryExecuteBombTorizoHandInstruction(bus, slot, instruction))
                         continue;

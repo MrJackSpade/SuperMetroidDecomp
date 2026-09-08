@@ -174,3 +174,11 @@ The rooted experiment on 2026-09-08 built with zero warnings/errors and retained
 The short opening/demo run recorded zero underruns, but some presentation windows
 still fell into the 40s. This is not full performance or state-portability acceptance.
 The normal APK and exact pre-test save were restored afterward; AOT stays opt-in.
+
+A subsequent direct `Choreographer.IFrameCallback` experiment (invalidating before
+traversal, with producer invalidations disabled while active) did not fix the AOT
+presentation dips. At host frames 3867–3988 it measured 60 simulation FPS but
+49–51 paint FPS, despite Android reporting only 4 janky frames out of 4080 and zero
+audio underruns. The experiment was removed, not adopted. Next investigation must
+correlate mailbox publication and consumption timestamps; another nearby change
+to invalidation scheduling alone is not supported by these results.

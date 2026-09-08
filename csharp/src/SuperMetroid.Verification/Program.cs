@@ -148,6 +148,11 @@ if (args is ["--grapple-resident-trigger"])
     VerifyPermanentCollectibles();
     return 0;
 }
+if (args is ["--draygon-defeated-room"])
+{
+    VerifyDraygonDefeatedRoom();
+    return 0;
+}
 if (args is ["--grapple-gates"])
 {
     VerifyGrappleGreenGateVisibility();

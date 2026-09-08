@@ -57,9 +57,13 @@ public sealed partial class RoomEnemySystem
                 $"Draygon cannon PLM targeted unrecognized WRAM word ${variablePointer:X4}.");
         }
 
-        DraygonEnemyState state = Draygon ?? throw new InvalidOperationException(
-            "A Draygon cannon PLM attempted to write its control word without a loaded Draygon body.");
-        state.DisabledCannonWords.Add(variablePointer);
+        // Native writes WRAM, not an actor reference. The defeated room still has
+        // cannon PLMs even though its enemy population no longer includes Draygon.
+        EnsureLoaded();
+        _bus!.WriteByte(DraygonCannonData.ControlWordBank | variablePointer, 1);
+        _bus.WriteByte(DraygonCannonData.ControlWordBank | (variablePointer + 1), 0);
+        // Keep the existing live-actor projection synchronized when one exists.
+        Draygon?.DisabledCannonWords.Add(variablePointer);
     }
 
     /// <summary>Ports the two body instruction producers at <c>$A5:9F7C/9FAE</c>.</summary>

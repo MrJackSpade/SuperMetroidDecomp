@@ -6,6 +6,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class DraygonCannonData
 {
+    /// <summary>$84:DC67/$DCA7 cannon instructions write a word through PLM_Vars in WRAM bank $7E.</summary>
+    public const int ControlWordBank = 0x7e0000;
     /// <summary>Pre-destroyed upper-left cannon word authored by PLM argument <c>$8802</c>.</summary>
     public const ushort UpperLeftDisabledWord = 0x8802;
     /// <summary>Lower-left cannon word authored by PLM argument <c>$8804</c>.</summary>

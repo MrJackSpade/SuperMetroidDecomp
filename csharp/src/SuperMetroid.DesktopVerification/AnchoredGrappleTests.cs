@@ -37,6 +37,28 @@ internal static partial class Program
                     : grabbedFrames == 6 ? SnesButton.None : SnesButton.A | SnesButton.Left;
             }
             game.Step((ushort)input);
+            if (frame is 43 or 50 || grabbedFrames == 1)
+            {
+                Console.WriteLine($"GRAPHICS frame={frame} phase={samus.Grapple.Phase} pose={samus.Pose:X2} anim={samus.AnimationFrame} top={samus.TopSpritemapIndex:X4} bottom={samus.BottomSpritemapIndex:X4} topDMA={samus.TileTransfers.TopDefinitionAddress:X6} bottomDMA={samus.TileTransfers.BottomDefinitionAddress:X6}");
+                PngWriter.WriteRgba($"csharp/test-temp/issue-376-anchored-grapple/graphics-{frame}.png", 256, 224,
+                    SuperMetroidRuntimeFrameRenderer.Render(runtime));
+            }
+            if (grabbedFrames is >= 1 and <= 7)
+            {
+                // Independently pinned bank-$92 records: verify both OAM selections and
+                // actual NMI-uploaded bytes, not just the movement phase or cached pose.
+                Check(samus.AnimationFrame == 0 &&
+                    samus.TopSpritemapIndex == GrappleWallGrabGraphicsReference.TopSpritemap &&
+                    samus.BottomSpritemapIndex == GrappleWallGrabGraphicsReference.BottomSpritemap,
+                    "Wall-grab ready sprite differs from native B8 frame zero.");
+                Check(samus.TileTransfers.TopDefinitionAddress == GrappleWallGrabGraphicsReference.TopDma &&
+                    samus.TileTransfers.BottomDefinitionAddress == GrappleWallGrabGraphicsReference.BottomDma,
+                    "Wall-grab tile definitions retain hanging/swing graphics.");
+                VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+                    GrappleWallGrabGraphicsReference.TopDma, SamusRenderingRomData.TileTransfers.TopDestinations);
+                VerifyGrappleWallGrabDma(loaded.AddressSpace, runtime.Vram,
+                    GrappleWallGrabGraphicsReference.BottomDma, SamusRenderingRomData.TileTransfers.BottomDestinations);
+            }
             if (grabbedFrames is >= 1 and <= 5)
                 Check(samus.Grapple.Phase == GrapplePhase.WallGrab && samus.XPosition == 175 && samus.YPosition == 552,
                     "Holding Shoot+Jump must retain the native wall-grab pose and position.");
@@ -63,4 +85,30 @@ internal static partial class Program
         }
         throw new InvalidDataException("Player-room sequence never reached a completed grapple wall jump.");
     }
+
+    private static void VerifyGrappleWallGrabDma(SuperMetroid.Core.Hardware.SuperMetroidAddressSpace bus,
+        SuperMetroid.Core.Hardware.SnesVram vram, int definition,
+        SamusRenderingRomData.TileTransfers.SplitVramDestinations destinations)
+    {
+        int source = bus.ReadByte(definition) | bus.ReadByte(definition + 1) << 8 | bus.ReadByte(definition + 2) << 16;
+        int firstSize = bus.ReadByte(definition + 3) | bus.ReadByte(definition + 4) << 8;
+        int secondSize = bus.ReadByte(definition + 5) | bus.ReadByte(definition + 6) << 8;
+        for (int i = 0; i < firstSize; i++)
+            Check(vram.ReadByte(destinations.First * 2 + i) == bus.ReadByte(source + i), "Wall-grab first DMA bytes differ from ROM.");
+        for (int i = 0; i < secondSize; i++)
+            Check(vram.ReadByte(destinations.Second * 2 + i) == bus.ReadByte(source + firstSize + i), "Wall-grab second DMA bytes differ from ROM.");
+    }
+}
+
+/// <summary>Independent reference records from pinned bank_92.asm for wall-grab pose B8.</summary>
+internal static class GrappleWallGrabGraphicsReference
+{
+    /// <summary>$92:86EB, top spritemap index for B8 frame zero.</summary>
+    internal const ushort TopSpritemap = 0x032f;
+    /// <summary>$92:8BF7, bottom spritemap index for B8 frame zero.</summary>
+    internal const ushort BottomSpritemap = 0x05b5;
+    /// <summary>$92:CD22, B8 top graphics transfer, set 1 entry C.</summary>
+    internal const int TopDma = 0x92cd22;
+    /// <summary>$92:D254, B8 bottom graphics transfer, set 0 entry 1A.</summary>
+    internal const int BottomDma = 0x92d254;
 }

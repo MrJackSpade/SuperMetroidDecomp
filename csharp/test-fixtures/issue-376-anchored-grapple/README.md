@@ -45,3 +45,20 @@ Holding away from the wall with Jump reproduces the tested departure.
 
 Issue remains open for player confirmation of this input sequence. This is an
 investigation result and regression test, not a claimed gameplay fix.
+
+## Follow-up: missing visual wall-grab cue
+
+Player reports continued dangling instead of a recognizable ready sprite. The
+existing fixture starts standing, not in the reported dangling condition. This
+controlled sequence does visibly change from B2 frame 20 (hanging) to B8 frame 0
+(bent-knee wall grab). `graphics-50.png` and `graphics-57.png` capture both states.
+
+Expanded assertions independently pin the disassembly's B8 top/bottom spritemap
+indices `$032F/$05B5` and tile definitions `$92:CD22/$92:D254`. They compare every
+byte of both split DMA uploads in live VRAM against the ROM, throughout the held
+wall grab and release window. All checks pass; no production change was made.
+
+This establishes correct wall-grab art in the tested route, not that the player's
+different dangling attempt enters the same state. The issue is active (validation
+label removed); a capture while stuck dangling would distinguish failure to enter
+wall grab from incorrect rendering after entry.

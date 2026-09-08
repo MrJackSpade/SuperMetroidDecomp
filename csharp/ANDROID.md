@@ -73,6 +73,11 @@ by an edge swipe; focus/resume restores immersive mode.
 
 Back, controller Mode, or a long press opens testing tools, pausing the simulation.
 Ten debugger slots are available. Empty slots show a message, not a fatal error.
+The same menu includes INI settings for invincibility, unlocked infinite ammo, map
+reveal, cinematic skip, audio and volume. Changes are saved atomically for the next
+app launch; they do not reset the current run. A differing active value is shown
+beside the saved value. Desktop-only renderer/GitHub-CLI options are preserved but
+not offered as working Android features. D-pad and accept navigate these dialogs.
 Input journals live in private `files/input-recordings`; state-load journals preserve
 their exact seed separately from the overwritable slot. Regular saves remain in
 `files/SuperMetroid.save.json`. Native file import/export is still pending.

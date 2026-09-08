@@ -14,7 +14,9 @@ public sealed partial class MainActivity
             var saved = SuperMetroidGameOptionsIni.Parse(File.ReadAllText(path), path);
             var definitions = AndroidSettingDefinitions.All;
             new AlertDialog.Builder(this).SetTitle("Settings — apply on next app launch")!
-                .SetItems(definitions.Select(d => $"{d.Label}: {d.Read(saved)}").ToArray(), (_, selected) =>
+                .SetItems(definitions.Select(d => $"{d.Label}: {d.Read(saved)}" +
+                    (session?.EffectiveOptions is { } active && d.Read(active) != d.Read(saved)
+                        ? $" (active: {d.Read(active)})" : "")).ToArray(), (_, selected) =>
                 {
                     var definition = definitions[selected.Which];
                     new AlertDialog.Builder(this).SetTitle(definition.Label)!

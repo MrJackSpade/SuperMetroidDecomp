@@ -21,6 +21,8 @@ public sealed partial class SuperMetroidGame
 {
     private readonly ISnesAddressSpace bus;
     private readonly SuperMetroidGameOptions gameOptions;
+    /// <summary>Immutable host options captured by this game, including restored debugger states.</summary>
+    public SuperMetroidGameOptions ConfiguredOptions => gameOptions;
     private readonly bool renderGameplayFrames;
     private readonly SuperMetroidSaveRam saveRam;
     private readonly CartridgeAudioState audio = new();

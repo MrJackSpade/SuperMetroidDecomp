@@ -23,6 +23,8 @@ internal sealed class AndroidGameSession
     private readonly CancellationTokenSource stopping = new();
     private readonly Task worker;
     public FrameInputLatch Input { get; } = new();
+    private SuperMetroidGameOptions? effectiveOptions;
+    public SuperMetroidGameOptions? EffectiveOptions => Volatile.Read(ref effectiveOptions);
     public void RecordInput(string description) =>
         File.AppendAllText(Path.Combine(root, "input-events.log"), $"{DateTimeOffset.UtcNow:O} {description}\n");
 
@@ -69,6 +71,7 @@ internal sealed class AndroidGameSession
         try
         {
             using var data = new AndroidSessionData(root);
+            RefreshEffectiveOptions(data);
             SuperMetroidGameOptions options = data.Options;
             long sequence = 0;
             var clock = Stopwatch.StartNew();
@@ -175,6 +178,7 @@ internal sealed class AndroidGameSession
             try
             {
                 string result = request.Action(data);
+                RefreshEffectiveOptions(data);
                 Input.Clear();
                 var retained = data.Game.GetRetainedDisplay(1, data.Generation);
                 if (retained is not null) view.Publish(SoftwareFrameSnapshotRenderer.Render(retained), result);
@@ -183,4 +187,11 @@ internal sealed class AndroidGameSession
             catch (Exception error) { request.Result.TrySetException(error); }
         }
     }
+
+    private void RefreshEffectiveOptions(AndroidSessionData data) => Volatile.Write(ref effectiveOptions,
+        data.Game.ConfiguredOptions with
+        {
+            AudioEnabled = data.Options.AudioEnabled,
+            MasterVolumePercent = data.Options.MasterVolumePercent,
+        });
 }

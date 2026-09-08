@@ -24,6 +24,11 @@ internal static partial class Program
             try
             {
                 VerifyAudioQueueHealth();
+                if (args is ["--shinespark-shaft-audit"])
+                {
+                    VerifyShinesparkShaft();
+                    return;
+                }
                 if (args is ["--grapple-release-state-audit"])
                 {
                     VerifyGrappleReleaseState();

@@ -2932,8 +2932,11 @@ internal static class MotherBrainAudit
         ushort vulnerabilityPointer = head.Definition.VulnerabilityPointer != 0
             ? head.Definition.VulnerabilityPointer
             : (ushort)0xec1c;
-        byte vulnerability = bus.ReadByte(0xb40000 | vulnerabilityPointer);
-        int damage = (1000 >> 1) * (vulnerability & 0x7f);
+        // The charged byte, not the ordinary power/plasma entry, controls Hyper damage.
+        byte vulnerability = bus.ReadByte(0xb40000 | (vulnerabilityPointer + 19));
+        int damage = (1000 >> 1) * (vulnerability & 0x0f);
+        if (damage != 1000)
+            throw new InvalidDataException($"Retail Mother Brain Hyper damage changed: {damage}.");
         ushort expectedHealth = damage >= healthBefore
             ? (ushort)0
             : unchecked((ushort)(healthBefore - damage));

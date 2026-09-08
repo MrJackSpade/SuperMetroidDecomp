@@ -272,8 +272,11 @@ public sealed partial class RoomEnemySystem
         if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
             return false;
 
-        byte vulnerability = ReadProjectileVulnerability(bus, head, projectileType);
-        if (vulnerability == 0xff)
+        // The native callback tail-calls common no-death shot damage. In particular,
+        // charged beams use the separate charged vulnerability byte after the ordinary
+        // beam freeze check; Hyper would otherwise inherit the immune plasma entry.
+        NormalShotVulnerability vulnerability = ReadNormalShotVulnerability(bus, head, projectileType);
+        if (vulnerability.FreezeImmediately)
         {
             head.FrozenTimer = 400;
             head.AiHandlerBits = unchecked((ushort)(head.AiHandlerBits | 0x0004));
@@ -281,7 +284,7 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
+        int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
         if (damage == 0)
         {
             CreateEnemyProjectileDudShot(projectile);

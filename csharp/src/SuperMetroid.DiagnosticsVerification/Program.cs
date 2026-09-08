@@ -5,6 +5,8 @@ using SuperMetroid.Core.Rendering;
 try
 {
     AndroidSessionCommandVerification.Run();
+    if (args is ["--render-allocation"])
+        return GameplayRenderAllocationVerification.Run();
     var boundedTrace = new AndroidResumeTrace(2);
     boundedTrace.Record("frame", "first");
     boundedTrace.Record("write", "second");

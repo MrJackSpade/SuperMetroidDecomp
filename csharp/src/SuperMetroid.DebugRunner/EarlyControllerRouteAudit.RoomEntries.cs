@@ -62,7 +62,8 @@ internal static partial class EarlyControllerRouteAudit
             runtime,
             "upward Green Brinstar arrival",
             captureDirectory,
-            "issue-233-upward");
+            "issue-233-upward",
+            requireStableTopAlignment: true);
         (int UpBg1, int UpBg2, int UpShift) = CompareWithDirectElevatorReference(
             bus,
             runtime,
@@ -178,15 +179,38 @@ internal static partial class EarlyControllerRouteAudit
         SuperMetroidRuntime runtime,
         string description,
         string? captureDirectory,
-        string capturePrefix)
+        string capturePrefix,
+        bool requireStableTopAlignment = false)
     {
         int frames = 0;
         int captureIndex = 0;
+        var trackingCamera = runtime.Camera ?? throw new InvalidDataException("Elevator return has no camera.");
+        ushort previousCameraY = trackingCamera.YPosition;
+        bool reachedTopAlignment = previousCameraY == 0;
+        Console.WriteLine($"  {description} return begins: camera={previousCameraY:X4}, Samus={runtime.Samus!.YPosition:X4}");
         while (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive && frames < 1200)
         {
             runtime.StepFrame(0);
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
             frames++;
+            // The arrival handler carries Samus without running her terrain mover. Once
+            // blue scrolling has aligned this one-screen room, riding past the scroll
+            // trigger must not wake it and send the camera back down toward her.
+            if (requireStableTopAlignment &&
+                (trackingCamera.Scrolls.Storage[0] != (byte)RoomScrollState.Blue ||
+                 (reachedTopAlignment && trackingCamera.YPosition != 0)))
+            {
+                throw new InvalidDataException(
+                    $"Elevator arrival lost top alignment at frame {frames}: " +
+                    $"camera=${trackingCamera.YPosition:X4}, scroll={trackingCamera.Scrolls.Storage[0]}.");
+            }
+            reachedTopAlignment |= trackingCamera.YPosition == 0;
+            if (trackingCamera.YPosition != previousCameraY)
+            {
+                if (captureDirectory is not null)
+                    Console.WriteLine($"  {description} tracking frame {frames}: camera={previousCameraY:X4}->{trackingCamera.YPosition:X4}, Samus={runtime.Samus!.YPosition:X4}, direction={runtime.Samus.Kinematics.YDirection}, scrolls={Convert.ToHexString(trackingCamera.Scrolls.Storage)}, status={runtime.Enemies.ElevatorStatus}");
+                previousCameraY = trackingCamera.YPosition;
+            }
             int elevatorActors = runtime.Enemies.Slots.Count(
                 enemy => enemy.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
             if (elevatorActors != 1)

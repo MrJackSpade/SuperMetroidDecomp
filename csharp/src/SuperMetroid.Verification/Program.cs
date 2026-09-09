@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--projectile-contact-phase"] or ["--projectile-contact-damage"])
+{
+    VerifyProjectileContactPhase(args[0] == "--projectile-contact-phase");
+    return 0;
+}
 if (args is ["--enemy-contact-phase"])
 {
     VerifyRipperEnemy(verifyDeferredContact: true);
@@ -210,6 +215,7 @@ VerifyAndroidHostPolicies();
 VerifyBoostFloorScroll();
 VerifyXrayControls();
 VerifyIntroPoseHistory();
+VerifyProjectileContactPhase(verifyPhase: false);
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

@@ -794,11 +794,7 @@ public sealed partial class RoomEnemySystem
     {
         // Suit_Damage_Division quarters the source header's damage for Gravity or halves
         // it for Varia before normal touch publishes the invincibility/hurt request.
-        ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
-            ? unchecked((ushort)(damageBeforeSuit >> 2))
-            : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
-                ? unchecked((ushort)(damageBeforeSuit >> 1))
-                : damageBeforeSuit;
+        ushort damage = SamusSuitDamage.Reduce(damageBeforeSuit, samus.EquippedItems);
         samus.Health = samus.Health <= damage
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));

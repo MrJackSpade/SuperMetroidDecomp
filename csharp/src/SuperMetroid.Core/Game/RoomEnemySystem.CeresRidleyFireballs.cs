@@ -1397,9 +1397,10 @@ public sealed partial class RoomEnemySystem
             return null;
         }
 
-        samus.Health = samus.Health <= projectile.Damage
+        ushort damage = SamusSuitDamage.Reduce(projectile.Damage, samus.EquippedItems);
+        samus.Health = samus.Health <= damage
             ? (ushort)0
-            : unchecked((ushort)(samus.Health - projectile.Damage));
+            : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = projectile.InvincibilityFrames;
         ushort knockbackXDirection = unchecked((short)(
             samus.XPosition - projectile.XPosition)) >= 0

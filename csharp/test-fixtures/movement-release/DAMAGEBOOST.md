@@ -232,3 +232,24 @@ the default Ripper regression. This is a publication-order fix, not a complete i
 window measurement: native GameState_8 orders alpha before EnemyMain, then beta and
 projectile processing. The managed runtime's broader alpha/EnemyMain placement still
 needs a full contact-frame comparison, along with enemy-projectile and spike sources.
+
+## Generic projectile contact: damage fixed, phase still failing
+
+The native contact probe now also executes `$A0:9923` for a nonpersistent projectile
+using the retail fireball definition and damage20. Normal/Varia/Gravity outputs are
+health79/89/94, timer5, direction0, pose01, normal handler A337, and deleted projectile.
+The managed public `StepEnemyProjectiles` fixture originally produced health79 for
+all three suits and immediately installed pose53/direction2/hurt movement.
+
+Generic projectile damage now shares cartridge suit reduction with normal enemy touch.
+`--projectile-contact-damage` passes, and runs in the default core suite. The stricter
+`--projectile-contact-phase` deliberately remains failing to preserve the timing defect.
+It must not be replaced by the damage-only gate when assessing #472 completion.
+
+The runtime currently calls `StepEnemyProjectiles` before its Samus phase, while native
+GameState_8 runs projectile instructions after beta and generic projectile collision
+after PLMs. The combined managed method also initializes hurt immediately at the end
+of collision. Removing only that initializer would still let the current frame's beta
+consume a request which native does not publish until afterward. The remaining fix must
+address this phase ownership together, with full frame comparisons and affected
+projectile/PLM consumers covered. No projectile timing fix is claimed by this commit.

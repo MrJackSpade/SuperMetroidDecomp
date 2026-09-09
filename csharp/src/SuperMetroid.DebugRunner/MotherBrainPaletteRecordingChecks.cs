@@ -8,7 +8,14 @@ internal sealed class MotherBrainPaletteRecordingChecks
 {
     private readonly HashSet<string> samusPalettes = [];
     private readonly HashSet<string> motherPalettes = [];
+    private readonly HashSet<string> healthPalettes = [];
     private int drainedSteps, revivalSteps;
+
+    public void VerifyHealthPalettes()
+    {
+        if (healthPalettes.Count != 4)
+            throw new InvalidDataException($"Expected four visible native health palettes, found {healthPalettes.Count}.");
+    }
 
     public void Observe(SuperMetroidRuntime runtime, int frame, ISnesAddressSpace bus)
     {
@@ -43,6 +50,9 @@ internal sealed class MotherBrainPaletteRecordingChecks
             Check("samus", 192, 16, runtime.Samus.XPosition, runtime.Samus.YPosition, samusPalettes);
         if (brain.RainbowBeamPaletteRequested && brain.RainbowBeamHdmaActive)
             Check("mother", 145, 15, brain.Head!.XPosition, brain.Head.YPosition, motherPalettes);
+        if (brain.RainbowBeamSequence is { HealthBasedPaletteHandlingEnabled: true, Phase2CorpseState: >= 2 }
+            && brain.Head is { } head && (head.FlashTimer & 1) == 0)
+            Check("health", 145, 15, head.XPosition, head.YPosition, healthPalettes);
 
         void Check(string actor, int start, int colorCount, int worldX, int worldY, HashSet<string> palettes)
         {

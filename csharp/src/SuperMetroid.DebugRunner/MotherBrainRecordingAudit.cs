@@ -34,7 +34,7 @@ internal static class MotherBrainRecordingAudit
                 if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var runtime = game.RuntimeForVerification;
-            if (verifyBeam && runtime is not null) paletteChecks.Observe(runtime, frame, bus);
+            if ((verifyBeam || verifyDeath) && runtime is not null) paletteChecks.Observe(runtime, frame, bus);
             if (verifyDeath && runtime is not null) deathChecks.Observe(runtime, frame);
             if (verifyBeam && runtime?.Enemies.MotherBrain?.RainbowBeamHdma is { Active: true } beam && frame % 30 == 0)
             {
@@ -105,6 +105,7 @@ internal static class MotherBrainRecordingAudit
         }
         else if (verifyDeath)
         {
+            paletteChecks.VerifyHealthPalettes();
             var runtime = game.RuntimeForVerification!;
             deathChecks.VerifyReadyToLeave(runtime);
             ushort room = runtime.ActiveRoom!.Pointer;

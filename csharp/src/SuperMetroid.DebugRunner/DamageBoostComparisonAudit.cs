@@ -2,17 +2,19 @@ using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Seeded hurt handoff; actual source contact/damage is a separate audit.</summary>
+/// <summary>Compares seeded hurt handoffs or live projectile contact against original CPU traces.</summary>
 internal static class DamageBoostComparisonAudit
 {
     public static int Run(string rom, string trace, bool hurtPrefixOnly = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != 11904 || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24))
+        bool contact = rows.Length > 0 && rows[0].Length == 26 && rows[0][24] == "1";
+        if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
+        int healthMismatches = 0;
         int humanoidSamples = 0, humanoidMismatches = 0;
         var reportedGroups = new HashSet<string>();
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..6])))
@@ -23,10 +25,11 @@ internal static class DamageBoostComparisonAudit
             if (hurtPrefixOnly && ball) continue;
             ushort source = ushort.Parse(seed[3]);
             int delay = int.Parse(seed[5]);
-            int medium = seed.Length == 24 ? int.Parse(seed[22]) : 0;
-            int release = seed.Length == 24 ? int.Parse(seed[23]) : 0;
+            int medium = seed.Length >= 24 ? int.Parse(seed[22]) : 0;
+            int release = seed.Length >= 24 ? int.Parse(seed[23]) : 0;
             if (medium is < 0 or > 2 || release is < 0 or > 1 ||
-                group.Any(row => row.Length == 24 && (row[22] != seed[22] || row[23] != seed[23])))
+                group.Any(row => row.Length >= 24 && (row[22] != seed[22] || row[23] != seed[23])) ||
+                group.Any(row => row.Length == 26 && row[24] != (contact ? "1" : "0")))
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var level = runtime.LevelData!;
@@ -53,8 +56,27 @@ internal static class DamageBoostComparisonAudit
             samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
             ushort initialInput = forward ? (ushort)(left ? 0x200 : 0x100) : (ushort)0;
             runtime.Controller1.Latch(initialInput);
-            SamusKnockbackMovement.Start(bus, samus, initialInput, source, (ushort)timer);
-            samus.CommitPoseHistory(bus);
+            if (!contact)
+            {
+                SamusKnockbackMovement.Start(bus, samus, initialInput, source, (ushort)timer);
+                samus.CommitPoseHistory(bus);
+            }
+            else
+            {
+                foreach (var enemy in runtime.Enemies.Slots)
+                    enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
+                foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
+                var projectile = runtime.Enemies.EnemyProjectiles[^1];
+                projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
+                projectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
+                projectile.InstructionTimer = 2;
+                projectile.XPosition = source == 1 ? (ushort)120 : (ushort)136;
+                projectile.YPosition = 160;
+                projectile.XRadius = projectile.YRadius = 8;
+                projectile.Damage = 20;
+                projectile.InvincibilityFrames = 96;
+                projectile.CanDamageSamus = true;
+            }
             int frame = -1;
             foreach (var row in group)
             {
@@ -82,13 +104,15 @@ internal static class DamageBoostComparisonAudit
                 if (!actualWords[..4].SequenceEqual(row[8..12])) motionMismatches++;
                 if (!actualWords[4..10].SequenceEqual(row[12..18])) stateMismatches++;
                 if (!actualWords[10..].SequenceEqual(row[18..22])) historyMismatches++;
-                if (actual != expected)
+                bool healthMatches = row.Length != 26 || samus.Health == ushort.Parse(row[25], NumberStyles.HexNumber);
+                if (!healthMatches) healthMismatches++;
+                if (actual != expected || !healthMatches)
                 {
                     if (!ball) humanoidMismatches++;
                     if (frame < 0) initialMismatches++;
                     mismatches++;
                     if (reportedGroups.Add(group.Key) && reportedGroups.Count <= 16)
-                        Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}");
+                        Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}; health={samus.Health:X4}/{(row.Length == 26 ? row[25] : "unrecorded")}");
                 }
                 if (!ball) humanoidSamples++;
                 samples++; frame++;
@@ -98,7 +122,7 @@ internal static class DamageBoostComparisonAudit
         if (hurtPrefixOnly && samples != 1072)
             throw new InvalidDataException("Incomplete humanoid hurt-prefix coverage.");
         Console.WriteLine($"Damage boost{(hurtPrefixOnly ? " hurt prefix" : "")}: {samples} samples, {mismatches} mismatches ({initialMismatches} at initialization).");
-        Console.WriteLine($"Motion/pose/animation={motionMismatches}; timers/direction/speeds={stateMismatches}; history={historyMismatches}.");
+        Console.WriteLine($"Motion/pose/animation={motionMismatches}; timers/direction/speeds={stateMismatches}; history={historyMismatches}; health={healthMismatches}.");
         Console.WriteLine($"Humanoid: {humanoidSamples} samples, {humanoidMismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
     }

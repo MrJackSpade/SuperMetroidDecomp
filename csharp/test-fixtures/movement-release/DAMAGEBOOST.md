@@ -290,3 +290,34 @@ This fixes the demonstrated two-frame early movement, not all of #472. The seede
 movement sweeps do not cover every source collision, simultaneous transition, or
 medium boundary. Native alpha/enemy ordering and other contact-source timing still
 need separate examination before the issue can be marked ready for player validation.
+
+## Live projectile input-window sweep
+
+`DiagnosticDamageBoostSource(rom, output, medium, release, contact)` adds a live-contact
+mode (`contact=1`) to the native probe. It skips seeded hurt initialization and runs
+the original `$A0:9894` overlap scan after the first Samus phase with an inert fireball
+at X120 or X136, Y160 and radius8. The managed comparison installs the equivalent actor
+and runs the complete production frame. Health is now recorded alongside all existing
+movement, timer and history words. Legacy 22/24-column traces remain readable.
+
+192 cases per capture cover both facings, source sides, humanoid/ball bodies, prior
+forward/neutral input and twelve opposite-direction-plus-Jump delays. Initial state
+plus thirty frames gives 5,952 samples. Air/water/lava, each with held direction or
+direction released after three input frames, all match: 35,712 samples, zero mismatches.
+This is real overlap/contact publication, not `SamusKnockbackMovement.Start` setup.
+
+To regenerate, use the temporary headless integration described above, dispatching
+`DiagnosticDamageBoostSource(argv[2], argv[3], atoi(argv[4]), atoi(argv[5]), 1)` from
+`--damageboost-contact ROM NEW.csv MEDIUM RELEASE`. The comparer command is unchanged.
+The header exclusively creates output; use new paths rather than overwriting evidence.
+
+Accepted local captures: `damageboost-contact-472-air-held.csv`,
+`damageboost-contact-472-m0-r1.csv`, `damageboost-contact-472-m1-r0.csv`,
+`damageboost-contact-472-m1-r1.csv`, and `damageboost-contact-472-m2-r{0,1}-v2.csv`.
+The first lava capture omitted `$90:E9CE` periodic damage and is not a valid health
+oracle. The corrected probe includes that native call; both lava traces then agree.
+Temporary native executable hooks were removed after capture.
+
+Remaining scope still includes actual enemy and spike contacts, speedkeep variants,
+interruption exclusions and crossings between media; do not label #472 complete
+based solely on the seeded and projectile traces.

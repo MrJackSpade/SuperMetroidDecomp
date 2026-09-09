@@ -59,8 +59,8 @@ public static class TourianStatueRomData
     public const ushort AddY = 0xb841;
     /// <summary>$86:B79F delete projectile instruction list.</summary>
     public const ushort DeleteProjectile = 0xb79f;
-    /// <summary>$A0:B1C3 signed sine table used by particle launch.</summary>
-    public const int SignedSine = 0xa0b1c3;
+    /// <summary>$A0:B3C3, kSinCosTable8bit_Sext: signed words with magnitude 256, beginning at the negative-cosine quadrant, used by $86:B8B5 particle launch.</summary>
+    public const int SignedSine = 0xa0b3c3;
     /// <summary>$86:AF84 statue descent dust definition.</summary>
     public const ushort DescentDust = 0xaf84;
     /// <summary>$86:AF36 restores a dust actor to its initial position.</summary>

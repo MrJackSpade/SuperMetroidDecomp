@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--statue-splash"])
+{
+    VerifyStatueSplash();
+    return 0;
+}
 if (args is ["--projectile-quake"])
 {
     VerifyProjectileQuake();

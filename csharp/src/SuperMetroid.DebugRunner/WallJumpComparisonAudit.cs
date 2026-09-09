@@ -8,18 +8,19 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksSpeed = rows.Length == 6240 && rows[0].Length == 18;
-        bool hasPostInput = rows.Length == 6240 && (rows[0].Length == 14 || checksSpeed);
+        bool checksSpeed = rows.Length is 6240 or 7800 && rows[0].Length == 18;
+        bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
+        int inputModes = hasPostInput ? rows.Length / 1560 : 1;
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
-            throw new InvalidDataException("Expected 26, 52, or 208 cases of 30 frames.");
+            throw new InvalidDataException("Expected 26, 52, 208, or 260 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
         int speedMismatches = 0;
-        int[] mismatchesByPostInput = new int[4];
-        for (int postInput = 0; postInput < (hasPostInput ? 4 : 1); postInput++)
+        int[] mismatchesByPostInput = new int[inputModes];
+        for (int postInput = 0; postInput < inputModes; postInput++)
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
         for (int left = 0; left < 2; left++)
         for (int delay = 0; delay <= 12; delay++)
@@ -44,6 +45,8 @@ internal static class WallJumpComparisonAudit
             samus.Kinematics.YDirection = 2;
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             int firstWallJump = -1;
+            int managedLaunches = 0, nativeLaunches = 0;
+            bool managedWasWall = false, nativeWasWall = false;
             for (int frame = 0; frame < 30; frame++)
             {
                 var row = rows[sample++];
@@ -84,13 +87,29 @@ internal static class WallJumpComparisonAudit
                     if (actualSpeed != expectedSpeed && speedMismatches++ < 16)
                         Console.WriteLine($"SPEED postInput={postInput} history={history} left={left} delay={delay} frame={frame}: {actualSpeed} != {expectedSpeed}");
                 }
-                if (firstWallJump < 0 && samus.ReadMovementType(bus) == SamusMovementType.WallJumping) firstWallJump = frame;
+                bool managedIsWall = samus.ReadMovementType(bus) == SamusMovementType.WallJumping;
+                bool nativeIsWall = byte.Parse(row[6], NumberStyles.HexNumber) is
+                    SamusPoseIds.WallJumpRightPose or SamusPoseIds.WallJumpLeftPose;
+                if (managedIsWall && !managedWasWall) managedLaunches++;
+                if (nativeIsWall && !nativeWasWall) nativeLaunches++;
+                managedWasWall = managedIsWall;
+                nativeWasWall = nativeIsWall;
+                if (firstWallJump < 0 && managedIsWall) firstWallJump = frame;
             }
             Console.WriteLine($"WINDOW history={history} left={left} delay={delay} firstWallJump={firstWallJump}");
+            if (postInput == 4)
+            {
+                Console.WriteLine($"REPEAT history={history} left={left} delay={delay}: managed={managedLaunches} native={nativeLaunches}");
+                // Native capture confirms both launches for delays 2..8. The
+                // adjacent failed-first-launch cases still execute the second jump.
+                int expectedLaunches = delay is >= 2 and <= 8 ? 2 : 1;
+                if (nativeLaunches != expectedLaunches || managedLaunches != nativeLaunches)
+                    throw new InvalidDataException("Same-wall fixture did not execute the verified launch sequence.");
+            }
         }
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");
-        for (int mode = 0; mode < (hasPostInput ? 4 : 1); mode++)
+        for (int mode = 0; mode < inputModes; mode++)
             Console.WriteLine($"Post-input mode {mode}: {mismatchesByPostInput[mode]} motion/pose/animation mismatches.");
         Console.WriteLine($"Speed-word mismatches: {speedMismatches} (checked={checksSpeed}).");
         return mismatches == 0 && historyMismatches == 0 && speedMismatches == 0 ? 0 : 1;

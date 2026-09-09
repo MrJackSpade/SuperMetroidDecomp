@@ -22,7 +22,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
   fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata,baseSpeed,extraSpeed,accelerationMode,divisor\n");
-  for (int postInput = 0; postInput < 4; postInput++)
+  for (int postInput = 0; postInput < 5; postInput++)
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -48,7 +48,11 @@ int DiagnosticWalljump(const char *rom, const char *output) {
     uint16 previous = 0;
     for (int frame = 0; frame < 30; frame++) {
       uint16 input = (left ? 0x200 : 0x100) | (frame >= delay ? 0x80 : 0);
-      if (frame >= 12 && postInput) {
+      if (postInput == 4 && frame >= 12) {
+        // Return toward the original wall, then turn away and press Jump again.
+        input = frame < 21 ? (left ? 0x100 : 0x200) | 0x80 :
+          (left ? 0x200 : 0x100) | (frame >= 23 ? 0x80 : 0);
+      } else if (frame >= 12 && postInput) {
         input |= postInput == 2 ? 0x400 : 0x800;
         if (postInput == 3) input &= ~0x80;
       }

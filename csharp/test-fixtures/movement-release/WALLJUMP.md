@@ -189,3 +189,22 @@ All 6,240 frames now match motion, pose, animation, history, and the added speed
 words. The full core suite and a focused no-held-direction walljump regression
 pass. This completes these four post-input matrix modes, not the remaining
 charge-release, same-wall/overhang, or full forced-owner coverage in #473.
+
+## Same-wall return and second launch
+
+Mode four expands the trace to 7,800 frames. Starting from the same first-jump
+cases, frames 12..20 hold Jump toward the original wall; frames 21..22 turn
+away without Jump; frame 23 onward holds Jump away. No position, velocity,
+pose, or animation resets occur between launches. Both directions and both
+initial history variants run through the real input/movement/transition paths.
+
+Native and managed traces match all 7,800 samples, including every history and
+speed word. Each of the 28 delay-2..8 cases launches twice; the remaining 24
+cases miss the first launch and execute one later launch. The comparer asserts
+these counts so an unsuccessful return cannot masquerade as same-wall coverage.
+The native counts were observed before adding these fixture-validity checks.
+
+This is verified consecutive same-wall jumping, not an arbitrary route test or
+proof of overhang clearance. No additional production fix was required. The
+native temporary integration was removed. Delayed overhangs, charge release,
+and the remaining forced-owner audit are still outstanding.

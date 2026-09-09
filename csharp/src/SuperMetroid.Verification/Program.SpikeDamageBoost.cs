@@ -85,5 +85,33 @@ internal static partial class Program
         samus.Kinematics.YDirection = 2;
         runtime.StepFrame(0x0180);
         AssertEqual(2, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
+
+        foreach (byte retainedPose in new byte[]
+        {
+            SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
+            SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
+            SamusPoseIds.NeutralJumpTransitionRightPose, SamusPoseIds.NeutralJumpTransitionLeftPose,
+        })
+        {
+            samus.Pose = retainedPose;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            samus.SetAnimationFrameFromSpecialHandler(0, 5);
+            samus.YPosition = 200;
+            samus.Kinematics.YSubposition = 0;
+            samus.Kinematics.YDirection = 2;
+            samus.PoseHistory.PreviousPose = retainedPose;
+            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(
+                ((byte)samus.ReadMovementType(bus) << 8) | (samus.IsFacingLeft(bus) ? 4 : 8));
+            samus.PoseHistory.LastDifferentPose = SamusPoseIds.NormalLandingRightPose;
+            // Standing must have floor support; spin stays above that floor. Held Jump
+            // without a new edge selects definition fallback rather than a fresh jump.
+            if (retainedPose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose)
+                samus.YPosition = 235;
+            runtime.Controller1.Latch(0x0080);
+            runtime.StepFrame(0x0080);
+            AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin pose");
+            AssertEqual(retainedPose, samus.PoseHistory.LastDifferentPose, "same-pose fallback shifts history");
+        }
     }
 }

@@ -415,3 +415,24 @@ movement/pose/animation, velocities/timers and health matching. This is retained
 the next failing diagnostic; do not mark #472 ready or weaken the history comparison.
 The remainder of the forward-contact matrix must finish after that discrepancy is
 resolved. Temporary upstream hooks were removed; no player save slot was changed.
+
+## Retained-pose history correction
+
+The 248 mismatches above came from omitted self-transitions for standing and spin-jump
+definition fallbacks. `$91:82D9` still writes the current pose when definition byte two
+is FF; `$91:EB88` therefore shifts pose history even though the visible pose is unchanged.
+Runtime now records those native fallback selections. The continuation of the matrix
+then reproduced twelve equivalent mismatches in underwater neutral-jump transition
+poses4B/4C; those verified fallback entries are also recorded.
+
+Direct default regressions check both facings of all three families, preserving the
+visible pose while requiring history to shift. Both previously failing traces are green.
+The full 24-capture `damageboost-forward-472-c{1,2,3,4}-m{0,1,2}-r{0,1}.csv` matrix
+now passes: 142,848 samples with exact position, animation/pose, timers/velocities,
+history and health. The complete core suite passes as well. Legacy captures remain
+supported and their original input semantics are not rewritten.
+
+This completes the currently constructed forward-contact matrix, not #472. In
+particular, all these fixtures lack carried running speed and Speed Booster; speedkeep
+variants remain an explicit requirement. Enemy-specific interruptions and other
+earlier-noted interactions are not inferred from this successful stationary-source gate.

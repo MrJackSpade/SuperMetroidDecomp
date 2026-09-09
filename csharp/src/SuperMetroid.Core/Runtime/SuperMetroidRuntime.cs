@@ -1770,18 +1770,20 @@ public sealed partial class SuperMetroidRuntime
             LastRanIntoWallProbe = null;
 
             // Stationary ball fallback selects command six, even when the special
-            // hurt mover temporarily supplies nonzero horizontal speed. Unlike moving
-            // ball fallback it does not select the momentum-dependent command one.
+            // hurt mover temporarily supplies nonzero horizontal speed.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
                 Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
-            // Neutral hurt, crouch and falling definitions retain their current pose
+            // Neutral standing, spin, hurt, crouch and falling definitions retain their current pose
             // through fallback, but this is still a selected transition slot,
             // not an absence of input work: the final pose-history epilogue must run.
             // A matched same-pose table record still publishes nothing, as on cartridge.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
                 Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
+                    SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
+                    SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose or
+                    SamusPoseIds.NeutralJumpTransitionRightPose or SamusPoseIds.NeutralJumpTransitionLeftPose or
                     SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
                     SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
                     SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or

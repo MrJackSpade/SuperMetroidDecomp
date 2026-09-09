@@ -120,8 +120,8 @@ internal sealed partial class EndingCreditsState
     private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
         || Phase == EndingCreditsPhase.PostCreditsReward;
     // E1D2/E2DD: TM=BG2, TS=OBJ, CGADSUB=$22 adds OBJ to BG2 and backdrop.
-    private bool RewardSubscreenAddition => Phase == EndingCreditsPhase.PostCreditsReward
-        && EndingReward != EndingReward.Armored;
+    private bool RewardSubscreenAddition => ExplosionCrossfadeActive
+        || (Phase == EndingCreditsPhase.PostCreditsReward && EndingReward != EndingReward.Armored);
 
     private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingTilemapWord : postCreditsUploadWord;

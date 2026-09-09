@@ -21,6 +21,7 @@ internal static partial class Program
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
+            ushort[]? explosionBackgroundSource = null;
             EndingRewardJump? referenceJump = null;
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
@@ -32,6 +33,40 @@ internal static partial class Program
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
                 if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
+                if (legacy.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
+                {
+                    int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion];
+                    var explosion = legacy.CaptureRenderSnapshot();
+                    if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.FadeInZebesExplosion)
+                        explosionBackgroundSource = explosion.Memory.Cgram.Slice(112, 16).ToArray();
+                    for (int i = 0; i < 16; i++)
+                    {
+                        ushort source = explosionBackgroundSource![i];
+                        int remaining = 32 - elapsed / 2;
+                        ushort expectedColor = (ushort)(((source & 31) * remaining / 32)
+                            | (((source >> 5 & 31) * remaining / 32) << 5)
+                            | (((source >> 10 & 31) * remaining / 32) << 10));
+                        AssertEqual(expectedColor, explosion.Memory.Cgram[112 + i], "native explosion BG palette fades out on the same cadence");
+                    }
+                    if (hours == 2 && elapsed == 40)
+                        File.WriteAllBytes("csharp/test-temp/ending-504/explosion-crossfade.smframe",
+                            RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), explosion)));
+                    foreach (int start in new[] { 208, 240 })
+                    for (int i = start; i < start + 16; i++)
+                    {
+                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8cebe9 + i * 2);
+                        int step = elapsed / 2;
+                        ushort expectedColor = (ushort)(((source & 31) * step / 32)
+                            | (((source >> 5 & 31) * step / 32) << 5)
+                            | (((source >> 10 & 31) * step / 32) << 10));
+                        AssertEqual(expectedColor, explosion.Memory.Cgram[i], "native explosion OBJ palette fades in over both fade-in and crossfade phases");
+                    }
+                    AssertTrue(explosion.Layers.ToArray().OfType<ObjRenderLayer>().Single().AddToScreen,
+                        "explosion transition adds OBJ subscreen to BG1 and backdrop");
+                }
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
+                    AssertEqual(64, tick - phaseEntryFrames[EndingCreditsPhase.FadeInZebesExplosion],
+                        "native shared explosion countdown includes screen fade-in and expires after 64 calls");
                 if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
                     AssertEqual(212, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars],
                         "native post-credits backdrop has 32 fade frames followed by 180 waiting frames before producer text");

@@ -149,21 +149,15 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.FadeInZebesExplosion:
+                StepExplosionCrossfade();
                 StepSprites();
-                mode7Zoom = unchecked((ushort)(mode7Zoom + 4));
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
                 break;
 
             case EndingCreditsPhase.ZebesExplosionPaletteCrossfade:
+                StepExplosionCrossfade();
                 StepSprites();
-                mode7Zoom = unchecked((ushort)(mode7Zoom + 4));
-                if (--phaseTimer <= 0)
-                {
-                    phaseTimer = 16;
-                    PrepareFlyawayUploads();
-                    Phase = EndingCreditsPhase.ZebesExplosionTileUpload;
-                }
                 break;
 
             case EndingCreditsPhase.ZebesExplosionTileUpload:
@@ -474,7 +468,7 @@ internal sealed partial class EndingCreditsState
         mode7Angle = SnesAngle.Zero;
         brightness = 0;
         fadeCounter = 1;
-        phaseTimer = 64;
+        BeginExplosionCrossfade();
         Phase = EndingCreditsPhase.FadeInZebesExplosion;
     }
 

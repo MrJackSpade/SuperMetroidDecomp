@@ -1,7 +1,8 @@
 # Controller-acquired Speedball (#470)
 
 This test-only extension verifies acquisition and retention, not the entire
-ticket. Block-family contrasts and temporary Blue Suit conversion remain open.
+ticket. Temporary Blue Suit conversion remains open; block-family contrasts are
+now recorded in [SPEEDBALL-FAMILIES.md](SPEEDBALL-FAMILIES.md).
 The preceding contact fixes are recorded in [SPEEDBALL-BLOCKS.md](SPEEDBALL-BLOCKS.md).
 
 ## Fixture and inputs

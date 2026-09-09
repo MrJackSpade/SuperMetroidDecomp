@@ -232,10 +232,10 @@ public static partial class SamusBlockCollision
                     case RoomCollisionType.SpikeAir:
                     case RoomCollisionType.ShootableAir:
                     case RoomCollisionType.UnusedAir:
-                    case RoomCollisionType.BombableAir:
                         // Horizontal table entries 2/4/6 are literal clear-carry stubs.
-                        // Bombable air (7) also returns clear after a projectile-family
-                        // PLM setup which rejects ordinary Samus body collision.
+                        break;
+                    case RoomCollisionType.BombableAir:
+                        ActivateCollisionBombableAir(level, block, state, canBreakBombBlocks, plms);
                         break;
 
                     case RoomCollisionType.SpecialAir:
@@ -571,9 +571,10 @@ public static partial class SamusBlockCollision
                         break;
                     case RoomCollisionType.ShootableAir:
                     case RoomCollisionType.UnusedAir:
+                        // These air entries return clear carry without PLM setup.
+                        break;
                     case RoomCollisionType.BombableAir:
-                        // Vertical spike-air, special-air, ordinary-air, and bombable-air
-                        // entries all return clear carry after any independent PLM setup.
+                        ActivateCollisionBombableAir(level, block, state, canBreakBombBlocks, plms);
                         break;
 
                     case RoomCollisionType.SpikeBlock:
@@ -723,6 +724,23 @@ public static partial class SamusBlockCollision
     {
         level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
         return true;
+    }
+
+    /// <summary>
+    /// Runs the shared bomb-block setup for non-solid cells without consuming carry.
+    /// </summary>
+    private static void ActivateCollisionBombableAir(RoomLevelData level, RoomCollisionBlock block,
+        SamusKinematicsState state, bool explicitAdmission, RoomPlmSystem? plms)
+    {
+        // Native horizontal/vertical air dispatch invokes the same setup as solid
+        // bomb blocks, but ignores its carry. Rejection or exhausted actor slots
+        // must never turn this non-solid cell into a movement obstruction.
+        if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, explicitAdmission))
+            return;
+        if (plms is not null)
+            plms.TrySpawnCollisionBombBlock(level, block.Index, block.Bts);
+        else
+            ClearCollisionTypeWithoutLifecycle(level, block.Index);
     }
 
     /// <summary>

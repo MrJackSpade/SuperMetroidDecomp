@@ -8,6 +8,8 @@ public sealed partial class D3D11FrameRenderer
     private void DispatchOrdinaryGameplay(OrdinaryGameplayRenderLayer layer)
     {
         OrdinaryGameplayRegisters r = layer.Registers;
+        if (r.MainScreenWindowMask != SnesMainScreenLayers.None)
+            throw new NotSupportedException("Captured hardware window masks require untranslated GPU composition; refusing to discard them.");
         // Preserve the Mode-1 priority ladder. Resolving OAM before these passes
         // prevents a hidden higher-index sprite from reappearing at another rank.
         Objects(0); Objects(1); Background2(false); Background1(false);

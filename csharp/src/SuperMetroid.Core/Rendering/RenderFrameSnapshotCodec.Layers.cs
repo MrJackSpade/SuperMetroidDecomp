@@ -122,7 +122,7 @@ public static partial class RenderFrameSnapshotCodec
 
     private static RenderLayer ReadLayer(BinaryReader reader, ushort version, bool childScene = false) => (RenderPacketLayerKind)reader.ReadByte() switch
     {
-        RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader),
+        RenderPacketLayerKind.XrayGameplay when version >= RenderPacketFormat.XrayGameplayVersion => ReadXrayGameplay(reader, version),
         RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
         RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader, version),
@@ -133,7 +133,7 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
             ReadColorWindows(reader),
         RenderPacketLayerKind.OrdinaryGameplay when version >= RenderPacketFormat.OrdinaryGameplayLayerVersion =>
-            ReadGameplayLayer(reader),
+            ReadGameplayLayer(reader, version),
         RenderPacketLayerKind.Bg2Viewport when version >= RenderPacketFormat.Bg2ViewportLayerVersion =>
             new Bg2BppViewportRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
                 ReadBoolean(reader), ReadPriority(reader)),
@@ -172,9 +172,9 @@ public static partial class RenderFrameSnapshotCodec
         return new(add, fixedColor);
     }
 
-    private static XrayGameplayRenderLayer ReadXrayGameplay(BinaryReader reader)
+    private static XrayGameplayRenderLayer ReadXrayGameplay(BinaryReader reader, ushort version)
     {
-        var gameplay = ReadGameplayLayer(reader);
+        var gameplay = ReadGameplayLayer(reader, version);
         var lines = new XrayWindowLine[Hardware.SnesPpuLayout.ScreenHeightPixels];
         for (int i = 0; i < lines.Length; i++) lines[i] = new(reader.ReadByte(), reader.ReadByte());
         bool reveal = ReadBoolean(reader);

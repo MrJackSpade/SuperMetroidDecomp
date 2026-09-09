@@ -13,6 +13,8 @@ public static class SoftwareXrayGameplayRenderer
     internal static Rgba32[] Render(SoftwarePpuSnapshotMemory memory, XrayGameplayRenderLayer layer,
         byte objectSelection, Rgba32[]? outputBuffer)
     {
+        if (layer.Gameplay.Registers.MainScreenWindowMask != SnesMainScreenLayers.None)
+            throw new NotSupportedException("Combining captured hardware windows with X-ray composition is not translated.");
         int count = SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels;
         if (outputBuffer is not null && outputBuffer.Length != count)
             throw new ArgumentException("Unexpected X-ray output dimensions.", nameof(outputBuffer));

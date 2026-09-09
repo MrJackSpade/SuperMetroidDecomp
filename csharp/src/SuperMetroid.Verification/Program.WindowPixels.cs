@@ -12,7 +12,8 @@ internal static partial class Program
         ushort[] palette = Enumerable.Range(0, 256).Select(_ => (ushort)random.Next(32768)).ToArray();
         byte[] objects = new byte[SnesPpuLayout.OamUploadByteCount];
         random.NextBytes(objects);
-        var memory = new SoftwarePpuSnapshotMemory(new PpuMemorySnapshot(bytes, palette, objects, 128));
+        var capturedMemory = new PpuMemorySnapshot(bytes, palette, objects, 128);
+        var memory = new SoftwarePpuSnapshotMemory(capturedMemory);
         const SnesMainScreenLayers layers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj;
         var reference = new Dictionary<SnesMainScreenLayers, Rgba32[]>();
         for (int mask = 0; mask < 8; mask++)
@@ -29,6 +30,33 @@ internal static partial class Program
                 (byte)(operation * 0x55), (byte)operation);
             var admission = (SnesMainScreenLayers)((mask & 7) | ((mask & 8) << 1));
             Rgba32[] actual = Draw(layers, windows, admission);
+            var registers = new OrdinaryGameplayRegisters(3, 5, 7, 11, 64, 32,
+                SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, SnesPpuLayout.GameplayHudCharacterBaseWord,
+                layers, Windows: windows, MainScreenWindowMask: admission);
+            var packet = new RenderFrameSnapshot(new(1, 1, 1),
+                new LayeredRenderSnapshot(capturedMemory, new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
+            var restored = RoundTripRenderPacket(packet);
+            var restoredRegisters = ((OrdinaryGameplayRenderLayer)restored.Layers!.Layers[0]).Registers;
+            AssertEqual(windows, restoredRegisters.Windows, "window register bytes survive packet round trip");
+            AssertEqual(admission, restoredRegisters.MainScreenWindowMask, "TMW survives packet round trip");
+            AssertTrue(actual.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(restored)),
+                "windowed packet renders exact direct-composition pixels");
+            if (operation == 0 && mask == 0)
+            {
+                // A single-layer v20 packet is the identical prefix without v21's
+                // nine window bytes and TMW. It must decode with windowing disabled.
+                byte[] modern = RenderFrameSnapshotCodec.Serialize(packet);
+                byte[] old = modern.AsSpan(0, modern.Length - 10).ToArray();
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
+                    old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
+                var legacy = RenderFrameSnapshotCodec.Deserialize(old);
+                AssertEqual(default(SnesWindowRegisters), ((OrdinaryGameplayRenderLayer)legacy.Layers!.Layers[0]).Registers.Windows,
+                    "v20 gameplay has no invented window registers");
+                AssertTrue(reference[layers].AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(legacy)),
+                    "v20 gameplay pixels remain unchanged");
+                AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(modern.AsSpan(0, modern.Length - 1)),
+                    "truncated v21 window data remains a loud error");
+            }
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)
             {

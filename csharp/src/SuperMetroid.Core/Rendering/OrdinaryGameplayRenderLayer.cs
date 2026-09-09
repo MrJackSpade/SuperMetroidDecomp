@@ -8,7 +8,9 @@ public readonly record struct OrdinaryGameplayRegisters(
     int Bg2WidthTiles, int Bg2HeightTiles, ushort Bg2TilemapWord,
     ushort Bg1CharacterWord, ushort Bg2CharacterWord, ushort HudCharacterWord,
     SnesMainScreenLayers MainScreenLayers,
-    int Bg2FirstScanline = 32, int Bg2EndScanline = 224);
+    int Bg2FirstScanline = 32, int Bg2EndScanline = 224,
+    SnesWindowRegisters Windows = default,
+    SnesMainScreenLayers MainScreenWindowMask = SnesMainScreenLayers.None);
 
 /// <summary>
 /// Fused backdrop/HUD/Mode-1/OBJ composition. This must be the first operation;

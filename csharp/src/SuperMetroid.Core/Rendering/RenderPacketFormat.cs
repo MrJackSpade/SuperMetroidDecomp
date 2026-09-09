@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Rendering;
 internal static class RenderPacketFormat
 {
     internal static ReadOnlySpan<byte> Signature => "SMFRAME\0"u8;
-    internal const ushort Version = 20;
+    internal const ushort Version = 21;
+    internal const ushort GameplayWindowVersion = 21;
     internal const ushort ObjPriorityFixedColorVersion = 20;
     internal const ushort ObjFixedColorVersion = 19;
     internal const ushort SubscreenMainObjectsVersion = 18;

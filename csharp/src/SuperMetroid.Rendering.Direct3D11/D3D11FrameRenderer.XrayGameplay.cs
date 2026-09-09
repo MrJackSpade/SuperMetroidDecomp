@@ -6,6 +6,8 @@ public sealed partial class D3D11FrameRenderer
 {
     private unsafe void DispatchXrayGameplay(LayeredRenderSnapshot scene, XrayGameplayRenderLayer layer)
     {
+        if (layer.Gameplay.Registers.MainScreenWindowMask != SuperMetroid.Core.Hardware.SnesMainScreenLayers.None)
+            throw new NotSupportedException("Combining captured hardware windows with GPU X-ray composition is not translated.");
         var r = layer.Gameplay.Registers;
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.XrayGameplay;

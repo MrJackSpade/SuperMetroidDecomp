@@ -13,15 +13,30 @@ public static partial class RenderFrameSnapshotCodec
         writer.Write((byte)r.MainScreenLayers);
         WriteScrolls(writer, layer.HorizontalScrolls);
         WriteScrolls(writer, layer.VerticalScrolls);
+        SnesWindowRegisters w = r.Windows;
+        writer.Write(w.Window12Selection); writer.Write(w.Window34Selection); writer.Write(w.ObjectColorSelection);
+        writer.Write(w.FirstLeft); writer.Write(w.FirstRight); writer.Write(w.SecondLeft); writer.Write(w.SecondRight);
+        writer.Write(w.BackgroundLogic); writer.Write(w.ObjectColorLogic);
+        writer.Write((byte)r.MainScreenWindowMask);
     }
 
-    private static OrdinaryGameplayRenderLayer ReadGameplayLayer(BinaryReader reader)
+    private static OrdinaryGameplayRenderLayer ReadGameplayLayer(BinaryReader reader, ushort version)
     {
         var registers = new OrdinaryGameplayRegisters(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadInt32(), reader.ReadInt32(),
             reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
             (SnesMainScreenLayers)reader.ReadByte());
-        return new(registers, ReadScrolls(reader), ReadScrolls(reader));
+        ushort[] horizontal = ReadScrolls(reader), vertical = ReadScrolls(reader);
+        if (version >= RenderPacketFormat.GameplayWindowVersion)
+        {
+            registers = registers with
+            {
+                Windows = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(),
+                    reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
+                MainScreenWindowMask = (SnesMainScreenLayers)reader.ReadByte(),
+            };
+        }
+        return new(registers, horizontal, vertical);
     }
 
     private static void WriteScrolls(BinaryWriter writer, ReadOnlySpan<ushort> values)

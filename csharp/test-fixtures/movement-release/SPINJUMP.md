@@ -134,3 +134,17 @@ or dismissed: trace the other managed owner and determine whether the diagnostic
 setup or production scheduling is responsible before claiming handoff parity.
 The front-facing elevator-status input gate remains a separate mechanism.
 Temporary upstream integration was removed after collecting these traces.
+
+The early-unlock discrepancy was traced with a temporary setter stack trace to
+`SuperMetroidRuntime`'s Ceres arrival completion, not the ordinary elevator actor.
+The fixture had bootstrapped Ceres but bypassed the room-lifecycle reset when
+calling the low-level door verification seam. Normal pending-door loading already
+clears this owner. The audit now uses `LoadCartridgeRoomForDebug` to leave the
+bootstrap room before preparing the actual elevator arrival, and asserts that no
+Ceres arrival owner remains. No production behavior was changed.
+
+After that correction all 1,344 complete actor rows, including input lock, match
+the retained native traces. The 480 post-release position/pose rows still match.
+`--elevator-spinjump-compare` now checks both ordered comparisons and requires a
+terminal unlocked actor state. This still excludes frontend fade and direction
+inputs before elevator completion; it is not full technique acceptance yet.

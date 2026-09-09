@@ -51,3 +51,26 @@ itself evidence of a mistranslated jump. It does not settle frame scheduling,
 Metroid positioning, bomb explosion radius evolution, or detach/reattach timing.
 Those remain required comparisons. No production fix or validation claim is
 made by this diagnostic.
+
+## Focused native collision sequence
+
+The extended probe additionally calls native `$A0:9785`, `$A0:A236`,
+`$90:B099` and `$93:81E9` around the jump handler. It seeds the retail Metroid
+definition's 10/10 radii and follows attached positioning before movement.
+It intentionally excludes the full enemy main loop and pose-transition dispatch;
+therefore it cannot establish complete frame parity or resolve the player report.
+
+At frame 51 the fuse reaches eight. Frame 52 initializes the jump. Frame 59 has
+Samus Y=168, enemy Y=162, bomb Y=185, fuse zero and bomb radii 8/8. Subsequent
+radius pairs are 8/8, 12/12, 12/12, then 16/16 through frame 68. The Metroid remains
+attached throughout; the explosion is gone at frame 69. Thus the original C#
+fixture's unconditional expectation of a detach was not justified. Its ground
+bomb miss is now a characterization assertion, not an asserted reproduction of
+a cartridge divergence. The stationary collision fixture still verifies a real
+placed bomb's natural explosion detaches and runs the native four-update escape.
+
+Important fixture pitfall: `Enemy_Metroid` includes padding across discontiguous
+WRAM. Zeroing `sizeof(Enemy_Metroid)` erases unrelated liquid state and falsely
+produces an underwater jump (and a detach). Only clear its base record; initialize
+the needed extension fields explicitly. The results above are from the corrected
+fixture, with air physics retained.

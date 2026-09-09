@@ -107,7 +107,11 @@ internal static partial class Program
             if (detached >= 0 && frame > detached && state.Function == MetroidAiFunction.AttachedToSamus && reattached < 0)
                 reattached = frame;
         }
-        AssertTrue(detached >= 0, "full runtime centered bomb detaches Metroid");
+        // The constrained native CPU sequence also misses: a single ground bomb
+        // launches Samus before its damage radius reaches the attached Metroid.
+        // This characterizes that case; it is not proof that the player's reported
+        // high failure rate, repeated bombs, or reattachment behavior is correct.
+        AssertEqual(-1, detached, "single ground bomb misses after the attached Metroid follows the bomb jump");
         Console.WriteLine($"Runtime normal bomb: detach={detached}, reattach={reattached}, Samus apex Y={lowestY}.");
     }
 }

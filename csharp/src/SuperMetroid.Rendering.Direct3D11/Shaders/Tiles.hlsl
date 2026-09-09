@@ -192,8 +192,13 @@ void Main(uint3 id : SV_DispatchThreadID)
     uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
     if (fourBpp)
         color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
-    if (color == 0 && TransparentZero != 0) return;
+    bool objectSubscreen = Operation == OpSubscreenAdd && AddR != 0;
+    uint2 subObject = objectSubscreen ? Objects[id.xy] : uint2(0, 255);
+    bool objectWins = objectSubscreen && subObject.y != 255 &&
+        (color == 0 || subObject.y >= ((entry & 8192) != 0 ? 3 : 2));
+    if (color == 0 && TransparentZero != 0 && !objectWins) return;
     uint sampled = Palette(((entry >> 10) & 7) * (fourBpp ? 16 : 4) + color);
+    if (objectWins) sampled = subObject.x;
     if (Operation == OpSubscreenAdd)
     {
         if (!MainCoverage(id.xy)) return;

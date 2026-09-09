@@ -20,7 +20,8 @@ public static class SoftwareLayeredSnapshotRenderer
         // wrongly allow a higher-numbered record to shine through the winning record.
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
-            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true };
+            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true }
+                or BgSubscreenAddRenderLayer { IncludeObjects: true };
         ResolvedObjFrame objects = usesObjInsertion
             ? SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection)
             : default;
@@ -56,6 +57,18 @@ public static class SoftwareLayeredSnapshotRenderer
                             sub.TilemapWord, sub.CharacterWord, 0, 0, 256, 224, 32, 32)
                         : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
                             sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
+                    if (sub.IncludeObjects)
+                    {
+                        Rgba32[] high = sub.FourBpp
+                            ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
+                                sub.TilemapWord, sub.CharacterWord, 0, 0, 256, 224, 32, 32, priority: true)
+                            : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
+                                sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true, priority: true);
+                        for (int i = 0; i < subscreen.Length; i++)
+                            if (objects.Pixels[i].A != 0 && (subscreen[i].A == 0
+                                || objects.Priorities[i] >= (high[i].A != 0 ? 3 : 2)))
+                                subscreen[i] = objects.Pixels[i];
+                    }
                     if (sub.MainCoverage is { } coverage)
                     {
                         Rgba32[] mask = SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,

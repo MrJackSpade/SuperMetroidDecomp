@@ -80,5 +80,23 @@ internal static partial class Program
         byte[] unsupported = RenderFrameSnapshotCodec.Serialize(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 15);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packets cannot claim four-bit subscreen layers");
+        for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
+        colors[129] = 31 << 5;
+        foreach (byte priority in new byte[] { 1, 2, 3 })
+        foreach (bool highBackground in new[] { false, true })
+        {
+            byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(priority << 4);
+            vram[0xe000 + (32 + 1) * 2 + 1] = (byte)(4 | (highBackground ? 32 : 0));
+            var composite = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(
+                new PpuMemorySnapshot(vram, colors, oam, 1),
+                new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true, IncludeObjects: true) }, 3, 15));
+            var decoded = RoundTripRenderPacket(composite);
+            bool objectWins = priority >= (highBackground ? 3 : 2);
+            AssertEqual(objectWins ? new Rgba32(255, 255, 0) : new Rgba32(255, 0, 255),
+                SoftwareFrameSnapshotRenderer.Render(decoded)[8 * 256 + 8],
+                "subscreen selects BG2 or OBJ by priority before addition, never sums both");
+            File.WriteAllBytes($"csharp/test-temp/ending-504/bg4-obj-{priority}-{highBackground}.smframe", RenderFrameSnapshotCodec.Serialize(decoded));
+        }
     }
 }

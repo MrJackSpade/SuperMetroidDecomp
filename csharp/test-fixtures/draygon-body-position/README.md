@@ -38,3 +38,20 @@ production connection and cancellation paths, asserting that the held pose,
 coordinates and Draygon ownership survive both operations. This checks the
 native `$90:DDD8` admission, `$9B:B98C` held connection and `$9B:C856` cancellation;
 it is not a full turret-electrocution battle replay.
+
+## Terrain priority investigation — #385
+
+The position audit now independently decodes the captured BG1 and BG2 bitplanes
+every 30 frames, excludes OBJ/color math, and checks every pixel inside the native
+body display band against the Mode-1 BG ladder in `upstream-sm/src/snes/ppu.c`:
+BG1 high, BG2 high, BG1 low, BG2 low (front to back).
+
+The 600-frame encounter produced 16,186 opaque body/terrain overlap pixels, all
+correctly won by terrain, with zero compositor differences. Pinned bank A5 body
+streams (for example `ExtendedTilemap_Draygon_0` at `$A5:B108`) contain low-priority
+tile words, and native `$A0:96CA` copies them without changing their priority.
+
+This is diagnostic evidence, not a fix or proof of complete scene parity. The
+test uses port-captured memories and scrolls; it does not independently replay
+the cartridge's tilemap production or identify which terrain scatter the player
+meant. Keep #385 open pending that comparison; do not force BG2 above BG1.

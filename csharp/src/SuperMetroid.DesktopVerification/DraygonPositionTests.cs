@@ -15,6 +15,7 @@ internal static partial class Program
         Directory.CreateDirectory(output);
         ushort previousX = 0, previousY = 0;
         int wrappedPixelsPrevented = 0;
+        long terrainOverlapPixels = 0, bodyOverlapPixels = 0;
         for (int frame = 0; frame < 600; frame++)
         {
             var before = runtime.Enemies.Draygon!;
@@ -41,6 +42,9 @@ internal static partial class Program
                 if (frame % 30 == 0)
                 {
                     var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+                    var overlap = VerifyDraygonTerrainPriority(capture);
+                    terrainOverlapPixels += overlap.Terrain;
+                    bodyOverlapPixels += overlap.Body;
                     var referenceLayer = new OrdinaryGameplayRenderLayer(layer.Registers with
                         { MainScreenLayers = layer.Registers.MainScreenLayers & ~SnesMainScreenLayers.Bg2 });
                     var reference = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(
@@ -82,6 +86,9 @@ internal static partial class Program
             if (clipped[i] != unmasked[i]) wrappedPixelsPrevented++;
         if (wrappedPixelsPrevented == 0) throw new InvalidOperationException("Offscreen placement did not expose wrapping in the unmasked renderer.");
         Console.WriteLine($"Native BG2 HDMA removed {wrappedPixelsPrevented} wrapped pixels across sampled frames.");
+        if (terrainOverlapPixels + bodyOverlapPixels == 0)
+            throw new InvalidOperationException("Draygon priority fixture never overlapped body and terrain.");
+        Console.WriteLine($"Draygon native BG overlap: terrain wins {terrainOverlapPixels} pixels; body wins {bodyOverlapPixels} pixels.");
         foreach (var sample in new (int Y, int First, int End)[] { (-17, 32, 32), (-16, 32, 96),
             (39, 32, 96), (40, 32, 224), (191, 32, 224), (192, 128, 224), (303, 128, 224), (304, 32, 32) })
             if (DraygonMainScreenWindow.Select(100, unchecked((ushort)sample.Y), 0, 0, false) != (sample.First, sample.End))

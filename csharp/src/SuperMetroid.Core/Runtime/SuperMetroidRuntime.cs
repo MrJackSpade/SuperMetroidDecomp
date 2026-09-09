@@ -3745,7 +3745,11 @@ public sealed partial class SuperMetroidRuntime
                 // $91:EB88 shifts history after consuming any transition slot,
                 // including a self-transition. A frame with no selected transition
                 // does not shift it. Keep this after final collision/pose selection.
-                if (animationTransitionApplied || ProspectiveSamusPose is not null ||
+                // The translated grapple launch applies its $9B:C9CE transitional
+                // slot early and clears ordinary alpha input. It still reaches this
+                // same native history epilogue, once, after the forced launch pose.
+                if (animationTransitionApplied || LastGrappleMovement is { WallJumpStarted: true } ||
+                    ProspectiveSamusPose is not null ||
                     ProspectiveSamusFallbackPose is not null)
                     Samus.CommitPoseHistory(_addressSpace);
             }

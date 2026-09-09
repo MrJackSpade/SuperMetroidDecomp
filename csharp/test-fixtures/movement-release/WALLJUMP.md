@@ -128,3 +128,19 @@ This verifies the normal spin-turn/wall-launch paths exercised by these cases,
 not every forced transition owner. Audit forced pose writes outside this
 epilogue, legacy-state entry behavior, repeated same-wall/overhang trajectories,
 and post-jump input rules before marking the whole issue awaiting validation.
+
+## Grapple forced wall-launch history
+
+The live runtime fixture now also starts at the queued $9B:C9CE function in
+each wall-contact direction and advances one real gameplay frame. Before the
+fix, $B8 became $84 but history stayed B8/1608/0001/0008: the launch's early
+pose application cleared ordinary alpha input and never reached the history
+condition. Native C9CE publishes a transitional pose and command six, whose
+$91:EB88 epilogue performs the ordinary history shift.
+
+The common epilogue now recognizes `WallJumpStarted` as a consumed transition.
+Both directions verify all four words after the live frame, including the
+older contact pose so a double commit would fail. The 1,560 ordinary native
+samples continue to match exactly. This covers forced grapple wall-launch
+history only, not every grapple animation/timing property or other forced
+transition owners.

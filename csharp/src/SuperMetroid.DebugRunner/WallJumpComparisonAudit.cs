@@ -13,6 +13,7 @@ internal static class WallJumpComparisonAudit
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
             throw new InvalidDataException("Expected 26 or 52 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
         for (int left = 0; left < 2; left++)
@@ -69,5 +70,32 @@ internal static class WallJumpComparisonAudit
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");
         return mismatches == 0 && historyMismatches == 0 ? 0 : 1;
+    }
+
+    private static void VerifyGrappleLaunchHistory(SuperMetroidAddressSpace bus)
+    {
+        foreach (byte source in new[] { SamusPoseIds.GrappleWallContactLeftPose, SamusPoseIds.GrappleWallContactRightPose })
+        {
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false);
+            var samus = runtime.Samus!;
+            samus.Pose = source;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            samus.Grapple.Phase = GrapplePhase.WallJumping;
+            ushort previousMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            samus.PoseHistory.PreviousPose = source;
+            samus.PoseHistory.PreviousDirectionAndMovement = previousMetadata;
+            samus.PoseHistory.LastDifferentPose = SamusPoseIds.FacingRightNormalPose;
+            samus.PoseHistory.LastDifferentDirectionAndMovement = 8;
+            runtime.StepFrame(0);
+            var history = samus.PoseHistory;
+            ushort currentMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            if (runtime.LastGrappleMovement is not { WallJumpStarted: true } ||
+                history.PreviousPose != samus.Pose || history.PreviousDirectionAndMovement != currentMetadata ||
+                history.LastDifferentPose != source || history.LastDifferentDirectionAndMovement != previousMetadata)
+                throw new InvalidDataException($"Grapple launch ${source:X2} -> ${samus.Pose:X2} failed to commit its native transitional-slot history: " +
+                    $"{history.PreviousPose:X4},{history.PreviousDirectionAndMovement:X4},{history.LastDifferentPose:X4},{history.LastDifferentDirectionAndMovement:X4}.");
+        }
+        Console.WriteLine("Grapple launch history: both forced launch directions commit exactly once.");
     }
 }

@@ -154,6 +154,9 @@ if (args.Length <= 2 && args.Length >= 1 && args[0] == "--magic-number-audit")
 if (args.Length == 3 && args[0] == "--damageboost-comparison-audit")
     return DamageBoostComparisonAudit.Run(args[1], args[2]);
 
+if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
+    return SpeedBoostAnimationAudit.Run(args[1], args[2]);
+
 if (args.Length == 3 && args[0] == "--damageboost-hurt-prefix-audit")
     return DamageBoostComparisonAudit.Run(args[1], args[2], hurtPrefixOnly: true);
 

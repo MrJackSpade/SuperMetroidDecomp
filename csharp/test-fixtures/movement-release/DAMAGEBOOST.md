@@ -552,3 +552,33 @@ normal dequeue/APU acknowledgement path, rather than private-field inspection.
 This supplies the required register-level audio operation but does not yet connect
 the animation-stage call to the frontend's live queue or resolve publication
 ordering. The 624 run-up animation mismatches remain an open gate.
+
+## Complete native stage-transition gate
+
+`native-speedboost-animation-probe.h` extends the same 64 queue contexts through
+the actual $90:852C routine. Start with counter $0301, frame 10/timer 1, running
+momentum, Run held, Speed Booster equipped, and zero animation-frame buffer.
+Dispatch `DiagnosticSpeedBoostAnimation(rom, output)` before SDL. The committed
+`speedboost-animation.csv` records counter, frame, timer and queue mutation.
+
+The current production routine fails 60/64 cases in the explicit diagnostic:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --speedboost-animation-audit 'Super Metroid.smc' csharp/test-fixtures/movement-release/speedboost-animation.csv
+```
+
+Only occupancy four matches the port's unconditional stage-four lookup. Native
+occupancies 0/1/2/3 produce counter $0401 and timers 3/2/2/1; occupancy four gives
+$0402/timer 1; occupancy five reads adjacent table data and gives $0400/timer 0;
+threshold-rejected occupancies 6..15 give $0401/timer 1. Suppression changes queue
+mutation but not these lookup results. Do not clamp the zero timer or substitute
+the stable stage-four index. The explicit diagnostic intentionally returns failure
+until the production animation/audio handoff is corrected; it is not a passing
+regression claim. The golden files contain results, not ROM bytes.
+
+Frontend inspection confirms the integration requirement: CollectTranslatedAudioRequests
+currently gathers gameplay producers after completed gameplay publication, while
+the stage transition requires an immediate sound call during animation. Existing
+earlier producers must be ordered into the same live queue before that call, and
+the later collector must not duplicate it. Neither a shadow empty queue nor the
+isolated native probe's undrained queue can stand in for that live state.

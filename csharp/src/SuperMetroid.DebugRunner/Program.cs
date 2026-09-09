@@ -176,6 +176,9 @@ if (args.Length == 5 && args[0] == "--input-replay-trace")
         traceStartFrame: int.Parse(args[3]),
         traceEndFrame: int.Parse(args[4]));
 }
+if (args.Length == 6 && args[0] == "--input-replay-capture")
+    return InputReplayAudit.Run(args[1], args[2], traceStartFrame: int.Parse(args[3]),
+        traceEndFrame: int.Parse(args[4]), frameCaptureDirectory: args[5]);
 
 if (args.Length == 4 && args[0] == "--start-input-visual-audit")
 {

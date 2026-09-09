@@ -27,9 +27,13 @@ internal static class InputReplayAudit
         bool enforcePlatformCrossingInvariant = false,
         int traceStartFrame = -1,
         int traceEndFrame = -1,
-        bool enforceStationaryMissileExplosions = false)
+        bool enforceStationaryMissileExplosions = false,
+        string? frameCaptureDirectory = null)
     {
         ControllerInputRecording recording = ControllerInputRecording.Read(recordingPath);
+        if (frameCaptureDirectory is not null && (traceStartFrame < 0 || traceEndFrame < traceStartFrame
+            || traceEndFrame >= recording.ControllerInputs.Length))
+            throw new ArgumentOutOfRangeException(nameof(traceEndFrame), "Capture requires an inclusive range within the recording.");
         PrintInputRuns(
             recording.ControllerInputs,
             startFrame: traceStartFrame >= 0 ? traceStartFrame : 5400,
@@ -46,7 +50,7 @@ internal static class InputReplayAudit
         var game = new SuperMetroidGame(
             bus,
             recording.GameOptions,
-            renderGameplayFrames: false);
+            renderGameplayFrames: frameCaptureDirectory is not null);
         var apuPortEchoes = new byte[4];
         var movingExplosions = new MovingMissileExplosionAudit(bus, enforceStationaryMissileExplosions);
         var tail = new Queue<ReplayFrameState>(RetainedTailFrames);
@@ -62,6 +66,7 @@ internal static class InputReplayAudit
         bool previousPowerBombDamagingRadius = false;
         SuperMetroidRuntime? lastRuntime = null;
         int wallJumpFrames = 0;
+        if (frameCaptureDirectory is not null) Directory.CreateDirectory(frameCaptureDirectory);
 
         for (int index = 0; index < recording.ControllerInputs.Length; index++)
         {
@@ -79,7 +84,22 @@ internal static class InputReplayAudit
             FrontendFrame frontend;
             try
             {
-                frontend = game.Step(input);
+                if (frameCaptureDirectory is null) frontend = game.Step(input);
+                else
+                {
+                    // Capture the actual frontend publication, including retained/faded
+                    // door displays. Rendering runtime state after the step misses those
+                    // transitions and can hide a one-frame camera/composition defect.
+                    var captured = game.StepCaptured(input, index + 1, 1);
+                    frontend = captured.Frame;
+                    if (index >= traceStartFrame && index <= traceEndFrame)
+                    {
+                        var snapshot = captured.Snapshot ?? throw new InvalidDataException($"Frame {index} has no captured display.");
+                        string prefix = Path.Combine(frameCaptureDirectory, $"frame-{index:D6}");
+                        File.WriteAllBytes(prefix + ".smframe", RenderFrameSnapshotCodec.Serialize(snapshot));
+                        PngWriter.WriteRgba(prefix + ".png", 256, 224, SoftwareFrameSnapshotRenderer.Render(snapshot));
+                    }
+                }
             }
             catch (Exception exception)
             {
@@ -137,7 +157,7 @@ internal static class InputReplayAudit
             // that inherited its predecessor's animation program. This remains cheap
             // enough for the always-headless recording audit and avoids modifying live
             // desktop behavior merely to diagnose a rare visual frame.
-            if (index >= traceStartFrame && index <= traceEndFrame &&
+            if (frameCaptureDirectory is null && index >= traceStartFrame && index <= traceEndFrame &&
                 selectedHudItemBeforeStep == 2 &&
                 runtime?.Projectiles.LastFrameResult.FiredSlot is int firedSlotIndex)
             {
@@ -152,7 +172,7 @@ internal static class InputReplayAudit
                     $"counter={runtime.Projectiles.ProjectileCounter}.");
             }
 
-            if (runtime is not null && index >= traceStartFrame && index <= traceEndFrame)
+            if (frameCaptureDirectory is null && runtime is not null && index >= traceStartFrame && index <= traceEndFrame)
             {
                 // Door-exit and short-input reports require the speed owners, not just
                 // integer positions: base speed, retained run momentum, deceleration,

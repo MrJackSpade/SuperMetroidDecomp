@@ -52,7 +52,7 @@ internal static class ElevatorSpinjumpAudit
         return 0;
     }
 
-    public static int Run(string rom, string? outputDirectory = null)
+    public static int Run(string rom, string? outputDirectory = null, bool directionHeldDuringArrival = false)
     {
         if (outputDirectory != null) Directory.CreateDirectory(outputDirectory);
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
@@ -66,7 +66,7 @@ internal static class ElevatorSpinjumpAudit
               (RoomHeaderPointers.LowerNorfairMainHall, "Lower Norfair") })
         {
             var door = doors.Single(d => d.DestinationRoomPointer == room && (d.BitFlags & 0x80) != 0);
-            foreach (int delay in new[] { 0, 1, 4, 8 })
+            foreach (int delay in directionHeldDuringArrival ? new[] { 0 } : new[] { 0, 1, 4, 8 })
             {
                 string? prefix = outputDirectory == null ? null : Path.Combine(outputDirectory, $"{room:X4}-{delay}");
                 using var trace = prefix == null ? null : new StreamWriter(prefix + ".managed.csv");
@@ -104,8 +104,14 @@ internal static class ElevatorSpinjumpAudit
                 {
                     int afterArrival = arrival < 0 ? -1 : frame - arrival - 1;
                     ushort input = (ushort)SnesButton.A;
-                    if (afterArrival >= delay) input |= (ushort)SnesButton.Left;
+                    if (directionHeldDuringArrival || afterArrival >= delay) input |= (ushort)SnesButton.Left;
                     runtime.StepFrame(input);
+                    if (arrival < 0 && runtime.Enemies.LastElevatorEvent != ElevatorFrameEvent.ArrivalCompleted)
+                    {
+                        if (!samus.InputLocked || samus.Pose != SamusPoseIds.ForwardFacingPowerSuitPose ||
+                            runtime.ProspectiveSamusPose != null)
+                            throw new InvalidDataException($"{name}: pose input escaped active elevator at frame {frame}.");
+                    }
                     if (arrival < 0)
                         actorTrace?.WriteLine($"{frame},{elevator.YPosition},{elevator.YSubposition},{(ushort)runtime.Enemies.ElevatorStatus},{runtime.Enemies.ElevatorFlags},{(samus.InputLocked ? 1 : 0)}");
                     if (arrival < 0 && runtime.Enemies.LastElevatorEvent == ElevatorFrameEvent.ArrivalCompleted)
@@ -124,7 +130,7 @@ internal static class ElevatorSpinjumpAudit
                     if (arrival >= 0 && frame - arrival >= 40) break;
                 }
                 if (arrival < 0) throw new InvalidDataException($"{name} elevator failed to release Samus.");
-                Console.WriteLine($"ARRIVAL {name}: door={door.Pointer:X4}, frames={arrival+1}, Y={arrivalY}, delay={delay}, firstSpin={spin}.");
+                Console.WriteLine($"ARRIVAL {name}: door={door.Pointer:X4}, frames={arrival+1}, Y={arrivalY}, delay={delay}, preheld={directionHeldDuringArrival}, firstSpin={spin}.");
             }
         }
         return 0;

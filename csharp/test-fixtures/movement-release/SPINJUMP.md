@@ -148,3 +148,16 @@ the retained native traces. The 480 post-release position/pose rows still match.
 `--elevator-spinjump-compare` now checks both ordered comparisons and requires a
 terminal unlocked actor state. This still excludes frontend fade and direction
 inputs before elevator completion; it is not full technique acceptance yet.
+
+### Direction held before release
+
+`--elevator-spinjump-preheld-audit ROM DIR` holds Jump and Left throughout arrival.
+The production runtime must retain locked pose zero and publish no prospective
+input pose on every frame before actor completion. Those negative assertions pass
+in all three rooms. At completion the managed runtime selects turn pose $25,
+then spin $1A one frame later (one frame earlier than adding Left after release).
+The sampled trajectory hits the Green Brinstar and Lower Norfair ceilings, while
+the Blue Brinstar trajectory continues upward. These are recorded observations,
+not yet cartridge golden assertions for the pre-held case. Its MOV2 seed now
+contains turn pose $25; the older forward-pose-only native release probe must not
+be used on it without explicitly extending its initialization contract.

@@ -97,3 +97,40 @@ discard this store, substitute an invented constant Y, or claim visual parity
 based only on the stationary projectile and damage word. Current rendering
 models effect-specific windows; the cached-register write, its NMI handoff,
 and relevant CPU-Y provenance still require integration and validation.
+
+## Register publication and competing producers (source trace)
+
+The pinned source establishes the following ordering; this is a source trace,
+not a new full-frame CPU reproduction:
+
+- `RunOneFrameOfGameInner` calls `HdmaObjectHandler` before dispatching the
+  gameplay state. When HDMA objects are enabled, that handler runs
+  `LayerBlendingHandler` after the object programs.
+- A nonzero low byte of the blending configuration calls
+  `InitializeLayerBlending` ($88:8075). This clears W12SEL/W34SEL/WOBJSEL,
+  TMW/TSW and assigns TM/TS, but does **not** clear the window edges or logic
+  registers. A frame-wide reset of every window byte would therefore be wrong.
+- Gameplay's `Samus_HandleHudSpecificBehaviorAndProjs` updates the selected
+  weapon and then calls `HandleProjectile`. Its misaligned callback can write
+  cached registers after the blending initialization; initialization is not
+  evidence that the callback's writes are invisible in that frame.
+- Accepted `Vector_NMI` calls `NmiUpdateIoRegisters` ($80:91EE), which uploads
+  the cached window registers and copies reg_TM to gameplay_TM. A lag NMI
+  skips that upload. The ordinary gameplay IRQ restores gameplay_TM after
+  the HUD's separate BG3-only designation.
+
+Window selection and screen admission must remain independent. In particular,
+the three Power Bomb blending routines at $88:8219/$88:823E/$88:8263 all set
+TMW to zero, while retaining TSW=4. A changed W12SEL alone consequently does
+not prove visible main-screen clipping during that configuration. Slot four's
+TM overwrite is a separate effect and does not require TMW. Other effects,
+subscreen composition and later producers still need their actual register
+values traced; do not assume the isolated probe's Power Bomb flag establishes
+an entire live HDMA configuration.
+
+Current port integration gap: `RunNmi` latches scroll/OAM/effect snapshots,
+but no literal cached window register owner is present. `CaptureOrdinaryBase`
+derives main-screen layers from door/boss state and leaves the packet's new
+window fields at defaults. Merely setting packet windows from the projectile
+would bypass both this accepted-NMI boundary and competing producers. The
+software/GPU primitive tests prove register interpretation, not this handoff.

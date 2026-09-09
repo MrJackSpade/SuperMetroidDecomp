@@ -631,7 +631,7 @@ if (args.Length >= 2 && args[0] == "--elevator-audit")
 }
 
 // Opt-in red reproduction for #485. Do not conflate ordinary bomb admission
-// with sustained detachment: the full runtime currently reattaches five frames later.
+// with detachment during the actual dry-floor bomb-jump trajectory.
 if (args.Length == 2 && args[0] == "--metroid-runtime-bomb-audit")
     return MetroidAudit.VerifyRuntimePlacedBomb(args[1]);
 if (args.Length >= 2 && args[0] == "--metroid-audit")

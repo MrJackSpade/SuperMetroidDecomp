@@ -4,22 +4,22 @@ using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Body-overlap conveyor and sand reactions from bank-$94 BlockInsideDetection.</summary>
+/// <summary>Body-overlap scroll, conveyor and sand reactions from bank-$94 BlockInsideDetection.</summary>
 public static class SamusInsideBlockReactions
 {
     /// <summary>Samples bottom, center, and top in native order, visiting each block row only once.</summary>
     public static void PrepareFrame(ISnesAddressSpace bus, RoomLevelData level, SamusState samus,
-        AreaId area, bool areaBossDefeated = false)
+        AreaId area, bool areaBossDefeated = false, RoomPlmSystem? plms = null)
     {
         var body = samus.Kinematics;
         body.SandCollisionArea = area;
         ushort bottom = unchecked((ushort)(body.YPosition + body.YRadius - 1));
         ushort top = unchecked((ushort)(body.YPosition - body.YRadius));
-        Visit(bottom, true);
-        if ((bottom >> 4) != (body.YPosition >> 4)) Visit(body.YPosition, false);
-        if ((top >> 4) != (bottom >> 4) && (top >> 4) != (body.YPosition >> 4)) Visit(top, false);
+        Visit(bottom, true, false);
+        if ((bottom >> 4) != (body.YPosition >> 4)) Visit(body.YPosition, false, true);
+        if ((top >> 4) != (bottom >> 4) && (top >> 4) != (body.YPosition >> 4)) Visit(top, false, false);
 
-        void Visit(ushort y, bool bottomPoint)
+        void Visit(ushort y, bool bottomPoint, bool centerPoint)
         {
             var block = level.GetCollisionBlockOrPrefilledSolid(body.XPosition >> 4, y >> 4);
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
@@ -27,6 +27,13 @@ public static class SamusInsideBlockReactions
                 return;
             if (!block.Bts.UsesAreaReactionTable)
             {
+                // $94:9956 admits only inside-block sample one (the center).
+                // Feet/head contacts belong to the separate movement scans. Keeping
+                // this center wake-up lets a lower trigger win after the torso clears
+                // an upper trigger, without changing native PLM slot priority.
+                if (centerPoint && block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
+                    (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
+                    throw new InvalidOperationException($"Inside scroll trigger block {block.Index} has no active PLM owner.");
                 // The normal table contains conveyors; area-table entries below own
                 // sand. Both must be visited in the same bottom/center/top order.
                 ApplyConveyor(block.Behavior);

@@ -15,19 +15,9 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0x9cb3, cameraX: 1024);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, cameraX: 1024);
         var level = runtime.LevelData!;
-        Console.WriteLine($"Room {runtime.ActiveRoom!.Identity}: {level.WidthInBlocks}x{level.HeightInBlocks} blocks");
-        for (int y = 0; y < level.HeightInBlocks; y++)
-        for (int x = 0; x < level.WidthInBlocks; x++)
-        {
-            var block = level.GetCollisionBlock(x, y);
-            if (block.Behavior == RoomBlockBehaviorValues.ScrollTrigger.Value || block.CollisionType == RoomCollisionType.SpecialBlock)
-                Console.WriteLine($"candidate block {x}/{y}: {block.CollisionType}/{block.Behavior}");
-        }
         var samus = runtime.Samus!;
-        foreach (var scroll in runtime.Plms.ScrollPlms)
-            Console.WriteLine($"scroll owner={scroll.BlockIndex} data={scroll.DataPointer:X4} bytes={string.Join(',', Enumerable.Range(0, 15).Select(i => bus.ReadByte(0x8f0000 | (scroll.DataPointer + i)).ToString("X2")))}");
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.EquippedItems = (ushort)SamusEquipmentFlags.SpeedBooster;
@@ -41,11 +31,18 @@ internal static partial class Program
         samus.HorizontalSpeed.BaseSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSpeed = 7;
         samus.HorizontalSpeed.SpeedBoostCounter = SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage | 1;
-        for (int tick = 0; tick < 240; tick++)
+        for (int tick = 0; tick < 420; tick++)
         {
             runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Dash | runtime.ControllerBindings.Shoot));
-            if (tick % 20 == 0 || tick is >= 12 and < 27)
-                Console.WriteLine($"frame={tick} Samus={samus.XPosition}/{samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} boost={samus.HorizontalSpeed.SpeedBoostCounter:X4} trigger={level.GetCollisionBlock(74,13).LevelWord:X4}/{level.GetCollisionBlock(74,13).Behavior:X2} live={string.Join(',', runtime.Plms.ScrollPlms.Select(p => p.Triggered))} scroll11={runtime.Camera.Scrolls.Storage[11]}");
+            if (tick >= 40)
+            {
+                AssertEqual(RoomScrollState.Green, runtime.Camera!.Scrolls.ReadNativeState(11),
+                    "lower trigger keeps shaft unlocked after torso leaves upper trigger");
+                int screenY = samus.YPosition - runtime.Camera.YPosition;
+                AssertTrue(screenY is >= 32 and < 224, "falling Samus remains within the viewport without byte wrapping");
+            }
+            if (tick % 100 == 0)
+                Console.WriteLine($"frame={tick} Samus={samus.XPosition}/{samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}");
         }
         runtime.RunNmi(0, true);
         var frame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -55,5 +52,8 @@ internal static partial class Program
         AssertTrue(samus.YPosition > 1000, "fixture breaks through the actual speed floor and falls down the shaft");
         AssertTrue(runtime.Camera!.YPosition > 900,
             "#374: camera must follow the opened shaft instead of leaving falling Samus more than a screen below it");
+        AssertEqual((ushort)1707, samus.YPosition, "descent lands on the retail bottom floor");
+        AssertEqual((ushort)1567, runtime.Camera.YPosition, "camera reaches the bottom blue-scroll alignment");
+        Console.WriteLine($"Dachora floor descent completed: SamusY={samus.YPosition}, cameraY={runtime.Camera.YPosition}.");
     }
 }

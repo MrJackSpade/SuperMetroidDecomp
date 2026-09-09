@@ -1933,7 +1933,7 @@ public sealed partial class SuperMetroidRuntime
 
                 if (!TimeIsFrozen && !Samus.InputLocked && ActiveRoom is { } insideRoom)
                     SamusInsideBlockReactions.PrepareFrame(_addressSpace, LevelData, Samus, insideRoom.AreaIndex,
-                        System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss));
+                        System.HasAnyBossBits(insideRoom.AreaIndex, BossBits.AreaBoss), Plms);
 
                 // Alpha order is cooldown -> movement-type HUD projectile producer ->
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap

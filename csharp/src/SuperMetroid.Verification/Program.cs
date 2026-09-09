@@ -121,6 +121,7 @@ if (args.Contains("--escape-timer"))
     return 0;
 }
 VerifyAndroidHostPolicies();
+VerifyBoostFloorScroll();
 VerifyXrayControls();
 VerifyElevatubeScrolling();
 VerifyIniEditing();

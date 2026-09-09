@@ -79,6 +79,20 @@ internal static partial class Program
             lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 
+        // $94:9956 reacts only to the center sample, including extension resolution.
+        // Foot/head visits must not substitute for a center skipped by native row deduplication.
+        foreach ((ushort centerY, ushort radius, bool shouldWake) in new[]
+            { ((ushort)40, (ushort)21, false), ((ushort)72, (ushort)21, false),
+              ((ushort)56, (ushort)7, false), ((ushort)56, (ushort)21, true) })
+        {
+            var insideSamus = new SamusState { XPosition = 72, YPosition = centerY };
+            insideSamus.Kinematics.YRadius = radius;
+            SamusInsideBlockReactions.PrepareFrame(bus, level, insideSamus, AreaId.Crateria, plms: plms);
+            AssertEqual(shouldWake, plms.ScrollPlms[0].Triggered,
+                "inside scroll reaction admits only a separately visited center, not feet/head");
+            plms.Step(bus, level, streamer, 0, 0, 0, scrolls);
+        }
+
         // A direct touch wakes the resident object. Its next handler pass interprets the
         // room-owned bank-$8F bytecode, restores sleep/type-three state, and remains live.
         AssertTrue(plms.TryNotifyScrollTouch(origin),

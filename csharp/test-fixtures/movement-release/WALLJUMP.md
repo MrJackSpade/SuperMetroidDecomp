@@ -246,3 +246,33 @@ integration was removed. This verifies delayed clearance around the overhang;
 the fixture stops before a subsequent jump off the overhang's side and is not
 a full retail-room traversal. Charge-release and remaining forced-owner/legacy
 entry checks are still pending for #473.
+
+## Charged-spin Shoot release
+
+Mode seven expands the native comparison to 12,480 samples and adds charge,
+contact-damage and projectile-count words. It starts with charge sixty, holds
+Shoot through the attempted launch frame and releases it on the next frame.
+Both directions, both history seeds and all thirteen Jump delays are retained.
+The initial hold-through-frame-twelve experiment exited spin in the cartridge;
+its incomplete CSV is not accepted as evidence for a spin-release test.
+
+The native probe calls the actual JumpEtc HUD handler for the spin/walljump
+types, with inactive grapple, before beta resets contact damage. It does not
+model a full native projectile loop: the fixture requires zero projectiles,
+and this native HUD handler creates none. Managed charge is built through the
+real projectile producer before the movement seed, not just its Samus mirror.
+
+This reproduced 1,560 charge/contact mismatches with matching motion: C# ran
+the normal beam producer during spin, incrementing charge while held and
+consuming it on release. The production spin/walljump dispatch now preserves
+charge when grapple is inactive, while continuing to step existing projectiles.
+All 12,480 frames match position, pose, animation, history and speed; the 1,560
+charge-mode frames also match charge, contact damage and projectile counts.
+Native charge stays sixty, with no projectile; contact damage is four on
+1,280 frames and zero on the other 280, following walljump animation timing.
+
+The automatic core regression checks hold/release in all four spin/walljump
+poses and ordinary release after leaving spin. Temporary native integration
+was removed. This completes the charged-spin release comparison, not the
+remaining forced-history-owner/legacy-entry audit or a subsequent overhang-side
+jump. Issue #473 remains open until its remaining acceptance work is complete.

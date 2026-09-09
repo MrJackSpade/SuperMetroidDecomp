@@ -8,17 +8,19 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksSpeed = rows.Length is 6240 or 7800 or 9360 or 10920 && rows[0].Length == 18;
+        bool checksCharge = rows.Length == 12480 && rows[0].Length == 21;
+        bool checksSpeed = checksCharge || rows.Length is 6240 or 7800 or 9360 or 10920 && rows[0].Length == 18;
         bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
         int inputModes = hasPostInput ? rows.Length / 1560 : 1;
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
-            throw new InvalidDataException("Expected 26, 52, 208, 260, 312, or 364 cases of 30 frames.");
+            throw new InvalidDataException("Unexpected walljump matrix dimensions.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
         int speedMismatches = 0;
+        int chargeMismatches = 0;
         int[] mismatchesByPostInput = new int[inputModes];
         for (int postInput = 0; postInput < inputModes; postInput++)
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
@@ -35,6 +37,19 @@ internal static class WallJumpComparisonAudit
                 level.SetForegroundEntry(6 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
             var samus = runtime.Samus!;
             if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
+            if (postInput == 7)
+            {
+                samus.EquippedBeams = 0x1000;
+                // Charge through the projectile owner, whose counter is published to
+                // Samus during alpha. Setting only the movement mirror loses the seed.
+                for (int chargeFrame = 0; chargeFrame < 60; chargeFrame++)
+                    runtime.Projectiles.StepFrame(bus, level, samus, 0x40, 0,
+                        runtime.Camera!.XPosition, runtime.Camera.YPosition, runtime.BombProjectiles);
+                if (runtime.Projectiles.FlareCounter != 60 || runtime.Projectiles.ProjectileCounter != 0)
+                    throw new InvalidDataException("Charged walljump seed must have charge and no projectile.");
+                samus.ProjectileFlareCounter = runtime.Projectiles.FlareCounter;
+                runtime.Controller1.Latch(0x40);
+            }
             samus.XPosition = (ushort)(left != 0 ? 122 : 134);
             samus.YPosition = 160;
             samus.Kinematics.YSubposition = 0;
@@ -88,9 +103,20 @@ internal static class WallJumpComparisonAudit
                 {
                     var speed = samus.HorizontalSpeed;
                     string actualSpeed = $"{speed.BaseFixed:X8},{speed.ExtraRunSpeed:X4}{speed.ExtraRunSubspeed:X4},{speed.AccelerationMode:X4},{speed.SpeedDivisor:X4}";
-                    string expectedSpeed = string.Join(',', row[12..]);
+                    string expectedSpeed = string.Join(',', row[12..16]);
                     if (actualSpeed != expectedSpeed && speedMismatches++ < 16)
                         Console.WriteLine($"SPEED postInput={postInput} history={history} left={left} delay={delay} frame={frame}: {actualSpeed} != {expectedSpeed}");
+                }
+                if (checksCharge && postInput == 7)
+                {
+                    ushort expectedInput = (ushort)((left != 0 ? 0x200 : 0x100) |
+                        (frame >= delay ? 0x80 : 0) | (frame <= delay ? 0x40 : 0));
+                    if (input != expectedInput || row[16] != "003C" || row[18] != "0000")
+                        throw new InvalidDataException("Charge fixture must release Shoot after launch and retain charge without a shot.");
+                    string actualCharge = $"{samus.ProjectileFlareCounter:X4},{samus.HorizontalSpeed.ContactDamageIndex:X4},{runtime.Projectiles.ProjectileCounter:X4}";
+                    string expectedCharge = string.Join(',', row[16..]);
+                    if (actualCharge != expectedCharge && chargeMismatches++ < 16)
+                        Console.WriteLine($"CHARGE history={history} left={left} delay={delay} frame={frame}: {actualCharge} != {expectedCharge}");
                 }
                 bool managedIsWall = samus.ReadMovementType(bus) == SamusMovementType.WallJumping;
                 bool nativeIsWall = byte.Parse(row[6], NumberStyles.HexNumber) is
@@ -128,7 +154,8 @@ internal static class WallJumpComparisonAudit
         for (int mode = 0; mode < inputModes; mode++)
             Console.WriteLine($"Post-input mode {mode}: {mismatchesByPostInput[mode]} motion/pose/animation mismatches.");
         Console.WriteLine($"Speed-word mismatches: {speedMismatches} (checked={checksSpeed}).");
-        return mismatches == 0 && historyMismatches == 0 && speedMismatches == 0 ? 0 : 1;
+        Console.WriteLine($"Charge/contact/projectile mismatches: {chargeMismatches} (checked={checksCharge}).");
+        return mismatches == 0 && historyMismatches == 0 && speedMismatches == 0 && chargeMismatches == 0 ? 0 : 1;
     }
 
     private static void VerifyGrappleLaunchHistory(SuperMetroidAddressSpace bus)

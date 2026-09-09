@@ -377,7 +377,14 @@ public sealed partial class SamusProjectileSystem
         // $90:DCE0-DCE8 branches straight to Handle_Projectiles for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
-        if (projectileProducerEnabled && !SamusState.IsForwardFacingPose(samus.Pose) &&
+        // The spin/wall-jump entries dispatch HudSelectionHandler_JumpEtc, not
+        // the normal beam producer. With grapple inactive that handler does
+        // nothing: held/released Shoot must leave the charge word untouched.
+        // Existing projectiles still advance below. Pose input can leave spin
+        // first, making the normal producer eligible on the following alpha.
+        bool preservesSpinCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
+            samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
+        if (projectileProducerEnabled && !preservesSpinCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
             !SamusState.IsStableBallPose(samus.Pose))
         {
             // $90:DDC8 calls the normal beam handler when selected X-ray's Run

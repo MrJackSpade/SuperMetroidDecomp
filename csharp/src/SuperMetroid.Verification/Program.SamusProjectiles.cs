@@ -641,6 +641,7 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(60, chargeProjectiles.FlareCounter,
         "charge held frames reach armed threshold");
     AssertTrue(flareBecameVisible, "charge flare becomes visible from ROM spritemap table");
+    VerifySpinChargePreservation(bus, air);
 
     // Make the release allocation fail through the real shared-cooldown gate. Native
     // FireUnchargedBeam still stops a charge that reached sound-start counter sixteen,

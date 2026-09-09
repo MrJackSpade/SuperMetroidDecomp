@@ -21,8 +21,8 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   printf("HISTORY: native word shift and same-pose shift passed.\n");
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
-  fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata,baseSpeed,extraSpeed,accelerationMode,divisor\n");
-  for (int postInput = 0; postInput < 7; postInput++)
+  fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata,baseSpeed,extraSpeed,accelerationMode,divisor,charge,contactDamage,projectiles\n");
+  for (int postInput = 0; postInput < 8; postInput++)
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -48,8 +48,14 @@ int DiagnosticWalljump(const char *rom, const char *output) {
     samus_x_speed_table_pointer = 0x9f55; samus_input_handler = 0xe913;
     samus_health = 99; button_config_run_b = 0x8000; button_config_jump_a = 0x80;
     uint16 previous = 0;
+    if (postInput == 7) {
+      equipped_beams = 0x1000; flare_counter = 60;
+      button_config_shoot_x = 0x40; previous = 0x40;
+      grapple_beam_function = 0xc4f0;
+    }
     for (int frame = 0; frame < 30; frame++) {
       uint16 input = (left ? 0x200 : 0x100) | (frame >= delay ? 0x80 : 0);
+      if (postInput == 7 && frame <= delay) input |= 0x40;
       if (postInput == 4 && frame >= 12) {
         // Return toward the original wall, then turn away and press Jump again.
         input = frame < 21 ? (left ? 0x100 : 0x200) | 0x80 :
@@ -62,15 +68,22 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
+      if (postInput == 7) {
+        // Types three and twenty dispatch this real HUD handler. It leaves a
+        // charged spin alone on Shot release when grapple is inactive.
+        if (samus_movement_type != 3 && samus_movement_type != 20) return 7;
+        RunAsmCode(0x90ddb6, 0, 0, 0, 0);
+        samus_contact_damage_index = 0;
+      }
       RunAsmCode(0x909c5b, 0, 0, 0, 0); RunAsmCode(0x90a337, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0); RunAsmCode(0x90eab3, 0, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X\n", postInput, history, left, delay, frame, input,
+      fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%04X\n", postInput, history, left, delay, frame, input,
         samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame,
         samus_prev_pose, *(uint16 *)&samus_prev_pose_x_dir,
         samus_last_different_pose, *(uint16 *)&samus_last_different_pose_x_dir,
         samus_x_base_speed, samus_x_base_subspeed, samus_x_extra_run_speed, samus_x_extra_run_subspeed,
-        samus_x_accel_mode, samus_x_speed_divisor);
+        samus_x_accel_mode, samus_x_speed_divisor, flare_counter, samus_contact_damage_index, projectile_counter);
     }
   }
   fclose(f); return 0;

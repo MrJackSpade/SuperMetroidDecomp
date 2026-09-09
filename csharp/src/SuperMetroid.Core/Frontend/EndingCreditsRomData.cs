@@ -133,10 +133,12 @@ public static class EndingCreditsRomData
     public static class Motion
     {
         public const ushort IdentityScale = 0x0100;
-        public const ushort EscapeInitialX = 0x0020;
-        public const ushort EscapeInitialY = 0x0040;
-        public const ushort EscapeEndY = 0x0180;
-        public const ushort CloudMotionStartY = 0x0060;
+        /// <summary>$8B:D480/D731 seed cinematic_var5 (angle), not horizontal scrolling.</summary>
+        public const byte EscapeInitialAngle = 0x20;
+        /// <summary>$8B:D480/D731/D837 seed cinematic_var6 (zoom), not vertical scrolling.</summary>
+        public const ushort EscapeInitialScale = 0x0040;
+        public const ushort EscapeEndScale = 0x0180;
+        public const ushort CloudMotionStartScale = 0x0060;
         public const ushort CloudSceneBScaleLimit = 0x00b0;
         public const ushort PlanetEscapeInitialScale = 0x0c00;
         public const ushort PlanetFastEndScale = 0x05b0;

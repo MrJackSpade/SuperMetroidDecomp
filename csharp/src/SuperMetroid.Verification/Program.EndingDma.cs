@@ -11,6 +11,11 @@ internal static partial class Program
         var audio = new CartridgeAudioState();
         var ending = new EndingCreditsState(bus, audio, 0, 0);
         ending.Step();
+        var projection = ending.CaptureRenderSnapshot().Layers.ToArray().OfType<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
+        AssertEqual((short)0, projection.HorizontalOffset, "native atmospheric scroll X");
+        AssertEqual((short)0, projection.VerticalOffset, "native atmospheric scroll Y");
+        AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
+        AssertEqual((short)45, projection.MatrixB, "native initial angle 32, scale 64 sine");
         var memory = ending.CaptureRenderSnapshot().Memory;
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
         byte[] characters = RomDataReader.Decompress(bus, 0x98bcd6, 0x8000);

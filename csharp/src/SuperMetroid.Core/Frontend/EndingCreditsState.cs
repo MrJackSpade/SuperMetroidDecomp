@@ -97,16 +97,16 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.FadeInEscapeSceneA:
+                StepAtmosphericTransform(2);
                 StepEscapeClouds(sceneB: false);
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.EscapeSceneA;
                 break;
 
             case EndingCreditsPhase.EscapeSceneA:
+                StepAtmosphericTransform(2);
                 StepEscapeClouds(sceneB: false);
-                mode7X = unchecked((ushort)(mode7X - ((cinematicFrame & 1) == 0 ? 1 : 0)));
-                mode7Y = unchecked((ushort)(mode7Y + 2));
-                if (mode7Y >= EndingCreditsRomData.Motion.EscapeEndY)
+                if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -114,22 +114,23 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.FadeOutEscapeSceneA:
+                StepAtmosphericTransform(2);
                 StepEscapeClouds(sceneB: false);
                 if (StepFastFadeOut())
                     SetupEscapeSceneB();
                 break;
 
             case EndingCreditsPhase.FadeInEscapeSceneB:
+                StepAtmosphericTransform(3);
                 StepEscapeClouds(sceneB: true);
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.EscapeSceneB;
                 break;
 
             case EndingCreditsPhase.EscapeSceneB:
+                StepAtmosphericTransform(3);
                 StepEscapeClouds(sceneB: true);
-                mode7X = unchecked((ushort)(mode7X - ((cinematicFrame & 1) == 0 ? 1 : 0)));
-                mode7Y = unchecked((ushort)(mode7Y + 3));
-                if (mode7Y >= EndingCreditsRomData.Motion.EscapeEndY)
+                if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -137,6 +138,7 @@ internal sealed partial class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.FadeOutEscapeSceneB:
+                StepAtmosphericTransform(3);
                 StepEscapeClouds(sceneB: true);
                 if (StepFastFadeOut())
                     SetupZebesExplosion();
@@ -144,14 +146,14 @@ internal sealed partial class EndingCreditsState
 
             case EndingCreditsPhase.FadeInZebesExplosion:
                 StepSprites();
-                mode7Y = unchecked((ushort)(mode7Y + 4));
+                mode7Zoom = unchecked((ushort)(mode7Zoom + 4));
                 if (StepFastFadeIn())
                     Phase = EndingCreditsPhase.ZebesExplosionPaletteCrossfade;
                 break;
 
             case EndingCreditsPhase.ZebesExplosionPaletteCrossfade:
                 StepSprites();
-                mode7Y = unchecked((ushort)(mode7Y + 4));
+                mode7Zoom = unchecked((ushort)(mode7Zoom + 4));
                 if (--phaseTimer <= 0)
                 {
                     phaseTimer = 16;
@@ -347,10 +349,9 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
-        mode7X = EndingCreditsRomData.Motion.EscapeInitialX;
-        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
-        mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
-        mode7Angle = SnesAngle.Zero;
+        mode7X = mode7Y = 0;
+        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
         brightness = 0;
         postCreditsVerticalScroll = 0;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
@@ -375,8 +376,9 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
-        mode7X = EndingCreditsRomData.Motion.EscapeInitialX;
-        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
+        mode7X = mode7Y = 0;
+        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        mode7Angle = SnesAngle.FromTableIndex(EndingCreditsRomData.Motion.EscapeInitialAngle);
         brightness = 0;
         fadeCounter = 1;
         Phase = EndingCreditsPhase.FadeInEscapeSceneB;
@@ -400,8 +402,8 @@ internal sealed partial class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
         mode7X = 0;
-        mode7Y = EndingCreditsRomData.Motion.EscapeInitialY;
-        mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
+        mode7Y = 0;
+        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
         mode7Angle = SnesAngle.Zero;
         brightness = 0;
         fadeCounter = 1;
@@ -625,7 +627,7 @@ internal sealed partial class EndingCreditsState
             {
                 case EndingSpriteRole.CloudRightA:
                 case EndingSpriteRole.CloudRightB:
-                    if (mode7Y >= EndingCreditsRomData.Motion.CloudMotionStartY)
+                    if (mode7Zoom >= EndingCreditsRomData.Motion.CloudMotionStartScale)
                     {
                         sprite.XPosition = unchecked((ushort)(sprite.XPosition - 2));
                         sprite.YPosition--;
@@ -633,7 +635,7 @@ internal sealed partial class EndingCreditsState
                     break;
                 case EndingSpriteRole.CloudLeftA:
                 case EndingSpriteRole.CloudLeftB:
-                    if (mode7Y >= EndingCreditsRomData.Motion.CloudMotionStartY)
+                    if (mode7Zoom >= EndingCreditsRomData.Motion.CloudMotionStartScale)
                     {
                         sprite.XPosition = unchecked((ushort)(sprite.XPosition + 2));
                         sprite.YPosition++;
@@ -652,6 +654,14 @@ internal sealed partial class EndingCreditsState
             }
             sprite.Step(bus);
         }
+    }
+
+    private void StepAtmosphericTransform(int scaleDelta)
+    {
+        // Func111/114 run during both fades as well as the fully visible interval.
+        if ((cinematicFrame & 1) == 0)
+            mode7Angle = mode7Angle.AddTableUnits(-1);
+        mode7Zoom = unchecked((ushort)(mode7Zoom + scaleDelta));
     }
 
     private void StepSprites()

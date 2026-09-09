@@ -1529,14 +1529,6 @@ public sealed partial class SuperMetroidRuntime
                 RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
         }
 
-        // `$0B14/$0B16` retain the unsigned horizontal distance accepted during the prior
-        // gameplay frame. Capture the live fixed-point origin before enemies and bank $90
-        // run; the tail below publishes the modular absolute delta for next frame's Yard
-        // kick calculation.
-        uint samusXAtFrameStart = Samus is null
-            ? 0
-            : ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
-
         // MainScrollingRoutine saves its previous-position words after scrolling, not at
         // frame start. This fallback is only for a newly loaded/restored camera; otherwise
         // retain the preceding scrolling checkpoint so later room-main movement (such as
@@ -3792,6 +3784,12 @@ public sealed partial class SuperMetroidRuntime
                         XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
                         CameraDistanceIndex: 0));
+                // $90:96C0 writes the same distance-plus-one words consumed by Yard
+                // kick setup. Publish the camera calculation itself, including its
+                // integer-only sign test and previous scrolling checkpoint. A second
+                // frame-end absolute delta loses both the bias and checkpoint timing.
+                Samus.AbsoluteMovedLastFrameXFixed =
+                    ((uint)Camera.CameraXSpeed << 16) | Camera.CameraXSubspeed;
                 Camera.TrackMovedSamusVertically(
                     previousCameraPoint,
                     currentCameraPoint,
@@ -4343,12 +4341,6 @@ public sealed partial class SuperMetroidRuntime
         {
             PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
 
-            uint samusXAtFrameEnd =
-                ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
-            int signedDistance = unchecked((int)(samusXAtFrameEnd - samusXAtFrameStart));
-            Samus.AbsoluteMovedLastFrameXFixed = signedDistance < 0
-                ? unchecked((uint)-signedDistance)
-                : unchecked((uint)signedDistance);
         }
 
         CompletedGameplayAudioPublication++;

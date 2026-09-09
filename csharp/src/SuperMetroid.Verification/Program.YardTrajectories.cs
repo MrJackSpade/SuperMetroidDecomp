@@ -11,6 +11,7 @@ internal static partial class Program
         var room = CartridgeRoomHeader.Load(bus, 0xd5a7);
         var assets = CartridgeRoomAssets.Load(bus, room);
         VerifyYardLanding(bus, room);
+        VerifyYardRuntimeDistancePublication();
         VerifyYardAirborneTrajectories(bus, room);
         for (int focus = 0; focus < 5; focus++)
         {

@@ -4,6 +4,27 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyYardRuntimeDistancePublication()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(0, true);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.StepFrame(0);
+        AssertEqual(0x00010000u, runtime.Samus!.AbsoluteMovedLastFrameXFixed,
+            "stationary native distance includes one pixel for the next Yard kick");
+        runtime.Samus.Kinematics.XSubposition = 0xE000;
+        runtime.StepFrame(0);
+        AssertEqual(0x0001E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
+            "Yard receives full fractional camera checkpoint displacement");
+        runtime.Samus.Kinematics.XSubposition = 0xC000;
+        runtime.StepFrame(0);
+        AssertEqual(0x0000E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
+            "native integer-only direction test allows biased distance below one pixel");
+    }
+
     private static void VerifyYardAirborneTrajectories(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var empty = new ushort[64 * 64];

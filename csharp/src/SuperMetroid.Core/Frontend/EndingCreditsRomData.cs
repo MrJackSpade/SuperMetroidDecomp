@@ -130,6 +130,12 @@ public static class EndingCreditsRomData
         public const ushort HelmetlessMaximumHoursExclusive = 10;
     }
 
+    public static class Timing
+    {
+        /// <summary>$8B:E158 sets cinematic_var4 to $00B4 for Func132's waiting backdrop.</summary>
+        public const int WaitingBackdropFrames = 180;
+    }
+
     public static class Motion
     {
         public const ushort IdentityScale = 0x0100;

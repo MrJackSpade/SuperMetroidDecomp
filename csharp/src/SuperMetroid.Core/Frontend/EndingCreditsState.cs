@@ -248,6 +248,16 @@ internal sealed partial class EndingCreditsState
             case EndingCreditsPhase.PostCreditsShootingStars:
                 if (--phaseTimer <= 0)
                 {
+                    // Func131 finishes its palette fade, then Func132 holds the waiting
+                    // backdrop for three seconds before displaying the producer panel.
+                    phaseTimer = EndingCreditsRomData.Timing.WaitingBackdropFrames;
+                    Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
+                }
+                break;
+
+            case EndingCreditsPhase.PostCreditsWaitingBackdrop:
+                if (--phaseTimer <= 0)
+                {
                     // Function 132 installs the complete $8C:DC9B result panel into rows
                     // nine through seventeen before the following 180-frame hold.
                     CopyPostCreditsWords(
@@ -978,6 +988,7 @@ internal enum EndingCreditsPhase
     PostCreditsBlank,
     PostCreditsFadeIn,
     PostCreditsShootingStars,
+    PostCreditsWaitingBackdrop,
     PostCreditsWaitingSamus,
     PostCreditsReward,
     ItemPercentage,

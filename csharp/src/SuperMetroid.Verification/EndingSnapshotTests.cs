@@ -19,6 +19,7 @@ internal static partial class Program
             var legacy = new EndingCreditsState(bus, audio, hours, 59);
             var captured = new EndingCreditsState(otherBus, otherAudio, hours, 59);
             var phases = new HashSet<EndingCreditsPhase>();
+            var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
@@ -29,6 +30,10 @@ internal static partial class Program
                     AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool firstPhaseFrame = phases.Add(legacy.Phase);
+                if (firstPhaseFrame) phaseEntryFrames.Add(legacy.Phase, tick);
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
+                    AssertEqual(212, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars],
+                        "native post-credits backdrop has 32 fade frames followed by 180 waiting frames before producer text");
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                     gunshipPalettes.Add(string.Join(',', legacy.CaptureRenderSnapshot().Memory.Cgram.Slice(80, 16).ToArray()));

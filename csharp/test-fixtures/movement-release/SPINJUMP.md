@@ -18,11 +18,14 @@ Compare using:
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release --no-launch-profile -- --spinjump-comparison-audit "Super Metroid.smc" csharp/test-temp/spinjump-native.csv
 ```
 
-72 cases: both facings, dry/submerged, direction-before-jump or jump-before-
-opposite-direction, delays 0..8, 24 neutral warmup frames and 40 sampled frames.
+108 cases: both facings, dry/submerged, three input scenarios, delays 0..8,
+24 warmup frames and 40 sampled frames. Scenarios are direction-before-jump,
+jump-before-opposite-direction, and Jump held for the last input-locked warmup
+frame before unlocking and pressing the opposite direction at the chosen delay.
 No equipment or gameplay cheats. Native calls include collision-radius refresh,
-input, gravity refresh, movement, animation, and pose collision/transition stages.
-The comparer asserts every sampled X/Y fixed-point position and pose.
+the installed input handler ($90:E90F), gravity refresh, movement, animation,
+pose collision/transition stages, and draw-time input history ($90:EAB3).
+The comparer asserts every sampled X/Y fixed-point position, pose and movement type.
 
 Initial result: 68 mismatches out of 2,880 samples. Both dry direction-first
 cases at delay 6 diverge at frame 6: native accepts spinjump ($19/$1A), managed
@@ -38,6 +41,12 @@ checks four jump targets, absent/non-jump targets, and the locked-input exceptio
 This fixes the reproduced turnaround-completion input loss, not the remaining
 elevator-specific portion of the ticket.
 
-This does not cover elevator departure, landing buffers, or all animation states.
-Those remain part of #474. The jump-first cases here begin on an ordinary floor,
-not with elevator-owned input suppression.
+Expanded result: all 4,320 samples match with the installed auto-jump handler and
+draw-time Jump history included. In the dry zero-delay input-unlock case, frame
+zero enters turn pose $26, frame one enters spin pose $19, and movement starts on
+frame two, exactly matching the cartridge. Both facings and water are checked.
+This is an input-unlock fixture, not a complete elevator actor/room reproduction.
+
+This does not cover full elevator departure, landing buffers, or all animation states.
+Those remain part of #474. In particular, Blue Brinstar and Lower Norfair elevator
+exceptions cannot be inferred from this synthetic flat floor.

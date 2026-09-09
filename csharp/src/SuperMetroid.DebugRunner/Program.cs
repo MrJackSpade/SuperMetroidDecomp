@@ -701,6 +701,8 @@ if (args.Length >= 2 && args[0] == "--elevator-audit")
 
 // #485 characterization, not proof of the reported defect: the native focused
 // sequence also misses one centered bomb during the dry-floor bomb-jump arc.
+if (args.Length == 3 && args[0] == "--metroid-controller-comparison-audit")
+    return MetroidAudit.CompareControllerBombs(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--metroid-runtime-bomb-audit")
     return MetroidAudit.VerifyRuntimePlacedBomb(args[1]);
 if (args.Length >= 2 && args[0] == "--metroid-audit")

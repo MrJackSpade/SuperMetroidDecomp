@@ -248,7 +248,7 @@ internal static partial class Program
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
             Rgba32[] final = legacy.Render();
             LayeredRenderSnapshot retained = captured.CaptureRenderSnapshot();
-            for (int i = 0; i < 120; i++) captured.Step();
+            for (int i = 0; i < 600; i++) captured.Step();
             PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-Final.png", 256, 224, captured.Render());
             AssertTrue(final.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(retained)), "ending final packet survives simulation advance");
         }

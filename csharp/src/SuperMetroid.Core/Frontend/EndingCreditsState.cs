@@ -690,35 +690,7 @@ internal sealed partial class EndingCreditsState
         foreach (EndingSprite wrapper in sprites)
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
-            switch (wrapper.Role)
-            {
-                case EndingSpriteRole.CloudRightA:
-                case EndingSpriteRole.CloudRightB:
-                    if (mode7Zoom >= EndingCreditsRomData.Motion.CloudMotionStartScale)
-                    {
-                        sprite.XPosition = unchecked((ushort)(sprite.XPosition - 2));
-                        sprite.YPosition--;
-                    }
-                    break;
-                case EndingSpriteRole.CloudLeftA:
-                case EndingSpriteRole.CloudLeftB:
-                    if (mode7Zoom >= EndingCreditsRomData.Motion.CloudMotionStartScale)
-                    {
-                        sprite.XPosition = unchecked((ushort)(sprite.XPosition + 2));
-                        sprite.YPosition++;
-                    }
-                    break;
-                case EndingSpriteRole.CloudTopA:
-                case EndingSpriteRole.CloudTopB:
-                    if (mode7Zoom < EndingCreditsRomData.Motion.CloudSceneBScaleLimit)
-                        sprite.XPosition++;
-                    break;
-                case EndingSpriteRole.CloudBottomA:
-                case EndingSpriteRole.CloudBottomB:
-                    if (mode7Zoom < EndingCreditsRomData.Motion.CloudSceneBScaleLimit)
-                        sprite.XPosition--;
-                    break;
-            }
+            EndingCloudMotion.Step(wrapper, mode7Zoom);
             sprite.Step(bus);
         }
     }
@@ -1097,4 +1069,7 @@ internal enum EndingSpriteRole
     RewardSamus,
 }
 
-internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role);
+internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role)
+{
+    public bool CloudMoving { get; set; }
+}

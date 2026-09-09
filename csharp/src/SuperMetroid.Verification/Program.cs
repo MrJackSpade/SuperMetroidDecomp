@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--mother-brain-health")
+{
+    VerifyMotherBrainHealthPalette(args[1]);
+    return 0;
+}
 if (args.Length == 2 && args[0] == "--escape-animals")
 {
     VerifyEscapeAnimalBlocks(args[1]);

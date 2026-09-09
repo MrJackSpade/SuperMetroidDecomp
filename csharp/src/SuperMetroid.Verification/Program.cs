@@ -161,6 +161,11 @@ if (args is ["--ending-planet-boundary"])
     VerifyEndingPlanetBoundary();
     return 0;
 }
+if (args is ["--ending-native-ppu"] or ["--ending-native-offset-check"])
+{
+    VerifyEndingNativePpu(args[0] == "--ending-native-offset-check");
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();

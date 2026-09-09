@@ -623,6 +623,7 @@ public sealed partial class SamusState
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingPose(Pose) ||
             IsMoonwalkTurnJumpPose(Pose) ||
+            Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
             IsRanIntoWallPose(Pose) ||
             IsRightFacingCrouchingPose(Pose) || IsLeftFacingCrouchingPose(Pose);
         byte expectedTarget = SelectFallingPoseForCurrentAim(bus);

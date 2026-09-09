@@ -886,12 +886,18 @@ public sealed partial class IntroCinematicState
         samus.TileTransfers.TransferToVram(bus, vram);
 
         AerialMovementResult? fallingMovement = null;
+        BlockMoveResult? hurtEndingProbe = null;
         bool transitionAccepted = false;
         if (samus.KnockbackActive)
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            transitionAccepted = SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter).Ended;
+            SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
+        }
+        else if (samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose)
+        {
+            hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+                bus, level, samus, nmiFrameCounter);
         }
         else if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
         {
@@ -915,7 +921,15 @@ public sealed partial class IntroCinematicState
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
         bool animationTransitionApplied = samus.ApplyPendingVerifiedAnimationTransition(bus);
+        if (!animationTransitionApplied)
+            animationTransitionApplied = SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, samus);
         transitionAccepted |= animationTransitionApplied;
+
+        if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
+        {
+            samus.ApplyWalkedOffFloorTransition(bus, samus.SelectFallingPoseForCurrentAim(bus));
+            animationTransitionApplied = transitionAccepted = true;
+        }
 
         // The normal new-state handler resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the

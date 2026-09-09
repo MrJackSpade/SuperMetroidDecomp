@@ -1777,12 +1777,13 @@ public sealed partial class SuperMetroidRuntime
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
 
-            // Knockback input also reaches the ordinary fallback publisher. Its $FF
+            // Neutral hurt/falling input also reaches the ordinary fallback publisher. Its $FF
             // definition retains the hurt pose, but this is a selected transition slot,
             // not an absence of input work: the final pose-history epilogue must run.
             // A matched same-pose table record still publishes nothing, as on cartridge.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
-                Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose)
+                Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
+                    SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
             // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
@@ -2709,12 +2710,13 @@ public sealed partial class SuperMetroidRuntime
                         // knockback and Ceres ejection were intercepted above; this branch
                         // is their authentic one-frame normal-dispatch tail before bank-$91
                         // installs the input/no-input target chosen during alpha.
-                        SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+                        LastGroundedSamusMovement = new GroundedMovementResult(default,
+                            SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
                             _addressSpace,
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            Plms);
+                            Plms));
                         break;
                     case SamusPoseIds.CrouchingTransitionRightPose:
                     case SamusPoseIds.CrouchingTransitionLeftPose:
@@ -3026,6 +3028,18 @@ public sealed partial class SuperMetroidRuntime
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 
+                // Expiry still permits this frame's movement and animation. Its
+                // transitional slot wins over the ordinary input selected in alpha,
+                // even when a damage boost has already restored normal movement.
+                if (!animationTransitionApplied &&
+                    SamusKnockbackMovement.TryFinishExpiredHitInterruption(_addressSpace, Samus))
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // `$90:DDE9` runs after AnimateSamus and before UpdateSamusPose. Terrain
                 // spike reactions only publish `$18A8/$18AA/$0A54`; this common interruption
                 // converts that request into the same hurt pose and special movement handler
@@ -3189,6 +3203,7 @@ public sealed partial class SuperMetroidRuntime
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkTurnJumpPose(poseAtFrameStart) ||
+                     poseAtFrameStart is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
                      SamusState.IsRanIntoWallPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
@@ -3272,9 +3287,8 @@ public sealed partial class SuperMetroidRuntime
                                 break;
                             case (SamusPoseIds.KnockbackRightPose, SamusPoseIds.DamageBoostRightPose):
                             case (SamusPoseIds.KnockbackLeftPose, SamusPoseIds.DamageBoostLeftPose):
-                                // `$91:8113` makes a fresh jump when the `$53/$54` input
-                                // table crosses out of movement type `$0A`; `$91:F8AE`
-                                // then restores the normal movement handler for type `$19`.
+                                // The accepted pose restores normal movement while
+                                // preserving the hurt arc and remaining timer.
                                 SamusKnockbackMovement.ApplyDamageBoostTransition(
                                     _addressSpace,
                                     Samus,

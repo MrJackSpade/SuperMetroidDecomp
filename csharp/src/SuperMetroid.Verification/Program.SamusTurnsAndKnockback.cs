@@ -609,8 +609,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(0, downKnockback.Kinematics.YSpeed,
         "downward knockback clears live whole speed after snapshot");
 
-    // `$53` plus Left+Jump (`$0280`) selects `$50`. The pose-family crossing runs the native normal
-    // input initializer, clears the special handler, and starts a fresh 4.E000 jump.
+    // The prospective type change does not re-run jump initialization in alpha.
+    // Accepting it restores normal movement but retains the current hurt arc.
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         bus,
         samus,
@@ -622,14 +622,13 @@ static void VerifySamusKnockbackAndDamageBoost()
         samus.ReadMovementType(bus),
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
-    AssertEqual(0, samus.KnockbackDirection, "damage boost clears knockback direction");
-    AssertEqual(0, samus.KnockbackTimer, "damage boost clears hurt timer");
-    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost fresh jump whole speed");
-    AssertEqual(0xe000, samus.Kinematics.YSubspeed, "damage boost fresh jump subspeed");
+    AssertEqual(2, samus.KnockbackDirection, "damage boost preserves knockback direction");
+    AssertEqual(4, samus.KnockbackTimer, "damage boost preserves hurt timer");
+    AssertEqual(4, samus.Kinematics.YSpeed, "damage boost retains whole speed");
+    AssertEqual(0xd800, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
 
-    // Alpha may select `$54 -> $4F` on the final hurt frame, after which beta's zero-timer
-    // cleanup installs `$2A` before UpdateSamusPose consumes the saved input record. The
-    // captured `$54` remains the transition authority and must still launch a normal boost.
+    // A direct initializer only preserves supplied velocity. Expiry priority is tested
+    // by the full-runtime/native sweep, not by bypassing that dispatcher here.
     var finalHurtFrameBoost = new SamusState
     {
         Pose = SamusPoseIds.FallingLeftPose,
@@ -644,8 +643,8 @@ static void VerifySamusKnockbackAndDamageBoost()
         SamusPoseIds.DamageBoostLeftPose);
     AssertEqual(SamusPoseIds.DamageBoostLeftPose, finalHurtFrameBoost.Pose,
         "final hurt-frame damage boost uses captured source pose");
-    AssertEqual(4, finalHurtFrameBoost.Kinematics.YSpeed,
-        "final hurt-frame damage boost launches fresh jump");
+    AssertEqual(0, finalHurtFrameBoost.Kinematics.YSpeed,
+        "direct damage-boost initializer does not invent vertical velocity");
 
     AerialMovementResult boostFrame = SamusAerialMovement.StepDamageBoost(
         bus,
@@ -653,10 +652,10 @@ static void VerifySamusKnockbackAndDamageBoost()
         samus,
         (ushort)SnesButton.A,
         nmiFrameCounter: 1);
-    AssertEqual(unchecked((int)0xfffb2000), boostFrame.Vertical!.Value.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xfffb2800), boostFrame.Vertical!.Value.AcceptedDisplacement,
         "damage boost reuses ordinary old-speed jumping movement");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
-    AssertEqual(0xb800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
+    AssertEqual(0xb000, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
 
     // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
     // change inside movement type two, so the already-live 16.16 trajectory must survive.
@@ -688,7 +687,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         "damage-boost landing radius expansion preserves feet");
 
     // A separate uninterrupted fixture proves the timer owns the special handler's exact
-    // five movement frames. The sixth call chooses falling `$29` without another move.
+    // five timed movement frames. The sixth still moves before command-one cleanup.
     var expires = new SamusState
     {
         Pose = SamusPoseIds.FacingRightNormalPose,
@@ -703,9 +702,13 @@ static void VerifySamusKnockbackAndDamageBoost()
         expires.DecrementHurtTimers();
     }
     ushort humanoidYBeforeCompletion = expires.YPosition;
-    KnockbackMovementResult expired = SamusKnockbackMovement.Step(bus, empty, expires, 5);
-    AssertTrue(expired.Ended, "zero hurt timer ends special handler");
-    AssertEqual(SamusPoseIds.FallingRightPose, expires.Pose, "expired right knockback selects falling right");
+    SamusKnockbackMovement.Step(bus, empty, expires, 5);
+    ushort humanoidYAfterFinalMove = expires.YPosition;
+    AssertTrue(expires.YPosition < humanoidYBeforeCompletion,
+        "zero hurt timer still permits final movement before interruption");
+    AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, expires),
+        "zero hurt timer ends special handler at interruption");
+    AssertEqual(SamusPoseIds.KnockbackRightPose, expires.Pose, "expiry command skips proposed falling pose");
     AssertTrue(!expires.KnockbackActive, "expired knockback restores normal handler");
     AssertEqual(0, expires.KnockbackDirection, "expired knockback clears direction");
 
@@ -782,12 +785,13 @@ static void VerifySamusKnockbackAndDamageBoost()
         SamusKnockbackMovement.Step(bus, empty, ballExpires, unchecked((ushort)frame));
         ballExpires.DecrementHurtTimers();
     }
-    KnockbackMovementResult ballExpired = SamusKnockbackMovement.Step(
+    SamusKnockbackMovement.Step(
         bus,
         empty,
         ballExpires,
         nmiFrameCounter: 5);
-    AssertTrue(ballExpired.Ended, "zero hurt timer ends morphed special handler");
+    AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, ballExpires),
+        "zero hurt timer ends morphed special handler at interruption");
     AssertEqual(SamusPoseIds.MorphBallGroundRightPose, ballExpires.Pose,
         "expired morphed knockback retains current ball pose");
     AssertEqual(retainedBallFrame, ballExpires.AnimationFrame,
@@ -803,16 +807,15 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(2, ballExpires.Kinematics.YDirection,
         "expired morphed knockback resumes with direction two");
 
-    // The same command-one cleanup also corrects the existing humanoid route: `$53` radius
-    // 21 becomes `$29` radius 19, so center Y moves down two pixels to preserve the feet.
+    // Command one skips the proposed pose, so its same-pose bottom alignment is zero.
     AssertEqual(0, expires.Kinematics.YSpeed,
         "expired humanoid knockback clears whole Y speed");
     AssertEqual(0, expires.Kinematics.YSubspeed,
         "expired humanoid knockback clears fractional Y speed");
     AssertEqual(2, expires.Kinematics.YDirection,
         "expired humanoid knockback publishes falling direction two");
-    AssertEqual(unchecked((ushort)(humanoidYBeforeCompletion + 2)), expires.YPosition,
-        "expired humanoid knockback aligns radius-19 falling body to radius-21 feet");
+    AssertEqual(humanoidYAfterFinalMove, expires.YPosition,
+        "expired humanoid command retains current pose radius and position");
 
     // `$90:DDE9` contains carry-clear interrupt entries as real behavior, not missing code.
     // A grounded turn keeps its current pose and ordinary movement handler while retaining

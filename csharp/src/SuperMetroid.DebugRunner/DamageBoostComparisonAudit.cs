@@ -13,6 +13,7 @@ internal static class DamageBoostComparisonAudit
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
+        int humanoidSamples = 0, humanoidMismatches = 0;
         var reportedGroups = new HashSet<string>();
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..6])))
         {
@@ -75,11 +76,13 @@ internal static class DamageBoostComparisonAudit
                 if (!actualWords[10..].SequenceEqual(row[18..])) historyMismatches++;
                 if (actual != expected)
                 {
+                    if (!ball) humanoidMismatches++;
                     if (frame < 0) initialMismatches++;
                     mismatches++;
                     if (reportedGroups.Add(group.Key) && reportedGroups.Count <= 16)
                         Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}");
                 }
+                if (!ball) humanoidSamples++;
                 samples++; frame++;
             }
             if (frame != 30) throw new InvalidDataException("Incomplete hurt sequence.");
@@ -88,6 +91,7 @@ internal static class DamageBoostComparisonAudit
             throw new InvalidDataException("Incomplete humanoid hurt-prefix coverage.");
         Console.WriteLine($"Damage boost{(hurtPrefixOnly ? " hurt prefix" : "")}: {samples} samples, {mismatches} mismatches ({initialMismatches} at initialization).");
         Console.WriteLine($"Motion/pose/animation={motionMismatches}; timers/direction/speeds={stateMismatches}; history={historyMismatches}.");
+        Console.WriteLine($"Humanoid: {humanoidSamples} samples, {humanoidMismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
     }
 }

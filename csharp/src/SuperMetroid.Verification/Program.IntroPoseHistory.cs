@@ -61,6 +61,7 @@ internal static partial class Program
             ushort olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
             ushort olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
             bool demoEnabled = ReadOwner<DemoInputState>("flashbackDemoInput")?.Enabled == true;
+            bool hurtExpiry = before is { KnockbackTimer: 0, KnockbackDirection: not 0 };
             intro.Render();
             intro.Step(tick % 47 == 0 ? (ushort)SnesButton.A : (ushort)0);
             SamusState? after = ReadOwner<SamusState>("flashbackSamus");
@@ -81,6 +82,8 @@ internal static partial class Program
                 terminal |= ended;
                 context = ended ? "terminal demo command" : $"flashback pose {oldPose:X2}->{after.Pose:X2}";
             }
+            else if (after is not null && hurtExpiry)
+                context = "same-pose hurt expiry command";
             if (after is null) continue;
             if (context is null)
             {

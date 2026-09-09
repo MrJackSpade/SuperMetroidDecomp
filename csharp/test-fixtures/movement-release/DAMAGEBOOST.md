@@ -123,3 +123,30 @@ moves and animates before `$90:DDE9` publishes expiry and `$91:F31D` clears velo
 The port currently resets velocity/timer on boost entry and finishes active knockback
 inside movement instead of at that later interruption seam. Both remain to correct,
 including input priority on the expiry frame and the non-humanoid/cinematic callers.
+
+## Boost entry and expiry correction
+
+The initializer now preserves the hurt velocity, direction and timer; it only restores
+normal movement. Expiry moved out of the special mover into the post-animation
+interruption seam in both runtime and intro. An important refinement of the preceding
+source note: `Samus_HandleTransitions` jumps directly to command one, skipping installation
+of its proposed falling pose. Therefore expiry retains the current pose/animation,
+clears velocity/direction, and consumes the ordinary alpha target. The following normal
+type-$0A grounding probe publishes falling when unobstructed. The runtime previously
+discarded that probe result. Its shared walk-off handler now admits this native source.
+Neutral falling fallback also publishes its same-pose history slot.
+
+After these corrections, all 5,952 humanoid samples match original CPU execution:
+both facings/source sides, forward/neutral impact input, timers five/ten, boost delays
+zero through eleven and the subsequent 30-frame motion. This includes the expiry-frame
+input-priority distinction that the old direct-helper test could not establish.
+Core verification passes, including the intro cinematic; its history assertion now
+recognizes same-pose expiry as a transition. Direct tests verify retained hurt velocity,
+movement on the zero-timer frame, and cleanup without immediate radius/pose substitution.
+
+The full diagnostic still fails: all 5,760 post-initialization ball samples differ
+(2,776 timer/direction/speed and 152 history mismatches). The first ball divergence is
+horizontal acceleration: native uses the live pose's speed-table row, while the shared
+port forces the humanoid knockback row. Ball fallback momentum also requires investigation.
+No ball fix is included in this change. Keep #472 open without player-validation status;
+source-driven contact windows, liquid media and speed variants remain outstanding too.

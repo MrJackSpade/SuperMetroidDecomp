@@ -227,18 +227,8 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackDirection is not (1 or 2 or 4 or 5))
             throw new InvalidOperationException($"Invalid knockback direction ${samus.KnockbackDirection:X4}.");
 
-        // `$90:DE20` observes the value left by the previous frame's final `$A0:9169`
-        // timer pass. Zero ends type-$0A knockback before beta can move it again; a value
-        // of one therefore still owns this movement frame and becomes zero afterward.
-        if (samus.KnockbackTimer == 0)
-        {
-            // Only `$53/$54` are movement type `$0A`; `$90:DE20` gives that family a new
-            // `$29/$2A` pose. A ball retains whatever Morph/Spring pose is current and goes
-            // directly to the shared command-one cleanup at `$91:F31D`.
-            return samus.ReadMovementType(bus) == SamusMovementType.Knockback
-                ? FinishHumanoidToFalling(bus, samus)
-                : EndWithoutPoseChange(samus);
-        }
+        // The movement pointer remains installed even on the zero-timer frame.
+        // Expiry belongs to the post-animation hit interruption, not this mover.
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -298,11 +288,8 @@ public static class SamusKnockbackMovement
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        // Alpha chooses the input record from the pose present at frame start. Beta then
-        // runs before UpdateSamusPose and can exhaust the hurt timer, replacing `$53/$54`
-        // with falling `$29/$2A` on that same frame. Validate the captured dispatch pose,
-        // not the now-mutable Samus.Pose, or a completely genuine last-frame damage boost
-        // is incorrectly rejected as `$29/$2A -> $50/$4F`.
+        // Alpha selects a prospective pose; it does not mutate the live movement type.
+        // The owning transition dispatcher must resolve higher-priority expiry first.
         bool valid = (sourcePose, targetPose) is
             (SamusPoseIds.KnockbackRightPose, SamusPoseIds.DamageBoostRightPose) or
             (SamusPoseIds.KnockbackLeftPose, SamusPoseIds.DamageBoostLeftPose);
@@ -312,16 +299,11 @@ public static class SamusKnockbackMovement
                 $"Damage boost ${sourcePose:X2} -> ${targetPose:X2} is not a retail transition.");
         }
 
-        // Normal pose input `$91:8113` notices movement type changed away from `$0A`, calls
-        // Make_Samus_Jump, and clears the knockback timer. The damage-boost initializer at
-        // `$91:F8AE` then restores the normal movement handler. The jump call reinitializes
-        // Y speed; this is why a damage boost gets a fresh normal jump arc rather than merely
-        // inheriting the four-frame hurt arc.
+        // `$91:F8CB` restores only the normal movement handler. The conditional jump
+        // reset in `$91:8113` does not run for a merely prospective type change.
+        // Preserve velocity and hurt words until the common expiry handoff consumes them.
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
-        SamusAerialMovement.InitializeJump(bus, samus);
-        samus.KnockbackTimer = 0;
-        samus.KnockbackDirection = 0;
         samus.KnockbackActive = false;
         samus.InitializeAnimation(bus, initialFrame: 0);
     }
@@ -359,11 +341,12 @@ public static class SamusKnockbackMovement
     /// the normal movement handler's state.
     /// </summary>
     /// <remarks>
-    /// Ordinary damage reaches this through <see cref="Step"/> when `$18AA` expires. Ceres
-    /// Ridley's `$90:E1FD/$E21C` wall-collision handoff reaches the same cartridge cleanup
-    /// after restoring the normal handler. Keeping that second caller here is important:
+    /// Ceres Ridley's `$90:E1FD/$E21C` wall-collision handoff reaches this explicit falling
+    /// transition after restoring the normal handler. Keeping that caller here is important:
     /// Ceres does not invent a standing pose, and the optional `$53/$54` damage-boost input
     /// table is not the only way a neutral player can regain control after the shove.
+    /// Ordinary timer expiry instead skips installing its proposed pose and is handled by
+    /// <see cref="TryFinishExpiredHitInterruption"/>.
     /// </remarks>
     public static KnockbackMovementResult FinishHumanoidToFalling(
         ISnesAddressSpace bus,
@@ -389,6 +372,24 @@ public static class SamusKnockbackMovement
             samus.Kinematics.YPosition + previousRadius - samus.Kinematics.YRadius));
         samus.InitializeAnimation(bus, initialFrame: 0);
         return FinishKnockback(samus);
+    }
+
+    /// <summary>
+    /// Consumes the zero-timer branch of $90:DDE9 and transitional command one
+    /// after movement/animation, including boosts which already restored normal movement.
+    /// Returns whether this higher-priority transition superseded ordinary pose input.
+    /// </summary>
+    public static bool TryFinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        if (samus.KnockbackTimer != 0 || samus.KnockbackDirection == 0)
+            return false;
+
+        // UpdateSamusPose jumps straight to command one without installing its
+        // proposed falling pose. The next normal mover owns the floor transition.
+        EndWithoutPoseChange(samus);
+        return true;
     }
 
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)

@@ -485,11 +485,24 @@ static void VerifySavedGameLoadAppearance()
         .All(station => station.SaveStationLockedOut),
         "loading onto a save room sets the native room-entry lockout");
 
+    var appearanceHistory = runtime.Samus!.PoseHistory;
+    ushort appearancePose = appearanceHistory.PreviousPose;
+    ushort appearanceMetadata = appearanceHistory.PreviousDirectionAndMovement;
+    // Distinct older sample exposes the otherwise invisible same-pose shift.
+    appearanceHistory.LastDifferentPose = SamusPoseIds.SpinJumpRightPose;
+    appearanceHistory.LastDifferentDirectionAndMovement = 0x0308;
     for (int frame = 0; frame < 0x0167; frame++)
         runtime.StepFrame(0);
     AssertTrue(runtime.SamusLoadAppearanceActive,
         "saved-game appearance remains active through frame 359");
+    AssertEqual(SamusPoseIds.SpinJumpRightPose, appearanceHistory.LastDifferentPose,
+        "appearance does not commit history before its completion call");
     runtime.StepFrame(0);
+    AssertEqual(appearancePose, appearanceHistory.LastDifferentPose, "appearance completion shifts prior pose");
+    AssertEqual(appearanceMetadata, appearanceHistory.LastDifferentDirectionAndMovement, "appearance completion shifts prior metadata");
+    AssertEqual(runtime.Samus.Pose, appearanceHistory.PreviousPose, "appearance completion commits current pose");
+    AssertEqual(runtime.Samus.ReadPoseXDirection(bus) | ((byte)runtime.Samus.ReadMovementType(bus) << 8),
+        appearanceHistory.PreviousDirectionAndMovement, "appearance completion commits current metadata");
     AssertTrue(!runtime.SamusLoadAppearanceActive &&
         runtime.Samus is { InputLocked: false },
         "saved-game appearance restores ordinary input on call 360");

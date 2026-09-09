@@ -4541,6 +4541,9 @@ public sealed partial class SuperMetroidRuntime
                 "outlived the cartridge's 360-frame appearance handler.");
         }
 
+        // PlaySamusFanfare publishes its same-pose history shift only on the
+        // completion call, before the ordinary handlers regain control.
+        samus.CommitPoseHistory(_addressSpace);
         samus.InputLocked = false;
         GroundedSamusMovementEnabled = true;
         _samusLoadAppearancePaletteFxDefinition = 0;

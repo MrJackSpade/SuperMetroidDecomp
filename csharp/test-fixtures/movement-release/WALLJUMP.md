@@ -421,3 +421,16 @@ Tests assert all four words for right-standing and left-Morph entry, alongside
 the existing differing initial frames and complete death-sequence checks.
 Death has no ordinary gameplay return; the fix is exact state parity, not a
 claim that this omission caused an observed post-death walljump failure.
+
+## Saved-game appearance completion
+
+The native `PlaySamusFanfare` owner ($92:ED24) is called by saved-game appearance,
+not the ordinary item-message flow. On call 360 it shifts history at
+$92:ED57-$ED6C before gameplay handlers are restored. The managed countdown
+unlocked input at the right time but omitted that same-pose history shift.
+
+The live saved-game fixture seeds a distinct older sample to make the write
+observable. It verifies no shift through call 359, then all four words at call
+360. Before the fix the completion assertion retained seeded spin $19 instead
+of prior front pose $00. The completion owner now commits immediately before
+unlocking. Existing palette-lifetime and no-repeat-save-prompt checks are retained.

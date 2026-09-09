@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--treadmill-visual"])
+{
+    VerifyTreadmillVisual();
+    return 0;
+}
 if (args is ["--metroid-bomb-placement"])
 {
     VerifyMetroidBombPlacement();

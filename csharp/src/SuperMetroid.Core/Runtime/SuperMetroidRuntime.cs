@@ -405,6 +405,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public WreckedShipTreadmillAnimatedTilesState WreckedShipTreadmill { get; } = new();
 
+    /// <summary>Bank-$87 treadmill population selected by the room FX record, rather than door ASM.</summary>
+    public RoomTreadmillAnimatedTilesState RoomTreadmills { get; } = new();
+
     /// <summary>Ceiling and falling-sand character animation selected by the current room FX record.</summary>
     public RoomSandAnimatedTilesState SandAnimatedTiles { get; } = new();
 
@@ -4266,6 +4269,9 @@ public sealed partial class SuperMetroidRuntime
         }
 
         SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+        if (ActiveRoom is not null)
+            RoomTreadmills.Step(_addressSpace,
+                System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
         StepEscapeRoomEffects();
         TourianStatues.StepTiles(this);
 

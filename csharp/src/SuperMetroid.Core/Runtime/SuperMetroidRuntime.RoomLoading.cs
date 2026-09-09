@@ -797,6 +797,7 @@ public sealed partial class SuperMetroidRuntime
             System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
             viewportLoadMode == RoomViewportLoadMode.DisplayInitialViewport);
         SandAnimatedTiles.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer, room.AreaIndex);
+        RoomTreadmills.LoadRoom(_addressSpace, room.State.FxPointer, door.Pointer, room.AreaIndex);
         if (Samus is not null)
             RoomLayer3Fx.ApplyToSamusLiquidPhysics(Samus.LiquidPhysics);
 

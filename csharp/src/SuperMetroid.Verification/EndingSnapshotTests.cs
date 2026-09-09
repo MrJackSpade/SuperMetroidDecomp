@@ -21,6 +21,7 @@ internal static partial class Program
             var phases = new HashSet<EndingCreditsPhase>();
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
+            EndingRewardJump? referenceJump = null;
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
             for (int tick = 0; tick < 60000; tick++)
@@ -57,10 +58,35 @@ internal static partial class Program
                     AssertTrue(gestureFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
                         "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsJump)
                     AssertEqual(hours < 3 ? 244 : 329,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture],
                         "live reward owner consumes the complete native gesture before handing off");
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsJump)
+                {
+                    if (firstPhaseFrame)
+                        referenceJump = new EndingRewardJump(bus, legacy.EndingReward, _ => { });
+                    else
+                        referenceJump!.Step();
+                    var jumpFrame = legacy.CaptureRenderSnapshot();
+                    var expectedOam = referenceJump!.Draw();
+                    AssertEqual(referenceJump.ObjectSelection, jumpFrame.ObjectSelection,
+                        "live reward switches OBJ sheet on the same native flight frame");
+                    AssertTrue(expectedOam.LowTable.SequenceEqual(jumpFrame.Memory.Oam[..expectedOam.LowTable.Length]),
+                        "live reward preserves native actor positions, tile indices and palettes on every jump frame");
+                    AssertTrue(jumpFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
+                        "reward flight and landing keep BG disabled during icon graphics replacement");
+                }
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                {
+                    AssertEqual(hours < 3 ? 279 : 200,
+                        tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsJump],
+                        "live reward jump consumes native flight and landing durations before shooting");
+                    byte[] icon = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+                        EndingCreditsRomData.Rendering.DecompressionLimit);
+                    AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.CaptureRenderSnapshot().Memory.Vram[..0x8000]),
+                        "live landing uploads all sixteen chunks of the native interleaved icon graphics");
+                }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
                     && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
                 {

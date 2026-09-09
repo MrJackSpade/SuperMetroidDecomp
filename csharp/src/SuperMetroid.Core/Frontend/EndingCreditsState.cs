@@ -47,6 +47,7 @@ internal sealed partial class EndingCreditsState
     private bool creditsAssetsLoaded;
     private bool rewardCopyrightShown;
     private EndingRewardGesture? rewardGesture;
+    private EndingRewardJump? rewardJump;
     private RoomPaletteFxSystem paletteFx = new();
 
     public EndingCreditsState(
@@ -313,9 +314,19 @@ internal sealed partial class EndingCreditsState
                 rewardGesture!.Step();
                 if (rewardGesture.JumpRequested)
                 {
-                    // The remaining shot/logo transition is integrated separately;
-                    // retain the existing result-screen handoff until that owner is ready.
                     rewardGesture = null;
+                    var graphics = new EndingRewardGraphicsUpload(bus);
+                    rewardJump = new EndingRewardJump(bus, EndingReward, index => graphics.Upload(vram, index));
+                    Phase = EndingCreditsPhase.PostCreditsJump;
+                }
+                break;
+
+            case EndingCreditsPhase.PostCreditsJump:
+                rewardJump!.Step();
+                if (rewardJump.ShotRequested)
+                {
+                    // Shot/logo composition is the next unintegrated ending stage.
+                    rewardJump = null;
                     Array.Fill(
                         postCreditsTilemap,
                         EndingCreditsRomData.Rendering.BlankTile,
@@ -1043,6 +1054,7 @@ internal enum EndingCreditsPhase
     PostCreditsReward,
     PostCreditsCopyright,
     PostCreditsGesture,
+    PostCreditsJump,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

@@ -22,7 +22,7 @@ internal sealed partial class EndingCreditsState
         {
             if (Phase >= EndingCreditsPhase.PostCreditsBlank)
             {
-                objectSelection = EndingCreditsRomData.Rendering.RewardObjectSelection;
+                objectSelection = CurrentRewardObjectSelection;
                 if (PostCreditsBackgroundEnabled)
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
                         CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, 32, null));

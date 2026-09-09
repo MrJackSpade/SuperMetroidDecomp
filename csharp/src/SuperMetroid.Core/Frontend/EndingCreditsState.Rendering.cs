@@ -33,7 +33,7 @@ internal sealed partial class EndingCreditsState
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
             RenderPostCreditsBackground(pixels);
-            if (EndingObjectsEnabled) RenderSprites(pixels, obsel: EndingCreditsRomData.Rendering.RewardObjectSelection);
+            if (EndingObjectsEnabled) RenderSprites(pixels, obsel: CurrentRewardObjectSelection);
         }
         else
         {
@@ -113,6 +113,7 @@ internal sealed partial class EndingCreditsState
     // faster rewards return to BG2 for the waiting-Samus dissolve.
     private bool PostCreditsBackgroundEnabled => Phase != EndingCreditsPhase.PostCreditsBlank
         && Phase != EndingCreditsPhase.PostCreditsGesture
+        && Phase != EndingCreditsPhase.PostCreditsJump
         && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
     private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
         || Phase == EndingCreditsPhase.PostCreditsReward;
@@ -130,6 +131,7 @@ internal sealed partial class EndingCreditsState
     private OamBuffer PrepareSprites()
     {
         if (rewardGesture is not null) return rewardGesture.Draw();
+        if (rewardJump is not null) return rewardJump.Draw();
         var oam = new OamBuffer();
         oam.BeginFrame();
         foreach (EndingSprite wrapper in sprites)
@@ -142,6 +144,9 @@ internal sealed partial class EndingCreditsState
         RomDataReader.ReadWordFixedBank(
             bus,
             EndingCreditsRomData.Assets.SignedSineTable + index * sizeof(ushort)));
+
+    private byte CurrentRewardObjectSelection => rewardJump?.ObjectSelection
+        ?? EndingCreditsRomData.Rendering.RewardObjectSelection;
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));

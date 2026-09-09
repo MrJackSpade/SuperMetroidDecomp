@@ -782,6 +782,8 @@ if (args.Length >= 2 && args[0] == "--ceres-door-audit")
     return CeresDoorAudit.Run(ceresDoorRomPath);
 }
 
+if (args.Length == 3 && args[0] == "--norfair-ridley-death-audio-trace")
+    return NorfairRidleyAudit.Run(args[1], args[2]);
 if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
 {
     string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');

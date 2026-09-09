@@ -21,7 +21,8 @@ internal static partial class NorfairRidleyAudit
     private static RidleyBattleAuditResult VerifyCombatDamageAndDeath(
         SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room,
-        CartridgeRoomAssets assets)
+        CartridgeRoomAssets assets,
+        TextWriter? audioTrace)
     {
         bool bossDefeated = false;
         var random = new Bank80SystemState(0x4d21);
@@ -295,7 +296,8 @@ internal static partial class NorfairRidleyAudit
             samus,
             body,
             state,
-            () => bossDefeated);
+            () => bossDefeated,
+            audioTrace);
     }
 
     private static SamusState CreateCombatSamus(ISnesAddressSpace bus)
@@ -425,7 +427,8 @@ internal static partial class NorfairRidleyAudit
         SamusState samus,
         RoomEnemySlot body,
         RidleyEnemyState state,
-        Func<bool> bossDefeated)
+        Func<bool> bossDefeated,
+        TextWriter? audioTrace)
     {
         var functions = new HashSet<RidleyAiFunction>();
         bool sawSmallExplosion = false;
@@ -453,6 +456,11 @@ internal static partial class NorfairRidleyAudit
             // for a failed spawn.
             sawSmallExplosion |= CountActiveRidleyDust(enemies) != 0;
             enemies.StepEnemyProjectiles(level, samus, CameraX, CameraY);
+            audioTrace?.WriteLine($"{deathFrames},{state.Function},frame,,,");
+            foreach (var sound in enemies.SoundRequests)
+                audioTrace?.WriteLine($"{deathFrames},{state.Function},sound,{sound.SoundEffect.Library},{sound.SoundEffect.Value},{sound.MaximumQueued}");
+            foreach (var music in enemies.MusicRequests)
+                audioTrace?.WriteLine($"{deathFrames},{state.Function},music,,{music.Command.RawValue},{music.Delay.Frames}");
             sawHiddenBody |= body.Properties.HasAny(EnemyProperties.Invisible);
 
             RoomEnemySlot[] liveFragments = enemies.Slots.Where(

@@ -15,7 +15,7 @@ internal static partial class NorfairRidleyAudit
     private const ushort CameraX = 0;
     private const ushort CameraY = 256;
 
-    public static int Run(string romPath)
+    public static int Run(string romPath, string? deathAudioTracePath = null)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
@@ -158,7 +158,10 @@ internal static partial class NorfairRidleyAudit
         // live fight. Damage and death are deliberately exercised on a fresh encounter in
         // the companion partial file: that prevents 4096 random combat frames (and their
         // accumulated fireballs) from making collision/death assertions order-dependent.
-        RidleyBattleAuditResult battle = VerifyCombatDamageAndDeath(bus, room, assets);
+        using var deathAudioTrace = deathAudioTracePath == null ? null :
+            new StreamWriter(new FileStream(deathAudioTracePath, FileMode.CreateNew, FileAccess.Write));
+        deathAudioTrace?.WriteLine("frame,phase,kind,library,command,queueLimitOrDelayFrames");
+        RidleyBattleAuditResult battle = VerifyCombatDamageAndDeath(bus, room, assets, deathAudioTrace);
 
         var defeated = new RoomEnemySystem();
         defeated.Load(

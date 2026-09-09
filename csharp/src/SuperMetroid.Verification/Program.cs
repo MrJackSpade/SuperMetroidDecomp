@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--boost-floor-scroll"])
+{
+    VerifyBoostFloorScroll();
+    return 0;
+}
 if (args is ["--xray-controls"])
 {
     VerifyXrayControls();

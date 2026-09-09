@@ -1881,7 +1881,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        Plms);
+                        Plms,
+                        deferSamusOverlap: true);
 
                     if (bombFrame.BeamChargeConsumed)
                     {
@@ -1905,6 +1906,8 @@ public sealed partial class SuperMetroidRuntime
                         BombProjectiles,
                         projectileProducerEnabled: !DebugGrappleItemSelected,
                         roomPlms: Plms);
+
+                    BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -2267,7 +2270,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms);
+                        Plms,
+                        Controller1.Current);
                         break;
                     case SamusPoseIds.MovingRightNormalPose:
                     case SamusPoseIds.MovingRightGunExtendedPose:
@@ -2291,7 +2295,8 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        Plms);
+                        Plms,
+                        Controller1.Current);
                         break;
                     case SamusPoseIds.MovingLeftNormalPose:
                     case SamusPoseIds.MovingLeftGunExtendedPose:
@@ -2752,6 +2757,12 @@ public sealed partial class SuperMetroidRuntime
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
+                // Hit interruption observes the old movement type before UpdateSamusPose.
+                // Its carry-clear bomb rejection still occurs when an animation transition
+                // wins pose selection; otherwise a stale request survives unmorph/morph.
+                if (Samus.KnockbackTimer == 0 && Samus.KnockbackDirection == 0)
+                    Samus.RejectUnsupportedPublishedBombJump(_addressSpace, TimeIsFrozen);
+
                 // Command $F8's command-three “super-special” transition wins at this seam.
                 // F8 publishes a turn-completion pose only if alpha did not select one
                 // of its four jump exceptions. When published, it still wins here.
@@ -4378,7 +4389,10 @@ public sealed partial class SuperMetroidRuntime
         // reactions set `$18A8/$18AA` without installing the bank-$90 knockback handler.
         // Death game states do not execute the gameplay-state tail at all.
         if (Samus is not null && !Samus.DeathSequence.IsActive)
+        {
             Samus.DecrementHurtTimers();
+            Projectiles.DecrementInteractionTimer();
+        }
 
         // `$0A11` is a one-byte previous-movement snapshot used by X-ray admission on the
         // following gameplay frame. Update it only after every pose/animation transition

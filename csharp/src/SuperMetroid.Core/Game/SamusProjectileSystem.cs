@@ -84,10 +84,17 @@ public sealed partial class SamusProjectileSystem
     public ushort SamusChargePaletteIndex { get; private set; }
 
     /// <summary>
-    /// WRAM <c>$0BD0</c>; firing a missile writes 20 before the enemy-collision consumer.
-    /// That consumer is not translated yet, so the producer-owned value remains inspectable.
+    /// WRAM <c>$0BD0</c>; humanoid shots temporarily suppress Samus/projectile
+    /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
     public ushort ProjectileInvincibilityTimer { get; private set; }
+
+    /// <summary>Decrements the projectile-owned word of native DecrementSamusTimers.</summary>
+    public void DecrementInteractionTimer()
+    {
+        if (ProjectileInvincibilityTimer != 0)
+            ProjectileInvincibilityTimer--;
+    }
 
     /// <summary>Global quake words written by a super-missile impact at `$93:8125-$812E`.</summary>
     public ushort EarthquakeType { get; private set; }

@@ -74,7 +74,8 @@ public sealed class SamusBombProjectileSystem
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput,
-        RoomPlmSystem? roomPlms = null)
+        RoomPlmSystem? roomPlms = null,
+        bool deferSamusOverlap = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -194,8 +195,10 @@ public sealed class SamusBombProjectileSystem
 
         // GameState_8 invokes $A0:9785 after frame-handler alpha (which placed/updated the
         // bombs) and before beta moves Samus. Store only the low direction byte here. The
-        // next alpha pass will run $90:DE78/$90:DF99 and add command bit $0800.
-        byte publishedDirection = PublishBombJumpOverlap(samus);
+        // same frame's hit-interruption phase can arm the bomb movement handler.
+        // Runtime defers this until the humanoid shot producer has also run: a
+        // shot this frame may suppress overlap before the bomb direction is stored.
+        byte publishedDirection = deferSamusOverlap ? (byte)0 : PublishBombJumpOverlap(samus);
 
         LastFrameResult = new BombProjectileFrameResult(
             placedSlot,
@@ -207,6 +210,15 @@ public sealed class SamusBombProjectileSystem
             beamChargeConsumed,
             soundRequests.ToArray());
         return LastFrameResult;
+    }
+
+    /// <summary>Runs the bomb subset of the post-alpha Samus/projectile interaction pass.</summary>
+    public void ResolveSamusOverlap(SamusState samus, ushort projectileInvincibilityTimer)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        byte direction = projectileInvincibilityTimer == 0 && samus.HorizontalSpeed.ContactDamageIndex == 0
+            ? PublishBombJumpOverlap(samus) : (byte)0;
+        LastFrameResult = LastFrameResult with { PublishedBombJumpDirection = direction };
     }
 
     /// <summary>

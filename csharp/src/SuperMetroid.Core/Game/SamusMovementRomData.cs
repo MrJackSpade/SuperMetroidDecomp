@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusMovementRomData
 {
+    /// <summary>$90:A3C1, SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
+    public const ushort StandingShotAnimationTimer = 16;
+
     /// <summary>Native ROM banks shared by the movement table families.</summary>
     public static class Banks
     {

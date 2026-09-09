@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -81,7 +82,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -92,6 +94,7 @@ public static class SamusGroundedMovement
                 $"Standing-right movement requires pose $01/$03/$05/$07, not ${samus.Pose:X2}.");
         }
 
+        ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // $90:A39E calls Samus_Move_NoBaseSpeed_X, which still passes zero through
@@ -133,7 +136,8 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -144,6 +148,7 @@ public static class SamusGroundedMovement
                 $"Standing-left movement requires pose $02/$04/$06/$08, not ${samus.Pose:X2}.");
         }
 
+        ResetStandingShotAnimation(samus, controllerInput);
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 
         // Samus_Move_NoBaseSpeed_X still routes through $90:8EA9. Pose $02's direction
@@ -172,6 +177,15 @@ public static class SamusGroundedMovement
         // Standing's post-movement cleanup is direction-independent.
         speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         return new GroundedMovementResult(horizontal, vertical);
+    }
+
+    // This is held-input behavior, independent of whether the weapon producer admitted a shot.
+    // Angled standing poses deliberately retain their own animation timelines.
+    private static void ResetStandingShotAnimation(SamusState samus, ushort controllerInput)
+    {
+        if (samus.Pose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose &&
+            (controllerInput & (ushort)SnesButton.X) != 0)
+            samus.SetAnimationFrameFromSpecialHandler(0, SamusMovementRomData.StandingShotAnimationTimer);
     }
 
     /// <summary>

@@ -624,8 +624,7 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Consumes a direction published by projectile collision through
-    /// the complete movement-type table at `$90:DFB5-$DFEB` and command three at `$91:EE80`.
+    /// Executes the carry-clear branches of the bomb-jump movement table before pose selection.
     /// </summary>
     /// <remarks>
     /// Standing and crouching reject the request only while time is frozen. Running,
@@ -634,7 +633,22 @@ public sealed partial class SamusState
     /// entries retain their current pose. Jump/turn/transition/damage-boost and actor-owned
     /// families clear the published direction exactly like the table's carry-clear routines.
     /// </remarks>
-    /// <returns>True when a pending low-byte direction installed the start handler.</returns>
+    /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
+    public bool RejectUnsupportedPublishedBombJump(ISnesAddressSpace bus, bool timeIsFrozen)
+    {
+        if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
+            return false;
+        SamusMovementType movement = ReadMovementKind(bus);
+        bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
+            SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
+            SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
+            SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special ||
+            timeIsFrozen && movement is (SamusMovementType.Standing or SamusMovementType.Crouching);
+        if (reject) BombJumpDirection = 0;
+        return reject;
+    }
+
+    /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     public bool TrySetupPublishedBombJump(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -644,7 +658,8 @@ public sealed partial class SamusState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
-        if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
+        if (RejectUnsupportedPublishedBombJump(bus, timeIsFrozen) ||
+            BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
             return false;
 
         SamusMovementType movementType = ReadMovementKind(bus);

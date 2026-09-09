@@ -8,13 +8,13 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksSpeed = rows.Length is 6240 or 7800 or 9360 && rows[0].Length == 18;
+        bool checksSpeed = rows.Length is 6240 or 7800 or 9360 or 10920 && rows[0].Length == 18;
         bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
         int inputModes = hasPostInput ? rows.Length / 1560 : 1;
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
-            throw new InvalidDataException("Expected 26, 52, 208, 260, or 312 cases of 30 frames.");
+            throw new InvalidDataException("Expected 26, 52, 208, 260, 312, or 364 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
@@ -31,6 +31,8 @@ internal static class WallJumpComparisonAudit
                 level.SetForegroundEntry(y * level.WidthInBlocks + (left != 0 ? 8 : 7), 0x8000);
             if (postInput == 5)
                 level.SetForegroundEntry(7 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
+            if (postInput == 6)
+                level.SetForegroundEntry(6 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
             var samus = runtime.Samus!;
             if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
             samus.XPosition = (ushort)(left != 0 ? 122 : 134);
@@ -110,8 +112,16 @@ internal static class WallJumpComparisonAudit
                 if (nativeLaunches != expectedLaunches || managedLaunches != nativeLaunches)
                     throw new InvalidDataException("Same-wall fixture did not execute the verified launch sequence.");
             }
-            if (postInput == 5)
-                Console.WriteLine($"OVERHANG history={history} left={left} delay={delay}: nativeMinY={nativeMinimumY} launches={nativeLaunches}");
+            if (postInput is 5 or 6)
+                Console.WriteLine($"OVERHANG mode={postInput} history={history} left={left} delay={delay}: nativeMinY={nativeMinimumY} launches={nativeLaunches}");
+            if (postInput == 6)
+            {
+                // Observed native outcomes establish that this geometry exercises
+                // delayed clearance, rather than identical misses at every delay.
+                int expectedMinimum = delay switch { >= 2 and <= 6 => 131, 7 => 85, 8 => 88, _ => 160 };
+                if (nativeMinimumY != expectedMinimum)
+                    throw new InvalidDataException("Delayed-overhang fixture lost its verified early-hit/late-clear distinction.");
+            }
         }
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");

@@ -229,3 +229,20 @@ All 9,360 frames now match position, pose, animation, history and speed words.
 Full core verification passes. Temporary native integration was removed.
 Delayed overhang clearance still requires geometry where early and late native
 launches actually have different clearance outcomes.
+
+## Delayed clearance outcome
+
+Mode six places the one-tile overhang at row six (Y=96..111), keeping mode five
+as the closer underside control. The expanded trace has 10,920 frames. The
+cartridge shows the required timing distinction in both directions and both
+history variants: delays 2..6 launch but hit the underside (minimum center
+Y=131), delay seven clears it (minimum Y=85), and delay eight also clears it
+(minimum Y=88). Delays 0/1/9..12 never launch. These observed outcomes are now
+explicit fixture-validity assertions, alongside exact per-frame comparisons.
+
+All 10,920 samples match C# motion, pose, animation, history and horizontal
+speed state. No additional production fix was required. Temporary native
+integration was removed. This verifies delayed clearance around the overhang;
+the fixture stops before a subsequent jump off the overhang's side and is not
+a full retail-room traversal. Charge-release and remaining forced-owner/legacy
+entry checks are still pending for #473.

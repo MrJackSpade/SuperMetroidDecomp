@@ -1,7 +1,7 @@
 # Damaged-pose bomb-jump reference (#413)
 
-Status: constructed-seam C# matrix matches; ordinary placement/fuse integration
-still pending. **Not yet ready for player validation.**
+Status: constructed-seam and normal-placement/full-fuse matrices match the pinned
+cartridge. **Ready for player validation.**
 
 `native-hurt-bomb-probe.h` runs original CPU instructions after restoring the
 unmodified cartridge bytes. It admits an enemy-projectile hit through the native
@@ -70,8 +70,48 @@ ROM SHA-256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 Native C checkout: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
 Disassembly checkout: `362be646929cf8e483f692b73a6561cfc2dc1d0d`.
 
-Remaining: verify an ordinary live bomb placement/fuse handoff and extend the
-reference as needed. The current C# matrix uses the audited knockback initializer
+The constructed-seam C# matrix uses the audited knockback initializer
 at the admitted-contact boundary and the real runtime bomb-overlap pass, with a
 constructed non-animated bomb stimulus matching the native collision-only seam.
-Keep #413 open without the player-validation label until integration is verified.
+
+## Normal placement and full-fuse integration
+
+`native-live-hurt-bomb-probe.h` and `LiveHurtBombComparisonAudit` add 320 cases /
+32,000 frames. Place a normal bomb through the real Shoot-edge producer with
+Morph Ball + Bombs at (128,249), then start standing over it at (128,235).
+Unmorphing is intentionally outside this fixture, not part of the parity claim.
+After that setup boundary neither actor is repositioned, and the fuse is never
+shortened. The placement frame includes the first bomb update in both engines.
+
+Both facings are covered. An inert twenty-damage enemy projectile overlaps on
+one selected frame from 44–53. Jump + opposite direction is held from one frame
+in 52–67. All cases run 100 frames, including bomb explosion and deletion. Room
+block dimensions and screen dimensions are initialized for native bounds checks.
+The first exploratory capture omitted screen dimensions and therefore skipped
+terrain reaction; it is invalid and is NOT the archived reference.
+
+The accepted capture reproduces 84 damaged-pose launches and 84 later boosts;
+the remaining 236 adjacent timing cases have different outcomes and are also
+compared, not filtered out. Every row checks Samus position/subpixels, pose,
+hurt and bomb words, vertical/horizontal speed and health; bomb count, type,
+fuse, position, list/timer, spritemap and collision radii are checked too.
+
+This uncovered stale bomb-movement flags when hurt replaced the native movement
+pointer. Fix: clear the old movement owner immediately while retaining the
+independent pose-input lock until native hurt expiry restores input. The full
+matrix then matches with zero deviations. Focused regression assertions cover
+this separate movement/input ownership, and the full core suite passes.
+
+`live-hurt-bomb-native-capture.zip` contains the accepted CSV (no ROM/save data).
+Two independent CPU runs produced SHA-256:
+`C3CF5EE45936F557A980633846C447CB824288B60D3A77B6840930810C598360`.
+Use the same pinned ROM and source revisions listed above. Temporary native
+hooks use `DiagnosticLiveHurtBomb(romPath, outputCsvPath)` before SDL and are
+removed after capture.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --live-hurt-bomb-comparison-audit "Super Metroid.smc" path/to/live-hurt-bomb-413-v2.csv
+```
+
+These are bounded synthetic-room parity tests, not claims about every bomb
+technique, modified ROMs, or PAL timing. Ordinary bomb-jump variants remain #412.

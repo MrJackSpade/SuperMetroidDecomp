@@ -746,7 +746,7 @@ public sealed partial class SamusState
         BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;
-        BombJumpPoseInputRestored = false;
+        BombJumpPoseInputLocked = true;
     }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>

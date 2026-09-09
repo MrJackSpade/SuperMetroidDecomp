@@ -64,13 +64,25 @@ internal static partial class Program
         hurt.Kinematics.YSubspeed = 0;
         hurt.Kinematics.YSubacceleration = 0x4000;
         SamusBombJumpMovement.Step(bus, level, hurt, 0, new RoomPlmSystem());
-        AssertTrue(!hurt.BombJumpPoseInputRestored, "one-pixel speed keeps input locked despite crossing threshold this frame");
+        AssertTrue(hurt.BombJumpPoseInputLocked, "one-pixel speed keeps input locked despite crossing threshold this frame");
         SamusBombJumpMovement.Step(bus, level, hurt, 1, new RoomPlmSystem());
-        AssertTrue(hurt.BombJumpPoseInputRestored, "fractional upward speed restores next frame's input");
+        AssertTrue(!hurt.BombJumpPoseInputLocked, "fractional upward speed restores next frame's input");
         AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
         AssertEqual(SamusPoseIds.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
         hurt.PublishBombJumpDirection(2);
         AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0), "fresh bomb command rearms retained hurt pose");
-        AssertTrue(!hurt.BombJumpPoseInputRestored, "fresh bomb command locks input again");
+        AssertTrue(hurt.BombJumpPoseInputLocked, "fresh bomb command locks input again");
+
+        // Damage may interrupt a humanoid bomb start before its first moving frame.
+        // Native owns independent movement/input pointers: replace only the former
+        // until the common hurt-expiry command restores both.
+        hurt.Pose = SamusPoseIds.NormalJumpForwardRightPose;
+        hurt.RefreshCollisionRadii(bus);
+        AssertTrue(SamusKnockbackMovement.Start(bus, hurt, 0, 0), "normal hurt interrupts humanoid bomb start");
+        AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
+        AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
+        hurt.KnockbackTimer = 0;
+        AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, hurt), "hurt expiry consumes its transitional command");
+        AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }
 }

@@ -1760,8 +1760,7 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            bool bombJumpLocksPoseInput = Samus.BombJumpStarting ||
-                (Samus.BombJumpActive && !Samus.BombJumpPoseInputRestored);
+            bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
             bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
             SamusPoseTransitionLookup poseLookup =

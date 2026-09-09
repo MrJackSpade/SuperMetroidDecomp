@@ -109,7 +109,7 @@ public static class SamusBombJumpMovement
             // The rising helper restores input while speed is still fractional and
             // positive, BEFORE the apex or a collision restores normal movement.
             // A next-frame table match can therefore cancel the remaining bomb rise.
-            samus.BombJumpPoseInputRestored = true;
+            samus.BombJumpPoseInputLocked = false;
         }
 
         // Native ends immediately once direction becomes down; it does not spend one
@@ -172,6 +172,7 @@ public static class SamusBombJumpMovement
         samus.BombJumpDirection = 0;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = false;
+        samus.BombJumpPoseInputLocked = false;
         return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: true);
     }
 

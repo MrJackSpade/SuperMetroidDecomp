@@ -188,6 +188,10 @@ public static class SamusKnockbackMovement
         // jump cannot coexist with hurt movement, and shinespark/Screw contact damage is
         // cancelled before the special movement handler begins.
         samus.BombJumpDirection = 0;
+        // Replacing the movement pointer cancels the bomb mover immediately, but
+        // does not replace its independently locked pose-input pointer yet.
+        samus.BombJumpStarting = false;
+        samus.BombJumpActive = false;
         samus.HorizontalSpeed.ContactDamageIndex = 0;
 
         // `$91:ED63-$91:ED66` writes one to the shared hurt-flash counter after cancelling
@@ -404,6 +408,9 @@ public static class SamusKnockbackMovement
 
     private static KnockbackMovementResult FinishKnockback(SamusState samus)
     {
+        // The native expiry command restores the normal input pointer as well as
+        // movement, including when hurt interrupted a still-input-locked bomb rise.
+        samus.BombJumpPoseInputLocked = false;
         // Exact `$91:F31D` cleanup shared by humanoid and morphed completion. The falling
         // flag has no independent host field yet; Y-direction two is its movement-visible
         // publication and is consumed by every translated normal/ball dispatcher.

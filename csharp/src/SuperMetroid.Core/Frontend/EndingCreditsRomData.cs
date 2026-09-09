@@ -61,6 +61,10 @@ public static class EndingCreditsRomData
         /// <summary>$8B:E110 clears the 16-color BG2 waiting palette at byte index $0040.</summary>
         public const int WaitingPaletteStart = 32;
         public const int WaitingPaletteCount = 16;
+        /// <summary>$8B:E1D2 clears byte-index $01A0 for the suitless reward palette.</summary>
+        public const int SuitlessRewardPaletteStart = 208;
+        /// <summary>$8B:E1D2 additionally clears byte-index $01C0 for the helmetless suited body.</summary>
+        public const int SuitedRewardPaletteStart = 224;
         /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
         public const short Mode7CenterX = 56;
         /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>

@@ -277,12 +277,21 @@ internal sealed partial class EndingCreditsState
                 if (--phaseTimer <= 0)
                 {
                     SpawnEndingRewardActors();
+                    rewardPaletteStep = 0;
+                    ApplyRewardPalette();
                     phaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
                     Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsReward:
+                // E265/E314 test var4 before decrement. Both 64-frame halves advance
+                // their shared palette accumulator on the fourth, eighth, ... calls.
+                if ((phaseTimer & 3) == 1)
+                {
+                    rewardPaletteStep++;
+                    ApplyRewardPalette();
+                }
                 StepSprites();
                 if (--phaseTimer <= 0)
                 {

@@ -48,6 +48,26 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
+                    && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
+                {
+                    int elapsed = tick - rewardStart;
+                    int activeElapsed = elapsed <= 64 ? elapsed : elapsed < 244 ? 64 : elapsed - 180;
+                    int fadeStep = activeElapsed / 4;
+                    var colors = legacy.CaptureRenderSnapshot().Memory.Cgram;
+                    foreach (int start in hours < 3 ? new[] { 32, 208 } : new[] { 32, 208, 224 })
+                    {
+                        int factor = start == 32 ? 32 - fadeStep : fadeStep;
+                        for (int i = start; i < start + 16; i++)
+                        {
+                            ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                            ushort expectedColor = (ushort)(((source & 31) * factor / 32)
+                                | (((source >> 5 & 31) * factor / 32) << 5)
+                                | (((source >> 10 & 31) * factor / 32) << 10));
+                            AssertEqual(expectedColor, colors[i], "native reward dissolve pauses and resumes around copyright");
+                        }
+                    }
+                }
                 if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsCopyright, out int copyrightStart)
                     && tick - copyrightStart <= 180)
                     AssertEqual(tick - copyrightStart < 180 ? EndingCreditsPhase.PostCreditsCopyright : EndingCreditsPhase.PostCreditsReward,

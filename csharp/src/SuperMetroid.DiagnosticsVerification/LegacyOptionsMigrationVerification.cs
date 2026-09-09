@@ -8,6 +8,14 @@ internal static class LegacyOptionsMigrationVerification
     public static int Run()
     {
         VerifyRuntimeMigration();
+        string legacyCallback = "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0, SuperMetroid.Core";
+        var callback = DebuggerStateTypeIdentity.Resolve(legacyCallback)
+            ?? throw new InvalidDataException("Verified legacy room callback did not resolve.");
+        if (callback.GetMethod("<LoadCartridgeRoom>b__0", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .ReturnType != typeof(SuperMetroid.Core.Game.SamusState))
+            throw new InvalidDataException("Legacy room callback no longer resolves the Samus getter.");
+        if (DebuggerStateTypeIdentity.Resolve(legacyCallback.Replace("443_0", "999999_0")) is not null)
+            throw new InvalidDataException("Unknown compiler closure was aliased speculatively.");
         var type = typeof(SuperMetroidGameOptions);
         var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 9);

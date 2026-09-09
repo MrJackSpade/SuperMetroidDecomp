@@ -1,6 +1,6 @@
 # Ordinary walljump parity — #473
 
-Failing diagnostic, not a production fix. Include `native-release-probe.h` and
+Partially resolved diagnostic; #473 remains open. Include `native-release-probe.h` and
 `native-walljump-probe.h` after `struct StateRecorder;` in pinned `sm_rtl.c`.
 In `main.c`, before SDL, dispatch `DiagnosticWalljump(argv[2], argv[3])` for
 `argc == 4` and `--walljump-probe`. Build Release/x64/v145 with absolute upstream
@@ -30,3 +30,21 @@ The printed managed success windows are observational, not golden expectations:
 rightward away delays 2..6, leftward away 2..5. The comparer must continue to fail
 until the exact discrepancy is diagnosed and resolved. Repeated same-wall jumps,
 overhangs and post-walljump Up/Down/charge rules are still outstanding.
+
+## Fractional collision write correction
+
+The native solid horizontal dispatcher ($94:8F49) writes live X subposition
+even when reached through the observational wall probe ($94:967F): zero on a
+leftward hit and FFFF on a rightward hit. The managed copied probe discarded
+those writes. Propagating the block-hit fractional word, without committing
+integer position, reduces the same trace from 741 mismatches to 13. All 13 are
+the first frame of the leftward-away cases; every subsequent frame matches
+exact X/Y, pose and animation. Both managed success windows now accept delays
+2..8 in this specific geometry. This is not a universal timing claim.
+
+Full core verification passes, including new direct block-probe assertions for
+both hit directions and a no-hit case: integer X/Y remain unchanged, block
+contact changes only X subposition, and air preserves the original fraction.
+The full native comparer intentionally still exits nonzero. The native
+last-different-movement gate at $90:9D35 is an investigation lead for the
+remaining initial-frame discrepancy, not yet an implemented or verified fix.

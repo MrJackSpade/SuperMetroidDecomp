@@ -62,6 +62,24 @@ static void VerifySamusAerialTurnsAndWallJump()
     RoomLevelData level = CreateRoom(
         width, height, foreground, new byte[foreground.Length]);
 
+    // Native $94:967F observes integer position but its solid-block dispatcher
+    // still writes the live fractional X word. Verify both directions and air.
+    foreach (var (x, distance, hit, fraction) in new (ushort, int, bool, ushort)[]
+        { (58, 8, true, 0xffff), (86, -8, true, 0), (32, 8, false, 0x4321) })
+    {
+        var probeState = new SamusKinematicsState
+        {
+            XPosition = x, XSubposition = 0x4321,
+            YPosition = 48, YSubposition = 0x1234, XRadius = 5, YRadius = 5,
+        };
+        var result = SamusBlockCollision.ProbeWallHorizontal(bus, level, probeState, distance << 16);
+        AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
+        AssertEqual(x, probeState.XPosition, "wall probe preserves whole-pixel X");
+        AssertEqual(fraction, probeState.XSubposition, "wall probe preserves native fractional write");
+        AssertEqual(48, probeState.YPosition, "wall probe preserves whole-pixel Y");
+        AssertEqual(0x1234, probeState.YSubposition, "block wall probe preserves fractional Y");
+    }
+
     // Source poses are real retail pose numbers covering shot directions zero through nine.
     // Compact down-aim records `$17/$18/$2D/$2E` use radius ten; every other source uses 19.
     byte[] jumpSources = [0x15, 0x69, 0x51, 0x6b, 0x17, 0x18, 0x6c, 0x52, 0x6a, 0x16];

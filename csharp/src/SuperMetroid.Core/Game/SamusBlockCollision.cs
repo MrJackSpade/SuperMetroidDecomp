@@ -29,7 +29,7 @@ public static partial class SamusBlockCollision
     /// <summary>
     /// Ports the block-only observation made by <c>WallJumpBlockCollisionDetection</c> at
     /// <c>$94:967F</c>. The native routine publishes available distance in `$12` but does
-    /// not commit Samus's probe position; a copied kinematics object preserves that rule.
+    /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
     public static BlockMoveResult ProbeWallHorizontal(
         ISnesAddressSpace bus,
@@ -72,7 +72,15 @@ public static partial class SamusBlockCollision
             signedDistance,
             plms: plms);
 
-        // The bank-$94 portion is observational, but the bank-$A0 routine it follows has one
+        // $94:8F49 (and square-slope clipping) writes Samus's real X subposition
+        // even through the observational $94:967F entry point. The probe's accepted
+        // displacement is whole pixels on a block hit, so its final fractional word
+        // retains that write. Keep the live integer X unchanged. Dropping this write
+        // let away movement accumulate fractional speed during the wall-check pose.
+        if (result.Collided && result.EnemyCollision is null)
+            state.XSubposition = probe.XSubposition;
+
+        // The bank-$A0 routine preceding the block scan has a separate
         // real side effect: its touching path executes STZ SamusYSubPosition. Copy that single
         // native write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })

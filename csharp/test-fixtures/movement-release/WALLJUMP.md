@@ -539,3 +539,19 @@ do not describe that broader gate as passing. This audit gap requires separate
 diagnosis. The other two callers of the shared previous-pose helper are suit pickup
 and drained setup, already covered above. Legacy-state entry and the overhang-side
 follow-up remain outstanding for #473.
+
+### Resolution of the broader Maw audit failure (#509)
+
+Both failures were stale fixture contracts, not a production palette defect.
+The ice projectile was manufactured without equipping Ice; native
+`NormalEnemyFrozenAI` immediately thaws when Ice is unequipped. The audit now
+equips Ice, checks the timer decrement to 399 and palette-six attributes in emitted
+multipart OAM, then unequips Ice and verifies immediate thaw and restoration of
+the four link/root palettes. Its later death assertion incorrectly required the
+Deleted property bit: native `EnemyDeathAnimation` clears the common enemy record
+with memset. The corrected assertion requires a zero definition and properties,
+along with the existing health, auxiliary cleanup and kill-count checks.
+
+The full `--yapping-maw-audit` passes, including all six retail populations, ten
+history cases, freeze/unfreeze, OAM output and lethal cleanup. This supersedes the
+preceding broader-gate failure note. No production code changed for #509.

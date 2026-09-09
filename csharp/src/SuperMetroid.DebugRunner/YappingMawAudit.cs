@@ -223,6 +223,9 @@ internal static class YappingMawAudit
         // Ice is vulnerability $FF in this table. Common shot AI installs the 400-tick
         // freeze, then $A8:A7BD must release the captive and the custom frozen tail recolors
         // all four links plus the root to OBJ palette six.
+        // The native frozen handler immediately thaws when Ice is unequipped. A
+        // synthetic ice projectile alone does not establish the player's equipment.
+        loaded.Samus.EquippedBeams |= (ushort)SamusBeamFlags.Ice;
         var shots = new SamusProjectileSystem();
         ArmBeam(shots.Slots[0], actor, damage: 20, type: 2);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
@@ -236,6 +239,36 @@ internal static class YappingMawAudit
             (state.RootSpriteObject!.GraphicsIndex & 0x0e00) != 0x0c00)
         {
             throw new InvalidDataException("Maw frozen palette did not propagate to auxiliary actors.");
+        }
+        if (actor.FrozenTimer != 399)
+            throw new InvalidDataException("Equipped Ice did not retain the Maw freeze after one tick.");
+        VerifyFrozenOam(loaded);
+
+        // Exercise the inverse condition as well: disabling Ice restores all five
+        // auxiliary palettes on the next frozen-AI pass, rather than retaining blue art.
+        loaded.Samus.EquippedBeams &= unchecked((ushort)~(ushort)SamusBeamFlags.Ice);
+        Step(loaded, assets, frame: 36);
+        if (actor.FrozenTimer != 0 ||
+            bodies.Any(body => new SnesObjAttributeWord(body.GraphicsIndex).PaletteBits != state.OriginalPaletteBits) ||
+            new SnesObjAttributeWord(state.RootSpriteObject!.GraphicsIndex).PaletteBits != state.OriginalPaletteBits)
+            throw new InvalidDataException("Unequipping Ice did not thaw and restore Maw auxiliary palettes.");
+    }
+
+    private static void VerifyFrozenOam(LoadedMaw loaded)
+    {
+        var oam = new OamBuffer();
+        oam.BeginFrame();
+        loaded.Enemies.DrawLayers(oam, 0, 0, 0, 7);
+        loaded.Enemies.DrawEnemyProjectiles(oam, 0, 0);
+        oam.FinalizeFrame();
+        if (oam.LastFinalizedSpriteCount < 6)
+            throw new InvalidDataException("Frozen Maw fixture omitted multipart OAM output.");
+        for (int index = 0; index < oam.LastFinalizedSpriteCount; index++)
+        {
+            int offset = index * 4;
+            ushort attributes = (ushort)(oam.LowTable[offset + 2] | oam.LowTable[offset + 3] << 8);
+            if (new SnesObjAttributeWord(attributes).PaletteBits != SnesObjPalettes.Index6.PaletteBits)
+                throw new InvalidDataException($"Frozen Maw OAM piece {index} did not select palette six.");
         }
     }
 
@@ -255,7 +288,9 @@ internal static class YappingMawAudit
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus, shots, new SamusBombProjectileSystem(), loaded.Samus) != 1 ||
             loaded.Actor.Health != 0 ||
-            !loaded.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
+            // Native EnemyDeathAnimation clears the common slot with memset; it
+            // does not preserve a Deleted property bit for this non-respawning actor.
+            loaded.Actor.EnemyDefinitionPointer != 0 || loaded.Actor.Properties != 0 ||
             state.BodyProjectiles.Any(body => body is not null && body.IsActive) ||
             state.RootSpriteObject is null || state.RootSpriteObject.IsActive ||
             loaded.Enemies.EnemiesKilled != 1)

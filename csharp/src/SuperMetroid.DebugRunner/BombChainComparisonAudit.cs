@@ -5,11 +5,16 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Controller-produced short bomb chains compared with a bounded cartridge-CPU fixture.</summary>
 internal static class BombChainComparisonAudit
 {
-    public static int Run(string rom, string trace, bool repeated = false, bool triple = false, bool horizontal = false)
+    public static int Run(string rom, string trace, BombChainAuditScenario scenario = BombChainAuditScenario.Short)
     {
+        if (!Enum.IsDefined(scenario)) throw new ArgumentOutOfRangeException(nameof(scenario));
+        bool repeated = scenario == BombChainAuditScenario.Repeated;
+        bool triple = scenario == BombChainAuditScenario.Triple;
+        bool horizontal = scenario == BombChainAuditScenario.Steering;
+        bool ladder = scenario == BombChainAuditScenario.Ladder;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        if ((repeated ? 1 : 0) + (triple ? 1 : 0) + (horizontal ? 1 : 0) > 1 || rows.Length != (horizontal ? 112320 : triple ? 73440 : repeated ? 64800 : 12960) || rows.Any(row => row.Length != 49))
+        if (rows.Length != (ladder ? 21600 : horizontal ? 112320 : triple ? 73440 : repeated ? 64800 : 12960) || rows.Any(row => row.Length != 49))
             throw new InvalidDataException("Unexpected bomb-chain capture dimensions.");
         int cases = 0, mismatches = 0, reports = 0;
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..4])))
@@ -18,7 +23,7 @@ internal static class BombChainComparisonAudit
             bool left = seed[0] == "1", ceiling = seed[1] == "1";
             int travel = int.Parse(seed[2]), spacing = int.Parse(seed[3]);
             if (seed[0] is not ("0" or "1") || seed[1] is not ("0" or "1") || travel < 0 || travel > (horizontal ? 11 : triple ? 16 : 2) ||
-                (horizontal ? spacing is < 70 or > 94 || spacing % 2 != 0 : triple ? spacing is < 50 or > 55 : repeated ? spacing is < 48 or > 56 : spacing is not (0 or 40 or 44 or 48 or 52 or 56)))
+                (ladder ? spacing is < 24 or > 28 : horizontal ? spacing is < 70 or > 94 || spacing % 2 != 0 : triple ? spacing is < 50 or > 55 : repeated ? spacing is < 48 or > 56 : spacing is not (0 or 40 or 44 or 48 or 52 or 56)))
                 throw new InvalidDataException("Invalid bomb-chain case.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var level = runtime.LevelData!;
@@ -52,11 +57,21 @@ internal static class BombChainComparisonAudit
             {
                 if (int.Parse(row[4]) != frame) throw new InvalidDataException("Reordered bomb-chain trace.");
                 ushort input = ushort.Parse(row[5], NumberStyles.HexNumber);
-                ushort expectedInput = (horizontal ? frame == 0 || frame == 52 || frame == spacing : triple ? frame == 0 || frame == spacing || frame == 68 + travel : repeated ? frame % spacing == 0 : frame == 0 || spacing != 0 && (frame == spacing || frame == spacing * 2)) ? (ushort)0x40 : (ushort)0;
+                ushort expectedInput = (ladder ? frame == 0 || frame >= 52 && (frame - 52) % spacing == 0 : horizontal ? frame == 0 || frame == 52 || frame == spacing : triple ? frame == 0 || frame == spacing || frame == 68 + travel : repeated ? frame % spacing == 0 : frame == 0 || spacing != 0 && (frame == spacing || frame == spacing * 2)) ? (ushort)0x40 : (ushort)0;
                 if (horizontal && frame >= 74 && frame < 75 + travel) expectedInput |= (ushort)(left ? 0x200 : 0x100);
-                if (!horizontal && !triple && frame >= 46 && frame < 50 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
+                if (ladder && frame >= 122 && frame < 126 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
+                if (!ladder && !horizontal && !triple && frame >= 46 && frame < 50 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
                 if (input != expectedInput) throw new InvalidDataException("Changed bomb-chain input.");
                 runtime.StepFrame(input);
+                if (ladder && ceiling && travel != 0 && spacing == 24 && frame == 127 &&
+                    (runtime.LastMorphBallMovement is not { HitCeiling: true } ||
+                     !samus.BombJumpStarting || samus.Kinematics.YSpeed != 0 ||
+                     samus.Kinematics.YSubspeed != 0x5800 || samus.Kinematics.YDirection != 1))
+                    throw new InvalidDataException($"Bomb interruption lost priority over ceiling cleanup: {group.Key}.");
+                if (ladder && ceiling && travel != 0 && spacing == 28 && frame == 208 &&
+                    (samus.Kinematics.YFixed != 0x00f9ffff || samus.Kinematics.YDirection != 0 ||
+                     samus.HorizontalSpeed.BaseFixed != 0 || samus.HorizontalSpeed.AccelerationMode != 0))
+                    throw new InvalidDataException($"Final ball landing retained horizontal momentum: {group.Key}.");
                 // Releasing the one-frame steering pulse coincides with a ceiling
                 // strike. Native collision command five outranks the stationary
                 // input fallback: keep the moving pose and this frame's momentum.
@@ -88,7 +103,19 @@ internal static class BombChainComparisonAudit
                 }
                 frame++;
             }
-            if (frame != (repeated ? 600 : 180)) throw new InvalidDataException("Incomplete bomb-chain sequence.");
+            if (frame != (ladder ? 360 : repeated ? 600 : 180)) throw new InvalidDataException("Incomplete bomb-chain sequence.");
+            if (ladder && !ceiling && travel == 0)
+            {
+                if (spacing is 26 or 27)
+                {
+                    if (launches != 8 || floorReturns != 0 ||
+                        launchHeights.Zip(launchHeights.Skip(1)).Any(pair => pair.Second >= pair.First) ||
+                        launchHeights[0] - launchHeights[^1] < (110u << 16))
+                        throw new InvalidDataException($"Ladder failed sustained ascending handoffs: {group.Key}.");
+                }
+                else if (spacing is 25 or 28 && floorReturns == 0)
+                    throw new InvalidDataException($"Adjacent ladder timing miss sustained ascent: {group.Key}.");
+            }
             if (triple && !ceiling && spacing == 52)
             {
                 int expectedLaunches = travel == 12 ? 2 : 3;
@@ -109,7 +136,7 @@ internal static class BombChainComparisonAudit
             }
             cases++;
         }
-        if (cases != (horizontal ? 624 : triple ? 408 : repeated ? 108 : 72)) throw new InvalidDataException("Incomplete bomb-chain matrix.");
+        if (cases != (ladder ? 60 : horizontal ? 624 : triple ? 408 : repeated ? 108 : 72)) throw new InvalidDataException("Incomplete bomb-chain matrix.");
         Console.WriteLine($"Bomb chains: {cases} cases, {rows.Length} frames, {mismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
     }

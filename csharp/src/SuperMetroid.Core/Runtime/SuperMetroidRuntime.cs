@@ -2943,8 +2943,8 @@ public sealed partial class SuperMetroidRuntime
                 }
 
                 // $91:E8E5 replaces the ordinary input target with the current pose
-                // on ceiling collision. The mover already applies EFDF's vertical
-                // stop; consume this same-pose transition here so history still shifts
+                // on ceiling collision. Apply the ball's deferred EFDF vertical
+                // stop and consume this same-pose transition so history still shifts
                 // and an alpha aim/turn selection cannot override it. Higher-priority
                 // animation and hurt interruptions above retain their native priority.
                 // Ball movement can resume before the bomb arc reaches a ceiling;
@@ -2954,6 +2954,8 @@ public sealed partial class SuperMetroidRuntime
                      LastMorphBallMovement is { HitCeiling: true } ||
                      LastBombJumpMovement is { Vertical.Collided: true }))
                 {
+                    if (LastMorphBallMovement is { HitCeiling: true })
+                        Samus.ApplySolidCeilingCollision();
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     animationTransitionApplied = true;

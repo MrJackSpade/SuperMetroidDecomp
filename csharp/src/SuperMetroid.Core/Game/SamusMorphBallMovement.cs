@@ -407,12 +407,9 @@ public static class SamusMorphBallMovement
 
         hitCeiling = displacement < 0 && vertical.Collided;
         landed = displacement >= 0 && vertical.Collided;
-        if (hitCeiling)
-        {
-            state.YSpeed = 0;
-            state.YSubspeed = 0;
-            state.YDirection = 2;
-        }
+        // Movement publishes collision only. Bank $91 stops vertical speed if
+        // the ceiling transition wins AFTER animation/hurt/bomb interruption.
+        // Clearing here would erase speed even when a new bomb launch wins.
         return vertical;
     }
 
@@ -435,16 +432,9 @@ public static class SamusMorphBallMovement
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             plms: plms);
         // No-speed Y movement can still go UP when a platform carries Samus. The
-        // cartridge publishes the same ceiling command as a velocity-driven jump;
-        // $91:EFDF clears speed and selects down. Otherwise the next frame repeats
-        // a grounding probe and steps into the platform instead of using zero speed.
+        // cartridge publishes the same deferred ceiling command as a velocity-driven
+        // jump. Its speed/direction writes belong to the later winning transition.
         hitCeiling = displacement < 0 && result.Collided;
-        if (hitCeiling)
-        {
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 2;
-        }
         return result;
     }
 

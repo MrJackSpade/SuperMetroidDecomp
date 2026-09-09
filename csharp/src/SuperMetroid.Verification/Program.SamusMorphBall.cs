@@ -423,7 +423,11 @@ static void VerifySamusMorphBallMovement()
     MorphBallMovementResult hardLanding = SamusMorphBallMovement.StepFalling(
         bus, floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     AssertTrue(hardLanding.Landed, "hard ball fall collides with floor");
+    samus.HorizontalSpeed.BaseSpeed = 2;
+    samus.HorizontalSpeed.BaseSubspeed = 0x8000;
+    samus.HorizontalSpeed.AccelerationMode = 2;
     AssertTrue(!samus.ApplyMorphBallLanding(bus), "hard landing launches first rebound");
+    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
     AssertEqual(1, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.YSpeed, "first rebound whole speed from ROM");
     AssertEqual(0x1000, samus.Kinematics.YSubspeed, "first rebound subspeed from ROM");
@@ -436,12 +440,15 @@ static void VerifySamusMorphBallMovement()
     samus.Kinematics.YSpeed = 1;
     samus.Kinematics.YSubspeed = 0;
     AssertTrue(!samus.ApplyMorphBallLanding(bus), "first-bounce collision launches second rebound");
+    AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "second rebound retains horizontal momentum");
     AssertEqual(2, samus.MorphBallBounceState, "second rebound state");
     AssertEqual(0, samus.Kinematics.YSpeed, "second rebound decrements whole constant");
 
     samus.Kinematics.YDirection = 2;
     samus.Kinematics.YSpeed = 1;
     AssertTrue(samus.ApplyMorphBallLanding(bus), "second-bounce collision grounds ball");
+    AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "final ball landing clears both base-speed words");
+    AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
     AssertEqual(0, samus.MorphBallBounceState, "grounding clears bounce state");
 

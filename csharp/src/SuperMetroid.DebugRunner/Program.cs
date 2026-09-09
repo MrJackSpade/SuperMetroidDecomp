@@ -160,11 +160,13 @@ if (args.Length == 3 && args[0] == "--live-hurt-bomb-comparison-audit")
 if (args.Length == 3 && args[0] == "--bomb-chain-comparison-audit")
     return BombChainComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--repeated-bomb-chain-comparison-audit")
-    return BombChainComparisonAudit.Run(args[1], args[2], repeated: true);
+    return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Repeated);
 if (args.Length == 3 && args[0] == "--triple-bomb-chain-comparison-audit")
-    return BombChainComparisonAudit.Run(args[1], args[2], triple: true);
+    return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Triple);
 if (args.Length == 3 && args[0] == "--horizontal-bomb-chain-comparison-audit")
-    return BombChainComparisonAudit.Run(args[1], args[2], horizontal: true);
+    return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Steering);
+if (args.Length == 3 && args[0] == "--ladder-bomb-chain-comparison-audit")
+    return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Ladder);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

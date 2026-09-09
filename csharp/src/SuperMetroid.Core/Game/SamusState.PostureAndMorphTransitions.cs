@@ -463,6 +463,17 @@ public sealed partial class SamusState
     }
 
     /// <summary>
+    /// Applies the winning solid-ceiling transition at $91:EFDF. Call after higher
+    /// priority animation and hit interruptions, not from the collision scan.
+    /// </summary>
+    public void ApplySolidCeilingCollision()
+    {
+        Kinematics.YSpeed = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YDirection = 2;
+    }
+
+    /// <summary>
     /// Resolves an ordinary Morph-Ball downward collision through `$91:EA07` and
     /// `$91:F1FC`, including both automatic rebounds and the final grounded pose.
     /// </summary>
@@ -507,6 +518,11 @@ public sealed partial class SamusState
             ? SamusPoseIds.MorphBallGroundLeftPose
             : SamusPoseIds.MorphBallGroundRightPose;
         ApplyMorphBallPoseChange(bus, groundedPose);
+        // $91:F02D-$F033 clears base momentum only when the bounce handler returns
+        // carry clear. Both airborne rebounds above retain their horizontal speed.
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
         return true;
     }
 

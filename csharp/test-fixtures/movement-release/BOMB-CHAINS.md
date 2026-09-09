@@ -1,7 +1,7 @@
 # Ordinary bomb-chain parity (#412)
 
-Status: short-chain, repeated vertical-ascent and three-bomb matrices pass.
-Sustained horizontal/ladder coverage still needs work; do not mark the whole issue ready
+Status: short-chain, repeated vertical-ascent, three-bomb and ladder matrices pass.
+Sustained horizontal/ceiling traversal coverage still needs work; do not mark the whole issue ready
 based on these cases alone.
 
 `native-bomb-chain-probe.h` executes unmodified cartridge instructions. The room
@@ -94,7 +94,7 @@ Use the same native-hook procedure and pinned sources above.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --triple-bomb-chain-comparison-audit "Super Metroid.smc" path/to/triple-bomb-chain-412.csv
 ```
 
-Remaining acceptance: horizontal/ladder traversal with adjacent misses. The existing brief
+Remaining acceptance: sustained horizontal/ceiling traversal with adjacent misses. The existing brief
 direction pulse tests diagonal displacement and ceiling contact, not sustained
 horizontal traversal. Preserve exact input and slot-lifecycle comparisons when
 expanding those fixtures.
@@ -130,5 +130,52 @@ Use the same pinned sources and temporary headless dispatch procedure above.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --horizontal-bomb-chain-comparison-audit "Super Metroid.smc" path/to/horizontal-bomb-chain-412.csv
 ```
 
-The issue remains open without the validation label until sustained
-horizontal/ladder traversal and adjacent timing misses are demonstrated.
+The issue remains open without the validation label until sustained horizontal
+and ceiling traversal and adjacent timing misses are demonstrated.
+
+## Repeating three-bomb ladder and collision interruption
+
+`DiagnosticLadderBombChains` starts with bombs at frames 0 and 52, then places
+another every N frames (24 through 28) from that second timestamp. Neutral input
+or a four-frame Left/Right pulse at 122 through 125, both facings and both ceiling
+heights, produce 60 cases of 360 frames (21,600 compared frames).
+
+High-ceiling neutral cases at N=26 and 27 sustain eight progressively higher
+launches with no return to the floor. The eighth launch is over 110 pixels above
+the first. Adjacent N=25 and 28 lose the chain and return to the floor. Explicit
+assertions verify these properties on both facings. This proves repeated ladder
+ascent, not only the earlier isolated three-bomb handoff.
+
+The matrix initially reproduced 612 divergent frames from two defects:
+
+* At frame 127 in low-ceiling, N=24 steered cases, another bomb arms on the same
+  frame as a ceiling contact. The ball mover eagerly zeroed vertical speed,
+  although native bomb interruption takes priority over `$91:EFDF`. Movement now
+  only publishes its ceiling result; the winning runtime transition applies
+  velocity cleanup. The exact frame asserts the new bomb start and retained
+  `$0000.5800` upward speed. A separate carried-ball check explicitly resolves the
+  winning ceiling command and verifies the following frame's motion.
+* At frame 208 in low-ceiling, N=28 steered cases, the final landing installed
+  grounded art but left base momentum behind. The native collision dispatcher
+  clears base speed and acceleration mode when the bounce handler returns carry
+  clear. Final Morph Ball landing now does so, while both rebounds retain their
+  momentum. Dedicated assertions cover rebound retention and final clearance.
+
+All 21,600 frames now match. Earlier short, repeated, triple and steering matrices
+(263,520 frames), live hurt-bomb (32,000 frames), and full core verification pass.
+`BombChainAuditScenario` makes the managed schedule selection mutually exclusive
+rather than accumulating independent boolean switches.
+
+`ladder-bomb-chain-native-capture.zip` preserves the independently repeated CSV:
+SHA-256 `8DC6035CF886D4CE7B56950D7ABF53CAB2778972681CB593D24ADB77D83367EB`.
+The same ROM/source pins and temporary headless-hook procedure apply.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --ladder-bomb-chain-comparison-audit "Super Metroid.smc" path/to/ladder-bomb-chain-412.csv
+```
+
+Controller-only hover searches also tried one-direction and away/forward pulses
+every 52–56 frames. They did not establish sustained horizontal traversal: short
+pulses stopped producing lateral displacement after the initial launch, while
+larger offsets lost the subsequent bomb overlap. These negative candidates are
+not counted as acceptance evidence and are not the archived ladder schedule.

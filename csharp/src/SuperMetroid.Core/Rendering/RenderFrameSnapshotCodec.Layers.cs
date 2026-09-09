@@ -33,11 +33,13 @@ public static partial class RenderFrameSnapshotCodec
                 foreach (RenderLayer child in window.Scene.Layers) WriteLayer(writer, child);
                 break;
             case BgSubscreenAddRenderLayer sub:
-                writer.Write((byte)(sub.FourBpp ? RenderPacketLayerKind.Bg4SubscreenAdd : RenderPacketLayerKind.BgSubscreenAdd));
+                writer.Write((byte)(sub.VerticalScroll != 0 ? RenderPacketLayerKind.ScrolledBg4SubscreenAdd
+                    : sub.FourBpp ? RenderPacketLayerKind.Bg4SubscreenAdd : RenderPacketLayerKind.BgSubscreenAdd));
                 writer.Write(sub.TilemapWord); writer.Write(sub.CharacterWord); writer.Write(sub.MainCoverage is not null);
                 if (sub.MainCoverage is { } coverage) WriteLayer(writer, coverage);
                 writer.Write(sub.IncludeObjects);
                 writer.Write(sub.MainObjects);
+                if (sub.VerticalScroll != 0) writer.Write(sub.VerticalScroll);
                 break;
             case Mode7GameplayRenderLayer gameplay7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
@@ -128,6 +130,7 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader, version),
         RenderPacketLayerKind.Bg4SubscreenAdd when version >= RenderPacketFormat.Bg4SubscreenAddVersion => ReadSubscreen(reader, version, true),
+        RenderPacketLayerKind.ScrolledBg4SubscreenAdd when version >= RenderPacketFormat.ScrolledSubscreenVersion => ReadSubscreen(reader, version, true, true),
         RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader, version),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
@@ -213,7 +216,7 @@ public static partial class RenderFrameSnapshotCodec
         return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
     }
 
-    private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader, ushort version, bool fourBpp = false)
+    private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader, ushort version, bool fourBpp = false, bool scrolled = false)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
         Bg4BppRenderLayer? coverage = null;
@@ -227,7 +230,8 @@ public static partial class RenderFrameSnapshotCodec
         }
         return new(map, characters, coverage, fourBpp,
             version >= RenderPacketFormat.SubscreenObjectsVersion && ReadBoolean(reader),
-            version >= RenderPacketFormat.SubscreenMainObjectsVersion && ReadBoolean(reader));
+            version >= RenderPacketFormat.SubscreenMainObjectsVersion && ReadBoolean(reader),
+            scrolled ? reader.ReadUInt16() : (ushort)0);
     }
 
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)

@@ -8,6 +8,11 @@ internal static class LegacyOptionsMigrationVerification
     public static int Run()
     {
         VerifyMode7RegisterMigration();
+        var subType = typeof(SuperMetroid.Core.Rendering.BgSubscreenAddRenderLayer);
+        var subFields = subType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        var subSelected = DebuggerStateFieldMigrations.SelectSerializedFields(subType, subFields, 6);
+        if (subSelected.Length != 6 || !subSelected.SequenceEqual(subFields.Where(field => field.Name != "<VerticalScroll>k__BackingField")))
+            throw new InvalidDataException("Legacy subscreen migration altered prior fields or ordering.");
         VerifyGameplayRegisterMigration();
         VerifyRuntimeMigration();
         VerifyCameraMigration();

@@ -31,6 +31,21 @@ isolates a BG coordinate error; changing the oracle's scroll is not a fix. The
 native-register comparison must become green using unchanged retail registers.
 The full reported square-edge issue must still be assessed after that correction.
 
+After the production coordinate correction, the unchanged-retail-register check
+is green. The negative-one diagnostic compensation is now expected to differ.
+The full sampled verification uses `burst` as the probe's optional fourth
+argument for frames 400,416,432,448,464 (retail `$8B:F2B7` registers), and no
+optional argument for frames 512 through 800 in steps of sixteen (retail
+`$8B:F2FA`). Write each output to the corresponding `.bgra` path, then run:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-native-burst
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ending-native-finale
+```
+
+All 24 sampled frames match exactly. This verifies raster composition using the
+captured graphics state, not every actor's timing against a native game playback.
+
 The initial crossfade and the complete explosion were also checked against an
 independent reconstruction of the upper VRAM DMA ranges, including the exact
 $1000 font upload at byte $A000: zero byte differences and zero changed pixels.

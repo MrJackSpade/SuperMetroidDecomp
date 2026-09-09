@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Rendering.BgSubscreenAddRenderLayer) && count == 6 && current.Length == 7)
+        {
+            Console.Error.WriteLine("WARNING: Legacy subscreen layer has no vertical-scroll field; restoring its original unscrolled sampling.");
+            return current.Where(field => field.Name != "<VerticalScroll>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Rendering.Mode7RenderLayer) && count == 2 && current.Length == 3)
         {
             Console.Error.WriteLine("WARNING: Legacy Mode 7 layer has no BG1 subscreen addition; retaining its original composition.");

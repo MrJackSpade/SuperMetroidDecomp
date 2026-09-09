@@ -23,13 +23,14 @@ internal sealed partial class EndingCreditsState
             Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, true),
             Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, true),
             new BgSubscreenAddRenderLayer(EndingExplosionDisplayDefinitions.FinaleSubMap,
-                EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true),
+                EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
+                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(PpuMemorySnapshot.Capture(vram, cgram, PrepareSprites()), layers,
             CurrentEscapeObjectSelection, brightness);
 
         static Bg4BppRenderLayer Plane(ushort map, bool high) => new(map,
-            EndingExplosionDisplayDefinitions.Characters, 0, 0, 32, 32, high);
+            EndingExplosionDisplayDefinitions.Characters, 0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, 32, 32, high);
     }
 
     private LayeredRenderSnapshot CaptureExplosionBurst()
@@ -37,14 +38,15 @@ internal sealed partial class EndingCreditsState
         // F2B7: BG1 and OBJ on main, BG2 on sub, math only for BG1 and
         // eligible OBJ palettes. Keep the backdrop and OBJ palettes 0–3 unmodified.
         var main = new Bg4BppRenderLayer(EndingExplosionDisplayDefinitions.InitialMap,
-            EndingExplosionDisplayDefinitions.Characters, 0, 0, 32, 32, null);
+            EndingExplosionDisplayDefinitions.Characters, 0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow, 32, 32, null);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
             main with { Priority = false }, new ObjPriorityRenderLayer(2),
             main with { Priority = true }, new ObjPriorityRenderLayer(3),
             new BgSubscreenAddRenderLayer(EndingExplosionDisplayDefinitions.BurstSubMap,
-                EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true),
+                EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
+                VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(PpuMemorySnapshot.Capture(vram, cgram, PrepareSprites()), layers,
             CurrentEscapeObjectSelection, brightness);

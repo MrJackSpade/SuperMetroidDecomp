@@ -29,6 +29,8 @@ public sealed class LayeredRenderSnapshot
                 throw new ArgumentException("OBJ priority must be between zero and three.", nameof(layers));
             if (layer is Mode7RenderLayer { SubtractObjSubscreen: true, AddBg1Subscreen: true })
                 throw new ArgumentException("Mode 7 cannot select two different color-math operations.", nameof(layers));
+            if (layer is BgSubscreenAddRenderLayer { FourBpp: false, VerticalScroll: not 0 })
+                throw new ArgumentException("Scrolled subscreen descriptors require the four-bit viewport sampler.", nameof(layers));
             if (layer is ObjPriorityRenderLayer { FixedColor: { } priorityColor } &&
                 (priorityColor.Red > 31 || priorityColor.Green > 31 || priorityColor.Blue > 31))
                 throw new ArgumentException("OBJ fixed color components must be five-bit values.", nameof(layers));

@@ -7,9 +7,9 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
-    private static void VerifyEndingNativePpu(bool offsetCheck = false)
+    private static void VerifyEndingNativePpu(bool offsetCheck = false, int frame = 512)
     {
-        const string prefix = "csharp/test-temp/ending-506/later-0512-ZebesExplosionAnimation";
+        string prefix = $"csharp/test-temp/ending-506/later-{frame:D4}-ZebesExplosionAnimation";
         byte[] bgra = File.ReadAllBytes(prefix + (offsetCheck ? ".offset-check.bgra" : ".bgra"));
         AssertEqual(256 * 224 * 4, bgra.Length, "native PPU raster length");
         var native = new Rgba32[256 * 224];
@@ -17,7 +17,7 @@ internal static partial class Program
         var actual = SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(prefix + ".smframe")));
         PngWriter.WriteRgba(prefix + (offsetCheck ? ".offset-check.png" : ".native-ppu.png"), 256, 224, native);
         int differences = actual.Zip(native).Count(pair => pair.First != pair.Second);
-        Console.WriteLine($"Native PPU finale comparison: {differences} pixels differ.");
+        Console.WriteLine($"Native PPU finale frame {frame}: {differences} pixels differ.");
         AssertEqual(0, differences, "finale matches pinned native PPU with cartridge register setup");
     }
 

@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   if (!f) return 3;
   unsigned char signature[8]; unsigned short version; unsigned int fades;
   if (fread(signature, 1, 8, f) != 8 || memcmp(signature, "SMFRAME\0", 8)) return 4;
-  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 23) return 5;
+  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 24) return 5;
   fseek(f, 18, SEEK_CUR);
   if (fread(&fades, 4, 1, f) != 1 || fades != 0 || fgetc(f) != 3) return 6;
   Snes snes = {0};
@@ -28,12 +28,19 @@ int main(int argc, char **argv) {
   if (argc == 4) {
     // Diagnostic only: isolate the native physical-line-one sampling difference.
     // This is NOT the cartridge's scroll setting, which remains zero above.
-    if (strcmp(argv[3], "offset-check")) return 10;
-    ppu_write(ppu, 0x0e, 0xff); ppu_write(ppu, 0x0e, 0xff);
-    ppu_write(ppu, 0x10, 0xff); ppu_write(ppu, 0x10, 0xff);
+    if (!strcmp(argv[3], "offset-check")) {
+      ppu_write(ppu, 0x0e, 0xff); ppu_write(ppu, 0x0e, 0xff);
+      ppu_write(ppu, 0x10, 0xff); ppu_write(ppu, 0x10, 0xff);
+    } else if (strcmp(argv[3], "burst")) return 10;
   }
   ppu_write(ppu, 0x2c, 3); ppu_write(ppu, 0x2d, 0x12);
   ppu_write(ppu, 0x30, 2); ppu_write(ppu, 0x31, 0x33);
+  if (argc == 4 && !strcmp(argv[3], "burst")) {
+    // Retail $8B:F2B7, preceding the finale register handoff.
+    ppu_write(ppu, 0x07, 0x70); ppu_write(ppu, 0x08, 0x7c);
+    ppu_write(ppu, 0x2c, 0x11); ppu_write(ppu, 0x2d, 2);
+    ppu_write(ppu, 0x31, 0x11);
+  }
   unsigned char *pixels = calloc(256 * 224, 4);
   PpuBeginDrawing(ppu, pixels, 256 * 4, 0);
   for (int line = 0; line <= 224; line++) ppu_runLine(ppu, line);

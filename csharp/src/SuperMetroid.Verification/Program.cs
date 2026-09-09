@@ -166,6 +166,16 @@ if (args is ["--ending-native-ppu"] or ["--ending-native-offset-check"])
     VerifyEndingNativePpu(args[0] == "--ending-native-offset-check");
     return 0;
 }
+if (args is ["--ending-native-finale"])
+{
+    for (int frame = 512; frame <= 800; frame += 16) VerifyEndingNativePpu(frame: frame);
+    return 0;
+}
+if (args is ["--ending-native-burst"])
+{
+    for (int frame = 400; frame <= 464; frame += 16) VerifyEndingNativePpu(frame: frame);
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();

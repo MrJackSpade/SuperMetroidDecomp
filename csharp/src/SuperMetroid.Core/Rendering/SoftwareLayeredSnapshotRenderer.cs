@@ -54,14 +54,14 @@ public static class SoftwareLayeredSnapshotRenderer
                 case BgSubscreenAddRenderLayer sub:
                     Rgba32[] subscreen = sub.FourBpp
                         ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
-                            sub.TilemapWord, sub.CharacterWord, 0, 0, 256, 224, 32, 32)
+                            sub.TilemapWord, sub.CharacterWord, 0, sub.VerticalScroll, 256, 224, 32, 32)
                         : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
                             sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
                     if (sub.IncludeObjects)
                     {
                         Rgba32[] high = sub.FourBpp
                             ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
-                                sub.TilemapWord, sub.CharacterWord, 0, 0, 256, 224, 32, 32, priority: true)
+                                sub.TilemapWord, sub.CharacterWord, 0, sub.VerticalScroll, 256, 224, 32, 32, priority: true)
                             : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
                                 sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true, priority: true);
                         for (int i = 0; i < subscreen.Length; i++)

@@ -9,6 +9,7 @@ public sealed partial class D3D11FrameRenderer
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
         data[1] = layer.TilemapWord; data[2] = layer.CharacterWord;
+        data[4] = layer.VerticalScroll;
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
         data[27] = layer.FourBpp ? 1u : 0u;
         data[10] = layer.IncludeObjects ? 1u : 0u;

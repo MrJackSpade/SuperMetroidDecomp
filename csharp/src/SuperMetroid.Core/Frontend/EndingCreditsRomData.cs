@@ -8,6 +8,10 @@ public static class EndingCreditsRomData
     public static class Assets
     {
         public const int EscapePalette = 0x8cede9;
+        /// <summary>$95:A82F, decompressed to $7F:0000 for the flyaway's high-byte Mode-7 character lane.</summary>
+        public const int FlyawayCharacters = 0x95a82f;
+        /// <summary>$96:FE69, decompressed to $7F:4000 for the flyaway's low-byte Mode-7 map lane.</summary>
+        public const int FlyawayMap = 0x96fe69;
         /// <summary>$8C:E7E9, kPalettes_Intro4, restored by the end-credits instruction $8B:F6FE.</summary>
         public const int PostCreditsPalette = 0x8ce7e9;
         public const int CreditsPalette = 0x8ce9e9;
@@ -77,6 +81,11 @@ public static class EndingCreditsRomData
         public const ushort WaitingTilemapWord = 0x4c00;
         public const ushort WaitingCharacterWord = 0x5000;
         public const int Mode7Bytes = 0x4000;
+        /// <summary>$8B:DAD3 table stride and Func118 queue transfer size.</summary>
+        public const int FlyawayUploadBytes = 0x0800;
+        /// <summary>$8B:D56C preserves the first $0300 map bytes and fills the remainder with tile $8C.</summary>
+        public const int FlyawayMapDataBytes = 0x0300;
+        public const byte FlyawayBlankTile = 0x8c;
         /// <summary>$8B:D8C1 explosion OBJ DMA byte count from $7F:8000.</summary>
         public const int ExplosionObjectBytes = 0x6000;
         public const int DecompressionLimit = 0x8000;

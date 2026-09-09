@@ -27,7 +27,7 @@ internal sealed partial class EndingCreditsState
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
                         CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, 32, null));
             }
-            else
+            else if (EscapeBackgroundEnabled)
             {
                 short a = Scale(ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), mode7Zoom);
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);

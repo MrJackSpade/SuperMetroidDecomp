@@ -37,7 +37,7 @@ internal sealed partial class EndingCreditsState
         }
         else
         {
-            RenderMode7Background(pixels);
+            if (EscapeBackgroundEnabled) RenderMode7Background(pixels);
             RenderSprites(pixels, obsel: CurrentEscapeObjectSelection);
         }
 

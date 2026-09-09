@@ -151,11 +151,13 @@ internal sealed partial class EndingCreditsState
                 if (--phaseTimer <= 0)
                 {
                     phaseTimer = 16;
+                    PrepareFlyawayUploads();
                     Phase = EndingCreditsPhase.ZebesExplosionTileUpload;
                 }
                 break;
 
             case EndingCreditsPhase.ZebesExplosionTileUpload:
+                UploadFlyawayChunk(16 - phaseTimer);
                 StepSprites();
                 if (--phaseTimer <= 0)
                     Phase = EndingCreditsPhase.ZebesExplosionAnimation;
@@ -399,6 +401,10 @@ internal sealed partial class EndingCreditsState
 
     private void SetupPlanetEscape()
     {
+        // Func120 clears the explosion flash's backdrop and transparent palette entries.
+        cgram.SetColor(0, 0);
+        cgram.SetColor(16, 0);
+        cgram.SetColor(128, 0);
         mode7X = unchecked((ushort)-72);
         mode7Y = unchecked((ushort)-104);
         mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;

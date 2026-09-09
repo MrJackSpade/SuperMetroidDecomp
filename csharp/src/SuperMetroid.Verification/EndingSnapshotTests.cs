@@ -31,6 +31,19 @@ internal static partial class Program
                 if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
                     AssertEqual(0, legacy.CaptureRenderSnapshot().Memory.ModeledSpriteCount,
                         "native E58A clears cinematic sprites before final percentage text");
+                if (legacy.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)
+                {
+                    var memory = legacy.CaptureRenderSnapshot().Memory;
+                    byte[] characters = RomDataReader.Decompress(bus, 0x95a82f, 0x8000);
+                    byte[] map = RomDataReader.Decompress(bus, 0x96fe69, 0x8000);
+                    for (int word = 0; word < 0x4000; word++)
+                    {
+                        AssertEqual(characters[word], memory.Vram[word * 2 + 1], "native flyaway character upload");
+                        AssertEqual(word < 0x300 ? map[word] : (byte)0x8c, memory.Vram[word * 2],
+                            "native flyaway map upload and padded background");
+                    }
+                    AssertEqual((ushort)0, memory.Cgram[0], "flyaway clears explosion backdrop");
+                }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {
                     var memory = legacy.CaptureRenderSnapshot().Memory;

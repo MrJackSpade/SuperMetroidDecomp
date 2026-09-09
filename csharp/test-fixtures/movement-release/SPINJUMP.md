@@ -1,5 +1,37 @@
 # Spinjump input timing — #474
 
+## Acceptance audit (2026-09-09)
+
+Ready for player confirmation of the implemented technique fixes. Verified against
+the unheadered 3,145,728-byte cartridge, country byte 0, revision byte 0, checksum
+$F8DF, SHA-256 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
+Pinned C source: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`; pinned disassembly:
+`362be646929cf8e483f692b73a6561cfc2dc1d0d`. No PAL or modified-ROM parity claim.
+
+- Input order, both facings, underwater/dry, delays 0..8 and adjacent landing/turn
+  timing: 5,760 original-CPU samples agree on position, pose, movement, timer and
+  input handler. Fixed F8 overwriting a selected jump and missing one-shot auto-jump.
+- Elevator input ownership and completion pose: 2,688 actor/input samples across
+  Blue Brinstar, Green Brinstar and Lower Norfair match. No pre-release transitions.
+- Post-release terrain and movement: 600 original-CPU samples match, including the
+  sampled ceiling collisions. Generated seeds preserve equipment/history/subpixels.
+- Actual Green Brinstar door handoff: reproduced early movement in the destination
+  OAM stage and fixed the missing transition gate; 75 exact frozen destination
+  frames followed by movement resumption pass. Full core verification passes.
+
+The [Spinjump reference](https://wiki.supermetroid.run/Spinjump) describes Blue
+Brinstar and Lower Norfair as exceptions to the *optimal departure method*, not
+exceptions to the input mechanic. Their [Morph Ball Room](https://wiki.supermetroid.run/Morph_Ball_Room)
+and [Main Hall](https://wiki.supermetroid.run/Main_Hall) guides recommend running
+before jumping along the route. The cartridge reproductions do not disable the
+buffer in those rooms; no invented room-specific exception was added. This audit
+does not claim route-optimal timings, every possible loadout, every room's fade
+scheduling, or full emulated transient-WRAM identity. Those are not substitutes
+for the concrete input/trajectory/handoff checks above and are not claimed here.
+
+The remainder of this document preserves the chronological experiments, including
+superseded failing diagnostics and their explicit corrections.
+
 `native-spinjump-probe.h` uses the existing unpatched-ROM loader from
 `native-release-probe.h`. To reproduce, include both headers from `sm_rtl.c`
 after `struct StateRecorder;` and dispatch `DiagnosticSpinjump(argv[2], argv[3])`

@@ -386,8 +386,8 @@ static void VerifySamusMorphBallMovement()
         "literal left pose direction selects bomb-jump body $52");
     AssertEqual(21, crouchBombJump.Kinematics.YRadius,
         "crouch bomb jump installs forward-jump radius from ROM");
-    AssertEqual(33, crouchBombJump.YPosition,
-        "crouch bomb jump combines floor alignment and native ten-pixel lift");
+    AssertEqual(43, crouchBombJump.YPosition,
+        "crouch bomb jump aligns feet without the ordinary jump-transition lift");
     AssertEqual(0x0801, crouchBombJump.BombJumpDirection,
         "humanoid setup executes command three after pose initialization");
 

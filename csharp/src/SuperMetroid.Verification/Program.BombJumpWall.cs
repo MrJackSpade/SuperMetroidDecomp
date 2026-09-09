@@ -51,5 +51,26 @@ internal static partial class Program
         SamusMorphBallMovement.StepGrounded(bus, level, samus, 1, new RoomPlmSystem());
         AssertEqual(71, samus.YPosition, "following frame moves by old zero speed, not a one-pixel grounding probe");
         AssertEqual(0x1C00, samus.Kinematics.YSubspeed, "following frame stores normal gravity for its successor");
+
+        // The native rising helper restores pose input below one whole pixel/frame,
+        // using the speed BEFORE this frame's gravity subtraction, not at the apex.
+        var hurt = new SamusState { Pose = SamusPoseIds.KnockbackRightPose, XPosition = 32, YPosition = 120 };
+        hurt.RefreshCollisionRadii(bus);
+        hurt.InitializeAnimation(bus);
+        hurt.PublishBombJumpDirection(2);
+        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0), "hurt pose admits bomb start");
+        SamusBombJumpMovement.Start(bus, hurt);
+        hurt.Kinematics.YSpeed = 1;
+        hurt.Kinematics.YSubspeed = 0;
+        hurt.Kinematics.YSubacceleration = 0x4000;
+        SamusBombJumpMovement.Step(bus, level, hurt, 0, new RoomPlmSystem());
+        AssertTrue(!hurt.BombJumpPoseInputRestored, "one-pixel speed keeps input locked despite crossing threshold this frame");
+        SamusBombJumpMovement.Step(bus, level, hurt, 1, new RoomPlmSystem());
+        AssertTrue(hurt.BombJumpPoseInputRestored, "fractional upward speed restores next frame's input");
+        AssertTrue(hurt.BombJumpActive, "restoring input does not prematurely end upward movement");
+        AssertEqual(SamusPoseIds.KnockbackRightPose, hurt.Pose, "restoring input retains damaged pose until an actual transition");
+        hurt.PublishBombJumpDirection(2);
+        AssertTrue(hurt.TrySetupPublishedBombJump(bus, level, false, 0), "fresh bomb command rearms retained hurt pose");
+        AssertTrue(!hurt.BombJumpPoseInputRestored, "fresh bomb command locks input again");
     }
 }

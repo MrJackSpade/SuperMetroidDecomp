@@ -1760,7 +1760,9 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            bool actorLocksPoseInput = Samus.InputLocked ||
+            bool bombJumpLocksPoseInput = Samus.BombJumpStarting ||
+                (Samus.BombJumpActive && !Samus.BombJumpPoseInputRestored);
+            bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
             SamusPoseTransitionLookup poseLookup =
                 deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput
@@ -1771,6 +1773,11 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current,
                     IsAttractDemo ? Controller1.NewlyPressed : Samus.ConsumeAutoJumpInput(Controller1.NewlyPressed));
             ProspectiveSamusPose = poseLookup.Transition;
+            // The retail table matcher clears a pending/active bomb direction as
+            // soon as it selects a DIFFERENT pose, before collision and movement.
+            if (ProspectiveSamusPose is { } matchedBombCancel &&
+                matchedBombCancel.ProspectivePose != Samus.Pose)
+                Samus.BombJumpDirection = 0;
             bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
             bool airborneBallFallbackMomentum = Samus.HorizontalSpeed.BaseFixed != 0;
             ProspectiveSamusFallbackPose = null;
@@ -1798,17 +1805,6 @@ public sealed partial class SuperMetroidRuntime
                     SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or
                     SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
-
-            // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
-            // $90:DE78 consumes it during this frame's alpha before beta dispatches motion.
-            // This one-frame seam is observable: timer eight does not move Samus yet.
-            Samus.TrySetupPublishedBombJump(
-                _addressSpace,
-                LevelData ?? throw new InvalidOperationException(
-                    "A published bomb-jump direction requires active room level data."),
-                timeIsFrozen: TimeIsFrozen,
-                nmiFrameCounter: NmiFrameCounter,
-                plms: Plms);
 
             // Zero input and an unmatched nonzero table chord both reach `$91:82D9` and
             // consult pose-definition byte two. A matched same-pose record does not. Running
@@ -2265,13 +2261,16 @@ public sealed partial class SuperMetroidRuntime
                         NmiFrameCounter,
                         Plms);
                 }
-                // Special command three replaces both movement and pose-input handlers.
-                // Preserve the current ball pose/animation and ignore any transition that
-                // the normal matcher calculated earlier in this host frame.
+                // Special command three replaces both handlers. Preserve the retained
+                // pose while input is locked; the late-rise helper can restore input
+                // before the movement handler ends, allowing a matched cancellation.
                 else if (Samus.BombJumpStarting || Samus.BombJumpActive)
                 {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
+                    if (bombJumpLocksPoseInput)
+                    {
+                        ProspectiveSamusPose = null;
+                        ProspectiveSamusFallbackPose = null;
+                    }
 
                     // The shared alpha environment pass above already selected these words;
                     // repeat the explicit special-handler publication here to preserve the
@@ -2915,6 +2914,28 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         TimeIsFrozen))
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
+                // Bomb overlap is published between alpha and beta, but the native
+                // interruption dispatcher considers it only AFTER movement/animation.
+                // Active hurt words retain the request without arming or rejecting it;
+                // expiry owns this frame even after clearing those words. This permits
+                // a later bomb launch to retain the damaged pose, with input locked by
+                // special command three rather than an early speculative pose change.
+                if (!animationTransitionApplied && Samus.KnockbackTimer == 0 &&
+                    Samus.KnockbackDirection == 0 &&
+                    Samus.TrySetupPublishedBombJump(
+                        _addressSpace,
+                        LevelData ?? throw new InvalidOperationException(
+                            "A published bomb-jump direction requires active room level data."),
+                        TimeIsFrozen,
+                        NmiFrameCounter,
+                        Plms))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;

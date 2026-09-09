@@ -9,8 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// A bomb explosion does not substitute a normal jump. Bank $A0 first publishes direction
 /// left/straight/right from bomb-versus-Samus X, bank $91 locks pose input, and this special
-/// handler owns only the rising part of the arc. At the apex it restores normal movement;
-/// the still-active ball pose then performs the downward half through type $08/$12/$13.
+/// handler owns only the rising part of the arc. Input returns shortly before the apex;
+/// normal movement returns on a direction cancellation, downward turn, or collision.
+/// The retained pose can be morphed, humanoid, or damaged rather than always a ball.
 /// </remarks>
 public static class SamusBombJumpMovement
 {
@@ -102,6 +103,13 @@ public static class SamusBombJumpMovement
             samus.Kinematics.YDirection = 2;
             if (direction != 2)
                 samus.HorizontalSpeed.AccelerationMode = 2;
+        }
+        else if (samus.Kinematics.YDirection == 1 && samus.Kinematics.YSpeed == 0)
+        {
+            // The rising helper restores input while speed is still fractional and
+            // positive, BEFORE the apex or a collision restores normal movement.
+            // A next-frame table match can therefore cancel the remaining bomb rise.
+            samus.BombJumpPoseInputRestored = true;
         }
 
         // Native ends immediately once direction becomes down; it does not spend one

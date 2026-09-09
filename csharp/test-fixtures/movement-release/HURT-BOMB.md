@@ -1,6 +1,7 @@
 # Damaged-pose bomb-jump reference (#413)
 
-Status: native behavior captured, **not a completed C# parity fix**.
+Status: constructed-seam C# matrix matches; ordinary placement/fuse integration
+still pending. **Not yet ready for player validation.**
 
 `native-hurt-bomb-probe.h` runs original CPU instructions after restoring the
 unmodified cartridge bytes. It admits an enemy-projectile hit through the native
@@ -38,9 +39,19 @@ its start/main handler in that case. These are fixture-local frame indices.
 Pinned disassembly confirms the mechanism: `$90:DE78` is the bomb branch of the
 post-movement hit-interruption routine, behind knockback-timer/direction handling;
 `$90:E012` retains the current pose; `$91:EE80` installs the bomb-start handler and
-locks the input handler. The managed runtime currently calls its setup method
-before movement, so the next step is an exact managed comparison of this matrix,
-not a speculative change to just that call site.
+locks the input handler. The comparison initially failed in 7,324 frames. The
+managed fix moves setup to the post-movement interruption seam with native hurt
+priority, clears bomb direction when the input table selects a different pose,
+and restores input during fractional-speed ascent before the apex. Bomb setup
+also no longer runs the ordinary jump initializer for forward-jump poses. All
+12,800 rows then match position/subpixels, pose, hurt/bomb words, and velocities.
+The trace's native handler pointer is diagnostic data, not a compared C# pointer.
+
+Run after extracting the archive to a new directory:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --hurt-bomb-comparison-audit "Super Metroid.smc" path/to/hurt-bomb-413.csv
+```
 
 ## Reproduction and preservation
 
@@ -59,7 +70,8 @@ ROM SHA-256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 Native C checkout: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
 Disassembly checkout: `362be646929cf8e483f692b73a6561cfc2dc1d0d`.
 
-Remaining: compare the real C# frame path, fix observed deviations, add matching
-regressions including adjacent timing failures, and verify an ordinary live bomb
-placement/fuse handoff. Keep #413 open without the player-validation label until
-those requirements are met.
+Remaining: verify an ordinary live bomb placement/fuse handoff and extend the
+reference as needed. The current C# matrix uses the audited knockback initializer
+at the admitted-contact boundary and the real runtime bomb-overlap pass, with a
+constructed non-animated bomb stimulus matching the native collision-only seam.
+Keep #413 open without the player-validation label until integration is verified.

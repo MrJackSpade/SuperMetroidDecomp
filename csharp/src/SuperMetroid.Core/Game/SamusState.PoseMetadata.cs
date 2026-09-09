@@ -588,8 +588,8 @@ public sealed partial class SamusState
     /// <summary>
     /// Convenience debugger/test entry that performs both native phases: publishing the
     /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
-    /// special command three $91:EE80. Live runtime code calls those phases on separate
-    /// frames through <see cref="PublishBombJumpDirection"/> and
+    /// special command three $91:EE80. Live runtime code calls those phases on either
+    /// side of movement through <see cref="PublishBombJumpDirection"/> and
     /// <see cref="TrySetupPublishedBombJump"/>.
     /// </summary>
     public void RequestMorphedBombJump(byte direction)
@@ -606,7 +606,7 @@ public sealed partial class SamusState
 
     /// <summary>
     /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
-    /// frame-handler alpha; setup consequently cannot consume it until the next frame.
+    /// frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>
     public void PublishBombJumpDirection(byte direction)
     {
@@ -624,7 +624,7 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Consumes a direction published by the previous frame's projectile collision through
+    /// Consumes a direction published by projectile collision through
     /// the complete movement-type table at `$90:DFB5-$DFEB` and command three at `$91:EE80`.
     /// </summary>
     /// <remarks>
@@ -700,15 +700,10 @@ public sealed partial class SamusState
                 Kinematics.YPosition = unchecked((ushort)(
                     Kinematics.YPosition + centerAdjustment));
 
-                // HandleJumpTransition_NormalJumping runs before special command three.
-                // Literal stable crouch receives its extra ten-pixel upward adjustment;
-                // aimed crouch deliberately does not. The ordinary jump velocity is then
-                // replaced by `$90:E025` on this same beta pass, but its gravity/pose side
-                // effects still occur and must not be skipped.
-                if (sourcePose is SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose)
-                    Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
+                // The selected forward-jump poses are NOT the transition poses that
+                // initialize ordinary jump speed (or apply the crouch jump offset).
+                // Preserve this frame's velocity; bomb start replaces it next frame.
                 InitializeAnimation(bus, initialFrame: 0);
-                SamusAerialMovement.InitializeJump(bus, this);
                 ArmPublishedBombJump();
                 return true;
 
@@ -751,6 +746,7 @@ public sealed partial class SamusState
         BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;
+        BombJumpPoseInputRestored = false;
     }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>

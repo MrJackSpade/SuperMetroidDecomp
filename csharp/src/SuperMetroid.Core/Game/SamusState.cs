@@ -277,6 +277,9 @@ public sealed partial class SamusState
     /// <summary>True while `$90:E032` owns the rising bomb-jump arc.</summary>
     public bool BombJumpActive { get; set; }
 
+    /// <summary>Bomb rising helper restored normal pose input below one pixel/frame upward speed.</summary>
+    public bool BombJumpPoseInputRestored { get; set; }
+
     /// <summary>
     /// WRAM `$0A52`: zero means no knockback, one/two mean up-left/up-right, and four/five
     /// mean down-left/down-right. Value three is the retail routine's unused straight-up

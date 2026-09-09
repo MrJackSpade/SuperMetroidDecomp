@@ -3693,13 +3693,22 @@ public sealed partial class SuperMetroidRuntime
                          SamusState.IsAimedAerialPose(poseAtFrameStart) &&
                          ProspectiveSamusFallbackPose is { } aerialFallback)
                 {
-                    // Unlike grounded momentum fallback, the live jump/fall velocity is
-                    // untouched. Only pose metadata, radius (asserted equal), animation,
-                    // and next-NMI tile definitions change at this seam.
+                    // Install the fallback's pose metadata and native initializer first.
+                    // Falling command eight below then clears only the extra component;
+                    // it must not be folded into base speed like running deceleration.
                     Samus.ApplyAerialAimTransition(
                         _addressSpace,
                         unchecked((byte)aerialFallback));
                 }
+
+                // Falling's lookup-failure command still runs when its definition
+                // retains the current pose. It follows pose initialization, and must
+                // not run when a higher-priority collision or interruption won.
+                if (!animationTransitionApplied && usePoseDefinitionFallback &&
+                    ProspectiveSamusPose is null &&
+                    movementTypeAtFrameStart == SamusMovementType.Falling &&
+                    Samus.ReadMovementType(_addressSpace) == SamusMovementType.Falling)
+                    Samus.ApplyFallingInputFallback(_addressSpace);
 
                 // $91:EB88 shifts history after consuming any transition slot,
                 // including a self-transition. A frame with no selected transition

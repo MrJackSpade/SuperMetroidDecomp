@@ -171,6 +171,8 @@ if (args.Length == 3 && args[0] == "--ceiling-steering-bomb-chain-comparison-aud
     return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.CeilingSteering);
 if (args.Length == 3 && args[0] == "--morph-bounce-comparison-audit")
     return MorphBounceComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--morph-timing-comparison-audit")
+    return MorphBounceComparisonAudit.Run(args[1], args[2], morphTiming: true);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

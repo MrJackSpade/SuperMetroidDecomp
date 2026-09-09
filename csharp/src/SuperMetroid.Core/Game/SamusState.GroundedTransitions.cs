@@ -35,6 +35,7 @@ public sealed partial class SamusState
                 $"Aerial aim/fire/forward transition ${Pose:X2} -> ${targetPose:X2} is outside the same-facing family handled by this operation.");
         }
 
+        byte sourcePose = Pose;
         ushort oldRadius = Kinematics.YRadius;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
@@ -47,6 +48,8 @@ public sealed partial class SamusState
             throw new InvalidDataException(
                 $"Aerial pose ${targetPose:X2} unexpectedly changes radius {oldRadius} -> {Kinematics.YRadius} inside an equal-radius transition family.");
         }
+        if (sourcePose != Pose && ReadMovementType(bus) == SamusMovementType.Falling)
+            InitializeFallingPoseMomentum();
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -105,8 +108,33 @@ public sealed partial class SamusState
         Pose = targetPose;
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        if (sourcePose != Pose && ReadMovementType(bus) == SamusMovementType.Falling)
+            InitializeFallingPoseMomentum();
         InitializeAnimation(bus, initialFrame: 0);
         return true;
+    }
+
+    /// <summary>
+    /// Applies the falling pose initializer at $91:F60D. Extra run speed, not base
+    /// speed or held direction, selects whether the next movement frame decelerates.
+    /// </summary>
+    private void InitializeFallingPoseMomentum() => HorizontalSpeed.AccelerationMode =
+        HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
+            ? SamusHorizontalAccelerationModes.Decelerating
+            : SamusHorizontalAccelerationModes.Accelerating;
+
+    /// <summary>
+    /// Applies falling input-lookup failure's command eight ($91:EC8E). Cancel the
+    /// dash component after movement, preserving the base speed and acceleration mode.
+    /// The caller admits only a still-falling body, so no new-fall Y reset is needed.
+    /// </summary>
+    public void ApplyFallingInputFallback(ISnesAddressSpace bus)
+    {
+        if (ReadMovementType(bus) != SamusMovementType.Falling)
+            throw new InvalidOperationException("Falling input fallback requires a falling pose.");
+        HorizontalSpeed.CancelRunningMomentum((byte)ReadFacingDirection(bus));
+        HorizontalSpeed.ExtraRunSpeed = 0;
+        HorizontalSpeed.ExtraRunSubspeed = 0;
     }
 
     /// <summary>

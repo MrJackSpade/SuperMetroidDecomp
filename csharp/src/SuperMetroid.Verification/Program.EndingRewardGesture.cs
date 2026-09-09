@@ -7,6 +7,7 @@ internal static partial class Program
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        VerifyEndingPostShot(bus);
         var graphicsUpload = new EndingRewardGraphicsUpload(bus);
         var graphicsVram = new SnesVram();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,

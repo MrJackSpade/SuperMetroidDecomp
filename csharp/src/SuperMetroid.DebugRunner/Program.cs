@@ -630,8 +630,8 @@ if (args.Length >= 2 && args[0] == "--elevator-audit")
     return ElevatorAudit.Run(elevatorRomPath);
 }
 
-// Opt-in red reproduction for #485. Do not conflate ordinary bomb admission
-// with detachment during the actual dry-floor bomb-jump trajectory.
+// #485 characterization, not proof of the reported defect: the native focused
+// sequence also misses one centered bomb during the dry-floor bomb-jump arc.
 if (args.Length == 2 && args[0] == "--metroid-runtime-bomb-audit")
     return MetroidAudit.VerifyRuntimePlacedBomb(args[1]);
 if (args.Length >= 2 && args[0] == "--metroid-audit")

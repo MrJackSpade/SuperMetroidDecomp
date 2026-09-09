@@ -70,14 +70,16 @@ internal static partial class MetroidAudit
             if (detached >= 0 && state.Function == MetroidAiFunction.AttachedToSamus && reattached < 0)
                 reattached = frame;
         }
-        if (attached < 0 || placed < 0 || detached < 0)
+        // The unpatched CPU's focused sequence also misses this one-bomb setup.
+        // Keep this as a characterization guard, not a claim that the player's
+        // intermittent report is fixed or that all runtime scheduling matches ROM.
+        if (attached != 0 || placed != 1 || detached >= 0 || minimumY >= groundY ||
+            state.Function != MetroidAiFunction.AttachedToSamus)
         {
             foreach (string line in collisionTrace) Console.WriteLine(line);
             throw new InvalidDataException($"Runtime bomb detachment failed: attached={attached}, placed={placed}, detached={detached}, pose={samus.Pose:X2}, Y={samus.YPosition}, minimumY={minimumY}.");
         }
-        if (detached != placed + 59 || reattached >= 0)
-            throw new InvalidDataException($"Runtime detach timing changed: placed={placed}, detached={detached}, reattached={reattached}.");
-        Console.WriteLine($"Runtime regular bomb: attached={attached}, placed={placed}, detached={detached}, reattached={reattached}, Samus Y={groundY}->{minimumY} (full movement enabled; no forced trajectory).");
+        Console.WriteLine($"Runtime centered-bomb characterization: attached={attached}, placed={placed}, detached={detached}, reattached={reattached}, Samus Y={groundY}->{minimumY}. Native focused sequence also misses; player issue remains unresolved.");
         return 0;
     }
 }

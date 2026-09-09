@@ -5,4 +5,5 @@ internal enum MorphBounceAuditScenario
     FallingMorphTiming,
     RunJumpMorph,
     Mockball,
+    Speedball,
 }

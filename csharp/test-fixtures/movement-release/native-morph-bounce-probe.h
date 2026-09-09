@@ -1,6 +1,7 @@
 // #449: deterministic impact-boundary fixture. Include after native-release-probe.h.
 int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing) {
-  int mockball = timing == 3;
+  int speedball = timing == 4;
+  int mockball = timing >= 3;
   int run_jump = timing >= 2;
   int wide = timing != 0;
   timing = timing == 1;
@@ -10,9 +11,9 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
   if (!f) return 4;
   const uint32 speeds[] = { 0, 0x1ffff, 0x2c7ff, 0x2e3ff, 0x2e400, 0x2ffff, 0x30000, 0x50000 };
   const uint32 carries[] = { 0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000 };
-  fprintf(f, "left,speed,carry,inputMode,frame,input,x,y,pose,bounce,ySpeed,yDirection,baseSpeed,extraSpeed,xAccel,animFrame,animTimer\n");
+  fprintf(f, "left,speed,carry,inputMode,frame,input,x,y,pose,bounce,ySpeed,yDirection,baseSpeed,extraSpeed,xAccel,animFrame,animTimer%s\n", speedball ? ",boost" : "");
   for (int left = 0; left < 2; left++)
-  for (int speed = 0; speed < (mockball ? 21 : run_jump ? 16 : timing ? 9 : 8); speed++)
+  for (int speed = 0; speed < (speedball ? 25 : mockball ? 21 : run_jump ? 16 : timing ? 9 : 8); speed++)
   for (int carry = 0; carry < (wide ? 4 : 8); carry++)
   for (int held = 0; held < 2; held++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -22,14 +23,18 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
     room_width_in_blocks = width; room_height_in_blocks = wide ? 80 : 32;
     room_width_in_scrolls = wide ? 9 : 1; room_height_in_scrolls = wide ? 5 : 2;
     interactive_enemy_indexes[0] = 0xffff;
-    for (int x = 0; x < width; x++) level_data[16 * width + x] = 0x8000;
-    for (int y = 0; y <= 16; y++) level_data[y * width] = level_data[y * width + width - 1] = 0x8000;
-    if (mockball)
+    int floor_row = speedball ? 32 : 16;
+    for (int x = 0; x < width; x++) level_data[floor_row * width + x] = 0x8000;
+    for (int y = 0; y <= floor_row; y++) level_data[y * width] = level_data[y * width + width - 1] = 0x8000;
+    if (mockball && !speedball)
       for (int x = 0; x < width; x++)
         if (x < 16 || x >= 112) level_data[14 * width + x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff; equipped_items = 4; samus_health = 99;
+    if (speedball) equipped_items |= 0x2000;
     samus_x_pos = samus_prev_x_pos = run_jump ? 1024 : wide ? 512 : 128;
+    if (speedball) samus_x_pos = samus_prev_x_pos = left ? 2176 : 128;
     samus_y_pos = samus_prev_y_pos = run_jump ? 235 : timing && !grounded ? 180 : 249;
+    if (speedball) samus_y_pos = samus_prev_y_pos = 491;
     samus_pose = samus_prev_pose = left ? 0x32 : 0x31;
     if (timing) samus_pose = samus_prev_pose = grounded ? (left ? 0x41 : 0x1d) : (left ? 0x2a : 0x29);
     if (run_jump) samus_pose = samus_prev_pose = left ? 2 : 1;
@@ -50,7 +55,7 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
     }
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
     uint16 previous = 0;
-    for (int frame = 0; frame < (mockball ? 200 : run_jump ? 180 : 96); frame++) {
+    for (int frame = 0; frame < (speedball ? 300 : mockball ? 200 : run_jump ? 180 : 96); frame++) {
       uint16 input = held ? 0x80 | (left ? 0x200 : 0x100) : 0;
       if (timing) input = (grounded || frame >= speed * 2 + 8 ? (left ? 0x200 : 0x100) : 0) | (held ? 0x80 : 0) |
         (!grounded && (frame == speed * 2 || (frame >= speed * 2 + 2 && frame < speed * 2 + 8)) ? 0x400 : 0);
@@ -65,8 +70,13 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
       }
       if (mockball) {
         const int run_frames[] = { 8, 16, 24, 40 };
-        int launch = run_frames[carry], first_down = launch + (held ? 40 : 10);
+        const int boost_run_frames[] = { 64, 80, 96, 112 };
+        int launch = speedball ? boost_run_frames[carry] : run_frames[carry], first_down = launch + (held ? 40 : 10);
         int second_down = launch + (held ? 78 : 20) + speed;
+        if (speedball && held) {
+          const int full_morph_offsets[] = { 96, 117, 117, 140 };
+          second_down = launch + full_morph_offsets[carry] + speed;
+        }
         int forward = left ? 0x200 : 0x100;
         int jump = !held && frame == launch + 8 ? 0 : 0x80;
         int down = frame == first_down || frame == second_down ? 0x400 : 0;
@@ -83,11 +93,13 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
       RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);
       RunAsmCode(0x90eab3, 0, 0, 0, 0); RunAsmCode(0x90e9ce, 0, 0, 0, 0);
       RunAsmCode(0xa09169, 0, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X\n",
+      fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X",
         left,speed,carry,held,frame,input,samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,
         samus_pose,used_for_ball_bounce_on_landing,samus_y_speed,samus_y_subspeed,samus_y_dir,
         samus_x_base_speed,samus_x_base_subspeed,samus_x_extra_run_speed,samus_x_extra_run_subspeed,
         samus_x_accel_mode,samus_anim_frame,samus_anim_frame_timer);
+      if (speedball) fprintf(f, ",%04X", speed_boost_counter);
+      fprintf(f, "\n");
     }
   }
   fclose(f); return 0;
@@ -96,3 +108,4 @@ int DiagnosticMorphBounce(const char *rom, const char *output) { return Diagnost
 int DiagnosticMorphTiming(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 1); }
 int DiagnosticRunJumpMorph(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 2); }
 int DiagnosticMockball(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 3); }
+int DiagnosticSpeedball(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 4); }

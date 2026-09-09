@@ -1,9 +1,10 @@
 # Speedball collision bomb-block contact (#470)
 
 Status: contact defects reproduced and corrected. The full ticket remains open:
-controller-acquired active boost through Mockball, broader block-family contrasts,
-and temporary Blue Suit retention still need their complete sequence coverage.
-Do not treat a seeded boost counter as proof of acquiring or retaining it.
+broader block-family contrasts and temporary Blue Suit conversion still need
+complete sequence coverage. Controller-acquired active boost through Mockball is
+now separately covered by [SPEEDBALL-SEQUENCE.md](SPEEDBALL-SEQUENCE.md).
+Do not treat the seeded contact counter alone as proof of acquiring or retaining it.
 
 ## Native reproduction
 

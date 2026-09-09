@@ -1,6 +1,7 @@
 using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend;
 
 /// <summary>Full-dispatcher comparison of impact thresholds and controller-driven fall-to-morph timing.</summary>
 internal static class MorphBounceComparisonAudit
@@ -8,17 +9,18 @@ internal static class MorphBounceComparisonAudit
     public static int Run(string rom, string trace, MorphBounceAuditScenario scenario = MorphBounceAuditScenario.Impact)
     {
         bool morphTiming = scenario == MorphBounceAuditScenario.FallingMorphTiming;
-        bool mockball = scenario == MorphBounceAuditScenario.Mockball;
-        bool runJump = scenario is MorphBounceAuditScenario.RunJumpMorph or MorphBounceAuditScenario.Mockball;
+        bool speedball = scenario == MorphBounceAuditScenario.Speedball;
+        bool mockball = scenario is MorphBounceAuditScenario.Mockball or MorphBounceAuditScenario.Speedball;
+        bool runJump = scenario is MorphBounceAuditScenario.RunJumpMorph or MorphBounceAuditScenario.Mockball or MorphBounceAuditScenario.Speedball;
         bool wide = morphTiming || runJump;
-        int frameCount = mockball ? 200 : runJump ? 180 : 96;
+        int frameCount = speedball ? 300 : mockball ? 200 : runJump ? 180 : 96;
         uint[] speeds = [0, 0x1ffff, 0x2c7ff, 0x2e3ff, 0x2e400, 0x2ffff, 0x30000, 0x50000];
         uint[] carries = [0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000];
         uint[] timingCarries = [0, 0xc000, 0x14000, 0x20000];
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        int expectedCases = mockball ? 336 : morphTiming ? 144 : 256;
-        if (rows.Length != expectedCases * frameCount || rows.Any(row => row.Length != 17))
+        int expectedCases = speedball ? 400 : mockball ? 336 : morphTiming ? 144 : 256;
+        if (rows.Length != expectedCases * frameCount || rows.Any(row => row.Length != (speedball ? 18 : 17)))
             throw new InvalidDataException("Unexpected Morph Ball bounce capture dimensions.");
         int cases = 0, mismatches = 0, reports = 0;
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..4])))
@@ -28,17 +30,22 @@ internal static class MorphBounceComparisonAudit
                 throw new InvalidDataException("Invalid bounce direction/input mode.");
             bool left = seed[0] == "1", held = seed[3] == "1";
             int speed = int.Parse(seed[1]), carry = int.Parse(seed[2]);
-            if ((uint)speed >= (mockball ? 21 : runJump ? 16 : morphTiming ? 9 : speeds.Length) || (uint)carry >= (wide ? 4 : carries.Length))
+            if ((uint)speed >= (speedball ? 25 : mockball ? 21 : runJump ? 16 : morphTiming ? 9 : speeds.Length) || (uint)carry >= (wide ? 4 : carries.Length))
                 throw new InvalidDataException("Invalid bounce speed seed.");
             bool groundedRoll = morphTiming && speed == 8;
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: wide);
             var level = runtime.LevelData!;
+            if (speedball)
+                for (int y = 0; y <= 32; y++)
+                    for (int x = 0; x < level.WidthInBlocks; x++)
+                        level.SetForegroundEntry(y * level.WidthInBlocks + x,
+                            y == 32 || x == 0 || x == level.WidthInBlocks - 1 ? (ushort)0x8000 : (ushort)0);
             for (int y = 0; y <= 16; y++)
             {
                 level.SetForegroundEntry(y * level.WidthInBlocks, 0x8000);
                 level.SetForegroundEntry(y * level.WidthInBlocks + level.WidthInBlocks - 1, 0x8000);
             }
-            if (mockball)
+            if (mockball && !speedball)
                 for (int x = 0; x < level.WidthInBlocks; x++)
                     if (x < 16 || x >= 112)
                         level.SetForegroundEntry(14 * level.WidthInBlocks + x, 0x8000);
@@ -46,9 +53,12 @@ internal static class MorphBounceComparisonAudit
             foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
             var samus = runtime.Samus!;
             samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
+            if (speedball) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpeedBooster;
             samus.Health = 99;
             samus.XPosition = runJump ? (ushort)1024 : wide ? (ushort)512 : (ushort)128;
+            if (speedball) samus.XPosition = left ? (ushort)2176 : (ushort)128;
             samus.YPosition = runJump ? (ushort)235 : morphTiming && !groundedRoll ? (ushort)180 : (ushort)249;
+            if (speedball) samus.YPosition = 491;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
             if (morphTiming)
@@ -81,6 +91,8 @@ internal static class MorphBounceComparisonAudit
             runtime.Controller1.Latch(0);
             int frame = 0;
             bool reported = false;
+            bool retainedRoll = false;
+            var audio = new CartridgeAudioState();
             foreach (var row in group)
             {
                 if (int.Parse(row[4]) != frame) throw new InvalidDataException("Reordered bounce trace.");
@@ -89,12 +101,16 @@ internal static class MorphBounceComparisonAudit
                     (!groundedRoll && (frame == speed * 2 || (frame >= speed * 2 + 2 && frame < speed * 2 + 8)) ? 0x400 : 0) :
                     held ? 0x80 | (left ? 0x200 : 0x100) : 0;
                 if (runJump) expectedInput = RunJumpInput(frame, speed, carry, left, held);
-                if (mockball) expectedInput = MockballInput(frame, speed, carry, left, held);
+                if (mockball) expectedInput = MockballInput(frame, speed, carry, left, held, speedball);
                 if (input != expectedInput)
                     throw new InvalidDataException("Changed bounce input.");
-                runtime.StepFrame(input);
+                var audioPublication = new GameplayAudioFramePublication(audio);
+                runtime.StepFrame(input, queueEchoSound: speedball ? () => audioPublication.QueueEcho(runtime) : null);
+                if (speedball) audioPublication.PublishPrefix(runtime);
                 if (runJump && !mockball) VerifyRunJumpSample(samus, frame, carry, held);
-                if (mockball) VerifyMockballSample(samus, frame, speed, carry, left, held);
+                if (mockball && !speedball) VerifyMockballSample(samus, frame, speed, carry, left, held);
+                if (speedball)
+                    retainedRoll |= SpeedballSequenceAssertions.VerifySample(samus, frame, speed, carry, left, held);
                 // The input-timing suite is deliberately not only an equality check:
                 // early morphs rebound twice, the adjacent late morph misses both,
                 // and grounded rolling never manufactures a landing bounce.
@@ -129,6 +145,7 @@ internal static class MorphBounceComparisonAudit
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.MorphBallBounceState:X4}," +
                     $"{samus.Kinematics.YSpeed:X4}{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4},{samus.HorizontalSpeed.BaseFixed:X8}," +
                     $"{samus.HorizontalSpeed.ExtraRunSpeed:X4}{samus.HorizontalSpeed.ExtraRunSubspeed:X4},{samus.HorizontalSpeed.AccelerationMode:X4},{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4}";
+                if (speedball) actual += $",{samus.HorizontalSpeed.SpeedBoostCounter:X4}";
                 if (actual != string.Join(',', row[6..]))
                 {
                     mismatches++;
@@ -139,6 +156,8 @@ internal static class MorphBounceComparisonAudit
                 frame++;
             }
             if (frame != frameCount) throw new InvalidDataException("Incomplete bounce case.");
+            if (speedball && retainedRoll != SpeedballSequenceAssertions.IsSoftMorph(speed, carry, held))
+                throw new InvalidDataException($"Speedball success/failure window differs: {group.Key}.");
             cases++;
         }
         if (cases != expectedCases) throw new InvalidDataException("Incomplete bounce matrix.");
@@ -182,12 +201,17 @@ internal static class MorphBounceComparisonAudit
             throw new InvalidDataException("Grounded rolling retained the completed jump's extra speed.");
     }
 
-    private static ushort MockballInput(int frame, int timing, int runway, bool left, bool fullJump)
+    private static ushort MockballInput(int frame, int timing, int runway, bool left, bool fullJump, bool speedball = false)
     {
-        int[] runFrames = [8, 16, 24, 40];
+        int[] runFrames = speedball ? [64, 80, 96, 112] : [8, 16, 24, 40];
         int launch = runFrames[runway];
         int firstDown = launch + (fullJump ? 40 : 10);
         int secondDown = launch + (fullJump ? 78 : 20) + timing;
+        if (speedball && fullJump)
+        {
+            int[] fullMorphOffsets = [96, 117, 117, 140];
+            secondDown = launch + fullMorphOffsets[runway] + timing;
+        }
         int forward = left ? 0x200 : 0x100;
         if (frame < launch) return (ushort)(0x8000 | forward);
         int jump = !fullJump && frame == launch + 8 ? 0 : 0x80;

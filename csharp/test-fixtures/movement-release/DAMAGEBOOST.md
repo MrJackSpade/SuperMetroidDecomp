@@ -150,3 +150,28 @@ horizontal acceleration: native uses the live pose's speed-table row, while the 
 port forces the humanoid knockback row. Ball fallback momentum also requires investigation.
 No ball fix is included in this change. Keep #472 open without player-validation status;
 source-driven contact windows, liquid media and speed variants remain outstanding too.
+
+## Seeded humanoid and ball sweep now matches
+
+The shared hurt mover now indexes horizontal speed from the live movement type, as
+the native speed-table selector does. This fixes the first ball displacement mismatch:
+0.C000 versus the wrongly forced humanoid 1.8000 in the retail fixture. A direct core
+regression gives each admitted Morph/Spring Ball family a distinct synthetic record
+and verifies that hurt movement consumes it rather than the humanoid row.
+
+Stationary Morph Ball fallback now executes command six after movement, clearing
+base/extra momentum even while hurt movement is installed. Airborne Morph Ball and
+neutral crouch fallback also publish their same-pose history slot. The ten-frame
+timer exposed an additional case: when unmorph animation completes on expiry, native
+hit interruption changes command three to command eight, preserving the animation
+transition while also clearing hurt state. Runtime and intro no longer let animation
+completion suppress this cleanup.
+
+The complete bounded capture now matches all 11,904 samples (384 initialized states
+plus 30 frames each): zero motion/pose/animation, timer/direction/speed or history
+differences. Both humanoid and ball subsets contain 5,952 samples. This supersedes
+the preceding historical mismatch counts, but does not complete #472: all hits in
+this fixture are still seeded, dry, and without speedkeep. Next acceptance work is
+actual source-contact timing, liquid variants, held-direction release, and speed
+variants as listed at the beginning of this document. Keep the issue open without
+the player-validation label until those requirements are covered.

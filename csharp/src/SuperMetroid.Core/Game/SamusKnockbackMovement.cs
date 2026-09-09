@@ -232,7 +232,9 @@ public static class SamusKnockbackMovement
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
-        uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType: SamusMovementType.Knockback);
+        // The special handler does not replace the pose's speed-table index.
+        // Morphed bodies retain their own movement type throughout hurt movement.
+        uint baseSpeed = speed.CalculateBaseSpeed(bus, samus.ReadMovementType(bus));
         int requestedX = samus.KnockbackXDirection == 0
             ? speed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed)
             : speed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed);

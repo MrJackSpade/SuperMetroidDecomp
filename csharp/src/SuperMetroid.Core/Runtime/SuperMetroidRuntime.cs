@@ -1777,13 +1777,22 @@ public sealed partial class SuperMetroidRuntime
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
 
-            // Neutral hurt/falling input also reaches the ordinary fallback publisher. Its $FF
-            // definition retains the hurt pose, but this is a selected transition slot,
+            // Stationary ball fallback selects command six, even when the special
+            // hurt mover temporarily supplies nonzero horizontal speed. Unlike moving
+            // ball fallback it does not select the momentum-dependent command one.
+            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
+                Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose)
+                ProspectiveSamusFallbackPose = Samus.Pose;
+
+            // Neutral hurt, crouch and falling definitions retain their current pose
+            // through fallback, but this is still a selected transition slot,
             // not an absence of input work: the final pose-history epilogue must run.
             // A matched same-pose table record still publishes nothing, as on cartridge.
             if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
                 Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
-                    SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
+                    SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
+                    SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
+                    SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
             // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
@@ -3031,8 +3040,9 @@ public sealed partial class SuperMetroidRuntime
                 // Expiry still permits this frame's movement and animation. Its
                 // transitional slot wins over the ordinary input selected in alpha,
                 // even when a damage boost has already restored normal movement.
-                if (!animationTransitionApplied &&
-                    SamusKnockbackMovement.TryFinishExpiredHitInterruption(_addressSpace, Samus))
+                // With an animation command three already pending, native changes it
+                // to command eight: keep the animation pose and ALSO clear hurt state.
+                if (SamusKnockbackMovement.TryFinishExpiredHitInterruption(_addressSpace, Samus))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -3661,6 +3671,14 @@ public sealed partial class SuperMetroidRuntime
                     Samus.ApplySpinJumpDirectionTransition(
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));
+                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
+                }
+                else if (!animationTransitionApplied &&
+                         poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose &&
+                         ProspectiveSamusFallbackPose == poseAtFrameStart)
+                {
+                    // $91:EC85 clears base/mode, then cancels extra running momentum.
+                    // Consume the same-pose command after this frame's movement.
                     Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&

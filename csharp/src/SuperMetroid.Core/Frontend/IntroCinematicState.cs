@@ -921,8 +921,7 @@ public sealed partial class IntroCinematicState
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
         bool animationTransitionApplied = samus.ApplyPendingVerifiedAnimationTransition(bus);
-        if (!animationTransitionApplied)
-            animationTransitionApplied = SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, samus);
+        animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, samus);
         transitionAccepted |= animationTransitionApplied;
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })

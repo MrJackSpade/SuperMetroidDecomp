@@ -455,9 +455,9 @@ static void VerifySamusKnockbackAndDamageBoost()
     }
     bus.WriteBytes(0x91c160, [0x09, 0x09, 0x09, 0x09, 0x09, 0x09, 0xff]);
 
-    // `$90:99D6` selects dry-air knockback magnitude 5.0000. Damage boost subsequently
-    // calls Make_Samus_Jump, whose independent dry-air value is 4.E000. Both share the
-    // same 0.2800 gravity record in this no-water/no-lava fixture.
+    // `$90:99D6` selects dry-air knockback magnitude 5.0000. Normal jump's independent
+    // value is 4.E000, but damage boost must preserve the existing hurt velocity.
+    // Both use the same 0.2800 gravity record in this no-water/no-lava fixture.
     // `$90:99D6` is the selector's code address, while the named arrays themselves live at
     // `$90:9EE9/$9EEF`. Their non-adjacent placement is explicit in the symbol map.
     WriteTestWord(bus, 0x909ee9, 0x0005);
@@ -759,6 +759,19 @@ static void VerifySamusKnockbackAndDamageBoost()
             $"morphed pose ${pose:X2} start clears contact damage");
         AssertEqual(0x0602, ball.MorphBallBounceState,
             $"morphed pose ${pose:X2} start leaves bounce state until completion");
+
+        // Give every live ball family a distinct speed record. Hurt movement must
+        // index it, not the humanoid record installed above with 0.4000 acceleration.
+        int speedRecord = 0x900000 + SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
+            (byte)ball.ReadMovementType(bus) * SpeedTableEntry.ByteCount;
+        WriteTestWord(bus, speedRecord, 0);
+        WriteTestWord(bus, speedRecord + 2, 0x2000);
+        WriteTestWord(bus, speedRecord + 4, 5);
+        WriteTestWord(bus, speedRecord + 6, 0);
+        var ballMove = SamusKnockbackMovement.Step(bus, empty, ball, 0);
+        AssertEqual(hitSide == 0 ? -0x2000 : 0x2000,
+            ballMove.Horizontal!.Value.AcceptedDisplacement,
+            $"hurt movement uses live ball type for pose ${pose:X2}");
     }
 
     // Let a sixth ball fixture reach the shared `$91:F31D` completion handler. Unlike the

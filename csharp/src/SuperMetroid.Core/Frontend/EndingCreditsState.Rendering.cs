@@ -10,7 +10,7 @@ internal sealed partial class EndingCreditsState
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
     public Rgba32[] Render()
     {
-        if (postShot is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+        if (postShot is not null || endingLogo is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
             return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
 

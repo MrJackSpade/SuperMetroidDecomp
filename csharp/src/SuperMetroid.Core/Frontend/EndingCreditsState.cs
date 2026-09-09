@@ -347,6 +347,10 @@ internal sealed partial class EndingCreditsState
                 if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
 
+            case EndingCreditsPhase.PostCreditsLogo:
+                StepPostCreditsLogo();
+                break;
+
             case EndingCreditsPhase.PostCreditsCopyright:
                 // The sprite interpreter continues behind TM=$01; hiding the actors
                 // must not reset their instruction lists or their reveal palette state.
@@ -1055,6 +1059,7 @@ internal enum EndingCreditsPhase
     PostCreditsJump,
     PostCreditsShot,
     PostCreditsWhiteFlash,
+    PostCreditsLogo,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

@@ -11,6 +11,16 @@ internal sealed partial class EndingCreditsState
         var layers = new List<RenderLayer>();
         byte objectSelection = CurrentEscapeObjectSelection;
         OamBuffer oam;
+        if (endingLogo is not null)
+        {
+            if (endingLogo.CrossfadeStarted)
+                layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
+                    0, 0, 32, 32, null));
+            if (!endingLogo.Completed) layers.Add(new ObjRenderLayer(endingLogo.CrossfadeStarted));
+            layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
+                0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
+            return new(PpuMemorySnapshot.Capture(vram, cgram, endingLogo.Draw()), layers.ToArray(), 3, brightness);
+        }
         if (postShot is not null)
         {
             // Mode 7 places OBJ priority zero below BG1; the other three priorities

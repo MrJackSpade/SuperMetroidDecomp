@@ -102,8 +102,10 @@ internal static partial class Program
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsLogo)
                     AssertEqual(32, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash], "native white flash lasts 32 calls");
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                    AssertEqual(187, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsLogo], "live logo completes its native approach and palette handoff");
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];

@@ -5,6 +5,7 @@ internal sealed partial class EndingCreditsState
     private ushort postCreditsUploadWord = EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
     private int postCreditsMapHeight = 32;
     private byte whiteFlashColor;
+    private EndingLogo? endingLogo;
 
     private void BeginPostCreditsWhiteFlash()
     {
@@ -32,6 +33,15 @@ internal sealed partial class EndingCreditsState
         vram.ExecuteWordTransfer(postCreditsTilemap, EndingPostShotDefinitions.FinalLowerTilemapWord, 1);
         rewardJump = null;
         sprites.Clear();
+        endingLogo = new EndingLogo(bus, cgram,
+            () => paletteFx.SpawnDefinition(bus, EndingLogoDefinitions.LandingPaletteFx, 0));
+        Phase = EndingCreditsPhase.PostCreditsLogo;
+    }
+
+    private void StepPostCreditsLogo()
+    {
+        endingLogo!.Step(cgram);
+        if (!endingLogo.Completed) return;
         postCreditsText = new EndingBackgroundTextState(bus, postCreditsTilemap,
             EndingCreditsRomData.Instructions.ItemPercentageText, inventory, japaneseText,
             EndingPostShotDefinitions.FinalTextTilemapWord);

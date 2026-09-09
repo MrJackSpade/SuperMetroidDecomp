@@ -252,6 +252,11 @@ internal sealed partial class PauseMenuState
         // EquipmentScreenMain consumes the ordinary $8F rising-edge word for D-pad/A;
         // only the shared L/R/Start chrome uses the delayed-held word at $05DF.
         HandleEquipmentInput(newlyPressed);
+        // EquipmentScreenMain refreshes the reserve amount independently of selected
+        // label edits. Keep this per-frame write without rebuilding the whole tilemap,
+        // which would erase the cartridge's same-frame VAR overrun.
+        WriteReserveSupplyDigits();
+        UploadEquipmentTilemap();
         return false;
     }
 

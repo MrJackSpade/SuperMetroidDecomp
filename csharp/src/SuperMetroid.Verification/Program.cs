@@ -27,6 +27,7 @@ try
 {
 if (args is ["--invalid-beam-selection"])
 {
+    VerifyPauseMenuEquipmentInteraction();
     VerifyInvalidBeamSelection();
     return 0;
 }

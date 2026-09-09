@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Named bank-$86 instruction and pre-instruction entry points for enemy projectiles.</summary>
 internal static class EnemyProjectileCodePointers
 {
+    /// <summary>$86:8C68, EprojInstr_SpawnEnemyDropsWithDraygonsEyeDrops: spawn at projectile position using enemy header $A0:DE7F; no operands.</summary>
+    public const ushort Instruction_SpawnEnemyDropsWithDraygonEyeChances = 0x8c68;
     /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Idle</c> at $86:D0CA.</summary>
     public const ushort PreInstruction_EnemyProjectile_KagoBug_Idle = 0xd0ca;
     /// <summary><c>PreInstruction_EnemyProjectile_KagoBug_Jumping</c> at $86:D0EC.</summary>

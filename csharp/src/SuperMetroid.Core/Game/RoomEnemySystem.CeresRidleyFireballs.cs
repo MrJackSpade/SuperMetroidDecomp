@@ -1815,6 +1815,12 @@ public sealed partial class RoomEnemySystem
                     RequestPhantoonFlameDrop(projectile);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithDraygonEyeChances:
+                    // The native callback allocates the pickup before its caller's goto/
+                    // delete tail releases this projectile, preserving shared slot order.
+                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, DraygonEyeDefinition);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case KagoBugStartJumpInstruction:
                     StartKagoBugJump(projectile);
                     cursor = unchecked((ushort)(cursor + 2));

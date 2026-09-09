@@ -5,11 +5,11 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Controller-produced short bomb chains compared with a bounded cartridge-CPU fixture.</summary>
 internal static class BombChainComparisonAudit
 {
-    public static int Run(string rom, string trace, bool repeated = false, bool triple = false)
+    public static int Run(string rom, string trace, bool repeated = false, bool triple = false, bool horizontal = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (repeated && triple || rows.Length != (triple ? 73440 : repeated ? 64800 : 12960) || rows.Any(row => row.Length != 49))
+        if ((repeated ? 1 : 0) + (triple ? 1 : 0) + (horizontal ? 1 : 0) > 1 || rows.Length != (horizontal ? 112320 : triple ? 73440 : repeated ? 64800 : 12960) || rows.Any(row => row.Length != 49))
             throw new InvalidDataException("Unexpected bomb-chain capture dimensions.");
         int cases = 0, mismatches = 0, reports = 0;
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..4])))
@@ -17,8 +17,8 @@ internal static class BombChainComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1", ceiling = seed[1] == "1";
             int travel = int.Parse(seed[2]), spacing = int.Parse(seed[3]);
-            if (seed[0] is not ("0" or "1") || seed[1] is not ("0" or "1") || travel < 0 || travel > (triple ? 16 : 2) ||
-                (triple ? spacing is < 50 or > 55 : repeated ? spacing is < 48 or > 56 : spacing is not (0 or 40 or 44 or 48 or 52 or 56)))
+            if (seed[0] is not ("0" or "1") || seed[1] is not ("0" or "1") || travel < 0 || travel > (horizontal ? 11 : triple ? 16 : 2) ||
+                (horizontal ? spacing is < 70 or > 94 || spacing % 2 != 0 : triple ? spacing is < 50 or > 55 : repeated ? spacing is < 48 or > 56 : spacing is not (0 or 40 or 44 or 48 or 52 or 56)))
                 throw new InvalidDataException("Invalid bomb-chain case.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var level = runtime.LevelData!;
@@ -52,10 +52,20 @@ internal static class BombChainComparisonAudit
             {
                 if (int.Parse(row[4]) != frame) throw new InvalidDataException("Reordered bomb-chain trace.");
                 ushort input = ushort.Parse(row[5], NumberStyles.HexNumber);
-                ushort expectedInput = (triple ? frame == 0 || frame == spacing || frame == 68 + travel : repeated ? frame % spacing == 0 : frame == 0 || spacing != 0 && (frame == spacing || frame == spacing * 2)) ? (ushort)0x40 : (ushort)0;
-                if (!triple && frame >= 46 && frame < 50 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
+                ushort expectedInput = (horizontal ? frame == 0 || frame == 52 || frame == spacing : triple ? frame == 0 || frame == spacing || frame == 68 + travel : repeated ? frame % spacing == 0 : frame == 0 || spacing != 0 && (frame == spacing || frame == spacing * 2)) ? (ushort)0x40 : (ushort)0;
+                if (horizontal && frame >= 74 && frame < 75 + travel) expectedInput |= (ushort)(left ? 0x200 : 0x100);
+                if (!horizontal && !triple && frame >= 46 && frame < 50 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
                 if (input != expectedInput) throw new InvalidDataException("Changed bomb-chain input.");
                 runtime.StepFrame(input);
+                // Releasing the one-frame steering pulse coincides with a ceiling
+                // strike. Native collision command five outranks the stationary
+                // input fallback: keep the moving pose and this frame's momentum.
+                if (horizontal && ceiling && travel == 0 && frame == 75 &&
+                    (samus.Pose != (left ? SamusPoseIds.MorphBallMovingLeftPose : SamusPoseIds.MorphBallMovingRightPose) ||
+                     samus.HorizontalSpeed.BaseFixed != 0x0000c000 ||
+                     samus.Kinematics.YFixed != 0x00d70000 ||
+                     samus.Kinematics.XFixed != (left ? 0x007f4000u : 0x0080c000u)))
+                    throw new InvalidDataException($"Ceiling collision lost rolling pose/momentum: {group.Key}.");
                 // An overlapping blast may restart an already-active rise without
                 // exposing direction zero. Count the actual start handler, not a
                 // zero-to-armed word edge, so these re-launches remain observable.
@@ -99,7 +109,7 @@ internal static class BombChainComparisonAudit
             }
             cases++;
         }
-        if (cases != (triple ? 408 : repeated ? 108 : 72)) throw new InvalidDataException("Incomplete bomb-chain matrix.");
+        if (cases != (horizontal ? 624 : triple ? 408 : repeated ? 108 : 72)) throw new InvalidDataException("Incomplete bomb-chain matrix.");
         Console.WriteLine($"Bomb chains: {cases} cases, {rows.Length} frames, {mismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
     }

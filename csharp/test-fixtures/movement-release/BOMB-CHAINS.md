@@ -98,3 +98,37 @@ Remaining acceptance: horizontal/ladder traversal with adjacent misses. The exis
 direction pulse tests diagonal displacement and ceiling contact, not sustained
 horizontal traversal. Preserve exact input and slot-lifecycle comparisons when
 expanding those fixtures.
+
+## Steering after the first launch: ceiling collision priority
+
+`DiagnosticHorizontalBombChains` probes bombs at frames 0, 52 and N (70 through
+94, step two), with a facing-direction pulse starting at frame 74 and lasting
+1 through 12 frames. Both facings and ceilings give 624 cases / 112,320 frames.
+In this variant `travel` encodes pulse length minus one and `spacing` is N.
+This is a steering/timing search, not yet proof of sustained horizontal traversal.
+
+The matrix reproduced 2,730 divergent frames. In the shortest pulse's low-ceiling
+cases, frame 74 resumes ordinary moving-ball movement; frame 75 releases input
+and hits the ceiling. C# previously let the stationary-pose fallback clear the
+new horizontal speed. Cartridge `$91:E8E5` instead selects the current pose and
+collision command five before ordinary input fallback handling. The shared
+runtime ceiling-priority branch covered aerial and bomb movers but omitted the
+ordinary Morph Ball mover that had just taken over.
+
+Adding that mover's ceiling result preserves the moving pose and `$0000.C000`
+horizontal speed. Explicit frame-75 assertions check pose, speed and both
+coordinates, mirrored for left/right. All 112,320 frames now match the native
+trace, including complete bomb slot lifecycles. The earlier short, repeated,
+three-bomb and live hurt-bomb matrices remain separate regression gates.
+
+`horizontal-bomb-chain-native-capture.zip` preserves the independently repeated
+CSV, SHA-256:
+`F0E2549C283376D28A9DAD3355F0DC0A1EC602698E93DE6CA433CD283AA53649`.
+Use the same pinned sources and temporary headless dispatch procedure above.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --horizontal-bomb-chain-comparison-audit "Super Metroid.smc" path/to/horizontal-bomb-chain-412.csv
+```
+
+The issue remains open without the validation label until sustained
+horizontal/ladder traversal and adjacent timing misses are demonstrated.

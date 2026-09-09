@@ -2947,8 +2947,11 @@ public sealed partial class SuperMetroidRuntime
                 // stop; consume this same-pose transition here so history still shifts
                 // and an alpha aim/turn selection cannot override it. Higher-priority
                 // animation and hurt interruptions above retain their native priority.
+                // Ball movement can resume before the bomb arc reaches a ceiling;
+                // its collision must also outrank the stop-rolling input fallback.
                 if (!animationTransitionApplied &&
                     (LastAerialSamusMovement is { HitCeiling: true } ||
+                     LastMorphBallMovement is { HitCeiling: true } ||
                      LastBombJumpMovement is { Vertical.Collided: true }))
                 {
                     ProspectiveSamusPose = null;

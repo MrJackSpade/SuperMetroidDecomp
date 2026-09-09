@@ -742,10 +742,11 @@ public sealed partial class SamusLiquidPhysicsState
             SpawnFootstepPair(bus, samus, type: 7);
 
         // Graphics are independent of the ordinary step sound. Cinematics, bosses, an
-        // active special palette, and boost stage four each suppress library-three sound $06.
+        // a stored shinespark, and boost stage four each suppress library-three sound $06.
+        // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             BossId == 0 &&
-            samus.HorizontalSpeed.SpecialPaletteTimer == 0 &&
+            samus.Shinespark.ShineTimer == 0 &&
             (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x06), maximumQueued: 6);

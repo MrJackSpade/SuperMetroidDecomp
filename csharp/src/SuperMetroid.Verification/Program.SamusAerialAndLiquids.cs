@@ -1296,6 +1296,18 @@ static void VerifySamusAtmosphericEffects()
         runner.LiquidPhysics.AtmosphericEffects.Slots[1].AnimationTimer,
         "second foot effect starts immediately");
 
+    // $90:A40E reads $0A68 (stored-shine timer), not the boost palette timer
+    // at $0AD0. Boost buildup must still publish footsteps into the real queue.
+    runner.HorizontalSpeed.SpeedBoostCounter = 0x0301;
+    runner.HorizontalSpeed.SpecialPaletteTimer = 1;
+    runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
+    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
+        runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
+    AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(0x0400), "seed stored shine sound gate");
+    runner.HorizontalSpeed.SpecialPaletteTimer = 0;
+    runner.LiquidPhysics.PrepareAnimationFrame(bus, runner, nmiFrameCounter: 1);
+    AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "stored shine timer suppresses footsteps");
+
     // `$91:F046` runs before animation and before landing clears Y velocity. Norfair selects
     // type-six dust in slots two/three; spin termination precedes the soft-impact request in
     // the native sound queues. The source pose is deliberately ordinary spin rather than a

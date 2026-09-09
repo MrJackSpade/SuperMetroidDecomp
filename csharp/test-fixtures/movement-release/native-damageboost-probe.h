@@ -103,7 +103,17 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         // $90:E725 clears contact damage immediately before the beta mover.
         samus_contact_damage_index = 0;
         RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
+#ifdef DAMAGEBOOST_QUEUE_TRACE
+        if (runup && !left && !source && !delay && frame < 105)
+          fprintf(stderr, "QUEUE before frame=%d boost=%04X timer=%04X read=%d write=%d first=%d second=%d\n",
+            frame, speed_boost_counter, samus_anim_frame_timer, sfx_readpos[2], sfx_writepos[2], sfx3_queue[0], sfx3_queue[1]);
+#endif
         RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);
+#ifdef DAMAGEBOOST_QUEUE_TRACE
+        if (runup && !left && !source && !delay && frame < 105)
+          fprintf(stderr, "QUEUE after frame=%d boost=%04X timer=%04X read=%d write=%d first=%d second=%d\n",
+            frame, speed_boost_counter, samus_anim_frame_timer, sfx_readpos[2], sfx_writepos[2], sfx3_queue[0], sfx3_queue[1]);
+#endif
         RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);
         RunAsmCode(0x90eab3, 0, 0, 0, 0);
         RunAsmCode(0x90e9ce, 0, 0, 0, 0);

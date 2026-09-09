@@ -590,3 +590,23 @@ the stage transition requires an immediate sound call during animation. Existing
 earlier producers must be ordered into the same live queue before that call, and
 the later collector must not duplicate it. Neither a shadow empty queue nor the
 isolated native probe's undrained queue can stand in for that live state.
+
+## Native run-up queue trace and footstep gate
+
+Define `DAMAGEBOOST_QUEUE_TRACE` when compiling `native-damageboost-probe.h`
+to emit before/after-animation queue witnesses for the first run-up case through
+frame 104. This does not change the comparison CSV. With contact mode nine,
+the queue is initially empty, but contains six library-three sound-six footsteps
+by frame 85. At the stage transition on frame 89, read=0/write=6 remains unchanged:
+the echo request is rejected, and the native counter/timer become $0401/1.
+
+The C# footstep gate incorrectly tested the boost-palette timer $0AD0 instead
+of the stored-shinespark timer $0A68 read at $90:A40E. The former is seeded to one
+when boost buildup starts, suppressing every earlier step. Corrected the gate to
+Samus.Shinespark.ShineTimer. The focused default regression failed before the
+fix (no sound-six request with palette timer one) and checks both directions:
+palette timer alone permits the sound; a stored shine suppresses it.
+
+This explains why the attempted empty-queue runtime integration was invalid.
+Live synchronous publication ordering still requires completion; do not mark
+#472 ready on the strength of this footstep correction alone.

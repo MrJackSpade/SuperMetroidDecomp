@@ -503,10 +503,13 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     AssertEqual(38, crouchedBody.Bg2YScroll,
         "fast crouch recovery applies inverse 38-pixel BG2 Y movement");
 
-    WriteTestWord(bus, 0xa99000, 0xffff);
+    // This deliberately invalid instruction overlaps the retail Baby transfer table.
+    // Keep it in its own address space instead of corrupting the later live-table test.
+    var unknownInstructionBus = new TestAddressSpace();
+    WriteTestWord(unknownInstructionBus, 0xa99000, 0xffff);
     var unknownBody = new MotherBrainBodyAnimationState();
     unknownBody.SetInstructionList(0x9000);
-    AssertThrows<InvalidOperationException>(() => unknownBody.Step(bus),
+    AssertThrows<InvalidOperationException>(() => unknownBody.Step(unknownInstructionBus),
         "unknown Mother Brain animation command is an explicit translation seam");
 
     // Now drive the entire `$B8EB-$B983` repeat cycle with the body interpreter after each

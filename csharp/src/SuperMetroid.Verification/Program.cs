@@ -29,6 +29,18 @@ VerifyAndroidHostPolicies();
 VerifyIniEditing();
 VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;
+if (args is ["--mother-brain"])
+{
+    VerifySamusDrainedController();
+    VerifyMotherBrainRainbowBeamSamusMovement();
+    VerifyMotherBrainRainbowBeamAttackSequence();
+    VerifyMotherBrainBombProjectiles();
+    VerifyMotherBrainProjectileRendering();
+    VerifyMiscDustProjectiles();
+    VerifyMotherBrainEscapeDoorParticles();
+    VerifyBabyMetroidCutsceneEntrance();
+    return 0;
+}
 if (args is ["--grapple-movement"])
 {
     VerifySamusGrappleRomData();

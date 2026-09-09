@@ -46,7 +46,7 @@ pwsh -File tools/discord-updates.ps1 post -Commit <full-SHA> -SummaryFile .git/d
 pwsh -File tools/discord-updates.ps1 next
 ```
 
-Posts contain the version SHA, the summary, and the GitHub commit link. Mentions
+Posts contain a bold version heading, a fenced plain-text summary box, and the GitHub commit link. Summaries must not contain triple backticks. Mentions
 and link embeds are disabled. The entire message must fit 2,000 characters.
 The CLI waits for Discord's message receipt before advancing. It serializes all
 commands with an OS file lock and writes state by atomic replacement.

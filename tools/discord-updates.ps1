@@ -114,7 +114,9 @@ function Invoke-Queue {
         if (-not $SummaryFile) { throw 'Provide a UTF-8 plain-text -SummaryFile explaining the changes.' }
         $summary = (Get-Content -LiteralPath $SummaryFile -Raw -Encoding utf8).Trim()
         if (-not $summary) { throw 'Summary cannot be empty.' }
-        $content = "Version $($next.Substring(0,7))`n`n$summary`n`n$($state.repositoryUrl)/commit/$next"
+        if ($summary.Contains('```')) { throw 'Summary must not contain triple backticks; the CLI supplies the text box.' }
+        $fence = '```'
+        $content = "**Version $($next.Substring(0,7))**`n${fence}text`n$summary`n$fence`n$($state.repositoryUrl)/commit/$next"
         if ($content.Length -gt 2000) { throw 'Message exceeds the Discord 2,000-character limit. Shorten the summary.' }
         if ($Command -eq 'preview') { return @{ status='preview'; commit=$next; content=$content } }
         $url = Get-Webhook

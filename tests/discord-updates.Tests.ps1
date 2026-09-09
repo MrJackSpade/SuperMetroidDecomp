@@ -56,6 +56,8 @@ try {
     Expect-Failure { Invoke-Queue } 'only that commit'
     $script:Commit=$shas[0]; $script:Command='preview'
     Assert ((Invoke-Queue).content.Contains('Plain language update.')) 'preview renders summary'
+    $preview = Invoke-Queue
+    Assert ($preview.content.StartsWith('**Version ') -and $preview.content.Contains(('```text' + "`nPlain language update.`n" + '```'))) 'updates have a bold heading and boxed body'
     Assert ($script:sent.Count -eq 0) 'preview does not send'
     $script:Command='post'; $null=Invoke-Queue
     $script:Command='next'; Assert ((Invoke-Queue).commit -eq $shas[1]) 'confirmed post advances exactly once'

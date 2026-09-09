@@ -48,6 +48,19 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsCopyright, out int copyrightStart)
+                    && tick - copyrightStart <= 180)
+                    AssertEqual(tick - copyrightStart < 180 ? EndingCreditsPhase.PostCreditsCopyright : EndingCreditsPhase.PostCreditsReward,
+                        legacy.Phase, "native copyright holds for exactly 180 frames before resuming reward reveal");
+                if (phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int revealStart)
+                    && tick - revealStart == 64)
+                {
+                    var copyright = legacy.CaptureRenderSnapshot();
+                    AssertTrue(!copyright.Layers.ToArray().Any(layer => layer is ObjRenderLayer),
+                        "native E293 hides reward actors during copyright panel");
+                    AssertEqual((ushort)0x4800, copyright.Layers.ToArray().OfType<Bg4BppRenderLayer>().Single().TilemapWord,
+                        "native E293 selects copyright BG1 after first 64 reveal frames");
+                }
                 if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
                 {
                     var flash = legacy.CaptureRenderSnapshot();

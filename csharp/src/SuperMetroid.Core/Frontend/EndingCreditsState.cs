@@ -45,6 +45,7 @@ internal sealed partial class EndingCreditsState
     private short planetVelocityWhole;
     private ushort planetVelocityFraction;
     private bool creditsAssetsLoaded;
+    private bool rewardCopyrightShown;
     private RoomPaletteFxSystem paletteFx = new();
 
     public EndingCreditsState(
@@ -276,7 +277,7 @@ internal sealed partial class EndingCreditsState
                 if (--phaseTimer <= 0)
                 {
                     SpawnEndingRewardActors();
-                    phaseTimer = 180;
+                    phaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
                     Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
@@ -285,15 +286,20 @@ internal sealed partial class EndingCreditsState
                 StepSprites();
                 if (--phaseTimer <= 0)
                 {
+                    if (!rewardCopyrightShown)
+                    {
+                        ShowRewardCopyright();
+                        break;
+                    }
                     Array.Fill(
                         postCreditsTilemap,
                         EndingCreditsRomData.Rendering.BlankTile,
                         EndingCreditsRomData.Text.ResultPanelDestination,
                         EndingCreditsRomData.Text.ResultPanelWords);
                     CopyPostCreditsWords(
-                        EndingCreditsRomData.Instructions.ItemPercentagePanel,
-                        EndingCreditsRomData.Text.ItemPercentagePanelDestination,
-                        EndingCreditsRomData.Text.ItemPercentagePanelWords);
+                        EndingCreditsRomData.Instructions.CopyrightPanel,
+                        EndingCreditsRomData.Text.CopyrightPanelDestination,
+                        EndingCreditsRomData.Text.CopyrightPanelWords);
                     UploadPostCreditsTilemap();
                     // E58A clears every cinematic sprite before spawning the percentage
                     // BG object. Reward actors must not survive underneath either message.
@@ -305,6 +311,17 @@ internal sealed partial class EndingCreditsState
                         inventory,
                         japaneseText);
                     Phase = EndingCreditsPhase.ItemPercentage;
+                }
+                break;
+
+            case EndingCreditsPhase.PostCreditsCopyright:
+                // The sprite interpreter continues behind TM=$01; hiding the actors
+                // must not reset their instruction lists or their reveal palette state.
+                StepSprites();
+                if (--phaseTimer <= 0)
+                {
+                    phaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
+                    Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
 
@@ -999,6 +1016,7 @@ internal enum EndingCreditsPhase
     PostCreditsWaitingBackdrop,
     PostCreditsWaitingSamus,
     PostCreditsReward,
+    PostCreditsCopyright,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

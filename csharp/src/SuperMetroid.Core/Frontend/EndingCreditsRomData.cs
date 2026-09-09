@@ -49,7 +49,8 @@ public static class EndingCreditsRomData
         public static readonly SnesAddress Bank = new(0x8c, 0);
         public const ushort CreditsInitial = 0xd91b;
         public const ushort ResultPanel = 0xdc9b;
-        public const ushort ItemPercentagePanel = 0xdedb;
+        /// <summary>$8C:DEDB, the 1994 Nintendo copyright panel copied by $8B:E293.</summary>
+        public const ushort CopyrightPanel = 0xdedb;
         public const ushort ItemPercentageText = 0xdfdb;
         public const ushort SeeYouNextMissionText = 0xe0af;
         public const ushort JapaneseItemPercentageSubtitle = 0xdf5b;
@@ -135,6 +136,10 @@ public static class EndingCreditsRomData
 
     public static class Timing
     {
+        /// <summary>$8B:E293 interrupts reveal after var4 counts from 127 to 63; E342 later consumes the remaining 64 calls.</summary>
+        public const int RewardRevealHalfFrames = 64;
+        /// <summary>$8B:E293 sets var13=$00B4 for the copyright panel held by Func137.</summary>
+        public const int CopyrightHoldFrames = 180;
         /// <summary>$8B:E110/E158 use 32 additions of target-component / 32 in 8.8 precision.</summary>
         public const int WaitingPaletteFadeFrames = 32;
         /// <summary>$8B:E158 sets cinematic_var4 to $00B4 for Func132's waiting backdrop.</summary>
@@ -179,8 +184,8 @@ public static class EndingCreditsRomData
     {
         public const int ResultPanelDestination = 288;
         public const int ResultPanelWords = 288;
-        public const int ItemPercentagePanelDestination = 384;
-        public const int ItemPercentagePanelWords = 64;
+        public const int CopyrightPanelDestination = 384;
+        public const int CopyrightPanelWords = 64;
         public const int JapaneseSubtitleDestination = 736;
         public const int JapaneseSubtitleWords = 64;
         public const int PercentageHundredsTopIndex = 462;

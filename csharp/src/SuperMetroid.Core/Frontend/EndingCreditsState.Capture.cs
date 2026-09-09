@@ -8,6 +8,7 @@ internal sealed partial class EndingCreditsState
     /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
+        if (UsesExplosionFinaleDisplay) return CaptureExplosionFinale();
         var layers = new List<RenderLayer>();
         byte objectSelection = CurrentEscapeObjectSelection;
         OamBuffer oam;

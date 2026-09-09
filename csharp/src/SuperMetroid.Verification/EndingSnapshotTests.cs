@@ -22,6 +22,7 @@ internal static partial class Program
             var phaseEntryFrames = new Dictionary<EndingCreditsPhase, int>();
             var gunshipPalettes = new HashSet<string>();
             ushort[]? explosionBackgroundSource = null;
+            int finaleDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
@@ -84,6 +85,24 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation
+                    && legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any())
+                {
+                    var finale = legacy.CaptureRenderSnapshot();
+                    var backgrounds = finale.Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();
+                    AssertTrue(backgrounds.Select(bg => bg.TilemapWord).SequenceEqual(new ushort[] { 0x7800, 0x7400, 0x7800, 0x7400 }),
+                        "native explosion finale selects both background maps in main-screen priority order");
+                    AssertTrue(backgrounds.All(bg => bg.CharacterWord == 0x4000), "explosion finale uses Mode1 character base, not stale Mode7 decoding");
+                    AssertTrue(!finale.Layers.ToArray().Any(layer => layer is ObjRenderLayer or ObjPriorityRenderLayer),
+                        "F2FA moves OBJ exclusively to the subscreen");
+                    if (hours == 2 && finaleDisplayFrames == 10)
+                    {
+                        File.WriteAllBytes("csharp/test-temp/ending-504/explosion-finale.smframe",
+                            RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), finale)));
+                        PngWriter.WriteRgba("csharp/test-temp/ending-504/explosion-finale.png", 256, 224, legacy.Render());
+                    }
+                    finaleDisplayFrames++;
+                }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsGesture)
                 {
                     AssertEqual(308, phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture]
@@ -279,6 +298,7 @@ internal static partial class Program
             }
             AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Phase, "ending capture fixture completes");
             AssertTrue(gunshipPalettes.Count >= 10, "gunship emergence executes changing native palette records");
+            AssertTrue(finaleDisplayFrames > 10, "ending executes the actual callback-driven Mode1 explosion finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
             Rgba32[] final = legacy.Render();

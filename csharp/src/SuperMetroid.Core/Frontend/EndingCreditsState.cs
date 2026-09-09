@@ -741,6 +741,7 @@ internal sealed partial class EndingCreditsState
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_ExplosionFinale:
+                explosionFinaleDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionAfterglow,

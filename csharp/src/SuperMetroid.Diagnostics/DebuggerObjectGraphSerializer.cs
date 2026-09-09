@@ -330,6 +330,7 @@ internal static class DebuggerObjectGraphSerializer
                 }
                 field.SetValue(instance, Read());
             }
+            DebuggerStateFieldMigrations.InitializeMissingFields(instance, count);
             return instance;
         }
 

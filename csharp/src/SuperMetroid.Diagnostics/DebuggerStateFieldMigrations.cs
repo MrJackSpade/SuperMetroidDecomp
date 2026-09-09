@@ -17,6 +17,17 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 106 && current.Length == 110)
+        {
+            // Additions verified against b944f1b5: statue owner (5ff0476a),
+            // timeout option (fc59514a), escape quake (a74aa6d1), treadmill owner (e361a6b1).
+            // ReadFields still validates every surviving declaring type/name/order.
+            Console.Error.WriteLine("WARNING: Legacy runtime lacks statue, escape-quake, timeout and treadmill state; added features restore inactive.");
+            return current.Where(field => field.Name is not "_tourianStatues"
+                and not "_escapeDiagonalFrames"
+                and not "<PreventEscapeTimeout>k__BackingField"
+                and not "<RoomTreadmills>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGameOptions) && count == 9 && current.Length == 11)
         {
             // Both fields were added after the original nine-option host layout.
@@ -50,5 +61,18 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name != PreviousDrawNewInputField).ToArray();
         }
         throw new InvalidDataException($"Serialized {type.FullName} contains {count} fields; this build expects {current.Length}.");
+    }
+
+    /// <summary>Constructs an empty owner only for the known legacy layout that omitted it.</summary>
+    internal static void InitializeMissingFields(object instance, int serializedCount)
+    {
+        if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime && serializedCount == 106)
+        {
+            // Constructors are bypassed by graph restoration. No animation existed
+            // in this layout; normal room loading will select the next room's objects.
+            typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
+                .GetField("<RoomTreadmills>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(instance, new RoomTreadmillAnimatedTilesState());
+        }
     }
 }

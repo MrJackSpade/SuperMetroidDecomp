@@ -7,6 +7,7 @@ internal static class LegacyOptionsMigrationVerification
 {
     public static int Run()
     {
+        VerifyRuntimeMigration();
         var type = typeof(SuperMetroidGameOptions);
         var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
         var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 9);
@@ -28,5 +29,24 @@ internal static class LegacyOptionsMigrationVerification
             return 0;
         }
         throw new InvalidDataException("Unknown option schema was silently accepted.");
+    }
+
+    private static void VerifyRuntimeMigration()
+    {
+        var type = typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime);
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+            .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false)).ToArray();
+        var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 106);
+        string[] missing = ["_tourianStatues", "_escapeDiagonalFrames",
+            "<PreventEscapeTimeout>k__BackingField", "<RoomTreadmills>k__BackingField"];
+        if (selected.Length != 106 || !selected.SequenceEqual(fields.Where(field => !missing.Contains(field.Name))))
+            throw new InvalidDataException("Legacy runtime migration omitted or reordered unexpected fields.");
+        var restored = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)RuntimeHelpers.GetUninitializedObject(type);
+        DebuggerStateFieldMigrations.InitializeMissingFields(restored, 106);
+        if (restored.RoomTreadmills is null || restored.PreventEscapeTimeout || restored.TourianStatues is null)
+            throw new InvalidDataException("Legacy runtime owners or neutral timeout default were not restored.");
+        var current = new object();
+        DebuggerStateFieldMigrations.InitializeMissingFields(current, 106);
+        Console.WriteLine("Legacy runtime: four documented additions only, original field order retained, omitted owners initialized.");
     }
 }

@@ -42,8 +42,8 @@ B0AC is a misaligned code entry: the preceding JSL bank byte becomes opcode
 94, executing STY $60,X, then falling through to the Power Bomb callback B0AE.
 Its C157 helper clears a zero-variable projectile when the Power Bomb flag is
 zero. This explains the observed lifetime, rather than ordinary Wave motion.
-Direct-page $60 remained zero in these samples; this does not prove its side
-effect irrelevant for other slots or callers.
+The original samples reset Y to zero before every handler call. This masked
+the register-store side effect; see the retained-Y correction below.
 
 No enemy damage classification, rendered visibility, charged-shot behavior,
 door/gate reactions, complete animation lifetime or multi-shot limit is proved
@@ -64,3 +64,36 @@ table addresses. Normal callbacks are AEF3 (non-Wave), B0E4 (uncharged Wave or
 Ice/Wave), and B0C3 (other Wave/charged Wave). Index 13 of B96E overreads the
 FireChargedBeam instruction bytes to obtain B0AC. Future implementation must
 preserve that table behavior rather than choosing a Wave callback from bit zero.
+
+## Retained-Y correction: cached PPU register writes
+
+The probe now carries CPU Y from firing into HandleProjectile and between
+isolated handler invocations. The earlier phrase "scratch" was incorrect:
+`variables.h` maps $60 onward to cached PPU registers, uploaded by bank $80.
+These are rendering state, not disposable arithmetic temporaries.
+
+FireUnchargedBeam returns Y=$0034: SetInitialProjectileSpeed indexes the speed
+row with four times beam combination 13. On the first projectile update, the
+misaligned STY stores $0034 to $60/$61 even when the shot is subsequently deleted.
+With Power Bomb active, successive isolated updates store $9027, $902F, $9037,
+$903F, $9047, $904F, $9057: the previous instruction handler left Y pointing at
+its consumed record (not the next record). Lifetimes and positions match the
+earlier trace. This chained routine experiment does not establish Y at every
+full gameplay-frame entry, where intervening routines can change it.
+
+A separate direct B0AC experiment supplies Y=$1234 and each even ordinary-slot
+index. Native stores $34/$12 into exactly these byte pairs:
+
+| Slot | WRAM pair | Cached PPU registers |
+| --- | --- | --- |
+| 0 | $60/$61 | W12SEL / W34SEL |
+| 1 | $62/$63 | WOBJSEL / WH0 |
+| 2 | $64/$65 | WH1 / WH2 |
+| 3 | $66/$67 | WH3 / WBGLOG |
+| 4 | $68/$69 | WOBJLOG / TM |
+
+Thus slot four can affect main-screen layer selection. A faithful port cannot
+discard this store, substitute an invented constant Y, or claim visual parity
+based only on the stationary projectile and damage word. Current rendering
+models effect-specific windows; the cached-register write, its NMI handoff,
+and relevant CPU-Y provenance still require integration and validation.

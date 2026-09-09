@@ -27,12 +27,26 @@ int DiagnosticChainsawFire(const char *rom) {
     projectile_bomb_instruction_ptr[0], projectile_x_radius[0], projectile_y_radius[0],
     projectile_bomb_x_speed[0], projectile_bomb_y_speed[0]);
   for (int frame = 0; frame < 8; frame++) {
-    RunAsmCode(0x90aece, 0, 0, 0, 0);
+    uint16 entry_y = g_snes->cpu->y;
+    RunAsmCode(0x90aece, 0, 0, entry_y, 0);
+    printf("CONTEXT entryY=%04X exitY=%04X window=%02X/%02X/%02X/%02X/%02X/%02X/%02X/%02X/%02X/%02X\n",
+      entry_y, g_snes->cpu->y, g_ram[0x60], g_ram[0x61], g_ram[0x62], g_ram[0x63], g_ram[0x64],
+      g_ram[0x65], g_ram[0x66], g_ram[0x67], g_ram[0x68], g_ram[0x69]);
     printf("STEP %d count=%u type=%04X damage=%u xy=%u/%u pre=%04X list=%04X timer=%u sprite=%04X radius=%u/%u dp60=%04X\n",
       frame, projectile_counter, projectile_type[0], projectile_damage[0], projectile_x_pos[0], projectile_y_pos[0],
       projectile_bomb_pre_instructions[0], projectile_bomb_instruction_ptr[0], projectile_bomb_instruction_timers[0],
       projectile_spritemap_pointers[0], projectile_x_radius[0], projectile_y_radius[0], *(uint16 *)(g_ram + 0x60));
   }
+  }
+  // Isolate the misaligned STY's address/value independently of the caller's Y.
+  // The inactive room dimensions suppress subsequent terrain reads in this subprobe.
+  for (int slot = 0; slot < 5; slot++) {
+    memset(g_ram, 0, sizeof(g_ram));
+    projectile_index = slot * 2;
+    RunAsmCode(0x90b0ac, 0, slot * 2, 0x1234, 0);
+    printf("WINDOW slot=%d bytes=", slot);
+    for (int offset = 0x60; offset < 0x6a; offset++) printf("%02X", g_ram[offset]);
+    printf("\n");
   }
   return 0;
 }

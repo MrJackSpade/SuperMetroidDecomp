@@ -574,3 +574,28 @@ history from the current pose would fabricate state and break parity for other c
 The existing load warning explicitly reports zero restoration. Current-format saves
 retain all four words. The grounded convergence test does not assert exact replay of
 an unknown historical mid-air state. Overhang-side follow-up remains outstanding.
+
+### Overhang return capture: new failing reproduction
+
+Mode eight adds the row-six overhang to the established return-to-wall input
+sequence (toward wall on frames 12-20, away on 21-22, fresh Jump on 23). The extended
+probe captures 14,040 frames. The original eight modes remain exact. Mode eight
+exposes 112 position/pose/animation mismatches and 96 speed-word mismatches, with
+history still exact. For rightward-away delay five, frame 23 has matching X=0089
+and pose 83, but managed Y=007F.1000 versus native Y=0083.0000. Subsequent managed
+frames catch the block while native moves away. Both directions and history seeds
+show the failure for delays five through eight.
+
+This is a second launch beneath the overhang, not proof of clearing it and then
+jumping from the side. Native minimum Y=124 for these delays shows the compact
+body approached the underside before expanding. `ApplyWallJumpTrigger` currently
+installs the larger radius without the changed-pose collision handling that native
+`SamusFunc_F404` calls before its initializer. This is a source-supported diagnostic
+lead, not a production fix: the shared expansion resolver, rejected expansions and
+fractional-position side effects require examination before implementing the route.
+
+Local capture: `csharp/test-temp/walljump-overhang-return-native-473.csv`, generated
+from the unpatched retail ROM by the updated header. Temporary native integration
+was removed after capture. The extended comparison deliberately fails; do not mark
+#473 awaiting validation. Both the exposed expansion mismatch and the genuinely
+cleared-overhang side-jump sequence remain outstanding.

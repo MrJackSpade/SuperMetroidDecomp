@@ -8,7 +8,7 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksCharge = rows.Length == 12480 && rows[0].Length == 21;
+        bool checksCharge = rows.Length is 12480 or 14040 && rows[0].Length == 21;
         bool checksSpeed = checksCharge || rows.Length is 6240 or 7800 or 9360 or 10920 && rows[0].Length == 18;
         bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
         int inputModes = hasPostInput ? rows.Length / 1560 : 1;
@@ -35,7 +35,7 @@ internal static class WallJumpComparisonAudit
                 level.SetForegroundEntry(y * level.WidthInBlocks + (left != 0 ? 8 : 7), 0x8000);
             if (postInput == 5)
                 level.SetForegroundEntry(7 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
-            if (postInput == 6)
+            if (postInput is 6 or 8)
                 level.SetForegroundEntry(6 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
             var samus = runtime.Samus!;
             if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
@@ -140,8 +140,10 @@ internal static class WallJumpComparisonAudit
                 if (nativeLaunches != expectedLaunches || managedLaunches != nativeLaunches)
                     throw new InvalidDataException("Same-wall fixture did not execute the verified launch sequence.");
             }
-            if (postInput is 5 or 6)
+            if (postInput is 5 or 6 or 8)
                 Console.WriteLine($"OVERHANG mode={postInput} history={history} left={left} delay={delay}: nativeMinY={nativeMinimumY} launches={nativeLaunches}");
+            if (postInput == 8 && nativeLaunches != (delay is >= 2 and <= 8 ? 2 : 1))
+                throw new InvalidDataException("Overhang return fixture did not execute its native launch sequence.");
             if (postInput == 6)
             {
                 // Observed native outcomes establish that this geometry exercises

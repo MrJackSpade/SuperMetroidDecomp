@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--yard-trajectories"])
+{
+    VerifyYardTrajectories();
+    return 0;
+}
 if (args is ["--statue-splash"])
 {
     VerifyStatueSplash();

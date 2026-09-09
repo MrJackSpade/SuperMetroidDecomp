@@ -113,6 +113,13 @@ public sealed partial class RoomEnemySystem
         slot.InstructionTimer = 1;
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
+        ResetCrawlerVelocitiesFromProperties(slot);
+    }
+
+    /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
+    private void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
+    {
+
         if (slot.Parameter1 != 0x00ff)
         {
             if (slot.Parameter1 >= 32)
@@ -121,8 +128,8 @@ public sealed partial class RoomEnemySystem
                     $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
             }
             ushort velocity = ReadWord(_bus!, CrawlerSpeedTable + slot.Parameter1 * 2);
-            state.XVelocity = velocity;
-            state.YVelocity = velocity;
+            slot.VariableA = velocity;
+            slot.VariableB = velocity;
         }
 
         // The low two population-property bits encode which side of the starting block the
@@ -130,10 +137,10 @@ public sealed partial class RoomEnemySystem
         switch (slot.Properties & 3)
         {
             case 0:
-                state.XVelocity = Negate16(state.XVelocity);
+                slot.VariableA = Negate16(slot.VariableA);
                 break;
             case 2:
-                state.YVelocity = Negate16(state.YVelocity);
+                slot.VariableB = Negate16(slot.VariableB);
                 break;
         }
     }

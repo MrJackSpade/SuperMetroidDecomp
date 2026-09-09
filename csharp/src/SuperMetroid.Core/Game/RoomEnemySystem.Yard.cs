@@ -523,7 +523,10 @@ public sealed partial class RoomEnemySystem
         // retains its own state and main AI. Reproduce only those shared velocity/sign words.
         slot.Properties = unchecked((ushort)(
             (slot.Properties & 0xfffc) | state.AirborneFacingDirection));
-        SetYardCrawlingVelocities(slot, state);
+        // Surface direction can still describe a wall or ceiling. E67A instead uses
+        // the new floor-facing property bits for its downward probe and horizontal sign.
+        ResetCrawlerVelocitiesFromProperties(slot);
+        slot.SpritemapPointer = YardNothingSpritemap;
         state.MovementFunction = YardMovementFunction.InstructionPending;
         slot.CurrentInstruction = state.HidingInstructionList;
         slot.InstructionTimer = 1;

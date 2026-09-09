@@ -188,3 +188,19 @@ zero for Jump alone, while the managed runtime represents that no-op as null.
 Separate managed assertions still reject any premature prospective transition.
 The 600 post-release movement samples remain matching. Full frontend scheduling,
 not this isolated actor-plus-pose-lookup sequence, remains outside the comparison.
+
+### Real frontend handoff regression
+
+`--elevator-frontend-handoff-audit ROM` rides the Green Brinstar elevator to its
+actual door, then runs `DoorTransitionState` through the destination fade while
+holding Jump+Left. Before the fix, `HandleTransition`'s destination OAM build moved
+the platform from $0018.0000 to $0019.8000, despite the native $0795 gate that keeps
+$A3:952A inert until $82:E737 finishes fading. The host gate existed but the
+frontend never owned it, and enemy-room loading also resets it.
+
+The frontend now sets the gate when transition begins, restores it after enemy
+loading, and clears it after the final palette fade. The reproduction asserts all
+75 destination transition frames retain the exact platform 16.16 position, locked
+input and forward pose, then asserts movement resumes on the next gameplay frame.
+This is a production fix verified against the failing room-local reproduction.
+It does not establish complete native fade scheduling for every enemy/render owner.

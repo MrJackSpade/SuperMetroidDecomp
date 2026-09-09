@@ -38,6 +38,7 @@ public sealed class DoorTransitionState
             throw new InvalidOperationException("A door transition is already active.");
 
         runtime.Samus.InputLocked = true;
+        runtime.Enemies.ElevatorDoorTransitionActive = true;
         door = runtime.PendingDoorTransition;
         sourceCreBitset = runtime.ActiveRoom?.CreBitset
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
@@ -125,6 +126,10 @@ public sealed class DoorTransitionState
                 // setup atomically; its following calls now run the real coordinate path.
                 fadedSourcePalette = runtime.Cgram.Colors.ToArray();
                 runtime.LoadPendingDoorDestinationForTransition();
+                // Enemy loading resets room-private host gates. Restore the native
+                // $0795 transition ownership before any destination EnemyMain call;
+                // elevator AI must remain frozen through the final palette fade.
+                runtime.Enemies.ElevatorDoorTransitionActive = true;
                 ushort[] destinationTarget = runtime.Cgram.Colors.ToArray();
                 RestorePalette(runtime.Cgram, fadedSourcePalette);
                 runtime.BeginDoorOpeningScroll(
@@ -200,6 +205,9 @@ public sealed class DoorTransitionState
                 runtime.Enemies.ConsumeTargetPaletteWrites(paletteTransition!.SetTargetColor);
                 if (paletteTransition!.Step(runtime.Cgram))
                 {
+                    // $82:E737 releases $0795 after EnemyMain and the last fade step.
+                    // Movement resumes on the following gameplay frame, not this one.
+                    runtime.Enemies.ElevatorDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
                     if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive &&

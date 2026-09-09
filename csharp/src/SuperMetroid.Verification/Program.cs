@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--moat-first-entry"])
+{
+    VerifyMoatFirstEntry();
+    return 0;
+}
 if (args is ["--ridley-acid"])
 {
     VerifyRidleyAcid();

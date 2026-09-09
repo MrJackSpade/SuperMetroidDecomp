@@ -11,4 +11,6 @@ internal enum BombChainAuditScenario
     Steering,
     /// <summary>A starting double jump followed by repeated shorter ladder intervals.</summary>
     Ladder,
+    /// <summary>Repeated low-ceiling bombs with a swept turn-and-return input phase.</summary>
+    CeilingSteering,
 }

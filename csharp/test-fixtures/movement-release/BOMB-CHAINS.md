@@ -179,3 +179,39 @@ every 52–56 frames. They did not establish sustained horizontal traversal: sho
 pulses stopped producing lateral displacement after the initial launch, while
 larger offsets lost the subsequent bomb overlap. These negative candidates are
 not counted as acceptance evidence and are not the archived ladder schedule.
+
+## Repeated ceiling steering: wall momentum regression
+
+`DiagnosticCeilingTravelBombChains` runs only the low ceiling, both facings,
+with bombs at frame 0 and every 24 frames from frame 52. Steering starts at
+`170 + travel`, where travel is 0 through 23. Each 24-frame cycle holds away
+for one frame, then toward the initial facing for `spacing` frames (1 through 6).
+These 288 cases run 480 frames each, for 138,240 compared frames. The managed
+scenario is named `CeilingSteering`: its purpose is boundary coverage, not a
+claim that these inputs successfully traverse the ceiling.
+
+The sweep reproduced 625 divergent frames at the shaft walls. The diagonal
+bomb mover called block collision without the momentum teardown performed by
+native `$90:E5CE` inside the direction-aware X mover. Position clipped correctly,
+but base speed accumulated against the wall. The bomb mover now performs the
+shared horizontal-momentum clear on X collision, while preserving the later Y
+scan's authority over whether the upward bomb arc continues. Frame 465 of the
+right-facing travel=0/spacing=6 case explicitly asserts the wall coordinate,
+zero base speed, upward direction and still-active bomb movement. The separate
+wall-contact verification also asserts momentum clearance without loss of ascent.
+
+All 138,240 frames match after correction. The earlier five bomb-chain matrices
+(285,120 frames), live hurt-bomb (32,000 frames), and full core verification pass.
+The independently repeated CSV is preserved in
+`ceiling-steering-bomb-chain-native-capture.zip`, SHA-256:
+`E57A37D9AE84DD09DE7AEC3FC86F88385A7536E4E3A3D851728754E4167886A5`.
+Use the same ROM/source pins and headless dispatch procedure as above.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --ceiling-steering-bomb-chain-comparison-audit "Super Metroid.smc" path/to/ceiling-travel-bomb-chain-412-v2.csv
+```
+
+Neither this away/toward sweep nor the earlier toward-only sweep established
+sustained sideways traversal. Candidates that stayed airborne had negligible
+lateral displacement; moving candidates missed subsequent bombs and returned to
+the floor. Successful horizontal/ceiling traversal remains required for #412.

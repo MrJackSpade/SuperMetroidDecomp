@@ -23,6 +23,7 @@ internal static partial class Program
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.
         AssertTrue(!result.Ended && samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
         AssertEqual(0x0803, samus.BombJumpDirection, "native bomb-wall direction remains armed");
         AssertEqual(59, samus.XPosition, "native bomb-wall X endpoint");
         AssertEqual(77, samus.YPosition, "native bomb-wall Y endpoint");

@@ -167,6 +167,8 @@ if (args.Length == 3 && args[0] == "--horizontal-bomb-chain-comparison-audit")
     return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Steering);
 if (args.Length == 3 && args[0] == "--ladder-bomb-chain-comparison-audit")
     return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.Ladder);
+if (args.Length == 3 && args[0] == "--ceiling-steering-bomb-chain-comparison-audit")
+    return BombChainComparisonAudit.Run(args[1], args[2], BombChainAuditScenario.CeilingSteering);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

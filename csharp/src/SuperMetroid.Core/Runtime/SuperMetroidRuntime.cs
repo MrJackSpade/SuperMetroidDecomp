@@ -3620,11 +3620,12 @@ public sealed partial class SuperMetroidRuntime
                              SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose)
                 {
                     // Definition byte two leaves the launch animation for ordinary spin
-                    // art. `$91:F624` starts that target on frame one and preserves reversal
-                    // momentum only if the fallback changes facing.
+                    // art. Type $14 selects command six in $91:8304, so after F624
+                    // initializes the target, EC85 clears base/extra speed and mode.
                     Samus.ApplySpinJumpDirectionTransition(
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));
+                    Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          (poseAtFrameStart is SamusPoseIds.MorphBallMovingRightPose or

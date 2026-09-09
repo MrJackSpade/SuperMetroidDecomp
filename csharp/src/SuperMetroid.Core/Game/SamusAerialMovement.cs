@@ -667,6 +667,12 @@ public static class SamusAerialMovement
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType);
 
+        // $90:8FEF-$8FFB: a wall jump promotes zero acceleration mode to two
+        // after calculating speed, then bypasses the held-direction admission test.
+        if (movementType == SamusMovementType.WallJumping &&
+            speed.AccelerationMode == SamusHorizontalAccelerationModes.Accelerating)
+            speed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
+
         bool directionHeld = (controllerInput &
             ((ushort)SnesButton.Left | (ushort)SnesButton.Right)) != 0;
         if (speed.AccelerationMode == 0 && !directionHeld)

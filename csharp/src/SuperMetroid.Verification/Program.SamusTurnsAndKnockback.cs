@@ -221,6 +221,14 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
+    var releasedWallJump = CreateSpinSamus(animationFrame: 0x0b);
+    releasedWallJump.ApplyWallJumpTrigger(bus);
+    uint beforeReleasedWallX = releasedWallJump.Kinematics.XFixed;
+    SamusAerialMovement.StepWallJump(bus, level, releasedWallJump, 0, 0);
+    AssertEqual(2, releasedWallJump.HorizontalSpeed.AccelerationMode,
+        "walljump movement promotes zero acceleration mode after speed calculation");
+    AssertTrue(releasedWallJump.Kinematics.XFixed > beforeReleasedWallX,
+        "walljump movement bypasses held-direction gate before pose fallback is applied");
     var ineligibleHistory = CreateSpinSamus(animationFrame: 0);
     ineligibleHistory.PoseHistory.LastDifferentDirectionAndMovement = 0;
     ineligibleHistory.Kinematics.XSubposition = 0x4321;

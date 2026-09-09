@@ -168,3 +168,24 @@ offset at frame 13, with matching Y/pose/animation. All history words match.
 The aggregate audit deliberately remains failing until that separate mismatch
 is resolved. Charge-release, repeated-wall, and overhang coverage remain open.
 Temporary native integration was removed after capture.
+
+## Released-Jump fallback momentum
+
+The latest trace additionally records base speed, extra speed, acceleration mode,
+and divisor (18 columns). This exposed 2,240 register mismatches even where
+positions previously matched. Native walljump movement changes mode zero to
+two after its base-speed calculation and bypasses the direction-held gate;
+the shared managed aerial mover omitted that branch. It now preserves this
+write and the no-held-direction movement behavior.
+
+After that correction, 56 speed-word mismatches remained. At frame 12 of the
+released-Jump+Up case, the native walljump-to-spin fallback cleared base speed
+and mode; C# retained 1.6000 and mode two. Type $14's entry in $91:8304 selects
+command six ($91:EC85), which clears horizontal momentum after initializing
+the fallback spin pose. The runtime now performs that teardown only on this
+definition-fallback path, leaving directional spin transitions unchanged.
+
+All 6,240 frames now match motion, pose, animation, history, and the added speed
+words. The full core suite and a focused no-held-direction walljump regression
+pass. This completes these four post-input matrix modes, not the remaining
+charge-release, same-wall/overhang, or full forced-owner coverage in #473.

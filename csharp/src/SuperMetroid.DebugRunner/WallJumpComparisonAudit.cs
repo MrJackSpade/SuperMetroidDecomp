@@ -8,7 +8,8 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool hasPostInput = rows.Length == 6240 && rows[0].Length == 14;
+        bool checksSpeed = rows.Length == 6240 && rows[0].Length == 18;
+        bool hasPostInput = rows.Length == 6240 && (rows[0].Length == 14 || checksSpeed);
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
@@ -16,6 +17,7 @@ internal static class WallJumpComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
+        int speedMismatches = 0;
         int[] mismatchesByPostInput = new int[4];
         for (int postInput = 0; postInput < (hasPostInput ? 4 : 1); postInput++)
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
@@ -70,9 +72,17 @@ internal static class WallJumpComparisonAudit
                 {
                     var h = samus.PoseHistory;
                     string actualHistory = $"{h.PreviousPose:X4},{h.PreviousDirectionAndMovement:X4},{h.LastDifferentPose:X4},{h.LastDifferentDirectionAndMovement:X4}";
-                    string expectedHistory = string.Join(',', row[8..]);
+                    string expectedHistory = string.Join(',', row[8..12]);
                     if (actualHistory != expectedHistory && historyMismatches++ < 16)
                         Console.WriteLine($"HISTORY history={history} left={left} delay={delay} frame={frame}: {actualHistory} != {expectedHistory}");
+                }
+                if (checksSpeed)
+                {
+                    var speed = samus.HorizontalSpeed;
+                    string actualSpeed = $"{speed.BaseFixed:X8},{speed.ExtraRunSpeed:X4}{speed.ExtraRunSubspeed:X4},{speed.AccelerationMode:X4},{speed.SpeedDivisor:X4}";
+                    string expectedSpeed = string.Join(',', row[12..]);
+                    if (actualSpeed != expectedSpeed && speedMismatches++ < 16)
+                        Console.WriteLine($"SPEED postInput={postInput} history={history} left={left} delay={delay} frame={frame}: {actualSpeed} != {expectedSpeed}");
                 }
                 if (firstWallJump < 0 && samus.ReadMovementType(bus) == SamusMovementType.WallJumping) firstWallJump = frame;
             }
@@ -82,7 +92,8 @@ internal static class WallJumpComparisonAudit
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");
         for (int mode = 0; mode < (hasPostInput ? 4 : 1); mode++)
             Console.WriteLine($"Post-input mode {mode}: {mismatchesByPostInput[mode]} motion/pose/animation mismatches.");
-        return mismatches == 0 && historyMismatches == 0 ? 0 : 1;
+        Console.WriteLine($"Speed-word mismatches: {speedMismatches} (checked={checksSpeed}).");
+        return mismatches == 0 && historyMismatches == 0 && speedMismatches == 0 ? 0 : 1;
     }
 
     private static void VerifyGrappleLaunchHistory(SuperMetroidAddressSpace bus)

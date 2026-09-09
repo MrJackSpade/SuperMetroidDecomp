@@ -28,6 +28,13 @@ internal static partial class Program
                     AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool sample = phases.Add(legacy.Phase) || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
+                {
+                    var memory = legacy.CaptureRenderSnapshot().Memory;
+                    for (int sprite = 0; sprite < memory.ModeledSpriteCount; sprite++)
+                        AssertTrue(((memory.Oam[sprite * 4 + 3] >> 1) & 7) <= 2,
+                            "explosion actors delete before operation text, leaving only text OBJ palettes");
+                }
                 if (legacy.Phase >= EndingCreditsPhase.ItemPercentage)
                     AssertEqual(0, legacy.CaptureRenderSnapshot().Memory.ModeledSpriteCount,
                         "native E58A clears cinematic sprites before final percentage text");

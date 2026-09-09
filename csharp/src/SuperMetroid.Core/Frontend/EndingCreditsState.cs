@@ -648,6 +648,7 @@ internal sealed partial class EndingCreditsState
         for (int index = 0; index < count; index++)
         {
             EndingSprite wrapper = sprites[index];
+            StepEndingSpritePreInstruction(wrapper);
             wrapper.Sprite.Step(bus, (opcode, cursor) =>
                 HandleSpriteOpcode(wrapper, opcode, cursor));
         }
@@ -797,6 +798,8 @@ internal sealed partial class EndingCreditsState
         sprites.Add(new EndingSprite(
             new IntroDiscoverySprite(x, y, palette, instructionPointer),
             role));
+        if (role == EndingSpriteRole.ExplosionStarsLeft)
+            sprites[^1].Sprite.PreInstructionPointerForDiscovery(EndingSpritePreInstructions.WaitForFlyaway);
     }
 
     private void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>

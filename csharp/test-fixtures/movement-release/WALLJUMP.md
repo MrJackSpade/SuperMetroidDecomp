@@ -390,3 +390,16 @@ vertical-velocity case that must not shift history. Existing resource consumptio
 raising/lowering, palette, bubble and animation tests remain in the same suite.
 This completes the activation history owner, not independent Crystal Flash
 advanced-technique acceptance or the remaining global owner audit.
+
+## Ceres Ridley ejection initialization
+
+Native gamma initialization shifts history at $90:E14F-$E164 after selecting
+the hurt pose. The preceding request only installs the handler; subsequent shove
+frames do not repeat this shift. The managed initialization omitted it.
+
+The production-handler test failed before the change: prior standing $01 should
+replace older spin $1A. Initialization now commits history after pose/animation
+setup. The regression checks all four words and verifies request promotion does
+not update history early. Existing assertions still check no motion on the first
+gamma call and the ordinary wall-contact termination/feet alignment. This is
+only the missing history publication, not a change to the ejection trajectory.

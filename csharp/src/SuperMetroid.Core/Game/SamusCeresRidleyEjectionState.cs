@@ -86,6 +86,9 @@ public sealed class SamusCeresRidleyEjectionState
                 : SamusPoseIds.KnockbackRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
+            // The gamma initialization owns this shift. Request/BeginFrame must
+            // not publish it early, and subsequent shove frames must not repeat it.
+            samus.CommitPoseHistory(bus);
             samus.YPosition = unchecked((ushort)(
                 samus.YPosition - (21 - samus.Kinematics.YRadius)));
 

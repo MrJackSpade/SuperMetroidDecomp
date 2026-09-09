@@ -52,6 +52,11 @@ internal static class LegacyOptionsMigrationVerification
         var restored = (SuperMetroid.Core.Rendering.Mode7RenderRegisters)RuntimeHelpers.GetUninitializedObject(type);
         if (restored.WrapOutsideMap) throw new InvalidDataException("Legacy Mode 7 wrapping must remain disabled.");
         Console.WriteLine("Legacy Mode 7 registers preserve their nine original fields and default to the former overflow policy.");
+        var layerType = typeof(SuperMetroid.Core.Rendering.Mode7RenderLayer);
+        var layerFields = layerType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        var layerSelected = DebuggerStateFieldMigrations.SelectSerializedFields(layerType, layerFields, 2);
+        if (layerSelected.Length != 2 || !layerSelected.SequenceEqual(layerFields.Where(field => field.Name != "<AddBg1Subscreen>k__BackingField")))
+            throw new InvalidDataException("Legacy Mode 7 layer migration altered existing composition fields.");
     }
 
     private static void VerifyRuntimeMigration()

@@ -59,10 +59,11 @@ internal sealed partial class EndingCreditsState
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
                     CurrentMode7CenterX, CurrentMode7CenterY,
-                    unchecked((short)mode7X), unchecked((short)mode7Y), WrapOutsideMap: AtmosphericMapWraps)));
+                    unchecked((short)mode7X), unchecked((short)mode7Y), WrapOutsideMap: AtmosphericMapWraps),
+                    AddBg1Subscreen: AtmosphericMapWraps));
             }
             oam = PrepareSprites();
-            if (EndingObjectsEnabled)
+            if (EndingObjectsEnabled && !AtmosphericMapWraps)
             {
                 if (UsesFlyawayMode7Priority)
                 {

@@ -61,7 +61,8 @@ public sealed partial class D3D11FrameRenderer
                     DispatchMode7Gameplay(gameplay);
                     break;
                 case Mode7RenderLayer mode7:
-                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen);
+                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen, addBg1: mode7.AddBg1Subscreen,
+                        objectCount: scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
                     break;
                 case ObjRenderLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u,
@@ -118,19 +119,22 @@ public sealed partial class D3D11FrameRenderer
 
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
-    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224, bool subtractObj = false)
+    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224,
+        bool subtractObj = false, bool addBg1 = false, int objectCount = 0, byte objectSelection = 0)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
         var data = MemoryMarshal.Cast<uint, int>(ClearUploadConstants().AsSpan());
         data[0] = (int)D3D11TileOperation.Mode7;
+        data[13] = objectCount; data[14] = objectSelection;
         data[16] = registers.MatrixA; data[17] = registers.MatrixB;
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.CenterX; data[21] = registers.CenterY;
         data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
         data[24] = (int)Mode7OverflowPolicy.FromRegisters(registers);
         data[25] = firstScanline; data[26] = endScanline;
-        data[27] = subtractObj ? 1 : 0;
+        data[27] = (int)(addBg1 ? Mode7ColorMathOperation.AddBg1
+            : subtractObj ? Mode7ColorMathOperation.SubtractObj : Mode7ColorMathOperation.None);
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

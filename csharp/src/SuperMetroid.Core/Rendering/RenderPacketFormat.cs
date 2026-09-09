@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Rendering;
 internal static class RenderPacketFormat
 {
     internal static ReadOnlySpan<byte> Signature => "SMFRAME\0"u8;
-    internal const ushort Version = 22;
+    internal const ushort Version = 23;
+    internal const ushort Mode7Bg1AddVersion = 23;
     internal const ushort Mode7WrapVersion = 22;
     internal const ushort GameplayWindowVersion = 21;
     internal const ushort ObjPriorityFixedColorVersion = 20;
@@ -37,7 +38,7 @@ internal static class RenderPacketFormat
 internal enum RenderPacketKind : byte { Solid = 1, Mode7Obj = 2, Layered = 3 }
 
 /// <summary>Exclusive on-disk layer discriminants. Never renumber existing entries.</summary>
-internal enum RenderPacketLayerKind : byte { Obj = 1, ObjPriority = 2, Bg4Bpp = 3, Bg2Bpp = 4, Mode7 = 5, FixedColorAdd = 6, Bg2Viewport = 7, OrdinaryGameplay = 8, ScanlineColorAdd = 9, MessageBox = 10, BgColorMath = 11, Mode7Gameplay = 12, BgSubscreenAdd = 13, WindowedScene = 14, XrayWindow = 15, XrayGameplay = 16, ObjSubscreenAdd = 17, Mode7ObjSubtract = 18, Bg4SubscreenAdd = 19 }
+internal enum RenderPacketLayerKind : byte { Obj = 1, ObjPriority = 2, Bg4Bpp = 3, Bg2Bpp = 4, Mode7 = 5, FixedColorAdd = 6, Bg2Viewport = 7, OrdinaryGameplay = 8, ScanlineColorAdd = 9, MessageBox = 10, BgColorMath = 11, Mode7Gameplay = 12, BgSubscreenAdd = 13, WindowedScene = 14, XrayWindow = 15, XrayGameplay = 16, ObjSubscreenAdd = 17, Mode7ObjSubtract = 18, Bg4SubscreenAdd = 19, Mode7Bg1Add = 20 }
 
 /// <summary>Unfiltered plane or one tile-priority bit value; not combinable flags.</summary>
 internal enum RenderPacketPriority : byte { All = 0, Low = 1, High = 2 }

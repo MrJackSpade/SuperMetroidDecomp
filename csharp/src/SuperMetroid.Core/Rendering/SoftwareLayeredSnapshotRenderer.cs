@@ -20,7 +20,7 @@ public static class SoftwareLayeredSnapshotRenderer
         // wrongly allow a higher-numbered record to shine through the winning record.
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
-            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true }
+            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true } or Mode7RenderLayer { AddBg1Subscreen: true }
                 or BgSubscreenAddRenderLayer { IncludeObjects: true } or BgSubscreenAddRenderLayer { MainObjects: true };
         ResolvedObjFrame objects = usesObjInsertion
             ? SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection)
@@ -144,6 +144,23 @@ public static class SoftwareLayeredSnapshotRenderer
                         memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
                         m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
                         fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero, wrapOutsideMap: m.WrapOutsideMap);
+                    if (mode7.AddBg1Subscreen)
+                    {
+                        var palettes = new byte[output.Length];
+                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                            snapshot.ObjectSelection, new Rgba32[output.Length], palettes);
+                        for (int i = 0; i < output.Length; i++)
+                        {
+                            Rgba32 sub = mode7Pixels[i];
+                            bool objWins = objects.Pixels[i].A != 0 && (objects.Priorities[i] != 0 || sub.A == 0);
+                            Rgba32 main = objWins ? objects.Pixels[i] : sub.A != 0 ? sub : output[i];
+                            if (sub.A != 0 && (!objWins || palettes[i] >= 4))
+                                main = new Rgba32(AddFixed(main.R, (byte)(sub.R >> 3)),
+                                    AddFixed(main.G, (byte)(sub.G >> 3)), AddFixed(main.B, (byte)(sub.B >> 3)));
+                            output[i] = main;
+                        }
+                        break;
+                    }
                     if (mode7.SubtractObjSubscreen)
                         for (int i = 0; i < mode7Pixels.Length; i++)
                         {

@@ -11,7 +11,22 @@ public sealed record Bg2BppViewportRenderLayer(ushort TilemapWord, ushort Charac
 public sealed record FixedColorAddRenderLayer(byte Red, byte Green, byte Blue) : RenderLayer;
 
 /// <summary>Inserts a Mode 7 plane at an explicit position in the OBJ priority ladder.</summary>
-public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers, bool SubtractObjSubscreen = false) : RenderLayer;
+/// <param name="Registers">Unmodified integer projection and overflow controls.</param>
+/// <param name="SubtractObjSubscreen">Subtracts the winning OBJ from BG1.</param>
+/// <param name="AddBg1Subscreen">Owns BG1/OBJ main selection and adds BG1 to eligible main pixels, without halving. Backdrop and OBJ palettes zero through three are excluded.</param>
+public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers, bool SubtractObjSubscreen = false,
+    bool AddBg1Subscreen = false) : RenderLayer;
+
+/// <summary>Exclusive Mode 7 color operations in the renderer shader contract.</summary>
+public enum Mode7ColorMathOperation
+{
+    /// <summary>Insert the background without color arithmetic.</summary>
+    None = 0,
+    /// <summary>BG1 main minus OBJ subscreen.</summary>
+    SubtractObj = 1,
+    /// <summary>BG1/OBJ main plus BG1 subscreen; only eligible layers/palettes participate.</summary>
+    AddBg1 = 2,
+}
 
 /// <summary>Inserts only pixels whose winning OAM record has this priority.</summary>
 public sealed record ObjPriorityRenderLayer(byte Priority, FixedColorAddRenderLayer? FixedColor = null) : RenderLayer;

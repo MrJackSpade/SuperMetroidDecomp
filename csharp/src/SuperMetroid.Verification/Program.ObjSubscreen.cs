@@ -7,6 +7,7 @@ internal static partial class Program
     private static void VerifyObjSubscreenAddition()
     {
         VerifyMode7ObjSubtraction();
+        VerifyMode7Bg1Addition();
         VerifyBg4SubscreenAddition();
         VerifyObjFixedColor();
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
@@ -36,6 +37,37 @@ internal static partial class Program
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPacket.AsSpan(RenderPacketFormat.Signature.Length), 13);
         AssertEqual(new Rgba32(57, 0, 255), SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPacket))[8 * 256 + 8],
             "legacy packets retain replacing OBJ composition");
+    }
+
+    private static void VerifyMode7Bg1Addition()
+    {
+        foreach (bool opaqueBg in new[] { false, true })
+        foreach (byte palette in new byte[] { 0, 4 })
+        foreach (byte priority in new byte[] { 0, 1, 2, 3 })
+        {
+            byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+            if (opaqueBg) for (int pixel = 0; pixel < 64; pixel++) vram[pixel * 2 + 1] = 1;
+            for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
+            ushort[] colors = new ushort[256];
+            colors[0] = 3 << 10; colors[1] = 8 << 5; colors[129 + palette * 16] = 12;
+            byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2 + priority * 16);
+            var registers = new Mode7RenderRegisters(256, 0, 0, 256, 0, 0, 0, 0);
+            var memory = new PpuMemorySnapshot(vram, colors, oam, 1);
+            var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 3, 15));
+            var pixels = SoftwareFrameSnapshotRenderer.Render(RoundTripRenderPacket(packet));
+            Rgba32 expected = opaqueBg && priority == 0 ? new(0, 132, 0)
+                : opaqueBg && palette == 4 ? new(99, 66, 0) : new(99, 0, 0);
+            AssertEqual(expected, pixels[8 * 256 + 8], "Mode7 main priority and OBJ palette eligibility before addition");
+            AssertEqual(opaqueBg ? new Rgba32(0, 132, 0) : new Rgba32(0, 0, 24), pixels[0],
+                "BG1 doubles itself but transparent BG1 preserves unmodified backdrop");
+            byte[] old = RenderFrameSnapshotCodec.Serialize(packet);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(old.AsSpan(RenderPacketFormat.Signature.Length), 22);
+            AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old), "old packet rejects unrepresentable BG1 addition");
+            AssertThrows<ArgumentException>(() => new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Mode7RenderLayer(registers, true, true) }, 3, 15), "reject contradictory Mode7 math modes");
+        }
     }
 
     private static void VerifyMode7ObjSubtraction()

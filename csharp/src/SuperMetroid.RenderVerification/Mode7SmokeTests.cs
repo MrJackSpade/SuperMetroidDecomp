@@ -26,6 +26,8 @@ internal static class Mode7SmokeTests
             Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new ObjRenderLayer(), new Mode7RenderLayer(registers),
                     new FixedColorAddRenderLayer(3, 7, 11) }, 3, 15)));
+            Check(new RenderFrameSnapshot(new(++count, 1, 0), new LayeredRenderSnapshot(memory,
+                new RenderLayer[] { new Mode7RenderLayer(registers, AddBg1Subscreen: true) }, 3, 15)));
         }
         Check(new RenderFrameSnapshot(new(++count, 1, 0), new Mode7ObjRenderSnapshot(memory, null, 3, 15)));
         foreach (int hud in new[] { 0, 8, 32, 208 })

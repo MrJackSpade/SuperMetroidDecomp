@@ -155,11 +155,30 @@ void Main(uint3 id : SV_DispatchThreadID)
         int x = (startX + MatrixA * (int)id.x) >> 8;
         int y = (startY + MatrixC * (int)id.x) >> 8;
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
-        if (outside && FillCharacterZero == 0) return;
+        bool transparentOutside = outside && FillCharacterZero == 0;
+        if (transparentOutside && Reserved27 != 2) return;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
         // Policy 0: transparent overflow; 1: character zero; 2: ten-bit map wrap.
         uint character = outside && FillCharacterZero == 1 ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
         uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
+        if (transparentOutside) color = 0;
+        if (Reserved27 == 2)
+        {
+            // TM=BG1|OBJ, TS=BG1: select the main winner before adding BG1.
+            // Priority-zero OBJ is behind BG1; OBJ palettes zero through three
+            // are never eligible for SNES color arithmetic.
+            uint palette;
+            uint2 obj = ResolveObjectWithPalette(id.xy, palette);
+            bool objWins = obj.y != 255 && (obj.y != 0 || color == 0);
+            uint main = objWins ? obj.x : color != 0 ? Palette(color) : Output[id.xy];
+            if (color != 0 && (!objWins || palette >= 4))
+            {
+                uint3 sum = min(31, (Unpack(main) >> 3) + (Unpack(Palette(color)) >> 3));
+                main = Pack((sum << 3) | (sum >> 2), 255);
+            }
+            Output[id.xy] = main;
+            return;
+        }
         if (color != 0)
         {
             uint main = Palette(color);

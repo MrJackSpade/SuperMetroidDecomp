@@ -1,0 +1,82 @@
+using System.Globalization;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+
+/// <summary>Seeded hurt handoff; actual source contact/damage is a separate audit.</summary>
+internal static class DamageBoostComparisonAudit
+{
+    public static int Run(string rom, string trace)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
+        if (rows.Length != 11904 || rows.Any(row => row.Length != 22))
+            throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
+        int samples = 0, mismatches = 0, initialMismatches = 0;
+        int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
+        var reportedGroups = new HashSet<string>();
+        foreach (var group in rows.GroupBy(row => string.Join(',', row[..6])))
+        {
+            var seed = group.First();
+            int timer = int.Parse(seed[0]);
+            bool ball = seed[1] == "1", left = seed[2] == "1", forward = seed[4] == "1";
+            ushort source = ushort.Parse(seed[3]);
+            int delay = int.Parse(seed[5]);
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false);
+            var level = runtime.LevelData!;
+            for (int x = 0; x < level.WidthInBlocks; x++) level.SetForegroundEntry(x, 0x8000);
+            for (int y = 0; y <= 16; y++)
+            {
+                level.SetForegroundEntry(y * level.WidthInBlocks, 0x8000);
+                level.SetForegroundEntry(y * level.WidthInBlocks + 15, 0x8000);
+            }
+            var samus = runtime.Samus!;
+            samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
+            samus.Health = 99;
+            samus.Pose = ball ? left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose
+                : left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            samus.XPosition = 128; samus.YPosition = 160;
+            samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            samus.SetAnimationFrameFromSpecialHandler(0, 1);
+            samus.PoseHistory.PreviousPose = samus.Pose;
+            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)((ball ? 0x0400 : 0) | (left ? 4 : 8));
+            samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
+            ushort initialInput = forward ? (ushort)(left ? 0x200 : 0x100) : (ushort)0;
+            runtime.Controller1.Latch(initialInput);
+            SamusKnockbackMovement.Start(bus, samus, initialInput, source, (ushort)timer);
+            samus.CommitPoseHistory(bus);
+            int frame = -1;
+            foreach (var row in group)
+            {
+                if (int.Parse(row[6]) != frame) throw new InvalidDataException("Reordered hurt trace.");
+                ushort input = ushort.Parse(row[7], NumberStyles.HexNumber);
+                ushort expectedInput = frame < 0 ? initialInput : frame >= delay ? (ushort)((left ? 0x100 : 0x200) | 0x80) : (ushort)0;
+                if (input != expectedInput) throw new InvalidDataException("Changed boost input sequence.");
+                if (frame >= 0) runtime.StepFrame(input);
+                var h = samus.PoseHistory;
+                var s = samus.HorizontalSpeed;
+                string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.AnimationFrame:X4}," +
+                    $"{samus.KnockbackTimer:X4},{samus.KnockbackDirection:X4},{samus.Kinematics.YSpeed:X4}{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4}," +
+                    $"{s.BaseFixed:X8},{s.ExtraRunSpeed:X4}{s.ExtraRunSubspeed:X4},{h.PreviousPose:X4},{h.PreviousDirectionAndMovement:X4},{h.LastDifferentPose:X4},{h.LastDifferentDirectionAndMovement:X4}";
+                string expected = string.Join(',', row[8..]);
+                var actualWords = actual.Split(',');
+                if (!actualWords[..4].SequenceEqual(row[8..12])) motionMismatches++;
+                if (!actualWords[4..10].SequenceEqual(row[12..18])) stateMismatches++;
+                if (!actualWords[10..].SequenceEqual(row[18..])) historyMismatches++;
+                if (actual != expected)
+                {
+                    if (frame < 0) initialMismatches++;
+                    mismatches++;
+                    if (reportedGroups.Add(group.Key) && reportedGroups.Count <= 16)
+                        Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}");
+                }
+                samples++; frame++;
+            }
+            if (frame != 30) throw new InvalidDataException("Incomplete hurt sequence.");
+        }
+        Console.WriteLine($"Damage boost: {samples} samples, {mismatches} mismatches ({initialMismatches} at initialization).");
+        Console.WriteLine($"Motion/pose/animation={motionMismatches}; timers/direction/speeds={stateMismatches}; history={historyMismatches}.");
+        return mismatches == 0 ? 0 : 1;
+    }
+}

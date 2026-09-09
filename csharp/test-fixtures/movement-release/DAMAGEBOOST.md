@@ -53,3 +53,49 @@ Start with a flat, bounded synthetic room without unrelated actors or cheats, th
 add one contact source at a time. Save deterministic fixtures without touching player
 slots. Native and managed geometry must match, including ceiling/floor boundaries.
 Keep helper-entry evidence separate from full-runtime/source-contact evidence.
+
+## First original-CPU frame capture
+
+`native-damageboost-probe.h` uses the existing unpatched-ROM loader. Include it after
+`native-release-probe.h` in `sm_rtl.c`, dispatch `DiagnosticDamageBoost(rom, output)`
+before SDL from a `--damageboost-probe` command, and build as described in WALLJUMP.md.
+Output uses exclusive creation. Temporary upstream integration was removed afterward.
+
+```
+sm.exe --damageboost-probe "Super Metroid.smc" NEW_TRACE.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release --no-launch-profile -- --damageboost-comparison-audit "Super Metroid.smc" NEW_TRACE.csv
+```
+
+The bounded room has a floor at row 16, ceiling at row zero and solid side columns
+zero/fifteen. Samus starts at X128/Y160 with zero fractions and speed, 99 energy,
+Morph Ball equipped and no cheats. The initial hurt handoff is seeded, NOT caused by
+a contact actor: timers 5/10, humanoid/ball, both facings, both horizontal knockback
+directions, neutral/forward-held initial input, and boost-input delays 0..11. Each of
+384 cases records initialization plus 30 frames, totaling 11,904 samples. Native
+radius/input/gravity/movement/animation/hit-interruption/collision-transition/pose-
+transition/collision-clear/timer routines execute in sequence. The managed comparer
+uses the shared hit initializer and then production Runtime.StepFrame.
+
+Current local capture `csharp/test-temp/damageboost-native-472-v2.csv` has all 384
+initialized states matching. All 11,520 subsequent samples differ in at least one
+category: 10,520 motion/pose/animation, 7,464 timer/direction/speed, 5,140 history.
+The comparer deliberately returns failure. The earlier non-v2 capture omitted side
+walls and is not the accepted bounded fixture.
+
+First humanoid/right-facing/leftward/neutral/delay-zero frame has matching X/Y/pose,
+but native retains timer4, knockback direction1 and Y speed4.E400; managed clears
+timer/direction and installs speed4.E000. With delayed input, the first motion frame
+instead differs only in older history: native shifts the current hurt pose into it,
+managed retains the preceding standing pose. These are reproduced divergence leads;
+no production fix is claimed yet. Timer expiry later also needs the real transitional
+slot, rather than assuming the special movement handler alone owns cleanup.
+
+This capture does not verify damage amounts, actor-source phase differences, media,
+speedkeep, held-direction release variants, or all interruption exclusions. Those
+remain required before #472 is ready for player validation.
+
+Build environment note: during this capture the system .NET 10 installation became
+unavailable and only SDK5 was registered. A SHA-512-verified Microsoft SDK10.0.401
+archive was extracted under `csharp/test-temp/tools/dotnet-10.0.401`; invoking its
+dotnet.exe built/ran the comparer without changing project targets or system SDKs.
+The SDK/archive are local tooling, not tracked fixture assets.

@@ -151,6 +151,9 @@ if (args.Length <= 2 && args.Length >= 1 && args[0] == "--magic-number-audit")
     return 0;
 }
 
+if (args.Length == 3 && args[0] == "--damageboost-comparison-audit")
+    return DamageBoostComparisonAudit.Run(args[1], args[2]);
+
 if (args.Length >= 2 && args[0] == "--door-setup-callback-audit")
 {
     string doorSetupRomPath = string.Join(' ', args[1..]).Trim('"');

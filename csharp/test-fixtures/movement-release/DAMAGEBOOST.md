@@ -321,3 +321,27 @@ Temporary native executable hooks were removed after capture.
 Remaining scope still includes actual enemy and spike contacts, speedkeep variants,
 interruption exclusions and crossings between media; do not label #472 complete
 based solely on the seeded and projectile traces.
+
+## Spike-air contacts and Morph Ball release correction
+
+Native `contact=2` installs a spike-air BTS2 block at X8/Y9 or Y10 and calls the real
+`$94:9B60` inside-block dispatcher after input/gravity, before movement. Here the
+source column selects upper/lower contact rather than projectile side. The managed
+fixture installs identical terrain and leaves contact to the production runtime.
+Use the same headless command setup as above with `--damageboost-spike` dispatching
+`DiagnosticDamageBoostSource(..., 2)`. Both facings/bodies, initial inputs and twelve
+boost delays again produce 5,952 samples per medium/release pair.
+
+The first air/released-direction capture reproduced 216 mismatched samples. At frame
+three, a rolling Morph Ball with base speed 0.4000 selected stationary pose41 on CPU
+but retained rolling pose1F in C#. The shared runtime fallback incorrectly assigned
+running's momentum command one to grounded Morph Ball. Native movement type four
+selects command six, installs definition fallback immediately, and clears base/extra
+momentum after that frame's movement. Spring Ball type eight still uses command one.
+
+The runtime now distinguishes those commands. `VerifyMorphedSpikeRelease` runs seven
+exact CPU-derived position/pose/base-speed tuples plus health and hurt timer in the
+default core suite. All six `damageboost-spike-472-m{0,1,2}-r{0,1}.csv` comparisons pass
+(35,712 samples). The diagnostic integration hooks are removed after capture.
+Actual solid spikes, ordinary enemy contacts and the previously listed variants are
+not covered by this inside-block fixture; #472 remains open.

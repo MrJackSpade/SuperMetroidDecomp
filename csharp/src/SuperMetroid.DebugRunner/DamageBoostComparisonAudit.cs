@@ -9,7 +9,9 @@ internal static class DamageBoostComparisonAudit
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool contact = rows.Length > 0 && rows[0].Length == 26 && rows[0][24] == "1";
+        int contactKind = rows.Length > 0 && rows[0].Length == 26 ? int.Parse(rows[0][24]) : 0;
+        if (contactKind is < 0 or > 2) throw new InvalidDataException("Unknown contact source.");
+        bool contact = contactKind != 0;
         if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
@@ -29,7 +31,7 @@ internal static class DamageBoostComparisonAudit
             int release = seed.Length >= 24 ? int.Parse(seed[23]) : 0;
             if (medium is < 0 or > 2 || release is < 0 or > 1 ||
                 group.Any(row => row.Length >= 24 && (row[22] != seed[22] || row[23] != seed[23])) ||
-                group.Any(row => row.Length == 26 && row[24] != (contact ? "1" : "0")))
+                group.Any(row => row.Length == 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)))
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var level = runtime.LevelData!;
@@ -61,7 +63,7 @@ internal static class DamageBoostComparisonAudit
                 SamusKnockbackMovement.Start(bus, samus, initialInput, source, (ushort)timer);
                 samus.CommitPoseHistory(bus);
             }
-            else
+            else if (contactKind == 1)
             {
                 foreach (var enemy in runtime.Enemies.Slots)
                     enemy.Properties = enemy.Properties.With(EnemyProperties.Deleted);
@@ -76,6 +78,12 @@ internal static class DamageBoostComparisonAudit
                 projectile.Damage = 20;
                 projectile.InvincibilityFrames = 96;
                 projectile.CanDamageSamus = true;
+            }
+            else
+            {
+                int block = (source == 1 ? 9 : 10) * level.WidthInBlocks + 8;
+                level.SetForegroundEntry(block, 0x2000);
+                level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
             }
             int frame = -1;
             foreach (var row in group)

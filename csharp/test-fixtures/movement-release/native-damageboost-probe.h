@@ -1,7 +1,7 @@
 // #472: seeded hurt or inert-projectile contact, then the full movement sequence.
 // Include after native-release-probe.h. Dispatch before SDL initialization.
 int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium, int release, int contact) {
-  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 1) return 5;
+  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 2) return 5;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
@@ -13,13 +13,17 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
   for (int source = 0; source < 2; source++)
   for (int forward = 0; forward < 2; forward++)
   for (int delay = 0; delay < 12; delay++) {
-    int timer = timerCase ? 10 : 5;
+    int timer = timerCase || contact == 2 ? 10 : 5;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
     room_width_in_blocks = 16; room_height_in_blocks = 32;
     interactive_enemy_indexes[0] = 0xffff;
     for (int x = 0; x < 16; x++) level_data[x] = level_data[16 * 16 + x] = 0x8000;
     for (int y = 0; y <= 16; y++) level_data[y * 16] = level_data[y * 16 + 15] = 0x8000;
+    if (contact == 2) {
+      int block = (source ? 9 : 10) * 16 + 8;
+      level_data[block] = 0x2000; BTS[block] = 2;
+    }
     fx_y_pos = lava_acid_y_pos = 0xffff;
     if (medium == 1) { fx_y_pos = 8; fx_type = 6; }
     if (medium == 2) { lava_acid_y_pos = 8; fx_type = 2; }
@@ -50,12 +54,14 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
         joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
         RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
-        RunAsmCode(0x909c5b, 0, 0, 0, 0); RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
+        RunAsmCode(0x909c5b, 0, 0, 0, 0);
+        if (contact == 2) RunAsmCode(0x949b60, 0, 0, 0, 0);
+        RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
         RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);
         RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);
         RunAsmCode(0x90eab3, 0, 0, 0, 0);
         RunAsmCode(0x90e9ce, 0, 0, 0, 0);
-        if (contact && !frame) {
+        if (contact == 1 && !frame) {
           // Inert projectile remains at its frame-start position; real overlap scan,
           // radius guards, touch instruction and hurt publication all run on CPU.
           eproj_id[0] = 0x9642; eproj_properties[0] = 20; eproj_radius[0] = 0x0808;

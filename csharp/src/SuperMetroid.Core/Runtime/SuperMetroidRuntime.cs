@@ -1816,9 +1816,9 @@ public sealed partial class SuperMetroidRuntime
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
 
-            // Grounded rolling poses `$1E/$1F` use the same momentum-command-one seam as
-            // ordinary running: release keeps the moving pose while base speed remains,
-            // then definition byte two selects stable `$1D/$41` at exact zero.
+            // Grounded Morph Ball is movement type four: its fallback selects command
+            // six regardless of residual speed. Spring Ball's type eight instead uses
+            // command one and retains its moving pose until base speed becomes zero.
             if (GroundedSamusMovementEnabled &&
                 (Samus.Pose is SamusPoseIds.MorphBallMovingRightPose or
                     SamusPoseIds.MorphBallMovingLeftPose or
@@ -1827,7 +1827,9 @@ public sealed partial class SuperMetroidRuntime
                 usePoseDefinitionFallback &&
                 ProspectiveSamusPose is null)
             {
-                ProspectiveSamusFallbackPose = Samus.HorizontalSpeed.BaseFixed != 0
+                ProspectiveSamusFallbackPose =
+                    Samus.Pose is SamusPoseIds.SpringBallMovingRightPose or SamusPoseIds.SpringBallMovingLeftPose &&
+                    Samus.HorizontalSpeed.BaseFixed != 0
                     ? Samus.Pose
                     : Samus.ReadNoInputFallbackPose(_addressSpace);
             }
@@ -3540,7 +3542,12 @@ public sealed partial class SuperMetroidRuntime
                              SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose or
                              SamusPoseIds.SpringBallGroundRightPose or SamusPoseIds.SpringBallGroundLeftPose)
                 {
-                    Samus.HorizontalSpeed.AccelerationMode = 0;
+                    // Morph Ball command six clears base and extra momentum after the
+                    // current movement frame; Spring Ball command two only resets mode.
+                    if (poseAtFrameStart is SamusPoseIds.MorphBallMovingRightPose or SamusPoseIds.MorphBallMovingLeftPose)
+                        Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
+                    else
+                        Samus.HorizontalSpeed.AccelerationMode = 0;
                     Samus.ApplyMorphBallPoseChange(
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));

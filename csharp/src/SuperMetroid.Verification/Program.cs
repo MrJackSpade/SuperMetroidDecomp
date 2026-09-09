@@ -222,6 +222,7 @@ VerifyXrayControls();
 VerifyIntroPoseHistory();
 VerifyProjectileContactPhase(verifyPhase: true);
 VerifyProjectileRuntimePhase();
+VerifyMorphedSpikeRelease();
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

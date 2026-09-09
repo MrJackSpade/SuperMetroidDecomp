@@ -498,3 +498,26 @@ fallback frames. This fixes the ordinary SR388 coordinator only: cinematic scene
 setup, Mother Brain flashback transitions, terminal demo command, and discovery
 history handoff remain separate work. It does not establish whole-cinematic parity
 or finish #473.
+
+### Cinematic setup, hurt sequence, and discovery handoff
+
+`VerifyIntroScenePoseHistory` now plays the retail intro through discovery setup
+with normal render/step ordering and periodic narration-advance input. Before the
+fix it reported eight failures: flashback setup (tick 1504), pose transitions
+02->54 (1670), 54->2A (1681), 2A->A5 (1711), A5->02 (1718), terminal demo command
+(1897), and owner replacement plus missing history shift at discovery setup (2820).
+
+Pinned native setup routines `CinematicFunction_Intro_WaitInputSetupMotherBrainFight`
+and `CinematicFunction_Intro_WaitInputSetupBabyMetroid`, terminal `DemoInstr_Func3`,
+and the shared dispatcher called by `Samus_Func15` explicitly shift the four words.
+The corresponding frontend owners now do so. Flashback movement commits once after
+its final accepted hurt/animation/landing transition. Discovery reuses the existing
+Samus owner instead of allocating a zero-history replacement; standalone discovery
+diagnostics can still construct a fresh owner.
+
+The fixture asserts all four words at every event and checks that every intervening
+non-transition frame preserves them. It requires all five transition events plus
+both scene setups and reference-identical ownership at the handoff. This covers
+the previously documented cinematic history gap, not a claim of complete native
+cinematic or walljump parity. The remaining #473 checks include unreviewed shared
+helper callers, legacy-state entry behavior, and the overhang-side follow-up jump.

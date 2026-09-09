@@ -553,6 +553,7 @@ public sealed partial class IntroCinematicState
         };
         flashbackSamus.RefreshCollisionRadii(bus);
         flashbackSamus.InitializeAnimation(bus);
+        flashbackSamus.CommitPoseHistory(bus);
         flashbackSamus.PrimeGraphics(bus);
         // The native NMI consumes the freshly selected top/bottom definitions before the
         // next displayed OAM image. Apply that dedicated DMA now so the first host-rendered
@@ -653,9 +654,10 @@ public sealed partial class IntroCinematicState
         objects!.PlaceCaretOffScreen();
 
         // $8B:AF7B selects BG1SC=$54 (the second cartridge-authored room page), declares a
-        // 32x16 collision room, creates Samus/egg/baby/demo owners, and reuses the same
+        // 32x16 collision room, carries Samus into new egg/baby/demo owners, and reuses the same
         // text-to-gameplay palette crossfade as the Mother Brain scene.
-        babyDiscovery = new IntroBabyDiscoveryState(bus, audio);
+        babyDiscovery = new IntroBabyDiscoveryState(bus, audio, flashbackSamus
+            ?? throw new InvalidOperationException("Discovery setup requires the preceding flashback Samus state."));
         babyDiscovery.Samus.TileTransfers.TransferToVram(bus, vram);
 
         // The old gameplay objects have reached their delete lists. Releasing the scoped
@@ -884,11 +886,12 @@ public sealed partial class IntroCinematicState
         samus.TileTransfers.TransferToVram(bus, vram);
 
         AerialMovementResult? fallingMovement = null;
+        bool transitionAccepted = false;
         if (samus.KnockbackActive)
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
             // vertical calculation now carries the eleven-frame Rinka arc through its apex.
-            SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter);
+            transitionAccepted = SamusKnockbackMovement.Step(bus, level, samus, nmiFrameCounter).Ended;
         }
         else if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
         {
@@ -912,12 +915,16 @@ public sealed partial class IntroCinematicState
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
         bool animationTransitionApplied = samus.ApplyPendingVerifiedAnimationTransition(bus);
+        transitionAccepted |= animationTransitionApplied;
 
         // The normal new-state handler resolves a downward collision only after animation.
         // Apply the shared landing transition here so pose, radii, feet alignment, and the
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
+        {
             samus.ApplyAerialLanding(bus, wasSpinning: false, demoInput);
+            transitionAccepted = true;
+        }
 
         // `$90:E842` consumes the timer published by Rinka zero on the preceding cinematic-
         // sprite pass. Keeping this after animation matches SamusNewStateHandler_IntroDemo:
@@ -932,7 +939,14 @@ public sealed partial class IntroCinematicState
                 demoInput,
                 samus.KnockbackXDirection,
                 samus.KnockbackTimer);
+            transitionAccepted = true;
         }
+
+        // The intro uses the ordinary transition epilogue after movement, animation,
+        // and hurt interruption. Publish only the final accepted pose, once per slot;
+        // an unchanged animation frame must not erase the preceding transition history.
+        if (transitionAccepted)
+            samus.CommitPoseHistory(bus);
 
         // `$90:E84D` runs the ordinary Samus palette handler even in intro-demo state.
         // This supplies the alternating hurt colors and eventual suit-palette restoration;
@@ -961,6 +975,7 @@ public sealed partial class IntroCinematicState
         flashbackSamus!.Pose = SamusPoseIds.FacingLeftNormalPose;
         flashbackSamus.RefreshCollisionRadii(bus);
         flashbackSamus.InitializeAnimation(bus);
+        flashbackSamus.CommitPoseHistory(bus);
         demo.Disable();
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }

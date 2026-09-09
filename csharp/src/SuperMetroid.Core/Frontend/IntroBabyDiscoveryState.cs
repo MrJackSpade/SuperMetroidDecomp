@@ -28,20 +28,21 @@ internal sealed class IntroBabyDiscoveryState
         paletteBits: IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
         instructionPointer: CinematicCodePointers.Lists.ConfusedBabyMetroid);
 
-    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
+    public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null, SamusState? existingSamus = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
 
-        Samus = new SamusState
-        {
-            Pose = SamusPoseIds.FacingLeftNormalPose,
-            XPosition = 0x0178,
-            YPosition = 0x0093,
-            SelectedHudItem = 0,
-        };
+        // Native scene setup reuses Samus WRAM, including transition history. Standalone
+        // diagnostics may start with a fresh owner, but the full intro carries it forward.
+        Samus = existingSamus ?? new SamusState();
+        Samus.Pose = SamusPoseIds.FacingLeftNormalPose;
+        Samus.XPosition = 0x0178;
+        Samus.YPosition = 0x0093;
+        Samus.SelectedHudItem = 0;
         Samus.RefreshCollisionRadii(bus);
         Samus.InitializeAnimation(bus);
+        Samus.CommitPoseHistory(bus);
         Samus.PrimeGraphics(bus);
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final

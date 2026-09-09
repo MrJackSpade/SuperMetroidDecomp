@@ -922,6 +922,8 @@ public sealed partial class RoomPlmSystem
         bool solidBlock)
     {
         ArgumentNullException.ThrowIfNull(level);
+        if (bts.Value == EscapeAnimalPlmRomData.ReactionBts)
+            return TrySpawnCrittersEscapeReaction(level, blockIndex, projectileType);
         bool areaDependent = bts.UsesAreaReactionTable;
         if (areaDependent && !bts.IsAreaReactionIndex(8))
         {
@@ -1340,6 +1342,10 @@ public sealed partial class RoomPlmSystem
 
             switch (instruction)
             {
+                case EscapeAnimalPlmRomData.SetEscapedEventInstruction:
+                    (_setEvent ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))(EventNumber.CrittersEscaped);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
                 case RoomPlmInstructionCodes.InstallPreInstruction:
                     // `$84:86C1` is shared infrastructure, not a Mother Brain special.
                     // The operand is the bank-$84 pre-instruction run before this slot's

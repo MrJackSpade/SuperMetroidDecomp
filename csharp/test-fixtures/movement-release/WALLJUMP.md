@@ -1,5 +1,53 @@
 # Ordinary walljump parity — #473
 
+## Current acceptance status
+
+Ready for player validation of the implemented #473 fixes. This section supersedes
+the chronological partial/failing statuses below. Cartridge SHA-256 was rechecked:
+`12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72` (unheadered
+Japan/USA country 0/revision 0, checksum F8DF). Pinned reference revisions are
+recorded in SPINJUMP.md; this is not a PAL or modified-ROM parity claim.
+
+The current probe/comparer covers 17,160 original-CPU frames with exact position,
+subpixels, pose, animation, four history words and horizontal speed state. Charge,
+contact damage and projectile count are additionally compared in the charged mode.
+Both facings, initial Jump delays 0..12, and admitted/rejected older movement seeds
+are covered. Modes 0..8 run 30 frames each; mode 9 runs 60. No enemies or RNG affect
+these fixtures; Morph Ball is equipped, Charge only in mode 7, and gameplay cheats
+are absent. Inputs and all seeds are authored explicitly in the probe header.
+
+- Away/check/Jump success windows and adjacent failures: mode 0.
+- Post-walljump Up, one-Down morph while holding Jump, and released-Jump Up: modes 1..3.
+- Repeated same-wall jumps: mode 4.
+- Early underside collision versus delayed clearance: modes 5..6.
+- Charged-spin hold/release without spurious projectile creation: mode 7.
+- Second launch beneath the overhang, including body expansion: mode 8.
+- Cleared-overhang side jump and follow-through: mode 9. Initial Jump frame 7,
+  return on 14, away on 25, second Jump on 29. Frame 28 asserts compact check pose,
+  animation 0B, X=150 (mirror 106.FFFF), Y=99.3400. Frame 29 asserts walljump pose,
+  animation zero and X=151 (mirror 105.FFFF), same Y. This is beyond the original
+  wall's reach and above the lip's lower edge. Both native/managed launches are
+  required. Nearby initial delays remain in the full per-frame comparison.
+
+The initial 60-frame probe had an undefined upper-room boundary; its last seven
+frames differed after Samus left the constructed geometry. Mode 9 now has the same
+explicit row-zero solid ceiling in both engines, preserving the side-jump setup
+while keeping follow-through in bounds. The corrected capture is
+`csharp/test-temp/walljump-overhang-side-native-473-v2.csv`; the earlier non-v2 file
+is not the accepted fixture. Temporary native integration and candidate-search code
+were removed after capture. Numeric captures contain no ROM/state payloads.
+
+The production corrections and exact reproductions are documented below, including
+probe fractional writes, history gating/owners, post-jump momentum/morph behavior,
+charge preservation and overhang body expansion. Focused tests and the full
+Verification suite passed with the latest production correction. Legacy field
+migration and 90-frame transition-owned history repopulation also pass; missing
+mid-air history in old saves remains explicitly unavailable, not guessed.
+
+This completes this ticket's scoped technique investigation, not arbitrary room,
+loadout, host-controller or revision coverage. Related player reports retain their
+own status; the ticket stays open for player confirmation.
+
 Partially resolved diagnostic; #473 remains open. Include `native-release-probe.h` and
 `native-walljump-probe.h` after `struct StateRecorder;` in pinned `sm_rtl.c`.
 In `main.c`, before SDL, dispatch `DiagnosticWalljump(argv[2], argv[3])` for

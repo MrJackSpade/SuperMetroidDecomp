@@ -22,7 +22,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
   fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata,baseSpeed,extraSpeed,accelerationMode,divisor,charge,contactDamage,projectiles\n");
-  for (int postInput = 0; postInput < 9; postInput++)
+  for (int postInput = 0; postInput < 10; postInput++)
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -35,7 +35,9 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       if (y == 16) for (int x = 0; x < 16; x++) level_data[y * 16 + x] = 0x8000;
     }
     if (postInput == 5) level_data[7 * 16 + (left ? 7 : 8)] = 0x8000;
-    if (postInput == 6 || postInput == 8) level_data[6 * 16 + (left ? 7 : 8)] = 0x8000;
+    if (postInput == 6 || postInput == 8 || postInput == 9) level_data[6 * 16 + (left ? 7 : 8)] = 0x8000;
+    // Keep the longer follow-through inside defined room geometry on both engines.
+    if (postInput == 9) for (int x = 0; x < 16; x++) level_data[x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = 4; // Morph Ball is required by the post-launch Down case.
     samus_x_pos = left ? 122 : 134; samus_y_pos = 160;
@@ -53,8 +55,12 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       button_config_shoot_x = 0x40; previous = 0x40;
       grapple_beam_function = 0xc4f0;
     }
-    for (int frame = 0; frame < 30; frame++) {
+    for (int frame = 0; frame < (postInput == 9 ? 60 : 30); frame++) {
       uint16 input = (left ? 0x200 : 0x100) | (frame >= delay ? 0x80 : 0);
+      if (postInput == 9) {
+        input = (frame >= 14 && frame < 25) ? (left ? 0x100 : 0x200) : (left ? 0x200 : 0x100);
+        if ((frame >= delay && frame < 25) || frame >= 29) input |= 0x80;
+      }
       if (postInput == 7 && frame <= delay) input |= 0x40;
       if ((postInput == 4 || postInput == 8) && frame >= 12) {
         // Return toward the original wall, then turn away and press Jump again.

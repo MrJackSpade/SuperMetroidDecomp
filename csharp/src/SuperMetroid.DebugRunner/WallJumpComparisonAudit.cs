@@ -8,10 +8,11 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksCharge = rows.Length is 12480 or 14040 && rows[0].Length == 21;
+        bool hasSideJump = rows.Length == 17160 && rows[0].Length == 21;
+        bool checksCharge = hasSideJump || rows.Length is 12480 or 14040 && rows[0].Length == 21;
         bool checksSpeed = checksCharge || rows.Length is 6240 or 7800 or 9360 or 10920 && rows[0].Length == 18;
         bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
-        int inputModes = hasPostInput ? rows.Length / 1560 : 1;
+        int inputModes = hasSideJump ? 10 : hasPostInput ? rows.Length / 1560 : 1;
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
@@ -35,8 +36,10 @@ internal static class WallJumpComparisonAudit
                 level.SetForegroundEntry(y * level.WidthInBlocks + (left != 0 ? 8 : 7), 0x8000);
             if (postInput == 5)
                 level.SetForegroundEntry(7 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
-            if (postInput is 6 or 8)
+            if (postInput is 6 or 8 or 9)
                 level.SetForegroundEntry(6 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
+            if (postInput == 9)
+                for (int x = 0; x < level.WidthInBlocks; x++) level.SetForegroundEntry(x, 0x8000);
             var samus = runtime.Samus!;
             if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
             if (postInput == 7)
@@ -69,7 +72,7 @@ internal static class WallJumpComparisonAudit
             int managedLaunches = 0, nativeLaunches = 0;
             bool managedWasWall = false, nativeWasWall = false;
             ushort nativeMinimumY = ushort.MaxValue;
-            for (int frame = 0; frame < 30; frame++)
+            for (int frame = 0; frame < (postInput == 9 ? 60 : 30); frame++)
             {
                 var row = rows[sample++];
                 if (hasPostInput)
@@ -87,6 +90,30 @@ internal static class WallJumpComparisonAudit
                 if (int.Parse(row[0]) != left || int.Parse(row[1]) != delay || int.Parse(row[2]) != frame)
                     throw new InvalidDataException("Reordered walljump trace.");
                 ushort input = ushort.Parse(row[3], NumberStyles.HexNumber);
+                if (postInput == 9)
+                {
+                    ushort expectedInput = (ushort)(frame >= 14 && frame < 25
+                        ? left != 0 ? 0x100 : 0x200 : left != 0 ? 0x200 : 0x100);
+                    if (frame >= delay && frame < 25 || frame >= 29) expectedInput |= 0x80;
+                    if (input != expectedInput)
+                        throw new InvalidDataException("Side-jump trace changed the recorded controller sequence.");
+                    if (delay == 7 && frame is 28 or 29)
+                    {
+                        // These coordinates put the body at the protruding lip, beyond
+                        // reach of the original wall. The compact check body is wholly
+                        // above the lip's lower edge before the second launch expands it.
+                        string expectedX = frame == 28
+                            ? left != 0 ? "006AFFFF" : "00960000"
+                            : left != 0 ? "0069FFFF" : "00970000";
+                        byte expectedPose = frame == 28
+                            ? left != 0 ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose
+                            : left != 0 ? SamusPoseIds.WallJumpLeftPose : SamusPoseIds.WallJumpRightPose;
+                        if (row[4] != expectedX || row[5] != "00633400" ||
+                            byte.Parse(row[6], NumberStyles.HexNumber) != expectedPose ||
+                            row[7] != (frame == 28 ? "000B" : "0000"))
+                            throw new InvalidDataException("Native side-jump fixture lost lip clearance/check/launch geometry.");
+                    }
+                }
                 runtime.StepFrame(input);
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.AnimationFrame:X4}";
                 string expected = string.Join(',', row[4..8]);
@@ -144,6 +171,8 @@ internal static class WallJumpComparisonAudit
                 Console.WriteLine($"OVERHANG mode={postInput} history={history} left={left} delay={delay}: nativeMinY={nativeMinimumY} launches={nativeLaunches}");
             if (postInput == 8 && nativeLaunches != (delay is >= 2 and <= 8 ? 2 : 1))
                 throw new InvalidDataException("Overhang return fixture did not execute its native launch sequence.");
+            if (postInput == 9 && delay == 7 && (nativeLaunches != 2 || managedLaunches != 2))
+                throw new InvalidDataException("Cleared-overhang fixture requires both native and managed launches.");
             if (postInput == 6)
             {
                 // Observed native outcomes establish that this geometry exercises

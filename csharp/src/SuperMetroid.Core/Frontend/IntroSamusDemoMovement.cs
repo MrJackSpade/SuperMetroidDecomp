@@ -76,6 +76,7 @@ internal static class IntroSamusDemoMovement
         if (prospective is { } transition)
         {
             ApplyPoseTransition(bus, samus, poseAtFrameStart, unchecked((byte)transition.ProspectivePose));
+            samus.CommitPoseHistory(bus);
             return;
         }
 
@@ -91,6 +92,12 @@ internal static class IntroSamusDemoMovement
             samus.HorizontalSpeed.AccelerationMode = 0;
             ApplyPoseTransition(bus, samus, poseAtFrameStart, unchecked((byte)fallbackPose));
         }
+
+        // The native transition epilogue shifts history for an accepted slot even
+        // when deceleration retains the same pose. Idle frames have no slot and
+        // must preserve the older history used by subsequent movement decisions.
+        if (fallback.HasValue)
+            samus.CommitPoseHistory(bus);
     }
 
     private static void ApplyPoseTransition(

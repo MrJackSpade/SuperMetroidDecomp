@@ -481,3 +481,20 @@ and drained controllers. Remaining work includes this cinematic/demo frontier,
 the unreviewed shared-helper callers, legacy-state entry behavior, and the
 overhang-side follow-up jump. This list supersedes the earlier undifferentiated
 direct-write inventory; it does not mark #473 ready for player validation.
+
+### SR388 ordinary demo transition history
+
+The focused `VerifyIntroPoseHistory` fixture reproduced a stale-history failure
+through `IntroSamusDemoMovement.StepGroundedLeft`: standing-to-running left kept
+the seeded older spin pose (25) instead of shifting the previous standing pose (2).
+Pinned `sm_91.c` `Samus_HandleTransitions` sends both changed-pose transitions and
+same-pose deceleration commands through its four-word history epilogue. The intro
+coordinator now uses the shared history commit after an accepted prospective or
+fallback slot, including unchanged-pose fallback, and does not commit idle frames.
+
+The synthetic flat room uses retail pose/input tables and real grounded movement.
+Assertions cover all four history words for idle, changed-pose, and same-pose
+fallback frames. This fixes the ordinary SR388 coordinator only: cinematic scene
+setup, Mother Brain flashback transitions, terminal demo command, and discovery
+history handoff remain separate work. It does not establish whole-cinematic parity
+or finish #473.

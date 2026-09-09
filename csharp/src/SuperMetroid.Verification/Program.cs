@@ -204,6 +204,7 @@ if (args.Contains("--escape-timer"))
 VerifyAndroidHostPolicies();
 VerifyBoostFloorScroll();
 VerifyXrayControls();
+VerifyIntroPoseHistory();
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

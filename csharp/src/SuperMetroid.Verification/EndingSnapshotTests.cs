@@ -34,6 +34,19 @@ internal static partial class Program
                 if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWaitingSamus)
                     AssertEqual(212, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars],
                         "native post-credits backdrop has 32 fade frames followed by 180 waiting frames before producer text");
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsShootingStars)
+                {
+                    int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShootingStars];
+                    var colors = legacy.CaptureRenderSnapshot().Memory.Cgram;
+                    for (int i = 32; i < 48; i++)
+                    {
+                        ushort source = RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + i * 2);
+                        int expectedColor = ((source & 31) * elapsed / 32)
+                            | (((source >> 5 & 31) * elapsed / 32) << 5)
+                            | (((source >> 10 & 31) * elapsed / 32) << 10);
+                        AssertEqual((ushort)expectedColor, colors[i], "native 8.8 waiting-backdrop palette fade");
+                    }
+                }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
                 if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                     gunshipPalettes.Add(string.Join(',', legacy.CaptureRenderSnapshot().Memory.Cgram.Slice(80, 16).ToArray()));

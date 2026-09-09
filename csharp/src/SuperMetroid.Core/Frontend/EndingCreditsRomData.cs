@@ -57,6 +57,9 @@ public static class EndingCreditsRomData
 
     public static class Rendering
     {
+        /// <summary>$8B:E110 clears the 16-color BG2 waiting palette at byte index $0040.</summary>
+        public const int WaitingPaletteStart = 32;
+        public const int WaitingPaletteCount = 16;
         /// <summary>Ending bank-$8B Mode-7 projection center X, in physical map pixels.</summary>
         public const short Mode7CenterX = 56;
         /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
@@ -132,6 +135,8 @@ public static class EndingCreditsRomData
 
     public static class Timing
     {
+        /// <summary>$8B:E110/E158 use 32 additions of target-component / 32 in 8.8 precision.</summary>
+        public const int WaitingPaletteFadeFrames = 32;
         /// <summary>$8B:E158 sets cinematic_var4 to $00B4 for Func132's waiting backdrop.</summary>
         public const int WaitingBackdropFrames = 180;
     }

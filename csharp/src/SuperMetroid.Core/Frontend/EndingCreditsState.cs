@@ -240,12 +240,14 @@ internal sealed partial class EndingCreditsState
             case EndingCreditsPhase.PostCreditsFadeIn:
                 if (StepSlowFadeIn())
                 {
-                    phaseTimer = 32;
+                    phaseTimer = EndingCreditsRomData.Timing.WaitingPaletteFadeFrames;
+                    ApplyWaitingBackdropPalette(0);
                     Phase = EndingCreditsPhase.PostCreditsShootingStars;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsShootingStars:
+                ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - phaseTimer + 1);
                 if (--phaseTimer <= 0)
                 {
                     // Func131 finishes its palette fade, then Func132 holds the waiting

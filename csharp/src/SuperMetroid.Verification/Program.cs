@@ -490,6 +490,7 @@ VerifySamusSpaceJumpAndScrewAttack();
 VerifySamusLiquidPhysics();
 VerifySamusAtmosphericEffects();
 VerifySamusAerialTurnsAndWallJump();
+VerifySamusPoseHistory();
 VerifyWallJumpDust();
 VerifyCeresHazeLifecycle();
 VerifyCeresRidleyWallImpact();

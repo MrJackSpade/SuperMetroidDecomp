@@ -2,6 +2,23 @@
 int DiagnosticWalljump(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
+  // Isolated word-shift verification before the movement cases. Repeating the
+  // same current pose must still shift the previous sample, exactly as E719 does.
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
+  samus_prev_pose = 0x1234;
+  *(uint16 *)&samus_prev_pose_x_dir = 0x0308;
+  samus_last_different_pose = 0xabcd;
+  *(uint16 *)&samus_last_different_pose_x_dir = 0x0204;
+  samus_pose = 0x001a; *(uint16 *)&samus_pose_x_dir = 0x0304;
+  RunAsmCode(0x91e719, 0, 0, 0, 0);
+  if (samus_last_different_pose != 0x1234 ||
+      *(uint16 *)&samus_last_different_pose_x_dir != 0x0308 ||
+      samus_prev_pose != 0x001a || *(uint16 *)&samus_prev_pose_x_dir != 0x0304) return 5;
+  RunAsmCode(0x91e719, 0, 0, 0, 0);
+  if (samus_last_different_pose != 0x001a ||
+      *(uint16 *)&samus_last_different_pose_x_dir != 0x0304) return 6;
+  printf("HISTORY: native word shift and same-pose shift passed.\n");
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
   fprintf(f, "history,left,delay,frame,input,x,y,pose,animation\n");

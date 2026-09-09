@@ -72,3 +72,20 @@ forced-transition owners before installing the gate.
 The headless probe completed and the expanded comparer exits one as expected.
 Temporary native integration was removed afterward. No additional gameplay
 fix or player-validation claim is made by this diagnostic expansion.
+
+## History primitive (not yet connected to live Samus)
+
+`SamusPoseHistoryState` implements the four word stores in $91:E719 and the
+older-movement admission test in $90:9D35. It deliberately does not sample on
+every frame or attach to the Pose setter. Native transitions can commit the
+same pose, and intermediate assignments/rollback are not equivalent to a
+committed transition. The runtime transition dispatcher must explicitly own
+this operation, with forced-transition paths and legacy save restoration
+accounted for before enabling the gate in gameplay.
+
+The native probe now first executes $91:E719 twice against the same current
+pose and checks all four output words, including preservation of a full
+16-bit previous pose. The matching C# fixture passes, as do all 256 movement
+byte eligibility cases and full core verification. Native temporary integration
+was removed after the successful run. This preparatory state type is not yet
+owned by live Samus and does not change gameplay or the debugger-state schema.

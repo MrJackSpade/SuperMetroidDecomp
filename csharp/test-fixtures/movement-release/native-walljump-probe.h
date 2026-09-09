@@ -4,7 +4,8 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   if (status) return status;
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
-  fprintf(f, "left,delay,frame,input,x,y,pose,animation\n");
+  fprintf(f, "history,left,delay,frame,input,x,y,pose,animation\n");
+  for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -20,6 +21,8 @@ int DiagnosticWalljump(const char *rom, const char *output) {
     samus_pose = samus_prev_pose = left ? 0x19 : 0x1a;
     samus_pose_x_dir = samus_prev_pose_x_dir = left ? 8 : 4;
     samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = 3;
+    // Isolate $90:9D35's history gate without changing the current spin pose.
+    samus_last_different_pose_movement_type = history ? 3 : 0;
     samus_y_dir = 2; samus_anim_frame_timer = 1;
     samus_x_speed_table_pointer = 0x9f55; samus_input_handler = 0xe913;
     samus_health = 99; button_config_run_b = 0x8000; button_config_jump_a = 0x80;
@@ -33,7 +36,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       RunAsmCode(0x909c5b, 0, 0, 0, 0); RunAsmCode(0x90a337, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0); RunAsmCode(0x90eab3, 0, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X\n", left, delay, frame, input,
+      fprintf(f, "%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X\n", history, left, delay, frame, input,
         samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame);
     }
   }

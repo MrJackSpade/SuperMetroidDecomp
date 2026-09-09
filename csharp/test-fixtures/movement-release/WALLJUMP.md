@@ -48,3 +48,27 @@ contact changes only X subposition, and air preserves the original fraction.
 The full native comparer intentionally still exits nonzero. The native
 last-different-movement gate at $90:9D35 is an investigation lead for the
 remaining initial-frame discrepancy, not yet an implemented or verified fix.
+
+## History isolation
+
+The updated probe emits 1,560 samples: it repeats every case with native
+`samus_last_different_pose_movement_type` initialized to zero, then to three.
+The new leading `history` column identifies those initializations (0/1).
+No other setup or input differs. The comparer still accepts the original
+780-sample trace. The managed fixture currently cannot seed an equivalent
+history field; it intentionally runs the same managed setup for both halves.
+
+Result: all 780 samples with native history three match; the history-zero
+half retains exactly the same 13 initial-frame fractional-X mismatches.
+The cartridge's $90:9D35 gate rejects the probe unless last-different movement
+is spinjump or walljump. C# currently probes without that gate. This isolates
+the missing state distinction, but does not prove its frequency in an actual
+playthrough. A proper implementation must preserve the native pose-history
+update phase and initialization/save-state behavior, not skip an arbitrary
+first frame or modify the expected trace. Native $91:EB88 transitions update
+the previous and last-different pose/movement fields; inspect all relevant
+forced-transition owners before installing the gate.
+
+The headless probe completed and the expanded comparer exits one as expected.
+Temporary native integration was removed afterward. No additional gameplay
+fix or player-validation claim is made by this diagnostic expansion.

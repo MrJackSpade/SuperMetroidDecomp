@@ -708,10 +708,10 @@ if (args.Length >= 2 && args[0] == "--wrecked-ship-ghost-audit")
     return WreckedShipGhostAudit.Run(ghostRomPath);
 }
 
-if (args.Length >= 2 && args[0] == "--yapping-maw-audit")
+if (args.Length >= 2 && args[0] is "--yapping-maw-audit" or "--yapping-maw-history-audit")
 {
     string yappingMawRomPath = string.Join(' ', args[1..]).Trim('"');
-    return YappingMawAudit.Run(yappingMawRomPath);
+    return YappingMawAudit.Run(yappingMawRomPath, historyOnly: args[0] == "--yapping-maw-history-audit");
 }
 
 if (args.Length >= 2 && args[0] == "--blue-brinstar-face-block-audit")

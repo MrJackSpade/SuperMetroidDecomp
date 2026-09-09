@@ -499,6 +499,7 @@ public sealed partial class RoomEnemySystem
                     : SamusPoseIds.FacingRightNormalPose;
                 samus.RefreshCollisionRadii(_bus!);
                 samus.InitializeAnimation(_bus!, initialFrame: 0);
+                samus.CommitPoseHistory(_bus!);
             }
         }
 

@@ -36,7 +36,7 @@ internal static class YappingMawAudit
     private static readonly ushort[] DirectionLists =
         [0x9f6f, 0x9f85, 0x9f9b, 0x9fb1, 0x9fc7, 0x9fdd, 0x9ff3, 0xa009];
 
-    public static int Run(string romPath)
+    public static int Run(string romPath, bool historyOnly = false)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         VerifyDefinition(bus);
@@ -45,6 +45,9 @@ internal static class YappingMawAudit
 
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, AuditRoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
+        VerifyGrabPoseHistory(bus, room, assets);
+        Console.WriteLine("Yapping Maw pose-history checks passed (10 grab cases).");
+        if (historyOnly) return 0;
         VerifyInitializationAnimationAndGrab(bus, room, assets);
         VerifyShotDeathAndMultipartCleanup(bus, room, assets);
 
@@ -262,6 +265,47 @@ internal static class YappingMawAudit
                 $"${loaded.Actor.Properties:X4}, bodies=" +
                 $"{string.Join(',', state.BodyProjectiles.Select(body => body?.IsActive))}, " +
                 $"root={state.RootSpriteObject?.IsActive}, killed={loaded.Enemies.EnemiesKilled}.");
+        }
+    }
+
+    private static void VerifyGrabPoseHistory(SuperMetroidAddressSpace bus, CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        foreach (byte pose in new byte[] { SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
+            SamusPoseIds.WallJumpRightPose, SamusPoseIds.WallJumpLeftPose, SamusPoseIds.FallingRightPose })
+        foreach (bool grappleActive in new[] { false, true })
+        {
+            LoadedMaw loaded = Load(bus, room, assets);
+            for (int frame = 0; frame < 34; frame++) Step(loaded, assets, frame);
+            var samus = loaded.Samus;
+            samus.Pose = pose;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            samus.XPosition = loaded.Actor.XPosition;
+            samus.YPosition = loaded.Actor.YPosition;
+            var history = samus.PoseHistory;
+            history.PreviousPose = pose;
+            history.PreviousDirectionAndMovement = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            history.LastDifferentPose = SamusPoseIds.FacingLeftNormalPose;
+            history.LastDifferentDirectionAndMovement = 4;
+            ushort previousMetadata = history.PreviousDirectionAndMovement;
+            if (grappleActive) samus.Grapple.Phase = GrapplePhase.CancelPending;
+            if (!loaded.Enemies.ResolveOrdinarySamusContact(samus, 0) || !State(loaded).HasGrabbedSamus)
+                throw new InvalidDataException("Maw history fixture failed to grab Samus.");
+            Step(loaded, assets, 34);
+            bool shifts = !grappleActive && pose != SamusPoseIds.FallingRightPose;
+            ushort expectedOlder = shifts ? pose : SamusPoseIds.FacingLeftNormalPose;
+            ushort expectedOlderMetadata = shifts ? previousMetadata : (ushort)4;
+            ushort expectedPrevious = shifts ? samus.Pose : pose;
+            ushort expectedMetadata = shifts ? samus.ReadPoseXDirection(bus) : previousMetadata;
+            if (history.LastDifferentPose != expectedOlder || history.LastDifferentDirectionAndMovement != expectedOlderMetadata ||
+                history.PreviousPose != expectedPrevious || history.PreviousDirectionAndMovement != expectedMetadata ||
+                (shifts && samus.ReadMovementKind(bus) != SamusMovementType.Standing))
+                throw new InvalidDataException($"Maw pose-history mismatch for pose {pose:X2}, grapple={grappleActive}.");
+            // Once normalized, the next held frame must not shift the history again.
+            Step(loaded, assets, 35);
+            if (!grappleActive && (history.LastDifferentPose != expectedOlder || history.LastDifferentDirectionAndMovement != expectedOlderMetadata ||
+                history.PreviousPose != expectedPrevious || history.PreviousDirectionAndMovement != expectedMetadata))
+                throw new InvalidDataException("Maw repeated held placement shifted history again.");
         }
     }
 

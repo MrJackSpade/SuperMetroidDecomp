@@ -521,3 +521,21 @@ both scene setups and reference-identical ownership at the handoff. This covers
 the previously documented cinematic history gap, not a claim of complete native
 cinematic or walljump parity. The remaining #473 checks include unreviewed shared
 helper callers, legacy-state entry behavior, and the overhang-side follow-up jump.
+
+### Shared previous-pose helper: Yapping Maw
+
+The remaining `Samus_UpdatePreviousPose` caller in native Samus code 03 is reached
+by `YappingMaw_Func_10`. Its translated held-placement path selected standing from
+spin/walljump but omitted history. A retail-room/population fixture reproduced the
+failure with pose 19 before adding the shared history commit after initialization.
+`--yapping-maw-history-audit` covers both facings of spin and walljump plus ordinary
+falling, with inactive/active grapple (ten cases). It asserts all four history words,
+normalization where required, and no repeat shift on the next normalized held frame.
+The grapple branch cancels without normalizing or shifting, matching native code.
+
+The focused audit passes. The broader `--yapping-maw-audit` independently fails its
+pre-existing frozen auxiliary-palette assertion, observed before the history fix;
+do not describe that broader gate as passing. This audit gap requires separate
+diagnosis. The other two callers of the shared previous-pose helper are suit pickup
+and drained setup, already covered above. Legacy-state entry and the overhang-side
+follow-up remain outstanding for #473.

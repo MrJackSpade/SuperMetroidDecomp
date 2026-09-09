@@ -48,6 +48,16 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
+                {
+                    var backgrounds = legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();
+                    AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
+                    if (hours < 10)
+                    {
+                        AssertEqual((ushort)0x4c00, backgrounds[0].TilemapWord, "reward reveal selects waiting BG2, not producer BG1");
+                        AssertEqual((ushort)0x5000, backgrounds[0].CharacterWord, "reward reveal uses waiting BG2 characters");
+                    }
+                }
                 if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
                     gunshipPalettes.Add(string.Join(',', legacy.CaptureRenderSnapshot().Memory.Cgram.Slice(80, 16).ToArray()));
                 if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)

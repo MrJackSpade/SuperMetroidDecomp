@@ -78,7 +78,7 @@ internal sealed partial class EndingCreditsState
 
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {
-        if (Phase == EndingCreditsPhase.PostCreditsBlank)
+        if (!PostCreditsBackgroundEnabled)
             return;
 
         // The opening waiting scene uses BG2 ($4C00/$5000). Result text is uploaded to
@@ -104,9 +104,16 @@ internal sealed partial class EndingCreditsState
         SnesLayerCompositor.Composite(pixels, objects);
     }
 
-    private ushort CurrentPostCreditsTilemapWord => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
+    // E1D2 turns BG1 off when reward actors spawn. The armored reward uses OBJ only;
+    // faster rewards return to BG2 for the waiting-Samus dissolve.
+    private bool PostCreditsBackgroundEnabled => Phase != EndingCreditsPhase.PostCreditsBlank
+        && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
+    private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
+        || Phase == EndingCreditsPhase.PostCreditsReward;
+
+    private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingTilemapWord : EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
-    private ushort CurrentPostCreditsCharacterWord => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
+    private ushort CurrentPostCreditsCharacterWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingCharacterWord : EndingCreditsRomData.Rendering.PostCreditsCharacterWord;
 
     // Keep sprite drawing on the simulation-side display boundary. Neither the

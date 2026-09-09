@@ -16,6 +16,23 @@ static void VerifySamusAerialTurnsAndWallJump()
 {
     var bus = new TestAddressSpace();
 
+    foreach (var (timer, accepts) in new (ushort, bool)[]
+        { (0, false), (1, true), (8, true), (9, false), (32767, false), (32768, false), (65535, true) })
+    {
+        var autoJump = new SamusState { AutoJumpTimer = timer, AutoJumpInputPending = true };
+        ushort physical = (ushort)SnesButton.X;
+        AssertEqual((ushort)(physical | (accepts ? (ushort)SnesButton.A : 0)),
+            autoJump.ConsumeAutoJumpInput(physical), "native signed auto-jump timer gate");
+        AssertTrue(!autoJump.AutoJumpInputPending, "auto-jump handler returns to ordinary input");
+        AssertEqual(physical, autoJump.ConsumeAutoJumpInput(physical), "auto-jump substitution is one-shot");
+        autoJump.SnapshotDrawInput((ushort)SnesButton.A, physical);
+        AssertEqual(0, autoJump.AutoJumpTimer, "first held draw does not increment timer");
+        autoJump.SnapshotDrawInput((ushort)SnesButton.A, 0);
+        AssertEqual(1, autoJump.AutoJumpTimer, "second held draw increments timer");
+        autoJump.SnapshotDrawInput(0, 0);
+        AssertEqual(0, autoJump.AutoJumpTimer, "release clears auto-jump history");
+    }
+
     // F8 must yield to precisely the four ordinary jump targets selected by
     // alpha, even when the turn animation expires on that same frame (#474).
     foreach (ushort? selected in new ushort?[] { null, SamusPoseIds.MovingRightNormalPose,

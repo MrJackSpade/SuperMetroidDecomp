@@ -801,6 +801,9 @@ public sealed partial class SamusState
     /// <summary>Applies collision command five at <c>$91:F010</c>.</summary>
     private void ApplyAerialLandingCollisionCommand(bool leavingScrewAttack)
     {
+        // $91:F1EC installs the same one-shot input handler used by F8.
+        // Its short held-Jump window is evaluated next alpha, not during landing.
+        if (!InputLocked) AutoJumpInputPending = true;
         HorizontalSpeed.AccelerationMode = 0;
         HorizontalSpeed.BaseSpeed = 0;
         HorizontalSpeed.BaseSubspeed = 0;

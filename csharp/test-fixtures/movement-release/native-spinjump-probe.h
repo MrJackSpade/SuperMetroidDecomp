@@ -5,10 +5,10 @@ int DiagnosticSpinjump(const char *rom, const char *output) {
   if (status) return status;
   FILE *f = fopen(output, "w");
   if (!f) return 4;
-  fprintf(f, "water,left,scenario,delay,frame,input,x,y,pose,movement\n");
+  fprintf(f, "water,left,scenario,delay,frame,input,x,y,pose,movement,autojump,handler\n");
   for (int water = 0; water < 2; water++)
   for (int left = 0; left < 2; left++)
-  for (int scenario = 0; scenario < 3; scenario++)
+  for (int scenario = 0; scenario < 4; scenario++)
   for (int delay = 0; delay <= 8; delay++) {
     cpu_reset(g_snes->cpu);
     memset(g_ram, 0, sizeof(g_ram));
@@ -27,10 +27,20 @@ int DiagnosticSpinjump(const char *rom, const char *output) {
     samus_anim_frame_timer = 5;
     uint16 previous = 0;
     for (int frame = -24; frame < 40; frame++) {
+      if (scenario == 3 && frame == 0) {
+        // Controlled near-floor falling state; no elevator/room actor is modeled.
+        samus_pose = samus_prev_pose = left ? 0x29 : 0x2a;
+        samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = 6;
+        samus_y_pos = 233; samus_y_subpos = 0xffff;
+        samus_y_dir = 2; samus_y_speed = samus_y_subspeed = 0;
+        samus_anim_frame = 0; samus_anim_frame_timer = 5;
+      }
       uint16 direction = left ? 0x200 : 0x100;
       uint16 input = frame < 0 ? (scenario == 2 && frame >= -1 ? 0x80 : 0) : scenario == 0 ?
         direction | (frame >= delay ? 0x80 : 0) :
         0x80 | (frame >= delay ? direction : 0);
+      if (scenario == 3 && frame >= 0)
+        input = direction | (frame >= delay ? 0x80 : 0);
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -43,9 +53,9 @@ int DiagnosticSpinjump(const char *rom, const char *output) {
       RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0);
       RunAsmCode(0x90eab3, 0, 0, 0, 0); // Draw-time held-Jump history and timer.
-      if (frame >= 0) fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%02X\n",
+      if (frame >= 0) fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%02X,%04X,%04X\n",
         water,left,scenario,delay,frame,input,samus_x_pos,samus_x_subpos,
-        samus_y_pos,samus_y_subpos,samus_pose,samus_movement_type);
+        samus_y_pos,samus_y_subpos,samus_pose,samus_movement_type,autojump_timer,samus_input_handler);
     }
   }
   fclose(f); return 0;

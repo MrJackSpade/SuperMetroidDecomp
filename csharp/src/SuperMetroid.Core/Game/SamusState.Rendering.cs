@@ -154,7 +154,8 @@ public sealed partial class SamusState
         ushort nmiFrameCounter = 0,
         Bank80SystemState? system = null,
         bool beginLiquidSoundRequestFrame = true,
-        ushort? prospectiveInputPose = null)
+        ushort? prospectiveInputPose = null,
+        bool demoPoseInput = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -187,7 +188,7 @@ public sealed partial class SamusState
             return;
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
-        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose);
+        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose, demoPoseInput);
     }
 
     /// <summary>
@@ -222,7 +223,7 @@ public sealed partial class SamusState
     }
 
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
-        ushort? prospectiveInputPose = null)
+        ushort? prospectiveInputPose = null, bool demoPoseInput = false)
     {
         byte delayOrCommand = ReadAnimationByte(bus, AnimationFrame);
         if ((delayOrCommand & 0x80) == 0)
@@ -323,11 +324,12 @@ public sealed partial class SamusState
                 // higher-priority animation transition. A jump selected by alpha
                 // must survive this final turn frame; checking held Jump instead
                 // would incorrectly accept inputs that never matched the ROM table.
-                if (!InputLocked && prospectiveInputPose is
+                if (!InputLocked && !demoPoseInput && prospectiveInputPose is
                     SamusPoseIds.NeutralJumpTransitionRightPose or
                     SamusPoseIds.NeutralJumpTransitionLeftPose or
                     SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose)
                     return;
+                if (!InputLocked && !demoPoseInput) AutoJumpInputPending = true;
                 // $90:8370 falls through to command $FD's one-byte pose operand. For the
                 // grounded $25/$26 sequences this publishes $02/$01 through command three;
                 // it does NOT select a new delay or advance the visible animation frame.

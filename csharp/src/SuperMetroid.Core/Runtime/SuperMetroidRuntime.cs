@@ -1769,7 +1769,7 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Samus.Pose,
                     Controller1.Current,
-                    Controller1.NewlyPressed);
+                    IsAttractDemo ? Controller1.NewlyPressed : Samus.ConsumeAutoJumpInput(Controller1.NewlyPressed));
             ProspectiveSamusPose = poseLookup.Transition;
             bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
             ProspectiveSamusFallbackPose = null;
@@ -2856,7 +2856,8 @@ public sealed partial class SuperMetroidRuntime
                     NmiFrameCounter,
                     System,
                     beginLiquidSoundRequestFrame: false,
-                    prospectiveInputPose: ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose);
+                    prospectiveInputPose: ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose,
+                    demoPoseInput: IsAttractDemo);
                 StepSamusLoadAppearance();
             }
 
@@ -4166,7 +4167,9 @@ public sealed partial class SuperMetroidRuntime
                 // The native post-draw input snapshot survives the next alpha pass. In
                 // particular, Fire can first cancel a spin and then start Grapple without
                 // requiring another physical press after the prospective pose is applied.
-                Samus.PreviousDrawNewInput = Controller1.NewlyPressed;
+                Samus.SnapshotDrawInput(Controller1.Current, Controller1.NewlyPressed);
+                // $91:F1EC never replaces the demo input handler with auto-jump.
+                if (IsAttractDemo) Samus.AutoJumpInputPending = false;
 
                 // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
                 // may have armed this latch above; consuming it here preserves both the

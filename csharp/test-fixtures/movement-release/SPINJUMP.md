@@ -18,14 +18,18 @@ Compare using:
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release --no-launch-profile -- --spinjump-comparison-audit "Super Metroid.smc" csharp/test-temp/spinjump-native.csv
 ```
 
-108 cases: both facings, dry/submerged, three input scenarios, delays 0..8,
+144 cases: both facings, dry/submerged, four input scenarios, delays 0..8,
 24 warmup frames and 40 sampled frames. Scenarios are direction-before-jump,
 jump-before-opposite-direction, and Jump held for the last input-locked warmup
 frame before unlocking and pressing the opposite direction at the chosen delay.
+The fourth scenario starts falling at Y=233.FFFF toward a floor at Y=256, with
+opposite direction held and Jump first pressed at delays 0..8. This crosses the
+actual landing boundary and the preceding aerial-turn animation.
 No equipment or gameplay cheats. Native calls include collision-radius refresh,
 the installed input handler ($90:E90F), gravity refresh, movement, animation,
 pose collision/transition stages, and draw-time input history ($90:EAB3).
-The comparer asserts every sampled X/Y fixed-point position, pose and movement type.
+The comparer asserts every sampled X/Y fixed-point position, pose, movement type,
+auto-jump timer and pending-handler selection.
 
 Initial result: 68 mismatches out of 2,880 samples. Both dry direction-first
 cases at delay 6 diverge at frame 6: native accepts spinjump ($19/$1A), managed
@@ -47,6 +51,16 @@ zero enters turn pose $26, frame one enters spin pose $19, and movement starts o
 frame two, exactly matching the cartridge. Both facings and water are checked.
 This is an input-unlock fixture, not a complete elevator actor/room reproduction.
 
-This does not cover full elevator departure, landing buffers, or all animation states.
+The near-floor cases initially produced 632 divergent samples: the cartridge
+installed $90:E926 at both the F8 endpoint and ordinary landing ($91:F1EC), while
+the port had neither the one-shot handler nor its $0AF4 timer. The translated
+handler substitutes Jump only for the pose lookup, restores ordinary handling,
+and leaves the physical controller edge unchanged. Draw-time $90:EAB3 history
+now maintains the exact timer, including 16-bit wrapping and signed comparison.
+All 5,760 samples pass after this fix. Unit tests cover timer 0, 1, 8, 9, signed
+boundaries, consumption, release and consecutive draw samples. Debugger tests
+cover both known older Samus layouts and preservation of a live pending handler.
+
+This does not cover full elevator departure or all landing/animation states.
 Those remain part of #474. In particular, Blue Brinstar and Lower Norfair elevator
 exceptions cannot be inferred from this synthetic flat floor.

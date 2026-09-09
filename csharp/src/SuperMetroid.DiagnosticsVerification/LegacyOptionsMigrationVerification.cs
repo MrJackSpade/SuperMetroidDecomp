@@ -16,6 +16,7 @@ internal static class LegacyOptionsMigrationVerification
         VerifyGameplayRegisterMigration();
         VerifyRuntimeMigration();
         VerifyCameraMigration();
+        VerifyAutoJumpMigration();
         string legacyCallback = "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0, SuperMetroid.Core";
         var callback = DebuggerStateTypeIdentity.Resolve(legacyCallback)
             ?? throw new InvalidDataException("Verified legacy room callback did not resolve.");
@@ -129,5 +130,30 @@ internal static class LegacyOptionsMigrationVerification
         if (restored.PreviousSamusPoint != camera.PreviousSamusPoint)
             throw new InvalidDataException("Camera checkpoint lost whole or fractional words on state restore.");
         Console.WriteLine("Camera checkpoint: explicit legacy omission and exact four-word graph round trip pass.");
+    }
+
+    private static void VerifyAutoJumpMigration()
+    {
+        var type = typeof(SuperMetroid.Core.Game.SamusState);
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        string[] added = ["<AutoJumpTimer>k__BackingField", "<PreviousDrawHeldInput>k__BackingField", "<AutoJumpInputPending>k__BackingField"];
+        foreach (bool oldFireLatch in new[] { false, true })
+        {
+            var expected = fields.Where(f => !added.Contains(f.Name) &&
+                (!oldFireLatch || f.Name != "<PreviousDrawNewInput>k__BackingField")).ToArray();
+            var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, expected.Length);
+            if (!selected.SequenceEqual(expected)) throw new InvalidDataException("Samus auto-jump migration reordered old fields.");
+        }
+        var samus = new SuperMetroid.Core.Game.SamusState();
+        fields.Single(f => f.Name == added[0]).SetValue(samus, (ushort)8);
+        fields.Single(f => f.Name == added[1]).SetValue(samus, (ushort)0x180);
+        fields.Single(f => f.Name == added[2]).SetValue(samus, true);
+        using var bytes = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(bytes, samus);
+        bytes.Position = 0;
+        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Game.SamusState>(bytes);
+        if (restored.AutoJumpTimer != 8 || restored.PreviousDrawHeldInput != 0x180 || !restored.AutoJumpInputPending)
+            throw new InvalidDataException("Saved state lost the pending auto-jump boundary.");
+        Console.WriteLine("Samus auto-jump: both legacy field lists and live pending-handler graph round trip pass.");
     }
 }

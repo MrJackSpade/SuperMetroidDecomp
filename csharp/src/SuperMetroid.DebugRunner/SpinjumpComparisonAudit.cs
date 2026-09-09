@@ -8,12 +8,12 @@ internal static class SpinjumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         string[][] rows = File.ReadLines(trace).Skip(1).Select(x => x.Split(',')).ToArray();
-        if (rows.Length != 4320) throw new InvalidDataException("Expected 108 cases of 40 frames.");
+        if (rows.Length != 5760) throw new InvalidDataException("Expected 144 cases of 40 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         int sample = 0, mismatches = 0;
         for (int water = 0; water < 2; water++)
         for (int left = 0; left < 2; left++)
-        for (int scenario = 0; scenario < 3; scenario++)
+        for (int scenario = 0; scenario < 4; scenario++)
         for (int delay = 0; delay <= 8; delay++)
         {
             var runtime = FlatFloorMovementFixture.Create(bus, water != 0);
@@ -23,6 +23,16 @@ internal static class SpinjumpComparisonAudit
             samus.InitializeAnimation(bus);
             for (int frame = -24; frame < 40; frame++)
             {
+                if (scenario == 3 && frame == 0)
+                {
+                    samus.Pose = left != 0 ? SamusPoseIds.FallingRightPose : SamusPoseIds.FallingLeftPose;
+                    samus.YPosition = 233;
+                    samus.Kinematics.YSubposition = ushort.MaxValue;
+                    samus.Kinematics.YDirection = 2;
+                    samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+                    samus.RefreshCollisionRadii(bus);
+                    samus.InitializeAnimation(bus);
+                }
                 string[]? row = frame < 0 ? null : rows[sample++];
                 if (row != null && (int.Parse(row[0]) != water || int.Parse(row[1]) != left ||
                     int.Parse(row[2]) != scenario || int.Parse(row[3]) != delay || int.Parse(row[4]) != frame))
@@ -35,7 +45,9 @@ internal static class SpinjumpComparisonAudit
                 byte pose = byte.Parse(row[8], NumberStyles.HexNumber);
                 byte movement = byte.Parse(row[9], NumberStyles.HexNumber);
                 if (samus.Kinematics.XFixed != x || samus.Kinematics.YFixed != y || samus.Pose != pose ||
-                    (byte)samus.ReadMovementType(bus) != movement)
+                    (byte)samus.ReadMovementType(bus) != movement ||
+                    samus.AutoJumpTimer != ushort.Parse(row[10], NumberStyles.HexNumber) ||
+                    samus.AutoJumpInputPending != (row[11] == "E926"))
                 {
                     if (mismatches++ < 24) Console.WriteLine($"SPIN water={water} left={left} scenario={scenario} delay={delay} frame={frame}: " +
                         $"X={samus.Kinematics.XFixed:X8}/{x:X8} Y={samus.Kinematics.YFixed:X8}/{y:X8} pose={samus.Pose:X2}/{pose:X2} " +

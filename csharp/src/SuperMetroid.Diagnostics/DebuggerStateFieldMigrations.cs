@@ -17,6 +17,16 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusState) &&
+            (count == current.Length - 3 || count == current.Length - 4))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state lacks auto-jump history; restoring neutral history and ordinary input handling.");
+            bool lacksNewInput = count == current.Length - 4;
+            return current.Where(field => field.Name is not "<AutoJumpTimer>k__BackingField"
+                and not "<PreviousDrawHeldInput>k__BackingField"
+                and not "<AutoJumpInputPending>k__BackingField" &&
+                (!lacksNewInput || field.Name != PreviousDrawNewInputField)).ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Rendering.BgSubscreenAddRenderLayer) && count == 6 && current.Length == 7)
         {
             Console.Error.WriteLine("WARNING: Legacy subscreen layer has no vertical-scroll field; restoring its original unscrolled sampling.");

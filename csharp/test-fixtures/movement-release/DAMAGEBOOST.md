@@ -99,3 +99,27 @@ unavailable and only SDK5 was registered. A SHA-512-verified Microsoft SDK10.0.4
 archive was extracted under `csharp/test-temp/tools/dotnet-10.0.401`; invoking its
 dotnet.exe built/ran the comparer without changing project targets or system SDKs.
 The SDK/archive are local tooling, not tracked fixture assets.
+
+## Humanoid hurt fallback correction
+
+`--damageboost-hurt-prefix-audit ROM TRACE` selects the 192 humanoid initializations
+and 880 frames before either the boost chord or timer expiry. It compares all fourteen
+state columns, not only history. Before correction, precisely those 880 frames failed
+only in history; motion, animation, timers and speeds already matched. The runtime now
+publishes the same-pose fallback slot for ordinary hurt poses, allowing the existing
+final transition epilogue to shift history once. Matched self-records still publish
+nothing, and locked input does not enter fallback. All 1,072 selected samples now match.
+The complete core verification suite also passes after this correction.
+
+This is a partial fix for #472, not completion. The full 11,904-sample comparison still
+has 10,640 mismatches: motion/pose/animation 10,520, timers/direction/speeds 7,464,
+history 3,900. Do not substitute the prefix gate for the full acceptance scope above.
+
+Further source cross-check: native `Samus_LookupTransitionTable` publishes a prospective
+pose without changing live movement type. Thus `$91:8113` does not initialize a fresh
+jump simply because that future pose is damage boost; `$91:F8CB` only restores the normal
+movement handler. Also `$90:DF38` does not test the timer before moving: normal beta
+moves and animates before `$90:DDE9` publishes expiry and `$91:F31D` clears velocity.
+The port currently resets velocity/timer on boost entry and finishes active knockback
+inside movement instead of at that later interruption seam. Both remain to correct,
+including input priority on the expiry frame and the non-humanoid/cinematic callers.

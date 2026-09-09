@@ -1777,6 +1777,14 @@ public sealed partial class SuperMetroidRuntime
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
 
+            // Knockback input also reaches the ordinary fallback publisher. Its $FF
+            // definition retains the hurt pose, but this is a selected transition slot,
+            // not an absence of input work: the final pose-history epilogue must run.
+            // A matched same-pose table record still publishes nothing, as on cartridge.
+            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
+                Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose)
+                ProspectiveSamusFallbackPose = Samus.Pose;
+
             // Bomb overlap is published by GameState_8 after the preceding frame's alpha.
             // $90:DE78 consumes it during this frame's alpha before beta dispatches motion.
             // This one-frame seam is observable: timer eight does not move Samus yet.

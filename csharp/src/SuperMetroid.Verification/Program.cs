@@ -28,6 +28,7 @@ try
 if (args is ["--invalid-beam-graphics"])
 {
     VerifyInvalidBeamGraphics();
+    VerifyProductionMagicNumberAudit();
     return 0;
 }
 if (args is ["--invalid-beam-selection"])

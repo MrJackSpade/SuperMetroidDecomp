@@ -12,9 +12,9 @@ public static class SnesIndirectLongDataRead
     public static ushort ReadWord(ISnesAddressSpace bus, byte pointerBank, ushort pointer, ushort y)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int address = ((pointerBank << 16) + pointer + y) & 0xffffff;
+        int address = ((pointerBank << 16) + pointer + y) & SnesCpuAddressLayout.AddressMask;
         byte low = ReadDataByte(bus, address, pointerBank);
-        byte high = ReadDataByte(bus, (address + 1) & 0xffffff, low);
+        byte high = ReadDataByte(bus, (address + 1) & SnesCpuAddressLayout.AddressMask, low);
         return (ushort)(low | high << 8);
     }
 

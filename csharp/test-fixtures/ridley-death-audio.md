@@ -63,3 +63,20 @@ driven by the same latched inputs and timer values. DSP-produced ENVX/OUTX/ENDX
 are excluded, as in the existing loop comparator. This strengthens sequencer
 evidence but does not establish waveform/host timing or reproduce the audible
 report. The temporary upstream integration was removed after the run.
+
+## Player recording search
+
+Issue #478 was created at 2026-09-08 21:42:46 UTC. The nearby local recording
+`SuperMetroid-input-20260908-173740-944.smrec` starts at 21:37:40 UTC, but its
+complete current-build replay never enters Ridley's room $B32E. It starts in
+$B741 and spends much of the run around $B585 before reaching $B5D5.
+SHA-256: `C372C1407AEEF6C4720D65F1DC4C053BAEF6B3C1EC1E3692DEAB5131A62EE49E`.
+
+The preceding long `SuperMetroid-input-20260908-165945-507.smrec` also completes
+without entering $B32E; it runs through Lower Norfair but revisits $B3A5/$B457.
+SHA-256: `3E9D0FDEE4180120CA2117573D28095FDB3E32B64CC26765F9EFAB179DC4A468`.
+These recordings are under the ignored local `input-recordings` directory and
+were not modified or uploaded. A date match does not prove either is the reported
+battle. Gameplay changes and/or a different session may explain the mismatch;
+no cause is established. Neither replay is evidence of an audio fix. A new
+pre-death state would allow exact player-segment investigation; #478 stays open.

@@ -256,15 +256,6 @@ public sealed partial class SamusProjectileSystem
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
-        // `$90:B887` gives uncharged power-wave and ice-wave a three-frame trail reload.
-        // All other uncharged wave combinations, and every charged wave combination, use
-        // the common four-frame wave pre-instruction. Beam words without bit zero retain
-        // the ordinary terrain-stopping collision path regardless of ice/spazer/plasma.
-        slot.PreInstruction = (beamType & 1) == 0
-            ? SamusProjectilePreInstruction.NoWaveBeam
-            : !charged && beamType < 4
-                ? SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
-                : SamusProjectilePreInstruction.WaveBeamFourFrameTrail;
 
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction even though both read ROM.
@@ -296,7 +287,21 @@ public sealed partial class SamusProjectileSystem
             roomPlms,
             waveBeam: (beamType & 1) != 0);
         if (!initialImpact)
+        {
+            // The cartridge installs the callback only after muzzle collision. Do not
+            // infer it from Wave bits: the table is the dispatcher, including overreads.
+            ushort callback = ReadWord(bus, (charged
+                ? SamusBeamPreInstructionCodes.ChargedTable
+                : SamusBeamPreInstructionCodes.UnchargedTable) + slot.PackedType.BeamCombinationIndex * sizeof(ushort));
+            slot.PreInstruction = callback switch
+            {
+                SamusBeamPreInstructionCodes.NoWave => SamusProjectilePreInstruction.NoWaveBeam,
+                SamusBeamPreInstructionCodes.WaveThreeFrameTrail => SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
+                SamusBeamPreInstructionCodes.WaveFourFrameTrail => SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
+                _ => throw new NotSupportedException($"Beam callback $90:{callback:X4} is not translated."),
+            };
             InitializePowerBeamVelocity(bus, slot);
+        }
         return (slotIndex, sound);
     }
 

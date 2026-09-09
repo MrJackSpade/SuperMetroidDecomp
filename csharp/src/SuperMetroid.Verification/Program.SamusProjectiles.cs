@@ -221,6 +221,11 @@ static void VerifySamusPowerBeamProjectiles()
     {
         WriteTestWord(bus, 0x90c2d1 + beamType * 4, 0x0400);
         WriteTestWord(bus, 0x90c2d3 + beamType * 4, 0x02ab);
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
+                ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
+        WriteTestWord(bus, SamusBeamPreInstructionCodes.ChargedTable + beamType * 2,
+            (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
     }
     WriteTestWord(bus, 0x90c3b1, 0x8000);
     WriteTestWord(bus, 0x90c3c9, 0xc3e1);

@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--beam-callback-tables"])
+{
+    VerifyBeamCallbackTables();
+    return 0;
+}
 if (args is ["--beam-speed-rows"])
 {
     VerifyBeamSpeedRows();
@@ -465,6 +470,7 @@ VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
 VerifyBeamSpeedRows();
+VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();

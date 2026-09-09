@@ -1025,6 +1025,7 @@ static void VerifyCeresRidleyRoomEntry()
 
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
+    WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
         // Zero fixture muzzle offsets place each stationary power beam at the active ROM

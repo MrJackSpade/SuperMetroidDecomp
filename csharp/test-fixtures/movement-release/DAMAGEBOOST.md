@@ -610,3 +610,17 @@ palette timer alone permits the sound; a stored shine suppresses it.
 This explains why the attempted empty-queue runtime integration was invalid.
 Live synchronous publication ordering still requires completion; do not mark
 #472 ready on the strength of this footstep correction alone.
+
+## Full-runtime synchronous sound return
+
+StepFrame now forwards an optional synchronous sound callback through AnimateNoFx
+to the stage routine. It is a frame argument, not a delegate stored in the game
+state. The run-up comparer supplies a real CartridgeAudioState, publishes actual
+liquid/footstep requests once before the echo call and at frame end, and leaves
+NMI/APU draining disabled to match the native probe. No occupancy is hardcoded.
+
+With the corrected footstep timer gate, mode nine now matches all 7,728 native
+samples, including animation, motion, timers, history and health. The earlier
+empty-queue experiment failed 1,632 samples because it omitted footsteps. The
+normal frontend still needs migration to this callback and once-only publication
+ordering; the runtime gate alone does not prove live frontend completion.

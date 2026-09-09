@@ -155,7 +155,8 @@ public sealed partial class SamusState
         Bank80SystemState? system = null,
         bool beginLiquidSoundRequestFrame = true,
         ushort? prospectiveInputPose = null,
-        bool demoPoseInput = false)
+        bool demoPoseInput = false,
+        Func<ushort>? queueEchoSound = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -188,7 +189,7 @@ public sealed partial class SamusState
             return;
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
-        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose, demoPoseInput);
+        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose, demoPoseInput, queueEchoSound);
     }
 
     /// <summary>
@@ -223,7 +224,8 @@ public sealed partial class SamusState
     }
 
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
-        ushort? prospectiveInputPose = null, bool demoPoseInput = false)
+        ushort? prospectiveInputPose = null, bool demoPoseInput = false,
+        Func<ushort>? queueEchoSound = null)
     {
         byte delayOrCommand = ReadAnimationByte(bus, AnimationFrame);
         if ((delayOrCommand & 0x80) == 0)
@@ -262,7 +264,8 @@ public sealed partial class SamusState
                     controllerInput,
                     AnimationFrameBuffer,
                     ref stagedFrame,
-                    out ushort stagedTimer))
+                    out ushort stagedTimer,
+                    queueEchoSound))
                 {
                     AnimationFrame = stagedFrame;
                     AnimationFrameTimer = stagedTimer;

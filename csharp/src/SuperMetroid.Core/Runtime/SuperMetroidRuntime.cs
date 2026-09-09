@@ -1334,13 +1334,19 @@ public sealed partial class SuperMetroidRuntime
     /// Optional bank-$86 low-priority enemy-projectile draw pass at enemy layer six,
     /// immediately after Samus/projectiles as selected by `$A0:887C`.
     /// </param>
+    /// <param name="queueEchoSound">
+    /// Immediate native echo sound call, including the CPU accumulator returned by
+    /// the queue operation. The caller must publish earlier frame sounds into the
+    /// same queue first. This per-call delegate is not retained in debugger states.
+    /// </param>
     public RuntimeFrameResult StepFrame(
         ushort controller1Input,
         Action<OamBuffer>? drawHighPriorityEnemyProjectiles = null,
         Action<OamBuffer>? drawLowPriorityEnemyProjectiles = null,
         bool allowCeresElevatorDeparture = true,
         Action? afterAcceptedNmi = null,
-        bool advanceGameTime = true)
+        bool advanceGameTime = true,
+        Func<ushort>? queueEchoSound = null)
     {
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
@@ -1353,7 +1359,8 @@ public sealed partial class SuperMetroidRuntime
                 allowCeresElevatorDeparture,
                 afterAcceptedNmi,
                 advanceGameTime,
-                infiniteAmmoGuard);
+                infiniteAmmoGuard,
+                queueEchoSound);
         }
         finally
         {
@@ -1373,7 +1380,8 @@ public sealed partial class SuperMetroidRuntime
         bool allowCeresElevatorDeparture,
         Action? afterAcceptedNmi,
         bool advanceGameTime,
-        HostInfiniteAmmoFrameGuard infiniteAmmoGuard)
+        HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
+        Func<ushort>? queueEchoSound)
     {
 
         ApplyPendingChozoStatuePlms();
@@ -2868,7 +2876,8 @@ public sealed partial class SuperMetroidRuntime
                     System,
                     beginLiquidSoundRequestFrame: false,
                     prospectiveInputPose: ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose,
-                    demoPoseInput: IsAttractDemo);
+                    demoPoseInput: IsAttractDemo,
+                    queueEchoSound: queueEchoSound);
                 StepSamusLoadAppearance();
             }
 

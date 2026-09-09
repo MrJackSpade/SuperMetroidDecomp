@@ -255,6 +255,9 @@ public sealed class SamusDrainedState
         samus.Kinematics.YDirection = 2;
         _suitPaletteRestoreRequested = true;
         Phase = DrainedSamusPhase.WaitingForFallingCommand;
+        // Native controller commands 0/1/2/4 return carry set; their dispatcher
+        // then shifts history even for a same-pose command. Hyper (3) does not.
+        samus.CommitPoseHistory(bus);
     }
 
     /// <summary>
@@ -336,6 +339,7 @@ public sealed class SamusDrainedState
             timer: 16,
             refreshRadius: false);
         Phase = DrainedSamusPhase.Standing;
+        samus.CommitPoseHistory(bus);
     }
 
     /// <summary>Ports controller function four at <c>$91:E60C</c>.</summary>
@@ -351,6 +355,7 @@ public sealed class SamusDrainedState
             timer: 16,
             refreshRadius: false);
         Phase = DrainedSamusPhase.Crouching;
+        samus.CommitPoseHistory(bus);
     }
 
     /// <summary>Ports controller function two at <c>$91:E59B</c>.</summary>
@@ -373,6 +378,7 @@ public sealed class SamusDrainedState
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = 2;
         Phase = DrainedSamusPhase.Releasing;
+        samus.CommitPoseHistory(bus);
     }
 
     /// <summary>Ports controller function three at <c>$91:E5F0</c>.</summary>
@@ -400,6 +406,8 @@ public sealed class SamusDrainedState
         samus.Pose = SamusPoseIds.KnockbackLeftPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
+        // Shared rainbow setup calls the native previous-pose helper before lock.
+        samus.CommitPoseHistory(bus);
         // Shared `$90:F394` installs the locked current/new state handlers after changing art.
         samus.InputLocked = true;
         Phase = DrainedSamusPhase.RainbowBeamLocked;

@@ -122,6 +122,7 @@ static void VerifySamusDrainedController()
     RoomLevelData level = CreateRoom(
         width, height, foreground, new byte[foreground.Length]);
 
+    VerifyDrainedPoseHistory(bus);
     var right = new SamusState
     {
         Pose = SamusPoseIds.CrouchingRightPose,

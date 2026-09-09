@@ -434,3 +434,19 @@ observable. It verifies no shift through call 359, then all four words at call
 360. Before the fix the completion assertion retained seeded spin $19 instead
 of prior front pose $00. The completion owner now commits immediately before
 unlocking. Existing palette-lifetime and no-repeat-save-prompt checks are retained.
+
+## Mother Brain scripted Samus history
+
+The native controller dispatcher shifts history for commands zero, one, two,
+and four (fall, stand, release and crouch). Command three enables Hyper Beam
+and returns without a shift. Shared rainbow lock setup separately calls the
+previous-pose helper at $90:F3A5. The managed owners omitted these publications.
+
+A production-owner command-sequence regression failed before the change on
+fall (expected prior crouch $27, found stale older spin $19). The four command
+owners and shared rainbow setup now commit history. Two sequences begin in
+opposite facing crouches, check all four words after each command, and include
+same-pose releases. Hyper activation must retain all four words unchanged.
+Full core verification and all 12,480 native walljump samples pass. This fixes
+history publication only, not an independently reported Mother Brain visual
+or combat issue; remaining audit items are not marked complete by this test.

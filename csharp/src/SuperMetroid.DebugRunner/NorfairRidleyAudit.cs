@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static partial class NorfairRidleyAudit
 {
-    private const ushort RoomPointer = 0xb32e;
+    internal const ushort RoomPointer = 0xb32e;
     private const ushort PopulationPointer = 0xa626;
     private const ushort CameraX = 0;
     private const ushort CameraY = 256;

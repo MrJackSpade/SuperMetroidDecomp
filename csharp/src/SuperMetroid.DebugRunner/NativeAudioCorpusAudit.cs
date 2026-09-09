@@ -14,7 +14,7 @@ using SuperMetroid.Core.Input;
 internal static class NativeAudioCorpusAudit
 {
     public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
-        string? captureDirectory = null, bool fileSelectOnly = false)
+        string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -35,6 +35,16 @@ internal static class NativeAudioCorpusAudit
         int totalFrames = 0;
         try
         {
+            if (ridleyTracePath != null)
+            {
+                foreach (int warmup in new[] { 120, 600, 1800 })
+                {
+                    var sequence = new RidleyDeathAudioSequence(romPath ?? throw new ArgumentNullException(nameof(romPath)), ridleyTracePath, warmup);
+                    Scenario($"ridley-death-warmup={warmup}", sequence.FrameCount + warmup + 240, sequence.Step, sequence.Acknowledge);
+                }
+                Console.WriteLine($"Ridley mixed audio: {totalFrames} complete PCM/acknowledgement frames matched.");
+                return 0;
+            }
             if (fileSelectOnly)
             {
                 foreach (bool saved in new[] { false, true })

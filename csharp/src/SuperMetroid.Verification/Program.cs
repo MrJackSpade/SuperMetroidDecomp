@@ -28,6 +28,7 @@ try
 if (args is ["--power-bomb-fuse"])
 {
     VerifyPowerBombFuse();
+    VerifyPowerBombBoundary();
     VerifyPowerBombRuntimeRendererIntegration();
     VerifyProductionMagicNumberAudit();
     return 0;
@@ -534,6 +535,7 @@ VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
+VerifyPowerBombBoundary();
 VerifyRoomFxRomData();
 VerifyScrollingSkyState();
 VerifyOceanSky();

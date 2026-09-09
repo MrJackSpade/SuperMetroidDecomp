@@ -583,6 +583,9 @@ public sealed class SamusBombProjectileSystem
             {
                 CollectPowerBombBoundaryReactions(
                     level,
+                    PowerBombExplosion.XPosition,
+                    PowerBombExplosion.YPosition,
+                    PowerBombExplosion.ExplosionRadius,
                     blockReactions,
                     roomPlms,
                     areaIndex,
@@ -719,24 +722,31 @@ public sealed class SamusBombProjectileSystem
         return height <= yWithinBlock;
     }
 
-    private void CollectPowerBombBoundaryReactions(
+    /// <summary>
+    /// $94:A06A boundary traversal, shared by every callback that dispatches to it.
+    /// Coordinates and radius belong to the global explosion, not the calling slot.
+    /// </summary>
+    public static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
+        ushort explosionX,
+        ushort explosionY,
+        ushort explosionRadius,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {
-        int horizontalRadius = PowerBombExplosion.ExplosionRadius >> 8;
+        int horizontalRadius = explosionRadius >> 8;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
-        int left = Math.Max(0, PowerBombExplosion.XPosition - horizontalRadius) >> 4;
+        int left = Math.Max(0, explosionX - horizontalRadius) >> 4;
         int right = Math.Min(
             level.WidthInBlocks - 1,
-            (PowerBombExplosion.XPosition + horizontalRadius) >> 4);
-        int top = Math.Max(0, PowerBombExplosion.YPosition - verticalRadius) >> 4;
+            (explosionX + horizontalRadius) >> 4);
+        int top = Math.Max(0, explosionY - verticalRadius) >> 4;
         int bottom = Math.Min(
             level.HeightInBlocks - 1,
-            (PowerBombExplosion.YPosition + verticalRadius) >> 4);
+            (explosionY + verticalRadius) >> 4);
 
         // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous PLM terrain mutation means the second

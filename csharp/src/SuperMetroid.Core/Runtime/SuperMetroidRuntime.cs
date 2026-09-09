@@ -1783,7 +1783,7 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Pose is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
-            // Neutral standing, spin, hurt, crouch and falling definitions retain their current pose
+            // Neutral standing, spin, turn, hurt, crouch and falling definitions retain their current pose
             // through fallback, but this is still a selected transition slot,
             // not an absence of input work: the final pose-history epilogue must run.
             // A matched same-pose table record still publishes nothing, as on cartridge.
@@ -1792,6 +1792,7 @@ public sealed partial class SuperMetroidRuntime
                     SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
                     SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose or
                     SamusPoseIds.NeutralJumpTransitionRightPose or SamusPoseIds.NeutralJumpTransitionLeftPose or
+                    SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose or
                     SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
                     SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
                     SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or

@@ -15,7 +15,7 @@ internal static class DamageBoostComparisonAudit
         if (contactKind is < 0 or > 9) throw new InvalidDataException("Unknown contact source.");
         bool runup = contactKind >= 8;
         bool contact = contactKind != 0;
-        if (rows.Length != (runup ? 7728 : contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
+        if (rows.Length != (runup ? 7728 : contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27 or 28))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
@@ -32,11 +32,13 @@ internal static class DamageBoostComparisonAudit
             int delay = int.Parse(seed[5]);
             int medium = seed.Length >= 24 ? int.Parse(seed[22]) : 0;
             int release = seed.Length >= 24 ? int.Parse(seed[23]) : 0;
-            bool holdForward = seed.Length == 27 && seed[26] == "1";
+            bool holdForward = seed.Length >= 27 && seed[26] == "1";
+            bool jumpPreheld = seed.Length == 28 && seed[27] == "1";
             if (medium is < 0 or > 2 || release is < 0 or > 1 ||
                 group.Any(row => row.Length >= 24 && (row[22] != seed[22] || row[23] != seed[23])) ||
                 group.Any(row => row.Length >= 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)) ||
-                group.Any(row => row.Length == 27 && row[26] != (holdForward ? "1" : "0")))
+                group.Any(row => row.Length >= 27 && row[26] != (holdForward ? "1" : "0")) ||
+                group.Any(row => row.Length == 28 && row[27] != (jumpPreheld ? "1" : "0")))
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: runup);
             var level = runtime.LevelData!;
@@ -81,6 +83,7 @@ internal static class DamageBoostComparisonAudit
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(((byte)samus.ReadMovementType(bus) << 8) | (left ? 4 : 8));
             samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
             ushort initialInput = forward ? (ushort)(left ? 0x200 : 0x100) : (ushort)0;
+            if (jumpPreheld) initialInput |= 0x80;
             runtime.Controller1.Latch(initialInput);
             if (!contact)
             {
@@ -155,6 +158,7 @@ internal static class DamageBoostComparisonAudit
                 ushort input = ushort.Parse(row[7], NumberStyles.HexNumber);
                 ushort expectedInput = frame < 0 ? initialInput : frame >= delay ? (ushort)((left ? 0x100 : 0x200) | 0x80) : (ushort)0;
                 if (frame >= 0 && frame < delay && holdForward) expectedInput = initialInput;
+                if (jumpPreheld) expectedInput |= 0x80;
                 if (frame >= 0 && release != 0 && frame >= delay + 3) expectedInput = 0x80;
                 if (runup && frame >= 0)
                 {

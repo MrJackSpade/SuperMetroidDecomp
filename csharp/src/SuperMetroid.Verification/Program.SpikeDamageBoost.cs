@@ -129,6 +129,7 @@ internal static partial class Program
             SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,
             SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose,
             SamusPoseIds.NeutralJumpTransitionRightPose, SamusPoseIds.NeutralJumpTransitionLeftPose,
+            SamusPoseIds.TurningRightToLeftPose, SamusPoseIds.TurningLeftToRightPose,
         })
         {
             samus.Pose = retainedPose;
@@ -144,11 +145,12 @@ internal static partial class Program
             samus.PoseHistory.LastDifferentPose = SamusPoseIds.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
-            if (retainedPose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose)
+            if (retainedPose is SamusPoseIds.FacingRightNormalPose or SamusPoseIds.FacingLeftNormalPose or
+                SamusPoseIds.TurningRightToLeftPose or SamusPoseIds.TurningLeftToRightPose)
                 samus.YPosition = 235;
             runtime.Controller1.Latch(0x0080);
             runtime.StepFrame(0x0080);
-            AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin pose");
+            AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin/turn pose");
             AssertEqual(retainedPose, samus.PoseHistory.LastDifferentPose, "same-pose fallback shifts history");
         }
 

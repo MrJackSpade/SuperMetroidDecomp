@@ -1,7 +1,8 @@
 # Damage boost parity — #472
 
-Investigation started; not ready for player validation. No production fix is
-claimed by this inventory. Parent #394 requires real dispatcher/input timing and
+Investigation in progress; not ready for player validation. The sections below
+are a chronological record of reproductions and fixes, not a list of current failures.
+Parent #394 requires real dispatcher/input timing and
 source-specific contacts, not only calling the damage-boost initializer directly.
 
 ## Source and current evidence
@@ -642,3 +643,34 @@ completion twice to prove once-only ordering. It separately checks Power Bomb
 suppression and its accumulator return. #472 still requires its full technique
 acceptance audit; completion of this audio-dependent timing slice is not closure
 of the broader technique ticket.
+
+## Jump pre-held before contact
+
+`DiagnosticDamageBoostInputVariant(rom, output, medium, release, contact, jumpHeld)`
+adds an explicit pre-held Jump bit to the initial latch and every pre-boost frame.
+The existing Source wrapper passes zero, preserving earlier callers. A new final
+CSV column records `jumpPreheld`; the comparer checks it remains constant and
+validates every controller word. Dispatch the variant before SDL as
+`--damage-held ROM NEW.csv CONTACT MEDIUM RELEASE`, passing one for jumpHeld.
+
+The 42 captures `damageboost-preheld-472-c{1..7}-m{0..2}-r{0..1}.csv` cover live
+projectile, spike-air, solid-spike, ordinary-enemy, two carried-speed enemy variants
+and electric turret blocks in air/water/lava, with continued/released direction.
+Each contains 192 cases / 5,952 samples. Both facings, source sides, humanoid/ball,
+neutral/forward contact and delays 0..11 remain explicit.
+
+The air solid-spike / released-direction case reproduced 20 pose-history mismatches
+after frame 13: grounded turns $25/$26 retained their art but omitted the native
+definition-fallback history update. Added those two poses to the existing retained
+fallback path. The exact native reproduction now has zero differences; default
+tests cover both turning directions, and the full core suite passes. All 42
+pre-held captures have passed (249,984 samples). Temporary native CLI hooks were
+removed after capture. These results close the previously untested held-Jump input
+variant, not the entire outstanding acceptance audit for #472.
+
+For the air / neutral / facing-right / source-zero / held-direction subset,
+successful delay indices are 0..4 for projectile and enemy, and 0..9 for both
+spike families and electricity. No morphed case enters $4F/$50. These are fixture
+delay indices, not a redefinition of the guide's reaction-frame counts: index zero
+already supplies the boost chord on the projectile-contact frame, before its
+post-Samus overlap publication. Adjacent later delays in each sweep do not boost.

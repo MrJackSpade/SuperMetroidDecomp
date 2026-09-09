@@ -22,7 +22,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
   fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata,baseSpeed,extraSpeed,accelerationMode,divisor\n");
-  for (int postInput = 0; postInput < 5; postInput++)
+  for (int postInput = 0; postInput < 6; postInput++)
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -34,6 +34,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       level_data[y * 16 + (left ? 8 : 7)] = 0x8000;
       if (y == 16) for (int x = 0; x < 16; x++) level_data[y * 16 + x] = 0x8000;
     }
+    if (postInput == 5) level_data[7 * 16 + (left ? 7 : 8)] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = 4; // Morph Ball is required by the post-launch Down case.
     samus_x_pos = left ? 122 : 134; samus_y_pos = 160;
@@ -52,7 +53,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
         // Return toward the original wall, then turn away and press Jump again.
         input = frame < 21 ? (left ? 0x100 : 0x200) | 0x80 :
           (left ? 0x200 : 0x100) | (frame >= 23 ? 0x80 : 0);
-      } else if (frame >= 12 && postInput) {
+      } else if (frame >= 12 && postInput > 0 && postInput < 4) {
         input |= postInput == 2 ? 0x400 : 0x800;
         if (postInput == 3) input &= ~0x80;
       }

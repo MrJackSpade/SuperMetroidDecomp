@@ -208,3 +208,24 @@ This is verified consecutive same-wall jumping, not an arbitrary route test or
 proof of overhang clearance. No additional production fix was required. The
 native temporary integration was removed. Delayed overhangs, charge release,
 and the remaining forced-owner audit are still outstanding.
+
+## Overhang underside / ceiling-contact transition
+
+Mode five adds a full solid tile adjacent to the wall at block row seven,
+overhanging toward Samus. It expands the trace to 9,360 frames. This first
+geometry does NOT demonstrate delayed clearance: every admitted native launch
+hits the underside at center Y=147. It is retained as a ceiling-contact fixture,
+not counted as completing the delayed-overhang technique described by the wiki.
+
+It reproduced 596 history-word mismatches despite exact motion/animation/speed:
+native $91:E8E5 publishes the current pose with momentum command five on a
+ceiling hit. That same-pose transition still shifts history. The runtime had
+already stopped vertical speed but omitted this transition's ownership. It now
+consumes ceiling contact after higher-priority animation/hurt interruptions,
+suppresses the lower-priority ordinary input target, and shifts history through
+the common epilogue without restarting animation.
+
+All 9,360 frames now match position, pose, animation, history and speed words.
+Full core verification passes. Temporary native integration was removed.
+Delayed overhang clearance still requires geometry where early and late native
+launches actually have different clearance outcomes.

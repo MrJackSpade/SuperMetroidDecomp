@@ -8,13 +8,13 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksSpeed = rows.Length is 6240 or 7800 && rows[0].Length == 18;
+        bool checksSpeed = rows.Length is 6240 or 7800 or 9360 && rows[0].Length == 18;
         bool hasPostInput = checksSpeed || rows.Length == 6240 && rows[0].Length == 14;
         int inputModes = hasPostInput ? rows.Length / 1560 : 1;
         bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
         bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
-            throw new InvalidDataException("Expected 26, 52, 208, or 260 cases of 30 frames.");
+            throw new InvalidDataException("Expected 26, 52, 208, 260, or 312 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
@@ -29,6 +29,8 @@ internal static class WallJumpComparisonAudit
             var level = runtime.LevelData!;
             for (int y = 0; y <= 16; y++)
                 level.SetForegroundEntry(y * level.WidthInBlocks + (left != 0 ? 8 : 7), 0x8000);
+            if (postInput == 5)
+                level.SetForegroundEntry(7 * level.WidthInBlocks + (left != 0 ? 7 : 8), 0x8000);
             var samus = runtime.Samus!;
             if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
             samus.XPosition = (ushort)(left != 0 ? 122 : 134);
@@ -47,6 +49,7 @@ internal static class WallJumpComparisonAudit
             int firstWallJump = -1;
             int managedLaunches = 0, nativeLaunches = 0;
             bool managedWasWall = false, nativeWasWall = false;
+            ushort nativeMinimumY = ushort.MaxValue;
             for (int frame = 0; frame < 30; frame++)
             {
                 var row = rows[sample++];
@@ -90,6 +93,7 @@ internal static class WallJumpComparisonAudit
                 bool managedIsWall = samus.ReadMovementType(bus) == SamusMovementType.WallJumping;
                 bool nativeIsWall = byte.Parse(row[6], NumberStyles.HexNumber) is
                     SamusPoseIds.WallJumpRightPose or SamusPoseIds.WallJumpLeftPose;
+                nativeMinimumY = Math.Min(nativeMinimumY, (ushort)(uint.Parse(row[5], NumberStyles.HexNumber) >> 16));
                 if (managedIsWall && !managedWasWall) managedLaunches++;
                 if (nativeIsWall && !nativeWasWall) nativeLaunches++;
                 managedWasWall = managedIsWall;
@@ -106,6 +110,8 @@ internal static class WallJumpComparisonAudit
                 if (nativeLaunches != expectedLaunches || managedLaunches != nativeLaunches)
                     throw new InvalidDataException("Same-wall fixture did not execute the verified launch sequence.");
             }
+            if (postInput == 5)
+                Console.WriteLine($"OVERHANG history={history} left={left} delay={delay}: nativeMinY={nativeMinimumY} launches={nativeLaunches}");
         }
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");

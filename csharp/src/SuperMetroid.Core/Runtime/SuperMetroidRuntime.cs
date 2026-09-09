@@ -3034,6 +3034,18 @@ public sealed partial class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                // $91:E8E5 replaces the ordinary input target with the current pose
+                // on ceiling collision. The mover already applies EFDF's vertical
+                // stop; consume this same-pose transition here so history still shifts
+                // and an alpha aim/turn selection cannot override it. Higher-priority
+                // animation and hurt interruptions above retain their native priority.
+                if (!animationTransitionApplied && LastAerialSamusMovement is { HitCeiling: true })
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // `$91:EADE` runs inside UpdateSamusPose after beta movement/animation and
                 // only when no super-special animation command has already won. Its first
                 // branch consumes the X-speed-killed flag produced by CURRENT type-one

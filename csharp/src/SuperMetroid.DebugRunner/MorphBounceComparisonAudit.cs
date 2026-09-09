@@ -5,15 +5,19 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Full-dispatcher comparison of impact thresholds and controller-driven fall-to-morph timing.</summary>
 internal static class MorphBounceComparisonAudit
 {
-    public static int Run(string rom, string trace, bool morphTiming = false)
+    public static int Run(string rom, string trace, MorphBounceAuditScenario scenario = MorphBounceAuditScenario.Impact)
     {
+        bool morphTiming = scenario == MorphBounceAuditScenario.FallingMorphTiming;
+        bool runJump = scenario == MorphBounceAuditScenario.RunJumpMorph;
+        bool wide = morphTiming || runJump;
+        int frameCount = runJump ? 180 : 96;
         uint[] speeds = [0, 0x1ffff, 0x2c7ff, 0x2e3ff, 0x2e400, 0x2ffff, 0x30000, 0x50000];
         uint[] carries = [0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000];
         uint[] timingCarries = [0, 0xc000, 0x14000, 0x20000];
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int expectedCases = morphTiming ? 144 : 256;
-        if (rows.Length != expectedCases * 96 || rows.Any(row => row.Length != 17))
+        if (rows.Length != expectedCases * frameCount || rows.Any(row => row.Length != 17))
             throw new InvalidDataException("Unexpected Morph Ball bounce capture dimensions.");
         int cases = 0, mismatches = 0, reports = 0;
         foreach (var group in rows.GroupBy(row => string.Join(',', row[..4])))
@@ -23,10 +27,10 @@ internal static class MorphBounceComparisonAudit
                 throw new InvalidDataException("Invalid bounce direction/input mode.");
             bool left = seed[0] == "1", held = seed[3] == "1";
             int speed = int.Parse(seed[1]), carry = int.Parse(seed[2]);
-            if ((uint)speed >= (morphTiming ? 9 : speeds.Length) || (uint)carry >= (morphTiming ? 4 : carries.Length))
+            if ((uint)speed >= (runJump ? 16 : morphTiming ? 9 : speeds.Length) || (uint)carry >= (wide ? 4 : carries.Length))
                 throw new InvalidDataException("Invalid bounce speed seed.");
             bool groundedRoll = morphTiming && speed == 8;
-            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: morphTiming);
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: wide);
             var level = runtime.LevelData!;
             for (int y = 0; y <= 16; y++)
             {
@@ -38,27 +42,28 @@ internal static class MorphBounceComparisonAudit
             var samus = runtime.Samus!;
             samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
             samus.Health = 99;
-            samus.XPosition = morphTiming ? (ushort)512 : (ushort)128;
-            samus.YPosition = morphTiming && !groundedRoll ? (ushort)180 : (ushort)249;
+            samus.XPosition = runJump ? (ushort)1024 : wide ? (ushort)512 : (ushort)128;
+            samus.YPosition = runJump ? (ushort)235 : morphTiming && !groundedRoll ? (ushort)180 : (ushort)249;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.Pose = left ? SamusPoseIds.MorphBallFallingLeftPose : SamusPoseIds.MorphBallFallingRightPose;
             if (morphTiming)
                 samus.Pose = groundedRoll ? (left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose) :
                     (left ? SamusPoseIds.FallingLeftPose : SamusPoseIds.FallingRightPose);
+            if (runJump) samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.SetAnimationFrameFromSpecialHandler(0, 1);
             samus.PoseHistory.PreviousPose = samus.Pose;
             SamusMovementType movementType = morphTiming
                 ? (groundedRoll ? SamusMovementType.MorphBallGround : SamusMovementType.Falling)
-                : SamusMovementType.MorphBallFalling;
+                : runJump ? SamusMovementType.Standing : SamusMovementType.MorphBallFalling;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(((byte)movementType << 8) | (left ? 4 : 8));
             samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
-            uint verticalSpeed = morphTiming ? (groundedRoll ? 0u : 0x18000u) : speeds[speed];
+            uint verticalSpeed = runJump ? 0 : morphTiming ? (groundedRoll ? 0u : 0x18000u) : speeds[speed];
             samus.Kinematics.YSpeed = (ushort)(verticalSpeed >> 16);
             samus.Kinematics.YSubspeed = (ushort)verticalSpeed;
-            samus.Kinematics.YDirection = groundedRoll ? (ushort)0 : (ushort)2;
-            uint baseSpeed = morphTiming ? 0x14000u : carry < 4 ? carries[carry] : 0x14000;
+            samus.Kinematics.YDirection = groundedRoll || runJump ? (ushort)0 : (ushort)2;
+            uint baseSpeed = runJump ? 0 : morphTiming ? 0x14000u : carry < 4 ? carries[carry] : 0x14000;
             samus.HorizontalSpeed.BaseSpeed = (ushort)(baseSpeed >> 16);
             samus.HorizontalSpeed.BaseSubspeed = (ushort)baseSpeed;
             if (morphTiming) samus.HorizontalSpeed.HasRunningMomentum = carry != 0;
@@ -78,9 +83,11 @@ internal static class MorphBounceComparisonAudit
                 int expectedInput = morphTiming ? (groundedRoll || frame >= speed * 2 + 8 ? (left ? 0x200 : 0x100) : 0) | (held ? 0x80 : 0) |
                     (!groundedRoll && (frame == speed * 2 || (frame >= speed * 2 + 2 && frame < speed * 2 + 8)) ? 0x400 : 0) :
                     held ? 0x80 | (left ? 0x200 : 0x100) : 0;
+                if (runJump) expectedInput = RunJumpInput(frame, speed, carry, left, held);
                 if (input != expectedInput)
                     throw new InvalidDataException("Changed bounce input.");
                 runtime.StepFrame(input);
+                if (runJump) VerifyRunJumpSample(samus, frame, carry, held);
                 // The input-timing suite is deliberately not only an equality check:
                 // early morphs rebound twice, the adjacent late morph misses both,
                 // and grounded rolling never manufactures a landing bounce.
@@ -99,18 +106,18 @@ internal static class MorphBounceComparisonAudit
                     throw new InvalidDataException($"Falling lookup failure retained dash momentum: {group.Key}.");
                 // Gravity updates the stored magnitude before collision command
                 // selection: $0002.E3FF stays below three, $0002.E400 reaches it.
-                if (!morphTiming && frame == 0 && speed != 0 && samus.MorphBallBounceState != (speed >= 4 ? 1 : 0))
+                if (!wide && frame == 0 && speed != 0 && samus.MorphBallBounceState != (speed >= 4 ? 1 : 0))
                     throw new InvalidDataException($"Incorrect first-rebound speed boundary: {group.Key}.");
-                if (!morphTiming && speed >= 4 && frame == 21 && samus.MorphBallBounceState != 2)
+                if (!wide && speed >= 4 && frame == 21 && samus.MorphBallBounceState != 2)
                     throw new InvalidDataException($"Missing second rebound: {group.Key}.");
-                if (!morphTiming && speed >= 4 && frame == 24 &&
+                if (!wide && speed >= 4 && frame == 24 &&
                     (samus.MorphBallBounceState != 0 || samus.Kinematics.YDirection != 0 ||
                      samus.HorizontalSpeed.BaseFixed != 0))
                     throw new InvalidDataException($"Final rebound did not ground and clear base momentum: {group.Key}.");
-                if (!morphTiming && speed >= 4 && held && carry >= 4 && frame <= 24 &&
+                if (!wide && speed >= 4 && held && carry >= 4 && frame <= 24 &&
                     (((uint)samus.HorizontalSpeed.ExtraRunSpeed << 16) | samus.HorizontalSpeed.ExtraRunSubspeed) != carries[carry])
                     throw new InvalidDataException($"Rebound lost carried dash momentum: {group.Key}.");
-                if (!morphTiming && speed == 0 && held && carry < 4 && frame == 54 && samus.AnimationFrameTimer != 15)
+                if (!wide && speed == 0 && held && carry < 4 && frame == 54 && samus.AnimationFrameTimer != 15)
                     throw new InvalidDataException($"Unchanged wall-stop pose restarted animation: {group.Key}.");
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.MorphBallBounceState:X4}," +
                     $"{samus.Kinematics.YSpeed:X4}{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4},{samus.HorizontalSpeed.BaseFixed:X8}," +
@@ -124,11 +131,47 @@ internal static class MorphBounceComparisonAudit
                 }
                 frame++;
             }
-            if (frame != 96) throw new InvalidDataException("Incomplete bounce case.");
+            if (frame != frameCount) throw new InvalidDataException("Incomplete bounce case.");
             cases++;
         }
         if (cases != expectedCases) throw new InvalidDataException("Incomplete bounce matrix.");
         Console.WriteLine($"Morph bounce: {cases} cases, {rows.Length} frames, {mismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
+    }
+
+    private static ushort RunJumpInput(int frame, int timing, int runway, bool left, bool held)
+    {
+        int[] runFrames = [8, 16, 24, 40];
+        int launch = runFrames[runway], morph = launch + 8 + timing * 2;
+        int forward = left ? 0x200 : 0x100;
+        if (frame < launch) return (ushort)(0x8000 | forward);
+        int jump = held || frame < launch + 8 ? 0x80 : 0;
+        if (frame == launch) return (ushort)(jump | 0x800);
+        bool morphWindow = frame >= morph && frame < morph + 8;
+        int down = frame == morph || (frame >= morph + 2 && frame < morph + 8) ? 0x400 : 0;
+        return (ushort)(jump | down | (morphWindow ? 0 : forward));
+    }
+
+    private static void VerifyRunJumpSample(SamusState samus, int frame, int runway, bool held)
+    {
+        int[] runFrames = [8, 16, 24, 40];
+        uint[] acquiredExtra = [0x7000, 0xf000, 0x17000, 0x20000];
+        int launch = runFrames[runway], firstBounce = launch + 92;
+        uint extra = ((uint)samus.HorizontalSpeed.ExtraRunSpeed << 16) | samus.HorizontalSpeed.ExtraRunSubspeed;
+        if (frame == launch && extra != acquiredExtra[runway])
+            throw new InvalidDataException("Run-up did not acquire the native extra speed through controller input.");
+        if (!held && samus.MorphBallBounceState != 0)
+            throw new InvalidDataException("Short released-Jump control unexpectedly bounced.");
+        if (!held) return;
+        if (frame >= launch && frame <= firstBounce + 24 && extra != acquiredExtra[runway])
+            throw new InvalidDataException("Held-Jump sequence lost acquired speed before completing both rebounds.");
+        if (frame == firstBounce && samus.MorphBallBounceState != 1 ||
+            frame == firstBounce + 21 && samus.MorphBallBounceState != 2)
+            throw new InvalidDataException("Run/jump/morph sequence missed a native rebound.");
+        if (frame == firstBounce + 24 && (samus.MorphBallBounceState != 0 ||
+            samus.Kinematics.YDirection != 0 || samus.HorizontalSpeed.BaseFixed != 0))
+            throw new InvalidDataException("Final landing did not clear base speed and ground the ball.");
+        if (frame == firstBounce + 25 && extra != 0)
+            throw new InvalidDataException("Grounded rolling retained the completed jump's extra speed.");
     }
 }

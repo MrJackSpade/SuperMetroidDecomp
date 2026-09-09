@@ -1778,7 +1778,7 @@ public sealed partial class SuperMetroidRuntime
                 matchedBombCancel.ProspectivePose != Samus.Pose)
                 Samus.BombJumpDirection = 0;
             bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
-            bool airborneBallFallbackMomentum = Samus.HorizontalSpeed.BaseFixed != 0;
+            bool deceleratingFallbackHasMomentum = Samus.HorizontalSpeed.BaseFixed != 0;
             ProspectiveSamusFallbackPose = null;
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
@@ -1916,6 +1916,17 @@ public sealed partial class SuperMetroidRuntime
                 ProspectiveSamusPose is null)
             {
                 ProspectiveSamusFallbackPose = Samus.ReadNoInputFallbackPose(_addressSpace);
+            }
+
+            // Normal jumping shares command one with the airborne ball. Alpha retains
+            // the current pose while base momentum exists; only command two consults
+            // definition byte two. This matters during the gap between Down presses.
+            if (GroundedSamusMovementEnabled && usePoseDefinitionFallback &&
+                movementTypeAtFrameStart == SamusMovementType.NormalJumping && ProspectiveSamusPose is null)
+            {
+                byte fallback = Samus.ReadNoInputFallbackPose(_addressSpace);
+                ProspectiveSamusFallbackPose = deceleratingFallbackHasMomentum || fallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback
+                    ? Samus.Pose : fallback;
             }
 
             // `$BB-$BE/$ED-$F0` store their neutral same-facing pose in definition byte
@@ -3569,8 +3580,8 @@ public sealed partial class SuperMetroidRuntime
                          poseAtFrameStart is SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
-                    Samus.HorizontalSpeed.ApplyAirborneBallInputFallback(
-                        airborneBallFallbackMomentum, Samus.ReadFacingDirection(_addressSpace));
+                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                        deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose &&
@@ -3688,6 +3699,18 @@ public sealed partial class SuperMetroidRuntime
                     // A $FF definition fallback retains the animation, not the momentum
                     // command. Native command two still cancels reverse acceleration.
                     Samus.ApplyAerialTurnInputFallback(_addressSpace);
+                }
+                else if (!animationTransitionApplied &&
+                         movementTypeAtFrameStart == SamusMovementType.NormalJumping &&
+                         ProspectiveSamusFallbackPose is { } jumpFallback)
+                {
+                    // An unchanged prospective pose must not reset animation or invoke
+                    // compact-radius expansion. Command one still folds momentum after
+                    // beta movement and rechecks the remaining base speed there.
+                    if (jumpFallback != Samus.Pose)
+                        Samus.ApplyAerialAimTransition(_addressSpace, unchecked((byte)jumpFallback));
+                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                        deceleratingFallbackHasMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsAimedAerialPose(poseAtFrameStart) &&

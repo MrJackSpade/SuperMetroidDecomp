@@ -28,6 +28,12 @@ public static class SamusMovementRomData
         /// <summary>Native byte width of one pose-definition record.</summary>
         public const int DefinitionByteCount = 8;
 
+        /// <summary>
+        /// $FF in pose-definition byte two: $91:82F9 retains the current pose after
+        /// input lookup failure. This is metadata, not an installed Samus pose ID.
+        /// </summary>
+        public const byte RetainCurrentPoseFallback = 0xff;
+
         /// <summary><c>$91:B010</c>, one bank-$91 animation-delay-list pointer per pose.</summary>
         public const int AnimationDelayListPointers = 0x91b010;
 

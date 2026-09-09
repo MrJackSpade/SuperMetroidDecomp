@@ -1,9 +1,8 @@
 # Morph Ball bounce parity (#449)
 
-Status: impact/rebound and seeded-fall controller-morph timing matrices pass.
-A ground-run/jump prefix that acquires and retains momentum through morphing is
-still required before marking the full issue ready. A seeded ordinary fall is
-not interchangeable with a descending normal-jump movement type.
+Status: impact/rebound, seeded-fall controller timing, and complete controller
+run/jump/morph matrices pass. Ready for player validation on the pinned NTSC ROM.
+The separate #450 liquid-entry and #469 soft-morph techniques are not claimed here.
 
 ## Impact fixture
 
@@ -114,3 +113,60 @@ headless hooks described above. Replay with:
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --morph-timing-comparison-audit "Super Metroid.smc" path/to/morph-timing-449-v2.csv
 ```
+
+## Complete controller run/jump/morph sequence
+
+This third variant starts standing ($01/$02) at X1024/Y235, zero subpixels and
+zero horizontal/vertical speeds. It uses the same wide flat room, Morph Ball
+alone, health 99, no enemies or gameplay cheats. Unlike the earlier seeds, no
+momentum flag or speed component is injected. RNG is not consumed by this
+enemy-free movement fixture. All 180 frames go through the ordinary dispatcher.
+
+CSV `carry` now selects run-up length 8/16/24/40 frames; `speed` selects morph
+timing 0..15. Hold Dash+forward during run-up. On the launch frame press Jump+Up;
+then hold forward+Jump until the morph input window. The cartridge enters spin
+pose $19/$1A, with Down later admitting the compact normal-jump pose $17/$18.
+First Down is launch+8+2*timing; release Down for one frame, then hold it for six.
+Forward is released during that eight-frame window and held afterward. Input
+mode one holds Jump throughout; zero releases it on launch+8. Both facings run
+the same schedule. Starting near the room center avoids side-wall interactions.
+
+The four run-ups acquire extra speeds $0000.7000, $0000.F000, $0001.7000 and
+$0002.0000. All held-Jump cases preserve those exact words through first bounce
+on launch+92, second on launch+113, and final landing on launch+116. Final landing
+clears base speed; the following grounded movement frame clears extra speed.
+Released-Jump controls have a shortened arc and no bounce. The audit explicitly
+asserts all these properties and compares all eleven per-frame output fields.
+Together with the timing matrix's adjacent late-morph miss and the impact
+matrix's exact speed boundary, this covers the ticket's success/failure contrasts.
+
+The initial run/jump matrix reproduced 14,802 divergent frames. Normal jumping
+was missing the same fallback command one/two already translated for airborne
+Morph Ball. Alpha must retain the pose when base momentum is present, and beta
+command one folds extra into base speed after movement before cancelling the
+running-momentum flag. In the shortest released-Jump case this is observable at
+frame 17. The shared helper is now named `ApplyDeceleratingInputFallback` and is
+used by both movement types, including retained compact poses without restarting
+their animation. The adjacent command-two path preserves its cartridge behavior.
+
+All 256 cases / 46,080 frames match. The accepted centered-runway v2 capture and
+an independent repeat have SHA256
+`4A7CBD6DAC40D9A55A89B9EABF005EF04035052F9A14C8B77CDBF22BF759079C`.
+The accepted CSV is preserved in `run-jump-morph-native-capture.zip`. Generate via
+`DiagnosticRunJumpMorph(romPath, newCsvPath)` using the headless hooks above;
+temporary hooks are removed after capture. Replay with:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --run-jump-morph-comparison-audit "Super Metroid.smc" path/to/run-jump-morph-449-v2.csv
+```
+
+Sources for this correction: pinned bank $91 `$82D9/$8304` fallback selection,
+`$EC50` command one and `$ECD0` command two. The same ROM/disassembly hashes
+listed above apply. These are NTSC revision-zero results, not a PAL claim.
+
+Final verification: full core suite passed; all three bounce matrices (84,480
+frames), damage boost (616,608), ceiling-steering bombs (138,240) and live
+hurt/bomb (32,000) match, totaling 871,328 cartridge-comparison frames. The
+magic-number audit also passes with the fallback sentinel in the pose-data
+catalog. One matrix run was interrupted by rebuilding its apphost; the complete
+97-capture damage-boost matrix was rerun successfully after the build finished.

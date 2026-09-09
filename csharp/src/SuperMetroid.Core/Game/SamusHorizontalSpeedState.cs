@@ -652,10 +652,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Executes the airborne ball fallback's alpha-selected command one or two.
+    /// Executes normal jumping / airborne ball fallback's alpha-selected command one or two.
     /// Command one rechecks speed after movement before folding extra momentum.
     /// </summary>
-    public void ApplyAirborneBallInputFallback(bool selectedMomentumCommand, SamusFacingDirection facingDirection)
+    public void ApplyDeceleratingInputFallback(bool selectedMomentumCommand, SamusFacingDirection facingDirection)
     {
         if (selectedMomentumCommand && BaseFixed != 0)
         {

@@ -2947,7 +2947,9 @@ public sealed partial class SuperMetroidRuntime
                 // stop; consume this same-pose transition here so history still shifts
                 // and an alpha aim/turn selection cannot override it. Higher-priority
                 // animation and hurt interruptions above retain their native priority.
-                if (!animationTransitionApplied && LastAerialSamusMovement is { HitCeiling: true })
+                if (!animationTransitionApplied &&
+                    (LastAerialSamusMovement is { HitCeiling: true } ||
+                     LastBombJumpMovement is { Vertical.Collided: true }))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;

@@ -157,6 +157,8 @@ if (args.Length == 3 && args[0] == "--hurt-bomb-comparison-audit")
     return HurtBombComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--live-hurt-bomb-comparison-audit")
     return LiveHurtBombComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--bomb-chain-comparison-audit")
+    return BombChainComparisonAudit.Run(args[1], args[2]);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

@@ -36,11 +36,13 @@ public sealed partial class SuperMetroidRuntime
         ISnesAddressSpace addressSpace,
         bool playerInvincibilityEnabled = false,
         bool infiniteAmmoEnabled = false,
-        MapRevealMode mapRevealMode = MapRevealMode.None)
+        MapRevealMode mapRevealMode = MapRevealMode.None,
+        bool preventEscapeTimeout = false)
     {
         _addressSpace = addressSpace ?? throw new ArgumentNullException(nameof(addressSpace));
         PlayerInvincibilityEnabled = playerInvincibilityEnabled;
         InfiniteAmmoEnabled = infiniteAmmoEnabled;
+        PreventEscapeTimeout = preventEscapeTimeout;
         MapRevealMode = Enum.IsDefined(mapRevealMode)
             ? mapRevealMode
             : throw new ArgumentOutOfRangeException(nameof(mapRevealMode));
@@ -77,6 +79,9 @@ public sealed partial class SuperMetroidRuntime
     /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
     /// </remarks>
     public bool InfiniteAmmoEnabled { get; }
+
+    /// <summary>Host testing option: both escape countdowns stop at one second, without changing their earlier timing.</summary>
+    public bool PreventEscapeTimeout { get; }
 
     /// <summary>Nonpersistent host map visibility used by gameplay HUD updates.</summary>
     public MapRevealMode MapRevealMode { get; }
@@ -1576,7 +1581,7 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleDrawingHandlerActive = false;
         LastGrappleBeamSpecificDrawingPath = false;
         LastGrappleFlareDrawn = false;
-        bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter);
+        bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
 
         // GameState_8 selects active enemies and executes EnemyMain before bank $90 moves
         // Samus. The collision index list is selected from pre-AI positions but consumers

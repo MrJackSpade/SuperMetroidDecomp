@@ -44,6 +44,9 @@ public sealed record SuperMetroidGameOptions
     /// </remarks>
     public bool InfiniteAmmo { get; init; }
 
+    /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
+    public bool PreventEscapeTimeout { get; init; }
+
     /// <summary>Temporary map visibility used by the HUD and pause-map presentations.</summary>
     /// <remarks>
     /// This host convenience is evaluated only while drawing. It never changes exploration
@@ -96,6 +99,8 @@ public static partial class SuperMetroidGameOptionsIni
         "; true allows normal consumption but keeps unlocked ammo types at 1 or more\r\n" +
         "; false preserves normal cartridge ammunition behavior\r\n" +
         "InfiniteAmmo=false\r\n" +
+        "; true = Ceres and post-Mother-Brain timers count down normally, then stop at 00:01.00\r\n" +
+        "PreventEscapeTimeout=false\r\n" +
         "; None = normal save/map-station visibility\r\n" +
         "; Public = temporarily reveal everything an ordinary map station exposes\r\n" +
         "; Secret = temporarily reveal every valid map cell, including hidden cells\r\n" +
@@ -130,6 +135,7 @@ public static partial class SuperMetroidGameOptionsIni
         bool? skipOpeningCinematic = null;
         bool? invincibility = null;
         bool? infiniteAmmo = null;
+        bool? preventEscapeTimeout = null;
         MapRevealMode? mapReveal = null;
         bool? audioEnabled = null;
         RendererSelection? renderer = null;
@@ -213,6 +219,14 @@ public static partial class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.PreventEscapeTimeout), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (preventEscapeTimeout.HasValue)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    preventEscapeTimeout = ParseBoolean(sourceName, lineNumber, key, value);
+                    continue;
+                }
+
                 if (key.Equals(nameof(SuperMetroidGameOptions.MapReveal),
                         StringComparison.OrdinalIgnoreCase))
                 {
@@ -290,6 +304,7 @@ public static partial class SuperMetroidGameOptionsIni
             SkipOpeningCinematic = skipOpeningCinematic ?? false,
             Invincibility = invincibility ?? false,
             InfiniteAmmo = infiniteAmmo ?? false,
+            PreventEscapeTimeout = preventEscapeTimeout ?? false,
             MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
             Renderer = renderer ?? RendererSelection.Auto,

@@ -12,6 +12,9 @@ internal static class ControllerInputRecordingFormat
     /// <summary>Host option bit preserving the unlocked-ammunition floor.</summary>
     public const byte InfiniteAmmo = 1 << 2;
 
+    /// <summary>Host option bit preserving the one-second escape-countdown floor.</summary>
+    public const byte PreventEscapeTimeout = 1 << 5;
+
     /// <summary>First bit of the two-bit mutually exclusive map-reveal value.</summary>
     public const int MapRevealShift = 3;
 
@@ -20,5 +23,5 @@ internal static class ControllerInputRecordingFormat
 
     /// <summary>Every option bit currently understood by the version-one reader.</summary>
     public const byte KnownOptionMask = SkipOpeningCinematic | Invincibility | InfiniteAmmo |
-        MapRevealMask;
+        MapRevealMask | PreventEscapeTimeout;
 }

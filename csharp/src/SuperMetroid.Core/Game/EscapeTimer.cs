@@ -84,12 +84,13 @@ public sealed class EscapeTimer
     /// <param name="nmiFrameCounter">
     /// Global NMI frame counter. Only its low seven bits index the correction table.
     /// </param>
-    public bool Process(ushort nmiFrameCounter)
+    /// <param name="preventEscapeTimeout">Host-only override: countdown continues normally until one second remains.</param>
+    public bool Process(ushort nmiFrameCounter, bool preventEscapeTimeout = false)
     {
         // $80:9DEC masks status to eight bits before indexing a table of function pointers.
         // A switch expresses the same dispatch while leaving useful named frames in a C#
         // call stack. An invalid state throws where the original would jump through data.
-        return State switch
+        bool expired = State switch
         {
             EscapeTimerState.Inactive => false,
             EscapeTimerState.CeresStart => Start(minutesBcd: 0x01),
@@ -100,6 +101,16 @@ public sealed class EscapeTimer
             EscapeTimerState.RunningInPlace => Decrement(nmiFrameCounter),
             _ => throw new InvalidOperationException($"Timer status low byte ${(byte)State:X2} has no $80:9DE7 dispatch entry."),
         };
+
+        // Apply the testing floor before publishing expiration to the gameplay dispatcher.
+        // Startup delays and timer movement still run; inactive timers remain cleared.
+        // Packed BCD compares naturally here because the threshold is one whole second.
+        if (preventEscapeTimeout && IsActive && MinutesBcd == 0 && SecondsBcd == 0)
+        {
+            SetTime(0, 1, 0);
+            return false;
+        }
+        return expired;
     }
 
     /// <summary>

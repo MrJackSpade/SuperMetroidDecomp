@@ -25,6 +25,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Contains("--escape-timer"))
+{
+    VerifyEscapeTimerBcd();
+    VerifyEscapeTimerStateMachine();
+    VerifyEscapeTimerFloor();
+    VerifyControllerInputRecording();
+    return 0;
+}
 VerifyAndroidHostPolicies();
 VerifyIniEditing();
 VerifyBackgroundSampler();
@@ -247,6 +255,7 @@ VerifySmCompressionFormat();
 VerifyVramWriteQueue();
 VerifyEscapeTimerBcd();
 VerifyEscapeTimerStateMachine();
+VerifyEscapeTimerFloor();
 VerifyControllerInputLatch();
 VerifyGameOptionsRomDataCatalog();
 VerifyControllerBindingsAndOptionsSubmenus();

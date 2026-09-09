@@ -60,6 +60,7 @@ public sealed record ControllerInputRecording
                 : 0) |
             (GameOptions.Invincibility ? ControllerInputRecordingFormat.Invincibility : 0) |
             (GameOptions.InfiniteAmmo ? ControllerInputRecordingFormat.InfiniteAmmo : 0) |
+            (GameOptions.PreventEscapeTimeout ? ControllerInputRecordingFormat.PreventEscapeTimeout : 0) |
             ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
         RomSha256.CopyTo(header[28..(28 + RomDigestByteCount)]);
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);
@@ -151,6 +152,7 @@ public sealed record ControllerInputRecording
                 InfiniteAmmo =
                     (optionFlags & ControllerInputRecordingFormat.InfiniteAmmo) != 0,
                 MapReveal = mapReveal,
+                PreventEscapeTimeout = (optionFlags & ControllerInputRecordingFormat.PreventEscapeTimeout) != 0,
             },
             ControllerInputs = inputs,
         };

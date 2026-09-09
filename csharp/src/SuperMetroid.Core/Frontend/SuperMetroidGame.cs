@@ -1177,7 +1177,8 @@ public sealed partial class SuperMetroidGame
             bus,
             playerInvincibilityEnabled: gameOptions.Invincibility,
             infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
-            mapRevealMode: gameOptions.MapReveal);
+            mapRevealMode: gameOptions.MapReveal,
+            preventEscapeTimeout: gameOptions.PreventEscapeTimeout);
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;

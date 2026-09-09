@@ -275,6 +275,9 @@ internal sealed partial class EndingCreditsState
                         EndingCreditsRomData.Text.ItemPercentagePanelDestination,
                         EndingCreditsRomData.Text.ItemPercentagePanelWords);
                     UploadPostCreditsTilemap();
+                    // E58A clears every cinematic sprite before spawning the percentage
+                    // BG object. Reward actors must not survive underneath either message.
+                    sprites.Clear();
                     postCreditsText = new EndingBackgroundTextState(
                         bus,
                         postCreditsTilemap,

@@ -1,5 +1,19 @@
 # Project Working Instructions
 
+## Discord version updates
+
+- Use `pwsh -File tools/discord-updates.ps1 next` to obtain the single next
+  unposted published commit. Follow `tools/discord-updates.md` for connection and
+  recovery. The queue starts at the first commit and targets server
+  `1547270817312809112`, channel `1547271407476408411`.
+- When asked to post an update, inspect only the exposed commit, write a concise
+  plain-language summary of that version, preview it, and post with its full SHA.
+  Do not enumerate later commits, skip ahead, or use raw webhooks to bypass the
+  tracker. Do not post messages without user authorization.
+- Keep webhook credentials in `DISCORD_WEBHOOK_URL` and tracker state in the Git
+  common directory. Never commit either. If delivery is uncertain, reconcile the
+  existing attempt before posting again.
+
 ## Diagnostic references
 
 - [InsaneFirebat Super Metroid disassembly](https://github.com/InsaneFirebat/sm_disassembly)

@@ -1,15 +1,44 @@
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 /// <summary>Proves live palette changes reach actor pixels, rather than merely changing CGRAM words.</summary>
 internal sealed class MotherBrainPaletteRecordingChecks
 {
     private readonly HashSet<string> samusPalettes = [];
     private readonly HashSet<string> motherPalettes = [];
+    private int drainedSteps, revivalSteps;
 
-    public void Observe(SuperMetroidRuntime runtime, int frame)
+    public void Observe(SuperMetroidRuntime runtime, int frame, ISnesAddressSpace bus)
     {
         if (runtime.Enemies.MotherBrain is not { } brain) return;
+        if (brain.LastRainbowBeamStep is { PaletteRequested: true } step &&
+            step.PhaseBefore is MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey or
+                MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey)
+        {
+            bool draining = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
+            int index = brain.RainbowBeamSequence!.GreyTransitionCounter - 1;
+            int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable : MotherBrainDrainedPaletteRomData.FromGreyTable;
+            int ptr = table + index * 2;
+            int source = 0xad0000 | bus.ReadByte(ptr) | (bus.ReadByte(ptr + 1) << 8);
+            int count = draining ? 15 : 13;
+            CheckColors(source, 65, count);
+            CheckColors(source, 145, count);
+            CheckColors(source + count * 2, 180, 5);
+            if (draining) drainedSteps++; else revivalSteps++;
+            Check(draining ? "drained" : "revived", 145, count, brain.Head!.XPosition, brain.Head.YPosition, []);
+
+            void CheckColors(int address, int destination, int length)
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    ushort expected = (ushort)(bus.ReadByte(address + i * 2) | bus.ReadByte(address + i * 2 + 1) << 8);
+                    if (runtime.Cgram.Colors[destination + i] != expected)
+                        throw new InvalidDataException($"Drain/revival palette mismatch at frame {frame}, phase {step.PhaseBefore}, index {index}, CGRAM {destination + i}.");
+                }
+            }
+        }
         if (runtime.Samus?.Drained.RainbowPaletteEnabled == true)
             Check("samus", 192, 16, runtime.Samus.XPosition, runtime.Samus.YPosition, samusPalettes);
         if (brain.RainbowBeamPaletteRequested && brain.RainbowBeamHdmaActive)
@@ -48,6 +77,8 @@ internal sealed class MotherBrainPaletteRecordingChecks
 
     public void Verify()
     {
+        if (drainedSteps != 8 || revivalSteps != 8)
+            throw new InvalidDataException($"Missing drained/revival palette steps: {drainedSteps}/{revivalSteps}.");
         if (samusPalettes.Count < 10 || motherPalettes.Count < 6)
             throw new InvalidDataException($"Incomplete visible palette coverage: Samus={samusPalettes.Count}, Mother Brain={motherPalettes.Count}.");
         Console.WriteLine($"Rainbow palettes verified in live rendering: Samus={samusPalettes.Count}, Mother Brain={motherPalettes.Count}.");

@@ -6,6 +6,25 @@ public sealed partial class RoomEnemySystem
     private void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
+        bool draining = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
+        bool reviving = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
+        if ((draining || reviving) && step.PaletteRequested)
+        {
+            // The sequence increments before publishing this request. Keep the distinct
+            // native copy lengths: revival intentionally preserves two brain/body colors.
+            int index = state.RainbowBeamSequence!.GreyTransitionCounter - 1;
+            int table = draining ? MotherBrainDrainedPaletteRomData.ToGreyTable : MotherBrainDrainedPaletteRomData.FromGreyTable;
+            int fadeSource = MotherBrainRainbowPaletteRomData.SourceBank | ReadWord(_bus!, table + index * 2);
+            int count = draining ? MotherBrainDrainedPaletteRomData.DrainedColors : MotherBrainDrainedPaletteRomData.RevivalColors;
+            _cgram!.LoadFromBus(_bus!, fadeSource, count, MotherBrainRainbowPaletteRomData.BodyColor);
+            _cgram.LoadFromBus(_bus!, fadeSource, count, MotherBrainRainbowPaletteRomData.BrainColor);
+            _cgram.LoadFromBus(_bus!, fadeSource + count * 2, MotherBrainDrainedPaletteRomData.BackLegCount,
+                MotherBrainDrainedPaletteRomData.BackLegColor);
+            int tail = fadeSource + (count + MotherBrainDrainedPaletteRomData.BackLegCount) * 2;
+            _bus!.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, _bus.ReadByte(tail));
+            _bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, _bus.ReadByte(tail + 1));
+            return;
+        }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
             step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall)
         {

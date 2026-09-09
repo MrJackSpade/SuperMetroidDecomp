@@ -172,9 +172,21 @@ public static class SoftwareLayeredSnapshotRenderer
                     else SnesLayerCompositor.Composite(output, objects.Pixels);
                     break;
                 case ObjPriorityRenderLayer obj:
+                    byte[]? priorityPalettes = null;
+                    if (obj.FixedColor is not null)
+                    {
+                        priorityPalettes = new byte[output.Length];
+                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                            snapshot.ObjectSelection, new Rgba32[output.Length], priorityPalettes);
+                    }
                     for (int pixel = 0; pixel < output.Length; pixel++)
                         if (objects.Priorities[pixel] == obj.Priority)
-                            output[pixel] = objects.Pixels[pixel];
+                        {
+                            Rgba32 value = objects.Pixels[pixel];
+                            output[pixel] = obj.FixedColor is { } priorityWhite && priorityPalettes![pixel] >= 4
+                                ? new Rgba32(AddFixed(value.R, priorityWhite.Red), AddFixed(value.G, priorityWhite.Green),
+                                    AddFixed(value.B, priorityWhite.Blue)) : value;
+                        }
                     break;
                 case Bg4BppRenderLayer bg:
                     SnesBgTilemapRenderer.Composite4BppViewport(output, memory.Vram, memory.Cgram,

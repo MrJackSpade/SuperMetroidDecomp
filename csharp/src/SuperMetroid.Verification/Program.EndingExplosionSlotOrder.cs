@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -17,7 +18,7 @@ internal static partial class Program
             audio.AdvanceFrame(bus, default);
         }
         AssertEqual(EndingCreditsPhase.PlanetEscapeFast, ending.Phase, "native flyaway handoff reached");
-        for (int frame = 0; frame < 450; frame++) ending.Step();
+        for (int frame = 0; frame < 100; frame++) ending.Step();
         var definition = EndingCreditsRomData.Sprites.ExplosionAfterglow;
         var afterglow = new IntroDiscoverySprite(definition.X, definition.Y,
             definition.Attributes.Raw, definition.InstructionPointer);
@@ -33,5 +34,19 @@ internal static partial class Program
         var actual = ending.CaptureRenderSnapshot().Memory;
         AssertTrue(actual.Oam[..(37 * 4)].SequenceEqual(expected.LowTable[..(37 * 4)]),
             "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
+        var snapshot = ending.CaptureRenderSnapshot();
+        var background = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
+        AssertTrue(Enumerable.Range(0, actual.ModeledSpriteCount).All(index =>
+            (actual.Oam[index * 4 + 3] & 0x30) == 0), "live flyaway actors use native priority zero");
+        var fixedWhite = snapshot.Layers.ToArray().OfType<FixedColorAddRenderLayer>().Single();
+        RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
+        var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,
+            snapshot.ObjectSelection, snapshot.Brightness));
+        var actualPixels = ending.Render();
+        Directory.CreateDirectory("csharp/test-temp/ending-507");
+        PngWriter.WriteRgba("csharp/test-temp/ending-507/actual.png", 256, 224, actualPixels);
+        PngWriter.WriteRgba("csharp/test-temp/ending-507/native-priority.png", 256, 224, nativePixels);
+        AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
+            "live getaway ship occludes priority-zero afterglow pixels");
     }
 }

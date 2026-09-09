@@ -69,7 +69,10 @@ public sealed partial class D3D11FrameRenderer
                         objectCount: (uint)scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
                     break;
                 case ObjPriorityRenderLayer obj:
-                    DispatchTile(D3D11TileOperation.InsertObj, priority: (uint)obj.Priority + 1);
+                    DispatchTile(D3D11TileOperation.InsertObj, priority: (uint)obj.Priority + 1,
+                        green: obj.FixedColor is not null ? 1u : 0u,
+                        blue: obj.FixedColor is { } priorityColor ? (uint)(priorityColor.Red | priorityColor.Green << 5 | priorityColor.Blue << 10) : 0,
+                        objectCount: (uint)scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
                     break;
                 case Bg4BppRenderLayer bg:
                     DispatchTile(D3D11TileOperation.Bg4, bg.TilemapWord, bg.CharacterWord,

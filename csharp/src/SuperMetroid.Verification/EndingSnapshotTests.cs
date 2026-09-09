@@ -253,8 +253,9 @@ internal static partial class Program
                     if (expectedWhite > 0)
                     {
                         AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
-                        AssertEqual(fixedColors[0], flight.Layers.ToArray().OfType<ObjRenderLayer>().Single().FixedColor!, "OBJ and backdrop share native fixed white");
-                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is Mode7RenderLayer,
+                        AssertTrue(flight.Layers.ToArray().OfType<ObjPriorityRenderLayer>().All(layer => layer.FixedColor == fixedColors[0]), "OBJ and backdrop share native fixed white");
+                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is ObjPriorityRenderLayer { Priority: 0 }
+                            && flight.Layers[2] is Mode7RenderLayer,
                             "fixed backdrop is composed before unaffected Mode7 BG1");
                     }
                     if (hours == 2 && elapsed == 210)

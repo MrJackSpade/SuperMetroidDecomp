@@ -83,7 +83,26 @@ internal static partial class Program
             AssertEqual(new Rgba32(0, 0, 255), pixels[0], "OBJ-only fixed color does not alter uncovered backdrop");
             Directory.CreateDirectory("csharp/test-temp/ending-504");
             File.WriteAllBytes($"csharp/test-temp/ending-504/obj-fixed-{objPalette}.smframe", RenderFrameSnapshotCodec.Serialize(restored));
+            foreach (byte selectedPriority in new byte[] { 0, 1 })
+            {
+                var filtered = RoundTripRenderPacket(new(new(1, 1, 0), new LayeredRenderSnapshot(
+                    new PpuMemorySnapshot(vram, palette, oam, 1),
+                    new RenderLayer[] { new ObjPriorityRenderLayer(selectedPriority, new(8, 4, 2)) }, 0, 15)));
+                var filteredPixels = SoftwareFrameSnapshotRenderer.Render(filtered);
+                AssertEqual(selectedPriority == 0 ? pixels[8 * 256 + 8] : new Rgba32(0, 0, 255),
+                    filteredPixels[8 * 256 + 8], "fixed OBJ color obeys both priority filtering and palette eligibility");
+                File.WriteAllBytes($"csharp/test-temp/ending-504/obj-priority-fixed-{objPalette}-{selectedPriority}.smframe",
+                    RenderFrameSnapshotCodec.Serialize(filtered));
+            }
         }
+        var legacyPriority = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
+            new PpuMemorySnapshot(vram, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0),
+            new RenderLayer[] { new ObjPriorityRenderLayer(2) }, 0, 15));
+        // Version 19 ends this layer after its priority byte; version 20 adds color presence.
+        byte[] oldPriority = RenderFrameSnapshotCodec.Serialize(legacyPriority)[..^1];
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPriority.AsSpan(RenderPacketFormat.Signature.Length), 19);
+        AssertTrue(SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPriority)).AsSpan()
+            .SequenceEqual(SoftwareFrameSnapshotRenderer.Render(legacyPriority)), "legacy priority packets remain readable without color payload");
     }
 
     private static void VerifyBg4SubscreenAddition()

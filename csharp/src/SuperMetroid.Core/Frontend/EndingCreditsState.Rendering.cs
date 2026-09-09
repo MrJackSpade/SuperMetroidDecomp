@@ -10,7 +10,7 @@ internal sealed partial class EndingCreditsState
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
     public Rgba32[] Render()
     {
-        if (FlyawayFixedColor is not null || UsesExplosionFinaleDisplay || postShot is not null || endingLogo is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+        if (UsesFlyawayMode7Priority || UsesExplosionFinaleDisplay || postShot is not null || endingLogo is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
             return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
 
@@ -75,6 +75,8 @@ internal sealed partial class EndingCreditsState
 
     private bool ExplosionWhiteout => Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
+    // Func120 selects Mode 7: priority-zero OBJ is behind BG1, the ship itself.
+    private bool UsesFlyawayMode7Priority => Phase >= EndingCreditsPhase.PlanetEscapeFast && Phase < EndingCreditsPhase.Credits;
     private bool EndingObjectsEnabled => !ExplosionWhiteout && Phase != EndingCreditsPhase.PostCreditsCopyright;
 
     private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast

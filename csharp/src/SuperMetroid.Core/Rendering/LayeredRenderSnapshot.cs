@@ -27,6 +27,9 @@ public sealed class LayeredRenderSnapshot
                 throw new ArgumentException("Fixed color components must be five-bit values.", nameof(layers));
             if (layer is ObjPriorityRenderLayer { Priority: > 3 })
                 throw new ArgumentException("OBJ priority must be between zero and three.", nameof(layers));
+            if (layer is ObjPriorityRenderLayer { FixedColor: { } priorityColor } &&
+                (priorityColor.Red > 31 || priorityColor.Green > 31 || priorityColor.Blue > 31))
+                throw new ArgumentException("OBJ fixed color components must be five-bit values.", nameof(layers));
             if (layer is ObjRenderLayer { FixedColor: { } objColor } obj &&
                 (obj.AddToScreen || objColor.Red > 31 || objColor.Green > 31 || objColor.Blue > 31))
                 throw new ArgumentException("OBJ fixed color requires replacing OBJ and five-bit components.", nameof(layers));

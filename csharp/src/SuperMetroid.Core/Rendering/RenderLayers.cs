@@ -14,7 +14,7 @@ public sealed record FixedColorAddRenderLayer(byte Red, byte Green, byte Blue) :
 public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers, bool SubtractObjSubscreen = false) : RenderLayer;
 
 /// <summary>Inserts only pixels whose winning OAM record has this priority.</summary>
-public sealed record ObjPriorityRenderLayer(byte Priority) : RenderLayer;
+public sealed record ObjPriorityRenderLayer(byte Priority, FixedColorAddRenderLayer? FixedColor = null) : RenderLayer;
 
 /// <summary>Inserts the winning OAM pixel, or adds it as an OBJ subscreen using saturated five-bit color arithmetic.</summary>
 public sealed record ObjRenderLayer(bool AddToScreen = false, FixedColorAddRenderLayer? FixedColor = null) : RenderLayer;

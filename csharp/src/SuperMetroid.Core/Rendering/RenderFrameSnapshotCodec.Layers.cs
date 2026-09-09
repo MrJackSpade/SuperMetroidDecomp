@@ -96,6 +96,11 @@ public static partial class RenderFrameSnapshotCodec
             case ObjPriorityRenderLayer obj:
                 writer.Write((byte)RenderPacketLayerKind.ObjPriority);
                 writer.Write(obj.Priority);
+                writer.Write(obj.FixedColor is not null);
+                if (obj.FixedColor is { } priorityColor)
+                {
+                    writer.Write(priorityColor.Red); writer.Write(priorityColor.Green); writer.Write(priorityColor.Blue);
+                }
                 break;
             case Bg4BppRenderLayer bg:
                 writer.Write((byte)RenderPacketLayerKind.Bg4Bpp);
@@ -142,13 +147,22 @@ public static partial class RenderFrameSnapshotCodec
                 reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader)), true),
         RenderPacketLayerKind.Obj => ReadObjLayer(reader, version, false),
         RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => ReadObjLayer(reader, version, true),
-        RenderPacketLayerKind.ObjPriority => new ObjPriorityRenderLayer(reader.ReadByte()),
+        RenderPacketLayerKind.ObjPriority => ReadObjPriorityLayer(reader, version),
         RenderPacketLayerKind.Bg4Bpp => new Bg4BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader)),
         RenderPacketLayerKind.Bg2Bpp => new Bg2BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static ObjPriorityRenderLayer ReadObjPriorityLayer(BinaryReader reader, ushort version)
+    {
+        byte priority = reader.ReadByte();
+        FixedColorAddRenderLayer? color = null;
+        if (version >= RenderPacketFormat.ObjPriorityFixedColorVersion && ReadBoolean(reader))
+            color = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+        return new(priority, color);
+    }
 
     private static ObjRenderLayer ReadObjLayer(BinaryReader reader, ushort version, bool add)
     {

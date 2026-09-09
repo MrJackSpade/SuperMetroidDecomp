@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Assets;
 
 internal static partial class Program
 {
@@ -17,6 +19,7 @@ internal static partial class Program
             runtime.LoadCartridgeRoomForDebug(room);
             runtime.Samus!.InputLocked = true;
             int explosionFrames = 0;
+            bool visibleExplosion = false, visibleShake = false;
             var offsets = new HashSet<(short, short)>();
             for (int frame = 0; frame < 80; frame++)
             {
@@ -24,9 +27,45 @@ internal static partial class Program
                 if (runtime.Enemies.RoomSpriteObjects.Any(s => s.IsActive && s.SpritemapPointer != 0)) explosionFrames++;
                 var shake = runtime.Enemies.LastRoomShake;
                 offsets.Add((shake.Bg1X, shake.Bg1Y));
+                if (frame % 10 == 9)
+                {
+                    var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
+                    var layer = (OrdinaryGameplayRenderLayer)capture.Layers[0];
+                    var actual = SoftwareLayeredSnapshotRenderer.Render(capture);
+                    var noObjects = new OrdinaryGameplayRenderLayer(layer.Registers with
+                    { MainScreenLayers = layer.Registers.MainScreenLayers & ~SnesMainScreenLayers.Obj },
+                        layer.HorizontalScrolls, layer.VerticalScrolls);
+                    var baseline = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [noObjects], capture.ObjectSelection, capture.Brightness));
+                    foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
+                    {
+                        int x = sprite.XPosition - runtime.Camera!.XPosition, y = sprite.YPosition - runtime.Camera.YPosition;
+                        if (Math.Abs(sprite.XPosition - runtime.Samus.XPosition) < 40 && Math.Abs(sprite.YPosition - runtime.Samus.YPosition) < 40) continue;
+                        int changed = 0;
+                        for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
+                            for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)
+                                if (actual[py * 256 + px] != baseline[py * 256 + px]) changed++;
+                        visibleExplosion |= changed > 8;
+                    }
+                    var displayedShake = runtime.DisplayedGameplayPpu.RoomShake;
+                    var stationary = new OrdinaryGameplayRenderLayer(noObjects.Registers with
+                    {
+                        Bg1X = unchecked((ushort)(layer.Registers.Bg1X - displayedShake.Bg1X)),
+                        Bg1Y = unchecked((ushort)(layer.Registers.Bg1Y - displayedShake.Bg1Y))
+                    }, layer.HorizontalScrolls, layer.VerticalScrolls);
+                    var unshaken = SoftwareLayeredSnapshotRenderer.Render(new(capture.Memory, [stationary], capture.ObjectSelection, capture.Brightness));
+                    visibleShake |= baseline.Where((pixel, index) => index >= 32 * 256 && pixel != unshaken[index]).Count() > 500;
+                    AssertTrue(baseline.AsSpan(0, 32 * 256).SequenceEqual(unshaken.AsSpan(0, 32 * 256)), "escape shake does not move HUD");
+                    if (visibleExplosion && visibleShake)
+                    {
+                        Directory.CreateDirectory("csharp/test-temp/escape-effects");
+                        PngWriter.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", 256, 224, actual);
+                    }
+                }
             }
             AssertTrue(explosionFrames > 10, $"escape {room:X4} produces animated explosion sprites");
             AssertTrue(offsets.Count > 1, $"escape {room:X4} alternates actual background scroll offsets");
+            AssertTrue(visibleExplosion, $"escape {room:X4} explosion appears in rendered pixels away from Samus");
+            AssertTrue(visibleShake, $"escape {room:X4} shake visibly displaces terrain");
             if (room == 0x9804)
             {
                 var level = runtime.LevelData!;

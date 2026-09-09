@@ -252,13 +252,20 @@ public sealed class SamusHorizontalSpeedState
     /// reaches an animation command. True means the command was consumed and frame zero
     /// was restarted from the ROM-authored delay list for the new boost stage.
     /// </summary>
+    /// <param name="queueEchoSound">
+    /// Synchronous native sound call, returning its accumulator after queue mutation.
+    /// Supplying it reproduces the cartridge's queue-dependent table selection and
+    /// replaces deferred sound publication. Null retains the legacy deferred path;
+    /// gameplay callers still require migration to the synchronous audio handoff.
+    /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         ISnesAddressSpace bus,
         SamusMovementType movementType,
         ushort controllerInput,
         ushort animationFrameBuffer,
         ref ushort animationFrame,
-        out ushort animationFrameTimer)
+        out ushort animationFrameTimer,
+        Func<ushort>? queueEchoSound = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         animationFrameTimer = 0;
@@ -274,15 +281,28 @@ public sealed class SamusHorizontalSpeedState
             return false;
 
         ushort stagedCounter = SpeedBoostCounter;
+        ushort tableSelection = stagedCounter;
         if ((stagedCounter & 0x0400) == 0)
         {
             stagedCounter = unchecked((ushort)(stagedCounter + 0x0100));
             SpeedBoostCounter = stagedCounter;
+            tableSelection = stagedCounter;
             if ((stagedCounter & 0x0400) != 0)
-                EchoSoundRequested = true;
+            {
+                if (queueEchoSound is null)
+                    EchoSoundRequested = true;
+                else
+                {
+                    // The cartridge does not preserve A across its sound call.
+                    // Its high byte selects BOTH reset tables, independently of
+                    // the stage word already stored above. Do not clamp this
+                    // index: queue occupancy five reads adjacent native data.
+                    tableSelection = queueEchoSound();
+                }
+            }
         }
 
-        byte stage = unchecked((byte)(stagedCounter >> 8));
+        byte stage = unchecked((byte)(tableSelection >> 8));
         ushort nextLowByte = ReadWord(
             bus,
             SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes + stage * 2);

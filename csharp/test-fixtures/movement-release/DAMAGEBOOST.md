@@ -561,7 +561,8 @@ momentum, Run held, Speed Booster equipped, and zero animation-frame buffer.
 Dispatch `DiagnosticSpeedBoostAnimation(rom, output)` before SDL. The committed
 `speedboost-animation.csv` records counter, frame, timer and queue mutation.
 
-The current production routine fails 60/64 cases in the explicit diagnostic:
+Before the synchronous sound-return correction, the production routine failed
+60/64 cases in the explicit diagnostic:
 
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --speedboost-animation-audit 'Super Metroid.smc' csharp/test-fixtures/movement-release/speedboost-animation.csv
@@ -572,9 +573,16 @@ occupancies 0/1/2/3 produce counter $0401 and timers 3/2/2/1; occupancy four giv
 $0402/timer 1; occupancy five reads adjacent table data and gives $0400/timer 0;
 threshold-rejected occupancies 6..15 give $0401/timer 1. Suppression changes queue
 mutation but not these lookup results. Do not clamp the zero timer or substitute
-the stable stage-four index. The explicit diagnostic intentionally returns failure
-until the production animation/audio handoff is corrected; it is not a passing
-regression claim. The golden files contain results, not ROM bytes.
+the stable stage-four index. The golden files contain results, not ROM bytes.
+
+The stage routine now accepts a synchronous queue callback and uses its actual
+returned accumulator for both lookups, preserving the independently stored stage
+word. The explicit diagnostic seeds the real CartridgeAudioState queue, invokes
+that operation, and verifies all 64 native counter/frame/timer results. It also
+rejects duplicate deferred echo requests. All 64 cases now pass, and the default
+bank-$80 verification suite passes. This is an animation-routine prerequisite,
+not a claim that gameplay integration is complete: null callers still use the
+legacy deferred path and the run-up gate remains unresolved.
 
 Frontend inspection confirms the integration requirement: CollectTranslatedAudioRequests
 currently gathers gameplay producers after completed gameplay publication, while

@@ -596,6 +596,7 @@ internal static partial class Program
         WriteWord(bus, 0x9b9400, 0x001f);
         WriteWord(bus, 0x9b9520, 0x03e0);
         WriteWord(bus, 0x9b9800, 0x7c00);
+        VerifySuitPickupHistory(bus);
         var cgram = new SnesCgram();
         var samus = new SamusState
         {
@@ -668,6 +669,40 @@ internal static partial class Program
         samus.LoadSuitPalette(bus, cgram);
         AssertEqual((ushort)0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
+    }
+
+    private static void VerifySuitPickupHistory(TestAddressSpace bus)
+    {
+        foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
+        foreach (bool otherSuit in new[] { false, true })
+        {
+            var samus = new SamusState { EquippedItems = otherSuit
+                ? (ushort)(kind == SamusSuitPickupKind.Varia ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit)
+                : (ushort)0 };
+            var history = samus.PoseHistory;
+            history.PreviousPose = SamusPoseIds.SpinJumpRightPose;
+            history.PreviousDirectionAndMovement = 0x0308;
+            history.LastDifferentPose = SamusPoseIds.WallJumpLeftPose;
+            history.LastDifferentDirectionAndMovement = 0x1404;
+            var pickup = new SamusSuitPickupState();
+            pickup.Begin(bus, samus, 0, 0, kind);
+            byte initialPose = samus.Pose;
+            ushort initialMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+            AssertEqual(SamusPoseIds.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
+            AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
+            AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
+            AssertEqual(initialMetadata, history.PreviousDirectionAndMovement, "suit entry commits front metadata");
+            int frames = 0;
+            var cgram = new SnesCgram();
+            while (pickup.Substate < 4 && frames++ < 2000) pickup.Step(bus, samus, cgram);
+            AssertEqual(4, pickup.Substate, "suit history fixture reaches reveal");
+            AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
+            AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
+            AssertEqual(SamusPoseIds.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
+            AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+                history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
+            AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
+        }
     }
 
     private static void SeedPermanentItemMessageBoxRom(TestAddressSpace bus)

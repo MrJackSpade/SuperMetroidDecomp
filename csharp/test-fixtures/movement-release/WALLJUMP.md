@@ -361,3 +361,18 @@ the early admission call. Tests exercise default and swapped Run/Shoot bindings,
 assert all four words on activation, and hold scanning for ninety frames to
 verify history does not shift again without another transition. Direct diagnostic
 admission alone is not a full gameplay frame and is not claimed as one.
+
+## Suit acquisition entry and reveal
+
+Both native entry routines call Samus command $15 after initializing the
+front-facing pose. That command calls the shared history updater ($90:F310).
+The later Varia/Gravity reveal phases separately shift history at
+$88:E340-$E355 / $88:E381-$E396. Both boundaries were missing in C#.
+
+The production-owner regression failed on entry before the fix (previous spin
+$19 should replace stale older walljump $84). Begin and RevealSuit now each
+commit at their native boundary. Four cases cover both pickup kinds with and
+without the other suit already equipped. They verify all four history words
+after entry and after the actual stepped reveal, including the same-pose $9B
+reveal case. The change restores history only; it does not change suit graphics,
+palette selection, transformation timing, or motion.

@@ -108,6 +108,8 @@ public sealed class SamusSuitPickupState
             : SamusPoseIds.ForwardFacingPowerSuitPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
+        // Entry's Samus command $15 publishes history before locking gameplay.
+        samus.CommitPoseHistory(bus);
         samus.InputLocked = true;
 
         // Native writes whole positions but leaves fractional words untouched. These are
@@ -250,6 +252,9 @@ public sealed class SamusSuitPickupState
         samus.Pose = SamusPoseIds.ForwardFacingSuitedPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
+        // The reveal phase publishes another transition, even if the other suit
+        // already selected this same front-facing pose at entry.
+        samus.CommitPoseHistory(bus);
         samus.LoadSuitPalette(bus, cgram);
         Substate++;
     }

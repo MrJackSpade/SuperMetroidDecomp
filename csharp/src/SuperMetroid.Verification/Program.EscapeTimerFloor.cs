@@ -5,6 +5,11 @@ internal static partial class Program
 {
     private static void VerifyEscapeTimerFloor()
     {
+        AssertTrue(SuperMetroidGameOptionsIni.Parse("").EndingTimeOverrideMinutes is null, "ending override defaults off");
+        AssertEqual((ushort?)0, SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=0").EndingTimeOverrideMinutes, "fastest ending override");
+        AssertEqual((ushort?)5999, SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=5999").EndingTimeOverrideMinutes, "maximum ending time");
+        AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=None").EndingTimeOverrideMinutes is null, "ending override can be disabled");
+        AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=6000"), "invalid ending time rejected");
         AssertTrue(!SuperMetroidGameOptionsIni.Parse("").PreventEscapeTimeout, "escape floor defaults off");
         AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nPreventEscapeTimeout=true").PreventEscapeTimeout, "escape floor INI enabled");
         AssertThrows<InvalidDataException>(() => SuperMetroidGameOptionsIni.Parse("[Game]\nPreventEscapeTimeout=maybe"), "escape floor rejects invalid boolean");

@@ -46,6 +46,7 @@ public sealed record ControllerInputRecording
         Validate();
 
         Span<byte> header = stackalloc byte[FixedHeaderByteCount];
+        header.Clear();
         Magic.CopyTo(header);
         BinaryPrimitives.WriteUInt32LittleEndian(header[8..], FormatVersion);
         BinaryPrimitives.WriteInt64LittleEndian(header[12..], StartedUtc.UtcTicks);
@@ -63,6 +64,13 @@ public sealed record ControllerInputRecording
             (GameOptions.PreventEscapeTimeout ? ControllerInputRecordingFormat.PreventEscapeTimeout : 0) |
             ((byte)GameOptions.MapReveal << ControllerInputRecordingFormat.MapRevealShift));
         RomSha256.CopyTo(header[28..(28 + RomDigestByteCount)]);
+        // Reserved bytes 21..22 encode ending minutes plus one; zero keeps old
+        // recordings retail-authentic, and zero-minute overrides remain representable.
+        if (GameOptions.EndingTimeOverrideMinutes is { } endingMinutes)
+        {
+            if (endingMinutes > 5999) throw new InvalidDataException("Ending override exceeds 99:59.");
+            BinaryPrimitives.WriteUInt16LittleEndian(header[21..], (ushort)(endingMinutes + 1));
+        }
         BinaryPrimitives.WriteInt32LittleEndian(header[60..], InitialSaveRam.Length);
         BinaryPrimitives.WriteInt32LittleEndian(header[64..], ControllerInputs.Length);
         destination.Write(header);
@@ -94,8 +102,11 @@ public sealed record ControllerInputRecording
 
         byte optionFlags = header[20];
         if ((optionFlags & ~ControllerInputRecordingFormat.KnownOptionMask) != 0 ||
-            !header[21..28].SequenceEqual(new byte[7]))
+            !header[23..28].SequenceEqual(new byte[5]))
             throw new InvalidDataException("Controller recording contains unknown option/reserved bits.");
+        ushort encodedEndingMinutes = BinaryPrimitives.ReadUInt16LittleEndian(header[21..]);
+        if (encodedEndingMinutes > 6000)
+            throw new InvalidDataException("Controller recording ending override exceeds 99:59.");
         var mapReveal = (MapRevealMode)(
             (optionFlags & ControllerInputRecordingFormat.MapRevealMask) >>
             ControllerInputRecordingFormat.MapRevealShift);
@@ -152,6 +163,7 @@ public sealed record ControllerInputRecording
                 InfiniteAmmo =
                     (optionFlags & ControllerInputRecordingFormat.InfiniteAmmo) != 0,
                 MapReveal = mapReveal,
+                EndingTimeOverrideMinutes = encodedEndingMinutes == 0 ? null : (ushort)(encodedEndingMinutes - 1),
                 PreventEscapeTimeout = (optionFlags & ControllerInputRecordingFormat.PreventEscapeTimeout) != 0,
             },
             ControllerInputs = inputs,

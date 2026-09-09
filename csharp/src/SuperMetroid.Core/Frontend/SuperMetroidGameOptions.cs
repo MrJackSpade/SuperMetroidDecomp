@@ -47,6 +47,9 @@ public sealed record SuperMetroidGameOptions
     /// <summary>Lets Ceres and Zebes escape countdowns run normally, but holds them at 00:01.00 instead of expiring.</summary>
     public bool PreventEscapeTimeout { get; init; }
 
+    /// <summary>Optional total minutes used only for ending time/reward selection; null preserves actual playtime and SRAM is never changed.</summary>
+    public ushort? EndingTimeOverrideMinutes { get; init; }
+
     /// <summary>Temporary map visibility used by the HUD and pause-map presentations.</summary>
     /// <remarks>
     /// This host convenience is evaluated only while drawing. It never changes exploration
@@ -101,6 +104,8 @@ public static partial class SuperMetroidGameOptionsIni
         "InfiniteAmmo=false\r\n" +
         "; true = Ceres and post-Mother-Brain timers count down normally, then stop at 00:01.00\r\n" +
         "PreventEscapeTimeout=false\r\n" +
+        "; None = actual playtime; 0..5999 = ending-only total minutes (0 selects fastest ending)\r\n" +
+        "EndingTimeOverrideMinutes=None\r\n" +
         "; None = normal save/map-station visibility\r\n" +
         "; Public = temporarily reveal everything an ordinary map station exposes\r\n" +
         "; Secret = temporarily reveal every valid map cell, including hidden cells\r\n" +
@@ -136,6 +141,8 @@ public static partial class SuperMetroidGameOptionsIni
         bool? invincibility = null;
         bool? infiniteAmmo = null;
         bool? preventEscapeTimeout = null;
+        ushort? endingTimeOverrideMinutes = null;
+        bool endingTimeOverrideSeen = false;
         MapRevealMode? mapReveal = null;
         bool? audioEnabled = null;
         RendererSelection? renderer = null;
@@ -227,6 +234,20 @@ public static partial class SuperMetroidGameOptionsIni
                     continue;
                 }
 
+                if (key.Equals(nameof(SuperMetroidGameOptions.EndingTimeOverrideMinutes), StringComparison.OrdinalIgnoreCase))
+                {
+                    if (endingTimeOverrideSeen)
+                        throw Invalid(sourceName, lineNumber, $"duplicate [Game] option '{key}'");
+                    endingTimeOverrideSeen = true;
+                    if (!value.Equals("None", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!ushort.TryParse(value, out ushort minutes) || minutes > 5999)
+                            throw Invalid(sourceName, lineNumber, $"{key} must be None or total minutes from 0 through 5999");
+                        endingTimeOverrideMinutes = minutes;
+                    }
+                    continue;
+                }
+
                 if (key.Equals(nameof(SuperMetroidGameOptions.MapReveal),
                         StringComparison.OrdinalIgnoreCase))
                 {
@@ -305,6 +326,7 @@ public static partial class SuperMetroidGameOptionsIni
             Invincibility = invincibility ?? false,
             InfiniteAmmo = infiniteAmmo ?? false,
             PreventEscapeTimeout = preventEscapeTimeout ?? false,
+            EndingTimeOverrideMinutes = endingTimeOverrideMinutes,
             MapReveal = mapReveal ?? MapRevealMode.None,
             AudioEnabled = audioEnabled ?? true,
             Renderer = renderer ?? RendererSelection.Auto,

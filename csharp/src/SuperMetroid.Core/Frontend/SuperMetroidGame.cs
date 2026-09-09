@@ -881,8 +881,8 @@ public sealed partial class SuperMetroidGame
                     endingCredits = new EndingCreditsState(
                         bus,
                         audio,
-                        runtime.GameTime.Hours,
-                        runtime.GameTime.Minutes,
+                        gameOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours,
+                        gameOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes,
                         new EndingInventorySnapshot(
                             endingSamus.MaxHealth,
                             endingSamus.MaxReserveEnergy,

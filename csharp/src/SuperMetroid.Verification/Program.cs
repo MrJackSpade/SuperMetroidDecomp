@@ -25,6 +25,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--hardware-windows"])
+{
+    VerifyHardwareWindows();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--power-bomb-fuse"])
 {
     VerifyPowerBombFuse();
@@ -533,6 +539,7 @@ VerifyIntroGameplayFlashbackVerticalScroll();
 VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
+VerifyHardwareWindows();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();

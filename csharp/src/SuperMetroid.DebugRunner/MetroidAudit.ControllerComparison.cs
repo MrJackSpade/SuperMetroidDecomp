@@ -9,6 +9,12 @@ internal static partial class MetroidAudit
     public static int CompareControllerBombs(string rom, string trace)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        using (var capture = File.OpenRead(trace))
+        {
+            string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(capture));
+            if (hash != "2E2BD83117CF54C04F180CCE4DF54570F563426C9C365602FCE98E80C964D6B8")
+                throw new InvalidDataException("Use the accepted full-alpha Metroid capture; the historical v2 oracle had an invalid phase order.");
+        }
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         if (rows.Length != 7200 || rows.Any(row => row.Length != 15))
             throw new InvalidDataException("Unexpected Metroid controller capture dimensions.");

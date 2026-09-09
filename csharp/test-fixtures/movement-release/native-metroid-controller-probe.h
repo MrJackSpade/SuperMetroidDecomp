@@ -21,6 +21,7 @@ int DiagnosticMetroidController(const char *rom, const char *output) {
     samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = 4;
     samus_anim_frame_timer = 1; samus_x_speed_table_pointer = 0x9f55;
     samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
+    grapple_beam_function = 0xc4f0;
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
     Enemy_Metroid *enemy = Get_Metroid(0);
     EnemyDef *definition = get_EnemyDef_A2(0xdd7f);
@@ -38,16 +39,13 @@ int DiagnosticMetroidController(const char *rom, const char *output) {
       uint16 input = frame == 1 || gap && (frame == 1 + gap || frame == 1 + 2 * gap) ? 0x40 : 0;
       if (travel && frame >= 46 && frame < 46 + travel * 4) input |= left ? 0x200 : 0x100;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-      RunAsmCode(0x90ec22, 0, 0, 0, 0);
       active_enemy_indexes[0] = 0; active_enemy_indexes[1] = 0xffff;
       interactive_enemy_indexes[0] = 0xffff;
+      // $82:8B58 calls the complete alpha handler BEFORE overlap and EnemyMain.
+      // Use the actual entry so its nested projectile update cannot be misplaced.
+      RunAsmCode(0x90e695, 0, 0, 0, 0);
       RunAsmCode(0xa09785, 0, 0, 0, 0);
       RunAsmCode(0xa08fd4, 0, 0, 0, 0);
-      samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
-      samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
-      RunAsmCode(0x90e90f, 0, 0, 0, 0); RunAsmCode(0x909c5b, 0, 0, 0, 0);
-      RunAsmCode(0x90ac1c, 0, 0, 0, 0); RunAsmCode(0x90bf9d, 0, 0, 0, 0);
-      RunAsmCode(0x90aece, 0, 0, 0, 0);
       samus_contact_damage_index = 0;
       RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);

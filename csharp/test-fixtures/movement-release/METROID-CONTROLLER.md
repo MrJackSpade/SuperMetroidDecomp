@@ -37,22 +37,30 @@ accepted from the CSV.
 
 ## Findings
 
-On baseline 0f4d711b, 1,264 samples differ. All state/position/health fields agree
-through frame 51 in the centered cases. At frame 52 C# has already published
-0802 bomb-jump direction; native still has zero. Native GameState_8 (82:8B44)
-calls SamusProjectileInteractionHandler before EnemyMain, before the later bomb
-fuse update. C# publishes overlap inside the later BombProjectiles.StepFrame.
-This is a phase discrepancy, not justification to change fuse constants or radii.
+The original v2 capture and the conclusions in c5d4843b/19963ed4 were invalid.
+The probe omitted the fact that GameState_8's HandleControllerInputForGamePhysics
+call executes ALL of alpha, including projectile updates, before overlap and
+EnemyMain. Commit 8ac64239 reverted the erroneous production change. The old
+metroid-controller-native-capture.zip is historical evidence, NOT an accepted
+oracle. Likewise the replacement #412/#413 captures from 19963ed4 are invalid;
+their original post-alpha captures remain authoritative.
 
-Travel index two is especially useful: with eight frames of movement, the first
-native detachment is frame 63, escape timer 3 (the same frame's enemy AI already
-ran). C# detaches at frame 62 with timer 4 after AI. Native EnemyMain invokes
-bomb collision before touch and AI; runtime's bomb hit pass is after enemy AI
-and bomb update. The matched fixture now makes both scheduling seams observable.
+The corrected probe calls the actual $90:E695 alpha entry, not a manually
+ordered selection of its subroutines. Then it calls $A0:9785, EnemyMain, and
+the movement/animation/transition phases. This agrees with bank_82.asm
+$82:8B58/$8B61/$8B65/$8B69 and bank_90.asm's alpha implementation.
+
+On baseline 8ac64239, 288 samples differ. Travel2 first detaches at frame62 in
+both, but native has already run escape AI (timer3 and X+2), while C# ends at
+timer4 with the old enemy coordinates and has drained one extra health point.
+Centered gap16 also produces a false C# detachment at101 that native does not.
+The underlying integration discrepancy is EnemyMain before alpha in C#, plus
+its separate late bomb-hit pass; not a wrong bomb fuse or blast radius.
 
 Native centered single bomb still misses. Centered gap24/gap48 cases detach at
-frame109, while travel1/gap48 first detaches at159. Travel2 detaches at63 for all
-four schedules. Do not replace these outcomes with a blanket must-detach rule.
+frame108, while travel1/gap48 first detaches at156. Travel2 detaches at62 for all
+four schedules. Each first reattachment occurs four frames later. Other cases
+do not detach. Do not replace these outcomes with a blanket must-detach rule.
 The comparison includes X/Y subpixels for Samus and Metroid, Samus pose and
 bomb-jump direction, Metroid state/escape timer, health and live bomb count.
 It must remain failing until the production schedule is faithfully corrected;
@@ -65,15 +73,15 @@ StateRecorder in sm_rtl.c, and temporarily dispatch DiagnosticMetroidController
 before SDL. Capture output refuses overwrites. Hooks removed after measurement;
 no emulator window, SRAM or player debugger slot is used.
 
-metroid-controller-native-capture.zip preserves accepted v2. An independent
+metroid-alpha-native-capture.zip preserves the corrected full-alpha trace. An independent
 repeat is byte-identical, SHA256:
-`12EDA7509F071C4BD1D622E40094ECBF0C684B601D7496427670103CD4F30733`.
+`2E2BD83117CF54C04F180CCE4DF54570F563426C9C365602FCE98E80C964D6B8`.
 
 ```powershell
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --metroid-controller-comparison-audit "Super Metroid.smc" path/to/metroid-controller-485-v2.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --metroid-controller-comparison-audit "Super Metroid.smc" path/to/metroid-alpha-485.csv
 ```
 
-DebugRunner builds with zero warnings/errors; reproduction exits 1 with 1,264
+DebugRunner builds with zero warnings/errors; reproduction exits 1 with 288
 mismatches. This commit changes diagnostics only, not gameplay. No claim of a
 passing regression suite or resolved player issue is made.
 

@@ -62,8 +62,8 @@ public sealed partial class D3D11FrameRenderer
                 case Mode7RenderLayer mode7:
                     DispatchMode7(mode7.Registers);
                     break;
-                case ObjRenderLayer:
-                    DispatchTile(D3D11TileOperation.InsertObj);
+                case ObjRenderLayer objLayer:
+                    DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u);
                     break;
                 case ObjPriorityRenderLayer obj:
                     DispatchTile(D3D11TileOperation.InsertObj, priority: (uint)obj.Priority + 1);

@@ -149,6 +149,9 @@ internal static partial class Program
                     {
                         Directory.CreateDirectory("csharp/test-temp/ending-504");
                         PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-{legacy.Phase}.png", 256, 224, expected);
+                        if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
+                            File.WriteAllBytes($"csharp/test-temp/ending-504/{hours}-reward.smframe",
+                                RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), legacy.CaptureRenderSnapshot())));
                     }
                     packet = RoundTripRenderPacket(new(new(++samples, 1, (ushort)tick), captured.CaptureRenderSnapshot()));
                     AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)),

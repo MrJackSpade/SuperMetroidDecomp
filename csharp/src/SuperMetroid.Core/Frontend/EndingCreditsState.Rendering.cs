@@ -105,7 +105,8 @@ internal sealed partial class EndingCreditsState
     {
         OamBuffer oam = PrepareSprites();
         Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel);
-        SnesLayerCompositor.Composite(pixels, objects);
+        if (RewardSubscreenAddition) SnesLayerCompositor.AddSubscreen(pixels, objects);
+        else SnesLayerCompositor.Composite(pixels, objects);
     }
 
     // E1D2 turns BG1 off when reward actors spawn. The armored reward uses OBJ only;
@@ -114,6 +115,9 @@ internal sealed partial class EndingCreditsState
         && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
     private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
         || Phase == EndingCreditsPhase.PostCreditsReward;
+    // E1D2/E2DD: TM=BG2, TS=OBJ, CGADSUB=$22 adds OBJ to BG2 and backdrop.
+    private bool RewardSubscreenAddition => Phase == EndingCreditsPhase.PostCreditsReward
+        && EndingReward != EndingReward.Armored;
 
     private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingTilemapWord : EndingCreditsRomData.Rendering.PostCreditsTilemapWord;

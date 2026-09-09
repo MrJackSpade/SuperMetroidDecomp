@@ -83,8 +83,8 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset);
                 writer.Write(m.FillOutsideWithCharacterZero);
                 break;
-            case ObjRenderLayer:
-                writer.Write((byte)RenderPacketLayerKind.Obj);
+            case ObjRenderLayer objLayer:
+                writer.Write((byte)(objLayer.AddToScreen ? RenderPacketLayerKind.ObjSubscreenAdd : RenderPacketLayerKind.Obj));
                 break;
             case ObjPriorityRenderLayer obj:
                 writer.Write((byte)RenderPacketLayerKind.ObjPriority);
@@ -130,6 +130,7 @@ public static partial class RenderFrameSnapshotCodec
             new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
                 reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))),
         RenderPacketLayerKind.Obj => new ObjRenderLayer(),
+        RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => new ObjRenderLayer(true),
         RenderPacketLayerKind.ObjPriority => new ObjPriorityRenderLayer(reader.ReadByte()),
         RenderPacketLayerKind.Bg4Bpp => new Bg4BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader)),

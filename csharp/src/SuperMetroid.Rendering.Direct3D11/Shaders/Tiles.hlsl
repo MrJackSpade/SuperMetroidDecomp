@@ -139,7 +139,17 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (Operation == OpInsertObj)
     {
         uint2 winner = Objects[id.xy];
-        if (winner.y != 255 && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y)) Output[id.xy] = winner.x;
+        if (winner.y != 255 && (PriorityFilter == 0 || PriorityFilter - 1 == winner.y))
+        {
+            // InsertObj's AddR flag selects OBJ on the additive subscreen. Arithmetic
+            // is in native five-bit components, before the final master-brightness pass.
+            if (AddR != 0)
+            {
+                uint3 color = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(winner.x) >> 3));
+                Output[id.xy] = Pack((color << 3) | (color >> 2), 255);
+            }
+            else Output[id.xy] = winner.x;
+        }
         return;
     }
     if (Operation == OpBackdrop) { Output[id.xy] = Palette(0); return; }

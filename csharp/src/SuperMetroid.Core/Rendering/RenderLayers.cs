@@ -16,8 +16,8 @@ public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers) : RenderLa
 /// <summary>Inserts only pixels whose winning OAM record has this priority.</summary>
 public sealed record ObjPriorityRenderLayer(byte Priority) : RenderLayer;
 
-/// <summary>Inserts the winning OAM pixel regardless of its background priority field.</summary>
-public sealed record ObjRenderLayer : RenderLayer;
+/// <summary>Inserts the winning OAM pixel, or adds it as an OBJ subscreen using saturated five-bit color arithmetic.</summary>
+public sealed record ObjRenderLayer(bool AddToScreen = false) : RenderLayer;
 
 /// <summary>A scrolled 4-bpp plane using native tilemap and character word addresses.</summary>
 public sealed record Bg4BppRenderLayer(ushort TilemapWord, ushort CharacterWord,

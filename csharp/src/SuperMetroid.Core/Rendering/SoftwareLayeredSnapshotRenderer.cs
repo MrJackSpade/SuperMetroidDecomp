@@ -111,8 +111,9 @@ public static class SoftwareLayeredSnapshotRenderer
                         m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
                         fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero));
                     break;
-                case ObjRenderLayer:
-                    SnesLayerCompositor.Composite(output, objects.Pixels);
+                case ObjRenderLayer objLayer:
+                    if (objLayer.AddToScreen) SnesLayerCompositor.AddSubscreen(output, objects.Pixels);
+                    else SnesLayerCompositor.Composite(output, objects.Pixels);
                     break;
                 case ObjPriorityRenderLayer obj:
                     for (int pixel = 0; pixel < output.Length; pixel++)

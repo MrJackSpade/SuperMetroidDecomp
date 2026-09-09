@@ -4,7 +4,7 @@ using SuperMetroid.Core.Audio;
 /// <summary>Compares sequencer register state at original-SPC loop boundaries, not PCM.</summary>
 internal static class SpcTickComparisonAudit
 {
-    public static int Run(string directory, int musicAddress, string tracePath)
+    public static int Run(string directory, int musicAddress, string tracePath, int expectedTicks = 3000)
     {
         var assets = ExtractedAudioAssetCatalog.Load(directory);
         var player = new ManagedSpcPlayer();
@@ -71,6 +71,6 @@ internal static class SpcTickComparisonAudit
             ticks++;
         }
         Console.WriteLine($"SPC tick comparison: ticks={ticks}, mismatched={mismatchedTicks}. Scope: latched-input-aligned sequencer registers, not PCM or host port timing.");
-        return ticks == 3000 && mismatchedTicks == 0 ? 0 : 1;
+        return ticks == expectedTicks && mismatchedTicks == 0 ? 0 : 1;
     }
 }

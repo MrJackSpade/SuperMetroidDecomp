@@ -1,0 +1,20 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -314,2 +314,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 5 && strcmp(argv[1], "--ridley-spc-probe") == 0) {
++    extern int DiagnosticRidleySpcTicks(const char *, const char *, const char *);
++    return DiagnosticRidleySpcTicks(argv[2], argv[3], argv[4]);
++  }
+ #ifdef __SWITCH__
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -10,3 +10,6 @@
+ struct StateRecorder;
+ 
++#include "../../csharp/test-fixtures/pause-audio/native-spc-probe.h"
++#include "../../csharp/test-fixtures/pause-audio/ridley-spc-probe.h"
++
+ static void RtlSaveMusicStateToRam_Locked();

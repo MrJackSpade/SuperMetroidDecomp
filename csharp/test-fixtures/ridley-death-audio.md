@@ -44,3 +44,22 @@ player's recorded history. Thus this rules out managed/native divergence in thes
 three sampled mixes, not the reported audible distortion, original-hardware
 parity, or host delivery starvation. No production fix or issue closure follows
 from this passing comparison.
+
+## Original SPC700 sequencer overlap
+
+Apply `pause-audio/ridley-integration.patch` inside the pinned upstream checkout,
+build Release/x64 using v145 and its absolute SolutionDir, then run:
+
+```
+upstream-sm/build/bin-x64-Release/sm.exe --ridley-spc-probe standalone-assets/audio/streams/00-SPCEngine.spcu standalone-assets/audio/streams/24-Music_BossFight1.spcu NEW_TRACE.log
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release --no-launch-profile -- --ridley-spc-tick-comparison-audit standalone-assets/audio D7BF73 NEW_TRACE.log
+```
+
+The output file is exclusive-create. The original uploaded SPC700 driver executes
+for 6,000 bounded loop snapshots, with music five, roar $59, 33 repeated $24
+explosions, and music three. These inputs are scheduled in driver ticks, not the
+captured video-frame timeline. All 6,000 managed register snapshots agree when
+driven by the same latched inputs and timer values. DSP-produced ENVX/OUTX/ENDX
+are excluded, as in the existing loop comparator. This strengthens sequencer
+evidence but does not establish waveform/host timing or reproduce the audible
+report. The temporary upstream integration was removed after the run.

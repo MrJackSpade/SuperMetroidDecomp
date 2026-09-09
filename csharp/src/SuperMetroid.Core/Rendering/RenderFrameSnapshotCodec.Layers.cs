@@ -76,7 +76,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(color.Red); writer.Write(color.Green); writer.Write(color.Blue);
                 break;
             case Mode7RenderLayer layer7:
-                writer.Write((byte)RenderPacketLayerKind.Mode7);
+                writer.Write((byte)(layer7.SubtractObjSubscreen ? RenderPacketLayerKind.Mode7ObjSubtract : RenderPacketLayerKind.Mode7));
                 Mode7RenderRegisters m = layer7.Registers;
                 writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
                 writer.Write(m.CenterX); writer.Write(m.CenterY);
@@ -129,6 +129,9 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.Mode7 when version >= RenderPacketFormat.Mode7LayerVersion => new Mode7RenderLayer(
             new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
                 reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))),
+        RenderPacketLayerKind.Mode7ObjSubtract when version >= RenderPacketFormat.Mode7ObjSubtractVersion => new Mode7RenderLayer(
+            new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
+                reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader)), true),
         RenderPacketLayerKind.Obj => new ObjRenderLayer(),
         RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => new ObjRenderLayer(true),
         RenderPacketLayerKind.ObjPriority => new ObjPriorityRenderLayer(reader.ReadByte()),

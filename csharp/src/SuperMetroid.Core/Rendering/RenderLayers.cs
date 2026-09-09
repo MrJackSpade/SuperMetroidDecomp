@@ -11,7 +11,7 @@ public sealed record Bg2BppViewportRenderLayer(ushort TilemapWord, ushort Charac
 public sealed record FixedColorAddRenderLayer(byte Red, byte Green, byte Blue) : RenderLayer;
 
 /// <summary>Inserts a Mode 7 plane at an explicit position in the OBJ priority ladder.</summary>
-public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers) : RenderLayer;
+public sealed record Mode7RenderLayer(Mode7RenderRegisters Registers, bool SubtractObjSubscreen = false) : RenderLayer;
 
 /// <summary>Inserts only pixels whose winning OAM record has this priority.</summary>
 public sealed record ObjPriorityRenderLayer(byte Priority) : RenderLayer;

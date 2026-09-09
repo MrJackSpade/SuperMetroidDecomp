@@ -132,7 +132,18 @@ void Main(uint3 id : SV_DispatchThreadID)
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
         uint character = outside ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
         uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
-        if (color != 0) Output[id.xy] = Palette(color);
+        if (color != 0)
+        {
+            uint main = Palette(color);
+            uint2 sub = Objects[id.xy];
+            if (Reserved27 != 0 && sub.y != 255)
+            {
+                int3 difference = max(0, (int3)(Unpack(main) >> 3) - (int3)(Unpack(sub.x) >> 3));
+                uint3 result = (uint3)difference;
+                main = Pack((result << 3) | (result >> 2), 255);
+            }
+            Output[id.xy] = main;
+        }
         return;
     }
     if (Operation == OpResolveObj) { Objects[id.xy] = ResolveObject(id.xy); return; }

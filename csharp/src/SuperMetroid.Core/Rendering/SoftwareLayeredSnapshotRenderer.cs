@@ -20,7 +20,7 @@ public static class SoftwareLayeredSnapshotRenderer
         // wrongly allow a higher-numbered record to shine through the winning record.
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
-            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer;
+            usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true };
         ResolvedObjFrame objects = usesObjInsertion
             ? SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection)
             : default;
@@ -106,10 +106,18 @@ public static class SoftwareLayeredSnapshotRenderer
                     break;
                 case Mode7RenderLayer mode7:
                     Mode7RenderRegisters m = mode7.Registers;
-                    SnesLayerCompositor.Composite(output, SnesMode7Renderer.RenderViewport(
+                    Rgba32[] mode7Pixels = SnesMode7Renderer.RenderViewport(
                         memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
                         m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
-                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero));
+                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero);
+                    if (mode7.SubtractObjSubscreen)
+                        for (int i = 0; i < mode7Pixels.Length; i++)
+                        {
+                            if (mode7Pixels[i].A == 0 || objects.Pixels[i].A == 0) continue;
+                            Rgba32 main = mode7Pixels[i], sub = objects.Pixels[i];
+                            mode7Pixels[i] = new Rgba32(Subtract(main.R, sub.R), Subtract(main.G, sub.G), Subtract(main.B, sub.B));
+                        }
+                    SnesLayerCompositor.Composite(output, mode7Pixels);
                     break;
                 case ObjRenderLayer objLayer:
                     if (objLayer.AddToScreen) SnesLayerCompositor.AddSubscreen(output, objects.Pixels);
@@ -144,5 +152,11 @@ public static class SoftwareLayeredSnapshotRenderer
         int reduced = (component * 31 + 127) / 255;
         int sum = Math.Min(31, reduced + addend);
         return (byte)((sum << 3) | (sum >> 2));
+    }
+
+    private static byte Subtract(byte main, byte sub)
+    {
+        int difference = Math.Max(0, (main >> 3) - (sub >> 3));
+        return (byte)((difference << 3) | (difference >> 2));
     }
 }

@@ -25,7 +25,7 @@ public sealed partial class D3D11FrameRenderer
         owner.Context.CSSetUnorderedAccessView(1, objectView);
         DispatchTile(D3D11TileOperation.Backdrop);
         bool needsObjects = false;
-        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer;
+        foreach (RenderLayer layer in scene.Layers) needsObjects |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7GameplayRenderLayer or OrdinaryGameplayRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true };
         if (needsObjects) DispatchTile(D3D11TileOperation.ResolveObj, objectCount: (uint)scene.Memory.ModeledSpriteCount,
             objectSelection: scene.ObjectSelection);
         foreach (RenderLayer layer in scene.Layers)
@@ -60,7 +60,7 @@ public sealed partial class D3D11FrameRenderer
                     DispatchMode7Gameplay(gameplay);
                     break;
                 case Mode7RenderLayer mode7:
-                    DispatchMode7(mode7.Registers);
+                    DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen);
                     break;
                 case ObjRenderLayer objLayer:
                     DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u);
@@ -108,7 +108,7 @@ public sealed partial class D3D11FrameRenderer
 
     private static uint Priority(bool? priority) => priority is null ? 0u : priority.Value ? 2u : 1u;
 
-    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224)
+    private unsafe void DispatchMode7(Mode7RenderRegisters registers, int firstScanline = 0, int endScanline = 224, bool subtractObj = false)
     {
         // Preserve signed register values, including negative products and arithmetic
         // right shifts. No projected coordinates or raster pixels are uploaded.
@@ -120,6 +120,7 @@ public sealed partial class D3D11FrameRenderer
         data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
         data[24] = registers.FillOutsideWithCharacterZero ? 1 : 0;
         data[25] = firstScanline; data[26] = endScanline;
+        data[27] = subtractObj ? 1 : 0;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

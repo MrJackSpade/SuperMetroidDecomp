@@ -4,6 +4,7 @@ internal static partial class Program
 {
     private static void VerifyHardwareWindows()
     {
+        VerifyWindowRegisterCache();
         // Independent truth-table oracle for pinned ppu_getWindowState (ppu.c).
         // Bit index is first*2+second; do not call production's Boolean branches.
         int[] operations = [0b1110, 0b1000, 0b0110, 0b1001];

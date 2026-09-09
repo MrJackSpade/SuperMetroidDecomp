@@ -134,3 +134,12 @@ derives main-screen layers from door/boss state and leaves the packet's new
 window fields at defaults. Merely setting packet windows from the projectile
 would bypass both this accepted-NMI boundary and competing producers. The
 software/GPU primitive tests prove register interpretation, not this handoff.
+
+`GameplayWindowRegisterCache` now models the contiguous shadow-byte region,
+selective window/screen initialization and accepted/lagged NMI publication.
+`--hardware-windows` checks all five native STY targets against literal byte
+addresses, preservation of neighboring bytes, the gameplay_TM gap, high-bit
+retention, and snapshot stability across later writes and lag. This is a tested
+cache component, not yet the live runtime owner: the existing effect producers,
+runtime NMI and capture still require integration. It does not supply CPU Y or
+make the opt-in Chainsaw firing reproduction pass.

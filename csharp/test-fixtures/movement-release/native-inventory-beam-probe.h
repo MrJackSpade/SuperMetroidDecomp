@@ -28,6 +28,11 @@ int DiagnosticInventoryBeams(const char *rom) {
       if (word != 0x5555) printf(" tile=%04X:%04X", 0x3800 + offset, word);
     }
     puts("");
+    RunAsmCode(0x82b20c, 0, 0, 0, 0);
+    printf("AFTER WIREFRAME");
+    for (int offset = 0x3d08; offset <= 0x3d18; offset += 2)
+      printf(" %04X", g_ram[offset] | g_ram[offset + 1] << 8);
+    puts("");
   }
   return 0;
 }

@@ -470,6 +470,7 @@ VerifyEyeDoorPlms();
 VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
+VerifyInvalidBeamSelection();
 VerifyMovedSamusCameraTracking();
 VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();

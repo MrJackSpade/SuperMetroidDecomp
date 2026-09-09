@@ -426,56 +426,6 @@ internal sealed partial class PauseMenuState
         }
     }
 
-    private void HandleEquipmentInput(SnesButton pressed)
-    {
-        if (selectedCategory is < 1 or > 3)
-            return;
-
-        PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[selectedCategory];
-        ushort collected = GetCollectedBits(selectedCategory);
-
-        if ((pressed & SnesButton.Up) != 0)
-        {
-            for (int item = selectedItem - 1; item >= 0; item--)
-            {
-                if ((collected & ReadCategoryMask(category, item)) == 0)
-                    continue;
-                selectedItem = item;
-                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-                return;
-            }
-        }
-        else if ((pressed & SnesButton.Down) != 0)
-        {
-            for (int item = selectedItem + 1; item < category.ItemCount; item++)
-            {
-                if ((collected & ReadCategoryMask(category, item)) == 0)
-                    continue;
-                selectedItem = item;
-                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-                return;
-            }
-        }
-        else if ((pressed & SnesButton.A) != 0)
-        {
-            ushort mask = ReadCategoryMask(category, selectedItem);
-            if ((collected & mask) == 0)
-                return;
-
-            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
-
-            // EquipmentScreenCategory_ButtonResponse toggles the live equipped word, then
-            // recolors exactly this label. Rebuilding all labels is equivalent and avoids
-            // retaining a second authoritative equipment state in the pause object.
-            if (selectedCategory == 1)
-                samus.EquippedBeams ^= mask;
-            else
-                samus.EquippedItems ^= mask;
-            RebuildEquipmentTilemap();
-            UploadEquipmentTilemap();
-        }
-    }
-
     private void SelectFirstCollectedEquipment()
     {
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)

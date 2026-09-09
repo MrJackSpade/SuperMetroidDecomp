@@ -55,6 +55,22 @@ internal readonly record struct PauseEquipmentCategoryDefinition(
 /// <summary>Native reserve, beam, suit/misc, and boot category definitions.</summary>
 internal static class PauseEquipmentCategories
 {
+    /// <summary>$82:AC58 category dispatcher: reserve tanks, low selector byte zero.</summary>
+    public const int Reserves = 0;
+    /// <summary>$82:AFBE Weapons category, low selector byte one.</summary>
+    public const int Beams = 1;
+    /// <summary>$82:B0C2 Suit category, low selector byte two.</summary>
+    public const int Suits = 2;
+    /// <summary>$82:B150 Boots category, low selector byte three.</summary>
+    public const int Boots = 3;
+    /// <summary>$82:C04C Weapons mask table index of Spazer.</summary>
+    public const int SpazerItem = 3;
+    /// <summary>$82:C04C Weapons mask table index of Plasma; bottom of beam list.</summary>
+    public const int PlasmaItem = 4;
+    /// <summary>$82:AFDB ordinary Right entry starts at suit/misc table byte offset four.</summary>
+    public const int BeamRightSuitItem = 2;
+    /// <summary>$82:B568 target offsets are relative to EquipmentScreenBG1Tilemap at $7E:3800.</summary>
+    public const int TilemapWramBase = 0x3800;
     public static readonly PauseEquipmentCategoryDefinition[] Definitions =
     [
         // Category zero is reserve tanks. Its special controls are unavailable until Samus

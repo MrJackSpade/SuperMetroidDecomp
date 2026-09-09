@@ -29,13 +29,18 @@ Same-frame copied words are `08FF 08EC 08ED 08EE 08EF 08FF 0900 0901 0902`.
 Separate-frame copies only the first five. The extra four are from reading
 beyond Plasma's five-word label with the Boots handler's nine-word copy length.
 This establishes both the bit mismatch and exact tile footprint independently
-of the wiki description. Rendered glyph comparison remains to be added.
+of the wiki description. The extended probe calls $82:B20C afterward and confirms
+the wireframe overwrites the ninth word with $0000 for this equipment set. The
+remaining overrun renders the visible VAR suffix.
 
 ## C# reproduction
 
 `dotnet run --project csharp/src/SuperMetroid.Verification -- --invalid-beam-selection`
 seeds Boots through the real initial-selection rule, then supplies the remaining
 inventory before the tested input. It drives the public pause Step path. Currently
-fails: Left+A stays in Boots (category 3, expected 1). The production handler lacks
-cross-category movement and applies a simple toggle instead of native move-then-
-category-response ordering. No production fix is included with this reproduction.
+failed before the fix: Left+A stayed in Boots (category 3, expected 1). The production
+handler lacked cross-category movement and used a simple toggle rather than native
+move-then-category-response ordering. The fixed path preserves the original
+category's copy length and Weapons-only exclusion. Tests now compare simultaneous,
+adjacent-frame, and Left-only beam bits, measured tile writes and rendered pixels.
+Additional normal navigation enters each Boots item from the initial Beams category.

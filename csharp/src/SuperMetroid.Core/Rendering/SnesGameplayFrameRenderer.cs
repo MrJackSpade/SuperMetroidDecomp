@@ -210,9 +210,17 @@ public static partial class SnesGameplayFrameRenderer
         SnesMainScreenLayers mainScreenLayers =
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
         Rgba32[]? outputBuffer = null,
-        int bg2FirstScanline = 32, int bg2EndScanline = 224)
+        int bg2FirstScanline = 32, int bg2EndScanline = 224,
+        SnesWindowRegisters windowRegisters = default,
+        SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
+        Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
+        if (mainScreenWindowMask == SnesMainScreenLayers.None)
+            windowMasks.Clear();
+        else
+            for (int x = 0; x < Width; x++)
+                windowMasks[x] = windowRegisters.MaskedLayers((byte)x, mainScreenWindowMask);
         // BGMODE=$09 is Mode 1 with the BG3-priority flag. Below the HUD, BG3 is disabled
         // by TM and the relevant back-to-front ladder is OBJ0, OBJ1, BG2-low, BG1-low,
         // OBJ2, BG2-high, BG1-high, OBJ3. Samus's body entries use OBJ2, so cartridge-
@@ -253,7 +261,7 @@ public static partial class SnesGameplayFrameRenderer
                 bg2TilemapWidthInTiles,
                 bg2TilemapHeightInTiles,
                 bg2TilemapBaseWord,
-                mainScreenLayers, bg2FirstScanline, bg2EndScanline);
+                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks);
         }
         finally
         {
@@ -264,6 +272,16 @@ public static partial class SnesGameplayFrameRenderer
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
         DrawHud(output, vram, cgram, bg3CharacterBaseWord);
+        if ((mainScreenWindowMask & SnesMainScreenLayers.Bg3) != 0)
+        {
+            // The modeled HUD IRQ admits only BG3. A masked HUD pixel therefore
+            // exposes backdrop, not the gameplay planes disabled on these scanlines.
+            Rgba32 backdrop = cgram.GetRgba(0);
+            for (int x = 0; x < Width; x++)
+                if ((windowMasks[x] & SnesMainScreenLayers.Bg3) != 0)
+                    for (int y = 0; y < HudHeight; y++)
+                        output[y * Width + x] = backdrop;
+        }
         return output;
     }
 
@@ -291,7 +309,8 @@ public static partial class SnesGameplayFrameRenderer
         int bg2TilemapHeightInTiles,
         ushort bg2TilemapBaseWord,
         SnesMainScreenLayers mainScreenLayers,
-        int bg2FirstScanline, int bg2EndScanline)
+        int bg2FirstScanline, int bg2EndScanline,
+        ReadOnlySpan<SnesMainScreenLayers> windowMasks)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -395,7 +414,7 @@ public static partial class SnesGameplayFrameRenderer
                     previousBg2TileX = bg2TileX;
                 }
 
-                if (bg2Enabled &&
+                if (bg2Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg2) == 0 &&
                     TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
@@ -426,7 +445,7 @@ public static partial class SnesGameplayFrameRenderer
                     previousBg1TileX = bg1TileX;
                 }
 
-                if (bg1Enabled &&
+                if (bg1Enabled && (windowMasks[screenX] & SnesMainScreenLayers.Bg1) == 0 &&
                     TryDecodeOrdinaryGameplayBgPixel(
                         vramBytes,
                         palette,
@@ -446,7 +465,7 @@ public static partial class SnesGameplayFrameRenderer
                 }
 
                 byte objPriority = objectPriorities[destination];
-                if (objEnabled &&
+                if (objEnabled && (windowMasks[screenX] & SnesMainScreenLayers.Obj) == 0 &&
                     objPriority != SnesObjRenderer.TransparentPriority)
                 {
                     int objRank = objPriority switch

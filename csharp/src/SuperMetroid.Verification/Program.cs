@@ -25,6 +25,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--window-pixels"])
+{
+    VerifyWindowPixels();
+    VerifyGameplaySnapshots();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--hardware-windows"])
 {
     VerifyHardwareWindows();
@@ -360,6 +367,7 @@ VerifyRenderPacketCodec();
 VerifyFrontendRenderCapture();
 VerifyCinematicRenderSnapshots();
 VerifyGameplaySnapshots();
+VerifyWindowPixels();
 VerifyColorWindowSnapshots();
 VerifyMessageSnapshots();
 VerifyEyeWindowSnapshots();

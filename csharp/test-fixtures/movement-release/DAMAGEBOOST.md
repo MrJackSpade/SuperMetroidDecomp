@@ -275,3 +275,18 @@ routine alone is insufficient: instructions belong before PLMs, collision after 
 and the current runtime commits Samus transitions below its PLM block. The correction
 must separate these owners and preserve projectile-spawn/PLM interactions. This trace
 is the first full-frame gate, not a claim of complete source-window coverage.
+
+## Projectile phase correction
+
+The three-frame reproduction above is now green and runs in the default core suite.
+Projectile instructions execute after completed Samus movement/pose history, followed
+by PLMs, then projectile/Samus and projectile/projectile collision. The ordinary
+Power Bomb collision pass follows those projectile passes. Projectile contact only
+publishes the timer and source direction; the next Samus phase installs hurt movement.
+The standalone combined helper retains that deferred-request behavior rather than
+performing an extra Samus phase. All three suit cases now assert this as well as damage.
+
+This fixes the demonstrated two-frame early movement, not all of #472. The seeded
+movement sweeps do not cover every source collision, simultaneous transition, or
+medium boundary. Native alpha/enemy ordering and other contact-source timing still
+need separate examination before the issue can be marked ready for player validation.

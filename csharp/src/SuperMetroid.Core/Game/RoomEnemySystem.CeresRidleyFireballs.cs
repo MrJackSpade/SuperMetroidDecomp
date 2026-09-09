@@ -448,6 +448,19 @@ public sealed partial class RoomEnemySystem
         byte? nmiFrameCounter8 = null,
         SamusBombProjectileSystem? samusBombs = null)
     {
+        StepEnemyProjectileInstructions(level, samus, cameraX, cameraY, nmiFrameCounter8, samusBombs);
+        ResolveEnemyProjectileSamusHits(samus);
+    }
+
+    /// <summary>Advances enemy-projectile actors after Samus movement and before PLMs.</summary>
+    public void StepEnemyProjectileInstructions(
+        RoomLevelData level,
+        SamusState? samus,
+        ushort cameraX = 0,
+        ushort cameraY = 0,
+        byte? nmiFrameCounter8 = null,
+        SamusBombProjectileSystem? samusBombs = null)
+    {
         ArgumentNullException.ThrowIfNull(level);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
@@ -492,6 +505,12 @@ public sealed partial class RoomEnemySystem
             ProcessEnemyProjectileInstructions(projectile, samus, cameraX, cameraY);
         }
 
+    }
+
+    /// <summary>Publishes projectile hurt requests after PLMs; the next Samus phase consumes them.</summary>
+    public void ResolveEnemyProjectileSamusHits(SamusState? samus)
+    {
+        EnsureLoaded();
         // Native gameplay runs `$86:868B` for every projectile first, then enters the
         // separate `$A0:9894` Samus-collision pass. That pass samples invincibility and
         // contact-damage state once at entry; damage from one overlapping projectile does
@@ -516,18 +535,12 @@ public sealed partial class RoomEnemySystem
         }
 
         // `$A0:9923` only publishes the five-frame request and overwrites its horizontal
-        // direction for every hit. Bank $90 consumes those words once, after the complete
-        // descending collision scan. Our typed initializer represents that later consumer,
-        // so invoke it once with the final overlapping slot's direction after retaining all
-        // per-slot damage above.
+        // direction for every hit. Bank $90 has already run this frame: do not initialize
+        // a hurt pose or move Samus here. The next frame consumes the final request.
         if (finalKnockbackXDirection.HasValue)
         {
-            SamusKnockbackMovement.Start(
-                _bus!,
-                samus!,
-                controllerInput,
-                finalKnockbackXDirection.Value,
-                knockbackTimer: 5);
+            samus!.KnockbackXDirection = finalKnockbackXDirection.Value;
+            samus.KnockbackTimer = 5;
         }
     }
 

@@ -1673,15 +1673,6 @@ public sealed partial class SuperMetroidRuntime
                     Samus,
                     Controller1.Current);
             }
-            if (LevelData is not null && !TimeIsFrozen)
-                Enemies.StepEnemyProjectiles(
-                    LevelData,
-                    Samus,
-                    Controller1.Current,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    NmiFrameCounter8,
-                    BombProjectiles);
             if (Samus is not null)
             {
                 Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
@@ -2030,10 +2021,6 @@ public sealed partial class SuperMetroidRuntime
                     _addressSpace,
                     Projectiles,
                     BombProjectiles);
-                Enemies.ResolveEnemyProjectileSamusProjectileHits(
-                    _addressSpace,
-                    Projectiles,
-                    BombProjectiles);
                 Enemies.ResolveOrdinaryProjectileHits(
                     _addressSpace,
                     Projectiles,
@@ -2050,19 +2037,6 @@ public sealed partial class SuperMetroidRuntime
                     Projectiles,
                     Samus);
 
-                // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
-                // projectile passes. The native routine reads the high byte of live WRAM
-                // radius `$0CEE`; a zero byte is its own inactive/pre-explosion guard.
-                // Invincibility timers inside the enemy pass prevent the persistent
-                // expansion/afterglow radius from damaging one actor every frame.
-                SamusPowerBombExplosionState powerBomb =
-                    BombProjectiles.PowerBombExplosion;
-                Enemies.ResolveOrdinaryPowerBombHits(
-                    _addressSpace,
-                    powerBomb.XPosition,
-                    powerBomb.YPosition,
-                    unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
-                    Samus);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
@@ -2884,152 +2858,6 @@ public sealed partial class SuperMetroidRuntime
                 StepSamusLoadAppearance();
             }
 
-            // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
-            // enemy-projectile passes but before MainScrollingRoutine. A grapple block
-            // acquired above therefore consumes its initial timer and draws $E0B7 in this
-            // same frame; when it later becomes air, anchor validation has already run and
-            // sees that mutation on the following Samus frame.
-            if (!deathOwnsSamus && !TimeIsFrozen)
-            {
-                if (LevelData is null || BackgroundStreamer is null || Camera is null)
-                    throw new InvalidOperationException("The PLM handler requires an active room and camera.");
-
-                // Boss AI and its later collision callbacks publish hardcoded bank-$84
-                // entries at different points in this gameplay frame. Consume all of them
-                // at the native PLM-handler seam so a projectile/contact death cannot lose
-                // its request to the enemy system's next frame-publication reset.
-                ApplyPendingBotwoonWallPlm();
-                ApplyPendingSporeSpawnCeilingPlm();
-                ApplyPendingCrocomireArenaPlms();
-                ApplyPendingKraidPlms();
-                ApplyPendingMotherBrainPlms();
-                ApplyPendingShitroidWallPlms();
-                ApplyPendingChozoStatuePlms();
-
-                IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
-                    _addressSpace,
-                    LevelData,
-                    BackgroundStreamer,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    BackgroundScroll.Bg1XOffset,
-                    Camera.Scrolls,
-                    Enemies.EnemiesKilled,
-                    Enemies.DeathQuota,
-                    Controller1.NewlyPressed,
-                    Samus.CollectedItems);
-                foreach (PlmTilemapUpdate update in plmUpdates)
-                    update.ExecuteTo(Vram);
-                ApplyPendingDownwardGateProjectileRequests();
-
-                // PLM opcode $87E5 appends a normal seven-byte VRAM record. It must share
-                // the runtime queue so the next accepted NMI performs the transfer in the
-                // same order as HUD, beam, and room-main uploads.
-                foreach (PlmVramWriteRequest request in Plms.VramWriteRequests)
-                {
-                    VramWrites.Enqueue(
-                        request.SizeInBytes,
-                        request.SourceAddress,
-                        request.EncodedVramDestination);
-                }
-
-                // Item PLMs publish acquisition only after their native trigger and
-                // handler pass. Apply the hardware-facing consequences at that same seam:
-                // beam combinations replace the projectile character/palette staging, and
-                // suit changes defer their visible palette reveal until bank-$88 stage
-                // three after the message. Resource tanks and other equipment bits are
-                // consumed directly by the HUD/movement owners.
-                foreach (CollectiblePickupEvent pickup in Plms.CollectiblePickupEvents)
-                {
-                    if (pickup.Kind is
-                        InWorldCollectibleKind.ChargeBeam or
-                        InWorldCollectibleKind.IceBeam or
-                        InWorldCollectibleKind.WaveBeam or
-                        InWorldCollectibleKind.SpazerBeam or
-                        InWorldCollectibleKind.PlasmaBeam)
-                    {
-                        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
-                            _addressSpace,
-                            VramWrites,
-                            Cgram,
-                            Samus.EquippedBeams);
-                    }
-                    else if (pickup.Kind is
-                             InWorldCollectibleKind.VariaSuit or
-                             InWorldCollectibleKind.GravitySuit)
-                    {
-                        if (_pendingSuitPickup is not null || SuitPickup.IsActive)
-                        {
-                            throw new InvalidDataException(
-                                "A second suit pickup attempted to replace an active transformation.");
-                        }
-                        _pendingSuitPickup = pickup.Kind == InWorldCollectibleKind.VariaSuit
-                            ? SamusSuitPickupKind.Varia
-                            : SamusSuitPickupKind.Gravity;
-                    }
-
-                    if (MessageBox.IsActive)
-                    {
-                        throw new InvalidDataException(
-                            "Multiple permanent items attempted to enter the synchronous " +
-                            "bank-$85 message routine during one PLM pass.");
-                    }
-                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex);
-                }
-                foreach (StationActivationEvent station in Plms.StationActivationEvents)
-                {
-                    if (station.Kind == StationKind.Save)
-                    {
-                        if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
-                        {
-                            if (_pendingSaveStation is not null ||
-                                _pendingSaveStationCompletion is not null ||
-                                MessageBox.IsActive)
-                            {
-                                throw new InvalidDataException(
-                                    "A save station attempted to replace an active PLM message owner.");
-                            }
-                            _pendingSaveStation = station;
-                            MessageBox.Begin(
-                                _addressSpace,
-                                GameplayMessageIds.SaveConfirmation);
-                            continue;
-                        }
-                        if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
-                        {
-                            if (_pendingSaveStation is not null ||
-                                _pendingSaveStationCompletion is not null ||
-                                MessageBox.IsActive)
-                            {
-                                throw new InvalidDataException(
-                                    "A completed save station attempted to replace an active message owner.");
-                            }
-                            _pendingSaveStationCompletion = station;
-                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted);
-                            continue;
-                        }
-                        throw new InvalidDataException(
-                            $"Save station published unexpected message ${station.MessageBoxIndex:X2}.");
-                    }
-                    if (MessageBox.IsActive)
-                    {
-                        throw new InvalidDataException(
-                            "Multiple PLMs attempted to enter the synchronous bank-$85 " +
-                            "message routine during one handler pass.");
-                    }
-                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex);
-                }
-                foreach (MotherBrainGlassProjectileRequest request in
-                         Plms.MotherBrainGlassProjectileRequests)
-                {
-                    Enemies.SpawnMotherBrainGlassProjectile(request);
-                }
-                foreach (BombTorizoStatueProjectileRequest request in
-                         Plms.BombTorizoStatueProjectileRequests)
-                {
-                    Enemies.SpawnBombTorizoStatueBreakingProjectile(request);
-                }
-            }
 
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
@@ -3818,6 +3646,178 @@ public sealed partial class SuperMetroidRuntime
                     ProspectiveSamusPose is not null ||
                     ProspectiveSamusFallbackPose is not null)
                     Samus.CommitPoseHistory(_addressSpace);
+            }
+
+            if (!deathOwnsSamus && !TimeIsFrozen && LevelData is not null)
+                Enemies.StepEnemyProjectileInstructions(
+                    LevelData, Samus, Camera.XPosition, Camera.YPosition,
+                    NmiFrameCounter8, BombProjectiles);
+
+            // Native gameplay state eight reaches PLM_Handler after Samus's new-state and
+            // enemy-projectile passes but before MainScrollingRoutine. A grapple block
+            // acquired above therefore consumes its initial timer and draws $E0B7 in this
+            // same frame; when it later becomes air, anchor validation has already run and
+            // sees that mutation on the following Samus frame.
+            if (!deathOwnsSamus && !TimeIsFrozen)
+            {
+                if (LevelData is null || BackgroundStreamer is null || Camera is null)
+                    throw new InvalidOperationException("The PLM handler requires an active room and camera.");
+
+                // Boss AI and its later collision callbacks publish hardcoded bank-$84
+                // entries at different points in this gameplay frame. Consume all of them
+                // at the native PLM-handler seam so a projectile/contact death cannot lose
+                // its request to the enemy system's next frame-publication reset.
+                ApplyPendingBotwoonWallPlm();
+                ApplyPendingSporeSpawnCeilingPlm();
+                ApplyPendingCrocomireArenaPlms();
+                ApplyPendingKraidPlms();
+                ApplyPendingMotherBrainPlms();
+                ApplyPendingShitroidWallPlms();
+                ApplyPendingChozoStatuePlms();
+
+                IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
+                    _addressSpace,
+                    LevelData,
+                    BackgroundStreamer,
+                    Camera.XPosition,
+                    Camera.YPosition,
+                    BackgroundScroll.Bg1XOffset,
+                    Camera.Scrolls,
+                    Enemies.EnemiesKilled,
+                    Enemies.DeathQuota,
+                    Controller1.NewlyPressed,
+                    Samus.CollectedItems);
+                foreach (PlmTilemapUpdate update in plmUpdates)
+                    update.ExecuteTo(Vram);
+                ApplyPendingDownwardGateProjectileRequests();
+
+                // PLM opcode $87E5 appends a normal seven-byte VRAM record. It must share
+                // the runtime queue so the next accepted NMI performs the transfer in the
+                // same order as HUD, beam, and room-main uploads.
+                foreach (PlmVramWriteRequest request in Plms.VramWriteRequests)
+                {
+                    VramWrites.Enqueue(
+                        request.SizeInBytes,
+                        request.SourceAddress,
+                        request.EncodedVramDestination);
+                }
+
+                // Item PLMs publish acquisition only after their native trigger and
+                // handler pass. Apply the hardware-facing consequences at that same seam:
+                // beam combinations replace the projectile character/palette staging, and
+                // suit changes defer their visible palette reveal until bank-$88 stage
+                // three after the message. Resource tanks and other equipment bits are
+                // consumed directly by the HUD/movement owners.
+                foreach (CollectiblePickupEvent pickup in Plms.CollectiblePickupEvents)
+                {
+                    if (pickup.Kind is
+                        InWorldCollectibleKind.ChargeBeam or
+                        InWorldCollectibleKind.IceBeam or
+                        InWorldCollectibleKind.WaveBeam or
+                        InWorldCollectibleKind.SpazerBeam or
+                        InWorldCollectibleKind.PlasmaBeam)
+                    {
+                        SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
+                            _addressSpace,
+                            VramWrites,
+                            Cgram,
+                            Samus.EquippedBeams);
+                    }
+                    else if (pickup.Kind is
+                             InWorldCollectibleKind.VariaSuit or
+                             InWorldCollectibleKind.GravitySuit)
+                    {
+                        if (_pendingSuitPickup is not null || SuitPickup.IsActive)
+                        {
+                            throw new InvalidDataException(
+                                "A second suit pickup attempted to replace an active transformation.");
+                        }
+                        _pendingSuitPickup = pickup.Kind == InWorldCollectibleKind.VariaSuit
+                            ? SamusSuitPickupKind.Varia
+                            : SamusSuitPickupKind.Gravity;
+                    }
+
+                    if (MessageBox.IsActive)
+                    {
+                        throw new InvalidDataException(
+                            "Multiple permanent items attempted to enter the synchronous " +
+                            "bank-$85 message routine during one PLM pass.");
+                    }
+                    MessageBox.Begin(_addressSpace, pickup.MessageBoxIndex);
+                }
+                foreach (StationActivationEvent station in Plms.StationActivationEvents)
+                {
+                    if (station.Kind == StationKind.Save)
+                    {
+                        if (station.MessageBoxIndex == GameplayMessageIds.SaveConfirmation)
+                        {
+                            if (_pendingSaveStation is not null ||
+                                _pendingSaveStationCompletion is not null ||
+                                MessageBox.IsActive)
+                            {
+                                throw new InvalidDataException(
+                                    "A save station attempted to replace an active PLM message owner.");
+                            }
+                            _pendingSaveStation = station;
+                            MessageBox.Begin(
+                                _addressSpace,
+                                GameplayMessageIds.SaveConfirmation);
+                            continue;
+                        }
+                        if (station.MessageBoxIndex == GameplayMessageIds.SaveCompleted)
+                        {
+                            if (_pendingSaveStation is not null ||
+                                _pendingSaveStationCompletion is not null ||
+                                MessageBox.IsActive)
+                            {
+                                throw new InvalidDataException(
+                                    "A completed save station attempted to replace an active message owner.");
+                            }
+                            _pendingSaveStationCompletion = station;
+                            MessageBox.Begin(_addressSpace, GameplayMessageIds.SaveCompleted);
+                            continue;
+                        }
+                        throw new InvalidDataException(
+                            $"Save station published unexpected message ${station.MessageBoxIndex:X2}.");
+                    }
+                    if (MessageBox.IsActive)
+                    {
+                        throw new InvalidDataException(
+                            "Multiple PLMs attempted to enter the synchronous bank-$85 " +
+                            "message routine during one handler pass.");
+                    }
+                    MessageBox.Begin(_addressSpace, station.MessageBoxIndex);
+                }
+                foreach (MotherBrainGlassProjectileRequest request in
+                         Plms.MotherBrainGlassProjectileRequests)
+                {
+                    Enemies.SpawnMotherBrainGlassProjectile(request);
+                }
+                foreach (BombTorizoStatueProjectileRequest request in
+                         Plms.BombTorizoStatueProjectileRequests)
+                {
+                    Enemies.SpawnBombTorizoStatueBreakingProjectile(request);
+                }
+            }
+
+            if (!deathOwnsSamus && !TimeIsFrozen)
+            {
+                Enemies.ResolveEnemyProjectileSamusHits(Samus);
+                Enemies.ResolveEnemyProjectileSamusProjectileHits(
+                    _addressSpace, Projectiles, BombProjectiles);
+                // GameState_8 calls `$A0:A306` every gameplay frame after the enemy-
+                // projectile passes. The native routine reads the high byte of live WRAM
+                // radius `$0CEE`; a zero byte is its own inactive/pre-explosion guard.
+                // Invincibility timers inside the enemy pass prevent the persistent
+                // expansion/afterglow radius from damaging one actor every frame.
+                SamusPowerBombExplosionState powerBomb =
+                    BombProjectiles.PowerBombExplosion;
+                Enemies.ResolveOrdinaryPowerBombHits(
+                    _addressSpace,
+                    powerBomb.XPosition,
+                    powerBomb.YPosition,
+                    unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
+                    Samus);
             }
 
             // Native GameState_8 runs bank-$86 enemy projectiles immediately after Samus's

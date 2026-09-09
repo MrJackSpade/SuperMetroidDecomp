@@ -1,9 +1,32 @@
 # Damage boost parity — #472
 
-Investigation in progress; not ready for player validation. The sections below
-are a chronological record of reproductions and fixes, not a list of current failures.
-Parent #394 requires real dispatcher/input timing and
-source-specific contacts, not only calling the damage-boost initializer directly.
+## Acceptance audit (2026-09-09)
+
+Ready for player validation of #472's damage-boost timing and trajectory fixes.
+The consolidated current run passes 97 original-CPU captures / 616,608 samples;
+the separate 64 queue-context animation cases also pass. Production changes passed
+the full core verification suite. The sections below are a chronological record,
+not a list of current failures or current missing source coverage.
+
+- Both facings/source sides and neutral/forward-held contacts: per-frame position,
+  subpixels, pose/animation, hurt timing, direction and velocity match.
+- Enemy, projectile, spike-air, solid-spike and electric-block contact owners:
+  actual collision publication and health loss match, including their different
+  placement in the native frame sequence and adjacent unsuccessful input delays.
+- Jump newly pressed, pre-held, or absent: positive windows and no-Jump rejection
+  match; morphed cases do not enter damage-boost poses. Continued and released
+  direction trajectories match in air, water and lava.
+- Seeded carried speed and input-driven running approaches with/without Speed
+  Booster match. Native contact protection and sound-queue-dependent animation
+  quirks are retained rather than normalized away.
+- Exact seed/input records, revision identities, reproduction commands and the
+  archived accepted traces are in [DAMAGEBOOST-MATRIX.md](DAMAGEBOOST-MATRIX.md).
+  No player save slots were modified, and native integration hooks were removed.
+
+This does not close linked report #279 or other technique tickets. Specialized
+uninterruptible-animation/Kagoing behavior (#455), general medium transitions
+(#423/#424), and other techniques remain independently tracked. No PAL or modified
+ROM claim is made. Keep #472 open until the player confirms it.
 
 ## Source and current evidence
 

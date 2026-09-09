@@ -15,7 +15,7 @@ internal static class DamageBoostComparisonAudit
         if (contactKind is < 0 or > 9) throw new InvalidDataException("Unknown contact source.");
         bool runup = contactKind >= 8;
         bool contact = contactKind != 0;
-        if (rows.Length != (runup ? 7728 : contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27 or 28))
+        if (rows.Length != (runup ? 7728 : contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27 or 28 or 29))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
@@ -33,12 +33,15 @@ internal static class DamageBoostComparisonAudit
             int medium = seed.Length >= 24 ? int.Parse(seed[22]) : 0;
             int release = seed.Length >= 24 ? int.Parse(seed[23]) : 0;
             bool holdForward = seed.Length >= 27 && seed[26] == "1";
-            bool jumpPreheld = seed.Length == 28 && seed[27] == "1";
+            bool jumpPreheld = seed.Length >= 28 && seed[27] == "1";
+            bool jumpDisabled = seed.Length == 29 && seed[28] == "1";
             if (medium is < 0 or > 2 || release is < 0 or > 1 ||
                 group.Any(row => row.Length >= 24 && (row[22] != seed[22] || row[23] != seed[23])) ||
                 group.Any(row => row.Length >= 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)) ||
                 group.Any(row => row.Length >= 27 && row[26] != (holdForward ? "1" : "0")) ||
-                group.Any(row => row.Length == 28 && row[27] != (jumpPreheld ? "1" : "0")))
+                group.Any(row => row.Length >= 28 && row[27] != (jumpPreheld ? "1" : "0")) ||
+                group.Any(row => row.Length == 29 && row[28] != (jumpDisabled ? "1" : "0")) ||
+                jumpPreheld && jumpDisabled)
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: runup);
             var level = runtime.LevelData!;
@@ -179,6 +182,7 @@ internal static class DamageBoostComparisonAudit
                         projectile.CanDamageSamus = true;
                     }
                 }
+                if (jumpDisabled) expectedInput &= unchecked((ushort)~0x80);
                 if (input != expectedInput) throw new InvalidDataException("Changed boost input sequence.");
                 var audioPublication = new GameplayAudioFramePublication(audio);
                 if (frame >= 0) runtime.StepFrame(input,
@@ -196,6 +200,9 @@ internal static class DamageBoostComparisonAudit
                     continue;
                 }
                 var h = samus.PoseHistory;
+                if (jumpDisabled && (samus.Pose is SamusPoseIds.DamageBoostLeftPose or SamusPoseIds.DamageBoostRightPose ||
+                    row[10] is "4F" or "50"))
+                    throw new InvalidDataException("A no-Jump negative case entered damage boost.");
                 var s = samus.HorizontalSpeed;
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.AnimationFrame:X4}," +
                     $"{samus.KnockbackTimer:X4},{samus.KnockbackDirection:X4},{samus.Kinematics.YSpeed:X4}{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4}," +

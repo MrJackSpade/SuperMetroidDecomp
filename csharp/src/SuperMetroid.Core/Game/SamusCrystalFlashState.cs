@@ -123,6 +123,9 @@ public sealed class SamusCrystalFlashState
         if (samus.ReadMovementKind(bus) != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
         samus.InitializeAnimation(bus, initialFrame: 0);
+        // Successful HDMA-owned activation publishes history directly, before
+        // installing its movement handler. Rejected activation must not shift it.
+        samus.CommitPoseHistory(bus);
 
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.

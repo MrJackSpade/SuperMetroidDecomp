@@ -376,3 +376,17 @@ without the other suit already equipped. They verify all four history words
 after entry and after the actual stepped reveal, including the same-pose $9B
 reveal case. The change restores history only; it does not change suit graphics,
 palette selection, transformation timing, or motion.
+
+## Crystal Flash activation
+
+The successful native HDMA activation shifts history at $90:D616-$D62B after
+initializing the Crystal Flash pose and confirming movement type $1B. C# omitted
+that shift. A production-owner assertion failed before the fix (expected prior
+standing pose $01 in older history, found stale spin $1A).
+
+TryBegin now commits after successful pose initialization. Tests verify all four
+history words for right and left activation and retain an adjacent rejected-input/
+vertical-velocity case that must not shift history. Existing resource consumption,
+raising/lowering, palette, bubble and animation tests remain in the same suite.
+This completes the activation history owner, not independent Crystal Flash
+advanced-technique acceptance or the remaining global owner audit.

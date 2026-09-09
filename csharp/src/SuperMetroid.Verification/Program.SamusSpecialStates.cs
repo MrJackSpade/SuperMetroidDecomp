@@ -81,16 +81,26 @@ static void VerifySamusCrystalFlash()
     };
     samus.RefreshCollisionRadii(bus);
 
+    samus.PoseHistory.PreviousPose = SamusPoseIds.FacingRightNormalPose;
+    samus.PoseHistory.PreviousDirectionAndMovement = 8;
+    samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
+    samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
         "Crystal Flash rejects extra held input");
     samus.Kinematics.YSubspeed = 1;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash rejects fractional vertical movement");
     samus.Kinematics.YSubspeed = 0;
+    AssertEqual(SamusPoseIds.SpinJumpLeftPose, samus.PoseHistory.LastDifferentPose,
+        "rejected Crystal Flash must not shift history");
     AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash accepts exact chord and resources");
     AssertEqual(SamusPoseIds.CrystalFlashRightPose, samus.Pose,
         "source direction selects right Crystal Flash pose");
+    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "Crystal Flash shifts previous pose");
+    AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "Crystal Flash shifts previous metadata");
+    AssertEqual(SamusPoseIds.CrystalFlashRightPose, samus.PoseHistory.PreviousPose, "Crystal Flash commits right pose");
+    AssertEqual(0x1b08, samus.PoseHistory.PreviousDirectionAndMovement, "Crystal Flash commits right metadata");
     AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
         "Crystal Flash installs raise handler");
     AssertEqual(7, samus.CrystalFlash.SpecialPaletteType,
@@ -244,10 +254,16 @@ static void VerifySamusCrystalFlash()
         PowerBombs = 10,
     };
     left.RefreshCollisionRadii(bus);
+    left.PoseHistory.PreviousPose = left.Pose;
+    left.PoseHistory.PreviousDirectionAndMovement = 4;
     AssertTrue(left.CrystalFlash.TryBegin(bus, left, chord),
         "left-facing Crystal Flash begins");
     AssertEqual(SamusPoseIds.CrystalFlashLeftPose, left.Pose,
         "source direction selects left Crystal Flash pose");
+    AssertEqual(SamusPoseIds.FacingLeftNormalPose, left.PoseHistory.LastDifferentPose, "left Crystal Flash shifts previous pose");
+    AssertEqual(4, left.PoseHistory.LastDifferentDirectionAndMovement, "left Crystal Flash shifts previous metadata");
+    AssertEqual(SamusPoseIds.CrystalFlashLeftPose, left.PoseHistory.PreviousPose, "Crystal Flash commits left pose");
+    AssertEqual(0x1b04, left.PoseHistory.PreviousDirectionAndMovement, "Crystal Flash commits left metadata");
 
     Console.WriteLine("  Crystal Flash: prerequisites, handlers, resources, HDMA bubble, palette, and ROM animation agree.");
 }

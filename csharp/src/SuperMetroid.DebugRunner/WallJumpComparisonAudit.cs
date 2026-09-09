@@ -19,6 +19,7 @@ internal static class WallJumpComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         VerifyDraygonReleaseHistory(bus);
+        WallJumpLegacyHistoryAudit.Run(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
         int speedMismatches = 0;
         int chargeMismatches = 0;

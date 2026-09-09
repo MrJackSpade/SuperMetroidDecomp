@@ -555,3 +555,22 @@ along with the existing health, auxiliary cleanup and kill-count checks.
 The full `--yapping-maw-audit` passes, including all six retail populations, ten
 history cases, freeze/unfreeze, OAM output and lethal cleanup. This supersedes the
 preceding broader-gate failure note. No production code changed for #509.
+
+### Legacy pose-history entry
+
+The comparison audit now also exercises the migration boundary with two otherwise
+identical production runtimes. One has recorded history; the other has the omitted
+owner left null exactly as a known older graph layout does. Its lazy history is zero
+and cannot invent walljump eligibility. From standing, Right then held Jump creates
+running/jump transitions: all four words converge at frame 2 and remain equal for
+90 frames. Whole/fractional positions and pose agree throughout. The separate
+DiagnosticsVerification legacy-options-migration gate checks supported field layouts
+and serialization; this movement fixture is not represented as a legacy file replay.
+
+Compatibility limitation: a legacy save captured mid-spin has no recoverable older
+movement word. The native walljump gate reads that word, so an immediate attempt can
+be suppressed until accepted transitions repopulate history. Deriving a guessed spin
+history from the current pose would fabricate state and break parity for other cases.
+The existing load warning explicitly reports zero restoration. Current-format saves
+retain all four words. The grounded convergence test does not assert exact replay of
+an unknown historical mid-air state. Overhang-side follow-up remains outstanding.

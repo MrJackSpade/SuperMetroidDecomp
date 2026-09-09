@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--projectile-quake"])
+{
+    VerifyProjectileQuake();
+    return 0;
+}
 if (args is ["--pause-reserve-labels"])
 {
     VerifyPauseReserveLabels();

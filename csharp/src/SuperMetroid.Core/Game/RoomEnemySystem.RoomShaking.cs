@@ -7,6 +7,20 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
+    /// <summary>Ports $86:8427, evaluated at each projectile draw pass before room-shake timer consumption.</summary>
+    private (short X, short Y) GetEnemyProjectileShake(bool timeIsFrozen)
+    {
+        if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
+            return default;
+        int address = RoomFxRomData.Earthquake.ProjectileDisplacementTableAddress +
+            EarthquakeType * RoomFxRomData.Earthquake.ProjectileBytesPerType;
+        short x = unchecked((short)ReadWord(_bus!, address));
+        short y = unchecked((short)ReadWord(_bus!, address + sizeof(ushort)));
+        if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
+            return (unchecked((short)-x), unchecked((short)-y));
+        return (x, y);
+    }
+
     /// <summary>
     /// Displacement produced by the most recent call to <see cref="HandleRoomShaking"/>.
     /// It is deliberately a delta rather than mutated camera state: the cartridge adjusts

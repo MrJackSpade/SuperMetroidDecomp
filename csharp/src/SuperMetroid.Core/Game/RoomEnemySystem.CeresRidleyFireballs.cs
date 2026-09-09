@@ -536,7 +536,7 @@ public sealed partial class RoomEnemySystem
     /// not draw Samus between them. Gameplay must call the two phase-specific methods so
     /// property bit <c>$1000</c> determines which side of Samus owns each OAM record.
     /// </summary>
-    public void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY)
+    public void DrawEnemyProjectiles(OamBuffer oam, ushort cameraX, ushort cameraY, bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
@@ -546,12 +546,12 @@ public sealed partial class RoomEnemySystem
             oam,
             cameraX,
             cameraY,
-            EnemyProjectileDrawPriority.High);
+            EnemyProjectileDrawPriority.High, timeIsFrozen);
         DrawEnemyProjectilePass(
             oam,
             cameraX,
             cameraY,
-            EnemyProjectileDrawPriority.Low);
+            EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
     /// <summary>
@@ -561,7 +561,8 @@ public sealed partial class RoomEnemySystem
     public void DrawHighPriorityEnemyProjectiles(
         OamBuffer oam,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
@@ -573,14 +574,15 @@ public sealed partial class RoomEnemySystem
             oam,
             cameraX,
             cameraY,
-            EnemyProjectileDrawPriority.High);
+            EnemyProjectileDrawPriority.High, timeIsFrozen);
     }
 
     /// <summary>Ports <c>Draw_LowPriority_EnemyProjectile</c> at <c>$86:83B2</c>.</summary>
     public void DrawLowPriorityEnemyProjectiles(
         OamBuffer oam,
         ushort cameraX,
-        ushort cameraY)
+        ushort cameraY,
+        bool timeIsFrozen = false)
     {
         ArgumentNullException.ThrowIfNull(oam);
         EnsureLoaded();
@@ -589,15 +591,17 @@ public sealed partial class RoomEnemySystem
             oam,
             cameraX,
             cameraY,
-            EnemyProjectileDrawPriority.Low);
+            EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
     private void DrawEnemyProjectilePass(
         OamBuffer oam,
         ushort cameraX,
         ushort cameraY,
-        EnemyProjectileDrawPriority priority)
+        EnemyProjectileDrawPriority priority,
+        bool timeIsFrozen)
     {
+        var (shakeX, shakeY) = GetEnemyProjectileShake(timeIsFrozen);
         // Both cartridge routines scan native indexes $22,$20,...,$00. Physical array
         // index seventeen therefore reaches OAM first and wins equal-priority overlap.
         for (int projectileIndex = _enemyProjectiles.Length - 1;
@@ -611,8 +615,8 @@ public sealed partial class RoomEnemySystem
                 projectile.SpritemapPointer == 0)
                 continue;
 
-            ushort screenX = unchecked((ushort)(projectile.XPosition - cameraX));
-            ushort screenY = unchecked((ushort)(projectile.YPosition - cameraY));
+            ushort screenX = unchecked((ushort)(projectile.XPosition + shakeX - cameraX));
+            ushort screenY = unchecked((ushort)(projectile.YPosition + shakeY - cameraY));
             if (((screenX + 128) & 0xfe00) != 0 || ((screenY + 128) & 0xfe00) != 0)
                 continue;
 

@@ -3866,7 +3866,8 @@ public sealed partial class SuperMetroidRuntime
                     Enemies.DrawHighPriorityEnemyProjectiles(
                         Oam,
                         Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.YPosition,
+                        TimeIsFrozen);
                 }
                 drawHighPriorityEnemyProjectiles?.Invoke(Oam);
             }
@@ -4194,7 +4195,8 @@ public sealed partial class SuperMetroidRuntime
                 Enemies.DrawLowPriorityEnemyProjectiles(
                     Oam,
                     Camera.XPosition,
-                    Camera.YPosition);
+                    Camera.YPosition,
+                    TimeIsFrozen);
             }
 
             if (!deathOwnsSamus && Enemies.IsLoaded)

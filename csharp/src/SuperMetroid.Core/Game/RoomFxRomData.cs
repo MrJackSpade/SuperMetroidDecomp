@@ -314,6 +314,10 @@ public static class RoomFxRomData
     /// <summary>Bank-$A0 room-shake displacement data and type boundaries.</summary>
     public static class Earthquake
     {
+        /// <summary>$86:846B, kScreenShakeOffsets: signed XY offsets added to enemy projectile draw origins.</summary>
+        public const int ProjectileDisplacementTableAddress = 0x86846b;
+        /// <summary>$86:8427 indexes one pair of signed words for each earthquake type.</summary>
+        public const int ProjectileBytesPerType = 4;
         public const ushort FirstEnemyShakingType = 0x0012;
         public const ushort FirstNonRenderedType = 0x0024;
         public const int BgDisplacementTableAddress = 0xa0872d;

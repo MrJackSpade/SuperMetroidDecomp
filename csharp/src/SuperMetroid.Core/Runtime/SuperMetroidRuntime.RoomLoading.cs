@@ -928,6 +928,7 @@ public sealed partial class SuperMetroidRuntime
                     BackgroundScroll.SetBg2ScrollRegisters(horizontal, vertical),
             isRoomPlmPresent: Plms.HasActiveHeader,
             gunshipLoadScenario: gunshipLoadScenario);
+        SetupEscapeRoomEffects(room.State.SetupCodePointer);
         // Gate setup runs while the room PLM population is constructed, but Enemies.Load
         // subsequently clears the shared bank-$86 projectile pool. Consume those setup
         // requests here—the first point matching the cartridge's completed room teardown—

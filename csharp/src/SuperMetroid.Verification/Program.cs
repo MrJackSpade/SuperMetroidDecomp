@@ -28,6 +28,7 @@ try
 if (args.Length == 2 && args[0] == "--escape-animals")
 {
     VerifyEscapeAnimalBlocks(args[1]);
+    VerifyEscapeRoomEffects(args[1]);
     return 0;
 }
 if (args.Contains("--escape-timer"))

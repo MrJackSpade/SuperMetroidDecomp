@@ -4264,6 +4264,7 @@ public sealed partial class SuperMetroidRuntime
         }
 
         SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+        StepEscapeRoomEffects();
         TourianStatues.StepTiles(this);
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its

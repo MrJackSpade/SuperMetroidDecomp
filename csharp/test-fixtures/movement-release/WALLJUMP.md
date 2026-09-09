@@ -450,3 +450,34 @@ same-pose releases. Hyper activation must retain all four words unchanged.
 Full core verification and all 12,480 native walljump samples pass. This fixes
 history publication only, not an independently reported Mother Brain visual
 or combat issue; remaining audit items are not marked complete by this test.
+
+## Cinematic/demo audit frontier
+
+Inspection of the remaining bank-$8B/$91 demo owners found a coordinated gap,
+not just another isolated missing setup store:
+
+- Mother Brain flashback setup creates a new SamusState and omits the native
+  $8B:AEB8 history shift. Its $91:8739 terminal demo command likewise omits
+  the explicit shift after selecting pose two.
+- Baby discovery creates another new SamusState. Native $8B:AF6C reuses the
+  existing Samus history and shifts it; a new zero-seeded history is not equivalent.
+- IntroSamusDemoMovement applies prospective/fallback transitions independently
+  of the gameplay runtime and does not publish their history. Same-pose fallback
+  must be covered, not just changed pose IDs. Mother Brain's separate flashback
+  coordinator also needs its accepted animation/input transition seam inspected.
+- $91:86FE is explicitly unused in the pinned native source; $91:8739 is the
+  live terminal command. Do not assume both are exercised by the retail sequence.
+
+No cinematic production change was made from this inspection. The next fixture
+must follow history across scene setup, ordinary demo transitions, terminal
+command, and discovery setup. Patching just the final setup calls would conceal
+the missing intermediate history and cannot establish parity. Existing snapshot
+pixel equality does not assert these state words.
+
+Completed gameplay-owner checks are documented above: ordinary transition,
+grapple launch, forward setup, Draygon, X-ray (activation/turns/teardown), suits,
+Crystal Flash, Ceres ejection, fresh Ceres initialization, death, load appearance,
+and drained controllers. Remaining work includes this cinematic/demo frontier,
+the unreviewed shared-helper callers, legacy-state entry behavior, and the
+overhang-side follow-up jump. This list supersedes the earlier undifferentiated
+direct-write inventory; it does not mark #473 ready for player validation.

@@ -17,8 +17,8 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.HeaderPointer = header;
             slot.BlockIndex = level.GetBlockIndex(6, 12);
-            slot.InstructionPointer = (ushort)(bus.ReadByte(0x840000 | (header + 2)) |
-                bus.ReadByte(0x840000 | (header + 3)) << 8);
+            slot.InstructionPointer = (ushort)(bus.ReadByte(TourianStatueRomData.AccessPlmBank | (header + 2)) |
+                bus.ReadByte(TourianStatueRomData.AccessPlmBank | (header + 3)) << 8);
             slot.InstructionTimer = 1;
             return true;
         }

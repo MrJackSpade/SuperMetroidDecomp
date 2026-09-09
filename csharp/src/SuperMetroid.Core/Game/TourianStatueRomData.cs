@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Cartridge identities and operands for the four-boss statue sequence.</summary>
 public static class TourianStatueRomData
 {
+    /// <summary>Bank $86 owns the statue unlock projectiles and their instruction operands.</summary>
+    public const int ProjectileBank = 0x860000;
+    /// <summary>Bank $84 owns the clear/crumble access PLM headers and instruction-list pointers.</summary>
+    public const int AccessPlmBank = 0x840000;
     /// <summary>$8F:91D7 spawn order; native allocation/iteration preserves this order.</summary>
     public static ReadOnlySpan<ushort> AnimatedObjects => [0x8558, 0x854c, 0x855e, 0x8552];
     /// <summary>$87:833E serializes the four lock-release animations with bit 15.</summary>

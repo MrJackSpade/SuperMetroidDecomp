@@ -67,7 +67,7 @@ public sealed class TourianStatueSequence
                 {
                     if (code == 0) throw new InvalidDataException("Zero-duration statue tile frame.");
                     tile.Timer = code;
-                    runtime.VramWrites.Enqueue(tile.Size, 0x870000 | value, tile.Destination);
+                    runtime.VramWrites.Enqueue(tile.Size, RoomFxRomData.Banks.AnimatedTiles | value, tile.Destination);
                     tile.Pointer += 4;
                     break;
                 }
@@ -161,5 +161,6 @@ public sealed class TourianStatueSequence
         runtime.Camera.Scrolls.SetLogicalState(0, 1, RoomScrollState.Green);
     }
     private static ushort Word(ISnesAddressSpace bus, int pointer) =>
-        (ushort)(bus.ReadByte(0x870000 | pointer) | bus.ReadByte(0x870000 | (pointer + 1)) << 8);
+        (ushort)(bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | pointer) |
+            bus.ReadByte(RoomFxRomData.Banks.AnimatedTiles | (pointer + 1)) << 8);
 }

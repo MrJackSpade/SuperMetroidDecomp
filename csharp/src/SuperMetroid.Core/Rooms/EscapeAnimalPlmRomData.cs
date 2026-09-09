@@ -3,6 +3,10 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Bank-$84 animal-rescue block definitions used by the Zebes escape.</summary>
 public static class EscapeAnimalPlmRomData
 {
+    /// <summary>$84:B978 reaction retains the collision nibble while replacing the rescue wall artwork and flips.</summary>
+    public const ushort ReactionCollisionMask = 0xf000;
+    /// <summary>$84:B978 reaction clears collision bits 12-14 temporarily, preserving the solid high bit and artwork.</summary>
+    public const ushort ReactionTemporaryCollisionMask = 0x8fff;
     /// <summary>$8F:91B6 hardcoded spawn X coordinate for the animal rescue wall.</summary>
     public const byte WallX = 15;
     /// <summary>$8F:91B7 hardcoded spawn Y coordinate for the animal rescue wall.</summary>

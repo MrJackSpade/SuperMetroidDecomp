@@ -34,8 +34,8 @@ public sealed partial class RoomPlmSystem
             slot.InstructionPointer = EscapeAnimalPlmRomData.ReactionList;
             slot.InstructionTimer = 1;
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-            slot.RestoreLevelWord = (ushort)((block.LevelWord & 0xf000) | EscapeAnimalPlmRomData.ReactionVisualBlock);
-            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord & 0x8fff));
+            slot.RestoreLevelWord = (ushort)((block.LevelWord & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
+            level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));
             return true;
         }
         return false;

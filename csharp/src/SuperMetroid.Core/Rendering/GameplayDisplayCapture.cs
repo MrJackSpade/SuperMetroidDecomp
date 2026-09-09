@@ -66,7 +66,10 @@ public static partial class GameplayDisplayCapture
         ushort bg2X = Add(ppu.Bg2HorizontalScroll, shake.Bg2X);
         ushort bg2Y = Add(ppu.Bg2VerticalScroll, shake.Bg2Y);
         if (runtime.TourianStatues.Enabled)
-            bg2Y = Add(unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset)), shake.Bg2Y);
+            // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
+            // register upload. It replaces, rather than adds to, the quake-adjusted
+            // register. Type 13 also gives the statue OBJ zero quake displacement.
+            bg2Y = unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset));
         RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
         ScrollingSkyState? sky = runtime.ScrollingSky;
         ushort[]? skyX = sky?.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition

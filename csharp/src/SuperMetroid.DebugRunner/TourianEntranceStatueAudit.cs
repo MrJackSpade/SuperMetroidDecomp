@@ -93,6 +93,11 @@ internal static class TourianEntranceStatueAudit
             {
                 runtime.StepFrame(0);
                 offsets.Add(runtime.TourianStatues.VerticalOffset);
+                var ppu = runtime.DisplayedGameplayPpu;
+                var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
+                ushort nativeY = unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset));
+                if (layer.Registers.Bg2Y != nativeY)
+                    throw new InvalidDataException($"Statue HDMA mismatch at frame {frame}: BG2Y={layer.Registers.Bg2Y}, native={nativeY}, quake={ppu.RoomShake.Bg2Y}.");
             }
             if (runtime.System.HasEvent(EventNumber.TourianUnlocked) != allBossesDead)
                 throw new InvalidDataException("Statue room ignored the four-boss prerequisite or failed to unlock.");
@@ -191,6 +196,7 @@ internal static class TourianEntranceStatueAudit
         }
 
         var oam = new OamBuffer();
+        VerifyProjectileQuake(bus, enemies);
         oam.BeginFrame();
         enemies.DrawEnemyProjectiles(oam, 0, 0);
         enemies.DrawLayers(oam, 0, 0, 0, 7);
@@ -215,6 +221,40 @@ internal static class TourianEntranceStatueAudit
                 $"Tourian statue shot immunity mismatch: hits={hits}, " +
                 $"health={statueHealth}->{statues[0].Health}.");
         }
+    }
+
+    private static void VerifyProjectileQuake(ISnesAddressSpace bus, RoomEnemySystem enemies)
+    {
+        // Keep real statue spritemaps/actors, but vary the native draw-time inputs.
+        // An unshaken draw at the equivalent camera is an independent OAM oracle:
+        // bank $86 adds signed quake displacement before camera subtraction.
+        foreach (ushort type in new ushort[] { 13 })
+        foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4 })
+        {
+            short dx = 0, dy = 0;
+            if (timer != 0 && type < 36)
+            {
+                dx = unchecked((short)ReadWord(bus, 0x86846b + type * 4));
+                dy = unchecked((short)ReadWord(bus, 0x86846d + type * 4));
+                if ((timer & 2) != 0) { dx = unchecked((short)-dx); dy = unchecked((short)-dy); }
+            }
+            enemies.EarthquakeTimer = 0;
+            var expected = new OamBuffer();
+            expected.BeginFrame();
+            enemies.DrawEnemyProjectiles(expected, unchecked((ushort)-dx), unchecked((ushort)-dy));
+            expected.FinalizeFrame();
+            enemies.EarthquakeType = type;
+            enemies.EarthquakeTimer = timer;
+            var actual = new OamBuffer();
+            actual.BeginFrame();
+            enemies.DrawEnemyProjectiles(actual, 0, 0);
+            actual.FinalizeFrame();
+            if (!actual.LowTable.SequenceEqual(expected.LowTable) || !actual.HighTable.SequenceEqual(expected.HighTable))
+                throw new InvalidDataException($"Statue quake OAM mismatch: type={type}, timer={timer}, native delta={dx},{dy}.");
+            if (enemies.EarthquakeTimer != timer)
+                throw new InvalidDataException("Projectile rendering advanced the shared earthquake timer.");
+        }
+        enemies.EarthquakeTimer = 0;
     }
 
     private static void ArmProjectile(SamusProjectileSlot projectile, RoomEnemySlot target)

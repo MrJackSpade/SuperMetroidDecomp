@@ -1,9 +1,57 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    /// <summary>Check the ROM-authored words, not just the compositor's interpretation of them.</summary>
+    private static int VerifyDraygonBodyTilemap(SuperMetroidRuntime runtime)
+    {
+        int total = 0;
+        foreach (var part in runtime.Enemies.Slots)
+            total += VerifyDraygonPartTilemap(runtime, part);
+        return total;
+    }
+
+    private static int VerifyDraygonPartTilemap(SuperMetroidRuntime runtime, RoomEnemySlot body)
+    {
+        if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap)) return 0;
+        int bank = body.Definition.Bank << 16;
+        int Word(int pointer) => runtime.AddressSpace.ReadByte(bank | (pointer & 65535)) |
+            runtime.AddressSpace.ReadByte(bank | ((pointer + 1) & 65535)) << 8;
+        int components = Word(body.SpritemapPointer);
+        if (components > 32) throw new InvalidOperationException("Unexpected Draygon extended map size.");
+        int checkedWords = 0;
+        for (int component = 0; component < components; component++)
+        {
+            int stream = Word(body.SpritemapPointer + 2 + component * 8 + 4);
+            if (Word(stream) != DraygonTilemapAuditDefinitions.ExtendedTilemapMarker) continue;
+            int cursor = stream + 2;
+            for (int command = 0; ; command++)
+            {
+                int destination = Word(cursor);
+                if (destination == DraygonTilemapAuditDefinitions.StreamEnd) break;
+                if (command >= 128) throw new InvalidOperationException("Unterminated native Draygon map.");
+                int count = Word(cursor + 2);
+                int first = (destination - DraygonTilemapAuditDefinitions.WorkingRamBase) / 2;
+                if (count <= 0 || first < 0 || first + count > 2048)
+                    throw new InvalidOperationException("Native Draygon map exceeds workspace.");
+                for (int i = 0; i < count; i++)
+                {
+                    int expected = Word(cursor + 4 + i * 2);
+                    int actual = runtime.Vram.ReadWord(SnesPpuLayout.GameplayBg2TilemapWord + first + i);
+                    if (actual != expected)
+                        throw new InvalidOperationException($"Draygon map ${stream:X4}, word {i}: ROM ${expected:X4}, VRAM ${actual:X4}.");
+                    checkedWords++;
+                }
+                cursor += 4 + count * 2;
+            }
+        }
+        return checkedWords;
+    }
+
     /// <summary>
     /// #385: isolate real encounter BG1/BG2 pixels and check their overlap against
     /// the native Mode-1 ladder (upstream-sm/src/snes/ppu.c layersPerMode).
@@ -63,4 +111,14 @@ internal static partial class Program
             color |= ((memory.Vram[(start + plane / 2 * 16 + plane % 2) & 65535] >> (7 - px)) & 1) << plane;
         return (color != 0, (entry & 0x2000) != 0, (entry >> 10 & 7) * 16 + color);
     }
+}
+
+internal static class DraygonTilemapAuditDefinitions
+{
+    /// <summary>$A0:96CA ProcessExtendedTilemap writes into tilemap_stuff at $7E:2000.</summary>
+    internal const int WorkingRamBase = 0x2000;
+    /// <summary>Native extended component header selecting a BG tilemap command stream.</summary>
+    internal const int ExtendedTilemapMarker = 0xfffe;
+    /// <summary>Native destination sentinel terminating ProcessExtendedTilemap.</summary>
+    internal const int StreamEnd = 0xffff;
 }

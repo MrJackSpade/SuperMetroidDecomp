@@ -16,6 +16,7 @@ internal static partial class Program
         ushort previousX = 0, previousY = 0;
         int wrappedPixelsPrevented = 0;
         long terrainOverlapPixels = 0, bodyOverlapPixels = 0;
+        long verifiedTilemapWords = 0;
         for (int frame = 0; frame < 600; frame++)
         {
             var before = runtime.Enemies.Draygon!;
@@ -27,6 +28,7 @@ internal static partial class Program
             ushort cameraX = runtime.Camera!.XPosition;
             ushort cameraY = runtime.Camera.YPosition;
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
+            verifiedTilemapWords += VerifyDraygonBodyTilemap(runtime);
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
             ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.XPosition - 450));
             ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.YPosition - 192));
@@ -89,6 +91,8 @@ internal static partial class Program
         if (terrainOverlapPixels + bodyOverlapPixels == 0)
             throw new InvalidOperationException("Draygon priority fixture never overlapped body and terrain.");
         Console.WriteLine($"Draygon native BG overlap: terrain wins {terrainOverlapPixels} pixels; body wins {bodyOverlapPixels} pixels.");
+        if (verifiedTilemapWords == 0) throw new InvalidOperationException("No native Draygon tilemap words checked.");
+        Console.WriteLine($"Draygon retained ROM map commands: {verifiedTilemapWords} word comparisons verified, including priority bits.");
         foreach (var sample in new (int Y, int First, int End)[] { (-17, 32, 32), (-16, 32, 96),
             (39, 32, 96), (40, 32, 224), (191, 32, 224), (192, 128, 224), (303, 128, 224), (304, 32, 32) })
             if (DraygonMainScreenWindow.Select(100, unchecked((ushort)sample.Y), 0, 0, false) != (sample.First, sample.End))

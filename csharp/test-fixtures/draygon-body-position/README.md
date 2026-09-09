@@ -55,3 +55,11 @@ This is diagnostic evidence, not a fix or proof of complete scene parity. The
 test uses port-captured memories and scrolls; it does not independently replay
 the cartridge's tilemap production or identify which terrain scatter the player
 meant. Keep #385 open pending that comparison; do not force BG2 above BG1.
+
+The audit also follows each composite actor's currently selected ROM extended
+map and compares its literal command words against live BG2 VRAM, including
+priority bits. All 4,800 word comparisons across the 600 frames pass. This slice
+does not publish new extended tilemap commands, so these are repeated checks of
+retained command destinations, not 4,800 distinct tiles or a fresh-room DMA
+reconstruction. Previously written destinations outside the selected commands
+remain outside this assertion's scope.

@@ -35,6 +35,33 @@ internal static partial class Program
         }
         AssertThrows<ArgumentOutOfRangeException>(() => SnesWindowMask.Contains((SnesWindowSelection)16,
             SnesWindowLogic.Or, 0, 0, 0, 0, 0), "window evaluator rejects a packed byte masquerading as one nibble");
+        VerifyPackedWindowRegisters();
         Console.WriteLine($"Hardware windows: {cases} membership comparisons cover enable/invert, logic, inclusive edges and empty intervals.");
+    }
+
+    private static void VerifyPackedWindowRegisters()
+    {
+        for (int selected = 0; selected < 6; selected++)
+        for (int flags = 0; flags < 16; flags++)
+        for (int operation = 0; operation < 4; operation++)
+        {
+            byte selection = (byte)(flags << ((selected & 1) * 4));
+            byte logic = (byte)(operation << ((selected < 4 ? selected : selected - 4) * 2));
+            var registers = new SnesWindowRegisters(selected < 2 ? selection : (byte)0,
+                selected is 2 or 3 ? selection : (byte)0, selected >= 4 ? selection : (byte)0,
+                32, 96, 64, 128, selected < 4 ? logic : (byte)0, selected >= 4 ? logic : (byte)0);
+            for (int x = 0; x < 256; x++)
+            {
+                bool expected = SnesWindowMask.Contains((SnesWindowSelection)flags, (SnesWindowLogic)operation,
+                    (byte)x, 32, 96, 64, 128);
+                for (int target = 0; target < 6; target++)
+                    if (registers.Contains((SnesWindowTarget)target, (byte)x) != (target == selected && expected))
+                        throw new InvalidOperationException($"Packed window target contamination: selected={selected}, target={target}, flags={flags}, operation={operation}, x={x}.");
+                var expectedMask = selected < 5 && expected ? (SnesMainScreenLayers)(1 << selected) : SnesMainScreenLayers.None;
+                AssertEqual(expectedMask, registers.MaskedLayers((byte)x, (SnesMainScreenLayers)31), "TMW/TSW layer identity");
+                AssertEqual(SnesMainScreenLayers.None, registers.MaskedLayers((byte)x, SnesMainScreenLayers.None),
+                    "disabled TMW/TSW leaves membership unconsumed");
+            }
+        }
     }
 }

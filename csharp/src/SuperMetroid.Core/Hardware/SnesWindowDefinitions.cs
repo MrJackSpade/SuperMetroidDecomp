@@ -23,3 +23,14 @@ public enum SnesWindowLogic : byte
     Xor = 2,
     Xnor = 3,
 }
+
+/// <summary>Hardware ordering of window targets across W12SEL/W34SEL/WOBJSEL.</summary>
+public enum SnesWindowTarget : byte
+{
+    Bg1 = 0,
+    Bg2 = 1,
+    Bg3 = 2,
+    Bg4 = 3,
+    Obj = 4,
+    ColorMath = 5,
+}

@@ -630,6 +630,10 @@ if (args.Length >= 2 && args[0] == "--elevator-audit")
     return ElevatorAudit.Run(elevatorRomPath);
 }
 
+// Opt-in red reproduction for #485. Do not conflate ordinary bomb admission
+// with sustained detachment: the full runtime currently reattaches five frames later.
+if (args.Length == 2 && args[0] == "--metroid-runtime-bomb-audit")
+    return MetroidAudit.VerifyRuntimePlacedBomb(args[1]);
 if (args.Length >= 2 && args[0] == "--metroid-audit")
 {
     string metroidRomPath = string.Join(' ', args[1..]).Trim('"');

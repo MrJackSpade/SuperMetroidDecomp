@@ -881,9 +881,6 @@ static void VerifySamusMorphBallMovement()
         (SamusBombProjectileSystem directionSystem, SamusState directionSamus) =
             MakeDirectionFixture(bus, floor);
         directionSamus.XPosition = samusX;
-        BombProjectileFrameResult timerNine = directionSystem.StepFrame(bus, floor, directionSamus, 0, 0);
-        AssertEqual(0, timerNine.PublishedBombJumpDirection,
-            "pre-alpha overlap sees timer nine, not the eight produced later by alpha");
         BombProjectileFrameResult timerEight = directionSystem.StepFrame(
             bus,
             floor,
@@ -907,9 +904,6 @@ static void VerifySamusMorphBallMovement()
         "timer fifteen advances the live instruction pointer into fast animation");
     while (bombs.Slots[0].BombTimer > 8)
         bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
-    AssertEqual(0, bombProjectileSamus.BombJumpDirection,
-        "fuse update reaching eight does not retroactively publish overlap");
-    bombs.StepFrame(bus, floor, bombProjectileSamus, 0, 0);
     AssertEqual(2, bombProjectileSamus.BombJumpDirection,
         "same-X timer-eight overlap publishes straight direction");
     AssertTrue(bombProjectileSamus.TrySetupPublishedBombJump(

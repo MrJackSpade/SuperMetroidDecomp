@@ -1583,12 +1583,6 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleFlareDrawn = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
 
-        // GameState_8 samples bombs before EnemyMain and before alpha updates their
-        // fuses. Passing the result onward prevents a second, later overlap sample.
-        byte bombJumpDirectionBeforeEnemyAi = !TimeIsFrozen && Samus is not null &&
-            Projectiles.ProjectileInvincibilityTimer == 0 && Samus.HorizontalSpeed.ContactDamageIndex == 0
-            ? BombProjectiles.PublishBombJumpOverlap(Samus) : (byte)0;
-
         // GameState_8 selects active enemies and executes EnemyMain before bank $90 moves
         // Samus. The collision index list is selected from pre-AI positions but consumers
         // dereference the post-AI slot words, which RoomEnemySystem publishes as bodies.
@@ -2005,8 +1999,7 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        Plms,
-                        earlierBombJumpDirection: bombJumpDirectionBeforeEnemyAi);
+                        Plms);
 
                     if (bombFrame.BeamChargeConsumed)
                     {
@@ -2052,6 +2045,17 @@ public sealed partial class SuperMetroidRuntime
                     Projectiles,
                     BombProjectiles,
                     Samus);
+
+                // `$A0:A236` is not part of the five-slot beam/missile collision walk.
+                // It scans physical bomb slots five through nine after their bank-$90
+                // update and dispatches each overlapping enemy's shot AI only once the
+                // bomb's fuse/variable word is zero. This is the shared normal-bomb damage
+                // route as well as the special family-$0500 Metroid detach path.
+                Enemies.ResolveOrdinaryBombHits(
+                    BombProjectiles,
+                    Projectiles,
+                    Samus);
+
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the

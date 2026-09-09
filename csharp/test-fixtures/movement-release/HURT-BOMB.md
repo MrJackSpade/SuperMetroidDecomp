@@ -1,17 +1,5 @@
 # Damaged-pose bomb-jump reference (#413)
 
-## Current oracle correction (#485)
-
-The original captures and frame-specific findings below are **historical**:
-their probes sampled bomb overlap after alpha input/update instead of before it.
-Use [BOMB-PHASE.md](BOMB-PHASE.md) and its replacement captures. Both matrices
-match with the corrected ordering: 12,800 constructed-seam frames and 32,000
-full-fuse frames. The latter has 78 retained-pose launches and subsequent boosts,
-not 84. The other 242 timing combinations are compared too. #413 remains ready
-for player validation with this stronger, correctly scheduled evidence.
-
-## Historical results (superseded phase schedule)
-
 Status: constructed-seam and normal-placement/full-fuse matrices match the pinned
 cartridge. **Ready for player validation.**
 

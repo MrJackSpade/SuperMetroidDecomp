@@ -70,39 +70,29 @@ internal static class BombChainComparisonAudit
                 if (!ceilingSteering && !ladder && !horizontal && !triple && frame >= 46 && frame < 50 && travel != 0) expectedInput |= (ushort)(travel == 1 ? 0x200 : 0x100);
                 if (input != expectedInput) throw new InvalidDataException("Changed bomb-chain input.");
                 runtime.StepFrame(input);
-                // Correct pre-alpha sampling shifts this launch one frame and makes
-                // it vertical: verify the observable wall-edge ascent, not a collision
-                // flag from the obsolete post-alpha capture.
-                if (ceilingSteering && !left && travel == 0 && spacing == 6 && frame == 466 &&
-                    (!samus.BombJumpActive || samus.Kinematics.YDirection != 1 ||
-                     samus.HorizontalSpeed.BaseFixed != 0 || samus.Kinematics.XFixed != 0x00ebffff ||
-                     samus.Kinematics.YFixed != 0x00f73fff))
-                    throw new InvalidDataException("Wall-edge bomb ascent diverged from the native trajectory.");
-                if (ladder && ceiling && travel != 0 && spacing == 24 && frame == 128 &&
+                if (ceilingSteering && !left && travel == 0 && spacing == 6 && frame == 465 &&
+                    (runtime.LastBombJumpMovement is not { Horizontal.Collided: true } ||
+                     !samus.BombJumpActive || samus.Kinematics.YDirection != 1 ||
+                     samus.HorizontalSpeed.BaseFixed != 0 || samus.Kinematics.XFixed != 0x00ebffff))
+                    throw new InvalidDataException("Wall collision must stop horizontal momentum without ending bomb ascent.");
+                if (ladder && ceiling && travel != 0 && spacing == 24 && frame == 127 &&
                     (runtime.LastMorphBallMovement is not { HitCeiling: true } ||
                      !samus.BombJumpStarting || samus.Kinematics.YSpeed != 0 ||
                      samus.Kinematics.YSubspeed != 0x5800 || samus.Kinematics.YDirection != 1))
                     throw new InvalidDataException($"Bomb interruption lost priority over ceiling cleanup: {group.Key}.");
-                if (ladder && ceiling && travel != 0 && !(left && travel == 2) && spacing == 28 && frame == 209 &&
+                if (ladder && ceiling && travel != 0 && spacing == 28 && frame == 208 &&
                     (samus.Kinematics.YFixed != 0x00f9ffff || samus.Kinematics.YDirection != 0 ||
                      samus.HorizontalSpeed.BaseFixed != 0 || samus.HorizontalSpeed.AccelerationMode != 0))
                     throw new InvalidDataException($"Final ball landing retained horizontal momentum: {group.Key}.");
-                // The opposite-facing variant reaches the floor seven frames later,
-                // exactly when the next bomb interrupts landing. Native retains the
-                // falling pose and arms a fresh launch rather than finishing landing.
-                if (ladder && ceiling && left && travel == 2 && spacing == 28 && frame == 216 &&
-                    (samus.Kinematics.YFixed != 0x00f9ffff || !samus.BombJumpStarting ||
-                     samus.Pose != SamusPoseIds.MorphBallFallingRightPose))
-                    throw new InvalidDataException("Floor-contact bomb interruption lost its native pose.");
-                // With pre-alpha sampling the release precedes the ceiling strike.
-                // Native takes the stationary fallback here and hits the ceiling
-                // next frame; retaining the former capture's rolling pose is wrong.
+                // Releasing the one-frame steering pulse coincides with a ceiling
+                // strike. Native collision command five outranks the stationary
+                // input fallback: keep the moving pose and this frame's momentum.
                 if (horizontal && ceiling && travel == 0 && frame == 75 &&
-                    (samus.Pose != (left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose) ||
-                     samus.HorizontalSpeed.BaseFixed != 0 ||
-                     samus.Kinematics.YFixed != 0x00d737ff ||
+                    (samus.Pose != (left ? SamusPoseIds.MorphBallMovingLeftPose : SamusPoseIds.MorphBallMovingRightPose) ||
+                     samus.HorizontalSpeed.BaseFixed != 0x0000c000 ||
+                     samus.Kinematics.YFixed != 0x00d70000 ||
                      samus.Kinematics.XFixed != (left ? 0x007f4000u : 0x0080c000u)))
-                    throw new InvalidDataException($"Pre-ceiling release lost its native pose/trajectory: {group.Key}.");
+                    throw new InvalidDataException($"Ceiling collision lost rolling pose/momentum: {group.Key}.");
                 // An overlapping blast may restart an already-active rise without
                 // exposing direction zero. Count the actual start handler, not a
                 // zero-to-armed word edge, so these re-launches remain observable.

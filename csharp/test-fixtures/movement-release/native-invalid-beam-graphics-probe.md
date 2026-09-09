@@ -36,3 +36,35 @@ Do not delete the C# guard and declare parity based on this failed experiment.
 Next: establish a hardware-faithful read reference, then compare palette/DMA,
 raw preinstruction targets, short-range collision and Power Bomb interactions.
 Preserve charged-shot instability in modeled state without host memory access.
+
+## Bus-latch experiment (2026-09-09)
+
+Inspection found that this comparison fork never updates `Snes.openBus` during
+CPU reads/writes. Merely deleting its unmapped-read Die would therefore return a
+stale zero, not a useful reference. A temporary diagnostic variant updated the
+latch after each `snes_cpuRead` and `snes_cpuWrite`, and let the existing cartridge
+unmapped branch return that latch. All changes were removed after the experiment.
+
+[Snes9x's primary read implementation](https://github.com/snes9xgit/snes9x/blob/master/getset.h)
+likewise returns OpenBus for MAP_NONE instead of treating it as a cartridge fault.
+This supports the mapping distinction, not an assertion of complete emulator parity.
+
+With CPU-latch tracking, the unpatched ROM's long-indirect palette read observes
+$90 (the just-fetched pointer bank) at $90:7FFF. It then crosses into mapped ROM.
+Actual completed probe output:
+
+```
+PROBE unmapped=107FFF latch=90
+BEAM D queue-tail=7 bytes=000121C49A0063
+palette=0890,30C2,5822,90EC,6EAD,2919,000F,FCAA,8067,1CAD,C90A,004D,19F0,4EC9,F000,AD14
+```
+
+The queue requests $100 bytes from $9A:C421 to VRAM word $6300. Palette output
+above is the 16-bit WRAM buffer; PPU CGRAM masks bit 15 on upload. This is a
+controlled CPU/bus-model result, not a recording of hardware or a complete Snes9x
+playthrough. The important implementation constraint is that the palette routine
+must supply the actual instruction's bus context; globally returning zero or the
+previous high-level C# read from every unmapped address would be incorrect.
+
+Next production work remains: a scoped instruction-aware palette read, a failing
+loader/DMA regression using this trace, then native callback and collision probing.

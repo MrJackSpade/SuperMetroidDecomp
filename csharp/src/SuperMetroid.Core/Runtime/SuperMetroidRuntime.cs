@@ -237,7 +237,7 @@ public sealed partial class SuperMetroidRuntime
     }
 
     /// <summary>
-    /// Low-byte snapshot at WRAM <c>$0A11</c> used only by X-ray's one-frame stability gate.
+    /// Low-byte snapshot at WRAM <c>$0A11</c> used by X-ray stability and post-draw spin audio.
     /// The runtime updates it after each completed gameplay frame.
     /// </summary>
     public SamusMovementType PreviousMovementTypeForXray { get; private set; }
@@ -4172,8 +4172,10 @@ public sealed partial class SuperMetroidRuntime
                 // `$90:F576` follows DrawSamusAndProjectiles. A counter-forty hurt update
                 // may have armed this latch above; consuming it here preserves both the
                 // same-frame charging sound and native ordering after projectile drawing.
-                SamusHurtFlashPalette.ConsumeResumeChargingBeamSound(
+                SamusPostDrawAudio.Step(
+                    _addressSpace,
                     Samus,
+                    PreviousMovementTypeForXray,
                     Controller1.Current);
             }
 

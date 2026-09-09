@@ -478,6 +478,35 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         AssertEqual(0, ordinary.LiquidPhysics.SoundRequests.Count, "ordinary reversal suppresses restart");
     }
 
+    foreach (SamusMovementType previous in new[] { SamusMovementType.SpinJumping, SamusMovementType.WallJumping, SamusMovementType.Running })
+    foreach (byte currentPose in new[] { SamusPoseIds.ScrewAttackRightPose, SamusPoseIds.WallJumpRightPose, SamusPoseIds.NormalJumpGunExtendedRightPose })
+    {
+        var endingSpin = new SamusState { Pose = currentPose };
+        SamusPostDrawAudio.Step(bus, endingSpin, previous, 0);
+        bool endsSpin = previous != SamusMovementType.Running && currentPose == SamusPoseIds.NormalJumpGunExtendedRightPose;
+        AssertEqual(endsSpin ? 1 : 0, endingSpin.LiquidPhysics.SoundRequests.Count, "post-draw spin exit classification");
+        if (endsSpin)
+            AssertEqual(new SamusSoundRequest(SoundEffectLibrary1Sounds.StopSpinJump, 15),
+                endingSpin.LiquidPhysics.SoundRequests[0], "post-draw stop uses native max-fifteen queue");
+    }
+    var resumeCharge = new SamusState
+    {
+        Pose = SamusPoseIds.NormalJumpGunExtendedRightPose,
+        ProjectileFlareCounter = SamusProjectileRomData.Beams.ChargeSoundStartCounter,
+    };
+    SamusPostDrawAudio.Step(bus, resumeCharge, SamusMovementType.SpinJumping, (ushort)SnesButton.X);
+    AssertEqual(1, resumeCharge.ResumeChargingBeamSoundFlag, "spin exit defers charge resume");
+    AssertEqual(1, resumeCharge.LiquidPhysics.SoundRequests.Count, "only stop is queued on spin exit");
+    resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
+    SamusPostDrawAudio.Step(bus, resumeCharge, SamusMovementType.NormalJumping, (ushort)SnesButton.X);
+    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x41), 9),
+        resumeCharge.LiquidPhysics.SoundRequests.Single(), "next frame resumes charge after stop");
+    resumeCharge.LiquidPhysics.BeginFrameSoundRequests();
+    resumeCharge.ResumeChargingBeamSoundFlag = ushort.MaxValue;
+    SamusPostDrawAudio.Step(bus, resumeCharge, SamusMovementType.SpinJumping, (ushort)SnesButton.X);
+    AssertEqual(0, resumeCharge.LiquidPhysics.SoundRequests.Count, "negative charge latch bypasses audio work this frame");
+    AssertEqual(1, resumeCharge.ResumeChargingBeamSoundFlag, "negative charge latch rearms next-frame resume");
+
     var spaceLaunch = new SamusState
     {
         Pose = SamusPoseIds.MovingRightNormalPose,

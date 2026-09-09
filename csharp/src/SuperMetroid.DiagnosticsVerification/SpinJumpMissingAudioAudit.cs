@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using System.Reflection;
 
 internal static class SpinJumpMissingAudioAudit
 {
@@ -11,12 +12,18 @@ internal static class SpinJumpMissingAudioAudit
         var game = loaded.Game;
         var runtime = game.RuntimeForVerification ?? throw new InvalidDataException("Missing runtime in spin audio fixture.");
         var audio = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load("standalone-assets/audio"), loaded.AudioPlayer!);
+        var libraries = (Array)typeof(ManagedSpcPlayer).GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(loaded.AudioPlayer)!;
+        var firstLibrary = libraries.GetValue(0)!;
+        var currentSoundField = firstLibrary.GetType().GetField("CurrentSound", BindingFlags.Instance | BindingFlags.NonPublic)!;
         Console.WriteLine($"Preserved spin audio room={runtime.ActiveRoom?.Identity}, Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition}, pose={runtime.Samus.Pose:X2}");
         bool heardScrewAttackStart = false;
-        for (int frame = 0; frame < 180; frame++)
+        int startCommands = 0;
+        for (int frame = 0; frame < 360; frame++)
         {
-            ushort input = frame is >= 30 and < 33 ? (ushort)SnesButton.Left :
-                frame is >= 33 and < 60 ? (ushort)((ushort)SnesButton.Left | runtime.ControllerBindings.Jump) :
+            int cycleFrame = frame % 180;
+            ushort direction = (ushort)(frame < 180 ? SnesButton.Left : SnesButton.Right);
+            ushort input = cycleFrame is >= 30 and < 33 ? direction :
+                cycleFrame is >= 33 and < 60 ? (ushort)(direction | runtime.ControllerBindings.Jump) :
                 frame is >= 60 and < 90 ? (ushort)SnesButton.Up : (ushort)0;
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             var next = game.StepCaptured(input, frame + 1, 1);
@@ -24,8 +31,11 @@ internal static class SpinJumpMissingAudioAudit
             // $91:F624 queues library-one $33 on initial Screw Attack entry. Observe
             // the real frontend/APU handoff, not merely that the airborne pose changed.
             heardScrewAttackStart |= next.Frame.AudioCommands.Contains(CartridgeAudioCommand.WritePort(1, 0x33));
+            startCommands += next.Frame.AudioCommands.Count(command => command == CartridgeAudioCommand.WritePort(1, 0x33));
+            if (frame == 120 && (byte)currentSoundField.GetValue(firstLibrary)! != 0)
+                throw new InvalidDataException("Spin sound is still playing sixty frames after the Up-input cancellation.");
             if (frame % 15 == 0 || next.Frame.AudioCommands.Count != 0)
-                Console.WriteLine($"frame={frame} room={runtime.ActiveRoom?.Identity} pose={runtime.Samus.Pose:X2} position={runtime.Samus.XPosition}/{runtime.Samus.YPosition} audio={string.Join(',', next.Frame.AudioCommands)}");
+                Console.WriteLine($"frame={frame} room={runtime.ActiveRoom?.Identity} pose={runtime.Samus.Pose:X2} position={runtime.Samus.XPosition}/{runtime.Samus.YPosition} playing={currentSoundField.GetValue(firstLibrary)} audio={string.Join(',', next.Frame.AudioCommands)}");
             if (frame == 0 && next.Snapshot is { } snapshot)
             {
                 var pixels = new Rgba32[snapshot.Width * snapshot.Height];
@@ -36,6 +46,8 @@ internal static class SpinJumpMissingAudioAudit
         }
         if (!heardScrewAttackStart)
             throw new InvalidDataException("The saved-room Screw Attack jump never published its native start sound to APU port one.");
+        if (startCommands != 2 || (byte)currentSoundField.GetValue(firstLibrary)! != 0)
+            throw new InvalidDataException($"Repeated jump audio failed: starts={startCommands}, final sound={currentSoundField.GetValue(firstLibrary)}.");
         return 0;
     }
 }

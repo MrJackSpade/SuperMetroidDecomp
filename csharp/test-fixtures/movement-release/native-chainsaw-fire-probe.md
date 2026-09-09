@@ -48,3 +48,19 @@ effect irrelevant for other slots or callers.
 No enemy damage classification, rendered visibility, charged-shot behavior,
 door/gate reactions, complete animation lifetime or multi-shot limit is proved
 by this trace. Those remain required before declaring #396 ready for validation.
+
+## Production reproduction
+
+`dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --chainsaw-firing`
+currently fails at the shot-allocation assertion: expected slot zero, received
+null. This is a deliberate opt-in red reproduction, not part of the default
+green suite until implementation is complete. It asserts admission before
+deletion so the existing silent rejection cannot masquerade as correct lifetime.
+
+The actual uncharged callback table is $90:B96E (the B9 6E B9 load in
+FireUnchargedBeam); the charged table is $90:BA3E (B9 3E BA). The comments on
+the pinned C static arrays name their enclosing functions B887/B986, not the
+table addresses. Normal callbacks are AEF3 (non-Wave), B0E4 (uncharged Wave or
+Ice/Wave), and B0C3 (other Wave/charged Wave). Index 13 of B96E overreads the
+FireChargedBeam instruction bytes to obtain B0AC. Future implementation must
+preserve that table behavior rather than choosing a Wave callback from bit zero.

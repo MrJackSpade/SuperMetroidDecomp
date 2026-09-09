@@ -255,7 +255,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 /// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
 /// the assertions then enter only through the public loader/frame/contact/projectile seams.
 /// </summary>
-static void VerifyRipperEnemy()
+static void VerifyRipperEnemy(bool verifyDeferredContact = false)
 {
     const ushort definitionPointer = 0xd47f;
     const ushort populationPointer = 0x9580;
@@ -382,6 +382,7 @@ static void VerifyRipperEnemy()
 
     var samus = new SamusState
     {
+        Pose = SamusPoseIds.FacingRightNormalPose,
         Health = 99,
         XPosition = ripper.XPosition,
         YPosition = ripper.YPosition,
@@ -391,6 +392,15 @@ static void VerifyRipperEnemy()
     AssertEqual(94, samus.Health, "Ripper header contact damage");
     AssertEqual(0x60, samus.InvincibilityTimer, "Ripper contact invincibility clock");
     AssertEqual(5, samus.KnockbackTimer, "Ripper contact knockback clock");
+
+    if (verifyDeferredContact)
+        Console.WriteLine($"CONTACT health={samus.Health} pose={samus.Pose:X2} timer={samus.KnockbackTimer} invincibility={samus.InvincibilityTimer} direction={samus.KnockbackDirection} active={samus.KnockbackActive}");
+    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose,
+            "touch callback publishes request without changing the pre-movement pose");
+    AssertTrue(!samus.KnockbackActive && samus.KnockbackDirection == 0,
+            "touch callback does not install the later hurt movement handler");
+    AssertEqual(1, samus.KnockbackXDirection, "contact publishes source-side word for later interruption");
+    if (verifyDeferredContact) return;
 
     var projectiles = new SamusProjectileSystem();
     var sharedProjectiles = new SamusBombProjectileSystem();

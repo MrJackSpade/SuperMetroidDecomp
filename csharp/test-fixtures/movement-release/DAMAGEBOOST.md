@@ -211,3 +211,24 @@ All six accepted captures now match: **71,424 samples with zero differences** ac
 all recorded state columns. This is still seeded-contact evidence, without Gravity
 Suit, speedkeep, or boundary-crossing liquid entry. Actual enemy/projectile/spike contact
 windows and the remaining speed/interruption variants are outstanding for #472.
+
+## Normal enemy contact publication
+
+`native-enemy-contact-probe.h` executes the original `$A0:A4A1` callback using the
+retail Ripper header, without invoking the later hurt interruption. Include after the
+shared native loader and dispatch `DiagnosticEnemyContact(rom)` before SDL. Temporary
+integration used `sm.exe --enemy-contact-probe ROM` and was removed afterward.
+
+Native output for both facings: health94, timer5, invincibility96, knockback direction0,
+normal movement handler A337; standing pose remains 01 or 02. The corresponding
+production public Ripper-contact fixture originally returned pose53, direction2 and
+active hurt movement instead. `--enemy-contact-phase` reproduces this boundary through
+the existing synthetic enemy loader/contact path, using equivalent header damage.
+
+The common enemy touch publisher no longer invokes hurt interruption immediately.
+It leaves the request for the runtime's existing post-animation handoff. The focused
+comparison now matches, and its pose/handler/source-direction assertions also run in
+the default Ripper regression. This is a publication-order fix, not a complete input-
+window measurement: native GameState_8 orders alpha before EnemyMain, then beta and
+projectile processing. The managed runtime's broader alpha/EnemyMain placement still
+needs a full contact-frame comparison, along with enemy-projectile and spike sources.

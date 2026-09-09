@@ -786,14 +786,14 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private void ApplyNormalEnemyTouchDamage(
+    private static void ApplyNormalEnemyTouchDamage(
         SamusState samus,
         ushort controllerInput,
         ushort damageBeforeSuit,
         ushort damageSourceX)
     {
-        // Enemy header $A0:E13F publishes damage five. Suit_Damage_Division quarters it
-        // for Gravity or halves it for Varia before the normal touch AI installs $60/$05.
+        // Suit_Damage_Division quarters the source header's damage for Gravity or halves
+        // it for Varia before normal touch publishes the invincibility/hurt request.
         ushort damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit)
             ? unchecked((ushort)(damageBeforeSuit >> 2))
             : samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
@@ -809,7 +809,7 @@ public sealed partial class RoomEnemySystem
         // expires even if the old movement handler remains active (e.g. a boss grab).
         samus.KnockbackTimer = 5;
         samus.KnockbackXDirection = direction;
-        SamusKnockbackMovement.TryStartPendingHitInterruption(
-            _bus!, samus, controllerInput, timeIsFrozen: false);
+        // EnemyMain only publishes the request. The common post-animation
+        // interruption owns pose/handler initialization later in this frame.
     }
 }

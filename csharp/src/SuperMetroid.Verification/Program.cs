@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--enemy-contact-phase"])
+{
+    VerifyRipperEnemy(verifyDeferredContact: true);
+    return 0;
+}
 if (args is ["--window-pixels"])
 {
     VerifyWindowPixels();

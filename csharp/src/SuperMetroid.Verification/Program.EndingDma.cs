@@ -9,6 +9,7 @@ internal static partial class Program
     {
         VerifyObjSubscreenAddition();
         VerifyEndingRewardGesture();
+        VerifyEndingCloudPlacement();
         var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
         var ending = new EndingCreditsState(bus, audio, 0, 0);

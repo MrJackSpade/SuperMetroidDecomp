@@ -221,14 +221,18 @@ public static class EndingCreditsRomData
             new(0x0140, 0x01c0, ScenePalette, 0xed0d);
         public static readonly EndingSpriteDefinition EscapeACloudLeftBottom =
             new(0xffc0, 0xff40, ScenePalette, 0xed15);
+        /// <summary>$8B:EED3 / F0B2: first upper cloud, parameter zero, origin (128,-96), list ECED.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudTopA =
-            new(0xffa0, 0x0080, ScenePalette, 0xeced);
+            new(0x0080, 0xffa0, ScenePalette, 0xeced);
+        /// <summary>$8B:EED9 / F0E1: second upper cloud, parameter zero, origin (128,-32), list ECF5.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudTopB =
-            new(0xffa0, 0x00c0, ScenePalette, 0xecf5);
+            new(0x0080, 0xffe0, ScenePalette, 0xecf5);
+        /// <summary>$8B:EEDF / F0E9: first lower cloud, parameter zero, origin (128,288), list ECFD.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudBottomA =
-            new(0x0120, 0x0120, ScenePalette, 0xecfd);
+            new(0x0080, 0x0120, ScenePalette, 0xecfd);
+        /// <summary>$8B:EEE5 / F0F1: second lower cloud, parameter zero, origin (128,352), list ED05.</summary>
         public static readonly EndingSpriteDefinition EscapeBCloudBottomB =
-            new(0x0120, 0x0160, ScenePalette, 0xed05);
+            new(0x0080, 0x0160, ScenePalette, 0xed05);
         public static readonly EndingSpriteDefinition ExplodingZebes =
             new(0x0080, 0x0080, PlanetPalette, 0xeb0f);
         public static readonly EndingSpriteDefinition ExplosionLava =

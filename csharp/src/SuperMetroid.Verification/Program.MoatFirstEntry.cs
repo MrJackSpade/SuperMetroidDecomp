@@ -16,7 +16,9 @@ internal static partial class Program
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const string output = "csharp/test-temp/issue-370-moat";
         Directory.CreateDirectory(output);
+        var unpausedFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
+        foreach (bool pauseBeforeEntry in new[] { false, true })
         {
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -47,6 +49,25 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             runtime.RunNmi(0, true);
+            if (pauseBeforeEntry)
+            {
+                byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
+                var room = runtime.ActiveRoom!;
+                var pause = new PauseMenuState(bus, samus, runtime.System, room.AreaIndex,
+                    room.MapX, room.MapY, gameplayVram: runtime.Vram);
+                // Use the real menu owner, including a map -> equipment transition.
+                // This isolates VRAM ownership rather than claiming a complete host
+                // pause-state replay. Unpause's beam publication is applied below.
+                pause.Step((ushort)SuperMetroid.Core.Input.SnesButton.R,
+                    (ushort)SuperMetroid.Core.Input.SnesButton.R);
+                for (int frame = 0; frame < 64; frame++) pause.Step(0, 0);
+                AssertEqual(1, pause.ScreenMode, "pause fixture reaches equipment graphics");
+                _ = pause.Render();
+                AssertTrue(runtime.Vram.Bytes.SequenceEqual(gameplayBeforePause),
+                    "pause graphics do not mutate gameplay VRAM");
+                runtime.QueueGameplayBeamTilesAndLoadPalette(samus.EquippedBeams);
+                runtime.RunNmi(0, true);
+            }
             runtime.LevelData!.ResolveDoorCollision(bus, behavior, samus.Pose, true);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
@@ -59,10 +80,14 @@ internal static partial class Program
             {
                 runtime.StepFrame(0);
                 var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
-                PngWriter.WriteRgba($"{output}/from-{source:X4}-frame-{frame}.png", 256, 224,
-                    SoftwareLayeredSnapshotRenderer.Render(snapshot));
+                var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+                if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
+                else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
+                    "pause/equipment history leaves identical first-entry water and scene pixels");
+                PngWriter.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
+                    pixels);
             }
-            Console.WriteLine($"Moat first entry from {source:X4}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured four visible frames; visual diagnosis remains required.");
+            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured four visible frames; visual diagnosis remains required.");
         }
     }
 }

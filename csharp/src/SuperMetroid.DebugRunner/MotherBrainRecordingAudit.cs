@@ -3,12 +3,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 
 /// <summary>Replays a player session through the frontend, checking the exact #489 trajectories.</summary>
 internal static class MotherBrainRecordingAudit
 {
-    public static int Run(string path, string romPath, bool verifyBeam = false)
+    public static int Run(string path, string romPath, bool verifyBeam = false, bool verifyDeath = false)
     {
         var recording = ControllerInputRecording.Read(path);
         if (!SHA256.HashData(File.ReadAllBytes(romPath)).AsSpan().SequenceEqual(recording.RomSha256))
@@ -21,6 +22,7 @@ internal static class MotherBrainRecordingAudit
         var samusRainbowPalettes = new HashSet<string>();
         var beamColors = new HashSet<ushort>();
         int beamSamples = 0;
+        var deathChecks = new MotherBrainDeathRecordingChecks();
         // This focused attack slice intentionally stops before the separately tracked
         // death dispatcher. The default audit still executes the complete recording.
         int frameCount = verifyBeam ? Math.Min(13000, recording.ControllerInputs.Length) : recording.ControllerInputs.Length;
@@ -31,6 +33,7 @@ internal static class MotherBrainRecordingAudit
                 if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var runtime = game.RuntimeForVerification;
+            if (verifyDeath && runtime is not null) deathChecks.Observe(runtime, frame);
             if (verifyBeam && runtime?.Enemies.MotherBrain?.RainbowBeamHdma is { Active: true } beam && frame % 30 == 0)
             {
                 var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -96,6 +99,32 @@ internal static class MotherBrainRecordingAudit
             if (beamSamples < 10 || beamColors.Count < 5)
                 throw new InvalidDataException($"Insufficient visible rainbow coverage: {beamSamples} frames, {beamColors.Count} colors.");
             Console.WriteLine($"Visible rainbow beam: {beamSamples} sampled frames, {beamColors.Count} native colors; all changes inside native windows.");
+        }
+        else if (verifyDeath)
+        {
+            var runtime = game.RuntimeForVerification!;
+            deathChecks.VerifyReadyToLeave(runtime);
+            ushort room = runtime.ActiveRoom!.Pointer;
+            bool leftRoom = false;
+            for (int frame = 0; frame < 300; frame++)
+            {
+                // This tail only exercises the opened boss-room doorway: walk to its
+                // ledge, then jump left. Stop at the first completed room transition.
+                ushort input = (ushort)((ushort)SnesButton.Left | (frame >= 100 ? runtime.ControllerBindings.Jump : 0));
+                var result = game.Step(input);
+                foreach (var command in result.AudioCommands)
+                    if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
+                game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
+                if (game.RuntimeForVerification?.ActiveRoom?.Pointer != room)
+                {
+                    if (game.RuntimeForVerification?.EscapeTimer.IsActive != true)
+                        throw new InvalidDataException("Escape timer did not survive leaving Mother Brain room.");
+                    Console.WriteLine($"Samus left the opened boss room after {frame + 1} tail frames; escape timer remains active.");
+                    leftRoom = true;
+                    break;
+                }
+            }
+            if (!leftRoom) throw new InvalidDataException($"Samus could not leave the opened escape door; position {runtime.Samus!.XPosition},{runtime.Samus.YPosition}.");
         }
         if (battleFrames > 0 && (minStandingY != 150 || maxStandingY != 150 || maxBattleCamera != 0))
             throw new InvalidDataException("Recorded Mother Brain fight drifted or failed to lock its camera.");

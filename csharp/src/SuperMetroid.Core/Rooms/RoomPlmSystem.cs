@@ -379,6 +379,7 @@ public sealed partial class RoomPlmSystem
         ushort instructionPointer = header switch
         {
             RoomPlmHeaders.FillMotherBrainsWall => RoomPlmInstructionLists.FillMotherBrainsWall,
+            RoomPlmHeaders.MotherBrainsRoomEscapeDoor => RoomPlmInstructionLists.MotherBrainsRoomEscapeDoor,
             RoomPlmHeaders.MotherBrainsBackgroundRow2 => RoomPlmInstructionLists.MotherBrainsBackgroundRow2,
             RoomPlmHeaders.MotherBrainsBackgroundRow3 => RoomPlmInstructionLists.MotherBrainsBackgroundRow3,
             RoomPlmHeaders.MotherBrainsBackgroundRow4 => RoomPlmInstructionLists.MotherBrainsBackgroundRow4,
@@ -418,6 +419,15 @@ public sealed partial class RoomPlmSystem
             slot.LoopTimer = 0;
             slot.InstructionPointer = instructionPointer;
             slot.InstructionTimer = 1;
+            if (header == RoomPlmHeaders.MotherBrainsRoomEscapeDoor)
+            {
+                // B5F8 installs the door-list index and three upward-linked extensions
+                // synchronously, before the first draw instruction changes their artwork.
+                WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
+                for (int row = 1; row < 4; row++)
+                    WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.WidthInBlocks,
+                        MotherBrainDeathRomData.EscapeDoorExtension);
+            }
             return true;
         }
 

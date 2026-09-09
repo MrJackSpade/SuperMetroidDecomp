@@ -1164,6 +1164,17 @@ public sealed partial class SuperMetroidRuntime
     private void ApplyPendingMotherBrainPlms()
     {
         MotherBrainEnemyState? state = Enemies.MotherBrain;
+        if (state?.LastRainbowBeamStep is { } death)
+        {
+            foreach (ushort definition in death.EscapePaletteFxRequests)
+                RoomPaletteFx.SpawnDefinition(_addressSpace, definition, Samus!.EquippedItems);
+            if (death.MotherBrainEscapeTimerStartRequested)
+                EscapeTimer.RequestMotherBrainStart(); // The runtime already owns per-frame timer processing/drawing.
+            if (death.MotherBrainBossBitRequested)
+                System.SetBossBits(ActiveRoom!.AreaIndex, BossBits.AreaMiniBoss);
+            if (death.ZebesTimebombEventRequested)
+                System.SetEvent(EventNumber.ZebesTimebombSet);
+        }
         if (state is { FxEntry: > 0 })
         {
             // The pending native LoadFxEntry call is consumed exactly once. Reapplying it

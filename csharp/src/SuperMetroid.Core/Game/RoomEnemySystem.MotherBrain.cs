@@ -223,6 +223,28 @@ public sealed partial class RoomEnemySystem
             case MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting:
             case MotherBrainBodyFunction.ThirdPhaseFightingMain:
             case MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown:
+            case MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom:
+            case MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding:
+            case MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom:
+            case MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects:
+            case MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut:
+            case MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody:
+            case MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions:
+            case MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation:
+            case MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround:
+            case MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey:
+            case MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey:
+            case MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver:
+            case MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway:
+            case MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay:
+            case MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles:
+            case MotherBrainBodyFunction.ThirdPhaseDeathStartEscape:
+            case MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle:
+            case MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText:
+            case MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer:
+            case MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor:
+            case MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing:
                 RunMotherBrainPhaseTwoAscent(
                     state,
                     samus,

@@ -32,6 +32,7 @@ if (args is ["--ini-edit"]) return 0;
 if (args is ["--mother-brain"])
 {
     VerifyMotherBrainBeamWindow();
+    VerifyMotherBrainDeathHandoff();
     VerifySamusDrainedController();
     VerifyMotherBrainRainbowBeamSamusMovement();
     VerifyMotherBrainRainbowBeamAttackSequence();
@@ -290,6 +291,7 @@ VerifySamusCrystalFlash();
 VerifySamusXray();
 VerifySamusDeathSequence();
 VerifyMotherBrainBeamWindow();
+VerifyMotherBrainDeathHandoff();
 VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();

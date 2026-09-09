@@ -61,6 +61,8 @@ public static class RoomPlmInstructionLists
     public const ushort ClearKraidSpikes = 0xabdd;
 
     public const ushort FillMotherBrainsWall = 0xac05;
+    /// <summary>$84:AC0B draws the opened escape door then deletes the one-shot PLM.</summary>
+    public const ushort MotherBrainsRoomEscapeDoor = 0xac0b;
     public const ushort MotherBrainsBackgroundRow2 = 0xac11;
     public const ushort MotherBrainsBackgroundRow3 = 0xac17;
     public const ushort MotherBrainsBackgroundRow4 = 0xac1d;

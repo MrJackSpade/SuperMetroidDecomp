@@ -49,6 +49,14 @@ public sealed partial class RoomEnemySystem
         // aiming are decided from the same state the 65816 would read from WRAM.
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
 
+        bool typewriterFinished = false;
+        if (sequence.Phase is MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText or
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle)
+        {
+            var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
+            typewriterFinished = text.Step(_bus!, _vram!);
+            if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
+        }
         MotherBrainRainbowBeamAttackStepResult step = sequence.Step(
             _bus!,
             samus,
@@ -56,7 +64,10 @@ public sealed partial class RoomEnemySystem
             _randomEnemyCounter,
             powerBombActive: sharedProjectiles?.PowerBombExplosion.Status != 0,
             randomNumberSeed: RequireRandomNumber(),
-            nextRandomNumber: _nextRandom);
+            nextRandomNumber: _nextRandom,
+            alternateEscapeText: JapaneseText,
+            typewriterFinished: typewriterFinished,
+            globalEarthquakeTimer: EarthquakeTimer);
         state.LastRainbowBeamStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
@@ -174,6 +185,7 @@ public sealed partial class RoomEnemySystem
             current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding)
             state.RainbowPaletteCursor = 0;
         ApplyMotherBrainRainbowPalette(state, current);
+        ApplyLiveMotherBrainDeath(state, sequence, current);
         state.LastRainbowBeamExplosion = current.Explosion;
         if (current.SoundQueued)
             // A request is not invariably a start: the painful-walk stage-six handoff
@@ -406,6 +418,50 @@ public sealed partial class RoomEnemySystem
                 MotherBrainBodyFunction.ThirdPhaseFightingMain,
             MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown =>
                 MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom =>
+                MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding =>
+                MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom =>
+                MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects =>
+                MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut =>
+                MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody =>
+                MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions =>
+                MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation =>
+                MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround =>
+                MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles =>
+                MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey =>
+                MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey =>
+                MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver =>
+                MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway =>
+                MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay =>
+                MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles =>
+                MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape =>
+                MotherBrainBodyFunction.ThirdPhaseDeathStartEscape,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle =>
+                MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText =>
+                MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer =>
+                MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor =>
+                MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor,
+            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing =>
+                MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing,
             _ => throw new InvalidDataException(
                 $"Live Mother Brain rainbow phase {phase} is not attached to a room function yet."),
         };

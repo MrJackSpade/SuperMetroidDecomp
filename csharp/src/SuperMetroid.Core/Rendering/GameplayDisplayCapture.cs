@@ -98,7 +98,8 @@ public static partial class GameplayDisplayCapture
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??
-                (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj),
+                (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
+                    (runtime.Enemies.MotherBrain?.DeathBg2Hidden == true ? 0 : SnesMainScreenLayers.Bg2)),
             ppu.Bg2FirstScanline, ppu.Bg2EndScanline);
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.

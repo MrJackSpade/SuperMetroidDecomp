@@ -44,6 +44,10 @@ public enum RoomEnemyProjectileKind : ushort
     MotherBrainDrool = 0xcb91,
     MotherBrainDyingDrool = 0xcb9f,
     MotherBrainRainbowBeamExplosion = 0xcbad,
+    /// <summary>$86:CB13 body-relative death explosions; C914 follows the moving body.</summary>
+    MotherBrainDeathExplosion = MotherBrainDeathRomData.ExplosionDefinition,
+    MotherBrainEscapeDoorFragment = MotherBrainDeathRomData.DoorFragmentDefinition,
+    MotherBrainEscapeSubtitle = MotherBrainDeathRomData.SubtitleDefinition,
     MotherBrainTopRightTube = 0xcc5b,
     MotherBrainTopLeftTube = 0xcc69,
     MotherBrainTopMiddleLeftTube = 0xcc77,
@@ -836,6 +840,15 @@ public sealed partial class RoomEnemySystem
 
             case EnemyProjectileCodePointers.PreInstruction_EnemyProj_MotherBrainsRainbowBeamExplosion:
                 RunMotherBrainRainbowExplosionPreInstruction(projectile, samus);
+                return;
+            case MotherBrainDeathRomData.ExplosionPreInstruction:
+                RunMotherBrainDeathExplosion(projectile);
+                return;
+            case MotherBrainDeathRomData.DoorFragmentPreInstruction:
+                RunMotherBrainDoorFragment(projectile);
+                return;
+            case MotherBrainDeathRomData.SubtitlePreInstruction:
+                PinMotherBrainEscapeSubtitle(projectile);
                 return;
 
             case EnemyProjectileCodePointers.PreInstruction_DraygonGoop_StuckToSamus:

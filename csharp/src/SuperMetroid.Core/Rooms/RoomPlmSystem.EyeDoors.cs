@@ -68,15 +68,15 @@ public sealed partial class RoomPlmSystem
 
         if (component == EyeDoorComponent.Eye)
         {
-            WriteEyeDoorTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
-            WriteEyeDoorTypeAndBts(
+            WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
+            WritePlmCollisionTypeAndBts(
                 level,
                 checked(slot.BlockIndex + level.WidthInBlocks),
                 EyeDoorPlmRomData.EyeExtensionWord);
             return;
         }
 
-        WriteEyeDoorTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
+        WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
     }
 
     /// <summary>
@@ -321,30 +321,18 @@ public sealed partial class RoomPlmSystem
         RoomBlockBehavior facing)
     {
         slot.BlockIndex = checked(slot.BlockIndex - level.WidthInBlocks);
-        WriteEyeDoorTypeAndBts(
+        WritePlmCollisionTypeAndBts(
             level,
             slot.BlockIndex,
             unchecked((ushort)(0xc000 | facing.Value)));
         for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
         {
-            WriteEyeDoorTypeAndBts(
+            WritePlmCollisionTypeAndBts(
                 level,
                 checked(slot.BlockIndex + row * level.WidthInBlocks),
                 unchecked((ushort)(0xd000 | unchecked((byte)-row))));
         }
         slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
-    }
-
-    private static void WriteEyeDoorTypeAndBts(
-        RoomLevelData level,
-        int blockIndex,
-        ushort typeAndBts)
-    {
-        ushort original = level.GetPlmCollisionBlockByIndex(blockIndex).LevelWord;
-        level.SetPlmForegroundEntry(
-            blockIndex,
-            unchecked((ushort)((original & 0x0fff) | (typeAndBts & 0xf000))));
-        level.SetPlmBehavior(blockIndex, unchecked((byte)typeAndBts));
     }
 
     private void ResetEyeDoorState()

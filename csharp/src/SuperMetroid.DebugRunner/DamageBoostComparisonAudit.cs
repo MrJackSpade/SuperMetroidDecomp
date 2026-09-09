@@ -10,7 +10,7 @@ internal static class DamageBoostComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length == 26 ? int.Parse(rows[0][24]) : 0;
-        if (contactKind is < 0 or > 2) throw new InvalidDataException("Unknown contact source.");
+        if (contactKind is < 0 or > 3) throw new InvalidDataException("Unknown contact source.");
         bool contact = contactKind != 0;
         if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
@@ -49,6 +49,7 @@ internal static class DamageBoostComparisonAudit
             samus.Pose = ball ? left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose
                 : left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
             samus.XPosition = 128; samus.YPosition = 160;
+            if (contactKind == 3) samus.YPosition = ball ? (ushort)169 : (ushort)155;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
@@ -79,11 +80,20 @@ internal static class DamageBoostComparisonAudit
                 projectile.InvincibilityFrames = 96;
                 projectile.CanDamageSamus = true;
             }
-            else
+            else if (contactKind == 2)
             {
                 int block = (source == 1 ? 9 : 10) * level.WidthInBlocks + 8;
                 level.SetForegroundEntry(block, 0x2000);
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
+            }
+            else
+            {
+                for (int x = 1; x < 15; x++)
+                {
+                    int block = 11 * level.WidthInBlocks + x;
+                    level.SetForegroundEntry(block, 0xa000);
+                    level.SetBehavior(block, (byte)source);
+                }
             }
             int frame = -1;
             foreach (var row in group)

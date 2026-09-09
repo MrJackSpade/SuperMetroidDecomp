@@ -1,7 +1,7 @@
 // #472: seeded hurt or inert-projectile contact, then the full movement sequence.
 // Include after native-release-probe.h. Dispatch before SDL initialization.
 int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium, int release, int contact) {
-  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 2) return 5;
+  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 3) return 5;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
@@ -13,7 +13,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
   for (int source = 0; source < 2; source++)
   for (int forward = 0; forward < 2; forward++)
   for (int delay = 0; delay < 12; delay++) {
-    int timer = timerCase || contact == 2 ? 10 : 5;
+    int timer = timerCase || contact >= 2 ? 10 : 5;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
     room_width_in_blocks = 16; room_height_in_blocks = 32;
@@ -24,11 +24,17 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
       int block = (source ? 9 : 10) * 16 + 8;
       level_data[block] = 0x2000; BTS[block] = 2;
     }
+    if (contact == 3) {
+      for (int x = 1; x < 15; x++) {
+        level_data[11 * 16 + x] = 0xa000; BTS[11 * 16 + x] = source;
+      }
+    }
     fx_y_pos = lava_acid_y_pos = 0xffff;
     if (medium == 1) { fx_y_pos = 8; fx_type = 6; }
     if (medium == 2) { lava_acid_y_pos = 8; fx_type = 2; }
     equipped_items = 4; samus_health = 99;
     samus_x_pos = samus_prev_x_pos = 128; samus_y_pos = samus_prev_y_pos = 160;
+    if (contact == 3) samus_y_pos = samus_prev_y_pos = ball ? 169 : 155;
     samus_pose = samus_prev_pose = ball ? (left ? 0x41 : 0x1d) : (left ? 2 : 1);
     samus_pose_x_dir = samus_prev_pose_x_dir = left ? 4 : 8;
     samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = ball ? 4 : 0;

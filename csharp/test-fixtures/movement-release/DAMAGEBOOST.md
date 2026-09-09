@@ -345,3 +345,22 @@ default core suite. All six `damageboost-spike-472-m{0,1,2}-r{0,1}.csv` comparis
 (35,712 samples). The diagnostic integration hooks are removed after capture.
 Actual solid spikes, ordinary enemy contacts and the previously listed variants are
 not covered by this inside-block fixture; #472 remains open.
+
+## Solid-spike floor contact
+
+Native `contact=3` replaces row11 with solid spikes; source0 selects BTS0 (60 damage),
+source1 selects BTS1 (16 damage). Samus starts one collision step above the floor at
+Y155 humanoid / Y169 morphed, so the actual movement dispatcher publishes the hit.
+No direct hazard callback or seeded knockback is used. The managed fixture installs
+the same floor and runs Runtime.StepFrame. The twelve input delays include Jump held
+on the collision frame and through the subsequent hurt window.
+
+All six air/water/lava and direction-held/released captures match: 35,712 samples
+including exact health, positions, pose/animation, timers, speeds and history.
+Local evidence is `damageboost-solid-spike-472-m{0,1,2}-r{0,1}.csv`. Regenerate using
+the existing headless integration with `--damageboost-solid-spike` dispatching
+`DiagnosticDamageBoostSource(..., 3)`; the comparer is unchanged. Hooks were removed.
+
+No production correction was necessary for this floor-contact slice. Horizontal
+spike collision, ordinary enemy contact, medium crossings, speedkeep and interruption
+variants are not established by it. The overall #472 issue remains open.

@@ -68,7 +68,15 @@ bool MainCoverage(uint2 screen)
     uint px = (entry & 16384) != 0 ? 7 - (position.x & 7) : position.x & 7;
     uint py = (entry & 32768) != 0 ? 7 - (position.y & 7) : position.y & 7;
     uint row = ((map.y + (entry & 1023) * 16) & 32767) * 2 + py * 2;
-    return (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
+    bool covered = (((ReadByte(row) | ReadByte(row + 1) | ReadByte(row + 16) | ReadByte(row + 17)) >> (7 - px)) & 1) != 0;
+    if (AddG != 0)
+    {
+        uint palette;
+        uint2 obj = ResolveObjectWithPalette(screen, palette);
+        if (obj.y != 255 && (!covered || obj.y >= ((entry & 8192) != 0 ? 3 : 2)))
+            return palette >= 4;
+    }
+    return covered;
 }
 
 [numthreads(8, 8, 1)]

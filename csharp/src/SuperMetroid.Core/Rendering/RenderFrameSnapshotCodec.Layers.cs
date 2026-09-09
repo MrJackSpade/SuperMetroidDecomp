@@ -37,6 +37,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(sub.TilemapWord); writer.Write(sub.CharacterWord); writer.Write(sub.MainCoverage is not null);
                 if (sub.MainCoverage is { } coverage) WriteLayer(writer, coverage);
                 writer.Write(sub.IncludeObjects);
+                writer.Write(sub.MainObjects);
                 break;
             case Mode7GameplayRenderLayer gameplay7:
                 writer.Write((byte)RenderPacketLayerKind.Mode7Gameplay);
@@ -197,7 +198,8 @@ public static partial class RenderFrameSnapshotCodec
                 reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader));
         }
         return new(map, characters, coverage, fourBpp,
-            version >= RenderPacketFormat.SubscreenObjectsVersion && ReadBoolean(reader));
+            version >= RenderPacketFormat.SubscreenObjectsVersion && ReadBoolean(reader),
+            version >= RenderPacketFormat.SubscreenMainObjectsVersion && ReadBoolean(reader));
     }
 
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)

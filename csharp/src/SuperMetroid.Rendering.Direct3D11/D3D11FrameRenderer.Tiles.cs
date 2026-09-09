@@ -48,7 +48,7 @@ public sealed partial class D3D11FrameRenderer
                     DispatchMessage(message);
                     break;
                 case BgSubscreenAddRenderLayer sub:
-                    DispatchSubscreen(sub);
+                    DispatchSubscreen(sub, (uint)scene.Memory.ModeledSpriteCount, scene.ObjectSelection);
                     break;
                 case Bg2BppColorMathRenderLayer math:
                     DispatchBackgroundMath(math);

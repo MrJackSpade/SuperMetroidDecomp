@@ -82,6 +82,23 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packets cannot claim four-bit subscreen layers");
         for (int row = 0; row < 8; row++) vram[0xc000 + row * 2] = 255;
         colors[129] = 31 << 5;
+        colors[193] = 31 << 5;
+        for (int tile = 0; tile < 1024; tile++) vram[0xd000 + tile * 2] = 1;
+        foreach (byte palette in new byte[] { 0, 4 })
+        {
+            byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(palette * 2);
+            var masked = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(
+                new PpuMemorySnapshot(vram, colors, oam, 1),
+                new RenderLayer[] { new ObjRenderLayer(), new BgSubscreenAddRenderLayer(0x7000, 0,
+                    new Bg4BppRenderLayer(0x6800, 0, 0, 0, 32, 32, null), FourBpp: true, MainObjects: true) }, 3, 15));
+            var decoded = RoundTripRenderPacket(masked);
+            var pixels = SoftwareFrameSnapshotRenderer.Render(decoded);
+            AssertEqual(new Rgba32(255, 0, 0), pixels[0], "masked subscreen does not add to backdrop");
+            AssertEqual(palette == 4 ? new Rgba32(0, 255, 255) : new Rgba32(0, 255, 0), pixels[8 * 256 + 8],
+                "only winning OBJ palettes four through seven participate in main-screen color math");
+            File.WriteAllBytes($"csharp/test-temp/ending-504/bg4-main-obj-{palette}.smframe", RenderFrameSnapshotCodec.Serialize(decoded));
+        }
         foreach (byte priority in new byte[] { 1, 2, 3 })
         foreach (bool highBackground in new[] { false, true })
         {

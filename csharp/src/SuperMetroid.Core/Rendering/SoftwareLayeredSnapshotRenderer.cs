@@ -21,7 +21,7 @@ public static class SoftwareLayeredSnapshotRenderer
         bool usesObjInsertion = false;
         foreach (RenderLayer layer in snapshot.Layers)
             usesObjInsertion |= layer is ObjRenderLayer or ObjPriorityRenderLayer or Mode7RenderLayer { SubtractObjSubscreen: true }
-                or BgSubscreenAddRenderLayer { IncludeObjects: true };
+                or BgSubscreenAddRenderLayer { IncludeObjects: true } or BgSubscreenAddRenderLayer { MainObjects: true };
         ResolvedObjFrame objects = usesObjInsertion
             ? SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, snapshot.ObjectSelection)
             : default;
@@ -75,7 +75,25 @@ public static class SoftwareLayeredSnapshotRenderer
                             coverage.TilemapWord, coverage.CharacterWord, coverage.HorizontalScroll, coverage.VerticalScroll,
                             SnesPpuLayout.ScreenWidthPixels, SnesPpuLayout.ScreenHeightPixels,
                             coverage.MapWidthTiles, coverage.MapHeightTiles, priority: coverage.Priority);
-                        for (int i = 0; i < subscreen.Length; i++) if (mask[i].A == 0) subscreen[i] = default;
+                        byte[]? palettes = null;
+                        Rgba32[]? highMain = null;
+                        if (sub.MainObjects)
+                        {
+                            palettes = new byte[subscreen.Length];
+                            SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                                snapshot.ObjectSelection, new Rgba32[subscreen.Length], palettes);
+                            highMain = SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
+                                coverage.TilemapWord, coverage.CharacterWord, coverage.HorizontalScroll, coverage.VerticalScroll,
+                                256, 224, coverage.MapWidthTiles, coverage.MapHeightTiles, priority: true);
+                        }
+                        for (int i = 0; i < subscreen.Length; i++)
+                        {
+                            bool eligible = mask[i].A != 0;
+                            if (sub.MainObjects && objects.Pixels[i].A != 0 &&
+                                (!eligible || objects.Priorities[i] >= (highMain![i].A != 0 ? 3 : 2)))
+                                eligible = palettes![i] >= 4;
+                            if (!eligible) subscreen[i] = default;
+                        }
                     }
                     SnesLayerCompositor.AddSubscreen(output, subscreen);
                     break;

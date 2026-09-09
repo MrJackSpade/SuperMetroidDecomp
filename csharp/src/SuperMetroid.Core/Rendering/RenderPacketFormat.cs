@@ -4,7 +4,8 @@ namespace SuperMetroid.Core.Rendering;
 internal static class RenderPacketFormat
 {
     internal static ReadOnlySpan<byte> Signature => "SMFRAME\0"u8;
-    internal const ushort Version = 17;
+    internal const ushort Version = 18;
+    internal const ushort SubscreenMainObjectsVersion = 18;
     internal const ushort SubscreenObjectsVersion = 17;
     internal const ushort Bg4SubscreenAddVersion = 16;
     internal const ushort Mode7ObjSubtractVersion = 15;

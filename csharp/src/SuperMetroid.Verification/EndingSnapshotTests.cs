@@ -23,6 +23,7 @@ internal static partial class Program
             var gunshipPalettes = new HashSet<string>();
             ushort[]? explosionBackgroundSource = null;
             int finaleDisplayFrames = 0;
+            int burstDisplayFrames = 0;
             EndingRewardJump? referenceJump = null;
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
@@ -85,8 +86,20 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation &&
+                    legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(layer => layer.MainObjects))
+                {
+                    var burst = legacy.CaptureRenderSnapshot();
+                    var sub = burst.Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Single();
+                    AssertEqual((ushort)0x7c00, sub.TilemapWord, "F2B7 selects burst BG2 map");
+                    AssertEqual((ushort)0x7000, sub.MainCoverage!.TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
+                    if (hours == 2 && burstDisplayFrames == 10)
+                        File.WriteAllBytes("csharp/test-temp/ending-504/explosion-burst.smframe",
+                            RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), burst)));
+                    burstDisplayFrames++;
+                }
                 if (legacy.Phase == EndingCreditsPhase.ZebesExplosionAnimation
-                    && legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any())
+                    && legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<BgSubscreenAddRenderLayer>().Any(layer => layer.IncludeObjects))
                 {
                     var finale = legacy.CaptureRenderSnapshot();
                     var backgrounds = finale.Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();
@@ -299,6 +312,7 @@ internal static partial class Program
             AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Phase, "ending capture fixture completes");
             AssertTrue(gunshipPalettes.Count >= 10, "gunship emergence executes changing native palette records");
             AssertTrue(finaleDisplayFrames > 10, "ending executes the actual callback-driven Mode1 explosion finale");
+            AssertTrue(burstDisplayFrames > 10, "ending executes the callback-driven explosion burst before its finale");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
             Rgba32[] final = legacy.Render();

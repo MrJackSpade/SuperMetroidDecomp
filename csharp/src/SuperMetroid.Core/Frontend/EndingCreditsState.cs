@@ -729,6 +729,7 @@ internal sealed partial class EndingCreditsState
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_StartZebesExplosion:
+                explosionBurstDisplay = true;
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Supernova, 0);
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Explosion, 0);
                 paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.WideExplosion, 0);

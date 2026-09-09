@@ -4,7 +4,7 @@ namespace SuperMetroid.Rendering.Direct3D11;
 
 public sealed partial class D3D11FrameRenderer
 {
-    private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer)
+    private unsafe void DispatchSubscreen(BgSubscreenAddRenderLayer layer, uint objectCount, byte objectSelection)
     {
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.SubscreenAdd;
@@ -12,6 +12,8 @@ public sealed partial class D3D11FrameRenderer
         data[5] = 32; data[6] = 32; data[8] = 1; data[26] = 224;
         data[27] = layer.FourBpp ? 1u : 0u;
         data[10] = layer.IncludeObjects ? 1u : 0u;
+        data[11] = layer.MainObjects ? 1u : 0u;
+        data[13] = objectCount; data[14] = objectSelection;
         if (layer.MainCoverage is { } coverage)
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset;

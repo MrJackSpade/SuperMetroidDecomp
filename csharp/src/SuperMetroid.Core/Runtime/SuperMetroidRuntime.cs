@@ -3495,6 +3495,17 @@ public sealed partial class SuperMetroidRuntime
                     }
                 }
                 else if (!animationTransitionApplied &&
+                         poseAtFrameStart is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose &&
+                         ProspectiveSamusFallbackPose == poseAtFrameStart)
+                {
+                    // The retained hurt pose still executes prospective command two.
+                    // Reset deceleration and cancel the momentum flag after movement.
+                    // Extra speed survives this command, but the next normal mover
+                    // consumes the cancellation through HandleExtraRunSpeed.
+                    Samus.HorizontalSpeed.AccelerationMode = 0;
+                    Samus.HorizontalSpeed.CancelRunningMomentum((byte)Samus.ReadFacingDirection(_addressSpace));
+                }
+                else if (!animationTransitionApplied &&
                          SamusState.IsDraygonGrabbedPose(poseAtFrameStart) &&
                          ProspectiveSamusFallbackPose is { } draygonFallback)
                 {

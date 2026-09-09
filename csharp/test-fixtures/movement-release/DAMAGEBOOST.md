@@ -436,3 +436,28 @@ This completes the currently constructed forward-contact matrix, not #472. In
 particular, all these fixtures lack carried running speed and Speed Booster; speedkeep
 variants remain an explicit requirement. Enemy-specific interruptions and other
 earlier-noted interactions are not inferred from this successful stationary-source gate.
+
+## Carried-speed hurt fallback
+
+Contact modes 5/6 extend the real Ripper overlap fixture with base speed 1.4000,
+extra speed 2/7, and a set momentum flag. Humanoid bodies start in spin pose;
+balls start moving. Mode 6 equips Speed Booster but leaves the boost counter zero.
+These are constructed retained-speed states, not a run-up proving an active blue
+Speed Booster entry. Inputs, medium and delay sweeps remain unchanged.
+
+The first air/held mode-5 capture reproduced 2,174 mismatching samples out of
+5,952, with no initialization mismatch. Neutral hurt fallback retained pose/history
+but omitted command two at $91:ECD0: reset acceleration mode and cancel running
+momentum. The numeric extra speed survives that command until the next normal
+movement call processes the cleared momentum flag. Runtime now executes both
+operations after movement. The default core regression checks the three native
+frames spanning fallback, boost selection and normal movement, including exact
+X/Y, base/extra speed and momentum cancellation.
+
+All six mode-5 captures and the four air/lava mode-6 captures now match exactly
+(59,520 samples). Mode-6 water remains deliberately failing: held has 16 mismatches
+and release has 12, first diverging on late aerial-turn completion near the floor.
+This is not a completed speedkeep audit and #472 must remain open without the
+validation label. Captures are `damageboost-carry-472-c{5,6}-m{0,1,2}-r{0,1}.csv`;
+the comparison retains its complete state assertions. Temporary native entry-point
+hooks were removed, and no player save slot was changed.

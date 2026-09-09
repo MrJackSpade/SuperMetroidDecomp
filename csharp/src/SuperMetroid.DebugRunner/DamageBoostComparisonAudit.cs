@@ -10,7 +10,7 @@ internal static class DamageBoostComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length >= 26 ? int.Parse(rows[0][24]) : 0;
-        if (contactKind is < 0 or > 4) throw new InvalidDataException("Unknown contact source.");
+        if (contactKind is < 0 or > 6) throw new InvalidDataException("Unknown contact source.");
         bool contact = contactKind != 0;
         if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
@@ -50,6 +50,18 @@ internal static class DamageBoostComparisonAudit
             samus.Health = 99;
             samus.Pose = ball ? left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose
                 : left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            if (contactKind >= 5)
+            {
+                samus.Pose = ball
+                    ? left ? SamusPoseIds.MorphBallMovingLeftPose : SamusPoseIds.MorphBallMovingRightPose
+                    : left ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose;
+                samus.HorizontalSpeed.BaseSpeed = 1;
+                samus.HorizontalSpeed.BaseSubspeed = 0x4000;
+                samus.HorizontalSpeed.ExtraRunSpeed = contactKind == 6 ? (ushort)7 : (ushort)2;
+                samus.HorizontalSpeed.HasRunningMomentum = true;
+                samus.Kinematics.YDirection = 2;
+                if (contactKind == 6) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpeedBooster;
+            }
             samus.XPosition = 128; samus.YPosition = 160;
             if (contactKind == 3) samus.YPosition = ball ? (ushort)169 : (ushort)155;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
@@ -57,7 +69,7 @@ internal static class DamageBoostComparisonAudit
             samus.InitializeAnimation(bus);
             samus.SetAnimationFrameFromSpecialHandler(0, 1);
             samus.PoseHistory.PreviousPose = samus.Pose;
-            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)((ball ? 0x0400 : 0) | (left ? 4 : 8));
+            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(((byte)samus.ReadMovementType(bus) << 8) | (left ? 4 : 8));
             samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
             ushort initialInput = forward ? (ushort)(left ? 0x200 : 0x100) : (ushort)0;
             runtime.Controller1.Latch(initialInput);

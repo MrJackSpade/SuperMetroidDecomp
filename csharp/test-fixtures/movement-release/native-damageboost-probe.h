@@ -1,7 +1,7 @@
 // #472: seeded hurt or inert-projectile contact, then the full movement sequence.
 // Include after native-release-probe.h. Dispatch before SDL initialization.
 int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium, int release, int contact) {
-  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 4) return 5;
+  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 6) return 5;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
@@ -38,9 +38,17 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
     samus_pose = samus_prev_pose = ball ? (left ? 0x41 : 0x1d) : (left ? 2 : 1);
     samus_pose_x_dir = samus_prev_pose_x_dir = left ? 4 : 8;
     samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = ball ? 4 : 0;
+    if (contact >= 5) {
+      samus_pose = samus_prev_pose = ball ? (left ? 0x1f : 0x1e) : (left ? 0x1a : 0x19);
+      samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = ball ? 4 : 3;
+      samus_x_base_speed = 1; samus_x_base_subspeed = 0x4000;
+      samus_x_extra_run_speed = contact == 6 ? 7 : 2; samus_has_momentum_flag = 1;
+      samus_y_dir = 2;
+      if (contact == 6) equipped_items |= 0x2000;
+    }
     samus_anim_frame_timer = 1; samus_x_speed_table_pointer = 0x9f55;
     samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
-    if (contact == 4) {
+    if (contact >= 4) {
       EnemyData *enemy = gEnemyData(0);
       enemy->enemy_ptr = 0xd47f; enemy->bank = 0xa2;
       enemy->x_pos = source ? 120 : 136; enemy->y_pos = 160;
@@ -70,7 +78,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
         RunAsmCode(0x909c5b, 0, 0, 0, 0);
         if (contact == 2) RunAsmCode(0x949b60, 0, 0, 0, 0);
-        if (contact == 4) RunAsmCode(0xa0a07a, 0, 0, 0, 0);
+        if (contact >= 4) RunAsmCode(0xa0a07a, 0, 0, 0, 0);
         RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
         RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);
         RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);

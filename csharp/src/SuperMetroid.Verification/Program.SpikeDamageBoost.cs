@@ -86,6 +86,44 @@ internal static partial class Program
         runtime.StepFrame(0x0180);
         AssertEqual(2, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
 
+        // Native carry trace contact=5, delay=2, immediately after the contact frame.
+        // One neutral hurt frame must cancel momentum without clearing its numeric
+        // extra speed; the next normal movement frame consumes that cancellation.
+        level.SetForegroundEntry(hazardBlock, 0);
+        samus.Pose = SamusPoseIds.SpinJumpRightPose;
+        samus.KnockbackActive = false;
+        samus.KnockbackDirection = 0;
+        SamusKnockbackMovement.Start(bus, samus, 0, 0, 4);
+        samus.XPosition = 131;
+        samus.Kinematics.XSubposition = 0x6000;
+        samus.YPosition = 160;
+        samus.Kinematics.YSubposition = 0;
+        samus.HorizontalSpeed.BaseSpeed = 1;
+        samus.HorizontalSpeed.BaseSubspeed = 0x6000;
+        samus.HorizontalSpeed.ExtraRunSpeed = 2;
+        samus.HorizontalSpeed.ExtraRunSubspeed = 0;
+        samus.HorizontalSpeed.HasRunningMomentum = true;
+        samus.HorizontalSpeed.AccelerationMode = 1;
+        runtime.Controller1.Latch(0);
+        (ushort Input, uint X, uint Y, uint Base, ushort Extra)[] carriedFrames =
+        [
+            (0, 0x00808000, 0x009b0000, 0x0000e000, 2),
+            (0x0280, 0x007c2000, 0x00961c00, 0x00026000, 2),
+            (0x0280, 0x00790000, 0x00915400, 0x00032000, 0),
+        ];
+        foreach (var expectedFrame in carriedFrames)
+        {
+            runtime.StepFrame(expectedFrame.Input);
+            AssertEqual((expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
+                (samus.Kinematics.XFixed, samus.Kinematics.YFixed,
+                    samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed),
+                "native carried-speed hurt fallback trajectory");
+            AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
+        }
+
+        samus.KnockbackActive = false;
+        samus.KnockbackDirection = samus.KnockbackTimer = 0;
+        samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
         foreach (byte retainedPose in new byte[]
         {
             SamusPoseIds.FacingRightNormalPose, SamusPoseIds.FacingLeftNormalPose,

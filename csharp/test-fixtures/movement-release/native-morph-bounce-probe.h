@@ -1,6 +1,7 @@
 // #449: deterministic impact-boundary fixture. Include after native-release-probe.h.
 int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing) {
-  int run_jump = timing == 2;
+  int mockball = timing == 3;
+  int run_jump = timing >= 2;
   int wide = timing != 0;
   timing = timing == 1;
   int status = ProbeLoadRetailMovementRom(rom);
@@ -11,7 +12,7 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
   const uint32 carries[] = { 0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000 };
   fprintf(f, "left,speed,carry,inputMode,frame,input,x,y,pose,bounce,ySpeed,yDirection,baseSpeed,extraSpeed,xAccel,animFrame,animTimer\n");
   for (int left = 0; left < 2; left++)
-  for (int speed = 0; speed < (run_jump ? 16 : timing ? 9 : 8); speed++)
+  for (int speed = 0; speed < (mockball ? 21 : run_jump ? 16 : timing ? 9 : 8); speed++)
   for (int carry = 0; carry < (wide ? 4 : 8); carry++)
   for (int held = 0; held < 2; held++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -23,6 +24,9 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
     interactive_enemy_indexes[0] = 0xffff;
     for (int x = 0; x < width; x++) level_data[16 * width + x] = 0x8000;
     for (int y = 0; y <= 16; y++) level_data[y * width] = level_data[y * width + width - 1] = 0x8000;
+    if (mockball)
+      for (int x = 0; x < width; x++)
+        if (x < 16 || x >= 112) level_data[14 * width + x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff; equipped_items = 4; samus_health = 99;
     samus_x_pos = samus_prev_x_pos = run_jump ? 1024 : wide ? 512 : 128;
     samus_y_pos = samus_prev_y_pos = run_jump ? 235 : timing && !grounded ? 180 : 249;
@@ -46,7 +50,7 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
     }
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
     uint16 previous = 0;
-    for (int frame = 0; frame < (run_jump ? 180 : 96); frame++) {
+    for (int frame = 0; frame < (mockball ? 200 : run_jump ? 180 : 96); frame++) {
       uint16 input = held ? 0x80 | (left ? 0x200 : 0x100) : 0;
       if (timing) input = (grounded || frame >= speed * 2 + 8 ? (left ? 0x200 : 0x100) : 0) | (held ? 0x80 : 0) |
         (!grounded && (frame == speed * 2 || (frame >= speed * 2 + 2 && frame < speed * 2 + 8)) ? 0x400 : 0);
@@ -58,6 +62,16 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
         int down = frame == morph || (frame >= morph + 2 && frame < morph + 8) ? 0x400 : 0;
         input = frame < launch ? 0x8000 | forward : frame == launch ? jump | 0x800 :
           jump | down | (frame >= morph && frame < morph + 8 ? 0 : forward);
+      }
+      if (mockball) {
+        const int run_frames[] = { 8, 16, 24, 40 };
+        int launch = run_frames[carry], first_down = launch + (held ? 40 : 10);
+        int second_down = launch + (held ? 78 : 20) + speed;
+        int forward = left ? 0x200 : 0x100;
+        int jump = !held && frame == launch + 8 ? 0 : 0x80;
+        int down = frame == first_down || frame == second_down ? 0x400 : 0;
+        input = frame < launch ? 0x8000 | forward :
+          jump | down | (frame < first_down || frame > second_down ? forward : 0);
       }
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
@@ -81,3 +95,4 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
 int DiagnosticMorphBounce(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 0); }
 int DiagnosticMorphTiming(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 1); }
 int DiagnosticRunJumpMorph(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 2); }
+int DiagnosticMockball(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 3); }

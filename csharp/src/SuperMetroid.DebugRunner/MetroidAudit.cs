@@ -27,6 +27,7 @@ internal static partial class MetroidAudit
         LoadedMetroids loaded = Load(bus, room, assets);
         VerifyLoadAndAnimation(bus, room, assets, loaded);
         VerifyMovementAndAttachment(bus, room, assets);
+        VerifyStationaryPlacedBomb(bus, room, assets);
         VerifySuitDrainCadence(bus, room, assets);
         VerifyIceMissilesAndDeath(bus, room, assets);
         VerifyPowerBombReaction(bus, room, assets);

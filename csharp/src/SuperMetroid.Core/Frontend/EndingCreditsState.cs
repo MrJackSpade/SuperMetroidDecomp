@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -44,6 +45,7 @@ internal sealed partial class EndingCreditsState
     private short planetVelocityWhole;
     private ushort planetVelocityFraction;
     private bool creditsAssetsLoaded;
+    private RoomPaletteFxSystem paletteFx = new();
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -86,6 +88,8 @@ internal sealed partial class EndingCreditsState
             case EndingCreditsPhase.WaitForEscapeMusic:
                 if (!audio.HasQueuedMusic)
                 {
+                    paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Lava, 0);
+                    paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Crust, 0);
                     brightness = 0;
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeInEscapeSceneA;
@@ -324,6 +328,10 @@ internal sealed partial class EndingCreditsState
                 break;
         }
 
+        // The native cinematic invokes the shared bank-$8D interpreter after actors.
+        paletteFx.Step(bus, cgram, 0, 0, false, false);
+        if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
+            throw new InvalidDataException("Ending palette program requested an unhandled audio command.");
         cinematicFrame++;
     }
 
@@ -356,6 +364,8 @@ internal sealed partial class EndingCreditsState
 
     private void SetupEscapeSceneB()
     {
+        paletteFx = new RoomPaletteFxSystem();
+        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GreyClouds, 0);
         LoadMode7(
             EndingCreditsRomData.Assets.EscapeMapB,
             EndingCreditsRomData.Assets.EscapeCharactersB);
@@ -405,6 +415,8 @@ internal sealed partial class EndingCreditsState
         cgram.SetColor(0, 0);
         cgram.SetColor(16, 0);
         cgram.SetColor(128, 0);
+        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.PlanetAfterglow, 0);
+        paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.GunshipEmergence, 0);
         mode7X = unchecked((ushort)-72);
         mode7Y = unchecked((ushort)-104);
         mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
@@ -416,6 +428,8 @@ internal sealed partial class EndingCreditsState
 
     private void SetupCredits()
     {
+        // Func126 clears palette objects before installing credits/reward palettes.
+        paletteFx = new RoomPaletteFxSystem();
         LoadCreditsAndPostCreditsAssets();
         credits = new CreditsObjectState(bus);
         credits.UploadTilemap(vram);
@@ -660,8 +674,8 @@ internal sealed partial class EndingCreditsState
         switch (opcode)
         {
             case CinematicCodePointers.Ending_Instruction_FadeExplosionPalette:
-                // F284 starts a palette-FX object. The palette interpreter remains a
-                // separate subsystem; the actor's list cursor still advances immediately.
+                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.FadePlanet, 0);
+                cgram.SetColor(254, 1);
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_SpawnExplosionSilhouette:
@@ -672,6 +686,9 @@ internal sealed partial class EndingCreditsState
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_StartZebesExplosion:
+                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Supernova, 0);
+                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.Explosion, 0);
+                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.WideExplosion, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionStarsRight,
                     EndingSpriteRole.ExplosionStarsRight);
@@ -681,6 +698,7 @@ internal sealed partial class EndingCreditsState
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_ExplosionFinale:
+                paletteFx.SpawnDefinition(bus, EndingPaletteFxDefinitions.SupernovaFinale, 0);
                 SpawnSprite(
                     EndingCreditsRomData.Sprites.ExplosionAfterglow,
                     EndingSpriteRole.ExplosionAfterglow);
@@ -866,6 +884,7 @@ internal sealed partial class EndingCreditsState
         }
         if (mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
+            cgram.LoadFromBus(bus, EndingCreditsRomData.Assets.FinalGunshipPalette, 16, 80);
             SpawnSprite(
                 EndingCreditsRomData.Sprites.OperationWasText,
                 EndingSpriteRole.OperationWasText);

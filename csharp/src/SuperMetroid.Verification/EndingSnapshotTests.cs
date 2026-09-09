@@ -19,6 +19,7 @@ internal static partial class Program
             var legacy = new EndingCreditsState(bus, audio, hours, 59);
             var captured = new EndingCreditsState(otherBus, otherAudio, hours, 59);
             var phases = new HashSet<EndingCreditsPhase>();
+            var gunshipPalettes = new HashSet<string>();
             RenderFrameSnapshot? previousPacket = null;
             Rgba32[]? previousPixels = null;
             for (int tick = 0; tick < 60000; tick++)
@@ -27,7 +28,10 @@ internal static partial class Program
                 if (previousPacket is not null)
                     AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
-                bool sample = phases.Add(legacy.Phase) || tick % 97 == 0;
+                bool firstPhaseFrame = phases.Add(legacy.Phase);
+                bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
+                    gunshipPalettes.Add(string.Join(',', legacy.CaptureRenderSnapshot().Memory.Cgram.Slice(80, 16).ToArray()));
                 if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
                     var memory = legacy.CaptureRenderSnapshot().Memory;
@@ -50,6 +54,8 @@ internal static partial class Program
                             "native flyaway map upload and padded background");
                     }
                     AssertEqual((ushort)0, memory.Cgram[0], "flyaway clears explosion backdrop");
+                    if (firstPhaseFrame)
+                        AssertEqual((ushort)0x7fff, memory.Cgram[81], "native gunship emergence palette starts white");
                 }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {
@@ -89,6 +95,7 @@ internal static partial class Program
                 if (legacy.Phase == EndingCreditsPhase.SeeYouNextMission) break;
             }
             AssertEqual(EndingCreditsPhase.SeeYouNextMission, legacy.Phase, "ending capture fixture completes");
+            AssertTrue(gunshipPalettes.Count >= 10, "gunship emergence executes changing native palette records");
             AssertTrue(phases.Contains(EndingCreditsPhase.Credits) && phases.Contains(EndingCreditsPhase.PostCreditsReward)
                 && phases.Contains(EndingCreditsPhase.ZebesExplosionAnimation), "ending covers all composition families");
             Rgba32[] final = legacy.Render();

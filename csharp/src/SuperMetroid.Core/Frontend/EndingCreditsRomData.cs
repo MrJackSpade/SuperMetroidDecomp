@@ -12,6 +12,8 @@ public static class EndingCreditsRomData
         public const int FlyawayCharacters = 0x95a82f;
         /// <summary>$96:FE69, decompressed to $7F:4000 for the flyaway's low-byte Mode-7 map lane.</summary>
         public const int FlyawayMap = 0x96fe69;
+        /// <summary>$8B:DE43, final gunship palette restored by Func124 before operation text.</summary>
+        public const int FinalGunshipPalette = 0x8bde43;
         /// <summary>$8C:E7E9, kPalettes_Intro4, restored by the end-credits instruction $8B:F6FE.</summary>
         public const int PostCreditsPalette = 0x8ce7e9;
         public const int CreditsPalette = 0x8ce9e9;

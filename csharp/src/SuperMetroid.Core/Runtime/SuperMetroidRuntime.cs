@@ -1773,6 +1773,7 @@ public sealed partial class SuperMetroidRuntime
                     IsAttractDemo ? Controller1.NewlyPressed : Samus.ConsumeAutoJumpInput(Controller1.NewlyPressed));
             ProspectiveSamusPose = poseLookup.Transition;
             bool usePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
+            bool airborneBallFallbackMomentum = Samus.HorizontalSpeed.BaseFixed != 0;
             ProspectiveSamusFallbackPose = null;
             ProspectiveSamusWallCollisionPose = null;
             LastRanIntoWallProbe = null;
@@ -1792,6 +1793,7 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Pose is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose or
                     SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
                     SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
+                    SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or
                     SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
@@ -3672,6 +3674,13 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         unchecked((byte)ProspectiveSamusFallbackPose.Value));
                     Samus.HorizontalSpeed.ClearHorizontalMomentum(Samus.ReadFacingDirection(_addressSpace));
+                }
+                else if (!animationTransitionApplied &&
+                         poseAtFrameStart is SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose &&
+                         ProspectiveSamusFallbackPose == poseAtFrameStart)
+                {
+                    Samus.HorizontalSpeed.ApplyAirborneBallInputFallback(
+                        airborneBallFallbackMomentum, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          poseAtFrameStart is SamusPoseIds.MorphBallGroundRightPose or SamusPoseIds.MorphBallGroundLeftPose &&

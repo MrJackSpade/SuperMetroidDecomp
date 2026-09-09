@@ -886,6 +886,11 @@ public sealed partial class SamusState
         if (PendingTransitionalPose is not byte targetPose)
             return false;
 
+        // Native pose initialization computes its own local delay without replacing
+        // the buffer published by this frame's FX pass. Command three adds that live
+        // buffer once more after installing the new animation.
+        ushort commandAnimationBuffer = AnimationFrameBuffer;
+
         bool verified = (Pose, targetPose) is
             (SamusPoseIds.TurningRightToLeftPose, SamusPoseIds.FacingLeftNormalPose) or
             (SamusPoseIds.TurningLeftToRightPose, SamusPoseIds.FacingRightNormalPose) or
@@ -1033,6 +1038,7 @@ public sealed partial class SamusState
         if (startsMoonwalkJump)
             SamusAerialMovement.InitializeJump(bus, this);
         MorphBallBounceState = 0;
+        AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer + commandAnimationBuffer));
         return true;
     }
 

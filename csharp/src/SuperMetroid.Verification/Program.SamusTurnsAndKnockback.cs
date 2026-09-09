@@ -206,6 +206,16 @@ static void VerifySamusAerialTurnsAndWallJump()
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer, "released turn does not restart animation");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "released turn retains base speed until next movement");
+
+        var lavaEndpoint = new SamusState { Pose = source, XPosition = 128, YPosition = 96 };
+        lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);
+        lavaEndpoint.RefreshCollisionRadii(bus);
+        lavaEndpoint.InitializeAnimation(bus);
+        lavaEndpoint.SetAnimationFrameFromSpecialHandler(0, 1);
+        lavaEndpoint.AnimateNoFx(bus, nmiFrameCounter: 1);
+        AssertTrue(lavaEndpoint.ApplyPendingVerifiedAnimationTransition(bus), "lava turn consumes command three");
+        AssertEqual(7, lavaEndpoint.AnimationFrameTimer,
+            "command three adds live lava buffer after target delay plus pose-change buffer (3+2+2)");
     }
 
     // Ordinary spin art, wall-jump art, and both dry launch table pairs.

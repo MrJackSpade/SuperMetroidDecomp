@@ -627,6 +627,23 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
+    /// Executes the airborne ball fallback's alpha-selected command one or two.
+    /// Command one rechecks speed after movement before folding extra momentum.
+    /// </summary>
+    public void ApplyAirborneBallInputFallback(bool selectedMomentumCommand, SamusFacingDirection facingDirection)
+    {
+        if (selectedMomentumCommand && BaseFixed != 0)
+        {
+            SetBaseFixed(unchecked(BaseFixed + Compose(ExtraRunSpeed, ExtraRunSubspeed)));
+            ExtraRunSpeed = ExtraRunSubspeed = 0;
+            AccelerationMode = 2;
+        }
+        else
+            AccelerationMode = 0;
+        CancelRunningMomentum((byte)facingDirection);
+    }
+
+    /// <summary>
     /// Advances one cancellation echo during <c>Samus_DrawEchoes</c> at
     /// <c>$90:87D3-$90:884B</c>.
     /// </summary>

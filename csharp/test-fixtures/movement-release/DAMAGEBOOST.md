@@ -175,3 +175,39 @@ this fixture are still seeded, dry, and without speedkeep. Next acceptance work 
 actual source-contact timing, liquid variants, held-direction release, and speed
 variants as listed at the beginning of this document. Keep the issue open without
 the player-validation label until those requirements are covered.
+
+## Liquid and directional-release sweep
+
+`DiagnosticDamageBoostVariant(rom, output, medium, release)` extends the same bounded
+fixture without changing its 384 cases. Medium 0/1/2 means air/water/lava; liquid surface
+is Y8 and native FX type is respectively 0/6/2. Release 0 holds the original chord;
+release 1 keeps Jump but releases direction after three input frames. The probe appends
+`medium,release` to its CSV; the comparer accepts both the original 22-field capture and
+the new 24-field format. Temporary native main/include integration was removed after use.
+
+For reproduction, dispatch the variant from a six-argument native command before SDL:
+`sm.exe --damageboost-variant ROM NEW_TRACE.csv MEDIUM RELEASE`, parsing the final two
+arguments as integers. Build as in WALLJUMP.md and compare with the existing managed
+`--damageboost-comparison-audit ROM TRACE` command.
+
+Accepted local captures are `damageboost-472-medium-0-release-{0,1}.csv` and
+`damageboost-472-medium-{1,2}-release-{0,1}-v2.csv` under `csharp/test-temp`.
+The non-v2 liquid captures are invalid: they set a surface but omitted native FX type,
+so their animation differences must not be used as game-bug evidence.
+
+With equivalent FX state, both water variants matched immediately. Dry release exposed
+airborne-ball fallback failing to execute alpha-selected momentum command one/two after
+movement. The shared speed state now performs the native post-movement speed recheck,
+extra-momentum fold, mode selection and boost cancellation. Landing self-fallback also
+now shifts history. Those changes remove the dry release's 592 differing samples.
+
+Lava had 24 differing animation frames in each variant. Native command three adds the
+FX buffer after target-pose animation initialization; the port omitted that final add.
+The correction preserves the buffer from before pose initialization, since native uses
+a local value when computing the target delay. A direct regression verifies the lava
+turn endpoint timer is 3+2+2=7, not 5.
+
+All six accepted captures now match: **71,424 samples with zero differences** across
+all recorded state columns. This is still seeded-contact evidence, without Gravity
+Suit, speedkeep, or boundary-crossing liquid entry. Actual enemy/projectile/spike contact
+windows and the remaining speed/interruption variants are outstanding for #472.

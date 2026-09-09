@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -259,7 +260,7 @@ public sealed partial class SamusState
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
         byte genericTarget = newDirection == 4 ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose;
-        Pose = SelectEquippedSpinPose(genericTarget);
+        Pose = SelectEquippedSpinPose(genericTarget, skipFirstAnimationFrame: true);
         RefreshCollisionRadii(bus);
 
         // InitializeSpinJump writes frame one, skipping the static first spin frame. This
@@ -451,10 +452,10 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Applies the dry-room equipment half of <c>SamusFunc_F468_SpinJump</c> at
+    /// Applies equipment, liquid and start-sound selection from <c>SamusFunc_F468_SpinJump</c> at
     /// <c>$91:F624</c> to a generic transition-table target `$19/$1A`.
     /// </summary>
-    private byte SelectEquippedSpinPose(byte genericPose)
+    private byte SelectEquippedSpinPose(byte genericPose, bool skipFirstAnimationFrame = false)
     {
         bool facingLeft = genericPose switch
         {
@@ -466,12 +467,28 @@ public sealed partial class SamusState
                 "Equipment spin selection requires generic pose $19 or $1A."),
         };
 
+        // Full submersion returns before either equipment substitution or sound dispatch.
+        // Gravity bypasses this test; water's disabled-physics option is handled by the
+        // shared top-boundary query, including the native water-before-lava precedence.
+        if (!EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit) && LiquidPhysics.IsTopBoundarySubmerged(this))
+            return genericPose;
+
         // Native tests Screw Attack first. A save with both bits equipped therefore uses
         // `$81/$82`, not Space Jump art, while retaining Space Jump's repeat-jump physics.
         if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+        {
+            if (!skipFirstAnimationFrame)
+                LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ScrewAttack, maximumQueued: 6);
             return facingLeft ? SamusPoseIds.ScrewAttackLeftPose : SamusPoseIds.ScrewAttackRightPose;
+        }
         if (EquippedItems.HasAny(SamusEquipmentFlags.SpaceJump))
+        {
+            // Unlike ordinary/Screw Attack spins, native also queues this on reversal.
+            LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpaceJump, maximumQueued: 6);
             return facingLeft ? SamusPoseIds.SpaceJumpLeftPose : SamusPoseIds.SpaceJumpRightPose;
+        }
+        if (!skipFirstAnimationFrame && !LiquidPhysics.CinematicFunctionActive)
+            LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpinJump, maximumQueued: 6);
         return genericPose;
     }
 

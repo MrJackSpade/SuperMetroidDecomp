@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--spin-jump-missing-audio"])
+        return SpinJumpMissingAudioAudit.Run();
     if (args is ["--maridia-pipe-entry"])
         return MaridiaPipeEntryAudit.Run();
     if (args is ["--maridia-pipe-from-north"])

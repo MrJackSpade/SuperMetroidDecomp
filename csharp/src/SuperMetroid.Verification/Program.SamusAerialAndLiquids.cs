@@ -450,6 +450,34 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     RoomLevelData empty = CreateEmptyRoom(16, 16);
 
+    // Exercise the real F624 pose initializer with the same constructed cartridge as
+    // the movement tests below. Environment and cinematic gates apply before queuing,
+    // not as a host-side attempt to guess whether an audible spin should be playing.
+    foreach (bool cinematic in new[] { false, true })
+    foreach (bool submerged in new[] { false, true })
+    foreach (bool gravity in new[] { false, true })
+    {
+        var ordinary = new SamusState
+        {
+            Pose = SamusPoseIds.MovingRightNormalPose,
+            XPosition = 128,
+            YPosition = 128,
+            EquippedItems = gravity ? SamusEquipmentFlags.GravitySuit.ToNativeWord() : (ushort)0,
+        };
+        ordinary.LiquidPhysics.FxYPosition = submerged ? (ushort)0 : ushort.MaxValue;
+        ordinary.LiquidPhysics.CinematicFunctionActive = cinematic;
+        ordinary.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpRightPose);
+        bool expectedSound = !cinematic && (!submerged || gravity);
+        AssertEqual(expectedSound ? 1 : 0, ordinary.LiquidPhysics.SoundRequests.Count,
+            $"ordinary spin sound cinematic={cinematic}, submerged={submerged}, gravity={gravity}");
+        if (expectedSound)
+            AssertEqual(new SamusSoundRequest(SoundEffectLibrary1Sounds.SpinJump, 6),
+                ordinary.LiquidPhysics.SoundRequests[0], "ordinary spin uses native max-six queue");
+        ordinary.LiquidPhysics.BeginFrameSoundRequests();
+        ordinary.ApplySpinJumpDirectionTransition(bus, SamusPoseIds.SpinJumpLeftPose);
+        AssertEqual(0, ordinary.LiquidPhysics.SoundRequests.Count, "ordinary reversal suppresses restart");
+    }
+
     var spaceLaunch = new SamusState
     {
         Pose = SamusPoseIds.MovingRightNormalPose,
@@ -460,6 +488,12 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     spaceLaunch.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpRightPose);
     AssertEqual(SamusPoseIds.SpaceJumpRightPose, spaceLaunch.Pose,
         "Space Jump substitutes right spin pose");
+    AssertEqual(1, spaceLaunch.LiquidPhysics.SoundRequests.Count, "Space Jump entry publishes its start sound");
+    AssertEqual(SoundEffectLibrary1Sounds.SpaceJump, spaceLaunch.LiquidPhysics.SoundRequests[0].SoundEffect,
+        "Space Jump entry uses the cartridge sequence");
+    spaceLaunch.LiquidPhysics.BeginFrameSoundRequests();
+    spaceLaunch.ApplySpinJumpDirectionTransition(bus, SamusPoseIds.SpinJumpLeftPose);
+    AssertEqual(1, spaceLaunch.LiquidPhysics.SoundRequests.Count, "Space Jump reversal republishes its sound");
 
     var screwLaunch = new SamusState
     {
@@ -471,6 +505,10 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     screwLaunch.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.SpinJumpLeftPose);
     AssertEqual(SamusPoseIds.ScrewAttackLeftPose, screwLaunch.Pose,
         "Screw Attack takes priority over Space Jump pose");
+    AssertEqual(1, screwLaunch.LiquidPhysics.SoundRequests.Count, "Screw Attack entry publishes one sound");
+    AssertEqual(SoundEffectLibrary1Sounds.ScrewAttack, screwLaunch.LiquidPhysics.SoundRequests[0].SoundEffect,
+        "Screw Attack sound takes priority over Space Jump");
+    screwLaunch.LiquidPhysics.BeginFrameSoundRequests();
 
     // `$81/$82` have their own retail input tables, so an opposite-direction match may
     // publish the specialized target directly rather than generic `$19/$1A`. The common
@@ -481,6 +519,8 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "direct Screw table target preserves equipped art");
     AssertEqual(1, screwLaunch.AnimationFrame,
         "direct Screw direction transition starts at frame one");
+    AssertEqual(0, screwLaunch.LiquidPhysics.SoundRequests.Count,
+        "Screw Attack reversal does not restart its sound");
 
     // Fire from a spin uses `$19/$1B/$81 -> $13`, expanding radius 12 -> 24 through
     // changed-pose collision but preserving the live jump arc. `$91:F543` also selects

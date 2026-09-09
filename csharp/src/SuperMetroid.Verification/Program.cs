@@ -25,6 +25,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--spin-entry-audio"])
+{
+    VerifySamusSpaceJumpAndScrewAttack();
+    VerifySamusAtmosphericEffects();
+    return 0;
+}
 if (args is ["--boost-floor-scroll"])
 {
     VerifyBoostFloorScroll();

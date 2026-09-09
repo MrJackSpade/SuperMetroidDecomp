@@ -52,6 +52,15 @@ public readonly record struct SoundEffectId
 /// <summary>Named, proven sound sequences in cartridge SFX library one.</summary>
 public static class SoundEffectLibrary1Sounds
 {
+    /// <summary>$91:F624, SamusFunc_F468_SpinJump: library-one $31, initial ordinary spin.</summary>
+    public static readonly SoundEffectId SpinJump = new(SoundEffectLibrary.Library1, 0x31); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$91:F624, SamusFunc_F468_SpinJump: library-one $33, initial Screw Attack spin.</summary>
+    public static readonly SoundEffectId ScrewAttack = new(SoundEffectLibrary.Library1, 0x33); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$91:F624, SamusFunc_F468_SpinJump: library-one $3E, Space Jump pose selection.</summary>
+    public static readonly SoundEffectId SpaceJump = new(SoundEffectLibrary.Library1, 0x3e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$85:811B queues library-one $2E for the gunship saving wait.</summary>
     public static readonly SoundEffectId Saving = new(SoundEffectLibrary.Library1, 0x2e); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>

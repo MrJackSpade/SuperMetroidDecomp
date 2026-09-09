@@ -115,3 +115,22 @@ native PLM slot ordering, execute PLM programs, move the camera, or run enemies.
 Consequently it proves post-release collision/movement in this interval, not
 native elevator release timing, pre-release inputs, or full scene parity.
 The three temporary upstream edits were removed after the comparison.
+
+### Arrival actor comparison (incomplete handoff investigation)
+
+The same managed audit now emits `.actor-seed.csv` and `.actor.managed.csv`.
+Run `sm.exe --elevator-actor-probe ROM PREFIX.actor-seed.csv PREFIX.actor.native.csv`
+using the integration patch. This executes the cartridge's $A3:952A dispatcher,
+including its real Samus unlock command, from the destination actor's initial
+position. Columns are frame, actor Y, Y subposition, elevator status, elevator
+flags, and input-locked state. The native side excludes other room actors and
+Samus movement, so it isolates elevator AI rather than asserting full-room parity.
+
+For delay zero, all 1,344 ordered actor coordinate/status/flag samples match:
+455 frames each in Blue/Green Brinstar, 434 in Lower Norfair. However, the managed
+fixture's input lock clears on frame 59 in all three rooms, whereas the isolated
+native actor clears it only on arrival completion. This discrepancy is NOT fixed
+or dismissed: trace the other managed owner and determine whether the diagnostic
+setup or production scheduling is responsible before claiming handoff parity.
+The front-facing elevator-status input gate remains a separate mechanism.
+Temporary upstream integration was removed after collecting these traces.

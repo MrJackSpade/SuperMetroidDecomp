@@ -2,6 +2,8 @@
 // with a flat floor; it contains no player recording, SRAM, or cartridge bytes.
 // Include from sm_rtl.c and dispatch DiagnosticMovementRelease before SDL starts.
 #include "snes/cart.h"
+#include "ida_types.h"
+#include "enemy_types.h"
 #ifdef _WIN32
 // Avoid windows.h's ScreenOff/IDA macro collisions in the translated game unit.
 __declspec(dllimport) unsigned int __stdcall SetErrorMode(unsigned int mode);
@@ -272,4 +274,44 @@ int DiagnosticRoomRelease(const char *rom, const char *seed_path) {
 }
 int DiagnosticElevatorRelease(const char *rom, const char *seed_path, int delay, const char *trace) {
   return DiagnosticRoomReleaseCore(rom, seed_path, delay, trace);
+}
+
+// Isolate the actual actor dispatcher and its unlock command. Unlike the movement
+// probe, this begins at arrival initialization, not at the managed release frame.
+int DiagnosticElevatorActor(const char *rom, const char *seed_path, const char *trace_path) {
+  int status = ProbeLoadRetailMovementRom(rom);
+  if (status) return status;
+  unsigned x, y, sub, direction, rest;
+  FILE *seed = fopen(seed_path, "r");
+  if (!seed) return 4;
+  int count = fscanf(seed, "%u,%u,%u,%u,%u", &x, &y, &sub, &direction, &rest);
+  fclose(seed);
+  if (count != 5 || x > 65535 || y > 65535 || sub > 65535 ||
+      (direction != 0 && direction != 2) || rest > 65535) return 5;
+  FILE *trace = fopen(trace_path, "w");
+  if (!trace) return 4;
+  cpu_reset(g_snes->cpu);
+  memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false;
+  g_snes->cpu->sp = 0x1ff0;
+  g_snes->cpu->dp = 0;
+  Enemy_Elevator *e = Get_Elevator(0);
+  e->base.x_pos = x;
+  e->base.y_pos = y;
+  e->base.y_subpos = sub;
+  e->elevat_parameter_1 = direction;
+  e->elevat_var_A = rest;
+  elevator_status = 2;
+  elevator_flags = 0x80;
+  RunAsmCode(0x90f109, 0, 0, 0, 0); // Actual lock handler, prior to arrival.
+  for (int frame = 0; frame < 900; frame++) {
+    RunAsmCode(0xa3952a, 0, 0, 0, 0);
+    fprintf(trace, "%d,%u,%u,%u,%u,%d\n", frame, e->base.y_pos,
+      e->base.y_subpos, elevator_status, elevator_flags,
+      frame_handler_alfa == FUNC16(Samus_FrameHandlerAlfa_Func11) ? 0 : 1);
+    if (!elevator_status) { fclose(trace); return 0; }
+  }
+  fclose(trace);
+  fprintf(stderr, "Elevator actor did not release within diagnostic budget.\n");
+  return 6;
 }

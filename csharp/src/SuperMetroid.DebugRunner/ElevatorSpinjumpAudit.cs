@@ -65,6 +65,14 @@ internal static class ElevatorSpinjumpAudit
                 runtime.Enemies.PrepareElevatorArrival();
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door,
                     (ushort)(door.DestinationScreenX * 256), (ushort)(door.DestinationScreenY * 256));
+                var elevator = runtime.Enemies.Slots.Single(slot =>
+                    runtime.Enemies.ElevatorStates[slot.SlotIndex] != null);
+                using var actorTrace = prefix == null ? null : new StreamWriter(prefix + ".actor.managed.csv");
+                if (prefix != null)
+                {
+                    using var seed = new StreamWriter(prefix + ".actor-seed.csv");
+                    seed.WriteLine($"{elevator.XPosition},{elevator.YPosition},{elevator.YSubposition},{elevator.Parameter1},{elevator.VariableA}");
+                }
                 int arrival = -1, spin = -1;
                 ushort arrivalY = 0;
                 for (int frame = 0; frame < 900; frame++)
@@ -73,6 +81,8 @@ internal static class ElevatorSpinjumpAudit
                     ushort input = (ushort)SnesButton.A;
                     if (afterArrival >= delay) input |= (ushort)SnesButton.Left;
                     runtime.StepFrame(input);
+                    if (arrival < 0)
+                        actorTrace?.WriteLine($"{frame},{elevator.YPosition},{elevator.YSubposition},{(ushort)runtime.Enemies.ElevatorStatus},{runtime.Enemies.ElevatorFlags},{(samus.InputLocked ? 1 : 0)}");
                     if (arrival < 0 && runtime.Enemies.LastElevatorEvent == ElevatorFrameEvent.ArrivalCompleted)
                     {
                         arrival = frame;

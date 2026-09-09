@@ -6,10 +6,18 @@
   unposted published commit. Follow `tools/discord-updates.md` for connection and
   recovery. The queue starts at the first commit and targets server
   `1547270817312809112`, channel `1547271407476408411`.
-- When asked to post an update, inspect only the exposed commit, write a concise
-  plain-language summary of that version, preview it, and post with its full SHA.
-  Do not enumerate later commits, skip ahead, or use raw webhooks to bypass the
-  tracker. Do not post messages without user authorization.
+- After each completed change is verified, committed, and successfully pushed,
+  post one Discord version update before handing control back to the user. The
+  user has authorized this recurring posting workflow; do not ask again.
+- Run `next`, inspect only the exposed commit, write a concise plain-language
+  summary of that version, preview it, and post with its full SHA. While historical
+  commits remain, announce the oldest unposted commit, even when it differs from
+  the commit just pushed. Post one queued update per completed change; do not
+  drain the backlog unless the user explicitly requests it. If caught up, no post
+  is needed. Explicit requests to post an update use this same workflow.
+- Do not enumerate later commits, skip ahead, or use raw webhooks to bypass the
+  tracker. Verify the delivery receipt and report any posting failure at handoff;
+  do not treat a failed or uncertain send as a completed announcement.
 - Keep webhook credentials in `DISCORD_WEBHOOK_URL` and tracker state in the Git
   common directory. Never commit either. If delivery is uncertain, reconcile the
   existing attempt before posting again.

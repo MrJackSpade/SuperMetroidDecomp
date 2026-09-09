@@ -61,8 +61,8 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: EndingCreditsRomData.Rendering.Mode7CenterX,
-            centerY: EndingCreditsRomData.Rendering.Mode7CenterY,
+            centerX: CurrentMode7CenterX,
+            centerY: CurrentMode7CenterY,
             horizontalOffset: unchecked((short)mode7X),
             verticalOffset: unchecked((short)mode7Y));
         SnesLayerCompositor.Composite(pixels, mode7);
@@ -71,18 +71,23 @@ internal sealed partial class EndingCreditsState
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
         ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
 
+    private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast
+        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterX;
+    private short CurrentMode7CenterY => Phase < EndingCreditsPhase.PlanetEscapeFast
+        ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterY;
+
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {
         if (Phase == EndingCreditsPhase.PostCreditsBlank)
             return;
 
-        // The waiting-for-credits map is the literal $97:96F4 stream copied to BG1SC
-        // $4C00. It remains the base screen while the shooting-star and reward objects run.
+        // The opening waiting scene uses BG2 ($4C00/$5000). Result text is uploaded to
+        // BG1 ($4800/$4000), so its map and font must change together at the handoff.
         Rgba32[] waiting = SnesBgTilemapRenderer.Render4BppViewport(
             vram,
             cgram,
-            tilemapBaseWord: EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
-            characterBaseWord: EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
+            tilemapBaseWord: CurrentPostCreditsTilemapWord,
+            characterBaseWord: CurrentPostCreditsCharacterWord,
             horizontalScroll: 0,
             verticalScroll: postCreditsVerticalScroll,
             width: 256,
@@ -98,6 +103,11 @@ internal sealed partial class EndingCreditsState
         Rgba32[] objects = SnesObjRenderer.Render(oam, vram, cgram, obsel);
         SnesLayerCompositor.Composite(pixels, objects);
     }
+
+    private ushort CurrentPostCreditsTilemapWord => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
+        ? EndingCreditsRomData.Rendering.WaitingTilemapWord : EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
+    private ushort CurrentPostCreditsCharacterWord => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
+        ? EndingCreditsRomData.Rendering.WaitingCharacterWord : EndingCreditsRomData.Rendering.PostCreditsCharacterWord;
 
     // Keep sprite drawing on the simulation-side display boundary. Neither the
     // immutable packet consumer nor repeated rendering may advance sprite state.

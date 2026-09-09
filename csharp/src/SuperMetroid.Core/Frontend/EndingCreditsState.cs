@@ -578,18 +578,18 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Rendering.PostCreditsFragmentBDestination,
             fragmentB.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentBytes));
 
-        // Function 126 selects either the suitless (<3h) or armored (>=3h) Mode-7
-        // character source. Keeping both decompressions here makes the branch explicit.
+        // Function 126 selects suitless (<3h) or suited (>=3h) OBJ characters.
+        // The suited branch reuses the waiting-scene decompression, not the later Mode-7 sheet.
         byte[] resultCharacters = EndingReward == EndingReward.Suitless
             ? RomDataReader.Decompress(
                 bus,
                 EndingCreditsRomData.Assets.SuitlessSamusCharacters,
                 EndingCreditsRomData.Rendering.DecompressionLimit)
-            : mode7;
+            : waiting;
         RequireMinimum(resultCharacters, EndingCreditsRomData.Rendering.Mode7Bytes,
             "post-credits reward characters");
-        vram.LoadMode7CharacterBytes(
-            resultCharacters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        // $8B:E027/E04B use mode-1 DMA to both ports, not a single Mode-7 lane.
+        vram.LoadBytes(0, resultCharacters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
         creditsAssetsLoaded = true;
     }
 

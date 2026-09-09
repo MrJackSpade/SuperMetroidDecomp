@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -27,6 +28,16 @@ internal static partial class Program
                     AssertTrue(previousPixels.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(previousPacket)),
                         "ending packet survives subsequent palette/tile/sprite updates");
                 bool sample = phases.Add(legacy.Phase) || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsBlank)
+                {
+                    var memory = legacy.CaptureRenderSnapshot().Memory;
+                    for (int color = 4; color < 256; color++)
+                        AssertEqual(RomDataReader.ReadWordFixedBank(bus, 0x8ce7e9 + color * 2),
+                            memory.Cgram[color], "native end-credits Intro4 palette");
+                    byte[] reward = RomDataReader.Decompress(bus, hours < 3 ? 0x97b957 : 0x979803, 0x8000);
+                    AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(memory.Vram[..0x4000]),
+                        "reward branch uses native contiguous OBJ characters");
+                }
                 RenderFrameSnapshot? packet = null;
                 Rgba32[]? expected = null;
                 if (sample)
@@ -35,6 +46,11 @@ internal static partial class Program
                     // this ending's sprite state. Independent owners still guard against
                     // an accidental producer-side mutation introduced by extraction.
                     expected = legacy.Render();
+                    if (legacy.Brightness == 15)
+                    {
+                        Directory.CreateDirectory("csharp/test-temp/ending-504");
+                        PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-{legacy.Phase}.png", 256, 224, expected);
+                    }
                     packet = RoundTripRenderPacket(new(new(++samples, 1, (ushort)tick), captured.CaptureRenderSnapshot()));
                     AssertTrue(expected.AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(packet)),
                         $"ending reward {hours}, phase {legacy.Phase}, tick {tick} pixel parity");
@@ -55,6 +71,7 @@ internal static partial class Program
             Rgba32[] final = legacy.Render();
             LayeredRenderSnapshot retained = captured.CaptureRenderSnapshot();
             for (int i = 0; i < 120; i++) captured.Step();
+            PngWriter.WriteRgba($"csharp/test-temp/ending-504/{hours}-Final.png", 256, 224, captured.Render());
             AssertTrue(final.AsSpan().SequenceEqual(SoftwareLayeredSnapshotRenderer.Render(retained)), "ending final packet survives simulation advance");
         }
         Console.WriteLine($"  Ending snapshots: {samples} sampled frames cover escape, credits and all three reward branches.");

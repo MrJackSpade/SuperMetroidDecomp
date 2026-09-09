@@ -8,7 +8,8 @@ internal static partial class Program
     private static void VerifyEndingDma()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
-        var ending = new EndingCreditsState(bus, new CartridgeAudioState(), 0, 0);
+        var audio = new CartridgeAudioState();
+        var ending = new EndingCreditsState(bus, audio, 0, 0);
         ending.Step();
         var memory = ending.CaptureRenderSnapshot().Memory;
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
@@ -21,5 +22,14 @@ internal static partial class Program
             AssertEqual(characters[word], memory.Vram[word * 2 + 1], "ending native high-lane character DMA");
         }
         Console.WriteLine("Ending escape DMA matches native low/high VRAM lanes.");
+        for (int frame = 0; frame < 20000 && ending.Phase != EndingCreditsPhase.Credits; frame++)
+        {
+            ending.Step();
+            audio.AdvanceFrame(bus, default);
+        }
+        AssertEqual(EndingCreditsPhase.Credits, ending.Phase, "ending reaches credits setup");
+        byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);
+        AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(ending.CaptureRenderSnapshot().Memory.Vram[..0x4000]),
+            "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 }

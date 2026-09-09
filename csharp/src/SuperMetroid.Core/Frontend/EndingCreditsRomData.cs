@@ -8,7 +8,8 @@ public static class EndingCreditsRomData
     public static class Assets
     {
         public const int EscapePalette = 0x8cede9;
-        public const int PostCreditsPalette = 0x8cefe9;
+        /// <summary>$8C:E7E9, kPalettes_Intro4, restored by the end-credits instruction $8B:F6FE.</summary>
+        public const int PostCreditsPalette = 0x8ce7e9;
         public const int CreditsPalette = 0x8ce9e9;
         public const int ExplosionPalette = 0x8cebe9;
         public const int EscapeMapA = 0x98bcd6;
@@ -54,12 +55,14 @@ public static class EndingCreditsRomData
         public const short Mode7CenterX = 56;
         /// <summary>Ending bank-$8B Mode-7 projection center Y, in physical map pixels.</summary>
         public const short Mode7CenterY = 24;
+        /// <summary>$8B:D4xx/$D8xx atmospheric/explosion setup writes M7X and M7Y to $0080.</summary>
+        public const short AtmosphericMode7Center = 128;
         /// <summary>Ending OBSEL=$02 selects the escape/explosion OBJ character base.</summary>
         public const byte EscapeObjectSelection = 2;
         /// <summary>$8B:8293 initializes OBSEL=$A3 for the atmospheric cloud scenes.</summary>
         public const byte CloudObjectSelection = 0xa3;
-        /// <summary>Post-credits OBSEL=$03 selects the reward OBJ character base.</summary>
-        public const byte RewardObjectSelection = 3;
+        /// <summary>$8B:83D3 sets OBSEL=$00; reward sprites use the contiguous sheet at VRAM word zero.</summary>
+        public const byte RewardObjectSelection = 0;
         public const ushort BlankTile = 0x007f;
         public const int TilemapWidth = 32;
         public const int TilemapHeight = 32;
@@ -67,8 +70,12 @@ public static class EndingCreditsRomData
         public const int CreditsSourceBytes = 0x2000;
         public const ushort CreditsTilemapWord = 0x4800;
         public const ushort CreditsCharacterWord = 0x4000;
-        public const ushort PostCreditsTilemapWord = 0x4c00;
-        public const ushort PostCreditsCharacterWord = 0x5000;
+        /// <summary>$8B:E190 selects BG1 for the result text, using the credits font/map bases.</summary>
+        public const ushort PostCreditsTilemapWord = 0x4800;
+        public const ushort PostCreditsCharacterWord = 0x4000;
+        /// <summary>$8B:DFD9/$DFB9 load the waiting-Samus BG2 map and characters.</summary>
+        public const ushort WaitingTilemapWord = 0x4c00;
+        public const ushort WaitingCharacterWord = 0x5000;
         public const int Mode7Bytes = 0x4000;
         /// <summary>$8B:D8C1 explosion OBJ DMA byte count from $7F:8000.</summary>
         public const int ExplosionObjectBytes = 0x6000;

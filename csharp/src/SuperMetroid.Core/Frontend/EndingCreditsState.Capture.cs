@@ -24,15 +24,15 @@ internal sealed partial class EndingCreditsState
             {
                 objectSelection = EndingCreditsRomData.Rendering.RewardObjectSelection;
                 if (Phase != EndingCreditsPhase.PostCreditsBlank)
-                    layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
-                        EndingCreditsRomData.Rendering.PostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, 32, null));
+                    layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
+                        CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, 32, null));
             }
             else
             {
                 short a = Scale(ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), mode7Zoom);
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
-                    EndingCreditsRomData.Rendering.Mode7CenterX, EndingCreditsRomData.Rendering.Mode7CenterY,
+                    CurrentMode7CenterX, CurrentMode7CenterY,
                     unchecked((short)mode7X), unchecked((short)mode7Y))));
             }
             oam = PrepareSprites();

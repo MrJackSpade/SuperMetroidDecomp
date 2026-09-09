@@ -23,6 +23,32 @@ internal static partial class Program
             AssertEqual(reward == EndingReward.Suitless ? 244 : 329, calls,
                 "native ED2D/EDD3 gesture durations before jump spawn");
             Console.WriteLine($"  {reward}: {calls} gesture frames, {maps.Count} OAM poses, native jump handoff.");
+            var uploads = new List<int>();
+            var jump = new EndingRewardJump(bus, reward, uploads.Add);
+            bool switched = false, firstMotion = false;
+            int minimumY = jump.BodyY;
+            int jumpCalls = 0;
+            while (!jump.ShotRequested && jumpCalls++ < 500)
+            {
+                int beforeVelocity = jump.VerticalVelocity;
+                jump.Step();
+                if (beforeVelocity == -16 * 65536 && !firstMotion)
+                {
+                    AssertEqual(-16 * 65536 + (reward == EndingReward.Suitless ? 0x3800 : 0x7000),
+                        jump.VerticalVelocity, "native jump accelerates once per active actor, before moving");
+                    firstMotion = true;
+                }
+                minimumY = Math.Min(minimumY, jump.BodyY);
+                if (!switched && jump.ObjectSelection == 3)
+                {
+                    AssertTrue(jump.BodyY < -80, "native reward sheet switches only beyond the upper screen edge");
+                    switched = true;
+                }
+            }
+            AssertTrue(jump.ShotRequested && switched && firstMotion, "jump executes flight, sheet handoff, landing and shooting");
+            AssertEqual((short)136, jump.BodyY, "native reward landing center");
+            AssertTrue(uploads.SequenceEqual(Enumerable.Range(0, 16)), "landing publishes all sixteen native graphics queue entries exactly once");
+            Console.WriteLine($"  {reward}: jump/landing {jumpCalls} frames, apex {minimumY}, 16 uploads, shot request.");
         }
     }
 }

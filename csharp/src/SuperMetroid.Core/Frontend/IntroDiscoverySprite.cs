@@ -37,7 +37,10 @@ internal sealed class IntroDiscoverySprite
 
     public ushort YSubPosition { get; set; }
 
-    public ushort PaletteBits { get; }
+    public ushort PaletteBits { get; private set; }
+
+    /// <summary>Applies a cinematic callback's native OBJ palette/attribute write.</summary>
+    public void SetAttributes(SnesObjAttributeWord attributes) => PaletteBits = attributes.Raw;
 
     public ushort SpriteMapPointer { get; private set; }
 

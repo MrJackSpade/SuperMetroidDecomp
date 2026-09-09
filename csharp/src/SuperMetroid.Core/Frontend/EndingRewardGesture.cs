@@ -64,8 +64,8 @@ internal sealed class EndingRewardGesture
 
     private void Spawn(ushort definition)
     {
-        ushort initialization = RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | definition);
-        ushort list = RomDataReader.ReadWordFixedBank(bus, 0x8b0000 | (definition + 4));
+        ushort initialization = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | definition);
+        ushort list = RomDataReader.ReadWordFixedBank(bus, IntroCinematicRomData.Banks.CinematicCode | (definition + 4));
         var (x, y, palette) = EndingRewardActorDefinitions.GetInitialization(initialization);
         actors.Add(new IntroDiscoverySprite((ushort)x, (ushort)y, (ushort)palette, list));
     }

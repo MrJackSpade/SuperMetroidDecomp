@@ -1583,132 +1583,14 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleFlareDrawn = false;
         bool escapeTimerExpired = EscapeTimer.Process(NmiFrameCounter, PreventEscapeTimeout);
 
-        // GameState_8 selects active enemies and executes EnemyMain before bank $90 moves
-        // Samus. The collision index list is selected from pre-AI positions but consumers
-        // dereference the post-AI slot words, which RoomEnemySystem publishes as bodies.
-        if (Camera is not null && Enemies.IsLoaded)
-        {
-            // Samus's bank-$94 collision phase follows EnemyMain. A pseudo-door contact
-            // published last frame therefore becomes `$0E16=1` immediately before this
-            // frame's elevator actor dispatcher, preserving the native producer order.
-            if (LevelData?.ConsumeElevatorDoorContact() == true)
-                Enemies.PublishElevatorDoorContact();
-            if (Samus is not null)
-            {
-                // `$94:9B60-$9B72` clears all four external-displacement words before
-                // EnemyMain. Rideable enemies then accumulate accepted platform deltas and
-                // bank `$90` consumes those live values during Samus movement below. They
-                // are producer-owned words, so movement deliberately does not clear them.
-                Samus.Kinematics.ExtraXSubdisplacement = 0;
-                Samus.Kinematics.ExtraXDisplacement = 0;
-                Samus.Kinematics.ExtraYSubdisplacement = 0;
-                Samus.Kinematics.ExtraYDisplacement = 0;
-
-                if (LevelData is null || ActiveRoom is null)
-                {
-                    throw new InvalidOperationException(
-                        "Live Samus terrain reactions require an active cartridge room.");
-                }
-                SamusTerrainHazardCollision.PrepareFrame(
-                    _addressSpace,
-                    LevelData,
-                    Samus,
-                    ActiveRoom.AreaIndex,
-                    System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
-            }
-            Enemies.StepFrame(
-                Camera.XPosition,
-                Camera.YPosition,
-                TimeIsFrozen,
-                Samus,
-                Controller1.NewlyPressed,
-                LevelData,
-                Controller1.Current,
-                Projectiles,
-                NmiFrameCounter8,
-                ActiveSamusMode7Transform,
-                BombProjectiles,
-                VramWrites,
-                resolveSamusContactBeforeAi: true);
-            if (!TimeIsFrozen && Enemies.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
-                rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,
-                    rainbowHead.XPosition, rainbowHead.YPosition,
-                    rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
-            if (Enemies.Phantoon is { } phantoon)
-            {
-                // Phantoon's body is BG2 artwork anchored by the bank-$A7 scroll writes,
-                // while eye/tentacle collision follows enemy positions. Publish those
-                // writes before the next accepted NMI latches the matching OAM frame.
-                // The room's fixed layer-two axes preserve them during camera scrolling.
-                BackgroundScroll.SetBg2ScrollRegisters(
-                    phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll);
-            }
-            if (Enemies.CeresEscapeStartedThisFrame)
-            {
-                // $A6:C117 publishes these global side effects on the same EnemyMain call
-                // that changes ceres_status from one to two. Keep the actor as producer,
-                // but apply timer and boss state in their existing runtime-owned systems.
-                EscapeTimer.RequestCeresStart();
-                if (ActiveRoom is null)
-                    throw new InvalidOperationException("Ceres escape started without an active room.");
-                System.SetBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss);
-            }
-            if (Enemies.RequestedShitroidCameraX is ushort shitroidCameraX)
-            {
-                // `$A9:EFE6` writes layer1_x_pos during EnemyMain, before the ordinary
-                // scrolling routine later in this frame. Do not route it through entry
-                // placement, which would clear subposition and ideal-camera state.
-                Camera.SetLayerOneXFromEnemyAi(shitroidCameraX);
-                BackgroundScroll.Layer1XPosition = shitroidCameraX;
-            }
-            if (Enemies.ElevatorClearedProjectileData)
-            {
-                // `$90:ADB7` clears all ten projectile slots and their counters. Ordinary
-                // beam/missile slots were reset inside the actor call; bombs and the shared
-                // cooldown live in this companion owner and complete that same operation.
-                BombProjectiles.Reset();
-            }
-            // `$A6:A2DF` does not install the post-enemy hook until Ridley's animation word
-            // becomes nonzero. Before the reveal it branches directly into `$A6:A2E3`
-            // during EnemyMain, so emit the Baby/door OBJ now—before queued enemy layers.
-            Enemies.DrawCeresRidleyImmediateBabyAndDoor(
-                Oam,
-                Camera.XPosition,
-                Camera.YPosition);
-            if (Samus is not null && !TimeIsFrozen)
-            {
-                Enemies.ResolveRidleySamusContact(
-                    Samus,
-                    Controller1.Current);
-            }
-            if (Samus is not null)
-            {
-                Samus.Kinematics.InteractiveEnemies = Enemies.InteractiveCollisionBodies;
-                if (Enemies.LastGunshipEvent == GunshipFrameEvent.EntryStarted)
-                {
-                    // MakeSamusFaceForward performs a direct suit-palette reload and the
-                    // ship explicitly clears elevator status after installing locked demo
-                    // handlers. The enemy system owns pose/motion; these two global words
-                    // remain runtime-owned and are applied on its typed event boundary.
-                    Samus.LoadSuitPalette(_addressSpace, Cgram);
-                    ElevatorStatus = 0;
-                }
-                else if (Enemies.LastGunshipEvent == GunshipFrameEvent.LandingCompleted)
-                {
-                    // `$A2:A987` restores the ordinary Samus handler pair only after the
-                    // closing-pad hold. Enemy AI has already unlocked Samus.InputLocked;
-                    // publish the runtime's matching movement gate at the same boundary.
-                    GroundedSamusMovementEnabled = true;
-                }
-            }
-        }
+        PrepareEnemyFrame();
+        // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
+        // defer actors until projectile production/update, immediately before beta.
+        bool enemyMainAlreadyRan = Samus is null || Camera is null || !GroundedSamusMovementEnabled;
+        if (enemyMainAlreadyRan)
+            RunEnemyMainPhase();
         if (Samus is not null && Camera is not null)
         {
-            // `$90:E725` clears contact-damage index before dispatching beta movement.
-            // Speed Booster stage four (or later spin/shinespark families) must republish
-            // its value on every applicable frame; stale contact damage cannot leak onward.
-            Samus.HorizontalSpeed.ContactDamageIndex = 0;
-
             // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
             // setup/beam/deactivation state before alpha so state five can restore the
             // ordinary pose and handler pair before this frame samples pose input. The
@@ -2024,39 +1906,6 @@ public sealed partial class SuperMetroidRuntime
                         projectileProducerEnabled: !DebugGrappleItemSelected,
                         roomPlms: Plms);
 
-                    // Bank-$A0's enemy collision index list was selected before EnemyMain;
-                    // bank-$90 has now advanced the projectile slots, and the enemy-specific
-                    // shot handler owns the overlap result. Ceres Ridley deliberately counts
-                    // contacts instead of losing his pinned $7FFF health word.
-                Enemies.ResolveCeresRidleyProjectileHits(
-                    _addressSpace,
-                    Projectiles,
-                    BombProjectiles);
-                Enemies.ResolveKraidProjectileHits(
-                    _addressSpace,
-                    Projectiles,
-                    BombProjectiles);
-                Enemies.ResolvePhantoonProjectileHits(
-                    _addressSpace,
-                    Projectiles,
-                    BombProjectiles);
-                Enemies.ResolveOrdinaryProjectileHits(
-                    _addressSpace,
-                    Projectiles,
-                    BombProjectiles,
-                    Samus);
-
-                // `$A0:A236` is not part of the five-slot beam/missile collision walk.
-                // It scans physical bomb slots five through nine after their bank-$90
-                // update and dispatches each overlapping enemy's shot AI only once the
-                // bomb's fuse/variable word is zero. This is the shared normal-bomb damage
-                // route as well as the special family-$0500 Metroid detach path.
-                Enemies.ResolveOrdinaryBombHits(
-                    BombProjectiles,
-                    Projectiles,
-                    Samus);
-
-
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the
                     // new-state handler, so a bridge published below survives precisely
@@ -2082,6 +1931,15 @@ public sealed partial class SuperMetroidRuntime
                         Camera.XPosition,
                         Camera.YPosition);
                 }
+
+                if (!enemyMainAlreadyRan)
+                    RunEnemyMainPhase();
+                if (!TimeIsFrozen && !deathOwnsSamus)
+                    ResolveUpdatedBeamHits();
+
+                // EnemyMain consumes the preceding frame's contact-damage index.
+                // Only beta clears it, before movement republishes the current value.
+                Samus.HorizontalSpeed.ContactDamageIndex = 0;
 
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose

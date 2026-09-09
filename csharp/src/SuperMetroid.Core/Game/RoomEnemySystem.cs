@@ -559,6 +559,12 @@ public sealed partial class RoomEnemySystem
             // bank $90 consumes the carry; a late touch pass would retrigger that support.
             if (!timeIsFrozen && resolveSamusContactBeforeAi && samus is not null)
             {
+                // Alpha already updated the bomb slots. Native EnemyMain checks
+                // them before this actor's touch and AI, so escape starts now.
+                if (sharedProjectiles is not null && samusProjectiles is not null)
+                    ResolveOrdinaryBombHits(sharedProjectiles, samusProjectiles, samus, nativeIndex);
+                if (slot.EnemyDefinitionPointer == 0)
+                    continue;
                 ResolveOrdinarySamusContact(samus, controllerInput, level, nativeIndex);
                 if (slot.EnemyDefinitionPointer == 0)
                     continue;

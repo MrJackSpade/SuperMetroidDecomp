@@ -61,6 +61,7 @@ internal static partial class MetroidAudit
             var state = RequireState(runtime.Enemies, actor);
             runtime.Controller1.Latch(0);
             int frame = 0;
+            int? firstDetach = null, firstReattach = null;
             bool reported = false;
             foreach (var row in group)
             {
@@ -72,6 +73,14 @@ internal static partial class MetroidAudit
                 if (travel != 0 && frame >= 46 && frame < 46 + travel * 4) expectedInput |= left ? 0x200 : 0x100;
                 if (input != expectedInput) throw new InvalidDataException("Changed Metroid controller input.");
                 runtime.StepFrame(input);
+                if (firstDetach is null && state.Function == MetroidAiFunction.PowerBombEscape)
+                {
+                    firstDetach = frame;
+                    if (state.EscapeTimer != 3)
+                        throw new InvalidDataException("Detachment must execute its first escape AI update in the same frame.");
+                }
+                if (firstDetach is not null && firstReattach is null && state.Function == MetroidAiFunction.AttachedToSamus)
+                    firstReattach = frame;
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.BombJumpDirection:X4}," +
                     $"{actor.XPosition:X4}{actor.XSubposition:X4},{actor.YPosition:X4}{actor.YSubposition:X4},{(ushort)state.Function:X4},{state.EscapeTimer:X4},{samus.Health:X4},{runtime.BombProjectiles.BombCounter:X4}";
                 if (actual != string.Join(',', row[5..]))
@@ -83,6 +92,13 @@ internal static partial class MetroidAudit
                 frame++;
             }
             if (frame != 180) throw new InvalidDataException("Incomplete Metroid case.");
+            // Explicitly distinguish native misses from a successful detach that
+            // reattaches four frames later. Radius inflation must not turn misses
+            // into successes, and late AI must not extend the escape window.
+            int? expectedDetach = travel == 2 ? 62 : travel == 0 && schedule >= 2 ? 108 :
+                travel == 1 && schedule == 3 ? 156 : null;
+            if (firstDetach != expectedDetach || firstReattach != expectedDetach + 4)
+                throw new InvalidDataException($"Changed Metroid detach/reattach timing: {group.Key}, {firstDetach}/{firstReattach}.");
             cases++;
         }
         if (cases != 40) throw new InvalidDataException("Incomplete Metroid matrix.");

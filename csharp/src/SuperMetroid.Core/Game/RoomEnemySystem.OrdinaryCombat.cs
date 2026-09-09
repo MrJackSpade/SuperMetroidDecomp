@@ -1701,15 +1701,17 @@ public sealed partial class RoomEnemySystem
     public int ResolveOrdinaryBombHits(
         SamusBombProjectileSystem bombs,
         SamusProjectileSystem ordinaryProjectiles,
-        SamusState? samus = null)
+        SamusState? samus = null,
+        ushort? onlyNativeEnemyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(bombs);
         ArgumentNullException.ThrowIfNull(ordinaryProjectiles);
         EnsureLoaded();
 
         int hitCount = 0;
-        foreach (ushort nativeIndex in _interactiveEnemyIndexes)
+        for (int ordinal = 0; ordinal < (onlyNativeEnemyIndex.HasValue ? 1 : _interactiveEnemyIndexes.Count); ordinal++)
         {
+            ushort nativeIndex = onlyNativeEnemyIndex ?? _interactiveEnemyIndexes[ordinal];
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
             bool isMetroid = enemy.EnemyDefinitionPointer == MetroidDefinition &&
                 enemy.Definition.ShotAiPointer == MetroidShotAi;

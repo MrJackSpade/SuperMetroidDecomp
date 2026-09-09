@@ -8,9 +8,9 @@ internal static partial class Program
 {
     private static void VerifyMetroidBombPlacement()
     {
-        VerifyMetroidBombRuntime();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CartridgeRoomHeader.Load(bus, 0xdae1);
+        VerifyMetroidBombRuntime(bus, room);
         var assets = CartridgeRoomAssets.Load(bus, room);
         var enemies = new RoomEnemySystem();
         var random = new Bank80SystemState();
@@ -63,55 +63,68 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyMetroidBombRuntime()
+    private static void VerifyMetroidBombRuntime(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        // Use the dry-floor setup from the full-alpha native capture, not the
+        // former submerged fixture or a hand-positioned already-exploding bomb.
+        var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xdae1);
+        runtime.LoadCartridgeRoomForDebug(room.Pointer, 0, 0);
         var level = runtime.LevelData!;
-        // Controlled platform inside the loaded retail room: retain enemy definitions,
-        // collision dispatch and the entire gameplay loop, removing only terrain noise.
-        for (int y = 3; y <= 12; y++)
-        for (int x = 3; x <= 12; x++)
-            level.SetForegroundEntry(level.GetBlockIndex(x, y), y == 12 ? (ushort)0x8000 : (ushort)0);
+        for (int y = 0; y < level.HeightInBlocks; y++)
+        for (int x = 0; x < level.WidthInBlocks; x++)
+        {
+            int index = level.GetBlockIndex(x, y);
+            level.SetForegroundEntry(index, y >= 10 ? (ushort)0x8000 : (ushort)0);
+            level.SetBehavior(index, 0);
+        }
+        runtime.InitializeDebugGroundedSamus(128, 100, 10);
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
-        samus.XPosition = 128;
-        samus.YPosition = 184;
+        samus.Health = samus.MaxHealth = 999;
+        samus.XPosition = 128; samus.YPosition = 153;
+        samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        foreach (var other in runtime.Enemies.Slots.Take(runtime.Enemies.EnemyCount).Skip(1))
-            other.Properties = other.Properties.With(EnemyProperties.Deleted);
-        for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
+        samus.SetAnimationFrameFromSpecialHandler(0, 1);
+        samus.PoseHistory.PreviousPose = samus.Pose;
+        samus.PoseHistory.PreviousDirectionAndMovement =
+            (ushort)(((byte)SamusMovementType.MorphBallGround << 8) | (byte)SamusFacingDirection.Right);
+        samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         var target = runtime.Enemies.Slots[0];
-        target.XPosition = samus.XPosition;
-        target.YPosition = unchecked((ushort)(samus.YPosition - 8));
-        runtime.StepFrame(0);
-        runtime.Enemies.ResolveOrdinarySamusContact(samus, 0);
+        foreach (var other in runtime.Enemies.Slots.Skip(1)) other.Clear();
+        target.XPosition = 128; target.YPosition = 145;
+        target.XSubposition = target.YSubposition = 0;
+        runtime.Controller1.Latch(0);
         var state = runtime.Enemies.MetroidStates[0]!;
-        AssertEqual(MetroidAiFunction.AttachedToSamus, state.Function, "runtime contact attaches Metroid");
-        int detached = -1, reattached = -1;
-        ushort lowestY = samus.YPosition;
-        for (int frame = 0; frame < 150; frame++)
+
+        // Exact native rows 61..66, case right/travel2/single. The complete 40-case
+        // trace is enforced by DebugRunner; these boundaries run in the core suite.
+        (ushort X, ushort Y, MetroidAiFunction State, ushort Timer, ushort Health)[] expected =
+        [
+            (149, 145, MetroidAiFunction.AttachedToSamus, 0, 952),
+            (151, 145, MetroidAiFunction.PowerBombEscape, 3, 952),
+            (151, 147, MetroidAiFunction.PowerBombEscape, 2, 952),
+            (149, 147, MetroidAiFunction.PowerBombEscape, 1, 952),
+            (149, 145, MetroidAiFunction.Homing, 0, 952),
+            (149, 145, MetroidAiFunction.AttachedToSamus, 0, 951),
+        ];
+        for (int frame = 0; frame <= 66; frame++)
         {
-            runtime.StepFrame(frame == 0 ? runtime.ControllerBindings.Shoot : (ushort)0);
-            if (frame == 0 || frame is >= 57 and <= 65)
-                Console.WriteLine($"runtime {frame}: Samus={samus.XPosition}/{samus.YPosition} pose={samus.Pose:X2}, Metroid={target.XPosition}/{target.YPosition} {state.Function}, bombs={string.Join(';', runtime.BombProjectiles.Slots.Where(b => b.Type != 0).Select(b => $"{b.Type:X4}@{b.XPosition}/{b.YPosition} timer={b.BombTimer} radius={b.XRadius}/{b.YRadius}"))}");
-            lowestY = Math.Min(lowestY, samus.YPosition);
-            if (state.Function == MetroidAiFunction.PowerBombEscape && detached < 0) detached = frame;
-            if (detached >= 0 && frame > detached && state.Function == MetroidAiFunction.AttachedToSamus && reattached < 0)
-                reattached = frame;
+            ushort input = frame == 1 ? (ushort)SnesButton.X : (ushort)0;
+            if (frame is >= 46 and < 54) input |= (ushort)SnesButton.Right;
+            runtime.StepFrame(input);
+            if (frame < 61) continue;
+            AssertEqual(expected[frame - 61],
+                (target.XPosition, target.YPosition, state.Function, state.EscapeTimer, samus.Health),
+                $"native bomb/EnemyMain detach trajectory at frame {frame}");
+            AssertEqual(0x00950000u, samus.Kinematics.XFixed, "Samus remains at native release X");
+            AssertEqual(0x0099ffffu, samus.Kinematics.YFixed, "Samus stays on the floor during detach");
         }
-        // The constrained native CPU sequence also misses: a single ground bomb
-        // launches Samus before its damage radius reaches the attached Metroid.
-        // This characterizes that case; it is not proof that the player's reported
-        // high failure rate, repeated bombs, or reattachment behavior is correct.
-        AssertEqual(-1, detached, "single ground bomb misses after the attached Metroid follows the bomb jump");
-        Console.WriteLine($"Runtime normal bomb: detach={detached}, reattach={reattached}, Samus apex Y={lowestY}.");
     }
 }

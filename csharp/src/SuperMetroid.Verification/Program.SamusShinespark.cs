@@ -296,8 +296,8 @@ static void VerifySamusStoredShineAndShinespark()
         "horizontal spark uses only block X movement");
     AssertEqual(sparkBombBlockIndex, first.Horizontal!.Value.BrokenBombBlock!.Value.Index,
         "horizontal spark publishes the broken BTS-7 block");
-    AssertEqual(0x0123, empty.ForegroundEntries.Span[sparkBombBlockIndex],
-        "bomb-block setup clears only the collision nibble");
+    AssertEqual(0x0058, empty.ForegroundEntries.Span[sparkBombBlockIndex],
+        "bomb-block setup replaces collision and visual words like CE83");
     AssertEqual(1, shineBombPlms.ActiveCount,
         "shinespark collision installs the bank-$84 BTS-7 PLM in the active room owner");
     AssertEqual(0xd456, empty.ForegroundEntries.Span[sparkExtensionBlockIndex],

@@ -755,9 +755,9 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual(screwBombIndex,
         screwBombFrame.Vertical!.Value.BrokenBombBlock!.Value.Index,
         "Screw vertical collision publishes the exact BTS-4 block");
-    AssertEqual(0x0123,
+    AssertEqual(0x0058,
         screwBombLevel.GetCollisionBlockByIndex(screwBombIndex).LevelWord,
-        "Screw setup clears only the collision nibble before the PLM handler");
+        "Screw setup installs CE83's replacement visual before the PLM handler");
     AssertEqual(1, screwBombPlms.ActiveCount,
         "Screw pose installs the BTS-4 bank-$84 lifecycle in the room owner");
 

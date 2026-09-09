@@ -537,10 +537,11 @@ public sealed partial class RoomPlmSystem
             // This is not the original visual word. Setup_CE83 deliberately replaces all
             // low twelve bits with visual block `$058`; multi-block restoration lists then
             // add type-$5/$D extension words around this type-$F parent.
-            slot.RestoreLevelWord = unchecked((ushort)((block.LevelWord & 0xf000) | 0x0058));
+            slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockIndexes.CollisionBombParent)
+                .WithCollisionType(block.CollisionType).Raw;
             slot.InstructionPointer = RoomPlmInstructionLists.CollisionBombByReactionIndex[bts.NormalReactionIndex];
             slot.InstructionTimer = 1;
-            level.ClearCollisionType(blockIndex);
+            level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
             return true;
         }
 

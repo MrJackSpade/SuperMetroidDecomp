@@ -8,6 +8,13 @@ namespace SuperMetroid.Core.Rooms;
 internal static class RoomPlmVisualBlockIndexes
 {
     /// <summary>
+    /// Bomb-block parent $058, synthesized by $84:CE83 on successful Samus contact.
+    /// The live word immediately becomes this air-type visual; the restore word keeps
+    /// the original collision nibble with the same replacement visual index.
+    /// </summary>
+    public const ushort CollisionBombParent = 0x0058;
+
+    /// <summary>
     /// Speed-block parent visual block <c>$0B6</c>, synthesized by setup
     /// <c>$84:CDEA</c> before its authored animation list replaces it.
     /// </summary>

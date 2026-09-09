@@ -322,9 +322,9 @@ public static partial class SamusBlockCollision
                         // `$94:932D` indexes the collision-bomb-block PLM table with BTS
                         // 0..7. Its setup at `$84:CE83` returns carry (solid) unless Samus
                         // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
-                        // accepted break it clears only level_data's high nibble and returns
-                        // carry clear, so this very scan continues through the new air.
-                        if (block.Bts.UsesAreaReactionTable || !canBreakBombBlocks)
+                        // accepted break it installs the air-type bomb-parent visual and
+                        // returns carry clear, so this scan continues through the new air.
+                        if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
                                 state,
@@ -664,7 +664,7 @@ public static partial class SamusBlockCollision
                     case RoomCollisionType.BombableBlock:
                         // Vertical dispatch is `$94:934C` and shares the exact bank-$84
                         // setup/carry contract documented in the horizontal branch above.
-                        if (block.Bts.UsesAreaReactionTable || !canBreakBombBlocks)
+                        if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipVerticalToSolid(
                                 state,
@@ -721,9 +721,17 @@ public static partial class SamusBlockCollision
     /// </remarks>
     private static bool ClearCollisionTypeWithoutLifecycle(RoomLevelData level, int blockIndex)
     {
-        level.ClearCollisionType(blockIndex);
+        level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockIndexes.CollisionBombParent);
         return true;
     }
+
+    /// <summary>
+    /// Setup $84:CE83 checks boost stage independently of pose or movement handler.
+    /// Existing explicit admissions cover Screw Attack/Shinespark and ownerless probes;
+    /// reading the live owner here also admits grounded/falling/transition Speedball.
+    /// </summary>
+    private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
+        explicitAdmission || state.SamusOwner?.HorizontalSpeed.IsActivelySpeedBoosting == true;
 
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,

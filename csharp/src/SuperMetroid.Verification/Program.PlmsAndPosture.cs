@@ -237,8 +237,8 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(respawning2x2Plms.TrySpawnCollisionBombBlock(
         respawning2x2, blockIndex, behavior: 3),
         "BTS-3 collision setup occupies a native PLM slot");
-    AssertEqual(0x0321, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
-        "CE83 synchronously removes only the type-F collision nibble");
+    AssertEqual(0x0058, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
+        "CE83 synchronously installs the native air-type bomb-parent visual");
     IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(
         bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
     AssertEqual(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x06), 3), respawning2x2Plms.SoundRequests[0],

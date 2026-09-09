@@ -179,6 +179,8 @@ if (args.Length == 3 && args[0] == "--crouch-lock-comparison-audit")
     return CrouchLockComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--mockball-comparison-audit")
     return MorphBounceComparisonAudit.Run(args[1], args[2], MorphBounceAuditScenario.Mockball);
+if (args.Length == 3 && args[0] == "--speedball-block-comparison-audit")
+    return SpeedballBlockComparisonAudit.Run(args[1], args[2]);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

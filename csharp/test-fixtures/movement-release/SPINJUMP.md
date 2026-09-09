@@ -88,3 +88,30 @@ does not assert that the player technique is correct merely because spin begins.
 The wiki's two elevator exceptions still require native comparison of clearance,
 arrival timing and the useful departure trajectory. Pre-completion direction
 buffering and frontend handoff are also outside this diagnostic's present scope.
+
+### Cartridge post-release comparison
+
+Pass a third argument (a local output directory) to `--elevator-spinjump-audit`
+to export twelve private MOV2 movement seeds and matching 40-frame managed CSVs.
+MOV2 retains the MOV1 32-word header and room geometry, then appends live scroll
+owner block/trigger records and four auto-jump history words. Generated seeds
+contain cartridge-derived data and are not committed.
+
+Apply `elevator-integration.patch` to the pinned upstream checkout and build as
+above. This dispatches before SDL and adds a per-call CPU instruction budget, so
+bad fixtures fail on the console rather than hang. Execute for each room
+`9E9F`, `9AD9`, `B236` and delay `0`, `1`, `4`, `8`:
+
+```
+sm.exe --elevator-release-probe ROM DIR/ROOM-DELAY.movement-seed DELAY DIR/ROOM-DELAY.native.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release --no-launch-profile -- --elevator-spinjump-compare DIR
+```
+
+All 480 ordered position/pose samples match the original CPU. This includes the
+Lower Norfair ceiling collision. Earlier the missing scroll-owner seed caused
+the cartridge's deliberate $84:B3A6 crash loop; including the actual owner blocks
+restores that collision contract. The probe deliberately does not reproduce
+native PLM slot ordering, execute PLM programs, move the camera, or run enemies.
+Consequently it proves post-release collision/movement in this interval, not
+native elevator release timing, pre-release inputs, or full scene parity.
+The three temporary upstream edits were removed after the comparison.

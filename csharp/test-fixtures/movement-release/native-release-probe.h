@@ -157,15 +157,16 @@ int DiagnosticMovementRelease(const char *rom) {
 // followed by one uint16 foreground word + one BTS byte for each room block.
 // No room-specific speed or collision correction is applied here. Only the
 // original cartridge's movement stages execute after these initial RAM writes.
-int DiagnosticRoomRelease(const char *rom, const char *seed_path) {
+static int DiagnosticRoomReleaseCore(const char *rom, const char *seed_path, int elevator_delay, const char *trace_path) {
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   size_t size = 0;
   uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size < 128) { free(seed); return 4; }
   uint32 *w = (uint32 *)seed;
-  if (w[0] != 0x31564f4d || (w[6] != 9 && w[6] != 10) || !w[2] || !w[3] || w[2] > 256 || w[3] > 256 ||
-      w[2] * w[3] > 6400 || size != 128 + w[2] * w[3] * 3) {
+  if (w[0] != (elevator_delay < 0 ? 0x31564f4d : 0x32564f4d) || (elevator_delay < 0 ? (w[6] != 9 && w[6] != 10) : w[6] != 0) || !w[2] || !w[3] || w[2] > 256 || w[3] > 256 ||
+      // $7F:0002..6401 contains 12,800 words; BTS $6402..9601 contains 12,800 bytes.
+      w[2] * w[3] > 12800 || (elevator_delay < 0 ? size != 128 + w[2] * w[3] * 3 : size < 132 + w[2] * w[3] * 3)) {
     fprintf(stderr, "Invalid movement room seed.\n"); free(seed); return 4;
   }
   cpu_reset(g_snes->cpu);
@@ -203,20 +204,72 @@ int DiagnosticRoomRelease(const char *rom, const char *seed_path) {
   samus_input_handler = 0xe913;
   samus_health = 99;
   button_config_run_b = 0x8000;
+  button_config_jump_a = 0x80;
+  FILE *trace = NULL;
+  if (elevator_delay >= 0) {
+    const uint8 *owners = seed + 128 + w[2] * w[3] * 3;
+    uint32 owner_count; memcpy(&owner_count, owners, 4);
+    if (owner_count >= 40 || size != 148 + w[2] * w[3] * 3 + owner_count * 8) {
+      free(seed); return 6;
+    }
+    for (uint32 i = 0; i < owner_count; i++) {
+      uint32 block, triggered;
+      memcpy(&block, owners + 4 + i * 8, 4);
+      memcpy(&triggered, owners + 8 + i * 8, 4);
+      if (block >= w[2] * w[3]) { free(seed); return 6; }
+      // Only the collision contract is restored. Slot ordering and asynchronous
+      // PLM execution are outside this movement-only probe.
+      plm_header_ptr[i] = 0xb703;
+      plm_block_indices[i] = block * 2;
+      plm_variable[i] = triggered;
+    }
+    const uint8 *pose_data = RomFixedPtr((0x91b629 + samus_pose * 8));
+    samus_pose_x_dir = samus_prev_pose_x_dir = pose_data[0];
+    samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = pose_data[1];
+    uint32 history[4]; memcpy(history, owners + 4 + owner_count * 8, sizeof(history));
+    autojump_timer = history[0];
+    joypad1_lastkeys = joypad1_input_samusfilter = history[1];
+    joypad1_newinput_samusfilter = history[2];
+    samus_input_handler = history[3] ? 0xe926 : 0xe913;
+    trace = fopen(trace_path, "w");
+    if (!trace) { free(seed); return 5; }
+    fprintf(trace, "frame,x,y,pose\n");
+  }
   free(seed);
-  for (int frame = 0; frame < 20; frame++) {
+  for (int frame = 0; frame < (elevator_delay < 0 ? 20 : 40); frame++) {
     samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
     samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
-    joypad1_lastkeys = joypad1_newkeys = 0;
-    RunAsmCode(0x918000, 0, 0, 0, 0);
+    if (elevator_delay < 0) {
+      joypad1_lastkeys = joypad1_newkeys = 0;
+      RunAsmCode(0x918000, 0, 0, 0, 0);
+    } else {
+      joypad1_lastkeys = 0x80 | (frame >= elevator_delay ? 0x200 : 0);
+      joypad1_newkeys = frame == elevator_delay ? 0x200 : 0;
+      RunAsmCode(0x90ec22, 0, 0, 0, 0);
+      RunAsmCode(0x90e90f, 0, 0, 0, 0);
+    }
     RunAsmCode(0x909c5b, 0, 0, 0, 0);
     RunAsmCode(0x90a337, 0, 0, 0, 0);
     RunAsmCode(0x908000, 0, 0, 0, 0);
     RunAsmCode(0x91e8b6, 0, 0, 0, 0);
     RunAsmCode(0x91eb88, 0, 0, 0, 0);
+    if (trace) {
+      RunAsmCode(0x90eab3, 0, 0, 0, 0);
+      fprintf(trace, "%d,%04X%04X,%04X%04X,%02X\n", frame,
+        samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,samus_pose);
+      continue;
+    }
     printf("ROOM_RELEASE frame=%d x=%04X%04X y=%04X%04X pose=%02X base=%04X%04X mode=%d collision=%d\n",
       frame, samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos,
       samus_pose, samus_x_base_speed, samus_x_base_subspeed, samus_x_accel_mode, samus_collision_flag);
   }
+  if (trace) fclose(trace);
   return 0;
+}
+
+int DiagnosticRoomRelease(const char *rom, const char *seed_path) {
+  return DiagnosticRoomReleaseCore(rom, seed_path, -1, NULL);
+}
+int DiagnosticElevatorRelease(const char *rom, const char *seed_path, int delay, const char *trace) {
+  return DiagnosticRoomReleaseCore(rom, seed_path, delay, trace);
 }

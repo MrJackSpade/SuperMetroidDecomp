@@ -4,11 +4,38 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
-/// <summary>#474: room-local arrival geometry diagnostic, not a native-CPU parity assertion.</summary>
+/// <summary>
+/// #474: captures room-local elevator arrivals and compares post-release movement
+/// against native CPU traces. This does not verify native elevator release timing.
+/// </summary>
 internal static class ElevatorSpinjumpAudit
 {
-    public static int Run(string rom)
+    public static int Compare(string directory)
     {
+        int samples = 0;
+        foreach (string room in new[] { "9E9F", "9AD9", "B236" })
+        foreach (int delay in new[] { 0, 1, 4, 8 })
+        {
+            string prefix = Path.Combine(directory, $"{room}-{delay}");
+            string[] managed = File.ReadAllLines(prefix + ".managed.csv");
+            string[] native = File.ReadAllLines(prefix + ".native.csv");
+            if (managed.Length != 41 || native.Length != 41)
+                throw new InvalidDataException($"Incomplete elevator trace: {room}-{delay}.");
+            for (int frame = 0; frame < 40; frame++)
+            {
+                if (!native[frame + 1].StartsWith(frame + ",", StringComparison.Ordinal) ||
+                    native[frame + 1] != managed[frame + 1])
+                    throw new InvalidDataException($"Elevator {room}-{delay} frame {frame}: managed {managed[frame+1]}, native {native[frame+1]}.");
+                samples++;
+            }
+        }
+        Console.WriteLine($"Elevator release: {samples} exact cartridge position/pose samples agree.");
+        return 0;
+    }
+
+    public static int Run(string rom, string? outputDirectory = null)
+    {
+        if (outputDirectory != null) Directory.CreateDirectory(outputDirectory);
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var doors = File.ReadLines("upstream-sm/assets/names.txt")
             .Where(line => line.StartsWith("0x83") && line.Contains(" kDoorDef_"))
@@ -22,6 +49,9 @@ internal static class ElevatorSpinjumpAudit
             var door = doors.Single(d => d.DestinationRoomPointer == room && (d.BitFlags & 0x80) != 0);
             foreach (int delay in new[] { 0, 1, 4, 8 })
             {
+                string? prefix = outputDirectory == null ? null : Path.Combine(outputDirectory, $"{room:X4}-{delay}");
+                using var trace = prefix == null ? null : new StreamWriter(prefix + ".managed.csv");
+                trace?.WriteLine("frame,x,y,pose");
                 var runtime = new SuperMetroidRuntime(bus);
                 runtime.InitializeHud(HudSnapshot.CeresDebug);
                 runtime.RunNmi(0, true);
@@ -47,7 +77,10 @@ internal static class ElevatorSpinjumpAudit
                     {
                         arrival = frame;
                         arrivalY = samus.YPosition;
+                        if (prefix != null) RoomMovementSeedExporter.Write(runtime, prefix + ".movement-seed", includeScrollOwners: true);
                     }
+                    else if (arrival >= 0)
+                        trace?.WriteLine($"{frame-arrival-1},{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2}");
                     if (arrival >= 0 && spin < 0 && samus.ReadMovementType(bus) == SamusMovementType.SpinJumping)
                         spin = frame - arrival;
                     if (arrival >= 0 && frame - arrival <= 12)

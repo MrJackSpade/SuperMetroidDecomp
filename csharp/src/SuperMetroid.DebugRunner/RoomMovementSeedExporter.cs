@@ -8,14 +8,14 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static class RoomMovementSeedExporter
 {
-    public static void Write(SuperMetroidRuntime runtime, string path)
+    public static void Write(SuperMetroidRuntime runtime, string path, bool includeScrollOwners = false)
     {
         var samus = runtime.Samus ?? throw new InvalidDataException("Missing Samus seed.");
         var level = runtime.LevelData ?? throw new InvalidDataException("Missing room seed.");
         using var output = new BinaryWriter(File.Create(path));
         // Fixed ordered uint32 header shared with DiagnosticRoomRelease. Positions
         // and velocities retain all fractional bits; numeric words are little-endian.
-        uint[] words = [0x31564f4d, runtime.ActiveRoom!.Pointer,
+        uint[] words = [includeScrollOwners ? 0x32564f4du : 0x31564f4du, runtime.ActiveRoom!.Pointer,
             (uint)level.WidthInBlocks, (uint)level.HeightInBlocks,
             samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
             samus.Kinematics.XRadius, samus.Kinematics.YRadius,
@@ -36,6 +36,22 @@ internal static class RoomMovementSeedExporter
         {
             output.Write(level.ForegroundEntries.Span[block]);
             output.Write(level.BehaviorBytes.Span[block]);
+        }
+        if (includeScrollOwners)
+        {
+            // Collision-only owner projection. The native consumer does not execute
+            // PLM programs or camera scroll updates, and must not claim that it does.
+            var owners = runtime.Plms.ScrollPlms;
+            output.Write(owners.Count);
+            foreach (var owner in owners)
+            {
+                output.Write(owner.BlockIndex);
+                output.Write(owner.Triggered ? 0x8000u : 0u);
+            }
+            output.Write((uint)samus.AutoJumpTimer);
+            output.Write((uint)samus.PreviousDrawHeldInput);
+            output.Write((uint)samus.PreviousDrawNewInput);
+            output.Write(samus.AutoJumpInputPending ? 1u : 0u);
         }
     }
 }

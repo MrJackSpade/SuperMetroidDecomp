@@ -1,0 +1,31 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -314,2 +314,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 6 && strcmp(argv[1], "--elevator-release-probe") == 0) {
++    extern int DiagnosticElevatorRelease(const char *, const char *, int, const char *);
++    return DiagnosticElevatorRelease(argv[2], argv[3], atoi(argv[4]), argv[5]);
++  }
+ #ifdef __SWITCH__
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -10,3 +10,5 @@
+ struct StateRecorder;
+ 
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++
+ static void RtlSaveMusicStateToRam_Locked();
+diff --git a/src/sm_cpu_infra.c b/src/sm_cpu_infra.c
+--- a/src/sm_cpu_infra.c
++++ b/src/sm_cpu_infra.c
+@@ -646,3 +646,8 @@
+   g_calling_asm_from_c = true;
++  int diagnosticBudget = 2000000;
+   while (g_calling_asm_from_c) {
++    if (--diagnosticBudget == 0) {
++      fprintf(stderr, "Diagnostic CPU budget exhausted at %02X:%04X from %06X\n", g_cpu->k, g_cpu->pc, pc);
++      exit(7);
++    }
+     uint32 pc = g_snes->cpu->k << 16 | g_snes->cpu->pc;

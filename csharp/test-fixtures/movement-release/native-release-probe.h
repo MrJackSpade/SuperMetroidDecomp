@@ -285,12 +285,12 @@ int DiagnosticElevatorPreheld(const char *rom, const char *seed_path, const char
 int DiagnosticElevatorActor(const char *rom, const char *seed_path, const char *trace_path) {
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
-  unsigned x, y, sub, direction, rest;
+  unsigned x, y, sub, direction, rest, input;
   FILE *seed = fopen(seed_path, "r");
   if (!seed) return 4;
-  int count = fscanf(seed, "%u,%u,%u,%u,%u", &x, &y, &sub, &direction, &rest);
+  int count = fscanf(seed, "%u,%u,%u,%u,%u,%u", &x, &y, &sub, &direction, &rest, &input);
   fclose(seed);
-  if (count != 5 || x > 65535 || y > 65535 || sub > 65535 ||
+  if (count != 6 || (input != 0x80 && input != 0x280) || x > 65535 || y > 65535 || sub > 65535 ||
       (direction != 0 && direction != 2) || rest > 65535) return 5;
   FILE *trace = fopen(trace_path, "w");
   if (!trace) return 4;
@@ -310,9 +310,17 @@ int DiagnosticElevatorActor(const char *rom, const char *seed_path, const char *
   RunAsmCode(0x90f109, 0, 0, 0, 0); // Actual lock handler, prior to arrival.
   for (int frame = 0; frame < 900; frame++) {
     RunAsmCode(0xa3952a, 0, 0, 0, 0);
-    fprintf(trace, "%d,%u,%u,%u,%u,%d\n", frame, e->base.y_pos,
+    samus_new_pose = 0xffff;
+    joypad1_lastkeys = input;
+    joypad1_newkeys = 0;
+    button_config_jump_a = 0x80;
+    // Isolate the real pose-zero elevator-status gate, including the release
+    // frame after the enemy dispatcher clears status. Do not install the pose.
+    RunAsmCode(0x918000, 0, 0, 0, 0);
+    fprintf(trace, "%d,%u,%u,%u,%u,%d,%u\n", frame, e->base.y_pos,
       e->base.y_subpos, elevator_status, elevator_flags,
-      frame_handler_alfa == FUNC16(Samus_FrameHandlerAlfa_Func11) ? 0 : 1);
+      frame_handler_alfa == FUNC16(Samus_FrameHandlerAlfa_Func11) ? 0 : 1,
+      samus_new_pose == 0xffff ? samus_pose : samus_new_pose);
     if (!elevator_status) { fclose(trace); return 0; }
   }
   fclose(trace);

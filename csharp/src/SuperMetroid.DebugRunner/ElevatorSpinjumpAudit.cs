@@ -13,7 +13,7 @@ internal static class ElevatorSpinjumpAudit
     public static int Compare(string directory, bool preheld = false)
     {
         int actorSamples = 0;
-        foreach (string room in preheld ? Array.Empty<string>() : new[] { "9E9F", "9AD9", "B236" })
+        foreach (string room in new[] { "9E9F", "9AD9", "B236" })
         {
             string prefix = Path.Combine(directory, $"{room}-0.actor");
             string[] managed = File.ReadAllLines(prefix + ".managed.csv");
@@ -27,11 +27,10 @@ internal static class ElevatorSpinjumpAudit
                     throw new InvalidDataException($"Elevator actor {room} frame {frame}: managed {managed[frame]}, native {native[frame]}.");
                 actorSamples++;
             }
-            if (!native[^1].EndsWith(",0,0,0", StringComparison.Ordinal))
+            if (!(native[^1].Split(',')[3..6]).SequenceEqual(new[] { "0", "0", "0" }))
                 throw new InvalidDataException($"Elevator actor trace ended before unlock: {room}.");
         }
-        if (!preheld)
-            Console.WriteLine($"Elevator arrival: {actorSamples} exact actor/status/input-lock samples agree.");
+        Console.WriteLine($"Elevator arrival: {actorSamples} exact actor/status/input-lock/pose-selection samples agree.");
         int samples = 0;
         foreach (string room in new[] { "9E9F", "9AD9", "B236" })
         foreach (int delay in preheld ? new[] { 0 } : new[] { 0, 1, 4, 8 })
@@ -97,7 +96,7 @@ internal static class ElevatorSpinjumpAudit
                 if (prefix != null)
                 {
                     using var seed = new StreamWriter(prefix + ".actor-seed.csv");
-                    seed.WriteLine($"{elevator.XPosition},{elevator.YPosition},{elevator.YSubposition},{elevator.Parameter1},{elevator.VariableA}");
+                    seed.WriteLine($"{elevator.XPosition},{elevator.YPosition},{elevator.YSubposition},{elevator.Parameter1},{elevator.VariableA},{(ushort)(SnesButton.A | (directionHeldDuringArrival ? SnesButton.Left : 0))}");
                 }
                 int arrival = -1, spin = -1;
                 ushort arrivalY = 0;
@@ -114,7 +113,7 @@ internal static class ElevatorSpinjumpAudit
                             throw new InvalidDataException($"{name}: pose input escaped active elevator at frame {frame}.");
                     }
                     if (arrival < 0)
-                        actorTrace?.WriteLine($"{frame},{elevator.YPosition},{elevator.YSubposition},{(ushort)runtime.Enemies.ElevatorStatus},{runtime.Enemies.ElevatorFlags},{(samus.InputLocked ? 1 : 0)}");
+                        actorTrace?.WriteLine($"{frame},{elevator.YPosition},{elevator.YSubposition},{(ushort)runtime.Enemies.ElevatorStatus},{runtime.Enemies.ElevatorFlags},{(samus.InputLocked ? 1 : 0)},{runtime.ProspectiveSamusPose?.ProspectivePose ?? runtime.ProspectiveSamusFallbackPose ?? samus.Pose}");
                     if (arrival < 0 && runtime.Enemies.LastElevatorEvent == ElevatorFrameEvent.ArrivalCompleted)
                     {
                         arrival = frame;

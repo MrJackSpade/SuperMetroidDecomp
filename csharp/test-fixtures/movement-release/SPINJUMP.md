@@ -171,3 +171,20 @@ Use `--elevator-spinjump-preheld-compare DIR` to verify these traces separately
 from the delayed-direction fixtures. This comparison still starts after the
 release-frame turn selection; that selection and frontend scheduling must not be
 claimed as native-verified by this seeded post-release test.
+
+### Release-frame pose decision
+
+The actor seed now includes a sixth decimal field: held input ($80 or $280).
+Regenerate both managed audits before running the updated actor probe. Its seventh
+trace column is the effective pose target: a missing transition retains the current
+pose. The native probe executes $91:8000 after each actor dispatch, exercising the
+pose-zero elevator-status gate and the completion-frame lookup. Both comparison
+commands now require their corresponding actor traces as well as movement traces.
+
+All 2,688 actor/input rows match across both chords. Jump alone retains pose zero;
+Jump+Left selects $25 on the completion frame. This asserts effective pose, not
+bit-for-bit equality of transient prospective-pose storage: native fallback writes
+zero for Jump alone, while the managed runtime represents that no-op as null.
+Separate managed assertions still reject any premature prospective transition.
+The 600 post-release movement samples remain matching. Full frontend scheduling,
+not this isolated actor-plus-pose-lookup sequence, remains outside the comparison.

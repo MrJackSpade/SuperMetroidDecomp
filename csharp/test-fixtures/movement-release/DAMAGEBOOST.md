@@ -481,3 +481,19 @@ Both previously failing water traces now match without weakening comparisons.
 This finishes the constructed carry matrix, not the full technique contract:
 legal run-up/active-boost entry and the source-specific interactions noted above
 remain unproven.
+
+## Broken-turret electric block reaction
+
+Contact mode 7 exercises the distinct $94:8F0A routine, identified in pinned
+bank_94.asm as Draygon's broken turret (solid spike BTS 3). The constructed floor
+uses that behavior across row 11; starting positions and the input/medium sweeps
+are identical to mode 3. No enemies or carried-speed seed are installed. The
+legacy source column is retained for format compatibility and duplicates this
+mode's cases; it does not select a second turret variant.
+
+All six `damageboost-turret-472-m{0,1,2}-r{0,1}.csv` captures match exactly:
+35,712 frame samples of position, pose/animation, speed, hurt words, history and
+health. For the dry, right-facing, forward-not-held humanoid case, delays 0..9
+enter damage boost and delays 10/11 do not; health falls from 99 to 83. This
+confirms the collision reaction/window, not the room actor's transformation into
+a broken turret or grapple electrocution. No production fix was needed.

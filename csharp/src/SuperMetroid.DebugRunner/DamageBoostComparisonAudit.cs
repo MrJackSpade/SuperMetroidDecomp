@@ -10,7 +10,7 @@ internal static class DamageBoostComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length >= 26 ? int.Parse(rows[0][24]) : 0;
-        if (contactKind is < 0 or > 6) throw new InvalidDataException("Unknown contact source.");
+        if (contactKind is < 0 or > 7) throw new InvalidDataException("Unknown contact source.");
         bool contact = contactKind != 0;
         if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
@@ -50,7 +50,7 @@ internal static class DamageBoostComparisonAudit
             samus.Health = 99;
             samus.Pose = ball ? left ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose
                 : left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
-            if (contactKind >= 5)
+            if (contactKind is 5 or 6)
             {
                 samus.Pose = ball
                     ? left ? SamusPoseIds.MorphBallMovingLeftPose : SamusPoseIds.MorphBallMovingRightPose
@@ -63,7 +63,7 @@ internal static class DamageBoostComparisonAudit
                 if (contactKind == 6) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpeedBooster;
             }
             samus.XPosition = 128; samus.YPosition = 160;
-            if (contactKind == 3) samus.YPosition = ball ? (ushort)169 : (ushort)155;
+            if (contactKind is 3 or 7) samus.YPosition = ball ? (ushort)169 : (ushort)155;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
@@ -100,13 +100,15 @@ internal static class DamageBoostComparisonAudit
                 level.SetForegroundEntry(block, 0x2000);
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
             }
-            else if (contactKind == 3)
+            else if (contactKind is 3 or 7)
             {
                 for (int x = 1; x < 15; x++)
                 {
                     int block = 11 * level.WidthInBlocks + x;
                     level.SetForegroundEntry(block, 0xa000);
-                    level.SetBehavior(block, (byte)source);
+                    level.SetBehavior(block, contactKind == 7
+                        ? SamusTerrainHazardRomData.AlternateLightSpikeBlockBehavior
+                        : (byte)source);
                 }
             }
             else

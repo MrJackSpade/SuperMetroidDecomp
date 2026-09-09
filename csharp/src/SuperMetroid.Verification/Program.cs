@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--elevatube-scrolling"])
+{
+    VerifyElevatubeScrolling();
+    return 0;
+}
 if (args is ["--maridia-puyo-pile"])
 {
     VerifyMaridiaPuyoPile();
@@ -106,6 +111,7 @@ if (args.Contains("--escape-timer"))
     return 0;
 }
 VerifyAndroidHostPolicies();
+VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;

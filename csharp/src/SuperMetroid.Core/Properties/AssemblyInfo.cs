@@ -5,4 +5,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.Verification")]
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DesktopVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.DiagnosticsVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]

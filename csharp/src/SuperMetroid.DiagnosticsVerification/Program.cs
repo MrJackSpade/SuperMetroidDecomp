@@ -6,6 +6,8 @@ try
 {
     if (args is ["--maridia-pipe-entry"])
         return MaridiaPipeEntryAudit.Run();
+    if (args is ["--maridia-pipe-from-north"])
+        return MaridiaPipeEntryAudit.Run(fromNorth: true);
     if (args is ["--legacy-options-migration"])
         return LegacyOptionsMigrationVerification.Run();
     if (args is ["--export-autonomous-performance-state", var frameText, var autonomousDestination])

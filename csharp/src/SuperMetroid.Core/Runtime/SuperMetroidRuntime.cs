@@ -1537,13 +1537,10 @@ public sealed partial class SuperMetroidRuntime
             ? 0
             : ((uint)Samus.Kinematics.XPosition << 16) | Samus.Kinematics.XSubposition;
 
-        // MainScrollingRoutine compares Samus's final coordinates with the position saved
-        // at the beginning of the gameplay pass, not merely with the position immediately
-        // before bank-$90's beta handler. This distinction is normally invisible because
-        // ordinary Samus movement happens in beta. The post-Ceres gunship, however, moves
-        // locked Samus during EnemyMain. Capturing all four words here lets the same generic
-        // scrolling routine follow that cartridge-authored movement instead of allowing the
-        // descending ship to leave the enemy scheduler's on-screen processing window.
+        // MainScrollingRoutine saves its previous-position words after scrolling, not at
+        // frame start. This fallback is only for a newly loaded/restored camera; otherwise
+        // retain the preceding scrolling checkpoint so later room-main movement (such as
+        // the elevatube) contributes to the next frame's distance just like enemy movement.
         SamusCameraPoint? samusCameraPointAtFrameStart = Samus is null
             ? null
             : new SamusCameraPoint(
@@ -1737,10 +1734,9 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current);
             }
 
-            // The beginning-of-pass sample above precedes both enemy-owned motion and the
-            // bank-$90 frame handler. It therefore serves ordinary motion and scripted
-            // carriers through one native camera path.
-            SamusCameraPoint previousCameraPoint = samusCameraPointAtFrameStart!.Value;
+            // Preserve movement on either side of the frame boundary. A new camera uses
+            // the fallback sampled before enemy-owned motion and the bank-$90 handler.
+            SamusCameraPoint previousCameraPoint = Camera.PreviousSamusPoint ?? samusCameraPointAtFrameStart!.Value;
 
             // Retain the dispatch pose because command $F8 can replace Samus.Pose during
             // animation later in this same frame. Native alpha/beta/transition phases all
@@ -3809,6 +3805,7 @@ public sealed partial class SuperMetroidRuntime
                 // Spawn installs `$90:9589`, which owns the arena's vertical camera floor;
                 // it must run before BG streaming and OAM consume layer-one position.
                 Enemies.RunScrollingFinishedHook(Camera);
+                Camera.FinishSamusScrolling(currentCameraPoint);
 
                 // The camera can cross a 16-pixel boundary in the same main-loop pass.
                 // Build and execute the exact row/column staging transfers now so both the

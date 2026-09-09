@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(ScrollBoundaryCamera) && count == 11 && current.Length == 12)
+        {
+            Console.Error.WriteLine("WARNING: Legacy camera has no previous-scroll Samus checkpoint; initializing on its first scrolling pass.");
+            return current.Where(field => field.Name != "<PreviousSamusPoint>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == 106 && current.Length == 110)
         {
             // Additions verified against b944f1b5: statue owner (5ff0476a),

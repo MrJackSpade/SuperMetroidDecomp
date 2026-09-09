@@ -8,6 +8,7 @@ internal static class LegacyOptionsMigrationVerification
     public static int Run()
     {
         VerifyRuntimeMigration();
+        VerifyCameraMigration();
         string legacyCallback = "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0, SuperMetroid.Core";
         var callback = DebuggerStateTypeIdentity.Resolve(legacyCallback)
             ?? throw new InvalidDataException("Verified legacy room callback did not resolve.");
@@ -56,5 +57,28 @@ internal static class LegacyOptionsMigrationVerification
         var current = new object();
         DebuggerStateFieldMigrations.InitializeMissingFields(current, 106);
         Console.WriteLine("Legacy runtime: four documented additions only, original field order retained, omitted owners initialized.");
+    }
+
+    private static void VerifyCameraMigration()
+    {
+        var type = typeof(SuperMetroid.Core.Game.ScrollBoundaryCamera);
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 11);
+        if (selected.Length != 11 || !selected.SequenceEqual(fields.Where(field =>
+            field.Name != "<PreviousSamusPoint>k__BackingField")))
+            throw new InvalidDataException("Legacy camera migration changed fields beyond the new checkpoint.");
+        // This isolated graph test deliberately has no scroll grid; no camera movement
+        // is invoked. It tests preservation of all four checkpoint words, including fractions.
+        var camera = (SuperMetroid.Core.Game.ScrollBoundaryCamera)RuntimeHelpers.GetUninitializedObject(type);
+        if (camera.PreviousSamusPoint is not null)
+            throw new InvalidDataException("Legacy camera should start without a fabricated checkpoint.");
+        camera.FinishSamusScrolling(new(128, 12345, 1900, 54321));
+        using var bytes = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(bytes, camera);
+        bytes.Position = 0;
+        var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Game.ScrollBoundaryCamera>(bytes);
+        if (restored.PreviousSamusPoint != camera.PreviousSamusPoint)
+            throw new InvalidDataException("Camera checkpoint lost whole or fractional words on state restore.");
+        Console.WriteLine("Camera checkpoint: explicit legacy omission and exact four-word graph round trip pass.");
     }
 }

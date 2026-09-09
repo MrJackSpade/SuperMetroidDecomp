@@ -3,29 +3,40 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
-using System.Reflection;
 
 /// <summary>Read-only replay of the preserved #391 state; never touches player slots.</summary>
 internal static class MaridiaPipeEntryAudit
 {
-    public static int Run()
+    public static int Run(bool fromNorth = false)
     {
         var loaded = DebuggerFixtureLoader.Load("maridia-041b-pipe-entry", 0);
         var game = loaded.Game;
         var audio = new CartridgeAudioRenderer(ExtractedAudioAssetCatalog.Load("standalone-assets/audio"), loaded.AudioPlayer!);
-        const string output = "csharp/test-temp/issue-391-pipe";
+        string output = "csharp/test-temp/issue-391-pipe" + (fromNorth ? "-north" : "");
+        var runtime = game.RuntimeForVerification ?? throw new InvalidDataException("Pipe fixture lacks runtime.");
+        if (fromNorth)
+        {
+            // Stage the preceding tube through its real incoming setup callback,
+            // then let the frontend own the single tube -> Oasis room boundary.
+            var door = SuperMetroid.Core.Rooms.CartridgeDoorHeader.Load(loaded.AddressSpace,
+                SuperMetroid.Core.Rooms.DoorPointers.MaridiaElevatubeFromNorth);
+            runtime.LoadCartridgeRoomThroughDoorForVerification(door);
+            runtime.Samus!.XPosition = 128;
+            runtime.Samus.YPosition = 64;
+        }
         Directory.CreateDirectory(output);
         var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        for (int frame = 0; frame < 240; frame++)
+        for (int frame = 0; frame < 420; frame++)
         {
-            var runtime = (SuperMetroidRuntime)typeof(SuperMetroidGame)
-                .GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
             if (frame % 30 == 0)
-                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={runtime.Samus.Pose:X2}");
+                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={runtime.Samus.Pose:X2}");
+            if (fromNorth && frame == 120 && runtime.Camera!.YPosition < 800)
+                throw new InvalidDataException("#391: elevatube carried Samus past Y=1000 while camera failed to follow the post-scroll room-main displacement.");
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             // Leave the small central ledge, then let gravity carry the preserved
             // player state through the shaft without inventing position writes.
-            ushort input = frame < 30 ? (ushort)SuperMetroid.Core.Input.SnesButton.Right : (ushort)0;
+            ushort input = fromNorth ? (ushort)0 : frame < 30 ? (ushort)SuperMetroid.Core.Input.SnesButton.Right :
+                frame is >= 100 and < 123 ? (ushort)SuperMetroid.Core.Input.SnesButton.Left : (ushort)0;
             var result = game.StepCaptured(input, frame + 1, 1);
             audio.RenderFrame(result.Frame.AudioCommands);
             if (frame % 30 == 0 && result.Snapshot is { } snapshot)

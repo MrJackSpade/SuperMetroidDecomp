@@ -29,6 +29,16 @@ public sealed class ScrollBoundaryCamera
     public ushort CameraYSpeed { get; private set; }
     public ushort CameraYSubspeed { get; private set; }
 
+    /// <summary>
+    /// Samus's four previous-position words written at the end of $90:94EC.
+    /// Room-main movement occurs later and must remain visible to the next scroll call.
+    /// Null represents a newly constructed camera without an accepted scrolling pass.
+    /// </summary>
+    public SamusCameraPoint? PreviousSamusPoint { get; private set; }
+
+    /// <summary>Publishes the native previous-position checkpoint after both axes and the scrolling hook.</summary>
+    public void FinishSamusScrolling(SamusCameraPoint current) => PreviousSamusPoint = current;
+
     /// <summary>The mutable 50-byte scroll table consulted by this camera.</summary>
     public RoomScrollGrid Scrolls => _scrolls;
 
@@ -38,6 +48,7 @@ public sealed class ScrollBoundaryCamera
     /// </summary>
     public void SetPosition(int x, int y)
     {
+        PreviousSamusPoint = null;
         int maxX = (_scrolls.WidthInScreens - 1) << 8;
 
         // The vertical maximum depends on blue/green scroll alignment. Starting with the
@@ -64,6 +75,7 @@ public sealed class ScrollBoundaryCamera
     /// </remarks>
     public void SetDoorTransitionPosition(ushort x, ushort y)
     {
+        PreviousSamusPoint = null;
         XPosition = x;
         YPosition = y;
         XSubposition = 0;

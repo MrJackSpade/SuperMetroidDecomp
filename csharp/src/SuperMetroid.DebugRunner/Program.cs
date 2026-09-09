@@ -175,6 +175,8 @@ if (args.Length == 3 && args[0] == "--morph-timing-comparison-audit")
     return MorphBounceComparisonAudit.Run(args[1], args[2], MorphBounceAuditScenario.FallingMorphTiming);
 if (args.Length == 3 && args[0] == "--run-jump-morph-comparison-audit")
     return MorphBounceComparisonAudit.Run(args[1], args[2], MorphBounceAuditScenario.RunJumpMorph);
+if (args.Length == 3 && args[0] == "--crouch-lock-comparison-audit")
+    return CrouchLockComparisonAudit.Run(args[1], args[2]);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

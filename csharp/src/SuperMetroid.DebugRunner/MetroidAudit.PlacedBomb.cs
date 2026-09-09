@@ -6,6 +6,35 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class MetroidAudit
 {
+    private static void VerifyNativeBombExplosionRadii(
+        SuperMetroidAddressSpace bus, CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        var samus = Load(bus, room, assets).Samus;
+        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.EquippedItems = (ushort)SamusEquipmentFlags.Bombs;
+        samus.XPosition = 128;
+        samus.YPosition = 153;
+        samus.RefreshCollisionRadii(bus);
+        var bombs = new SamusBombProjectileSystem();
+        // Literal native CPU observations, not calculated from the ROM by this oracle.
+        ushort[] radii = [8, 8, 12, 12, 16, 16, 16, 16, 16, 16, 0];
+        ushort[] lists = [0xA073, 0xA073, 0xA07B, 0xA07B, 0xA083, 0xA083,
+            0xA08B, 0xA08B, 0xA093, 0xA093, 0];
+        for (int frame = 0; frame <= 69; frame++)
+        {
+            ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
+            bombs.StepFrame(bus, assets.LevelData, samus, input, input);
+            if (frame < 59) continue;
+            var bomb = bombs.Slots[0];
+            int index = frame - 59;
+            if (bomb.XRadius != radii[index] || bomb.YRadius != radii[index] ||
+                bomb.InstructionPointer != lists[index] || bomb.BombTimer != 0 ||
+                bomb.Type != (frame < 69 ? 0x0501 : 0))
+                throw new InvalidDataException($"Native bomb explosion mismatch at update {frame}: radius={bomb.XRadius}/{bomb.YRadius}, list={bomb.InstructionPointer:X4}, type={bomb.Type:X4}.");
+        }
+        Console.WriteLine("Normal bomb explosion matches native CPU radius/list/type observations for updates 59–69.");
+    }
+
     private static void VerifyStationaryPlacedBomb(
         SuperMetroidAddressSpace bus, CartridgeRoomHeader room, CartridgeRoomAssets assets)
     {

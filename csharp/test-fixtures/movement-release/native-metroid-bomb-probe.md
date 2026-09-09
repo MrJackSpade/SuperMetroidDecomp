@@ -1,76 +1,28 @@
-# Metroid bomb investigation (#485)
+# #485 native bomb animation observation
 
-This is an isolated trajectory measurement using the retail 65816 instructions,
-not a full bomb/Metroid simulation or proof that a centered bomb must detach one.
-The full C# runtime fixture currently misses, whereas its stationary isolated
-collision fixture detaches. Do not fix this by delaying bomb jumps without a
-native full-sequence comparison: native A0:9785 publishes at fuse value eight.
+`native-metroid-bomb-probe.h` uses the existing unpatched-ROM CPU loader. Include
+it after `native-release-probe.h` in sm_rtl.c and call DiagnosticMetroidBomb with
+the ROM path before SDL initialization. Suppress explicit SDL error dialogs
+during the probe; restore hooks and rebuild afterwards. No SRAM is loaded or
+written. The experiment places a normal bomb through $90:BF9D, then executes
+$90:AECE repeatedly with Samus fixed. It does not simulate enemy or Samus AI.
 
-## Reproduction
+Observed with the project's retail ROM:
 
-Temporarily include `native-release-probe.h`, then
-`native-metroid-bomb-probe.h` from `upstream-sm/src/sm_rtl.c` after its includes.
-Temporarily dispatch `DiagnosticMetroidBombJump(argv[2])` from `main.c` when
-`argc == 3` and `argv[1]` is `--metroid-bomb-probe`, before any SDL startup.
-Declare that function extern at the dispatch. Restore both temporary hooks after
-the experiment. The checked-in native application has no diagnostic hook.
+| Update after placement | Fuse | X/Y radius | Next list | Sprite |
+| --- | --- | --- | --- | --- |
+| 51 | 8 | 4/4 | 9FFB | AD53 |
+| 58 | 1 | 4/4 | 9FF3 | AD4C |
+| 59–60 | 0 | 8/8 | A073 | A83E |
+| 61–62 | 0 | 12/12 | A07B | A854 |
+| 63–64 | 0 | 16/16 | A083 | A86A |
+| 65–66 | 0 | 16/16 | A08B | A880 |
+| 67–68 | 0 | 16/16 | A093 | A896 |
+| 69 | 0 | 0/0 | 0000 | 0000 |
 
-Build `upstream-sm/sm.sln` Release/x64 with MSBuild, overriding
-`PlatformToolset=v145` for the installed VS 18 toolset. Run:
-
-```powershell
-& upstream-sm/build/bin-x64-Release/sm.exe --metroid-bomb-probe 'Super Metroid.smc'
-```
-
-The loader restores the retail ROM bytes after the native comparison harness's
-patches, and disables Windows critical-error/fault dialogs before loading.
-This probe does not initialize SDL or open a game window.
-
-## Observed native output (2026-09-09)
-
-Start Y is `00B9.0000`, upward speed `0002.C000`. Successive calls to
-`$90:E032` produce these Y/speed words:
-
-| Update | Y | Upward speed |
-| --- | --- | --- |
-| 0 | 00B6.4000 | 0002.A400 |
-| 1 | 00B3.9C00 | 0002.8800 |
-| 2 | 00B1.1400 | 0002.6C00 |
-| 3 | 00AE.A800 | 0002.5000 |
-| 4 | 00AC.5800 | 0002.3400 |
-| 5 | 00AA.2400 | 0002.1800 |
-| 6 | 00A8.0C00 | 0001.FC00 |
-| 7 | 00A6.1000 | 0001.E000 |
-| 8 | 00A4.3000 | 0001.C400 |
-| 9 | 00A2.6C00 | 0001.A800 |
-| 10 | 00A0.C400 | 0001.8C00 |
-| 11 | 009F.3800 | 0001.7000 |
-
-This confirms substantial movement during the pre-explosion interval is not by
-itself evidence of a mistranslated jump. It does not settle frame scheduling,
-Metroid positioning, bomb explosion radius evolution, or detach/reattach timing.
-Those remain required comparisons. No production fix or validation claim is
-made by this diagnostic.
-
-## Focused native collision sequence
-
-The extended probe additionally calls native `$A0:9785`, `$A0:A236`,
-`$90:B099` and `$93:81E9` around the jump handler. It seeds the retail Metroid
-definition's 10/10 radii and follows attached positioning before movement.
-It intentionally excludes the full enemy main loop and pose-transition dispatch;
-therefore it cannot establish complete frame parity or resolve the player report.
-
-At frame 51 the fuse reaches eight. Frame 52 initializes the jump. Frame 59 has
-Samus Y=168, enemy Y=162, bomb Y=185, fuse zero and bomb radii 8/8. Subsequent
-radius pairs are 8/8, 12/12, 12/12, then 16/16 through frame 68. The Metroid remains
-attached throughout; the explosion is gone at frame 69. Thus the original C#
-fixture's unconditional expectation of a detach was not justified. Its ground
-bomb miss is now a characterization assertion, not an asserted reproduction of
-a cartridge divergence. The stationary collision fixture still verifies a real
-placed bomb's natural explosion detaches and runs the native four-update escape.
-
-Important fixture pitfall: `Enemy_Metroid` includes padding across discontiguous
-WRAM. Zeroing `sizeof(Enemy_Metroid)` erases unrelated liquid state and falsely
-produces an underwater jump (and a detach). Only clear its base record; initialize
-the needed extension fields explicitly. The results above are from the corrected
-fixture, with air physics retained.
+Coordinates remain 128/153 until deletion; type changes from 0500 to 0501 at
+update 59, then zero on deletion. Explosion instruction timers alternate 2/1.
+These radii agree with the failing port trajectory after accounting for its
+initial attachment frame before bomb placement. Do not enlarge the explosion
+radius as a workaround. Native enemy attachment and Samus movement still need
+a joint comparison before declaring the missed detachment a diagnosed defect.

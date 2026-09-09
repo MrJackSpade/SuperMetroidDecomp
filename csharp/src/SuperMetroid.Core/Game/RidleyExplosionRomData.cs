@@ -53,16 +53,10 @@ internal static class RidleyExplosionRomData
     /// <summary>Claw instruction-list pointer table at $A6:C8D0.</summary>
     public const int ClawInstructionListTable = 0xa6c8d0;
 
-    /// <summary>First tail-fragment instruction list at $A6:C70F.</summary>
-    public const ushort Tail0InstructionList = 0xc70f;
-    /// <summary>Second tail-fragment instruction list at $A6:C727.</summary>
-    public const ushort Tail1InstructionList = 0xc727;
-    /// <summary>Third tail-fragment instruction list at $A6:C73F.</summary>
-    public const ushort Tail2InstructionList = 0xc73f;
-    /// <summary>Fourth tail-fragment instruction list at $A6:C757.</summary>
-    public const ushort Tail3InstructionList = 0xc757;
-    /// <summary>Fifth tail-fragment instruction list at $A6:C76F.</summary>
-    public const ushort Tail4InstructionList = 0xc76f;
-    /// <summary>Sixth tail-fragment instruction list at $A6:C787.</summary>
-    public const ushort Tail5InstructionList = 0xc787;
+    /// <summary>$A6:CA47, InstList_RidleyTail_Large, loaded by initializers C70F/C727 for the first two segments.</summary>
+    public const ushort LargeTailInstructionList = 0xca47;
+    /// <summary>$A6:CA4D, InstList_RidleyTail_Medium, loaded by initializers C73F/C757 for the middle segments.</summary>
+    public const ushort MediumTailInstructionList = 0xca4d;
+    /// <summary>$A6:CA53, InstList_RidleyTail_Small, loaded by initializers C76F/C787 for the last two ordinary segments.</summary>
+    public const ushort SmallTailInstructionList = 0xca53;
 }

@@ -441,6 +441,12 @@ internal static partial class NorfairRidleyAudit
         {
             functions.Add(state.Function);
             StepRidley(enemies, level, samus);
+            // Fragment motion alone cannot validate its instruction-list pointer: code
+            // bytes can masquerade as a timer/map pair until the OAM consumer reads it.
+            var deathOam = new OamBuffer();
+            deathOam.BeginFrame();
+            enemies.DrawLayers(deathOam, CameraX, CameraY, 0, 7);
+            deathOam.FinalizeFrame();
             // Sample newly allocated dust before bank $86 advances it. Several small-dust
             // instruction variants legitimately delete on their first interpreter call;
             // observing only the post-step pool would mistake that short native lifetime

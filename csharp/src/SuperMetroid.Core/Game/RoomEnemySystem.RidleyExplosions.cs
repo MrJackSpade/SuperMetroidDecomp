@@ -98,12 +98,9 @@ public sealed partial class RoomEnemySystem
             fragment.YPosition = tail.YPosition;
             fragment.CurrentInstruction = parameter switch
             {
-                RidleyExplosionParts.Tail0 => RidleyExplosionRomData.Tail0InstructionList,
-                RidleyExplosionParts.Tail1 => RidleyExplosionRomData.Tail1InstructionList,
-                RidleyExplosionParts.Tail2 => RidleyExplosionRomData.Tail2InstructionList,
-                RidleyExplosionParts.Tail3 => RidleyExplosionRomData.Tail3InstructionList,
-                RidleyExplosionParts.Tail4 => RidleyExplosionRomData.Tail4InstructionList,
-                RidleyExplosionParts.Tail5 => RidleyExplosionRomData.Tail5InstructionList,
+                RidleyExplosionParts.Tail0 or RidleyExplosionParts.Tail1 => RidleyExplosionRomData.LargeTailInstructionList,
+                RidleyExplosionParts.Tail2 or RidleyExplosionParts.Tail3 => RidleyExplosionRomData.MediumTailInstructionList,
+                RidleyExplosionParts.Tail4 or RidleyExplosionParts.Tail5 => RidleyExplosionRomData.SmallTailInstructionList,
                 _ => ReadWord(
                     _bus!,
                     RidleyExplosionRomData.TailAngleInstructionListTable +

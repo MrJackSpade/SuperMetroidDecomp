@@ -433,11 +433,20 @@ static void VerifySamusXray()
     // Start a turn while the dedicated handler owns input. `$0100-angle` mirrors ten to
     // F6, pose `$25` supplies type `$0E`, and two one-tick animation advances reach the
     // exact frame-two/timer-one completion gate before `$D6` is installed.
+    standing.PoseHistory.PreviousPose = standing.Pose;
+    standing.PoseHistory.PreviousDirectionAndMovement = 0x0008;
+    standing.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpRightPose;
+    standing.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
+    byte xrayPoseBeforeTurn = standing.Pose;
     XrayPoseInputResult startedTurn = standing.Xray.HandlePoseInput(
         bus,
         standing,
         (ushort)SnesButton.Left);
     AssertTrue(startedTurn.StartedTurn, "X-ray starts standing turn");
+    AssertEqual(xrayPoseBeforeTurn, standing.PoseHistory.LastDifferentPose, "X-ray turn shifts previous pose");
+    AssertEqual(8, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray turn shifts previous metadata");
+    AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray turn publishes turning pose");
+    AssertEqual(0x0e04, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray turn publishes turning metadata");
     AssertEqual(0x25, standing.Pose, "X-ray right-to-left standing turn pose");
     AssertEqual(0xf6, standing.Xray.Angle.TableIndex, "X-ray turn mirrors angle");
     AssertTrue(standing.Xray.StepMovement(bus, standing) is null,
@@ -448,6 +457,10 @@ static void VerifySamusXray()
     AssertEqual(1, standing.AnimationFrameTimer, "X-ray turn reaches timer one");
     XrayPoseInputResult completedTurn = standing.Xray.HandlePoseInput(bus, standing, 0);
     AssertTrue(completedTurn.CompletedTurn, "X-ray completes standing turn");
+    AssertEqual(0x25, standing.PoseHistory.LastDifferentPose, "X-ray completion shifts turning pose");
+    AssertEqual(0x0e04, standing.PoseHistory.LastDifferentDirectionAndMovement, "X-ray completion shifts turning metadata");
+    AssertEqual(standing.Pose, standing.PoseHistory.PreviousPose, "X-ray completion publishes stable pose");
+    AssertEqual(4, standing.PoseHistory.PreviousDirectionAndMovement, "X-ray completion publishes stable metadata");
     AssertEqual(0xd6, standing.Pose, "X-ray turn installs left standing body");
     AssertEqual(0, standing.Xray.StepMovement(bus, standing)!.Value,
         "left near-up angle selects looking-up art");
@@ -506,6 +519,10 @@ static void VerifySamusXray()
     AssertEqual(0x02, crouched.Pose, "crouched-turn release triggers standing-left glitch");
     AssertEqual(21, crouched.Kinematics.YRadius, "stand-up glitch expands radius");
     AssertEqual(195, crouched.YPosition, "stand-up glitch moves center up five pixels");
+    AssertEqual(0x43, crouched.PoseHistory.LastDifferentPose, "X-ray release shifts crouched turn pose");
+    AssertEqual(0x0e04, crouched.PoseHistory.LastDifferentDirectionAndMovement, "X-ray release shifts turn metadata");
+    AssertEqual(2, crouched.PoseHistory.PreviousPose, "X-ray release publishes standing pose");
+    AssertEqual(4, crouched.PoseHistory.PreviousDirectionAndMovement, "X-ray release publishes standing metadata");
 
     // Admission failures are kept independent so no broad host-side `grounded` boolean can
     // accidentally replace the native previous/current type, landing, velocity, and rare

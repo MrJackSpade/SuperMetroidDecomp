@@ -512,6 +512,9 @@ public sealed class SamusXrayState
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         int radiusDifference = samus.Kinematics.YRadius - oldRadius;
+        // Teardown owns a direct native history shift, including the crouched-
+        // turn stand-up glitch. It does not consume an ordinary input slot.
+        samus.CommitPoseHistory(bus);
         if (radiusDifference >= 0)
             samus.YPosition = unchecked((ushort)(samus.YPosition - radiusDifference));
 
@@ -536,6 +539,9 @@ public sealed class SamusXrayState
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
+        // Both branches of the frozen X-ray input handler publish history after
+        // initializing their pose; ordinary gameplay transition dispatch is bypassed.
+        samus.CommitPoseHistory(bus);
     }
 
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch

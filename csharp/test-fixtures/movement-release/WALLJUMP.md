@@ -329,3 +329,19 @@ direction and verifies that the release frame shifts exactly once, preserving
 the actual previous-frame grabbed history. Both cases pass, as do all 12,480
 walljump comparison samples. These are history regressions, not new claims about
 Draygon's rendering, grapple vulnerability, or complete battle behavior.
+
+## X-ray forced turning and teardown
+
+The frozen input handler has direct shifts after both turn start and turn
+completion ($91:FD29-$FD3E and $91:FD94-$FDA9). Teardown at $91:E2AD has
+another direct shift after pose initialization. These bypass ordinary input
+transition dispatch. All three were absent from the managed X-ray owner.
+
+The regression seeded previous X-ray pose $D5 and older spin $19. Turn start
+failed before the fix, retaining $19 where the native stores require $D5.
+The shared X-ray turn initializer and teardown now commit history themselves.
+Exact four-word assertions cover turn start, completion and release during a
+crouched turn; the latter still expands radius 16 to 21 and raises center Y
+five pixels, preserving the native stand-up glitch. Initial X-ray activation's
+interrupted-slot ownership remains a separate audit item; this change does not
+claim to complete that path or unrelated X-ray technique tickets.

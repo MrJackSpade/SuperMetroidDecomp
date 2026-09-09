@@ -161,6 +161,8 @@ if (args.Length == 3 && args[0] == "--bomb-chain-comparison-audit")
     return BombChainComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--repeated-bomb-chain-comparison-audit")
     return BombChainComparisonAudit.Run(args[1], args[2], repeated: true);
+if (args.Length == 3 && args[0] == "--triple-bomb-chain-comparison-audit")
+    return BombChainComparisonAudit.Run(args[1], args[2], triple: true);
 
 if (args.Length == 3 && args[0] == "--speedboost-animation-audit")
     return SpeedBoostAnimationAudit.Run(args[1], args[2]);

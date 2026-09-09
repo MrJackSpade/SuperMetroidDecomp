@@ -1,6 +1,7 @@
 // #412: real controller-selected bombs, short chains and low-ceiling trajectories.
 // Include after native-release-probe.h and dispatch before SDL initialization.
 int DiagnosticBombChainVariant(const char *rom, const char *output, int repeated) {
+  bool triple = repeated == 2;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
@@ -10,9 +11,9 @@ int DiagnosticBombChainVariant(const char *rom, const char *output, int repeated
   fprintf(f, "\n");
   for (int left = 0; left < 2; left++)
   for (int ceiling = 0; ceiling < 2; ceiling++)
-  for (int travel = 0; travel < 3; travel++)
-  for (int schedule = 0; schedule < (repeated ? 9 : 6); schedule++) {
-    int spacing = repeated ? 48 + schedule : schedule ? 36 + 4 * schedule : 0;
+  for (int travel = 0; travel < (triple ? 17 : 3); travel++)
+  for (int schedule = 0; schedule < (repeated == 1 ? 9 : 6); schedule++) {
+    int spacing = triple ? 50 + schedule : repeated ? 48 + schedule : schedule ? 36 + 4 * schedule : 0;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
     room_width_in_blocks = 16; room_height_in_blocks = 32;
@@ -29,9 +30,9 @@ int DiagnosticBombChainVariant(const char *rom, const char *output, int repeated
     samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
     uint16 previous = 0;
-    for (int frame = 0; frame < (repeated ? 600 : 180); frame++) {
-      uint16 input = (repeated ? frame % spacing == 0 : (!frame || (spacing && (frame == spacing || frame == 2 * spacing)))) ? 0x40 : 0;
-      if (frame >= 46 && frame < 50 && travel) input |= travel == 1 ? 0x200 : 0x100;
+    for (int frame = 0; frame < (repeated == 1 ? 600 : 180); frame++) {
+      uint16 input = (triple ? !frame || frame == spacing || frame == 68 + travel : repeated ? frame % spacing == 0 : (!frame || (spacing && (frame == spacing || frame == 2 * spacing)))) ? 0x40 : 0;
+      if (!triple && frame >= 46 && frame < 50 && travel) input |= travel == 1 ? 0x200 : 0x100;
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -66,4 +67,8 @@ int DiagnosticBombChains(const char *rom, const char *output) {
 
 int DiagnosticRepeatedBombChains(const char *rom, const char *output) {
   return DiagnosticBombChainVariant(rom, output, 1);
+}
+
+int DiagnosticTripleBombChains(const char *rom, const char *output) {
+  return DiagnosticBombChainVariant(rom, output, 2);
 }

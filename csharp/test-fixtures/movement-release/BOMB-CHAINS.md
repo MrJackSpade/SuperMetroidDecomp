@@ -1,7 +1,7 @@
 # Ordinary bomb-chain parity (#412)
 
-Status: short-chain and repeated vertical-ascent matrices pass. Ladder and
-three-bomb-pattern coverage still needs work; do not mark the whole issue ready
+Status: short-chain, repeated vertical-ascent and three-bomb matrices pass.
+Sustained horizontal/ladder coverage still needs work; do not mark the whole issue ready
 based on these cases alone.
 
 `native-bomb-chain-probe.h` executes unmodified cartridge instructions. The room
@@ -71,8 +71,30 @@ The same ROM/source pins and temporary-hook procedure apply.
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --repeated-bomb-chain-comparison-audit "Super Metroid.smc" path/to/repeated-bomb-chain-412.csv
 ```
 
-Remaining acceptance: explicitly establish the alternative three-bomb timing
-pattern and horizontal/ladder traversal with adjacent misses. The existing brief
+## Three-bomb airborne handoff
+
+`DiagnosticTripleBombChains` uses bombs at frames 0, 50–55, and 68–84.
+The third timestamp is encoded as `68 + travel` in this variant's CSV; the field
+is a timing offset, NOT a direction, and no directional input is applied.
+Both facings and both ceiling geometries give 408 cases / 73,440 frames.
+All words match native without a production change.
+
+For high-ceiling cases with the second bomb at 52, the third bomb produces a
+third progressively higher airborne launch at all sampled timestamps except 80.
+Timestamps 79 and 81 succeed on both sides of that native miss. Explicit
+assertions retain this boundary rather than requiring every three-bomb setup
+to succeed. Count actual start-handler execution: a new blast can restart an
+already-active rise without a zero-to-armed direction-word edge.
+
+`triple-bomb-chain-native-capture.zip` contains the independently repeated CSV:
+SHA-256 `02901D49E901CE2238C3877FA912C1E93357206FA43A2FBB892A0CE9856FA8B2`.
+Use the same native-hook procedure and pinned sources above.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --triple-bomb-chain-comparison-audit "Super Metroid.smc" path/to/triple-bomb-chain-412.csv
+```
+
+Remaining acceptance: horizontal/ladder traversal with adjacent misses. The existing brief
 direction pulse tests diagonal displacement and ceiling contact, not sustained
 horizontal traversal. Preserve exact input and slot-lifecycle comparisons when
 expanding those fixtures.

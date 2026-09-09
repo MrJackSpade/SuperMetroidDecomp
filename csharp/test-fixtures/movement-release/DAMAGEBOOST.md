@@ -253,3 +253,25 @@ of collision. Removing only that initializer would still let the current frame's
 consume a request which native does not publish until afterward. The remaining fix must
 address this phase ownership together, with full frame comparisons and affected
 projectile/PLM consumers covered. No projectile timing fix is claimed by this commit.
+
+## Full runtime contact-frame reproduction
+
+The native probe now captures three frames on a flat floor with an inert projectile.
+Alpha/beta run before contact on frame zero; timers decrement last. Health is 79
+throughout. Expected (X fixed, Y fixed, pose, timer, direction):
+
+- Frame 0: (00800000, 00EBFFFF, 01, 4, 0)
+- Frame 1: (00800000, 00EBFFFF, 53, 3, 2)
+- Frame 2: (00818000, 00E6FFFF, 53, 2, 2)
+
+`--projectile-runtime-phase` uses equivalent constructed terrain in the real runtime,
+removes unrelated Ceres actors/arrival state, and compares these exact tuples plus
+health. All three frames fail: managed immediately moves to X00818000/Y00E60000/pose53
+on the hit frame, then moves again on each following frame. Thus hurt movement begins
+two frames early. The native floor snap's FFFF fraction is intentionally asserted.
+
+No production change accompanies this reproduction. Moving the combined projectile
+routine alone is insufficient: instructions belong before PLMs, collision after them,
+and the current runtime commits Samus transitions below its PLM block. The correction
+must separate these owners and preserve projectile-spawn/PLM interactions. This trace
+is the first full-frame gate, not a claim of complete source-window coverage.

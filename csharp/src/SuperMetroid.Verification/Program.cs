@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--projectile-runtime-phase"])
+{
+    VerifyProjectileRuntimePhase();
+    return 0;
+}
 if (args is ["--projectile-contact-phase"] or ["--projectile-contact-damage"])
 {
     VerifyProjectileContactPhase(args[0] == "--projectile-contact-phase");

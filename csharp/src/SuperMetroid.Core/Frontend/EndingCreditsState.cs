@@ -485,6 +485,8 @@ internal sealed partial class EndingCreditsState
         mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
         mode7Angle = SnesAngle.NormalizeTableIndex(-112);
         phaseTimer = 192;
+        flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
+        flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
         planetMotionIndex = 0;
         Phase = EndingCreditsPhase.PlanetEscapeFast;
     }
@@ -883,6 +885,7 @@ internal sealed partial class EndingCreditsState
     {
         if (phaseTimer > 0)
             phaseTimer--;
+        else StepFlyawayFade();
         mode7Angle = mode7Angle.AddTableUnits(-4);
         AddSignedFixed(
             ref mode7X,
@@ -901,6 +904,7 @@ internal sealed partial class EndingCreditsState
 
     private void StepPlanetEscapeSlow()
     {
+        StepFlyawayFade();
         if (mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
             mode7Angle = mode7Angle.AddTableUnits(-1);
         AddSignedFixed(
@@ -921,6 +925,7 @@ internal sealed partial class EndingCreditsState
 
     private void StepPlanetEscapeAccelerating()
     {
+        StepFlyawayFade();
         int velocity = (planetVelocityWhole << 16) | planetVelocityFraction;
         velocity = unchecked(
             velocity - EndingCreditsRomData.Motion.AccelerationDelta16Point16);

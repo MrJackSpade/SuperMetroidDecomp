@@ -63,7 +63,10 @@ public sealed partial class D3D11FrameRenderer
                     DispatchMode7(mode7.Registers, subtractObj: mode7.SubtractObjSubscreen);
                     break;
                 case ObjRenderLayer objLayer:
-                    DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u);
+                    DispatchTile(D3D11TileOperation.InsertObj, red: objLayer.AddToScreen ? 1u : 0u,
+                        green: objLayer.FixedColor is not null ? 1u : 0u,
+                        blue: objLayer.FixedColor is { } color ? (uint)(color.Red | color.Green << 5 | color.Blue << 10) : 0,
+                        objectCount: (uint)scene.Memory.ModeledSpriteCount, objectSelection: scene.ObjectSelection);
                     break;
                 case ObjPriorityRenderLayer obj:
                     DispatchTile(D3D11TileOperation.InsertObj, priority: (uint)obj.Priority + 1);

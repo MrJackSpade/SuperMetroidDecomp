@@ -154,7 +154,21 @@ public static class SoftwareLayeredSnapshotRenderer
                     SnesLayerCompositor.Composite(output, mode7Pixels);
                     break;
                 case ObjRenderLayer objLayer:
-                    if (objLayer.AddToScreen) SnesLayerCompositor.AddSubscreen(output, objects.Pixels);
+                    if (objLayer.FixedColor is { } fixedObj)
+                    {
+                        var palettes = new byte[output.Length];
+                        var coloredObjects = new Rgba32[output.Length];
+                        SnesObjRenderer.CompositeUnfiltered(memory.Oam, memory.Vram, memory.Cgram,
+                            snapshot.ObjectSelection, coloredObjects, palettes);
+                        for (int i = 0; i < output.Length; i++)
+                        {
+                            Rgba32 pixel = coloredObjects[i];
+                            if (pixel.A == 0) continue;
+                            output[i] = palettes[i] >= 4 ? new Rgba32(AddFixed(pixel.R, fixedObj.Red),
+                                AddFixed(pixel.G, fixedObj.Green), AddFixed(pixel.B, fixedObj.Blue)) : pixel;
+                        }
+                    }
+                    else if (objLayer.AddToScreen) SnesLayerCompositor.AddSubscreen(output, objects.Pixels);
                     else SnesLayerCompositor.Composite(output, objects.Pixels);
                     break;
                 case ObjPriorityRenderLayer obj:

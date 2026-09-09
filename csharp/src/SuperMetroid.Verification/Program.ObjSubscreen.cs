@@ -8,6 +8,7 @@ internal static partial class Program
     {
         VerifyMode7ObjSubtraction();
         VerifyBg4SubscreenAddition();
+        VerifyObjFixedColor();
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
         for (int row = 0; row < 8; row++) vram[row * 2] = 255;
         ushort[] colors = new ushort[256];
@@ -30,7 +31,8 @@ internal static partial class Program
             "version 13 cannot claim additive OBJ composition");
         var ordinary = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new ObjRenderLayer() }, 0, 15));
-        byte[] oldPacket = RenderFrameSnapshotCodec.Serialize(ordinary);
+        // Version 13's final OBJ descriptor has no version-19 fixed-color presence byte.
+        byte[] oldPacket = RenderFrameSnapshotCodec.Serialize(ordinary)[..^1];
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldPacket.AsSpan(RenderPacketFormat.Signature.Length), 13);
         AssertEqual(new Rgba32(57, 0, 255), SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(oldPacket))[8 * 256 + 8],
             "legacy packets retain replacing OBJ composition");
@@ -58,6 +60,30 @@ internal static partial class Program
         byte[] unsupported = RenderFrameSnapshotCodec.Serialize(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 14);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
+    }
+
+    private static void VerifyObjFixedColor()
+    {
+        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        for (int y = 0; y < 8; y++) vram[y * 2] = 255;
+        ushort[] palette = new ushort[256];
+        palette[0] = 31 << 10;
+        palette[129] = palette[193] = 7;
+        foreach (byte objPalette in new byte[] { 0, 4 })
+        {
+            byte[] oam = new byte[SnesPpuLayout.OamUploadByteCount];
+            oam[0] = 8; oam[1] = 8; oam[3] = (byte)(objPalette * 2);
+            var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(
+                new PpuMemorySnapshot(vram, palette, oam, 1),
+                new RenderLayer[] { new ObjRenderLayer(FixedColor: new(8, 4, 2)) }, 0, 15));
+            var restored = RoundTripRenderPacket(packet);
+            var pixels = SoftwareFrameSnapshotRenderer.Render(restored);
+            AssertEqual(objPalette == 4 ? new Rgba32(123, 33, 16) : new Rgba32(57, 0, 0), pixels[8 * 256 + 8],
+                "OBJ fixed RGB addition respects palette eligibility and five-bit expansion");
+            AssertEqual(new Rgba32(0, 0, 255), pixels[0], "OBJ-only fixed color does not alter uncovered backdrop");
+            Directory.CreateDirectory("csharp/test-temp/ending-504");
+            File.WriteAllBytes($"csharp/test-temp/ending-504/obj-fixed-{objPalette}.smframe", RenderFrameSnapshotCodec.Serialize(restored));
+        }
     }
 
     private static void VerifyBg4SubscreenAddition()

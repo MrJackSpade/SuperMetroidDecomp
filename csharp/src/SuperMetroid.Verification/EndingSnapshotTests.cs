@@ -243,7 +243,24 @@ internal static partial class Program
                     }
                 }
                 if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
+                {
                     gunshipPalettes.Add(string.Join(',', legacy.CaptureRenderSnapshot().Memory.Cgram.Slice(80, 16).ToArray()));
+                    int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PlanetEscapeFast];
+                    int expectedWhite = elapsed <= 192 ? 31 : Math.Max(0, 30 - (elapsed - 193) / 8);
+                    var flight = legacy.CaptureRenderSnapshot();
+                    var fixedColors = flight.Layers.ToArray().OfType<FixedColorAddRenderLayer>().ToArray();
+                    AssertEqual(expectedWhite > 0 ? 1 : 0, fixedColors.Length, "native flyaway disables fixed color after final decrement");
+                    if (expectedWhite > 0)
+                    {
+                        AssertEqual((byte)expectedWhite, fixedColors[0].Red, "native flyaway holds 192 calls then fades every eight");
+                        AssertEqual(fixedColors[0], flight.Layers.ToArray().OfType<ObjRenderLayer>().Single().FixedColor!, "OBJ and backdrop share native fixed white");
+                        AssertTrue(flight.Layers[0] is FixedColorAddRenderLayer && flight.Layers[1] is Mode7RenderLayer,
+                            "fixed backdrop is composed before unaffected Mode7 BG1");
+                    }
+                    if (hours == 2 && elapsed == 210)
+                        File.WriteAllBytes("csharp/test-temp/ending-504/flyaway-white.smframe",
+                            RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), flight)));
+                }
                 if (legacy.Phase == EndingCreditsPhase.OperationSuccessfulText && tick % 97 == 0)
                 {
                     var memory = legacy.CaptureRenderSnapshot().Memory;

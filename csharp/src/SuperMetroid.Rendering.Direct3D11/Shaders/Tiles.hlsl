@@ -167,6 +167,14 @@ void Main(uint3 id : SV_DispatchThreadID)
                 uint3 color = min(31, (Unpack(Output[id.xy]) >> 3) + (Unpack(winner.x) >> 3));
                 Output[id.xy] = Pack((color << 3) | (color >> 2), 255);
             }
+            else if (AddG != 0)
+            {
+                uint palette;
+                ResolveObjectWithPalette(id.xy, palette);
+                uint3 fixedColor = uint3(AddB & 31, (AddB >> 5) & 31, (AddB >> 10) & 31);
+                uint3 color = min(31, (Unpack(winner.x) >> 3) + fixedColor);
+                Output[id.xy] = palette >= 4 ? Pack((color << 3) | (color >> 2), 255) : winner.x;
+            }
             else Output[id.xy] = winner.x;
         }
         return;

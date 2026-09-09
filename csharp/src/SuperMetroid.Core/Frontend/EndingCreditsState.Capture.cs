@@ -52,6 +52,8 @@ internal sealed partial class EndingCreditsState
             }
             else if (EscapeBackgroundEnabled)
             {
+                // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
+                if (FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
                 short a = Scale(ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), mode7Zoom);
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
@@ -59,7 +61,7 @@ internal sealed partial class EndingCreditsState
                     unchecked((short)mode7X), unchecked((short)mode7Y))));
             }
             oam = PrepareSprites();
-            if (EndingObjectsEnabled) layers.Add(new ObjRenderLayer(RewardSubscreenAddition));
+            if (EndingObjectsEnabled) layers.Add(new ObjRenderLayer(RewardSubscreenAddition, FlyawayFixedColor));
             if (Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(new FixedColorAddRenderLayer(whiteFlashColor, whiteFlashColor, whiteFlashColor));
         }

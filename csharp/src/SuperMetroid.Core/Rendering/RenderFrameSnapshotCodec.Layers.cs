@@ -87,6 +87,11 @@ public static partial class RenderFrameSnapshotCodec
                 break;
             case ObjRenderLayer objLayer:
                 writer.Write((byte)(objLayer.AddToScreen ? RenderPacketLayerKind.ObjSubscreenAdd : RenderPacketLayerKind.Obj));
+                writer.Write(objLayer.FixedColor is not null);
+                if (objLayer.FixedColor is { } fixedObj)
+                {
+                    writer.Write(fixedObj.Red); writer.Write(fixedObj.Green); writer.Write(fixedObj.Blue);
+                }
                 break;
             case ObjPriorityRenderLayer obj:
                 writer.Write((byte)RenderPacketLayerKind.ObjPriority);
@@ -135,8 +140,8 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.Mode7ObjSubtract when version >= RenderPacketFormat.Mode7ObjSubtractVersion => new Mode7RenderLayer(
             new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
                 reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader)), true),
-        RenderPacketLayerKind.Obj => new ObjRenderLayer(),
-        RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => new ObjRenderLayer(true),
+        RenderPacketLayerKind.Obj => ReadObjLayer(reader, version, false),
+        RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => ReadObjLayer(reader, version, true),
         RenderPacketLayerKind.ObjPriority => new ObjPriorityRenderLayer(reader.ReadByte()),
         RenderPacketLayerKind.Bg4Bpp => new Bg4BppRenderLayer(reader.ReadUInt16(), reader.ReadUInt16(),
             reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader)),
@@ -144,6 +149,14 @@ public static partial class RenderFrameSnapshotCodec
             reader.ReadInt32(), ReadBoolean(reader)),
         _ => throw new InvalidDataException("Unknown layer kind in display fixture."),
     };
+
+    private static ObjRenderLayer ReadObjLayer(BinaryReader reader, ushort version, bool add)
+    {
+        FixedColorAddRenderLayer? fixedColor = null;
+        if (version >= RenderPacketFormat.ObjFixedColorVersion && ReadBoolean(reader))
+            fixedColor = new(reader.ReadByte(), reader.ReadByte(), reader.ReadByte());
+        return new(add, fixedColor);
+    }
 
     private static XrayGameplayRenderLayer ReadXrayGameplay(BinaryReader reader)
     {

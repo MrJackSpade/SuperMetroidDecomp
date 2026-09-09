@@ -23,6 +23,7 @@ internal static class MotherBrainRecordingAudit
         var beamColors = new HashSet<ushort>();
         int beamSamples = 0;
         var deathChecks = new MotherBrainDeathRecordingChecks();
+        var paletteChecks = new MotherBrainPaletteRecordingChecks();
         // This focused attack slice intentionally stops before the separately tracked
         // death dispatcher. The default audit still executes the complete recording.
         int frameCount = verifyBeam ? Math.Min(13000, recording.ControllerInputs.Length) : recording.ControllerInputs.Length;
@@ -33,6 +34,7 @@ internal static class MotherBrainRecordingAudit
                 if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var runtime = game.RuntimeForVerification;
+            if (verifyBeam && runtime is not null) paletteChecks.Observe(runtime, frame);
             if (verifyDeath && runtime is not null) deathChecks.Observe(runtime, frame);
             if (verifyBeam && runtime?.Enemies.MotherBrain?.RainbowBeamHdma is { Active: true } beam && frame % 30 == 0)
             {
@@ -96,6 +98,7 @@ internal static class MotherBrainRecordingAudit
         Console.WriteLine($"Battle frames={battleFrames}, standing Y={minStandingY}..{maxStandingY}, maximum camera X={maxBattleCamera}.");
         if (verifyBeam)
         {
+            paletteChecks.Verify();
             if (beamSamples < 10 || beamColors.Count < 5)
                 throw new InvalidDataException($"Insufficient visible rainbow coverage: {beamSamples} frames, {beamColors.Count} colors.");
             Console.WriteLine($"Visible rainbow beam: {beamSamples} sampled frames, {beamColors.Count} native colors; all changes inside native windows.");

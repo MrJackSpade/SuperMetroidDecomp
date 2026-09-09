@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Cartridge transfer lists used during the Mother Brain encounter.</summary>
-public static class MotherBrainTileTransferData
+public static class MotherBrainTileTransferRomData
 {
     /// <summary>$A9:8FE5, four size/source/destination records loading Baby graphics +$400 onward.</summary>
     public const int BabyTileList = 0xa98fe5;

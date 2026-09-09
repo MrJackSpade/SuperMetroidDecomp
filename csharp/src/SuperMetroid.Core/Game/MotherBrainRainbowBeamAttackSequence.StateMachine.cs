@@ -343,7 +343,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // fourth entry sees the following zero terminator, clears its saved pointer,
                 // and returns carry set on that same call.
                 spriteTileTransfer = CreateNextBabyMetroidTileTransfer(bus);
-                if (BabyMetroidTileTransferIndex == MotherBrainTileTransferData.BabyTileCount)
+                if (BabyMetroidTileTransferIndex == MotherBrainTileTransferRomData.BabyTileCount)
                 {
                     RetractHead();
                     BabyMetroidSpawned = true;

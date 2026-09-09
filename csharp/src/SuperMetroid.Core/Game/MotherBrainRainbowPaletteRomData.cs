@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native rainbow palette sources and CGRAM destinations for Mother Brain.</summary>
-public static class MotherBrainRainbowPaletteData
+public static class MotherBrainRainbowPaletteRomData
 {
     /// <summary>$AD:E434, zero-terminated pointer list consumed by $A9:BCFD.</summary>
     public const int PointerTable = 0xade434;
@@ -13,7 +13,7 @@ public static class MotherBrainRainbowPaletteData
     public const int BodyColor = 0x41;
     /// <summary>$A9:BD1D byte destination $122, brain and neck sprite colors.</summary>
     public const int BrainColor = 0x91;
-    /// <summary>$A9:BD1D byte destination $162, second background palette.</summary>
+    /// <summary>$A9:BD1D byte destination $162, rear-leg sprite palette.</summary>
     public const int SecondaryColor = 0xb1;
     /// <summary>$A9:BCCE restores brain colors from $A9:9474, skipping transparent color zero.</summary>
     public const int NormalBrainSource = 0xa99474;

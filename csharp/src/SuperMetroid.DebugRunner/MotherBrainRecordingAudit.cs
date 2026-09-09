@@ -18,6 +18,7 @@ internal static class MotherBrainRecordingAudit
         var game = new SuperMetroidGame(bus, recording.GameOptions, renderGameplayFrames: false);
         var ports = new byte[4];
         int minStandingY = int.MaxValue, maxStandingY = 0, maxBattleCamera = 0, battleFrames = 0;
+        var samusRainbowPalettes = new HashSet<string>();
         for (int frame = 0; frame < recording.ControllerInputs.Length; frame++)
         {
             var result = game.Step(recording.ControllerInputs[frame]);
@@ -25,7 +26,11 @@ internal static class MotherBrainRecordingAudit
                 if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var runtime = game.RuntimeForVerification;
-            if (runtime is not null && frame is 1228 or 1300 or 1400 or 1500)
+            if (runtime?.Samus?.Drained.RainbowPaletteEnabled == true)
+                samusRainbowPalettes.Add(string.Join(',', runtime.Cgram.Colors.Slice(192, 16).ToArray()));
+            if (runtime?.Samus?.HyperBeam != 0 && samusRainbowPalettes.Count != 0 && frame % 120 == 0)
+                Console.WriteLine($"Samus acquisition rainbow: {samusRainbowPalettes.Count} distinct live palettes.");
+            if (runtime is not null && frame is 6840 or 8100 or 11880 or 12000 or 12120)
             {
                 string directory = "csharp/test-temp/mother-brain-recording";
                 Directory.CreateDirectory(directory);
@@ -44,7 +49,11 @@ internal static class MotherBrainRecordingAudit
                 }
             }
             if (frame % 120 == 0 && runtime?.Enemies.MotherBrain is { } brain)
-                Console.WriteLine($"{frame}: {brain.Function} pose={brain.Pose} xy={brain.Body.XPosition},{brain.Body.YPosition} list={brain.Body.CurrentInstruction:X4} camera={runtime.Camera!.XPosition},{runtime.Camera.YPosition} samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}");
+            {
+                Console.WriteLine($"{frame}: {brain.Function} form={brain.Form} hp={brain.Head!.Health}/{brain.RainbowBeamSequence?.BrainHealth} baby={brain.BabyMetroid?.Phase} pose={brain.Pose} xy={brain.Body.XPosition},{brain.Body.YPosition} list={brain.Body.CurrentInstruction:X4} camera={runtime.Camera!.XPosition},{runtime.Camera.YPosition} samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}");
+                if (brain.Form == 4)
+                    Console.WriteLine($"Hyper={runtime.Samus.HyperBeam} input={recording.ControllerInputs[frame]:X4} count={runtime.Projectiles.ProjectileCounter} cooldown={runtime.BombProjectiles.CooldownTimer} head={brain.Head.XPosition},{brain.Head.YPosition} props={brain.Head.Properties} inv={brain.Head.InvincibilityTimer} shots={string.Join(';', runtime.Projectiles.Slots.Where(p => p.IsActive).Select(p => $"{p.SlotIndex}:{p.Type:X4}/{p.Damage}@{p.XPosition},{p.YPosition}"))}");
+            }
         }
         Console.WriteLine($"Battle frames={battleFrames}, standing Y={minStandingY}..{maxStandingY}, maximum camera X={maxBattleCamera}.");
         if (battleFrames > 0 && (minStandingY != 150 || maxStandingY != 150 || maxBattleCamera != 0))

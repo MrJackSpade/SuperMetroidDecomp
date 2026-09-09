@@ -392,10 +392,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextBabyMetroidTileTransfer(ISnesAddressSpace bus)
     {
         int index = BabyMetroidTileTransferIndex;
-        if ((uint)index >= MotherBrainTileTransferData.BabyTileCount)
+        if ((uint)index >= MotherBrainTileTransferRomData.BabyTileCount)
             throw new InvalidOperationException("Baby Metroid sprite-tile transfer list is already complete.");
 
-        int record = MotherBrainTileTransferData.BabyTileList + index * MotherBrainTileTransferData.RecordSize;
+        int record = MotherBrainTileTransferRomData.BabyTileList + index * MotherBrainTileTransferRomData.RecordSize;
         var request = new MotherBrainSpriteTileTransferRequest(
             EntryIndex: (ushort)index,
             Size: ReadWord(bus, record),

@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--metroid-bomb-placement"])
+{
+    VerifyMetroidBombPlacement();
+    return 0;
+}
 if (args is ["--fireflea-eye"])
 {
     VerifyFirefleaEye();

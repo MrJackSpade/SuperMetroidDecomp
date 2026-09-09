@@ -62,9 +62,8 @@ public sealed partial class RoomEnemySystem
 
         state.HorizontalVelocity = 0;
         state.VerticalVelocity = 0;
-        state.FxTargetYPosition = 528;
-        state.FxYSubVelocity = 64;
-        state.FxTimer = 1;
+        PublishRidleyLiquidMotion(state, RidleyLiquidRomData.DrainedHeight,
+            RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
         state.DeathExplosionTimer = 0;
         state.DeathExplosionCount = 0;
         state.Function = RidleyAiFunction.NorfairDeathFall;

@@ -409,6 +409,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        PublishRidleyLiquidMotion(state, RidleyLiquidRomData.BattleHeight,
+            RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
         SetRidleyInstruction(slot, RidleyInstructionLists.Ilist_E91D);
         state.WingAnimationTimer = 8;

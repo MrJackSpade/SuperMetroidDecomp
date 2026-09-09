@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--ridley-acid"])
+{
+    VerifyRidleyAcid();
+    return 0;
+}
 if (args is ["--treadmill-visual"])
 {
     VerifyTreadmillVisual();

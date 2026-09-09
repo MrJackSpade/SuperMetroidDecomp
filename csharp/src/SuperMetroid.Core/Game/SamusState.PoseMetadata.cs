@@ -201,6 +201,10 @@ public sealed partial class SamusState
         RefreshCollisionRadii(bus);
         InitializeAnimation(bus, initialFrame: 0);
 
+        // This forced owner shifts history even when already facing forward.
+        // It does not pass through the ordinary input-transition epilogue.
+        CommitPoseHistory(bus);
+
         // `$91:E438-$91:E44A` adjusts center Y upward three only if the initialized pose
         // did not produce radius 24. Retail `$00/$9B` both do, but retaining the branch
         // makes a corrupt/modified pose table observable rather than silently normalizing it.

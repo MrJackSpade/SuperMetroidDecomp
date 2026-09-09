@@ -276,3 +276,36 @@ poses and ordinary release after leaving spin. Temporary native integration
 was removed. This completes the charged-spin release comparison, not the
 remaining forced-history-owner/legacy-entry audit or a subsequent overhang-side
 jump. Issue #473 remains open until its remaining acceptance work is complete.
+
+## Forced forward-facing owner
+
+The forced-owner audit found that `ApplyForwardFacingPoseSetup` omitted the
+four stores at native `MakeSamusFaceForward` ($91:E420-$E435). Both pinned C
+and disassembly show this shift immediately after pose/animation initialization,
+including calls that leave the pose unchanged. The shared owner is used by
+elevator departure, accepted saves, gunship entry and appearance setup.
+
+A focused production-method regression seeds previous spin and older walljump
+history. Before the fix the first assertion failed (expected previous spin
+pose $19 shifted into older history, got stale walljump $84). The shared setup
+now commits history after initialization. The regression checks all four words,
+then repeats the same-pose setup and verifies that obsolete spin eligibility
+is gone. Full core verification and all 12,480 native walljump samples pass.
+This is a history-state fix, not a claim to reproduce elevator camera defects.
+
+The remaining native direct-write owner inventory is below. It is an audit
+checklist, not a claim that every listed owner is defective. In addition to the
+normal transition epilogue and forward-facing setup already verified, inspect:
+
+- Crystal Flash entry ($90:D5A2).
+- Ridley push-out ($90:E12E), Draygon grab/release ($90:E23B/$E2DE).
+- Callers of the shared previous-pose helper ($90:F0EE).
+- Ceres initial history reset ($90:F1E9) and Samus initialization ($91:E00D).
+- Demo pose commands ($91:86FE unused, $91:8739 live).
+- X-ray stand-up ($91:E2AD), Mother Brain script dispatcher, and frozen input
+  pose handling ($91:FCAF).
+- Item fanfare ($92:ED24), death entry ($9B:B3A7), suit pickup completion
+  ($88:E320/$E361), and cinematic demo initialization ($8B:AEB8/$AF6C).
+
+Some initialize both samples rather than shifting; some have no gameplay return.
+Do not replace these owners with a blanket per-frame or pose-setter update.

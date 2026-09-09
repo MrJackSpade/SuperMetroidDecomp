@@ -7,6 +7,7 @@ internal static class LegacyOptionsMigrationVerification
 {
     public static int Run()
     {
+        VerifyMode7RegisterMigration();
         VerifyGameplayRegisterMigration();
         VerifyRuntimeMigration();
         VerifyCameraMigration();
@@ -39,6 +40,18 @@ internal static class LegacyOptionsMigrationVerification
             return 0;
         }
         throw new InvalidDataException("Unknown option schema was silently accepted.");
+    }
+
+    private static void VerifyMode7RegisterMigration()
+    {
+        var type = typeof(SuperMetroid.Core.Rendering.Mode7RenderRegisters);
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 9);
+        if (selected.Length != 9 || !selected.SequenceEqual(fields.Where(field => field.Name != "<WrapOutsideMap>k__BackingField")))
+            throw new InvalidDataException("Legacy Mode 7 migration omitted or reordered unexpected fields.");
+        var restored = (SuperMetroid.Core.Rendering.Mode7RenderRegisters)RuntimeHelpers.GetUninitializedObject(type);
+        if (restored.WrapOutsideMap) throw new InvalidDataException("Legacy Mode 7 wrapping must remain disabled.");
+        Console.WriteLine("Legacy Mode 7 registers preserve their nine original fields and default to the former overflow policy.");
     }
 
     private static void VerifyRuntimeMigration()

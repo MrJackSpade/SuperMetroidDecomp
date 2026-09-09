@@ -24,6 +24,7 @@ public static class SnesMode7Renderer
     /// The identity values A=D=$0100 and B=C=0 produce one source pixel per screen pixel.
     /// Outside-map policy defaults to M7SEL=$80: bit 7 disables wrapping and bit 6 leaves
     /// overflow transparent. Character-zero fill is available for the distinct $C0 mode.
+    /// Wrapping selects M7SEL bit seven clear and takes precedence over character-zero fill.
     /// Transparent color zero is returned with alpha zero so OBJ/backdrop composition can
     /// retain the normal renderer contract.
     /// </remarks>
@@ -40,7 +41,7 @@ public static class SnesMode7Renderer
         short verticalOffset,
         int width = SnesPpuLayout.ScreenWidthPixels,
         int height = SnesPpuLayout.ScreenHeightPixels,
-        bool fillOutsideWithCharacterZero = false)
+        bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -62,7 +63,7 @@ public static class SnesMode7Renderer
             verticalOffset,
             width,
             height,
-            fillOutsideWithCharacterZero);
+            fillOutsideWithCharacterZero, wrapOutsideMap);
         return output;
     }
 
@@ -86,7 +87,7 @@ public static class SnesMode7Renderer
         short verticalOffset,
         int width = SnesPpuLayout.ScreenWidthPixels,
         int height = SnesPpuLayout.ScreenHeightPixels,
-        bool fillOutsideWithCharacterZero = false)
+        bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -129,17 +130,17 @@ public static class SnesMode7Renderer
                 int sourceY = (startY + matrixC * screenX) >> 8;
 
                 bool outside = (uint)sourceX >= 1024 || (uint)sourceY >= 1024;
-                if (outside && !fillOutsideWithCharacterZero)
+                if (outside && !wrapOutsideMap && !fillOutsideWithCharacterZero)
                     continue;
 
-                // M7SEL=$80 makes an out-of-bounds sample transparent. Only $C0 selects
-                // the corresponding pixel of character zero. In-bounds coordinates use
-                // the map's ordinary ten-bit address components.
+                // With M7SEL bit seven clear, even outside samples use the map's
+                // ten-bit address components. Otherwise $80 is transparent and $C0
+                // selects the corresponding pixel of character zero.
                 int wrappedX = sourceX & Mode7CoordinateMask;
                 int wrappedY = sourceY & Mode7CoordinateMask;
                 int pixelX = wrappedX & 7;
                 int pixelY = wrappedY & 7;
-                int character = outside
+                int character = outside && !wrapOutsideMap
                     ? 0
                     : vramBytes[((wrappedY >> 3) * MapWidthInTiles + (wrappedX >> 3)) * 2];
 

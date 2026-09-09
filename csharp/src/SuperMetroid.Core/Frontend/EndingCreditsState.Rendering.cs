@@ -66,12 +66,16 @@ internal sealed partial class EndingCreditsState
             centerX: CurrentMode7CenterX,
             centerY: CurrentMode7CenterY,
             horizontalOffset: unchecked((short)mode7X),
-            verticalOffset: unchecked((short)mode7Y));
+            verticalOffset: unchecked((short)mode7Y), wrapOutsideMap: AtmosphericMapWraps);
         SnesLayerCompositor.Composite(pixels, mode7);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
         ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
+
+    // SetupPpu_5_Mode7 leaves M7SEL=0 through both atmospheric scenes.
+    // Later scene setup owns its own overflow policy; do not change those implicitly.
+    private bool AtmosphericMapWraps => Phase < EndingCreditsPhase.FadeInZebesExplosion;
 
     private bool ExplosionWhiteout => Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
         or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;

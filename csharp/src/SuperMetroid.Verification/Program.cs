@@ -151,6 +151,11 @@ if (args is ["--draygon-goop-drops"])
     VerifyDraygonGoopDrops();
     return 0;
 }
+if (args is ["--ending-takeoff-wrap"] or ["--ending-takeoff-math"])
+{
+    VerifyEndingTakeoffColorMath(args[0] == "--ending-takeoff-wrap");
+    return 0;
+}
 if (args.Contains("--ending-dma"))
 {
     VerifyEndingDma();

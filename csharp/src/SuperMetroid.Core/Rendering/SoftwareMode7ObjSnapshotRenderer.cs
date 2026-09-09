@@ -27,7 +27,7 @@ public static class SoftwareMode7ObjSnapshotRenderer
             SnesMode7Renderer.CompositeViewport(pixels, vram, cgram,
                 bg.MatrixA, bg.MatrixB, bg.MatrixC, bg.MatrixD, bg.CenterX, bg.CenterY,
                 bg.HorizontalOffset, bg.VerticalOffset,
-                fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero);
+                fillOutsideWithCharacterZero: bg.FillOutsideWithCharacterZero, wrapOutsideMap: bg.WrapOutsideMap);
         }
         if (snapshot.Gradient.IsEmpty)
             SnesObjRenderer.CompositeUnfiltered(oam, vram, cgram, snapshot.ObjectSelection, pixels);

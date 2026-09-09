@@ -7,7 +7,7 @@ public static partial class RenderFrameSnapshotCodec
         Mode7RenderRegisters m = layer.Registers;
         writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
         writer.Write(m.CenterX); writer.Write(m.CenterY);
-        writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset); writer.Write(m.FillOutsideWithCharacterZero);
+        writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset); writer.Write((byte)Mode7OverflowPolicy.FromRegisters(m));
         writer.Write(layer.HudTilemapWord); writer.Write(layer.HudCharacterWord); writer.Write(layer.HudScanlines);
         writer.Write(layer.Floor.HasValue);
         if (layer.Floor is { } f)
@@ -18,10 +18,9 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
-    private static Mode7GameplayRenderLayer ReadMode7Gameplay(BinaryReader reader)
+    private static Mode7GameplayRenderLayer ReadMode7Gameplay(BinaryReader reader, ushort version)
     {
-        var m = new Mode7RenderRegisters(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
-            reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader));
+        var m = ReadMode7Registers(reader, version);
         ushort hudMap = reader.ReadUInt16(), hudCharacters = reader.ReadUInt16();
         int hudLines = reader.ReadInt32();
         Mode1FloorBand? floor = ReadBoolean(reader)

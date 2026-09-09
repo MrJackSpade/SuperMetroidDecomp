@@ -38,7 +38,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(bg.MatrixA); writer.Write(bg.MatrixB); writer.Write(bg.MatrixC); writer.Write(bg.MatrixD);
                 writer.Write(bg.CenterX); writer.Write(bg.CenterY);
                 writer.Write(bg.HorizontalOffset); writer.Write(bg.VerticalOffset);
-                writer.Write(bg.FillOutsideWithCharacterZero);
+                writer.Write((byte)Mode7OverflowPolicy.FromRegisters(bg));
             }
             writer.Write(mode7.Gradient.Length != 0);
             foreach (var line in mode7.Gradient)
@@ -89,8 +89,7 @@ public static partial class RenderFrameSnapshotCodec
                 if (kind == RenderPacketKind.Mode7Obj)
                 {
                     Mode7RenderRegisters? bg = ReadBoolean(reader)
-                        ? new Mode7RenderRegisters(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
-                            reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))
+                        ? ReadMode7Registers(reader, version)
                         : null;
                     var gradient = Array.Empty<Frontend.TitleGradientLine>();
                     if (version >= RenderPacketFormat.TitleGradientVersion && ReadBoolean(reader))
@@ -164,4 +163,15 @@ public static partial class RenderFrameSnapshotCodec
         1 => true,
         _ => throw new InvalidDataException("Noncanonical display boolean."),
     };
+
+    private static Mode7RenderRegisters ReadMode7Registers(BinaryReader reader, ushort version)
+    {
+        short a = reader.ReadInt16(), b = reader.ReadInt16(), c = reader.ReadInt16(), d = reader.ReadInt16();
+        short x = reader.ReadInt16(), y = reader.ReadInt16(), h = reader.ReadInt16(), v = reader.ReadInt16();
+        var policy = (Mode7OverflowMode)reader.ReadByte();
+        if (policy > Mode7OverflowMode.Wrap || (policy == Mode7OverflowMode.Wrap && version < RenderPacketFormat.Mode7WrapVersion))
+            throw new InvalidDataException("Unsupported Mode 7 overflow operation in display fixture.");
+        // The legacy boolean encoded exactly transparent=0 / character-zero=1.
+        return new(a, b, c, d, x, y, h, v, policy == Mode7OverflowMode.CharacterZero, policy == Mode7OverflowMode.Wrap);
+    }
 }

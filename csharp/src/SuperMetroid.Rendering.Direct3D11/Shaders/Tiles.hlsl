@@ -157,7 +157,8 @@ void Main(uint3 id : SV_DispatchThreadID)
         bool outside = (uint)x >= 1024 || (uint)y >= 1024;
         if (outside && FillCharacterZero == 0) return;
         uint wrappedX = (uint)x & 1023, wrappedY = (uint)y & 1023;
-        uint character = outside ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
+        // Policy 0: transparent overflow; 1: character zero; 2: ten-bit map wrap.
+        uint character = outside && FillCharacterZero == 1 ? 0 : ReadByte(((wrappedY >> 3) * 128 + (wrappedX >> 3)) * 2);
         uint color = ReadByte((character * 64 + (wrappedY & 7) * 8 + (wrappedX & 7)) * 2 + 1);
         if (color != 0)
         {

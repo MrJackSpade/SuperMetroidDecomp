@@ -46,6 +46,15 @@ internal static partial class Program
             -123, 456, -789, 1023, true);
         var mode7 = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, registers, 3, 15));
         AssertEqual(registers, RoundTripRenderPacket(mode7).Mode7!.Background!.Value, "signed matrix and outside policy preserved");
+        var wrapping = registers with { FillOutsideWithCharacterZero = false, WrapOutsideMap = true };
+        var wrapPacket = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, wrapping, 3, 15));
+        AssertEqual(wrapping, RoundTripRenderPacket(wrapPacket).Mode7!.Background!.Value, "Mode 7 wrap policy survives packet round trip");
+        byte[] oldWrap = RenderFrameSnapshotCodec.Serialize(wrapPacket);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldWrap.AsSpan(RenderPacketFormat.Signature.Length), 21);
+        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(oldWrap), "version 21 cannot claim Mode 7 wrapping");
+        byte[] legacyFill = RenderFrameSnapshotCodec.Serialize(mode7);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(legacyFill.AsSpan(RenderPacketFormat.Signature.Length), 21);
+        AssertEqual(registers, RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7!.Background!.Value, "legacy boolean overflow retains character-zero semantics");
         var insertedMode7 = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(registers) }, 3, 15));
         byte[] invalidOldVersion = RenderFrameSnapshotCodec.Serialize(insertedMode7);

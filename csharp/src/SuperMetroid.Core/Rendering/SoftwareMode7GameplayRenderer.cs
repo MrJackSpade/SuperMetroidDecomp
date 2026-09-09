@@ -14,7 +14,8 @@ internal static class SoftwareMode7GameplayRenderer
         Mode7RenderRegisters m = layer.Registers;
         Rgba32[] mode7 = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram,
             m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.CenterX, m.CenterY,
-            m.HorizontalOffset, m.VerticalOffset, fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero);
+            m.HorizontalOffset, m.VerticalOffset, fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero,
+            wrapOutsideMap: m.WrapOutsideMap);
         // Resolve the winning OAM record once, before choosing its layer priority.
         ResolvedObjFrame objects = SnesObjRenderer.RenderResolved(memory.Oam, memory.Vram, memory.Cgram, objectSelection);
         int floorStart = layer.Floor?.FirstScanline ?? height;

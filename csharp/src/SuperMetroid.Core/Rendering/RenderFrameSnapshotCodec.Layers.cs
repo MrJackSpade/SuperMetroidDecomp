@@ -83,7 +83,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(m.MatrixA); writer.Write(m.MatrixB); writer.Write(m.MatrixC); writer.Write(m.MatrixD);
                 writer.Write(m.CenterX); writer.Write(m.CenterY);
                 writer.Write(m.HorizontalOffset); writer.Write(m.VerticalOffset);
-                writer.Write(m.FillOutsideWithCharacterZero);
+                writer.Write((byte)Mode7OverflowPolicy.FromRegisters(m));
                 break;
             case ObjRenderLayer objLayer:
                 writer.Write((byte)(objLayer.AddToScreen ? RenderPacketLayerKind.ObjSubscreenAdd : RenderPacketLayerKind.Obj));
@@ -127,7 +127,7 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader, version),
         RenderPacketLayerKind.Bg4SubscreenAdd when version >= RenderPacketFormat.Bg4SubscreenAddVersion => ReadSubscreen(reader, version, true),
-        RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader),
+        RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader, version),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
         RenderPacketLayerKind.ScanlineColorAdd when version >= RenderPacketFormat.ScanlineColorLayerVersion =>
@@ -140,11 +140,9 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.FixedColorAdd when version >= RenderPacketFormat.FixedColorLayerVersion =>
             new FixedColorAddRenderLayer(reader.ReadByte(), reader.ReadByte(), reader.ReadByte()),
         RenderPacketLayerKind.Mode7 when version >= RenderPacketFormat.Mode7LayerVersion => new Mode7RenderLayer(
-            new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
-                reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader))),
+            ReadMode7Registers(reader, version)),
         RenderPacketLayerKind.Mode7ObjSubtract when version >= RenderPacketFormat.Mode7ObjSubtractVersion => new Mode7RenderLayer(
-            new(reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(),
-                reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), reader.ReadInt16(), ReadBoolean(reader)), true),
+            ReadMode7Registers(reader, version), true),
         RenderPacketLayerKind.Obj => ReadObjLayer(reader, version, false),
         RenderPacketLayerKind.ObjSubscreenAdd when version >= RenderPacketFormat.ObjSubscreenAddVersion => ReadObjLayer(reader, version, true),
         RenderPacketLayerKind.ObjPriority => ReadObjPriorityLayer(reader, version),

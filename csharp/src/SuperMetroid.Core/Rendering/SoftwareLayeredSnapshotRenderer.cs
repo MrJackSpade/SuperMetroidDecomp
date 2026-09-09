@@ -143,7 +143,7 @@ public static class SoftwareLayeredSnapshotRenderer
                     Rgba32[] mode7Pixels = SnesMode7Renderer.RenderViewport(
                         memory.Vram, memory.Cgram, m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD,
                         m.CenterX, m.CenterY, m.HorizontalOffset, m.VerticalOffset,
-                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero);
+                        fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero, wrapOutsideMap: m.WrapOutsideMap);
                     if (mode7.SubtractObjSubscreen)
                         for (int i = 0; i < mode7Pixels.Length; i++)
                         {

@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Rendering.Mode7RenderRegisters) && count == 9 && current.Length == 10)
+        {
+            Console.Error.WriteLine("WARNING: Legacy Mode 7 snapshot has no wrap control; retaining its original overflow behavior.");
+            return current.Where(field => field.Name != "<WrapOutsideMap>k__BackingField").ToArray();
+        }
         if (type == typeof(ScrollBoundaryCamera) && count == 11 && current.Length == 12)
         {
             Console.Error.WriteLine("WARNING: Legacy camera has no previous-scroll Samus checkpoint; initializing on its first scrolling pass.");

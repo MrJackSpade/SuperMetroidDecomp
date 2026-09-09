@@ -15,9 +15,10 @@ internal static class Mode7SmokeTests
         int count = 0;
         foreach (short scale in new short[] { 0, 1, 255, 256, 512, -256, short.MinValue, short.MaxValue })
         foreach (short offset in new short[] { -1024, -1, 0, 1023, short.MinValue, short.MaxValue })
-        foreach (bool fill in new[] { false, true })
+        foreach (Mode7OverflowMode overflow in Enum.GetValues<Mode7OverflowMode>())
         {
-            var registers = new Mode7RenderRegisters(scale, 113, -113, scale, 128, 112, offset, offset, fill);
+            var registers = new Mode7RenderRegisters(scale, 113, -113, scale, 128, 112, offset, offset,
+                overflow == Mode7OverflowMode.CharacterZero, overflow == Mode7OverflowMode.Wrap);
             var frame = new RenderFrameSnapshot(new(++count, 1, 0),
                 new Mode7ObjRenderSnapshot(memory, registers, 3, 13), new byte[] { 11 });
             Check(frame);

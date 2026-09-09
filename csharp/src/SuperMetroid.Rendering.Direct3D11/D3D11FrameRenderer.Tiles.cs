@@ -128,7 +128,7 @@ public sealed partial class D3D11FrameRenderer
         data[18] = registers.MatrixC; data[19] = registers.MatrixD;
         data[20] = registers.CenterX; data[21] = registers.CenterY;
         data[22] = registers.HorizontalOffset; data[23] = registers.VerticalOffset;
-        data[24] = registers.FillOutsideWithCharacterZero ? 1 : 0;
+        data[24] = (int)Mode7OverflowPolicy.FromRegisters(registers);
         data[25] = firstScanline; data[26] = endScanline;
         data[27] = subtractObj ? 1 : 0;
         fixed (int* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));

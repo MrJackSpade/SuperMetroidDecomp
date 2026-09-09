@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 public readonly record struct Mode7RenderRegisters(
     short MatrixA, short MatrixB, short MatrixC, short MatrixD,
     short CenterX, short CenterY, short HorizontalOffset, short VerticalOffset,
-    bool FillOutsideWithCharacterZero = false);
+    bool FillOutsideWithCharacterZero = false, bool WrapOutsideMap = false);
 
 /// <summary>
 /// Immutable full-screen Mode 7/backdrop followed by OBJ and master brightness.

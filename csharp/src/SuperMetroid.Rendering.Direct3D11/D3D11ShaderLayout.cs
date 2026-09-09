@@ -8,6 +8,10 @@ internal static class D3D11ShaderLayout
     internal const int SolidConstantWords = SolidHeaderWords + MaximumBrightnessPasses;
     internal const int DispatchTileEdge = 8;
     internal const int ScanlineParametersWordOffset = 32;
+    internal const int WindowSelectionWord = 28;
+    internal const int WindowLogicWord = 29;
+    internal const int WindowEdgesWord = 30;
+    internal const int WindowEnabledWord = 31;
     internal const string SolidResourceName = "SuperMetroid.Shaders.Solid.cso";
     internal const string TileResourceName = "SuperMetroid.Shaders.Tiles.cso";
     internal const string TitleGradientResourceName = "SuperMetroid.Shaders.TitleGradient.cso";

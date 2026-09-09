@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
@@ -98,7 +99,9 @@ public sealed partial class D3D11FrameRenderer
     private unsafe void DispatchTile(D3D11TileOperation operation, uint map = 0, uint characters = 0,
         uint x = 0, uint y = 0, uint width = 32, uint height = 32, uint priority = 0,
         uint transparentZero = 1, uint level = 15, uint red = 0, uint green = 0, uint blue = 0,
-        uint objectCount = 0, uint objectSelection = 0, uint firstScanline = 0, uint endScanline = 224)
+        uint objectCount = 0, uint objectSelection = 0, uint firstScanline = 0, uint endScanline = 224,
+        SnesWindowRegisters windows = default, SnesMainScreenLayers windowMask = SnesMainScreenLayers.None,
+        SnesWindowTarget windowTarget = SnesWindowTarget.Bg1)
     {
         // Upload the complete allocated cbuffer, so UpdateSubresource cannot read past
         // a short managed array. The trailing header words supply scanline clipping.
@@ -108,6 +111,7 @@ public sealed partial class D3D11FrameRenderer
         data[8] = transparentZero; data[9] = level; data[10] = red; data[11] = green; data[12] = blue;
         data[13] = objectCount; data[14] = objectSelection;
         data[25] = firstScanline; data[26] = endScanline;
+        SetWindowConstants(data, windows, windowMask, windowTarget);
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);
     }

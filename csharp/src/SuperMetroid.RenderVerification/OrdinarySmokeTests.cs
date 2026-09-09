@@ -6,6 +6,7 @@ internal static class OrdinarySmokeTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
+        HardwareWindowTests.Run(device, renderer);
         var random = new Random(32115);
         var vram = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(vram);
         var oam = new byte[SnesPpuLayout.OamUploadByteCount]; random.NextBytes(oam);

@@ -19,7 +19,7 @@ cbuffer TileParameters : register(b0)
     int CenterX, CenterY, OffsetX, OffsetY;
     uint FillCharacterZero, FirstScanline, EndScanline;
     uint Reserved27;
-    uint4 Reserved28;
+    uint WindowSelection, WindowLogic, WindowEdges, WindowEnabled;
     uint4 ScanlineParameters[224];
 };
 StructuredBuffer<uint> Memory : register(t0);
@@ -79,11 +79,30 @@ bool MainCoverage(uint2 screen)
     return covered;
 }
 
+// Literal PPU window membership. Main/subscreen admission is resolved per draw;
+// the selected plane is skipped before it can overwrite a lower-priority pixel.
+bool HardwareWindowMasked(uint x)
+{
+    bool firstEnabled = (WindowSelection & 2) != 0;
+    bool secondEnabled = (WindowSelection & 8) != 0;
+    bool first = x >= (WindowEdges & 255) && x <= ((WindowEdges >> 8) & 255);
+    bool second = x >= ((WindowEdges >> 16) & 255) && x <= (WindowEdges >> 24);
+    if ((WindowSelection & 1) != 0) first = !first;
+    if ((WindowSelection & 4) != 0) second = !second;
+    if (!firstEnabled) return secondEnabled && second;
+    if (!secondEnabled) return first;
+    if (WindowLogic == 0) return first || second;
+    if (WindowLogic == 1) return first && second;
+    if (WindowLogic == 2) return first != second;
+    return first == second;
+}
+
 [numthreads(8, 8, 1)]
 void Main(uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= 256 || id.y >= 224) return;
     if (id.y < FirstScanline || id.y >= EndScanline) return;
+    if (WindowEnabled != 0 && HardwareWindowMasked(id.x)) return;
     if (Operation == OpXrayGameplay) { Output[id.xy] = XrayGameplay(id.xy); return; }
     if (Operation == OpXrayHalfColor)
     {

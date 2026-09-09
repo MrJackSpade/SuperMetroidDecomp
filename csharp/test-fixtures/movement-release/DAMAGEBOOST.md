@@ -461,3 +461,23 @@ This is not a completed speedkeep audit and #472 must remain open without the
 validation label. Captures are `damageboost-carry-472-c{5,6}-m{0,1,2}-r{0,1}.csv`;
 the comparison retains its complete state assertions. Temporary native entry-point
 hooks were removed, and no player save slot was changed.
+
+## Underwater turn/floor collision correction
+
+The remaining mode-6 water failures reproduced at frame 26: the body touched
+the floor while its falling-turn animation finished. Native retained Y speed
+0.A000, but C# zeroed it, changing the following landing frame and pose history.
+The old turn mover incorrectly implemented an unconditional collision-owned
+velocity reset. The cartridge instead clears the collision-to-pose request at
+$90:A7A8/$A7C5; neither turn family dispatches landing commands/presentation.
+The shared upward mover still performs its immediate ceiling-stop writes.
+
+Removed the extra reset and suppressed the semantic landing/ceiling-pose flags
+on the returned turn result, retaining the physical collision result. A default
+runtime regression seeds native frame 25 and asserts the exact contact X/Y,
+retained velocity, completed turn pose, absence of a landing publication, and
+the following normal falling frame's actual landing position/pose/zero speed.
+Both previously failing water traces now match without weakening comparisons.
+This finishes the constructed carry matrix, not the full technique contract:
+legal run-up/active-boost entry and the source-specific interactions noted above
+remain unproven.

@@ -507,21 +507,16 @@ public static class SamusAerialMovement
             horizontal,
             nmiFrameCounter,
             plms: plms);
-        if (result.Vertical is { Collided: true })
-        {
-            // Both upward and downward collision tables for types `$17/$18` select command
-            // five's no-pose-change handler. It clears Y motion but leaves the turn animation
-            // alive until its `$F8` operand supplies the final aimed jump/fall pose.
-            samus.Kinematics.YSpeed = 0;
-            samus.Kinematics.YSubspeed = 0;
-            samus.Kinematics.YDirection = 2;
-        }
+        // Turning clears the collision-to-pose request after movement. A floor
+        // collision clamps position but does not reset accumulated falling speed
+        // or trigger landing presentation. The shared upward mover still owns
+        // its immediate ceiling-stop velocity writes.
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
         speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
-        return result;
+        return result with { Landed = false, HitCeiling = false };
     }
 
     /// <summary>Executes one movement-type-6 frame from <c>$90:9168</c>.</summary>

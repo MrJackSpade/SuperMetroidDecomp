@@ -151,5 +151,36 @@ internal static partial class Program
             AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin pose");
             AssertEqual(retainedPose, samus.PoseHistory.LastDifferentPose, "same-pose fallback shifts history");
         }
+
+        // Native carry mode 6 / water / forward / delay 11, end of frame 25.
+        // Contact with the floor and the final F8 turn command coincide next frame.
+        samus.Pose = SamusPoseIds.TurningRightToLeftFallingPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        samus.SetAnimationFrameFromSpecialHandler(2, 1);
+        samus.LiquidPhysics.ConfigureWater(8);
+        samus.XPosition = 99;
+        samus.Kinematics.XSubposition = 0x3800;
+        samus.YPosition = 237;
+        samus.Kinematics.YSubposition = 0xb800;
+        samus.Kinematics.YSpeed = 0;
+        samus.Kinematics.YSubspeed = 0x9800;
+        samus.Kinematics.YDirection = 2;
+        samus.HorizontalSpeed.BaseSpeed = 0;
+        samus.HorizontalSpeed.BaseSubspeed = 0x9000;
+        samus.HorizontalSpeed.AccelerationMode = 1;
+        runtime.Controller1.Latch(0x0280);
+        runtime.StepFrame(0x0280);
+        AssertEqual((0x0063c000u, 0x00edffffu, 0x0000a000u),
+            (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
+            "underwater turn floor contact preserves native accumulated speed");
+        AssertEqual(SamusPoseIds.FallingLeftPose, samus.Pose, "turn animation completes at floor");
+        AssertEqual(false, runtime.LastAerialSamusMovement!.Value.Landed,
+            "turn suppresses collision-owned landing presentation");
+        runtime.StepFrame(0x0280);
+        AssertEqual((0x0062c000u, 0x00ebffffu, 0u),
+            (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
+            "following normal fall performs actual landing");
+        AssertEqual(SamusPoseIds.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }
 }

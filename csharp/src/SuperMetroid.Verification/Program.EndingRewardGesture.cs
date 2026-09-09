@@ -1,11 +1,27 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
     private static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom("Super Metroid.smc");
+        var graphicsUpload = new EndingRewardGraphicsUpload(bus);
+        var graphicsVram = new SnesVram();
+        byte[] expectedGraphics = RomDataReader.Decompress(bus,
+            EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        graphicsVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray());
+        for (int chunk = 0; chunk < 16; chunk++)
+        {
+            graphicsUpload.Upload(graphicsVram, chunk);
+            int uploadedBytes = (chunk + 1) * 2048;
+            AssertTrue(graphicsVram.Bytes[..uploadedBytes].SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
+                "reward graphics DMA preserves both interleaved lanes at every upload boundary");
+            AssertTrue(graphicsVram.Bytes[uploadedBytes..].ToArray().All(value => value == 0xa5),
+                "reward graphics upload preserves pending chunks and the shooting OBJ sheet");
+        }
         foreach (EndingReward reward in Enum.GetValues<EndingReward>())
         {
             var gesture = new EndingRewardGesture(bus, reward);

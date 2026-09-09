@@ -17,6 +17,19 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "_poseHistory") &&
+            (count == current.Length - 1 || count == current.Length - 2 ||
+             count == current.Length - 4 || count == current.Length - 5))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state has no transition pose history; the unavailable history restores as zero until subsequent transitions populate it.");
+            // First remove this addition, then apply the explicitly supported older
+            // auto-jump / draw-input layouts. Their remaining field identities and
+            // ordering are still checked by the graph reader, not inferred silently.
+            return SelectSerializedFields(type,
+                current.Where(field => field.Name != "_poseHistory").ToArray(), count);
+        }
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "_poseHistory"))
+            throw new InvalidDataException($"Unsupported legacy Samus pose-history layout with {count} fields.");
         if (type == typeof(SamusState) &&
             (count == current.Length - 3 || count == current.Length - 4))
         {

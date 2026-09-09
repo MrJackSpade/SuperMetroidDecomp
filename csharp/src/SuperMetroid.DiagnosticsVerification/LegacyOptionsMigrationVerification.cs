@@ -139,12 +139,31 @@ internal static class LegacyOptionsMigrationVerification
         string[] added = ["<AutoJumpTimer>k__BackingField", "<PreviousDrawHeldInput>k__BackingField", "<AutoJumpInputPending>k__BackingField"];
         foreach (bool oldFireLatch in new[] { false, true })
         {
-            var expected = fields.Where(f => !added.Contains(f.Name) &&
+            var expected = fields.Where(f => f.Name != "_poseHistory" && !added.Contains(f.Name) &&
                 (!oldFireLatch || f.Name != "<PreviousDrawNewInput>k__BackingField")).ToArray();
             var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, expected.Length);
             if (!selected.SequenceEqual(expected)) throw new InvalidDataException("Samus auto-jump migration reordered old fields.");
         }
         var samus = new SuperMetroid.Core.Game.SamusState();
+        foreach (bool lacksFire in new[] { false, true })
+        {
+            var expected = fields.Where(f => f.Name != "_poseHistory" &&
+                (!lacksFire || f.Name != "<PreviousDrawNewInput>k__BackingField")).ToArray();
+            if (!DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, expected.Length).SequenceEqual(expected))
+                throw new InvalidDataException("Samus history migration changed older field identities.");
+        }
+        var legacy = (SuperMetroid.Core.Game.SamusState)RuntimeHelpers.GetUninitializedObject(type);
+        bool rejectedUnknownHistoryLayout = false;
+        try { DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, fields.Length - 3); }
+        catch (InvalidDataException) { rejectedUnknownHistoryLayout = true; }
+        if (!rejectedUnknownHistoryLayout)
+            throw new InvalidDataException("Unknown intermediate Samus history layout was accepted.");
+        if (legacy.PoseHistory.PreviousPose != 0 || legacy.PoseHistory.LastDifferentDirectionAndMovement != 0)
+            throw new InvalidDataException("Legacy history invented unavailable pose words.");
+        samus.PoseHistory.PreviousPose = 0x0019;
+        samus.PoseHistory.PreviousDirectionAndMovement = 0x0308;
+        samus.PoseHistory.LastDifferentPose = 0x0084;
+        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
         fields.Single(f => f.Name == added[0]).SetValue(samus, (ushort)8);
         fields.Single(f => f.Name == added[1]).SetValue(samus, (ushort)0x180);
         fields.Single(f => f.Name == added[2]).SetValue(samus, true);
@@ -154,6 +173,11 @@ internal static class LegacyOptionsMigrationVerification
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Game.SamusState>(bytes);
         if (restored.AutoJumpTimer != 8 || restored.PreviousDrawHeldInput != 0x180 || !restored.AutoJumpInputPending)
             throw new InvalidDataException("Saved state lost the pending auto-jump boundary.");
+        if (restored.PoseHistory.PreviousPose != 0x0019 ||
+            restored.PoseHistory.PreviousDirectionAndMovement != 0x0308 ||
+            restored.PoseHistory.LastDifferentPose != 0x0084 ||
+            restored.PoseHistory.LastDifferentDirectionAndMovement != 0x1404)
+            throw new InvalidDataException("Saved state lost the four transition-history words.");
         Console.WriteLine("Samus auto-jump: both legacy field lists and live pending-handler graph round trip pass.");
     }
 }

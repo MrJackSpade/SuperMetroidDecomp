@@ -89,3 +89,21 @@ pose and checks all four output words, including preservation of a full
 byte eligibility cases and full core verification. Native temporary integration
 was removed after the successful run. This preparatory state type is not yet
 owned by live Samus and does not change gameplay or the debugger-state schema.
+
+## Samus ownership and state compatibility
+
+The next increment adds lazy `SamusState.PoseHistory` ownership and an explicit
+`CommitPoseHistory(bus)` operation. Transition call sites and the live walljump
+gate remain unconnected; gameplay admission is unchanged in this increment.
+Unlike the preceding primitive-only revision, the debugger schema now includes
+the nullable owner. Current graph round trips preserve all four history words.
+The four supported prior Samus layouts omit this owner with an explicit warning
+and retain the existing auto-jump/draw-input migrations. Unavailable historical
+words restore neutral, not guessed from the current pose; a future live gate must
+account for that information loss. An unknown intermediate layout is rejected.
+
+DiagnosticsVerification's default host/state checks and its explicit
+`--legacy-options-migration` command pass. The latter verifies field identity/order,
+constructor-bypassed legacy access, unknown-layout rejection, and exact history
+plus pending auto-jump round trips. Ordinary/forced transition producer wiring
+and native motion comparisons remain required before calling #473 implemented.

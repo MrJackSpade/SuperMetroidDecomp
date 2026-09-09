@@ -1638,6 +1638,11 @@ static void VerifySamusRanIntoWall()
             $"wall pose ${pose:X2} clears base speed");
         AssertEqual(0, stopped.HorizontalSpeed.AccelerationMode,
             $"wall pose ${pose:X2} clears acceleration mode");
+        stopped.InitializeAnimation(bus);
+        stopped.SetAnimationFrameFromSpecialHandler(0, 9);
+        stopped.ApplyRanIntoWallPoseChange(bus, pose);
+        AssertEqual(9, stopped.AnimationFrameTimer,
+            $"same wall pose ${pose:X2} preserves the running animation timer");
     }
 
     Console.WriteLine("  Ran into wall: ten-way selector, arm-pump pixel, six stable poses, grounding, and cleanup agree.");

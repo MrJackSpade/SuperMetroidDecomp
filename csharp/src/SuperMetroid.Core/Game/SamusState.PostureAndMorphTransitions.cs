@@ -1060,7 +1060,7 @@ public sealed partial class SamusState
 
     /// <summary>
     /// Installs one already-validated grounded pose and runs the common $91:F404/$91:FB08
-    /// metadata, radius, and frame-zero animation work modeled by this class.
+    /// metadata/radius work, initializing frame zero only for a changed pose.
     /// </summary>
     private void ApplySimpleGroundedPoseChange(
         ISnesAddressSpace bus,
@@ -1077,7 +1077,11 @@ public sealed partial class SamusState
 
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        InitializeAnimation(bus, initialFrame: 0);
+        // $91:FB64-$FB67 retains the frame/timer when the ordinary pose is
+        // unchanged. A prospective run rejected by the wall probe can resolve
+        // back to the current wall-stop pose on every held-input frame.
+        if (expectedPose != targetPose)
+            InitializeAnimation(bus, initialFrame: 0);
     }
 
 }

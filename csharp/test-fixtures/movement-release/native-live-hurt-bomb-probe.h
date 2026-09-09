@@ -40,9 +40,12 @@ int DiagnosticLiveHurtBomb(const char *rom, const char *output) {
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-      RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
+      RunAsmCode(0x90ec22, 0, 0, 0, 0);
+      // Sample the fuse before alpha, matching GameState_8 rather than its output.
+      RunAsmCode(0xa09785, 0, 0, 0, 0);
+      RunAsmCode(0x90e90f, 0, 0, 0, 0);
       RunAsmCode(0x909c5b, 0, 0, 0, 0);
-      RunAsmCode(0x90aece, 0, 0, 0, 0); RunAsmCode(0xa09785, 0, 0, 0, 0);
+      RunAsmCode(0x90aece, 0, 0, 0, 0);
       samus_contact_damage_index = 0;
       RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);

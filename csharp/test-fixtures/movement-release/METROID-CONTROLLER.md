@@ -1,7 +1,7 @@
 # Full-dispatcher Metroid bomb reproduction (#485)
 
-Status: **reproduced mismatch, not fixed or awaiting player validation**. The
-opt-in comparison intentionally exits 1 at the current implementation. This
+Status: **reproduced and fixed; ready for player validation**. All 7,200
+samples match the unchanged native capture. This
 supersedes the evidentiary limitation of manually positioning the attached enemy
 in native-metroid-bomb-probe.h; it does not delete that earlier characterization.
 
@@ -55,8 +55,15 @@ frame109, while travel1/gap48 first detaches at159. Travel2 detaches at63 for al
 four schedules. Do not replace these outcomes with a blanket must-detach rule.
 The comparison includes X/Y subpixels for Samus and Metroid, Samus pose and
 bomb-jump direction, Metroid state/escape timer, health and live bomb count.
-It must remain failing until the production schedule is faithfully corrected;
-future fixes must also verify bomb-jump fixtures using the actual bank-82 order.
+The production correction samples Samus/bomb overlap before EnemyMain and runs
+each active enemy's bomb collision before its touch/AI, using the previous
+projectile state. No fuse, damage, radius, or escape duration was adjusted.
+Explicit assertions check first detachment, same-frame escape timer 3, and
+reattachment four frames later, including every native miss above.
+
+The old #412/#413 probes also placed the collision sample too late. Their native
+captures have been independently recaptured and repeated; see [BOMB-PHASE.md](BOMB-PHASE.md).
+This is an oracle correction, not a claim that those historical traces were valid.
 
 ## Capture and repeat
 
@@ -73,9 +80,9 @@ repeat is byte-identical, SHA256:
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --metroid-controller-comparison-audit "Super Metroid.smc" path/to/metroid-controller-485-v2.csv
 ```
 
-DebugRunner builds with zero warnings/errors; reproduction exits 1 with 1,264
-mismatches. This commit changes diagnostics only, not gameplay. No claim of a
-passing regression suite or resolved player issue is made.
+Baseline diagnostic commit c5d4843b exits 1 with 1,264 mismatches. The corrected
+production schedule exits 0; DebugRunner builds with zero warnings/errors, and
+the full core verification suite passes. Player confirmation remains outstanding.
 
 ROM Japan/USA NTSC rev0 SHA256:
 12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72.

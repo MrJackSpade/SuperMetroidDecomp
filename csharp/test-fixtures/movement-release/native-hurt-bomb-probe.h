@@ -38,8 +38,7 @@ int DiagnosticHurtBomb(const char *rom, const char *output) {
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-      RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
-      RunAsmCode(0x909c5b, 0, 0, 0, 0);
+      RunAsmCode(0x90ec22, 0, 0, 0, 0);
       if (frame == bombFrame) {
         bomb_counter = 1; projectile_type[5] = 0x500; projectile_damage[5] = 30;
         projectile_x_pos[5] = samus_x_pos; projectile_y_pos[5] = samus_y_pos;
@@ -47,6 +46,9 @@ int DiagnosticHurtBomb(const char *rom, const char *output) {
         RunAsmCode(0xa09785, 0, 0, 0, 0);
         projectile_damage[5] = 0; bomb_counter = 0;
       }
+      // The collision stimulus precedes alpha's input/pose arbitration.
+      RunAsmCode(0x90e90f, 0, 0, 0, 0);
+      RunAsmCode(0x909c5b, 0, 0, 0, 0);
       samus_contact_damage_index = 0;
       RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);

@@ -65,16 +65,20 @@ public sealed class SamusBombProjectileSystem
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
-    /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
-    /// overlap pass that the main gameplay loop invokes before movement-handler beta.
+    /// Runs the bomb-owned portion of Samus frame-handler alpha using the overlap
+    /// result sampled earlier by the main gameplay loop, before EnemyMain.
     /// </summary>
+    /// <param name="earlierBombJumpDirection">The earlier overlap result, including zero
+    /// when that pass was suppressed. Isolated callers may omit it to sample before
+    /// this method updates the bombs; the runtime must pass it to avoid resampling.</param>
     public BombProjectileFrameResult StepFrame(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
         ushort controllerInput,
         ushort controllerNewInput,
-        RoomPlmSystem? roomPlms = null)
+        RoomPlmSystem? roomPlms = null,
+        byte? earlierBombJumpDirection = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -103,6 +107,11 @@ public sealed class SamusBombProjectileSystem
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }
+
+        // GameState_8 samples the existing bomb slots before EnemyMain and before
+        // alpha changes their fuses. Runtime supplies that earlier result; isolated
+        // subsystem callers perform the same pre-update sample here.
+        byte publishedDirection = earlierBombJumpDirection ?? PublishBombJumpOverlap(samus);
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.
@@ -191,11 +200,6 @@ public sealed class SamusBombProjectileSystem
 
             projectileDeleted |= RunProjectileInstructionHandler(bus, slot);
         }
-
-        // GameState_8 invokes $A0:9785 after frame-handler alpha (which placed/updated the
-        // bombs) and before beta moves Samus. Store only the low direction byte here. The
-        // next alpha pass will run $90:DE78/$90:DF99 and add command bit $0800.
-        byte publishedDirection = PublishBombJumpOverlap(samus);
 
         LastFrameResult = new BombProjectileFrameResult(
             placedSlot,
@@ -1076,8 +1080,10 @@ public sealed class SamusBombProjectileSystem
         throw new InvalidDataException("Bomb projectile instruction list did not reach a timed frame within 16 operations.");
     }
 
-    private byte PublishBombJumpOverlap(SamusState samus)
+    /// <summary>Samples native bomb/Samus overlap before enemy AI and projectile updates.</summary>
+    public byte PublishBombJumpOverlap(SamusState samus)
     {
+        ArgumentNullException.ThrowIfNull(samus);
         byte publishedDirection = 0;
 
         // $A0:97BF scans ascending projectile indices. Only damage-bearing, unreflected,

@@ -96,6 +96,8 @@ internal static class LiveHurtBombComparisonAudit
         }
         if (cases != 320) throw new InvalidDataException("Incomplete live hurt/bomb matrix.");
         Console.WriteLine($"Live hurt/bomb: {cases} cases, {rows.Length} frames, {mismatches} mismatches; retained-pose launches={retainedLaunches}, subsequent boosts={postLaunchBoosts}.");
-        return mismatches == 0 && retainedLaunches == 84 && postLaunchBoosts == 84 ? 0 : 1;
+        // The recaptured pre-alpha schedule retains 78 cases, not the 84 from
+        // the obsolete post-projectile-update oracle. All 32,000 words match it.
+        return mismatches == 0 && retainedLaunches == 78 && postLaunchBoosts == 78 ? 0 : 1;
     }
 }

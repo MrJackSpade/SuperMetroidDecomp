@@ -1,5 +1,15 @@
 # Ordinary bomb-chain parity (#412)
 
+## Current oracle correction (#485)
+
+The original captures and frame-specific findings below are **historical**:
+their probe sampled bomb overlap after alpha rather than before it. Use the
+replacement captures and runner in [BOMB-PHASE.md](BOMB-PHASE.md). All six
+recaptured matrices match; their exact trajectories supersede the old archives.
+The broad #412 sustained traversal scope remains unfinished.
+
+## Historical results (superseded phase schedule)
+
 Status: short-chain, repeated vertical-ascent, three-bomb and ladder matrices pass.
 Sustained horizontal/ceiling traversal coverage still needs work; do not mark the whole issue ready
 based on these cases alone.

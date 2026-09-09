@@ -53,8 +53,21 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<TourianEntranceStatueVerticalOffset>k__BackingField"
                 and not "<TourianStatueWaterY>k__BackingField").ToArray();
         }
-        if ((type == typeof(SuperMetroid.Core.Runtime.GameplayPpuRenderSnapshot) && count == 7 && current.Length == 9) ||
-            (type == typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters) && count == 11 && current.Length == 13))
+        if (type == typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters) &&
+            count is 11 or 13 && current.Length == 15)
+        {
+            // Hardware windows added two fields after the scanline-window schema.
+            // Keep both historical layouts explicit; never infer missing fields from
+            // a count alone or reorder the older fields to fit the newer record.
+            Console.Error.WriteLine("WARNING: Older gameplay capture has no hardware window registers; restoring disabled windows.");
+            if (count == 11)
+                Console.Error.WriteLine("WARNING: Older gameplay capture also has no BG2 scanline window; the next accepted NMI reconstructs it.");
+            return current.Where(field => field.Name is not "<Windows>k__BackingField"
+                and not "<MainScreenWindowMask>k__BackingField" &&
+                (count == 13 || field.Name is not "<Bg2FirstScanline>k__BackingField"
+                    and not "<Bg2EndScanline>k__BackingField")).ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Runtime.GameplayPpuRenderSnapshot) && count == 7 && current.Length == 9)
         {
             Console.Error.WriteLine("WARNING: Older debugger state has no BG2 scanline window; the next accepted NMI reconstructs it.");
             return current.Where(field => field.Name is not "<Bg2FirstScanline>k__BackingField" and not "<Bg2EndScanline>k__BackingField").ToArray();

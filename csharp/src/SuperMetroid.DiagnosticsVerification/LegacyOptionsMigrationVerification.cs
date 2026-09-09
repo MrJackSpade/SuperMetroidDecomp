@@ -7,6 +7,7 @@ internal static class LegacyOptionsMigrationVerification
 {
     public static int Run()
     {
+        VerifyGameplayRegisterMigration();
         VerifyRuntimeMigration();
         VerifyCameraMigration();
         string legacyCallback = "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0, SuperMetroid.Core";
@@ -57,6 +58,31 @@ internal static class LegacyOptionsMigrationVerification
         var current = new object();
         DebuggerStateFieldMigrations.InitializeMissingFields(current, 106);
         Console.WriteLine("Legacy runtime: four documented additions only, original field order retained, omitted owners initialized.");
+    }
+
+    private static void VerifyGameplayRegisterMigration()
+    {
+        var type = typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters);
+        var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+        foreach (int count in new[] { 11, 13 })
+        {
+            var selected = DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, count);
+            string[] omitted = count == 11
+                ? ["<Bg2FirstScanline>k__BackingField", "<Bg2EndScanline>k__BackingField",
+                    "<Windows>k__BackingField", "<MainScreenWindowMask>k__BackingField"]
+                : ["<Windows>k__BackingField", "<MainScreenWindowMask>k__BackingField"];
+            if (selected.Length != count || !selected.SequenceEqual(fields.Where(field => !omitted.Contains(field.Name))))
+                throw new InvalidDataException("Legacy gameplay registers omitted or reordered unexpected fields.");
+        }
+        if (!ReferenceEquals(fields, DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, fields.Length)))
+            throw new InvalidDataException("Current gameplay register schema changed.");
+        try { DebuggerStateFieldMigrations.SelectSerializedFields(type, fields, 12); }
+        catch (InvalidDataException)
+        {
+            Console.WriteLine("Gameplay registers: both known legacy schemas preserved; unknown intermediate schema rejected.");
+            return;
+        }
+        throw new InvalidDataException("Unknown gameplay register schema accepted.");
     }
 
     private static void VerifyCameraMigration()

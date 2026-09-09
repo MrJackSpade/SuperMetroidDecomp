@@ -30,6 +30,14 @@ finishes the turn into standing ($01/$02) and loses the fresh Jump. The remainin
 34 frames of each case diverge. This is an opt-in failing reproduction, not a fix.
 Do not weaken the assertion to accept the managed trace.
 
+The production F8 interpreter now receives alpha's prospective input pose and
+preserves the four jump targets explicitly tested by native `$90:8370`. It no
+longer unconditionally publishes the higher-priority standing transition.
+After this change all 2,880 frame positions and poses match. The core suite also
+checks four jump targets, absent/non-jump targets, and the locked-input exception.
+This fixes the reproduced turnaround-completion input loss, not the remaining
+elevator-specific portion of the ticket.
+
 This does not cover elevator departure, landing buffers, or all animation states.
 Those remain part of #474. The jump-first cases here begin on an ordinary floor,
 not with elevator-owned input suppression.

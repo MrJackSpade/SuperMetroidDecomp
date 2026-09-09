@@ -16,6 +16,25 @@ static void VerifySamusAerialTurnsAndWallJump()
 {
     var bus = new TestAddressSpace();
 
+    // F8 must yield to precisely the four ordinary jump targets selected by
+    // alpha, even when the turn animation expires on that same frame (#474).
+    foreach (ushort? selected in new ushort?[] { null, SamusPoseIds.MovingRightNormalPose,
+        SamusPoseIds.NeutralJumpTransitionRightPose, SamusPoseIds.NeutralJumpTransitionLeftPose,
+        SamusPoseIds.SpinJumpRightPose, SamusPoseIds.SpinJumpLeftPose })
+    foreach (bool locked in new[] { false, true })
+    {
+        byte source = SamusPoseIds.TurningLeftToRightPose;
+        WritePoseDefinition(bus, source, [4, 14, 0xff, 0xfb, 8, 0, 21, 0]);
+        WriteTestWord(bus, 0x91b010 + source * 2, 0xc100);
+        bus.WriteBytes(0x91c100, [1, 0xf8, SamusPoseIds.FacingRightNormalPose]);
+        var endpoint = new SamusState { Pose = source, InputLocked = locked };
+        endpoint.InitializeAnimation(bus);
+        endpoint.AnimateNoFx(bus, prospectiveInputPose: selected);
+        bool jumpWins = !locked && selected.HasValue && selected != SamusPoseIds.MovingRightNormalPose;
+        AssertEqual(jumpWins ? (ushort?)null : SamusPoseIds.FacingRightNormalPose,
+            endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
+    }
+
     const int width = 8;
     const int height = 8;
     var foreground = new ushort[width * height];

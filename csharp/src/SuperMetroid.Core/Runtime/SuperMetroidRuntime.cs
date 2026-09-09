@@ -2855,7 +2855,8 @@ public sealed partial class SuperMetroidRuntime
                     Controller1.Current,
                     NmiFrameCounter,
                     System,
-                    beginLiquidSoundRequestFrame: false);
+                    beginLiquidSoundRequestFrame: false,
+                    prospectiveInputPose: ProspectiveSamusPose?.ProspectivePose ?? ProspectiveSamusFallbackPose);
                 StepSamusLoadAppearance();
             }
 
@@ -3009,8 +3010,8 @@ public sealed partial class SuperMetroidRuntime
             if (GroundedSamusMovementEnabled && !deathOwnsSamus)
             {
                 // Command $F8's command-three “super-special” transition wins at this seam.
-                // $25/$26 publish $02/$01 from their ROM byte streams without rerunning the
-                // ordinary input transition selected earlier in the frame.
+                // F8 publishes a turn-completion pose only if alpha did not select one
+                // of its four jump exceptions. When published, it still wins here.
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 

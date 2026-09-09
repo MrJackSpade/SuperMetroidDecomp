@@ -153,7 +153,8 @@ public sealed partial class SamusState
         ushort controllerInput = 0,
         ushort nmiFrameCounter = 0,
         Bank80SystemState? system = null,
-        bool beginLiquidSoundRequestFrame = true)
+        bool beginLiquidSoundRequestFrame = true,
+        ushort? prospectiveInputPose = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         EnsureAnimationInitialized(bus);
@@ -186,7 +187,7 @@ public sealed partial class SamusState
             return;
 
         AnimationFrame = unchecked((ushort)(AnimationFrame + 1));
-        HandleAnimationDelay(bus, controllerInput);
+        HandleAnimationDelay(bus, controllerInput, prospectiveInputPose);
     }
 
     /// <summary>
@@ -220,7 +221,8 @@ public sealed partial class SamusState
         AnimationFrameTimer = timer;
     }
 
-    private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput)
+    private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
+        ushort? prospectiveInputPose = null)
     {
         byte delayOrCommand = ReadAnimationByte(bus, AnimationFrame);
         if ((delayOrCommand & 0x80) == 0)
@@ -317,6 +319,15 @@ public sealed partial class SamusState
                 break;
 
             case 8:
+                // $90:8370 checks the ordinary input result before publishing a
+                // higher-priority animation transition. A jump selected by alpha
+                // must survive this final turn frame; checking held Jump instead
+                // would incorrectly accept inputs that never matched the ROM table.
+                if (!InputLocked && prospectiveInputPose is
+                    SamusPoseIds.NeutralJumpTransitionRightPose or
+                    SamusPoseIds.NeutralJumpTransitionLeftPose or
+                    SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose)
+                    return;
                 // $90:8370 falls through to command $FD's one-byte pose operand. For the
                 // grounded $25/$26 sequences this publishes $02/$01 through command three;
                 // it does NOT select a new delay or advance the visible animation frame.

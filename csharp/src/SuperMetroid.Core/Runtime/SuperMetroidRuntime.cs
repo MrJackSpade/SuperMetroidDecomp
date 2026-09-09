@@ -1752,6 +1752,7 @@ public sealed partial class SuperMetroidRuntime
             // `$91:F046` queues landing sounds during collision, before AnimateSamus.
             Samus.LiquidPhysics.BeginFrameSoundRequests();
             bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
+            bool xrayActivatedThisFrame = false;
             if (xrayOwnsPoseInput)
             {
                 LastXrayPoseInput = Samus.Xray.HandlePoseInput(
@@ -1954,6 +1955,7 @@ public sealed partial class SuperMetroidRuntime
                         TryBeginXrayFromSelectedHudItem())
                     {
                         xrayOwnsPoseInput = true;
+                        xrayActivatedThisFrame = true;
                         ProspectiveSamusPose = null;
                         ProspectiveSamusFallbackPose = null;
                     }
@@ -3761,7 +3763,9 @@ public sealed partial class SuperMetroidRuntime
                 // The translated grapple launch applies its $9B:C9CE transitional
                 // slot early and clears ordinary alpha input. It still reaches this
                 // same native history epilogue, once, after the forced launch pose.
-                if (animationTransitionApplied || LastGrappleMovement is { WallJumpStarted: true } ||
+                // X-ray setup applies interrupted-slot command five early and clears
+                // ordinary alpha targets. Preserve its final history commit here.
+                if (animationTransitionApplied || xrayActivatedThisFrame || LastGrappleMovement is { WallJumpStarted: true } ||
                     ProspectiveSamusPose is not null ||
                     ProspectiveSamusFallbackPose is not null)
                     Samus.CommitPoseHistory(_addressSpace);

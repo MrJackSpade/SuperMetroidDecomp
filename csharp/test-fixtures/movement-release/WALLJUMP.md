@@ -345,3 +345,19 @@ crouched turn; the latter still expands radius 16 to 21 and raises center Y
 five pixels, preserving the native stand-up glitch. Initial X-ray activation's
 interrupted-slot ownership remains a separate audit item; this change does not
 claim to complete that path or unrelated X-ray technique tickets.
+
+## Runtime X-ray activation history handoff
+
+Native setup ($91:E16D) publishes an interrupted pose with command five; the
+normal transition handler later commits history. The managed runtime installs
+that pose early and clears ordinary pending targets. It omitted the handoff
+to the final history epilogue. A live room-local control test failed before the
+fix: activation selected $D5 but previous-pose history remained $00.
+
+The runtime now tracks successful activation for this frame and includes it
+in the existing final history commit, alongside other consumed transition
+owners. It does not commit every frozen frame or move the history shift into
+the early admission call. Tests exercise default and swapped Run/Shoot bindings,
+assert all four words on activation, and hold scanning for ninety frames to
+verify history does not shift again without another transition. Direct diagnostic
+admission alone is not a full gameplay frame and is not claimed as one.

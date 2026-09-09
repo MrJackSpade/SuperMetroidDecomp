@@ -36,9 +36,17 @@ internal static partial class Program
             AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is not null,
                 "selected inactive X-ray falls through to ordinary beam producer when Run is released");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
+            ushort poseBeforeActivation = samus.PoseHistory.PreviousPose;
+            ushort metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
             runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | runtime.ControllerBindings.Shoot));
             AssertTrue(samus.Xray.IsActive && runtime.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
+            AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");
+            AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+                samus.PoseHistory.PreviousDirectionAndMovement, "X-ray activation commits interrupted metadata");
+            AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose, "X-ray activation shifts prior pose exactly once");
+            AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,
+                "X-ray activation shifts prior metadata exactly once");
             AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is null,
                 "Run+Shoot does not allocate a beam on the activation frame");
             for (int frame = 0; frame < 90; frame++)
@@ -46,6 +54,10 @@ internal static partial class Program
                 runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | runtime.ControllerBindings.Shoot));
                 AssertTrue(runtime.Projectiles.LastFiredProjectileSnapshot is null,
                     "active scanning does not fire ordinary beams");
+                AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose,
+                    "holding X-ray does not repeatedly commit activation history");
+                AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,
+                    "holding X-ray retains prior transition metadata");
             }
             AssertEqual(XrayBeamPhase.Full, samus.Xray.BeamPhase, "configured Run keeps scan fully expanded");
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);

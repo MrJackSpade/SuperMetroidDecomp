@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--invalid-beam-selection"])
+{
+    VerifyInvalidBeamSelection();
+    return 0;
+}
 if (args is ["--spin-entry-audio"])
 {
     VerifySamusSpaceJumpAndScrewAttack();

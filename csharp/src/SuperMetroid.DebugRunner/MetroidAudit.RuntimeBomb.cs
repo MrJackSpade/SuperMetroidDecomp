@@ -44,10 +44,19 @@ internal static partial class MetroidAudit
         int attached = -1, placed = -1, detached = -1, reattached = -1;
         ushort groundY = samus.YPosition;
         ushort minimumY = groundY;
+        var collisionTrace = new List<string>();
         for (int frame = 0; frame < 140; frame++)
         {
             bool fire = attached >= 0 && placed < 0;
             runtime.StepFrame(fire ? (ushort)SnesButton.X : (ushort)0);
+            if (placed >= 0 && frame - placed is >= 48 and <= 66)
+            {
+                var bomb = runtime.BombProjectiles.Slots[0];
+                collisionTrace.Add($"frame={frame} Samus={samus.XPosition}/{samus.YPosition}:{samus.Kinematics.YSubposition:X4} " +
+                    $"speed={samus.Kinematics.VerticalSpeedFixed:X8} jump={samus.BombJumpDirection:X4} " +
+                    $"Metroid={actor.XPosition}/{actor.YPosition} radius={actor.XRadius}/{actor.YRadius} state={state.Function} " +
+                    $"bomb={bomb.XPosition}/{bomb.YPosition} radius={bomb.XRadius}/{bomb.YRadius} timer={bomb.BombTimer} type={bomb.Type:X4}");
+            }
             minimumY = Math.Min(minimumY, samus.YPosition);
             if (attached < 0 && state.Function == MetroidAiFunction.AttachedToSamus) attached = frame;
             if (fire)
@@ -62,7 +71,10 @@ internal static partial class MetroidAudit
                 reattached = frame;
         }
         if (attached < 0 || placed < 0 || detached < 0)
+        {
+            foreach (string line in collisionTrace) Console.WriteLine(line);
             throw new InvalidDataException($"Runtime bomb detachment failed: attached={attached}, placed={placed}, detached={detached}, pose={samus.Pose:X2}, Y={samus.YPosition}, minimumY={minimumY}.");
+        }
         if (detached != placed + 59 || reattached >= 0)
             throw new InvalidDataException($"Runtime detach timing changed: placed={placed}, detached={detached}, reattached={reattached}.");
         Console.WriteLine($"Runtime regular bomb: attached={attached}, placed={placed}, detached={detached}, reattached={reattached}, Samus Y={groundY}->{minimumY} (full movement enabled; no forced trajectory).");

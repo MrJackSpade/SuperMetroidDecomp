@@ -10,7 +10,8 @@ internal sealed partial class EndingCreditsState
     /// <summary>Projects the current cartridge-backed PPU image into the desktop raster.</summary>
     public Rgba32[] Render()
     {
-        if (postShot is not null) return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
+        if (postShot is not null || Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+            return SoftwareLayeredSnapshotRenderer.Render(CaptureRenderSnapshot());
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
 
         if (Phase == EndingCreditsPhase.Credits)
@@ -98,7 +99,7 @@ internal sealed partial class EndingCreditsState
             width: 256,
             height: 224,
             tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32);
+            tilemapHeightInTiles: postCreditsMapHeight);
         SnesLayerCompositor.Composite(pixels, waiting);
     }
 
@@ -123,7 +124,7 @@ internal sealed partial class EndingCreditsState
         && EndingReward != EndingReward.Armored;
 
     private ushort CurrentPostCreditsTilemapWord => UsesWaitingBackground
-        ? EndingCreditsRomData.Rendering.WaitingTilemapWord : EndingCreditsRomData.Rendering.PostCreditsTilemapWord;
+        ? EndingCreditsRomData.Rendering.WaitingTilemapWord : postCreditsUploadWord;
     private ushort CurrentPostCreditsCharacterWord => UsesWaitingBackground
         ? EndingCreditsRomData.Rendering.WaitingCharacterWord : EndingCreditsRomData.Rendering.PostCreditsCharacterWord;
 

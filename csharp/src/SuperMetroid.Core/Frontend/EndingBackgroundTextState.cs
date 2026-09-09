@@ -20,13 +20,15 @@ internal sealed class EndingBackgroundTextState
     private readonly bool japaneseText;
     private ushort instructionPointer;
     private ushort instructionTimer = 1;
+    private readonly ushort tilemapDestination;
 
     public EndingBackgroundTextState(
         ISnesAddressSpace bus,
         ushort[] tilemap,
         ushort instructionPointer,
         EndingInventorySnapshot inventory,
-        bool japaneseText)
+        bool japaneseText,
+        ushort tilemapDestination = EndingCreditsRomData.Rendering.PostCreditsTilemapWord)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.tilemap = tilemap ?? throw new ArgumentNullException(nameof(tilemap));
@@ -35,6 +37,7 @@ internal sealed class EndingBackgroundTextState
         this.instructionPointer = instructionPointer;
         this.inventory = inventory;
         this.japaneseText = japaneseText;
+        this.tilemapDestination = tilemapDestination;
     }
 
     public bool Completed => instructionPointer == 0;
@@ -174,7 +177,7 @@ internal sealed class EndingBackgroundTextState
     private void Upload(SnesVram vram) =>
         vram.ExecuteWordTransfer(
             tilemap,
-            EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+            tilemapDestination,
             wordIncrement: 1);
 
     private ushort ReadWord(ushort pointer) =>

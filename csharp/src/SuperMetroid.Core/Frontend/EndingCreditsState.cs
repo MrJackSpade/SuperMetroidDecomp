@@ -338,31 +338,13 @@ internal sealed partial class EndingCreditsState
                 postShot!.Step(vram, cgram);
                 rewardJump!.Step();
                 if (postShot.ReadyForWhiteFlash)
-                {
-                    // The subsequent white-flash/logo actor handoff remains to be connected.
-                    postShot = null;
-                    rewardJump = null;
-                    Array.Fill(
-                        postCreditsTilemap,
-                        EndingCreditsRomData.Rendering.BlankTile,
-                        EndingCreditsRomData.Text.ResultPanelDestination,
-                        EndingCreditsRomData.Text.ResultPanelWords);
-                    CopyPostCreditsWords(
-                        EndingCreditsRomData.Instructions.CopyrightPanel,
-                        EndingCreditsRomData.Text.CopyrightPanelDestination,
-                        EndingCreditsRomData.Text.CopyrightPanelWords);
-                    UploadPostCreditsTilemap();
-                    // E58A clears every cinematic sprite before spawning the percentage
-                    // BG object. Reward actors must not survive underneath either message.
-                    sprites.Clear();
-                    postCreditsText = new EndingBackgroundTextState(
-                        bus,
-                        postCreditsTilemap,
-                        instructionPointer: EndingCreditsRomData.Instructions.ItemPercentageText,
-                        inventory,
-                        japaneseText);
-                    Phase = EndingCreditsPhase.ItemPercentage;
-                }
+                    BeginPostCreditsWhiteFlash();
+                break;
+
+            case EndingCreditsPhase.PostCreditsWhiteFlash:
+                if (whiteFlashColor > 0) whiteFlashColor--;
+                rewardJump!.Step();
+                if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
 
             case EndingCreditsPhase.PostCreditsCopyright:
@@ -397,7 +379,8 @@ internal sealed partial class EndingCreditsState
                         postCreditsTilemap,
                         instructionPointer: EndingCreditsRomData.Instructions.SeeYouNextMissionText,
                         inventory,
-                        japaneseText);
+                        japaneseText,
+                        postCreditsUploadWord);
                     Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -899,7 +882,7 @@ internal sealed partial class EndingCreditsState
     private void UploadPostCreditsTilemap() =>
         vram.ExecuteWordTransfer(
             postCreditsTilemap,
-            EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+            postCreditsUploadWord,
             wordIncrement: 1);
 
     private void SpawnSprite(
@@ -1071,6 +1054,7 @@ internal enum EndingCreditsPhase
     PostCreditsGesture,
     PostCreditsJump,
     PostCreditsShot,
+    PostCreditsWhiteFlash,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

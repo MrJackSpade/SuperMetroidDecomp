@@ -37,7 +37,7 @@ internal sealed partial class EndingCreditsState
                 objectSelection = CurrentRewardObjectSelection;
                 if (PostCreditsBackgroundEnabled)
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
-                        CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, 32, null));
+                        CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
             }
             else if (EscapeBackgroundEnabled)
             {
@@ -49,6 +49,8 @@ internal sealed partial class EndingCreditsState
             }
             oam = PrepareSprites();
             if (EndingObjectsEnabled) layers.Add(new ObjRenderLayer(RewardSubscreenAddition));
+            if (Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+                layers.Add(new FixedColorAddRenderLayer(whiteFlashColor, whiteFlashColor, whiteFlashColor));
         }
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(), objectSelection, brightness);
     }

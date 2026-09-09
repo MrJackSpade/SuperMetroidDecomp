@@ -5,6 +5,18 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$8B post-shot transition identities and native staging layout.</summary>
 internal static class EndingPostShotDefinitions
 {
+    /// <summary>E48A selects BG1SC=$4E, with its upper tilemap at VRAM word $4C00.</summary>
+    public const ushort FinalTextTilemapWord = 0x4c00;
+    /// <summary>E504 copies the text staging map into the second screen at word $5000.</summary>
+    public const ushort FinalLowerTilemapWord = 0x5000;
+    /// <summary>BG1SC=$4E selects a 32-column, 64-row map.</summary>
+    public const int FinalTextMapHeight = 64;
+    /// <summary>E48A clears the copyright's first staging-map row at word 384.</summary>
+    public const int ClearedCopyrightStart = 384;
+    /// <summary>E48A clears two 32-word copyright rows.</summary>
+    public const int ClearedCopyrightWords = 64;
+    /// <summary>E48A adds maximum five-bit white; E504 decreases it each frame.</summary>
+    public const byte WhiteComponent = 31;
     /// <summary>F604 queues library-one $22 through the max-fifteen sound queue.</summary>
     public static readonly SoundEffectId ShotSound = new(SoundEffectLibrary.Library1, 0x22);
     /// <summary>F604's sound queue capacity argument.</summary>

@@ -87,9 +87,23 @@ internal static partial class Program
                     AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.CaptureRenderSnapshot().Memory.Vram[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                     AssertEqual(216, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot],
                         "live post-shot owner includes rotation and the complete native hold");
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
+                {
+                    int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash];
+                    var flash = legacy.CaptureRenderSnapshot();
+                    var add = flash.Layers.ToArray().OfType<FixedColorAddRenderLayer>().Single();
+                    AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
+                    var textPlane = flash.Layers.ToArray().OfType<Bg4BppRenderLayer>().Single();
+                    AssertEqual((ushort)0x4c00, textPlane.TilemapWord, "final text uses native upper screen");
+                    AssertEqual(64, textPlane.MapHeightTiles, "final text map is two screens tall");
+                    if (firstPhaseFrame)
+                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
+                }
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                    AssertEqual(32, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsWhiteFlash], "native white flash lasts 32 calls");
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];

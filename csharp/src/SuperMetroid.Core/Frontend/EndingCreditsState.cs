@@ -328,7 +328,7 @@ internal sealed partial class EndingCreditsState
         LoadMode7(
             EndingCreditsRomData.Assets.EscapeMapA,
             EndingCreditsRomData.Assets.EscapeCharactersA);
-        LoadEndingObjectCharacters();
+        LoadEscapeCloudCharacters();
         sprites.Clear();
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightTop, EndingSpriteRole.CloudRightA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
@@ -354,7 +354,7 @@ internal sealed partial class EndingCreditsState
         LoadMode7(
             EndingCreditsRomData.Assets.EscapeMapB,
             EndingCreditsRomData.Assets.EscapeCharactersB);
-        LoadEndingObjectCharacters();
+        LoadEscapeCloudCharacters();
         sprites.Clear();
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopA, EndingSpriteRole.CloudTopA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
@@ -443,9 +443,20 @@ internal sealed partial class EndingCreditsState
         RequireMinimum(characters, EndingCreditsRomData.Rendering.Mode7Bytes,
             "ending Mode-7 characters");
         vram.Clear();
-        vram.LoadMode7MapBytes(map.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
-        vram.LoadMode7CharacterBytes(
-            characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        // Native mode-1 DMA writes a packed map/character seed twice to $0000/$2000
+        // words. The following single-port $2119 DMA replaces only the high bytes.
+        vram.LoadBytes(0, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        vram.LoadBytes(EndingCreditsRomData.Rendering.Mode7Bytes, characters.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+        vram.LoadMode7CharacterBytes(map.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+    }
+
+    private void LoadEscapeCloudCharacters()
+    {
+        byte[] clouds = RomDataReader.Decompress(bus, EndingCreditsRomData.Assets.EscapeCloudCharacters,
+            EndingCreditsRomData.Rendering.DecompressionLimit);
+        RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
+        vram.LoadBytes(EndingCreditsRomData.Rendering.PostCreditsObjectDestination,
+            clouds.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
     }
 
     private void LoadEndingObjectCharacters()
@@ -454,15 +465,12 @@ internal sealed partial class EndingCreditsState
             bus,
             EndingCreditsRomData.Assets.EndingObjectCharacters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        // The native $6000-byte DMA begins at $7F:8000, but the $99:D17E stream itself
-        // expands to $4000 bytes. Its final $2000 source bytes are the already-cleared
-        // $7F:C000-$DFFF work-RAM tail. VRAM was likewise cleared above, so copying the
-        // authored $4000-byte prefix reproduces the complete observable transfer.
-        RequireMinimum(main, EndingCreditsRomData.Rendering.Mode7Bytes,
+        // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
+        RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
             "ending OBJ characters");
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.ObjectCharactersDestination,
-            main.AsSpan(0, EndingCreditsRomData.Rendering.Mode7Bytes));
+            main.AsSpan(0, EndingCreditsRomData.Rendering.ExplosionObjectBytes));
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters70,
             EndingCreditsRomData.Rendering.Fragment70Destination);

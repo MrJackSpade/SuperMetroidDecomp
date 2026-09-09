@@ -38,7 +38,7 @@ internal sealed partial class EndingCreditsState
         else
         {
             RenderMode7Background(pixels);
-            RenderSprites(pixels, obsel: EndingCreditsRomData.Rendering.EscapeObjectSelection);
+            RenderSprites(pixels, obsel: CurrentEscapeObjectSelection);
         }
 
         MasterBrightnessFilter.Apply(pixels, brightness);
@@ -67,6 +67,9 @@ internal sealed partial class EndingCreditsState
             verticalOffset: unchecked((short)mode7Y));
         SnesLayerCompositor.Composite(pixels, mode7);
     }
+
+    private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
+        ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
 
     private void RenderPostCreditsBackground(Span<Rgba32> pixels)
     {

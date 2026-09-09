@@ -25,6 +25,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Contains("--ending-dma"))
+{
+    VerifyEndingDma();
+    VerifyEndingRenderSnapshots();
+    return 0;
+}
 if (args.Length == 2 && args[0] == "--mother-brain-health")
 {
     VerifyMotherBrainHealthPalette(args[1]);

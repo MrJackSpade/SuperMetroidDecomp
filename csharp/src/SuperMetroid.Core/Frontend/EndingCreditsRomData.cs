@@ -17,7 +17,10 @@ public static class EndingCreditsRomData
         public const int EscapeCharactersA = 0x99d17e;
         public const int EscapeCharactersB = 0x99d65b;
         public const int ExplosionCharacters = 0x99d932;
-        public const int EndingObjectCharacters = 0x99d17e;
+        /// <summary>$8B:D56C decompresses the explosion OBJ sheet into $7F:8000.</summary>
+        public const int EndingObjectCharacters = 0x988304;
+        /// <summary>$8B:D4D1 decompresses the atmospheric cloud OBJ sheet for VRAM word $6000.</summary>
+        public const int EscapeCloudCharacters = 0x99a56f;
         public const int EndingObjectCharacters70 = 0x98b5c1;
         public const int EndingObjectCharacters74 = 0x98b857;
         public const int EndingObjectCharacters78 = 0x98baed;
@@ -53,6 +56,8 @@ public static class EndingCreditsRomData
         public const short Mode7CenterY = 24;
         /// <summary>Ending OBSEL=$02 selects the escape/explosion OBJ character base.</summary>
         public const byte EscapeObjectSelection = 2;
+        /// <summary>$8B:8293 initializes OBSEL=$A3 for the atmospheric cloud scenes.</summary>
+        public const byte CloudObjectSelection = 0xa3;
         /// <summary>Post-credits OBSEL=$03 selects the reward OBJ character base.</summary>
         public const byte RewardObjectSelection = 3;
         public const ushort BlankTile = 0x007f;
@@ -65,6 +70,8 @@ public static class EndingCreditsRomData
         public const ushort PostCreditsTilemapWord = 0x4c00;
         public const ushort PostCreditsCharacterWord = 0x5000;
         public const int Mode7Bytes = 0x4000;
+        /// <summary>$8B:D8C1 explosion OBJ DMA byte count from $7F:8000.</summary>
+        public const int ExplosionObjectBytes = 0x6000;
         public const int DecompressionLimit = 0x8000;
         public const int ObjectCharactersDestination = 0x8000;
         public const int FontCharactersDestination = 0xa000;

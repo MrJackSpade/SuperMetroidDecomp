@@ -9,7 +9,7 @@ internal sealed partial class EndingCreditsState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         var layers = new List<RenderLayer>();
-        byte objectSelection = EndingCreditsRomData.Rendering.EscapeObjectSelection;
+        byte objectSelection = CurrentEscapeObjectSelection;
         OamBuffer oam;
         if (Phase == EndingCreditsPhase.Credits)
         {

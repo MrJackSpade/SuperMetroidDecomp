@@ -588,9 +588,9 @@ public static class SamusGroundedMovement
             nmiFrameCounter,
             plms);
         speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
-        samus.Kinematics.YSpeed = 0;
-        samus.Kinematics.YSubspeed = 0;
-        samus.Kinematics.YDirection = 0;
+        // Landing art still uses native standing movement: it does not reset Y words.
+        // Collision command five owns landing cleanup; a later hurt expiry may write
+        // direction two while this pose remains active, and that value must survive.
         return new GroundedMovementResult(horizontal, vertical);
     }
 

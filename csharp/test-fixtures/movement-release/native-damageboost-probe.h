@@ -6,7 +6,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
   if (status) return status;
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
-  fprintf(f, "timer,ball,left,source,forward,delay,frame,input,x,y,pose,animation,hurtTimer,hurtDirection,ySpeed,yDirection,baseSpeed,extraSpeed,previousPose,previousMetadata,olderPose,olderMetadata,medium,release,contact,health\n");
+  fprintf(f, "timer,ball,left,source,forward,delay,frame,input,x,y,pose,animation,hurtTimer,hurtDirection,ySpeed,yDirection,baseSpeed,extraSpeed,previousPose,previousMetadata,olderPose,olderMetadata,medium,release,contact,health,holdForwardUntilBoost\n");
   for (int timerCase = 0; timerCase < (contact ? 1 : 2); timerCase++)
   for (int ball = 0; ball < 2; ball++)
   for (int left = 0; left < 2; left++)
@@ -61,6 +61,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
       uint16 input = previous;
       if (frame >= 0) {
         input = frame >= delay ? (left ? 0x100 : 0x200) | 0x80 : 0;
+        if (contact && forward && frame < delay) input = left ? 0x200 : 0x100;
         // Release directional travel after three boost-input frames, retaining Jump.
         if (release && frame >= delay + 3) input = 0x80;
         samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
@@ -84,12 +85,12 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         }
         RunAsmCode(0xa09169, 0, 0, 0, 0);
       }
-      fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%d,%d,%d,%04X\n",
+      fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%d,%d,%d,%04X,%d\n",
         timer, ball, left, source, forward, delay, frame, input,
         samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame,
         samus_knockback_timer, knockback_dir, samus_y_speed, samus_y_subspeed, samus_y_dir,
         samus_x_base_speed, samus_x_base_subspeed, samus_x_extra_run_speed, samus_x_extra_run_subspeed,
-        samus_prev_pose, *(uint16 *)&samus_prev_pose_x_dir, samus_last_different_pose, *(uint16 *)&samus_last_different_pose_x_dir, medium, release, contact, samus_health);
+        samus_prev_pose, *(uint16 *)&samus_prev_pose_x_dir, samus_last_different_pose, *(uint16 *)&samus_last_different_pose_x_dir, medium, release, contact, samus_health, contact != 0);
     }
   }
   fclose(f); return 0;

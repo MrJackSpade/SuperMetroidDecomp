@@ -2693,18 +2693,28 @@ public sealed partial class SuperMetroidRuntime
                         break;
                     case SamusPoseIds.KnockbackRightPose:
                     case SamusPoseIds.KnockbackLeftPose:
+                    {
                         // `$90:A5FC` is the normal type-$0A movement-table entry. Active
                         // knockback and Ceres ejection were intercepted above; this branch
                         // is their authentic one-frame normal-dispatch tail before bank-$91
                         // installs the input/no-input target chosen during alpha.
-                        LastGroundedSamusMovement = new GroundedMovementResult(default,
-                            SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
+                        int groundingDisplacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
+                            Samus.Kinematics, Samus.HorizontalSpeed);
+                        BlockMoveResult grounding = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
                             _addressSpace,
                             LevelData,
                             Samus,
                             NmiFrameCounter,
-                            Plms));
+                            Plms);
+                        LastGroundedSamusMovement = new GroundedMovementResult(default, grounding);
+                        // Normal type-$0A still publishes collision result one when its
+                        // downward probe hits the floor. Reuse the ordinary landing seam
+                        // for presentation, pose selection and command-five speed cleanup.
+                        if (grounding.Collided && groundingDisplacement >= 0)
+                            LastAerialSamusMovement = new AerialMovementResult(
+                                default, grounding, Landed: true, HitCeiling: false);
                         break;
+                    }
                     case SamusPoseIds.CrouchingTransitionRightPose:
                     case SamusPoseIds.CrouchingTransitionLeftPose:
                     case SamusPoseIds.StandingTransitionRightPose:

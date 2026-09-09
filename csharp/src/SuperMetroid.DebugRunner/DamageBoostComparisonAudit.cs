@@ -9,10 +9,10 @@ internal static class DamageBoostComparisonAudit
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        int contactKind = rows.Length > 0 && rows[0].Length == 26 ? int.Parse(rows[0][24]) : 0;
+        int contactKind = rows.Length > 0 && rows[0].Length >= 26 ? int.Parse(rows[0][24]) : 0;
         if (contactKind is < 0 or > 4) throw new InvalidDataException("Unknown contact source.");
         bool contact = contactKind != 0;
-        if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26))
+        if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
@@ -29,9 +29,11 @@ internal static class DamageBoostComparisonAudit
             int delay = int.Parse(seed[5]);
             int medium = seed.Length >= 24 ? int.Parse(seed[22]) : 0;
             int release = seed.Length >= 24 ? int.Parse(seed[23]) : 0;
+            bool holdForward = seed.Length == 27 && seed[26] == "1";
             if (medium is < 0 or > 2 || release is < 0 or > 1 ||
                 group.Any(row => row.Length >= 24 && (row[22] != seed[22] || row[23] != seed[23])) ||
-                group.Any(row => row.Length == 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)))
+                group.Any(row => row.Length >= 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)) ||
+                group.Any(row => row.Length == 27 && row[26] != (holdForward ? "1" : "0")))
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false);
             var level = runtime.LevelData!;
@@ -120,6 +122,7 @@ internal static class DamageBoostComparisonAudit
                 if (int.Parse(row[6]) != frame) throw new InvalidDataException("Reordered hurt trace.");
                 ushort input = ushort.Parse(row[7], NumberStyles.HexNumber);
                 ushort expectedInput = frame < 0 ? initialInput : frame >= delay ? (ushort)((left ? 0x100 : 0x200) | 0x80) : (ushort)0;
+                if (frame >= 0 && frame < delay && holdForward) expectedInput = initialInput;
                 if (frame >= 0 && release != 0 && frame >= delay + 3) expectedInput = 0x80;
                 if (input != expectedInput) throw new InvalidDataException("Changed boost input sequence.");
                 if (frame >= 0) runtime.StepFrame(input);
@@ -141,7 +144,7 @@ internal static class DamageBoostComparisonAudit
                 if (!actualWords[..4].SequenceEqual(row[8..12])) motionMismatches++;
                 if (!actualWords[4..10].SequenceEqual(row[12..18])) stateMismatches++;
                 if (!actualWords[10..].SequenceEqual(row[18..22])) historyMismatches++;
-                bool healthMatches = row.Length != 26 || samus.Health == ushort.Parse(row[25], NumberStyles.HexNumber);
+                bool healthMatches = row.Length < 26 || samus.Health == ushort.Parse(row[25], NumberStyles.HexNumber);
                 if (!healthMatches) healthMismatches++;
                 if (actual != expected || !healthMatches)
                 {
@@ -149,7 +152,7 @@ internal static class DamageBoostComparisonAudit
                     if (frame < 0) initialMismatches++;
                     mismatches++;
                     if (reportedGroups.Add(group.Key) && reportedGroups.Count <= 16)
-                        Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}; health={samus.Health:X4}/{(row.Length == 26 ? row[25] : "unrecorded")}");
+                        Console.WriteLine($"DAMAGE {group.Key} frame={frame}: {actual} != {expected}; health={samus.Health:X4}/{(row.Length >= 26 ? row[25] : "unrecorded")}");
                 }
                 if (!ball) humanoidSamples++;
                 samples++; frame++;

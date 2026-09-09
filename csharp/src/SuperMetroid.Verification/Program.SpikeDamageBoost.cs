@@ -55,5 +55,35 @@ internal static partial class Program
             AssertEqual(83, samus.Health, "spike contact damage");
             AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
         }
+
+        // Independent native seed: forward-held spike contact, left-facing, delay four,
+        // frame 27. Hurt just expired above the floor; normal type-$0A probes downward.
+        runtime.InitializeDebugGroundedSamus(83, 232, 16);
+        samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.Pose = SamusPoseIds.KnockbackRightPose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        samus.XPosition = 83;
+        samus.Kinematics.XSubposition = 0x4000;
+        samus.YPosition = 232;
+        samus.Kinematics.YSubposition = 0xe000;
+        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        samus.Kinematics.YDirection = 2;
+        samus.HorizontalSpeed.BaseSpeed = 5;
+        samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
+        samus.KnockbackActive = false;
+        samus.KnockbackTimer = samus.KnockbackDirection = 0;
+        runtime.Controller1.Latch(0x0180);
+        runtime.StepFrame(0x0180);
+        AssertEqual(SamusPoseIds.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
+        AssertEqual(0x00534000u, samus.Kinematics.XFixed, "expired hurt floor probe keeps X");
+        AssertEqual(0x00ebffffu, samus.Kinematics.YFixed, "expired hurt floor alignment");
+        AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
+        AssertEqual(0, samus.Kinematics.YDirection, "landing clears vertical direction");
+        samus.Kinematics.YDirection = 2;
+        runtime.StepFrame(0x0180);
+        AssertEqual(2, samus.Kinematics.YDirection, "landing movement preserves post-landing hurt-expiry direction");
     }
 }

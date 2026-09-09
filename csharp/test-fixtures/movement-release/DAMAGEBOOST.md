@@ -386,3 +386,32 @@ This covers the ordinary Ripper contact path, not enemy-specific grabs, contact-
 attacks, moving-source edge cases, medium crossings or speedkeep variants. The earlier
 native alpha/enemy ordering concern remains relevant to those interacting cases even
 though these isolated ordinary-contact trajectories match. #472 is not complete.
+
+## Forward input through contact and hurt landing
+
+The prior contact traces used `forward` only for the initial pre-contact input latch;
+they did not hold it until the boost delay. New 27-column traces explicitly record
+`holdForwardUntilBoost`. The native source modes now hold forward for frames before
+the selected boost delay; legacy traces retain their original input validation.
+Use `--damageboost-source ROM NEW.csv MEDIUM RELEASE CONTACT` with the temporary
+headless dispatch to `DiagnosticDamageBoostSource` to regenerate.
+
+This extension reproduced two landing defects and led to production corrections:
+
+- `damageboost-forward-472-c2-m0-r0.csv` initially had five mismatched samples. After
+  hurt expiry above the floor, normal type-$0A's grounding probe reached the floor but
+  did not enter the shared landing selector. Runtime now publishes that downward hit
+  to the existing landing presentation/pose/command-five path. The trace is green.
+- `damageboost-forward-472-c3-m0-r0.csv` then exposed 76 vertical-state mismatches.
+  Movement in landing art reset Y words unlike native standing movement. Removing
+  those extra resets preserves direction two written by a later hurt expiry. This
+  trace is green. Focused default tests check both exact landing position/pose/momentum
+  and preservation of post-landing vertical direction.
+
+The complete core suite and all six legacy seeded traces (71,424 samples) pass.
+The expanded matrix is NOT all green: `damageboost-forward-472-c3-m0-r1.csv` currently
+has 248 pose-history-only mismatches, beginning after landing or a later jump, with
+movement/pose/animation, velocities/timers and health matching. This is retained as
+the next failing diagnostic; do not mark #472 ready or weaken the history comparison.
+The remainder of the forward-contact matrix must finish after that discrepancy is
+resolved. Temporary upstream hooks were removed; no player save slot was changed.

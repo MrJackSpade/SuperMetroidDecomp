@@ -64,3 +64,27 @@ cover both known older Samus layouts and preservation of a live pending handler.
 This does not cover full elevator departure or all landing/animation states.
 Those remain part of #474. In particular, Blue Brinstar and Lower Norfair elevator
 exceptions cannot be inferred from this synthetic flat floor.
+
+## Destination-room elevator diagnostic
+
+`--elevator-spinjump-audit ROM` runs the actual destination loader, door setup,
+terrain and elevator actor in three rooms. It seeds arrival status directly,
+not a source-room journey or the complete frontend fade. Samus starts in the
+departure front-facing pose with input locked. Jump remains held through arrival;
+Left is added 0, 1, 4 or 8 frames after the arrival-completed event.
+
+Observed managed results:
+
+| Destination | Incoming door | Arrival calls | Released Y | First spin after release |
+| --- | --- | --- | --- | --- |
+| Blue Brinstar / Morph Ball | $8B9E | 455 | 680 | delay + 2 |
+| Green Brinstar main shaft | $8C0A | 455 | 680 | delay + 2 |
+| Lower Norfair main hall | $96F6 | 434 | 648 | delay + 2 |
+
+The command prints exact X/Y, pose and vertical direction for the first twelve
+post-arrival frames, including Lower Norfair's subsequent ceiling collision.
+These observations are NOT cartridge golden values, and the command deliberately
+does not assert that the player technique is correct merely because spin begins.
+The wiki's two elevator exceptions still require native comparison of clearance,
+arrival timing and the useful departure trajectory. Pre-completion direction
+buffering and frontend handoff are also outside this diagnostic's present scope.

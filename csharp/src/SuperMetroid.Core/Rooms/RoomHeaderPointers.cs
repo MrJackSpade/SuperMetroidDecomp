@@ -65,6 +65,9 @@ public static class RoomHeaderPointers
     /// <summary>Blue Brinstar double-missile room at $8F:A1D8 (area $01, room $1D).</summary>
     public const ushort BlueBrinstarDoubleMissile = 0xa1d8;
 
+    /// <summary>RoomHeader_MainHall at $8F:B236, Lower Norfair's elevator destination.</summary>
+    public const ushort LowerNorfairMainHall = 0xb236;
+
     /// <summary>Ceres elevator shaft at $8F:DF45.</summary>
     public const ushort CeresElevatorShaft = 0xdf45;
 

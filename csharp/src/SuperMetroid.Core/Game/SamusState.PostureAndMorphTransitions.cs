@@ -229,8 +229,8 @@ public sealed partial class SamusState
     /// </summary>
     /// <remarks>
     /// `$37/$38` shrink the current humanoid radius to seven and command seven moves center
-    /// Y down by the exact radius difference; crouching therefore moves nine pixels, while
-    /// compact straight-down aerial art moves three. `$3D/$3E` expand 7 to 16 through
+    /// Y down by the table's nine-pixel request, clipped against room blocks using the
+    /// new radius. This is not the source/target radius difference. `$3D/$3E` expand 7 to 16 through
     /// `$91:FDAE`; floor collision normally moves center up nine. If both sides constrain a
     /// radius-seven body, `$91:FFA7` rejects the target and keeps Samus morphed.
     /// </remarks>
@@ -292,8 +292,11 @@ public sealed partial class SamusState
                 throw new InvalidDataException(
                     $"Morph entry ${targetPose:X2} expanded radius {previousRadius} -> {Kinematics.YRadius}.");
             }
+            BlockMoveResult alignment = ProbeChangedPoseVertical(
+                bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
+                (nmiFrameCounter & 1) == 0, plms, includeSolidEnemies: false);
             Kinematics.YPosition = unchecked((ushort)(
-                Kinematics.YPosition + previousRadius - Kinematics.YRadius));
+                Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.

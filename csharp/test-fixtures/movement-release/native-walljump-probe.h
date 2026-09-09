@@ -21,7 +21,8 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   printf("HISTORY: native word shift and same-pose shift passed.\n");
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
-  fprintf(f, "history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata\n");
+  fprintf(f, "postInput,history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata\n");
+  for (int postInput = 0; postInput < 4; postInput++)
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -34,6 +35,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       if (y == 16) for (int x = 0; x < 16; x++) level_data[y * 16 + x] = 0x8000;
     }
     fx_y_pos = lava_acid_y_pos = 0xffff;
+    equipped_items = 4; // Morph Ball is required by the post-launch Down case.
     samus_x_pos = left ? 122 : 134; samus_y_pos = 160;
     samus_pose = samus_prev_pose = left ? 0x19 : 0x1a;
     samus_pose_x_dir = samus_prev_pose_x_dir = left ? 8 : 4;
@@ -46,6 +48,10 @@ int DiagnosticWalljump(const char *rom, const char *output) {
     uint16 previous = 0;
     for (int frame = 0; frame < 30; frame++) {
       uint16 input = (left ? 0x200 : 0x100) | (frame >= delay ? 0x80 : 0);
+      if (frame >= 12 && postInput) {
+        input |= postInput == 2 ? 0x400 : 0x800;
+        if (postInput == 3) input &= ~0x80;
+      }
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -53,7 +59,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       RunAsmCode(0x909c5b, 0, 0, 0, 0); RunAsmCode(0x90a337, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0); RunAsmCode(0x90eab3, 0, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X,%04X\n", history, left, delay, frame, input,
+      fprintf(f, "%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X,%04X\n", postInput, history, left, delay, frame, input,
         samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame,
         samus_prev_pose, *(uint16 *)&samus_prev_pose_x_dir,
         samus_last_different_pose, *(uint16 *)&samus_last_different_pose_x_dir);

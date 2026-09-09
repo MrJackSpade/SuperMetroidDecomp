@@ -161,7 +161,7 @@ static void VerifySamusMorphBallMovement()
 
     // The same `$91:F7CE` initializer is selected by aerial input tables. `$2E -> $38`
     // is the controller route used to aim at Parlor's floor hatch: its radius-ten body
-    // shrinks by only three pixels, retains falling momentum mode, and clears the distinct
+    // still receives the table's nine-pixel request, retains falling momentum mode, and clears the distinct
     // bomb-spread timeout without touching beam charge. A spin source additionally forces
     // acceleration mode two exactly as the initializer's previous-type-three branch does.
     var fallingMorph = new SamusState
@@ -178,8 +178,18 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(fallingMorph.TryApplyMorphTransition(
             bus, floor, SamusPoseIds.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         "compact falling pose begins cartridge morph transition");
-    AssertEqual(43, fallingMorph.YPosition,
-        "compact falling morph preserves bottom with three-pixel center adjustment");
+    AssertEqual(49, fallingMorph.YPosition,
+        "compact falling morph uses command-seven table displacement, not radius difference");
+    var clippedMorph = new SamusState
+    {
+        Pose = SamusPoseIds.FallingAimDownLeftPose, EquippedItems = 0x0004,
+        XPosition = 48, YPosition = 54,
+    };
+    clippedMorph.RefreshCollisionRadii(bus);
+    AssertTrue(clippedMorph.TryApplyMorphTransition(bus, floor,
+        SamusPoseIds.MorphingTransitionLeftPose, 0), "near-floor morph is admitted");
+    AssertEqual(57, clippedMorph.YPosition,
+        "command-seven nine-pixel request clips to three pixels at the floor");
     AssertEqual(1, fallingMorph.HorizontalSpeed.AccelerationMode,
         "non-spin aerial morph retains acceleration mode");
     AssertEqual(0, fallingMorph.BombSpreadChargeTimeoutCounter,

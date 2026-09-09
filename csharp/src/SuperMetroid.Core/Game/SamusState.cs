@@ -576,7 +576,8 @@ public sealed partial class SamusState
         RoomLevelData level,
         int displacement,
         bool scanLeftToRight,
-        RoomPlmSystem? plms)
+        RoomPlmSystem? plms,
+        bool includeSolidEnemies = true)
     {
         short wholePixels = unchecked((short)(displacement >> 16));
         if ((Math.Abs(wholePixels) & 0xfff8) != 0)
@@ -591,6 +592,7 @@ public sealed partial class SamusState
                 CopyKinematics(Kinematics),
                 displacement: intermediateWhole << 16,
                 scanLeftToRight: scanLeftToRight,
+                includeSolidEnemies: includeSolidEnemies,
                 plms: plms,
                 publishQuicksandGrounding: false);
             if (intermediate.Collided)
@@ -603,6 +605,7 @@ public sealed partial class SamusState
             CopyKinematics(Kinematics),
             displacement,
             scanLeftToRight,
+            includeSolidEnemies: includeSolidEnemies,
             plms: plms,
             publishQuicksandGrounding: false);
     }

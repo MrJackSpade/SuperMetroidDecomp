@@ -144,3 +144,27 @@ older contact pose so a double commit would fail. The 1,560 ordinary native
 samples continue to match exactly. This covers forced grapple wall-launch
 history only, not every grapple animation/timing property or other forced
 transition owners.
+
+## Post-launch input matrix and morph alignment
+
+The newest trace contains 6,240 frames with a leading `postInput` column.
+Every original case repeats with Morph Ball equipped and four input modes:
+0 unchanged; 1 add Up at frame 12 while holding Jump; 2 add Down at frame 12;
+3 add Up and release Jump at frame 12. Away remains held. Failed launch windows
+remain included as negative controls. The comparer accepts older trace layouts.
+
+The first run found 980 motion/pose/animation mismatches with zero history-word
+mismatches. Down-to-morph from walljump first differed by three pixels in Y:
+managed 0082.C800 versus native 007F.C800 at frame 12 (rightward, delay two).
+The managed morph initializer incorrectly used source radius minus target radius.
+Native command seven instead reads a fixed nine-pixel request from $91:ED3A/C,
+then uses the new radius in the two-stage block-only $94:96AB probe. The fix
+uses that request and collision path, with its value in SamusPostureDefinitions.
+
+Full core verification passes, including open-space compact morph (+9) and a
+near-floor case clipped to +3. Post-input modes 0, 1 and 2 now each match all
+1,560 frames. Mode 3 still has 476 mismatches: the first is a fractional-X
+offset at frame 13, with matching Y/pose/animation. All history words match.
+The aggregate audit deliberately remains failing until that separate mismatch
+is resolved. Charge-release, repeated-wall, and overhang coverage remain open.
+Temporary native integration was removed after capture.

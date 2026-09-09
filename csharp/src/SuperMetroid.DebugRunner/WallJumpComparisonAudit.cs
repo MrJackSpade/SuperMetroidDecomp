@@ -8,13 +8,16 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool checksHistoryWords = rows.Length == 1560 && rows[0].Length == 13;
-        bool hasHistory = rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
+        bool hasPostInput = rows.Length == 6240 && rows[0].Length == 14;
+        bool checksHistoryWords = hasPostInput || rows.Length == 1560 && rows[0].Length == 13;
+        bool hasHistory = hasPostInput || rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
-            throw new InvalidDataException("Expected 26 or 52 cases of 30 frames.");
+            throw new InvalidDataException("Expected 26, 52, or 208 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
+        int[] mismatchesByPostInput = new int[4];
+        for (int postInput = 0; postInput < (hasPostInput ? 4 : 1); postInput++)
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
         for (int left = 0; left < 2; left++)
         for (int delay = 0; delay <= 12; delay++)
@@ -24,6 +27,7 @@ internal static class WallJumpComparisonAudit
             for (int y = 0; y <= 16; y++)
                 level.SetForegroundEntry(y * level.WidthInBlocks + (left != 0 ? 8 : 7), 0x8000);
             var samus = runtime.Samus!;
+            if (hasPostInput) samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
             samus.XPosition = (ushort)(left != 0 ? 122 : 134);
             samus.YPosition = 160;
             samus.Kinematics.YSubposition = 0;
@@ -41,6 +45,12 @@ internal static class WallJumpComparisonAudit
             for (int frame = 0; frame < 30; frame++)
             {
                 var row = rows[sample++];
+                if (hasPostInput)
+                {
+                    if (int.Parse(row[0]) != postInput)
+                        throw new InvalidDataException("Reordered post-walljump input trace.");
+                    row = row[1..];
+                }
                 if (hasHistory)
                 {
                     if (int.Parse(row[0]) != history)
@@ -53,8 +63,9 @@ internal static class WallJumpComparisonAudit
                 runtime.StepFrame(input);
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.AnimationFrame:X4}";
                 string expected = string.Join(',', row[4..8]);
+                if (actual != expected) mismatchesByPostInput[postInput]++;
                 if (actual != expected && mismatches++ < 16)
-                    Console.WriteLine($"WALL history={history} left={left} delay={delay} frame={frame}: {actual} != {expected}");
+                    Console.WriteLine($"WALL postInput={postInput} history={history} left={left} delay={delay} frame={frame}: {actual} != {expected}");
                 if (checksHistoryWords)
                 {
                     var h = samus.PoseHistory;
@@ -69,6 +80,8 @@ internal static class WallJumpComparisonAudit
         }
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
         Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");
+        for (int mode = 0; mode < (hasPostInput ? 4 : 1); mode++)
+            Console.WriteLine($"Post-input mode {mode}: {mismatchesByPostInput[mode]} motion/pose/animation mismatches.");
         return mismatches == 0 && historyMismatches == 0 ? 0 : 1;
     }
 

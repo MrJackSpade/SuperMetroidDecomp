@@ -100,6 +100,9 @@ public sealed class SamusDeathSequenceState
         samus.Pose = deathPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
+        // Death entry publishes history itself, before overriding the starting
+        // animation frame; the ordinary gameplay pose dispatcher is not running.
+        samus.CommitPoseHistory(bus);
         samus.SetAnimationFrameFromSpecialHandler(initialFrame, timer: 2);
 
         // The cartridge subtracts layer 1 directly from Samus's live words because its death

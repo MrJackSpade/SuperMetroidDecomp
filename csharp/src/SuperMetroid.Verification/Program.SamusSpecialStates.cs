@@ -659,6 +659,10 @@ static void VerifySamusDeathSequence()
     };
     samus.RefreshCollisionRadii(bus);
     samus.InitializeAnimation(bus);
+    samus.PoseHistory.PreviousPose = samus.Pose;
+    samus.PoseHistory.PreviousDirectionAndMovement = 8;
+    samus.PoseHistory.LastDifferentPose = SamusPoseIds.SpinJumpLeftPose;
+    samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     SamusDeathSequenceStartResult start = samus.DeathSequence.Begin(
         bus,
         samus,
@@ -666,6 +670,11 @@ static void VerifySamusDeathSequence()
         layer1Y: 0x0400);
     AssertEqual(SamusMovementType.Standing, start.SourceMovementType, "death source standing type");
     AssertEqual(0xd7, start.DeathPose, "death selects right pose");
+    AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
+    AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
+    AssertEqual(0xd7, samus.PoseHistory.PreviousPose, "death commits right pose");
+    AssertEqual(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8),
+        samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, start.InitialFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(0x00a0, start.ScreenX, "death captures screen X");
     AssertEqual(0x00c0, start.ScreenY, "death captures screen Y");
@@ -750,9 +759,16 @@ static void VerifySamusDeathSequence()
     };
     morphedLeft.RefreshCollisionRadii(bus);
     morphedLeft.InitializeAnimation(bus);
+    morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
+    morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
     SamusDeathSequenceStartResult morphStart = morphedLeft.DeathSequence.Begin(
         bus, morphedLeft, layer1X: 0, layer1Y: 0);
     AssertEqual(0xd8, morphStart.DeathPose, "left Morph death selects D8");
+    AssertEqual(SamusPoseIds.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
+    AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
+    AssertEqual(0xd8, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
+    AssertEqual(morphedLeft.ReadPoseXDirection(bus) | ((byte)morphedLeft.ReadMovementType(bus) << 8),
+        morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
     AssertEqual(1, morphStart.InitialFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusPoseIds.SpinJumpRightPose };

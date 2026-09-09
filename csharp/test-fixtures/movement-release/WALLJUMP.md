@@ -403,3 +403,21 @@ setup. The regression checks all four words and verifies request promotion does
 not update history early. Existing assertions still check no motion on the first
 gamma call and the ordinary wall-contact termination/feet alignment. This is
 only the missing history publication, not a change to the ejection trajectory.
+
+## Fresh initialization and death entry
+
+Fresh Ceres setup allocates a new SamusState. The pinned ROM's pose-zero
+definition bytes at $91:B629 are `00 00 FF FF 08 00 18 00`: its packed direction/
+movement word is zero. Thus both initial history samples already match the
+explicit zeros in $91:E00D and the two current-pose copies in $90:F1E9. No
+production change was needed for this fresh-ROM initialization path; this is
+not proof of legacy debugger-state history recovery.
+
+Death entry does explicitly shift history ($9B:B3EA-$B3FF), after pose
+initialization and before its frame-table override. C# omitted this publication.
+The new production-owner assertion failed before the change (expected prior
+standing $01, found stale spin $1A). The owner now commits at that boundary.
+Tests assert all four words for right-standing and left-Morph entry, alongside
+the existing differing initial frames and complete death-sequence checks.
+Death has no ordinary gameplay return; the fix is exact state parity, not a
+claim that this omission caused an observed post-death walljump failure.

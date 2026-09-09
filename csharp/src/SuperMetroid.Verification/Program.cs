@@ -25,6 +25,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--power-bomb-fuse"])
+{
+    VerifyPowerBombFuse();
+    VerifyPowerBombRuntimeRendererIntegration();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--beam-callback-tables"])
 {
     VerifyBeamCallbackTables();
@@ -526,6 +533,7 @@ VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyPowerBombRuntimeRendererIntegration();
+VerifyPowerBombFuse();
 VerifyRoomFxRomData();
 VerifyScrollingSkyState();
 VerifyOceanSky();

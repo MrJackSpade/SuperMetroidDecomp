@@ -519,7 +519,24 @@ public sealed class SamusBombProjectileSystem
         }
 
         bool explosionStarted = false;
-        if (slot.BombTimer != 0)
+        if (typeFamily == SamusProjectileFamily.PowerBomb)
+        {
+            PowerBombFuseStep fuse = SamusPowerBombFuse.Step(
+                slot.BombTimer, slot.InstructionPointer, PowerBombExplosion.Flag);
+            slot.BombTimer = fuse.Timer;
+            slot.InstructionPointer = fuse.InstructionPointer;
+            if (fuse.DeleteProjectile)
+            {
+                ClearProjectile(slot);
+                return false;
+            }
+            if (fuse.SpawnExplosion)
+            {
+                PowerBombExplosion.Spawn(slot.XPosition, slot.YPosition);
+                explosionStarted = true;
+            }
+        }
+        else if (slot.BombTimer != 0)
         {
             slot.BombTimer = unchecked((ushort)(slot.BombTimer - 1));
             if (slot.BombTimer == 15)
@@ -530,22 +547,12 @@ public sealed class SamusBombProjectileSystem
             }
             else if (slot.BombTimer == 0)
             {
-                if (typeFamily == SamusProjectileFamily.Bomb)
-                {
-                    // $93:814E reads the pointer word embedded in the bomb-explosion data
-                    // record at $93:8683 and resets the instruction timer to one.
-                    slot.InstructionPointer = ReadWord(
-                        bus,
-                        SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer);
-                    slot.InstructionTimer = 1;
-                }
-                else
-                {
-                    // $90:C157 copies the projectile center to the global HDMA owner and
-                    // leaves the bank-$93 power-bomb animation on its fast looping list.
-                    PowerBombExplosion.Spawn(slot.XPosition, slot.YPosition);
-                    slot.BombTimer = 0xffff;
-                }
+                // $93:814E reads the pointer word embedded in the bomb-explosion data
+                // record at $93:8683 and resets the instruction timer to one.
+                slot.InstructionPointer = ReadWord(
+                    bus,
+                    SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer);
+                slot.InstructionTimer = 1;
                 explosionStarted = true;
             }
         }
@@ -582,10 +589,6 @@ public sealed class SamusBombProjectileSystem
                     slot.Type);
             }
 
-            // Once cleanup clears $0CEA, $90:C157 deletes the otherwise immortal looping
-            // projectile. Crystal Flash deliberately retains the flag and slot instead.
-            if (slot.BombTimer == 0 && !PowerBombExplosion.IsArmed)
-                ClearProjectile(slot);
         }
 
         return explosionStarted;

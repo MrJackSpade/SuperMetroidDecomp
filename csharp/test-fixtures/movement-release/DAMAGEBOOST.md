@@ -364,3 +364,25 @@ the existing headless integration with `--damageboost-solid-spike` dispatching
 No production correction was necessary for this floor-contact slice. Horizontal
 spike collision, ordinary enemy contact, medium crossings, speedkeep and interruption
 variants are not established by it. The overall #472 issue remains open.
+
+## Ordinary enemy overlap and contact window
+
+Native `contact=4` places a stationary retail Ripper at X120 or X136, Y160 with its
+8x4 contact radius and live right-facing spritemap. `$A0:A07A` runs after alpha and
+before movement, performing the real radius/invincibility checks and dispatching
+the retail touch callback. The managed fixture uses the retail definition in a live
+enemy slot and leaves overlap/contact to Runtime.StepFrame/EnemyMain; it does not
+call the damage or hurt helper. Animation is held, velocity zero, and other actors
+are removed to isolate Samus's timing. The native fixture likewise omits unrelated
+actor drawing/animation and does not represent a full ROM gameplay recording.
+
+All six `damageboost-enemy-472-m{0,1,2}-r{0,1}.csv` captures match (35,712 samples),
+including real five-energy contact damage in air, combined periodic liquid damage,
+both facings/source sides/bodies, twelve delays and held/released direction. No new
+production fix was necessary. Regenerate with the headless `--damageboost-enemy`
+dispatch to `DiagnosticDamageBoostSource(..., 4)`. Temporary hooks were removed.
+
+This covers the ordinary Ripper contact path, not enemy-specific grabs, contact-damage
+attacks, moving-source edge cases, medium crossings or speedkeep variants. The earlier
+native alpha/enemy ordering concern remains relevant to those interacting cases even
+though these isolated ordinary-contact trajectories match. #472 is not complete.

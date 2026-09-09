@@ -1,7 +1,7 @@
 // #472: seeded hurt or inert-projectile contact, then the full movement sequence.
 // Include after native-release-probe.h. Dispatch before SDL initialization.
 int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium, int release, int contact) {
-  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 3) return 5;
+  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 4) return 5;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
@@ -13,7 +13,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
   for (int source = 0; source < 2; source++)
   for (int forward = 0; forward < 2; forward++)
   for (int delay = 0; delay < 12; delay++) {
-    int timer = timerCase || contact >= 2 ? 10 : 5;
+    int timer = timerCase || contact == 2 || contact == 3 ? 10 : 5;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
     room_width_in_blocks = 16; room_height_in_blocks = 32;
@@ -40,6 +40,13 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
     samus_movement_type = samus_prev_movement_type = samus_prev_movement_type2 = ball ? 4 : 0;
     samus_anim_frame_timer = 1; samus_x_speed_table_pointer = 0x9f55;
     samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
+    if (contact == 4) {
+      EnemyData *enemy = gEnemyData(0);
+      enemy->enemy_ptr = 0xd47f; enemy->bank = 0xa2;
+      enemy->x_pos = source ? 120 : 136; enemy->y_pos = 160;
+      enemy->x_width = 8; enemy->y_height = 4; enemy->health = 200;
+      enemy->spritemap_pointer = 0xe54b;
+    }
     button_config_run_b = 0x8000; button_config_jump_a = 0x80;
     uint16 previous = forward ? (left ? 0x200 : 0x100) : 0;
     joypad1_lastkeys = previous; joypad1_newkeys = previous;
@@ -62,6 +69,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         RunAsmCode(0x90ec22, 0, 0, 0, 0); RunAsmCode(0x90e90f, 0, 0, 0, 0);
         RunAsmCode(0x909c5b, 0, 0, 0, 0);
         if (contact == 2) RunAsmCode(0x949b60, 0, 0, 0, 0);
+        if (contact == 4) RunAsmCode(0xa0a07a, 0, 0, 0, 0);
         RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
         RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);
         RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);

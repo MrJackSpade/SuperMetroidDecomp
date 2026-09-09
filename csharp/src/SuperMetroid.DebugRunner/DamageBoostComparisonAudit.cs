@@ -10,7 +10,7 @@ internal static class DamageBoostComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length == 26 ? int.Parse(rows[0][24]) : 0;
-        if (contactKind is < 0 or > 3) throw new InvalidDataException("Unknown contact source.");
+        if (contactKind is < 0 or > 4) throw new InvalidDataException("Unknown contact source.");
         bool contact = contactKind != 0;
         if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
@@ -86,7 +86,7 @@ internal static class DamageBoostComparisonAudit
                 level.SetForegroundEntry(block, 0x2000);
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
             }
-            else
+            else if (contactKind == 3)
             {
                 for (int x = 1; x < 15; x++)
                 {
@@ -94,6 +94,25 @@ internal static class DamageBoostComparisonAudit
                     level.SetForegroundEntry(block, 0xa000);
                     level.SetBehavior(block, (byte)source);
                 }
+            }
+            else
+            {
+                // Keep a real, stationary Ripper in the production enemy frame, with
+                // a live spritemap so its ordinary overlap/touch route is eligible.
+                foreach (var actor in runtime.Enemies.Slots) actor.Clear();
+                foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
+                var enemy = runtime.Enemies.Slots[0];
+                enemy.EnemyDefinitionPointer = RoomEnemySystem.RipperDefinition;
+                enemy.Definition = RoomEnemySystem.ReadDefinition(bus, enemy.EnemyDefinitionPointer);
+                enemy.AiBank = enemy.Definition.Bank;
+                enemy.XPosition = source == 1 ? (ushort)120 : (ushort)136;
+                enemy.YPosition = 160;
+                enemy.XRadius = enemy.Definition.XRadius;
+                enemy.YRadius = enemy.Definition.YRadius;
+                enemy.Health = enemy.Definition.Health;
+                enemy.SpritemapPointer = MovementContactFixtureData.RipperRightSpritemap;
+                enemy.CurrentInstruction = MovementContactFixtureData.RipperRightInstructionList;
+                enemy.InstructionTimer = ushort.MaxValue;
             }
             int frame = -1;
             foreach (var row in group)

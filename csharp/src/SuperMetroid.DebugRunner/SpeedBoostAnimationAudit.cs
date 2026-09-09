@@ -38,7 +38,7 @@ internal static class SpeedBoostAnimationAudit
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 3), 6,
                     soundSuppressed: fields[1] != "0"));
             // Use the real queue operation; no expected timer/register is fed back
-            // into the routine. The frontend still needs this synchronous handoff.
+            // into the routine. Full-runtime ordering is covered by the run-up audit.
             if (speed.ConsumeEchoSoundRequest())
                 throw new InvalidDataException("Synchronous sound call also emitted a duplicate deferred request.");
             if (!changed || speed.SpeedBoostCounter != expectedCounter ||

@@ -1,5 +1,6 @@
 using System.Globalization;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
@@ -148,15 +149,6 @@ internal static class DamageBoostComparisonAudit
             // no APU/NMI dequeue. Publish before the synchronous echo call as well
             // as after each frame, without enqueuing a footstep twice.
             var audio = new CartridgeAudioState();
-            int queuedLiquidSounds = 0;
-            void PublishLiquidSounds()
-            {
-                foreach (var request in samus.LiquidPhysics.SoundRequests.Skip(queuedLiquidSounds))
-                {
-                    audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-                    queuedLiquidSounds++;
-                }
-            }
             foreach (var row in group)
             {
                 if (int.Parse(row[6]) != frame) throw new InvalidDataException("Reordered hurt trace.");
@@ -184,15 +176,10 @@ internal static class DamageBoostComparisonAudit
                     }
                 }
                 if (input != expectedInput) throw new InvalidDataException("Changed boost input sequence.");
-                queuedLiquidSounds = 0;
+                var audioPublication = new GameplayAudioFramePublication(audio);
                 if (frame >= 0) runtime.StepFrame(input,
-                    queueEchoSound: runup ? () =>
-                    {
-                        PublishLiquidSounds();
-                        return audio.QueueSoundAndGetAccumulator(
-                            SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 3), 6);
-                    } : null);
-                if (runup && frame >= 0) PublishLiquidSounds();
+                    queueEchoSound: runup ? () => audioPublication.QueueEcho(runtime) : null);
+                if (runup && frame >= 0) audioPublication.PublishPrefix(runtime);
                 // This fixture samples a single projectile-contact opportunity, as
                 // does the native probe. A missed inert stimulus is removed here.
                 if (runup && frame == 128) runtime.Enemies.EnemyProjectiles[^1].Clear();

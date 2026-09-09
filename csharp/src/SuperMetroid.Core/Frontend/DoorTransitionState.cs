@@ -56,7 +56,8 @@ public sealed class DoorTransitionState
     public void Step(
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
-        ushort controllerInput)
+        ushort controllerInput,
+        Func<ushort>? queueEchoSound = null)
     {
         ArgumentNullException.ThrowIfNull(runtime);
         ArgumentNullException.ThrowIfNull(audio);
@@ -193,7 +194,8 @@ public sealed class DoorTransitionState
                 // IRQ step and visibly corrupted both horizontal door directions. Build and
                 // publish the destination OAM now, while the palette is still black, so the
                 // first fade-in frame cannot expose stale source-room objects.
-                runtime.StepFrame(controller1Input: 0, advanceGameTime: false);
+                runtime.StepFrame(controller1Input: 0, advanceGameTime: false,
+                    queueEchoSound: queueEchoSound);
                 runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 break;

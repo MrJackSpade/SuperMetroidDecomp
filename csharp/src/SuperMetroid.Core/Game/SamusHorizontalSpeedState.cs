@@ -256,7 +256,7 @@ public sealed class SamusHorizontalSpeedState
     /// Synchronous native sound call, returning its accumulator after queue mutation.
     /// Supplying it reproduces the cartridge's queue-dependent table selection and
     /// replaces deferred sound publication. Null retains the legacy deferred path;
-    /// gameplay callers still require migration to the synchronous audio handoff.
+    /// standalone callers can omit it when no cartridge audio queue is attached.
     /// </param>
     public bool TryAdvanceSpeedBoosterAnimationStage(
         ISnesAddressSpace bus,

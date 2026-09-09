@@ -89,6 +89,9 @@ public static class SoundEffectLibrary1Sounds
     /// <summary>Moves a cursor among file, options, game-over, or pause-menu entries.</summary>
     public static readonly SoundEffectId MenuCursor = new(SoundEffectLibrary.Library1, 0x37);
 
+    /// <summary>Library-one $39, HUD weapon-selection feedback (distinct from menu cursor $37).</summary>
+    public static readonly SoundEffectId HudWeaponSelect = new(SoundEffectLibrary.Library1, 0x39); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Accepts the currently highlighted menu or pause-screen entry.</summary>
     public static readonly SoundEffectId MenuConfirm = new(SoundEffectLibrary.Library1, 0x38);
     /// <summary>$81:A1C2 queues library-one $2A when accepting a file, before the helmet turns.</summary>
@@ -129,6 +132,8 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$90:85A6 queues library-three $03 when Speed Booster reaches stage four.</summary>
+    public static readonly SoundEffectId SpeedBoosterEcho = new(SoundEffectLibrary.Library3, 0x03); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$A2:AB58 queues library-three $14 as the ship's entrance pad opens.</summary>
     public static readonly SoundEffectId GunshipEntrancePad = new(SoundEffectLibrary.Library3, 0x14); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$A2:AB9D queues library-three $15 as the ship's entrance pad closes after exit.</summary>

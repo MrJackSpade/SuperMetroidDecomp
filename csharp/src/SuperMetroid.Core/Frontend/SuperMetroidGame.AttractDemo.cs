@@ -17,7 +17,7 @@ public sealed partial class SuperMetroidGame
     internal int AttractDemoSceneIndex => demoScene - 1;
     internal int AttractDemoHoldFramesRemaining => demoHoldFramesRemaining;
 
-    private void StepAttractDemo(ushort controllerInput)
+    private void StepAttractDemo(ushort controllerInput, GameplayAudioFramePublication gameplayAudio)
     {
         switch (GameState)
         {
@@ -50,7 +50,8 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.TransitionToDemoB:
                 // State $29 runs one gameplay frame before revealing the room. Its
                 // extra frame does not decrement the state-$2A demo countdown.
-                runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                runtime!.StepFrame(controllerInput, advanceGameTime: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 GameState = SuperMetroidGameState.PlayingDemo;
                 break;
@@ -68,7 +69,8 @@ public sealed partial class SuperMetroidGame
                 }
                 else
                 {
-                    runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                    runtime!.StepFrame(controllerInput, advanceGameTime: false,
+                        queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                     PublishGameplay(runtime);
                     // Demo beta has restored the physical controller pair at this point.
                     if (runtime.Controller1.NewlyPressed != 0)

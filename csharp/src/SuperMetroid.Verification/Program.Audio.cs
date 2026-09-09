@@ -65,6 +65,7 @@ internal static partial class Program
         WriteAudioRomByte(rom, 0x918002, 0x00);
         var bus = new SuperMetroidAddressSpace(rom);
         VerifySoundQueueAccumulator(bus);
+        VerifyGameplayAudioPublication(bus);
 
         var audio = new CartridgeAudioState();
         audio.QueueMusicDelayed8(MusicCommand.LoadData(0x03));

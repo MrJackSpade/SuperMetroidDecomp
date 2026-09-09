@@ -244,6 +244,7 @@ public sealed partial class SuperMetroidGame
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
     {
+        var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
         switch (GameState)
         {
@@ -384,7 +385,8 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.MadeItToCeresElevator:
                 runtime!.StepFrame(
                     controllerInput,
-                    allowCeresElevatorDeparture: false);
+                    allowCeresElevatorDeparture: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 if (ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
                 {
@@ -411,7 +413,7 @@ public sealed partial class SuperMetroidGame
                 // frame. Retraction can restore normal input later in StepFrame, after the
                 // cartridge's Samus-handler call site has already passed pause-check.
                 bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
-                runtime!.StepFrame(controllerInput);
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 HandleSaveStationPersistence();
                 PublishGameplay(runtime);
                 HandleGunshipLandingSave();
@@ -469,7 +471,8 @@ public sealed partial class SuperMetroidGame
                         reserveStep = reserveRecovery.StepAfterNmi(
                             samus,
                             runtime.NmiFrameCounter);
-                    });
+                    },
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 if (reserveStep.RefillSoundRequested)
                     audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
@@ -484,7 +487,8 @@ public sealed partial class SuperMetroidGame
                 // State $13 deliberately completes one final state-eight pass under the
                 // global freeze word, then snapshots the visible palette and makes every
                 // target row black except Samus's sixteen-color suit row.
-                runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                runtime!.StepFrame(controllerInput, advanceGameTime: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 PrepareDeathPaletteFade();
                 SamusState dyingSamus = runtime.Samus
@@ -498,7 +502,8 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.DeathBlackOutSurroundings:
-                runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                runtime!.StepFrame(controllerInput, advanceGameTime: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 bool paletteBlackoutComplete = StepDeathPaletteFade();
                 PublishGameplay(runtime);
                 if (paletteBlackoutComplete)
@@ -632,7 +637,7 @@ public sealed partial class SuperMetroidGame
                 // State $0C continues running ordinary gameplay while INIDISP darkens.
                 // This matters for moving enemies/projectiles and is why pause cannot be
                 // represented as a desktop-only frozen bitmap.
-                runtime!.StepFrame(controllerInput);
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -728,7 +733,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.Unpausing:
                 // State $12 resumes the full state-eight loop behind an INIDISP fade.
-                runtime!.StepFrame(controllerInput);
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -739,7 +744,8 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.BlackoutFromCeres:
                 runtime!.StepFrame(
                     controllerInput,
-                    allowCeresElevatorDeparture: false);
+                    allowCeresElevatorDeparture: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
                 ApplyDisplayBrightness(ceresDeparture.Brightness);
@@ -801,7 +807,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
-                runtime!.StepFrame(controllerInput);
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 ApplyDisplayBrightness(postCeresFadeBrightness);
                 HandleGunshipLandingSave();
@@ -848,7 +854,8 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.LoadingNextRoomB:
-                doorTransition.Step(runtime!, audio, controllerInput);
+                doorTransition.Step(runtime!, audio, controllerInput,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime!));
                 PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                     GameState = SuperMetroidGameState.MainGameplay;
@@ -858,7 +865,8 @@ public sealed partial class SuperMetroidGame
                 // State $26 calls the complete state-eight gameplay coroutine before
                 // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
                 // therefore continue behind every darkening frame.
-                runtime!.StepFrame(controllerInput, advanceGameTime: false);
+                runtime!.StepFrame(controllerInput, advanceGameTime: false,
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 if (endingFadeCounter-- <= 0)
                 {
@@ -907,7 +915,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.PlayingDemo:
             case SuperMetroidGameState.TransitionFromDemoA:
             case SuperMetroidGameState.TransitionFromDemoB:
-                StepAttractDemo(controllerInput);
+                StepAttractDemo(controllerInput, gameplayAudio);
                 break;
 
             default:
@@ -920,7 +928,7 @@ public sealed partial class SuperMetroidGame
                     $"${((ushort)GameState):X2} ({GameState}).");
         }
 
-        CollectTranslatedAudioRequests();
+        CollectTranslatedAudioRequests(gameplayAudio);
         lastAudioCommands = audio.AdvanceFrame(bus, audioAcknowledgements);
         return CurrentFrame;
     }
@@ -943,7 +951,7 @@ public sealed partial class SuperMetroidGame
     /// PLMs retain ownership of the exact library/ID/cap chosen by their ROM routines; the
     /// frontend merely performs the global QueueSfx call those producers requested.
     /// </remarks>
-    private void CollectTranslatedAudioRequests()
+    private void CollectTranslatedAudioRequests(GameplayAudioFramePublication gameplayAudio)
     {
         // Demo loading suppresses room music; native debug_disable_sounds suppresses
         // scene SFX while the title track continues. Do not let runtime publishers
@@ -983,25 +991,14 @@ public sealed partial class SuperMetroidGame
         // projectiles, PLMs, and enemies in state eight. Queue their calls first so a full
         // SFX ring retains the same higher-priority request the cartridge would retain
         // when several producers fire during one frame.
-        foreach (RoomFxSoundRequest request in runtime.RoomLayer3Fx.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-        foreach (PaletteFxSoundRequest request in runtime.RoomPaletteFx.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-        foreach (PaletteFxMusicRequest request in runtime.RoomPaletteFx.MusicRequests)
-            audio.QueueMusicDelayed(request.Command, request.Delay);
+        gameplayAudio.PublishPrefix(runtime);
 
         if (runtime.Samus is { } samus)
         {
-            if (runtime.Hud.SelectionSoundRequestedThisFrame)
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x39), maximumQueued: 6);
-
-            foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
-                audio.QueueSound(request.SoundEffect, request.MaximumQueued);
-
             // These state machines predate the shared SamusSoundRequest list. Consume their
             // one-shot publications here, retaining the exact native library and MaxN entry.
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x03), maximumQueued: 6);
+                audio.QueueSound(SoundEffectLibrary3Sounds.SpeedBoosterEcho, maximumQueued: 6);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
                 audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0c), maximumQueued: 9);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())

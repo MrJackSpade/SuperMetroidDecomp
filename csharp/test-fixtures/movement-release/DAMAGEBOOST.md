@@ -624,3 +624,21 @@ samples, including animation, motion, timers, history and health. The earlier
 empty-queue experiment failed 1,632 samples because it omitted footsteps. The
 normal frontend still needs migration to this callback and once-only publication
 ordering; the runtime gate alone does not prove live frontend completion.
+
+## Live frontend publication
+
+GameplayAudioFramePublication now owns the earlier-producer cursors for one
+frontend Step. The live gameplay, fade, reserve, demo and door coroutine calls
+forward its synchronous echo operation. It flushes room-FX, palette, HUD selection
+and liquid/footstep requests before the echo call; frame-end collection flushes
+only new entries, preventing duplicate requests. The publisher and delegates are
+local to Step, so no serialized debugger-state schema is changed. Echo admission
+also honors native demo and negative Power Bomb status suppression.
+
+The run-up comparer now uses this same production publisher instead of its own
+liquid-only adapter; all 7,728 boosted samples match. Default verification observes
+actual dequeue/APU writes for earlier landing -> echo -> later landing and invokes
+completion twice to prove once-only ordering. It separately checks Power Bomb
+suppression and its accumulator return. #472 still requires its full technique
+acceptance audit; completion of this audio-dependent timing slice is not closure
+of the broader technique ticket.

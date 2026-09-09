@@ -10,9 +10,10 @@ internal static class DamageBoostComparisonAudit
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
         int contactKind = rows.Length > 0 && rows[0].Length >= 26 ? int.Parse(rows[0][24]) : 0;
-        if (contactKind is < 0 or > 7) throw new InvalidDataException("Unknown contact source.");
+        if (contactKind is < 0 or > 9) throw new InvalidDataException("Unknown contact source.");
+        bool runup = contactKind >= 8;
         bool contact = contactKind != 0;
-        if (rows.Length != (contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
+        if (rows.Length != (runup ? 7728 : contact ? 5952 : 11904) || rows.Any(row => row.Length != rows[0].Length) || rows[0].Length is not (22 or 24 or 26 or 27))
             throw new InvalidDataException("Unexpected damage-boost capture dimensions.");
         int samples = 0, mismatches = 0, initialMismatches = 0;
         int motionMismatches = 0, stateMismatches = 0, historyMismatches = 0;
@@ -35,13 +36,13 @@ internal static class DamageBoostComparisonAudit
                 group.Any(row => row.Length >= 26 && row[24] != contactKind.ToString(CultureInfo.InvariantCulture)) ||
                 group.Any(row => row.Length == 27 && row[26] != (holdForward ? "1" : "0")))
                 throw new InvalidDataException("Changed medium/release within hurt sequence.");
-            var runtime = FlatFloorMovementFixture.Create(bus, water: false);
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: runup);
             var level = runtime.LevelData!;
             for (int x = 0; x < level.WidthInBlocks; x++) level.SetForegroundEntry(x, 0x8000);
             for (int y = 0; y <= 16; y++)
             {
                 level.SetForegroundEntry(y * level.WidthInBlocks, 0x8000);
-                level.SetForegroundEntry(y * level.WidthInBlocks + 15, 0x8000);
+                level.SetForegroundEntry(y * level.WidthInBlocks + level.WidthInBlocks - 1, 0x8000);
             }
             var samus = runtime.Samus!;
             if (medium == 1) samus.LiquidPhysics.ConfigureWater(8);
@@ -63,6 +64,12 @@ internal static class DamageBoostComparisonAudit
                 if (contactKind == 6) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpeedBooster;
             }
             samus.XPosition = 128; samus.YPosition = 160;
+            if (runup)
+            {
+                samus.XPosition = left ? (ushort)2176 : (ushort)128;
+                samus.YPosition = 235;
+                if (contactKind == 9) samus.EquippedItems |= (ushort)SamusEquipmentFlags.SpeedBooster;
+            }
             if (contactKind is 3 or 7) samus.YPosition = ball ? (ushort)169 : (ushort)155;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.RefreshCollisionRadii(bus);
@@ -111,7 +118,7 @@ internal static class DamageBoostComparisonAudit
                         : (byte)source);
                 }
             }
-            else
+            else if (!runup)
             {
                 // Keep a real, stationary Ripper in the production enemy frame, with
                 // a live spritemap so its ordinary overlap/touch route is eligible.
@@ -130,6 +137,11 @@ internal static class DamageBoostComparisonAudit
                 enemy.CurrentInstruction = MovementContactFixtureData.RipperRightInstructionList;
                 enemy.InstructionTimer = ushort.MaxValue;
             }
+            if (runup)
+            {
+                foreach (var actor in runtime.Enemies.Slots) actor.Clear();
+                foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
+            }
             int frame = -1;
             foreach (var row in group)
             {
@@ -138,8 +150,30 @@ internal static class DamageBoostComparisonAudit
                 ushort expectedInput = frame < 0 ? initialInput : frame >= delay ? (ushort)((left ? 0x100 : 0x200) | 0x80) : (ushort)0;
                 if (frame >= 0 && frame < delay && holdForward) expectedInput = initialInput;
                 if (frame >= 0 && release != 0 && frame >= delay + 3) expectedInput = 0x80;
+                if (runup && frame >= 0)
+                {
+                    expectedInput = (ushort)((left ? 0x200 : 0x100) | 0x8000);
+                    if (frame >= 124) expectedInput |= 0x80;
+                    if (frame >= 129 + delay) expectedInput = (ushort)((left ? 0x100 : 0x200) | 0x80);
+                    if (frame == 128)
+                    {
+                        var projectile = runtime.Enemies.EnemyProjectiles[^1];
+                        projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
+                        projectile.PreInstruction = EnemyProjectileCodePointers.RTS_8684FB;
+                        projectile.InstructionTimer = 2;
+                        projectile.XPosition = (ushort)(samus.XPosition + (source == 1 ? -16 : 16));
+                        projectile.YPosition = samus.YPosition;
+                        projectile.XRadius = projectile.YRadius = 16;
+                        projectile.Damage = 20;
+                        projectile.InvincibilityFrames = 96;
+                        projectile.CanDamageSamus = true;
+                    }
+                }
                 if (input != expectedInput) throw new InvalidDataException("Changed boost input sequence.");
                 if (frame >= 0) runtime.StepFrame(input);
+                // This fixture samples a single projectile-contact opportunity, as
+                // does the native probe. A missed inert stimulus is removed here.
+                if (runup && frame == 128) runtime.Enemies.EnemyProjectiles[^1].Clear();
                 // Isolate the ordinary hurt fallback from the separately failing boost
                 // initializer and expiry handoff. Still compare every recorded word,
                 // not just history, within this explicitly bounded acceptance gate.
@@ -160,6 +194,8 @@ internal static class DamageBoostComparisonAudit
                 if (!actualWords[10..].SequenceEqual(row[18..22])) historyMismatches++;
                 bool healthMatches = row.Length < 26 || samus.Health == ushort.Parse(row[25], NumberStyles.HexNumber);
                 if (!healthMatches) healthMismatches++;
+                if (!healthMatches && healthMismatches == 1)
+                    Console.WriteLine($"FIRST DAMAGE mismatch {group.Key} frame={frame}: health={samus.Health:X4}/{row[25]}, contact={s.ContactDamageIndex:X4}, speed-stage={s.SpeedBoostCounter:X4}");
                 if (actual != expected || !healthMatches)
                 {
                     if (!ball) humanoidMismatches++;
@@ -171,7 +207,7 @@ internal static class DamageBoostComparisonAudit
                 if (!ball) humanoidSamples++;
                 samples++; frame++;
             }
-            if (frame != 30) throw new InvalidDataException("Incomplete hurt sequence.");
+            if (frame != (runup ? 160 : 30)) throw new InvalidDataException("Incomplete hurt sequence.");
         }
         if (hurtPrefixOnly && samples != 1072)
             throw new InvalidDataException("Incomplete humanoid hurt-prefix coverage.");

@@ -1,25 +1,32 @@
 // #472: seeded hurt or inert-projectile contact, then the full movement sequence.
 // Include after native-release-probe.h. Dispatch before SDL initialization.
 int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium, int release, int contact) {
-  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 7) return 5;
+  if (medium < 0 || medium > 2 || release < 0 || release > 1 || contact < 0 || contact > 9) return 5;
+  bool runup = contact >= 8;
+  if (runup && (medium || release)) return 5;
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
   fprintf(f, "timer,ball,left,source,forward,delay,frame,input,x,y,pose,animation,hurtTimer,hurtDirection,ySpeed,yDirection,baseSpeed,extraSpeed,previousPose,previousMetadata,olderPose,olderMetadata,medium,release,contact,health,holdForwardUntilBoost\n");
   for (int timerCase = 0; timerCase < (contact ? 1 : 2); timerCase++)
-  for (int ball = 0; ball < 2; ball++)
+  for (int ball = 0; ball < (runup ? 1 : 2); ball++)
   for (int left = 0; left < 2; left++)
   for (int source = 0; source < 2; source++)
-  for (int forward = 0; forward < 2; forward++)
+  for (int forward = 0; forward < (runup ? 1 : 2); forward++)
   for (int delay = 0; delay < 12; delay++) {
     int timer = timerCase || contact == 2 || contact == 3 || contact == 7 ? 10 : 5;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
-    room_width_in_blocks = 16; room_height_in_blocks = 32;
+    room_width_in_blocks = runup ? 144 : 16; room_height_in_blocks = runup ? 80 : 32;
     interactive_enemy_indexes[0] = 0xffff;
     for (int x = 0; x < 16; x++) level_data[x] = level_data[16 * 16 + x] = 0x8000;
     for (int y = 0; y <= 16; y++) level_data[y * 16] = level_data[y * 16 + 15] = 0x8000;
+    if (runup) {
+      memset(level_data, 0, 17 * 144 * 2);
+      for (int x = 0; x < 144; x++) level_data[x] = level_data[16 * 144 + x] = 0x8000;
+      for (int y = 0; y <= 16; y++) level_data[y * 144] = level_data[y * 144 + 143] = 0x8000;
+    }
     if (contact == 2) {
       int block = (source ? 9 : 10) * 16 + 8;
       level_data[block] = 0x2000; BTS[block] = 2;
@@ -34,6 +41,11 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
     if (medium == 2) { lava_acid_y_pos = 8; fx_type = 2; }
     equipped_items = 4; samus_health = 99;
     samus_x_pos = samus_prev_x_pos = 128; samus_y_pos = samus_prev_y_pos = 160;
+    if (runup) {
+      samus_x_pos = samus_prev_x_pos = left ? 2176 : 128;
+      samus_y_pos = samus_prev_y_pos = 235;
+      if (contact == 9) equipped_items |= 0x2000;
+    }
     if (contact == 3 || contact == 7) samus_y_pos = samus_prev_y_pos = ball ? 169 : 155;
     samus_pose = samus_prev_pose = ball ? (left ? 0x41 : 0x1d) : (left ? 2 : 1);
     samus_pose_x_dir = samus_prev_pose_x_dir = left ? 4 : 8;
@@ -65,13 +77,22 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
       RunAsmCode(0x90dde9, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0);
     }
-    for (int frame = -1; frame < 30; frame++) {
+    for (int frame = -1; frame < (runup ? 160 : 30); frame++) {
       uint16 input = previous;
       if (frame >= 0) {
         input = frame >= delay ? (left ? 0x100 : 0x200) | 0x80 : 0;
         if (contact && forward && frame < delay) input = left ? 0x200 : 0x100;
         // Release directional travel after three boost-input frames, retaining Jump.
         if (release && frame >= delay + 3) input = 0x80;
+        if (runup) {
+          input = (left ? 0x200 : 0x100) | 0x8000;
+          if (frame >= 124) input |= 0x80;
+          if (frame >= 129 + delay) input = (left ? 0x100 : 0x200) | 0x80;
+          if (frame == 128) {
+            eproj_id[0] = 0x9642; eproj_properties[0] = 20; eproj_radius[0] = 0x1010;
+            eproj_x_pos[0] = samus_x_pos + (source ? -16 : 16); eproj_y_pos[0] = samus_y_pos;
+          }
+        }
         samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
         samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
         joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -79,6 +100,8 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
         RunAsmCode(0x909c5b, 0, 0, 0, 0);
         if (contact == 2) RunAsmCode(0x949b60, 0, 0, 0, 0);
         if (contact >= 4 && contact <= 6) RunAsmCode(0xa0a07a, 0, 0, 0, 0);
+        // $90:E725 clears contact damage immediately before the beta mover.
+        samus_contact_damage_index = 0;
         RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
         RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x90dde9, 0, 0, 0, 0);
         RunAsmCode(0x91e8b6, 0, 0, 0, 0); RunAsmCode(0x91eb88, 0, 0, 0, 0);
@@ -91,6 +114,7 @@ int DiagnosticDamageBoostSource(const char *rom, const char *output, int medium,
           eproj_x_pos[0] = source ? 120 : 136; eproj_y_pos[0] = 160;
           RunAsmCode(0xa09894, 0, 0, 0, 0);
         }
+        if (runup && frame == 128) RunAsmCode(0xa09894, 0, 0, 0, 0);
         RunAsmCode(0xa09169, 0, 0, 0, 0);
       }
       fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%d,%d,%d,%04X,%d\n",

@@ -497,3 +497,37 @@ health. For the dry, right-facing, forward-not-held humanoid case, delays 0..9
 enter damage boost and delays 10/11 do not; health falls from 99 to 83. This
 confirms the collision reaction/window, not the room actor's transformation into
 a broken turret or grapple electrocution. No production fix was needed.
+
+## Controller-driven runway and retained boost protection
+
+Modes 8/9 start standing with zero speeds on a constructed 144-block-wide runway
+using Landing Site room metadata (native 144x80). Both facings start 128 pixels
+from their respective edge. Mode 9 equips Speed Booster, mode 8 does not. Hold
+forward+Run for frames 0..123; add Jump at 124; inject one inert projectile at
+frame 128 at the prior position +/-16 X, same Y, radii 16. Opposite+Jump starts
+at 129+delay (0..11). The projectile contact opportunity is one frame only; a
+missed stimulus is removed rather than executing a nonexistent animation list.
+Each capture contains 48 sequences of 161 samples including initialization.
+No speed/position recentering is done during the run. Cheats remain disabled.
+
+The ordinary run capture `damageboost-runup-472-c8.csv` matches all 7,728 frames.
+The Speed Booster capture is `damageboost-runup-472-c9-v2.csv`; do not use the
+earlier c9 capture as the accepted probe version because it omitted beta's
+contact-damage reset at $90:E725 (the resulting recorded samples happen to match).
+
+Speed Booster exposed two separate discrepancies. The gameplay one was the
+missing common $90:9813 contact-damage epilogue on released/airborne/liquid
+branches of HandleExtraRunSpeed. Native republishes index one while stage four
+remains active; C# returned early, so the projectile damaged Samus. Restoring
+that epilogue removes all health, motion-state and history mismatches. Direct
+default tests cover airborne/released/liquid paths and the adjacent inactive stage.
+
+The remaining 624 mismatches are animation frames beginning at run frame 100.
+Native $90:85A6 calls QueueSound_Lib3_Max6 then uses its returned accumulator's
+high byte at $90:85AA as the delay/reset-table index. The pinned C decompilation
+explicitly comments out this cartridge bug; the C# port currently uses the
+unclobbered stage instead. Queue occupancy and suppression affect that result,
+so a hardcoded replacement index would be wrong. The probe currently does not
+drain native sound queues through NMI. Keep the animation assertion failing
+until queue-state-dependent behavior is translated and the comparison's audio
+context is explicitly matched. #472 is not ready for player validation.

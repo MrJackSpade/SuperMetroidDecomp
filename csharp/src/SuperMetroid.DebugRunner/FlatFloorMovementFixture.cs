@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>Constructed geometry with the complete gameplay dispatcher, but no arrival coroutine.</summary>
 internal static class FlatFloorMovementFixture
 {
-    public static SuperMetroidRuntime Create(SuperMetroidAddressSpace bus, bool water)
+    public static SuperMetroidRuntime Create(SuperMetroidAddressSpace bus, bool water, bool wideRunway = false)
     {
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -14,7 +15,8 @@ internal static class FlatFloorMovementFixture
         runtime.InitializeCeresStartSamus();
         // Ordinary reload clears the fresh-game elevator arrival sequence. Otherwise
         // the fixture would teleport Samus after a second instead of testing movement.
-        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(
+            wideRunway ? RoomHeaderPointers.LandingSite : runtime.ActiveRoom!.Pointer, 0, 0);
         var level = runtime.LevelData!;
         for (int y = 0; y <= 16; y++)
             for (int x = 0; x < level.WidthInBlocks; x++)

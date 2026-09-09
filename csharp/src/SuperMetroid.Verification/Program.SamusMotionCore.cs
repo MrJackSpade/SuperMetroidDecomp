@@ -234,6 +234,26 @@ static void VerifySamusHorizontalSpeed()
         "consumed speed-echo publication cannot replay on a later frame");
     AssertEqual(1, booster.ContactDamageIndex, "stage four enables contact damage");
 
+    // $90:9813 is a common epilogue, including the released/airborne/liquid
+    // branches. Beta clears contact damage each frame; retained blue speed
+    // must republish protection even though no extra acceleration occurs.
+    foreach (var movement in new[] { SamusMovementType.Running, SamusMovementType.SpinJumping })
+    foreach (bool liquid in new[] { false, true })
+    foreach (bool activeStage in new[] { false, true })
+    {
+        var retainedBoost = new SamusHorizontalSpeedState
+        {
+            HasRunningMomentum = true,
+            ExtraRunSpeed = 7,
+            SpeedBoostCounter = activeStage ? (ushort)0x0401 : (ushort)0x0301,
+            ContactDamageIndex = 0,
+        };
+        retainedBoost.HandleExtraRunSpeed(movement, 0, true, bus, liquidImpeded: liquid);
+        AssertEqual(activeStage ? 1 : 0, retainedBoost.ContactDamageIndex,
+            "retained boost publishes contact protection only in active stage");
+        AssertEqual(7, retainedBoost.ExtraRunSpeed, "released boost retains numeric speed");
+    }
+
     // `$91:DAA9` is a pointer to the active suit's four-entry palette-pointer list, not a
     // direct bank-$9B palette address. Distinct first/second colors prove both levels of
     // indirection, the one-then-four frame timer, and the pinned frame-six progression.

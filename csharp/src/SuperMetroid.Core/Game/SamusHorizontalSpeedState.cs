@@ -188,6 +188,9 @@ public sealed class SamusHorizontalSpeedState
                 ExtraRunSpeed = 0;
                 ExtraRunSubspeed = 0;
             }
+            // The native common epilogue also runs when Dash is released,
+            // movement becomes airborne, or liquid suppresses acceleration.
+            PublishBoostContactDamage();
             return;
         }
 
@@ -236,10 +239,12 @@ public sealed class SamusHorizontalSpeedState
         {
             ExtraRunSpeed = 2;
             ExtraRunSubspeed = 0;
+            PublishBoostContactDamage();
             return;
         }
 
         AddExtraRunAcceleration();
+        PublishBoostContactDamage();
     }
 
     /// <summary>

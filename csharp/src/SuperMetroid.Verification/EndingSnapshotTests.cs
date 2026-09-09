@@ -77,7 +77,7 @@ internal static partial class Program
                     AssertTrue(jumpFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
-                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.PostCreditsShot)
                 {
                     AssertEqual(hours < 3 ? 279 : 200,
                         tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsJump],
@@ -86,6 +86,26 @@ internal static partial class Program
                         EndingCreditsRomData.Rendering.DecompressionLimit);
                     AssertTrue(icon.AsSpan(0, 0x8000).SequenceEqual(legacy.CaptureRenderSnapshot().Memory.Vram[..0x8000]),
                         "live landing uploads all sixteen chunks of the native interleaved icon graphics");
+                }
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                    AssertEqual(216, tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot],
+                        "live post-shot owner includes rotation and the complete native hold");
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsShot)
+                {
+                    int elapsed = tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsShot];
+                    var shotFrame = legacy.CaptureRenderSnapshot();
+                    var mode = shotFrame.Layers.ToArray().OfType<Mode7RenderLayer>().Single();
+                    AssertTrue(mode.SubtractObjSubscreen, "live shot enables native BG1 minus OBJ blending");
+                    AssertEqual((short)104, mode.Registers.CenterX, "post-shot matrix horizontal origin");
+                    AssertEqual((short)112, mode.Registers.CenterY, "post-shot matrix vertical origin");
+                    AssertEqual((short)-4, mode.Registers.HorizontalOffset, "post-shot horizontal scroll");
+                    AssertEqual((short)-8, mode.Registers.VerticalOffset, "post-shot vertical scroll");
+                    if (hours == 2 && elapsed == 16)
+                    {
+                        File.WriteAllBytes("csharp/test-temp/ending-504/live-shot.smframe",
+                            RenderFrameSnapshotCodec.Serialize(new(new(tick, 1, legacy.CinematicFrame), shotFrame)));
+                        PngWriter.WriteRgba("csharp/test-temp/ending-504/live-shot.png", 256, 224, legacy.Render());
+                    }
                 }
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
                     && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)

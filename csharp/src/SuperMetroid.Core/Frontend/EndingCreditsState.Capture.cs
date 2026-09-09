@@ -11,6 +11,18 @@ internal sealed partial class EndingCreditsState
         var layers = new List<RenderLayer>();
         byte objectSelection = CurrentEscapeObjectSelection;
         OamBuffer oam;
+        if (postShot is not null)
+        {
+            // Mode 7 places OBJ priority zero below BG1; the other three priorities
+            // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
+            layers.Add(new ObjPriorityRenderLayer(0));
+            layers.Add(new Mode7RenderLayer(PostShotRegisters, true));
+            layers.Add(new ObjPriorityRenderLayer(1));
+            layers.Add(new ObjPriorityRenderLayer(2));
+            layers.Add(new ObjPriorityRenderLayer(3));
+            return new(PpuMemorySnapshot.Capture(vram, cgram, PrepareSprites()), layers.ToArray(),
+                CurrentRewardObjectSelection, brightness);
+        }
         if (Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
@@ -39,5 +51,17 @@ internal sealed partial class EndingCreditsState
             if (EndingObjectsEnabled) layers.Add(new ObjRenderLayer(RewardSubscreenAddition));
         }
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(), objectSelection, brightness);
+    }
+
+    private Mode7RenderRegisters PostShotRegisters
+    {
+        get
+        {
+            short a = Scale(ReadSine(unchecked((byte)(postShot!.Angle + SnesAngle.QuarterTurn.TableIndex))), (ushort)postShot.Scale);
+            short b = Scale(ReadSine(postShot.Angle), (ushort)postShot.Scale);
+            return new(a, b, unchecked((short)-b), a,
+                EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY,
+                EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY);
+        }
     }
 }

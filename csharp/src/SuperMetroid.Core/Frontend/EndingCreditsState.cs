@@ -48,6 +48,7 @@ internal sealed partial class EndingCreditsState
     private bool rewardCopyrightShown;
     private EndingRewardGesture? rewardGesture;
     private EndingRewardJump? rewardJump;
+    private EndingPostShot? postShot;
     private RoomPaletteFxSystem paletteFx = new();
 
     public EndingCreditsState(
@@ -325,7 +326,21 @@ internal sealed partial class EndingCreditsState
                 rewardJump!.Step();
                 if (rewardJump.ShotRequested)
                 {
-                    // Shot/logo composition is the next unintegrated ending stage.
+                    postShot = new EndingPostShot(bus, cgram);
+                    audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
+                    Phase = EndingCreditsPhase.PostCreditsShot;
+                }
+                break;
+
+            case EndingCreditsPhase.PostCreditsShot:
+                // Cinematic function runs before actors; palette fades and queued
+                // tile replacements therefore precede the next sprite instruction.
+                postShot!.Step(vram, cgram);
+                rewardJump!.Step();
+                if (postShot.ReadyForWhiteFlash)
+                {
+                    // The subsequent white-flash/logo actor handoff remains to be connected.
+                    postShot = null;
                     rewardJump = null;
                     Array.Fill(
                         postCreditsTilemap,
@@ -1055,6 +1070,7 @@ internal enum EndingCreditsPhase
     PostCreditsCopyright,
     PostCreditsGesture,
     PostCreditsJump,
+    PostCreditsShot,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

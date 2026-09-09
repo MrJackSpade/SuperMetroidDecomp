@@ -1,8 +1,22 @@
+using SuperMetroid.Core.Audio;
+
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Bank-$8B post-shot transition identities and native staging layout.</summary>
 internal static class EndingPostShotDefinitions
 {
+    /// <summary>F604 queues library-one $22 through the max-fifteen sound queue.</summary>
+    public static readonly SoundEffectId ShotSound = new(SoundEffectLibrary.Library1, 0x22);
+    /// <summary>F604's sound queue capacity argument.</summary>
+    public const byte SoundQueueLimit = 15;
+    /// <summary>Func126's post-credits Mode-7 horizontal origin.</summary>
+    public const short CenterX = 104;
+    /// <summary>Func126's post-credits Mode-7 vertical origin.</summary>
+    public const short CenterY = 112;
+    /// <summary>F604's post-shot BG horizontal offset.</summary>
+    public const short OffsetX = -4;
+    /// <summary>F604's post-shot BG vertical offset.</summary>
+    public const short OffsetY = -8;
     /// <summary>$99:E089: compressed Super Metroid logo tiles, decompressed to $7E:6000.</summary>
     public const int LogoTiles = 0x99e089;
     /// <summary>$99:ECC4: compressed logo map, decompressed to $7E:8000.</summary>

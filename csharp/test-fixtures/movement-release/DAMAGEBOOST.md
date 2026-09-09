@@ -531,3 +531,24 @@ so a hardcoded replacement index would be wrong. The probe currently does not
 drain native sound queues through NMI. Keep the animation assertion failing
 until queue-state-dependent behavior is translated and the comparison's audio
 context is explicitly matched. #472 is not ready for player validation.
+
+## Sound-queue accumulator prerequisite
+
+`native-soundqueue-return-probe.h` calls untouched $80:914D on the pinned ROM
+for library-three sound 3, occupancy 0..15 and four contexts: ordinary,
+disable-sounds, demo state $28, and active Power Bomb. Dispatch its
+`DiagnosticSoundQueueReturn(rom, output)` before SDL initialization, including
+it after `native-release-probe.h`. The committed `soundqueue-return.csv` contains
+all 64 original CPU accumulator/write-index/target-slot results, without ROM data.
+
+Threshold rejection (occupancy >=6) returns $03nn. Below threshold the XBA has
+already executed, so both accepted and suppressed calls return $nn03. Suppressed
+calls do not mutate the queue. The shared audio queue now exposes this through
+`QueueSoundAndGetAccumulator`; ordinary QueueSound delegates and discards the
+register result, preserving existing caller behavior. Default verification reads
+the native capture and checks each return plus actual queue mutation via the
+normal dequeue/APU acknowledgement path, rather than private-field inspection.
+
+This supplies the required register-level audio operation but does not yet connect
+the animation-stage call to the frontend's live queue or resolve publication
+ordering. The 624 run-up animation mismatches remain an open gate.

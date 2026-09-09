@@ -185,6 +185,21 @@ public sealed class CartridgeAudioState
 
     /// <summary>Queues one request through retail SFX library one, two, or three.</summary>
     public void QueueSound(SoundEffectId soundEffect, byte maximumQueued)
+        => QueueSoundAndGetAccumulator(soundEffect, maximumQueued);
+
+    /// <summary>
+    /// Executes bank $80's sound-queue call and returns its native accumulator.
+    /// Queue-threshold rejection returns sound in the high byte and occupancy
+    /// in the low byte; the admitted path swaps them, even when sound execution
+    /// is suppressed. Speed Booster animation consumes this otherwise incidental
+    /// register result after the library-three call at $90:85A6.
+    /// </summary>
+    /// <param name="soundSuppressed">
+    /// The native disable-sounds, demo-state, or active Power Bomb guard, evaluated
+    /// after the occupancy threshold. Suppression leaves the queue unchanged.
+    /// </param>
+    public ushort QueueSoundAndGetAccumulator(
+        SoundEffectId soundEffect, byte maximumQueued, bool soundSuppressed = false)
     {
         if (maximumQueued is < 1 or > AudioRomData.Queues.MaximumSoundOccupancy)
         {
@@ -196,7 +211,11 @@ public sealed class CartridgeAudioState
         int occupancy = (_soundWritePositions[queue] - _soundReadPositions[queue]) &
             AudioRomData.Queues.SoundIndexMask;
         if (occupancy >= maximumQueued)
-            return;
+            return (ushort)((soundEffect.Value << 8) | occupancy);
+
+        ushort accumulator = (ushort)((occupancy << 8) | soundEffect.Value);
+        if (soundSuppressed)
+            return accumulator;
 
         byte write = _soundWritePositions[queue];
         byte next = unchecked((byte)(
@@ -206,12 +225,13 @@ public sealed class CartridgeAudioState
             // A full native ring retains the lower-numbered (higher-priority) request.
             if (soundEffect.Value < _soundQueues[queue, write])
                 _soundQueues[queue, write] = soundEffect.Value;
-            return;
+            return accumulator;
         }
 
         _soundQueues[queue, write] = soundEffect.Value;
         _soundWritePositions[queue] = next;
         _soundQueues[queue, next] = 0;
+        return accumulator;
     }
 
     /// <summary>Runs one NMI's music/SFX handlers and returns only this frame's APU writes.</summary>

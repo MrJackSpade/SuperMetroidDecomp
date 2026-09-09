@@ -22,6 +22,18 @@ internal static partial class Program
         AssertEqual((byte)0x4f, level.GetCollisionBlock(15, 10).Behavior, "rescue origin is shootable BTS 4F");
         for (int y = 11; y <= 12; y++)
             AssertEqual((ushort)0xd123, level.GetCollisionBlock(15, y).LevelWord, "rescue extensions preserve visual tile");
+        for (int y = 10; y <= 12; y++)
+        {
+            var samus = new SamusState { XPosition = 248, YPosition = (ushort)(y * 16 + 8) };
+            samus.Grapple.Phase = GrapplePhase.Firing;
+            int before = plms.ActiveCount;
+            var reaction = SamusGrappleMovement.StepFiring(bus, level, samus,
+                (ushort)SuperMetroid.Core.Input.SnesButton.X, plms);
+            AssertTrue(reaction.CancelQueued, "grapple stops on rescue origin or extension");
+            AssertEqual(before, plms.ActiveCount, "zero grapple word cannot allocate the rescue animation");
+            AssertEqual((byte)0x4f, level.GetCollisionBlock(15, 10).Behavior, "grapple leaves rescue wall intact");
+            AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
+        }
         AssertTrue(!plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 0, true), "native zero grapple word rejected");
         AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");

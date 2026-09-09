@@ -125,12 +125,6 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(cgram);
 
         int beamType = equippedBeams & 0x0fff;
-        if ((uint)beamType >= 12)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(equippedBeams),
-                "Retail beam tile/palette tables contain twelve low-bit combinations.");
-        }
 
         ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
         vram.ExecuteQueuedWrite(
@@ -142,11 +136,7 @@ public sealed partial class SamusProjectileSystem
         ushort palettePointer = ReadWord(
             bus,
             SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
-        cgram.LoadFromBus(
-            bus,
-            SamusProjectileRomData.Banks.Movement | palettePointer,
-            colorCount: SamusProjectileRomData.Palettes.ColorCount,
-            destinationIndex: 0xe0);
+        SamusBeamPaletteLoader.Load(bus, cgram, palettePointer);
     }
 
     /// <summary>
@@ -164,8 +154,6 @@ public sealed partial class SamusProjectileSystem
         ArgumentNullException.ThrowIfNull(cgram);
 
         int beamType = equippedBeams & 0x0fff;
-        if ((uint)beamType >= 12)
-            throw new ArgumentOutOfRangeException(nameof(equippedBeams));
 
         ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
         writes.Enqueue(
@@ -176,11 +164,7 @@ public sealed partial class SamusProjectileSystem
         ushort palettePointer = ReadWord(
             bus,
             SamusProjectileRomData.Beams.PalettePointers + beamType * 2);
-        cgram.LoadFromBus(
-            bus,
-            SamusProjectileRomData.Banks.Movement | palettePointer,
-            colorCount: SamusProjectileRomData.Palettes.ColorCount,
-            destinationIndex: 0xe0);
+        SamusBeamPaletteLoader.Load(bus, cgram, palettePointer);
     }
 
     /// <summary>

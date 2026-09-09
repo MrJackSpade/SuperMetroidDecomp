@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--invalid-beam-graphics"])
+{
+    VerifyInvalidBeamGraphics();
+    return 0;
+}
 if (args is ["--invalid-beam-selection"])
 {
     VerifyPauseMenuEquipmentInteraction();
@@ -472,6 +477,7 @@ VerifyDraygonCannonPlms();
 VerifyBombTorizoHandPlm();
 VerifyPauseMenuEquipmentInteraction();
 VerifyInvalidBeamSelection();
+VerifyInvalidBeamGraphics();
 VerifyMovedSamusCameraTracking();
 VerifyBackgroundScrollState();
 VerifyLevelBlockTilemapExpansion();

@@ -44,8 +44,8 @@ public readonly record struct SamusBeamLoadoutWord(ushort Raw)
 
     /// <summary>
     /// Retail table index formed by the four independently combinable beam bits. Values
-    /// 12–15 remain possible in corrupted/debug-edited state even though retail inventory
-    /// prevents the Spazer+Plasma combinations.
+    /// 12–15 are reachable through retail inventory's simultaneous-direction/accept glitch
+    /// as well as corrupted/debug-edited state; they read beyond ordinary beam tables.
     /// </summary>
     public int CombinationIndex => Raw & CombinationMask;
 

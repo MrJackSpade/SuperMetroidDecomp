@@ -10,10 +10,10 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static class ElevatorSpinjumpAudit
 {
-    public static int Compare(string directory)
+    public static int Compare(string directory, bool preheld = false)
     {
         int actorSamples = 0;
-        foreach (string room in new[] { "9E9F", "9AD9", "B236" })
+        foreach (string room in preheld ? Array.Empty<string>() : new[] { "9E9F", "9AD9", "B236" })
         {
             string prefix = Path.Combine(directory, $"{room}-0.actor");
             string[] managed = File.ReadAllLines(prefix + ".managed.csv");
@@ -30,10 +30,11 @@ internal static class ElevatorSpinjumpAudit
             if (!native[^1].EndsWith(",0,0,0", StringComparison.Ordinal))
                 throw new InvalidDataException($"Elevator actor trace ended before unlock: {room}.");
         }
-        Console.WriteLine($"Elevator arrival: {actorSamples} exact actor/status/input-lock samples agree.");
+        if (!preheld)
+            Console.WriteLine($"Elevator arrival: {actorSamples} exact actor/status/input-lock samples agree.");
         int samples = 0;
         foreach (string room in new[] { "9E9F", "9AD9", "B236" })
-        foreach (int delay in new[] { 0, 1, 4, 8 })
+        foreach (int delay in preheld ? new[] { 0 } : new[] { 0, 1, 4, 8 })
         {
             string prefix = Path.Combine(directory, $"{room}-{delay}");
             string[] managed = File.ReadAllLines(prefix + ".managed.csv");

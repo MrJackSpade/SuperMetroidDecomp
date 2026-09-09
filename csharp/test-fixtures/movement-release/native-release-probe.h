@@ -159,14 +159,14 @@ int DiagnosticMovementRelease(const char *rom) {
 // followed by one uint16 foreground word + one BTS byte for each room block.
 // No room-specific speed or collision correction is applied here. Only the
 // original cartridge's movement stages execute after these initial RAM writes.
-static int DiagnosticRoomReleaseCore(const char *rom, const char *seed_path, int elevator_delay, const char *trace_path) {
+static int DiagnosticRoomReleaseCore(const char *rom, const char *seed_path, int elevator_delay, const char *trace_path, bool preheld_direction) {
   int status = ProbeLoadRetailMovementRom(rom);
   if (status) return status;
   size_t size = 0;
   uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size < 128) { free(seed); return 4; }
   uint32 *w = (uint32 *)seed;
-  if (w[0] != (elevator_delay < 0 ? 0x31564f4d : 0x32564f4d) || (elevator_delay < 0 ? (w[6] != 9 && w[6] != 10) : w[6] != 0) || !w[2] || !w[3] || w[2] > 256 || w[3] > 256 ||
+  if (w[0] != (elevator_delay < 0 ? 0x31564f4d : 0x32564f4d) || (elevator_delay < 0 ? (w[6] != 9 && w[6] != 10) : w[6] != (preheld_direction ? 0x25 : 0)) || !w[2] || !w[3] || w[2] > 256 || w[3] > 256 ||
       // $7F:0002..6401 contains 12,800 words; BTS $6402..9601 contains 12,800 bytes.
       w[2] * w[3] > 12800 || (elevator_delay < 0 ? size != 128 + w[2] * w[3] * 3 : size < 132 + w[2] * w[3] * 3)) {
     fprintf(stderr, "Invalid movement room seed.\n"); free(seed); return 4;
@@ -245,8 +245,8 @@ static int DiagnosticRoomReleaseCore(const char *rom, const char *seed_path, int
       joypad1_lastkeys = joypad1_newkeys = 0;
       RunAsmCode(0x918000, 0, 0, 0, 0);
     } else {
-      joypad1_lastkeys = 0x80 | (frame >= elevator_delay ? 0x200 : 0);
-      joypad1_newkeys = frame == elevator_delay ? 0x200 : 0;
+      joypad1_lastkeys = 0x80 | (preheld_direction || frame >= elevator_delay ? 0x200 : 0);
+      joypad1_newkeys = !preheld_direction && frame == elevator_delay ? 0x200 : 0;
       RunAsmCode(0x90ec22, 0, 0, 0, 0);
       RunAsmCode(0x90e90f, 0, 0, 0, 0);
     }
@@ -270,10 +270,14 @@ static int DiagnosticRoomReleaseCore(const char *rom, const char *seed_path, int
 }
 
 int DiagnosticRoomRelease(const char *rom, const char *seed_path) {
-  return DiagnosticRoomReleaseCore(rom, seed_path, -1, NULL);
+  return DiagnosticRoomReleaseCore(rom, seed_path, -1, NULL, false);
 }
 int DiagnosticElevatorRelease(const char *rom, const char *seed_path, int delay, const char *trace) {
-  return DiagnosticRoomReleaseCore(rom, seed_path, delay, trace);
+  return DiagnosticRoomReleaseCore(rom, seed_path, delay, trace, false);
+}
+
+int DiagnosticElevatorPreheld(const char *rom, const char *seed_path, const char *trace) {
+  return DiagnosticRoomReleaseCore(rom, seed_path, 0, trace, true);
 }
 
 // Isolate the actual actor dispatcher and its unlock command. Unlike the movement

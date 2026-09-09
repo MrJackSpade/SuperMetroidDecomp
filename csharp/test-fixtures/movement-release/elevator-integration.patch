@@ -1,8 +1,12 @@
 diff --git a/src/main.c b/src/main.c
 --- a/src/main.c
 +++ b/src/main.c
-@@ -314,2 +314,10 @@
+@@ -314,2 +314,14 @@
  int main(int argc, char** argv) {
++  if (argc == 5 && strcmp(argv[1], "--elevator-preheld-probe") == 0) {
++    extern int DiagnosticElevatorPreheld(const char *, const char *, const char *);
++    return DiagnosticElevatorPreheld(argv[2], argv[3], argv[4]);
++  }
 +  if (argc == 5 && strcmp(argv[1], "--elevator-actor-probe") == 0) {
 +    extern int DiagnosticElevatorActor(const char *, const char *, const char *);
 +    return DiagnosticElevatorActor(argv[2], argv[3], argv[4]);

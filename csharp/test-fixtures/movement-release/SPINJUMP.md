@@ -161,3 +161,13 @@ the Blue Brinstar trajectory continues upward. These are recorded observations,
 not yet cartridge golden assertions for the pre-held case. Its MOV2 seed now
 contains turn pose $25; the older forward-pose-only native release probe must not
 be used on it without explicitly extending its initialization contract.
+
+The separate `--elevator-preheld-probe ROM SEED CSV` now explicitly accepts only
+the release turn pose $25 and carries Left as held input without inventing a new
+press on frame zero. It restores the existing MOV2 animation, velocity, radius,
+pose metadata and input history before running the original CPU stages. All 120
+ordered X/Y/pose samples match in the three rooms, including both ceiling hits.
+Use `--elevator-spinjump-preheld-compare DIR` to verify these traces separately
+from the delayed-direction fixtures. This comparison still starts after the
+release-frame turn selection; that selection and frontend scheduling must not be
+claimed as native-verified by this seeded post-release test.

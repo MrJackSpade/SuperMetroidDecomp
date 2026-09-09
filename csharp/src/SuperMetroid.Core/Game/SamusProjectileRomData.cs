@@ -75,6 +75,8 @@ public static class SamusProjectileRomData
         public const int HorizontalVerticalSpeeds = 0x90c2d1;
         /// <summary>Speed word for diagonal power-beam travel.</summary>
         public const int DiagonalSpeeds = 0x90c2d3;
+        /// <summary>$90:B197 indexes $C2D1 by four times the low-nibble beam combination: two speed words per row.</summary>
+        public const int InitialSpeedRowBytes = 2 * sizeof(ushort);
         /// <summary>Direction-indexed X acceleration words.</summary>
         public const int XAccelerations = 0x90c353;
         /// <summary>Direction-indexed Y acceleration words.</summary>

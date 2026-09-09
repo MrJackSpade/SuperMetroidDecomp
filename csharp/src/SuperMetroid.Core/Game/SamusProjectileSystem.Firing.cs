@@ -506,11 +506,12 @@ public sealed partial class SamusProjectileSystem
     {
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
         bool diagonal = direction is 1 or 3 or 6 or 8;
+        int rowOffset = slot.PackedType.BeamCombinationIndex * SamusProjectileRomData.Beams.InitialSpeedRowBytes;
         short speed = unchecked((short)ReadWord(
             bus,
-            diagonal
+            (diagonal
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds
-                : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds));
+                : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));
 
         InitializeDirectionalVelocity(slot, speed);
     }

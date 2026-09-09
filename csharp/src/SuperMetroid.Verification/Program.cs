@@ -25,6 +25,13 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--beam-speed-rows"])
+{
+    VerifyBeamSpeedRows();
+    VerifySamusPowerBeamProjectiles();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--chainsaw-firing"])
 {
     VerifyChainsawFiring();
@@ -457,6 +464,7 @@ VerifyPermanentCollectibles();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
+VerifyBeamSpeedRows();
 VerifySamusMorphBallMovement();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();

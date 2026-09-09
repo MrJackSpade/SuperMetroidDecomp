@@ -217,8 +217,11 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
         WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
     }
-    WriteTestWord(bus, 0x90c2d1, 0x0400);
-    WriteTestWord(bus, 0x90c2d3, 0x02ab);
+    for (int beamType = 0; beamType < 12; beamType++)
+    {
+        WriteTestWord(bus, 0x90c2d1 + beamType * 4, 0x0400);
+        WriteTestWord(bus, 0x90c2d3 + beamType * 4, 0x02ab);
+    }
     WriteTestWord(bus, 0x90c3b1, 0x8000);
     WriteTestWord(bus, 0x90c3c9, 0xc3e1);
     for (int index = 0; index < 0x100; index++)

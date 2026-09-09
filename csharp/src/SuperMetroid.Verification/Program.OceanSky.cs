@@ -15,7 +15,10 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, cameraX: 128, cameraY: 768);
-        runtime.VramWrites.DrainTo(runtime.Vram, bus);
+        // Capture consumes the accepted NMI's register snapshot, not the room's
+        // mutable scroll state. Draining only VRAM left the BG2 scanline window at
+        // its zero-initialized 0..0 range, so both page layouts rendered no sky.
+        runtime.RunNmi(0, mainLoopRequestedNmi: true);
         var scene = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
         var ordinary = (OrdinaryGameplayRenderLayer)scene.Layers[0];
         Console.WriteLine($"Ocean room: main={runtime.ActiveRoom!.State.MainCodePointer:X4}, BG2={ordinary.Registers.Bg2WidthTiles}x{ordinary.Registers.Bg2HeightTiles}, sky={runtime.ScrollingSky is not null}");
@@ -61,6 +64,8 @@ internal static partial class Program
         var wrongLayout = new OrdinaryGameplayRenderLayer(bgOnly.Registers with { Bg2WidthTiles = 64, Bg2HeightTiles = 32 },
             ordinary.HorizontalScrolls, ordinary.VerticalScrolls);
         var wrongPixels = SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { wrongLayout }, scene.ObjectSelection, scene.Brightness));
+        AssertEqual(32, bgOnly.Registers.Bg2FirstScanline, "accepted ocean NMI exposes BG2 below the HUD");
+        AssertEqual(224, bgOnly.Registers.Bg2EndScanline, "accepted ocean NMI exposes the full gameplay height");
         AssertTrue(!background.SequenceEqual(wrongPixels), "fixture exposes the old horizontal-page interpretation visibly");
         PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/wrong-layout.png", 256, 224, wrongPixels);
         PngWriter.WriteRgba("csharp/test-temp/issue-349-ocean/background.png", 256, 224, background);

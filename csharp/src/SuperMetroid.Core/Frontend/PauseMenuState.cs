@@ -19,7 +19,7 @@ namespace SuperMetroid.Core.Frontend;
 /// equipment-screen A press changes the same bits consumed by movement, rendering, and SRAM;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
-internal sealed class PauseMenuState
+internal sealed partial class PauseMenuState
 {
     private readonly ISnesAddressSpace bus;
     private readonly CartridgeAudioState? audio;
@@ -538,6 +538,7 @@ internal sealed class PauseMenuState
         }
 
         WriteSamusWireframe();
+        WriteReserveLabels();
         WriteReserveSupplyDigits();
     }
 

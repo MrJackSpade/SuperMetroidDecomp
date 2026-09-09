@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pause-reserve-labels"])
+{
+    VerifyPauseReserveLabels();
+    return 0;
+}
 if (args is ["--draygon-goop-drops"])
 {
     VerifyDraygonGoopDrops();

@@ -586,28 +586,27 @@ public sealed partial class SamusState
             // two's-complement expression rather than replacing it with a magnitude
             // shortcut; negative probes deliberately produce -8 for the known pose radii.
             short intermediateWhole = unchecked((short)((wholePixels & 0xfff0) | 8));
-            BlockMoveResult intermediate = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                CopyKinematics(Kinematics),
-                displacement: intermediateWhole << 16,
-                scanLeftToRight: scanLeftToRight,
-                includeSolidEnemies: includeSolidEnemies,
-                plms: plms,
-                publishQuicksandGrounding: false);
+            BlockMoveResult intermediate = Probe(intermediateWhole << 16);
             if (intermediate.Collided)
                 return intermediate;
         }
 
-        return SamusBlockCollision.MoveVertical(
-            bus,
-            level,
-            CopyKinematics(Kinematics),
-            displacement,
-            scanLeftToRight,
-            includeSolidEnemies: includeSolidEnemies,
-            plms: plms,
-            publishQuicksandGrounding: false);
+        return Probe(displacement);
+
+        BlockMoveResult Probe(int amount)
+        {
+            SamusKinematicsState probe = CopyKinematics(Kinematics);
+            BlockMoveResult result = SamusBlockCollision.MoveVertical(
+                bus, level, probe, amount, scanLeftToRight,
+                includeSolidEnemies: includeSolidEnemies, plms: plms,
+                publishQuicksandGrounding: false);
+            // Native block dispatch clamps the live fractional Y word even for a
+            // changed-pose observation. Preserve that write, but never copy the
+            // probe's whole-position movement into the live body.
+            if (result.Collided)
+                Kinematics.YSubposition = probe.YSubposition;
+            return result;
+        }
     }
 
     /// <summary>

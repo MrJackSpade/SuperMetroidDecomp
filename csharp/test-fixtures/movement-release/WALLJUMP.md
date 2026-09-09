@@ -599,3 +599,23 @@ from the unpatched retail ROM by the updated header. Temporary native integratio
 was removed after capture. The extended comparison deliberately fails; do not mark
 #473 awaiting validation. Both the exposed expansion mismatch and the genuinely
 cleared-overhang side-jump sequence remain outstanding.
+
+### Overhang second-launch expansion correction
+
+The accepted walljump now runs the shared larger-pose collision resolver before
+installing its radius and launch. This reduced the recorded mismatch to 16 launch
+frames, all fractional Y only. Native solid vertical block dispatch writes the live
+Y fraction even when reached through the changed-pose observer; the copied managed
+probe discarded that write. The shared probe now preserves collision-written Y
+fraction while retaining the live whole position. Air probes preserve the fraction.
+
+All 14,040 captured frames now match exact position, pose, animation, history and
+speed; the charged-spin mode also retains exact charge/contact/projectile state.
+The direct `VerifyWallJumpExpansion` test covers both facings with/without the
+ceiling: X unchanged, ceiling center Y131/fraction zero, unobstructed Y127/fraction
+1000, and the correct walljump pose/radius. The existing full Verification suite
+also passes after the shared-probe change. No room-specific offset was introduced.
+
+This resolves the reproduced second-launch-under-overhang defect. It does not
+establish the still-outstanding sequence that clears the overhang and jumps from
+its side; #473 remains open without awaiting-player-validation.

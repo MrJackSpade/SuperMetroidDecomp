@@ -272,11 +272,37 @@ public sealed partial class SamusState
     /// Applies `$91:EABE`, solid-collision command five, and `$90:9949` after the block
     /// wall test succeeds. The launch values are read from the cartridge's dry-air tables.
     /// </summary>
-    public void ApplyWallJumpTrigger(ISnesAddressSpace bus)
+    /// <param name="level">
+    /// Live collision geometry supplied by gameplay. Null is reserved for isolated
+    /// launch-value/particle diagnostics that explicitly model unobstructed space.
+    /// </param>
+    public void ApplyWallJumpTrigger(
+        ISnesAddressSpace bus,
+        RoomLevelData? level = null,
+        ushort nmiFrameCounter = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (!IsSpinJumpPose(Pose))
             throw new InvalidOperationException($"Wall-jump trigger requires spin pose, not ${Pose:X2}.");
+
+        byte targetPose = IsFacingLeft(bus) ? SamusPoseIds.WallJumpLeftPose : SamusPoseIds.WallJumpRightPose;
+        if (level is not null)
+        {
+            // The accepted wall contact still passes through the ordinary changed-pose
+            // collision dispatcher. Expanding a compact spin body beneath a ceiling can
+            // move the center away from it, reject the expansion, or select crouch.
+            LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+                bus, level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
+            if (collision == LargerPoseCollisionOutcome.RetainSource)
+                return;
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+            {
+                ApplyPoseChangeCollisionCrouchFallback(bus, Pose);
+                return;
+            }
+            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        }
 
         // `$91:F433` observes previous movement type three plus equipped Screw Attack and
         // immediately reloads the normal suit palette before `$83/$84` starts. The desktop
@@ -284,7 +310,7 @@ public sealed partial class SamusState
         if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
-        Pose = IsFacingLeft(bus) ? SamusPoseIds.WallJumpLeftPose : SamusPoseIds.WallJumpRightPose;
+        Pose = targetPose;
         RefreshCollisionRadii(bus);
 
         // `$91:F2D3` clears acceleration and the ordinary base-speed pair before

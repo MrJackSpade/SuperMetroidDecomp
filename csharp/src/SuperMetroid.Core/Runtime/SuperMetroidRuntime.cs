@@ -3113,7 +3113,7 @@ public sealed partial class SuperMetroidRuntime
                 if (!animationTransitionApplied &&
                     LastAerialSamusMovement is { WallJumpTriggered: true })
                 {
-                    Samus.ApplyWallJumpTrigger(_addressSpace);
+                    Samus.ApplyWallJumpTrigger(_addressSpace, LevelData, NmiFrameCounter, Plms);
                     animationTransitionApplied = true;
                 }
 

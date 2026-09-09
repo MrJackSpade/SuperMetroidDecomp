@@ -156,6 +156,13 @@ internal static partial class Program
             WriteRomWord(rom, 0x909100 + color * 2, unchecked((ushort)(0x3200 + color)));
 
         var gameplayVram = new SnesVram();
+        // Reserve capacity below now exercises native label loading as well as
+        // supply digits. Supply valid table destinations and harmless synthetic
+        // sources; the dedicated retail label test verifies the actual glyphs.
+        WriteRomWord(rom, PauseReserveLabelRomData.DestinationTable, 0x3a88);
+        WriteRomWord(rom, PauseReserveLabelRomData.DestinationTable + 2, 0x3ac8);
+        WriteRomWord(rom, PauseReserveLabelRomData.SourceTable, 0x8000);
+        WriteRomWord(rom, PauseReserveLabelRomData.SourceTable + 2, 0x8000);
         gameplayVram.ExecuteWordTransfer([0x0001], 0x5800, 1);
         var bus = new SuperMetroidAddressSpace(rom);
         var samus = new SamusState

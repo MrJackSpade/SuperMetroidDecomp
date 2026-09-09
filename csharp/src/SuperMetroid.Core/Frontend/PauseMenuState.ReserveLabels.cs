@@ -10,26 +10,26 @@ internal sealed partial class PauseMenuState
         // Absence of capacity leaves the original blank template intact. Restoring
         // the template before rebuilding also removes labels if inventory is changed.
         if (samus.MaxReserveEnergy == 0) return;
-        for (int row = 0; row < PauseReserveLabelData.LabelCount; row++)
+        for (int row = 0; row < PauseReserveLabelRomData.LabelCount; row++)
         {
             int destination = RomDataReader.ReadWordFixedBank(bus,
-                PauseReserveLabelData.DestinationTable + row * sizeof(ushort)) - PauseReserveLabelData.TilemapBase;
+                PauseReserveLabelRomData.DestinationTable + row * sizeof(ushort)) - PauseReserveLabelRomData.TilemapBase;
             ushort source = RomDataReader.ReadWordFixedBank(bus,
-                PauseReserveLabelData.SourceTable + row * sizeof(ushort));
-            CopyBank82Words(source, equipmentTilemap.AsSpan(destination, PauseReserveLabelData.LabelByteCount));
+                PauseReserveLabelRomData.SourceTable + row * sizeof(ushort));
+            CopyBank82Words(source, equipmentTilemap.AsSpan(destination, PauseReserveLabelRomData.LabelByteCount));
         }
         // Native setup retains the initial MANUAL label for the zero/uninitialized
         // mode; it only performs the four-word substitution for a nonzero mode.
         if (samus.ReserveTankMode == 0) return;
-        int modeSource = samus.ReserveTankMode == PauseReserveLabelData.AutoMode
-            ? PauseReserveLabelData.AutoTilemap : PauseReserveLabelData.ManualTilemap;
-        for (int index = 0; index < PauseReserveLabelData.ModeWordCount; index++)
+        int modeSource = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
+            ? PauseReserveLabelRomData.AutoTilemap : PauseReserveLabelRomData.ManualTilemap;
+        for (int index = 0; index < PauseReserveLabelRomData.ModeWordCount; index++)
         {
-            Span<byte> destination = equipmentTilemap.AsSpan(PauseReserveLabelData.ModeByteOffset + index * sizeof(ushort), sizeof(ushort));
+            Span<byte> destination = equipmentTilemap.AsSpan(PauseReserveLabelRomData.ModeByteOffset + index * sizeof(ushort), sizeof(ushort));
             ushort before = BinaryPrimitives.ReadUInt16LittleEndian(destination);
             ushort source = RomDataReader.ReadWordFixedBank(bus, modeSource + index * sizeof(ushort));
             BinaryPrimitives.WriteUInt16LittleEndian(destination,
-                (ushort)((before & PauseReserveLabelData.AttributeMask) | source));
+                (ushort)((before & PauseReserveLabelRomData.AttributeMask) | source));
         }
     }
 }

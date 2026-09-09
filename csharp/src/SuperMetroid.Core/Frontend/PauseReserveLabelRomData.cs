@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>Bank-$82 reserve-label data used by pause setup, independent of menu control flow.</summary>
-internal static class PauseReserveLabelData
+internal static class PauseReserveLabelRomData
 {
     /// <summary>$82:C068, kEquipmentTilemapOffs_Tanks: two WRAM destinations.</summary>
     public const int DestinationTable = 0x82c068;

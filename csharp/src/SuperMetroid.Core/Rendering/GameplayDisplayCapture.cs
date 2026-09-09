@@ -24,11 +24,16 @@ public static partial class GameplayDisplayCapture
             layers[0] = CaptureFirefleaDarkness(runtime, basis);
         if (!doorOwnsDisplay)
         {
-            if (runtime.DisplayedRoomLayer3Fx is { } fx) AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
+            // Rainbow configuration $24 removes BG3 from the main screen. Its fixed
+            // color window replaces room liquid/fog blending while the beam owns HDMA.
+            if (runtime.Enemies.MotherBrain?.RainbowBeamHdma.Active != true && runtime.DisplayedRoomLayer3Fx is { } fx)
+                AddLayer(SnesGameplayFrameRenderer.CaptureRoomLayer3Fx(fx));
             if (runtime.CeresHaze.Enabled)
                 AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed, runtime.CeresHaze.Intensity));
             if (runtime.DisplayedMorphBallEyeBeam is { } eye)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1XPosition, ppu.Layer1YPosition));
+            if (runtime.Enemies.MotherBrain is { } motherBrain)
+                AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(motherBrain.RainbowBeamHdma));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.

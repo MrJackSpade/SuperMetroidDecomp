@@ -797,6 +797,8 @@ if (args.Length >= 2 && args[0] == "--mother-brain-room-audit")
 
 if (args.Length == 3 && args[0] == "--mother-brain-recording-audit")
     return MotherBrainRecordingAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--mother-brain-beam-recording-audit")
+    return MotherBrainRecordingAudit.Run(args[1], args[2], verifyBeam: true);
 
 if (args.Length >= 2 && args[0] == "--mother-brain-audit")
 {

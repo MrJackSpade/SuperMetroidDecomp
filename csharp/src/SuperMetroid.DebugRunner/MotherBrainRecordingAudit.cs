@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 /// <summary>Replays a player session through the frontend, checking the exact #489 trajectories.</summary>
 internal static class MotherBrainRecordingAudit
 {
-    public static int Run(string path, string romPath)
+    public static int Run(string path, string romPath, bool verifyBeam = false)
     {
         var recording = ControllerInputRecording.Read(path);
         if (!SHA256.HashData(File.ReadAllBytes(romPath)).AsSpan().SequenceEqual(recording.RomSha256))
@@ -19,13 +19,48 @@ internal static class MotherBrainRecordingAudit
         var ports = new byte[4];
         int minStandingY = int.MaxValue, maxStandingY = 0, maxBattleCamera = 0, battleFrames = 0;
         var samusRainbowPalettes = new HashSet<string>();
-        for (int frame = 0; frame < recording.ControllerInputs.Length; frame++)
+        var beamColors = new HashSet<ushort>();
+        int beamSamples = 0;
+        // This focused attack slice intentionally stops before the separately tracked
+        // death dispatcher. The default audit still executes the complete recording.
+        int frameCount = verifyBeam ? Math.Min(13000, recording.ControllerInputs.Length) : recording.ControllerInputs.Length;
+        for (int frame = 0; frame < frameCount; frame++)
         {
             var result = game.Step(recording.ControllerInputs[frame]);
             foreach (var command in result.AudioCommands)
                 if (command.Kind == CartridgeAudioCommandKind.WritePort) ports[command.Port] = command.Value;
             game.SetAudioAcknowledgements(new(ports[0], ports[1], ports[2], ports[3]));
             var runtime = game.RuntimeForVerification;
+            if (verifyBeam && runtime?.Enemies.MotherBrain?.RainbowBeamHdma is { Active: true } beam && frame % 30 == 0)
+            {
+                var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+                var withoutBeam = new LayeredRenderSnapshot(snapshot.Memory,
+                    snapshot.Layers.ToArray().Where(layer => layer is not ScanlineColorAddRenderLayer).ToArray(),
+                    snapshot.ObjectSelection, snapshot.Brightness);
+                var baseline = SoftwareLayeredSnapshotRenderer.Render(withoutBeam);
+                int changed = 0;
+                for (int index = 0; index < pixels.Length; index++)
+                {
+                    if (pixels[index] == baseline[index]) continue;
+                    int y = index / 256, x = index % 256;
+                    ushort window = beam.Windows[y];
+                    if (y < 32 || x < (window & 255) || x > (window >> 8))
+                        throw new InvalidDataException("Rainbow beam changed a pixel outside its native color window.");
+                    changed++;
+                }
+                if (changed == 0)
+                    throw new InvalidDataException($"Active rainbow beam is invisible at recorded frame {frame}.");
+                beamSamples++;
+                beamColors.Add(beam.Color);
+                if (frame == 6840)
+                {
+                    Directory.CreateDirectory("csharp/test-temp/mother-brain-recording");
+                    var packet = new RenderFrameSnapshot(new(frame, 1, runtime.NmiFrameCounter), snapshot);
+                    File.WriteAllBytes("csharp/test-temp/mother-brain-recording/beam-6840.smframe",
+                        RenderFrameSnapshotCodec.Serialize(packet));
+                }
+            }
             if (runtime?.Samus?.Drained.RainbowPaletteEnabled == true)
                 samusRainbowPalettes.Add(string.Join(',', runtime.Cgram.Colors.Slice(192, 16).ToArray()));
             if (runtime?.Samus?.HyperBeam != 0 && samusRainbowPalettes.Count != 0 && frame % 120 == 0)
@@ -56,6 +91,12 @@ internal static class MotherBrainRecordingAudit
             }
         }
         Console.WriteLine($"Battle frames={battleFrames}, standing Y={minStandingY}..{maxStandingY}, maximum camera X={maxBattleCamera}.");
+        if (verifyBeam)
+        {
+            if (beamSamples < 10 || beamColors.Count < 5)
+                throw new InvalidDataException($"Insufficient visible rainbow coverage: {beamSamples} frames, {beamColors.Count} colors.");
+            Console.WriteLine($"Visible rainbow beam: {beamSamples} sampled frames, {beamColors.Count} native colors; all changes inside native windows.");
+        }
         if (battleFrames > 0 && (minStandingY != 150 || maxStandingY != 150 || maxBattleCamera != 0))
             throw new InvalidDataException("Recorded Mother Brain fight drifted or failed to lock its camera.");
         return 0;

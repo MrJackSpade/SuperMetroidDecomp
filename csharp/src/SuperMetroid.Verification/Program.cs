@@ -31,6 +31,7 @@ VerifyBackgroundSampler();
 if (args is ["--ini-edit"]) return 0;
 if (args is ["--mother-brain"])
 {
+    VerifyMotherBrainBeamWindow();
     VerifySamusDrainedController();
     VerifyMotherBrainRainbowBeamSamusMovement();
     VerifyMotherBrainRainbowBeamAttackSequence();
@@ -288,6 +289,7 @@ VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
 VerifySamusXray();
 VerifySamusDeathSequence();
+VerifyMotherBrainBeamWindow();
 VerifySamusDrainedController();
 VerifySamusGrabbedByDraygon();
 VerifyMotherBrainRainbowBeamSamusMovement();

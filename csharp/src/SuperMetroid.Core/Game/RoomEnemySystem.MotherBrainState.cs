@@ -425,6 +425,8 @@ public sealed class MotherBrainEnemyState
 
     /// <summary>Live bank-$88 rainbow-beam presentation state published by body AI.</summary>
     public bool RainbowBeamHdmaActive { get; internal set; }
+    /// <summary>Native window/color state, advanced by emulation rather than host painting.</summary>
+    public MotherBrainRainbowBeamHdmaState RainbowBeamHdma { get; } = new();
     public SnesAngle RainbowBeamAngle { get; internal set; }
     public ushort RainbowBeamAngularWidth { get; internal set; }
     public bool RainbowBeamPaletteRequested { get; internal set; }

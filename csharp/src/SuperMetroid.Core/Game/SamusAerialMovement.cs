@@ -823,6 +823,11 @@ public static class SamusAerialMovement
         ushort controllerNewInput,
         RoomPlmSystem? plms)
     {
+        // $90:9D35 rejects before either enemy or terrain observation. Probing
+        // first is not equivalent: block contact can mutate real X subposition.
+        if (!samus.PoseHistory.AllowsWallJumpProbe)
+            return default;
+
         bool heldLeft = (controllerInput & (ushort)SnesButton.Left) != 0;
         bool heldRight = (controllerInput & (ushort)SnesButton.Right) != 0;
         if (!heldLeft && !heldRight)

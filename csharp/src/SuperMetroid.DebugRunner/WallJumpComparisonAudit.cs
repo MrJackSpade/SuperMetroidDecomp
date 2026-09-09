@@ -8,11 +8,12 @@ internal static class WallJumpComparisonAudit
     public static int Run(string rom, string trace)
     {
         var rows = File.ReadLines(trace).Skip(1).Select(line => line.Split(',')).ToArray();
-        bool hasHistory = rows.Length == 1560 && rows[0].Length == 9;
+        bool checksHistoryWords = rows.Length == 1560 && rows[0].Length == 13;
+        bool hasHistory = rows.Length == 1560 && (rows[0].Length == 9 || checksHistoryWords);
         if (!hasHistory && (rows.Length != 780 || rows[0].Length != 8))
             throw new InvalidDataException("Expected 26 or 52 cases of 30 frames.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        int sample = 0, mismatches = 0;
+        int sample = 0, mismatches = 0, historyMismatches = 0;
         for (int history = 0; history < (hasHistory ? 2 : 1); history++)
         for (int left = 0; left < 2; left++)
         for (int delay = 0; delay <= 12; delay++)
@@ -26,6 +27,10 @@ internal static class WallJumpComparisonAudit
             samus.YPosition = 160;
             samus.Kinematics.YSubposition = 0;
             samus.Pose = left != 0 ? SamusPoseIds.SpinJumpRightPose : SamusPoseIds.SpinJumpLeftPose;
+            samus.PoseHistory.PreviousPose = samus.Pose;
+            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(left != 0 ? 0x0308 : 0x0304);
+            samus.PoseHistory.LastDifferentPose = 0;
+            samus.PoseHistory.LastDifferentDirectionAndMovement = (ushort)(history != 0 ? 0x0300 : 0);
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.SetAnimationFrameFromSpecialHandler(0, 1);
@@ -46,14 +51,23 @@ internal static class WallJumpComparisonAudit
                 ushort input = ushort.Parse(row[3], NumberStyles.HexNumber);
                 runtime.StepFrame(input);
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2},{samus.AnimationFrame:X4}";
-                string expected = string.Join(',', row[4..]);
+                string expected = string.Join(',', row[4..8]);
                 if (actual != expected && mismatches++ < 16)
                     Console.WriteLine($"WALL history={history} left={left} delay={delay} frame={frame}: {actual} != {expected}");
+                if (checksHistoryWords)
+                {
+                    var h = samus.PoseHistory;
+                    string actualHistory = $"{h.PreviousPose:X4},{h.PreviousDirectionAndMovement:X4},{h.LastDifferentPose:X4},{h.LastDifferentDirectionAndMovement:X4}";
+                    string expectedHistory = string.Join(',', row[8..]);
+                    if (actualHistory != expectedHistory && historyMismatches++ < 16)
+                        Console.WriteLine($"HISTORY history={history} left={left} delay={delay} frame={frame}: {actualHistory} != {expectedHistory}");
+                }
                 if (firstWallJump < 0 && samus.ReadMovementType(bus) == SamusMovementType.WallJumping) firstWallJump = frame;
             }
             Console.WriteLine($"WINDOW history={history} left={left} delay={delay} firstWallJump={firstWallJump}");
         }
         Console.WriteLine($"Walljump: {sample} samples, {mismatches} position/pose/animation mismatches.");
-        return mismatches == 0 ? 0 : 1;
+        Console.WriteLine($"History-word mismatches: {historyMismatches} (checked={checksHistoryWords}).");
+        return mismatches == 0 && historyMismatches == 0 ? 0 : 1;
     }
 }

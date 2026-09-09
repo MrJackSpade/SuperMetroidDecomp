@@ -221,6 +221,16 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
+    var ineligibleHistory = CreateSpinSamus(animationFrame: 0);
+    ineligibleHistory.PoseHistory.LastDifferentDirectionAndMovement = 0;
+    ineligibleHistory.Kinematics.XSubposition = 0x4321;
+    var rejectedContact = SamusAerialMovement.StepSpinJump(
+        bus, level, ineligibleHistory, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
+    AssertTrue(!rejectedContact.WallContact && !rejectedContact.WallJumpTriggered,
+        "native history gate rejects before the wall probe");
+    AssertEqual(0, ineligibleHistory.AnimationFrame, "rejected history cannot rewind wall animation");
+    AssertEqual(0x4321, ineligibleHistory.Kinematics.XSubposition,
+        "rejected rightward wall probe cannot set real X fraction to FFFF");
     earlyContact.SolidVerticalCollisionResult = 0x7777;
     AerialMovementResult contactFrame = SamusAerialMovement.StepSpinJump(
         bus, level, earlyContact, (ushort)(SnesButton.Left | SnesButton.A), 0, 0);
@@ -337,6 +347,8 @@ static void VerifySamusAerialTurnsAndWallJump()
     SamusState CreateSpinSamus(ushort animationFrame)
     {
         var samus = new SamusState { Pose = 0x19, XPosition = 52, YPosition = 48 };
+        // This fixture begins mid-spin after a spin-direction transition.
+        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, 0);
         samus.AnimationFrame = animationFrame;

@@ -21,7 +21,7 @@ int DiagnosticWalljump(const char *rom, const char *output) {
   printf("HISTORY: native word shift and same-pose shift passed.\n");
   FILE *f = fopen(output, "wx");
   if (!f) return 4;
-  fprintf(f, "history,left,delay,frame,input,x,y,pose,animation\n");
+  fprintf(f, "history,left,delay,frame,input,x,y,pose,animation,previousPose,previousMetadata,olderPose,olderMetadata\n");
   for (int history = 0; history < 2; history++)
   for (int left = 0; left < 2; left++)
   for (int delay = 0; delay <= 12; delay++) {
@@ -53,8 +53,10 @@ int DiagnosticWalljump(const char *rom, const char *output) {
       RunAsmCode(0x909c5b, 0, 0, 0, 0); RunAsmCode(0x90a337, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0); RunAsmCode(0x91e8b6, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0); RunAsmCode(0x90eab3, 0, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X\n", history, left, delay, frame, input,
-        samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame);
+      fprintf(f, "%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X,%04X,%04X\n", history, left, delay, frame, input,
+        samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos, samus_pose, samus_anim_frame,
+        samus_prev_pose, *(uint16 *)&samus_prev_pose_x_dir,
+        samus_last_different_pose, *(uint16 *)&samus_last_different_pose_x_dir);
     }
   }
   fclose(f); return 0;

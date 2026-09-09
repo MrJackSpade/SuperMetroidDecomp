@@ -107,3 +107,24 @@ DiagnosticsVerification's default host/state checks and its explicit
 constructor-bypassed legacy access, unknown-layout rejection, and exact history
 plus pending auto-jump round trips. Ordinary/forced transition producer wiring
 and native motion comparisons remain required before calling #473 implemented.
+
+## Normal transition integration and gate
+
+The ordinary runtime transition epilogue now commits history when it consumes
+an animation, input, or fallback transition, including self-transitions. The
+walljump checker tests the older movement byte before either collision probe,
+so a rejected probe cannot write fractional X or rewind the animation.
+
+The trace now includes all four history words on every frame. With both sides
+seeded to the same previous and older pose metadata, all 1,560 samples match
+exact X/Y, pose, animation, and history words (zero mismatches). This fixes the
+13 initial-frame discrepancies without a first-frame special case. The full
+core verification suite passes. Its mid-spin wall fixtures now explicitly seed
+their prior spin transition; a separate rejection fixture verifies no wall
+contact, no animation rewind, and no right-probe fractional-X mutation when
+history is ineligible. Temporary native integration is removed.
+
+This verifies the normal spin-turn/wall-launch paths exercised by these cases,
+not every forced transition owner. Audit forced pose writes outside this
+epilogue, legacy-state entry behavior, repeated same-wall/overhang trajectories,
+and post-jump input rules before marking the whole issue awaiting validation.

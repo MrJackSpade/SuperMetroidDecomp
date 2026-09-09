@@ -482,9 +482,18 @@ static void VerifySamusPostureMovement()
     AssertEqual(0xfd, samus.LastAnimationDelayCommand!.Value, "crouch transition reaches FD");
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "crouch FD applies");
     AssertEqual(0x27, samus.Pose, "crouch transition target");
+    samus.HorizontalSpeed.HasRunningMomentum = true;
+    samus.HorizontalSpeed.SpeedBoostCounter = 0x0401;
+    samus.HorizontalSpeed.BaseSpeed = 1;
     GroundedMovementResult crouchFrame = SamusPostureMovement.StepCrouching(
         bus, level, samus, nmiFrameCounter: 0);
     AssertTrue(crouchFrame.Vertical.Collided, "crouch performs grounded probe");
+    AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "crouch clears numeric horizontal velocity");
+    AssertEqual(0x0401, samus.HorizontalSpeed.SpeedBoostCounter, "crouch movement preserves boost stage");
+    AssertTrue(samus.HorizontalSpeed.HasRunningMomentum, "crouch movement preserves momentum bookkeeping");
+    samus.HorizontalSpeed.ApplyStoppedInputFallback(samus.ReadFacingDirection(bus));
+    AssertEqual(0, samus.HorizontalSpeed.SpeedBoostCounter, "crouch input fallback independently cancels boost");
+    AssertTrue(!samus.HorizontalSpeed.HasRunningMomentum, "fallback cancels momentum bookkeeping");
 
     AssertTrue(
         samus.TryApplyPostureTransition(

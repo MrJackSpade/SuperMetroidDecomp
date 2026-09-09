@@ -70,5 +70,5 @@ disassembly 362be646929cf8e483f692b73a6561cfc2dc1d0d.
 All 114 native cases and 96 vertical checks pass. The controller-acquired
 Speedball matrix still matches all 120,000 frames after the production change.
 The complete bank-$80 verification executable also passes.
-Temporary Blue Suit conversion is still outstanding; #470 is not yet ready
-for player validation. These contact fixtures do not prove that conversion.
+Temporary Blue Suit conversion is separately covered by [TEMPORARY-BLUE.md](TEMPORARY-BLUE.md);
+#470 is ready for player validation. These contact fixtures alone do not prove conversion.

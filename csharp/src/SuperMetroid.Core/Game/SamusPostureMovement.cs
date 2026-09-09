@@ -42,7 +42,9 @@ public static class SamusPostureMovement
 
         // $90:A57C-$90:A588 performs this cleanup after both collision passes. It is not
         // inferred from being stationary; these are literal observable WRAM writes.
-        samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
+        // Unlike collision teardown, this does not call the boost cancellation
+        // routine. The later input fallback decides whether the retained stage ends.
+        samus.HorizontalSpeed.ClearHorizontalVelocity();
         return result;
     }
 

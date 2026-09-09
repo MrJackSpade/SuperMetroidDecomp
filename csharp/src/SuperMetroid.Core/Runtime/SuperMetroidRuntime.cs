@@ -3724,6 +3724,14 @@ public sealed partial class SuperMetroidRuntime
                         unchecked((byte)aerialFallback));
                 }
 
+                // Crouching selects command two only on lookup failure. A matched
+                // angle-held pose must retain boost even though movement zeroed X speed.
+                if (!animationTransitionApplied && usePoseDefinitionFallback &&
+                    ProspectiveSamusPose is null &&
+                    movementTypeAtFrameStart == SamusMovementType.Crouching &&
+                    Samus.ReadMovementType(_addressSpace) == SamusMovementType.Crouching)
+                    Samus.HorizontalSpeed.ApplyStoppedInputFallback(Samus.ReadFacingDirection(_addressSpace));
+
                 // Falling's lookup-failure command still runs when its definition
                 // retains the current pose. It follows pose initialization, and must
                 // not run when a higher-priority collision or interruption won.

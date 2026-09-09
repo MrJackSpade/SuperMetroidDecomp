@@ -1,6 +1,7 @@
 // #449: deterministic impact-boundary fixture. Include after native-release-probe.h.
 int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing) {
-  int speedball = timing == 4;
+  int temporary_blue = timing == 5;
+  int speedball = timing >= 4;
   int mockball = timing >= 3;
   int run_jump = timing >= 2;
   int wide = timing != 0;
@@ -13,7 +14,7 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
   const uint32 carries[] = { 0, 0x14000, 0x30000, 0x50000, 0x4000, 0xc000, 0x14000, 0x20000 };
   fprintf(f, "left,speed,carry,inputMode,frame,input,x,y,pose,bounce,ySpeed,yDirection,baseSpeed,extraSpeed,xAccel,animFrame,animTimer%s\n", speedball ? ",boost" : "");
   for (int left = 0; left < 2; left++)
-  for (int speed = 0; speed < (speedball ? 25 : mockball ? 21 : run_jump ? 16 : timing ? 9 : 8); speed++)
+  for (int speed = 0; speed < (temporary_blue ? 8 : speedball ? 25 : mockball ? 21 : run_jump ? 16 : timing ? 9 : 8); speed++)
   for (int carry = 0; carry < (wide ? 4 : 8); carry++)
   for (int held = 0; held < 2; held++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -54,6 +55,7 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
       samus_x_extra_run_subspeed = value;
     }
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
+    if (temporary_blue) { button_config_aim_down_L = 0x20; button_config_aim_up_R = 0x10; }
     uint16 previous = 0;
     for (int frame = 0; frame < (speedball ? 300 : mockball ? 200 : run_jump ? 180 : 96); frame++) {
       uint16 input = held ? 0x80 | (left ? 0x200 : 0x100) : 0;
@@ -83,6 +85,22 @@ int DiagnosticMorphBounceVariant(const char *rom, const char *output, int timing
         input = frame < launch ? 0x8000 | forward :
           jump | down | (frame < first_down || frame > second_down ? forward : 0);
       }
+      if (temporary_blue) {
+        const int launches[] = { 64, 80, 96, 112 }, soft_timings[] = { 10, 12, 12, 14 };
+        int launch = launches[carry], forward = left ? 0x200 : 0x100;
+        int second_down = launch + 20 + soft_timings[carry];
+        int jump = frame == launch + 8 ? 0 : 0x80;
+        int down = frame == launch + 10 || frame == second_down ? 0x400 : 0;
+        input = frame < launch ? 0x8000 | forward : jump | down |
+          (frame < launch + 10 || frame > second_down ? forward : 0);
+        if (frame >= 180) {
+          const int angles[] = { 0, 0x10, 0x20, 0x30, 0x10, 0x20, 0x30, 0x10 };
+          int angle = speed >= 4 && speed <= 6 && frame >= 195 ? 0 : angles[speed];
+          input = angle | (frame == 180 ? 0x800 : 0);
+          if (held && frame >= 210) input |= 0x80 | forward;
+          if (speed == 7 && frame >= 210) input |= 0x8000 | forward;
+        }
+      }
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
       samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -109,3 +127,4 @@ int DiagnosticMorphTiming(const char *rom, const char *output) { return Diagnost
 int DiagnosticRunJumpMorph(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 2); }
 int DiagnosticMockball(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 3); }
 int DiagnosticSpeedball(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 4); }
+int DiagnosticTemporaryBlue(const char *rom, const char *output) { return DiagnosticMorphBounceVariant(rom, output, 5); }

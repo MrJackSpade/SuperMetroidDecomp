@@ -1,7 +1,7 @@
 # Speedball collision bomb-block contact (#470)
 
-Status: contact defects reproduced and corrected. The full ticket remains open:
-temporary Blue Suit conversion still needs complete sequence coverage.
+Status: contact defects reproduced and corrected. #470 is ready for player validation;
+the conversion dependency is covered by [TEMPORARY-BLUE.md](TEMPORARY-BLUE.md).
 Block-family contrasts are covered in [SPEEDBALL-FAMILIES.md](SPEEDBALL-FAMILIES.md).
 Controller-acquired active boost through Mockball is
 now separately covered by [SPEEDBALL-SEQUENCE.md](SPEEDBALL-SEQUENCE.md).

@@ -177,6 +177,9 @@ if (args.Length == 3 && args[0] == "--run-jump-morph-comparison-audit")
     return MorphBounceComparisonAudit.Run(args[1], args[2], MorphBounceAuditScenario.RunJumpMorph);
 if (args.Length == 3 && args[0] == "--crouch-lock-comparison-audit")
     return CrouchLockComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--temporary-blue-comparison-audit")
+    return MorphBounceComparisonAudit.Run(args[1], args[2], MorphBounceAuditScenario.TemporaryBlue);
+
 if (args.Length == 3 && args[0] == "--speedball-family-comparison-audit")
     return SpeedballBlockComparisonAudit.Run(args[1], args[2], families: true);
 

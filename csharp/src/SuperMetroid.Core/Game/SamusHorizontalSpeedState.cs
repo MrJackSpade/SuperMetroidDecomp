@@ -644,11 +644,28 @@ public sealed class SamusHorizontalSpeedState
     public void ClearHorizontalMomentum(SamusFacingDirection facingDirection)
     {
         CancelRunningMomentum((byte)facingDirection);
+        ClearHorizontalVelocity();
+    }
+
+    /// <summary>
+    /// Clears the five horizontal velocity/acceleration words without canceling
+    /// boost bookkeeping. Crouching's $90:A57C cleanup performs only these stores;
+    /// its angle-held input route can therefore preserve a temporary Blue Suit.
+    /// </summary>
+    public void ClearHorizontalVelocity()
+    {
         ExtraRunSpeed = 0;
         ExtraRunSubspeed = 0;
         BaseSpeed = 0;
         BaseSubspeed = 0;
         AccelerationMode = 0;
+    }
+
+    /// <summary>Runs input fallback command two: stop acceleration and cancel boost, without clearing velocity words.</summary>
+    public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
+    {
+        AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
+        CancelRunningMomentum((byte)facingDirection);
     }
 
     /// <summary>

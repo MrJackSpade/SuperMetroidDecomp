@@ -33,7 +33,7 @@ public static partial class RenderFrameSnapshotCodec
                 foreach (RenderLayer child in window.Scene.Layers) WriteLayer(writer, child);
                 break;
             case BgSubscreenAddRenderLayer sub:
-                writer.Write((byte)RenderPacketLayerKind.BgSubscreenAdd);
+                writer.Write((byte)(sub.FourBpp ? RenderPacketLayerKind.Bg4SubscreenAdd : RenderPacketLayerKind.BgSubscreenAdd));
                 writer.Write(sub.TilemapWord); writer.Write(sub.CharacterWord); writer.Write(sub.MainCoverage is not null);
                 if (sub.MainCoverage is { } coverage) WriteLayer(writer, coverage);
                 break;
@@ -114,6 +114,7 @@ public static partial class RenderFrameSnapshotCodec
         RenderPacketLayerKind.WindowedScene when version >= RenderPacketFormat.WindowedSceneLayerVersion && !childScene => ReadWindowedScene(reader, version),
         RenderPacketLayerKind.XrayWindow when version >= RenderPacketFormat.XrayWindowVersion && !childScene => ReadXrayWindow(reader, version),
         RenderPacketLayerKind.BgSubscreenAdd when version >= RenderPacketFormat.WindowedSceneLayerVersion => ReadSubscreen(reader),
+        RenderPacketLayerKind.Bg4SubscreenAdd when version >= RenderPacketFormat.Bg4SubscreenAddVersion => ReadSubscreen(reader, true),
         RenderPacketLayerKind.Mode7Gameplay when version >= RenderPacketFormat.Mode7GameplayLayerVersion => ReadMode7Gameplay(reader),
         RenderPacketLayerKind.BgColorMath when version >= RenderPacketFormat.BgColorMathLayerVersion => ReadBgColorMath(reader),
         RenderPacketLayerKind.MessageBox when version >= RenderPacketFormat.MessageLayerVersion => ReadMessageLayer(reader),
@@ -182,7 +183,7 @@ public static partial class RenderFrameSnapshotCodec
         return new(new(memory, layers, obsel, brightness), left, top, right, bottom);
     }
 
-    private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader)
+    private static BgSubscreenAddRenderLayer ReadSubscreen(BinaryReader reader, bool fourBpp = false)
     {
         ushort map = reader.ReadUInt16(), characters = reader.ReadUInt16();
         Bg4BppRenderLayer? coverage = null;
@@ -194,7 +195,7 @@ public static partial class RenderFrameSnapshotCodec
             coverage = new(reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(),
                 reader.ReadInt32(), reader.ReadInt32(), ReadPriority(reader));
         }
-        return new(map, characters, coverage);
+        return new(map, characters, coverage, fourBpp);
     }
 
     private static Bg2BppColorMathRenderLayer ReadBgColorMath(BinaryReader reader)

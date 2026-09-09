@@ -185,14 +185,15 @@ void Main(uint3 id : SV_DispatchThreadID)
     if (PriorityFilter != 0 && ((entry >> 13) & 1) != PriorityFilter - 1) return;
     uint sourceX = (entry & 16384) != 0 ? 7 - (x & 7) : x & 7;
     uint sourceY = (entry & 32768) != 0 ? 7 - (y & 7) : y & 7;
-    uint stride = Operation == OpBg4 ? 16 : 8;
+    bool fourBpp = Operation == OpBg4 || (Operation == OpSubscreenAdd && Reserved27 != 0);
+    uint stride = fourBpp ? 16 : 8;
     uint row = ((CharacterWord + (entry & 1023) * stride) & 32767) * 2 + sourceY * 2;
     uint shift = 7 - sourceX;
     uint color = ((ReadByte(row) >> shift) & 1) | (((ReadByte(row + 1) >> shift) & 1) << 1);
-    if (Operation == OpBg4)
+    if (fourBpp)
         color |= (((ReadByte(row + 16) >> shift) & 1) << 2) | (((ReadByte(row + 17) >> shift) & 1) << 3);
     if (color == 0 && TransparentZero != 0) return;
-    uint sampled = Palette(((entry >> 10) & 7) * (Operation == OpBg4 ? 16 : 4) + color);
+    uint sampled = Palette(((entry >> 10) & 7) * (fourBpp ? 16 : 4) + color);
     if (Operation == OpSubscreenAdd)
     {
         if (!MainCoverage(id.xy)) return;

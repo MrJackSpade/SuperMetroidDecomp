@@ -7,6 +7,7 @@ internal static partial class Program
     private static void VerifyObjSubscreenAddition()
     {
         VerifyMode7ObjSubtraction();
+        VerifyBg4SubscreenAddition();
         byte[] vram = new byte[SnesPpuLayout.VramByteCount];
         for (int row = 0; row < 8; row++) vram[row * 2] = 255;
         ushort[] colors = new ushort[256];
@@ -57,5 +58,27 @@ internal static partial class Program
         byte[] unsupported = RenderFrameSnapshotCodec.Serialize(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 14);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packet cannot claim Mode7 OBJ subtraction");
+    }
+
+    private static void VerifyBg4SubscreenAddition()
+    {
+        byte[] vram = new byte[SnesPpuLayout.VramByteCount];
+        // Color four depends on the third bitplane: a mistaken 2-bpp decode sees zero.
+        for (int row = 0; row < 8; row++) vram[row * 2 + 16] = 255;
+        for (int tile = 0; tile < 1024; tile++) vram[0xe000 + tile * 2 + 1] = 4;
+        ushort[] colors = new ushort[256];
+        colors[0] = 31;
+        colors[20] = 31 << 10;
+        var memory = new PpuMemorySnapshot(vram, colors, new byte[SnesPpuLayout.OamUploadByteCount], 0);
+        var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
+            new RenderLayer[] { new BgSubscreenAddRenderLayer(0x7000, 0, FourBpp: true) }, 0, 15));
+        var restored = RoundTripRenderPacket(packet);
+        AssertTrue(SoftwareFrameSnapshotRenderer.Render(restored).All(pixel => pixel == new Rgba32(255, 0, 255)),
+            "four-bit subscreen resolves upper bitplanes and sixteen-color palette stride before addition");
+        Directory.CreateDirectory("csharp/test-temp/ending-504");
+        File.WriteAllBytes("csharp/test-temp/ending-504/bg4-subscreen.smframe", RenderFrameSnapshotCodec.Serialize(restored));
+        byte[] unsupported = RenderFrameSnapshotCodec.Serialize(packet);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(unsupported.AsSpan(RenderPacketFormat.Signature.Length), 15);
+        AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(unsupported), "older packets cannot claim four-bit subscreen layers");
     }
 }

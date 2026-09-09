@@ -51,8 +51,11 @@ public static class SoftwareLayeredSnapshotRenderer
                     }
                     break;
                 case BgSubscreenAddRenderLayer sub:
-                    Rgba32[] subscreen = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
-                        sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
+                    Rgba32[] subscreen = sub.FourBpp
+                        ? SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,
+                            sub.TilemapWord, sub.CharacterWord, 0, 0, 256, 224, 32, 32)
+                        : SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,
+                            sub.TilemapWord, sub.CharacterWord, rowCount: 28, transparentColorZero: true);
                     if (sub.MainCoverage is { } coverage)
                     {
                         Rgba32[] mask = SnesBgTilemapRenderer.Render4BppViewport(memory.Vram, memory.Cgram,

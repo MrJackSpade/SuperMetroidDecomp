@@ -727,6 +727,12 @@ internal sealed partial class EndingCreditsState
                 return cursor;
 
             case CinematicCodePointers.Ending_Instruction_EndZebesExplosion:
+                // F32B disables TM/TS without deleting the actors: the stars must still
+                // advance and become visible again when Func120 starts the flyaway.
+                cgram.SetColor(0, EndingCreditsRomData.Rendering.WhiteColor);
+                cgram.SetColor(128, EndingCreditsRomData.Rendering.WhiteColor);
+                for (int color = 16; color < 32; color++)
+                    cgram.SetColor(color, EndingCreditsRomData.Rendering.WhiteColor);
                 phaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return cursor;

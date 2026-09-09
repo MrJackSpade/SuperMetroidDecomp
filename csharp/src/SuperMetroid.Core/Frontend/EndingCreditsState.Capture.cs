@@ -36,7 +36,7 @@ internal sealed partial class EndingCreditsState
                     unchecked((short)mode7X), unchecked((short)mode7Y))));
             }
             oam = PrepareSprites();
-            layers.Add(new ObjRenderLayer());
+            if (!ExplosionWhiteout) layers.Add(new ObjRenderLayer());
         }
         return new(PpuMemorySnapshot.Capture(vram, cgram, oam), layers.ToArray(), objectSelection, brightness);
     }

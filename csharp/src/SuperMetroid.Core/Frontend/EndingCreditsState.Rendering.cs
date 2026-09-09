@@ -38,7 +38,7 @@ internal sealed partial class EndingCreditsState
         else
         {
             if (EscapeBackgroundEnabled) RenderMode7Background(pixels);
-            RenderSprites(pixels, obsel: CurrentEscapeObjectSelection);
+            if (!ExplosionWhiteout) RenderSprites(pixels, obsel: CurrentEscapeObjectSelection);
         }
 
         MasterBrightnessFilter.Apply(pixels, brightness);
@@ -70,6 +70,9 @@ internal sealed partial class EndingCreditsState
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
         ? EndingCreditsRomData.Rendering.CloudObjectSelection : EndingCreditsRomData.Rendering.EscapeObjectSelection;
+
+    private bool ExplosionWhiteout => Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic
+        or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue;
 
     private short CurrentMode7CenterX => Phase < EndingCreditsPhase.PlanetEscapeFast
         ? EndingCreditsRomData.Rendering.AtmosphericMode7Center : EndingCreditsRomData.Rendering.Mode7CenterX;

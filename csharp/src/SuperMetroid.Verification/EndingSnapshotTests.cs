@@ -48,6 +48,15 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
+                {
+                    var flash = legacy.CaptureRenderSnapshot();
+                    AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
+                    AssertEqual((ushort)0x7fff, flash.Memory.Cgram[0], "native explosion whiteout backdrop");
+                    if (firstPhaseFrame)
+                        AssertTrue(legacy.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
+                            "explosion whiteout is white across the actual rendered viewport");
+                }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsReward)
                 {
                     var backgrounds = legacy.CaptureRenderSnapshot().Layers.ToArray().OfType<Bg4BppRenderLayer>().ToArray();

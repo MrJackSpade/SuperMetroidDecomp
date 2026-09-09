@@ -87,6 +87,8 @@ if (args.Length == 2 && args[0] == "--short-tap-audit")
     return ShortTapAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--short-tap-comparison-audit")
     return ShortTapComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--spinjump-comparison-audit")
+    return SpinjumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--jump-turn-comparison-audit")
     return JumpTurnComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--running-release-audit")

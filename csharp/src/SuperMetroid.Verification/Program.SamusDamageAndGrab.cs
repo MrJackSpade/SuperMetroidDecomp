@@ -650,6 +650,32 @@ static void VerifySamusGrabbedByDraygon()
         (0x0400, 0x00f0),
     ]);
 
+    foreach (bool facingRight in new[] { false, true })
+    {
+        var historySamus = new SamusState();
+        var history = historySamus.PoseHistory;
+        history.PreviousPose = SamusPoseIds.SpinJumpRightPose;
+        history.PreviousDirectionAndMovement = 0x0308;
+        history.LastDifferentPose = SamusPoseIds.WallJumpLeftPose;
+        history.LastDifferentDirectionAndMovement = 0x1404;
+        byte grabbedPose = facingRight ? SamusPoseIds.DraygonGrabbedNeutralRightPose : SamusPoseIds.DraygonGrabbedNeutralLeftPose;
+        ushort grabbedMetadata = (ushort)(facingRight ? 0x1a08 : 0x1a04);
+        historySamus.DraygonGrabbed.Begin(bus, historySamus, facingRight);
+        AssertEqual(SamusPoseIds.SpinJumpRightPose, history.LastDifferentPose, "Draygon grab shifts previous pose");
+        AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "Draygon grab shifts previous metadata");
+        AssertEqual(grabbedPose, history.PreviousPose, "Draygon grab commits grabbed pose");
+        AssertEqual(grabbedMetadata, history.PreviousDirectionAndMovement, "Draygon grab commits grabbed metadata");
+        historySamus.DraygonGrabbed.Begin(bus, historySamus, facingRight);
+        AssertEqual(grabbedPose, history.LastDifferentPose, "repeated Draygon grab still shifts history");
+        AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "repeated grab shifts metadata");
+        historySamus.DraygonGrabbed.Release(bus, historySamus);
+        AssertEqual(grabbedPose, history.LastDifferentPose, "Draygon release retains prior grabbed pose");
+        AssertEqual(grabbedMetadata, history.LastDifferentDirectionAndMovement, "Draygon release retains prior grabbed metadata");
+        AssertEqual(historySamus.Pose, history.PreviousPose, "Draygon release commits standing pose");
+        AssertEqual(facingRight ? 8 : 4, history.PreviousDirectionAndMovement, "Draygon release commits standing metadata");
+        AssertTrue(!history.AllowsWallJumpProbe, "Draygon release cannot retain pre-grab spin eligibility");
+    }
+
     var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0100 };
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
     AssertEqual(SamusPoseIds.DraygonGrabbedNeutralRightPose, samus.Pose,

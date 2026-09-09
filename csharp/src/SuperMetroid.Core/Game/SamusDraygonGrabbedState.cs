@@ -65,6 +65,8 @@ public sealed class SamusDraygonGrabbedState
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
         OwnerFacingRight = draygonFacingRight;
+        // Forced grab owns its history shift; no ordinary input slot is consumed.
+        samus.CommitPoseHistory(bus);
     }
 
     /// <summary>
@@ -179,6 +181,10 @@ public sealed class SamusDraygonGrabbedState
             : SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
+
+        // Release clears pending input transitions, so commit here rather than
+        // relying on the normal pose dispatcher to observe the standing pose.
+        samus.CommitPoseHistory(bus);
 
         samus.HorizontalSpeed.BaseSpeed = 0;
         samus.HorizontalSpeed.BaseSubspeed = 0;

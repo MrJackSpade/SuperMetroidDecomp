@@ -309,3 +309,23 @@ normal transition epilogue and forward-facing setup already verified, inspect:
 
 Some initialize both samples rather than shifting; some have no gameplay return.
 Do not replace these owners with a blanket per-frame or pose-setter update.
+
+## Draygon grab/release history owners
+
+Both forced owners omitted their native history shift: grab at $90:E271-$E286
+and release at $90:E30B-$E320. The pinned disassembly and C agree that these
+owners publish history themselves and clear pending transition slots, rather
+than waiting for normal input dispatch.
+
+The constructed production-owner regression failed before the change: grabbing
+retained older walljump $84 instead of shifting previous spin $19. Both facing
+directions now test all four words on grab, repeated grab and release, including
+removal of pre-grab spin eligibility. Begin and Release call the existing shared
+history shift after pose initialization. Ordinary grabbed aiming still belongs
+to the runtime transition epilogue and was not given a second commit.
+
+An additional live-runtime check alternates sixty D-pad edges for each facing
+direction and verifies that the release frame shifts exactly once, preserving
+the actual previous-frame grabbed history. Both cases pass, as do all 12,480
+walljump comparison samples. These are history regressions, not new claims about
+Draygon's rendering, grapple vulnerability, or complete battle behavior.

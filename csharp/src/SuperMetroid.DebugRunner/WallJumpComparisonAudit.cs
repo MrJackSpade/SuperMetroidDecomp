@@ -18,6 +18,7 @@ internal static class WallJumpComparisonAudit
             throw new InvalidDataException("Unexpected walljump matrix dimensions.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         VerifyGrappleLaunchHistory(bus);
+        VerifyDraygonReleaseHistory(bus);
         int sample = 0, mismatches = 0, historyMismatches = 0;
         int speedMismatches = 0;
         int chargeMismatches = 0;
@@ -156,6 +157,31 @@ internal static class WallJumpComparisonAudit
         Console.WriteLine($"Speed-word mismatches: {speedMismatches} (checked={checksSpeed}).");
         Console.WriteLine($"Charge/contact/projectile mismatches: {chargeMismatches} (checked={checksCharge}).");
         return mismatches == 0 && historyMismatches == 0 && speedMismatches == 0 && chargeMismatches == 0 ? 0 : 1;
+    }
+
+    private static void VerifyDraygonReleaseHistory(SuperMetroidAddressSpace bus)
+    {
+        foreach (bool right in new[] { false, true })
+        {
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false);
+            var samus = runtime.Samus!;
+            samus.DraygonGrabbed.Begin(bus, samus, right);
+            for (int edge = 0; edge < 60; edge++)
+            {
+                ushort previousPose = samus.PoseHistory.PreviousPose;
+                ushort previousMetadata = samus.PoseHistory.PreviousDirectionAndMovement;
+                runtime.StepFrame((ushort)((edge & 1) == 0 ? 0x800 : 0x400));
+                if (edge != 59) continue;
+                ushort metadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
+                if (runtime.LastDraygonEscape is not { Released: true } ||
+                    samus.PoseHistory.PreviousPose != samus.Pose ||
+                    samus.PoseHistory.PreviousDirectionAndMovement != metadata ||
+                    samus.PoseHistory.LastDifferentPose != previousPose ||
+                    samus.PoseHistory.LastDifferentDirectionAndMovement != previousMetadata)
+                    throw new InvalidDataException("Runtime Draygon escape must shift history exactly once.");
+            }
+        }
+        Console.WriteLine("Draygon release history: both directions shift once on the sixtieth D-pad edge.");
     }
 
     private static void VerifyGrappleLaunchHistory(SuperMetroidAddressSpace bus)

@@ -701,12 +701,12 @@ internal sealed partial class EndingCreditsState
 
     private void StepSprites()
     {
-        // New actors are appended by opcode callbacks. A snapshot count matches the native
-        // descending slot walk: a newly spawned lower slot begins on the following frame.
-        int count = sprites.Count;
-        for (int index = 0; index < count; index++)
+        // Native traversal re-reads each slot. A callback can replace a lower slot,
+        // which then runs later in this same frame; higher slots wait until next frame.
+        for (int slot = EndingSpriteSlots.Count - 1; slot >= 0; slot--)
         {
-            EndingSprite wrapper = sprites[index];
+            EndingSprite? wrapper = sprites.Find(actor => actor.NativeSlot == slot && actor.Sprite.IsActive);
+            if (wrapper is null) continue;
             StepEndingSpritePreInstruction(wrapper);
             wrapper.Sprite.Step(bus, (opcode, cursor) =>
                 HandleSpriteOpcode(wrapper, opcode, cursor));
@@ -866,9 +866,18 @@ internal sealed partial class EndingCreditsState
         ushort instructionPointer,
         EndingSpriteRole role)
     {
-        sprites.Add(new EndingSprite(
-            new IntroDiscoverySprite(x, y, palette, instructionPointer),
-            role));
+        int slot = role switch
+        {
+            EndingSpriteRole.ExplosionStarsRight => EndingSpriteSlots.RightStars,
+            EndingSpriteRole.ExplosionStarsLeft => EndingSpriteSlots.LeftStars,
+            EndingSpriteRole.ExplosionAfterglow => EndingSpriteSlots.Afterglow,
+            _ => Enumerable.Range(0, EndingSpriteSlots.Count).Reverse()
+                .FirstOrDefault(candidate => !sprites.Any(actor => actor.NativeSlot == candidate && actor.Sprite.IsActive), -1)
+        };
+        if (slot < 0) throw new InvalidOperationException("Ending cinematic actor slots exhausted.");
+        sprites.RemoveAll(actor => actor.NativeSlot == slot);
+        sprites.Add(new EndingSprite(new IntroDiscoverySprite(x, y, palette, instructionPointer), role)
+            { NativeSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
             sprites[^1].Sprite.PreInstructionPointerForDiscovery(EndingSpritePreInstructions.WaitForFlyaway);
     }
@@ -1072,5 +1081,6 @@ internal enum EndingSpriteRole
 
 internal sealed record EndingSprite(IntroDiscoverySprite Sprite, EndingSpriteRole Role)
 {
+    public int NativeSlot { get; init; }
     public bool CloudMoving { get; set; }
 }

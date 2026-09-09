@@ -136,7 +136,7 @@ internal sealed partial class EndingCreditsState
         if (rewardJump is not null) return rewardJump.Draw();
         var oam = new OamBuffer();
         oam.BeginFrame();
-        foreach (EndingSprite wrapper in sprites)
+        foreach (EndingSprite wrapper in sprites.OrderByDescending(actor => actor.NativeSlot))
             wrapper.Sprite.Draw(bus, oam);
         oam.FinalizeFrame();
         return oam;

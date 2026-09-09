@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--maridia-puyo-pile"])
+{
+    VerifyMaridiaPuyoPile();
+    return 0;
+}
 if (args is ["--moat-first-entry"])
 {
     VerifyMoatFirstEntry();

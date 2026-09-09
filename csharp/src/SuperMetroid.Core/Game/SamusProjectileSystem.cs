@@ -396,7 +396,13 @@ public sealed partial class SamusProjectileSystem
         if (projectileProducerEnabled && !SamusState.IsForwardFacingPose(samus.Pose) &&
             !SamusState.IsStableBallPose(samus.Pose))
         {
-            if (samus.SelectedHudItem is 0 or 3)
+            // $90:DDC8 calls the normal beam handler when selected X-ray's Run
+            // action is released. Holding Run owns this dispatch even if setup is
+            // rejected; selection alone must not consume Shoot. Inputs are normalized
+            // by the runtime, so the canonical Run bit also honors remapped bindings.
+            bool xrayBeamFallback = samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
+                (controllerInput & (ushort)SnesButton.B) == 0;
+            if (samus.SelectedHudItem is 0 or 3 || xrayBeamFallback)
             {
                 (firedSlot, queuedSound, queuedSoundMaximum) = HandleBeamInput(
                     bus,

@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--xray-controls"])
+{
+    VerifyXrayControls();
+    return 0;
+}
 if (args is ["--elevatube-scrolling"])
 {
     VerifyElevatubeScrolling();
@@ -111,6 +116,7 @@ if (args.Contains("--escape-timer"))
     return 0;
 }
 VerifyAndroidHostPolicies();
+VerifyXrayControls();
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

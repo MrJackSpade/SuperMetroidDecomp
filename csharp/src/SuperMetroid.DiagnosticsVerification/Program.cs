@@ -4,6 +4,10 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--maridia-pipe-entry"])
+        return MaridiaPipeEntryAudit.Run();
+    if (args is ["--legacy-options-migration"])
+        return LegacyOptionsMigrationVerification.Run();
     if (args is ["--export-autonomous-performance-state", var frameText, var autonomousDestination])
         return AutonomousPerformanceStateFixture.Export(int.Parse(frameText), autonomousDestination);
     if (args is ["--compare-assembly-metadata", var originalAssembly, var linkedAssembly])

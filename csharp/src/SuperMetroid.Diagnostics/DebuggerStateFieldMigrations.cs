@@ -17,6 +17,15 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGameOptions) && count == 9 && current.Length == 11)
+        {
+            // Both fields were added after the original nine-option host layout.
+            // Omitted bool/nullable values restore as false/null: no countdown clamp
+            // and no ending-time override, matching the capabilities of that build.
+            Console.Error.WriteLine("WARNING: Older debugger options predate escape-timeout and ending-time overrides; leaving both disabled.");
+            return current.Where(field => field.Name is not "<PreventEscapeTimeout>k__BackingField"
+                and not "<EndingTimeOverrideMinutes>k__BackingField").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime) && count == current.Length - 1)
         {
             Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");

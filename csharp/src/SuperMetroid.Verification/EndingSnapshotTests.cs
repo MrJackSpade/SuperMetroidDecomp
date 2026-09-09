@@ -48,6 +48,19 @@ internal static partial class Program
                     }
                 }
                 bool sample = firstPhaseFrame || tick % 97 == 0;
+                if (legacy.Phase == EndingCreditsPhase.PostCreditsGesture)
+                {
+                    AssertEqual(308, phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture]
+                        - phaseEntryFrames[EndingCreditsPhase.PostCreditsReward],
+                        "gesture starts after two 64-frame reveals and the 180-frame copyright hold");
+                    var gestureFrame = legacy.CaptureRenderSnapshot();
+                    AssertTrue(gestureFrame.Layers.ToArray().All(layer => layer is ObjRenderLayer),
+                        "E342 gesture renders OBJ without the stale waiting or copyright backgrounds");
+                }
+                if (firstPhaseFrame && legacy.Phase == EndingCreditsPhase.ItemPercentage)
+                    AssertEqual(hours < 3 ? 244 : 329,
+                        tick - phaseEntryFrames[EndingCreditsPhase.PostCreditsGesture],
+                        "live reward owner consumes the complete native gesture before handing off");
                 if (hours < 10 && phaseEntryFrames.TryGetValue(EndingCreditsPhase.PostCreditsReward, out int rewardStart)
                     && legacy.Phase is EndingCreditsPhase.PostCreditsReward or EndingCreditsPhase.PostCreditsCopyright)
                 {

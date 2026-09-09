@@ -46,6 +46,7 @@ internal sealed partial class EndingCreditsState
     private ushort planetVelocityFraction;
     private bool creditsAssetsLoaded;
     private bool rewardCopyrightShown;
+    private EndingRewardGesture? rewardGesture;
     private RoomPaletteFxSystem paletteFx = new();
 
     public EndingCreditsState(
@@ -300,6 +301,21 @@ internal sealed partial class EndingCreditsState
                         ShowRewardCopyright();
                         break;
                     }
+                    // E342 replaces the idle actors with the cartridge gesture lists.
+                    // BG1/BG2 are disabled during this OBJ-only animation.
+                    sprites.Clear();
+                    rewardGesture = new EndingRewardGesture(bus, EndingReward);
+                    Phase = EndingCreditsPhase.PostCreditsGesture;
+                }
+                break;
+
+            case EndingCreditsPhase.PostCreditsGesture:
+                rewardGesture!.Step();
+                if (rewardGesture.JumpRequested)
+                {
+                    // The remaining shot/logo transition is integrated separately;
+                    // retain the existing result-screen handoff until that owner is ready.
+                    rewardGesture = null;
                     Array.Fill(
                         postCreditsTilemap,
                         EndingCreditsRomData.Rendering.BlankTile,
@@ -1026,6 +1042,7 @@ internal enum EndingCreditsPhase
     PostCreditsWaitingSamus,
     PostCreditsReward,
     PostCreditsCopyright,
+    PostCreditsGesture,
     ItemPercentage,
     ItemPercentageScrollDown,
     SeeYouNextMission,

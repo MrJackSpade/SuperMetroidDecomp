@@ -112,6 +112,7 @@ internal sealed partial class EndingCreditsState
     // E1D2 turns BG1 off when reward actors spawn. The armored reward uses OBJ only;
     // faster rewards return to BG2 for the waiting-Samus dissolve.
     private bool PostCreditsBackgroundEnabled => Phase != EndingCreditsPhase.PostCreditsBlank
+        && Phase != EndingCreditsPhase.PostCreditsGesture
         && !(Phase == EndingCreditsPhase.PostCreditsReward && EndingReward == EndingReward.Armored);
     private bool UsesWaitingBackground => Phase < EndingCreditsPhase.PostCreditsWaitingSamus
         || Phase == EndingCreditsPhase.PostCreditsReward;
@@ -128,6 +129,7 @@ internal sealed partial class EndingCreditsState
     // immutable packet consumer nor repeated rendering may advance sprite state.
     private OamBuffer PrepareSprites()
     {
+        if (rewardGesture is not null) return rewardGesture.Draw();
         var oam = new OamBuffer();
         oam.BeginFrame();
         foreach (EndingSprite wrapper in sprites)

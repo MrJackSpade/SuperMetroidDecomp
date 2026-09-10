@@ -578,8 +578,9 @@ public sealed partial class SuperMetroidRuntime
         // that native attachment and exposed the upward arrival one row too low.
         Samus.Kinematics.SetXFixed(placement.SamusXFixed);
         Samus.Kinematics.SetYFixed(placement.SamusYFixed);
-        Samus.Kinematics.YSpeed = 0;
-        Samus.Kinematics.YSubspeed = 0;
+        // Door IRQ travel has its own speed words. Ordinary jump velocity survives
+        // native room loading and the final nudge; clearing it here restarts a fall
+        // at its apex and lets horizontal momentum carry Samus too far after exit.
         Samus.Kinematics.ExtraXDisplacement = 0;
         Samus.Kinematics.ExtraXSubdisplacement = 0;
         Samus.Kinematics.ExtraYDisplacement = 0;

@@ -14,8 +14,9 @@ internal static class DoorExitMomentumAudit
 {
     public static int Run(string romPath, ushort source, ushort destination, ushort x, ushort y,
         ushort xSubposition = 0, ushort ySubposition = 0, ushort equippedItems = 0,
-        string? seedPrefix = null, bool spinJump = false)
+        string? seedPrefix = null, bool spinJump = false, string? nativeTrace = null)
     {
+        string[]? native = nativeTrace is null ? null : SpinDoorNativeComparison.Load(nativeTrace);
         foreach (bool tubeBroken in spinJump ? new[] { false } : new[] { false, true })
         foreach (bool carriedSpeed in new[] { false, true })
         {
@@ -54,7 +55,8 @@ internal static class DoorExitMomentumAudit
                 // handoff, not the input sequence that first approached the doorway.
                 samus.Pose = left ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose;
                 samus.Kinematics.YDirection = 2;
-                samus.Kinematics.YSpeed = 2;
+                samus.Kinematics.YSpeed = (ushort)(SpinDoorFixtureDefinitions.DescendingSpeed >> 16);
+                samus.Kinematics.YSubspeed = unchecked((ushort)SpinDoorFixtureDefinitions.DescendingSpeed);
                 samus.HorizontalSpeed.AccelerationMode = 2;
                 samus.PoseHistory.PreviousPose = samus.Pose;
                 samus.PoseHistory.PreviousDirectionAndMovement =
@@ -93,14 +95,19 @@ internal static class DoorExitMomentumAudit
                 Trace(before.ToString(), previousX);
             }
             if (transition.IsActive) throw new InvalidDataException("Door coroutine did not finish within 300 calls.");
+            if (spinJump && samus.Kinematics.VerticalSpeedFixed != SpinDoorFixtureDefinitions.DescendingSpeed)
+                throw new InvalidDataException(
+                    $"Native door loading preserves jump velocity 00023456; managed handoff produced {samus.Kinematics.VerticalSpeedFixed:X8}.");
             if (seedPrefix is not null)
                 RoomMovementSeedExporter.Write(runtime,
                     $"{seedPrefix}-{tubeBroken}-{carriedSpeed}.movement-seed");
-            for (int tick = 0; tick < 20; tick++, frame++)
+            for (int tick = 0; tick < (spinJump ? 40 : 20); tick++, frame++)
             {
                 uint previousX = samus.Kinematics.XFixed;
                 runtime.StepFrame(0);
                 runtime.RunNmi(0, true);
+                if (carriedSpeed && native is not null)
+                    SpinDoorNativeComparison.VerifyFrame(samus, tick, native);
                 Trace("Gameplay", previousX);
             }
             void Trace(string phase, uint previousX) => Console.WriteLine(

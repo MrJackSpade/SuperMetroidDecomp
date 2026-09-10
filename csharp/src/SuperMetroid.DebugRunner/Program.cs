@@ -284,6 +284,10 @@ if (args.Length == 4 && args[0] == "--ridley-spc-tick-comparison-audit")
     return SpcTickComparisonAudit.Run(args[1], Convert.ToInt32(args[2], 16), args[3], expectedTicks: 6000);
 if (args.Length == 3 && args[0] == "--spc-cancellation-audit")
     return SpcCancellationAudit.Run(args[1], Convert.ToInt32(args[2], 16));
+if (args.Length == 3 && args[0] == "--spin-door-native-comparison")
+    return DoorExitMomentumAudit.Run(args[1], SpinDoorFixtureDefinitions.SourceRoom,
+        SpinDoorFixtureDefinitions.DestinationRoom, SpinDoorFixtureDefinitions.SourceX,
+        SpinDoorFixtureDefinitions.SourceY, spinJump: true, nativeTrace: args[2]);
 if (args.Length is 6 or 9 or 10 && args[0] is "--door-exit-momentum-audit" or "--spin-door-exit-momentum-audit")
     return DoorExitMomentumAudit.Run(args[1], Convert.ToUInt16(args[2], 16),
         Convert.ToUInt16(args[3], 16), Convert.ToUInt16(args[4], 16), Convert.ToUInt16(args[5], 16),

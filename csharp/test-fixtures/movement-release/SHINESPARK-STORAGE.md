@@ -2,6 +2,31 @@
 
 Status: partial implementation; not yet awaiting player validation.
 
+## Grounded held-forward input windows
+
+`native-spark-window-probe.h` uses original alpha input, beta movement, animation,
+pose transitions and palette countdown. Constructed 16x32-block room, floor row
+16, Samus (128,235), zero initial subpixels/RNG, both facings, Speed Booster
+equipped, health 99. Media: dry, suitless water (surface 8), water with Gravity.
+Storage is seeded through the original crouch-storage routine at frame 20;
+Jump is held from frame 24, and forward is held from frame 24+offset (0..35).
+Capture stops on a directional spark pose or after frame 63. No gameplay cheats.
+
+`--spark-window-audit ROM CSV` reproduces all 216 cases through the full managed
+runtime, comparing every recorded pose, shine/windup timer, and 16.16 X/Y.
+All cases match; no production fix needed. In this held-input setup, dry
+forward offsets 0..30 produce horizontal spark and 31..35 time out vertically.
+Suitless water offsets 0..3 do not reach a spark in the sample; 4..33 produce
+horizontal spark and 34..35 time out vertically. A held direction survives
+until an eligible frame: these are NOT one-frame tap-window measurements.
+
+Two captures are identical. Accepted CSV in `spark-window-465-v1.zip`, SHA-256
+`CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D`.
+Regenerate with `native-spark-window-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-window ROM NEW.csv`. Temporary native hooks removed.
+Tap directions, aerial/Shot/angle restrictions, energy and actual liquid/sand
+travel remain outstanding; this checkpoint does not mark the whole ticket ready.
+
 ## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans

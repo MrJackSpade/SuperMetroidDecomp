@@ -1,4 +1,4 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("SuperMetroid.Verification")]
-[assembly: InternalsVisibleTo("SuperMetroid.AssetExtractionVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.IntegrationVerification")]

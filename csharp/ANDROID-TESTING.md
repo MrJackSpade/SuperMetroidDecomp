@@ -52,7 +52,7 @@ Run from the repository root, with the existing private `Super Metroid.smc` and
 choose the `.smrec` basename corresponding to the reported session:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release -- --replay-android-bundle "path/to/private-export.zip" "SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec"
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --replay-android-bundle "path/to/private-export.zip" "SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec"
 ```
 
 The sidecar JSON determines whether the journal starts at reset with recorded SRAM
@@ -165,7 +165,7 @@ Before installing an experimental APK, compare each application assembly with it
 `obj/Release/net10.0-android/android-arm64/linked` counterpart:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --compare-assembly-metadata INPUT.dll LINKED.dll
 ```
 
 This read-only tool checks named types, fields, properties, events, and method
@@ -252,7 +252,7 @@ The slow interval is X-ray in room `$01/$06`, using `XrayGameplayRenderLayer`.
 Generate its exact autonomous frame without a three-minute device wait:
 
 ```powershell
-dotnet run --no-launch-profile --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release -- --export-autonomous-performance-state 9650 csharp/test-temp/xray-performance-new
+dotnet run --no-launch-profile --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --export-autonomous-performance-state 9650 csharp/test-temp/xray-performance-new
 ```
 
 The destination must not exist. It contains a private slot-9 state, recording,

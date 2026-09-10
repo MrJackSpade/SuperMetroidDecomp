@@ -55,8 +55,8 @@ dotnet run --project csharp/src/SuperMetroid.AssetExtractor -- install "C:\ROMs\
 # Extract just runtime audio into a chosen directory.
 dotnet run --project csharp/src/SuperMetroid.AssetExtractor -- audio-rom "C:\ROMs\Super Metroid.smc" "C:\private\audio"
 # Synthetic validation, or full integration when a private ROM is supplied.
-dotnet run --project csharp/src/SuperMetroid.AssetExtractionVerification -c Release
-dotnet run --project csharp/src/SuperMetroid.AssetExtractionVerification -c Release -- "C:\ROMs\Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
+dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"
 ```
 
 The integration verifier accepts an optional second argument containing reference audio

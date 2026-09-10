@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args.Length > 0 && args[0] == "--asset-import")
+        return AssetImportVerification.Run(args[1..]);
     if (args is ["--spin-jump-missing-audio"])
         return SpinJumpMissingAudioAudit.Run();
     if (args is ["--maridia-pipe-entry"])

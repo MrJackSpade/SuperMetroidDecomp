@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Compile Include="../SuperMetroid.DesktopVerification/DebuggerFixtureLoader.cs" Link="DebuggerFixtureLoader.cs" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <!-- Exercise the exact Android session-data owner without requiring a device for

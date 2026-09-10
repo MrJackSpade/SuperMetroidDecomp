@@ -8,7 +8,7 @@
   </Folder>
   <Project Path="src/SuperMetroid.AssetExtractor/SuperMetroid.AssetExtractor.csproj" />
   <Project Path="src/SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
-  <Project Path="src/SuperMetroid.AssetExtractionVerification/SuperMetroid.AssetExtractionVerification.csproj" />
+  <Project Path="src/SuperMetroid.IntegrationVerification/SuperMetroid.IntegrationVerification.csproj" />
   <Project Path="src/SuperMetroid.RoomViewer/SuperMetroid.RoomViewer.csproj" />
   <Project Path="src/SuperMetroid.Verification/SuperMetroid.Verification.csproj" />
   <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />

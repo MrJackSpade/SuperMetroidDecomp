@@ -39,7 +39,7 @@ jobs:
         with:
           dotnet-version: '10.0.401'
       - name: Verify ROM-independent import validation
-        run: dotnet run --project csharp/src/SuperMetroid.AssetExtractionVerification -c Release
+        run: dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
       - name: Publish self-contained desktop
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.version }}

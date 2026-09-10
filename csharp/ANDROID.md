@@ -82,7 +82,7 @@ Input journals live in private `files/input-recordings`; state-load journals pre
 their exact seed separately from the overwritable slot. Regular saves remain in
 `files/SuperMetroid.save.json`. Native file import/export is still pending.
 
-`dotnet run --project csharp/src/SuperMetroid.DiagnosticsVerification -c Release`
+`dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release`
 tests the production session data class locally: empty/corrupt slots, 30 identical
 video/audio continuation frames, separate journals, and seed survival after overwrite.
 On-device state saving and the testing menu have been exercised; cross-runtime

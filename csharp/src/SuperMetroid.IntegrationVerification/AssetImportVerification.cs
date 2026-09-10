@@ -4,6 +4,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+internal static class AssetImportVerification
+{
+public static int Run(string[] args)
+{
 string temporary = Directory.CreateTempSubdirectory("SuperMetroid-import-verification-").FullName;
 try
 {
@@ -129,6 +133,8 @@ finally
     Directory.Delete(temporary, recursive: true);
 }
 
+}
+
 static void Check(bool value, string description, bool quiet = false)
 {
     if (!value) throw new InvalidDataException(description);
@@ -164,4 +170,5 @@ sealed class NonSeekableStream(byte[] bytes) : Stream
     public override void SetLength(long value) => throw new NotSupportedException();
     public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     protected override void Dispose(bool disposing) { if (disposing) inner.Dispose(); base.Dispose(disposing); }
+}
 }

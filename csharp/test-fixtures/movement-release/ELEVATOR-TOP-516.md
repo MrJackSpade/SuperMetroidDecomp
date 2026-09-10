@@ -85,3 +85,43 @@ is still required before deciding whether that residual pixel is a defect.
 
 All PNG output stays under the local test-temp directory. Publish only source,
 these textual findings, and numerical diagnostics; never publish screenshots.
+
+## Original CPU draw comparison
+
+`native-elevator-draw-probe.h` executes retail `$90:8A00`, the drawing target
+used by the elevator on visible NMIs. It sweeps world Y 256 through 294 and
+camera Y 0 through 32 in two-pixel increments, with the observed pose/frame
+zero and X=128. All **663** cases match the managed `Samus.Draw` output for
+every emitted low-OAM byte and all 32 high-OAM bytes. The native program runs
+the original restored ROM instructions, not the translated C draw function.
+
+In particular, world Y=268/camera Y=0 emits record 9 at X=124/Y=20,
+tile `$08`, attributes `$28`, exactly matching the residual pixel's owner.
+This rules out a difference in sprite-record generation for these inputs.
+It does **not** prove the remaining pixel is visible on the original console:
+arrival camera timing, tile DMA and scene composition remain outside this probe.
+Do not delete or weaken the failing scene assertion on the strength of this
+narrow comparison, and do not introduce non-native clipping in the sprite writer.
+
+Reproduce using pinned upstream `578f90b3cc49557bb70060ad033bb90b8cf8ac50`:
+
+1. Confirm `upstream-sm` has no unstaged changes in `src/main.c` or `src/sm_rtl.c`.
+2. Apply `native-elevator-draw-entrypoint.patch` from this directory with
+   `git -C upstream-sm apply ../csharp/test-fixtures/movement-release/native-elevator-draw-entrypoint.patch`.
+3. Build the upstream Release/x64 target with the installed v145 toolset.
+4. Run `sm.exe --diagnostic-elevator-draw 'Super Metroid.smc' OUTPUT.csv`.
+   The output must not already exist. This entrypoint is headless, suppresses
+   error dialogs, and gives each CPU subroutine a finite instruction budget.
+5. Reverse the exact patch with `git apply -R` and confirm the two files are clean.
+6. Run the managed comparison:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --elevator-draw-native-comparison 'Super Metroid.smc' OUTPUT.csv
+```
+
+Local trace: `csharp/test-temp/elevator-native-draw-516-v1.csv`, SHA-256
+`8E74CD1FB6F3D015793140863C21E7924F5266D9AD2D221127BEB5B53DAF9103`.
+The trace and screenshots are not published. Source, comparison tooling and
+these numerical findings are committed. Release build and all 663 comparisons
+pass; no production change or player-validation claim is made here.

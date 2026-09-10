@@ -308,6 +308,8 @@ if (args.Length == 2 && args[0] == "--elevator-spinjump-audit")
     return ElevatorSpinjumpAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--elevator-top-edge-audit")
     return ElevatorTopEdgeAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--elevator-draw-native-comparison")
+    return ElevatorDrawNativeComparison.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--elevator-frontend-handoff-audit")
     return ElevatorFrontendHandoffAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--elevator-spinjump-audit")

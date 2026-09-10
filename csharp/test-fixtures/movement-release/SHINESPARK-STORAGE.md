@@ -199,7 +199,32 @@ Two native captures match. Regenerate using `native-spark-sand-entrypoint.patch`
 and bounded/dialog-free `--diagnostic-spark-sand ROM NEW.csv`; compare with
 `--spark-sand-audit ROM CSV`. Temporary native hooks removed after capture.
 
-## Storage admission and palette-owned expiry
+## Active shinesparks entering sand
+
+`native-spark-sand-entry-probe.h` moves the sand away from the initial body:
+rows 8..12 span interior columns; rows 13..15 contain sand only in columns
+11..14 for right-facing cases or 1..4 for left-facing cases. This permits
+all 24 combinations to launch before entering surface/submerging sand,
+including suitless sparks. The same water, health, equipment, input timing,
+native PLM cleanup and managed synthetic area setup remain in use.
+
+Every case reaches sand while in a directional spark pose and ends in crash;
+the comparator asserts both conditions and compares per-frame pose, timers,
+16.16 X/Y and health. All 24 cases match; no production fix needed. This
+captures the strong horizontal slowdown in surface sand, the distinct
+submerging reaction, and vertical/diagonal travel through the sand region.
+The original 24 inside-sand launch attempts remain supported separately.
+
+Accepted CSV in `spark-sand-entry-465-v1.zip`, SHA-256
+`E83A95054A51FAC0AF7877467D65EAF8D748F70D64A2C2254D967F27A815A89E`.
+Two native captures match. Regenerate with
+`native-spark-sand-entry-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-sand-entry ROM NEW.csv`; compare with
+`--spark-sand-entry-audit ROM CSV`. Temporary native hooks removed.
+Liquid surface crossings and remaining launch restrictions/override coverage
+still remain before #465 can be marked ready for player validation.
+
+## Storage admission and palette-owned expiry (handler capture)
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

@@ -1,8 +1,9 @@
 # #463: remote collision triggers — partial evidence
 
 Reference: https://wiki.supermetroid.run/Hitbox_Manipulation, Checking section,
-revision 10438. **This is not yet a completed issue:** item acquisition, vertical
-checks, pose-change checks and velocity-dependent full movement sequences remain.
+revision 10438. **This is not yet a completed issue:** vertical checks, pose-change
+checks and velocity-dependent full movement sequences remain, together with native
+post-trigger item coroutine timing.
 
 ## Horizontal door probe
 
@@ -52,3 +53,31 @@ Pinned `$94:967F` and `$94:96AB` set collision direction to `$F`, intentionally
 suppressing directional station/save/hand/crumble callbacks. The current shared
 movement wrapper should be checked for these negative side effects as coverage
 expands; passing the door-only matrix does not establish their correctness.
+
+## Horizontal item owner and managed acquisition
+
+`native-remote-item-probe.h` repeats the same 2,754-probe matrix, replacing the door
+with type-$B/BTS-$45 and a visible exposed missile owner. Original `$94:967F`
+executes the real item detector setup `$84:EEAB`, whose scan locates the seeded owner
+and writes `$00FF` into its trigger timer. This is not a manually written expected
+trigger. It captures that timer and retained owner header alongside collision and
+position results. It does not run the subsequent native PLM coroutine.
+
+- CSV SHA256: `86F1FB74D050FBA44FC68FCF63225FEC6ECF860F578331AEBBC2027D8B2A7FE5`.
+- Archive: `remote-item-463-v1.zip`; same ROM/native/disassembly pins as above.
+- Use `native-remote-item-entrypoint.patch`, then `--diagnostic-remote-item ROM CSV`.
+- Managed comparison: `--remote-item-audit ROM CSV`.
+
+The managed fixture loads an actual retail exposed missile definition through the
+normal room-population loader. Only the one-record population list is overlaid.
+It executes the first item draw before probing, matching the native visible seed.
+Every original trigger result is then checked against **actual managed acquisition**:
+the subsequent PLM step must publish one pickup event, add five current/max missiles,
+and set permanent collected-item bit zero. Negative cases must do none of these.
+The native trigger word is compared to this managed outcome, not claimed to be a
+raw field or cycle-equivalent comparison of the native acquisition coroutine.
+
+All 2,754 cases match. No production change was needed. The initial fixture omitted
+the first draw step and correctly failed acquisition; fixing that fixture phase
+alignment made the authored level words equivalent. Native acquisition timing,
+full-frame movement/momentum and vertical trigger paths remain open work under #463.

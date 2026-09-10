@@ -81,3 +81,31 @@ All 2,754 cases match. No production change was needed. The initial fixture omit
 the first draw step and correctly failed acquisition; fixing that fixture phase
 alignment made the authored level words equivalent. Native acquisition timing,
 full-frame movement/momentum and vertical trigger paths remain open work under #463.
+
+## Reproduced defect: pose checks falsely start crumble blocks
+
+The vertical pose-expansion investigation found 144 failures in 208 original-CPU
+cases. Expanding from down-aim falling ($2D, radius ten) to normal falling ($29,
+radius nineteen) above a contact-crumble block incorrectly changed its tile to
+$80BC and allocated a live crumble PLM. Original `$91:F404` leaves the block $B000
+and no active PLM. Position and pose themselves already matched.
+
+`$94:96E3` sets collision direction to F before testing clearance. Crumble setup
+`$84:CE37` requires direction three; it deletes its temporary PLM for the probe.
+Managed code instead used positive probe displacement as proof of downward contact.
+The fix passes the named non-directional probe value through the block-reaction
+seam and gates crumble activation on the actual direction, preserving the existing
+position/collision result and ordinary contact behavior.
+
+Artifacts: `native-pose-crumble-probe.h`, `native-pose-crumble-entrypoint.patch`,
+`pose-crumble-463-v1.zip`; CLI `--diagnostic-pose-crumble ROM CSV` / managed
+`--pose-crumble-audit ROM CSV`. Same pinned sources as above. CSV SHA256:
+`FB6559974148F212EEFB83864921D29FA0ECEE1BB3BDFD0BD588E89A7F50608E`.
+Two native captures are identical. Matrix: thirteen gaps, both NMI scan parities,
+all eight contact-crumble BTS variants. All 208 cases match after the fix. Paired
+source-backed actual downward-contact controls still create one PLM and turn the
+block solid; those controls are distinguished from the original-CPU CSV.
+
+This fixes the reproduced crumble side effect, not all remaining directional
+callbacks. Station, hand and sand observation behavior still needs its own exact
+comparison, as do the positive vertical item/door triggers and full movement paths.

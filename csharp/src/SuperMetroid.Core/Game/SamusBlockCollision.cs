@@ -407,7 +407,8 @@ public static partial class SamusBlockCollision
         bool includeSolidEnemies = true,
         RoomPlmSystem? plms = null,
         bool publishDoorSideEffects = true,
-        bool publishQuicksandGrounding = true)
+        bool publishQuicksandGrounding = true,
+        SamusCollisionDirection? blockReactionDirection = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -630,7 +631,10 @@ public static partial class SamusBlockCollision
                         }
                         if (!block.Bts.UsesAreaReactionTable &&
                             block.Bts.IsNormalReactionIndex(8) &&
-                            acceptedDisplacement > 0)
+                            acceptedDisplacement > 0 &&
+                            // CE37 checks the native direction nibble, not the sign of
+                            // the tested clearance. Pose probes use F and delete the PLM.
+                            (blockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down)
                         {
                             if (plms is null)
                             {

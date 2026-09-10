@@ -640,7 +640,8 @@ public sealed partial class SamusState
             BlockMoveResult result = SamusBlockCollision.MoveVertical(
                 bus, level, probe, amount, scanLeftToRight,
                 includeSolidEnemies: includeSolidEnemies, plms: plms,
-                publishQuicksandGrounding: false);
+                publishQuicksandGrounding: false,
+                blockReactionDirection: SamusCollisionDirection.NonDirectionalProbe);
             // Native block dispatch clamps the live fractional Y word even for a
             // changed-pose observation. Preserve that write, but never copy the
             // probe's whole-position movement into the live body.

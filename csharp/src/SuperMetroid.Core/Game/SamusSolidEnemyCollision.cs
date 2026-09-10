@@ -219,6 +219,8 @@ public enum SamusCollisionDirection : ushort
     Right = 1,
     Up = 2,
     Down = 3,
+    /// <summary>Bank-$94:96E3 pose-observation direction $F; not an actual downward contact.</summary>
+    NonDirectionalProbe = 0x0f,
 }
 
 /// <summary>

@@ -117,3 +117,36 @@ passes. Suitless-liquid eligibility remains unverified by this dry-room fixture.
   `sm.exe --diagnostic-pseudo-walljump ROM NEW.csv` (headless, dialogs suppressed).
 - Managed audit: `--pseudo-screw-walljump-audit ROM CSV`.
 - Temporary source hooks removed; patch reapplication checked.
+
+## Liquid and negative-pose movement gates verified
+
+`native-pseudo-liquid-probe.h` runs the original movement handlers at $90:A436,
+$90:A734 and $90:A42E. The 5,760 cases cross both facings of normal spin, Screw
+Attack, walljump and normal-jump poses; animation frames 0/2/3/22/23; charge
+59/60/120; Gravity on/off; dry/water/lava/acid; surface one pixel above/equal/one
+pixel below the pose's top; and water-disable bit on/off. Each case starts in an
+empty 16x16 room at (128,128), zero subpixels/speeds, descending, Jump held,
+animation timer two, no contact mode and no other equipment. There is no input
+route or animation advance: this capture isolates one movement-handler boundary.
+Seeded charge here is not a substitute for the earlier input-earned charge trace.
+
+`--pseudo-screw-liquid-audit ROM CSV` executes the real managed aerial movement
+methods in the same constructed room. All 5,760 contact-mode results agree.
+Explicit witnesses cover the strict top-surface comparison and walljump's
+animation thresholds. Ordinary spin loses charged contact only when fully
+submerged without Gravity (unless water is disabled). Walljump ignores that
+liquid exclusion: frames 0..2 have no damage, 3..22 use charged contact, and 23+
+use Screw contact. Normal-jump controls do not gain contact damage from charge.
+No production change was needed. This does not assert arbitrary injected poses
+or animation frames are reachable with every equipment selection.
+
+- Archive: `pseudo-liquid-421-v1.zip`.
+- CSV SHA256: `2F59678185E1161C9B7384BF45BFE6A67D7F580242448ED4D4786E5C8DE91584`.
+- Two native captures are byte-identical; same ROM/source pins as above.
+- Regenerate using `native-pseudo-liquid-entrypoint.patch` and the headless
+  `sm.exe --diagnostic-pseudo-liquid ROM NEW.csv` entrypoint.
+- Temporary native hooks removed and reapplication checked.
+
+The remaining explicit gap is the outer enemy collision dispatcher's
+invulnerability reset (distinct from its already-tested generic touch body).
+Issue #421 remains open without awaiting-player-validation until that is covered.

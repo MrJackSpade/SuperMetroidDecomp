@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-surface-audit")
+    return SparkSurfaceAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--spark-sand-entry-audit")
     return SparkSandAudit.Run(args[1], args[2], entry: true);
 if (args.Length == 3 && args[0] == "--spark-sand-audit")

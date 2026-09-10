@@ -224,7 +224,27 @@ Two native captures match. Regenerate with
 Liquid surface crossings and remaining launch restrictions/override coverage
 still remain before #465 can be marked ready for player validation.
 
-## Storage admission and palette-owned expiry (handler capture)
+## Upward liquid surface crossings
+
+`native-spark-surface-probe.h` moves water/lava/acid surfaces to Y=128 so
+vertical and diagonal sparks leave the liquid before hitting the ceiling.
+Both facings and Gravity absent/present produce 24 cases, health/max 999,
+cheats off. Compare per-frame pose, timers, 16.16 position, whole/fractional
+health, crash entry, liquid physics state and split gravity acceleration.
+All 24 cases match; no production change was needed. The comparator requires
+each case to start submerged, become air while still sparking, and end in crash
+outside the liquid, avoiding a false pass from a fixture that never crosses.
+
+Accepted CSV in `spark-surface-465-v1.zip`, SHA-256
+`94E65FA92F45E63FD67C329234E27ADCC435C210B5CB41CEC95A367F89C66963`.
+Two native captures match. Regenerate with `native-spark-surface-entrypoint.patch`
+and bounded/dialog-free `--diagnostic-spark-surface ROM NEW.csv`; compare with
+`--spark-surface-audit ROM CSV`. Temporary native hooks removed.
+This verifies upward exit through a fixed liquid surface, not changing-height
+liquid entry. Remaining launch restrictions and explicit host override checks
+still need completion before #465 is ready for player validation.
+
+## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

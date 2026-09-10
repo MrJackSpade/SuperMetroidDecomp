@@ -3498,10 +3498,12 @@ public sealed partial class SuperMetroidRuntime
                           SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
                          ProspectiveSamusFallbackPose == poseAtFrameStart)
                 {
-                    // Momentum routine one at $91:EC50 rechecks speed AFTER movement. Any
-                    // residue selects mode two; collision or final underflow leaves zero.
-                    Samus.HorizontalSpeed.AccelerationMode =
-                        Samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
+                    // Retaining the running fallback selected command one in alpha.
+                    // After movement, fold extra dash speed into base and cancel boost
+                    // before decelerating; changing only the mode leaves stale dash
+                    // speed alive and changes the subsequent stopping trajectory.
+                    Samus.HorizontalSpeed.ApplyDeceleratingInputFallback(
+                        selectedMomentumCommand: true, Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          SamusState.IsRightFacingRunningPose(poseAtFrameStart) &&

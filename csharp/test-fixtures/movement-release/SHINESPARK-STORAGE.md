@@ -77,7 +77,34 @@ Two native captures match. Regenerate with `native-spark-aerial-entrypoint.patch
 and `--diagnostic-spark-aerial ROM NEW.csv`; compare using
 `--spark-aerial-audit ROM CSV`. Native hooks removed after capture.
 
-## Storage admission and palette-owned expiry (handler capture)
+## Held aerial buttons and compact-pose exits
+
+`native-spark-restrictions-probe.h` extends the spin-exit setup. At frame 30
+hold Shoot, Aim Down, Down, or Down+Shoot for six frames, then release to
+neutral or Aim Up at frame 36, keeping Jump held. Both facings and the same
+three media produce 48 cases. The comparator requires each native case to
+reach the tested release frame, preventing premature launches from passing
+as evidence of the intended transition.
+
+Twelve cases failed before the fix: Down/Down+Shoot followed by Aim Up, both
+facings in each medium. Native enters windup and adjusts Y up one pixel;
+managed compact-pose expansion remained in ordinary jump. There were 24
+divergent records through directional launch. After successful collision
+resolution, the compact transition now invokes the existing stored-shine
+initializer before ordinary acceleration. Rejected expansion still returns
+before consuming stored shine. All 48 cases match pose, timers and 16.16 X/Y;
+the previous 456 launch cases also remain matching.
+
+Accepted CSV in `spark-restrictions-465-v1.zip`, SHA-256
+`226191CABC7AD7862AC7CFDA2A01DEEDE039E2A264B2AD1B7087AF38A7080C1D`.
+Two original-CPU captures match. Regenerate with
+`native-spark-restrictions-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-restrictions ROM NEW.csv`; compare using
+`--spark-restrictions-audit ROM CSV`. Temporary native hooks removed.
+This covers the stated held/release sequences, not every grounded restriction,
+crouch exception, airborne input window, or subsequent energy/liquid travel.
+
+## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

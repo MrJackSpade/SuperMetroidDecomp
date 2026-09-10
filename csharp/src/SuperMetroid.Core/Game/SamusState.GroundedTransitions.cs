@@ -118,7 +118,15 @@ public sealed partial class SamusState
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         if (sourcePose != Pose)
+        {
+            // Successful expansion still runs the normal-jump initializer. A stored
+            // shine may replace the requested aim pose; collision rejection above must
+            // not consume the charge or apply the windup's one-pixel adjustment.
+            if (TryBeginShinesparkWindup(bus, targetPose,
+                rightJump || leftJump ? SamusMovementType.NormalJumping : SamusMovementType.Falling))
+                return true;
             InitializeOrdinaryAerialAcceleration();
+        }
         InitializeAnimation(bus, initialFrame: 0);
         return true;
     }

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--elevator-grab-comparison-audit")
+    return ElevatorGrabComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--yard-native-comparison-audit")
     return YardNativeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pause-charge-comparison-audit")

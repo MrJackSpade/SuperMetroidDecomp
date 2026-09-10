@@ -1,0 +1,23 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -84,0 +85,1 @@
++static bool grab_probe_headless;
+@@ -86,1 +87,1 @@
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!grab_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+@@ -92,1 +93,1 @@
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!grab_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+@@ -315,0 +317,5 @@
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-elevator-grab") == 0) {
++    grab_probe_headless = true;
++    extern int DiagnosticElevatorGrab(const char *, const char *);
++    return DiagnosticElevatorGrab(argv[2], argv[3]);
++  }
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -97,0 +98,2 @@
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-elevator-grab-probe.h"

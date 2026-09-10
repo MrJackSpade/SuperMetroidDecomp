@@ -2656,12 +2656,17 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Installs the common frozen handler. Maridia (area two) uses 300 frames; every other
+    /// Installs the common frozen handler. Norfair (area two) uses 300 frames; every other
     /// retail area uses 400. The ten-frame invincibility word is shared by direct `$FF`
     /// freezing and the lethal-Ice substitution path.
     /// </summary>
-    private static void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
+    private void FreezeEnemyFromNormalShot(RoomEnemySlot enemy, SamusState? samus)
     {
+        // The direct-freeze vulnerability refreshes the timer even on an already frozen
+        // actor, but only a newly frozen actor queues audio. Lethal-Ice substitution
+        // reaches this helper only with an initially zero clock.
+        if (enemy.FrozenTimer == 0)
+            QueueEnemySound(SoundEffectLibrary3Sounds.EnemyFreeze, maximumQueued: 3);
         enemy.FrozenTimer = samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400;

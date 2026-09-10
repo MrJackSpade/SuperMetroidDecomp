@@ -12,6 +12,40 @@ after the implementations and integration described below.
 
 ## Native dispatcher oracle
 
+### #417 Ice Shield contact and freeze audio
+
+`native-ice-contact-probe.h` allocates Ice Shield through original `$90:CCC0`,
+then runs collision `$A0:A143` and normal shot AI against a synthetic ordinary
+target. The 96-case matrix varies health 45/90/91/180, vulnerability `$02`/`$82`/
+`$FF`, Ice still equipped/removed after activation, area 0/2, and initial freeze
+clock 0/20. Charged vulnerability is two. Only particle zero overlaps; all other
+particles are moved outside the target. Position is (128,128), subpixels zero,
+facing right; no random or cheat behavior is involved. Definition and vulnerability
+patches exist only in the disposable in-memory cartridge.
+
+`IceContactAudit` runs the real managed allocator, animation, enemy collision,
+normal damage and particle pre-instruction. It compares actor survival, health,
+freeze clock, AI bits, invincibility, projectile damage/direction, library-three
+freeze request and post-contact particle count. Dead actor fields are normalized
+to zero, not treated as proof of stale-memory parity. Managed freeze requests
+must also use max-three capacity and occur at most once per hit.
+
+Two native captures match byte-for-byte. Accepted CSV is in
+`ice-contact-417-v1.zip`, SHA-256
+`5007128C0E926474328C3EABB2F9BE3B8E73D02DE877B383E627E91B4BB05CD3`.
+All state fields matched before the fix, but 24 cases lacked native freeze SFX
+`3:$0A`. The shared freeze helper now queues that sound only when the prior
+freeze clock was zero; direct `$FF` refreezing remains silent. All 96 cases pass.
+The helper's area comment was corrected from Maridia to Norfair (area two),
+without changing its already-correct area selection.
+
+Regenerate with `native-ice-contact-entrypoint.patch` and the headless native
+command `sm.exe --diagnostic-ice-contact ROM NEW.csv`; compare with
+`SuperMetroid.DebugRunner --ice-contact-audit ROM ice-contact-417-v1.csv`.
+Temporary native hooks were removed. This verifies the shot boundary, not the
+subsequent multi-frame hurt/frozen dispatcher sequence. That sequence remains
+to be checked before #417 is marked ready for player validation.
+
 ### #417 common frozen-handler boundary
 
 `native-frozen-ai-probe.h` executes original CPU code at `$A0:957E`, with

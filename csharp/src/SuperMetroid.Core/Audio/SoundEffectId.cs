@@ -132,6 +132,8 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$A0:A8AE, normal enemy shot: library-three $0A when an enemy becomes frozen.</summary>
+    public static readonly SoundEffectId EnemyFreeze = new(SoundEffectLibrary.Library3, 0x0a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$90:85A6 queues library-three $03 when Speed Booster reaches stage four.</summary>
     public static readonly SoundEffectId SpeedBoosterEcho = new(SoundEffectLibrary.Library3, 0x03); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$A2:AB58 queues library-three $14 as the ship's entrance pad opens.</summary>

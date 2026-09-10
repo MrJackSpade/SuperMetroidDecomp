@@ -260,7 +260,26 @@ The existing native dry-energy capture separately establishes the retail
 an optional invincibility parameter, default false, leaving native comparisons
 cheat-disabled. Remaining launch-restriction/window coverage is still open.
 
-## Storage admission and palette-owned expiry (handler capture)
+## Grounded held buttons and crouch exceptions
+
+`native-spark-ground-restrictions-probe.h` covers standing/crouched starts,
+both facings, dry/water/Gravity-water, and eight held combinations of Shoot,
+Aim Up and Aim Down (including none and both shoulders). Crouch variants press
+Down on frames 8..11; held buttons begin on 14, storage is seeded on 20 and
+Jump held from 24. This gives 96 original-CPU input sequences. The managed
+comparator asserts the actual standing/crouching movement type at frame 23,
+then compares every pose, shine/windup timer and 16.16 X/Y through directional
+launch or frame 63. All 96 cases match; no production change needed.
+
+Accepted CSV in `spark-ground-restrictions-465-v1.zip`, SHA-256
+`EAADE3D3EED3D933CDE2B46DCA0BA02ED1AA123A6AAD2B28289041AA95E5166B`.
+Two captures match. Regenerate with `native-spark-ground-restrictions-entrypoint.patch`
+and bounded/dialog-free `--diagnostic-spark-ground-restrictions ROM NEW.csv`;
+compare with `--spark-ground-restrictions-audit ROM CSV`. Native hooks removed.
+This covers these held-button combinations, not every airborne directional
+window or charged-shot extension of stored lifetime; #465 remains open.
+
+## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

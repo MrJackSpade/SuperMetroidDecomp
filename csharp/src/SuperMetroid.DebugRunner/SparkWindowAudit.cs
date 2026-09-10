@@ -6,10 +6,11 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Grounded held-forward and one-frame-tap launch windows through the full gameplay dispatcher.</summary>
 internal static class SparkWindowAudit
 {
-    public static int Run(string rom, string trace, bool tap = false)
+    public static int Run(string rom, string trace, bool tap = false, bool groundRestrictions = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            (tap ? "49165A9EFFD5CEB5C4625B2FCE77E171588A844B9C7B084D664F38A2CEA3FBD0" :
+            (groundRestrictions ? "EAADE3D3EED3D933CDE2B46DCA0BA02ED1AA123A6AAD2B28289041AA95E5166B" :
+            tap ? "49165A9EFFD5CEB5C4625B2FCE77E171588A844B9C7B084D664F38A2CEA3FBD0" :
             "CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D"))
             throw new InvalidDataException("Use accepted held/tap spark-window capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
@@ -36,6 +37,9 @@ internal static class SparkWindowAudit
                     samus.Shinespark.TryStoreFromSpeedBooster(samus.HorizontalSpeed.SpeedBoostCounter);
                 }
                 runtime.StepFrame(ushort.Parse(row[4], NumberStyles.HexNumber));
+                if (groundRestrictions && frame == 23 && samus.ReadMovementType(bus) !=
+                    (int.Parse(seed[2]) >= 8 ? SamusMovementType.Crouching : SamusMovementType.Standing))
+                    throw new InvalidDataException("Ground restriction fixture did not establish its intended pre-jump posture.");
                 string actual = $"{samus.Pose:X4},{samus.Shinespark.ShineTimer:X4},{samus.Shinespark.StartStopTimer:X4}," +
                     $"{samus.XPosition:X4}{samus.Kinematics.XSubposition:X4},{samus.YPosition:X4}{samus.Kinematics.YSubposition:X4}";
                 if (actual != string.Join(',', row[5..]))
@@ -48,7 +52,7 @@ internal static class SparkWindowAudit
             differences += failures;
             if (failures != 0) Console.WriteLine($"Window {group.Key}: {failures} mismatches.");
         }
-        if (cases != 216) throw new InvalidDataException("Incomplete window matrix.");
+        if (cases != (groundRestrictions ? 96 : 216)) throw new InvalidDataException("Incomplete window matrix.");
         Console.WriteLine($"Spark window: {cases} cases, {differences} mismatches.");
         return differences == 0 ? 0 : 1;
     }

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-ground-restrictions-audit")
+    return SparkWindowAudit.Run(args[1], args[2], groundRestrictions: true);
 if (args.Length == 2 && args[0] == "--spark-invincibility-audit")
     return SparkInvincibilityAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--spark-surface-audit")

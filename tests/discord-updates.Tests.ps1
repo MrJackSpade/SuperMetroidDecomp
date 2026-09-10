@@ -75,6 +75,12 @@ try {
     try { Expect-Failure { Invoke-Queue } 'queue lock' } finally { $heldLock.Dispose() }
     $null=Invoke-Queue
     $script:Command='next'; Assert ((Invoke-Queue).status -eq 'caught-up') 'queue finishes'
+    $migrationMarker=Join-Path $StateDirectory 'migration-active.json'
+    Set-Content $migrationMarker '{}'
+    Expect-Failure { Invoke-Queue } 'Publication migration is active'
+    $script:Command='status'; Assert ((Invoke-Queue).status -eq 'ready') 'status remains available during migration'
+    Remove-Item -LiteralPath $migrationMarker
+    $script:Command='next'
     $state=Get-Content (Join-Path $StateDirectory 'state.json') -Raw | ConvertFrom-Json
     Assert ($state.history.Count -eq 3 -and $script:sent.Count -eq 3) 'persist one receipt per commit'
     $null = Git @('checkout','--orphan','replacement')

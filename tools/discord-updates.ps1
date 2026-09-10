@@ -72,6 +72,9 @@ function Invoke-Queue {
     try {
         try { $lock = [IO.File]::Open((Join-Path $StateDirectory 'queue.lock'), 'OpenOrCreate', 'ReadWrite', 'None') }
         catch { throw 'Another update command holds the queue lock. Try again when it finishes.' }
+        if ((Test-Path -LiteralPath (Join-Path $StateDirectory 'migration-active.json')) -and $Command -ne 'status') {
+            throw 'Publication migration is active. Resume tools/publication-migration.py; do not reset or advance this queue.'
+        }
         if ($Command -eq 'init') {
             if (Test-Path -LiteralPath $path) { throw 'Queue already initialized; refusing to overwrite its tracker.' }
             if (-not $After) { throw 'Specify -After HEAD (future commits), a last-announced SHA, or ALL.' }

@@ -1,6 +1,19 @@
-# This repository is intentionally private and self-contained for its owner's personal
-# reverse-engineering workspace. The verified ROM and generated standalone-assets are
-# versioned here by explicit request. Do not make the repository public or redistribute it.
+# Cartridge inputs, extracted assets, and private diagnostics stay local.
+# Ignoring files does not remove prior commits; see docs/publication-audit/README.md.
+*.smc
+*.sfc
+*.smstate
+/standalone-assets/
+/csharp/standalone-assets/
+/debug-states/
+/input-recordings/
+/csharp/test-fixtures/**/*.png
+/csharp/test-fixtures/**/*.wav
+/csharp/test-fixtures/**/*.spcu
+*.dll
+*.exe
+*.pdb
+/.worktrees/
 __pycache__/
 *.pyc
 build/

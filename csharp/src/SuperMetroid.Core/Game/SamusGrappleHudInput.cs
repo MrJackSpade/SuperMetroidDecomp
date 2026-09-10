@@ -8,24 +8,19 @@ internal static class SamusGrappleHudInput
     public static bool IsSelectedAndAdmitted(ISnesAddressSpace bus, SamusState samus)
     {
         if (samus.InputLocked || SamusState.IsForwardFacingPose(samus.Pose) ||
-            samus.SelectedHudItem != SamusGrappleHudRomData.SelectedItem)
+            samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem)
             return false;
 
-        int entry = SamusGrappleHudRomData.MovementHandlers + 2 * (int)samus.ReadMovementType(bus);
+        int entry = SamusHudRomData.MovementHandlers + 2 * (int)samus.ReadMovementType(bus);
         ushort handler = (ushort)(bus.ReadByte(entry) | bus.ReadByte(entry + 1) << 8);
-        if (handler is SamusGrappleHudRomData.StandardHandler or SamusGrappleHudRomData.GrappleHandler)
+        if (handler is SamusHudRomData.StandardHandler or SamusHudRomData.GrappleHandler)
             return true;
-        if (handler == SamusGrappleHudRomData.DraygonHeldHandler)
+        if (handler == SamusHudRomData.DraygonHeldHandler)
             return samus.ReadMovementType(bus) == SamusMovementType.DraygonHeld;
-        if (handler == SamusGrappleHudRomData.TurningHandler)
+        if (handler == SamusHudRomData.TurningHandler)
             return samus.PoseTransitionShotDirection != 0;
-        if (handler != SamusGrappleHudRomData.TransitionHandler)
+        if (handler != SamusHudRomData.TransitionHandler)
             return false;
-        if (samus.Pose >= SamusGrappleHudRomData.StandardTransitionStart)
-            return true;
-        if (samus.Pose >= SamusGrappleHudRomData.NonFiringTransitionStart)
-            return false;
-        return bus.ReadByte(SamusGrappleHudRomData.TransitionFlags + samus.Pose -
-            SamusGrappleHudRomData.FirstTransitionPose) == 0;
+        return SamusHudInput.PostureTransitionAdmitsWeapons(bus, samus.Pose, grappleActive: false);
     }
 }

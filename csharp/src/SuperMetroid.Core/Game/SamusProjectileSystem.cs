@@ -397,7 +397,12 @@ public sealed partial class SamusProjectileSystem
         bool preservesTurnCharge = samus.ReadMovementType(bus) is
             SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling &&
             samus.PoseTransitionShotDirection == 0;
-        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
+        // Posture-transition dispatch preserves the carried charge during morph art;
+        // ordinary crouch/stand transitions still run their native beam producer.
+        bool preservesPostureCharge = samus.ReadMovementType(bus) == SamusMovementType.PostureTransition &&
+            !SamusHudInput.PostureTransitionAdmitsWeapons(bus, samus.Pose,
+                grappleActive: samus.Grapple.Phase != GrapplePhase.Inactive);
+        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !preservesPostureCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
             !SamusState.IsStableBallPose(samus.Pose))
         {
             // $90:DDC8 calls the normal beam handler when selected X-ray's Run

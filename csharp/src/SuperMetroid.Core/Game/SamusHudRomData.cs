@@ -1,10 +1,10 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>Native bank-$90 HUD dispatcher identities used to admit Grapple input.</summary>
-internal static class SamusGrappleHudRomData
+/// <summary>Native bank-$90 HUD dispatcher identities shared by weapon and Grapple admission.</summary>
+internal static class SamusHudRomData
 {
     /// <summary>$90:DD69 selects Grapple at HUD item four.</summary>
-    public const ushort SelectedItem = 4;
+    public const ushort GrappleSelectedItem = 4;
     /// <summary>$90:DD05 movement-type HUD handler pointer table.</summary>
     public const int MovementHandlers = 0x90dd05;
     /// <summary>$90:DD3D standard HUD handler.</summary>

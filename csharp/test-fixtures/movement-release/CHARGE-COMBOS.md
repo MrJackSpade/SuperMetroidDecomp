@@ -1,8 +1,8 @@
 # Charge Beam Combo implementation evidence
 
-Current status: shared selection/timing/weapon ownership (#416), Ice Shield
-(#417), Wave Shield (#418), and Spazer Shield (#419) are ready for player
-validation. Plasma Shield (#420) remains incomplete. The sections below record chronological checkpoints; later
+Current status: shared selection/timing/weapon ownership (#416) and all four
+ordinary combo families (#417–#420) are ready for player validation.
+The sections below record chronological checkpoints; later
 evidence supersedes the earlier statements of missing integration.
 
 The initial reproduction found that live C# charge reached 120 without invoking
@@ -11,6 +11,45 @@ cases left PB=2 and charge=120. That failing witness is now a passing regression
 after the implementations and integration described below.
 
 ## Native dispatcher oracle
+
+### #420 penetrating/repeated contacts and acceptance
+
+`native-plasma-repeat-probe.h` allocates Charge+Plasma through original FireSBA,
+then places one selected ring at two overlapping ordinary targets. The other
+three rings remain outside their hitboxes. All four selected slots are tested,
+with and without the first target's native Plasma-blocking property. Each setup
+runs four contact passes: initial eligible contact, repeat with its resulting
+invincibility unchanged, an explicitly seeded one-tick invincibility boundary,
+and an explicitly seeded zero-tick eligible boundary. These are contact admission
+boundaries, NOT a simulated timer countdown. No artificial movement/deletion
+is applied; a collision-marked ring runs its real deletion pre-instruction.
+
+Samus/targets start (128,128), facing right, zero subpixels/RNG; targets have
+health 10000, radii 16 and default vulnerabilities. Power Bomb stock is two,
+no gameplay cheats. Only synthetic definition data is patched in disposable
+native ROM memory; allocation, shot collision/AI and deletion execute original
+CPU code. Two captures are byte-identical. Accepted CSV in
+`plasma-repeat-420-v1.zip`, SHA-256
+`5E449DA6070CD93AC6246391C5125A6D96B27EBFEBAD77BEE323CBE85D4D8193`.
+
+`PlasmaRepeatAudit` invokes production allocation, animation and the ordinary
+two-enemy collision pass. All 32 passes match target health/invincibility, particle
+count and four type words. Nonblocking targets each lose 300, then reject hits
+at nonzero invincibility, then each lose another 300 at zero; the ring survives.
+The blocking control preserves the cartridge's same-pass contact ordering and
+subsequent ring removal. No new production mismatch was found.
+
+Regenerate using `native-plasma-repeat-entrypoint.patch` and only the bounded
+headless `sm.exe --diagnostic-plasma-repeat ROM NEW.csv`; compare using
+`SuperMetroid.DebugRunner --plasma-repeat-audit ROM CSV`. Native hooks removed.
+
+#420 acceptance: this repeated-contact/penetration matrix, 1,200 Plasma motion
+frames with explicit expansion/contraction/departure boundaries and cleanup,
+the shared 5,120-frame particle/trail OAM oracle (camera-relative Plasma origin
+included), 64 shared contact cases, and real held-Fire activation all pass on
+rerun. Previous shared implementation fixes are recorded below. This targets
+the pinned NTSC revision and ordinary target semantics, not every custom boss
+callback or PAL. #420 remains open with awaiting-player-validation.
 
 ### #419 Spazer contacts across phases and acceptance
 

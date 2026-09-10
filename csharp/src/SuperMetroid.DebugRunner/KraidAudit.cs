@@ -522,6 +522,7 @@ internal static class KraidAudit
         var growthFunctions = new HashSet<KraidAiFunction>();
         var secondPhaseFootFunctions = new HashSet<KraidAiFunction>();
         var lintFunctions = new HashSet<KraidAiFunction>();
+        var lintFlight = new KraidLintFlightAudit();
         var growthCeilingPlms = new List<KraidPlmRequest>();
         ushort? secondPhaseStartY = null;
         for (int growthFrame = 0; growthFrame < 2600; growthFrame++)
@@ -532,12 +533,14 @@ internal static class KraidAudit
             secondPhaseFootFunctions.Add((KraidAiFunction)enemies.Slots[5].VariableA);
             for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 lintFunctions.Add((KraidAiFunction)enemies.Slots[lintSlot].VariableA);
+            lintFlight.BeforeFrame(enemies);
             enemies.StepFrame(
                 CameraX,
                 CameraY,
                 timeIsFrozen: false,
                 samus,
                 level: assets.LevelData);
+            lintFlight.AfterFrame(enemies);
             growthCeilingPlms.AddRange(enemies.KraidPlmRequests);
             ProbeFirstUnauditedProjectileContact(
                 bus,
@@ -547,6 +550,7 @@ internal static class KraidAudit
                 contactedProjectileKinds);
             enemies.StepEnemyProjectiles(assets.LevelData, samus, cameraX: CameraX, cameraY: CameraY);
         }
+        lintFlight.VerifyCoverage();
         RoomEnemyProjectileKind[] requiredKraidProjectiles =
         [
             RoomEnemyProjectileKind.KraidSpitRock,

@@ -1206,9 +1206,6 @@ public sealed partial class SuperMetroidGame
                 slot.GameTimeSeconds,
                 slot.GameTimeMinutes,
                 slot.GameTimeHours);
-            runtime.ControllerBindings = slot.ControllerBindings;
-            runtime.MoonwalkEnabled = slot.MoonwalkEnabled;
-            runtime.IconCancelEnabled = slot.IconCancelEnabled;
             runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
@@ -1227,6 +1224,16 @@ public sealed partial class SuperMetroidGame
             }
 
             runtime.InitializeSavedGame(slot);
+            // File selection loaded the saved options before the options menu ran.
+            // InitializeSavedGame also serves direct diagnostic loads, so it restores
+            // those fields itself. At this frontend boundary, the player's live edits
+            // take precedence over that original snapshot, just like cartridge WRAM.
+            if (options is not null)
+            {
+                runtime.ControllerBindings = options.ControllerBindings;
+                runtime.MoonwalkEnabled = options.MoonwalkEnabled;
+                runtime.IconCancelEnabled = options.IconCancelEnabled;
+            }
             CartridgeRoomState loadedState = runtime.ActiveRoom?.State
                 ?? throw new InvalidOperationException(
                     "Saved-game appearance started without an active room state.");

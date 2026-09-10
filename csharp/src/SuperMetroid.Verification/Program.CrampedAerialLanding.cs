@@ -81,13 +81,24 @@ internal static partial class Program
             "crouch top meets the barrier ceiling without overlap");
         AssertEqual(0x0040, samus.YPosition + samus.Kinematics.YRadius,
             "crouch bottom remains on the barrier floor");
-        AssertEqual(0, samus.HorizontalSpeed.AccelerationMode,
-            "rejected full landing still runs collision command five");
-        AssertEqual(0, samus.HorizontalSpeed.BaseSpeed,
-            "cramped landing clears horizontal speed");
-        AssertEqual(0, samus.Kinematics.YSpeed,
-            "cramped landing clears vertical speed");
-        AssertEqual(0, samus.Kinematics.YDirection,
-            "cramped landing publishes grounded direction");
+        // Original F404 returns changed-pose carry for this substitution. The caller
+        // skips command five; #461's original-CPU trajectory proves this retained state.
+        AssertEqual(2, samus.HorizontalSpeed.AccelerationMode,
+            "rejected full landing skips collision command five");
+        AssertEqual(3, samus.HorizontalSpeed.BaseSpeed,
+            "cramped landing preserves horizontal speed");
+        AssertEqual(4, samus.Kinematics.YSpeed,
+            "cramped landing preserves vertical speed");
+        AssertEqual(2, samus.Kinematics.YDirection,
+            "cramped landing does not publish grounded direction");
+
+        WritePoseDefinition(bus, SamusPoseIds.ScrewAttackRightPose,
+            [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+        samus.Pose = SamusPoseIds.ScrewAttackRightPose;
+        samus.YPosition = 0x0034;
+        samus.RefreshCollisionRadii(bus);
+        samus.TryApplyAerialLanding(bus, level, true, 0, 39440);
+        AssertTrue(samus.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
+            "rejected landing still performs pre-command suit palette restoration");
     }
 }

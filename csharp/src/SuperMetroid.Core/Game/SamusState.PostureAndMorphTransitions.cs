@@ -746,7 +746,7 @@ public sealed partial class SamusState
     /// </summary>
     /// <returns>
     /// True when the selected landing pose fit. False means native collision retained the
-    /// source pose or selected its stable-crouch fallback; grounded velocity is still cleared.
+    /// source pose or selected its stable-crouch fallback; native skips the landing command.
     /// </returns>
     public bool TryApplyAerialLanding(
         ISnesAddressSpace bus,
@@ -784,9 +784,14 @@ public sealed partial class SamusState
             ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
         }
 
-        // Collision command five follows prospective-pose handling even when the chosen
-        // pose was rejected. A rejected landing is still grounded and must lose air speed.
-        ApplyAerialLandingCollisionCommand(leavingScrewAttack);
+        // F404 compares the requested pose with the post-collision pose. A rejected
+        // expansion or crouch substitution returns carry and skips command five; this
+        // is not an accepted landing and must retain the vertical motion words.
+        if (collision == LargerPoseCollisionOutcome.Allowed)
+            ApplyAerialLandingCollisionCommand(leavingScrewAttack);
+        else if (leavingScrewAttack)
+            // Palette restoration belongs to F433, before the command carry gate.
+            HorizontalSpeed.RequestNormalSuitPaletteRestore();
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 
@@ -852,7 +857,7 @@ public sealed partial class SamusState
     /// <summary>
     /// Applies `$91:E9F3` directions four/five when radius-ten straight-down Samus lands.
     /// Both entries select ordinary `$A4/$A5`; the 10 -> 21 expansion still runs the full
-    /// block pose-change collision resolver before collision command five clears motion.
+    /// block pose-change collision resolver; command five clears motion only if accepted.
     /// </summary>
     public bool TryApplyCompactAerialLanding(
         ISnesAddressSpace bus,
@@ -892,10 +897,10 @@ public sealed partial class SamusState
             ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
         }
 
-        // `$91:F010` collision command five runs after pose selection even when the larger
-        // body falls back to crouch, so no launch/fall residue survives the landing seam.
-        // Compact landings share its one-shot held-Jump handler with ordinary landings.
-        ApplyAerialLandingCollisionCommand(leavingScrewAttack: false);
+        // Like ordinary landings, F404's changed-pose result gates command five.
+        // A collision-selected crouch is not allowed to clear velocity or arm autojump.
+        if (collision == LargerPoseCollisionOutcome.Allowed)
+            ApplyAerialLandingCollisionCommand(leavingScrewAttack: false);
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 

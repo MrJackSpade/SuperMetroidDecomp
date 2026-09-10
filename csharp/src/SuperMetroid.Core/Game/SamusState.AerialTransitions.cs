@@ -198,11 +198,6 @@ public sealed partial class SamusState
                 $"Aerial turn source ${sourcePose:X2} has direction metadata inconsistent with ${genericTargetPose:X2}.");
         }
 
-        // `$91:F952/$91:F98A` run this momentum conversion before the shared pose-change
-        // collision resolver. Consequently even a cramped compact-pose rejection consumes
-        // extra run speed; moving it after the probe would produce observably different WRAM.
-        FoldExtraRunSpeedIntoBaseAndStartTurn();
-
         LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
             bus,
             level,
@@ -218,6 +213,9 @@ public sealed partial class SamusState
             return false;
         }
 
+        // F404 resolves expansion before F433 dispatches the final movement type.
+        // A crouch substitution never reaches the aerial-turn momentum initializer.
+        FoldExtraRunSpeedIntoBaseAndStartTurn();
         Pose = selectedTurnPose;
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));

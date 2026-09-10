@@ -38,7 +38,7 @@ public sealed partial class RoomEnemySystem
             arm.InstructionTimer = unchecked((ushort)(arm.InstructionTimer + 1));
     }
 
-    private void RunKraidLintMain(RoomEnemySlot lint)
+    private void RunKraidLintMain(RoomEnemySlot lint, SamusState? samus)
     {
         KraidEnemyState state = RequireKraidState(lint);
         lint.InstructionTimer = 0x7fff;
@@ -57,7 +57,7 @@ public sealed partial class RoomEnemySystem
                 ChargeKraidLint(lint);
                 return;
             case KraidAiFunction.LintFire:
-                FireKraidLint(lint, part);
+                FireKraidLint(lint, part, samus);
                 return;
             default:
                 throw new InvalidDataException(
@@ -100,9 +100,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part)
+    private static void FireKraidLint(RoomEnemySlot lint, KraidPartState part, SamusState? samus)
     {
-        AddSignedKraidHorizontalDisplacement(lint, -0x00038000);
+        AddSignedKraidHorizontalDisplacement(lint, KraidPlatformMovement.FiringDisplacement);
         if (unchecked((short)(lint.XPosition - 56)) < 0)
             lint.Properties = lint.Properties.With(EnemyProperties.IgnoreSamusCollision);
         if (unchecked((short)(lint.XPosition - 32)) < 0)
@@ -112,6 +112,21 @@ public sealed partial class RoomEnemySystem
             lint.VariableF = 300;
             part.NextFunction = KraidAiFunction.LintProduce;
             lint.VariableB = 0;
+        }
+
+        // Native checks support after moving and even on the frame that hides the lint.
+        // Publish carry for Samus's later movement dispatcher, rather than teleporting
+        // her here. The clamp changes only the whole word; retain the fractional borrow.
+        if (samus is not null && IsEnemyTouchingSamusFromBelow(lint, samus))
+        {
+            uint carry = ((uint)samus.Kinematics.ExtraXDisplacement << 16) |
+                samus.Kinematics.ExtraXSubdisplacement;
+            carry = unchecked(carry + (uint)KraidPlatformMovement.FiringDisplacement);
+            short whole = unchecked((short)(carry >> 16));
+            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
+                unchecked((short)(whole - KraidPlatformMovement.MinimumCarryWholePixels)) < 0
+                    ? KraidPlatformMovement.MinimumCarryWholePixels : whole));
+            samus.Kinematics.ExtraXSubdisplacement = unchecked((ushort)carry);
         }
     }
 

@@ -1050,6 +1050,9 @@ if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
     return NorfairRidleyAudit.Run(ridleyRomPath);
 }
 
+if (args.Length == 2 && args[0] == "--kraid-lint-contact-audit")
+    return KraidLintContactAudit.Run(args[1]);
+
 if (args.Length >= 2 && args[0] == "--kraid-audit")
 {
     string kraidRomPath = string.Join(' ', args[1..]).Trim('"');

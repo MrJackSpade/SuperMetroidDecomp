@@ -350,7 +350,7 @@ public sealed partial class RoomEnemySystem
             return wallInstruction;
         }
 
-        if (samus is not null && WorkRobotIsTouchingSamusFromBelow(slot, samus))
+        if (samus is not null && IsEnemyTouchingSamusFromBelow(slot, samus))
         {
             samus.Kinematics.ExtraXSubdisplacement = 0;
             samus.Kinematics.ExtraXDisplacement = unchecked((ushort)horizontalPixels);
@@ -374,26 +374,6 @@ public sealed partial class RoomEnemySystem
         state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
         state.LaserXVelocity = fallLaserVelocity;
         return fallInstruction;
-    }
-
-    /// <summary>Exact asymmetric support test from <c>$A0:ABE7</c>.</summary>
-    private static bool WorkRobotIsTouchingSamusFromBelow(
-        RoomEnemySlot robot,
-        SamusState samus)
-    {
-        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.XPosition - robot.XPosition)));
-        ushort horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.XRadius));
-        bool horizontalOverlap = xDistance < samus.Kinematics.XRadius ||
-            horizontalGap < robot.XRadius;
-        if (!horizontalOverlap)
-            return false;
-
-        ushort biasedYDifference = unchecked((ushort)(samus.YPosition + 3 - robot.YPosition));
-        if (unchecked((short)biasedYDifference) >= 0)
-            return false;
-        ushort yDistance = unchecked((ushort)-biasedYDifference);
-        ushort verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.YRadius));
-        return yDistance < samus.Kinematics.YRadius || verticalGap <= robot.YRadius;
     }
 
     private static bool IsWorkRobotOriginStrictlyOnScreen(

@@ -2020,7 +2020,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_KraidLintTop when slot.EnemyDefinitionPointer == KraidTopLintDefinition:
             case EnemyAiCodePointers.MainAI_KraidLintMiddle when slot.EnemyDefinitionPointer == KraidMiddleLintDefinition:
             case EnemyAiCodePointers.MainAI_KraidLintBottom when slot.EnemyDefinitionPointer == KraidBottomLintDefinition:
-                RunKraidLintMain(slot);
+                RunKraidLintMain(slot, samus);
                 return;
             case EnemyAiCodePointers.MainAI_KraidFoot when slot.EnemyDefinitionPointer == KraidFootDefinition:
                 RunKraidFootMain(slot, cameraY);

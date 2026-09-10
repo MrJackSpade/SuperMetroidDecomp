@@ -101,3 +101,32 @@ All 3,840 frames match. Trail requests execute but trail visuals are not asserte
 Still required: normal firing/update integration, visible trail/particle animation,
 enemy hit/freeze/equipment-change semantics, and other combo-family updates.
 Neither #416 nor #417 is ready for player validation at this checkpoint.
+
+## Wave particle update checkpoint (#416 / #418)
+
+`StepWaveCombo` implements $90:DA08: signed 8.8 acceleration toward Samus,
+16.16 coordinate carry, the asymmetric acceleration limits, lifetime/hit deletion,
+trail cadence, slot-three sign-crossing pulse sound, cooldown and charge clearing.
+The original-CPU trace and managed comparison execute the projectile animation
+handler after each pre-instruction. This is required for Wave trail offsets:
+the first probe omitted animation and crashed on a trail lookup at frame three;
+that incomplete v1 output is not an accepted oracle. The corrected v2 capture is.
+
+Six 640-frame sequences cover both facings and mirrored horizontal target motion,
+vertical target motion, natural expiry, collision at frame ten and a post-expiry
+collision control at frame 610. All 3,840 frames match nine words per live slot
+(the Ice trace's seven plus X/Y subpixels), count, cooldown, charge and ordered
+sound requests. Deleted slots are normalized to zero. Shared `ComboMotionAudit`
+retains the earlier Ice comparison instead of duplicating its fixture driver.
+
+- Archive: `wave-combo-418-v2.zip`.
+- CSV SHA256: `7D20E4D77F95D6633377648EDA456DD4D71A4286FA966572B05B23DB0B617442`.
+- Two corrected captures are identical; same ROM/source pins above.
+- Regenerate with `native-wave-combo-entrypoint.patch`, rebuild, then invoke the
+  bounded/dialog-free `sm.exe --diagnostic-wave-combo ROM NEW.csv` entrypoint.
+- Managed: `--wave-combo-motion-audit ROM CSV`.
+- Temporary hooks removed and patch reapplication checked.
+
+Still not connected to the live firing/update path. Wave enemy multi-hit/damage,
+visible animation/trails and real audio playback are not established by this
+motion trace. #416 and #418 remain open without awaiting-player-validation.

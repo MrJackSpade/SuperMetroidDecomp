@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class SamusProjectileSystem
 {
-    private bool RunProjectileInstructionHandler(
+    internal bool RunProjectileInstructionHandler(
         ISnesAddressSpace bus,
         SamusProjectileSlot slot)
     {

@@ -3,6 +3,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
 public static class SamusComboRomData
 {
+    /// <summary>ProjPreInstr_WaveSba ($90:DA08) oscillator cap, in native signed 8.8 units.</summary>
+    public const int WaveSpeedLimit = 2048;
+    /// <summary>ProjPreInstr_WaveSba ($90:DA08) per-frame acceleration, in signed 8.8 units.</summary>
+    public const int WaveAcceleration = 64;
+    /// <summary>$90:DA17 library-one Wave particle removal request.</summary>
+    public const ushort WaveRemovalSound = 0x29;
+    /// <summary>ProjPreInstr_WaveSba ($90:DA08) library-one oscillator pulse request.</summary>
+    public const ushort WavePulseSound = 0x28;
     /// <summary>SineCosineTables_8bitSine_SignExtended at $A0:B443, positive half-wave words.</summary>
     public const int PositiveSine = 0xa0b443;
     /// <summary>CostOfSBAsInPowerBombs at $90:CC21, twelve word costs by beam index.</summary>

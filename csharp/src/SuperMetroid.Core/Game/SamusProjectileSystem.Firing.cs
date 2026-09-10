@@ -419,7 +419,7 @@ public sealed partial class SamusProjectileSystem
         return (slotIndex, sound);
     }
 
-    private (int? Slot, ushort Sound) TryFireMissile(
+    internal (int? Slot, ushort Sound) TryFireMissile(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerNewInput,
@@ -435,18 +435,20 @@ public sealed partial class SamusProjectileSystem
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == 0)
             return (null, 0);
 
-        // `$90:AC5A` increments the common counter before the ammo/free-slot checks later in
-        // `$BE62`; every failing branch rolls it back. Testing the stable preconditions first
-        // yields the same externally visible state without temporarily corrupting debugger
-        // watches between C# statements.
+        // Admission reserves room for a Super Missile's later collision link. Ammo/free-
+        // slot rejection rolls back the native count, but does not undo its cooldown write.
         bool isSuperMissile = samus.SelectedHudItem == 2;
         ushort ammo = isSuperMissile ? samus.SuperMissiles : samus.Missiles;
-        if (ProjectileCounter >= SlotCount ||
-            (sharedProjectiles.CooldownTimer & 0x00ff) != 0 ||
-            ammo == 0)
+        int admissionLimit = isSuperMissile ? SamusProjectileRomData.NonBeam.SuperMissileAdmissionLimit : SlotCount;
+        if (ProjectileCounter >= admissionLimit ||
+            (sharedProjectiles.CooldownTimer & 0x00ff) != 0)
         {
             return (null, 0);
         }
+
+        sharedProjectiles.SetSharedCooldown(1);
+        if (ammo == 0)
+            return (null, 0);
 
         int slotIndex = Array.FindIndex(_slots, candidate => candidate.Damage == 0);
         if (slotIndex < 0)

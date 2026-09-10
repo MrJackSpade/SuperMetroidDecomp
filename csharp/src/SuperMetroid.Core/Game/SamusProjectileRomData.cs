@@ -128,6 +128,8 @@ public static class SamusProjectileRomData
     /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>
     public static class NonBeam
     {
+        /// <summary>$90:AC86, Samus_CanFireSuperMissile: reject at four live projectiles, reserving the fifth slot for the collision link.</summary>
+        public const int SuperMissileAdmissionLimit = 4;
         /// <summary>Bank-$93 data pointers for missiles, bombs, and special projectiles.</summary>
         public const int DataPointers = 0x9383f1;
         /// <summary>Bank-$93 definitions for Super Missile link projectiles.</summary>

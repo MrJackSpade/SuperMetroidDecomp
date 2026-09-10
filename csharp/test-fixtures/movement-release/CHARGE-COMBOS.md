@@ -280,3 +280,34 @@ upload coverage or final framebuffer/palette parity.
 
 Boss-specific interactions, final rendering/audio and remaining input/weapon
 restrictions are still incomplete. #416–#420 remain open without validation labels.
+
+## Missile admission checkpoint (#416)
+
+The full $90:BE62 missile producer is compared across selected missile/Super,
+three/four/five occupied ordinary slots, cooldown 0/1/2/$0100, ammo 0/1 and
+absent/present Shoot edge (96 cases). Four occupied slots specifically models
+the resource pressure from an active combo. The native input boundary is
+isolated from movement and particle updates; this is not a whole-frame combo
+weapon-admission proof.
+
+Eight cases failed before correction:
+
+- Super Missiles incorrectly shared the ordinary five-projectile limit. Retail
+  $90:AC86 rejects when four slots are occupied, reserving capacity for the link.
+- Empty ammo incorrectly rejected before writing cooldown. Native admission
+  writes one, then the empty-ammo path rolls back only the projectile count.
+
+All 96 cases now match count, complete cooldown word, both ammo classes and all
+five projectile type words. The test calls the actual managed missile producer;
+only its access was widened to internal for the focused fixture.
+
+- `missile-admission-416-v1.zip`, CSV SHA256:
+  `E237C320018B963565FFC7802C220F028EB96C36DEA8B482E8D79131E39BEAC4`.
+- Same pins, two identical original-CPU captures, no cheats.
+- Regenerate using `native-missile-admission-entrypoint.patch`, then only the
+  bounded/dialog-free `sm.exe --diagnostic-missile-admission ROM NEW.csv`.
+- Managed: `--missile-admission-audit ROM CSV`.
+- Temporary native hooks removed; reapplication checked.
+
+Bomb/PB/Grapple admission and complete held/released/turning/spinning input
+sequences remain to be checked for #416; this checkpoint does not close it.

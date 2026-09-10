@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--missile-admission-audit")
+    return MissileAdmissionAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--combo-draw-audit")
     return ComboDrawAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--combo-contact-audit")

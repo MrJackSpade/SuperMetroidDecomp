@@ -104,7 +104,7 @@ def publish(directory):
         gh("release", "create", tag, "--verify-tag", "--draft", "--title", tag, "--generate-notes")
         release = release_info(tag)
         set_body(release, (release["body"] or "") + "\n\nDownloads: Windows x64 (self-contained ZIP) and Android ARM64 APK. "
-                 "Supply your own Super Metroid Japan/USA NTSC v1.0 ROM on first launch. No game assets are bundled.\n")
+                 "No game assets are bundled.\n")
     gh("release", "upload", tag, *(str(p) for p in assets), "--clobber")
     args = ["release", "edit", tag, "--tag", tag, "--draft=false"]
     args.append("--prerelease" if "-" in tag else "--latest")
@@ -131,8 +131,8 @@ def receipt_body(body, receipt):
 
 def notification_payload(tag, url):
     version(tag)
-    return {"content": f"**Super Metroid {tag} is available**\nWindows x64 and Android ARM64 downloads:\n{url}\n"
-            "Supply your own ROM on first launch.", "allowed_mentions": {"parse": []}, "flags": 4}
+    return {"content": f"**Super Metroid {tag} is available**\nWindows x64 and Android ARM64 downloads:\n{url}",
+            "allowed_mentions": {"parse": []}, "flags": 4}
 
 
 def notify():

@@ -107,8 +107,12 @@ public sealed partial class RoomEnemySystem
                 continue;
 
             ushort healthBefore = body.Health;
-            byte vulnerability = ReadProjectileVulnerability(bus, body, projectileType);
-            if (vulnerability == 0xff)
+            // Phantoon calls common normal-shot damage, including its charged-beam
+            // override. SBA particles retain that bit; reading only the uncharged
+            // combination row made Wave Shield disappear without damaging the boss.
+            NormalShotVulnerability vulnerability =
+                ReadNormalShotVulnerability(bus, body, new SamusProjectileTypeWord(projectileType));
+            if (vulnerability.FreezeImmediately)
             {
                 body.FrozenTimer = 400;
                 body.AiHandlerBits |= 0x0004;
@@ -116,7 +120,7 @@ public sealed partial class RoomEnemySystem
             }
             else
             {
-                int damage = (projectileDamage >> 1) * (vulnerability & 0x7f);
+                int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
                 if (damage != 0)
                 {
                     ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;

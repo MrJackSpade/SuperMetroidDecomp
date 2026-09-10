@@ -13,6 +13,56 @@ after the implementations and integration described below.
 
 ## Native dispatcher oracle
 
+### #418 Wave Shield against Phantoon
+
+`native-wave-phantoon-probe.h` executes original extended collision `$A0:9B7F`
+and Phantoon's real `$A7:DD9B` shot callback. It uses retail definitions and
+invulnerable/full-body/eye-only extended hitboxes without ROM modifications.
+The 384 passes cover all 16 particle overlap masks, those three maps, and
+eye-tracking versus swooping reaction states, with four contacts per setup.
+Boss health starts at 2500, reaction clock 60, accumulated round damage zero;
+Samus and the boss are at (128,128), subpixels zero. Wave is allocated by the
+original FireSBA with Charge+Wave and two Power Bombs, facing right. Only masked
+particles overlap; others start at (1024,1024). No gameplay cheats are active.
+
+Collision-marked particles execute their real Wave deletion pre-instruction
+after each pass. Nonhits deliberately remain at their seeded positions: this
+is per-particle boss-contact coverage, not a natural trajectory test. Missed
+particles' natural lifetime remains covered by the separate Wave motion trace.
+
+Two native captures are identical. Accepted CSV in `wave-phantoon-418-v1.zip`:
+SHA-256 `49CBBF9D478C6F3351B62B825BB5D0B8E2093DD6822EC8D8953EAE2BB2E61675`.
+`WavePhantoonAudit` loads the real boss population, seeds the matching contact
+boundary and invokes production extended collision. It compares boss health,
+phase, reaction timer, properties, accumulated damage, tentacle reaction marker,
+particle count and all four type words after every pass.
+
+Before the fix, 120 passes differed: particles vanished without hurting the
+boss. Phantoon's private managed path used the uncharged Wave vulnerability
+instead of common shot AI's charged override. It now uses the existing shared
+normal-shot vulnerability decoder. All 384 passes match: a Wave particle deals
+300 here; eye-tracking closes after that first accepted hit, while swooping can
+accept the remaining particles on subsequent passes. No-op body hits consume
+particles without damage, and the eye-only miss control remains a miss.
+
+Regenerate using `native-wave-phantoon-entrypoint.patch` and only the headless,
+dialog-free `sm.exe --diagnostic-wave-phantoon ROM NEW.csv`; compare using
+`SuperMetroid.DebugRunner --wave-phantoon-audit ROM wave-phantoon-418-v1.csv`.
+The temporary native hooks were removed after capture. #418 remains open until
+the explicit stationary-X versus moving/turning trajectory cases are verified.
+
+The existing Phantoon route audit also had stale audio assertions expecting
+momentary requests at later route endpoints. It now observes intro/post-battle
+music during their publication frames and the hit sound at the actual rage hit.
+This let its missile/super-missile checks catch an intermediate implementation
+error: the shared decoder must receive the captured pre-impact type, not the
+slot's newly installed explosion type. That was corrected before commit.
+Introduction, combat/rage and death checks now reach the final destroyable-flame
+helper, which still fails its independent active-knockback expectation (health,
+invincibility and knockback clock match, active flag false). This older route
+is therefore NOT claimed passing. The new 384-pass boss oracle and full core
+verification pass; the flame helper requires separate investigation.
+
 ### #417 full post-hit dispatch and acceptance
 
 `native-ice-thaw-probe.h` runs original EnemyMain `$A0:8FD4` for 420 calls

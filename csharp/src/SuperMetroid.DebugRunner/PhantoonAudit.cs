@@ -113,6 +113,7 @@ internal static class PhantoonAudit
         bool sawSubsequentFlameRain = false;
         bool sawRainFlameMove = false;
         bool sawFullHealthPalette = false;
+        bool sawBattleMusicRequest = false;
         int frame;
         for (frame = 0; frame < 10000; frame++)
         {
@@ -124,6 +125,10 @@ internal static class PhantoonAudit
                 samus,
                 level: assets.LevelData,
                 nmiFrameCounter8: nmi);
+            // Music publications are one-frame events, not durable boss state. Observe
+            // the actual request during the introduction instead of expecting it to
+            // survive through the subsequent rain cycle.
+            sawBattleMusicRequest |= state.MusicRequest?.RawValue == 5;
             tentacleMaps.Add(state.Tentacles.SpritemapPointer);
             PhantoonAiFunction function = (PhantoonAiFunction)body.VariableF;
             functions.Add(function);
@@ -201,7 +206,7 @@ internal static class PhantoonAudit
             state.StartingFlameRequests != 8 || state.StartingFlamesSpawned != 8 ||
             startingFlameSlots.Count != 8 || movedStartingFlames.Count != 8 ||
             liveStartingFlames != 0 || state.BossDoorPlmRequest != 0xb781 ||
-            state.MusicRequest?.RawValue != 5 || state.Mouth.Parameter1 != 1 ||
+            !sawBattleMusicRequest || state.Mouth.Parameter1 != 1 ||
             !sawFullHealthPalette || tentacleMaps.Count != 3 ||
             (body.XPosition == initialBodyX && body.YPosition == initialBodyY) ||
             !sawEyeTracking || !sawInitialFlameRain || !sawFlameRainVulnerability ||
@@ -246,6 +251,7 @@ internal static class PhantoonAudit
         ushort samusHealthBeforeContact = 0;
         ushort samusHealthAfterContact = 0;
         bool firedRageTrigger = false;
+        bool rageHitQueuedSound = false;
         bool sawRageFadeOut = false;
         bool sawRage = false;
         bool sawPostRageFade = false;
@@ -351,6 +357,7 @@ internal static class PhantoonAudit
                     bus,
                     samusShots,
                     sharedProjectiles);
+                rageHitQueuedSound = state.LastCombatSoundEffect == 0x0073;
                 firedRageTrigger = true;
                 function = (PhantoonAiFunction)body.VariableF;
             }
@@ -417,7 +424,7 @@ internal static class PhantoonAudit
             !firedRageTrigger || rageHitCount != 1 ||
             healthBeforeRageShot - body.Health != 600 ||
             state.LastProjectileDamage != 600 || state.AcceptedProjectileHits != 3 ||
-            state.LastCombatSoundEffect != 0x0073 ||
+            !rageHitQueuedSound ||
             !sawRageFadeOut || !sawRage || !sawPostRageFade || maximumRageRound < 7 ||
             !sawClockwiseRageFlame || !sawCounterclockwiseRageFlame ||
             !sawWhiteDamagePalette || !sawDamagedHealthPalette)
@@ -446,6 +453,7 @@ internal static class PhantoonAudit
         ushort healthBeforeLethalShot = 0;
         var deathFunctions = new HashSet<PhantoonAiFunction>();
         byte maximumMosaic = 0;
+        bool sawPostBattleMusic = false;
         int deathFrame;
         for (deathFrame = 0; deathFrame < 5000; deathFrame++)
         {
@@ -460,6 +468,7 @@ internal static class PhantoonAudit
 
             PhantoonAiFunction function = (PhantoonAiFunction)body.VariableF;
             deathFunctions.Add(function);
+            sawPostBattleMusic |= state.MusicRequest?.RawValue == 3;
             if (!firedLethalShot && function is
                 PhantoonAiFunction.EyeTracksSamus or
                 PhantoonAiFunction.TrackSamusDuringFlameRain)
@@ -522,7 +531,7 @@ internal static class PhantoonAudit
             !state.ItemDropRequested || !state.BossDefeatPersisted || !bossBitSet ||
             !state.WreckedShipPowerPaletteComplete || !powerPaletteMatches ||
             !allPartsDeleted || state.BossDoorPlmRequest != 0xb78b ||
-            state.MusicRequest?.RawValue != 3 || vram.ReadWord(0x4800) != 0x0338 ||
+            !sawPostBattleMusic || vram.ReadWord(0x4800) != 0x0338 ||
             vram.ReadWord(0x49ff) != 0x0338)
         {
             throw new InvalidDataException(

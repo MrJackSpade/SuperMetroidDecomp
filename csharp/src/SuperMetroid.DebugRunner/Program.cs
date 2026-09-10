@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spazer-contact-audit")
+    return ComboContactAudit.Run(args[1], args[2], spazerAges: true);
 if (args.Length == 3 && args[0] == "--wave-patterns-audit")
     return ComboMotionAudit.Run(args[1], args[2], SamusBeamFlags.Wave, wavePatterns: true);
 if (args.Length == 3 && args[0] == "--wave-phantoon-audit")

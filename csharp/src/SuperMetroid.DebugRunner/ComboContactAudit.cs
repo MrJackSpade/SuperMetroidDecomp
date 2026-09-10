@@ -5,10 +5,11 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Original collision/shot CPU boundary versus the real managed enemy shot pass.</summary>
 internal static class ComboContactAudit
 {
-    public static int Run(string rom, string trace)
+    public static int Run(string rom, string trace, bool spazerAges = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            "FC99218EA93F166D7FA3274A49777CDB8782D335DDB6AE48E308A70F30492AD1")
+            (spazerAges ? "7923418D79D9A222D29C7C0FB7C60B5FABE180878A8F76B34433D5C0C83C51B5" :
+                "FC99218EA93F166D7FA3274A49777CDB8782D335DDB6AE48E308A70F30492AD1"))
             throw new InvalidDataException("Use the accepted combo-contact v2 capture.");
         var bus = new EmptyPopulation(SuperMetroidAddressSpace.LoadRetailRom(rom));
         int cases = 0, failures = 0;
@@ -19,16 +20,25 @@ internal static class ComboContactAudit
             var shared = new SamusBombProjectileSystem();
             var samus = new SamusState { XPosition = 128, YPosition = 128,
                 Pose = SamusPoseIds.FacingRightNormalPose,
-                EquippedBeams = (ushort)(0x1000 | int.Parse(row[0])), PowerBombs = 2,
+                EquippedBeams = (ushort)(0x1000 | (spazerAges ? 4 : int.Parse(row[0]))), PowerBombs = 2,
                 SelectedHudItem = 3 };
             if (!projectiles.TryActivateCombo(bus, samus, shared, out _))
                 throw new InvalidDataException("Fixture must activate its combo.");
+            if (spazerAges)
+                for (int frame = 0; frame < int.Parse(row[0]); frame++)
+                    foreach (var particle in projectiles.Slots.Take(4).Reverse())
+                        if (particle.IsActive)
+                        {
+                            projectiles.StepSpazerCombo(bus, samus, particle, shared, 0);
+                            if (particle.IsActive)
+                                projectiles.RunProjectileInstructionHandler(bus, particle);
+                        }
             foreach (var particle in projectiles.Slots.Take(4))
                 particle.XPosition = particle.YPosition = 1024;
             var slot = projectiles.Slots[int.Parse(row[3])];
             slot.XPosition = row[2] == "1" ? (ushort)128 : (ushort)192;
             slot.YPosition = 128;
-            projectiles.RunProjectileInstructionHandler(bus, slot);
+            if (slot.IsActive) projectiles.RunProjectileInstructionHandler(bus, slot);
             var enemies = new RoomEnemySystem();
             enemies.Load(bus, 0xf000, 0, new SnesVram(), new SnesCgram(), () => 1);
             var enemy = enemies.Slots[0];
@@ -49,6 +59,7 @@ internal static class ComboContactAudit
                 SamusProjectilePreInstruction.WaveCombo => SamusComboRomData.Wave,
                 SamusProjectilePreInstruction.IceCombo => SamusComboRomData.Ice,
                 SamusProjectilePreInstruction.SpazerCombo => SamusComboRomData.Spazer,
+                SamusProjectilePreInstruction.SpazerComboFalling => SamusComboRomData.SpazerFalling,
                 SamusProjectilePreInstruction.PlasmaCombo => SamusComboRomData.Plasma,
                 _ => 0
             };
@@ -61,6 +72,7 @@ internal static class ComboContactAudit
                 case SamusProjectilePreInstruction.IceCombo:
                     projectiles.StepIceCombo(bus, samus, slot, shared, 0, 0); break;
                 case SamusProjectilePreInstruction.SpazerCombo:
+                case SamusProjectilePreInstruction.SpazerComboFalling:
                     projectiles.StepSpazerCombo(bus, samus, slot, shared, 0); break;
                 case SamusProjectilePreInstruction.PlasmaCombo:
                     projectiles.StepPlasmaCombo(bus, samus, slot, shared, 0, 0); break;
@@ -73,7 +85,7 @@ internal static class ComboContactAudit
             }
             cases++;
         }
-        if (cases != 64) throw new InvalidDataException("Incomplete combo contact matrix.");
+        if (cases != (spazerAges ? 32 : 64)) throw new InvalidDataException("Incomplete combo contact matrix.");
         Console.WriteLine($"Combo contact: {cases} cases, {failures} mismatches.");
         return failures == 0 ? 0 : 1;
     }

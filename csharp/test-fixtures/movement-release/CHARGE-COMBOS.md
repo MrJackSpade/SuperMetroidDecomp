@@ -1,9 +1,8 @@
 # Charge Beam Combo implementation evidence
 
 Current status: shared selection/timing/weapon ownership (#416), Ice Shield
-particle/freeze semantics (#417), and Wave Shield (#418) are ready for player
-validation. Family-specific combat and presentation tickets #419–#420
-remain incomplete. The sections below record chronological checkpoints; later
+(#417), Wave Shield (#418), and Spazer Shield (#419) are ready for player
+validation. Plasma Shield (#420) remains incomplete. The sections below record chronological checkpoints; later
 evidence supersedes the earlier statements of missing integration.
 
 The initial reproduction found that live C# charge reached 120 without invoking
@@ -12,6 +11,45 @@ cases left PB=2 and charge=120. That failing witness is now a passing regression
 after the implementations and integration described below.
 
 ## Native dispatcher oracle
+
+### #419 Spazer contacts across phases and acceptance
+
+`native-spazer-contact-probe.h` extends the shared collision oracle with authored
+contact ages 0/32/48/64. The cartridge allocates Charge+Spazer, executes all live
+particle pre-instructions and animation for that age, then places exactly one
+particle at an ordinary target or 64 pixels to its right. All other particles
+are outside contact range. Each of four physical slots is tested as both hit
+and miss at every age (32 cases). Native collision and the real normal shot
+callback compute damage; the contacted particle then runs its own pre-instruction
+to observe cleanup. Samus starts (128,128), facing right, zero subpixels, two
+Power Bombs, no cheats; target health 10000, radii 16, default vulnerability.
+
+Two original-CPU captures match byte-for-byte. Accepted CSV is archived in
+`spazer-contact-419-v1.zip`, SHA-256
+`7923418D79D9A222D29C7C0FB7C60B5FABE180878A8F76B34433D5C0C83C51B5`.
+The shared managed contact comparator accepts it via
+`--spazer-contact-audit ROM CSV`. It uses the production allocator, phase updates,
+animation and ordinary enemy collision, comparing health/flash/invincibility,
+projectile type/direction/handler/position/damage, count and all four post-cleanup
+type words. All 32 match without production changes.
+
+The trace confirms 300 damage at each tested stage. Ages 0/32/48 still use the
+sweeping handler and a hit removes the paired slot as well; at age 64 all four
+are falling and contact removes only the struck slot. Adjacent misses preserve
+all four. Seeded contact positions isolate hit behavior; natural paths and their
+phase/viewport transitions are established by the separate motion/render traces.
+
+Regeneration: apply `native-spazer-contact-entrypoint.patch`, build the pinned
+host, and invoke only the bounded headless
+`sm.exe --diagnostic-spazer-contact ROM NEW.csv`. Temporary hooks removed.
+
+#419 acceptance: the 32 phase-contact cases above, 1,200 Spazer motion frames
+(both paths/facings, phase timing, early/late hits, natural cleanup and sounds),
+the shared 5,120-frame OAM comparison (Spazer particle/trail visuals included),
+64 shared contact cases and real held-Fire activation all pass on rerun. Earlier
+shared integration/render/contact fixes are documented below. Evidence is for
+the pinned NTSC revision, not every custom enemy callback or PAL. #419 is ready
+for player validation and remains open for confirmation.
 
 ### #418 stationary/moving/turning patterns and acceptance
 

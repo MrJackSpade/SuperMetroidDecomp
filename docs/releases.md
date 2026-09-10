@@ -23,7 +23,8 @@ loads the published host's actual configuration class using isolated temporary
 data directories. It checks shipped/default parity, first-use template edits,
 active-file edits, update preservation, invalid-template rejection, and embedded
 fallback without showing a GUI or touching player data. The release workflow runs
-this check before packaging. Core verification additionally checks that every
+this check before packaging and passes the same Version property to the verifier
+and game so dependency identities also match for tagged releases. Core verification additionally checks that every
 options property is explicitly represented in the template.
 
 The Actions **Run workflow** button performs build validation and uploads Actions

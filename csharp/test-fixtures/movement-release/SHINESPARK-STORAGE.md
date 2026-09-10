@@ -279,6 +279,24 @@ compare with `--spark-ground-restrictions-audit ROM CSV`. Native hooks removed.
 This covers these held-button combinations, not every airborne directional
 window or charged-shot extension of stored lifetime; #465 remains open.
 
+## Airborne directional launch window
+
+`native-spark-aerial-window-probe.h` starts a forward spin jump, pulses Aim Up
+on frame 30 to enter stored-shine windup, then holds forward at offsets 0..35.
+The 216 cases cover both facings and dry/suitless-water/Gravity-water starts.
+Offset zero keeps the spin jump; offsets 1..29 select horizontal launch;
+30..35 time out vertically at frame 60. This is asserted on the capture as well
+as comparing every managed pose, timer and 16.16 X/Y against the original CPU.
+All 216 cases match without production changes. Both independent captures match.
+
+Accepted CSV: `spark-aerial-window-465-v2.zip`, SHA-256
+`CBB27F71130038085F611D08797454EF8A08D76BBE18712D33E25D11DCC38D95`.
+Regenerate with `native-spark-aerial-window-entrypoint.patch` and bounded,
+dialog-free `--diagnostic-spark-aerial-window ROM NEW.csv`; compare with
+`--spark-aerial-window-audit ROM CSV`. Temporary native hooks were removed.
+The discarded v1 held Aim Up, selecting diagonal immediately; it is not timing
+window evidence and is not archived. Charged-shot lifetime remains to inspect.
+
 ## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans

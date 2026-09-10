@@ -6,10 +6,11 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Aerial neutral/shoot/aim launch transitions through the full gameplay dispatcher.</summary>
 internal static class SparkAerialAudit
 {
-    public static int Run(string rom, string trace, bool restrictions = false)
+    public static int Run(string rom, string trace, bool restrictions = false, bool window = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            (restrictions ? "226191CABC7AD7862AC7CFDA2A01DEEDE039E2A264B2AD1B7087AF38A7080C1D" :
+            (window ? "CBB27F71130038085F611D08797454EF8A08D76BBE18712D33E25D11DCC38D95" :
+            restrictions ? "226191CABC7AD7862AC7CFDA2A01DEEDE039E2A264B2AD1B7087AF38A7080C1D" :
             "50BF582B79BD6EFBD70D861FB7319698AD57E722AC22BC9D75A83FEE0598E647"))
             throw new InvalidDataException("Use accepted aerial spark capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
@@ -18,6 +19,18 @@ internal static class SparkAerialAudit
             .GroupBy(row => string.Join(',', row[..3])))
         {
             var seed = group.First();
+            if (window)
+            {
+                // These endpoints are observations of the accepted CPU capture, not wiki-derived expectations.
+                // Guard against a fixture accidentally selecting diagonal immediately and missing the window.
+                int offset = int.Parse(seed[2]);
+                int facing = int.Parse(seed[1]);
+                var last = group.Last();
+                int expectedPose = offset == 0 ? 0x19 + facing : offset < 30 ? 0xc9 + facing : 0xcb + facing;
+                int expectedFrame = offset == 0 ? 79 : offset < 30 ? 30 + offset : 60;
+                if (int.Parse(last[5], NumberStyles.HexNumber) != expectedPose || int.Parse(last[3]) != expectedFrame)
+                    throw new InvalidDataException("Airborne fixture did not cover its captured directional-window boundary.");
+            }
             if (!group.Any(row => int.Parse(row[3]) == (restrictions ? 36 : 30)))
                 throw new InvalidDataException("Capture ended before the tested aerial input.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: seed[0] != "0");
@@ -50,7 +63,7 @@ internal static class SparkAerialAudit
             differences += failures;
             if (failures != 0) Console.WriteLine($"Aerial {group.Key}: {failures} mismatches.");
         }
-        if (cases != (restrictions ? 48 : 24)) throw new InvalidDataException("Incomplete window matrix.");
+        if (cases != (window ? 216 : restrictions ? 48 : 24)) throw new InvalidDataException("Incomplete window matrix.");
         Console.WriteLine($"Spark aerial: {cases} cases, {differences} mismatches.");
         return differences == 0 ? 0 : 1;
     }

@@ -52,6 +52,8 @@ Push-Location $verificationOutput
 try {
     dotnet ./SuperMetroid.DesktopVerification.dll --production-assembly-audit (Join-Path $gameOutput 'SuperMetroid.Game.dll') (Join-Path $gameOutput 'SuperMetroid.Desktop.dll')
     if ($LASTEXITCODE -ne 0) { throw 'Published player assemblies contain verification code.' }
+    dotnet ./SuperMetroid.DesktopVerification.dll --rom-picker-audit (Join-Path $gameOutput 'SuperMetroid.Game.dll')
+    if ($LASTEXITCODE -ne 0) { throw 'Published game ROM picker failed to open and cancel.' }
     foreach ($audit in @('--unhandled-exception-console-audit', '--viewport-layout-audit', '--keyboard-input-audit', '--github-error-reporter-audit', '--input-batch-audit', '--frame-timing-audit')) {
         dotnet ./SuperMetroid.DesktopVerification.dll $audit
         if ($LASTEXITCODE -ne 0) { throw "Published desktop verification failed $audit" }

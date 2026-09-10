@@ -106,6 +106,10 @@ Other migrated switches are `--unhandled-exception-console-audit`, `--github-err
 `--audio-audit`, `--managed-audio-audit`, and `--pause-audio-audit`.
 `SuperMetroid.Game --replay` remains the player replay command. Its small
 `--dpi-awareness-audit` probe also remains, to verify the actual Game startup policy.
+It checks the STA apartment required by native Windows file dialogs as well as DPI awareness.
+`DesktopVerification --rom-picker-audit <published-Game.dll>` exercises the real Choose ROM
+button on the game's declared entry apartment, briefly opens and cancels its native dialog,
+and does not install content or touch player saves. The desktop publish script includes it.
 
 `csharp/tools/verify-desktop-publish.ps1`, run from the repository root, checks clean
 player/test publishes, identical production dependencies, absence of test types and bundled

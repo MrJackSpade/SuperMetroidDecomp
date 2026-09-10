@@ -5,6 +5,11 @@ internal static class DesktopSmokeAuditCommands
 {
     public static bool TryRun(string[] args)
     {
+        if (args is ["--rom-picker-audit", var gameAssembly])
+        {
+            RomPickerStartupVerification.Run(gameAssembly);
+            return true;
+        }
         if (args is ["--production-assembly-audit", .. var assemblies] && assemblies.Length != 0)
         {
             ProductionAssemblyVerification.Run(assemblies);

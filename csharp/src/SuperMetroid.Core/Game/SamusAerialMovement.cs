@@ -502,11 +502,14 @@ public static class SamusAerialMovement
             ? new AerialMovementResult(horizontal,
                 SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms),
                 false, false)
-            : FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+            : FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter,
+                plms: plms, deferCeilingResponse: true);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
-        // or trigger landing presentation. The shared upward mover still owns
-        // its immediate ceiling-stop velocity writes.
+        // or trigger landing presentation. Likewise, the cartridge upward mover
+        // only publishes a ceiling result: this handler clears it before pose
+        // processing can stop the jump. Keep gravity and physical clipping, but
+        // preserve upward velocity even while the head is touching the ceiling.
 
         // `$90:A79E/$90:A7BB` cancel speed boost and explicitly clear both extra words.
         speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
@@ -703,7 +706,8 @@ public static class SamusAerialMovement
         BlockMoveResult horizontal,
         ushort nmiFrameCounter,
         bool canBreakBombBlocks = false,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool deferCeilingResponse = false)
     {
         BlockMoveResult vertical = StepVerticalWithSpeedCalculations(
             bus,
@@ -713,7 +717,8 @@ public static class SamusAerialMovement
             out bool hitCeiling,
             out bool downwardDisplacement,
             canBreakBombBlocks,
-            plms);
+            plms,
+            deferCeilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(horizontal, vertical, landed, hitCeiling);
@@ -737,7 +742,8 @@ public static class SamusAerialMovement
         out bool hitCeiling,
         out bool downwardDisplacement,
         bool canBreakBombBlocks = false,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool deferCeilingResponse = false)
     {
         ValidateCommon(bus, level, samus);
         SamusKinematicsState state = samus.Kinematics;
@@ -781,10 +787,10 @@ public static class SamusAerialMovement
             plms: plms);
 
         hitCeiling = displacement < 0 && vertical.Collided;
-        if (hitCeiling)
+        if (hitCeiling && !deferCeilingResponse)
         {
-            // The shared routine's ceiling branch zeroes both velocity halves and changes
-            // the magnitude direction to down; it does not select a landing pose itself.
+            // Ordinary handlers consume the ceiling collision as a jump stop. A turn
+            // instead clears that pending result, so its caller defers these writes.
             state.YSpeed = 0;
             state.YSubspeed = 0;
             state.YDirection = 2;

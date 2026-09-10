@@ -46,6 +46,8 @@ if (args.Length == 3 && args[0] == "--charged-walljump-comparison-audit")
     return ChargedWalljumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moonfall-comparison-audit")
     return MoonfallComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--quick-drop-ceiling-audit")
+    return QuickDropCeilingAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--stop-on-dime-comparison-audit")
     return StopOnDimeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--arm-pump-comparison-audit")

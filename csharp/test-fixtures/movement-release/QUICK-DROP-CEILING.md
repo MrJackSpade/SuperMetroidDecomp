@@ -53,6 +53,10 @@ movement callers retain their existing ceiling response.
 
 ## Still required before #456 is ready
 
+Follow-up: [QUICK-DROP-TIMELINE.md](QUICK-DROP-TIMELINE.md) now covers controller-driven
+ceiling turn entry/completion and adjacent timing failures. The original limitation
+below describes this handler fixture; falling/block-destruction coverage remains open.
+
 Controller-driven turn entry/completion, adjacent timing failures, crumble and
 bomb/power-bomb destruction paths, and falling-speed retention. This narrow
 regression does not establish those behaviors or PAL parity. Keep the ticket

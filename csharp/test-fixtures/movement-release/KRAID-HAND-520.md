@@ -71,3 +71,46 @@ The complete encounter/death audit and clean build pass.
 This remains diagnostic work, not a production hand fix. Native CPU animation
 comparison and conclusive identification of the player's left-hand component are
 still outstanding; leave #520 open without awaiting-player-validation.
+
+## Original-CPU arm comparison
+
+The bounded `native-kraid-arm-probe.h` now executes unmodified cartridge routines
+A7:B7BD (arm AI) and A0:C26A (instruction interpreter). It consumes the preserved
+body/camera trajectory, starts from the captured pre-death arm state, and installs
+native lists 8AF0/8AA4 at the recorded death-phase transitions. All 335 live frames
+before population deletion match: X/Y, properties, instruction pointer, map, timer.
+This includes the anchor-based visibility cutoff and the looping sink animation.
+
+ROM SHA-256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
+Native harness uses upstream-sm `578f90b3cc49557bb70060ad033bb90b8cf8ac50` and
+restores the retail ROM bytes after initialization. The temporary entrypoint
+suppresses dialogs; execution has an instruction budget. Its first run omitted
+the outer enemy dispatcher's callback-bank byte and failed at the list loop.
+That harness seed was corrected; the complete run then reported zero mismatches.
+The temporary upstream entrypoint patch has been removed after use.
+
+`kraid-arm-native-520-v1.zip` contains the complete original-CPU CSV (its source
+filename ends in v2 because v1 was the incomplete harness attempt). The managed
+comparison SHA-gates this fixture and compares every live row, including the
+body/camera stimulus. After extraction, run:
+
+```text
+--kraid-death-capture ROM OUTPUT_DIRECTORY NATIVE_CSV
+```
+
+Rebuilding the oracle requires applying `native-kraid-arm-entrypoint.patch` to
+the pinned diagnostic upstream worktree, building its Release x64 target, and
+running the headless executable with:
+
+```text
+--diagnostic-kraid-arm ROM MANAGED_ARM_CSV NEW_NATIVE_CSV
+```
+
+Then reverse that exact entrypoint patch. Output creation refuses to overwrite.
+The managed capture plus native comparison and clean build pass.
+
+Limits: this verifies the arm AI/interpreter against original instructions, not
+whole-encounter phase timing or rendered pixels. Recorded body/camera movement
+and list activation frames are inputs, not independently generated native facts.
+No production discrepancy was found in that sequence. Next compare the rendered
+arm contribution/component visibility; the player report remains unresolved.

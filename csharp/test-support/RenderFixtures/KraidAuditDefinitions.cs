@@ -5,6 +5,13 @@
 /// </summary>
 internal static class KraidAuditDefinitions
 {
+    /// <summary>SHA-256 of the original-CPU arm trace in kraid-arm-native-520-v1.zip.</summary>
+    public const string NativeArmTraceSha256 =
+        "57DD6099A0E188948C2D3F0228EF8F26266E6D4B3F0E64DED1192FEA055D3B8D";
+
+    /// <summary>Live death frames before population deletion in the #520 native arm trace.</summary>
+    public const int NativeArmDeathFrames = 335;
+
     /// <summary>Incoming door $83:91B6, entering Kraid's lower-left screen.</summary>
     public const ushort EntryDoor = 0x91b6;
 

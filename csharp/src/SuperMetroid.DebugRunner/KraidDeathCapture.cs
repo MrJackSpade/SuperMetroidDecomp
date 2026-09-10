@@ -39,4 +39,27 @@ internal sealed class KraidDeathCapture : IDisposable
     }
 
     public void Dispose() => _trace.Dispose();
+
+    /// <summary>
+    /// Checks the live runtime's capture against original-CPU arm AI/interpreter output.
+    /// Body/camera inputs and list activation frames are fixed diagnostic stimuli;
+    /// this proves the arm state sequence, not native whole-encounter timing or pixels.
+    /// </summary>
+    public static void VerifyNativeArmTrace(string directory, string nativeCsv)
+    {
+        byte[] bytes = File.ReadAllBytes(nativeCsv);
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes)) !=
+            KraidAuditDefinitions.NativeArmTraceSha256)
+            throw new InvalidDataException("Unrecognized original-CPU Kraid arm trace.");
+        string[] expected = File.ReadAllLines(nativeCsv).Skip(1).ToArray();
+        if (expected.Length != KraidAuditDefinitions.NativeArmDeathFrames)
+            throw new InvalidDataException("Original-CPU Kraid arm trace is incomplete.");
+        var actual = File.ReadAllLines(Path.Combine(directory, "arm.csv")).Skip(1)
+            .ToDictionary(line => int.Parse(line.AsSpan(0, line.IndexOf(','))));
+        for (int frame = 0; frame < expected.Length; frame++)
+            if (!actual.TryGetValue(frame, out string? row) || row != expected[frame])
+                throw new InvalidDataException($"Kraid arm differs from original CPU at frame {frame}: " +
+                    $"expected '{expected[frame]}', actual '{row}'.");
+        Console.WriteLine($"Kraid arm matches original CPU across {expected.Length} live death frames.");
+    }
 }

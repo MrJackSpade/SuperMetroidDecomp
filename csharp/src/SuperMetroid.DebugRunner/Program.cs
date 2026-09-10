@@ -1059,8 +1059,13 @@ if (args.Length >= 2 && args[0] == "--kraid-audit")
     return KraidAudit.Run(kraidRomPath);
 }
 
-if (args.Length == 3 && args[0] == "--kraid-death-capture")
-    return KraidAudit.Run(args[1], args[2]);
+if (args.Length is 3 or 4 && args[0] == "--kraid-death-capture")
+{
+    int result = KraidAudit.Run(args[1], args[2]);
+    if (result == 0 && args.Length == 4)
+        KraidDeathCapture.VerifyNativeArmTrace(args[2], args[3]);
+    return result;
+}
 
 if (args.Length == 2 && args[0] == "--kraid-camera-audit")
     return KraidCameraAudit.Run(args[1]);

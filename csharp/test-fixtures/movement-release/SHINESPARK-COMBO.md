@@ -4,6 +4,39 @@ Status: retained-word entry, departure, slot ownership and reset boundaries are
 fixed; full successive-spark verification remains incomplete. No
 awaiting-player-validation label. Sections below preserve chronological evidence.
 
+## Ordered successive-crash comparison
+
+`native-spark-sequence-probe.h` uses original HandleProjectile ($90:AECE),
+including projectile instruction processing, before each installed crash handler.
+The 60 initial setups cover no combo plus all four combos, both facings, ages
+0/580/640 updates, and with/without prior departing echoes. Each performs three
+crashes, separated by 20 projectile updates. Samus is stationary at (128,128),
+subpixels/RNG initially zero, camera (0,0), Charge plus the named beam, PB two,
+HUD index three, no controller input. Each crash contact boundary is explicitly
+seeded with the appropriate horizontal spark pose and health 29; there is no
+invincibility or infinite ammo. These are handler-sequence fixtures, not a
+controller-driven launch demonstration.
+
+The managed audit invokes production projectile StepFrame with the producer
+disabled (matching native HandleProjectile rather than its input caller), then
+the real shinespark movement step. It compares every frame's handler, projectile
+count/types, orbit index, shared echo X/Y words and drawing enables, plus exact
+call counts. All **11,688 records across 180 crashes match**. The original CPU
+confirms that prior retained history changes the first recovery; combo presence
+alone is not a fixed-duration switch. Adjacent no-history/no-combo controls are
+included. These results required no further production change.
+
+Accepted CSV in `spark-sequence-466-v2.zip`, SHA-256
+`ABF726C92E5A57AEA03FB9F3A015BF42C4400ED7C0DC6C8C00C55B3AE7827856`.
+Two captures are byte-identical. Regenerate with
+`native-spark-sequence-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-sequence ROM NEW.csv`. Compare using hash-gated
+`--spark-sequence-audit ROM CSV`. Temporary native hooks removed.
+
+Remaining acceptance work: exercise this ordering through the full gameplay
+frame dispatcher (rather than explicit alpha/crash calls) and record that scoped
+runtime fixture. No player-validation label until that integration check is ready.
+
 ## Whole-reset checkpoint
 
 `native-spark-reset-probe.h` finishes a spark, overwrites slot three with each

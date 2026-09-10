@@ -86,8 +86,15 @@ public sealed class SamusShinesparkState
     /// <summary>Second byte-angle, exactly 128 degrees-of-256 opposite the first.</summary>
     public SnesAngle SecondCrashEchoAngle { get; private set; }
 
-    /// <summary>Phase-one angular travel counter formerly aliased to echo Y slot two.</summary>
-    public ushort CrashAngularTravel { get; private set; }
+    /// <summary>
+    /// WRAM $0ABC: crash angular travel and released projectile-slot-three echo Y share
+    /// one word. Native crash entry retains it; only an actual echo write/clear replaces it.
+    /// </summary>
+    public ushort CrashAngularTravel
+    {
+        get => _firstReleasedCrashEcho.YPosition;
+        private set => _firstReleasedCrashEcho.YPosition = value;
+    }
 
     /// <summary>
     /// Host-readable snapshot of native projectile slot three after the crash finishes.
@@ -371,7 +378,8 @@ public sealed class SamusShinesparkState
         _crashAngularDelta = facingLeft ? (sbyte)4 : (sbyte)-4;
         CrashSubphase = 0;
         CrashRadius = 0;
-        CrashAngularTravel = 0;
+        // The native entry does not initialize the aliased angular-travel/echo-Y
+        // word. A preceding echo or crash can therefore shorten this orbit.
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex: 0,
             samus.XPosition,
@@ -495,8 +503,8 @@ public sealed class SamusShinesparkState
         // admits both while below four, only slot four at exactly four, and neither at five
         // or above. The current runtime passes the count from its translated bomb/projectile
         // slice; this preserves the retail capacity branch without inventing availability.
-        _firstReleasedCrashEcho.Clear();
-        _secondReleasedCrashEcho.Clear();
+        // Capacity failure does not clear existing echo words or slots. In particular,
+        // retaining slot three's Y also retains the next crash's angular-travel seed.
         LastReleasedCrashEchoClear = null;
         if (unchecked((short)(projectileCounter - 5)) < 0)
         {

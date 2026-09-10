@@ -1,6 +1,7 @@
 # #466 Shinespark/combo crash investigation
 
-Status: reproduced, not fixed; no awaiting-player-validation label.
+Status: retained-word crash entry fixed; full combo/echo integration remains
+incomplete. No awaiting-player-validation label.
 
 Pinned retail ROM SHA-256:
 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
@@ -37,17 +38,26 @@ controls match all 70 calls. Both facings fail with retained values:
 | 128 | 39 | 70 |
 | 192 | 39 | 70 |
 
-The diagnostic currently returns nonzero for these real mismatches. It is not
-part of the default verification suite and must not be described as a passing
-regression until the implementation is corrected. Build succeeds.
+Those were the pre-fix results. The implementation now aliases
+`CrashAngularTravel` to the first released echo's Y storage, removes the
+non-native crash-entry reset, and does not clear existing echo storage when
+crash-finish capacity rejects allocation. All eight groups now match every
+recorded handler/subphase/travel/echo-coordinate frame and the 70/54/39 call
+lengths. The diagnostic returns zero. No combo-dependent timer was introduced.
+
+The ordinary verification fixture additionally asserts retained travel 128
+after capacity-four/five finish and equality of inactive echo Y and travel.
+The native `$90:D40D` capacity branch does not write slot-three echo Y when
+that allocation is skipped. Existing departure/movement/deletion tests pass.
+This fixes the reproduced crash-state behavior, not the whole #466 scenario.
 
 Regenerate: apply `native-spark-retained-entrypoint.patch` to the pinned native
 host, build Release x64 and run only the bounded/dialog-free
 `sm.exe --diagnostic-spark-retained ROM NEW.csv`. Remove hooks afterward (done).
 Compare: `SuperMetroid.DebugRunner --spark-retained-audit ROM CSV`.
 
-Next required work: unify the modeled retained echo coordinate/crash counter,
-trace native clearing on released-echo loss and projectile reset, then reproduce
+Next required work: verify the unified value's native clearing on released-echo
+loss and projectile reset, shared fixed-slot ownership with combos, then reproduce
 successive sparks with active, just-ended and fully-cleared combos. The direct
 counter fixture proves the present reset defect but does not satisfy the whole
 ticket's resource/echo lifetime and successive-input acceptance requirements.

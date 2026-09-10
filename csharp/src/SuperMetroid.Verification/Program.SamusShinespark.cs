@@ -441,12 +441,19 @@ static void VerifySamusStoredShineAndShinespark()
     SamusState countFour = FinishAtProjectileCount(bus, directionLevel, 4);
     AssertEqual(1, countFour.Shinespark.ReleasedCrashEchoCount,
         "projectile count four admits only fixed crash-echo slot four");
+    AssertEqual(128, countFour.Shinespark.CrashAngularTravel,
+        "capacity-four finish retains the angular-travel word because slot three was not allocated");
+    AssertEqual(countFour.Shinespark.CrashAngularTravel,
+        countFour.Shinespark.FirstReleasedCrashEcho.YPosition,
+        "inactive first echo Y and crash travel expose the same native word");
     AssertTrue(!countFour.Shinespark.FirstReleasedCrashEcho.Active &&
         countFour.Shinespark.SecondReleasedCrashEcho.Active,
         "capacity-four branch preserves native fixed-slot selection");
     SamusState countFive = FinishAtProjectileCount(bus, directionLevel, 5);
     AssertEqual(0, countFive.Shinespark.ReleasedCrashEchoCount,
         "projectile count five suppresses both departing crash echoes");
+    AssertEqual(128, countFive.Shinespark.CrashAngularTravel,
+        "capacity-five finish does not clear retained crash travel");
 
     Console.WriteLine("  Shinespark: storage, palette, launch, motion, bomb blocks, crash orbit/circle, departing echoes, and standing return agree.");
 }

@@ -85,6 +85,14 @@ public sealed partial class SuperMetroidRuntime
                 BombProjectiles,
                 VramWrites,
                 resolveSamusContactBeforeAi: true);
+            if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
+            {
+                // MakeSamusFaceForward clears all pending pose requests after alpha
+                // has sampled this frame's controls. Do not apply that stale Down
+                // crouch request to the new forward-facing, elevator-owned body.
+                ProspectiveSamusPose = null;
+                ProspectiveSamusFallbackPose = null;
+            }
             if (!TimeIsFrozen && Enemies.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
                 rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,
                     rainbowHead.XPosition, rainbowHead.YPosition,

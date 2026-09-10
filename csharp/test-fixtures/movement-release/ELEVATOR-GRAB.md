@@ -1,8 +1,8 @@
 # Elevator grab contact seam (#454, partial evidence)
 
-This does **not** complete #454. It verifies collision publication and enemy
-activation, not an input-driven quick-stop/landing trajectory through the runtime's
-previous-frame contact handoff. Keep the issue open without awaiting validation.
+This capture verifies collision publication and enemy activation in isolation.
+The subsequent [input timeline](ELEVATOR-GRAB-TIMELINE.md) covers quick-stop,
+landing and the runtime's previous-frame handoff, and reproduces a fixed defect.
 
 ## Accepted capture
 
@@ -62,10 +62,10 @@ sm.exe --diagnostic-elevator-grab "Super Metroid.smc" elevator-grab-454-v2.csv
 Reverse the patch afterward. It dispatches before SDL, explicitly suppresses GUI
 dialogs, and bounds CPU execution. The archive contains numeric diagnostics only.
 
-Next: input-driven approach/quick-stop and landing cases that publish contact in
-beta and consume it in the following enemy phase, including failed-edge retries.
-Do not mark #454 ready based on this isolated seam alone. No PAL, renderer or
-door-travel/camera claim is made here; #11 remains independent.
+The follow-up input timeline now checks publication in beta and consumption in
+the following enemy phase, including failed-edge retries. This isolated seam
+alone was not sufficient evidence. No PAL, renderer or door-travel/camera claim
+is made here; #11 remains independent.
 
 Pins: Japan/USA rev0 ROM SHA-256
 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`;

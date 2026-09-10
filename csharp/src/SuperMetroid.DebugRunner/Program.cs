@@ -1059,6 +1059,9 @@ if (args.Length >= 2 && args[0] == "--kraid-audit")
     return KraidAudit.Run(kraidRomPath);
 }
 
+if (args.Length == 3 && args[0] == "--kraid-death-capture")
+    return KraidAudit.Run(args[1], args[2]);
+
 if (args.Length == 3 && args[0] == "--kraid-rise-capture")
 {
     return KraidAudit.CaptureRise(

@@ -162,7 +162,7 @@ internal static class KraidAudit
         return 0;
     }
 
-    public static int Run(string romPath)
+    public static int Run(string romPath, string? deathCaptureDirectory = null)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
@@ -698,7 +698,7 @@ internal static class KraidAudit
                 $"{string.Join(',', deathFunctions)}.");
         }
 
-        VerifyRuntimeDefeatHandoff(bus);
+        VerifyRuntimeDefeatHandoff(bus, deathCaptureDirectory);
         VerifyDefeatedRoom(bus, room);
         Console.WriteLine(
             $"Kraid audit passed through repeating first-phase combat after {frame} rise frames: " +
@@ -783,7 +783,7 @@ internal static class KraidAudit
     /// multibox callback, and then proves NMI, PLMs, boss state, music, and the grey-door
     /// handoff continue advancing beyond the formerly failing sinking-table frame.
     /// </summary>
-    private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus)
+    private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus, string? deathCaptureDirectory)
     {
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
         if (door.DestinationRoomPointer != RoomPointer)
@@ -841,7 +841,23 @@ internal static class KraidAudit
             "second-phase main loop");
         VerifyKraidGrowthArtifactRegion(runtime);
 
+        if (deathCaptureDirectory is not null)
+        {
+            // The old handoff-only fixture can finish with its observer above the boss.
+            // Place an input-locked observer beside the upper body. This is a diagnostic
+            // viewpoint, not a controller-route claim; the enemy/death/render loop is live.
+            samus.XPosition = 48;
+            samus.YPosition = 256;
+            samus.InputLocked = true;
+            // Let ordinary scrolling stream each crossed row; directly teleporting the
+            // camera leaves stale ring-buffer tiles and invalidates a visual comparison.
+            for (int settle = 0; settle < 120; settle++)
+                runtime.StepFrame(0);
+        }
         AdvanceRuntimeUntilOpenMouth(runtime, body, state);
+        using var deathCapture = deathCaptureDirectory is null ? null :
+            new KraidDeathCapture(deathCaptureDirectory);
+        deathCapture?.Capture(runtime, -1);
         body.Health = 100;
         if (StrikeKraidMouth(bus, runtime.Enemies, body, state, projectileDamage: 100) != 1 ||
             body.Health != 0 ||
@@ -857,6 +873,7 @@ internal static class KraidAudit
         while (!state.DeathSequenceComplete && deathFrames < 1200)
         {
             runtime.StepFrame(controller1Input: 0);
+            deathCapture?.Capture(runtime, deathFrames);
             sawRoomMusic |= runtime.Enemies.MusicRequests.Any(
                 request => request.Command.RawValue == 3);
             deathFrames++;

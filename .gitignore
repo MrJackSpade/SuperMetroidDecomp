@@ -46,3 +46,5 @@ csharp/test-temp/save-station-ticket*/
 upstream-sm/
 upstream-disassembly/
 standalone-native/
+csharp/test-temp/
+*.log

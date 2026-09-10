@@ -198,6 +198,7 @@ internal static class KraidAudit
             level: assets.LevelData,
             samus: samus,
             isAreaBossDefeated: () => bossDefeated,
+            setRoomScrollState: assets.Scrolls.SetStorage,
             setAreaBossDefeated: () => bossDefeated = true,
             cameraX: CameraX,
             cameraY: CameraY);
@@ -839,6 +840,19 @@ internal static class KraidAudit
             () => body.VariableA == (ushort)KraidAiFunction.SecondPhaseThinking,
             maximumFrames: 1600,
             "second-phase main loop");
+        if (!runtime.Camera!.Scrolls.Storage[..4].SequenceEqual(new byte[] { 2, 2, 1, 1 }))
+            throw new InvalidDataException("Kraid growth did not publish the cartridge scroll release.");
+        // #268's pixel rectangle is above the head in the upper viewport, not fixed
+        // to whatever camera the preceding fight happens to leave behind. After the
+        // real growth release, settle an explicit observer there through normal scrolling.
+        samus.XPosition = 48;
+        samus.YPosition = 100;
+        samus.InputLocked = true;
+        for (int settle = 0; settle < 256; settle++)
+        {
+            samus.YPosition = (ushort)(300 - settle);
+            runtime.StepFrame(0);
+        }
         VerifyKraidGrowthArtifactRegion(runtime);
 
         if (deathCaptureDirectory is not null)
@@ -964,6 +978,8 @@ internal static class KraidAudit
         }
 
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
+        if (runtime.Camera!.XPosition != 0 || runtime.Camera.YPosition != 0)
+            throw new InvalidDataException("The #268 visual fixture requires its upper-left reference viewport.");
         ushort bg1X = unchecked((ushort)(
             ppu.Bg1HorizontalScroll + ppu.RoomShake.Bg1X));
         ushort bg1Y = unchecked((ushort)(
@@ -2004,6 +2020,7 @@ internal static class KraidAudit
             level: assets.LevelData,
             samus: samus,
             isAreaBossDefeated: () => false,
+            setRoomScrollState: assets.Scrolls.SetStorage,
             cameraX: CameraX,
             cameraY: CameraY);
 

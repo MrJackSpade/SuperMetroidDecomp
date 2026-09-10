@@ -174,6 +174,8 @@ public sealed class KraidEnemyState
     public int CeilingRockSpawnCount { get; internal set; }
     public bool Bg2PriorityBitsSet { get; internal set; }
     public bool CameraReleasedForSecondPhase { get; internal set; }
+    /// <summary>Living-boss camera distance override; absent on an already-defeated room load.</summary>
+    public ushort? CameraDistanceIndex { get; internal set; }
     public ushort DeathSoundTimer { get; internal set; }
     public int SinkTableEventCount { get; internal set; }
     public int DeathDropRequestCount { get; internal set; }

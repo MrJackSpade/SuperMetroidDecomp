@@ -52,6 +52,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        state.CameraDistanceIndex = KraidCameraDefinitions.CameraDistanceIndex;
+        ApplyKraidScrolls(KraidCameraDefinitions.InitialScrolls);
         state.MinimumYPositionForEjection = 324;
         ushort oneEighth = unchecked((ushort)(body.Health >> 3));
         for (int index = 0; index < state.HealthEighthThresholds.Length; index++)
@@ -84,6 +86,12 @@ public sealed partial class RoomEnemySystem
         // native target-palette storage. The software renderer exposes that buffer directly.
         _cgram!.LoadFromBus(_bus!, 0xa7aaa6, colorCount: 16, destinationIndex: 176);
         EarthquakeType = 5;
+    }
+
+    private void ApplyKraidScrolls(ReadOnlySpan<RoomScrollState> scrolls)
+    {
+        for (int index = 0; index < scrolls.Length; index++)
+            RequireSetRoomScrollState(index, scrolls[index]);
     }
 
     private void InitializeKraidArm(RoomEnemySlot arm)

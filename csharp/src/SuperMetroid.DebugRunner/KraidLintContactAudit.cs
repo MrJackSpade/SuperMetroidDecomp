@@ -38,7 +38,8 @@ internal static class KraidLintContactAudit
             var enemies = new RoomEnemySystem();
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 new SnesVram(), new SnesCgram(), () => 0x1234, level: assets.LevelData,
-                samus: samus, isAreaBossDefeated: () => false);
+                samus: samus, isAreaBossDefeated: () => false,
+                setRoomScrollState: assets.Scrolls.SetStorage);
             foreach (var other in enemies.Slots)
                 if (other.SlotIndex != 0 && other.SlotIndex != activeSlot)
                     other.Properties = other.Properties.With(EnemyProperties.Deleted);
@@ -117,7 +118,8 @@ internal static class KraidLintContactAudit
             var enemies = runtime.Enemies;
             enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                 runtime.Vram, runtime.Cgram, () => 0x1234, level: runtime.LevelData,
-                samus: samus, isAreaBossDefeated: () => false);
+                samus: samus, isAreaBossDefeated: () => false,
+                setRoomScrollState: runtime.Camera!.Scrolls.SetStorage);
             foreach (var other in enemies.Slots)
                 if (other.SlotIndex != 0 && other.SlotIndex != activeSlot)
                     other.Properties = other.Properties.With(EnemyProperties.Deleted);

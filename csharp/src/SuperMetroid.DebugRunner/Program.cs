@@ -1050,8 +1050,8 @@ if (args.Length >= 2 && args[0] == "--norfair-ridley-audit")
     return NorfairRidleyAudit.Run(ridleyRomPath);
 }
 
-if (args.Length == 2 && args[0] == "--kraid-lint-contact-audit")
-    return KraidLintContactAudit.Run(args[1]);
+if (args.Length is 2 or 3 && args[0] == "--kraid-lint-contact-audit")
+    return KraidLintContactAudit.Run(args[1], args.Length == 3 ? args[2] : null);
 
 if (args.Length >= 2 && args[0] == "--kraid-audit")
 {

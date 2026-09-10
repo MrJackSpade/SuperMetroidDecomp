@@ -53,5 +53,34 @@ These are one-frame production enemy dispatches, not full player landings or
 proof that downstream movement consumes the displacement correctly.
 
 The full Kraid encounter, work-robot audit, and core verification suite also pass.
-The broader ticket remains open without player-validation status: full support/
-carry movement and wall appearance still need the focused native comparison.
+At that checkpoint the investigation stayed open for the full support/carry check.
+
+## Original-CPU and runtime acceptance
+
+The follow-up runs the full gameplay loop with constructed empty space over a flat
+floor and the retail Kraid population. One firing lint is isolated while the body
+idles. For each of the three parts, 16 neutral-input frames maintain Samus's support
+height and move her exactly 3.5 pixels left each frame. The production loop therefore
+consumes the carry correctly; it is not merely published to an unused field.
+
+`native-kraid-lint-probe.h` executes original ROM routine A7:B89B through its RTL,
+including the original A0:ABE7 support helper. It uses the same 900 boundary seeds.
+The bounded headless harness restores original ROM bytes after host initialization;
+it does not use the upstream translated C implementation as the oracle. Temporary
+entrypoint hooks are reversed after capture. No GUI or player saves are involved.
+
+Archived trace: `kraid-lint-521-v1.zip`, containing `kraid-lint-521-v1.csv`.
+CSV SHA-256: `37F892136FF1B3E254BE00990E536E96B2C9E623C5AE546114F242CAF26ACB92`.
+ROM SHA-256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
+Native host pin: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
+Disassembly pin: `362be646929cf8e483f692b73a6561cfc2dc1d0d`.
+
+Pass the extracted CSV as the optional final argument to
+`--kraid-lint-contact-audit ROM CSV`. The hash-gated comparison verifies all 900
+records: carry, position/subposition, wall visibility/contact bits, function, and
+wall reset timer/next function. All match. Existing full-flight encounter checks
+still cover five natural launch/disappear/reset cycles of each platform.
+
+Conclusion: this ROM has no stationary wall-lodging phase. The missing rider carry
+is fixed and ready for player confirmation. No pixel-level native screenshot
+comparison was performed; visibility is checked through the native property bits.

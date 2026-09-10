@@ -2,6 +2,34 @@
 
 Status: partial implementation; not yet awaiting player validation.
 
+## Storage admission and palette-owned expiry
+
+Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
+($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers
+Speed Booster counter words 0000/03FF/0400/04FF/0500/8300/8400/FF00 and all three
+suit palette indices. WRAM/subpixels/RNG start zero. No controller movement or
+cheats are used; these are explicit handler-boundary seeds, including unreachable
+ordinary-play counter values to verify the native signed comparison.
+
+For each case, capture initialization plus 182 update opportunities. Compare
+the timer, palette kind/frame, warning sound request and all 16 live palette
+words. On expiry the outer palette dispatcher restores normal suit colors;
+that restoration is deliberately not claimed by this handler-only capture.
+All **4,392 records match** production TryStoreFromSpeedBooster/UpdatePalette.
+No production fix was necessary. The warning is requested when the pre-update
+timer is 170, and normal stored charge reaches zero on update 180.
+
+Two native captures are byte-identical. Accepted CSV in
+`shine-storage-465-v1.zip`, SHA-256
+`EF2CE1E9112C7F0DAB9A1615766B83B3C9DEF85CCB6BFCF8B441E81A9501E638`.
+Uses the same pinned NTSC ROM/native/disassembly revisions documented in
+SHINESPARK-COMBO.md. Regenerate with `native-shine-storage-entrypoint.patch`
+and bounded/dialog-free `--diagnostic-shine-storage ROM NEW.csv`; compare using
+`--shine-storage-audit ROM CSV`. Temporary native hooks removed after capture.
+
+This establishes the underlying stored lifetime, not the real-input launch
+window, charged-shot delays to palette processing, or liquid/energy behavior.
+
 ## X-Ray cancellation
 
 Pinned source `upstream-sm/src/sm_91.c`, Samus_HandleTransitionsB_5 ($91:EEA6),

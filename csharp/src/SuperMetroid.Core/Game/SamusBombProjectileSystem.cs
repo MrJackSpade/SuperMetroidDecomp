@@ -300,7 +300,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = 0;
     }
 
-    private int? TryPlaceBomb(
+    internal int? TryPlaceBomb(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,

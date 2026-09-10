@@ -311,3 +311,33 @@ only its access was widened to internal for the focused fixture.
 
 Bomb/PB/Grapple admission and complete held/released/turning/spinning input
 sequences remain to be checked for #416; this checkpoint does not close it.
+
+## Bomb / Power Bomb admission checkpoint (#416)
+
+512 original-CPU $90:BF9D cases cover selected normal/PB, bomb counts 0/1/4/5,
+cooldown 0/1/2/$0100, ammo 0/1, Shoot edge absent/present, Bomb equipment
+absent/present and an existing armed Power Bomb. Charge is zero, as the combo
+particle updates leave it. Compare aggregate bomb count, complete cooldown,
+PB ammo, HUD selection, armed state and all five bomb-slot type words.
+
+All 512 cases match the existing managed producer without a gameplay change.
+The producer is exposed internally only so the focused test invokes the real
+allocation path without unrelated bomb movement or explosion updates.
+
+Confirmed: a first bomb is admitted even with cooldown two, while a further
+bomb is blocked by that cooldown until the active one clears. Selected PB
+bypasses the Bomb equipment requirement, respects the armed flag, and consumes
+ammo only after admission. Forced selection of an empty PB class retains the
+native helper's earlier count/cooldown side effects. This evidence does not
+justify adding a special blanket prohibition on bombs during combos.
+
+- `bomb-admission-416-v1.zip`, CSV SHA256:
+  `3D384C192B95B243BE8E02EE4AF5B07373F404439815711854E8F83B2886EC62`.
+- Same pins; two identical original-CPU captures.
+- `native-bomb-admission-entrypoint.patch`; bounded/dialog-free invocation:
+  `sm.exe --diagnostic-bomb-admission ROM NEW.csv`.
+- Managed: `--bomb-admission-audit ROM CSV`.
+- Temporary hooks removed and patch reapplication checked.
+
+Grapple admission and integrated input/particle sequencing remain for #416.
+These isolated producer cases alone do not establish the full-frame contract.

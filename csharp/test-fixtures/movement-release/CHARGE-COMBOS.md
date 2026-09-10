@@ -70,3 +70,34 @@ shared-state/carry results. Zero mismatches. Build and full core verification pa
 The earlier real-input diagnostic remains intentionally failing until integration.
 The capture starts other slot words at zero; stale-word overwrite cases and sound
 publication still need expanded checks when particle updates are implemented.
+
+## Ice particle update checkpoint (#416 / #417)
+
+`StepIceCombo` implements the two native pre-instructions ($90:CF09/$CF7A),
+including the two-byte sine multiply, orbit direction, 600-call phase transition,
+outward radius byte arithmetic, asymmetric viewport bounds, hit-bit deletion,
+trail requests, cooldown/charge writes and optional sound requests. It is still
+not connected to ordinary gameplay firing while other combo families are missing.
+
+`native-ice-combo-probe.h` allocates through original FireSBA, then executes only
+the original pre-instructions in descending slot order. Six 640-frame sequences
+cover both facings and no collision / slot-zero collision at frame 10 / frame 610.
+Samus moves horizontally by frame modulo nine around X=128, Y=128. Every call
+starts cooldown zero and a charge sentinel 77; the audio queue is drained between
+frames so ordered requests are observable without audio playback timing. Fourteen
+allocation words remain covered by the earlier oracle; this trace compares seven
+motion words per live slot, allocation count, cooldown, charge and sound sequence.
+Deleted slots are normalized to zero because this does not claim stale-field parity.
+All 3,840 frames match. Trail requests execute but trail visuals are not asserted.
+
+- Archive: `ice-combo-417-v1.zip`.
+- CSV SHA256: `AFDBD584CC67F305238D796A91CBAD6BE6E088D0C40842C35323CA1EB79CDAB2`.
+- Same ROM/source pins above; two independent captures are identical.
+- Apply `native-ice-combo-entrypoint.patch`, rebuild, then run only the bounded,
+  dialog-free `sm.exe --diagnostic-ice-combo ROM NEW.csv` entrypoint.
+- Managed command: `--ice-combo-motion-audit ROM CSV`.
+- Source hooks removed and reapplication checked. Build and allocation audit pass.
+
+Still required: normal firing/update integration, visible trail/particle animation,
+enemy hit/freeze/equipment-change semantics, and other combo-family updates.
+Neither #416 nor #417 is ready for player validation at this checkpoint.

@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
 public static class SamusComboRomData
 {
+    /// <summary>SineCosineTables_8bitSine_SignExtended at $A0:B443, positive half-wave words.</summary>
+    public const int PositiveSine = 0xa0b443;
     /// <summary>CostOfSBAsInPowerBombs at $90:CC21, twelve word costs by beam index.</summary>
     public const int Costs = 0x90cc21;
     /// <summary>Special projectile data pointer table at $93:8413.</summary>

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-retained-audit")
+    return SparkRetainedAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--plasma-repeat-audit")
     return PlasmaRepeatAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--spazer-contact-audit")

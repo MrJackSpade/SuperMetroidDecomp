@@ -25,7 +25,26 @@ and Y remains fixed, matching bank 86 E049-E09B. Initial head up speed is
 FFFC:6000 while body/overlay remain zero, preserving the reproduced setup.
 The existing untouched-room enemy-system audit also passes.
 
-This is a verified mechanical checkpoint, not final closure. Exact cadence,
-proximity controls, rendered tile/palette inspection and player validation
-remain before marking the whole report ready. No native CPU capture of this
-encounter is claimed; the fix is cross-checked against pinned disassembly.
+## Acceptance checks
+
+Ready for player validation, not closed. The full-runtime audit additionally
+checks 18 range/cooldown boundary cases: distances +/-95, +/-96, +/-97 and
+overlay timers FFFF/0/1. Native B140-B157 polls the overlay before its later
+slot decrements, giving attack starts on frames 0/1/2 for the three timers
+only inside the strict 96-pixel range. All boundary cases pass.
+
+The 640-frame encounter checks every overlay countdown against native main-AI
+ordering and head reset behavior, requiring at least two animation-owned
+resets to 256. A reset must occur during the throw animation, not during idle.
+Lava flight remains checked frame-by-frame, not only at an endpoint.
+
+All 126 projectile-emission frames rasterize to nontransparent, nonblack pixels
+using the room's actual VRAM/CGRAM. `magdollite-523-projectiles.png` preserves
+the first emission's isolated OBJ plane (3x scale); visual inspection confirms
+the colored lava ball, rather than blank or black tiles. This isolated plane
+does not claim a pixel-perfect comparison of full-room background composition.
+
+Build passes with zero warnings/errors. No additional production fix was
+needed for these acceptance checks. No native CPU capture of this encounter
+is claimed; behavior is cross-checked against pinned disassembly. The affected
+retail-room failure itself was reproduced before the velocity-owner fix.

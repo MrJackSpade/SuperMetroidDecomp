@@ -35,9 +35,10 @@ playable in sequence.
 dotnet run --project src/SuperMetroid.Game
 ```
 
-No extracted-assets argument is required. Startup searches the current directory, executable
-directory, and their parents for `Super Metroid.smc`, `Super Metroid.sfc`, `sm.smc`, or
-`sm.sfc`. It also accepts one explicit ROM path or the `SUPERMETROID_ROM` environment variable:
+First launch offers a ROM picker and extracts the required audio automatically. Later launches
+use the installed copy in `%LOCALAPPDATA%/SuperMetroid/game/`. The supported image is Japan/USA
+NTSC v1.0, with or without a copier header. See [ROM setup](ROM-SETUP.md) for storage and CLI usage.
+Startup also accepts one explicit ROM path or the `SUPERMETROID_ROM` environment variable:
 
 ```powershell
 dotnet run --project src/SuperMetroid.Game -- "C:\path\to\Super Metroid.smc"
@@ -51,7 +52,7 @@ not depend on window focus.
 
 The normal Windows host defaults to `Auto`: Direct3D11 hardware first, with a
 console-reported software fallback if hardware initialization fails. To select
-explicitly, add this section beside the ROM in `SuperMetroid.ini`:
+explicitly, add this section in `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.ini`:
 
 ```ini
 [Video]
@@ -99,7 +100,7 @@ they do not install alternate gameplay state.
 
 ### Configuration and saves
 
-The playable host reads `SuperMetroid.ini` beside the selected ROM and creates a documented
+The playable host reads `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.ini` and creates a documented
 file if none exists. Its supported options are:
 
 ```ini
@@ -137,7 +138,7 @@ because their outer runtime boundary cannot resume. Unknown sections, unknown or
 keys, invalid Booleans, malformed repository names, and out-of-range volume values fail with
 a file and line number.
 
-Battery-backed data is stored as an indented, versioned `.save.json` beside the ROM. Each
+Battery-backed data is stored as `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.save.json`. Each
 slot names its checkpoint, resources, equipment, controller bindings, game time, progression
 bit sets, boss state, and explored map coordinates. A clearly labelled preservation section
 retains untranslated native SRAM bytes, while the named fields remain authoritative when the
@@ -157,8 +158,8 @@ before restoring ordinary movement.
 
 ### Automatic input recordings and replay
 
-Every normal game reset creates an always-on recording under `input-recordings` beside the
-private ROM. The `.smrec` file contains the reset-time 8 KiB SRAM image, the ROM's SHA-256
+Every normal game reset creates an always-on recording under
+`%LOCALAPPDATA%/SuperMetroid/input-recordings`. The `.smrec` file contains the reset-time 8 KiB SRAM image, the ROM's SHA-256
 digest, the startup host option, and one raw controller word for every submitted frame. It
 does not contain ROM bytes. Periodic atomic flushes run off the UI thread; closing the game,
 restarting, or exiting after a managed failure waits for a final flush. Because Restart reads
@@ -179,7 +180,7 @@ back to the user's `.save.json`.
 
 The playable window has a **State slot** selector and **Save State** / **Load State** buttons
 for ten persistent debugger slots, numbered 0-9. Slot files are written to `debug-states`
-beside the private ROM as `SuperMetroid-debug-slot-N.smstate`; that is the file to attach to
+under `%LOCALAPPDATA%/SuperMetroid` as `SuperMetroid-debug-slot-N.smstate`; that is the file to attach to
 an issue when a failure depends on exact timing or late-game state. Loading replaces the
 complete managed frontend/runtime/address-space graph at the captured frame, refreshes the
 visible frame immediately, restores the managed SPC sequencer/DSP state, resets only the host
@@ -298,7 +299,8 @@ music ring, three bank-$82 SFX handshakes, and acknowledgement timing; Windows `
 only buffered delivery of the resulting 48 kHz stereo PCM.
 
 Runtime upload commands resolve against the SHA-verified catalog in
-`../standalone-assets/audio`, not against the ROM or a native DLL. Exact `.spcu` streams remain
+the installed `game/audio/` directory. Developer tools may still use
+`../standalone-assets/audio`. Exact `.spcu` streams remain
 the source of sequence, instrument, and SFX command data; BRR decoding now occurs only during
 asset extraction. Runtime voices read 16-bit mono PCM WAVs and apply pitch, pan, envelopes,
 looping, cancellation/voice stealing, Gaussian interpolation, noise, pitch modulation, and FIR

@@ -33,14 +33,13 @@
     <TrimmerRootAssembly Include="SuperMetroid.Android" RootMode="All" />
     <TrimmerRootAssembly Include="SuperMetroid.Core" RootMode="All" />
     <TrimmerRootAssembly Include="SuperMetroid.Diagnostics" RootMode="All" />
+    <TrimmerRootAssembly Include="SuperMetroid.AssetExtraction" RootMode="All" />
   </ItemGroup>
   <ItemGroup>
     <!-- Opt-in device probes are excluded from normal player APKs. -->
     <Compile Include="../../tools/android-probes/AudioFocusProbe.cs" Condition="'$(AndroidHostProbes)' == 'true'" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
-    <!-- Private, self-contained testing package; never publish this APK publicly. -->
-    <AndroidAsset Include="../../../Super Metroid.smc" LogicalName="game/SuperMetroid.smc" />
-    <AndroidAsset Include="../../../standalone-assets/audio/**/*" LogicalName="game/audio/%(RecursiveDir)%(Filename)%(Extension)" />
+    <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
   </ItemGroup>
 </Project>

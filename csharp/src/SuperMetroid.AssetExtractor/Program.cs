@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.AssetExtraction;
 
 // The tool intentionally exposes two narrow commands instead of performing work implicitly.
 // That makes Visual Studio launch profiles deterministic and gives us clean breakpoint paths:
@@ -14,6 +15,22 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length is 2 or 3 && args[0].Equals("install", StringComparison.OrdinalIgnoreCase))
+{
+    GameInstallation installed = GameAssetInstaller.Install(args[1], args.Length == 3 ? args[2] : GameAssetInstaller.DesktopRoot);
+    Console.WriteLine($"ROM installed at {installed.RomPath}");
+    Console.WriteLine($"Runtime audio extracted at {installed.AudioDirectory}");
+    return 0;
+}
+
+if (args.Length == 3 && args[0].Equals("audio-rom", StringComparison.OrdinalIgnoreCase))
+{
+    using Stream source = File.OpenRead(args[1]);
+    byte[] rom = SupportedCartridge.Read(source);
+    AudioAssetManifest manifest = SpcAudioAssetExtractor.Extract(new SuperMetroid.Core.Hardware.SuperMetroidAddressSpace(rom), args[2]);
+    Console.WriteLine($"Extracted {manifest.Uploads.Count} streams and {manifest.CanonicalSamples.Count} PCM samples.");
+    return 0;
+}
 if (args.Length == 3 && args[0].Equals("maps", StringComparison.OrdinalIgnoreCase))
 {
     string romPath = ResolveWorkspacePath(args[1], mustAlreadyExist: true);
@@ -75,6 +92,8 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
 if (args.Length != 2)
 {
     Console.Error.WriteLine("Usage:");
+    Console.Error.WriteLine("  SuperMetroid.AssetExtractor install <rom-path> [app-data-directory]");
+    Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio-rom <rom-path> <audio-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor maps <rom-path> <map-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor <raw-assets-directory> <png-output-directory>");
     Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio <raw-assets-directory> <audio-output-directory>");

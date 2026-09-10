@@ -5,9 +5,9 @@ breakpoint-friendly C#. The cartridge remains the behavioral authority; the anno
 disassembly and native C reconstruction are cross-checks, not substitutes for observed ROM
 behavior.
 
-The repository intentionally contains a private ROM and ROM-derived assets at the owner's
-request so one checkout remains runnable. It must remain private and is not suitable for
-redistribution in its current form.
+ROMs and extracted game assets are excluded from source control and application packages.
+Supply your own supported ROM on first launch; desktop and Android copy it into private
+application storage and extract the runtime audio there. See [ROM setup](csharp/ROM-SETUP.md).
 
 ## Current status
 
@@ -121,11 +121,11 @@ from `csharp/`. No C++ workload or native runtime DLL is required:
 dotnet run --project src/SuperMetroid.Game
 ```
 
-The host locates the private ROM automatically, accepts one explicit ROM path, or honors the
+The host offers a ROM picker, accepts one explicit ROM path, or honors the
 `SUPERMETROID_ROM` environment variable. Normal play continuously writes replayable controller
-sessions under `input-recordings/` beside the ROM; each recording includes the reset-time SRAM
+sessions under `%LOCALAPPDATA%/SuperMetroid/input-recordings/`; each recording includes the reset-time SRAM
 seed and ROM digest. Ten exact-frame debugger slots are available from the playable toolbar;
-their attachable files live under `debug-states/` beside the ROM. `csharp/README.md` documents
+their attachable files live under `debug-states/` in that application-data directory. `csharp/README.md` documents
 both the `--replay` command and debugger-state compatibility rules.
 
 ## Verification

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resource limits for building a finite PCM representation of a BRR loop.</summary>
 internal static class BrrExtractionLimits

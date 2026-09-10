@@ -6,7 +6,7 @@ namespace SuperMetroid.Core.Audio;
 public static class SpcUploadStreamReader
 {
     /// <summary>Copies one terminated upload stream from contiguous LoROM file order.</summary>
-    public static byte[] Read(ISnesAddressSpace bus, int sourceAddress)
+    public static byte[] Read(ISnesAddressSpace bus, int sourceAddress, bool includeExecutionAddress = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)sourceAddress > AudioRomData.SpcUpload.MaximumSnesAddress ||
@@ -24,7 +24,12 @@ public static class SpcUploadStreamReader
         {
             ushort byteCount = ReadWord(bus, ref cursor, bytes);
             if (byteCount == 0)
+            {
+                // Extraction retains the final SPC execution word; the managed driver
+                // does not need it when consuming an upload at runtime.
+                if (includeExecutionAddress) ReadWord(bus, ref cursor, bytes);
                 return [.. bytes];
+            }
 
             // The destination word belongs to the wire stream even though only the SPC
             // player interprets it. Keep it byte-for-byte identical to ROM.

@@ -1,7 +1,10 @@
 using System.Security.Cryptography;
 using System.Text.Json;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using static SuperMetroid.AssetExtraction.SpcExtractionData;
 
-namespace SuperMetroid.Core.Audio;
+namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
 /// Build-stage extractor for the game's exact SPC upload streams and their inspectable
@@ -11,13 +14,6 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 public static class SpcAudioAssetExtractor
 {
-    private const int MaximumTrackPointerCount = 32;
-    private const int InstrumentTableByteLength = 0x100;
-    private const int BrrDirectoryAddress = 0x6d00;
-    private const int BrrDirectoryEntrySize = 4;
-    private const int BrrBlockByteLength = 9;
-    private const int MaximumBrrBlocks = ushort.MaxValue / BrrBlockByteLength;
-
     /// <summary>Extracts all required assets from the repository's private raw directory.</summary>
     public static AudioAssetManifest Extract(string rawDirectory, string audioDirectory)
     {
@@ -27,6 +23,21 @@ public static class SpcAudioAssetExtractor
         audioDirectory = Path.GetFullPath(audioDirectory);
         if (!Directory.Exists(rawDirectory))
             throw new DirectoryNotFoundException($"Raw asset directory '{rawDirectory}' does not exist.");
+
+        return Extract(definition => File.ReadAllBytes(Path.Combine(rawDirectory, definition.Name + ".bin")), audioDirectory);
+    }
+
+    /// <summary>Extracts runtime audio directly from a user's cartridge, without raw files or an upstream checkout.</summary>
+    public static AudioAssetManifest Extract(SuperMetroidAddressSpace cartridge, string audioDirectory)
+    {
+        ArgumentNullException.ThrowIfNull(cartridge);
+        return Extract(definition => SpcUploadStreamReader.Read(cartridge, definition.SnesAddress, includeExecutionAddress: true), audioDirectory);
+    }
+
+    private static AudioAssetManifest Extract(Func<AudioUploadAssetDefinition, byte[]> readStream, string audioDirectory)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(audioDirectory);
+        audioDirectory = Path.GetFullPath(audioDirectory);
 
         string streamsDirectory = Path.Combine(audioDirectory, "streams");
         string samplesDirectory = Path.Combine(audioDirectory, "samples");
@@ -41,10 +52,7 @@ public static class SpcAudioAssetExtractor
         Dictionary<int, byte[]> sourceStreams = [];
         foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogData.All)
         {
-            string sourcePath = Path.Combine(rawDirectory, definition.Name + ".bin");
-            if (!File.Exists(sourcePath))
-                throw new FileNotFoundException($"Required raw audio stream '{sourcePath}' is missing.", sourcePath);
-            byte[] stream = File.ReadAllBytes(sourcePath);
+            byte[] stream = readStream(definition);
             ValidateUploadStream(stream, definition.Name);
             string relativePath = Path.Combine("streams", $"{definition.DataIndex:X2}-{definition.Name}.spcu");
             File.WriteAllBytes(Path.Combine(audioDirectory, relativePath), stream);

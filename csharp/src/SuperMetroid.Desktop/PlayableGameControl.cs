@@ -34,6 +34,8 @@ public sealed partial class PlayableGameControl : UserControl
     private SuperMetroidAddressSpace addressSpace = null!;
     private SuperMetroidGame game = null!;
     private SpcAudioEngine? audioEngine;
+    private readonly string? installedAudioDirectory;
+    private readonly string? playerDataDirectory;
     private WaveOutAudioDevice? audioDevice;
     private ControllerInputRecorder? inputRecorder;
     private DebuggerSaveStateStore stateStore = null!;
@@ -55,12 +57,17 @@ public sealed partial class PlayableGameControl : UserControl
         string romPath,
         SuperMetroidGameOptions gameOptions,
         ControllerInputRecording? replay = null,
-        GitHubErrorReporter? errorReporter = null)
+        GitHubErrorReporter? errorReporter = null,
+        string? audioDirectory = null,
+        string? dataDirectory = null)
     {
         this.romPath = romPath;
+        installedAudioDirectory = audioDirectory;
+        playerDataDirectory = dataDirectory is null ? null : Path.GetFullPath(dataDirectory);
         string fullRomPath = Path.GetFullPath(romPath);
-        saveFilePath = Path.ChangeExtension(fullRomPath, GameSaveJsonFormat.FileExtension);
-        legacySaveRamPath = Path.ChangeExtension(fullRomPath, ".srm");
+        string saveBase = playerDataDirectory is null ? fullRomPath : Path.Combine(playerDataDirectory, Path.GetFileName(fullRomPath));
+        saveFilePath = Path.ChangeExtension(saveBase, GameSaveJsonFormat.FileExtension);
+        legacySaveRamPath = Path.ChangeExtension(saveBase, ".srm");
         this.gameOptions = gameOptions ?? throw new ArgumentNullException(nameof(gameOptions));
         this.replay = replay;
         this.errorReporter = errorReporter;
@@ -187,10 +194,11 @@ public sealed partial class PlayableGameControl : UserControl
         // ordinary in-window reset depend on a mid-session disk edit and would obscure the
         // exact options with which the debugger-visible session was constructed.
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
-        stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom);
+        stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom,
+            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"));
         if (gameOptions.AudioEnabled)
         {
-            audioEngine = new SpcAudioEngine();
+            audioEngine = new SpcAudioEngine(installedAudioDirectory);
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
                 SpcAudioEngine.ChannelCount,
@@ -211,7 +219,8 @@ public sealed partial class PlayableGameControl : UserControl
             inputRecorder = ControllerInputRecorder.Start(
                 romPath,
                 addressSpace.SaveRam,
-                gameOptions);
+                gameOptions,
+                playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
             Console.WriteLine($"Recording controller input to {inputRecorder.Path}");
         }
         // Execute reset once so the first visible debugger frame is state one's native setup.
@@ -288,7 +297,7 @@ public sealed partial class PlayableGameControl : UserControl
                 ?? throw new InvalidDataException(
                     "Audio-enabled debugger state does not contain managed SPC state.");
             audioEngine = new SpcAudioEngine(
-                ExtractedAudioAssetCatalog.Load(ExtractedAudioAssetLocator.FindAudioDirectory()),
+                ExtractedAudioAssetCatalog.Load(installedAudioDirectory ?? ExtractedAudioAssetLocator.FindAudioDirectory()),
                 restoredAudio);
             audioDevice = new WaveOutAudioDevice(
                 SpcAudioEngine.SampleRate,
@@ -303,7 +312,8 @@ public sealed partial class PlayableGameControl : UserControl
         inputRecorder = ControllerInputRecorder.Start(
             romPath,
             addressSpace.SaveRam,
-            gameOptions);
+            gameOptions,
+            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "input-recordings"));
         Console.WriteLine(
             $"Loaded debugger state slot {slot}: {loaded.Metadata.Path}{Environment.NewLine}" +
             $"Recording post-state controller input to {inputRecorder.Path}");

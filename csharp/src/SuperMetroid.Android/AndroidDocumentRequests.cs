@@ -9,4 +9,6 @@ internal static class AndroidDocumentRequests
     public const int StateImport = 2;
     /// <summary>Result for selecting a JSON regular save to activate on next launch.</summary>
     public const int SaveImport = 3;
+    /// <summary>Result for selecting the user's cartridge during first-launch setup.</summary>
+    public const int RomImport = 4;
 }

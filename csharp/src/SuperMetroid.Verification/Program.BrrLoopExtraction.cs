@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {

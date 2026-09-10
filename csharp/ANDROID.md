@@ -1,8 +1,8 @@
 # Retroid Pocket Classic testing build — issue #355
 
 This is an in-progress **private** Android port of the same C# game, not an emulator
-or streaming client. The APK includes the private cartridge and extracted audio.
-Do not redistribute it or publish it to an app store.
+or streaming client. The APK includes no cartridge or extracted audio. On first launch,
+choose your own supported ROM with Android's document picker; see [ROM setup](ROM-SETUP.md).
 
 ## Current milestone
 
@@ -40,7 +40,7 @@ Trimming/AOT are initially disabled so reflection-based state graphs are not rem
 
 Package: `org.supermetroid.csharp.testing`. App-private `files/` contains:
 
-- `game/`: installed immutable cartridge/audio assets, replaced from the APK on launch.
+- `game/`: cartridge copy and audio extracted from the user-selected ROM, verified on launch.
 - `SuperMetroid.ini`: shared gameplay/audio options, created once with normal defaults.
 - `SuperMetroid.save.json`: normal battery-backed save data, written atomically.
 - `timing.log`: per-second emulation/presentation rates and average step/render/mix costs.

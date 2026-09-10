@@ -241,8 +241,10 @@ try
         romArguments = args.Length == 3 ? [args[2]] : [];
     }
 
-    string romPath = PrivateRomPath.Resolve(romArguments);
-    GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath);
+    using var setup = new RomSetupForm(romArguments);
+    if (setup.ShowDialog() != DialogResult.OK || setup.Installation is not { } installation) return 0;
+    string romPath = installation.RomPath;
+    GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath, installation.Root);
     SuperMetroidGameOptions gameOptions;
     if (replay is null)
     {
@@ -290,7 +292,7 @@ try
             $"Recoverable errors will be deduplicated and filed in " +
             $"{gameOptions.GitHubErrorRepository}; gameplay will attempt the next frame.");
     }
-    Application.Run(new GameForm(romPath, gameOptions, replay, githubErrorReporter));
+    Application.Run(new GameForm(romPath, gameOptions, replay, githubErrorReporter, installation.AudioDirectory, installation.Root));
 }
 catch (Exception exception)
 {

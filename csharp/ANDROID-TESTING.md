@@ -7,7 +7,7 @@ The verified Windows build environment uses .NET SDK 10.0.400 and Android worklo
 Android workload. The project targets `net10.0-android`, `android-arm64`; it does not
 require Linux, Docker, an emulator, or the Windows Forms executable on the handheld.
 
-From the repository root, with the private ROM and extracted audio assets present:
+From the repository root (no ROM or extracted assets required to build):
 
 ```powershell
 dotnet build csharp/src/SuperMetroid.Android/SuperMetroid.Android.csproj -c Release
@@ -30,7 +30,8 @@ in a secure private backup, outside Git, or explicitly configure the same identi
 there. Never commit keystores/passwords or regenerate the key to solve an install
 error. `*.keystore` and `*.jks` are ignored as an additional guard.
 
-The APK contains private game assets and must not be distributed publicly.
+The APK contains no ROM or extracted game assets. First launch asks for the user's own
+supported ROM through Android's document picker; [ROM setup](ROM-SETUP.md) describes the flow.
 
 ## Capture on the handheld
 

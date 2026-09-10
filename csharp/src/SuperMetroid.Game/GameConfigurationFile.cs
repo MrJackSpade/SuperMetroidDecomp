@@ -10,7 +10,7 @@ internal sealed record GameConfigurationFile(
 {
     public const string FileName = "SuperMetroid.ini";
 
-    public static GameConfigurationFile LoadOrCreate(string romPath)
+    public static GameConfigurationFile LoadOrCreate(string romPath, string? dataDirectory = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
 
@@ -21,7 +21,7 @@ internal sealed record GameConfigurationFile(
         string romDirectory = System.IO.Path.GetDirectoryName(fullRomPath)
             ?? throw new InvalidOperationException(
                 $"Private ROM path has no containing directory: {fullRomPath}");
-        string configurationPath = System.IO.Path.Combine(romDirectory, FileName);
+        string configurationPath = System.IO.Path.Combine(dataDirectory ?? romDirectory, FileName);
 
         if (!File.Exists(configurationPath))
         {

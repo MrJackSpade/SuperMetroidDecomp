@@ -34,6 +34,12 @@ public sealed partial class MainActivity
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);
+        if (requestCode == AndroidDocumentRequests.RomImport)
+        {
+            if (resultCode == Result.Ok && data?.Data is { } romUri) _ = ImportRomDocument(romUri);
+            else ShowRomSetup();
+            return;
+        }
         if (requestCode is not (AndroidDocumentRequests.DiagnosticExport or AndroidDocumentRequests.StateImport or AndroidDocumentRequests.SaveImport)) return;
         if (resultCode != Result.Ok || data?.Data is not { } uri)
         {

@@ -13,7 +13,9 @@ internal sealed class GameForm : Form
         string romPath,
         SuperMetroidGameOptions gameOptions,
         ControllerInputRecording? replay = null,
-        GitHubErrorReporter? errorReporter = null)
+        GitHubErrorReporter? errorReporter = null,
+        string? audioDirectory = null,
+        string? dataDirectory = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
         ArgumentNullException.ThrowIfNull(gameOptions);
@@ -24,7 +26,7 @@ internal sealed class GameForm : Form
         // ordinary 1080p desktop. RuntimeCanvas automatically chooses a smaller integer
         // scale if the user resizes the window.
         ClientSize = new Size(900, 760);
-        gameControl = new PlayableGameControl(romPath, gameOptions, replay, errorReporter);
+        gameControl = new PlayableGameControl(romPath, gameOptions, replay, errorReporter, audioDirectory, dataDirectory);
         Controls.Add(gameControl);
     }
 

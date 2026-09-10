@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
+    <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidControllerPreferences.cs" Link="AndroidControllerPreferences.cs" />
     <Compile Include="../SuperMetroid.Android/AndroidRunPolicy.cs" Link="AndroidRunPolicy.cs" />

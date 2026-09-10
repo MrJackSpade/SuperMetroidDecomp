@@ -40,7 +40,7 @@ public sealed partial class MainActivity
 
     private void RefreshRunGate(bool requestFocus = false)
     {
-        if (requestFocus && resumed && focused && !menuOpen && !destroyed && AudioEnabled &&
+        if (session is not null && requestFocus && resumed && focused && !menuOpen && !destroyed && AudioEnabled &&
             !audioFocusRequested && audioManager is not null && audioFocusRequest is not null)
         {
             var result = audioManager.RequestAudioFocus(audioFocusRequest);

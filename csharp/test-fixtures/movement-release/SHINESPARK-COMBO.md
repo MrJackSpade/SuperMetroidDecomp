@@ -1,8 +1,32 @@
 # #466 Shinespark/combo crash investigation
 
-Status: retained-word entry, departure, slot ownership and reset boundaries are
-fixed; full successive-spark verification remains incomplete. No
-awaiting-player-validation label. Sections below preserve chronological evidence.
+Status: ready for player validation. Retained-word entry, departure, slot ownership
+and reset fixes are verified, including successive crashes through the full
+gameplay frame dispatcher. Sections below preserve chronological evidence.
+
+## Runtime acceptance
+
+`--spark-runtime-sequence-audit ROM CSV` runs the same 180-crash matrix through
+`SuperMetroidRuntime.StepFrame(0)`, using `FlatFloorMovementFixture` with no
+water and no room transitions during the samples. Both gameplay cheats are
+explicitly rejected by the audit. This exercises ordinary input sampling, pose
+handling, alpha projectile/instruction dispatch, beta crash movement and camera
+processing. Each sampled frame must actually dispatch the installed shinespark
+handler. All **11,688 records match** the accepted original-CPU sequence capture.
+
+The initial crash/contact and combo allocation boundaries are still explicitly
+seeded, as documented below. Pre-aging and inter-crash gaps run only projectile
+updates to preserve the oracle's stationary setup; they are not falsely labeled
+as a whole controller route. The runtime frame test covers the affected recovery
+interval end to end. Input is zero throughout that interval. Normal charge-combo
+activation has its own real-input fixtures under #416; launch/storage is #465.
+
+The verified defects were shared Y/angular travel reset on entry, wrong capacity
+input, conflated radius/drawing speed, independent projectile ownership, missing
+reentry drawing/X-delta writes, and incomplete whole-reset clearing. None were
+replaced with combo-specific timing shortcuts. Original unusual lifetime and
+counter behavior is retained. Supported evidence is for the pinned NTSC revision
+only; no claim of PAL/revision equivalence. Leave #466 open for player confirmation.
 
 ## Ordered successive-crash comparison
 
@@ -33,9 +57,8 @@ Two captures are byte-identical. Regenerate with
 `--diagnostic-spark-sequence ROM NEW.csv`. Compare using hash-gated
 `--spark-sequence-audit ROM CSV`. Temporary native hooks removed.
 
-Remaining acceptance work: exercise this ordering through the full gameplay
-frame dispatcher (rather than explicit alpha/crash calls) and record that scoped
-runtime fixture. No player-validation label until that integration check is ready.
+That checkpoint's remaining full-frame integration check is now completed in
+the runtime acceptance section above.
 
 ## Whole-reset checkpoint
 

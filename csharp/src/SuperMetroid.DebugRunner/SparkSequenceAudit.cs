@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Successive crash handlers with real projectile alpha/instruction processing.</summary>
 internal static class SparkSequenceAudit
 {
-    public static int Run(string rom, string trace)
+    public static int Run(string rom, string trace, bool runtimeFrames = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
             "ABF726C92E5A57AEA03FB9F3A015BF42C4400ED7C0DC6C8C00C55B3AE7827856")
@@ -20,11 +20,18 @@ internal static class SparkSequenceAudit
         {
             string[] seed = group.First();
             byte pose = seed[1] == "1" ? SamusPoseIds.ShinesparkHorizontalLeftPose : SamusPoseIds.ShinesparkHorizontalRightPose;
-            var samus = new SamusState { XPosition = 128, YPosition = 128, Pose = pose,
-                EquippedBeams = (ushort)(0x1000 | ushort.Parse(seed[0])),
-                PowerBombs = 2, MaxPowerBombs = 2, SelectedHudItem = 3 };
-            var projectiles = new SamusProjectileSystem();
-            var bombs = new SamusBombProjectileSystem();
+            var runtime = runtimeFrames ? FlatFloorMovementFixture.Create(bus, water: false) : null;
+            if (runtime is { PlayerInvincibilityEnabled: true } or { InfiniteAmmoEnabled: true })
+                throw new InvalidOperationException("Cartridge comparison requires gameplay cheats disabled.");
+            var samus = runtime?.Samus ?? new SamusState();
+            samus.XPosition = samus.YPosition = 128;
+            samus.Pose = pose;
+            samus.EquippedBeams = (ushort)(0x1000 | ushort.Parse(seed[0]));
+            samus.PowerBombs = samus.MaxPowerBombs = 2;
+            samus.SelectedHudItem = 3;
+            runtime?.Camera!.SetPosition(0, 0);
+            var projectiles = runtime?.Projectiles ?? new SamusProjectileSystem();
+            var bombs = runtime?.BombProjectiles ?? new SamusBombProjectileSystem();
             void Alpha() => projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, bombs,
                 projectileProducerEnabled: false);
             if (seed[3] == "1")
@@ -41,15 +48,23 @@ internal static class SparkSequenceAudit
                 cases++;
                 samus.Pose = pose;
                 samus.Health = 29;
+                samus.RefreshCollisionRadii(bus);
+                samus.InitializeAnimation(bus);
                 typeof(SamusShinesparkState).GetMethod("BeginCrash", BindingFlags.Instance | BindingFlags.NonPublic)!
                     .Invoke(samus.Shinespark, [bus, samus]);
                 string[][] expected = spark.ToArray();
                 int frame = 0, differences = 0;
                 for (; frame < 100; frame++)
                 {
-                    Alpha();
                     bool finish = samus.Shinespark.Phase == ShinesparkPhase.CrashFinish;
-                    samus.Shinespark.Step(bus, level, samus, 0, projectiles: projectiles);
+                    if (runtime is null)
+                    {
+                        Alpha();
+                        samus.Shinespark.Step(bus, level, samus, 0, projectiles: projectiles);
+                    }
+                    else runtime.StepFrame(0);
+                    if (runtime is not null && runtime.LastShinesparkMovement is null)
+                        throw new InvalidDataException("Runtime skipped the installed crash movement handler.");
                     var state = samus.Shinespark;
                     ushort handler = state.Phase switch
                     {

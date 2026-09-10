@@ -58,6 +58,8 @@ if (args.Length == 3 && args[0] == "--quick-charge-audit")
     return QuickChargeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--short-charge-audit")
     return ShortChargeComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--waterball-audit")
+    return WaterballComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moving-door-audit")
     return MovingDoorComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moving-item-audit")

@@ -166,10 +166,13 @@ public sealed class SamusKinematicsState
     public ushort TopBoundary => unchecked((ushort)(YPosition - YRadius));
 
     /// <summary>
-    /// Whole-pixel bottom collision boundary returned by <c>Get_Samus_Bottom_Boundary</c>.
-    /// The native addition is 16-bit and therefore wraps at the room-coordinate boundary.
+    /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
+    /// <c>$90:EC3E</c>, this does not subtract one. The native addition wraps at 16 bits.
     /// </summary>
     public ushort BottomBoundary => unchecked((ushort)(YPosition + YRadius));
+
+    /// <summary>Inclusive bottom pixel, matching $90:EC3E when radius reflects the current pose.</summary>
+    public ushort BottomPixel => unchecked((ushort)(BottomBoundary - 1));
 
     /// <summary>Publishes the result of one directional bank-$A0 solid-enemy probe.</summary>
     internal void RecordSolidEnemyCollision(

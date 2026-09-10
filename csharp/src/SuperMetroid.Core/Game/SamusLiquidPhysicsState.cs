@@ -178,7 +178,7 @@ public sealed partial class SamusLiquidPhysicsState
         ArgumentNullException.ThrowIfNull(samus);
         if (samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit))
             return Air;
-        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomBoundary);
+        return DetermineRawMediumAtBoundary(samus.Kinematics.BottomPixel);
     }
 
     /// <summary>
@@ -275,7 +275,10 @@ public sealed partial class SamusLiquidPhysicsState
         SamusMovementType movementType = samus.ReadMovementType(bus);
         TrySpawnRunningFootsteps(bus, samus, movementType);
 
-        ushort bottom = samus.Kinematics.BottomBoundary;
+        // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
+        // pixel is Y + pose radius - 1. The exclusive collision boundary would
+        // enter liquid one frame early and can prematurely cancel lava momentum.
+        ushort bottom = samus.Kinematics.BottomPixel;
         ushort top = samus.Kinematics.TopBoundary;
         RoomFxType fxKind = FxType;
         bool gravitySuit = samus.EquippedItems.HasAny(SamusEquipmentFlags.GravitySuit);

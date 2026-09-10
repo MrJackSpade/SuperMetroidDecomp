@@ -25,7 +25,9 @@ try
 if (args.Length == 3 && args[0] == "--ice-combo-motion-audit")
     return ComboMotionAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--wave-combo-motion-audit")
-    return ComboMotionAudit.Run(args[1], args[2], wave: true);
+    return ComboMotionAudit.Run(args[1], args[2], SamusBeamFlags.Wave);
+if (args.Length == 3 && args[0] == "--plasma-combo-motion-audit")
+    return ComboMotionAudit.Run(args[1], args[2], SamusBeamFlags.Plasma);
 if (args.Length == 3 && args[0] == "--combo-allocation-audit")
     return ComboAllocationAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--combo-activation-input-audit")

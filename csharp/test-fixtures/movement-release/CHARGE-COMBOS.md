@@ -130,3 +130,31 @@ retains the earlier Ice comparison instead of duplicating its fixture driver.
 Still not connected to the live firing/update path. Wave enemy multi-hit/damage,
 visible animation/trails and real audio playback are not established by this
 motion trace. #416 and #418 remain open without awaiting-player-validation.
+
+## Plasma particle update checkpoint (#416 / #420)
+
+`StepPlasmaCombo` implements $90:D793 and its three phase handlers. Radius grows
+by four until 192, contracts by four until below 45, then expands with viewport
+deletion. Angle and radius retain the native byte arithmetic. Crucially the first
+two phases do not delete offscreen rings. Hits delete before cooldown/charge
+writes; final-phase offscreen deletion happens after those writes. There are no
+particle-update sound requests in this family.
+
+Six 200-frame original-CPU sequences cover both facings, moving Samus on both
+axes, natural departure and hit-bit removal at frames 10/60. The native animation
+handler runs after each live particle update, as in the Wave fixture. All 1,200
+frames match the same nine live-slot fields and global state as Wave. Explicit
+witnesses assert all four rings at radius 192/phase one on frame 37, radius
+44/phase two on frame 74, and no live rings at frame 199 in no-hit cases.
+
+- Archive: `plasma-combo-420-v1.zip`.
+- CSV SHA256: `2F053D2B633D5B4A534B868D9FA7DE78AFCF9EC1D4ECC4CFC6809D2B41701EC6`.
+- Same ROM/source pins; two captures identical.
+- Regenerate with `native-plasma-combo-entrypoint.patch`, rebuild, then use only
+  the bounded/dialog-free `sm.exe --diagnostic-plasma-combo ROM NEW.csv` entrypoint.
+- Managed: `--plasma-combo-motion-audit ROM CSV`.
+- Temporary source hooks removed, patch reapplication checked.
+
+Enemy penetration/damage and visual properties are not proved by setting a hit
+bit in this movement fixture. Spazer updates and shared firing integration remain
+unfinished, so #416/#420 remain open without awaiting-player-validation.

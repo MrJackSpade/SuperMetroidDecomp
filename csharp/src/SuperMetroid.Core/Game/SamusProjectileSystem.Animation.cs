@@ -77,11 +77,11 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         ushort layer1X,
         ushort layer1Y,
-        int horizontalMargin)
+        int? horizontalMargin)
     {
         short screenX = unchecked((short)(slot.XPosition - layer1X));
         ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y));
-        if (screenX < -horizontalMargin || screenX >= 256 + horizontalMargin ||
+        if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             (screenY & 0xff00) != 0)
         {
             return;

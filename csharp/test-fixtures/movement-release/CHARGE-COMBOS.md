@@ -244,3 +244,39 @@ handler, position and damage at contact.
 This proves the shared ordinary-target boundary, not every boss's custom
 collision callback, rendered output or end-to-end sound. Those and the remaining
 input/weapon interactions still block full acceptance of #416–#420.
+
+## Complete projectile/trail OAM checkpoint (#416–#420)
+
+`--combo-draw-audit ROM CSV` compares every emitted low-OAM byte, all high-OAM
+bytes, sprite count and four particle type words over 5,120 original-CPU frames.
+It covers all four families for 640 frames at two camera offsets, moving Samus,
+NMI parity, natural expiry and changing the equipped beam at frame 20 without
+reinitializing active particles. It executes native $93:8254, including the trail
+pass; managed drawing uses the real projectile/trail OAM methods.
+
+This reproduced 155 mismatching frames. Two fixes were required:
+
+1. The live projectile draw path had an invented 64-pixel horizontal margin.
+   Retail only checks vertical position and spritemap validity, preserving the
+   offscreen nine-bit X records for PPU clipping and OAM ordering. The separate
+   bomb/explosion pass retains its native 48-pixel margin. Fixing this left 40
+   mismatching Spazer frames.
+2. The trail-frame lookup copied upstream C's timer-one lookahead. Pinned retail
+   $93:81D8-$81E3 always reads instruction-pointer minus two (the previous
+   record's field six), with no timer test. Looking ahead spread the falling
+   Spazer trails early. Following the ROM removes the remaining 40 mismatches.
+
+All 5,120 frames now match exactly. This confirms active-particle ownership
+survives an equipment-word change, but does not claim full pause-menu graphics
+upload coverage or final framebuffer/palette parity.
+
+- `combo-draw-416-v1.zip`, CSV SHA256:
+  `C92A9E80D98A24BD0D665A9DC36E541059843B2E1B523BE84B79F9796E4F95B3`.
+- Same ROM/source pins; two identical original-CPU captures.
+- Rebuild with `native-combo-draw-entrypoint.patch`; invoke only bounded,
+  dialog-free `sm.exe --diagnostic-combo-draw ROM NEW.csv`.
+- Temporary native hooks removed and reapplication checked.
+- Prior allocation, contact, motion and held-input audits still pass.
+
+Boss-specific interactions, final rendering/audio and remaining input/weapon
+restrictions are still incomplete. #416–#420 remain open without validation labels.

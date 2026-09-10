@@ -653,7 +653,11 @@ public sealed partial class SamusProjectileSystem
                     continue;
             }
 
-            DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 64);
+            // Unlike the bomb/explosion pass, native live projectile drawing does not
+            // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
+            // This also preserves sprite ordering/capacity when a combo orbits offscreen.
+            if ((slot.SpritemapPointer & 0x8000) != 0)
+                DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: null);
         }
     }
 

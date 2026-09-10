@@ -263,9 +263,8 @@ public sealed partial class SamusProjectileSystem
             bus,
             SamusProjectileRomData.Trails.RightInstructionPointers + pointerIndex * 2);
 
-        // `$93:81D1` returns the animation field that is current at this exact pre-instruction
-        // instant. When the timer is one and the upcoming word is a normal record, that means
-        // the upcoming field; otherwise it means the record eight bytes behind the pointer.
+        // Retail reads the previously installed record, even when the animation timer
+        // will expire later this frame. Reading ahead advances Spazer's trail spread early.
         ushort animationFrame = GetTrailAnimationFrame(bus, projectile);
         int direction = projectile.PackedDirection.DirectionIndex;
         int familyTable = (projectile.Type & 0x0020) != 0
@@ -295,12 +294,9 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         SamusProjectileSlot projectile)
     {
-        ushort pointer = projectile.InstructionPointer;
-        ushort upcomingWord = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | pointer);
-        int recordDelta = projectile.InstructionTimer == 1 && (upcomingWord & 0x8000) == 0
-            ? 0
-            : -8;
-        ushort frameAddress = unchecked((ushort)(pointer + recordDelta + 6));
+        // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
+        // The upstream C port's timer-one lookahead is absent from the pinned ROM.
+        ushort frameAddress = unchecked((ushort)(projectile.InstructionPointer - 2));
         return ReadWord(bus, SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 

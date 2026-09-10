@@ -1,6 +1,47 @@
 # #465 Shinespark storage and launch investigation
 
-Status: partial implementation; not yet awaiting player validation.
+Status: ready for player validation. Acceptance reviewed after ba5c6cf6.
+The sections below preserve chronological checkpoints; their statements of
+remaining work describe that checkpoint, not the current overall status.
+
+## Acceptance review
+
+All archived comparisons were rerun together against the current managed build.
+No gameplay cheats are enabled in the cartridge comparisons. Fixtures use the
+pinned NTSC ROM and disassembly documented in SHINESPARK-COMBO.md; PAL timing
+and other revisions are not claimed. Room geometry, initial state and input
+sequences are recorded in the individual sections and tracked native probes.
+
+| Required property | Current evidence |
+| --- | --- |
+| Storage admission, warning, expiry | 4,392 original-CPU records; signed counter boundary and all suit palettes |
+| Grounded direction timing | 216 held-input and 216 one-frame-tap cases, including adjacent failures |
+| Aerial initialization and held-button restrictions | 24 spin exits plus 48 held/release cases |
+| Standing/crouch Shot and angle exceptions | 96 actual input-established posture cases |
+| Airborne direction window | 216 cases; offsets 1..29 horizontal, 30 vertical timeout |
+| Energy and dry travel | 36 cases, health 1/28/29/30/31/99, both facings and three directions |
+| Liquid/sand travel | 12 water, 24 lava/acid, 24 inside-sand, 24 sand-entry and 24 liquid-exit cases |
+| Charged-shot storage extension | 2,178 complete-dispatch timer/palette records through expiry, zero to three glow seeds |
+| X-Ray cancellation | 12 real Run-input cases, six accepted and six rejected; source-cross-checked |
+| Crash/echo behavior | #466 full-runtime sequence: 11,688 matching records across 180 crashes |
+| Host invincibility | 24 separate full-runtime cases: health floor one, native high-energy trajectory, terrain termination |
+
+All entries pass. Core Verification also passed after the last production fix.
+Original-CPU captures were independently repeated before acceptance, and the
+comparators check exact poses, timers, positions, damage or palettes as described
+below, not merely absence of exceptions.
+
+Reproduced fixes: three omitted normal-jump stored-shine initialization paths;
+diagonal movement combining collision flags instead of retaining the last axis;
+X-Ray retaining stored shine; and charged-glow expiry incorrectly dispatching
+special palettes. Crash/echo ownership fixes are documented under #466.
+
+Limits: handler-boundary storage/glow seeds are explicit, not claimed as complete
+charge-building routes. X-Ray cancellation is a production-input regression with
+source cross-check, not a CPU input capture. Liquid crossings cover upward exits
+through fixed surfaces, not arbitrary moving liquid levels. These focused tests
+do not claim exhaustive room coverage. Existing player reports #371 and #374
+remain independently awaiting validation; this audit does not close them.
 
 ## Grounded held-forward input windows
 

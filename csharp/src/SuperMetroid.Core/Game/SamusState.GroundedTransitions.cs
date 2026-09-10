@@ -409,9 +409,12 @@ public sealed partial class SamusState
             _ => throw new InvalidDataException(
                 $"Moonwalk shot direction ${ReadShotDirection(bus):X2} is invalid for a stable moonwalk pose."),
         };
-        if (!IsMoonwalkingPose(Pose) || targetPose != expectedTarget)
+        byte inputTableTarget = IsFacingLeft(bus)
+            ? SamusPoseIds.MoonwalkTurnJumpLeftPose : SamusPoseIds.MoonwalkTurnJumpRightPose;
+        if (!IsMoonwalkingPose(Pose) || targetPose != expectedTarget && targetPose != inputTableTarget)
         {
-            // The target is determined completely by the native shot-direction table above.
+            // Input requests the un-aimed turn; the pose initializer then substitutes
+            // the old muzzle's aimed turn. Already-resolved diagnostic callers are valid too.
             throw new InvalidOperationException(
                 $"Moonwalk turn/jump ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
         }
@@ -420,7 +423,7 @@ public sealed partial class SamusState
         // uses the tag to admit the turning HUD producer and forcibly release charge.
         byte sourceShotDirection = ReadShotDirection(bus);
         FoldExtraRunSpeedIntoBaseAndStartTurn();
-        ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Moonwalk turn/jump");
+        ApplySimpleGroundedPoseChange(bus, Pose, expectedTarget, "Moonwalk turn/jump");
         PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceShotDirection));
     }
 
@@ -524,7 +527,7 @@ public sealed partial class SamusState
     /// first publish generic `$25/$26`; the initializer indexes the previous pose's shot
     /// direction through `$91:F9C2` and may replace it with `$8B-$8E/$9C/$9D`.
     /// </summary>
-    public void ApplyGroundedTurn(ISnesAddressSpace bus, byte targetPose)
+    public void ApplyGroundedTurn(ISnesAddressSpace bus, byte targetPose, ushort controllerInput = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
 
@@ -571,6 +574,16 @@ public sealed partial class SamusState
         {
             throw new InvalidOperationException(
                 $"Grounded turn ${Pose:X2} -> ${targetPose:X2} is not a verified transition.");
+        }
+
+        // F8F9 checks held Jump, not a fresh press. Releasing Shoot from a buffered
+        // Moonwalk selects a generic turn in the input table, then reaches this same
+        // turn/jump initializer without a new Jump edge.
+        if (wasMoonwalking && (controllerInput & (ushort)SnesButton.A) != 0)
+        {
+            ApplyMoonwalkTurnJump(bus, turnsLeft
+                ? SamusPoseIds.MoonwalkTurnJumpLeftPose : SamusPoseIds.MoonwalkTurnJumpRightPose);
+            return;
         }
 
         // `$91:F8D3` reads the PREVIOUS pose record before it installs the final turn art.

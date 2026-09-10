@@ -484,7 +484,10 @@ public sealed partial class SamusState
         if (!IsAirborneMorphBallPose(Pose) && !IsGroundedMorphBallPose(Pose))
             throw new InvalidOperationException($"Morph-Ball landing requires airborne pose $31/$32, not ${Pose:X2}.");
 
-        if (MorphBallBounceState == 0 && Kinematics.YSpeed >= 3)
+        // The cartridge tests the sign of a word subtraction, not an unsigned
+        // magnitude. Moonfall's negative velocity therefore lands without a rebound.
+        if (MorphBallBounceState == 0 &&
+            unchecked((short)(Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
             MorphBallBounceState = 1;
             Kinematics.YDirection = 1;
@@ -550,7 +553,8 @@ public sealed partial class SamusState
         }
 
         byte bounce = unchecked((byte)MorphBallBounceState);
-        if (bounce == 0 && Kinematics.YSpeed >= 3)
+        if (bounce == 0 &&
+            unchecked((short)(Kinematics.YSpeed - SamusMovementRomData.FirstBallBounceMinimumSpeed)) >= 0)
         {
             MorphBallBounceState = 0x0601;
             Kinematics.YDirection = 1;
@@ -972,8 +976,8 @@ public sealed partial class SamusState
             (SamusPoseIds.TurningRightToLeftFallingAimDiagonalUpPose, SamusPoseIds.FallingAimDiagonalUpLeftPose) or
             (SamusPoseIds.TurningLeftToRightFallingAimDiagonalUpPose, SamusPoseIds.FallingAimDiagonalUpRightPose) or
             // `$91:B45B-$B478` ends every moonwalk turn/jump delay list with command
-            // `$F8,$1A/$19`. Unlike an aerial turn, this is the first actual airborne pose,
-            // so the special branch below also creates the dry-air jump velocity.
+            // `$F8,$1A/$19`. Super-special selection runs F433, but skips F404's
+            // later jump initialization. Its unchanged vertical direction permits Moonfall.
             (SamusPoseIds.MoonwalkTurnJumpLeftPose or SamusPoseIds.MoonwalkTurnJumpAimUpLeftPose or
                 SamusPoseIds.MoonwalkTurnJumpAimDownLeftPose, SamusPoseIds.SpinJumpLeftPose) or
             (SamusPoseIds.MoonwalkTurnJumpRightPose or SamusPoseIds.MoonwalkTurnJumpAimUpRightPose or
@@ -1032,8 +1036,9 @@ public sealed partial class SamusState
             // same radius and animation writes as native `$91:F404/$91:FB08`.
             Drained.CompleteRelease();
         }
-        if (startsMoonwalkJump)
-            SamusAerialMovement.InitializeJump(bus, this);
+        // Super-special command three does not run FBBB/FC99. An input-table
+        // transition out of the same turn art DOES initialize jump velocity; keeping
+        // those two routes distinct preserves both ordinary jumping and Moonfall.
         MorphBallBounceState = 0;
         AnimationFrameTimer = unchecked((ushort)(AnimationFrameTimer + commandAnimationBuffer));
         return true;

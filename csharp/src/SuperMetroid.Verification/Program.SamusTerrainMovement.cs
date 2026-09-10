@@ -1488,12 +1488,12 @@ static void VerifySamusMoonwalking()
         "moonwalk terminal spin transition applies");
     AssertEqual(SamusPoseIds.SpinJumpLeftPose, animated.Pose,
         "moonwalk terminal command enters spin jump");
-    AssertEqual(4, animated.Kinematics.YSpeed,
-        "moonwalk terminal command loads dry-air jump speed");
-    AssertEqual(0xe000, animated.Kinematics.YSubspeed,
-        "moonwalk terminal command loads dry-air jump subspeed");
-    AssertEqual(1, animated.Kinematics.YDirection,
-        "moonwalk terminal command begins upward motion");
+    AssertEqual(0, animated.Kinematics.YSpeed,
+        "moonwalk animation command bypasses jump-speed initialization");
+    AssertEqual(0, animated.Kinematics.YSubspeed,
+        "moonwalk animation command preserves vertical subspeed");
+    AssertEqual(0, animated.Kinematics.YDirection,
+        "moonwalk animation command preserves direction-none for Moonfall");
 
     Console.WriteLine("  Moonwalk: option gate, six stable routes, reversed X, fallback, and $BF-$C4 jump art agree.");
 }

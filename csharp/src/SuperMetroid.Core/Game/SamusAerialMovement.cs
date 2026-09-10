@@ -472,11 +472,6 @@ public static class SamusAerialMovement
         if (movementType is not (SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling) ||
             !isTranslatedTurnPose)
             throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
-        if (samus.Kinematics.YDirection == 0)
-        {
-            throw new InvalidOperationException(
-                $"Airborne turn pose ${samus.Pose:X2} has no Y direction; grounded aimed turns use the separate no-speed path.");
-        }
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -500,13 +495,14 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = 2;
         }
 
-        AerialMovementResult result = FinishVerticalMovement(
-            bus,
-            level,
-            samus,
-            horizontal,
-            nmiFrameCounter,
-            plms: plms);
+        // CheckAndMoveY selects the no-speed probe for direction zero even in
+        // airborne turn art. Moonfall therefore pauses gravity during its turn;
+        // this is the same branch used by grounded aimed crouching turns.
+        AerialMovementResult result = samus.Kinematics.YDirection == 0
+            ? new AerialMovementResult(horizontal,
+                SamusGroundedMovement.RunNoSpeedCalculationGroundingProbe(bus, level, samus, nmiFrameCounter, plms),
+                false, false)
+            : FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
         // or trigger landing presentation. The shared upward mover still owns

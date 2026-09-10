@@ -2973,7 +2973,6 @@ public sealed partial class SuperMetroidRuntime
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkingPose(poseAtFrameStart) ||
-                     SamusState.IsMoonwalkTurnJumpPose(poseAtFrameStart) ||
                      poseAtFrameStart is SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose ||
                      SamusState.IsRanIntoWallPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingCrouchingPose(poseAtFrameStart) ||
@@ -3206,7 +3205,7 @@ public sealed partial class SuperMetroidRuntime
                                 // Its own ROM transition table maps Left/Right to generic
                                 // `$25/$26`; `$91:F8D3` recognizes old pose `$00/$9B` and
                                 // preserves that target without inventing a source facing.
-                                Samus.ApplyGroundedTurn(_addressSpace, targetPose);
+                                Samus.ApplyGroundedTurn(_addressSpace, targetPose, Controller1.Current);
                                 break;
                             case var (rightSource, rightTarget)
                                 when rightTarget is
@@ -3228,7 +3227,7 @@ public sealed partial class SuperMetroidRuntime
                                       SamusState.IsLeftFacingRanIntoWallPose(leftSource) ||
                                       SamusState.IsLeftFacingCrouchingPose(leftSource) ||
                                       SamusState.IsLeftFacingLandingPose(leftSource)):
-                                Samus.ApplyGroundedTurn(_addressSpace, targetPose);
+                                Samus.ApplyGroundedTurn(_addressSpace, targetPose, Controller1.Current);
                                 break;
                             case var (source, target)
                                 when ((SamusState.IsRightFacingStandingPose(source) ||

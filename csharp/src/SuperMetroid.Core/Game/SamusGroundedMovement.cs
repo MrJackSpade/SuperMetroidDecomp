@@ -643,7 +643,7 @@ public static class SamusGroundedMovement
     /// Ports <c>Samus_Move_NoSpeedCalc_Y</c> at <c>$90:923F</c>, including the external-Y
     /// replacement path and its asymmetric positive one-pixel bias.
     /// </summary>
-    private static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
+    internal static BlockMoveResult RunNoSpeedCalculationGroundingProbe(
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,

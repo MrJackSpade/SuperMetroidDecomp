@@ -605,6 +605,30 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
     AssertEqual(SamusPoseIds.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
 
+    // F1FC/F25E branch on the sign of the wrapping word subtraction speed-3.
+    // Include negative Moonfall speed and the subtraction's signed-wrap boundary,
+    // not just an ordinary positive landing where unsigned comparison looks equivalent.
+    foreach ((ushort impactSpeed, bool rebounds) in new (ushort, bool)[]
+        { (2, false), (3, true), (0xffff, false), (0x8002, true), (0x8003, false) })
+    foreach (bool springEquipped in new[] { false, true })
+    {
+        var impact = new SamusState
+        {
+            Pose = springEquipped ? SamusPoseIds.SpringBallFallingRightPose : SamusPoseIds.MorphBallFallingRightPose,
+            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall |
+                (springEquipped ? SamusEquipmentFlags.SpringBall : 0)),
+        };
+        impact.RefreshCollisionRadii(bus);
+        impact.InitializeAnimation(bus);
+        impact.Kinematics.YSpeed = impactSpeed;
+        bool grounded = springEquipped
+            ? impact.ApplySpringBallLanding(bus, controllerInput: 0)
+            : impact.ApplyMorphBallLanding(bus);
+        AssertEqual(!rebounds, grounded, $"ball landing signed threshold {impactSpeed:X4}, spring={springEquipped}");
+        AssertEqual(rebounds ? (springEquipped ? 0x0601 : 1) : 0, impact.MorphBallBounceState,
+            "signed threshold preserves the selected bounce family");
+    }
+
     // Bank-$93 projectile fixtures copied byte-for-byte from the normal-bomb pointer/data
     // records and its slow, fast, and explosion instruction lists. The production code
     // must follow these pointers; no test-facing constructor is allowed to inject damage,

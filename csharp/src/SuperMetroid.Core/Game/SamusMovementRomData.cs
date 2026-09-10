@@ -9,6 +9,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusMovementRomData
 {
+    /// <summary>$91:F1FC/$F25E ball-landing handlers: signed whole-speed threshold for the first automatic bounce.</summary>
+    public const short FirstBallBounceMinimumSpeed = 3;
+
     /// <summary>$90:A3C1, SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
     public const ushort StandingShotAnimationTimer = 16;
 

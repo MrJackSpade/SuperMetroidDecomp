@@ -6,7 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
-    <Compile Include="../SuperMetroid.RenderVerification/NativeConsoleErrors.cs" Link="NativeConsoleErrors.cs" />
-    <Compile Include="../SuperMetroid.Game/GameForm.cs" Link="GameForm.cs" />
   </ItemGroup>
+  <Import Project="../../test-support/StateFixtures.projitems" />
+  <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

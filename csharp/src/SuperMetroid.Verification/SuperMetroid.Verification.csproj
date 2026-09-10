@@ -4,11 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
     <Compile Include="../../tools/ProductionMagicNumberAudit.cs" Link="ProductionMagicNumberAudit.cs" />
-    <Compile Include="../SuperMetroid.Android/AndroidControllerPreferences.cs" Link="AndroidControllerPreferences.cs" />
-    <Compile Include="../SuperMetroid.Android/AndroidRunPolicy.cs" Link="AndroidRunPolicy.cs" />
-    <Compile Include="../SuperMetroid.Android/AndroidSettingDefinitions.cs" Link="AndroidSettingDefinitions.cs" />
   </ItemGroup>
 </Project>

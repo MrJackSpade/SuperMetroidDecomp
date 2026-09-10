@@ -48,8 +48,23 @@
         "resolved": "2.1.0",
         "contentHash": "KK+SjNSuKdP+zbavekubi+vaeb1Jo4k87ZF6CMkVWjr6RjJwc8peVtmgzXXDIMy4ZC3ZISyk3llY3q65ISOkBQ=="
       },
+      "supermetroid.assetextraction": {
+        "type": "Project",
+        "dependencies": {
+          "SuperMetroid.Core": "[1.0.0, )"
+        }
+      },
       "supermetroid.core": {
         "type": "Project"
+      },
+      "supermetroid.desktop": {
+        "type": "Project",
+        "dependencies": {
+          "SuperMetroid.AssetExtraction": "[1.0.0, )",
+          "SuperMetroid.Core": "[1.0.0, )",
+          "SuperMetroid.Diagnostics": "[1.0.0, )",
+          "SuperMetroid.Rendering.Direct3D11": "[1.0.0, )"
+        }
       },
       "supermetroid.diagnostics": {
         "type": "Project",

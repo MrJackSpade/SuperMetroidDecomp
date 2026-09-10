@@ -5,6 +5,21 @@ This directory contains the actively developed, cartridge-backed C# translation.
 or use the commands below from this directory. The playable build is fully managed and requires
 the .NET 10 SDK; it no longer builds or deploys a native audio DLL or requires the C++ workload.
 
+`SuperMetroid.slnx` includes all 11 non-Android projects, grouped as apps, libraries, tools,
+and verification. `SuperMetroid.Full.slnx` includes all 12 projects and requires the Android
+workload. See the [current project inventory](../docs/project-inventory.md) for ownership and
+the [shared test support](test-support/README.md) for fixture imports.
+
+Portable import validation is explicitly ROM-free:
+
+```powershell
+dotnet run --project src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
+```
+
+Add a private ROM path and optional reference-audio directory after `--asset-import` for full
+installation tests. Other integration commands retain their flags; the default integration
+suite requires the private ROM and extracted audio in the repository working directory.
+
 This file is the authoritative high-level status summary. Detailed Samus movement coverage,
 original routine addresses, and focused verification evidence live in
 [`MOVEMENT_COVERAGE.md`](MOVEMENT_COVERAGE.md). A translated focused audit proves the named

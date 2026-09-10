@@ -1,0 +1,5 @@
+<Project>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)StateFixtures/DebuggerFixtureLoader.cs" Link="TestSupport/StateFixtures/DebuggerFixtureLoader.cs" />
+  </ItemGroup>
+</Project>

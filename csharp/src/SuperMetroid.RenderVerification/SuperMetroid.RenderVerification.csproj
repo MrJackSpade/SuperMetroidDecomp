@@ -5,16 +5,13 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../SuperMetroid.DebugRunner/MinimapBlinkAudit.cs" Link="Fixtures/MinimapBlinkAudit.cs" />
-    <Compile Include="../SuperMetroid.DebugRunner/MapCrossViewAudit.cs" Link="Fixtures/MapCrossViewAudit.cs" />
-    <Compile Include="../SuperMetroid.DebugRunner/KraidAuditDefinitions.cs" Link="Fixtures/KraidAuditDefinitions.cs" />
-    <Compile Include="../SuperMetroid.DebugRunner/DoorTransitionAuditDefinitions.cs" Link="Fixtures/DoorTransitionAuditDefinitions.cs" />
+    <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
     <Content Include="../../test-fixtures/issue-321-tile-byte-selection/frame.smframe" Link="fixtures/tile-byte-selection.smframe" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <!-- Debugger graphs are shared with Android; consume their owning assembly
          instead of linking files from the former Windows-only location. -->
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
-    <Compile Include="../SuperMetroid.Desktop/ManagedSpcAudioEngine.cs" Link="HostAudio/ManagedSpcAudioEngine.cs" />
-    <Compile Include="../SuperMetroid.Desktop/ExtractedAudioAssetLocator.cs" Link="HostAudio/ExtractedAudioAssetLocator.cs" />
     <ProjectReference Include="../SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
   </ItemGroup>
+  <Import Project="../../test-support/RenderFixtures.projitems" />
+  <Import Project="../../test-support/WindowsConsole.projitems" />
 </Project>

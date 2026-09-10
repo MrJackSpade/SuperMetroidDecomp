@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/Apps/">
     <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />
+    <Project Path="src/SuperMetroid.Android/SuperMetroid.Android.csproj" />
   </Folder>
   <Folder Name="/Tools/">
     <Project Path="src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj" />

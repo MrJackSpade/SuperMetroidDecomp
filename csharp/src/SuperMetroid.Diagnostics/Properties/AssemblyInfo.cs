@@ -8,3 +8,4 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SuperMetroid.DebugRunner")]
 [assembly: InternalsVisibleTo("SuperMetroid.IntegrationVerification")]
 [assembly: InternalsVisibleTo("SuperMetroid.RenderVerification")]
+[assembly: InternalsVisibleTo("SuperMetroid.Verification")]

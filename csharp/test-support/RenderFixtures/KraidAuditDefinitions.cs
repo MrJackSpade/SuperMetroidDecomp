@@ -5,6 +5,15 @@
 /// </summary>
 internal static class KraidAuditDefinitions
 {
+    /// <summary>Incoming door $83:91B6, entering Kraid's lower-left screen.</summary>
+    public const ushort EntryDoor = 0x91b6;
+
+    /// <summary>First gameplay scanline below the HUD in the entry-wrap reproduction.</summary>
+    public const int EntryCeilingBandTop = 32;
+
+    /// <summary>Exclusive bottom of the 16-pixel entry-wrap observation band.</summary>
+    public const int EntryCeilingBandBottom = 48;
+
     /// <summary>Left edge of issue #268's formerly corrupt post-growth BG2 rectangle.</summary>
     public const int ArtifactRegionLeft = 48;
 

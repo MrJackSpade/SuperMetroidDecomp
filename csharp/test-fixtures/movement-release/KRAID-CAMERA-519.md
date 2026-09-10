@@ -1,19 +1,35 @@
 # Kraid entry-jump camera (#519)
 
-Affected player version: 0.1.1. Camera failure reproduced and missing cartridge
-integration fixed; the reported wrapped-body pixels still need focused coverage.
+Affected player version: 0.1.1. Camera movement and the reported visible body wrap
+are reproduced, with a rendered regression that fails when the fix is removed.
 
 `--kraid-camera-audit ROM` loads the actual incoming door 83:91B6 and room A59F,
-places Samus on the lower floor, restores the door's Y=256 camera, and holds Jump
-for 35 frames followed by 55 neutral frames. Grounded debug placement itself
+places Samus on the safe entrance ledge at X=48, restores the door's Y=256 camera,
+and repeats 35 Jump frames followed by 55 neutral frames ten times (900 frames).
+Grounded debug placement itself
 adjusts the camera, so restoring the entry position before simulation is required.
-The fixture asserts that Samus actually jumps, the initial four scroll bytes,
-camera distance index, and both camera Y extrema across the entire sequence.
+The fixture asserts NormalJumping movement and actual upward travel, the initial
+four scroll bytes, camera distance index, and both camera Y extrema.
 
-Before: scrolls [2,2,1,1], camera minimum 226. After: [0,0,1,0], camera stays at
-256 throughout. Samus moves from Y=427 to minimum 382 and ends at 395. The corrected
-fixture was rerun with just the initializer scroll write temporarily removed and
-failed again at Y=226; the production write was restored afterward.
+This supersedes the initial 90-frame fixture: its floor search placed Samus beneath
+the spikes, potentially mixing damage recoil into the jump. The safe-ledge fixture
+has Samus Y=395 -> 323 -> 395. With only the initializer scroll write removed,
+scrolls are [2,2,1,1] and camera Y reaches 166. With the write restored, initial
+scrolls are [0,0,1,0] and camera Y remains exactly 256 throughout.
+
+Every frame is rendered through GameplayDisplayCapture and the software layered
+snapshot renderer. A second render of the identical immutable packet disables
+only BG2, isolating Kraid's visible body contribution. The first 16 gameplay
+scanlines below the HUD (Y=32..47) must have no body pixels throughout this
+undamaged first-phase sequence. Without the initializer write, the new pixel
+assertion fails: 250425 pixel-frame differences, first visible at frame 13.
+With the write restored, there are zero differences across all 900 frames.
+
+`kraid-camera-519-v1.zip` preserves the visually inspected frame-13 captures:
+`wrapped.png` shows the erroneous green body strip above the ceiling; `frame13.png`
+shows the same jump frame with the camera locked and no body strip. Full filenames
+carry the `kraid-camera-519-` prefix. These are production-renderer captures from
+the real room with diagnostic placement, not screenshots from an original emulator.
 
 Root cause: InitAI_Kraid's A7:A9E4-A9F4 camera distance and scroll writes were
 missing. Growth's C0A1 release only set a diagnostic flag with no runtime consumer.
@@ -30,6 +46,9 @@ not a claim to have driven a controller-only route through the battle.
 
 Validation: clean DebugRunner build; entry-jump camera test; full Kraid encounter;
 900 original-CPU lint records and three runtime rides; core verification suite.
-No new original-CPU camera trajectory capture or #519 wrapped-body pixel comparison
-yet. Leave #519 open without awaiting-player-validation until that acceptance work
-is complete. #520's hand disappearance remains separate and unresolved.
+The added 900-frame rendered audit builds without warnings, fails on the removed
+write, and passes after restoration. Camera constraints and activation/release
+timing are cross-checked against the pinned cartridge sources above; no new
+original-CPU camera trajectory capture is claimed. Keep #519 open for player
+confirmation with awaiting-player-validation. #520's hand disappearance remains
+separate and unresolved.

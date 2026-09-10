@@ -104,7 +104,36 @@ Two original-CPU captures match. Regenerate with
 This covers the stated held/release sequences, not every grounded restriction,
 crouch exception, airborne input window, or subsequent energy/liquid travel.
 
-## Storage admission and palette-owned expiry
+## Dry travel, energy threshold, and diagonal wall collision
+
+`native-spark-energy-probe.h` constructs the same floor plus ceiling row zero
+and walls at columns zero/fifteen. Storage is seeded at frame 20, Jump held
+from 24, and horizontal/diagonal direction from 28; vertical uses windup timeout.
+Initial health is 1/28/29/30/31/99, both facings, all three directions: 36 cases.
+Capture ends at native crash entry, with a 96-frame cap. Version 1's 64-frame
+cap was rejected because high-energy vertical sparks had not hit the ceiling.
+The comparator requires every case to end in crash entry and compares every
+pose, shine/windup timer, 16.16 X/Y, health and crash-entry flag.
+
+Two diagonal high-energy cases initially failed: native slides upward against
+the wall until vertical collision, while managed crashed at first wall contact.
+Native X and Y movement overwrite a shared collision flag; Y runs last. The
+managed OR of both axis results incorrectly retained the earlier wall collision.
+Production now uses the final executed axis's result, preserving this cartridge
+behavior. All 36 cases match after the fix. Energy itself needed no change:
+30 drains to 29 after moving, then the next frame moves before ending; values
+already below 30 move once and end without draining. Collision at higher energy
+still drains on the crash-entry frame. Cheats are off in this native comparison.
+
+Accepted CSV in `spark-energy-465-v2.zip`, SHA-256
+`E33BA87405556B25520B2DF9B8A3E428295A4D7AA51F980981F0FB25D02C2BDE`.
+Two captures match. Regenerate using `native-spark-energy-entrypoint.patch`
+and bounded/dialog-free `--diagnostic-spark-energy ROM NEW.csv`; compare with
+`--spark-energy-audit ROM CSV`. Temporary native hooks removed.
+Liquid/sand travel and remaining launch restriction/window coverage are still
+outstanding. This fixture does not validate the separate invincibility override.
+
+## Storage admission and palette-owned expiry (handler capture)
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

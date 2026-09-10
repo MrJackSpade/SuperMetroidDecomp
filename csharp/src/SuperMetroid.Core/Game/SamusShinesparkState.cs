@@ -319,7 +319,11 @@ public sealed class SamusShinesparkState
         if (Phase is ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal)
             vertical = MoveY(bus, level, samus, nmiFrameCounter, plms);
 
-        bool collided = horizontal is { Collided: true } || vertical is { Collided: true };
+        // Native X and Y movement share one collision flag. Diagonal movement runs Y
+        // last, so a clear vertical probe replaces an earlier wall hit and allows the
+        // spark to slide upward. Combining both results would terminate a retail spark
+        // early; use the last executed axis, including when its result is clear.
+        bool collided = vertical?.Collided ?? horizontal?.Collided ?? false;
         // The host cheat bypasses only the energy exit. Terrain/enemy collision still
         // terminates all three launch directions through the ordinary crash handler.
         bool hasNativeEnergy = unchecked((short)(samus.Health -

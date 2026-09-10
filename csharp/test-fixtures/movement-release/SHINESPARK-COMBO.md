@@ -3,6 +3,45 @@
 Status: retained-word crash entry fixed; full combo/echo integration remains
 incomplete. No awaiting-player-validation label.
 
+## Shared-ownership reproduction (currently failing)
+
+`native-spark-ownership-probe.h` executes both boundary orders for all four
+ordinary combo families: FireSBA then crash finish, and crash finish then
+FireSBA. It records each allocation and 20 updates of only the still-installed
+departing echo handlers. Combo motion is deliberately not advanced in this
+boundary fixture; the family motion audits cover it separately. This is not
+yet an end-to-end controller reachability proof.
+
+The original CPU confirms three distinct properties:
+
+- Combo first: count four admits only echo slot four and increments count to
+  five. Viewport loss decrements it back to four.
+- Echo first: FireSBA overwrites slot three and resets count to four, while
+  leaving slot four's echo allocated. Losing that echo decrements count to
+  three. The counter is not derived from the number of nonempty slots.
+- Overwriting slot three does NOT clear its separate echo drawing enable or
+  X/Y words. Its old echo handler no longer runs, so retained Y remains 128 in
+  this fixture. Drawing enable is not synonymous with projectile ownership.
+
+`--spark-ownership-audit ROM CSV` exercises the corresponding production
+allocation/update boundaries and compares counter, slot-three/four types,
+drawing enables and coordinates. Current result: **152 mismatches / 176
+records**, affecting both orders and all four families. This exposes the
+remaining separate-echo storage defect and intentionally returns nonzero.
+No production behavior was changed for this checkpoint.
+
+Two captures are byte-identical. Accepted CSV in `spark-ownership-466-v1.zip`,
+SHA-256 `25FFBFE7013658F9123ED41F67928C3A410EDD256E450B160432654C0F251D5F`.
+Use `native-spark-ownership-entrypoint.patch` and the bounded/dialog-free
+`--diagnostic-spark-ownership ROM NEW.csv` entrypoint to regenerate. Temporary
+native hooks were removed after capture. The managed audit is hash-gated.
+
+Implementation must integrate allocation/counter/pre-instruction ownership
+into ordinary projectile slots while keeping echo drawing words independent.
+Do not clear those words just because a combo replaces its slot, or continue
+advancing an echo whose slot now has a different pre-instruction. Whole-reset
+clearing and successive crash sequences remain additional required coverage.
+
 ## Released-radius checkpoint
 
 Original `$90:D40D` initializes projectile X velocity (released radius) to zero,

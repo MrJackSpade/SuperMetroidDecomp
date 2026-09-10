@@ -1067,6 +1067,9 @@ if (args.Length is 3 or 4 && args[0] == "--kraid-death-capture")
     return result;
 }
 
+if (args.Length is 3 or 4 && args[0] == "--fake-kraid-cadence")
+    return FakeKraidCadenceAudit.Run(args[1], args[2], args.Length == 4 ? args[3] : null);
+
 if (args.Length == 2 && args[0] == "--kraid-camera-audit")
     return KraidCameraAudit.Run(args[1]);
 

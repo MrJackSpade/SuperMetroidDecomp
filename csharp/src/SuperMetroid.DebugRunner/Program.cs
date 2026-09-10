@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-corrosive-audit")
+    return SparkCorrosiveAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--spark-water-audit")
     return SparkEnergyAudit.Run(args[1], args[2], water: true);
 if (args.Length == 3 && args[0] == "--spark-energy-audit")

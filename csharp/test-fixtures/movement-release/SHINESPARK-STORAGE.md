@@ -151,7 +151,32 @@ Regenerate using `native-spark-water-entrypoint.patch` and bounded/dialog-free
 Temporary native hooks removed. The comparator rejects truncated cases that
 have not reached crash entry. Gameplay cheats are disabled for this fixture.
 
-## Storage admission and palette-owned expiry
+## Lava and acid travel plus fractional damage
+
+`native-spark-corrosive-probe.h` uses the enclosed travel room with lava/acid
+surface at Y=8, health/max health 999, and Gravity absent/present. Three
+directions, both facings and four liquid/equipment combinations yield 24 cases.
+The normal animation FX handler and periodic-damage routine execute every
+frame, alongside movement, transitions and palette processing. The managed
+comparison uses the full gameplay dispatcher with matching liquid configuration.
+Every pose, timer, 16.16 position, health, fractional health and crash flag matches.
+No production change was necessary.
+
+Lava cancels extra-run momentum before its Gravity check; acid does not. The
+extremely slow horizontal lava sparks exhausted the initial 512-frame capture
+without crashing, so that fixture was rejected. Version 2 allows 1200 frames
+and requires every case to reach collision/energy termination. No cheat or
+health refill is used. This verifies sustained immersion, not surface crossings.
+
+Two captures match. Accepted CSV in `spark-corrosive-465-v2.zip`, SHA-256
+`E779CABF32F0C8AB9E457583E22555638113DC1BBD80030A7906339C76B68638`.
+Regenerate with `native-spark-corrosive-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-corrosive ROM NEW.csv`; compare with
+`--spark-corrosive-audit ROM CSV`. Temporary native hooks removed.
+Sand, liquid-boundary crossings and remaining launch restrictions still need
+coverage before #465 is ready for player validation.
+
+## Storage admission and palette-owned expiry (handler capture)
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

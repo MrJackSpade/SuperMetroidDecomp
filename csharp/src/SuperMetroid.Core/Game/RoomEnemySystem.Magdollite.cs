@@ -408,10 +408,14 @@ public sealed partial class RoomEnemySystem
         MagdolliteEnemyState state,
         SamusState? samus)
     {
+        // The native arm reads velocity at X-$40: the preceding head owns the
+        // population speed parameter. The arm's own parameter is zero in retail.
+        (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
+        MagdolliteEnemyState speedOwner = RequireMagdolliteState(head);
         int wholeDelta = AddMagdolliteY(
             body,
-            state.NegativeSpeedWhole,
-            state.NegativeSpeedFraction);
+            speedOwner.NegativeSpeedWhole,
+            speedOwner.NegativeSpeedFraction);
         state.VerticalWholeDisplacement = unchecked((ushort)(
             state.VerticalWholeDisplacement + wholeDelta));
 
@@ -449,10 +453,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         MagdolliteEnemyState state)
     {
+        (RoomEnemySlot speedHead, _, _) = RequireMagdolliteComposite(body);
+        MagdolliteEnemyState speedOwner = RequireMagdolliteState(speedHead);
         int wholeDelta = AddMagdolliteY(
             body,
-            state.PositiveSpeedWhole,
-            state.PositiveSpeedFraction);
+            speedOwner.PositiveSpeedWhole,
+            speedOwner.PositiveSpeedFraction);
         state.VerticalWholeDisplacement = unchecked((ushort)(
             state.VerticalWholeDisplacement + wholeDelta));
 

@@ -117,7 +117,8 @@ public static class SamusInsideBlockReactions
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
     public static bool ReactCollision(ISnesAddressSpace bus, SamusKinematicsState body,
-        RoomCollisionBlock block, bool vertical, ref int displacement, out bool surfaceContact)
+        RoomCollisionBlock block, bool vertical, ref int displacement, out bool surfaceContact,
+        SamusCollisionDirection? blockReactionDirection = null)
     {
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
@@ -134,7 +135,11 @@ public static class SamusInsideBlockReactions
         }
         if (setup != QuicksandRomData.SurfaceCollision || !vertical) return false;
         int direction = body.YDirection & 3;
-        if (direction == 1 || (direction != 2 && displacement < 0)) return false;
+        SamusCollisionDirection reactionDirection = blockReactionDirection ??
+            (displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down);
+        // Stationary/unused vertical states require actual downward collision. Falling
+        // remains eligible even during direction-$F pose checks, exactly as B4C4 branches.
+        if (direction == 1 || (direction != 2 && reactionDirection != SamusCollisionDirection.Down)) return false;
         if (body.SamusOwner?.HorizontalSpeed.ContactDamageIndex == 1)
         {
             displacement = 0;

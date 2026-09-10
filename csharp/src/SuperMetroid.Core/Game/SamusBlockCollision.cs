@@ -568,7 +568,7 @@ public static partial class SamusBlockCollision
                         if (block.CollisionType == RoomCollisionType.SpecialAir)
                         {
                             collided = SamusInsideBlockReactions.ReactCollision(bus, state, block, true,
-                                ref acceptedDisplacement, out bool touchedSand);
+                                ref acceptedDisplacement, out bool touchedSand, blockReactionDirection);
                             sandContact |= touchedSand;
                             if (collided) collisionBlock = block;
                         }
@@ -719,7 +719,9 @@ public static partial class SamusBlockCollision
         }
 
         state.SetYFixed(unchecked(state.YFixed + (uint)acceptedDisplacement));
-        if (publishQuicksandGrounding && displacement > 0 && sandContact)
+        // $94:9763 publishes sand contact after either signed movement direction.
+        // Pose probes instead consume only the block handler's carry result.
+        if (publishQuicksandGrounding && sandContact)
             collided = true;
         return new BlockMoveResult(
             acceptedDisplacement,

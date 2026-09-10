@@ -270,3 +270,29 @@ landings and rejecting off-center ones. The managed fixture exercises the same
 vertical dispatcher used by pose expansion; it does not claim to reproduce a full
 player pose-transition trajectory. Hand/sand controls and ceiling-contact sequences
 remain outstanding.
+
+## Vertical quicksand direction (#463)
+
+`native-sand-probe.h`, `native-sand-probe-entrypoint.patch`, and
+`sand-probe-463-v1.zip` compare ordinary `$94:9763` movement with `$94:96AB`
+observations at the Maridia surface-sand entry. The 32-case matrix covers both
+signed displacements, all four vertical-direction states, ordinary/probe identity
+and contact-damage indices zero/one. Two independent captures have SHA256
+`17601C2854F9699AE262AE02E969DCFD2F087A432151266B82DC102985FDC400`.
+Commands: native `--diagnostic-sand-probe ROM CSV`, managed
+`--sand-probe-audit ROM CSV`. Same pinned ROM/source revisions as above.
+
+Before the fix there were five displacement/collision mismatches: stationary
+direction-$F probes incorrectly inherited downward sinking/clamping or collision,
+and ordinary upward displacement lost the sand-contact carry when vertical state
+was falling. The native B4C4 setup requires direction three for stationary states,
+but its falling branch remains active for direction F. The managed reaction now
+receives that direction identity, and ordinary vertical movement publishes sand
+contact for either displacement sign, as `$94:9763` does.
+
+All 32 cases now match absolute accepted displacement and collision. The shared
+reaction's separate sand-contact output is also checked against the native flag,
+including falling probes that report sand but return carry clear. This is a
+dispatcher comparison using a live Samus owner; it does not cover the pose-copy
+owner/contact-damage wiring or the horizontal sand-probe path. Those remain open
+alongside the hand and ceiling-contact coverage gates.

@@ -62,6 +62,8 @@ if (args.Length == 3 && args[0] == "--station-probe-audit")
     return StationProbeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--save-probe-audit")
     return SaveProbeComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--sand-probe-audit")
+    return SandProbeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-trigger-audit")
     return PoseTriggerComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-crumble-audit")

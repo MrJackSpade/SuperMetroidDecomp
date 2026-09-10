@@ -642,6 +642,12 @@ public sealed partial class SamusState
                 includeSolidEnemies: includeSolidEnemies, plms: plms,
                 publishQuicksandGrounding: false,
                 blockReactionDirection: SamusCollisionDirection.NonDirectionalProbe);
+            // Submerging sand clears native speed/gravity even during an observation.
+            // Preserve these reaction writes without committing the probe's position.
+            Kinematics.YSpeed = probe.YSpeed;
+            Kinematics.YSubspeed = probe.YSubspeed;
+            Kinematics.YAcceleration = probe.YAcceleration;
+            Kinematics.YSubacceleration = probe.YSubacceleration;
             // Native block dispatch clamps the live fractional Y word even for a
             // changed-pose observation. Preserve that write, but never copy the
             // probe's whole-position movement into the live body.
@@ -679,6 +685,7 @@ public sealed partial class SamusState
 
     private static SamusKinematicsState CopyKinematics(SamusKinematicsState source) => new()
     {
+        ProbeContactDamageIndex = source.CollisionContactDamageIndex,
         CollisionPose = source.CollisionPose,
         XPosition = source.XPosition,
         XSubposition = source.XSubposition,

@@ -296,3 +296,30 @@ including falling probes that report sand but return carry clear. This is a
 dispatcher comparison using a live Samus owner; it does not cover the pose-copy
 owner/contact-damage wiring or the horizontal sand-probe path. Those remain open
 alongside the hand and ceiling-contact coverage gates.
+
+## Full pose-change sand inputs and writes (#463)
+
+`native-pose-sand-probe.h`, `native-pose-sand-entrypoint.patch`, and
+`pose-sand-463-v1.zip` run original `$91:F404` for falling down-aim to ordinary
+falling (`$2D -> $29`). 104 cases cover thirteen vertical gaps, both scan parities,
+surface/submerging sand and contact-damage modes zero/one. Samus starts at X=136,
+Y=150-gap, Y fraction `$3456`, vertical speed `$0005:4000`, gravity `$0001:3000`,
+base X speed `$0001:4000`, falling direction and no solid enemies. The isolated
+sand tile is row ten/column eight, Maridia type-three BTS `$80` or `$83`.
+
+Two original-CPU captures match SHA256
+`9157D53D347C8A15441BCAD2F355090B39B6281C8B47093702E1C80A31C783F1`.
+Native command `--diagnostic-pose-sand ROM CSV`; managed
+`--pose-sand-audit ROM CSV`, through `TryApplyCompactAerialTransition` rather than
+direct collision. Same ROM/source pins as above. Every case asserts X/Y/subpixels,
+final pose, vertical speed/subspeed and gravity/subgravity.
+
+Before the fix, 54 cases failed. Ownerless geometry copies lost contact damage,
+so surface collision failed to adjust the expanding body's center. Submerging
+sand cleared speed/gravity on the copy but those native side effects were thrown
+away. The copy now snapshots only the needed contact-damage input, and the caller
+copies back the four speed/gravity words after each vertical observation, without
+committing speculative position. It remains ownerless to avoid implicitly enabling
+other owner-dependent reactions. All 104 cases match after the fix. This closes
+the vertical pose-copy sand gap; horizontal sand probes, hand checks and moving
+ceiling-contact sequences remain outstanding.

@@ -140,7 +140,7 @@ public static class SamusInsideBlockReactions
         // Stationary/unused vertical states require actual downward collision. Falling
         // remains eligible even during direction-$F pose checks, exactly as B4C4 branches.
         if (direction == 1 || (direction != 2 && reactionDirection != SamusCollisionDirection.Down)) return false;
-        if (body.SamusOwner?.HorizontalSpeed.ContactDamageIndex == 1)
+        if (body.CollisionContactDamageIndex == 1)
         {
             displacement = 0;
             return true;

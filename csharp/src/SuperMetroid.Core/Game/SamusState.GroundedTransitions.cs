@@ -269,7 +269,11 @@ public sealed partial class SamusState
             level,
             Kinematics,
             onePixelForward,
-            plms: plms);
+            plms: plms,
+            // $91:EB48 calls bank $94 directly. The ordinary bank-$90 wrapper
+            // also aligns Y to slopes, but arm pumping deliberately does not.
+            // That pure horizontal shift can lose support on descending slopes.
+            alignToSlopeAfterMovement: false);
         return onePixelProbe.Value.Collided
             ? SelectRanIntoWallPose(bus, target)
             : null;

@@ -100,7 +100,8 @@ public static partial class SamusBlockCollision
         int displacement,
         bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,
-        bool publishDoorSideEffects = true)
+        bool publishDoorSideEffects = true,
+        bool alignToSlopeAfterMovement = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -365,13 +366,16 @@ public static partial class SamusBlockCollision
         state.SetXFixed(unchecked(state.XFixed + (uint)acceptedDisplacement));
 
         // $90:9350/$90:93B1 call $94:87F4 after both collision and non-collision paths.
+        // Direct bank-$94 callers (notably the prospective-running-pose probe)
+        // omit that wrapper step and must retain the unaligned whole-pixel Y.
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             bus,
             level,
             state.XPosition,
             state.YPosition,
             state.YRadius,
-            horizontalSlopeCollisionEnabled: (state.HorizontalSlopeCollisionEnable & 2) != 0);
+            horizontalSlopeCollisionEnabled: alignToSlopeAfterMovement &&
+                (state.HorizontalSlopeCollisionEnable & 2) != 0);
         state.YPosition = alignment.YPosition;
         // $94:87F4 only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. $90:923F consumes it before

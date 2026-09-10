@@ -3,6 +3,21 @@
 Reviewed September 10, 2026, against committed revision
 `945d1ac4c40082a8edbd6f30686c71b2f8f7579d`.
 
+Implementation progress: the first cleanup step has moved the 12 standalone desktop
+smoke-test files and the embedded keyboard smoke test into DesktopVerification, along with
+their audit dispatch and private-ROM locator. The player retains its actual-entry-point DPI
+probe. The inventory and counts below describe the original reviewed baseline; subsequent
+consolidation steps remain recommendations.
+
+The separation passed clean Game/DesktopVerification publishes, identical production-DLL
+checks, metadata checks excluding smoke-test types/verification references, the real Game
+DPI probe, six moved host audits, hidden software/GPU lifecycle tests and timer soak.
+Managed audio (30 scenarios / 4,560 frames), pause audio, cartridge audio and waveOut audits
+also passed. The metadata guard correctly rejects the pre-refactor Desktop assembly.
+The legacy `--state-audit` still fails loading a preserved fixture with a 46-versus-47-field
+SuperMetroidGame mismatch; the same failure was reproduced with the pre-refactor player
+build. That existing compatibility issue was not changed or hidden by this separation.
+
 ## Recommendation
 
 Keep the seven production projects. Consolidate two pairs of developer/test executables,

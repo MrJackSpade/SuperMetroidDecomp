@@ -23,6 +23,7 @@ internal static partial class Program
             started = true;
             try
             {
+                if (DesktopSmokeAuditCommands.TryRun(args)) return;
                 VerifyAudioQueueHealth();
                 if (args is ["--statue-entry-audit"])
                 {

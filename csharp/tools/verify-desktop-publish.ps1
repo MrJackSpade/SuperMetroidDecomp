@@ -18,7 +18,7 @@ foreach ($entry in @(
 
 # Verification must exercise exactly the assemblies delivered with the game,
 # not a second build that merely uses the same source names.
-foreach ($assembly in @('SuperMetroid.Core.dll', 'SuperMetroid.Desktop.dll', 'SuperMetroid.Rendering.Direct3D11.dll')) {
+foreach ($assembly in @('SuperMetroid.Core.dll', 'SuperMetroid.Desktop.dll', 'SuperMetroid.Rendering.Direct3D11.dll', 'SuperMetroid.Diagnostics.dll', 'SuperMetroid.AssetExtraction.dll')) {
     $gameHash = (Get-FileHash -LiteralPath (Join-Path $gameOutput $assembly) -Algorithm SHA256).Hash
     $testHash = (Get-FileHash -LiteralPath (Join-Path $verificationOutput $assembly) -Algorithm SHA256).Hash
     if ($gameHash -ne $testHash) { throw "Published dependency differs: $assembly" }
@@ -30,33 +30,32 @@ $audioSource = Join-Path $repository 'standalone-assets/audio'
 if (-not (Test-Path -LiteralPath (Join-Path $audioSource 'audio-manifest.json'))) {
     throw 'Extract audio assets before qualifying desktop packaging.'
 }
-$audioFiles = @(Get-ChildItem -LiteralPath $audioSource -File -Recurse)
-foreach ($source in $audioFiles) {
-    $relative = $source.FullName.Substring($audioSource.Length).TrimStart('\', '/')
-    $expected = (Get-FileHash -LiteralPath $source.FullName -Algorithm SHA256).Hash
-    foreach ($output in @($gameOutput, $verificationOutput)) {
-        $copy = Join-Path (Join-Path $output 'audio') $relative
-        if (-not (Test-Path -LiteralPath $copy)) { throw "Missing packaged audio: $copy" }
-        if ((Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash -ne $expected) {
-            throw "Packaged audio differs: $copy"
-        }
-    }
+foreach ($output in @($gameOutput, $verificationOutput)) {
+    $bundled = @(Get-ChildItem -LiteralPath $output -File -Recurse | Where-Object {
+        $_.Extension -in @('.smc', '.sfc', '.spcu', '.wav', '.smstate', '.smrec') -or $_.Name -eq 'audio-manifest.json'
+    })
+    if ($bundled.Count) { throw "Publish bundled private game/test content: $($bundled[0].FullName)" }
 }
-Write-Output "Verified $($audioFiles.Count) audio asset hashes in both packages."
+Write-Output 'Verified clean publishes contain no ROM, extracted audio, or private state/recording files.'
 
 Push-Location $gameOutput
 try {
-    foreach ($audit in @('--unhandled-exception-console-audit', '--viewport-layout-audit', '--keyboard-input-audit', '--dpi-awareness-audit')) {
-        dotnet ./SuperMetroid.Game.dll $audit
-        if ($LASTEXITCODE -ne 0) { throw "Published game failed $audit" }
-    }
+    # This probe intentionally stays in Game: it checks the real executable's generated startup policy.
+    dotnet ./SuperMetroid.Game.dll --dpi-awareness-audit
+    if ($LASTEXITCODE -ne 0) { throw 'Published game failed its DPI startup probe.' }
 } finally { Pop-Location }
 
-# The hidden desktop checks use an isolated ROM and published audio content.
-# Running here prevents repository-relative asset discovery from hiding omissions.
+# Private fixtures belong only in the test output, after checking both clean packages.
+Copy-Item -LiteralPath $audioSource -Destination (Join-Path $verificationOutput 'audio') -Recurse
 Copy-Item -LiteralPath (Join-Path $repository 'Super Metroid.smc') -Destination (Join-Path $verificationOutput 'Super Metroid.smc')
 Push-Location $verificationOutput
 try {
+    dotnet ./SuperMetroid.DesktopVerification.dll --production-assembly-audit (Join-Path $gameOutput 'SuperMetroid.Game.dll') (Join-Path $gameOutput 'SuperMetroid.Desktop.dll')
+    if ($LASTEXITCODE -ne 0) { throw 'Published player assemblies contain verification code.' }
+    foreach ($audit in @('--unhandled-exception-console-audit', '--viewport-layout-audit', '--keyboard-input-audit', '--github-error-reporter-audit', '--input-batch-audit', '--frame-timing-audit')) {
+        dotnet ./SuperMetroid.DesktopVerification.dll $audit
+        if ($LASTEXITCODE -ne 0) { throw "Published desktop verification failed $audit" }
+    }
     dotnet ./SuperMetroid.DesktopVerification.dll
     if ($LASTEXITCODE -ne 0) { throw 'Published desktop lifecycle checks failed.' }
     dotnet ./SuperMetroid.DesktopVerification.dll --soak-desktop-hidden 5

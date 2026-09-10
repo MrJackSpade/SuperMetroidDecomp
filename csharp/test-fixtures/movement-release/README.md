@@ -59,7 +59,7 @@ included in this fixture.
 
 ### Host catch-up input regression
 
-`SuperMetroid.Game --input-batch-audit` separately exercises the exact batch owner
+`SuperMetroid.DesktopVerification --input-batch-audit` separately exercises the exact batch owner
 used by `PlayableGameControl`. Its synthetic clock advances 20 ms inside each
 frame while a gamepad press lasts from 10 to 30 ms. The original once-per-batch
 poll returned `[0,0,0]`; per-frame polling returns `[0,Left,0]`. The regression

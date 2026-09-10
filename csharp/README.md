@@ -74,6 +74,29 @@ See [build and packaging](D3D11_BUILD.md), [coverage and performance](RENDERER_M
 and the [remaining acceptance gates](RENDERER_ACCEPTANCE_AUDIT.md). Issue #321 is
 not yet fully qualified. RDP reconnect testing is explicitly deferred by the user.
 
+### Development smoke audits
+
+Development smoke audits now run through `SuperMetroid.DesktopVerification`, rather than
+the player executable. Their argument names and ROM/recording parameters are unchanged:
+
+```powershell
+dotnet run --project src/SuperMetroid.DesktopVerification -- --keyboard-input-audit
+dotnet run --project src/SuperMetroid.DesktopVerification -- --viewport-layout-audit
+dotnet run --project src/SuperMetroid.DesktopVerification -- --frame-timing-audit
+```
+
+Other migrated switches are `--unhandled-exception-console-audit`, `--github-error-reporter-audit`,
+`--input-batch-audit`, `--state-audit`, `--audio-input-replay-audit`,
+`--full-audio-input-replay-audit`, `--recorded-pause-audio-audit`, `--waveout-audit`,
+`--audio-audit`, `--managed-audio-audit`, and `--pause-audio-audit`.
+`SuperMetroid.Game --replay` remains the player replay command. Its small
+`--dpi-awareness-audit` probe also remains, to verify the actual Game startup policy.
+
+`csharp/tools/verify-desktop-publish.ps1`, run from the repository root, checks clean
+player/test publishes, identical production dependencies, absence of test types and bundled
+game assets, moved smoke commands, and hidden desktop lifecycle/presentation. Private ROM
+and audio fixtures are copied only into the isolated verification output after packaging checks.
+
 ### Controls
 
 | Keyboard | SNES input | Game use |
@@ -200,7 +223,7 @@ ROM and SRAM bytes, and is therefore not suitable for distribution.
 The headless deterministic round-trip audit is:
 
 ```powershell
-dotnet run --project src/SuperMetroid.Game -- --state-audit "..\Super Metroid.smc"
+dotnet run --project src/SuperMetroid.DesktopVerification -- --state-audit "..\Super Metroid.smc"
 ```
 
 ## Implementation coverage
@@ -331,28 +354,28 @@ live BRR, a PCM loop repeats decoded frames rather than reapplying BRR predictor
 loop boundary, which is the intentional seam that makes arbitrary replacement audio possible.
 
 ```powershell
-dotnet run --project src/SuperMetroid.Game -- --managed-audio-audit
+dotnet run --project src/SuperMetroid.DesktopVerification -- --managed-audio-audit
 ```
 
 For a non-device smoke test that loads the private ROM, runs the real initial upload/music
 sequence, and proves the mixer produced nonzero PCM:
 
 ```powershell
-dotnet run --project src/SuperMetroid.Game -- --audio-audit "..\Super Metroid.smc"
+dotnet run --project src/SuperMetroid.DesktopVerification -- --audio-audit "..\Super Metroid.smc"
 ```
 
 To exercise the Windows `waveOut` queue beyond its six-buffer capacity without a ROM or an
 audible test tone, run:
 
 ```powershell
-dotnet run --project src/SuperMetroid.Game -- --waveout-audit
+dotnet run --project src/SuperMetroid.DesktopVerification -- --waveout-audit
 ```
 
 To replay an always-on controller journal through the managed SPC without opening the window
 or an audio endpoint (useful when an SFX handshake appears to block a door transition):
 
 ```powershell
-dotnet run --project src/SuperMetroid.Game -- --audio-input-replay-audit `
+dotnet run --project src/SuperMetroid.DesktopVerification -- --audio-input-replay-audit `
   "..\input-recordings\SuperMetroid-input-YYYYMMDD-HHMMSS-fff.smrec" `
   "..\Super Metroid.smc"
 ```

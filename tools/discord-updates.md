@@ -51,6 +51,31 @@ and link embeds are disabled. The entire message must fit 2,000 characters.
 The CLI waits for Discord's message receipt before advancing. It serializes all
 commands with an OS file lock and writes state by atomic replacement.
 
+## After every successful push
+
+Repeat the `next` → inspect → write summary → preview → post → verify receipt
+workflow until `next` returns `caught-up`, then hand control back to the user.
+One push may require many updates. Each iteration still exposes and announces
+only the oldest unposted commit. Catch-up requests resume the existing cursor;
+do not initialize again or replay previously posted history. Recurring posting
+of repository text other than API keys is already authorized by the user.
+
+Install this repository's tracked reminder once per clone:
+
+```powershell
+git config --get core.hooksPath
+# If another hook path or active .git/hooks scripts exist, preserve/integrate
+# those hooks before changing this setting.
+git config core.hooksPath .githooks
+git hook run pre-push
+```
+
+Git has no client-side `post-push` hook. `.githooks/pre-push` prints instructions
+for the model to follow after the push succeeds. It does not send messages or
+start a model, and a failed push does not trigger the posting workflow. The
+reminder runs on ordinary `git push` invocations with hooks enabled; `--no-verify`
+bypasses it. `AGENTS.md` requires the drain loop regardless of reminder output.
+
 ## Tracker and recovery
 
 `status` shows the last processed commit, count, and any uncertain delivery. The

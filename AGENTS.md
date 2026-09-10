@@ -6,15 +6,19 @@
   unposted published commit. Follow `tools/discord-updates.md` for connection and
   recovery. The queue starts at the first commit and targets server
   `1547270817312809112`, channel `1547271407476408411`.
-- After each completed change is verified, committed, and successfully pushed,
-  post one Discord version update before handing control back to the user. The
-  user has authorized this recurring posting workflow; do not ask again.
+- After every successful push, drain all unposted published commits before
+  handing control back to the user. The user has authorized this recurring
+  posting workflow and repo text other than API keys; do not ask again.
 - Run `next`, inspect only the exposed commit, write a concise plain-language
   summary of that version, preview it, and post with its full SHA. While historical
   commits remain, announce the oldest unposted commit, even when it differs from
-  the commit just pushed. Post one queued update per completed change; do not
-  drain the backlog unless the user explicitly requests it. If caught up, no post
-  is needed. Explicit requests to post an update use this same workflow.
+  the commit just pushed. After each confirmed post, run `next` again and repeat
+  this loop until it returns `caught-up`. Do not stop after one update. Catch-up
+  requests resume the existing tracker; never restart from the first commit.
+  If already caught up, no post is needed.
+- Install the tracked push reminder with `git config core.hooksPath .githooks`
+  as described in `tools/discord-updates.md`. Its `pre-push` output reminds the
+  model to perform this loop AFTER the push succeeds; it does not post itself.
 - Do not enumerate later commits, skip ahead, or use raw webhooks to bypass the
   tracker. Verify the delivery receipt and report any posting failure at handoff;
   do not treat a failed or uncertain send as a completed announcement.

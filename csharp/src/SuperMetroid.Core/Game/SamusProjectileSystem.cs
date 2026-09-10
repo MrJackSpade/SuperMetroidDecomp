@@ -182,8 +182,9 @@ public sealed partial class SamusProjectileSystem
     /// This belongs to the Samus palette handler, not charge-flare drawing. On hardware the
     /// main thread edits palette-buffer colors 192-207 and a later NMI uploads them. The
     /// software PPU exposes CGRAM directly, so the same words are written at this phase.
-    /// The runtime still executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
-    /// handlers afterward, preserving `$91:D708-$D721`'s ability to replace this result.
+    /// The runtime executes special Speed Booster/Screw/Shinespark/Crystal Flash/X-ray
+    /// handlers afterward unless glow expiry returns the normal-suit restoration action.
+    /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
     /// </remarks>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
         ISnesAddressSpace bus,

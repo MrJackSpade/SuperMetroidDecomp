@@ -297,6 +297,30 @@ dialog-free `--diagnostic-spark-aerial-window ROM NEW.csv`; compare with
 The discarded v1 held Aim Up, selecting diagonal immediately; it is not timing
 window evidence and is not archived. Charged-shot lifetime remains to inspect.
 
+## Charged-shot glow expiry pauses stored shine
+
+The original `$91:D6F7` dispatcher skips its special-palette handler when
+`HandleBeamChargePalettes` returns carry on glow expiry. Our runtime ran special
+handlers unconditionally, decrementing stored shine and overwriting the restored
+suit palette on that frame. The runtime now skips those handlers on the existing
+`RestoredNormalSuit` result; miscellaneous/hurt palette handling still runs.
+
+`native-shine-charge-probe.h` seeds post-shot glow (4) at frames 20, 70, 120
+for zero through three shots, in each suit. It executes the complete original
+palette dispatcher. The managed comparison seeds only the same glow value and
+uses full `StepFrame`; neither countdown nor palette dispatch is mocked.
+Nine shot cases first failed at frame 23 before the fix. All 2,178 frames through
+native storage expiry now match shine/glow timers, special kind/frame, and all
+16 palette words. Expiry takes 180, 181, 182, or 183 updates respectively.
+Post-expiry handler-zero behavior is not part of this fixture. This isolates
+post-shot interaction, not charge-building or projectile creation.
+
+Two captures agree. `shine-charge-465-v1.zip` contains the CSV with SHA-256
+`7A829405877C9D40FCEB1C6792D20FADD0CF4C51B40396ED1EF43B3098C4FFE7`.
+Regenerate via `native-shine-charge-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-shine-charge ROM NEW.csv`; compare with `--shine-charge-audit ROM CSV`.
+Temporary native hooks removed. Source cross-check: pinned bank 91, D708-D721.
+
 ## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans

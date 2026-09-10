@@ -3946,6 +3946,7 @@ public sealed partial class SuperMetroidRuntime
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
             LastHurtFlashPaletteStep = default;
             LastVisorPaletteStep = default;
+            bool chargeGlowRestoredNormalPalette = false;
             if (!deathOwnsSamus && !drainedOwnsSamusPalette)
             {
                 // `$91:D708` always runs charge/post-shot handling before dispatching the
@@ -3958,8 +3959,14 @@ public sealed partial class SuperMetroidRuntime
                     Samus,
                     LayerBlendingDefaultConfig);
                 LastVisorPaletteStep = Projectiles.LastVisorPaletteStep;
+                // Native carry from HandleBeamChargePalettes bypasses the entire special
+                // dispatcher on glow expiry. In particular, stored shine must not tick
+                // or overwrite the restored suit on this frame.
+                chargeGlowRestoredNormalPalette =
+                    LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
 
-                Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
+                if (!chargeGlowRestoredNormalPalette)
+                    Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(
                     _addressSpace,
                     Cgram,
                     Samus.ReadMovementType(_addressSpace),
@@ -3974,9 +3981,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus.LiquidPhysics.IsBottomBoundarySubmerged(Samus));
             }
             // Palette handlers one and six run at the same `$91:D6F7` dispatch point. They
-            // intentionally execute after a cancellation-requested normal copy and replace
-            // it with the stored/spark palette in this visible frame.
-            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
+            // execute only when charge handling returned carry clear.
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 Samus.Shinespark.UpdatePalette(
                     _addressSpace,
@@ -3986,7 +3992,7 @@ public sealed partial class SuperMetroidRuntime
             // Handler seven owns all sixteen colors of sprite palette six during Crystal
             // Flash. It is mutually exclusive with shinespark/X-ray special handlers but
             // intentionally runs at the same `$91:D6F7` dispatch point.
-            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 Samus.CrystalFlash.UpdatePalette(
                     _addressSpace,
@@ -3995,7 +4001,7 @@ public sealed partial class SuperMetroidRuntime
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.
-            if (!deathOwnsSamus && !drainedOwnsSamusPalette)
+            if (!deathOwnsSamus && !drainedOwnsSamusPalette && !chargeGlowRestoredNormalPalette)
             {
                 Samus.Xray.UpdatePalette(
                     _addressSpace,

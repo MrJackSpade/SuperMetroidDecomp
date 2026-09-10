@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--shine-charge-audit")
+    return ShineChargeAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--spark-aerial-window-audit")
     return SparkAerialAudit.Run(args[1], args[2], window: true);
 if (args.Length == 3 && args[0] == "--spark-ground-restrictions-audit")

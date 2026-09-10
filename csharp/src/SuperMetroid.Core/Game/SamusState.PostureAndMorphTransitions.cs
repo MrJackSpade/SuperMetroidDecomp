@@ -643,6 +643,7 @@ public sealed partial class SamusState
         ArgumentNullException.ThrowIfNull(level);
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
+            IsRightFacingLandingPose(Pose) || IsLeftFacingLandingPose(Pose) ||
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
             IsMoonwalkingPose(Pose) ||
             IsMoonwalkTurnJumpPose(Pose) ||

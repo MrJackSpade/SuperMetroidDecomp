@@ -2961,7 +2961,8 @@ public sealed partial class SuperMetroidRuntime
                 // unobstructed upward platform carry publishes result zero at `$90:E606`
                 // and must leave the pose alone; treating every non-collision as result two
                 // made rising Kamers repeatedly alternate falling and landing. For admitted
-                // standing, running, and stable crouching types, data zero at `$90:E65A`
+                // standing (including landing art), running, and stable crouching types,
+                // data zero at `$90:E65A`
                 // selects airborne family zero and `$91:E8F2` chooses falling art.
                 // Turn types `$0E/$17` contain `$04` (no pose change) in that literal table;
                 // they finish `$F8`, then the destination pose detects the missing floor.
@@ -2970,6 +2971,8 @@ public sealed partial class SuperMetroidRuntime
                         { Vertical.IsUnobstructedDownwardMovement: true } &&
                     (SamusState.IsRightFacingStandingPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingStandingPose(poseAtFrameStart) ||
+                     SamusState.IsRightFacingLandingPose(poseAtFrameStart) ||
+                     SamusState.IsLeftFacingLandingPose(poseAtFrameStart) ||
                      SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsLeftFacingRunningPose(poseAtFrameStart) ||
                      SamusState.IsMoonwalkingPose(poseAtFrameStart) ||

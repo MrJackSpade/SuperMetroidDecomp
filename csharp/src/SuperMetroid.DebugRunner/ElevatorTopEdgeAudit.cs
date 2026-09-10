@@ -47,7 +47,11 @@ internal static class ElevatorTopEdgeAudit
         while (transition.IsActive && frame < 600)
         {
             var phase = transition.Phase;
+            ushort beforeCameraY = runtime.Camera!.YPosition;
             transition.Step(runtime, audio, 0);
+            if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette &&
+                runtime.Camera.YPosition != beforeCameraY)
+                throw new InvalidDataException($"Door fade ran gameplay camera: {beforeCameraY} -> {runtime.Camera.YPosition} during {phase}.");
             Capture(phase.ToString());
         }
         if (transition.IsActive) throw new InvalidDataException("Elevator transition timed out.");

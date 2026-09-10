@@ -1,6 +1,7 @@
 # Upward Blue Brinstar elevator top-edge reproduction (#516)
 
-Affected version: **0.1.1**. Reproduced, not fixed; no validation label yet.
+Affected version: **0.1.1**. Reproduced; one contributing scheduling defect is
+fixed, but the remaining pixel failure is unresolved. No validation label yet.
 
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
@@ -35,7 +36,32 @@ does not prove that zero is the correct cartridge camera position.
 
 Local `csharp/test-temp/elevator-top-516-pixels` preserves the CSV and captured
 frames, including the visible feet (96), a later arrival frame (120), and
-settled state (224). Screenshots were not committed: GitHub reports the current
-repository as public, so publication needs separate confirmation. The Release
+settled state (224). Screenshots were not committed: the repository is public
+and the player has instructed us not to publish screenshots. The Release
 build passes; the diagnostic's intentional failure remains visible in the CLI.
-No gameplay fix or issue closure is claimed.
+## Partial fix: camera tracking during the fade
+
+The pre-fix trace held camera Y=32 at the end of the opening IRQ and through
+the music wait. At HandleTransition it abruptly became zero. The destination
+OAM build calls the full runtime frame, inadvertently running normal camera
+tracking. In contrast, native `$82:E737` runs enemy/draw owners without invoking
+`MainScrollingRoutine` (`$90:94EC`). This was a scheduler mismatch, not a missing
+Y-clipping rule in Samus's OAM writer.
+
+Normal camera tracking now observes the existing `$0795` door-transition gate.
+Despite its legacy elevator-oriented property name, the gate covers all ordinary
+doors as well. Camera Y now stays 32 through the fade; the first resumed arrival
+frames reduce it 30,28,...,0 rather than snapping it to zero before gameplay.
+The audit explicitly asserts unchanged camera Y across HandleTransition and
+each destination-fade step.
+
+The same actual-room pixel reproduction drops from 186 to **3** differences,
+first at frame 112 rather than 96. It still fails and the ticket remains open
+without an awaiting-player-validation label. Do not regard this partial fix as
+proof that clipping, camera tracking, or the player's full symptom is resolved.
+The remaining three pixels require comparison with native arrival/draw timing.
+
+The Release build, full Core verification, elevator frontend handoff audit, and
+forty-frame spin-door native comparison (#517) pass with the scheduling change.
+The #516 fade-camera assertion passes; its independent pixel assertion still
+fails with the three differences above.

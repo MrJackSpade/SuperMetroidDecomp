@@ -3810,7 +3810,11 @@ public sealed partial class SuperMetroidRuntime
                 }
             }
 
-            if (!deathOwnsSamus)
+            // $82:E737's destination fade runs enemy/draw owners but not $90:94EC.
+            // Its shared $0795 gate is set for ordinary doors as well as elevators.
+            // Running the normal camera here consumes the upward IRQ's +32 offset
+            // before arrival resumes, exposing wrapped Samus art above the room.
+            if (!deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive)
             {
                 if (LevelData is null || BackgroundStreamer is null)
                     throw new InvalidOperationException("Gameplay camera tracking requires active room stream data.");

@@ -54,12 +54,12 @@ internal static class StationProbeComparisonAudit
 }
 
 /// <summary>Authored station population; station definitions and setup remain retail.</summary>
-internal sealed class StationProbePopulation(ISnesAddressSpace inner, ushort header, byte column) : ISnesAddressSpace
+internal sealed class StationProbePopulation(ISnesAddressSpace inner, ushort header, byte column, byte row = 8) : ISnesAddressSpace
 {
     public byte ReadByte(int address)
     {
         int offset = address - RemoteItemFixtureData.PopulationAddress;
-        ReadOnlySpan<byte> list = [(byte)(header & 255), (byte)(header >> 8), column, 8, 0, 0, 0, 0];
+        ReadOnlySpan<byte> list = [(byte)(header & 255), (byte)(header >> 8), column, row, 0, 0, 0, 0];
         return (uint)offset < list.Length ? list[offset] : inner.ReadByte(address);
     }
     public void WriteByte(int address, byte value) => inner.WriteByte(address, value);

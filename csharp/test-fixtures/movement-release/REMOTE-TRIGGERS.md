@@ -245,3 +245,28 @@ fixture deliberately isolates the access tile from other station graphics; it
 does not claim a normal walljump can use a ran-into-wall pose. It verifies the
 shared dispatcher contract independently of current callers' pose restrictions.
 Vertical save/hand/sand checks remain a separate coverage gate.
+
+## Vertical save-access direction (#463)
+
+`native-save-probe.h`, `native-save-probe-entrypoint.patch`, and
+`save-probe-463-v1.zip` compare `$94:9763` downward movement with `$94:96AB`
+changed-pose observation. 80 cases cover real/probe direction, centered/off-center
+X, ten gaps and both scan parities. The seven-pixel displacement stays below the
+intermediate-probe threshold. The fixture isolates a resident save station's real
+setup-created access tile at row ten, column eight; Samus has standing pose one
+and radii five/twelve. It compares collision and actual owner activation, not the
+different position-commit contracts of the two entrypoints.
+
+Both native captures have SHA256
+`7DF0EFBAE344C53029170497C3A575363CBFFED8704F910EF3CB6C7657698120`.
+Native command `--diagnostic-save-probe ROM CSV`; managed
+`--save-probe-audit ROM CSV`. Same ROM/source pins as above.
+
+Before the fix, 16 centered direction-$F probes incorrectly activated the station.
+The vertical dispatcher already received the probe identity but only used it for
+crumble-block rejection. It now also rejects station setup before parent lookup,
+matching `$84:B590`. All 80 comparisons pass afterward, retaining ordinary centered
+landings and rejecting off-center ones. The managed fixture exercises the same
+vertical dispatcher used by pose expansion; it does not claim to reproduce a full
+player pose-transition trajectory. Hand/sand controls and ceiling-contact sequences
+remain outstanding.

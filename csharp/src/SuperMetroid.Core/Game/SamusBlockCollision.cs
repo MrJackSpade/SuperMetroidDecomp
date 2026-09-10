@@ -657,7 +657,10 @@ public static partial class SamusBlockCollision
                                 block.Index,
                                 block.Bts);
                         }
-                        if (block.Bts.TryGetStationAccess(out _) &&
+                        // Pose expansion carries native direction $F, not a downward
+                        // landing. Keep solidity without waking the save-station owner.
+                        if (blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
+                            block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
                                  block.Index,

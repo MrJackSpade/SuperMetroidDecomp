@@ -639,6 +639,15 @@ public sealed partial class RoomEnemySystem
                     ranActorAi = true;
                 }
                 if (!ranActorAi &&
+                    (slot.AiHandlerBits & 0x0002) != 0 &&
+                    slot.Definition.HurtAiPointer == EnemyAiCodePointers.BankA0.NoOp)
+                {
+                    // Native selects the lowest AI bit even when its handler is just
+                    // RTL. Hurt therefore delays frozen AI until flash housekeeping
+                    // clears bit two; falling through here prematurely clears flash.
+                    ranActorAi = true;
+                }
+                if (!ranActorAi &&
                     (slot.FrozenTimer != 0 || (slot.AiHandlerBits & 0x0004) != 0))
                 {
                     if (slot.EnemyDefinitionPointer == RinkaDefinition &&
@@ -670,6 +679,9 @@ public sealed partial class RoomEnemySystem
                         RunMetroidFrozen(slot);
                     if (slot.EnemyDefinitionPointer == YappingMawDefinition)
                         RunYappingMawFrozen(slot, RequireYappingMawState(slot));
+                    // The native frame clock advances after every selected AI call,
+                    // including frozen AI. Instruction gating below remains separate.
+                    ranActorAi = true;
                 }
                 else if (!ranActorAi)
                 {

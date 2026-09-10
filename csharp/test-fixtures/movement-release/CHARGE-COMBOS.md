@@ -1,7 +1,8 @@
 # Charge Beam Combo implementation evidence
 
-Current status: shared selection/timing/weapon ownership (#416) is ready for
-player validation. Family-specific combat and presentation tickets #417–#420
+Current status: shared selection/timing/weapon ownership (#416) and Ice Shield
+particle/freeze semantics (#417) are ready for player validation. Family-specific
+combat and presentation tickets #418–#420
 remain incomplete. The sections below record chronological checkpoints; later
 evidence supersedes the earlier statements of missing integration.
 
@@ -11,6 +12,51 @@ cases left PB=2 and charge=120. That failing witness is now a passing regression
 after the implementations and integration described below.
 
 ## Native dispatcher oracle
+
+### #417 full post-hit dispatch and acceptance
+
+`native-ice-thaw-probe.h` runs original EnemyMain `$A0:8FD4` for 420 calls
+after an actual Ice Shield contact. The target starts with 90 health and either
+normal freezable vulnerability `$02` or direct-freeze `$FF`. Ice remains enabled,
+or is removed at post-contact frame 0, 6, or 20. The actor uses the cartridge's
+common RTL main/hurt callbacks and common frozen callback: no custom gameplay
+AI is authored. Samus and remaining particles are moved out of contact range
+after the hit. Actor properties are normal, subpixels/RNG start zero, no cheats.
+
+The accepted v2 capture is archived in `ice-thaw-417-v2.zip`, SHA-256
+`D06ECE784E8E26534709254AE384503266516EDACB6A34586D6FCBCE0D5AB8D7`;
+two independent native captures match. An exploratory v1 used property `$0400`,
+which skips native invincibility decrement, and was replaced before production
+changes to keep this fixture focused on ordinary hurt/frozen dispatch.
+
+`IceThawAudit` compares health, freeze clock, AI bits, flash, invincibility and
+frame counter after every real managed enemy frame. All 3,360 frames failed
+before the fix. The managed dispatcher fell through the ordinary RTL hurt
+callback into frozen AI, prematurely clearing flash and decrementing freeze;
+it also failed to count frozen AI calls in the actor frame counter. Respecting
+the explicitly declared no-op hurt callback's priority and counting frozen
+calls fixes all 3,360 frames. Existing custom hurt handlers retain precedence.
+
+Regeneration uses `native-ice-thaw-entrypoint.patch`, the same pinned sources
+and ROM as other captures, and only the dialog-free command
+`sm.exe --diagnostic-ice-thaw ROM NEW.csv`. Managed comparison:
+`SuperMetroid.DebugRunner --ice-thaw-audit ROM ice-thaw-417-v2.csv`.
+Native hooks were removed after capture.
+
+Ice Shield acceptance evidence, all rerun at this checkpoint:
+
+| Required property | Evidence |
+| --- | --- |
+| Four particles through real charged input | Four-family activation-input audit; Ice activates at zero-based input frame 120 |
+| Orbit, release, hit consumption and timed sounds | 3,840 Ice motion frames, both facings, early/late contact and natural release |
+| Particle/trail animation and equipment changes | 5,120-frame shared OAM oracle, including 1,280 Ice frames and midflight beam changes |
+| 90 damage, lethal freezing, nonfreezable and frozen targets | 96-case Ice contact oracle, including Ice disabled after allocation |
+| Freeze sound and refreeze silence | Same contact oracle, exact library-three request and max-three capacity |
+| Natural expiration and equipment-removal recovery | 3,360-frame full EnemyMain oracle plus 16 callback-boundary cases |
+
+Full core verification also passes. These are pinned NTSC cartridge checks,
+not a PAL claim or a claim about every enemy-specific custom shot callback.
+#417 is ready for player confirmation; leave it open with the validation label.
 
 ### #417 Ice Shield contact and freeze audio
 

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--ice-thaw-audit")
+    return IceThawAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--ice-contact-audit")
     return IceContactAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--frozen-ai-audit")

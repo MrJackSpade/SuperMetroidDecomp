@@ -1,11 +1,14 @@
-# #416: Charge Beam Combo implementation evidence (incomplete)
+# Charge Beam Combo implementation evidence
 
-The live C# firing path increments charge to 120 but never invokes the native
-FireSBA dispatcher. Its projectile pre-instruction enum also lacks the four combo
-families. `--combo-activation-input-audit ROM` reproduces the missing handoff for
-Charge plus Wave, Ice, Spazer and Plasma with two Power Bombs and PB selected:
-130 held-Fire frames leave PB=2 and charge=120 in every case. This is an explicitly
-failing diagnostic, not a passing implementation test or full timing oracle.
+Current status: shared selection/timing/weapon ownership (#416) is ready for
+player validation. Family-specific combat and presentation tickets #417–#420
+remain incomplete. The sections below record chronological checkpoints; later
+evidence supersedes the earlier statements of missing integration.
+
+The initial reproduction found that live C# charge reached 120 without invoking
+FireSBA, and the four family pre-instructions were missing. All four held-Fire
+cases left PB=2 and charge=120. That failing witness is now a passing regression
+after the implementations and integration described below.
 
 ## Native dispatcher oracle
 
@@ -367,3 +370,49 @@ No gameplay correction was required for these admission/ownership checks.
 This covers admission and initial ownership, not sustained grapple/combo
 animation, audio ordering or every posture. Full charge release/turn/spin timing
 and integrated bomb-lifetime restrictions remain before #416 acceptance.
+
+## Combined input and lifetime checkpoint / #416 acceptance
+
+`--combo-input-sequence-audit ROM CSV` compares 23,680 original-CPU frames of
+$90:DCDD (cooldown, HUD dispatch and projectile updates together), using twelve
+normal beam combinations, PB stock 0/1/2 and initial charge 119. The 160-frame
+scripts cover continuous hold, twenty scripted spin frames, twenty scripted
+turn frames, and release followed by recharging. Four extra scripts activate
+each valid family then repeatedly attempt normal bombs every other frame.
+
+Both sides use an empty 16x32-block room, Samus at (128,128), zero subpositions,
+Bombs/Morph equipment, Charge plus the selected beam, and no cheats or enemies.
+Poses are prescribed to isolate HUD admission rather than testing movement or
+the duration of a physical turnaround. Native screen dimensions are 1x2, matching
+the block dimensions; a rejected v2 diagnostic omitted these dimensions and
+therefore skipped bomb terrain handling. Only corrected v3 is accepted.
+
+Every frame matches charge, previous-charge sample, PB ammo, selected item,
+ordinary/bomb counts, cooldown and all ten projectile type words. With initial
+charge 119, ordinary hold activates at frame 1; the prescribed twenty-frame
+spin/turn intervals defer it to frame 21. Release/recharge activates at frame
+121. Repeated bombs agree through fuse, explosion, deletion and reallocation.
+
+- `combo-input-416-v3.zip`, CSV SHA256:
+  `CC8511EA8A9BAD9E0CBD36616D8D3CBE82A98AEE8C533A906F45B28FA70F20FA`.
+- Same pins; two identical original-CPU captures; ROM hash rechecked.
+- `native-combo-input-entrypoint.patch`; only bounded/dialog-free invocation:
+  `sm.exe --diagnostic-combo-input ROM NEW.csv`.
+- Temporary hooks removed and reapplication checked.
+
+### Shared-ticket requirement coverage
+
+| #416 requirement | Evidence |
+| --- | --- |
+| Four valid families, selected PB and one-PB debit | 432-case allocation oracle; real held-input activation; combined alpha trace |
+| Charge threshold, hold/release and spin/turn delay | 23,680 per-frame comparisons plus zero-charge runtime activation witness |
+| Invalid normal combinations and insufficient ammo | All twelve normal selections and 0/1/2 PB, including native forced-empty-selection behavior |
+| Equipment changes preserve active ownership | 5,120-frame draw/type trace with mid-flight equipment changes |
+| Beam/missile restrictions | Combined charge/particle trace and 96-case full missile-producer oracle |
+| One normal bomb, PB admission and resource ownership | 512-case bomb producer oracle plus repeated bombs through expiration in the combined trace |
+| Grapple allowed alongside combo | 32 native cases and four real Select/Shoot runtime handoffs |
+
+Out-of-table Spazer+Plasma glitch loadouts remain the explicit #395–#399 scope,
+not normal beam selection. Boss-specific damage, freeze/piercing particulars,
+final palette/VRAM rendering and full audio presentation remain with #417–#420.
+No family ticket is declared ready by the shared #416 acceptance checkpoint.

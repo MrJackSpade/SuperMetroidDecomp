@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--combo-input-sequence-audit")
+    return ComboInputSequenceAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--combo-grapple-audit")
     return ComboGrappleAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--bomb-admission-audit")

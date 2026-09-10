@@ -43,6 +43,8 @@ public sealed partial class RoomEnemySystem
     private ushort _randomEnemyCounter;
     private SnesVram? _vram;
     private SnesCgram? _cgram;
+    // Live dependency supplied by EnemyMain, shared by ordinary and custom touch callbacks.
+    private SamusProjectileSystem? _samusProjectilesForEnemyFrame;
     private RidleyEnemyState? _ridleyState;
     private SporeSpawnEnemyState? _sporeSpawn;
     private bool _processAllEnemies;
@@ -179,6 +181,7 @@ public sealed partial class RoomEnemySystem
         _bus = bus;
         _gunshipLoadScenario = gunshipLoadScenario;
         _samusAtEnemyInitialization = samus;
+        _samusProjectilesForEnemyFrame = null;
         _nextRandom = nextRandom;
         _samusForEnemyDrops = samus;
         // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
@@ -468,6 +471,7 @@ public sealed partial class RoomEnemySystem
     {
         EnsureLoaded();
         _samusForEnemyDrops = samus;
+        _samusProjectilesForEnemyFrame = samusProjectiles;
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.

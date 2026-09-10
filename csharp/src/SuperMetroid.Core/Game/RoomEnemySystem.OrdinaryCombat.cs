@@ -2916,6 +2916,15 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
+        // The cartridge consumes charge before checking vulnerability. Even immune
+        // contact removes Pseudo Screw's flare; genuine Screw Attack does not.
+        if (contactDamageIndex == 4)
+        {
+            SamusProjectileSystem projectiles = _samusProjectilesForEnemyFrame
+                ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
+            projectiles.ConsumePseudoScrewCharge(_bus!, _cgram!, samus);
+        }
+
         ushort baseDamage = contactDamageIndex switch
         {
             1 => 500,  // Speed Booster

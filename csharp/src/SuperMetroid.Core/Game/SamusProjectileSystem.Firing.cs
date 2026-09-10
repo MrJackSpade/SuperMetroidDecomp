@@ -25,6 +25,20 @@ public sealed partial class SamusProjectileSystem
     public void CancelChargeForBombSpread()
         => CancelCharge();
 
+    /// <summary>
+    /// Native Samus command four ($90:F19B/$90:F19E): consume Pseudo Screw charge,
+    /// clear its visible flare and restore the normal suit palette. Unlike HUD
+    /// cancellation, this does not rewrite the previous-charge sampling word.
+    /// </summary>
+    public void ConsumePseudoScrewCharge(ISnesAddressSpace bus, SnesCgram cgram, SamusState samus)
+    {
+        SamusChargePaletteIndex = 0;
+        FlareCounter = 0;
+        samus.ProjectileFlareCounter = 0;
+        ClearFlareAnimationState();
+        LoadNormalSuitPalette(bus, cgram, samus.EquippedItems);
+    }
+
     private void CancelCharge()
     {
         FlareCounter = 0;

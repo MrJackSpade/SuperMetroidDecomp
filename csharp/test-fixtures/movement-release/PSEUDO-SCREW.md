@@ -25,9 +25,20 @@ Samus's invincibility/knockback timers and sets the enemy's hurt/flash state.
 The direct immune-handler case leaves those timers unchanged; the surrounding
 enemy collision dispatcher has separate timer behavior that still needs coverage.
 
-The current managed generic touch body lacks command four entirely. A fix must
-clear both the Samus flare mirror and the live projectile-system charge/animation/
-palette state. Merely zeroing the mirror can be overwritten by the next producer.
+The managed generic touch body lacked command four entirely. The repair now
+uses EnemyMain's live projectile dependency before vulnerability lookup, clearing
+both the Samus flare mirror and projectile-system charge/animation/palette state.
+The previous-charge sampling word remains unchanged, matching the native routine.
+Missing live dependency fails explicitly rather than silently retaining charge.
+
+`--pseudo-screw-contact-audit ROM` builds charge through 125 normal input frames,
+then passes that live projectile owner into the real enemy contact phase. Four
+Pseudo Screw cases failed before the repair; all eight pass afterward. Checks
+cover damage, both charge copies, palette index, prior-charge preservation,
+visible flare removal and all sixteen restored normal-suit palette colors.
+Real Screw Attack controls retain the charge, flare and existing palette.
+Full core verification passes. The existing charge-free contact-death fixture now
+supplies its explicit projectile owner to exercise the same dependency contract.
 
 ## Reproduce native evidence
 
@@ -39,12 +50,11 @@ sm.exe --diagnostic-pseudo-touch "Super Metroid.smc" NEW.csv
 ```
 
 Remove the hooks after capture. Build, duplicate capture hash, and patch reapply
-checks passed. No production fix is claimed by this checkpoint.
+checks passed. The native capture remains the handler-boundary oracle; it is not
+an end-to-end proof of spin pose eligibility or enemy-projectile immunity.
 
 ## Remaining before player validation
 
-- Reproduce the discrepancy through managed production contact and implement the
-  complete live charge teardown at the native handoff boundary.
 - Compare enemy and projectile contact separately, including immune cases.
 - Cover charge-producing spin/walljump inputs, released-shot retention, negative
   walljump-check poses, yellow palette and suitless-liquid restrictions.

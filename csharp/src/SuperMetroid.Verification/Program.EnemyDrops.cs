@@ -43,8 +43,9 @@ internal static partial class Program
         enemy.Health = 1;
         enemy.SpritemapPointer = 0x8000;
         enemy.Properties = (ushort)EnemyProperties.RespawnIfKilled;
+        var projectiles = new SamusProjectileSystem();
         fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
-            resolveSamusContactBeforeAi: true);
+            samusProjectiles: projectiles, resolveSamusContactBeforeAi: true);
         AssertEqual((ushort)0xdaff, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
@@ -52,7 +53,7 @@ internal static partial class Program
             (enemy.Definition.Bank << 16) | enemy.Definition.MainAiPointer,
             "cached header follows replacement identity into native no-op AI");
         fixture.System.StepFrame(0, 0, false, samus, level: fixture.Level,
-            resolveSamusContactBeforeAi: true);
+            samusProjectiles: projectiles, resolveSamusContactBeforeAi: true);
         AssertEqual(0, fixture.System.ActiveEnemyIndexes.Count, "placeholder remains excluded next frame");
         AssertEqual(1, fixture.System.EnemiesKilled, "placeholder cannot be killed twice");
     }

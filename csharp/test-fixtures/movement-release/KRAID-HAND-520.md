@@ -49,3 +49,25 @@ Kraid initialization writes scroll bytes [0,0,1,0], and C0A1 changes them to
 sets CameraReleasedForSecondPhase, which has no runtime consumer. Reproduce the
 jump/camera trajectory for that issue before implementing the missing handoff.
 Do not conflate this finding with a demonstrated cause of the #520 hand report.
+
+## Capture after the camera fix
+
+With #519's native camera integration installed, the optional observer consumed
+the initial mouth-open cycle and timed out in AEA4 with ThinkingTimer=0. This is
+not evidence of a stalled native timer: A7:AEE4 returns to idle without restarting
+the timer, and a projectile hit triggers the next eye/mouth reaction. The existing
+non-runtime audit already supplied that shot. The optional runtime capture now
+does likewise through ResolveKraidProjectileHits when idle, instead of modifying
+boss state to force an opening. Timeout errors now report phase, positions and
+timers so a setup failure is diagnosable.
+
+`kraid-death-520-after-camera.zip` preserves the resulting full-runtime sequence.
+Camera is (168,82), body begins at (288,295), arm at (288,251). The actual visible
+arm is present before death, changes through maps 8F59/92A1/92AB at frames 5/11/17,
+and changes to 90FD at sink frame 22. Before-death and frame-32 images were visually
+inspected: the arm retracts against the body rather than being immediately deleted.
+The complete encounter/death audit and clean build pass.
+
+This remains diagnostic work, not a production hand fix. Native CPU animation
+comparison and conclusive identification of the player's left-hand component are
+still outstanding; leave #520 open without awaiting-player-validation.

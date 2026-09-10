@@ -868,7 +868,8 @@ internal static class KraidAudit
             for (int settle = 0; settle < 120; settle++)
                 runtime.StepFrame(0);
         }
-        AdvanceRuntimeUntilOpenMouth(runtime, body, state);
+        AdvanceRuntimeUntilOpenMouth(runtime, body, state,
+            triggerIdleReaction: deathCaptureDirectory is not null);
         using var deathCapture = deathCaptureDirectory is null ? null :
             new KraidDeathCapture(deathCaptureDirectory);
         deathCapture?.Capture(runtime, -1);
@@ -1376,13 +1377,27 @@ internal static class KraidAudit
     private static void AdvanceRuntimeUntilOpenMouth(
         SuperMetroidRuntime runtime,
         RoomEnemySlot body,
-        KraidEnemyState state) =>
+        KraidEnemyState state,
+        bool triggerIdleReaction = false) =>
         AdvanceRuntimeUntil(
             runtime,
-            () => body.VariableA is (
+            () =>
+            {
+                // The death observer can consume the initial roar while settling.
+                // Native idle then requires a projectile hit. Exercise that contact
+                // path, rather than inventing another timer-driven mouth opening.
+                if (triggerIdleReaction && body.VariableA == (ushort)KraidAiFunction.MainloopThinking &&
+                    state.ThinkingTimer == 0)
+                {
+                    if (StrikeKraidOuterBody(runtime.AddressSpace, runtime.Enemies, body, 100) != 1 ||
+                        body.VariableA != (ushort)KraidAiFunction.InitializeEyeGlow)
+                        throw new InvalidDataException("Kraid death observer could not trigger the native eye reaction.");
+                }
+                return body.VariableA is (
                     (ushort)KraidAiFunction.MainAttackWithMouthOpen or
                     (ushort)KraidAiFunction.MouthOpenReaction) &&
-                state.InvulnerableMouthHitbox != ushort.MaxValue,
+                    state.InvulnerableMouthHitbox != ushort.MaxValue;
+            },
             maximumFrames: 1400,
             "open-mouth damage window");
 
@@ -1432,7 +1447,13 @@ internal static class KraidAudit
             runtime.StepFrame(controller1Input: 0);
         }
         throw new InvalidDataException(
-            $"Kraid runtime did not reach {checkpoint} within {maximumFrames} frames.");
+            $"Kraid runtime did not reach {checkpoint} within {maximumFrames} frames: " +
+            $"phase={runtime.Enemies.Slots[0].VariableA:X4}, " +
+            $"body=({runtime.Enemies.Slots[0].XPosition},{runtime.Enemies.Slots[0].YPosition}), " +
+            $"Samus=({runtime.Samus!.XPosition},{runtime.Samus.YPosition}), " +
+            $"camera=({runtime.Camera!.XPosition},{runtime.Camera.YPosition}), " +
+            $"thinking={runtime.Enemies.Kraid!.ThinkingTimer}, " +
+            $"headTimer={runtime.Enemies.Slots[0].VariableC}.");
     }
 
     /// <summary>

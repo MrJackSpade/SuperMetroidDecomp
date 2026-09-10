@@ -39,6 +39,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
     private const ushort VisualBlockIndexMask = 0x03ff;
     private const ushort VisualFlipMask = 0x0c00;
     private const ushort CollisionTypeMask = 0xf000;
+    private const ushort SolidProbeMask = 0x8000;
     private const int CollisionTypeShift = 12;
 
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
@@ -59,6 +60,12 @@ public readonly record struct RoomLevelWord(ushort Raw)
     /// this property can never discard or rewrite cartridge data.
     /// </summary>
     public RoomCollisionType CollisionType => (RoomCollisionType)CollisionTypeValue;
+
+    /// <summary>
+    /// Raw bit tested by $A0:BBBF/$A0:BC76 attachment probes. This is not resolved
+    /// block solidity: it ignores slope geometry and BTS extension destinations.
+    /// </summary>
+    public bool HasSolidProbeBit => (Raw & SolidProbeMask) != 0;
 
     /// <summary>Builds a complete native level word from its three independent fields.</summary>
     public static RoomLevelWord Create(

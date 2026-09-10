@@ -1,29 +1,6 @@
 // #471: full native game-state dispatch through a pause-separated soft morph.
 // Include after native-release-probe.h; dispatch before SDL initialization.
-#include "snes/dma.h"
-extern bool g_calling_asm_from_c;
-
-// Same subroutine boundary as RunAsmCode, with an instruction budget so a bad
-// synthetic setup cannot hang the diagnostic host or open an interactive window.
-static void PauseProbeRun(uint32 address) {
-  Cpu *cpu = g_snes->cpu;
-  uint16 oldSp = cpu->sp, oldPc = cpu->pc, oldDp = cpu->dp;
-  uint8 oldDb = cpu->db;
-  g_ram[0x1ffff] = 1;
-  cpu->db = cpu->k = address >> 16; cpu->pc = address;
-  cpu->a = cpu->x = cpu->y = 0; cpu->mf = cpu->xf = false;
-  cpu->spBreakpoint = cpu->sp; g_calling_asm_from_c = true;
-  for (int budget = 10000000; g_calling_asm_from_c; budget--) {
-    if (!budget) {
-      fprintf(stderr, "Pause probe instruction budget at %02X:%04X (entry %06X, state %04X).\n",
-        cpu->k, cpu->pc, address, game_state);
-      exit(6);
-    }
-    cpu_runOpcode(cpu);
-    while (g_snes->dma->dmaBusy) dma_doDma(g_snes->dma);
-  }
-  cpu->sp = oldSp; cpu->pc = oldPc; cpu->dp = oldDp; cpu->db = oldDb;
-}
+#include "native-bounded-cpu.h"
 
 int DiagnosticPauseCharge(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
@@ -39,7 +16,7 @@ int DiagnosticPauseCharge(const char *rom, const char *output) {
     // Retail metadata supplies valid palette/tile decompression and map pointers
     // to the real pause teardown. Only geometry and actors are synthetic.
     room_ptr = 0x91f8;
-    PauseProbeRun(0x82de6f); PauseProbeRun(0x82def2);
+    ProbeRunBounded(0x82de6f); ProbeRunBounded(0x82def2);
     room_main_code_ptr = 0;
     for (int y = 0; y < room_height_in_blocks; y++)
       for (int x = 0; x < room_width_in_blocks; x++)
@@ -85,7 +62,7 @@ int DiagnosticPauseCharge(const char *rom, const char *output) {
       if (before < 8 || before > 18 || !entries[before - 8]) {
         fprintf(stderr, "Unexpected state %04X\n", before); fclose(f); return 7;
       }
-      PauseProbeRun(entries[before - 8]);
+      ProbeRunBounded(entries[before - 8]);
       fprintf(f, "%d,%d,%d,%d,%04X,%04X,%04X,%02X,%04X%04X,%04X%04X,%02X,%02X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X",
         pauseAt,left,booster,frame,input,before,game_state,reg_INIDISP,samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,
         samus_pose,samus_movement_type,samus_anim_frame,samus_anim_frame_timer,samus_x_base_speed,samus_x_base_subspeed,

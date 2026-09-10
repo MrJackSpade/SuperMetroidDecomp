@@ -211,7 +211,7 @@ public sealed partial class RoomEnemySystem
         {
             if ((uint)column >= (uint)level.WidthInBlocks ||
                 (uint)row >= (uint)level.HeightInBlocks ||
-                (level.GetCollisionBlock(column, row).LevelWord & 0x8000) != 0)
+                new RoomLevelWord(level.GetCollisionBlock(column, row).LevelWord).HasSolidProbeBit)
             {
                 return true;
             }
@@ -249,6 +249,31 @@ public sealed partial class RoomEnemySystem
             {
                 return true;
             }
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Ports $A0:BC76's read-only vertical solid-bit probe. It does not move the
+    /// actor or apply slope/BTS behavior; Yard hiding and Stoke support checks
+    /// use it to test attachment without consuming their look-ahead distance.
+    /// </summary>
+    private static bool EnemyHasSolidHighBitVerticallyAhead(RoomLevelData level, RoomEnemySlot slot, int displacement)
+    {
+        uint position = ((uint)slot.YPosition << 16) | slot.YSubposition;
+        ushort center = unchecked((ushort)((position + (uint)displacement) >> 16));
+        ushort edge = displacement < 0
+            ? unchecked((ushort)(center - slot.YRadius))
+            : unchecked((ushort)(center + slot.YRadius - 1));
+        int blockY = edge >> 4;
+        int firstBlockX = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
+        int lastBlockX = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
+        if ((uint)blockY >= (uint)level.HeightInBlocks) return true;
+        for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
+        {
+            if ((uint)blockX >= (uint)level.WidthInBlocks ||
+                new RoomLevelWord(level.GetCollisionBlock(blockX, blockY).LevelWord).HasSolidProbeBit)
+                return true;
         }
         return false;
     }

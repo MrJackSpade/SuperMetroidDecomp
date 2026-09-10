@@ -39,7 +39,7 @@ internal static class YardAudit
         YardEnemyState state = enemies.YardStates[0]
             ?? throw new InvalidDataException("Aqueduct slot zero has no Yard state.");
         if (yard.XPosition != 0x0544 || yard.YPosition != 0x01d8 ||
-            yard.Parameter1 != 4 || state.Direction != 7 ||
+            yard.Parameter1 != 4 || state.Direction != 0 ||
             state.IdleCrawlingSpeedIndex != 4 ||
             state.MovementFunction != YardMovementFunction.InstructionPending)
         {

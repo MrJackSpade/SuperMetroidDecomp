@@ -220,30 +220,7 @@ public sealed partial class RoomEnemySystem
 
     /// <summary>Ports <c>CheckForVerticalSolidBlockCollision</c>'s Stoke use at $A0:BC76.</summary>
     private static bool StokeHasSolidFloorTwoPixelsBelow(RoomLevelData level, RoomEnemySlot slot)
-    {
-        uint fixedY = ((uint)slot.YPosition << 16) | slot.YSubposition;
-        ushort candidateCenterY = unchecked((ushort)(
-            (fixedY + StokeFloorProbeDisplacement) >> 16));
-        ushort candidateBottom = unchecked((ushort)(candidateCenterY + slot.YRadius - 1));
-        int blockY = candidateBottom >> 4;
-        int firstBlockX = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
-        int lastBlockX = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
-
-        // Native code expects valid room coordinates. Treating the outside as solid keeps a
-        // malformed/synthetic room from wrapping into unrelated host memory while retaining
-        // the boundary behavior a real room's solid perimeter supplies.
-        if ((uint)blockY >= (uint)level.HeightInBlocks)
-            return true;
-
-        for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
-        {
-            if ((uint)blockX >= (uint)level.WidthInBlocks)
-                return true;
-            if ((level.GetCollisionBlock(blockX, blockY).LevelWord & 0x8000) != 0)
-                return true;
-        }
-        return false;
-    }
+        => EnemyHasSolidHighBitVerticallyAhead(level, slot, StokeFloorProbeDisplacement);
 
     /// <summary>Ports <c>TurnStokeAround</c> at <c>$A2:8A95</c>.</summary>
     private static void TurnStokeAround(RoomEnemySlot slot, StokeEnemyState state)

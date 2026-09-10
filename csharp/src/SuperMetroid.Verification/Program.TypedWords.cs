@@ -334,6 +334,8 @@ static void VerifyTypedNativeWords()
             $"level collision nibble ${collisionNibble:X1}");
         AssertEqual(collisionNibble, typedLevelWord.CollisionTypeValue,
             $"level collision raw nibble ${collisionNibble:X1}");
+        AssertTrue(typedLevelWord.HasSolidProbeBit == (collisionNibble >= 8),
+            $"attachment probe tests the raw high bit for collision nibble ${collisionNibble:X1}");
     }
 
     // BTS remains a raw byte until the collision nibble selects its meaning. Exercise

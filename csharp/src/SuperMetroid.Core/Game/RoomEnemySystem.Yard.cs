@@ -116,7 +116,11 @@ public sealed partial class RoomEnemySystem
         var state = new YardEnemyState(slot)
         {
             MovementFunction = YardMovementFunction.InstructionPending,
-            Direction = direction,
+            // The population word selects the initial lists/velocity signs, but
+            // does not initialize the live direction register. Only the direction
+            // instruction writes that word. A first-frame hide can bypass it and
+            // must retain the cartridge's zero-initialized attachment direction.
+            Direction = 0,
             Behavior = 0,
             IdleCrawlingSpeedIndex = slot.Parameter1,
         };
@@ -133,18 +137,18 @@ public sealed partial class RoomEnemySystem
             slot.Properties | ReadWord(_bus!, directionRecord + 2)));
         state.HidingInstructionList = ReadWord(_bus!, directionRecord + 4);
         state.AirborneFacingDirection = ReadWord(_bus!, directionRecord + 6);
-        SetYardCrawlingVelocities(slot, state);
+        SetYardCrawlingVelocities(slot, state, direction);
     }
 
     /// <summary>
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    private void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state)
+    private void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, ushort direction)
     {
         ValidateYardSpeedIndex(slot.Parameter1);
         ushort speed = ReadWord(_bus!, YardSpeedTable + slot.Parameter1 * 2);
-        int signRecord = YardVelocitySignTable + state.Direction * 8;
+        int signRecord = YardVelocitySignTable + direction * 8;
         state.CrawlingXVelocity = unchecked((ushort)(
             (speed ^ ReadWord(_bus!, signRecord)) + ReadWord(_bus!, signRecord + 2)));
         state.CrawlingYVelocity = unchecked((ushort)(
@@ -278,11 +282,11 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         bool stillAttached = state.Direction < 4
-            ? MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+            ? EnemyHasSolidHighBitHorizontallyAhead(
                 level,
                 slot,
                 Shift8AddMagnitude(state.CrawlingXVelocity, 7))
-            : MoveEnemyVertically(
+            : EnemyHasSolidHighBitVerticallyAhead(
                 level,
                 slot,
                 Shift8AddMagnitude(state.CrawlingYVelocity, 7));
@@ -573,7 +577,7 @@ public sealed partial class RoomEnemySystem
             (slot.Properties & 0xfffc) | ReadWord(_bus!, record + 2)));
         state.HidingInstructionList = ReadWord(_bus!, record + 4);
         state.AirborneFacingDirection = ReadWord(_bus!, record + 6);
-        SetYardCrawlingVelocities(slot, state);
+        SetYardCrawlingVelocities(slot, state, state.Direction);
         state.MovementFunction = (YardMovementFunction)ReadWord(
             _bus!,
             YardMovementFunctionTable + state.Direction * 2);

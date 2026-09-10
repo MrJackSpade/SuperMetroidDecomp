@@ -2,7 +2,7 @@
 
 // Grounded forward-direction window. Storage is seeded; subsequent launch poses
 // come only from original controller, animation and pose-transition code.
-int DiagnosticSparkWindow(const char *rom, const char *output) {
+static int DiagnosticSparkWindowCore(const char *rom, const char *output, bool tap) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;
   fprintf(f,"medium,left,offset,frame,input,pose,shine,windup,x,y\n");
@@ -30,7 +30,7 @@ int DiagnosticSparkWindow(const char *rom, const char *output) {
       if(frame==20) { speed_boost_counter=0x400; ProbeRunBounded(0x91f7b0); }
       nmi_frame_counter_word=nmi_frame_counter_byte=frame+2;
       uint16 input=frame>=24?0x80:0;
-      if(frame>=24+offset) input|=left?0x200:0x100;
+      if(tap ? frame==24+offset : frame>=24+offset) input|=left?0x200:0x100;
       joypad1_lastkeys=input; joypad1_newkeys=input&~previous; previous=input;
       ProbeRunBounded(0x90e695);
       ProbeRunBounded(0xa09785); samus_contact_damage_index=0;
@@ -46,4 +46,12 @@ int DiagnosticSparkWindow(const char *rom, const char *output) {
     }
   }
   fclose(f); return 0;
+}
+
+int DiagnosticSparkWindow(const char *rom, const char *output) {
+  return DiagnosticSparkWindowCore(rom, output, false);
+}
+
+int DiagnosticSparkTapWindow(const char *rom, const char *output) {
+  return DiagnosticSparkWindowCore(rom, output, true);
 }

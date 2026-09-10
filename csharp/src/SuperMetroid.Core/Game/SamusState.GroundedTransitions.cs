@@ -36,6 +36,7 @@ public sealed partial class SamusState
         }
 
         byte sourcePose = Pose;
+        SamusMovementType previousMovementType = ReadMovementType(bus);
         ushort oldRadius = Kinematics.YRadius;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
@@ -51,7 +52,13 @@ public sealed partial class SamusState
         // Both normal-jump and falling targets run their movement initializer.
         // Preserve base velocity, but derive acceleration mode from extra dash speed.
         if (sourcePose != Pose)
+        {
+            // The normal-jump initializer also consumes stored shine on eligible poses.
+            // This includes releasing forward midair, not just the initial ground jump.
+            if (TryBeginShinesparkWindup(bus, targetPose, previousMovementType))
+                return;
             InitializeOrdinaryAerialAcceleration();
+        }
         InitializeAnimation(bus, initialFrame: 0);
     }
 

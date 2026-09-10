@@ -24,8 +24,34 @@ Two captures are identical. Accepted CSV in `spark-window-465-v1.zip`, SHA-256
 `CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D`.
 Regenerate with `native-spark-window-entrypoint.patch` and bounded/dialog-free
 `--diagnostic-spark-window ROM NEW.csv`. Temporary native hooks removed.
-Tap directions, aerial/Shot/angle restrictions, energy and actual liquid/sand
+At that checkpoint, tap directions, aerial/Shot/angle restrictions, energy and actual liquid/sand
 travel remain outstanding; this checkpoint does not mark the whole ticket ready.
+
+## One-frame forward taps: reproduced initializer omission
+
+The same original-CPU harness now accepts a tap variant: forward is pressed for
+exactly one frame at jump-relative offsets 0..35, while Jump remains held. Both
+facings and dry/water/water-with-Gravity environments produce 216 cases.
+Before the fix, six suitless-water cases (offsets 1..3, both facings) failed:
+on release, native normal-jump initialization replaced the neutral-jump pose
+with shinespark windup and moved Y up one pixel; managed gameplay stayed in a
+normal jump. There were 186 mismatching frame records across those six cases.
+
+ApplyAerialAimTransition applied ordinary acceleration but omitted the stored
+shine branch of SamusFunc_F468_NormalJump ($91:F543). Changed aerial poses now
+call the existing shared windup initializer before ordinary acceleration.
+All 216 tap cases and all 216 held-input cases match the native capture after
+the fix, comparing pose, shine timer, windup timer and 16.16 X/Y every frame.
+This verifies initiation through directional launch, not subsequent travel.
+
+Two tap captures are identical. Accepted CSV in `spark-tap-window-465-v1.zip`,
+SHA-256 `49165A9EFFD5CEB5C4625B2FCE77E171588A844B9C7B084D664F38A2CEA3FBD0`.
+Regenerate using `native-spark-tap-window-entrypoint.patch` and bounded,
+dialog-free `--diagnostic-spark-tap-window ROM NEW.csv`; compare with
+`--spark-tap-window-audit ROM CSV`. Temporary native hooks were removed.
+The held-input entrypoint remains supported by the shared probe header.
+Issue #465 remains incomplete: aerial/Shot/angle restrictions, energy and
+liquid/sand travel still need coverage.
 
 ## Storage admission and palette-owned expiry
 

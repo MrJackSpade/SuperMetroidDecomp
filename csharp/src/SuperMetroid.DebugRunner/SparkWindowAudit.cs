@@ -3,14 +3,15 @@ using System.Security.Cryptography;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-/// <summary>Grounded held-forward launch window through the full gameplay dispatcher.</summary>
+/// <summary>Grounded held-forward and one-frame-tap launch windows through the full gameplay dispatcher.</summary>
 internal static class SparkWindowAudit
 {
-    public static int Run(string rom, string trace)
+    public static int Run(string rom, string trace, bool tap = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            "CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D")
-            throw new InvalidDataException("Use accepted spark-window-465-v1 capture.");
+            (tap ? "49165A9EFFD5CEB5C4625B2FCE77E171588A844B9C7B084D664F38A2CEA3FBD0" :
+            "CA323D81D610223AA0C05579467F2359718231DCED8263DE394C4FEBE2D89A2D"))
+            throw new InvalidDataException("Use accepted held/tap spark-window capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         int cases = 0, differences = 0;
         foreach (var group in File.ReadLines(trace).Skip(1).Select(line => line.Split(','))

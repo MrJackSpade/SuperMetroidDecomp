@@ -4,6 +4,14 @@
       "commandName": "Project",
       "commandLineArgs": "\"Super Metroid.smc\" --frames 240 --timer ceres",
       "workingDirectory": "../../../"
+    },
+    "Assets: Render Landing Site": {
+      "commandName": "Project",
+      "commandLineArgs": "assets room standalone-assets/raw standalone-assets/rooms/LandingSite.png"
+    },
+    "Assets: Extract private assets": {
+      "commandName": "Project",
+      "commandLineArgs": "assets standalone-assets/raw standalone-assets/png"
     }
   }
 }

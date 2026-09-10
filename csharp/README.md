@@ -425,25 +425,15 @@ Focused actor and boss flags are defined near the top of
 movement and weapon scripts such as `--jump-script`, `--grapple-script`,
 `--power-bomb-script`, and `--mother-brain-rainbow-script`.
 
-### Room viewer
+### Asset commands
 
-`SuperMetroid.RoomViewer` is a separate diagnostic UI, not the game entry point:
-
-```powershell
-dotnet run --project src/SuperMetroid.RoomViewer
-```
-
-It uses the private ROM plus `../standalone-assets/raw` for static-room and frame-stepping
-inspection. Its optional diagnostic composition modes should not be confused with the normal
-`SuperMetroid.Game` runtime.
-
-### Asset extractor
+Asset operations share the DebugRunner developer executable under the `assets` subcommand.
 
 ```powershell
-dotnet run --project src/SuperMetroid.AssetExtractor -- ../standalone-assets/raw ../standalone-assets/png
-dotnet run --project src/SuperMetroid.AssetExtractor -- audio ../standalone-assets/raw ../standalone-assets/audio
-dotnet run --project src/SuperMetroid.AssetExtractor -- audio-replace ../standalone-assets/audio sample-00-00 replacement.wav preserve
-dotnet run --project src/SuperMetroid.AssetExtractor -- room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
+dotnet run --project src/SuperMetroid.DebugRunner -- assets ../standalone-assets/raw ../standalone-assets/png
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio ../standalone-assets/raw ../standalone-assets/audio
+dotnet run --project src/SuperMetroid.DebugRunner -- assets audio-replace ../standalone-assets/audio sample-00-00 replacement.wav preserve
+dotnet run --project src/SuperMetroid.DebugRunner -- assets room ../standalone-assets/raw ../standalone-assets/rooms/LandingSite.png
 ```
 
 The extractor produces named raw chunks, PNGs, manifests, composed-room diagnostics, exact SPC

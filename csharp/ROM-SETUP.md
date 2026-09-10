@@ -51,9 +51,9 @@ From the repository root:
 
 ```powershell
 # Same installation used by the desktop application; optional final argument overrides its root.
-dotnet run --project csharp/src/SuperMetroid.AssetExtractor -- install "C:\ROMs\Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets install "C:\ROMs\Super Metroid.smc"
 # Extract just runtime audio into a chosen directory.
-dotnet run --project csharp/src/SuperMetroid.AssetExtractor -- audio-rom "C:\ROMs\Super Metroid.smc" "C:\private\audio"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -- assets audio-rom "C:\ROMs\Super Metroid.smc" "C:\private\audio"
 # Synthetic validation, or full integration when a private ROM is supplied.
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --asset-import "C:\ROMs\Super Metroid.smc"

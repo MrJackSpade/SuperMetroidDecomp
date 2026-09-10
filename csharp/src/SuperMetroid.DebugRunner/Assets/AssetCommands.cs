@@ -5,14 +5,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 
-// The tool intentionally exposes two narrow commands instead of performing work implicitly.
-// That makes Visual Studio launch profiles deterministic and gives us clean breakpoint paths:
-// "room" exercises full room composition, while the two-argument form inventories everything.
-// Match the two debugger-facing console hosts: missing assets must be reported on stderr, not
-// handed to Windows Error Reporting as an interactive exception dialog.
-if (OperatingSystem.IsWindows())
-    NativeConsoleProcess.SetErrorMode(0x0001 | 0x0002 | 0x8000);
-
+internal static class AssetCommands
+{
+public static int Run(string[] args)
+{
 try
 {
 if (args.Length is 2 or 3 && args[0].Equals("install", StringComparison.OrdinalIgnoreCase))
@@ -92,14 +88,14 @@ if (args.Length == 3 && args[0].Equals("room", StringComparison.OrdinalIgnoreCas
 if (args.Length != 2)
 {
     Console.Error.WriteLine("Usage:");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor install <rom-path> [app-data-directory]");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio-rom <rom-path> <audio-output-directory>");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor maps <rom-path> <map-output-directory>");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor <raw-assets-directory> <png-output-directory>");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor audio <raw-assets-directory> <audio-output-directory>");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets install <rom-path> [app-data-directory]");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets audio-rom <rom-path> <audio-output-directory>");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets maps <rom-path> <map-output-directory>");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets <raw-assets-directory> <png-output-directory>");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets audio <raw-assets-directory> <audio-output-directory>");
     Console.Error.WriteLine(
-        "  SuperMetroid.AssetExtractor audio-replace <audio-directory> <sample-id> <wav> [preserve|none|loop-sample]");
-    Console.Error.WriteLine("  SuperMetroid.AssetExtractor room <raw-assets-directory> <room.png>");
+        "  SuperMetroid.DebugRunner assets audio-replace <audio-directory> <sample-id> <wav> [preserve|none|loop-sample]");
+    Console.Error.WriteLine("  SuperMetroid.DebugRunner assets room <raw-assets-directory> <room.png>");
     return 2;
 }
 
@@ -177,6 +173,8 @@ catch (Exception exception)
     // This specifically makes path and malformed-asset errors useful from CLI and VS output.
     Console.Error.WriteLine(exception);
     return 1;
+}
+
 }
 
 static string ResolveWorkspacePath(string argument, bool mustAlreadyExist)
@@ -333,14 +331,4 @@ internal sealed record AssetRecord(
     int DecodedBytes,
     string? Png);
 
-/// <summary>
-/// Configures Windows to leave process failures in the terminal. The three flags are
-/// SEM_FAILCRITICALERRORS, SEM_NOGPFAULTERRORBOX, and SEM_NOOPENFILEERRORBOX respectively.
-/// The managed entry point also catches exceptions; this is a second line of defense for
-/// native/runtime faults that occur outside ordinary C# exception handling.
-/// </summary>
-static partial class NativeConsoleProcess
-{
-    [LibraryImport("kernel32.dll")]
-    internal static partial uint SetErrorMode(uint errorMode);
 }

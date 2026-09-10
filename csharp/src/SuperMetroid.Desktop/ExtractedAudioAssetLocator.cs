@@ -26,6 +26,6 @@ internal static class ExtractedAudioAssetLocator
 
         throw new DirectoryNotFoundException(
             "Could not find standalone-assets/audio/audio-manifest.json from the working or executable directory. " +
-            "Run SuperMetroid.AssetExtractor audio standalone-assets/raw standalone-assets/audio first.");
+            "Run SuperMetroid.DebugRunner assets audio standalone-assets/raw standalone-assets/audio first.");
     }
 }

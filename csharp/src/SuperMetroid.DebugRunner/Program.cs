@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length > 0 && args[0] == "assets")
+    return AssetCommands.Run(args[1..]);
 if (args.Length == 3 && args[0] == "--spark-runtime-sequence-audit")
     return SparkSequenceAudit.Run(args[1], args[2], runtimeFrames: true);
 if (args.Length == 3 && args[0] == "--spark-sequence-audit")

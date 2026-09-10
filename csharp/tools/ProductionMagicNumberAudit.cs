@@ -18,7 +18,7 @@ internal static partial class ProductionMagicNumberAudit
     [
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Desktop",
-        "csharp/src/SuperMetroid.AssetExtractor",
+        "csharp/src/SuperMetroid.DebugRunner/Assets",
     ];
 
     /// <summary>

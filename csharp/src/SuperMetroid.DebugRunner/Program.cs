@@ -54,6 +54,8 @@ if (args.Length == 3 && args[0] == "--kago-kzan-audit")
     return KagoKzanAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--kago-kamer-audit")
     return KagoKamerAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--gap-skip-audit")
+    return GapSkipComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--ledge-grab-audit")
     return LedgeGrabComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--edge-boost-audit")

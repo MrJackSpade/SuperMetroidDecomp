@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-reset-audit")
+    return SparkOwnershipAudit.Run(args[1], args[2], reset: true);
 if (args.Length == 3 && args[0] == "--spark-reentry-audit")
     return SparkOwnershipAudit.Run(args[1], args[2], reentry: true);
 if (args.Length == 3 && args[0] == "--spark-ownership-audit")

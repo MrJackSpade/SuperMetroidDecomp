@@ -719,9 +719,18 @@ public sealed partial class SamusProjectileSystem
         }
     }
 
-    /// <summary>Clears all five ordinary slots and the separately maintained counter.</summary>
-    public void Reset()
+    /// <summary>
+    /// Clears ordinary projectile storage. Gameplay supplies Samus so ResetProjectileData
+    /// ($90:AD22) also clears its shared echo words; standalone projectile-only hosts may
+    /// omit that owner when they have no associated Samus state.
+    /// </summary>
+    public void Reset(SamusState? samus = null)
     {
+        if (samus is not null)
+        {
+            samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
+            samus.Shinespark.ResetProjectileEchoStorage();
+        }
         ComboState = 0;
         foreach (SamusProjectileSlot slot in _slots)
             slot.ClearFields();

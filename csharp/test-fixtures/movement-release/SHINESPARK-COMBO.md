@@ -1,7 +1,30 @@
 # #466 Shinespark/combo crash investigation
 
-Status: retained-word crash entry fixed; full combo/echo integration remains
-incomplete. No awaiting-player-validation label.
+Status: retained-word entry, departure, slot ownership and reset boundaries are
+fixed; full successive-spark verification remains incomplete. No
+awaiting-player-validation label. Sections below preserve chronological evidence.
+
+## Whole-reset checkpoint
+
+`native-spark-reset-probe.h` finishes a spark, overwrites slot three with each
+combo in both facings, then executes original ResetProjectileData ($90:AD22).
+It records the owners/count and independent drawing enable/X/Y before and
+after reset. Two captures are byte-identical; accepted CSV is archived in
+`spark-reset-466-v1.zip`, SHA-256
+`FF69264A9DF1E7BAE216203F2648A9177699D7CF2B436404CD78AC67D58DFFB9`.
+
+Before correction, all eight post-reset records failed: ordinary projectile
+slots cleared but Samus's shared echo words survived. Gameplay reset calls now
+supply their Samus owner, clearing both ordinary speed-echo arrays and crash
+echo drawing storage, including the aliased angular delta/travel and orbit
+index/angles. Unrelated movement handler phase and timers are not reset.
+Standalone projectile-only hosts retain a reset without an associated Samus.
+All 16 before/after records now match; full core verification passes.
+
+Regenerate with `native-spark-reset-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-reset ROM NEW.csv`; compare using
+`--spark-reset-audit ROM CSV`. Temporary native hooks removed after capture.
+Full successive-spark alpha/beta/controller sequences remain outstanding.
 
 ## Crash reentry drawing/delta checkpoint
 

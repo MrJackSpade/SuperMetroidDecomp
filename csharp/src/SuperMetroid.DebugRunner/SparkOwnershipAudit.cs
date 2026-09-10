@@ -6,10 +6,11 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Independent drawing-word and projectile ownership comparison for #466.</summary>
 internal static class SparkOwnershipAudit
 {
-    public static int Run(string rom, string trace, bool reentry = false)
+    public static int Run(string rom, string trace, bool reentry = false, bool reset = false)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            (reentry ? "5C6C1FB23CA978493EEE047164CD9C97E749E5BECA0190F96592B5864316A53D" :
+            (reset ? "FF69264A9DF1E7BAE216203F2648A9177699D7CF2B436404CD78AC67D58DFFB9" :
+            reentry ? "5C6C1FB23CA978493EEE047164CD9C97E749E5BECA0190F96592B5864316A53D" :
             "25FFBFE7013658F9123ED41F67928C3A410EDD256E450B160432654C0F251D5F"))
             throw new InvalidDataException("Use the accepted ownership or reentry capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
@@ -20,7 +21,7 @@ internal static class SparkOwnershipAudit
         {
             string[] seed = group.First();
             var samus = new SamusState { XPosition = 128, YPosition = 128,
-                Pose = reentry && seed[1] == "1" ? SamusPoseIds.ShinesparkHorizontalLeftPose : SamusPoseIds.ShinesparkHorizontalRightPose,
+                Pose = (reentry || reset) && seed[1] == "1" ? SamusPoseIds.ShinesparkHorizontalLeftPose : SamusPoseIds.ShinesparkHorizontalRightPose,
                 EquippedBeams = (ushort)(0x1000 | ushort.Parse(seed[0])),
                 PowerBombs = 2, MaxPowerBombs = 2, SelectedHudItem = 3 };
             var projectiles = new SamusProjectileSystem();
@@ -29,7 +30,7 @@ internal static class SparkOwnershipAudit
             foreach (string[] row in group)
             {
                 int stage = int.Parse(row[2]);
-                if (reentry)
+                if (reentry || reset)
                 {
                     if (stage == 0)
                     {
@@ -39,6 +40,7 @@ internal static class SparkOwnershipAudit
                         if (!projectiles.TryActivateCombo(bus, samus, bombs, out _))
                             throw new InvalidDataException("Expected combo allocation.");
                     }
+                    else if (reset) projectiles.Reset(samus);
                     else if (stage == 1)
                     {
                         samus.Health = 29;
@@ -86,7 +88,7 @@ internal static class SparkOwnershipAudit
             Console.WriteLine($"Ownership {group.Key}: {differences} mismatches.");
             mismatches += differences;
         }
-        if (records != (reentry ? 56 : 176)) throw new InvalidDataException("Incomplete ownership matrix.");
+        if (records != (reset ? 16 : reentry ? 56 : 176)) throw new InvalidDataException("Incomplete ownership matrix.");
         Console.WriteLine($"Spark ownership: {records} records, {mismatches} mismatches.");
         return mismatches == 0 ? 0 : 1;
     }

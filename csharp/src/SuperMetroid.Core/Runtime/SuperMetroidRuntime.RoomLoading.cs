@@ -834,7 +834,7 @@ public sealed partial class SuperMetroidRuntime
         // indices from addressing a different room's new arrays on the first visible frame.
         Plms.Reset();
         BombProjectiles.Reset();
-        Projectiles.Reset();
+        Projectiles.Reset(Samus);
 
         // `$82:EB6C` walks this zero-terminated list once. Each six-byte record allocates
         // the highest free one of forty IDs before its bank-$84 setup executes. Immediate

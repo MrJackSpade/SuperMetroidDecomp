@@ -823,7 +823,7 @@ public sealed partial class SuperMetroidRuntime
         LastBombJumpMovement = null;
         LastKnockbackMovement = null;
         BombProjectiles.Reset();
-        Projectiles.Reset();
+        Projectiles.Reset(Samus);
         InitializeDebugSamus(
             xPosition: unchecked((ushort)(Camera.XPosition + 64)),
             yPosition: unchecked((ushort)(Camera.YPosition + 166)));
@@ -908,7 +908,7 @@ public sealed partial class SuperMetroidRuntime
             LastBombJumpMovement = null;
             LastKnockbackMovement = null;
             BombProjectiles.Reset();
-            Projectiles.Reset();
+            Projectiles.Reset(Samus);
             return new DebugGroundedSamusPlacement(
                 xPosition,
                 restingY,

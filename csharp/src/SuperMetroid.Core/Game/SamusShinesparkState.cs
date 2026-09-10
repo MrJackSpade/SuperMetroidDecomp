@@ -124,6 +124,19 @@ public sealed class SamusShinesparkState
     private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>
+    /// ResetProjectileData ($90:AD22) clears the complete speed-echo arrays and index.
+    /// Keep the movement-handler phase and its unrelated timers unchanged.
+    /// </summary>
+    internal void ResetProjectileEchoStorage()
+    {
+        _firstReleasedCrashEcho.Clear();
+        _secondReleasedCrashEcho.Clear();
+        FirstCrashEchoAngle = SecondCrashEchoAngle = SnesAngle.Zero;
+        CrashSubphase = CrashRadius = 0;
+        LastReleasedCrashEchoClear = null;
+    }
+
+    /// <summary>
     /// Ports <c>Samus_CrouchTrans</c> at <c>$91:F7B0</c>. The signed comparison accepts
     /// stage four and any larger high byte exactly as the 65816 does.
     /// </summary>

@@ -53,7 +53,31 @@ The held-input entrypoint remains supported by the shared probe header.
 Issue #465 remains incomplete: aerial/Shot/angle restrictions, energy and
 liquid/sand travel still need coverage.
 
-## Storage admission and palette-owned expiry
+## Aerial spin exits: reproduced aim-up initializer omission
+
+`native-spark-aerial-probe.h` uses the same geometry and original-CPU frame
+stages as the window capture. Store at frame 20; hold forward from frame 22,
+Jump from frame 24; release forward at frame 30 and keep Jump plus one of
+neutral/Shoot/Aim Up/Aim Down. Both facings and all three media give 24 cases.
+Starting forward only on frame 24 was rejected as a fixture: dry/Gravity cases
+launched before the tested input. The accepted v2 fixture starts moving first,
+and the managed comparator rejects captures ending before frame 30.
+
+Before the fix, Aim Up selected ordinary jump poses instead of windup in six
+cases, producing 12 mismatched records through directional launch. The
+spin-to-normal-jump helper omitted the stored-shine branch of the native
+normal-jump initializer. It now reuses the windup initializer, preserving the
+following Screw Attack palette-restore ordering. All 24 cases match per-frame
+pose, shine/windup timers and 16.16 position. These inputs test spin exits;
+they do not establish every held-button restriction or airborne launch window.
+
+Accepted capture: `spark-aerial-465-v2.zip`, CSV SHA-256
+`50BF582B79BD6EFBD70D861FB7319698AD57E722AC22BC9D75A83FEE0598E647`.
+Two native captures match. Regenerate with `native-spark-aerial-entrypoint.patch`
+and `--diagnostic-spark-aerial ROM NEW.csv`; compare using
+`--spark-aerial-audit ROM CSV`. Native hooks removed after capture.
+
+## Storage admission and palette-owned expiry (handler capture)
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

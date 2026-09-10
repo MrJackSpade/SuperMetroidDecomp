@@ -90,15 +90,22 @@ public sealed partial class SamusState
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
 
-        // InitializeSamusPose_NormalJumping chooses acceleration mode two only while some
-        // stored extra-run speed remains. It never clears either speed pair on this route.
-        InitializeOrdinaryAerialAcceleration();
+        // Aim may cancel the spin into a pose that consumes stored shine. Run that
+        // branch of the common normal-jump initializer before ordinary acceleration.
+        bool beganShinespark = TryBeginShinesparkWindup(
+            bus, targetPose, IsWallJumpPose(sourcePose)
+                ? SamusMovementType.WallJumping : SamusMovementType.SpinJumping);
+        if (!beganShinespark)
+            InitializeOrdinaryAerialAcceleration();
 
         // SamusFunc_F433 reloads the ordinary suit palette whenever the previous movement
         // type was spin/wall-jump and Screw Attack is equipped, even if the visible source
         // happened to be generic spin or Space Jump art.
         if (EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
             HorizontalSpeed.RequestNormalSuitPaletteRestore();
+
+        if (beganShinespark)
+            return true;
 
         // $91:F5CF publishes the newly installed pose's shot direction on the exact Fire
         // edge that selected this record. The projectile producer consumes it in alpha.

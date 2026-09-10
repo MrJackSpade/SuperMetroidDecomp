@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--spark-aerial-audit")
+    return SparkAerialAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--spark-tap-window-audit")
     return SparkWindowAudit.Run(args[1], args[2], tap: true);
 if (args.Length == 3 && args[0] == "--spark-window-audit")

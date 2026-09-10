@@ -14,9 +14,9 @@ internal static class DoorExitMomentumAudit
 {
     public static int Run(string romPath, ushort source, ushort destination, ushort x, ushort y,
         ushort xSubposition = 0, ushort ySubposition = 0, ushort equippedItems = 0,
-        string? seedPrefix = null)
+        string? seedPrefix = null, bool spinJump = false)
     {
-        foreach (bool tubeBroken in new[] { false, true })
+        foreach (bool tubeBroken in spinJump ? new[] { false } : new[] { false, true })
         foreach (bool carriedSpeed in new[] { false, true })
         {
             var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -30,6 +30,8 @@ internal static class DoorExitMomentumAudit
             runtime.LoadCartridgeRoomForDebug(source, (ushort)(x & 0xff00), (ushort)(y & 0xff00));
             var samus = runtime.Samus!;
             var level = runtime.LevelData!;
+            if (x >= level.WidthInBlocks * 16 || y >= level.HeightInBlocks * 16)
+                throw new ArgumentOutOfRangeException(nameof(x), "The boundary seed must be inside the source room.");
             CartridgeDoorHeader? door = null;
             foreach (var index in Enumerable.Range(0, level.ForegroundEntries.Length))
             {
@@ -46,6 +48,18 @@ internal static class DoorExitMomentumAudit
             samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
             if (left) samus.ApplyStandingLeftToRunningLeft(bus);
             else samus.ApplyStandingRightToRunningRight(bus);
+            if (spinJump)
+            {
+                // Construct a descending spin at the boundary. This isolates the door
+                // handoff, not the input sequence that first approached the doorway.
+                samus.Pose = left ? SamusPoseIds.SpinJumpLeftPose : SamusPoseIds.SpinJumpRightPose;
+                samus.Kinematics.YDirection = 2;
+                samus.Kinematics.YSpeed = 2;
+                samus.HorizontalSpeed.AccelerationMode = 2;
+                samus.PoseHistory.PreviousPose = samus.Pose;
+                samus.PoseHistory.PreviousDirectionAndMovement =
+                    (ushort)(((byte)SamusMovementType.SpinJumping << 8) | (left ? 4 : 8));
+            }
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.Kinematics.SetXFixed(((uint)x << 16) | xSubposition);
@@ -53,11 +67,24 @@ internal static class DoorExitMomentumAudit
             samus.EquippedItems = equippedItems;
             samus.HorizontalSpeed.BaseSpeed = carriedSpeed ? (ushort)2 : (ushort)0;
             samus.HorizontalSpeed.BaseSubspeed = carriedSpeed ? (ushort)0xc000 : (ushort)0;
+            if (spinJump)
+            {
+                // Read the ordinary dry-air spin cap, with two additional pixels of
+                // constructed dash momentum. Keep the two components
+                // separate: seeding a running base speed would invent the very excess
+                // this diagnostic is intended to measure.
+                var spinEntry = samus.HorizontalSpeed.ReadEntry(bus, SamusMovementType.SpinJumping);
+                samus.HorizontalSpeed.BaseSpeed = spinEntry.MaximumSpeed;
+                samus.HorizontalSpeed.BaseSubspeed = spinEntry.MaximumSubspeed;
+                samus.HorizontalSpeed.ExtraRunSpeed = carriedSpeed ? (ushort)2 : (ushort)0;
+                samus.HorizontalSpeed.HasRunningMomentum = carriedSpeed;
+            }
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
-            Console.WriteLine($"CASE source={source:X4} destination={destination:X4} door={door.Pointer:X4} tube-broken={tubeBroken} carried-speed={carriedSpeed}");
+            Console.WriteLine($"CASE source={source:X4} destination={destination:X4} door={door.Pointer:X4} tube-broken={tubeBroken} carried-speed={carriedSpeed} spin={spinJump}");
             int frame = 0;
+            Trace("Seed", samus.Kinematics.XFixed);
             for (; transition.IsActive && frame < 300; frame++)
             {
                 uint previousX = samus.Kinematics.XFixed;
@@ -80,6 +107,7 @@ internal static class DoorExitMomentumAudit
                 $"frame={frame} phase={phase} x={samus.Kinematics.XFixed:X8} dx={unchecked((int)(samus.Kinematics.XFixed - previousX)) / 65536.0:F4} " +
                 $"y={samus.Kinematics.YFixed:X8} base={samus.HorizontalSpeed.BaseFixed:X8} " +
                 $"extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} mode={samus.HorizontalSpeed.AccelerationMode} " +
+                $"yspeed={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} ydir={samus.Kinematics.YDirection} " +
                 $"medium={samus.LiquidPhysics.DetermineMovementMedium(samus)} fx={samus.LiquidPhysics.FxType} surface={samus.LiquidPhysics.FxYPosition:X4} pose={samus.Pose:X2} locked={samus.InputLocked}");
         }
         return 0;

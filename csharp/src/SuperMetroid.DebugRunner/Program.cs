@@ -284,13 +284,14 @@ if (args.Length == 4 && args[0] == "--ridley-spc-tick-comparison-audit")
     return SpcTickComparisonAudit.Run(args[1], Convert.ToInt32(args[2], 16), args[3], expectedTicks: 6000);
 if (args.Length == 3 && args[0] == "--spc-cancellation-audit")
     return SpcCancellationAudit.Run(args[1], Convert.ToInt32(args[2], 16));
-if (args.Length is 6 or 9 or 10 && args[0] == "--door-exit-momentum-audit")
+if (args.Length is 6 or 9 or 10 && args[0] is "--door-exit-momentum-audit" or "--spin-door-exit-momentum-audit")
     return DoorExitMomentumAudit.Run(args[1], Convert.ToUInt16(args[2], 16),
         Convert.ToUInt16(args[3], 16), Convert.ToUInt16(args[4], 16), Convert.ToUInt16(args[5], 16),
         args.Length >= 9 ? Convert.ToUInt16(args[6], 16) : (ushort)0,
         args.Length >= 9 ? Convert.ToUInt16(args[7], 16) : (ushort)0,
         args.Length >= 9 ? Convert.ToUInt16(args[8], 16) : (ushort)0,
-        args.Length == 10 ? args[9] : null);
+        args.Length == 10 ? args[9] : null,
+        spinJump: args[0] == "--spin-door-exit-momentum-audit");
 if (args.Length == 2 && args[0] == "--short-tap-audit")
     return ShortTapAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--short-tap-comparison-audit")

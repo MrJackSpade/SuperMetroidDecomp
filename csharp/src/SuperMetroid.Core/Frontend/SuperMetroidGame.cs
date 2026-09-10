@@ -724,6 +724,10 @@ public sealed partial class SuperMetroidGame
                 // made the new damage/type word immediate while art stayed stale until the
                 // next room load happened to invoke the same routine.
                 runtime.QueueGameplayBeamTilesAndLoadPalette(resumedSamus.EquippedBeams);
+                // The native teardown also reconciles equipment-dependent momentum.
+                // Keep the speed pair until the next gameplay frame, as the cartridge does.
+                resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
+                    bus, (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 BeginPauseFade(0);

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--pause-charge-comparison-audit")
+    return PauseChargeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pause-fade-comparison-audit")
     return PauseFadeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--soft-unmorph-charge-comparison-audit")

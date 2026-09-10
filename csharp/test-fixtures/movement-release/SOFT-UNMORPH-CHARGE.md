@@ -3,7 +3,7 @@
 Source: [Mockball with Bombspread Charge, method III](https://wiki.supermetroid.run/Mockball#Mockball_with_Bombspread_Charge).
 This verifies the soft-unmorph preparation and ensuing charge carry. It does not
 claim slope-traversal multiplier parity for #425 or full active-scope rendering.
-The remaining #471 work is native comparison of pause-separated Down timing.
+The native pause-separated Down timing comparison is now in [PAUSE-CHARGE.md](PAUSE-CHARGE.md).
 
 ## Reproduce and provenance
 
@@ -80,4 +80,4 @@ zero mismatches. DebugRunner builds without warnings/errors.
 V1 explored later morph timings that actually activate X-ray after landing, outside
 this probe's HDMA scope. V2 retains successful and adjacent missed-morph controls
 without entering that lifecycle, and stops failed preparations before activation.
-Only v2 is accepted. Full native pause timing remains outstanding for #471.
+Only v2 is accepted. Full native pause timing is covered separately by PAUSE-CHARGE.md.

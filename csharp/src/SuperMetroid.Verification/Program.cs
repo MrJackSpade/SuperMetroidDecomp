@@ -540,6 +540,7 @@ VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();
 VerifyCompactWalkOffCollision();
+VerifyPauseMomentumReconciliation();
 VerifyBombChargeRejection();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();

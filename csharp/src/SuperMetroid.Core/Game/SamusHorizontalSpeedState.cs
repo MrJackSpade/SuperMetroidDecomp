@@ -636,6 +636,34 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
+    /// Reconciles the speed/echo portion of $91:E633 after the equipment menu.
+    /// Unlike ordinary momentum cancellation, unequipping Speed Booster erases
+    /// the echoes outright and leaves the numeric run-speed pair until the next
+    /// movement update observes the cleared momentum flag.
+    /// </summary>
+    public void ReconcilePauseSpeedBoosterState(ISnesAddressSpace bus, bool speedBoosterEquipped)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        if (speedBoosterEquipped)
+        {
+            if (HasRunningMomentum && SpeedBoostCounter == 0)
+            {
+                SpecialPaletteTimer = 0;
+                SpecialPaletteFrame = 0;
+                SpeedBoostCounter = ReadWord(bus, SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
+            }
+            return;
+        }
+
+        HasRunningMomentum = false;
+        SpeedBoostCounter = SpecialPaletteFrame = SpecialPaletteTimer = 0;
+        SpeedEchoIndex = 0;
+        FirstSpeedEchoXSpeed = SecondSpeedEchoXSpeed = 0;
+        FirstSpeedEchoXPosition = SecondSpeedEchoXPosition = 0;
+        FirstSpeedEchoYPosition = SecondSpeedEchoYPosition = 0;
+    }
+
+    /// <summary>
     /// Performs the complete horizontal-momentum teardown shared by collision, standing,
     /// posture, aerial, and Morph-Ball handlers. The native seam first cancels Speed Booster
     /// bookkeeping/echoes, then clears the two extra-run words, two base-speed words, and

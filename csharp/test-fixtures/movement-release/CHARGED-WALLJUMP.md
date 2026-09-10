@@ -3,8 +3,9 @@
 This is a verified component of #471, not completion of its full technique audit.
 Bombs menu toggles, running-jump X-ray carry and charged continuous walljump now
 have additional captures linked below, including soft-unmorph X-ray preparation.
-Native pause-separated Down timing remains outstanding. Do not label the entire issue
-awaiting validation on this fixture alone.
+The full native pause-separated Down sequence is now covered by
+[PAUSE-CHARGE.md](PAUSE-CHARGE.md). These combined captures cover #471's
+mechanical scope; the issue remains open for player confirmation.
 
 ## Native evidence and reproduction
 
@@ -102,12 +103,12 @@ menu, then presses it on the first resumed gameplay frame. Assertions cover:
   produces five bombs and consumes the charge.
 
 These are 31 deterministic **C# integration baselines**, not a native-CPU
-measurement of the entire pause timing window. The later [native fade comparison](PAUSE-FADE.md)
+measurement of the entire pause timing window by themselves. The later [native fade comparison](PAUSE-FADE.md)
 found and fixed the missing counter-only fade frames. The sweep was moved fifteen
 frames earlier to preserve the same airborne freeze points. Full cartridge
-movement comparison remains required before #471 is ready
-for player validation. The native comparison above covers only its stated
-charged-walljump sequence; it must not be cited as proof of this menu sequence.
+movement comparison is now provided in [PAUSE-CHARGE.md](PAUSE-CHARGE.md),
+including the additional unpause momentum reconciliation fix. The charged-walljump
+capture above still must not be cited as proof of the separate menu sequence.
 
 An additional frame-127 case now disables Bombs through R, Right, Down and A in
 the actual frontend equipment page. Samus soft-morphs and rolls with Down released

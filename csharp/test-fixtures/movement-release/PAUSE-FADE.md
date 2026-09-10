@@ -32,7 +32,7 @@ comparing legacy/captured pixels, Samus state and audio commands. Its controller
 slice is now 180 rather than 160 frames to include the complete restored fade.
 The 32-case charge-carry frontend baseline still passes, with Start/Down shifted
 15 frames earlier to retain the same airborne freeze points. That baseline's
-remaining native movement/charge comparison is explicitly not claimed here.
+native movement/charge comparison is covered separately by [PAUSE-CHARGE.md](PAUSE-CHARGE.md).
 
 To recapture, include `native-release-probe.h` and this probe in `sm_rtl.c`, then
 dispatch `DiagnosticPauseFade(rom, output)` before SDL initialization. Temporary

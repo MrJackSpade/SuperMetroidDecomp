@@ -3,9 +3,9 @@
 Source: [Mockball with Bombspread Charge, method III](https://wiki.supermetroid.run/Mockball#Mockball_with_Bombspread_Charge).
 This capture covers the running-jump approach. The soft-unmorph/slope-killer
 preparation has a separate [capture](SOFT-UNMORPH-CHARGE.md). Full native
-pause-separated Down timing remains outstanding. The
+pause-separated Down timing now has a separate [capture](PAUSE-CHARGE.md). The
 continuous-walljump branch has a separate [capture](CONTINUOUS-WALLJUMP.md).
-#471 is not ready for player validation yet.
+Together the captures cover #471's mechanical scope, awaiting player confirmation.
 
 ## Reproduce
 

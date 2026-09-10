@@ -1,0 +1,35 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -81,14 +81,15 @@
+ static uint16 g_gamepad_last_cmd[kGamepadBtn_Count];
+ extern Snes *g_snes;
++static bool pause_probe_headless;
+ 
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!pause_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+   fprintf(stderr, "Error: %s\n", error);
+   exit(1);
+ }
+ 
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!pause_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+   fprintf(stderr, "Warning: %s\n", error);
+ }
+ 
+@@ -315,1 +316,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-pause-charge") == 0) {
++    pause_probe_headless = true;
++    extern int DiagnosticPauseCharge(const char *, const char *);
++    return DiagnosticPauseCharge(argv[2], argv[3]);
++  }
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -97,1 +97,3 @@
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-pause-charge-probe.h"

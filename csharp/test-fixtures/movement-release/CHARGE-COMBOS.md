@@ -1,8 +1,8 @@
 # Charge Beam Combo implementation evidence
 
-Current status: shared selection/timing/weapon ownership (#416) and Ice Shield
-particle/freeze semantics (#417) are ready for player validation. Family-specific
-combat and presentation tickets #418–#420
+Current status: shared selection/timing/weapon ownership (#416), Ice Shield
+particle/freeze semantics (#417), and Wave Shield (#418) are ready for player
+validation. Family-specific combat and presentation tickets #419–#420
 remain incomplete. The sections below record chronological checkpoints; later
 evidence supersedes the earlier statements of missing integration.
 
@@ -12,6 +12,42 @@ cases left PB=2 and charge=120. That failing witness is now a passing regression
 after the implementations and integration described below.
 
 ## Native dispatcher oracle
+
+### #418 stationary/moving/turning patterns and acceptance
+
+`native-wave-patterns-probe.h` runs original Wave pre-instructions plus projectile
+animation for nine 640-frame sequences: stationary Samus at (128,128); moving
+Samus on a 120-frame horizontal triangle from X=128 to 188 plus an 80-frame
+vertical triangle from Y=128 to 138; and that same movement with facing toggled
+left on horizontal phases 60–119. Each crosses no hit, particle-zero hit on
+frame 10, and an after-expiry hit control on frame 610. Every setup allocates
+Charge+Wave through FireSBA with two Power Bombs, initial facing right, zero
+subpixels/RNG, no cheats. These authored target coordinates isolate projectile
+homing; they do not claim to test Samus's own movement or turn-pose transitions.
+
+Two independent native captures are identical. Accepted CSV is archived in
+`wave-patterns-418-v1.zip`, SHA-256
+`89890BAE1F685B2D26471915F1A5D99F21B41E3B446244E53366F7C1D482B805`.
+The existing managed motion comparator now accepts this additional hash-gated
+matrix through `--wave-patterns-audit ROM CSV`. All 5,760 frames match count,
+cooldown, flare writes, ordered sound requests, and all four live particles'
+positions/subpixels, velocities, lifetime, handler and trail clock. Both sides
+run the native animation handler after each pre-instruction. Explicit assertions
+also require 300 damage per live particle and zero particles starting at frame
+599 (the 600th update), with early collision removing only particle zero.
+
+Regenerate using `native-wave-patterns-entrypoint.patch` and only the headless
+`sm.exe --diagnostic-wave-patterns ROM NEW.csv` entry. Temporary hooks removed.
+No production mismatch was found in these additional trajectory cases.
+
+#418 acceptance is now covered by this pattern matrix, the earlier 3,840 Wave
+motion frames (both initial facings), the 5,120-frame shared OAM oracle (including
+Wave particle/trail visuals and midflight equipment changes), real held-Fire
+activation, and the 384-pass retail-hitbox Phantoon contact matrix. All were
+rerun successfully, together with the complete 5,906-frame Phantoon audit.
+The boss comparison reproduces and verifies the charged-damage fix in 03820451.
+This evidence targets the pinned NTSC cartridge, not PAL or every custom boss
+callback. Leave #418 open with awaiting-player-validation for player confirmation.
 
 ### #418 supporting Phantoon audit repaired
 

@@ -2213,7 +2213,7 @@ public sealed partial class SuperMetroidRuntime
                         LevelData,
                         Samus,
                         NmiFrameCounter,
-                        BombProjectiles.BombCounter,
+                        Projectiles.ProjectileCounter,
                         Plms,
                         playerInvincibilityEnabled: PlayerInvincibilityEnabled);
                     if (LastShinesparkMovement.Value.WindupTimedOut)

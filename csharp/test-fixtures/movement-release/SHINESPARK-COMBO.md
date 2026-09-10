@@ -61,3 +61,20 @@ loss and projectile reset, shared fixed-slot ownership with combos, then reprodu
 successive sparks with active, just-ended and fully-cleared combos. The direct
 counter fixture proves the present reset defect but does not satisfy the whole
 ticket's resource/echo lifetime and successive-input acceptance requirements.
+
+## Runtime capacity wiring checkpoint
+
+`SparkCapacityInputAudit` uses the real runtime alpha/beta frame in a constructed
+flat room. It seeds only the CrashFinish boundary, with the appropriate horizontal
+spark pose, and activates each real combo through the production allocator.
+The control has no combo; all five cases have zero bombs. Before the fix, every
+combo case allocated two separate departing echoes despite four ordinary
+projectiles being active. Runtime passed BombCounter where native `$90:D40D`
+reads the ordinary ProjectileCounter. It now passes the correct counter.
+
+`--spark-capacity-input-audit ROM`: four failing cases before, all five passing
+after. The control admits two echoes; each four-particle combo admits only slot
+four's echo. This checks the real caller, not a test directly supplying the
+desired count. The underlying fixed projectile-slot allocation/counter ownership
+is still separate in the current model and remains required work; passing the
+admission test is not evidence that this later ownership is already correct.

@@ -2848,9 +2848,13 @@ public sealed partial class SuperMetroidRuntime
                 // only when no super-special animation command has already won. Its first
                 // branch consumes the X-speed-killed flag produced by CURRENT type-one
                 // running movement. This creates a wall-stop pose even with no input match.
+                // An unobstructed upward platform carry leaves the prospective input
+                // pose intact too. Requiring a vertical collision here wrongly skipped
+                // the native one-pixel run check while a Kamer was carrying Samus upward.
                 if (!animationTransitionApplied &&
                     LastGroundedSamusMovement is
-                        { Vertical.Collided: true } groundedForWallCheck)
+                        { } groundedForWallCheck &&
+                    !groundedForWallCheck.Vertical.IsUnobstructedDownwardMovement)
                 {
                     bool currentRunHitWall =
                         (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||

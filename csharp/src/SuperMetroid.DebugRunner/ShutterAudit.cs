@@ -467,7 +467,9 @@ internal static class ShutterAudit
         samus.XPosition = unchecked((ushort)(slot.XPosition + state.HorizontalProximityOrWaitTime));
         samus.YPosition = slot.YPosition;
         StepCentered(loaded.Enemies, samus, slot);
-        if (state.Function != VerticalShutterFunction.WaitForHorizontalProximity)
+        // Native Initial calls the proximity subroutine without replacing its own
+        // function pointer. Only successful activation installs a moving function.
+        if (state.Function != VerticalShutterFunction.Initial || slot.YPosition != startY)
             throw new InvalidDataException("Kamer vertical platform accepted equality in proximity mode.");
 
         samus.XPosition--;
@@ -559,9 +561,12 @@ internal static class ShutterAudit
         byte powerBombVulnerability = powerBomb.Bus.ReadByte(
             0xb40000 | unchecked((ushort)(
                 powerBombSlot.Definition.VulnerabilityPointer + 14)));
-        if (powerBombHits != 0 || powerBombVulnerability != 0 ||
+        // EnemyBombShotCollisionHandling dispatches the header's private callback
+        // before normal damage vulnerability. This shutter is undamaged but activated;
+        // a zero vulnerability byte does not suppress its custom reaction.
+        if (powerBombHits != 1 || powerBombVulnerability != 0 ||
             powerBombSlot.Health != 20 ||
-            powerBomb.Enemies.VerticalShutterStates[0]!.Function != VerticalShutterFunction.InitialNoOp)
+            powerBomb.Enemies.VerticalShutterStates[0]!.Function != VerticalShutterFunction.MovingUp)
         {
             throw new InvalidDataException(
                 $"Vertical shutter power-bomb vulnerability gate failed: hits={powerBombHits}, " +
@@ -587,7 +592,9 @@ internal static class ShutterAudit
                 projectiles,
                 shared,
                 loaded.Samus) != 1 ||
-            slot.Health != 0 || !slot.Properties.HasAny(EnemyProperties.Deleted))
+            // Normal death clears the native 64-byte enemy slot immediately; it does
+            // not leave the deferred-deletion property bit set in an otherwise live slot.
+            slot.Health != 0 || slot.EnemyDefinitionPointer != 0)
         {
             throw new InvalidDataException(
                 $"Destroyable vertical shutter did not run common shot damage: health=" +
@@ -683,10 +690,10 @@ internal static class ShutterAudit
                 explosionRadius: 64);
         byte powerBombVulnerability = powerBomb.Bus.ReadByte(
             0xb40000 | unchecked((ushort)(pbSlot.Definition.VulnerabilityPointer + 14)));
-        if (powerBombHits != 0 || powerBombVulnerability != 0 ||
+        if (powerBombHits != 1 || powerBombVulnerability != 0 ||
             pbSlot.Health != 20 ||
             powerBomb.Enemies.HorizontalShutterStates[0]!.Function !=
-                HorizontalShutterFunction.InitialNoOp)
+                HorizontalShutterFunction.MovingRight)
         {
             throw new InvalidDataException(
                 $"Horizontal shutter power-bomb vulnerability gate failed: hits=" +

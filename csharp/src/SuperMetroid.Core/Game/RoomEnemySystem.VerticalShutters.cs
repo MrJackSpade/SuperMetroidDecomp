@@ -76,12 +76,12 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        switch (state.Function)
+        // The initial function JSRs through its parameter table during this very AI
+        // call; it does not spend a frame installing the selected wait function.
+        // Keep Initial live until activation writes the moving function, as native does.
+        switch (state.Function == VerticalShutterFunction.Initial
+            ? SelectInitialVerticalShutterFunction(state) : state.Function)
         {
-            case VerticalShutterFunction.Initial:
-                SelectInitialVerticalShutterFunction(state);
-                return;
-
             case VerticalShutterFunction.WaitForTimer:
                 state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
                 if (state.FunctionTimer == 0)
@@ -137,9 +137,9 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private static void SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
+    private static VerticalShutterFunction SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
     {
-        state.Function = state.InitialFunctionTableOffset switch
+        return state.InitialFunctionTableOffset switch
         {
             0 => VerticalShutterFunction.WaitForTimer,
             2 => VerticalShutterFunction.WaitForHorizontalProximity,

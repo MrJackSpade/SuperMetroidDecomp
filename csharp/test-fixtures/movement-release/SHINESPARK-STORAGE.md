@@ -133,7 +133,25 @@ and bounded/dialog-free `--diagnostic-spark-energy ROM NEW.csv`; compare with
 Liquid/sand travel and remaining launch restriction/window coverage are still
 outstanding. This fixture does not validate the separate invincibility override.
 
-## Storage admission and palette-owned expiry (handler capture)
+## Fully submerged water travel
+
+`native-spark-water-probe.h` repeats the enclosed dry-travel room with water
+surface Y=8 and options 80. Health starts at 99, Speed Booster equipped,
+Gravity absent/present, three directions and both facings (12 cases). Storage
+and launch input timing are unchanged. Capture ends at crash entry, capped
+at 160 frames. Compare every pose, shine/windup timer, 16.16 X/Y, health and
+crash flag through the full managed frame dispatcher. All 12 cases match;
+no production change was needed. This covers submerged room travel, not
+crossing a liquid boundary, lava/acid, or sand movement modifiers.
+
+Two native captures match. Accepted CSV in `spark-water-465-v1.zip`, SHA-256
+`59406F8B686F99FD126F88D170A7EBAE9BC58039D8297C73BCE5E580B01193D9`.
+Regenerate using `native-spark-water-entrypoint.patch` and bounded/dialog-free
+`--diagnostic-spark-water ROM NEW.csv`; compare with `--spark-water-audit ROM CSV`.
+Temporary native hooks removed. The comparator rejects truncated cases that
+have not reached crash entry. Gameplay cheats are disabled for this fixture.
+
+## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

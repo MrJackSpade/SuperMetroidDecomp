@@ -65,3 +65,23 @@ The Release build, full Core verification, elevator frontend handoff audit, and
 forty-frame spin-door native comparison (#517) pass with the scheduling change.
 The #516 fade-camera assertion passes; its independent pixel assertion still
 fails with the three differences above.
+
+## Corrected audit cadence and residual witness
+
+The earlier audit called `RunNmi` after `StepFrame`, but `StepFrame` already
+accepts an NMI in its prologue. The desktop frontend does not make that second
+call. This doubled the audit's NMI counter, defeated alternating elevator
+visibility, and uploaded freshly built OAM earlier than the normal frontend.
+The audit now follows the frontend's single-NMI cadence. Earlier pixel counts
+above remain historical observations, not an exact native-timing comparison.
+
+With the corrected cadence, the same 231-frame route still fails: **two**
+pixel-frame differences, both at screen (130,32), on frames 113 and 115.
+The first witness can be traced to its contributing OAM record by hiding each
+palette-four record in a cloned display packet. The trace also includes pose,
+animation frame, and NMI counter. This is diagnostic isolation only: neither
+live OAM nor production rendering is changed. A native draw/arrival comparison
+is still required before deciding whether that residual pixel is a defect.
+
+All PNG output stays under the local test-temp directory. Publish only source,
+these textual findings, and numerical diagnostics; never publish screenshots.

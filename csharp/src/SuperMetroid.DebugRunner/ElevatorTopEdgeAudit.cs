@@ -32,12 +32,11 @@ internal static class ElevatorTopEdgeAudit
         {
             ushort input = i % 30 == 0 ? (ushort)SnesButton.Up : (ushort)0;
             runtime.StepFrame(input);
-            runtime.RunNmi(input, true);
         }
         if (runtime.PendingDoorTransition?.Pointer != DoorPointers.BlueBrinstarElevatorFromMorphBall)
             throw new InvalidDataException("The upward ride did not reach the reported elevator door.");
         using var trace = new StreamWriter(Path.Combine(directory, "frames.csv"));
-        trace.WriteLine("frame,phase,room,samusY,cameraY,displayY,screenY,status");
+        trace.WriteLine("frame,phase,room,samusY,cameraY,displayY,screenY,status,pose,animation,nmi");
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
@@ -58,7 +57,9 @@ internal static class ElevatorTopEdgeAudit
         int settled = 0;
         for (int i = 0; i < 600 && settled < 30; i++)
         {
-            runtime.StepFrame(0); runtime.RunNmi(0, true);
+            // StepFrame owns the accepted NMI, just as in SuperMetroidGame.
+            // A second NMI uploads next-frame OAM early and defeats elevator flicker.
+            runtime.StepFrame(0);
             Capture("Arrival");
             if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive) settled++;
         }
@@ -73,7 +74,8 @@ internal static class ElevatorTopEdgeAudit
         {
             int relativeY = unchecked((short)(samus.YPosition - runtime.DisplayedGameplayPpu.Layer1YPosition));
             trace.WriteLine($"{frame},{phase},{runtime.ActiveRoom!.Pointer:X4},{samus.YPosition},{runtime.Camera!.YPosition}," +
-                $"{runtime.DisplayedGameplayPpu.Layer1YPosition},{relativeY},{runtime.Enemies.ElevatorStatus}");
+                $"{runtime.DisplayedGameplayPpu.Layer1YPosition},{relativeY},{runtime.Enemies.ElevatorStatus}," +
+                $"{samus.Pose},{samus.AnimationFrame},{runtime.NmiFrameCounter}");
             // Capture each potentially wrapped arrival frame, plus periodic settled
             // views. These are observations; no camera or sprite state is modified.
             if (runtime.ActiveRoom.Pointer == RoomHeaderPointers.BlueBrinstarElevatorRoom &&
@@ -99,8 +101,32 @@ internal static class ElevatorTopEdgeAudit
                         for (int pixel = 0; pixel < 256 * 80; pixel++)
                             if (pixels[pixel] != blackSamus[pixel])
                             {
+                                if (wrappedPixelFrames < 8)
+                                    Console.WriteLine($"Top-edge palette witness: frame={frame}, x={pixel % 256}, y={pixel / 256}, " +
+                                        $"pose={samus.Pose:X2}, animation={samus.AnimationFrame}, nmi={runtime.NmiFrameCounter}.");
+                                bool firstWitness = firstWrappedFrame < 0;
                                 wrappedPixelFrames++;
-                                if (firstWrappedFrame < 0) firstWrappedFrame = frame;
+                                if (firstWitness) firstWrappedFrame = frame;
+                                if (firstWitness)
+                                {
+                                    // Find the actual OAM owner instead of assuming that
+                                    // every use of palette four belongs to Samus.
+                                    for (int sprite = 0; sprite < packet.Memory.ModeledSpriteCount; sprite++)
+                                    {
+                                        byte[] oam = packet.Memory.Oam.ToArray();
+                                        int offset = sprite * 4;
+                                        if (((oam[offset + 3] >> 1) & 7) != 4) continue;
+                                        byte originalY = oam[offset + 1];
+                                        oam[offset + 1] = 240;
+                                        var hiddenMemory = new PpuMemorySnapshot(packet.Memory.Vram,
+                                            packet.Memory.Cgram, oam, packet.Memory.ModeledSpriteCount);
+                                        var hidden = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(
+                                            hiddenMemory, packet.Layers, packet.ObjectSelection, packet.Brightness));
+                                        if (hidden[pixel] != pixels[pixel])
+                                            Console.WriteLine($"Witness OAM owner={sprite}, x={oam[offset]}, y={originalY}, " +
+                                                $"tile={oam[offset + 2]:X2}, attributes={oam[offset + 3]:X2}.");
+                                    }
+                                }
                             }
                     }
                 }

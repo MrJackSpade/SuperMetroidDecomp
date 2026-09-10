@@ -158,3 +158,31 @@ witnesses assert all four rings at radius 192/phase one on frame 37, radius
 Enemy penetration/damage and visual properties are not proved by setting a hit
 bit in this movement fixture. Spazer updates and shared firing integration remain
 unfinished, so #416/#420 remain open without awaiting-player-validation.
+
+## Spazer particle update checkpoint (#416 / #419)
+
+`StepSpazerCombo` implements $90:DB06 and $90:DC9C with the three auxiliary
+phases, paired-slot hit deletion, top-edge early fall, radius-zero reversal,
+slot-zero transition sound, retagging the two primary particles as falling trails,
+and final downward deletion. The native ordering updates cooldown/charge after
+the main phase handler, but not after a falling particle is deleted.
+
+Six 200-frame original-CPU sequences cover both facings (the left-facing cases
+also use a higher Samus position to exercise the longer upper orbit), moving
+Samus, and hit-bit injection at frames 10/60 or no hit. All 1,200 frames match.
+In addition to the nine motion words used by Wave/Plasma, this trace includes
+auxiliary phase, projectile type, instruction pointer and damage, so a position-
+only match cannot hide an incorrect falling-trail slot handoff. Animation runs
+after each pre-instruction in both implementations.
+
+- Archive: `spazer-combo-419-v1.zip`.
+- CSV SHA256: `73763E826E1578999042745F4312EE9F4A909778A00E8361FE4E276EAC14403E`.
+- Same ROM/source pins; two captures identical.
+- Regenerate with `native-spazer-combo-entrypoint.patch`, rebuild, then invoke
+  only bounded/dialog-free `sm.exe --diagnostic-spazer-combo ROM NEW.csv`.
+- Managed: `--spazer-combo-motion-audit ROM CSV`.
+- Temporary hooks removed and reapplication checked.
+
+All four particle families now have updates, but the ordinary firing/update path
+still requires integration. Combat and visible rendering assertions remain;
+#416 and #419 are not yet ready for player validation.

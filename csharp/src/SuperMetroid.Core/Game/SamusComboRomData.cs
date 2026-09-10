@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Native identities and definition tables for bank-$90 special beam attacks.</summary>
 public static class SamusComboRomData
 {
+    /// <summary>ProjPreInstr_EndOfSpazerSba at $90:DC9C.</summary>
+    public const ushort SpazerFalling = 0xdc9c;
     /// <summary>ProjPreInstr_PlasmaSba expansion/contraction step in pixels.</summary>
     public const int PlasmaRadiusStep = 4;
     /// <summary>ProjPreInstr_PlasmaSbaFunc_0 ($90:D7E1) switches phase at this radius.</summary>

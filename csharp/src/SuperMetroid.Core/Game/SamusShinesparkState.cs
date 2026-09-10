@@ -501,8 +501,7 @@ public sealed class SamusShinesparkState
 
         // Native reserves fixed projectile slots three and four. Its projectile counter
         // admits both while below four, only slot four at exactly four, and neither at five
-        // or above. The current runtime passes the count from its translated bomb/projectile
-        // slice; this preserves the retail capacity branch without inventing availability.
+        // or above. The runtime supplies the ordinary projectile count, not bomb count.
         // Capacity failure does not clear existing echo words or slots. In particular,
         // retaining slot three's Y also retains the next crash's angular-travel seed.
         LastReleasedCrashEchoClear = null;
@@ -765,7 +764,9 @@ public sealed class SamusShinesparkState
         {
             Active = true;
             Angle = angle;
-            Radius = 64;
+            // Crash finish clears projectile X velocity (the departing radius). The
+            // separate speed-echo drawing field is 64; it is not this projectile word.
+            Radius = 0;
             XPosition = xPosition;
             YPosition = yPosition;
         }

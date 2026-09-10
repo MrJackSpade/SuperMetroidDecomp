@@ -370,8 +370,8 @@ static void VerifySamusStoredShineAndShinespark()
         "horizontal-right first departing echo uses ROM table angle zero");
     AssertEqual(0x80, horizontal.Shinespark.SecondReleasedCrashEcho.Angle.TableIndex,
         "horizontal-right second departing echo uses opposite ROM table angle $80");
-    AssertEqual(64, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
-        "departing echo initializes to native radius 64");
+    AssertEqual(0, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
+        "departing projectile radius starts at zero, separate from drawing speed");
     AssertEqual(crashCenterX, horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
         "departing echo does not move in its spawn frame");
 
@@ -379,24 +379,24 @@ static void VerifySamusStoredShineAndShinespark()
         bus, horizontal,
         layer1X: unchecked((ushort)(crashCenterX - 128)),
         layer1Y: 0);
-    AssertEqual(72, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
+    AssertEqual(8, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
         "speed-echo pre-instruction expands radius by eight");
-    AssertEqual(unchecked((ushort)(crashCenterX + 72)),
+    AssertEqual(unchecked((ushort)(crashCenterX + 8)),
         horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
         "angle-zero departing echo uses positive sine-table X component");
-    AssertEqual(unchecked((ushort)(crashCenterY - 72)),
+    AssertEqual(unchecked((ushort)(crashCenterY - 8)),
         horizontal.Shinespark.FirstReleasedCrashEcho.YPosition,
         "angle-zero departing echo uses negative cosine-table Y component");
-    AssertEqual(unchecked((ushort)(crashCenterX - 72)),
+    AssertEqual(unchecked((ushort)(crashCenterX - 8)),
         horizontal.Shinespark.SecondReleasedCrashEcho.XPosition,
         "angle-$80 departing echo uses negative sine-table X component");
-    AssertEqual(unchecked((ushort)(crashCenterY + 72)),
+    AssertEqual(unchecked((ushort)(crashCenterY + 8)),
         horizontal.Shinespark.SecondReleasedCrashEcho.YPosition,
         "angle-$80 departing echo uses positive cosine-table Y component");
 
     // Both rays leave the 256-pixel-tall viewport at radius 136. The pre-instruction
     // clears every published word at that instant; it does not keep an off-screen ghost.
-    for (int frame = 0; frame < 8; frame++)
+    for (int frame = 0; frame < 16; frame++)
     {
         horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
             bus, horizontal,

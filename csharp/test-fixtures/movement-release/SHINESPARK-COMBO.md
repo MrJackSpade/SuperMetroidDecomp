@@ -3,6 +3,30 @@
 Status: retained-word crash entry fixed; full combo/echo integration remains
 incomplete. No awaiting-player-validation label.
 
+## Released-radius checkpoint
+
+Original `$90:D40D` initializes projectile X velocity (released radius) to zero,
+not the 64 written to the separate speed-echo drawing field. The former C#
+translation conflated these words and started departure eight updates too far
+along. This also changed viewport loss timing and therefore the lifetime of the
+Y word shared with crash angular travel.
+
+`native-spark-departure-probe.h` executes original finish and echo handlers for
+all six crash poses at (128,128), camera (0,0), count zero. It records both echoes
+at spawn and 39 subsequent updates, including viewport deletion. The two
+independent captures match byte-for-byte. Accepted CSV in
+`spark-departure-466-v1.zip`, SHA-256
+`DF0DDF8BDD56259EB2EBEFA8F288FA975625D35192AA6E3EF0B86E1AEFCF534A`.
+`--spark-departure-audit ROM CSV` compares active state, radius, X and Y on all
+480 records. Before correction: 224 mismatches across all six poses. After:
+zero mismatches. The older synthetic test's incorrect 64/72 radius expectations
+were replaced with 0/8, and its deletion horizon extended accordingly.
+
+Regenerate with `native-spark-departure-entrypoint.patch` and only the bounded,
+dialog-free `--diagnostic-spark-departure ROM NEW.csv` native entrypoint. Remove
+the hook after capture. This fixture verifies departure geometry/lifetime, not
+the outstanding shared projectile-slot ownership or successive combo sequence.
+
 Pinned retail ROM SHA-256:
 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 Native host pin `578f90b3cc49557bb70060ad033bb90b8cf8ac50`;

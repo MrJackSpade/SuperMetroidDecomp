@@ -62,6 +62,8 @@ if (args.Length == 3 && args[0] == "--waterball-audit")
     return WaterballComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--pseudo-screw-contact-audit")
     return PseudoScrewContactAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--pseudo-screw-projectile-audit")
+    return PseudoScrewProjectileAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moving-door-audit")
     return MovingDoorComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moving-item-audit")

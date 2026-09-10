@@ -55,10 +55,37 @@ an end-to-end proof of spin pose eligibility or enemy-projectile immunity.
 
 ## Remaining before player validation
 
-- Compare enemy and projectile contact separately, including immune cases.
 - Cover charge-producing spin/walljump inputs, released-shot retention, negative
   walljump-check poses, yellow palette and suitless-liquid restrictions.
 - Verify invulnerability semantics without granting universal protection.
 
 The issue remains open without awaiting-player-validation. The broader contract
 and source are https://wiki.supermetroid.run/Pseudo_Screw_Attack and issue #394.
+
+## Generic enemy-projectile pass verified
+
+`native-pseudo-projectile-probe.h` calls original $A0:9894 with one overlapping
+projectile in slot 17. It substitutes only a disposable touch-list definition,
+restored before exit. The 288 cases cover contact modes zero/three/four, initial
+invincibility zero/nine, persistent/deleting contact, damage-disabled property,
+X offsets -9/0/+9, and four radius combinations including either zero axis.
+
+The C# `--pseudo-screw-projectile-audit ROM CSV` exercises the production collision
+pass against the same data. All 288 cases match health, invincibility/knockback
+timers, charge, projectile lifetime and active instruction state. Two vulnerable
+controls take 40 damage. All 96 Pseudo Screw cases retain charge and health and
+leave the projectile alive. This is independent of the enemy-touch consumption
+above: protection comes from the generic pass-entry gate, not universal immunity.
+Deleted projectile instruction state is normalized to zero on both sides because
+this test does not claim parity of inaccessible stale fields after deletion.
+
+- Accepted archive: `pseudo-projectile-421-v1.zip`.
+- CSV SHA256: `F273FEBAD2950CCC5BDE3CFC091F13B170F4D45EF7E9CAD15CBCBA22FBAE1F6B`.
+- Two native captures are byte-identical; same ROM/source pins as above.
+- Regeneration: apply `native-pseudo-projectile-entrypoint.patch`, build, then
+  run `sm.exe --diagnostic-pseudo-projectile ROM NEW.csv`.
+- Temporary hooks removed and reapplication checked. No production change was
+  needed for this pass. The earlier eight-case contact audit still passes.
+
+Pose publication, custom attacks bypassing this pass, yellow flash and input
+retention remain separate gates; this capture does not establish those properties.

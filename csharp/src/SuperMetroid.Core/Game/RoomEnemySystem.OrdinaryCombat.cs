@@ -1444,7 +1444,8 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
+                if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                    enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
                     continue;
 
                 if (isDraygonBody)

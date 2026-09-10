@@ -175,7 +175,8 @@ public sealed partial class SamusProjectileSystem
     public bool TryStartEnemyImpact(
         ISnesAddressSpace bus,
         SamusBombProjectileSystem sharedProjectiles,
-        int slotIndex)
+        int slotIndex,
+        bool blocksPlasmaBeam = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(sharedProjectiles);
@@ -183,7 +184,24 @@ public sealed partial class SamusProjectileSystem
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
         SamusProjectileSlot slot = _slots[slotIndex];
-        if (!slot.IsActive || slot.PackedDirection.HasLowByteLifecycleState)
+        if (!slot.IsActive)
+            return false;
+
+        if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
+            SamusProjectilePreInstruction.IceComboOutward or SamusProjectilePreInstruction.WaveCombo or
+            SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
+            SamusProjectilePreInstruction.PlasmaCombo)
+        {
+            // Enemy collision only marks the native direction word. These particles own
+            // hit deletion (and Spazer's paired deletion) in their next pre-instruction;
+            // replacing that handler with a beam explosion loses their family lifecycle.
+            // Plasma normally pierces, unless the target explicitly stops Plasma beams.
+            ApplyEnemyCollisionPrelude(slotIndex,
+                blocksPlasmaBeam || (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+            return true;
+        }
+
+        if (slot.PackedDirection.HasLowByteLifecycleState)
             return false;
 
         switch (slot.PackedType.Family)

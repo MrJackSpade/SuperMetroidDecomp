@@ -212,3 +212,35 @@ four motion audits (10,080 original-CPU frames total).
 This is not full ticket acceptance: input edge cases and weapon interactions,
 enemy combat, visible rendering and end-to-end audio verification remain.
 Issues #416–#420 stay open without awaiting-player-validation.
+
+## Enemy contact lifecycle checkpoint (#416–#420)
+
+The shared enemy-impact adapter used to replace combo particles with ordinary
+beam explosions, shifting their position and overwriting type, damage and
+pre-instruction. That bypassed each family's hit deletion, Spazer's paired-slot
+deletion and Plasma's piercing lifetime. Combo impacts now retain the live
+particle and apply the native collision flag instead. Ordinary enemy properties
+control whether Plasma is stopped. This does not change ordinary beam impacts.
+
+The original-CPU probe constructs a nonlethal radius-based target with default
+retail vulnerability data, executes FireSBA and first-record animation, then
+executes $A0:A143 and its normal shot callback. It covers all four slots of each
+family, overlap/miss and Plasma-blocking/nonblocking targets (64 cases). The
+initial comparison failed all 32 overlap cases. The final v2 trace also executes
+the contacted particle's next native pre-instruction and records the complete
+four-slot type array and count, proving deletion/pairing versus continued flight.
+All 64 cases now match, including health, flash, invincibility, direction, type,
+handler, position and damage at contact.
+
+- `combo-contact-416-v2.zip`, CSV SHA256:
+  `FC99218EA93F166D7FA3274A49777CDB8782D335DDB6AE48E308A70F30492AD1`.
+- Same ROM/source pins as above; two captures identical. Synthetic definition
+  is changed only in the disposable in-memory cartridge, never the ROM file.
+- Regenerate with `native-combo-contact-entrypoint.patch`, rebuild, then only
+  `sm.exe --diagnostic-combo-contact ROM NEW.csv` (bounded and dialog-free).
+- Managed: `--combo-contact-audit ROM CSV`.
+- Temporary native hooks removed; patch reapplication checked.
+
+This proves the shared ordinary-target boundary, not every boss's custom
+collision callback, rendered output or end-to-end sound. Those and the remaining
+input/weapon interactions still block full acceptance of #416–#420.

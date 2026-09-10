@@ -148,7 +148,9 @@ This focused CPU probe does not execute the full frontend pause/fade/NMI sequenc
 equipment input runs between gameplay frames. It proves menu dispatch and ensuing
 movement/release behavior, not the separate pause-separated Down timing window.
 The full frontend integration test above covers the host path without claiming
-native timing parity. X-ray and continuous-walljump variants remain outstanding.
+native timing parity. The running-jump X-ray variant is now covered by
+[XRAY-CHARGE.md](XRAY-CHARGE.md); soft-unmorph X-ray preparation and
+continuous-walljump variants remain outstanding.
 
 Capture history: v1 reached the synthetic room's empty boundary, where C# clamps
 position but the native isolated movement routine does not. Both fixtures gained

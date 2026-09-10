@@ -122,19 +122,21 @@ public sealed class SamusBombProjectileSystem
             bombSpreadStarted = spread == BombSpreadAdmission.Spawned;
             beamChargeConsumed = spread is
                 BombSpreadAdmission.Spawned or BombSpreadAdmission.ChargeCancelled;
-            if (beamChargeConsumed)
-            {
-                soundRequests.Add(new SamusSoundRequest(
-                    SoundEffectLibrary1Sounds.CancelAll,
-                    MaximumQueued: 9));
-            }
             if (spread == BombSpreadAdmission.NotApplicable)
             {
                 placedSlot = TryPlaceBomb(
                     bus,
                     samus,
                     controllerInput,
-                    controllerNewInput);
+                    controllerNewInput,
+                    out bool rejectedPlacementClearedCharge);
+                beamChargeConsumed |= rejectedPlacementClearedCharge;
+            }
+            if (beamChargeConsumed)
+            {
+                soundRequests.Add(new SamusSoundRequest(
+                    SoundEffectLibrary1Sounds.CancelAll,
+                    MaximumQueued: 9));
             }
         }
 
@@ -302,8 +304,10 @@ public sealed class SamusBombProjectileSystem
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
-        ushort controllerNewInput)
+        ushort controllerNewInput,
+        out bool rejectedPlacementClearedCharge)
     {
+        rejectedPlacementClearedCharge = false;
         // The outer $90:BF9D test uses held Shoot. Both item branches eventually call
         // helper two, which separately insists on the newly-pressed bit.
         const ushort shoot = (ushort)SnesButton.X;
@@ -320,7 +324,15 @@ public sealed class SamusBombProjectileSystem
             return null;
 
         if (!TryReserveBombSlot(controllerNewInput, shoot))
+        {
+            // Helper two also owns charge cancellation when it rejects placement
+            // (no new Shoot edge, active-slot limit or cooldown). Merely returning
+            // no bomb leaves a carried partial charge alive beyond its native lifetime.
+            // Earlier equipment/power-bomb guards do not execute helper two and must
+            // preserve charge. Publish through the existing runtime palette/SFX bridge.
+            rejectedPlacementClearedCharge = samus.ProjectileFlareCounter != 0;
             return null;
+        }
 
         // Retail HUD selection cannot normally point at an empty ammo class. Preserve the
         // native ordering nonetheless: helper two has already incremented the aggregate

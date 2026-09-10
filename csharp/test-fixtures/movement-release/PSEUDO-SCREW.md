@@ -89,3 +89,31 @@ this test does not claim parity of inaccessible stale fields after deletion.
 
 Pose publication, custom attacks bypassing this pass, yellow flash and input
 retention remain separate gates; this capture does not establish those properties.
+
+## Input-driven dry walljump and palette capture
+
+`native-pseudo-walljump-probe.h` exercises 34 input sequences (both facings,
+17 Shoot-release timings), 140 frames each. Charge is earned through input;
+no contact mode, charge counter or palette is injected. Every frame compares
+position, speed, pose, animation, charge, contact mode and all sixteen suit colors.
+The native palette handler runs after movement and animation, as on cartridge.
+
+Before the fix, 16 right-facing cases disagreed at frame 89: C# had normal suit
+colors instead of the cartridge's yellow Pseudo Screw flash. Momentum cancellation
+requests a normal suit copy during movement; C# deferred it until after charge
+palette handling, erasing the newer colors. The runtime now flushes that pending
+copy before palette dispatch, including drained/special handlers. This is an
+ordering correction, not a frame-, direction-, or Pseudo Screw-specific override.
+
+All 4,760 frames now match. Explicit release-80 witnesses retain charge 71 while
+contact mode changes from four on frame 89 to zero on frame 95, and assert the
+complete yellow palette on the previously failing frame. Full core verification
+passes. Suitless-liquid eligibility remains unverified by this dry-room fixture.
+
+- Archive: `pseudo-walljump-421-v1.zip`.
+- CSV SHA256: `E7C6A3AD052DBE6466B00525798EE0B7E31F76DB5E2EDD2370A44C0276EE2BC0`.
+- Two captures are byte-identical, using the same ROM/source pins above.
+- Regenerate with `native-pseudo-walljump-entrypoint.patch`, rebuild, then run
+  `sm.exe --diagnostic-pseudo-walljump ROM NEW.csv` (headless, dialogs suppressed).
+- Managed audit: `--pseudo-screw-walljump-audit ROM CSV`.
+- Temporary source hooks removed; patch reapplication checked.

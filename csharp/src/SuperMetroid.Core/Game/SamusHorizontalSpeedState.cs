@@ -348,24 +348,8 @@ public sealed class SamusHorizontalSpeedState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
 
-        bool paletteCopied = false;
+        bool paletteCopied = ApplyPendingNormalSuitPaletteRestore(bus, cgram, equippedItems);
         ushort suitTableOffset = equippedItems.GetSuitPaletteTableOffset();
-        if (NormalSuitPaletteRestoreRequested)
-        {
-            // `$91:DE6A-$DE8A` picks Gravity, then Varia, then Power Suit and invokes the
-            // same 32-byte bank-$9B copy used by normal palette handling. Table `$91:D727`
-            // expresses that choice directly and keeps every color cartridge-authored.
-            ushort normalPalette = ReadWord(
-                bus,
-                SamusPaletteRomData.Common.NormalSuitPointers + suitTableOffset);
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.Banks.Palette | normalPalette,
-                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
-            NormalSuitPaletteRestoreRequested = false;
-            paletteCopied = true;
-        }
 
         // Stored-shine and shinespark handlers have priority in `$91:D6F7`. Cancellation's
         // immediate normal-palette copy above still occurs, but handler zero must not advance
@@ -463,10 +447,32 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Defers the normal 16-color suit copy to the runtime's `$91:D6F7` palette phase.
+    /// Defers the normal 16-color suit copy until before the runtime's palette handlers.
     /// Native pose initialization performs this when leaving a Screw Attack spin family.
     /// </summary>
     public void RequestNormalSuitPaletteRestore() => NormalSuitPaletteRestoreRequested = true;
+
+    /// <summary>
+    /// Publishes the immediate suit copies requested by native momentum cancellation and
+    /// pose initialization. These precede charge and special-palette handling, which may
+    /// replace their colors in the same frame; they must not erase a later charge flash.
+    /// </summary>
+    public bool ApplyPendingNormalSuitPaletteRestore(
+        ISnesAddressSpace bus, SnesCgram cgram, ushort equippedItems)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(cgram);
+        if (!NormalSuitPaletteRestoreRequested)
+            return false;
+
+        ushort normalPalette = ReadWord(bus,
+            SamusPaletteRomData.Common.NormalSuitPointers + equippedItems.GetSuitPaletteTableOffset());
+        cgram.LoadFromBus(bus, SamusPaletteRomData.Banks.Palette | normalPalette,
+            colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+            destinationIndex: SamusPaletteRomData.Common.SamusObjPaletteStart);
+        NormalSuitPaletteRestoreRequested = false;
+        return true;
+    }
 
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(

@@ -3949,6 +3949,12 @@ public sealed partial class SuperMetroidRuntime
             // A negative super-special flag is the first branch of `$91:D6F7` and returns
             // immediately after the drained/rainbow handler. Its one-shot normal restore
             // also models the direct palette loads in controller zero and command `$17`.
+            // Native cancellation/pose initialization copies the normal suit during
+            // movement, before this dispatch. Flush that deferred write first so charge
+            // and drained palettes retain their native same-frame priority.
+            if (!deathOwnsSamus)
+                Samus.HorizontalSpeed.ApplyPendingNormalSuitPaletteRestore(
+                    _addressSpace, Cgram, Samus.EquippedItems);
             bool drainedOwnsSamusPalette = !deathOwnsSamus &&
                 Samus.Drained.UpdatePalette(_addressSpace, Cgram, Samus.EquippedItems);
             LastHurtFlashPaletteStep = default;

@@ -72,6 +72,8 @@ if (args.Length == 3 && args[0] == "--hand-probe-audit")
     return HandProbeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--ceiling-door-audit")
     return CeilingDoorComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--downback-door-audit")
+    return DownbackDoorComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-trigger-audit")
     return PoseTriggerComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-crumble-audit")

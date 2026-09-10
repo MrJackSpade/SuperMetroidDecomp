@@ -1,10 +1,11 @@
-# #463: remote collision triggers — partial evidence
+# #463: remote collision triggers — reproduction and verification
 
 Reference: https://wiki.supermetroid.run/Hitbox_Manipulation, Checking section,
-revision 10438. **This is not yet a completed issue:** a full down/back door-trigger
-trajectory remains. The sections below record incremental evidence; their older
-remaining-work notes are historical. Direct probes, moving spin-turn item/door
-triggers, acquisition timing, directional reactions and ceiling contact are covered.
+revision 10438. The pinned-NTSC implementation/reproduction gates are covered;
+player confirmation remains. The sections below record incremental evidence;
+their older remaining-work notes are historical. The completion review at the end
+maps the issue requirements to the accepted fixtures. No cross-room routes or
+claims about other ROM revisions are implied.
 
 ## Horizontal door probe
 
@@ -407,3 +408,50 @@ position/subpixel, pose/animation, horizontal/vertical speed and door pointer.
 All 993 frames match without production changes. Final acceptance review found
 that down/back still needs a moving door-trigger witness; direct pose expansion
 and the separate #461 movement audit are not substitutes for that side effect.
+
+## Moving down/back door trigger (#463)
+
+`native-downback-door-probe.h`, `native-downback-door-entrypoint.patch`, and
+`downback-door-463-v2.zip` cover 1,836 cases / 28,818 original-CPU frames. Both
+facings, three extra speeds, seventeen vertical gaps, nine input timings and
+forward-only versus Down+back controls are exercised. Jump remains held. Samus
+starts spin-falling at X=1024, Y=461-gap, base X speed 1.25, zero Y speed and
+running momentum enabled; row 30 is a door boundary. The first actual door request
+ends each case; failures end at frame 24. No destination room is traversed.
+
+Two captures match SHA256
+`8715112C906D7EEF7C91968B46FDAB2A1EBAB51D21DF51D2E9516ED5504229C3`.
+Commands: native `--diagnostic-downback-door ROM CSV`; managed
+`--downback-door-audit ROM CSV` through full `SuperMetroidRuntime.StepFrame`.
+Same ROM/source pins as above. The initial side-door layout produced no remote
+down/back witnesses and was rejected; only the lower-door v2 matrix is accepted.
+
+150 cases trigger while the movement-phase hitbox still ends above the door row.
+The Down+back input breaks spin into the short down-aim pose, then its turn expands
+the body and executes the trigger check. Zero extra speed, gap zero and input
+delay three trigger at frame four while base speed remains `$0001:4000` in reversal
+mode one. Every frame compares position/subpixels, pose/animation, horizontal and
+vertical motion, radii and the actual door pointer. Forward-only controls and the
+adjacent gap/timing cases are included in the same pinned matrix. All 28,818 frames
+match without production changes.
+
+## Completion review
+
+| Requirement | Accepted evidence |
+| --- | --- |
+| Walljump-check item and door effects | Remote item/door matrices plus full moving-item/moving-door frame captures |
+| Real acquisition rather than notification alone | Item-acquisition handler boundary: resources, collected bit and message |
+| Upper-solid early termination and trigger distance | Mirrored 2,754-case direct matrices, upper/lower blockers, adjacent reach failures |
+| Ceiling checks and retained momentum | 993-frame ceiling/door capture, door-first success versus solid-first rejection |
+| Down/back checks and retained momentum | 28,818-frame down/back capture with forward-only controls |
+| Native special-block rejection and side effects | Crumble, station, save, hand, vertical/horizontal sand and full pose-sand captures |
+| Real production paths and isolated room scope | Runtime movement sequences plus actual dispatcher/PLM owners; no multi-room route |
+| Repeatability, revision and safe state | Pinned ROM/source hashes, repeated CPU captures, archived fixtures, fresh disposable state and no gameplay cheats |
+
+Production mismatches found and fixed during this issue were directional crumble,
+station/save/hand activation, sand direction/carry, and lost probe sand inputs or
+speed/gravity writes. Source/fixture boundaries are documented per section; direct
+dispatcher tests do not stand in for the separately captured movement sequences.
+PAL/other revisions were not tested and are not claimed compatible by this audit.
+The issue should remain open with `awaiting-player-validation`, not be closed on
+these automated results alone.

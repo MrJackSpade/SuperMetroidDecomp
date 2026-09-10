@@ -13,6 +13,26 @@ after the implementations and integration described below.
 
 ## Native dispatcher oracle
 
+### #418 supporting Phantoon audit repaired
+
+The remaining flame-helper failure was an outdated timing assertion, not failed
+gameplay knockback. Pinned `$A0:9923` publishes invincibility, timer five and a
+horizontal direction; it does not install the bank-$90 hurt handler. The domain
+helper now checks the pending request with unchanged standing pose, then invokes
+the real deferred hit-interruption consumer and requires active rightward
+knockback and the right-facing hurt pose. It still asserts exact damage, touch
+instruction and projectile persistence/deletion. The helper's erroneous `$A0:A306`
+reference (Power Bomb processing) was corrected to `$A0:9923`.
+
+The subsequent flame-death fixture passed null Samus to suppress contact, but
+the production drop selector requires current health/ammo. It now keeps the
+existing Samus outside contact range rather than removing that required state.
+No production code changed in this checkpoint. `--phantoon-audit ROM` now passes
+all 5,906 encounter frames, including contact and shot-destruction producers at
+frame 866, four shot-response maps, combat/rage/death and Wrecked Ship activation.
+This supersedes the earlier recorded final-helper failure below. #418's remaining
+explicit trajectory cases are still pending.
+
 ### #418 Wave Shield against Phantoon
 
 `native-wave-phantoon-probe.h` executes original extended collision `$A0:9B7F`

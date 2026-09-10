@@ -620,11 +620,14 @@ internal static class PhantoonAudit
         // proxy for behavior. Every non-sentinel map is retained, and the actor must reach
         // its authored terminal delete command within a deliberately generous bound.
         var shotMaps = new HashSet<ushort>();
+        // Drop selection reads current health/ammo. Keep that real actor available,
+        // outside projectile contact range, instead of passing an absent Samus.
+        shotSamus.XPosition = shotSamus.YPosition = 1024;
         for (int responseFrame = 0; responseFrame < 128 && shotFlame.IsActive; responseFrame++)
         {
             shotEnemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: shotSamus,
                 cameraX: 0,
                 cameraY: 0,
                 nmiFrameCounter8: unchecked((byte)(shotFrame + responseFrame + 1)));

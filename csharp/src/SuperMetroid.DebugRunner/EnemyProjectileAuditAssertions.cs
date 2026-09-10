@@ -37,7 +37,7 @@ internal static class EnemyProjectileAuditAssertions
 
     /// <summary>
     /// Isolates one naturally initialized projectile and proves the complete common
-    /// $A0:A306 Samus-contact tail: literal damage, invincibility, knockback, cartridge
+    /// $A0:9923 Samus-contact tail: literal damage, invincibility, pending knockback, cartridge
     /// touch-list installation, and property-$4000 persistence/deletion.
     /// </summary>
     public static void VerifyNaturalSamusContact(
@@ -116,13 +116,15 @@ internal static class EnemyProjectileAuditAssertions
         if (samus.Health != expectedHealth ||
             samus.InvincibilityTimer != invincibilityFrames ||
             samus.KnockbackTimer != 5 ||
-            !samus.KnockbackActive)
+            samus.KnockbackActive || samus.KnockbackDirection != 0 ||
+            samus.KnockbackXDirection != 1 || samus.Pose != SamusPoseIds.FacingRightNormalPose)
         {
             throw new InvalidDataException(
                 $"Natural enemy projectile {kind} ($86:{(ushort)kind:X4}) contact produced " +
                 $"health/invincibility/knockback {samus.Health}/" +
                 $"{samus.InvincibilityTimer}/{samus.KnockbackTimer}/{samus.KnockbackActive}; " +
-                $"expected {expectedHealth}/{invincibilityFrames}/5/true from damage {damage}.");
+                $"expected {expectedHealth}/{invincibilityFrames}/5/false with a pending rightward hit " +
+                $"and unchanged standing pose, from damage {damage}.");
         }
 
         RoomEnemyProjectileSlot physicalTarget = enemies.EnemyProjectiles[targetSlot];
@@ -148,6 +150,17 @@ internal static class EnemyProjectileAuditAssertions
                     $"$86:{physicalTarget.InstructionPointer:X4}/" +
                     $"timer {physicalTarget.InstructionTimer}.");
             }
+        }
+
+        // Bank $A0 only publishes the timer/direction. Prove the later bank-$90
+        // consumer admits that request and installs the actual hurt pose/handler.
+        if (!SamusKnockbackMovement.TryStartPendingHitInterruption(
+                bus, samus, 0, timeIsFrozen: false, level: level, nmiFrameCounter: frame) ||
+            !samus.KnockbackActive || samus.KnockbackDirection != 2 ||
+            samus.Pose != SamusPoseIds.KnockbackRightPose)
+        {
+            throw new InvalidDataException(
+                $"Enemy projectile {kind} published a hit but its deferred knockback handoff failed.");
         }
 
         foreach ((RoomEnemyProjectileSlot projectile, bool canDamage) in siblingCollision)

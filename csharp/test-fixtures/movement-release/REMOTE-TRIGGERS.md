@@ -323,3 +323,30 @@ committing speculative position. It remains ownerless to avoid implicitly enabli
 other owner-dependent reactions. All 104 cases match after the fix. This closes
 the vertical pose-copy sand gap; horizontal sand probes, hand checks and moving
 ceiling-contact sequences remain outstanding.
+
+## Horizontal sand observation (#463)
+
+`native-wall-sand-probe.h`, `native-wall-sand-entrypoint.patch` and
+`wall-sand-463-v1.zip` compare ordinary `$94:971E` movement with `$94:967F` wall
+observation. 64 cases cover both directions, ordinary/probe identity, surface and
+submerging sand, all vertical direction states and contact-damage modes zero/one.
+The tile is isolated at row eight/column six or nine in Maridia; X is 117 or 139,
+Y=136, X/Y fractions `$4000/$3456`, radii five/twelve, speed `$0005:4000`, gravity
+`$0001:3000`, and signed displacement is seven pixels. Same ROM/source pins above.
+
+Two captures match SHA256
+`DF1234C0823060523974DD72BE8019BD0BC922A8D0746F290412E29172740359`.
+Native command `--diagnostic-wall-sand ROM CSV`; managed
+`--wall-sand-audit ROM CSV`. All cases compare collision, absolute accepted
+displacement, X/Y/subpixels, speed/subspeed and gravity/subgravity. Unlike the
+vertical direct-dispatch capture, the managed observational wrapper is exercised.
+
+Before the fix, 18 cases failed. The wall copy omitted area selection and discarded
+speed/gravity writes. The surface handler categorically rejected horizontal scans
+despite native direction F passing its bit-one test; the horizontal caller also
+ignored its carry. The wrapper now preserves the sand inputs/writes, and the
+shared reaction uses native direction identity with its actual collision result.
+Ordinary horizontal surface movement remains carry clear. Falling contact-damage
+wall probes stop without changing position or subpixels; submerging sand clears
+motion words even when observational. All 64 native comparisons pass. Chozo-hand
+and moving ceiling-contact evidence remain outstanding for the overall issue.

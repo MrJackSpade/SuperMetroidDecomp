@@ -133,10 +133,15 @@ public static class SamusInsideBlockReactions
             body.YSpeed = body.YSubspeed = body.YAcceleration = body.YSubacceleration = 0;
             return false;
         }
-        if (setup != QuicksandRomData.SurfaceCollision || !vertical) return false;
+        if (setup != QuicksandRomData.SurfaceCollision) return false;
         int direction = body.YDirection & 3;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
-            (displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down);
+            (vertical
+                ? displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
+                : displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
+        // The native bit-one direction test accepts vertical scans AND direction $F.
+        // Ordinary horizontal movement rejects the surface callback entirely.
+        if (reactionDirection is SamusCollisionDirection.Left or SamusCollisionDirection.Right) return false;
         // Stationary/unused vertical states require actual downward collision. Falling
         // remains eligible even during direction-$F pose checks, exactly as B4C4 branches.
         if (direction == 1 || (direction != 2 && reactionDirection != SamusCollisionDirection.Down)) return false;

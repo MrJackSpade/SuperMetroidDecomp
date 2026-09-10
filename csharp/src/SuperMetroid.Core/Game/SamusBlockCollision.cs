@@ -40,7 +40,7 @@ public static partial class SamusBlockCollision
     {
         ArgumentNullException.ThrowIfNull(state);
         SamusKinematicsState probe = state.SamusOwner is null
-            ? new SamusKinematicsState()
+            ? new SamusKinematicsState { ProbeContactDamageIndex = state.CollisionContactDamageIndex }
             : new SamusKinematicsState(state.SamusOwner);
         probe.CollisionPose = state.CollisionPose;
         probe.XPosition = state.XPosition;
@@ -52,6 +52,7 @@ public static partial class SamusBlockCollision
         probe.YSpeed = state.YSpeed;
         probe.YSubspeed = state.YSubspeed;
         probe.YDirection = state.YDirection;
+        probe.SandCollisionArea = state.SandCollisionArea;
         probe.YAcceleration = state.YAcceleration;
         probe.YSubacceleration = state.YSubacceleration;
         probe.HorizontalSlopeCollisionEnable = state.HorizontalSlopeCollisionEnable;
@@ -72,6 +73,11 @@ public static partial class SamusBlockCollision
             signedDistance,
             plms: plms,
             blockReactionDirection: SamusCollisionDirection.NonDirectionalProbe);
+        // Submerging sand writes these real motion words even through wall observation.
+        state.YSpeed = probe.YSpeed;
+        state.YSubspeed = probe.YSubspeed;
+        state.YAcceleration = probe.YAcceleration;
+        state.YSubacceleration = probe.YSubacceleration;
 
         // $94:8F49 (and square-slope clipping) writes Samus's real X subposition
         // even through the observational $94:967F entry point. The probe's accepted
@@ -244,8 +250,9 @@ public static partial class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
-                        SamusInsideBlockReactions.ReactCollision(bus, state, block, false,
-                            ref acceptedDisplacement, out _);
+                        collided = SamusInsideBlockReactions.ReactCollision(bus, state, block, false,
+                            ref acceptedDisplacement, out _, blockReactionDirection);
+                        if (collided) collisionBlock = block;
                         if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
                         {

@@ -124,6 +124,20 @@ public sealed class SamusShinesparkState
     private readonly ReleasedEchoSlot _secondReleasedCrashEcho = new();
 
     /// <summary>
+    /// Samus_HandleTransitionsB_5 ($91:EEA6) clears $0A6A and replaces the shared
+    /// special-palette handler with X-Ray. Relinquish this owner's palette state so
+    /// it cannot keep ticking or repaint over the newly installed visor palette.
+    /// </summary>
+    internal void RelinquishPaletteToXray()
+    {
+        ShineTimer = 0;
+        PaletteType = 0;
+        PaletteFrameOffset = 0;
+        if (Phase == ShinesparkPhase.Stored)
+            Phase = ShinesparkPhase.Inactive;
+    }
+
+    /// <summary>
     /// ResetProjectileData ($90:AD22) clears the complete speed-echo arrays and index.
     /// Keep the movement-handler phase and its unrelated timers unchanged.
     /// </summary>

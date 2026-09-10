@@ -154,6 +154,7 @@ public sealed class SamusXrayState
         AngularSubwidthDelta = 0;
         BeamSizeFlag = 0;
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
+        samus.Shinespark.RelinquishPaletteToXray();
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 1;
         ActivationSoundRequested = true;

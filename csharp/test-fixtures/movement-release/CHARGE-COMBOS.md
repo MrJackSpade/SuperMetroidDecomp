@@ -341,3 +341,29 @@ justify adding a special blanket prohibition on bombs during combos.
 
 Grapple admission and integrated input/particle sequencing remain for #416.
 These isolated producer cases alone do not establish the full-frame contract.
+
+## Grapple admission checkpoint (#416)
+
+32 original-CPU $90:DD3D cases start with each of the four allocated combos,
+Grapple selected, cooldown zero/two, and current/previous Shoot edge independently
+absent/present. The HUD path reaches bank $9B without consulting ordinary
+projectile capacity or cooldown. Managed admission matches firing state, endpoint
+position, projectile count/types, PB ammo and unchanged cooldown in every case.
+
+Four additional runtime sequences hold Shoot for 121 frames to activate each
+family, press Select normally (no diagnostic Grapple flag), then press Shoot.
+They verify successful Grapple firing at the native standing-origin offset,
+four retained combo particles with unchanged types, and no additional PB debit.
+No gameplay correction was required for these admission/ownership checks.
+
+- `combo-grapple-416-v1.zip`, CSV SHA256:
+  `8F43C1DE13732895F6044ACCF7A14AA3B1274252E37679CDC38B962A55339CDA`.
+- Same pins; two identical original-CPU captures.
+- `native-combo-grapple-entrypoint.patch`; bounded/dialog-free invocation:
+  `sm.exe --diagnostic-combo-grapple ROM NEW.csv`.
+- Managed: `--combo-grapple-audit ROM CSV`.
+- Temporary native hooks removed; reapplication checked.
+
+This covers admission and initial ownership, not sustained grapple/combo
+animation, audio ordering or every posture. Full charge release/turn/spin timing
+and integrated bomb-lifetime restrictions remain before #416 acceptance.

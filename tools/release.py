@@ -15,6 +15,15 @@ import zipfile
 TAG = re.compile(r"v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z]+(?:[.-][0-9A-Za-z]+)*))?\Z")
 RECEIPT = re.compile(r"\n?<!-- discord-release: (\{[^\n]*\}) -->")
 GUILD_ID = "1547270817312809112"
+DEFAULT_INI_NAME = "SuperMetroid.defaults.ini"
+DEFAULT_INI = Path(__file__).resolve().parents[1] / "csharp/src/SuperMetroid.Core/Frontend" / DEFAULT_INI_NAME
+
+
+def check_default_ini(contents):
+    # The only distributable INI is the tracked runtime template, never a player's
+    # active configuration. Accommodate Git's platform-specific line endings only.
+    if contents.decode("utf-8").replace("\r\n", "\n") != DEFAULT_INI.read_text(encoding="utf-8"):
+        raise ValueError("Release default INI differs from the canonical runtime defaults.")
 
 
 def version(tag):
@@ -37,6 +46,13 @@ def check_names(names):
 def check_archive(path):
     with zipfile.ZipFile(path) as archive:
         check_names(archive.namelist())
+        for name in archive.namelist():
+            if name.replace("\\", "/").split("/")[-1].lower() == DEFAULT_INI_NAME.lower():
+                if name != DEFAULT_INI_NAME:
+                    raise ValueError("Release default INI must be at the archive root.")
+                check_default_ini(archive.read(name))
+        if "SuperMetroid.Game.exe" in archive.namelist() and DEFAULT_INI_NAME not in archive.namelist():
+            raise ValueError("Desktop release is missing its documented default INI.")
         if archive.testzip() is not None:
             raise ValueError(f"Corrupt release archive: {path.name}")
 
@@ -49,6 +65,9 @@ def package(kind, source, output):
         check_names(str(p.relative_to(source)) for p in files)
         if not (source / "SuperMetroid.Game.exe").is_file():
             raise ValueError("Desktop publish is missing SuperMetroid.Game.exe.")
+        if not (source / DEFAULT_INI_NAME).is_file():
+            raise ValueError("Desktop publish is missing its documented default INI.")
+        check_default_ini((source / DEFAULT_INI_NAME).read_bytes())
         target = output / "SuperMetroid-windows-x64.zip"
         with zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(files):

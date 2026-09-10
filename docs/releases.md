@@ -10,6 +10,22 @@ Downloads are `SuperMetroid-windows-x64.zip` (self-contained .NET desktop app),
 contains a ROM or extracted game resources. Players supply their ROM at first launch.
 Windows builds retain the existing pinned shader compiler/version/hash check.
 
+The Windows publish includes the canonical `SuperMetroid.defaults.ini`, embedded
+from the same source by the runtime. Packaging verifies its contents and rejects a
+missing/modified template or any active `SuperMetroid.ini`. First launch seeds the
+installation's active INI only when absent; updates preserve existing player settings.
+See `csharp/ROM-SETUP.md` for the editable file location and precedence.
+
+INI qualification: `python -m unittest discover -s tests -p test_release.py`
+checks missing templates, altered defaults, private INIs, and archive contents.
+`SuperMetroid.DesktopVerification --configuration-package-audit PATH/TO/SuperMetroid.Game.dll`
+loads the published host's actual configuration class using isolated temporary
+data directories. It checks shipped/default parity, first-use template edits,
+active-file edits, update preservation, invalid-template rejection, and embedded
+fallback without showing a GUI or touching player data. The release workflow runs
+this check before packaging. Core verification additionally checks that every
+options property is explicitly represented in the template.
+
 The Actions **Run workflow** button performs build validation and uploads Actions
 artifacts without creating a release or posting to Discord. Without signing secrets,
 this manual validation uses the runner's temporary Android debug key; do not use that

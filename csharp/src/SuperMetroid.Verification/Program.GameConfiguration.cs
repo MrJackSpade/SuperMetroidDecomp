@@ -24,6 +24,19 @@ static void VerifyGameConfigurationIni()
         "wrong-section renderer key rejected");
     SuperMetroidGameOptions defaults =
         SuperMetroidGameOptionsIni.Parse(SuperMetroidGameOptionsIni.DefaultFileContents);
+    AssertEqual(new SuperMetroidGameOptions(), defaults,
+        "shipped INI and programmatic defaults match for every option");
+    AssertEqual(defaults, SuperMetroidGameOptionsIni.Parse(""),
+        "missing-key parser defaults match the shipped INI");
+    string[] documentedKeys = SuperMetroidGameOptionsIni.DefaultFileContents.Split('\n')
+        .Select(line => line.Trim()).Where(line => !line.StartsWith(';') && line.Contains('='))
+        .Select(line => line[..line.IndexOf('=')].Trim())
+        .Select(key => key == "Enabled" ? nameof(SuperMetroidGameOptions.AudioEnabled) : key)
+        .OrderBy(key => key, StringComparer.Ordinal).ToArray();
+    string[] optionProperties = typeof(SuperMetroidGameOptions).GetProperties()
+        .Select(property => property.Name).OrderBy(key => key, StringComparer.Ordinal).ToArray();
+    AssertEqual(string.Join(',', optionProperties), string.Join(',', documentedKeys),
+        "shipped INI explicitly documents every supported option exactly once");
     AssertEqual(false, defaults.SkipOpeningCinematic,
         "game INI template preserves the opening cinematic");
     AssertEqual(false, defaults.Invincibility,

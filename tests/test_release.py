@@ -13,6 +13,32 @@ spec.loader.exec_module(release)
 
 
 class ReleaseTests(unittest.TestCase):
+    def test_windows_package_ships_only_canonical_defaults(self):
+        with tempfile.TemporaryDirectory() as root:
+            source = Path(root) / "publish"
+            source.mkdir()
+            (source / "SuperMetroid.Game.exe").write_bytes(b"synthetic executable")
+            with self.assertRaisesRegex(ValueError, "missing.*default INI"):
+                release.package("windows", source, Path(root) / "out")
+            template = source / release.DEFAULT_INI_NAME
+            template.write_bytes(release.DEFAULT_INI.read_bytes())
+            release.package("windows", source, Path(root) / "out")
+            with zipfile.ZipFile(Path(root) / "out/SuperMetroid-windows-x64.zip") as archive:
+                self.assertIn(release.DEFAULT_INI_NAME, archive.namelist())
+                release.check_default_ini(archive.read(release.DEFAULT_INI_NAME))
+            template.write_text(release.DEFAULT_INI.read_text().replace("Invincibility=false", "Invincibility=true"))
+            with self.assertRaisesRegex(ValueError, "differs"):
+                release.package("windows", source, Path(root) / "out")
+
+    def test_archive_rejects_personal_ini_or_modified_defaults(self):
+        for name in ["SuperMetroid.ini", "SuperMetroid.defaults.ini", "nested/SuperMetroid.defaults.ini"]:
+            with tempfile.TemporaryDirectory() as root:
+                path = Path(root) / "release.zip"
+                with zipfile.ZipFile(path, "w") as archive:
+                    archive.writestr(name, "[Game]\nInvincibility=true\n")
+                with self.assertRaises(ValueError):
+                    release.check_archive(path)
+
     def test_tags_cannot_inject_commands_or_paths(self):
         self.assertEqual(release.version("v1.2.3-rc.1"), "1.2.3-rc.1")
         for tag in ["main", "v1.2", "v01.2.3", "v1.2.3\nattack", "v1.2.3/../../x", "v1.2.3;echo secret"]:

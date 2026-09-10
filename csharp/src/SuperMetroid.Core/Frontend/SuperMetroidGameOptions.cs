@@ -81,53 +81,22 @@ public sealed record SuperMetroidGameOptions
 public static partial class SuperMetroidGameOptionsIni
 {
     /// <summary>
-    /// Contents written when no <c>SuperMetroid.ini</c> exists beside the private ROM.
+    /// Documented defaults written when the host has no active <c>SuperMetroid.ini</c>.
     /// </summary>
     /// <remarks>
-    /// Normal retail behavior remains the default. A checked-in copy of this same template
-    /// also makes the option discoverable before the playable executable has been run once.
+    /// The same tracked INI is embedded here and shipped beside the Windows executable.
+    /// Keeping one source prevents the release template and startup defaults from drifting.
     /// </remarks>
-    public const string DefaultFileContents =
-        "; Super Metroid C# playable-host settings\r\n" +
-        "; This file belongs beside your private .smc/.sfc cartridge image.\r\n" +
-        "\r\n" +
-        "[Game]\r\n" +
-        "; true  = keep title/file select/options, then go directly to the Ceres elevator\r\n" +
-        "; false = play the narration, flashbacks, and Ceres approach before the elevator\r\n" +
-        "SkipOpeningCinematic=false\r\n" +
-        "; true allows damage but prevents Samus from dropping below 1 energy\r\n" +
-        "; also lets shinesparks continue at low energy, draining down to 1\r\n" +
-        "; false preserves normal cartridge damage and death behavior\r\n" +
-        "Invincibility=false\r\n" +
-        "; true allows normal consumption but keeps unlocked ammo types at 1 or more\r\n" +
-        "; false preserves normal cartridge ammunition behavior\r\n" +
-        "InfiniteAmmo=false\r\n" +
-        "; true = Ceres and post-Mother-Brain timers count down normally, then stop at 00:01.00\r\n" +
-        "PreventEscapeTimeout=false\r\n" +
-        "; None = actual playtime; 0..5999 = ending-only total minutes (0 selects fastest ending)\r\n" +
-        "EndingTimeOverrideMinutes=None\r\n" +
-        "; None = normal save/map-station visibility\r\n" +
-        "; Public = temporarily reveal everything an ordinary map station exposes\r\n" +
-        "; Secret = temporarily reveal every valid map cell, including hidden cells\r\n" +
-        "MapReveal=None\r\n" +
-        "\r\n" +
-        "[Audio]\r\n" +
-        "; Enables the cartridge SPC sequencer, BRR samples, DSP mixing, and playback\r\n" +
-        "Enabled=true\r\n" +
-        "; Final host gain after SNES mixing; integer from 0 through 100\r\n" +
-        "MasterVolumePercent=100\r\n" +
-        "\r\n" +
-        "[Video]\r\n" +
-        "; Software | Direct3D11 | Auto; Auto prefers hardware and is the default\r\n" +
-        "; Auto logs hardware startup failure and falls back to Software\r\n" +
-        "Renderer=Auto\r\n" +
-        "\r\n" +
-        "[Diagnostics]\r\n" +
-        "; true files recoverable runtime errors through the authenticated GitHub CLI\r\n" +
-        "; repeated errors share a stable fingerprint and never create duplicate issues\r\n" +
-        "ReportErrorsToGitHub=false\r\n" +
-        "; Private repository in owner/name form; no ROM contents are attached\r\n" +
-        "GitHubErrorRepository=MrJackSpade/SuperMetroidDecomp\r\n";
+    public static string DefaultFileContents { get; } = ReadDefaultFile();
+
+    private static string ReadDefaultFile()
+    {
+        using Stream stream = typeof(SuperMetroidGameOptionsIni).Assembly.GetManifestResourceStream(
+            "SuperMetroid.defaults.ini")
+            ?? throw new InvalidDataException("The documented default INI resource is missing.");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
 
     /// <summary>Parses the supported INI surface and rejects misspelled or ambiguous keys.</summary>
     public static SuperMetroidGameOptions Parse(

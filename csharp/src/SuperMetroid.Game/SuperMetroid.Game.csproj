@@ -14,5 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
+    <Content Include="../SuperMetroid.Core/Frontend/SuperMetroid.defaults.ini"
+             Link="SuperMetroid.defaults.ini" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="Always" />
   </ItemGroup>
 </Project>

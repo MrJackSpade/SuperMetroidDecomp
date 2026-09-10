@@ -47,6 +47,8 @@ jobs:
           dotnet publish csharp/src/SuperMetroid.Game -c Release -r win-x64 --self-contained true -p:Version=$env:RELEASE_VERSION -o out/windows
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
           Copy-Item csharp/ROM-SETUP.md out/windows/ROM-SETUP.md
+          dotnet run --project csharp/src/SuperMetroid.DesktopVerification -c Release -- --configuration-package-audit out/windows/SuperMetroid.Game.dll
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
           python tools/release.py package-windows out/windows out/artifacts
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

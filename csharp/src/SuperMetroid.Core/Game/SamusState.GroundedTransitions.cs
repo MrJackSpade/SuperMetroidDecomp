@@ -48,8 +48,10 @@ public sealed partial class SamusState
             throw new InvalidDataException(
                 $"Aerial pose ${targetPose:X2} unexpectedly changes radius {oldRadius} -> {Kinematics.YRadius} inside an equal-radius transition family.");
         }
-        if (sourcePose != Pose && ReadMovementType(bus) == SamusMovementType.Falling)
-            InitializeFallingPoseMomentum();
+        // Both normal-jump and falling targets run their movement initializer.
+        // Preserve base velocity, but derive acceleration mode from extra dash speed.
+        if (sourcePose != Pose)
+            InitializeOrdinaryAerialAcceleration();
         InitializeAnimation(bus, initialFrame: 0);
     }
 
@@ -108,20 +110,11 @@ public sealed partial class SamusState
         Pose = targetPose;
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-        if (sourcePose != Pose && ReadMovementType(bus) == SamusMovementType.Falling)
-            InitializeFallingPoseMomentum();
+        if (sourcePose != Pose)
+            InitializeOrdinaryAerialAcceleration();
         InitializeAnimation(bus, initialFrame: 0);
         return true;
     }
-
-    /// <summary>
-    /// Applies the falling pose initializer at $91:F60D. Extra run speed, not base
-    /// speed or held direction, selects whether the next movement frame decelerates.
-    /// </summary>
-    private void InitializeFallingPoseMomentum() => HorizontalSpeed.AccelerationMode =
-        HorizontalSpeed.ExtraRunSpeed != 0 || HorizontalSpeed.ExtraRunSubspeed != 0
-            ? SamusHorizontalAccelerationModes.Decelerating
-            : SamusHorizontalAccelerationModes.Accelerating;
 
     /// <summary>
     /// Applies falling input-lookup failure's command eight ($91:EC8E). Cancel the

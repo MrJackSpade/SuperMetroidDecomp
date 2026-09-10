@@ -894,12 +894,8 @@ public sealed partial class SamusState
 
         // `$91:F010` collision command five runs after pose selection even when the larger
         // body falls back to crouch, so no launch/fall residue survives the landing seam.
-        HorizontalSpeed.AccelerationMode = 0;
-        HorizontalSpeed.BaseSpeed = 0;
-        HorizontalSpeed.BaseSubspeed = 0;
-        Kinematics.YSpeed = 0;
-        Kinematics.YSubspeed = 0;
-        Kinematics.YDirection = 0;
+        // Compact landings share its one-shot held-Jump handler with ordinary landings.
+        ApplyAerialLandingCollisionCommand(leavingScrewAttack: false);
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 

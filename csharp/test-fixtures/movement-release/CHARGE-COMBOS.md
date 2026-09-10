@@ -186,3 +186,29 @@ after each pre-instruction in both implementations.
 All four particle families now have updates, but the ordinary firing/update path
 still requires integration. Combat and visible rendering assertions remain;
 #416 and #419 are not yet ready for player validation.
+
+## Gameplay integration checkpoint (#416–#420)
+
+The held-charge handler now reaches the allocation dispatcher, clears the flare
+and requests normal suit palette restoration on successful activation. The live
+descending projectile pass executes all four families and retains each particle
+sound request for the frontend audio queue rather than collapsing multiple
+requests into one frame result.
+
+`--combo-activation-input-audit ROM` now exercises 130 real runtime frames per
+family. All four activate at zero-based input frame 120 with four particles,
+one power bomb consumed, zero charge, and their family-specific activation SFX.
+Before integration the same witness reported four missing activations.
+
+Integration exposed a real trail-parser failure: Wave's right stream executes
+MoveLeftDown. Native $90:B525/$B587/$B5B3 explicitly select the destination
+position array independently of the executing stream. The managed interpreter
+incorrectly restricted commands to their own side. A synthetic six-case test
+failed on right-stream MoveLeftDown before the fix, and now verifies all three
+commands from both streams, exact sibling Y writes and instruction advancement.
+The full core verification suite passes, as do allocation (432 cases) and all
+four motion audits (10,080 original-CPU frames total).
+
+This is not full ticket acceptance: input edge cases and weapon interactions,
+enemy combat, visible rendering and end-to-end audio verification remain.
+Issues #416–#420 stay open without awaiting-player-validation.

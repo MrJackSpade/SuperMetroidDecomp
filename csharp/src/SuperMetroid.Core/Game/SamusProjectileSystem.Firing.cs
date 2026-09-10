@@ -150,6 +150,16 @@ public sealed partial class SamusProjectileSystem
                         MaximumQueued: 9);
                 }
             }
+            else if (TryActivateCombo(bus, samus, sharedProjectiles, out ushort comboSound))
+            {
+                // Native tries FireSBA only on the call after charge reaches 120.
+                // Successful activation clears flare animation and restores the suit;
+                // failed family dispatch leaves charge intact, including its ammo debit.
+                FlareCounter = 0;
+                ClearFlareAnimationState();
+                samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+                return (null, comboSound, 6);
+            }
             return (null, 0, 0);
         }
 

@@ -145,7 +145,8 @@ public readonly record struct SamusProjectileFrameResult(
     SoundEffectId? QueuedSoundEffect,
     byte QueuedSoundMaximum,
     bool CollisionStartedExplosion,
-    bool ProjectileDeleted);
+    bool ProjectileDeleted,
+    IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null);
 
 /// <summary>
 /// Immutable producer-phase evidence captured before the new projectile's first movement.

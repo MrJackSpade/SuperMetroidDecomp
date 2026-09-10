@@ -442,6 +442,7 @@ public sealed partial class SamusProjectileSystem
             _slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
+        List<SamusSoundRequest>? comboSounds = null;
 
         LastFiredProjectileSnapshot = firedSlot is { } newSlot
             ? new SamusProjectileSpawnSnapshot(
@@ -462,7 +463,25 @@ public sealed partial class SamusProjectileSystem
             if (slot.InstructionPointer == 0)
                 continue;
 
-            if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
+            if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
+                SamusProjectilePreInstruction.IceComboOutward or SamusProjectilePreInstruction.WaveCombo or
+                SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
+                SamusProjectilePreInstruction.PlasmaCombo)
+            {
+                ushort comboSound = 0;
+                if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward)
+                    comboSound = StepIceCombo(bus, samus, slot, sharedProjectiles, layer1X, layer1Y);
+                else if (slot.PreInstruction == SamusProjectilePreInstruction.WaveCombo)
+                    comboSound = StepWaveCombo(bus, samus, slot, sharedProjectiles);
+                else if (slot.PreInstruction == SamusProjectilePreInstruction.PlasmaCombo)
+                    StepPlasmaCombo(bus, samus, slot, sharedProjectiles, layer1X, layer1Y);
+                else comboSound = StepSpazerCombo(bus, samus, slot, sharedProjectiles, layer1Y);
+                projectileDeleted |= !slot.IsActive;
+                if (comboSound != 0)
+                    (comboSounds ??= []).Add(new SamusSoundRequest(
+                        SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, comboSound), 6));
+            }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
             {
                 collisionStartedExplosion |= RunNoWaveBeamPreInstruction(
                     bus,
@@ -523,7 +542,8 @@ public sealed partial class SamusProjectileSystem
                 : SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, queuedSound),
             queuedSoundMaximum,
             collisionStartedExplosion,
-            projectileDeleted);
+            projectileDeleted,
+            comboSounds?.ToArray());
         return LastFrameResult;
     }
 
@@ -660,8 +680,8 @@ public sealed partial class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = _trailSlots[slotIndex];
-            HandleTrailSideAndDraw(bus, oam, slot.Left, layer1X, layer1Y, timeIsFrozen, isLeft: true);
-            HandleTrailSideAndDraw(bus, oam, slot.Right, layer1X, layer1Y, timeIsFrozen, isLeft: false);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: true);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: false);
         }
     }
 

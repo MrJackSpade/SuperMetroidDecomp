@@ -292,12 +292,13 @@ public sealed partial class SamusProjectileSystem
     private static void HandleTrailSideAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,
-        SamusProjectileTrailSide side,
+        SamusProjectileTrailSlot pair,
         ushort layer1X,
         ushort layer1Y,
         bool timeIsFrozen,
         bool isLeft)
     {
+        SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
         if (side.InstructionTimer == 0)
             return;
 
@@ -331,12 +332,16 @@ public sealed partial class SamusProjectileSystem
                     pointer = unchecked((ushort)(pointer + 2));
                     switch (instructionOrTimer)
                     {
-                        case SamusProjectileRomData.Trails.MoveLeftDown when isLeft:
-                        case SamusProjectileRomData.Trails.MoveRightDown when !isLeft:
-                            side.YPosition = unchecked((ushort)(side.YPosition + 1));
+                        // The opcode names its destination array. Both streams dispatch
+                        // the same handlers, including writes to their sibling's position.
+                        case SamusProjectileRomData.Trails.MoveLeftDown:
+                            pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition + 1));
                             break;
-                        case SamusProjectileRomData.Trails.MoveLeftUp when isLeft:
-                            side.YPosition = unchecked((ushort)(side.YPosition - 1));
+                        case SamusProjectileRomData.Trails.MoveRightDown:
+                            pair.Right.YPosition = unchecked((ushort)(pair.Right.YPosition + 1));
+                            break;
+                        case SamusProjectileRomData.Trails.MoveLeftUp:
+                            pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition - 1));
                             break;
                         default:
                             throw new InvalidOperationException(

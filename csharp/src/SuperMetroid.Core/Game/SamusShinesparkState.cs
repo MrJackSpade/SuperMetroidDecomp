@@ -378,7 +378,8 @@ public sealed class SamusShinesparkState
         bool facingLeft = samus.IsFacingLeft(bus);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
-        _crashAngularDelta = facingLeft ? (sbyte)4 : (sbyte)-4;
+        CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
+        _firstReleasedCrashEcho.DisableDrawing();
         CrashSubphase = 0;
         CrashRadius = 0;
         // The native entry does not initialize the aliased angular-travel/echo-Y
@@ -393,7 +394,15 @@ public sealed class SamusShinesparkState
         CrashSoundRequested = true;
     }
 
-    private sbyte _crashAngularDelta;
+    /// <summary>
+    /// WRAM $0AB4: crash angular delta aliases departing slot-three echo X. Preserve the
+    /// complete signed word so any still-owned echo write affects the native consumer.
+    /// </summary>
+    private short CrashAngularDelta
+    {
+        get => unchecked((short)_firstReleasedCrashEcho.XPosition);
+        set => _firstReleasedCrashEcho.XPosition = unchecked((ushort)value);
+    }
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
     private ShinesparkMovementResult StepCrashOrbit(
@@ -416,8 +425,8 @@ public sealed class SamusShinesparkState
             }
 
             case 1:
-                FirstCrashEchoAngle = FirstCrashEchoAngle.AddTableUnits(_crashAngularDelta);
-                SecondCrashEchoAngle = SecondCrashEchoAngle.AddTableUnits(_crashAngularDelta);
+                FirstCrashEchoAngle = FirstCrashEchoAngle.AddTableUnits(CrashAngularDelta);
+                SecondCrashEchoAngle = SecondCrashEchoAngle.AddTableUnits(CrashAngularDelta);
                 CrashAngularTravel = unchecked((ushort)(CrashAngularTravel + 4));
                 if (unchecked((short)(CrashAngularTravel - 128)) >= 0)
                     CrashSubphase = 2;
@@ -791,6 +800,10 @@ public sealed class SamusShinesparkState
 
         public ShinesparkReleasedEcho Snapshot => new(
             Active, Angle, Radius, XPosition, YPosition);
+
+        // Crash entry changes only the drawing enable. It does not clear coordinates,
+        // projectile ownership, or the aliased angular-travel word.
+        public void DisableDrawing() => Active = false;
 
         public void Initialize(SnesAngle angle, ushort xPosition, ushort yPosition)
         {

@@ -3,6 +3,36 @@
 Status: retained-word crash entry fixed; full combo/echo integration remains
 incomplete. No awaiting-player-validation label.
 
+## Crash reentry drawing/delta checkpoint
+
+Original-CPU `native-spark-reentry-probe.h` finishes a spark, activates each of
+the four combos, then enters another low-energy crash in both facings. It
+records allocation, entry, and five orbit updates, including the first angular
+step. Only handler boundaries are seeded; all shared-word writes execute the
+original ROM. The remaining slot-four echo is deliberately not advanced during
+the sampled crash-handler calls, so this does not claim a full alpha/beta run.
+
+Retail entry clears the first departing echo drawing enable, stores signed
+angular delta +/-4 in its X word ($0AB4), and retains its Y word ($0ABC).
+C# previously kept drawing enabled and stored delta in an independent field.
+Before correction the managed comparison disagreed on 48 of 56 records. The
+implementation now disables only that drawing flag and aliases the complete
+signed delta word to echo X. It does not delete the owning projectile or clear
+the retained Y/angular-travel word.
+
+After correction all 56 records match. The 176-record ownership matrix,
+480-record departure matrix, eight retained-word timing cases and full core
+verification also pass.
+
+Two original captures are byte-identical. CSV in `spark-reentry-466-v1.zip`,
+SHA-256 `5C6C1FB23CA978493EEE047164CD9C97E749E5BECA0190F96592B5864316A53D`.
+Regenerate with `native-spark-reentry-entrypoint.patch`, bounded/dialog-free
+`--diagnostic-spark-reentry ROM NEW.csv`. Compare with
+`--spark-reentry-audit ROM CSV`. Temporary native hooks removed after capture.
+
+Whole-reset clearing and complete successive-spark alpha/beta sequences remain
+required before marking #466 ready for player confirmation.
+
 ## Shared-ownership reproduction and implementation
 
 `native-spark-ownership-probe.h` executes both boundary orders for all four
@@ -47,10 +77,9 @@ Use `native-spark-ownership-entrypoint.patch` and the bounded/dialog-free
 `--diagnostic-spark-ownership ROM NEW.csv` entrypoint to regenerate. Temporary
 native hooks were removed after capture. The managed audit is hash-gated.
 
-Whole-reset clearing and successive crash sequences remain additional required
-coverage. Crash entry also writes the first drawing enable and aliases the
-first departing X word as angular delta; their full successive-crash behavior
-must be covered before this ticket is ready for player confirmation.
+Whole-reset clearing and full successive crash sequences remain additional
+required coverage. The crash-entry drawing/delta checkpoint above covers its
+entry writes, but not the complete successive-spark lifecycle.
 
 ## Released-radius checkpoint
 

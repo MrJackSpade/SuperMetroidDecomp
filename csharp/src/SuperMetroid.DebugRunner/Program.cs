@@ -62,6 +62,8 @@ if (args.Length == 3 && args[0] == "--pose-crumble-audit")
     return PoseCrumbleComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--remote-item-audit")
     return RemoteItemComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--item-acquisition-audit")
+    return ItemAcquisitionComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--remote-door-audit")
     return RemoteDoorComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--corner-jump-audit")

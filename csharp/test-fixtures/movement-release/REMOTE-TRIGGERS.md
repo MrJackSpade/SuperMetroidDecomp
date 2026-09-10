@@ -166,3 +166,31 @@ scans. These seed gaps are not identical to distance at the later probe frame.
 All 6,402 frames match; no production change was needed. This supplies the
 velocity-dependent door movement evidence missing from the direct-probe matrices.
 Moving item collection and ceiling-contact sequences are still separate gates.
+
+## Native acquisition handler boundary (#463)
+
+`item-acquisition-463-v1.zip`, `native-item-acquisition-probe.h`, and
+`native-item-acquisition-entrypoint.patch` extend the direct horizontal collision
+evidence through the original PLM handler, rather than inferring an award from
+the detector timer. Same ROM/source pins as above. Two independent captures have
+SHA256 `AF61194A7FD39C287F711FA1518E48D03B11D51AA3EA85538634BF695C06B8A8`.
+Native command: `--diagnostic-item-acquisition ROM CSV`; managed command:
+`--item-acquisition-audit ROM CSV`.
+
+408 cases cover both directions, seventeen gaps, three blocker arrangements and
+all four remaining visible-item animation timers. The native seed is the exposed
+missile loop: next draw `$84:E0CE`, preinstruction `$84:DF89`, link `$84:E0D6`.
+The original wall probe `$94:967F` runs with signed eight-pixel displacement;
+the original handler `$84:85B4` then runs until return or message entry `$85:8080`.
+At message entry the real pickup opcode has already awarded ammo and the preceding
+instruction has set the permanent bit. No message coroutine or artificial NMI is
+executed. Each case resets CPU/RAM; the suspended coroutine is not resumed.
+
+The C# fixture reaches corresponding timer phases with production PLM steps,
+asserts collision has not yet awarded resources, then performs exactly one handler
+step. All 408 match: 128 same-pass pickups with message 2, five current/max missiles
+and item bit zero set; 280 negative controls with none of those effects. An upper
+solid blocker suppresses pickup; a lower blocker does not undo the earlier trigger.
+No production change was needed. This validates acquisition timing at the PLM
+boundary, not message dismissal, full moving-item trajectories or ceiling-contact
+sequences; those latter movement gates remain open.

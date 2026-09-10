@@ -42,6 +42,17 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - Match the assertion to the report. Visual, positioning, animation, timing, and state-transition bugs need assertions for those exact properties; a nearby endpoint or no-crash assertion is not sufficient evidence of a fix.
 - Use a real room or recorded controller sequence when the behavior depends on retail room data, interactions across systems, or a sequence that a synthetic fixture cannot reproduce faithfully.
 
+## Issue report versions
+
+- Every player bug report must record the affected game version in the GitHub
+  issue body under `Affected version`. Include it when creating or reopening an
+  issue, or when adding a new report to an existing issue.
+- Use the version supplied by the player; carry it forward for subsequent reports
+  in the same testing session until the player specifies a different version.
+  Never infer the affected version from the current repository or latest release.
+- If the version is unknown, record `Unknown (awaiting player version)` and ask
+  for it. Update the issue when supplied, preserving earlier reported versions.
+
 ## Issue-fix workflow
 
 - On the first attempt to fix an issue, exact reproduction is optional when the report is clear and the defect is small or mechanically obvious. Reproduce first whenever diagnosis is uncertain, the change is risky, or the reported property cannot otherwise be verified confidently.

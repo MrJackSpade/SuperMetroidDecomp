@@ -43,7 +43,7 @@ class ReleaseTests(unittest.TestCase):
 
     def test_notification_records_intent_before_post_and_edits_on_rerun(self):
         info = {"id": "123", "guild_id": release.GUILD_ID, "channel_id": "456"}
-        published = {"id": 1, "body": "Notes", "isDraft": False, "url": "https://github.com/a/b/releases/tag/v1.0.0"}
+        published = {"databaseId": 1, "body": "Notes", "isDraft": False, "url": "https://github.com/a/b/releases/tag/v1.0.0"}
         calls = []
 
         def request(url, method="GET", payload=None):
@@ -76,6 +76,13 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "destination"):
                 release.notify()
             self.assertEqual(request.call_count, 1)
+
+    def test_receipt_update_uses_rest_database_id(self):
+        published = {"id": "RE_graphql_node", "databaseId": 123, "body": "Before"}
+        with patch.dict(os.environ, {"GH_REPO": "owner/repo"}), patch.object(release, "gh") as command:
+            release.set_body(published, "After")
+            self.assertIn("repos/owner/repo/releases/123", command.call_args.args)
+            self.assertEqual(json.loads(command.call_args.kwargs["data"]), {"body": "After"})
 
 
 if __name__ == "__main__":

@@ -71,13 +71,13 @@ def gh(*args, data=None, optional=False):
 
 
 def release_info(tag):
-    result = gh("release", "view", tag, "--json", "id,body,url,isDraft,assets", optional=True)
+    result = gh("release", "view", tag, "--json", "databaseId,body,url,isDraft,assets", optional=True)
     return json.loads(result) if result else None
 
 
 def set_body(release, body):
     repo = os.environ["GH_REPO"]
-    gh("api", "--method", "PATCH", f"repos/{repo}/releases/{release['id']}", "--input", "-",
+    gh("api", "--method", "PATCH", f"repos/{repo}/releases/{release['databaseId']}", "--input", "-",
        data=json.dumps({"body": body}))
     release["body"] = body
 

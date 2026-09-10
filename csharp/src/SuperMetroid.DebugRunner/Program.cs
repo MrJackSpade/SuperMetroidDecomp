@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--combo-allocation-audit")
+    return ComboAllocationAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--combo-activation-input-audit")
     return ComboActivationInputAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--pseudo-screw-extended-reset-audit")

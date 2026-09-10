@@ -44,6 +44,8 @@ public sealed class SamusProjectileSlot
     public ushort TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
     public ushort Variable { get; internal set; }
+    /// <summary>WRAM $0CA4: auxiliary phase word used by Spazer special-attack particles.</summary>
+    public ushort AuxiliaryPhase { get; internal set; }
     public SamusProjectilePreInstruction PreInstruction { get; internal set; }
 
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
@@ -68,6 +70,7 @@ public sealed class SamusProjectileSlot
         AnimationFrame = 0;
         TrailTimer = 0;
         Variable = 0;
+        AuxiliaryPhase = 0;
         PreInstruction = SamusProjectilePreInstruction.None;
     }
 }
@@ -83,6 +86,11 @@ public enum SamusProjectilePreInstruction : byte
     Missile,
     SuperMissile,
     SuperMissileLink,
+    IceCombo,
+    IceComboOutward,
+    WaveCombo,
+    SpazerCombo,
+    PlasmaCombo,
 }
 
 /// <summary>

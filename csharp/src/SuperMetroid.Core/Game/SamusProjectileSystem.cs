@@ -693,6 +693,7 @@ public sealed partial class SamusProjectileSystem
     /// <summary>Clears all five ordinary slots and the separately maintained counter.</summary>
     public void Reset()
     {
+        ComboState = 0;
         foreach (SamusProjectileSlot slot in _slots)
             slot.ClearFields();
         foreach (SamusProjectileTrailSlot trail in _trailSlots)

@@ -52,3 +52,21 @@ test ammo limits, equipment changes and the active-combo armament restrictions.
 Family-specific trajectory/damage work belongs to #417–#420, while #416 must not
 be considered ready merely because allocation or this endpoint witness passes.
 Reference: https://wiki.supermetroid.run/Charge_Beam_Combos (revision 7564).
+
+## Allocation implementation checkpoint
+
+`SamusProjectileSystem.TryActivateCombo` now implements the original dispatcher
+and all four initialization families. It retains native ammo debit before family
+rejection, selection teardown, fixed four-slot overwrite, family-specific data
+initialization and shared direction/phase state. Addresses live in
+`SamusComboRomData`; live phase and auxiliary fields live on the projectile owner
+and slots. The normal firing path does **not** invoke this method yet, because
+the new pre-instruction identities still need movement/lifetime implementations.
+This is not a claim that any combo can be used in gameplay now.
+
+`--combo-allocation-audit ROM CSV` compares all 432 native cases and all fourteen
+captured words for each of four slots plus global resource/selection/count/cooldown/
+shared-state/carry results. Zero mismatches. Build and full core verification pass.
+The earlier real-input diagnostic remains intentionally failing until integration.
+The capture starts other slot words at zero; stale-word overwrite cases and sound
+publication still need expanded checks when particle updates are implemented.

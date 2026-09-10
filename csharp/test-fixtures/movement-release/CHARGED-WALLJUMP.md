@@ -79,3 +79,30 @@ retention, the late no-bounce morph, and delayed spread release.
 Regression verification: full core Verification passed, along with the existing
 Moonwalk (20,160 frames), Moonfall (37,440 frames) and shot/bomb (20,800 frames)
 native comparison matrices. All had zero mismatches.
+
+## Pause-separated Down integration baseline (partial #471)
+
+Run `SuperMetroid.DebugRunner --pause-charge-carry-audit "Super Metroid.smc"`.
+This additional fixture drives the real `SuperMetroidGame.StepCaptured` frontend,
+including pause darkening, menu setup, delayed Start acceptance, menu fade-out,
+and resumed gameplay. It uses an in-memory save and replaces the Landing Site
+geometry with a flat floor; it does not read or overwrite player saves.
+
+Shoot starts at frame zero, running at 30 and jumping at 70. The sweep presses
+Start + Down at every frame from 120 through 150, releases Down during the frozen
+menu, then presses it on the first resumed gameplay frame. Assertions cover:
+
+- The normal pause states are reached within bounded waits.
+- Pose, vertical position and beam charge stay frozen during the menu.
+- Down is a new input edge on the first resumed gameplay frame.
+- Frames 120–139 morph but bounce; 140–146 morph without bouncing and retain
+  charge; 147–150 miss this airborne morph.
+- Successful carries do not release bombs while Down is held. Releasing Down
+  produces five bombs and consumes the charge.
+
+These are 31 deterministic **C# integration baselines**, not a native-CPU
+measurement of the pause timing window. No production behavior was changed for
+this fixture. Cartridge comparison, actual Bombs equipment toggles, X-ray-assisted
+carry and continuous-walljump speed carry remain required before #471 is ready
+for player validation. The native comparison above covers only its stated
+charged-walljump sequence; it must not be cited as proof of this menu sequence.

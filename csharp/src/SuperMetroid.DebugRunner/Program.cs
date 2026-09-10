@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--pause-charge-carry-audit")
+    return PauseChargeCarryAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--charged-walljump-comparison-audit")
     return ChargedWalljumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moonfall-comparison-audit")

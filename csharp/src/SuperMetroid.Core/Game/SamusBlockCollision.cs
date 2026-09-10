@@ -426,7 +426,10 @@ public static partial class SamusBlockCollision
         // distinction as an argument at the shared collision seam; clearing the caller's
         // enemy snapshot would mutate unrelated gameplay state and would make the omission
         // impossible to verify.
-        if (includeSolidEnemies && acceptedDisplacement != 0 && state.InteractiveEnemies.Count != 0)
+        // A zero-speed bounce apex still enters the downward solid-enemy probe.
+        // Exact platform tangency can therefore finish the bounce this frame;
+        // only the later terrain dispatcher skips a zero displacement.
+        if (includeSolidEnemies && state.InteractiveEnemies.Count != 0)
         {
             // `$90:93EC/$9440` uses the same unsigned `$12.$14` magnitude contract as X.
             uint magnitude = acceptedDisplacement < 0

@@ -310,13 +310,7 @@ public sealed partial class SamusState
             // Prospective command seven also cancels an active bounce before starting the
             // transition. Ordinary crouch entry normally sees zero, but retaining the
             // literal writes makes externally stimulated debugger states deterministic.
-            if (MorphBallBounceState != 0)
-            {
-                MorphBallBounceState = 0;
-                Kinematics.YSubspeed = 0;
-                Kinematics.YSpeed = 0;
-                Kinematics.YDirection = 0;
-            }
+            CancelBounceForPostureTransition();
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }
@@ -341,8 +335,22 @@ public sealed partial class SamusState
         Pose = targetPose;
         RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        // Unmorph uses the same prospective command seven as morph. Its zero
+        // alignment-table entry does not bypass the subsequent bounce cancellation.
+        CancelBounceForPostureTransition();
         InitializeAnimation(bus, initialFrame: 0);
         return true;
+    }
+
+    /// <summary>Shared bounce cancellation in native prospective command seven.</summary>
+    private void CancelBounceForPostureTransition()
+    {
+        if (MorphBallBounceState == 0)
+            return;
+        MorphBallBounceState = 0;
+        Kinematics.YSubspeed = 0;
+        Kinematics.YSpeed = 0;
+        Kinematics.YDirection = 0;
     }
 
     /// <summary>

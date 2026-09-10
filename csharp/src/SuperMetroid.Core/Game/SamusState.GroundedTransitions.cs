@@ -416,11 +416,12 @@ public sealed partial class SamusState
                 $"Moonwalk turn/jump ${Pose:X2} -> ${targetPose:X2} is not a retail route.");
         }
 
-        // `$91:F8F3-$F903` preserves the source moonwalk shot direction with bit eight set.
-        // That word affects arm-cannon transition drawing, which is not independently
-        // surfaced yet; the destination pose already contains the exact matching art.
+        // Preserve the old muzzle direction before installing turn art. The next alpha
+        // uses the tag to admit the turning HUD producer and forcibly release charge.
+        byte sourceShotDirection = ReadShotDirection(bus);
         FoldExtraRunSpeedIntoBaseAndStartTurn();
         ApplySimpleGroundedPoseChange(bus, Pose, targetPose, "Moonwalk turn/jump");
+        PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceShotDirection));
     }
 
     /// <summary>
@@ -650,7 +651,7 @@ public sealed partial class SamusState
             // The `$0100` tag makes HUD handler `$90:DD74` treat the one-frame turning
             // state as shooting. `$90:BA5F` later masks it away and consumes only this
             // source pose's direction byte when a beam slot can actually be initialized.
-            PoseTransitionShotDirection = unchecked((ushort)(0x0100 | moonwalkSourceShotDirection));
+            PoseTransitionShotDirection = unchecked((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | moonwalkSourceShotDirection));
         }
     }
 

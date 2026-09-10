@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--moonwalk-comparison-audit")
+    return MoonwalkComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--moonwalk-options-audit")
     return MoonwalkOptionsAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--file-select-native-audit")

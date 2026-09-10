@@ -559,7 +559,16 @@ public static class SamusAerialMovement
             samus.Kinematics.YDirection = 2;
         }
 
-        return FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+        AerialMovementResult result = FinishVerticalMovement(bus, level, samus, horizontal, nmiFrameCounter, plms: plms);
+        // The movement wrapper selects fast-fall art after physics, before AnimateSamus.
+        // Aimed falling poses have their own lists and do not enter this branch.
+        if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
+            SamusPoseIds.FallingGunExtendedRightPose or SamusPoseIds.FallingGunExtendedLeftPose &&
+            unchecked((short)(samus.Kinematics.YSpeed - SamusMovementRomData.FastFallAnimationSpeed)) >= 0 &&
+            unchecked((short)(samus.AnimationFrame - SamusMovementRomData.FastFallAnimationFrame)) < 0)
+            samus.SetAnimationFrameFromSpecialHandler(SamusMovementRomData.FastFallAnimationFrame,
+                SamusMovementRomData.FastFallAnimationTimer);
+        return result;
     }
 
     /// <summary>

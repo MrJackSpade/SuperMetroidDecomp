@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusProjectileRomData
 {
+    /// <summary>$91:F8F3-$F903: tag on the prior Moonwalk muzzle direction, consumed by turning HUD dispatch.</summary>
+    public const ushort MoonwalkPoseHandoffTag = 0x0100;
+
     /// <summary>Native banks used to expand same-bank projectile pointers.</summary>
     public static class Banks
     {

@@ -384,14 +384,20 @@ public sealed partial class SamusProjectileSystem
         // $90:DCE0-DCE8 branches straight to Handle_Projectiles for either
         // forward-facing pose. In particular an elevator may keep accepting physical
         // controller samples without allowing them to charge or fire a weapon.
-        // The spin/wall-jump entries dispatch HudSelectionHandler_JumpEtc, not
+        // Spin, wall-jump, hurt and special entries dispatch HudSelectionHandler_JumpEtc, not
         // the normal beam producer. With grapple inactive that handler does
         // nothing: held/released Shoot must leave the charge word untouched.
         // Existing projectiles still advance below. Pose input can leave spin
         // first, making the normal producer eligible on the following alpha.
-        bool preservesSpinCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
-            samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
-        if (projectileProducerEnabled && !preservesSpinCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
+        bool preservesJumpHandlerCharge = samus.Grapple.Phase == GrapplePhase.Inactive &&
+            samus.ReadMovementType(bus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping or
+                SamusMovementType.Knockback or SamusMovementType.DamageBoost or SamusMovementType.Unused0D or SamusMovementType.Special;
+        // Turning HUD dispatch waits for an explicit pose-initializer muzzle handoff.
+        // With no handoff it neither increments charge nor releases it on a Shoot edge.
+        bool preservesTurnCharge = samus.ReadMovementType(bus) is
+            SamusMovementType.TurningOnGround or SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling &&
+            samus.PoseTransitionShotDirection == 0;
+        if (projectileProducerEnabled && !preservesJumpHandlerCharge && !preservesTurnCharge && !SamusState.IsForwardFacingPose(samus.Pose) &&
             !SamusState.IsStableBallPose(samus.Pose))
         {
             // $90:DDC8 calls the normal beam handler when selected X-ray's Run

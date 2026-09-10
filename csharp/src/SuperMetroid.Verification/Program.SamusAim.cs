@@ -471,14 +471,15 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(16, boxedCompact.Kinematics.YRadius, "boxed compact fallback radius");
     AssertEqual(170, boxedCompact.YPosition, "boxed compact fallback applies FFD4 offset");
 
-    // Grounded shot direction one walks off into `$6D`; falling aim changes preserve
-    // gravity state and zero-input fallback selects ordinary `$29`.
+    // PSP_Falling chooses ordinary falling from the physics-facing byte. Aim is
+    // reconsidered on the next input pass, rather than being preserved by the walk-off.
     samus.Pose = SamusPoseIds.StandingAimDiagonalUpRightPose;
     samus.RefreshCollisionRadii(bus);
     samus.InitializeAnimation(bus);
-    AssertEqual(0x6d, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
-    samus.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingAimDiagonalUpRightPose);
+    AssertEqual(SamusPoseIds.FallingRightPose, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
+    samus.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingRightPose);
     AssertEqual(2, samus.Kinematics.YDirection, "aimed walk-off starts downward");
+    samus.ApplyAerialAimTransition(bus, SamusPoseIds.FallingAimDiagonalUpRightPose);
 
     // `$90:8324-$8345` leaves both the command index and zero timer untouched when `$F0`
     // is reached. One frame later DEC wraps zero to `$FFFF`; the negative result advances

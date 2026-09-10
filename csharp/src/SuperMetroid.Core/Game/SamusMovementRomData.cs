@@ -12,6 +12,13 @@ public static class SamusMovementRomData
     /// <summary>$90:A3C1, SamusMovement_Standing: held-shot animation timer before the animation tick.</summary>
     public const ushort StandingShotAnimationTimer = 16;
 
+    /// <summary>$90:A58D, Samus_Movement_06_Falling: minimum signed whole speed selecting fast-fall art.</summary>
+    public const short FastFallAnimationSpeed = 5;
+    /// <summary>$90:A58D falling handler: first fast-fall animation frame.</summary>
+    public const ushort FastFallAnimationFrame = 5;
+    /// <summary>$90:A58D falling handler: fast-fall timer before the animation tick.</summary>
+    public const ushort FastFallAnimationTimer = 8;
+
     /// <summary>Native ROM banks shared by the movement table families.</summary>
     public static class Banks
     {

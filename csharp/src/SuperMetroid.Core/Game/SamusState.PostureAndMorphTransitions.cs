@@ -666,34 +666,15 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Ports the non-spinning direction lookup used by `$91:E8F2` for a grounded walk-off.
+    /// Ports the facing lookup used by `$91:E8F2` for a grounded walk-off.
     /// </summary>
     public byte SelectFallingPoseForCurrentAim(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte shotDirection = ReadShotDirection(bus);
-        return shotDirection switch
-        {
-            0 => SamusPoseIds.FallingAimUpRightPose,
-            1 => SamusPoseIds.FallingAimDiagonalUpRightPose,
-            2 => SamusPoseIds.FallingRightPose,
-            3 => SamusPoseIds.FallingAimDiagonalDownRightPose,
-            6 => SamusPoseIds.FallingAimDiagonalDownLeftPose,
-            7 => SamusPoseIds.FallingLeftPose,
-            8 => SamusPoseIds.FallingAimDiagonalUpLeftPose,
-            9 => SamusPoseIds.FallingAimUpLeftPose,
-
-            // Turn and crouch records store `$FB`/`$FF` rather than an arm direction.
-            // Their facing byte still selects the ordinary unaimed falling pair.
-            0xfb or 0xff => IsFacingLeft(bus)
-                ? SamusPoseIds.FallingLeftPose
-                : SamusPoseIds.FallingRightPose,
-            // Stable grounded records publish only the eight admitted aim directions or
-            // `$FB/$FF` sentinels. Compact directions four/five belong exclusively to
-            // already-airborne `$17/$18/$2D/$2E` and cannot originate a walk-off.
-            _ => throw new InvalidDataException(
-                $"Walk-off source pose ${Pose:X2} has invalid grounded shot direction ${shotDirection:X2}."),
-        };
+        // PSP_Falling indexes its pair with PoseXDirection, not the muzzle direction.
+        // Moonwalk's visual facing opposes this physics byte; aim input is reconsidered
+        // by the next frame's input handler after this ordinary falling pose is installed.
+        return IsFacingLeft(bus) ? SamusPoseIds.FallingLeftPose : SamusPoseIds.FallingRightPose;
     }
 
     /// <summary>

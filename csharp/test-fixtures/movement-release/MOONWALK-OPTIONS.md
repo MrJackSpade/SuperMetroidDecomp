@@ -1,8 +1,7 @@
 # Moonwalk options handoff (#467, partial)
 
-This covers the settings portion only. The ticket remains open without a
-validation label until its gameplay entry, interruption, charge and reversal
-matrix is complete.
+This covers the settings portion only. Gameplay entry, interruption, charge
+and reversal evidence is recorded separately in MOONWALK.md.
 
 ## Reproduced defect
 

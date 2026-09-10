@@ -1463,7 +1463,10 @@ static void VerifySamusMoonwalking()
         turn.RefreshCollisionRadii(bus);
         turn.HorizontalSpeed.BaseSpeed = 1;
         turn.HorizontalSpeed.ExtraRunSubspeed = 0x4000;
+        byte sourceMuzzleDirection = turn.ReadShotDirection(bus);
         turn.ApplyMoonwalkTurnJump(bus, target);
+        AssertEqual((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceMuzzleDirection),
+            turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${source:X2} selects exact turn ${target:X2}");
         AssertEqual(1, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${target:X2} preserves reversal mode");

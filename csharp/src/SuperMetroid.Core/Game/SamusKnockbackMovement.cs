@@ -31,7 +31,10 @@ public static class SamusKnockbackMovement
         ISnesAddressSpace bus,
         SamusState samus,
         ushort controllerInput,
-        bool timeIsFrozen)
+        bool timeIsFrozen,
+        RoomLevelData? level = null,
+        ushort nmiFrameCounter = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -52,7 +55,8 @@ public static class SamusKnockbackMovement
             samus,
             controllerInput,
             samus.KnockbackXDirection,
-            samus.KnockbackTimer);
+            samus.KnockbackTimer,
+            level, nmiFrameCounter, plms);
     }
 
     // The selector routine is `$90:99D6`, but its two three-word data arrays live later in
@@ -76,7 +80,10 @@ public static class SamusKnockbackMovement
         SamusState samus,
         ushort controllerInput,
         ushort knockbackXDirection,
-        ushort knockbackTimer = 5)
+        ushort knockbackTimer = 5,
+        RoomLevelData? level = null,
+        ushort nmiFrameCounter = 0,
+        RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -141,9 +148,16 @@ public static class SamusKnockbackMovement
         bool facingLeft = SamusState.IsFacingLeft(bus, samus.Pose);
         if (humanoid)
         {
-            samus.Pose = facingLeft
+            byte targetPose = facingLeft
                 ? SamusPoseIds.KnockbackLeftPose
                 : SamusPoseIds.KnockbackRightPose;
+            // Native interrupted poses pass through the same expansion check as ordinary
+            // input poses before command one initializes knockback. Scripted cinematic
+            // callers without room terrain retain their explicitly positioned behavior.
+            if (level is not null && !samus.TryResolveKnockbackPoseCollision(
+                    bus, level, targetPose, nmiFrameCounter, plms))
+                return false;
+            samus.Pose = targetPose;
             samus.RefreshCollisionRadii(bus);
         }
         else if (unusedMovementSeven)

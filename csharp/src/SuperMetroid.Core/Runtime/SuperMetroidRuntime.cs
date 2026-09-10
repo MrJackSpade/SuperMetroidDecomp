@@ -2792,7 +2792,10 @@ public sealed partial class SuperMetroidRuntime
                         _addressSpace,
                         Samus,
                         Controller1.Current,
-                        TimeIsFrozen))
+                        TimeIsFrozen,
+                        LevelData,
+                        NmiFrameCounter,
+                        Plms))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;

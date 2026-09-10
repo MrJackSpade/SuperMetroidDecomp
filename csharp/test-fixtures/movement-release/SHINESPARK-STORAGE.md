@@ -176,7 +176,30 @@ Regenerate with `native-spark-corrosive-entrypoint.patch` and bounded/dialog-fre
 Sand, liquid-boundary crossings and remaining launch restrictions still need
 coverage before #465 is ready for player validation.
 
-## Storage admission and palette-owned expiry (handler capture)
+## Launch attempts from inside sand
+
+`native-spark-sand-probe.h` repeats the enclosed water fixture with Maridia
+area identity and rows 13..15 filled with special-air BTS 82 or 83. Both
+facings, three requested directions and Gravity absent/present give 24 cases.
+Native one-shot sand PLM instruction lists execute each frame so repeated
+contact cannot exhaust slots. The managed synthetic fixture replaces only
+its header's area through reflection to select Maridia's real BTS tables;
+it does not claim to reproduce the surrounding retail room.
+
+All per-frame poses, shine/windup timers, 16.16 X/Y, health and crash flags
+match. Twelve suitless attempts never launch and are observed through charge
+expiry to frame 255. Twelve Gravity attempts launch and reach collision or
+energy termination. The comparator explicitly checks these distinct capture
+end conditions; a timed-out active spark cannot pass. No production fix needed.
+This does not yet cover an already-active suitless spark entering sand.
+
+Accepted CSV in `spark-sand-465-v1.zip`, SHA-256
+`BA0837A6A362939F04A8C2A6B76B119883930D1A82E2B0C14FA636AA30FE9EE5`.
+Two native captures match. Regenerate using `native-spark-sand-entrypoint.patch`
+and bounded/dialog-free `--diagnostic-spark-sand ROM NEW.csv`; compare with
+`--spark-sand-audit ROM CSV`. Temporary native hooks removed after capture.
+
+## Storage admission and palette-owned expiry
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

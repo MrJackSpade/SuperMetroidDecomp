@@ -194,3 +194,27 @@ solid blocker suppresses pickup; a lower blocker does not undo the earlier trigg
 No production change was needed. This validates acquisition timing at the PLM
 boundary, not message dismissal, full moving-item trajectories or ceiling-contact
 sequences; those latter movement gates remain open.
+
+## Moving-item acquisition frames (#463)
+
+`moving-item-463-v1.zip`, `native-moving-item-probe.h` and
+`native-moving-item-entrypoint.patch` use the moving-door trajectory matrix above,
+replacing the door with an exposed missile owner. The same pinned original ROM
+runs all movement stages and the actual PLM handler through message entry. Each
+case ends on the pickup frame or after 24 unsuccessful frames; message dismissal
+and later movement are outside this capture. All 918 cases / 6,402 frames match C#
+`SuperMetroidRuntime.StepFrame` with gameplay cheats disabled.
+
+Native `--diagnostic-moving-item ROM CSV`; managed `--moving-item-audit ROM CSV`.
+Two independently repeated captures have SHA256
+`D181C67647DD84414C4BA273E45FE89B43F27534D9422219C3A3DD308901FEBA`.
+Every captured frame compares the movement/animation/radius fields listed in the
+door section, plus the actual message index, current/max ammo and collected bit.
+390 pickups occur while the complete horizontal hitbox remains outside the item
+column. The same zero-extra-speed, immediate-turn witnesses retain base speed
+`$0000:E000` and reversal mode one; the adjacent gap fails. The shared door fixture
+edge constants intentionally describe the identical geometry here.
+
+No production change was necessary. This closes the moving-item trajectory gap;
+ceiling-contact sequences and remaining direction-sensitive negative controls
+still prevent marking the overall issue ready for player validation.

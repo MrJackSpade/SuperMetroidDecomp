@@ -650,22 +650,22 @@ public sealed partial class RoomEnemySystem
                         continue;
                     }
 
-                    // Common_NormalEnemyFrozenAI owns the actor while its freeze clock is
-                    // nonzero. After its decrement, native also thaws immediately when Ice
-                    // is no longer equipped; the old host path incorrectly let a synthetic
-                    // freeze survive for its full timer after the equipment-menu bit cleared.
-                    // Grapple-cancel reactions select this handler with a zero clock; that
-                    // call clears bit four without running main AI.
+                    // Test the clock before decrementing: reaching zero retains frozen
+                    // dispatch for this call. Ice removal instead takes the thaw branch
+                    // immediately. That branch stores the remaining AI bits into BOTH
+                    // words; replacing the clock with literal zero loses retail behavior
+                    // when hurt and frozen dispatch coexist.
                     slot.FlashTimer = 0;
-                    if (slot.FrozenTimer != 0)
+                    bool thaw = slot.FrozenTimer == 0 ||
+                        (samus is not null &&
+                            (samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0);
+                    if (!thaw)
                         slot.FrozenTimer = unchecked((ushort)(slot.FrozenTimer - 1));
-                    if (samus is not null &&
-                        (samus.EquippedBeams & (ushort)SamusBeamFlags.Ice) == 0)
+                    else
                     {
-                        slot.FrozenTimer = 0;
-                    }
-                    if (slot.FrozenTimer == 0)
                         slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0004));
+                        slot.FrozenTimer = slot.AiHandlerBits;
+                    }
                     if (slot.EnemyDefinitionPointer == MetroidDefinition)
                         RunMetroidFrozen(slot);
                     if (slot.EnemyDefinitionPointer == YappingMawDefinition)

@@ -12,6 +12,34 @@ after the implementations and integration described below.
 
 ## Native dispatcher oracle
 
+### #417 common frozen-handler boundary
+
+`native-frozen-ai-probe.h` executes original CPU code at `$A0:957E`, with
+the same retail ROM and pinned host/disassembly sources used below. Its 16
+constructed actor records cover Ice enabled/disabled, freeze clocks 0/1/2/400,
+and frozen-only versus hurt+frozen AI bits. Each starts with flash clock 18.
+Two independent captures were byte-identical. Accepted CSV is archived in
+`frozen-ai-417-v1.zip`, SHA-256:
+`CF8B8D22622DBD7463A79CAC01F5EFEE3ABD6E1B9B42D0C9EF6EB514A494376F`.
+
+`FrozenAiAudit` runs the production enemy frame with the same synthetic actor
+and compares freeze clock, AI bits, and flash clock. Seven cases failed before
+the fix: C# cleared frozen dispatch on the decrement-to-zero frame instead of
+the following call, and thaw wrote literal zero instead of the remaining AI
+bits into the freeze-clock word. All 16 now match. The native callback clears
+flash first, so subsequent managed flash housekeeping cannot change the fields
+being compared. This is a callback-boundary regression, not a claim that every
+constructed hurt+frozen combination is reachable by Ice Shield gameplay.
+
+Reproduction: apply `native-frozen-ai-entrypoint.patch` to the pinned native
+host, build Release x64, then run only
+`sm.exe --diagnostic-frozen-ai ROM output.csv`. This entry bypasses SDL and
+suppresses error/warning dialogs. Remove the temporary entrypoint afterward.
+Managed comparison:
+`SuperMetroid.DebugRunner --frozen-ai-audit ROM frozen-ai-417-v1.csv`.
+The remaining Ice Shield damage/contact sequence and presentation acceptance
+work is still open in #417; this checkpoint does not complete that ticket.
+
 `native-combo-activation-probe.h` calls original $90:CCC0, not the C translation.
 432 cases cover all twelve normal beam combinations, PB stock 0/1/2, selection
 none/PB, both facings, and slot-zero pre-instruction none/Ice/Plasma. Equipment is

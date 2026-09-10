@@ -350,3 +350,31 @@ Ordinary horizontal surface movement remains carry clear. Falling contact-damage
 wall probes stop without changing position or subpixels; submerging sand clears
 motion words even when observational. All 64 native comparisons pass. Chozo-hand
 and moving ceiling-contact evidence remain outstanding for the overall issue.
+
+## Chozo hand direction and actual side effects (#463)
+
+`native-hand-probe.h`, `native-hand-probe-entrypoint.patch`, and
+`hand-probe-463-v1.zip` cover 32 cases: both statue variants, ordinary downward
+movement versus direction-F observation, all four ground morph/spring-ball poses,
+and progression admission enabled/disabled. Native `$94:9763`/`$94:96AB` execute
+the actual area-selected hand setup. Two captures match SHA256
+`C6211AFA88A028CEE251A2EE580352253E04EE3A3D3B01AD25CF911E35D7F2E4`.
+Commands: native `--diagnostic-hand-probe ROM CSV`; managed
+`--hand-probe-audit ROM CSV`. Same ROM/source pins as above.
+
+The native synthetic room has ample space for hardcoded PLM spawns. The managed
+fixture loads each retail statue population and its real callbacks, then isolates
+the equivalent access cell at (8,10). The test explicitly supplies the collision
+probe identity to the production vertical dispatcher. It compares unconditional
+solid collision, actual enemy parameter one, hand block type/visual bits, and the
+Lower Norfair event. It is not a complete player pose-transition trajectory or
+an animation comparison. The boss flag is cleared after population loading for
+Wrecked Ship's negative control, so rejection is tested against a resident owner.
+
+Before the fix, six observational cases incorrectly activated the statue, erased
+hand collision and (in Lower Norfair) set the event. The hand call used displacement
+sign without the direction-F override. It now requires the native downward
+direction while retaining the setup's unconditional solidity. All 32 match after
+the fix: three admitted poses work during real eligible contact, left-facing morph
+ball is rejected, and all observational contacts reject. Moving ceiling-contact
+sequences remain the outstanding #463 gate.

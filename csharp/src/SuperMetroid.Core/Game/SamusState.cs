@@ -487,6 +487,27 @@ public sealed partial class SamusState
 
         int radiusDifference = targetRadius - Kinematics.YRadius;
 
+        // Native checks enemies first, then terrain in a separate pass. Mixing the two
+        // probes changes both available space and the order of their live Y-fraction
+        // writes (enemy tangency clears it; a later floor scan can set it to FFFF).
+        SolidEnemyCollisionResult enemyUp = ProbeEnemy(SamusCollisionDirection.Up, radiusDifference, Kinematics.YRadius);
+        SolidEnemyCollisionResult enemyDown = ProbeEnemy(SamusCollisionDirection.Down, radiusDifference, Kinematics.YRadius);
+        int enemyAdjustment = 0;
+        if (enemyUp.Collided != enemyDown.Collided)
+        {
+            bool above = enemyUp.Collided;
+            int remaining = radiusDifference - (above ? enemyUp.Distance : enemyDown.Distance);
+            SolidEnemyCollisionResult opposite = ProbeEnemy(
+                above ? SamusCollisionDirection.Down : SamusCollisionDirection.Up,
+                remaining, targetRadius);
+            if (opposite.Collided)
+            {
+                centerAdjustment = 0;
+                return LargerPoseCollisionOutcome.RetainSource;
+            }
+            enemyAdjustment = above ? opposite.Distance : -opposite.Distance;
+        }
+
         // The probes run against independent copies. Native stores both available-distance
         // results before choosing a branch, so neither probe may move the live body early.
         BlockMoveResult upward = ProbeChangedPoseVertical(
@@ -494,13 +515,13 @@ public sealed partial class SamusState
             level,
             displacement: unchecked(-radiusDifference << 16),
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms);
+            plms, includeSolidEnemies: false);
         BlockMoveResult downward = ProbeChangedPoseVertical(
             bus,
             level,
             displacement: radiusDifference << 16,
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
-            plms);
+            plms, includeSolidEnemies: false);
 
         if (upward.Collided && downward.Collided)
         {
@@ -524,16 +545,15 @@ public sealed partial class SamusState
             // `$91:FF58` checks the proposed upward correction against the opposite side.
             // A collision here takes `$91:FE82` and restores PreviousPose; it does not use
             // `$91:FFA7`'s crouch selector because the initial flags were not both set.
-            SamusKinematicsState oppositeProbe = CopyKinematics(Kinematics);
-            BlockMoveResult opposite = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                oppositeProbe,
+            BlockMoveResult opposite = ProbeChangedPoseVertical(
+                bus, level,
                 displacement: centerAdjustment << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                plms: plms);
+                plms: plms, includeSolidEnemies: false);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
+            if (enemyUp.Collided)
+                return BothSides();
         }
         else if (upward.Collided)
         {
@@ -544,19 +564,37 @@ public sealed partial class SamusState
             centerAdjustment = radiusDifference - freeWholePixels;
 
             // `$91:FF2B` is the downward mirror of the opposite-side check above.
-            SamusKinematicsState oppositeProbe = CopyKinematics(Kinematics);
-            BlockMoveResult opposite = SamusBlockCollision.MoveVertical(
-                bus,
-                level,
-                oppositeProbe,
+            BlockMoveResult opposite = ProbeChangedPoseVertical(
+                bus, level,
                 displacement: centerAdjustment << 16,
                 scanLeftToRight: (nmiFrameCounter & 1) == 0,
-                plms: plms);
+                plms: plms, includeSolidEnemies: false);
             if (opposite.Collided)
                 return LargerPoseCollisionOutcome.RetainSource;
+            if (enemyDown.Collided)
+                return BothSides();
+        }
+        else
+        {
+            if (enemyUp.Collided && enemyDown.Collided)
+                return BothSides();
+            centerAdjustment = enemyAdjustment;
         }
 
         return LargerPoseCollisionOutcome.Allowed;
+
+        LargerPoseCollisionOutcome BothSides() => Kinematics.YRadius < 8
+            ? LargerPoseCollisionOutcome.RetainSource : LargerPoseCollisionOutcome.CrouchFallback;
+
+        SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, ushort radius)
+        {
+            SamusKinematicsState probe = CopyKinematics(Kinematics);
+            probe.YRadius = radius;
+            SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
+                probe, probe.InteractiveEnemies, direction, unchecked((ushort)distance), 0);
+            Kinematics.YSubposition = probe.YSubposition;
+            return result;
+        }
     }
 
     /// <summary>

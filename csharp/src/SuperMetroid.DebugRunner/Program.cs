@@ -50,6 +50,8 @@ if (args.Length == 3 && args[0] == "--kago-contact-audit")
     return KagoContactAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--kago-solidity-audit")
     return KagoSolidityAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--kago-kzan-audit")
+    return KagoKzanAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--quick-drop-bomb-audit")
     return QuickDropBombAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--quick-drop-crumble-audit")

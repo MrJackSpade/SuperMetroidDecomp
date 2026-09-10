@@ -2892,12 +2892,12 @@ public sealed partial class SuperMetroidRuntime
                 // launches bounce two; only a gentle/second-bounce collision installs
                 // grounded `$1D/$41`. Treat every branch as a consumed transition so input
                 // selected before collision cannot override the cartridge's bounce result.
+                // The ROM collision table ignores ground-family type four, even if hurt
+                // movement left that pose with nonzero Y speed. Do not infer an airborne
+                // landing dispatcher from velocity alone.
                 if (!animationTransitionApplied &&
                     LastMorphBallMovement is { Landed: true } &&
-                    (SamusState.IsAirborneMorphBallPose(poseAtFrameStart) ||
-                     (Samus.BombJumpActive == false &&
-                      SamusState.IsGroundedMorphBallPose(poseAtFrameStart) &&
-                      Samus.Kinematics.YDirection != 0)))
+                    SamusState.IsAirborneMorphBallPose(poseAtFrameStart))
                 {
                     Samus.ApplyMorphBallLanding(_addressSpace);
                     animationTransitionApplied = true;
@@ -2916,12 +2916,10 @@ public sealed partial class SuperMetroidRuntime
                 // Spring Ball's three movement families share collision result three, but
                 // `$91:F25E` makes held Jump an immediate relaunch and stores `$0601/$0602`
                 // during automatic rebounds. Keep it distinct from ordinary-ball state.
+                // Ground-family type $11 likewise has the table's no-transition entry.
                 if (!animationTransitionApplied &&
                     LastMorphBallMovement is { Landed: true } &&
-                    (SamusState.IsAirborneSpringBallPose(poseAtFrameStart) ||
-                     (Samus.BombJumpActive == false &&
-                      SamusState.IsGroundedSpringBallPose(poseAtFrameStart) &&
-                      Samus.Kinematics.YDirection != 0)))
+                    SamusState.IsAirborneSpringBallPose(poseAtFrameStart))
                 {
                     Samus.ApplySpringBallLanding(_addressSpace, Controller1.Current);
                     animationTransitionApplied = true;

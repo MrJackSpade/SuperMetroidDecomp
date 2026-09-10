@@ -1,0 +1,47 @@
+diff --git a/src/main.c b/src/main.c
+index 64ececa..d77f23e 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -82,14 +82,15 @@ static uint32 g_gamepad_modifiers;
+ static uint16 g_gamepad_last_cmd[kGamepadBtn_Count];
+ extern Snes *g_snes;
+ 
++static bool pose_trigger_headless;
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!pose_trigger_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+   fprintf(stderr, "Error: %s\n", error);
+   exit(1);
+ }
+ 
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!pose_trigger_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+   fprintf(stderr, "Warning: %s\n", error);
+ }
+ 
+@@ -313,6 +314,11 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-pose-trigger") == 0) {
++    pose_trigger_headless = true;
++    extern int DiagnosticPoseTrigger(const char *, const char *);
++    return DiagnosticPoseTrigger(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+index cea7f4c..596e2ba 100644
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -95,6 +95,8 @@ typedef struct StateRecorder {
+ } StateRecorder;
+ 
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-pose-trigger-probe.h"
+ 
+ void StateRecorder_Init(StateRecorder *sr) {
+   ByteArray_Destroy(&sr->log);

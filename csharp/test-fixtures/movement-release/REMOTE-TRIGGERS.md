@@ -1,9 +1,9 @@
 # #463: remote collision triggers — partial evidence
 
 Reference: https://wiki.supermetroid.run/Hitbox_Manipulation, Checking section,
-revision 10438. **This is not yet a completed issue:** vertical checks, pose-change
-checks and velocity-dependent full movement sequences remain, together with native
-post-trigger item coroutine timing.
+revision 10438. **This is not yet a completed issue:** velocity-dependent full
+movement sequences, ceiling-contact paths and native post-trigger item coroutine
+timing remain. Direct horizontal and compact-pose-expansion trigger paths are covered.
 
 ## Horizontal door probe
 
@@ -109,3 +109,29 @@ block solid; those controls are distinguished from the original-CPU CSV.
 This fixes the reproduced crumble side effect, not all remaining directional
 callbacks. Station, hand and sand observation behavior still needs its own exact
 comparison, as do the positive vertical item/door triggers and full movement paths.
+
+## Positive pose-expansion triggers above and below
+
+The positive vertical subset now has 104 original `$91:F404` comparisons: doors
+and exposed missile owners, above/below Samus, thirteen gaps and both NMI scan
+parities. Source pose is down-aim falling ($2D), target ordinary falling ($29).
+Native performs its own complete prospective-pose collision handling, rather than
+seeding a trigger or calling a replacement collision routine.
+
+Artifacts: `native-pose-trigger-probe.h`, `native-pose-trigger-entrypoint.patch`,
+`pose-trigger-463-v1.zip`; native `--diagnostic-pose-trigger ROM CSV`, managed
+`--pose-trigger-audit ROM CSV`. Same source pins; two captures are byte-identical.
+CSV SHA256: `D226C25CF44C0A12037EB06B6C33A474A59957A8DB8AF076B6DAFFC4D59152C8`.
+
+All cases match. Named assertions establish the exact success/failure boundary:
+below gap eight triggers and gap nine fails; above gap nine triggers and gap ten
+fails. Gaps are defined by the authored centers in the probe; do not interpret
+these as a general maximum-distance statement independent of hitbox/subpixels.
+Every case preserves complete X/Y fixed-point position and horizontal base speed.
+Items execute the actual managed acquisition handler and are checked for five
+current/max missiles and the persistent collection bit. As in the horizontal
+item matrix, native capture observes owner-triggering rather than the subsequent
+native message/pickup coroutine. Doors publish the actual pending transition.
+
+No production fix was necessary for these positive paths. The shared item-list
+fixture now accepts a row and its previous 2,754 horizontal cases still pass.

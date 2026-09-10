@@ -40,14 +40,16 @@ internal static class SparkOwnershipAudit
                     {
                         typeof(SamusShinesparkState).GetProperty(nameof(SamusShinesparkState.Phase))!
                             .SetValue(samus.Shinespark, ShinesparkPhase.CrashFinish);
-                        samus.Shinespark.Step(bus, level, samus, 0, projectiles.ProjectileCounter);
+                        samus.Shinespark.Step(bus, level, samus, 0, projectiles: projectiles);
                     }
                 }
                 else
                 {
                     // Only the departing handlers advance, matching the native boundary
                     // fixture. Ordinary combo trajectory is covered by its separate audits.
-                    samus.Shinespark.StepReleasedCrashEchoProjectiles(bus, samus, 0, 0);
+                    for (int slot = 4; slot >= 3; slot--)
+                        if (projectiles.Slots[slot].PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
+                            projectiles.StepShinesparkEcho(bus, samus, projectiles.Slots[slot], 0, 0);
                 }
                 var first = samus.Shinespark.FirstReleasedCrashEcho;
                 var second = samus.Shinespark.SecondReleasedCrashEcho;

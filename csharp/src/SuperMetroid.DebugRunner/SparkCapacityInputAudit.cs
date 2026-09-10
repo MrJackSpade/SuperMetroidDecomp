@@ -31,11 +31,24 @@ internal static class SparkCapacityInputAudit
             runtime.StepFrame(0);
             int expected = beam == 0 ? 2 : 1;
             int actual = samus.Shinespark.ReleasedCrashEchoCount;
-            if (runtime.LastShinesparkMovement?.CrashSequenceFinished != true || actual != expected)
+            int expectedCount = beam == 0 ? 2 : 5;
+            bool ownsExpectedSlots = runtime.Projectiles.Slots[4].PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho &&
+                (beam != 0 || runtime.Projectiles.Slots[3].PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho);
+            if (runtime.LastShinesparkMovement?.CrashSequenceFinished != true || actual != expected ||
+                runtime.Projectiles.ProjectileCounter != expectedCount || !ownsExpectedSlots)
             {
                 failures++;
                 Console.WriteLine($"SPARK CAPACITY beam={beam}: echoes={actual}, expected={expected}, " +
                     $"projectiles={runtime.Projectiles.ProjectileCounter}, bombs={runtime.BombProjectiles.BombCounter}.");
+            }
+            // The next real alpha pass must advance the owned echo exactly once,
+            // including its ordinary instruction-list pass, before Samus moves.
+            runtime.StepFrame(0);
+            if (samus.Shinespark.SecondReleasedCrashEcho.Radius != 8 ||
+                runtime.Projectiles.Slots[4].XVelocity != 8)
+            {
+                failures++;
+                Console.WriteLine($"SPARK STEP beam={beam}: shared radius/alpha dispatch mismatch.");
             }
         }
         Console.WriteLine($"Spark runtime capacity: 5 cases, {failures} mismatches.");

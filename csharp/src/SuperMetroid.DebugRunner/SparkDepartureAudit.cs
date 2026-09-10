@@ -18,18 +18,21 @@ internal static class SparkDepartureAudit
             .GroupBy(row => row[0]))
         {
             var samus = new SamusState { XPosition = 128, YPosition = 128, Pose = byte.Parse(group.Key) };
+            var projectiles = new SamusProjectileSystem();
             // Only the handler boundary is seeded. Initialization, movement and viewport
             // deletion below execute production code using the pinned cartridge tables.
             typeof(SamusShinesparkState).GetProperty(nameof(SamusShinesparkState.Phase))!
                 .SetValue(samus.Shinespark, ShinesparkPhase.CrashFinish);
-            samus.Shinespark.Step(bus, level, samus, 0);
+            samus.Shinespark.Step(bus, level, samus, 0, projectiles: projectiles);
             int frame = 0, caseDifferences = 0;
             foreach (string[] row in group)
             {
                 int expectedFrame = int.Parse(row[1]);
                 if (expectedFrame != frame)
                 {
-                    samus.Shinespark.StepReleasedCrashEchoProjectiles(bus, samus, 0, 0);
+                    for (int slot = 4; slot >= 3; slot--)
+                        if (projectiles.Slots[slot].PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
+                            projectiles.StepShinesparkEcho(bus, samus, projectiles.Slots[slot], 0, 0);
                     frame = expectedFrame;
                 }
                 var echo = row[2] == "3" ? samus.Shinespark.FirstReleasedCrashEcho : samus.Shinespark.SecondReleasedCrashEcho;

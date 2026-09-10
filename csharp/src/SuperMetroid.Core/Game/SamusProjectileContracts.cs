@@ -92,6 +92,7 @@ public enum SamusProjectilePreInstruction : byte
     SpazerCombo,
     PlasmaCombo,
     SpazerComboFalling,
+    ShinesparkEcho,
 }
 
 /// <summary>

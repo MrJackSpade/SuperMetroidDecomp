@@ -3,7 +3,7 @@
 Status: retained-word crash entry fixed; full combo/echo integration remains
 incomplete. No awaiting-player-validation label.
 
-## Shared-ownership reproduction (currently failing)
+## Shared-ownership reproduction and implementation
 
 `native-spark-ownership-probe.h` executes both boundary orders for all four
 ordinary combo families: FireSBA then crash finish, and crash finish then
@@ -25,10 +25,21 @@ The original CPU confirms three distinct properties:
 
 `--spark-ownership-audit ROM CSV` exercises the corresponding production
 allocation/update boundaries and compares counter, slot-three/four types,
-drawing enables and coordinates. Current result: **152 mismatches / 176
-records**, affecting both orders and all four families. This exposes the
-remaining separate-echo storage defect and intentionally returns nonzero.
-No production behavior was changed for this checkpoint.
+drawing enables and coordinates. Before implementation: **152 mismatches / 176
+records**, affecting both orders and all four families. The initial checkpoint
+committed that failing reproduction without a production change.
+
+The implementation now allocates slots three/four through the ordinary
+projectile system, initializes their ROM instruction data, maintains the native
+counter, and dispatches their echo pre-instructions in the ordinary descending
+alpha pass. The independent runtime echo update was removed. Combo replacement
+therefore stops the old handler naturally, without clearing independent echo
+drawing words. The matrix now matches all 176 records. The six-pose departure
+audit also uses these owned slots rather than the standalone helper.
+
+The runtime capacity fixture additionally checks actual allocated slot owners,
+counts two/five for no-combo/active-combo cases, and exactly one radius update
+in the next real alpha pass (including instruction-list processing).
 
 Two captures are byte-identical. Accepted CSV in `spark-ownership-466-v1.zip`,
 SHA-256 `25FFBFE7013658F9123ED41F67928C3A410EDD256E450B160432654C0F251D5F`.
@@ -36,11 +47,10 @@ Use `native-spark-ownership-entrypoint.patch` and the bounded/dialog-free
 `--diagnostic-spark-ownership ROM NEW.csv` entrypoint to regenerate. Temporary
 native hooks were removed after capture. The managed audit is hash-gated.
 
-Implementation must integrate allocation/counter/pre-instruction ownership
-into ordinary projectile slots while keeping echo drawing words independent.
-Do not clear those words just because a combo replaces its slot, or continue
-advancing an echo whose slot now has a different pre-instruction. Whole-reset
-clearing and successive crash sequences remain additional required coverage.
+Whole-reset clearing and successive crash sequences remain additional required
+coverage. Crash entry also writes the first drawing enable and aliases the
+first departing X word as angular delta; their full successive-crash behavior
+must be covered before this ticket is ready for player confirmation.
 
 ## Released-radius checkpoint
 

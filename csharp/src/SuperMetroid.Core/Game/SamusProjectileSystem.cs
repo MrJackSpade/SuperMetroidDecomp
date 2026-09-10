@@ -463,7 +463,12 @@ public sealed partial class SamusProjectileSystem
             if (slot.InstructionPointer == 0)
                 continue;
 
-            if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
+            if (slot.PreInstruction == SamusProjectilePreInstruction.ShinesparkEcho)
+            {
+                StepShinesparkEcho(bus, samus, slot, layer1X, layer1Y);
+                projectileDeleted |= !slot.IsActive;
+            }
+            else if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or
                 SamusProjectilePreInstruction.IceComboOutward or SamusProjectilePreInstruction.WaveCombo or
                 SamusProjectilePreInstruction.SpazerCombo or SamusProjectilePreInstruction.SpazerComboFalling or
                 SamusProjectilePreInstruction.PlasmaCombo)

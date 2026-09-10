@@ -97,8 +97,9 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>
-    /// Host-readable snapshot of native projectile slot three after the crash finishes.
-    /// <c>Active == false</c> is the translated equivalent of a cleared projectile slot.
+    /// Host-readable echo drawing words associated with native projectile slot three.
+    /// Active is the drawing enable, not ownership: a combo can overwrite the projectile
+    /// without clearing these words or allowing the old echo handler to keep running.
     /// </summary>
     public ShinesparkReleasedEcho FirstReleasedCrashEcho => _firstReleasedCrashEcho.Snapshot;
 
@@ -108,7 +109,7 @@ public sealed class SamusShinesparkState
     /// </summary>
     public ShinesparkReleasedEcho SecondReleasedCrashEcho => _secondReleasedCrashEcho.Snapshot;
 
-    /// <summary>Number of live departing crash echoes (zero, one, or two).</summary>
+    /// <summary>Number of enabled departing echo drawings, independent of slot ownership.</summary>
     public int ReleasedCrashEchoCount =>
         (_firstReleasedCrashEcho.Active ? 1 : 0) +
         (_secondReleasedCrashEcho.Active ? 1 : 0);
@@ -231,7 +232,8 @@ public sealed class SamusShinesparkState
         ushort nmiFrameCounter,
         ushort projectileCounter = 0,
         RoomPlmSystem? plms = null,
-        bool playerInvincibilityEnabled = false)
+        bool playerInvincibilityEnabled = false,
+        SamusProjectileSystem? projectiles = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -264,7 +266,8 @@ public sealed class SamusShinesparkState
             if (Phase == ShinesparkPhase.CrashEchoCircle)
                 return StepCrashEchoCircle(phaseAtStart);
             if (Phase == ShinesparkPhase.CrashFinish)
-                return FinishCrash(bus, samus, phaseAtStart, projectileCounter);
+                return FinishCrash(bus, samus, phaseAtStart,
+                    projectiles?.ProjectileCounter ?? projectileCounter, projectiles);
 
             // Stored/inactive states are not installed special movement handlers. Returning
             // an empty snapshot is defensive; runtime normally never dispatches them here.
@@ -475,7 +478,8 @@ public sealed class SamusShinesparkState
         ISnesAddressSpace bus,
         SamusState samus,
         ShinesparkPhase phaseAtStart,
-        ushort projectileCounter)
+        ushort projectileCounter,
+        SamusProjectileSystem? projectiles)
     {
         // `$90:D40D-$D481` reads the *crash* pose before publishing standing `$01/$02`.
         // The six pose pairs `$C9-$CE` select two literal byte angles. Keeping this table
@@ -513,12 +517,14 @@ public sealed class SamusShinesparkState
                     departureAngles[angleIndex],
                     samus.XPosition,
                     samus.YPosition);
+                projectiles?.InitializeShinesparkEcho(bus, 3, departureAngles[angleIndex]);
             }
 
             _secondReleasedCrashEcho.Initialize(
                 departureAngles[angleIndex + 1],
                 samus.XPosition,
                 samus.YPosition);
+            projectiles?.InitializeShinesparkEcho(bus, 4, departureAngles[angleIndex + 1]);
         }
 
         ShineTimer = 1;
@@ -554,16 +560,40 @@ public sealed class SamusShinesparkState
             bus, samus, layer1X, layer1Y, nativeSlot: 4, _secondReleasedCrashEcho);
     }
 
-    private void StepReleasedCrashEcho(
+    /// <summary>
+    /// The projectile radius/angle belong to its current slot owner. Drawing enable and
+    /// coordinates are separate native words and may survive replacement of that owner.
+    /// </summary>
+    internal bool StepOwnedReleasedCrashEcho(ISnesAddressSpace bus, SamusState samus,
+        ushort layer1X, ushort layer1Y, SamusProjectileSlot projectile)
+    {
+        ReleasedEchoSlot echo = projectile.SlotIndex switch
+        {
+            3 => _firstReleasedCrashEcho,
+            4 => _secondReleasedCrashEcho,
+            _ => throw new InvalidOperationException("Crash echo requires fixed slot three or four.")
+        };
+        echo.Radius = unchecked((ushort)projectile.XVelocity);
+        echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
+        if (!StepReleasedCrashEcho(bus, samus, layer1X, layer1Y,
+            (byte)projectile.SlotIndex, echo, projectileOwnsSlot: true)) return false;
+        projectile.XVelocity = unchecked((short)echo.Radius);
+        projectile.XPosition = echo.XPosition;
+        projectile.YPosition = echo.YPosition;
+        return true;
+    }
+
+    private bool StepReleasedCrashEcho(
         ISnesAddressSpace bus,
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
         byte nativeSlot,
-        ReleasedEchoSlot slot)
+        ReleasedEchoSlot slot,
+        bool projectileOwnsSlot = false)
     {
-        if (!slot.Active)
-            return;
+        if (!projectileOwnsSlot && !slot.Active)
+            return false;
 
         // `$90:D4D2` increments the complete word but passes only its low byte as radius.
         // The point is recalculated from the *current* Samus position on every frame; these
@@ -583,7 +613,7 @@ public sealed class SamusShinesparkState
                 nativeSlot, slot.Angle, slot.Radius,
                 slot.XPosition, slot.YPosition, screenX, null, ShinesparkEchoClearAxis.X);
             slot.Clear();
-            return;
+            return false;
         }
 
         slot.YPosition = unchecked((ushort)(samus.YPosition + offsetY));
@@ -594,7 +624,9 @@ public sealed class SamusShinesparkState
                 nativeSlot, slot.Angle, slot.Radius,
                 slot.XPosition, slot.YPosition, screenX, screenY, ShinesparkEchoClearAxis.Y);
             slot.Clear();
+            return false;
         }
+        return true;
     }
 
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
@@ -752,7 +784,7 @@ public sealed class SamusShinesparkState
     private sealed class ReleasedEchoSlot
     {
         public bool Active { get; private set; }
-        public SnesAngle Angle { get; private set; }
+        public SnesAngle Angle { get; set; }
         public ushort Radius { get; set; }
         public ushort XPosition { get; set; }
         public ushort YPosition { get; set; }

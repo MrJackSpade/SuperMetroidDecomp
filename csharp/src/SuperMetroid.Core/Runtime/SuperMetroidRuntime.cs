@@ -1921,20 +1921,6 @@ public sealed partial class SuperMetroidRuntime
                     Samus.ProjectileFlareCounter = Projectiles.FlareCounter;
                 }
 
-                // Native HandleProjectile runs `$90:D4D2` during alpha, before Samus's beta
-                // movement handler. Departing crash echoes therefore remain centered on the
-                // position at the start of this frame and are not advanced on their spawn
-                // frame. Their viewport test uses the live layer-1 camera exactly as the
-                // fixed projectile slots do.
-                if (!deathOwnsSamus)
-                {
-                    Samus.Shinespark.StepReleasedCrashEchoProjectiles(
-                        _addressSpace,
-                        Samus,
-                        Camera.XPosition,
-                        Camera.YPosition);
-                }
-
                 if (!enemyMainAlreadyRan)
                     RunEnemyMainPhase();
                 if (!TimeIsFrozen && !deathOwnsSamus)
@@ -2215,7 +2201,8 @@ public sealed partial class SuperMetroidRuntime
                         NmiFrameCounter,
                         Projectiles.ProjectileCounter,
                         Plms,
-                        playerInvincibilityEnabled: PlayerInvincibilityEnabled);
+                        playerInvincibilityEnabled: PlayerInvincibilityEnabled,
+                        projectiles: Projectiles);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That

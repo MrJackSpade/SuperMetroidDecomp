@@ -10,44 +10,53 @@ using SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class PauseChargeCarryAudit
 {
+    /// <summary>A disposable in-memory save and flat room; never reads or writes player saves.</summary>
+    internal static SuperMetroidGame CreateFixture(string rom, out SamusState seed)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var system = new Bank80SystemState();
+        system.SetBossBits(0, BossBits.AreaTorizo);
+        system.MarkSaveStationUsed(AreaId.Crateria, 0);
+        seed = new SamusState
+        {
+            Health = 99, MaxHealth = 99,
+            EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+            EquippedBeams = (ushort)SamusBeamFlags.Charge,
+            CollectedBeams = (ushort)SamusBeamFlags.Charge,
+        };
+        new SuperMetroidSaveRam(bus).SaveSlot(0, SuperMetroidSaveSnapshot.Capture(seed, system, 0, 0));
+        var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions { SkipOpeningCinematic = true });
+        var frame = FrontendAuditDriver.EnterSelectedSlot(game);
+        FrontendAuditDriver.StepUntil(game, frame, _ => game.GameplayMovementEnabled, 420, "Load never enabled gameplay.");
+        var runtime = game.RuntimeForVerification!;
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, 0, 0);
+        var level = runtime.LevelData!;
+        for (int y = 0; y < level.HeightInBlocks; y++)
+        for (int x = 0; x < level.WidthInBlocks; x++)
+        {
+            level.SetForegroundEntry(y * level.WidthInBlocks + x, y == 16 ? (ushort)0x8000 : (ushort)0);
+            level.SetBehavior(y * level.WidthInBlocks + x, (byte)0);
+        }
+        foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
+        foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
+        runtime.InitializeDebugGroundedSamus(1000, 235, 16);
+        var samus = runtime.Samus!;
+        samus.EquippedItems = seed.EquippedItems; samus.CollectedItems = seed.CollectedItems;
+        samus.EquippedBeams = seed.EquippedBeams; samus.CollectedBeams = seed.CollectedBeams;
+        samus.InputLocked = false;
+        return game;
+    }
+
     public static int Run(string rom)
     {
         int successful = 0;
-        for (int pauseAt = 120; pauseAt <= 150; pauseAt++)
-        foreach (bool toggleBombs in pauseAt == 142 ? new[] { false, true } : new[] { false })
+        for (int pauseAt = 105; pauseAt <= 135; pauseAt++)
+        foreach (bool toggleBombs in pauseAt == 127 ? new[] { false, true } : new[] { false })
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-            var system = new Bank80SystemState();
-            system.SetBossBits(0, BossBits.AreaTorizo);
-            system.MarkSaveStationUsed(AreaId.Crateria, 0);
-            var seed = new SamusState
-            {
-                Health = 99, MaxHealth = 99,
-                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                EquippedBeams = (ushort)SamusBeamFlags.Charge,
-                CollectedBeams = (ushort)SamusBeamFlags.Charge,
-            };
-            new SuperMetroidSaveRam(bus).SaveSlot(0, SuperMetroidSaveSnapshot.Capture(seed, system, 0, 0));
-            var game = new SuperMetroidGame(bus, new SuperMetroidGameOptions { SkipOpeningCinematic = true });
-            var frame = FrontendAuditDriver.EnterSelectedSlot(game);
-            FrontendAuditDriver.StepUntil(game, frame, _ => game.GameplayMovementEnabled, 420, "Load never enabled gameplay.");
+            var game = CreateFixture(rom, out var seed);
             var runtime = game.RuntimeForVerification!;
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, 0, 0);
-            var level = runtime.LevelData!;
-            for (int y = 0; y < level.HeightInBlocks; y++)
-            for (int x = 0; x < level.WidthInBlocks; x++)
-            {
-                level.SetForegroundEntry(y * level.WidthInBlocks + x, y == 16 ? (ushort)0x8000 : (ushort)0);
-                level.SetBehavior(y * level.WidthInBlocks + x, (byte)0);
-            }
-            foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
-            foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
-            runtime.InitializeDebugGroundedSamus(1000, 235, 16);
             var samus = runtime.Samus!;
-            samus.EquippedItems = seed.EquippedItems; samus.CollectedItems = seed.CollectedItems;
-            samus.EquippedBeams = seed.EquippedBeams; samus.CollectedBeams = seed.CollectedBeams;
-            samus.InputLocked = false;
             long hostFrame = 0;
             void Step(SnesButton input) => game.StepCaptured((ushort)input, ++hostFrame, 1);
             void ToggleBombsInMenu(bool shouldBeEquipped)
@@ -122,8 +131,8 @@ internal static class PauseChargeCarryAudit
             // Preserve the adjacent early/late controls as well as the successful
             // window. These frame numbers describe this fixture, not ROM identities
             // or a claim that the window has been measured on the cartridge yet.
-            if (morphed != (pauseAt <= 146) || bounced != (pauseAt < 140) ||
-                carried != (pauseAt >= 140 && pauseAt <= 146))
+            if (morphed != (pauseAt <= 131) || bounced != (pauseAt < 125) ||
+                carried != (pauseAt >= 125 && pauseAt <= 131))
                 throw new InvalidDataException($"Pause carry timing baseline changed at frame {pauseAt}: toggle={toggleBombs}, morph={morphed}, bounce={bounced}, carry={carried}, pose={samus.Pose:X2}, charge={runtime.Projectiles.FlareCounter:X4}, equipped={samus.EquippedItems:X4}.");
             if (carried) successful++;
             Console.WriteLine($"PAUSE CARRY start={pauseAt} toggleBombs={toggleBombs} frozen={frozenPose:X2}/{frozenY:X8}/{frozenCharge:X4} morph={morphed} bounce={bounced} carry={carried} charge={runtime.Projectiles.FlareCounter:X4}");

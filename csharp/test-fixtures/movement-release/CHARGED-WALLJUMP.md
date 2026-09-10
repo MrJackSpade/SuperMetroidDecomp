@@ -90,24 +90,26 @@ and resumed gameplay. It uses an in-memory save and replaces the Landing Site
 geometry with a flat floor; it does not read or overwrite player saves.
 
 Shoot starts at frame zero, running at 30 and jumping at 70. The sweep presses
-Start + Down at every frame from 120 through 150, releases Down during the frozen
+Start + Down at every frame from 105 through 135, releases Down during the frozen
 menu, then presses it on the first resumed gameplay frame. Assertions cover:
 
 - The normal pause states are reached within bounded waits.
 - Pose, vertical position and beam charge stay frozen during the menu.
 - Down is a new input edge on the first resumed gameplay frame.
-- Frames 120–139 morph but bounce; 140–146 morph without bouncing and retain
-  charge; 147–150 miss this airborne morph.
+- Frames 105–124 morph but bounce; 125–131 morph without bouncing and retain
+  charge; 132–135 miss this airborne morph.
 - Successful carries do not release bombs while Down is held. Releasing Down
   produces five bombs and consumes the charge.
 
 These are 31 deterministic **C# integration baselines**, not a native-CPU
-measurement of the pause timing window. No production behavior was changed for
-this fixture. Cartridge pause comparison remains required before #471 is ready
+measurement of the entire pause timing window. The later [native fade comparison](PAUSE-FADE.md)
+found and fixed the missing counter-only fade frames. The sweep was moved fifteen
+frames earlier to preserve the same airborne freeze points. Full cartridge
+movement comparison remains required before #471 is ready
 for player validation. The native comparison above covers only its stated
 charged-walljump sequence; it must not be cited as proof of this menu sequence.
 
-An additional frame-142 case now disables Bombs through R, Right, Down and A in
+An additional frame-127 case now disables Bombs through R, Right, Down and A in
 the actual frontend equipment page. Samus soft-morphs and rolls with Down released
 while retaining charge. A second actual pause re-enables Bombs; holding Down for
 20 resumed frames postpones release, and releasing it produces five bombs.

@@ -51,7 +51,7 @@ public sealed partial class SuperMetroidGame
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
     private bool gameplayFadeLeadsToCeresArrival;
-    private byte pauseBrightness = 15;
+    private byte pauseBrightness = PauseFadeTiming.FullyLit;
     private CartridgePaletteTransition? deathPaletteFade;
     private byte deathFadeBrightness = 15;
     private int deathFadeCounter;
@@ -437,8 +437,8 @@ public sealed partial class SuperMetroidGame
                 {
                     // Samus_PauseCheck at `$90:EA45` executes during the already-completed
                     // state-eight frame. It initializes both fade counters and publishes
-                    // state $0C; the following dispatcher call performs the first darken.
-                    pauseBrightness = 15;
+                    // state $0C; the following dispatcher call consumes the first delay.
+                    BeginPauseFade(PauseFadeTiming.FullyLit);
                     pauseMenu = null;
                     GameState = SuperMetroidGameState.PausingDarkening;
                 }
@@ -639,7 +639,7 @@ public sealed partial class SuperMetroidGame
                 // represented as a desktop-only frozen bitmap.
                 runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
-                pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
+                AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
                     GameState = SuperMetroidGameState.Pausing;
@@ -669,7 +669,7 @@ public sealed partial class SuperMetroidGame
                     audio,
                     runtime.Vram,
                     gameOptions.MapReveal);
-                pauseBrightness = 0;
+                BeginPauseFade(0);
                 PublishMenu(pauseMenu);
                 ApplyDisplayBrightness(pauseBrightness);
                 GameState = SuperMetroidGameState.PausedA;
@@ -677,11 +677,11 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.PausedA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
+                AdvancePauseFade(brightening: true);
                 pauseMenu!.AdvanceAnimations();
                 PublishMenu(pauseMenu!);
                 ApplyDisplayBrightness(pauseBrightness);
-                if (pauseBrightness == 15)
+                if (pauseBrightness == PauseFadeTiming.FullyLit)
                     GameState = SuperMetroidGameState.PausedB;
                 break;
 
@@ -695,7 +695,7 @@ public sealed partial class SuperMetroidGame
                 PublishMenu(pauseMenu);
                 if (unpauseRequested)
                 {
-                    pauseBrightness = 15;
+                    BeginPauseFade(PauseFadeTiming.FullyLit);
                     GameState = SuperMetroidGameState.UnpausingA;
                 }
                 break;
@@ -704,7 +704,7 @@ public sealed partial class SuperMetroidGame
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu!.AdvanceAnimations();
                 PublishMenu(pauseMenu!);
-                pauseBrightness = (byte)Math.Max(0, pauseBrightness - 1);
+                AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == 0)
                     GameState = SuperMetroidGameState.UnpausingB;
@@ -726,7 +726,7 @@ public sealed partial class SuperMetroidGame
                 runtime.QueueGameplayBeamTilesAndLoadPalette(resumedSamus.EquippedBeams);
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
-                pauseBrightness = 0;
+                BeginPauseFade(0);
                 PublishBlack();
                 GameState = SuperMetroidGameState.Unpausing;
                 break;
@@ -735,9 +735,9 @@ public sealed partial class SuperMetroidGame
                 // State $12 resumes the full state-eight loop behind an INIDISP fade.
                 runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
-                pauseBrightness = (byte)Math.Min(15, pauseBrightness + 1);
+                AdvancePauseFade(brightening: true);
                 ApplyDisplayBrightness(pauseBrightness);
-                if (pauseBrightness == 15)
+                if (pauseBrightness == PauseFadeTiming.FullyLit)
                     GameState = SuperMetroidGameState.MainGameplay;
                 break;
 

@@ -65,8 +65,19 @@ internal static partial class Program
             game.RuntimeForVerification.RunNmi(0, true);
         }
         bool sawPause = false;
-        for (int tick = 0; tick < 160; tick++)
+        var fadeFrames = new Dictionary<SuperMetroidGameState, int>
         {
+            [SuperMetroidGameState.PausingDarkening] = 0,
+            [SuperMetroidGameState.PausedA] = 0,
+            [SuperMetroidGameState.UnpausingA] = 0,
+            [SuperMetroidGameState.Unpausing] = 0,
+        };
+        // The cartridge fade counter adds a hold frame for each brightness step.
+        // Include the complete 30-frame gameplay restoration, not the former
+        // truncated 15-frame fade that happened to finish inside 160 frames.
+        for (int tick = 0; tick < 180; tick++)
+        {
+            if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
             ushort input = tick == 10 || tick is >= 100 and <= 105 ? (ushort)SnesButton.Start : (ushort)0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
@@ -79,7 +90,9 @@ internal static partial class Program
         }
         AssertTrue(sawPause && legacy.GameState == SuperMetroidGameState.MainGameplay,
             $"ordinary capture slice must complete unpause; ended in {legacy.GameState}");
-        Console.WriteLine("  Gameplay capture integration: ordered overlays and 160-frame ordinary room/pause slice preserve pixels, state and audio commands.");
+        foreach (var phase in fadeFrames)
+            AssertEqual(30, phase.Value, $"cartridge pause fade duration for {phase.Key}");
+        Console.WriteLine("  Gameplay capture integration: ordered overlays and 180-frame room/pause slice preserve pixels, state and audio commands; all four fades take 30 frames.");
 
         static void Compare(FrontendFrame expected, CapturedFrontendFrame actual)
         {

@@ -71,14 +71,14 @@ def gh(*args, data=None, optional=False):
 
 
 def release_info(tag):
-    result = gh("release", "view", tag, "--json", "databaseId,body,url,isDraft,assets", optional=True)
+    result = gh("release", "view", tag, "--json", "databaseId,tagName,body,url,isDraft,assets", optional=True)
     return json.loads(result) if result else None
 
 
 def set_body(release, body):
     repo = os.environ["GH_REPO"]
     gh("api", "--method", "PATCH", f"repos/{repo}/releases/{release['databaseId']}", "--input", "-",
-       data=json.dumps({"body": body}))
+       data=json.dumps({"tag_name": release["tagName"], "body": body}))
     release["body"] = body
 
 
@@ -106,7 +106,7 @@ def publish(directory):
         set_body(release, (release["body"] or "") + "\n\nDownloads: Windows x64 (self-contained ZIP) and Android ARM64 APK. "
                  "Supply your own Super Metroid Japan/USA NTSC v1.0 ROM on first launch. No game assets are bundled.\n")
     gh("release", "upload", tag, *(str(p) for p in assets), "--clobber")
-    args = ["release", "edit", tag, "--draft=false"]
+    args = ["release", "edit", tag, "--tag", tag, "--draft=false"]
     args.append("--prerelease" if "-" in tag else "--latest")
     gh(*args)
     print(f"Published {tag} with both verified applications and SHA-256 checksums.")

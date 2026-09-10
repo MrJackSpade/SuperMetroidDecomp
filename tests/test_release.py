@@ -78,11 +78,11 @@ class ReleaseTests(unittest.TestCase):
             self.assertEqual(request.call_count, 1)
 
     def test_receipt_update_uses_rest_database_id(self):
-        published = {"id": "RE_graphql_node", "databaseId": 123, "body": "Before"}
+        published = {"id": "RE_graphql_node", "databaseId": 123, "tagName": "v1.0.0", "body": "Before"}
         with patch.dict(os.environ, {"GH_REPO": "owner/repo"}), patch.object(release, "gh") as command:
             release.set_body(published, "After")
             self.assertIn("repos/owner/repo/releases/123", command.call_args.args)
-            self.assertEqual(json.loads(command.call_args.kwargs["data"]), {"body": "After"})
+            self.assertEqual(json.loads(command.call_args.kwargs["data"]), {"tag_name": "v1.0.0", "body": "After"})
 
 
 if __name__ == "__main__":

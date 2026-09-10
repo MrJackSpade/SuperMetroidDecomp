@@ -846,7 +846,7 @@ internal static class KraidAudit
             // The old handoff-only fixture can finish with its observer above the boss.
             // Place an input-locked observer beside the upper body. This is a diagnostic
             // viewpoint, not a controller-route claim; the enemy/death/render loop is live.
-            samus.XPosition = 48;
+            samus.XPosition = 256;
             samus.YPosition = 256;
             samus.InputLocked = true;
             // Let ordinary scrolling stream each crossed row; directly teleporting the

@@ -32,7 +32,9 @@ internal sealed class KraidDeathCapture : IDisposable
             $"{(ushort)arm.Properties:X4},{arm.CurrentInstruction:X4},{arm.SpritemapPointer:X4},{arm.InstructionTimer}");
         if (frame % 8 == 0 || _lastPhase != body.VariableA)
             PngWriter.WriteRgba(Path.Combine(_directory, $"death-{frame + 1:D4}-{body.VariableA:X4}.png"),
-                FrontendFrame.Width, FrontendFrame.Height, SuperMetroidRuntimeFrameRenderer.Render(runtime));
+                FrontendFrame.Width, FrontendFrame.Height,
+                SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)
+                    ?? throw new InvalidDataException("Kraid capture did not produce a gameplay packet.")));
         _lastPhase = body.VariableA;
     }
 

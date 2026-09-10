@@ -70,7 +70,8 @@ public static partial class SamusBlockCollision
             level,
             probe,
             signedDistance,
-            plms: plms);
+            plms: plms,
+            blockReactionDirection: SamusCollisionDirection.NonDirectionalProbe);
 
         // $94:8F49 (and square-slope clipping) writes Samus's real X subposition
         // even through the observational $94:967F entry point. The probe's accepted
@@ -101,7 +102,8 @@ public static partial class SamusBlockCollision
         bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,
         bool publishDoorSideEffects = true,
-        bool alignToSlopeAfterMovement = true)
+        bool alignToSlopeAfterMovement = true,
+        SamusCollisionDirection? blockReactionDirection = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -297,7 +299,11 @@ public static partial class SamusBlockCollision
                         {
                             break;
                         }
-                        if (block.Bts.TryGetStationAccess(out _) &&
+                        // Native station setups reject direction $F before finding their
+                        // parent. An observational scan still clips against the access
+                        // tile, but must not activate the station or demand an owner.
+                        if (blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
+                            block.Bts.TryGetStationAccess(out _) &&
                             (plms is null ||
                              !plms.TryNotifyStationCollision(
                                  block.Index,

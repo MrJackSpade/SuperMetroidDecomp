@@ -58,6 +58,8 @@ if (args.Length == 3 && args[0] == "--moving-door-audit")
     return MovingDoorComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--moving-item-audit")
     return MovingItemComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--station-probe-audit")
+    return StationProbeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-trigger-audit")
     return PoseTriggerComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pose-crumble-audit")

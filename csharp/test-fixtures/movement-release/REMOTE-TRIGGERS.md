@@ -218,3 +218,30 @@ edge constants intentionally describe the identical geometry here.
 No production change was necessary. This closes the moving-item trajectory gap;
 ceiling-contact sequences and remaining direction-sensitive negative controls
 still prevent marking the overall issue ready for player validation.
+
+## Station direction rejection (#463)
+
+`native-station-probe.h`, `native-station-probe-entrypoint.patch` and
+`station-probe-463-v2.zip` compare ordinary `$94:9543` contact with observational
+`$94:967F` checks. 120 cases cover map/energy/missile station access from both
+sides, real versus observational contact, and ten gaps. Samus uses the matching
+ran-into-wall pose and cannon-aligned Y=139; the resident parent has a sentinel
+timer. Original station setup changes it to one only on accepted activation.
+Managed comparison checks actual station trigger state, not just solidity.
+
+Two captures match SHA256
+`7214D1C1E3ABCB039ABD9EAA3D599908ADF30ED2F68632E0A6D393A67B8793AC`.
+Commands: native `--diagnostic-station-probe ROM CSV`; managed
+`--station-probe-audit ROM CSV`. Same source/ROM pins as above. V2 explicitly reads
+the observational collision output latch rather than relying on residual CPU carry.
+
+Before the fix, 48 observational cases incorrectly activated their station.
+The native probe writes direction $F, and station setups reject it before parent
+lookup. C# reused ordinary left/right movement and lost that distinction. The
+horizontal dispatcher now carries the named non-directional probe override and
+skips station activation in that case, preserving solid clipping and unrelated
+item/door/scroll side effects. All 120 comparisons pass after the change. This
+fixture deliberately isolates the access tile from other station graphics; it
+does not claim a normal walljump can use a ran-into-wall pose. It verifies the
+shared dispatcher contract independently of current callers' pose restrictions.
+Vertical save/hand/sand checks remain a separate coverage gate.

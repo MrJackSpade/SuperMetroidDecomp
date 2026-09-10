@@ -1,0 +1,23 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -84,0 +85,1 @@
++static bool quick_drop_headless;
+@@ -86,1 +87,1 @@
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!quick_drop_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+@@ -92,1 +93,1 @@
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!quick_drop_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+@@ -315,0 +317,5 @@
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-quick-drop-bomb") == 0) {
++    quick_drop_headless = true;
++    extern int DiagnosticQuickDropBomb(const char *, const char *);
++    return DiagnosticQuickDropBomb(argv[2], argv[3]);
++  }
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -97,0 +98,2 @@
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-quick-drop-bomb-probe.h"

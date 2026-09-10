@@ -53,6 +53,10 @@ movement callers retain their existing ceiling response.
 
 ## Still required before #456 is ready
 
+Final status: [QUICK-DROP-BOMB.md](QUICK-DROP-BOMB.md) contains the combined
+completion audit and links all later coverage. The following limitations are
+historical and apply to this handler fixture alone.
+
 Follow-up: [QUICK-DROP-TIMELINE.md](QUICK-DROP-TIMELINE.md) now covers controller-driven
 ceiling turn entry/completion and adjacent timing failures. The original limitation
 below describes this handler fixture; falling/block-destruction coverage remains open.

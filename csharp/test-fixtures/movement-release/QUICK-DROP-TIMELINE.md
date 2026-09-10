@@ -60,6 +60,11 @@ Accepted CSV: `quick-drop-timeline-native-capture.zip`.
 
 ## Remaining scope
 
+Follow-ups: [QUICK-DROP-CRUMBLE.md](QUICK-DROP-CRUMBLE.md) and
+[QUICK-DROP-BOMB.md](QUICK-DROP-BOMB.md) now cover the destruction paths below.
+The latter contains the combined completion audit; this section records the
+scope of the ceiling timeline fixture alone.
+
 Ceiling input timing is covered. Falling velocity retention across actual crumble,
 bomb, and Power Bomb block destruction is not covered by these manually removed
 ceiling fixtures. #456 remains open without awaiting-player-validation until that

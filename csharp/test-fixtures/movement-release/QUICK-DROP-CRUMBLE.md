@@ -75,6 +75,10 @@ CSV is archived in `quick-drop-crumble-native-capture.zip`.
 
 ## Remaining #456 scope
 
+Follow-up: [QUICK-DROP-BOMB.md](QUICK-DROP-BOMB.md) supplies the remaining
+bomb-family comparisons and the combined completion audit. The limits below
+describe this fixture alone, not the final ticket status.
+
 Actual bomb/Power Bomb destruction paths remain to be compared. These tests cover
 one respawning 1x1 crumble actor family, not every size or regional timing variant.
 The ticket remains open without awaiting-player-validation until the remaining

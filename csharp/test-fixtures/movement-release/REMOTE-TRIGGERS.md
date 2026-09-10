@@ -1,9 +1,10 @@
 # #463: remote collision triggers — partial evidence
 
 Reference: https://wiki.supermetroid.run/Hitbox_Manipulation, Checking section,
-revision 10438. **This is not yet a completed issue:** ceiling-contact paths, moving
-item acquisition and native post-trigger item coroutine timing remain. Direct
-horizontal, compact-pose expansion and moving spin-turn door paths are covered.
+revision 10438. **This is not yet a completed issue:** a full down/back door-trigger
+trajectory remains. The sections below record incremental evidence; their older
+remaining-work notes are historical. Direct probes, moving spin-turn item/door
+triggers, acquisition timing, directional reactions and ceiling contact are covered.
 
 ## Horizontal door probe
 
@@ -378,3 +379,31 @@ direction while retaining the setup's unconditional solidity. All 32 match after
 the fix: three admitted poses work during real eligible contact, left-facing morph
 ball is rejected, and all observational contacts reject. Moving ceiling-contact
 sequences remain the outstanding #463 gate.
+
+## Moving ceiling/door scan ordering (#463)
+
+`native-ceiling-door-probe.h`, `native-ceiling-door-entrypoint.patch`, and
+`ceiling-door-463-v3.zip` compare 108 cases / 993 original-CPU movement frames.
+Both facings, extra speeds zero/two/four, ceiling present/absent, and nine initial
+Y offsets are covered. Same pins as above; two captures have SHA256
+`54C2AA986B8EC1BA37964BFF23C5700CF98DDC5BA0F18D4619FF97A48A5396DF`.
+Commands: native `--diagnostic-ceiling-door ROM CSV`; managed
+`--ceiling-door-audit ROM CSV` through `SuperMetroidRuntime.StepFrame`.
+
+Samus starts at X=1024/Y=476+offset, spinjumping up at speed four with base X speed
+1.25 and running-momentum flag set. Jump+forward stay held. Row 28 has a door at
+column 64 (right-facing seed) or 63 (left-facing seed); the optional adjacent solid
+occupies the other column. The first door request ends the case; failures run 64
+frames. The fixture does not cross into a new room. Initial v1 geometry produced
+only ordinary falling contact and was rejected; v2 lacked the momentum flag and
+collapsed the intended entry-speed variants, so only v3 is accepted.
+
+Twelve cases trigger while the entire head remains below the ceiling/door row:
+the scan visits the door before the neighboring solid clips Samus outside it.
+All retain base `$0001:6000` plus their extra speed. Right-facing, speed-zero,
+offset-four triggers on frame one at Y=476; adjacent offset-three hits the solid
+first and never triggers. The test asserts those witnesses and every captured
+position/subpixel, pose/animation, horizontal/vertical speed and door pointer.
+All 993 frames match without production changes. Final acceptance review found
+that down/back still needs a moving door-trigger witness; direct pose expansion
+and the separate #461 movement audit are not substitutes for that side effect.

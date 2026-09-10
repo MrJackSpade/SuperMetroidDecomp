@@ -22,6 +22,15 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
+    private bool _transformationSoundPending;
+
+    /// <summary>Consumes the one-shot Max6 transformation request emitted by native suit setup.</summary>
+    public bool ConsumeTransformationSoundRequest()
+    {
+        bool pending = _transformationSoundPending;
+        _transformationSoundPending = false;
+        return pending;
+    }
     private readonly ushort[] _windowTable =
         new ushort[SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount];
 
@@ -117,6 +126,7 @@ public sealed class SamusSuitPickupState
         samus.XPosition = unchecked((ushort)(layer1X + 120));
         samus.YPosition = unchecked((ushort)(layer1Y + 136));
         IsActive = true;
+        _transformationSoundPending = true;
     }
 
     /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>

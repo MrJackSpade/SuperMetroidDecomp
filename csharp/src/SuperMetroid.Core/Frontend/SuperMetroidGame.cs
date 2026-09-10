@@ -978,6 +978,10 @@ public sealed partial class SuperMetroidGame
             audio.QueueSound(SoundEffectLibrary1Sounds.Saving, maximumQueued: 6);
         if (runtime?.ConsumeGunshipExitSoundRequest() == true)
             audio.QueueSound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
+        // Suit setup resumes from the message close boundary, outside normal gameplay
+        // publication generations. Consume once so HDMA-only frames cannot repeat it.
+        if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
+            audio.QueueSound(SoundEffectLibrary2Sounds.SuitTransformation, maximumQueued: 6);
 
         // Frontend states sometimes accept NMIs without running the state-eight owner list.
         // In particular, the door coroutine waits for all unread sound-ring entries to

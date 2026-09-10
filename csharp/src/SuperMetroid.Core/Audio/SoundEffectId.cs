@@ -107,6 +107,9 @@ public static class SoundEffectLibrary1Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library two.</summary>
 public static class SoundEffectLibrary2Sounds
 {
+    /// <summary>Library-two $56: Varia/Gravity transformation, queued with Max6 at $91:D593/$D66B by VariaSuitPickup/GravitySuitPickup.</summary>
+    public static readonly SoundEffectId SuitTransformation = new(SoundEffectLibrary.Library2, 0x56); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>Stops/cancels every currently active library-two sound.</summary>
     public static readonly SoundEffectId CancelAll = new(SoundEffectLibrary.Library2, 0x71);
 

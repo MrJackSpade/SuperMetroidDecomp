@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--pseudo-screw-reset-audit")
+    return PseudoScrewResetAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--pseudo-screw-liquid-audit")
     return PseudoScrewLiquidAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--elevator-grab-timeline-audit")

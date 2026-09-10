@@ -150,3 +150,28 @@ or animation frames are reachable with every equipment selection.
 The remaining explicit gap is the outer enemy collision dispatcher's
 invulnerability reset (distinct from its already-tested generic touch body).
 Issue #421 remains open without awaiting-player-validation until that is covered.
+
+## Ordinary collision-entry timer reset
+
+The original $A0:A07A capture in `native-pseudo-reset-probe.h` isolates reset from
+touch damage with a non-overlapping enemy at (192,128), radii (8,8), and Samus at
+(128,128), radii (5,12). The 24 cases cross contact modes 0/3/4, sprite map zero
+or nonzero, normal/no-op touch pointers and initial invulnerability 0/9. The
+synthetic enemy definition replaces only disposable ROM memory and is restored.
+
+Four cases failed before correction: managed dispatch cleared invulnerability
+before inspecting the enemy map. Native returns on a zero map first. The reset
+now occurs per enemy after that gate, still before overlap testing. This also
+prevents an empty interactive list from clearing the timer without any handler
+call. All 24 native results now match; an additional empty-list assertion passes.
+The native no-op ordinary callback still resets the timer when its map is present.
+Full core verification passes. Extended-hitbox entry has a differently ordered
+no-op gate and remains the next separate check; this fixture does not prove it.
+
+- Archive: `pseudo-reset-421-v1.zip`.
+- CSV SHA256: `B7FB5034CA07E962EA0F3D1184D32A58D3E0EB65972160DCDD4050BFCB59A035`.
+- Two native captures are byte-identical; same ROM/source pins above.
+- Regenerate with `native-pseudo-reset-entrypoint.patch` and the bounded,
+  dialog-free `sm.exe --diagnostic-pseudo-reset ROM NEW.csv` entrypoint.
+- Managed command: `--pseudo-screw-reset-audit ROM CSV`.
+- Temporary hooks removed and patch reapplication checked.

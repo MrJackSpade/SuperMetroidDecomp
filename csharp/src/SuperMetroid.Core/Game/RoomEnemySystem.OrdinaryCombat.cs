@@ -96,14 +96,20 @@ public sealed partial class RoomEnemySystem
         ushort contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         if (contactDamageIndex == 0 && samus.InvincibilityTimer != 0)
             return false;
-        if (contactDamageIndex != 0)
-            samus.InvincibilityTimer = 0;
 
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
             if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
                 continue;
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+            // Native collision entry rejects a zero sprite map before resetting Samus's
+            // invulnerability. Keep this per enemy: an empty interactive list or an actor
+            // not yet publishing its map must not erase the timer. The reset still precedes
+            // overlap testing, so a distant actor with a map can legitimately clear it.
+            if (slot.SpritemapPointer == 0)
+                continue;
+            if (contactDamageIndex != 0)
+                samus.InvincibilityTimer = 0;
             bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
                 slot.Definition.TouchAiPointer == FirefleaTouchAi;
             bool isPlatform = IsPlatformDefinition(slot.EnemyDefinitionPointer) &&
@@ -237,7 +243,6 @@ public sealed partial class RoomEnemySystem
             // header's dummy 8x8 radius or apply body damage after an earlier tail hit.
             if (IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
                 !usesTranslatedTouchAi ||
-                slot.SpritemapPointer == 0 ||
                 slot.Properties.HasAny(EnemyProperties.Deleted))
             {
                 continue;

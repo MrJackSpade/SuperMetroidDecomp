@@ -477,7 +477,7 @@ static void VerifySamusAimedAerialMovement()
     samus.RefreshCollisionRadii(bus);
     samus.InitializeAnimation(bus);
     AssertEqual(SamusPoseIds.FallingRightPose, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
-    samus.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingRightPose);
+    samus.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingRightPose);
     AssertEqual(2, samus.Kinematics.YDirection, "aimed walk-off starts downward");
     samus.ApplyAerialAimTransition(bus, SamusPoseIds.FallingAimDiagonalUpRightPose);
 

@@ -635,9 +635,12 @@ public sealed partial class SamusState
     /// grounded movement probe finds no floor. The collision command clears vertical
     /// speed and starts downward gravity before the pose is drawn.
     /// </summary>
-    public void ApplyWalkedOffFloorTransition(ISnesAddressSpace bus, byte targetPose)
+    public void ApplyWalkedOffFloorTransition(
+        ISnesAddressSpace bus, RoomLevelData level, byte targetPose,
+        ushort nmiFrameCounter = 0, RoomPlmSystem? plms = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(level);
         bool supportedSource =
             IsRightFacingStandingPose(Pose) || IsLeftFacingStandingPose(Pose) ||
             IsRightFacingRunningPose(Pose) || IsLeftFacingRunningPose(Pose) ||
@@ -655,6 +658,20 @@ public sealed partial class SamusState
                 $"Walk-off transition ${Pose:X2} -> ${targetPose:X2} does not match the pose's ROM-selected falling target ${expectedTarget:X2}.");
         }
 
+        // A crouched or compact source can grow when falling is selected. Native
+        // F404 runs the same pose-expansion collision as an input-driven transition,
+        // including its fractional clamp. Skipping it embeds the new body in the
+        // floor after a near-ground unmorph. Rejection also skips command five.
+        byte sourcePose = Pose;
+        LargerPoseCollisionOutcome collision = ResolveLargerPoseCollision(
+            bus, level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
+        if (collision != LargerPoseCollisionOutcome.Allowed)
+        {
+            if (collision == LargerPoseCollisionOutcome.CrouchFallback)
+                ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
+            return;
+        }
+        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         Kinematics.YSpeed = 0;
         Kinematics.YSubspeed = 0;
         Kinematics.YDirection = 2;

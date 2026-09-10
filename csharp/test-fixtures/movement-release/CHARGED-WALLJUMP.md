@@ -2,8 +2,8 @@
 
 This is a verified component of #471, not completion of its full technique audit.
 Bombs menu toggles, running-jump X-ray carry and charged continuous walljump now
-have additional captures linked below. Native pause-separated Down timing and
-soft-unmorph X-ray preparation remain outstanding. Do not label the entire issue
+have additional captures linked below, including soft-unmorph X-ray preparation.
+Native pause-separated Down timing remains outstanding. Do not label the entire issue
 awaiting validation on this fixture alone.
 
 ## Native evidence and reproduction
@@ -103,8 +103,7 @@ menu, then presses it on the first resumed gameplay frame. Assertions cover:
 
 These are 31 deterministic **C# integration baselines**, not a native-CPU
 measurement of the pause timing window. No production behavior was changed for
-this fixture. Cartridge pause comparison and soft-unmorph X-ray-assisted
-carry remain required before #471 is ready
+this fixture. Cartridge pause comparison remains required before #471 is ready
 for player validation. The native comparison above covers only its stated
 charged-walljump sequence; it must not be cited as proof of this menu sequence.
 
@@ -152,7 +151,7 @@ The full frontend integration test above covers the host path without claiming
 native timing parity. The running-jump X-ray variant is now covered by
 [XRAY-CHARGE.md](XRAY-CHARGE.md), and the charged continuous walljump is covered
 by [CONTINUOUS-WALLJUMP.md](CONTINUOUS-WALLJUMP.md). Soft-unmorph X-ray preparation
-remains outstanding.
+is covered by [SOFT-UNMORPH-CHARGE.md](SOFT-UNMORPH-CHARGE.md).
 
 Capture history: v1 reached the synthetic room's empty boundary, where C# clamps
 position but the native isolated movement routine does not. Both fixtures gained

@@ -270,7 +270,7 @@ static void VerifySamusAerialMovement()
         XPosition = 48,
         YPosition = 77,
     };
-    fallLeft.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingLeftPose);
+    fallLeft.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingLeftPose);
     AssertEqual(0x2a, fallLeft.Pose, "walk-off chooses left falling pose");
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
         bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);

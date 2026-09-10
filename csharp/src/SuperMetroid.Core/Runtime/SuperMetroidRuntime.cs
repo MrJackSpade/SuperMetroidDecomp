@@ -2979,7 +2979,9 @@ public sealed partial class SuperMetroidRuntime
                      SamusState.IsLeftFacingCrouchingPose(poseAtFrameStart)))
                 {
                     byte fallingPose = Samus.SelectFallingPoseForCurrentAim(_addressSpace);
-                    Samus.ApplyWalkedOffFloorTransition(_addressSpace, fallingPose);
+                    Samus.ApplyWalkedOffFloorTransition(_addressSpace,
+                        LevelData ?? throw new InvalidOperationException("Walk-off requires room collision data."),
+                        fallingPose, NmiFrameCounter, Plms);
                     animationTransitionApplied = true;
                 }
 

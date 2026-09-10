@@ -6,7 +6,8 @@ and [Mockball with Bombspread Charge](https://wiki.supermetroid.run/Mockball#Moc
 This is a genuine far-side platform walljump retaining forward speed, not the
 ordinary walljump already covered by CHARGED-WALLJUMP.md. No production change
 was necessary for the captured sequence. It completes the continuous-walljump
-branch of #471, but not #471's native pause timing / soft-unmorph X-ray branches.
+branch of #471, but not #471's native pause timing. The soft-unmorph X-ray branch
+now has a separate [capture](SOFT-UNMORPH-CHARGE.md).
 It is only partial coverage of #445: ceiling-bonk, retail Moat setup and regional
 differences still require investigation. Do not mark either entire issue ready
 on this capture alone.

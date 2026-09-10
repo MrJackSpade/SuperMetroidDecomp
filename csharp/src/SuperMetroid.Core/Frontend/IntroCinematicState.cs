@@ -926,7 +926,7 @@ public sealed partial class IntroCinematicState
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.ApplyWalkedOffFloorTransition(bus, samus.SelectFallingPoseForCurrentAim(bus));
+            samus.ApplyWalkedOffFloorTransition(bus, level, samus.SelectFallingPoseForCurrentAim(bus), nmiFrameCounter);
             animationTransitionApplied = transitionAccepted = true;
         }
 

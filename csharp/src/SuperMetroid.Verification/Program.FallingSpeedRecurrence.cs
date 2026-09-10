@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
     private static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
         foreach (ushort extraWhole in new ushort[] { 0, 1 })
         foreach (ushort extraFraction in new ushort[] { 0, 1 })
         foreach (ushort previousMode in new ushort[] { 0, 1, 2 })
@@ -17,7 +19,7 @@ internal static partial class Program
             samus.HorizontalSpeed.AccelerationMode = previousMode;
             samus.HorizontalSpeed.ExtraRunSpeed = extraWhole;
             samus.HorizontalSpeed.ExtraRunSubspeed = extraFraction;
-            samus.ApplyWalkedOffFloorTransition(bus, SamusPoseIds.FallingLeftPose);
+            samus.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingLeftPose);
             // $91:F60D replaces the prior grounded mode on falling-pose entry.
             // Fractional extra speed matters even when its whole word is zero.
             AssertEqual(extraWhole != 0 || extraFraction != 0 ? 2 : 0,

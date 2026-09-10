@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--soft-unmorph-charge-comparison-audit")
+    return SoftUnmorphChargeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--continuous-walljump-comparison-audit")
     return ContinuousWalljumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--xray-charge-comparison-audit")
@@ -5422,7 +5424,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
 
         runtime.Samus.YPosition = unchecked((ushort)(runtime.Samus.YPosition - 32));
         byte fallingPose = runtime.Samus.SelectFallingPoseForCurrentAim(bus);
-        runtime.Samus.ApplyWalkedOffFloorTransition(bus, fallingPose);
+        runtime.Samus.ApplyWalkedOffFloorTransition(bus, runtime.LevelData!, fallingPose);
         observedSamusPoses.Add(runtime.Samus.Pose);
         Console.WriteLine(
             $"frame {frameIndex + 1,4}: published `$91:E8F2` walk-off at Y={runtime.Samus.YPosition}; " +

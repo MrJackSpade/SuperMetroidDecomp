@@ -244,7 +244,23 @@ This verifies upward exit through a fixed liquid surface, not changing-height
 liquid entry. Remaining launch restrictions and explicit host override checks
 still need completion before #465 is ready for player validation.
 
-## Storage admission and palette-owned expiry
+## Host invincibility override (not cartridge behavior)
+
+`--spark-invincibility-audit ROM` uses the full gameplay frame dispatcher,
+the enclosed dry-travel geometry and the same storage/launch inputs. For
+each facing and direction, compare four invincible runs starting at health
+1/2/29/30 against a cheat-disabled high-energy control. Assert pose, phase and
+16.16 X/Y every frame; assert health stays unchanged outside active movement
+and otherwise decreases to a floor of one. Require terrain crash entry in
+every sequence. All 24 variants pass; no production change was needed.
+
+This explicitly tests the requested host override, not native-ROM parity.
+The existing native dry-energy capture separately establishes the retail
+30-energy termination threshold. The shared flat-floor fixture now accepts
+an optional invincibility parameter, default false, leaving native comparisons
+cheat-disabled. Remaining launch-restriction/window coverage is still open.
+
+## Storage admission and palette-owned expiry (handler capture)
 
 Original-CPU fixture `native-shine-storage-probe.h` executes Samus_CrouchTrans
 ($91:F7B0), then the live stored-shine palette handler ($91:DAC7). It covers

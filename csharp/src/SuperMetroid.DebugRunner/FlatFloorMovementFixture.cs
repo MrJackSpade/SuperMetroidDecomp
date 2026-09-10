@@ -6,9 +6,10 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Constructed geometry with the complete gameplay dispatcher, but no arrival coroutine.</summary>
 internal static class FlatFloorMovementFixture
 {
-    public static SuperMetroidRuntime Create(SuperMetroidAddressSpace bus, bool water, bool wideRunway = false)
+    public static SuperMetroidRuntime Create(SuperMetroidAddressSpace bus, bool water, bool wideRunway = false,
+        bool playerInvincibilityEnabled = false)
     {
-        var runtime = new SuperMetroidRuntime(bus);
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: playerInvincibilityEnabled);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();

@@ -1,9 +1,9 @@
 # #463: remote collision triggers — partial evidence
 
 Reference: https://wiki.supermetroid.run/Hitbox_Manipulation, Checking section,
-revision 10438. **This is not yet a completed issue:** velocity-dependent full
-movement sequences, ceiling-contact paths and native post-trigger item coroutine
-timing remain. Direct horizontal and compact-pose-expansion trigger paths are covered.
+revision 10438. **This is not yet a completed issue:** ceiling-contact paths, moving
+item acquisition and native post-trigger item coroutine timing remain. Direct
+horizontal, compact-pose expansion and moving spin-turn door paths are covered.
 
 ## Horizontal door probe
 
@@ -135,3 +135,34 @@ native message/pickup coroutine. Doors publish the actual pending transition.
 
 No production fix was necessary for these positive paths. The shared item-list
 fixture now accepts a row and its previous 2,754 horizontal cases still pass.
+
+## Moving spin-turn door checks
+
+918 room-local movement cases produce 6,402 frames through the first door trigger
+or a 24-frame failure limit. Both facings, extra speeds zero/two/four, seventeen
+initial gaps, and nine turn timings. Samus starts spinjumping with matching previous
+pose history, base speed 1.25, downward direction, zero vertical speed, and held
+Jump+forward. Opposite direction is then held from the selected turn frame. Inputs,
+movement, collision, pose transitions and animation execute in native frame order;
+the managed comparison uses `SuperMetroidRuntime.StepFrame`.
+
+Artifacts: `native-moving-door-probe.h`, `native-moving-door-entrypoint.patch`,
+`moving-door-463-v1.zip`. Native `--diagnostic-moving-door ROM CSV`; managed
+`--moving-door-audit ROM CSV`. Same pins as above; independently repeated captures
+have SHA256 `0C9637F22CC80465BAC7B22987A5D4141280FB98CDDAFA66ED7C0390E99B7A84`.
+
+Every frame compares X/Y/subpixels, pose/movement, animation frame/timer, base/extra
+horizontal speed, acceleration mode, facing, vertical speed/direction, flare count,
+active movement radii and actual pending door pointer. The run ends at the first
+door request; it does not traverse into another room or infer transition rendering.
+
+390 cases actually trigger while the complete horizontal hitbox remains outside
+the door column. Named witnesses with zero extra speed and immediate reversal:
+right-going seed gap nine / left-going gap ten trigger on frame one, retain base
+speed `$0000:E000` and reversal mode one. The adjacent seed gap fails for all 24
+frames. The one-pixel left/right boundary difference follows the captured native
+scans. These seed gaps are not identical to distance at the later probe frame.
+
+All 6,402 frames match; no production change was needed. This supplies the
+velocity-dependent door movement evidence missing from the direct-probe matrices.
+Moving item collection and ceiling-contact sequences are still separate gates.

@@ -108,6 +108,12 @@ public sealed partial class RoomEnemySystem
             // overlap testing, so a distant actor with a map can legitimately clear it.
             if (slot.SpritemapPointer == 0)
                 continue;
+            bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
+            // Multibox entry rejects the two shared no-op callback identities before
+            // resetting invulnerability. Ordinary radius entry resets first instead.
+            if (usesExtendedHitboxes && slot.Definition.TouchAiPointer is
+                EnemyAiCodePointers.BankA0.NoOp or EnemyAiCodePointers.BankA0.NoOpShortReturn)
+                continue;
             if (contactDamageIndex != 0)
                 samus.InvincibilityTimer = 0;
             bool isFireflea = slot.EnemyDefinitionPointer == FirefleaDefinition &&
@@ -248,7 +254,6 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            bool usesExtendedHitboxes = UsesExtendedSamusHitboxes(slot);
             bool overlapsSamus;
             ushort hitboxTouchAi = slot.Definition.TouchAiPointer;
             if (usesExtendedHitboxes)

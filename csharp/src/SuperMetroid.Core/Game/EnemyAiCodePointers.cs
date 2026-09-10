@@ -733,6 +733,9 @@ internal static class EnemyAiCodePointers
         public const ushort DudShot = 0x8046;
         /// <summary>Shared no-op interaction callback at $A0:804C.</summary>
         public const ushort NoOp = 0x804c;
+
+        /// <summary>RTS_A0804B at $A0:804B, the shared short-return no-op identity rejected by collision dispatch.</summary>
+        public const ushort NoOpShortReturn = 0x804b;
     }
 
     /// <summary>Bank-$A2 enemy interaction callbacks.</summary>

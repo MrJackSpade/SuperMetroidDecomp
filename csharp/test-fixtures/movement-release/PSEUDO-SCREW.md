@@ -1,4 +1,8 @@
-# #421: Pseudo Screw investigation (incomplete)
+# #421: Pseudo Screw investigation — ready for player validation
+
+The dated-by-order investigation sections below retain intermediate findings and
+remaining-work notes as history. The final coverage summary at the end supersedes
+those earlier incomplete-status notes.
 
 ## Original enemy-touch capture
 
@@ -175,3 +179,41 @@ no-op gate and remains the next separate check; this fixture does not prove it.
   dialog-free `sm.exe --diagnostic-pseudo-reset ROM NEW.csv` entrypoint.
 - Managed command: `--pseudo-screw-reset-audit ROM CSV`.
 - Temporary hooks removed and patch reapplication checked.
+
+## Extended collision-entry timer reset and final coverage
+
+The $A0:9A5A entry has a distinct ordering: it rejects either shared no-op touch
+pointer before resetting invulnerability. Ordinary $A0:A07A rejects them after
+reset. The first 24-case extended capture reproduced two failures in C#; the
+production dispatcher now applies the early no-op gate only to extended hitboxes.
+The expanded accepted matrix includes both $804B and $804C, contact modes 0/3/4,
+map zero/nonzero and initial timer 0/9. All 36 cases match. The nonzero map is
+positive pointer one, intentionally exercising the native return before any map
+walk: this checks dispatcher ordering, not extended hitbox geometry. The managed
+fixture selects a recognized multibox family after building the interactive list
+to avoid running unrelated boss AI. The ordinary 24-case oracle still matches.
+
+- Archive: `pseudo-extended-reset-421-v2.zip`.
+- CSV SHA256: `184973B37284DB3055BFC9307B5A82240AA334BC911824BD1FBDABC9DD658047`.
+- Two captures are identical; same ROM/source pins above.
+- Regeneration: `native-pseudo-extended-reset-entrypoint.patch`, rebuild, then
+  `sm.exe --diagnostic-pseudo-extended-reset ROM NEW.csv` (bounded and dialog-free).
+- Managed: `--pseudo-screw-extended-reset-audit ROM CSV`.
+- Hooks removed, reapplication checked; full core verification passes.
+
+Final acceptance evidence for #421:
+
+| Requirement | Evidence |
+| --- | --- |
+| Enemy damage and charge consumption | Eight contact cases: native damage scaling, immune control, live charge teardown, full normal palette and flare removal |
+| Projectile protection, not universal invulnerability | 288 generic projectile cases, vulnerable controls, charge retained; custom handlers are not rewritten as universally immune |
+| Input-earned charge, release/walljump retention, yellow flash | 34 sequences / 4,760 frames, full pose/motion/charge/contact/palette trace and explicit formerly failing yellow frame |
+| Negative poses and liquid restrictions | 5,760 real movement-handler cases around charge, animation and top-surface thresholds; normal-jump controls |
+| Invulnerability reset distinct from contact damage | 24 ordinary and 36 extended entry cases with non-overlapping geometry, no-op/zero-map controls and empty-list check |
+
+All six managed audits were rerun together after the last production change.
+The four diagnosed defects were missing charge teardown, late suit restoration,
+reset before sprite-map publication, and extended no-op reset ordering. Each was
+reproduced before correction and has preserved evidence. This establishes the
+specified pinned-NTSC contract, not every enemy-specific attack or other revision.
+Keep #421 open with awaiting-player-validation until the player confirms it.

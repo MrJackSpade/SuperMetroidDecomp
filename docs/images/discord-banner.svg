@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="220" viewBox="0 0 1200 220" role="img" aria-labelledby="title description">
+  <title id="title">Join the Discord server</title>
+  <desc id="description">Super Metroid C# — releases, playtesting, and project discussion. discord.gg/N2W9pE7qWM</desc>
+  <rect width="1200" height="220" rx="20" fill="#5865F2"/>
+  <rect x="24" y="24" width="1152" height="172" rx="12" fill="none" stroke="#FFFFFF" stroke-opacity="0.28" stroke-width="2"/>
+  <text x="600" y="88" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700">JOIN THE DISCORD SERVER</text>
+  <text x="600" y="132" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="25">Releases · Playtesting · Project discussion</text>
+  <text x="600" y="176" text-anchor="middle" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">discord.gg/N2W9pE7qWM →</text>
+</svg>

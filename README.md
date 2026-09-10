@@ -1,167 +1,102 @@
-# Super Metroid C# decompilation workspace
+[![Join the Discord server — releases, playtesting, and project discussion](docs/images/discord-banner.svg)](https://discord.gg/N2W9pE7qWM)
 
-This private workspace translates the original Super Metroid program into heavily commented,
-breakpoint-friendly C#. The cartridge remains the behavioral authority; the annotated
-disassembly and native C reconstruction are cross-checks, not substitutes for observed ROM
-behavior.
+<p align="center"><strong><a href="https://discord.gg/N2W9pE7qWM">Join the Discord server</a> · <a href="https://github.com/MrJackSpade/SuperMetroidDecomp/releases">Download releases</a></strong></p>
 
-ROMs and extracted game assets are excluded from source control and application packages.
-Supply your own supported ROM on first launch; desktop and Android copy it into private
-application storage and extract the runtime audio there. See [ROM setup](csharp/ROM-SETUP.md).
+# Super Metroid — C# port
 
-## Current status
+## How to set up and play
 
-The C# port is a working but incomplete game, not merely an asset viewer. Its continuously
-playable path currently runs from power-on through the title, file select, options, opening
-cinematic, Ceres, Zebes landing, Morph Ball, the first Missile, Bomb Torizo, Bomb acquisition,
-and the return to awakened Parlor. The checked-in private-ROM regression completes that route
-using controller input and native game state; it does not write debug values to win the fight,
-open its doors, create drops, or acquire Bombs.
+You need your own **Super Metroid Japan/USA NTSC v1.0 ROM** (`.smc` or `.sfc`).
+ROMs and extracted game assets are not included in the downloads or this repository.
+The app checks your ROM, copies it into application storage, and extracts the required
+audio automatically. Your original file is kept.
 
-The following large subsystem passes are implemented:
+### Windows
 
-- normal Samus movement, poses, animation, collision, liquids, grapple, Speed Booster,
-  shinespark, Space Jump, Screw Attack, Crystal Flash, X-ray mechanics, knockback, and the
-  translated death/body-special routes;
-- beams, Charge Beam, Hyper Beam production and motion, Missiles, Super Missiles, normal
-  Bombs, Power Bombs, trails, explosions, terrain reactions, and projectile animation;
-- every retail enemy definition referenced by the named room populations, including its
-  initialization/main dispatch, instruction execution, ordinary combat dispatch, touch/shot/
-  bomb/Power-Bomb/grapple reactions, enemy projectiles, death, drops, and focused boss logic;
-- cartridge room headers and state selection, level/graphics/background loading, scrolling,
-  camera tracking, ordinary door transitions, the sequential bank-`$84` room-PLM loader,
-  colored/grey doors, items, scrolls, elevator platforms, save/map/energy/missile stations,
-  translated breakable blocks, and encounter PLMs currently used by translated bosses;
-- HUD, minimap exploration, pause map/equipment screens, SRAM encoding/checksums, file-select
-  save metadata, Ceres automatic save, gunship save/reload, and restoration of inventory and
-  world-state bits; and
-- hardware-first Direct3D11 rendering of the implemented frontend/gameplay paths,
-  with an explicit software reference backend and portable owned render packets;
-  [renderer qualification and remaining gates](csharp/RENDERER_ACCEPTANCE_AUDIT.md); and
-- cartridge-derived audio: the translated SPC sequencer and SNES DSP/BRR mixer, retail
-  bank-$80 music/SFX queues and acknowledgements, and buffered Windows PCM playback; and
-- the outer frontend paths for options submenus, reserve-tank recovery, fatal damage,
-  game-over/continue, the full four-direction door-opening scroll, successful Zebes escape,
-  the bank-$8B ending, ROM-row credits, time-selected post-credit reward, item percentage,
-  and final message.
+1. Open [Releases](https://github.com/MrJackSpade/SuperMetroidDecomp/releases) and download **SuperMetroid-windows-x64.zip**.
+2. Extract the entire ZIP into a folder.
+3. Run **SuperMetroid.Game.exe**. The download includes the .NET runtime; no separate installation is needed.
+4. Click **Choose ROM** and select your ROM. Once setup finishes, the game starts.
 
-Enemy translation is not the current blocker. The exhaustive enemy audits load all named
-retail room-state populations and separately exercise lifecycle, direction, touch, weapon,
-grapple, projectile, death, and drop behavior. A focused enemy or boss audit is not proof that
-its entire retail room and surrounding game-state sequence are integrated, however.
+Later launches use the installed copy. Game data, settings, saves, and recordings live
+under `%LOCALAPPDATA%\SuperMetroid`. Keep the extracted application files together when
+moving the app or installing an update.
 
-## Known incomplete systems
+### Android
 
-These are implementation gaps, not merely missing tests:
+1. Open [Releases](https://github.com/MrJackSpade/SuperMetroidDecomp/releases) on your device and download **SuperMetroid-android-arm64.apk**.
+2. Install the APK. If Android asks, allow your browser or file manager to install apps.
+3. Open **Super Metroid C# Testing**, tap **Choose ROM**, and select your ROM through the file picker.
+4. Wait for extraction to finish, then play using your handheld's controls or a connected controller.
 
-- Bank `$84` room populations now parse once in ROM order and retain the native descending
-  forty-slot allocation/reuse rules. The dispatcher translates all 941 retail records across
-  all 70 headers, including downward gates, eye doors, Draygon cannons, elevators,
-  save/map/energy/missile stations, the Speed Booster escape controller, the Wrecked Ship
-  attic observer, the n00b tube, and the resident Metroid-room clear-state observers.
-- Arbitrary room setup code, room-main code, FX records, and X-ray room data are not generally
-  dispatched. Ceres and several encounter-specific paths have explicit translated owners.
-- Audio playback is connected to every currently translated publisher: title/intro/room and
-  boss music; menu and pause feedback; Samus movement, damage, weapon, visor, Crystal Flash,
-  and shinespark effects; PLMs; ordinary enemies; and translated bosses. Older one-value enemy
-  debugger fields are normalized through one central adapter so they do not require room-specific
-  frontend fixes; they retain only the final same-family call if several overwrite the field in
-  one frame. New/direct publishers use a lossless per-frame request list. The managed C# core
-  translates this game's SPC driver and S-DSP behavior; it is not a general SPC700 CPU emulator.
-- Audio calls owned by the translated outer frontend states now use the same cartridge queue as
-  gameplay. Remaining absent calls belong to still-untranslated time-up/demo paths, not to a
-  separate mixer or host-sample fallback.
-- Rendering is CPU-based and slow. It covers the paths already used by the playable slice and
-  focused audits, but it is not a complete cycle-accurate SNES PPU and does not yet reproduce
-  every room's HDMA, window, mosaic, priority, or special background behavior.
-- The top-level game dispatcher still lacks the time-up and attract-mode demo families. Reserve
-  recovery, fatal damage/game-over/continue, final escape, ending, credits, and post-credits are
-  integrated; reaching the final escape through every intervening room still depends on the
-  general room/PLM/setup gaps listed above.
-- Existing-save loading deliberately skips the untranslated native load-appearance presentation
-  and enters its stable standing endpoint.
-- Bosses and late-game systems with focused translations still need their surrounding rooms,
-  PLMs, room code, frontend states, and progression connected into continuous gameplay.
+The Android build targets **ARM64 devices running Android 8.0 or newer** and has been
+tested on the **Retroid Pocket Classic**, including ROM import and audio playback.
+It keeps its ROM copy and saves in app-private storage. Install new APKs over the existing
+app to keep your data; uninstalling the app or clearing its storage removes that data.
 
-Detailed Samus dispatcher routing and focused verification evidence are maintained in
-[`csharp/MOVEMENT_COVERAGE.md`](csharp/MOVEMENT_COVERAGE.md). Runnable-project details and the
-testing policy are in [`csharp/README.md`](csharp/README.md).
+### Controls and saves
 
-## Verified input
+On Windows, use a gamepad or these default keyboard controls:
 
-`Super Metroid.smc` is the unheadered 3 MiB Japan/USA NTSC v1.0 ROM:
-
-| Digest | Value |
+| Action | Keyboard |
 | --- | --- |
-| MD5 | `21f3e98df4780ee1c667b84e57d88675` |
-| SHA-1 | `da957f0d63d14cb441d215462904c4fa8519c613` |
-| SHA-256 | `12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72` |
+| Move / aim | Arrow keys |
+| Jump / confirm | `Space` or `X` |
+| Dash / cancel | `Z` |
+| Fire | `S` |
+| Cancel selected item | `A` |
+| Aim up / down | `Q` / `W` |
+| Start / pause | `Enter` |
+| Select item | `Shift` |
 
-It is a FastROM LoROM image. The reset vector is `$841C`; execution begins at `$00:841C`,
-whose ROM mirror is conventionally written `$80:841C`.
+Use the game's save stations or gunship for normal saves. The desktop toolbar also
+provides debugger save-state slots. On Android, press **Back/Mode** or long-press the game
+surface to open **Testing tools**, including save states, settings, and controller bindings.
 
-## Workspaces
+Setup accepts both the unheadered 3 MiB ROM and a copy with a 512-byte copier header.
+ZIP archives, PAL images, other revisions, and patched ROMs are not supported.
+See [ROM setup and storage](csharp/ROM-SETUP.md) for the expected ROM hash, command-line
+installation, and recovery details.
 
-- `csharp/` contains the actively developed C# game, core library, desktop controls, asset
-  extractor, room viewer, verification runner, and private-ROM debug runner.
-- `standalone-assets/raw/` contains named ROM chunks; `standalone-assets/png/` and
-  `standalone-assets/runtime/` contain inspectable PNG assets and rendered diagnostic layers.
-- `standalone-assets/audio/` contains exact SPC sequence/instrument upload streams, a
-  SHA-verified metadata catalog, and 112 deduplicated, stable-ID PCM WAV samples used directly
-  by managed audio playback. The 935 bank/source aliases make those WAVs replaceable without
-  rewriting game code or sequence data.
-- `standalone-native/` contains the compiled native C reference and SDL runtime.
-- `upstream-disassembly/` and `upstream-sm/` are pinned source references used during
-  translation and differential inspection.
+For help, release announcements, and playtesting discussion, [join Discord](https://discord.gg/N2W9pE7qWM).
+Report bugs through [GitHub Issues](https://github.com/MrJackSpade/SuperMetroidDecomp/issues),
+including your platform, release version, and steps to reproduce the problem.
 
-Install the .NET 10 SDK, then open `csharp/SuperMetroid.slnx` in Visual Studio or run the game
-from `csharp/`. No C++ workload or native runtime DLL is required:
+## About the project
 
-```powershell
-dotnet run --project src/SuperMetroid.Game
-```
+This project translates Super Metroid's original program into readable, heavily commented
+C#. It aims to preserve the cartridge's behavior while making the game's systems easier
+to inspect, debug, and understand. The original ROM supplies the graphics, room data,
+tables, and audio resources used by the translated code.
 
-The host offers a ROM picker, accepts one explicit ROM path, or honors the
-`SUPERMETROID_ROM` environment variable. Normal play continuously writes replayable controller
-sessions under `%LOCALAPPDATA%/SuperMetroid/input-recordings/`; each recording includes the reset-time SRAM
-seed and ROM digest. Ten exact-frame debugger slots are available from the playable toolbar;
-their attachable files live under `debug-states/` in that application-data directory. `csharp/README.md` documents
-both the `--replay` command and debugger-state compatibility rules.
+The Windows and Android applications share the same managed game core. Windows uses
+a Direct3D11 renderer with a software fallback; Android uses the software renderer.
+Music and sound effects run through a managed C# audio engine, with resources extracted
+from the player's ROM during setup.
 
-## Verification
+**This is a playable work in progress.** Movement, combat, enemies, bosses, rooms, menus,
+saving, rendering, and audio have substantial implementations, but bugs and differences
+from the original game remain. Focused subsystem tests and controller-driven regression
+tests help check behavior; they do not establish that every route or interaction is correct.
+Playtesting reports are welcome.
 
-```powershell
-dotnet build csharp/SuperMetroid.slnx
-dotnet run --project csharp/src/SuperMetroid.Verification
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-coverage-audit "Super Metroid.smc"
-dotnet run --project csharp/src/SuperMetroid.DebugRunner -- --retail-enemy-execution-audit "Super Metroid.smc"
-```
+### Development and references
 
-The Python ROM analyzer remains dependency-free and never modifies the ROM:
+Start with the [developer guide](csharp/README.md) for build requirements, runnable
+projects, controls, diagnostics, and verification commands. Additional documentation:
 
-```powershell
-python tools/rom_analyze.py "Super Metroid.smc" info
-python tools/rom_analyze.py "Super Metroid.smc" disasm --address 00:841C --count 40
-python -m unittest discover -s tests -v
-```
+- [Desktop renderer build requirements](csharp/D3D11_BUILD.md)
+- [Android builds and testing](csharp/ANDROID-TESTING.md)
+- [Shared ROM extraction and installation](csharp/ROM-SETUP.md)
+- [Tagged releases and Discord announcements](docs/releases.md)
+- [Movement coverage](csharp/MOVEMENT_COVERAGE.md)
 
-## Pinned references
+Translation and diagnostics cross-check the original cartridge against these references:
 
-- Annotated disassembly: `https://github.com/InsaneFirebat/sm_disassembly.git` at
-  `362be646929cf8e483f692b73a6561cfc2dc1d0d`
-- Native C reconstruction: `https://github.com/snesrev/sm.git` at
-  `578f90b3cc49557bb70060ad033bb90b8cf8ac50`
+- [InsaneFirebat's annotated disassembly](https://github.com/InsaneFirebat/sm_disassembly), pinned to `362be646929cf8e483f692b73a6561cfc2dc1d0d`.
+- [snesrev's native C reconstruction](https://github.com/snesrev/sm), pinned to `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
+- [Patrick Johnston's bank reference](https://patrickjohnston.org/bank/index.html).
 
-## Translation policy
-
-1. Identify the ROM and preserve 65C816 arithmetic widths and address mapping.
-2. Recover control flow and distinguish executable code from embedded data.
-3. Name state using the ROM, annotated disassembly, and native reconstruction as evidence.
-4. Translate a bounded subsystem while retaining original addresses, tables, and side effects.
-5. Verify routines with synthetic boundary checks and private-ROM execution audits.
-6. Connect proven subsystems into gameplay without replacing missing behavior with bespoke
-   room fixes.
-
-The sensible unit of implementation is a subsystem or native dispatcher family. Controller
-tests are reserved for practical room-local slices and a small number of retained integration
-routes; they are not the primary coverage mechanism for every room in the game.
+Original addresses, data tables, ordering, and side effects guide the translation.
+Reference annotations support diagnosis; reproduced behavior and regression tests are
+used to check the implementation against the supported ROM revision.

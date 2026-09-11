@@ -223,3 +223,40 @@ stock after a graphics-state restore produces the original pixels exactly. Tests
 also cover replacement preservation, invalid PNG/dimensions/color indexes and
 missing stock artwork despite a valid override. These are managed pipeline tests,
 not Android on-device or full installation transaction validation.
+
+## Gameplay HUD/minimap PNG and queued asset transfers
+
+Catalog version 4 adds `hud-tiles.png`: the separate native 256x64, four-index
+2-bpp HUD/minimap sheet. PNG indexes are compiled with the same shared planar
+encoder as the four-bit map sheet. Its 4 KiB of characters are followed by the
+native 4 KiB zero-clear payload when uploading; all 8 KiB are compared to retail.
+The preview palette still does not configure CGRAM. Existing color/alpha semantics
+remain application-owned until the separate palette resources are integrated.
+
+The standard gameplay upload now queues `VramAssetId.StandardHudTiles` when an
+installed catalog is bound. The queue keeps its native order, seven-byte logical
+record budget and accepted-NMI boundary, but resolves compiled content through
+`IVramAssetProvider` only when drained. It never fabricates a ROM address space or
+stores a captured artwork blob in the debugger graph. Missing providers, wrong
+payload lengths and invalid IDs fail explicitly. The bus-backed path remains for
+explicit cartridge diagnostics and non-artwork transfers.
+
+An explicit debugger-field migration retains the original three fields of older
+bus entries with AssetId=None. Binding installed maps upgrades an exact pending
+legacy HUD source/count match in place, preserving its destination/order. A new
+pending asset entry is resolved against the catalog rebound after state load.
+Pause's copy of the same standard sheet also uses the installed resource.
+
+Tests cover byte-port parity for odd/even sizes, linear/column increments and VRAM
+wrap, interleaved bus/asset ordering, queue capacity and pending queue round trips.
+The actual runtime test blocks the complete original HUD ROM range, checks that a
+lag NMI writes nothing, and compares all VRAM bytes after an accepted NMI. A PNG edit
+changes rendered minimap pixels after restoring a pending runtime state and binding
+the edited catalog. The pixel test uses an explicitly constructed distinct-color
+BG3 palette: the no-room fixture otherwise renders black and cannot demonstrate an
+artwork change. It is not a retail room palette parity claim. Older field selection
+is tested separately, not presented as loading a historical binary fixture.
+
+Remaining: editable palette resources, visual room placements and other in-scope
+presentation reads; full installer/device checks; historical full-session state
+compatibility and reloading changed artwork into already-displayed gameplay state.

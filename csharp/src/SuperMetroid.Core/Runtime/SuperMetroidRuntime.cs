@@ -753,7 +753,10 @@ public sealed partial class SuperMetroidRuntime
         // The original copies $2000 bytes even though the named standard BG3 graphics are
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
-        VramWrites.Enqueue(sizeInBytes: 0x2000, sourceAddress: 0x9ab200, encodedVramDestination: 0x4000);
+        if (MapPresentation is null)
+            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.DestinationWord);
+        else
+            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.DestinationWord);
 
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
@@ -4480,7 +4483,7 @@ public sealed partial class SuperMetroidRuntime
             TourianStatues.LatchDisplay();
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
-            VramWrites.DrainTo(Vram, _addressSpace);
+            VramWrites.DrainTo(Vram, _addressSpace, MapPresentation);
             TransferXrayBg1Read();
             // Menu code consumes raw physical buttons before a runtime exists. Once room
             // gameplay owns the controller, all bank-$90/$91 action checks use the seven

@@ -47,6 +47,15 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
+        byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
+            RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
+            2, MapTileAtlasFormat.TileColumns, out int hudWidth, out int hudHeight);
+        using var hudAtlas = new MemoryStream();
+        IndexedPng.Write(hudAtlas, hudWidth, hudHeight, hudPixels, SnesGraphics.DiagnosticPalette(4));
+        byte[] hudBytes = hudAtlas.ToArray();
+        using (var file = new FileStream(Path.Combine(directory, HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(hudBytes);
+        hashes.Add(HudTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(hudBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

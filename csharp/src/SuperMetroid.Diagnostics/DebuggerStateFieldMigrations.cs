@@ -17,6 +17,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Hardware.VramWriteEntry) && count == 3 && current.Length == 4)
+        {
+            // Old records only had bus sources. Default None retains their exact
+            // pending address/count/destination; no image payload or timing is invented.
+            return current.Where(field => field.Name != "<AssetId>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "_healthWarning"))
         {
             Console.Error.WriteLine("WARNING: Older Samus state lacks the low-health warning latch; it starts inactive until the next admitted native health check.");

@@ -52,6 +52,19 @@ public sealed class VramWriteQueue
         if ((uint)sourceAddress > 0x00ff_ffff)
             throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress, "Source must be a 24-bit SNES CPU address.");
 
+        Append(new VramWriteEntry(sizeInBytes, sourceAddress, encodedVramDestination));
+    }
+
+    /// <summary>Queues a typed installed resource without copying artwork into emulated/debugger state.</summary>
+    public void EnqueueAsset(VramAssetId asset, ushort sizeInBytes, ushort encodedVramDestination)
+    {
+        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        if (sizeInBytes == 0) throw new ArgumentOutOfRangeException(nameof(sizeInBytes));
+        Append(new VramWriteEntry(sizeInBytes, 0, encodedVramDestination) { AssetId = asset });
+    }
+
+    private void Append(VramWriteEntry entry)
+    {
         int newTail = TailInBytes + EntryByteCount;
         if (newTail + TerminatorByteCount > StorageByteCount)
         {
@@ -60,15 +73,24 @@ public sealed class VramWriteQueue
                 $"leaving no two-byte terminator inside the ${StorageByteCount:X3}-byte table.");
         }
 
-        _entries.Add(new VramWriteEntry(sizeInBytes, sourceAddress, encodedVramDestination));
+        _entries.Add(entry);
         TailInBytes = newTail;
+    }
+
+    /// <summary>Rebinds a known legacy pending artwork transfer without changing its position or byte count.</summary>
+    public void RebindBusSource(int sourceAddress, ushort sizeInBytes, VramAssetId asset)
+    {
+        if (asset == VramAssetId.None || !Enum.IsDefined(asset)) throw new ArgumentOutOfRangeException(nameof(asset));
+        for (int i = 0; i < _entries.Count; i++)
+            if (_entries[i].AssetId == VramAssetId.None && _entries[i].SourceAddress == sourceAddress && _entries[i].SizeInBytes == sizeInBytes)
+                _entries[i] = _entries[i] with { SourceAddress = 0, AssetId = asset };
     }
 
     /// <summary>
     /// Executes every queued transfer in insertion order, then clears the table just as
     /// the NMI consumer does at <c>$80:8CC9</c>.
     /// </summary>
-    public void DrainTo(SnesVram vram, ISnesAddressSpace bus)
+    public void DrainTo(SnesVram vram, ISnesAddressSpace bus, IVramAssetProvider? assets = null)
     {
         ArgumentNullException.ThrowIfNull(vram);
         ArgumentNullException.ThrowIfNull(bus);
@@ -78,7 +100,16 @@ public sealed class VramWriteQueue
         for (int index = 0; index < _entries.Count; index++)
         {
             VramWriteEntry entry = _entries[index];
-            vram.ExecuteQueuedWrite(bus, entry.SourceAddress, entry.SizeInBytes, entry.EncodedVramDestination);
+            if (entry.AssetId == VramAssetId.None)
+                vram.ExecuteQueuedWrite(bus, entry.SourceAddress, entry.SizeInBytes, entry.EncodedVramDestination);
+            else
+            {
+                if (assets is null) throw new InvalidOperationException($"Queued VRAM asset {entry.AssetId} has no bound provider.");
+                ReadOnlyMemory<byte> data = assets.Resolve(entry.AssetId);
+                if (data.Length != entry.SizeInBytes)
+                    throw new InvalidDataException($"VRAM asset {entry.AssetId} has {data.Length} bytes; queued transfer requires {entry.SizeInBytes}.");
+                vram.ExecuteQueuedAssetWrite(data.Span, entry.EncodedVramDestination);
+            }
         }
 
         // The assembly always zeroes the tail, even when the queue was empty. Clearing the
@@ -99,4 +130,8 @@ public sealed class VramWriteQueue
 public readonly record struct VramWriteEntry(
     ushort SizeInBytes,
     int SourceAddress,
-    ushort EncodedVramDestination);
+    ushort EncodedVramDestination)
+{
+    /// <summary>None preserves the original bus-backed record. Asset transfers resolve against current host content at drain time.</summary>
+    public VramAssetId AssetId { get; init; }
+}

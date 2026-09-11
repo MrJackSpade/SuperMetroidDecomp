@@ -2,22 +2,27 @@ using System.Security.Cryptography;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Immutable map content snapshot. Overrides never alter stock provenance or exploration rules.</summary>
-public sealed class AreaMapPresentationCatalog
+public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
         Tiles = tiles;
+        HudTiles = hudTiles;
     }
 
     public string ContentIdentity { get; }
     public MapTileAtlas Tiles { get; }
+    public HudTileAtlas HudTiles { get; }
+    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
+        ? HudTiles.Transfer : throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}.");
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
 
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
@@ -59,7 +64,13 @@ public sealed class AreaMapPresentationCatalog
         try { tiles = MapTileAtlas.Load(new MemoryStream(atlasBytes, writable: false)); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map tile atlas ({atlasOverride ?? stockDirectory}): {error.Message}", error); }
         AppendFramed(atlasBytes);
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles);
+        string? hudOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, HudTileAtlasFormat.FileName);
+        byte[] hudBytes = hudOverride is not null && File.Exists(hudOverride) ? File.ReadAllBytes(hudOverride) : stock.HudAtlas;
+        HudTileAtlas hudTiles;
+        try { hudTiles = HudTileAtlas.Load(new MemoryStream(hudBytes, writable: false)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid HUD tile atlas ({hudOverride ?? stockDirectory}): {error.Message}", error); }
+        AppendFramed(hudBytes);
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles);
 
         void AppendFramed(byte[] bytes)
         {
@@ -73,7 +84,7 @@ public sealed class AreaMapPresentationCatalog
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -83,8 +94,8 @@ public sealed class AreaMapPresentationCatalog
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 2)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal and tile-atlas hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 3)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal and both tile-atlas hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -110,7 +121,9 @@ public sealed class AreaMapPresentationCatalog
         }
         byte[] atlas = ReadChecked(MapTileAtlasFormat.FileName);
         _ = MapTileAtlas.Load(new MemoryStream(atlas, writable: false));
-        return (result, stationCells, atlas);
+        byte[] hudAtlas = ReadChecked(HudTileAtlasFormat.FileName);
+        _ = HudTileAtlas.Load(new MemoryStream(hudAtlas, writable: false));
+        return (result, stationCells, atlas, hudAtlas);
 
         byte[] ReadChecked(string file)
         {
@@ -134,7 +147,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 3;
+    public const int Version = 4;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

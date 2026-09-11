@@ -210,6 +210,20 @@ public sealed class SnesVram
         }
     }
 
+    /// <summary>Runs the same mode-1 VRAM port sequence from compiled artwork, without synthesizing a CPU address space.</summary>
+    public void ExecuteQueuedAssetWrite(ReadOnlySpan<byte> bytes, ushort encodedDestination)
+    {
+        if (bytes.Length is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
+        int destinationWord = encodedDestination & 0x7fff;
+        int increment = (encodedDestination & 0x8000) == 0 ? 1 : 32;
+        for (int i = 0; i < bytes.Length; i++)
+        {
+            bool high = (i & 1) != 0;
+            _bytes[destinationWord * 2 + (high ? 1 : 0)] = bytes[i];
+            if (high) destinationWord = (destinationWord + increment) & 0x7fff;
+        }
+    }
+
     /// <summary>
     /// Clears all VRAM. This is a host-side convenience for resets and isolated tests;
     /// the original game normally clears memory through explicit PPU/DMA operations.

@@ -75,8 +75,7 @@ type combinations through two accepted impacts each, preserving type, damage,
 direction, instruction pointer and animation timer. The focused selector is
 `--plasma-penetration`.
 
-Required remaining work includes
-normal firing/trajectory with controller X-ray activation/release,
+Required remaining work includes native comparison of the normal-firing trace below,
 per-hit health/position traces for Phantoon (including the initial non-Plasma
 hit), Botwoon, Draygon, steel pirates and Hyper Beam, failed timing and
 nonpenetrating controls, and matching native encounter sequences. Leave the
@@ -99,3 +98,26 @@ It does not remove the synthetic projectile placement/lifetime: the ordinary
 firing trajectory and an equivalent native encounter still need reproduction.
 An initial normally fired-shot trial passed above the head and therefore did not
 establish that case; it was not treated as a game defect or a successful test.
+
+## Normally fired charged Plasma integration
+
+`DebugRunner --botwoon-x-plasma-fired "Super Metroid.smc"` now covers a real
+charged projectile with its normal trajectory, lifetime and controller-driven
+X-ray activation. No actor, projectile or freeze state is injected after setup.
+The fixture equips Charge/Plasma/X-ray, clears ammunition, and starts with 999
+energy (no invincibility or other gameplay cheats). Samus starts at X=192 on
+the room's supported surface, taps Left, and selects X-ray normally.
+
+Two traces hold Shoot for 90 frames and release at relative frame 296 or 304.
+After the first hit, each uses repeated 60-held/4-released Run cycles. Release
+296 hits once at frame 317. Release 304 hits at 317, 381, 445, 509 and 573:
+3000 -> 2550 -> 2100 -> 1650 -> 1200 -> 750. Both spawn exactly one charged
+beam; Samus remains at 999 energy. The assertions check each 450-damage hit,
+the post-hit invincibility counter, retained beam family, and unchanged enemy
+and projectile position while the scope remains active. Botwoon's uncharged
+beam immunity makes an uncharged-shot trial unsuitable for this test.
+
+Both traces pass. These exact frame numbers are port regression observations,
+not yet original-CPU parity evidence. Native encounter comparison and the
+other targets required by #402 remain unfinished; the issue stays open without
+the awaiting-player-validation label.

@@ -9,12 +9,15 @@ internal static partial class PhantoonPlasmaAudit
     public static int RunNative(string rom, string trace)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            "85D7E253C3B9EBE1BA3819FDAC505AC8ACC7B8616360C22E518EF4E23CDCE631")
-            throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v4 capture.");
+            "5DD3B0EBB99165DC54F986069329C488A7324FB6A10D00B27E992A9C0E560A88")
+            throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v5 capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var room = CartridgeRoomHeader.Load(bus, 0xcd13);
         var assets = CartridgeRoomAssets.Load(bus, room);
         RoomEnemySystem enemies = null!;
+        SamusProjectileSystem shots = null!;
+        var shared = new SamusBombProjectileSystem();
+        var samus = new SamusState();
         int count = 0, failures = 0;
         foreach (string line in File.ReadLines(trace).Skip(1))
         {
@@ -23,6 +26,7 @@ internal static partial class PhantoonPlasmaAudit
             if (row[3] == 0)
             {
                 enemies = new RoomEnemySystem();
+                shots = new SamusProjectileSystem();
                 enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
                     new SnesVram(), new SnesCgram(), () => 1, level: assets.LevelData,
                     samus: new SamusState(), isAreaBossDefeated: () => false);
@@ -40,11 +44,13 @@ internal static partial class PhantoonPlasmaAudit
             }
             if (row[3] >= 2)
             {
-                enemies.StepFrame(0, 0, timeIsFrozen: true, level: assets.LevelData);
+                enemies.StepFrame(0, 0, timeIsFrozen: row[3] < 22, samus: samus,
+                    level: assets.LevelData, samusProjectiles: shots, sharedProjectiles: shared,
+                    resolveSamusContactBeforeAi: true);
             }
             else if (row[3] != 0 || row[1] != 0)
             {
-                var shots = new SamusProjectileSystem();
+                shots = new SamusProjectileSystem();
                 var shot = shots.Slots[0];
                 shot.Type = row[3] == 0 ? (ushort)0x8010 : row[2];
                 shot.Damage = shot.Type switch { 0x8000 => 20, 0x8010 => 60, 0x8008 => 150, 0x8018 => 450,
@@ -53,7 +59,7 @@ internal static partial class PhantoonPlasmaAudit
                 shot.XRadius = shot.YRadius = 4;
                 shot.InstructionPointer = 0x9000;
                 shot.InstructionTimer = 1;
-                enemies.ResolvePhantoonProjectileHits(bus, shots, new SamusBombProjectileSystem());
+                enemies.ResolvePhantoonProjectileHits(bus, shots, shared);
             }
             var state = enemies.Phantoon!;
             var head = state.Body;
@@ -68,7 +74,7 @@ internal static partial class PhantoonPlasmaAudit
             }
             count++;
         }
-        if (count != 264) throw new InvalidDataException("Expected all 264 native contact/freeze records.");
+        if (count != 268) throw new InvalidDataException("Expected all 268 native contact/freeze/release records.");
         Console.WriteLine($"Native Phantoon Plasma: {count} records, {failures} mismatches.");
         return failures == 0 ? 0 : 1;
     }

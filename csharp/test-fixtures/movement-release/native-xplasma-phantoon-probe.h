@@ -28,15 +28,15 @@ int DiagnosticXPlasmaPhantoon(const char *rom, const char *output) {
     projectile_counter = 1;
     projectile_x_pos[0] = projectile_y_pos[0] = 128;
     projectile_x_radius[0] = projectile_y_radius[0] = 4;
-    for (int stage = 0; stage < 22; stage++) {
+    for (int stage = 0; stage < 22 + (kind == 2); stage++) {
       if (stage >= 2) {
-        time_is_frozen_flag = 1;
+        time_is_frozen_flag = stage < 22;
         ProbeRunBounded(0xa08fd4);
       } else {
-      projectile_type[0] = stage ? types[kind] : 0x8010;
-      projectile_damage[0] = stage ? damage[kind] : 60;
-      projectile_dir[0] = 0;
-      if (stage || primed) { cur_enemy_index = 0; ProbeRunBounded(0xa09b7f); }
+        projectile_type[0] = stage ? types[kind] : 0x8010;
+        projectile_damage[0] = stage ? damage[kind] : 60;
+        projectile_dir[0] = 0;
+        if (stage || primed) { cur_enemy_index = 0; ProbeRunBounded(0xa09b7f); }
       }
       fprintf(f, "%u,%d,%u,%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
         phases[phase], primed, types[kind], stage, body->base.health,

@@ -1,9 +1,54 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class PhantoonPlasmaAudit
 {
+    public static int RunRelease(string rom)
+    {
+        foreach (ushort entryInvincibility in new ushort[] { 0, 1 })
+            VerifyRelease(rom, entryInvincibility);
+        Console.WriteLine("Full runtime Phantoon release matches native damage/invincibility/flash ordering.");
+        return 0;
+    }
+
+    private static void VerifyRelease(string rom, ushort entryInvincibility)
+    {
+        var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(0xcd13);
+        runtime.InitializeDebugGroundedSamus(64, 166, 8);
+        runtime.Samus!.InputLocked = false;
+        var body = runtime.Enemies.Phantoon!.Body;
+        // Native v5 boundary after twenty frozen calls following a charged hit.
+        body.XPosition = body.YPosition = 128;
+        body.Health = 2050;
+        body.InvincibilityTimer = entryInvincibility;
+        body.FlashTimer = 16;
+        body.AiHandlerBits = 2;
+        body.SpritemapPointer = 0xdee7;
+        body.Properties = 0;
+        body.ExtraProperties = 4;
+        body.VariableF = (ushort)PhantoonAiFunction.Swooping;
+        body.VariableE = 1;
+        runtime.Enemies.Phantoon.Tentacles!.VariableB = 450;
+        var shot = runtime.Projectiles.Slots[0];
+        shot.Type = SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Plasma, true);
+        shot.Damage = 450;
+        shot.XPosition = shot.YPosition = 128;
+        shot.XRadius = shot.YRadius = 4;
+        shot.InstructionPointer = 0x9000;
+        shot.InstructionTimer = 100;
+        runtime.StepFrame(0);
+        ushort expectedHealth = entryInvincibility == 0 ? (ushort)1600 : (ushort)2050;
+        ushort expectedInvincibility = entryInvincibility == 0 ? (ushort)16 : (ushort)0;
+        if (body.Health != expectedHealth || body.InvincibilityTimer != expectedInvincibility || body.FlashTimer != 15)
+            throw new InvalidDataException($"Runtime Phantoon release health/invincibility/flash: {body.Health}/{body.InvincibilityTimer}/{body.FlashTimer}, expected {expectedHealth}/{expectedInvincibility}/15 (entry timer {entryInvincibility}).");
+    }
+
     // Isolate the real boss's extended collision adapter from movement/AI.
     // The swooping state keeps the hitbox available after taking charged damage.
     public static int Run(string rom)

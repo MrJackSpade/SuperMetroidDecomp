@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    // Retain the existing beam/boss hit publication after EnemyMain. Ordinary
-    // bombs now have their own per-enemy pre-AI dispatch; they must not run here.
+    // Retain the remaining beam/boss hit publication after EnemyMain. Phantoon
+    // beams and ordinary bombs now dispatch per enemy before AI, never again here.
     private void ResolveUpdatedBeamHits()
     {
         Enemies.ResolveCeresRidleyProjectileHits(
@@ -14,10 +14,6 @@ public sealed partial class SuperMetroidRuntime
             Projectiles,
             BombProjectiles);
         Enemies.ResolveKraidProjectileHits(
-            _addressSpace,
-            Projectiles,
-            BombProjectiles);
-        Enemies.ResolvePhantoonProjectileHits(
             _addressSpace,
             Projectiles,
             BombProjectiles);

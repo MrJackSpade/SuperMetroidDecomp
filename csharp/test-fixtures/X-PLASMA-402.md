@@ -185,3 +185,30 @@ Two independent v4 captures agree, SHA-256
 The comparator now requires this expanded capture rather than v2. It does not
 yet cover unfrozen boss evolution or full controller activation/release against
 the native encounter, and therefore does not complete #402.
+
+### Release ordering defect and full-runtime regression
+
+The v5 probe adds the first unfrozen EnemyMain call after charged-hit cases.
+The swooping boss accepts its retained shot before hurt AI and flash housekeeping:
+health/invincibility/flash become 1600/16/15. A constructed equivalent boundary
+through `SuperMetroidRuntime.StepFrame` instead produced 1600/16/16 before the fix.
+The port published Phantoon beam hits after EnemyMain, resetting the clock after
+its decrement and delaying hurt dispatch on newly accepted contacts.
+
+Phantoon beam collisions now run in the existing per-enemy pre-AI collision phase,
+before bombs and Samus touch, subject to the entry invincibility gate. The old
+late runtime call is removed to avoid duplicate dispatch. Other boss/ordinary
+beam ordering is not changed by this focused fix.
+
+`DebugRunner --phantoon-plasma-release "Super Metroid.smc"` reproduces the
+full-runtime boundary and now passes. The expanded native comparator retains
+the original shot across frozen/released calls and all 268 records match.
+Two v5 captures agree, SHA-256
+`5DD3B0EBB99165DC54F986069329C488A7324FB6A10D00B27E992A9C0E560A88`;
+the comparator requires v5. Full normal-firing/controller boss sequences and
+the remaining targets still prevent closing #402.
+
+The full runtime also checks entry invincibility one: the frame decrements to
+zero but still rejects contact, preserving the cartridge's entry-value gate.
+The complete Verification suite, normal-firing Botwoon regressions and Windows
+Release build pass after the ordering change (build: zero warnings/errors).

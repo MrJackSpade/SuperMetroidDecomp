@@ -570,6 +570,12 @@ public sealed partial class RoomEnemySystem
             // bank $90 consumes the carry; a late touch pass would retrigger that support.
             if (!timeIsFrozen && !invincibleAtEntry && resolveSamusContactBeforeAi && samus is not null)
             {
+                // Native extended collision runs projectiles before bombs/touch and
+                // before selecting hurt/main AI. In particular, a retained Plasma
+                // hit must publish Phantoon's hurt clock before this frame ticks it.
+                if (slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
+                    samusProjectiles is not null && sharedProjectiles is not null)
+                    ResolvePhantoonProjectileHits(_bus!, samusProjectiles, sharedProjectiles);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
                 if (sharedProjectiles is not null && samusProjectiles is not null)

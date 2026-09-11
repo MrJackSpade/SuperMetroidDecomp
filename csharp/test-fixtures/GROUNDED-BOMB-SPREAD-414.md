@@ -1,4 +1,8 @@
-# Grounded Bomb Spread admission/free-flight audit (#414, partial)
+# Grounded Bomb Spread parity audit (#414)
+
+Current status: ready for player validation. The chronological sections below
+record partial stages; the final section closes their remaining grounded-technique
+coverage. Aerial setup windows and Mockball charge carrying remain separate issues.
 
 Reference: https://wiki.supermetroid.run/Bomb_Spread . The technique description
 is a lead; expectations below come from the pinned cartridge tables and bank-$90
@@ -122,3 +126,61 @@ Remaining #414 completion work: native/full-production jump-to-unmorph charge
 retention and its adjacent failure cases. Wall/slope collision trajectories can
 extend the flat-floor coverage but are not established by this trace. Keep #414
 open rather than marking the complete technique ready from this partial fix.
+
+## Runtime unmorph completion and second reproduced fix
+
+`Program.GroundedSpreadTransition.cs` now earns beam charge through real
+`SuperMetroidRuntime.StepFrame` calls; neither charge nor Morph Ball pose is
+injected midway through the sequence. It loads Landing Site, replaces only a
+local 16-by-12-block clearing with air above a flat solid floor at Y=512, then
+starts standing at (512,490) with zero initial subpixels, Morph Ball/Bombs and
+Charge Beam. No host invincibility or infinite ammunition is enabled. Scenery/AI
+elsewhere in the loaded room is not used to establish technique outcomes.
+
+For each facing direction, hold Shoot for 70 frames, press Down to crouch,
+release Down on frame 75, repress it on 76, and retain Down+Shoot through frame
+99. Four variants on frame 100: add Jump; add Jump and release Down; add Jump
+and release Shoot; or keep Down+Shoot without Jump. Resume Down+Shoot through
+109, then hold Shoot through 119. No player save or recording is read or changed.
+
+The native probe executes the same 120 input frames per variant: full normal
+Samus alpha at $90:E695, projectile overlap, ordinary movement, animation,
+block-collision transition and pose-transition handlers. It deliberately omits
+room AI, HUD/minimap drawing, gamma, audio mixing and PPU presentation. Native
+terrain has the same local floor with a 64-block stride; C# uses Landing Site's
+stride. The compared movement has no enemy/RNG-dependent interaction. Both
+initial poses and subpixels, equipment, canonical bindings and liquid absence
+are explicitly set. This is a gameplay-logic comparison, not emulator video or
+whole-system timing validation.
+
+**Reproduced defect:** frame 101 entered falling pose $2D in C#, while native
+remained in unmorph $3D. Runtime polled the pose table during movement type $0F,
+but the real $91:8146 input handler is an RTS. Down selected a falling pose from
+an otherwise unreachable table. Suppress pose lookup for this native movement
+type, allowing animation/collision to select its endpoint. This is a dispatcher
+fix, not a Bomb Spread-specific delay or forced pose. The exact frame comparison
+failed before the fix and now all **960 frames** match input, pose, Y position,
+charge, hold counter and bomb count. Both charge-owner mirrors are asserted in
+the full runtime. Six unmorph frames finish at crouch, Y=496; charge survives
+when Down+Shoot stays held, while same-frame Down release spawns five bombs
+before unmorph and Shoot release clears charge without spawning.
+
+Native transition CSV SHA256 (two identical independent runs):
+`23E5DA31420E13E200A43F0BC2A7309E0E716AB8D7712D0CB92607CE73EC1F01`.
+Use `movement-release/native-grounded-transition-entrypoint.patch`, build native,
+and run `sm.exe --diagnostic-grounded-transition <ROM> <new-private-CSV>`.
+Compare with `SuperMetroid.Verification --grounded-spread-transition <CSV>`.
+Without the CSV argument, the same runtime fixture asserts the key per-frame
+boundaries and also runs in the standard suite. Remove the temporary native
+hooks and rebuild the normal executable after capturing, as with the spread probe.
+
+The admission probe additionally covers an already active Power Bomb, including
+after selecting normal bombs again: **48 cases** now cover empty/ordinary/Power
+Bomb occupancy. Their combined trajectory/overlap/admission trace SHA256 is
+`F25D81D511CADCCE50843E59526E688FE6FFC5F007A68215A83129D5E2B47A15`.
+The ordinary seed's cooldown expires; the Power Bomb seed retains its longer
+cooldown and active flag. Neither permits a spread. This completes the specific
+grounded technique requirements in #414 together with the prior 23,080 trajectory
+observations and 30 controlled overlap cases. Generic wall/slope projectile
+coverage is not claimed; aerial setup (#415) and Mockball carrying (#471) remain
+separate. Revision scope is the pinned NTSC ROM above, not PAL or modified ROMs.

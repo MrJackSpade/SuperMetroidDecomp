@@ -25,6 +25,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grounded-spread-transition"])
+{
+    VerifyGroundedSpreadTransition();
+    return 0;
+}
+if (args is ["--grounded-spread-transition", var transitionTrace])
+{
+    VerifyGroundedSpreadTransition(transitionTrace);
+    return 0;
+}
 if (args is ["--grounded-bomb-spread-native", var spreadTrace])
 {
     VerifyGroundedBombSpreadNative(spreadTrace);
@@ -614,6 +624,7 @@ VerifyCompactWalkOffCollision();
 VerifyPauseMomentumReconciliation();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
+VerifyGroundedSpreadTransition();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
 VerifySamusGunExtendedMovement();

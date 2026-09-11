@@ -1661,8 +1661,12 @@ public sealed partial class SuperMetroidRuntime
             bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
             bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
+            // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
+            // poses can still have table entries, but reading them here prematurely
+            // interrupts crouch/morph animations before their animation command wins.
+            bool postureTransitionSkipsPoseInput = movementTypeAtFrameStart == SamusMovementType.PostureTransition;
             SamusPoseTransitionLookup poseLookup =
-                deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput
+                deathOwnsSamus || xrayOwnsPoseInput || actorLocksPoseInput || postureTransitionSkipsPoseInput
                 ? default
                 : SamusPoseTransitionTable.Lookup(
                     _addressSpace,
@@ -3339,12 +3343,10 @@ public sealed partial class SuperMetroidRuntime
                                       SamusState.IsRightFacingFallingPose(target)) ||
                                      (source == SamusPoseIds.UnmorphingTransitionLeftPose &&
                                       SamusState.IsLeftFacingFallingPose(target)):
-                                // `$3D/$3E` still process controller table records until
-                                // animation command `$FD` chooses stable crouch. Falling out
-                                // of a tunnel can therefore interrupt the visible unmorph
-                                // with any same-facing type-six body. Route that complete
-                                // family through the ordinary expansion collision pass while
-                                // preserving the fall already in progress.
+                                // Route an animation/collision-selected falling body through
+                                // ordinary expansion collision while preserving the fall.
+                                // Posture transitions do not poll controller pose tables:
+                                // the type-$0F input handler returns before lookup.
                                 Samus.TryApplyUnmorphToFallingTransition(
                                     _addressSpace,
                                     LevelData ?? throw new InvalidOperationException(

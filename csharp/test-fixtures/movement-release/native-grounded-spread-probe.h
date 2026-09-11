@@ -55,7 +55,7 @@ int DiagnosticGroundedSpread(const char *rom, const char *output) {
   }
   fprintf(f, "admission,pb,occupied,down,fresh,held,charge,spread,count,ammo,type\n");
   for (int pb = 0; pb < 2; pb++)
-  for (int occupied = 0; occupied < 2; occupied++)
+  for (int occupied = 0; occupied < 3; occupied++)
   for (int down = 0; down < 2; down++)
   for (int fresh = 0; fresh < 2; fresh++)
   for (int held = 0; held < 2; held++) {
@@ -65,10 +65,11 @@ int DiagnosticGroundedSpread(const char *rom, const char *output) {
     samus_x_pos = samus_y_pos = 512; samus_pose = 0x1d;
     equipped_items = 0x1004; button_config_shoot_x = 0x40; game_state = 8;
     if (occupied) {
+      if (occupied == 2) { hud_item_index = 3; samus_power_bombs = 2; }
       joypad1_lastkeys = joypad1_newkeys = 0x40;
       RunAsmCode(0x90bf9d, 0, 0, 0, 0);
       RunAsmCode(0x90aece, 0, 0, 0, 0);
-      // Let the producer's cooldown expire without deleting the seeded bomb.
+      // Ordinary-bomb cooldown expires; Power Bomb cooldown remains active.
       joypad1_lastkeys = joypad1_newkeys = 0;
       for (int n = 0; n < 16; n++) {
         RunAsmCode(0x90ac1c, 0, 0, 0, 0);

@@ -103,7 +103,7 @@ internal static partial class Program
         AssertEqual("admission,pb,occupied,down,fresh,held,charge,spread,count,ammo,type", reader.ReadLine(), "native admission section");
         var level = new RoomLevelData(64, 64, new ushort[4096], new byte[4096], new ushort[4096], new byte[8]);
         foreach (int pb in new[] { 0, 1 })
-        foreach (int occupied in new[] { 0, 1 })
+        foreach (int occupied in new[] { 0, 1, 2 })
         foreach (int down in new[] { 0, 1 })
         foreach (int fresh in new[] { 0, 1 })
         foreach (int held in new[] { 0, 1 })
@@ -114,9 +114,10 @@ internal static partial class Program
             var bombs = new SamusBombProjectileSystem();
             if (occupied != 0)
             {
+                if (occupied == 2) { samus.SelectedHudItem = 3; samus.PowerBombs = 2; }
                 bombs.StepFrame(bus, level, samus, (ushort)SnesButton.X, (ushort)SnesButton.X);
                 for (int n = 0; n < 16; n++) bombs.StepFrame(bus, level, samus, 0, 0);
-                AssertEqual((ushort)1, bombs.BombCounter, "ordinary seed bomb survives cooldown");
+                AssertEqual((ushort)1, bombs.BombCounter, "seeded ordinary/Power Bomb remains active");
             }
             samus.PowerBombs = 2;
             samus.SelectedHudItem = (ushort)(pb != 0 ? 3 : 0);
@@ -132,6 +133,6 @@ internal static partial class Program
             AssertEqual(pb == 0 && occupied == 0 && held != 0 && down == 0, result.BombSpreadStarted,
                 "spread admission excludes selected Power Bombs and existing bombs regardless of new Shoot edge");
         }
-        Console.WriteLine("Retail CPU admission: Power Bomb selection, occupied slots, held/new Shoot and Down boundaries match (32 cases).");
+        Console.WriteLine("Retail CPU admission: Power Bomb selection, ordinary/Power Bomb occupied slots, held/new Shoot and Down boundaries match (48 cases).");
     }
 }

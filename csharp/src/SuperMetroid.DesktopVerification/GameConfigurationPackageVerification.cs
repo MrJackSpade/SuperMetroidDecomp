@@ -22,11 +22,11 @@ internal static class GameConfigurationPackageVerification
         Directory.CreateDirectory(root);
         try
         {
-            SuperMetroidGameOptions Load(string data, string defaults)
+            SuperMetroidGameOptions Load(string data, string defaults, bool local = false)
             {
                 Directory.CreateDirectory(data);
                 object result = load.Invoke(null, [Path.Combine(root, "fixture.smc"), data, defaults])!;
-                if ((string)config.GetProperty("Path")!.GetValue(result)! != Path.Combine(data, "SuperMetroid.ini"))
+                if ((string)config.GetProperty("Path")!.GetValue(result)! != Path.Combine(local ? defaults : data, "SuperMetroid.ini"))
                     throw new InvalidDataException("Published host selected the wrong player INI path.");
                 return (SuperMetroidGameOptions)config.GetProperty("Options")!.GetValue(result)!;
             }
@@ -56,6 +56,20 @@ internal static class GameConfigurationPackageVerification
                 throw new InvalidDataException("Invalid template created a broken active INI.");
             if (Load(Path.Combine(root, "embedded-player"), Path.Combine(root, "no-template")) != new SuperMetroidGameOptions())
                 throw new InvalidDataException("Embedded default fallback differs from the release defaults.");
+            string localPath = Path.Combine(customized, "SuperMetroid.ini");
+            File.WriteAllText(localPath, "[Diagnostics]\nReportErrorsToGitHub=true\n[Audio]\nMasterVolumePercent=23\n");
+            if (Load(data, customized, local: true) is not { ReportErrorsToGitHub: true, MasterVolumePercent: 23 } ||
+                File.ReadAllText(active) != edited)
+                throw new InvalidDataException("Executable-directory override did not win or changed AppData settings.");
+            File.WriteAllText(localPath, "[Invalid]\nBad=true");
+            rejected = false;
+            try { Load(data, customized, local: true); }
+            catch (TargetInvocationException error) when (error.InnerException is InvalidDataException) { rejected = true; }
+            if (!rejected) throw new InvalidDataException("Invalid local override silently fell back to AppData.");
+            File.Delete(localPath);
+            if (Load(data, customized).MasterVolumePercent != 17)
+                throw new InvalidDataException("Removing the local override did not restore AppData selection.");
+            Console.WriteLine("PASS executable INI precedence, reporting=true, untouched AppData, invalid override rejection and removal fallback.");
             Console.WriteLine("PASS published INI: shipped defaults, first-use edits, active edits, update preservation, invalid-template rejection and embedded fallback.");
         }
         finally { Directory.Delete(root, recursive: true); }

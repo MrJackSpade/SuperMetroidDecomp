@@ -18,12 +18,17 @@ pass one ROM path or set `SUPERMETROID_ROM`. Setup installs into
 `%LOCALAPPDATA%/SuperMetroid/`; later launches reuse that installation, so the original
 file no longer needs to be available. Setup errors leave the picker available to retry.
 
+An existing `SuperMetroid.ini` beside the executable takes precedence over the AppData
+copy (the executable directory, not the shell's working directory). This is a complete
+configuration override, not a merge. Removing it restores AppData settings; it never
+overwrites them. Startup prints the selected source and full path on separate lines.
+
 The Windows ZIP includes `SuperMetroid.defaults.ini` beside the executable, listing
 every supported setting and its default. On first use, the game copies this template
 to `%LOCALAPPDATA%/SuperMetroid/SuperMetroid.ini` if that active file does not exist.
 You may edit the template before first launch. Afterward, edit the active file and
 restart the game; the startup console prints its full path. Existing settings always
-take precedence. Replacing the application ZIP/template never resets player settings.
+take precedence over the defaults template. Replacing the application ZIP/template never resets player settings.
 Legacy/developer callers without an installation root use the INI beside their ROM.
 The template contains no developer cheats or enabled automatic GitHub reporting.
 

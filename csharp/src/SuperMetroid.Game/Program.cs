@@ -56,6 +56,8 @@ internal static class Program
             if (setup.ShowDialog() != DialogResult.OK || setup.Installation is not { } installation) return 0;
             string romPath = installation.RomPath;
             GameConfigurationFile configuration = GameConfigurationFile.LoadOrCreate(romPath, installation.Root);
+            Console.WriteLine($"Configuration source: {configuration.Source}");
+            Console.WriteLine($"Configuration file: {configuration.Path}");
             SuperMetroidGameOptions gameOptions;
             if (replay is null)
             {

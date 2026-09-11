@@ -92,6 +92,11 @@ public sealed partial class SuperMetroidRuntime
                 // crouch request to the new forward-facing, elevator-owned body.
                 ProspectiveSamusPose = null;
                 ProspectiveSamusFallbackPose = null;
+                // MakeSamusFaceForward ends by reloading the suit palette. The actor
+                // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
+                // Without this write, cancelling charge leaves its last flashing colors
+                // behind after the palette handler becomes inactive.
+                Samus!.LoadSuitPalette(_addressSpace, Cgram);
             }
             if (!TimeIsFrozen && Enemies.MotherBrain is { Head: { } rainbowHead } rainbowBrain)
                 rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,

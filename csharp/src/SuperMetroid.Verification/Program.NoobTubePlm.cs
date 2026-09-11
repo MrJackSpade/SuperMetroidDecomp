@@ -90,7 +90,7 @@ internal static partial class Program
             XPosition = blockX * 16 + 8,
             YPosition = blockY * 16 + 8,
         };
-        grappleSamus.Grapple.Phase = GrapplePhase.Firing;
+        SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,
             (ushort)SnesButton.X, plms);
         AssertTrue(grappleHit.CancelQueued, "solid resident trigger cancels the grapple endpoint");

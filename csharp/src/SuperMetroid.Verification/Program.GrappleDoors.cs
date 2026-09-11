@@ -34,7 +34,7 @@ internal static partial class Program
             };
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.
-            samus.Grapple.Phase = GrapplePhase.Firing;
+            SeedStationaryGrappleCollisionProbe(bus, samus);
             var plms = new RoomPlmSystem();
             var result = SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X, plms);
             AssertTrue(result.CancelQueued, $"grapple cancels on blue {orientation} cap {hitOffset}");
@@ -55,5 +55,13 @@ internal static partial class Program
                     "grapple-opened door clears every cap block after the retail animation");
         }
         Console.WriteLine("  Grapple blue doors: all four orientations and sixteen cap/extension hits open with native timing and sound.");
+    }
+
+    /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
+    private static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
+    {
+        samus.Pose = SamusPoseIds.FacingRightNormalPose;
+        samus.Grapple.Phase = GrapplePhase.Firing;
+        samus.Grapple.FireDirection = samus.ReadShotDirection(bus);
     }
 }

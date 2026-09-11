@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusGrappleState) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");
+            return current.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField").ToArray();
+        }
         if (type.FullName == "SuperMetroid.Core.Frontend.IntroCinematicObjectSystem" && count == current.Length - 1)
         {
             Console.Error.WriteLine("WARNING: Legacy intro state has no text-glow history; existing glyph ages cannot be recovered. Newly drawn glyphs start native glow normally.");

@@ -132,7 +132,7 @@ internal static partial class Program
         var grappleSamus = new SamusState();
         grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.WidthInBlocks) * 16 + 8);
         grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.WidthInBlocks) * 16 + 8);
-        grappleSamus.Grapple.Phase = GrapplePhase.Firing;
+        SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
             (ushort)SnesButton.X, orb.Plms);
         AssertTrue(orbHit.CancelQueued, "grapple collides with the solid Chozo orb");

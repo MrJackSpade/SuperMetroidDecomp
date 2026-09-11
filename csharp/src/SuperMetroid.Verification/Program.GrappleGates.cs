@@ -38,7 +38,7 @@ internal static partial class Program
                 oam.BeginFrame();
                 if (frame == 2)
                 {
-                    samus.Grapple.Phase = GrapplePhase.Firing;
+                    SeedStationaryGrappleCollisionProbe(bus, samus);
                     var result = SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X, plms);
                     AssertTrue(result.CancelQueued, "green gate rejects grapple attachment");
                 }

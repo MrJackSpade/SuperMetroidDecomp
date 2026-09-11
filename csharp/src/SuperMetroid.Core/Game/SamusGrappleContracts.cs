@@ -75,6 +75,8 @@ public sealed class SamusGrappleState
     public ushort RopeLength { get; set; }
     public short RopeLengthDelta { get; set; }
     public byte FireDirection { get; set; }
+    /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
+    public ushort PoseChangeAutoFireTimer { get; set; }
     public short ExtensionXVelocity { get; set; }
     public short ExtensionYVelocity { get; set; }
     public short OriginXOffset { get; set; }

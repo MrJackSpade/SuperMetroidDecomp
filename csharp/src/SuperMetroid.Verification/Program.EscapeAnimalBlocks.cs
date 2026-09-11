@@ -25,7 +25,7 @@ internal static partial class Program
         for (int y = 10; y <= 12; y++)
         {
             var samus = new SamusState { XPosition = 248, YPosition = (ushort)(y * 16 + 8) };
-            samus.Grapple.Phase = GrapplePhase.Firing;
+            SeedStationaryGrappleCollisionProbe(bus, samus);
             int before = plms.ActiveCount;
             var reaction = SamusGrappleMovement.StepFiring(bus, level, samus,
                 (ushort)SuperMetroid.Core.Input.SnesButton.X, plms);

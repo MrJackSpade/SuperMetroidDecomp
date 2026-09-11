@@ -11,6 +11,8 @@ public static class SamusGrappleRomData
     /// <summary>Exact sound queue commands issued by bank-$9B grapple functions.</summary>
     public static class Sounds
     {
+        /// <summary>$9B:B8AA: QueueSfx1_Max6(7), stop the old beam before pose-change refiring.</summary>
+        public static readonly SamusSoundRequest RestartStop = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 7), 6);
         /// <summary>$9B:C51E firing tail: QueueSfx1_Max1(5), start the extending beam.</summary>
         public static readonly SamusSoundRequest Fire = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 5), 1);
         /// <summary>$9B:C703 accepted-contact tail: QueueSfx1_Max6(6), attached beam sound.</summary>
@@ -53,6 +55,10 @@ public static class SamusGrappleRomData
     /// <summary>Direction-indexed firing velocity, origin, and flare tables.</summary>
     public static class Firing
     {
+        /// <summary>$9B:B8B8, CancelGrappleBeamIfInIncompatiblePose.poses: byte cancellation flags indexed by movement type.</summary>
+        public const int BannedMovementTypes = 0x9bb8b8;
+        /// <summary>$9B:C51E initializes GrappleBeam_PoseChangeAutoFireTimer to ten; $C490 decrements before checking the pose.</summary>
+        public const ushort PoseChangeAutoFireFrames = 10;
         /// <summary>$9B:C51E uses a six-pixel graphics Y offset for moving Draygon-held poses.</summary>
         public const sbyte DraygonMovingGraphicsYOffset = 6;
         /// <summary>Initial X velocities for ten shot directions.</summary>

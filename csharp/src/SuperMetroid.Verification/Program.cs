@@ -388,7 +388,8 @@ if (args is ["--grapple-sounds"])
 }
 if (args is ["--grapple-doors"])
 {
-    VerifyGrappleBlueDoors();
+        VerifyGrappleBlueDoors();
+        VerifyGrapplePoseRefire();
     return 0;
 }
 if (args is ["--phantoon-position"])

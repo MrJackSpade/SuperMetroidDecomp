@@ -78,6 +78,7 @@ public static partial class SamusGrappleMovement
         int tableOffset = direction * 2;
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = direction;
+        grapple.PoseChangeAutoFireTimer = SamusGrappleRomData.Firing.PoseChangeAutoFireFrames;
         grapple.ExtensionXVelocity = unchecked((short)ReadWord(
             bus,
             SamusGrappleRomData.Firing.XVelocities + tableOffset));
@@ -263,6 +264,9 @@ public static partial class SamusGrappleMovement
         SamusGrappleState grapple = samus.Grapple;
         if (grapple.Phase != GrapplePhase.Firing)
             throw new InvalidOperationException("Grapple firing is not active.");
+
+        if (HandleFiringPoseChange(bus, level, samus, controllerInput) is { } poseChange)
+            return poseChange;
 
         // The common pose-command tail clamps the camera's previous-position words after
         // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body

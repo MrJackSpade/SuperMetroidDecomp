@@ -177,6 +177,7 @@ public static partial class SamusGrappleMovement
         }
 
         grapple.Phase = GrapplePhase.Inactive;
+        grapple.PoseChangeAutoFireTimer = 0;
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
         grapple.ExtensionXVelocity = 0;

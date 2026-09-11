@@ -279,3 +279,39 @@ zero-step replacement of an immutable retained render packet is claimed.
 This completes the already-displayed runtime HUD refresh gap above. Historical
 full-session fixtures, palette/placement resources and installer/device checks
 remain separate work; this is not completion of #282.
+
+## Editable map highlight palette cycle
+
+Catalog version 5 adds `map-highlight-cycle.json`. Copy it from `game/maps` to
+`overrides/maps` to edit the pause/file-select highlight animation. The document
+has `version: 1` and a `frames` array; each frame contains `durationTicks` and
+exactly sixteen `colors`, each an object with `red`, `green`, `blue` components
+from 0 to 31. Durations are 1-254 menu ticks, with 1-255 frames supported. These
+limits reject native sentinel encodings rather than exposing a bytecode editor.
+The native stock cycle has fourteen frames. JSON colors, not PNG preview colors,
+control this animation. Other static map/menu palettes are not yet editable.
+
+The importer decodes `$82:C10C` timing and `$82:A987` colors. Installed pause and
+file-select animation reads the immutable catalog instead of those ROM ranges.
+The palette destination, sprite binding, increment-before-read sequence and sound
+queue routing stay compiled. Changing cycle length/durations changes cosmetic
+timing and when the existing loop sound is requested, not the sound ID or engine
+behavior. Binding after state restore preserves the pending timer; a shortened
+cycle wraps to zero at the next frame boundary. Content remains nonserialized.
+
+The file-select visible-edit test initially failed: arrows were bound to the
+station marker's static OBJ palette seven, so the animated palette never colored
+them. `DrawPauseScreenSpriteAnim` in the pinned C and ASM uses
+`SpritePalette_IndexValues[3]` (`$82:C100`, value `$0600`). File-select arrows now
+use the compiled palette-three identity, independently of station markers. Tests
+compare every generated arrow OAM palette against that cartridge word and verify
+edited colors visibly reach the actual file-select menu.
+
+Verification covers 600 ticks of exact all-CGRAM parity and native loop-request
+timing; exact pause pixels across a complete stock cycle; visible edits after
+pause snapshot restore; file-select visible edits with unchanged navigation phase;
+stock rebind timing/pixels; shorter cycles and changed durations; reload and stock
+re-extraction preservation; malformed schemas, invalid durations/RGB and corrupt
+overrides. Existing full file-select navigation tests now forbid the palette ROM
+ranges too. This is not native emulator framebuffer comparison, device validation
+or completion of static palette and visual placement extraction.

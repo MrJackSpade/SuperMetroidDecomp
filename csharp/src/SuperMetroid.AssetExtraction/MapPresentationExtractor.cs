@@ -56,6 +56,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, HudTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(hudBytes);
         hashes.Add(HudTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(hudBytes)));
+        byte[] cycleBytes = MapPaletteCycleExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, MapPaletteCycleFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(cycleBytes);
+        hashes.Add(MapPaletteCycleFormat.FileName, Convert.ToHexString(SHA256.HashData(cycleBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

@@ -13,4 +13,10 @@ public static class MapAnimationRomData
     public const int PaletteColors = 0x82a987;
     /// <summary>$82:A92B replaces colors 176 through 191, including color zero.</summary>
     public const int PaletteDestination = 176;
+    /// <summary>$82:C10C contains fourteen three-byte highlight records before the loop sentinel.</summary>
+    public const int PaletteFrameCount = 14;
+    /// <summary>Native highlight record: duration, sprite-frame index, and spritemap ID.</summary>
+    public const int PaletteTimingStride = 3;
+    /// <summary>$82:C100, SpritePalette_IndexValues[3], used by DrawPauseScreenSpriteAnim for highlights and map arrows.</summary>
+    public const int AnimatedSpritePalette = 0x82c100;
 }

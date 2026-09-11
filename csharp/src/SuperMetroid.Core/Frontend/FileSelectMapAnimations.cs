@@ -28,6 +28,7 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
     public void ResetPalette() => palette.Reset();
+    internal void BindPalette(SuperMetroid.Core.Assets.MapPaletteCycle? cycle) => palette.Bind(cycle);
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
     public bool StepPalette(SnesCgram cgram) => palette.Step(cgram);
@@ -63,7 +64,7 @@ public sealed class FileSelectMapAnimations
             if (!arrow.Visible) continue;
             ushort pointer = Read(MenuPpuState.SpritemapPointerTableAddress + arrow.Spritemap * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
-                arrow.X, arrow.Y, FileSelectMapRomData.StationMarkerPalette);
+                arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits);
         }
     }
 

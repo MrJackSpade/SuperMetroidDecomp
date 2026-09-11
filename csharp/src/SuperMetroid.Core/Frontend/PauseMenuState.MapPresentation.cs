@@ -7,6 +7,7 @@ internal sealed partial class PauseMenuState
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog;
+        paletteAnimation.Bind(catalog?.HighlightCycle);
         if (catalog is not null) catalog.Tiles.LoadTo(vram, 0);
         else vram.LoadBytes(0, SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
             MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));

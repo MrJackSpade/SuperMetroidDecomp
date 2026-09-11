@@ -137,6 +137,7 @@ internal static partial class Program
         VerifyBundledMapMaskValidation(repaired);
         VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray());
         VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original, rules.Values.ToArray());
+        VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray());
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
@@ -214,6 +215,11 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
+            if ((address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming &&
+                address <= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTimingStride) ||
+                (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors &&
+                address < SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * MapPaletteCycleFormat.ColorCount * 2))
+                throw new InvalidOperationException($"Live presentation read map palette-cycle ROM at {address:X6}.");
             if (address >= HudTileAtlasFormat.SourceAddress && address < HudTileAtlasFormat.SourceAddress + HudTileAtlasFormat.TransferByteCount)
                 throw new InvalidOperationException($"Live presentation read HUD atlas ROM at {address:X6}.");
             if (address >= MapTileAtlasFormat.SourceAddress && address < MapTileAtlasFormat.SourceAddress + MapTileAtlasFormat.ByteCount)

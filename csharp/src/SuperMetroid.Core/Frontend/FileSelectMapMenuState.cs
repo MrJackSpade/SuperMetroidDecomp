@@ -64,6 +64,7 @@ public sealed partial class FileSelectMapMenuState
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         animations = new FileSelectMapAnimations(bus);
+        animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(bus);
     }
 
@@ -75,6 +76,7 @@ public sealed partial class FileSelectMapMenuState
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog;
+        animations.BindPalette(catalog?.HighlightCycle);
         roomGraphics.BindMapPresentation(catalog);
     }
 

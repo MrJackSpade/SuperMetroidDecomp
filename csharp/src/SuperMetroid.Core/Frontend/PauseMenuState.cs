@@ -69,6 +69,7 @@ internal sealed partial class PauseMenuState
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
         paletteAnimation = new MapPaletteAnimation(bus);
+        paletteAnimation.Bind(mapPresentation?.HighlightCycle);
         area = areaIndex;
         _ = AreaIds.ToIndex(areaIndex);
         this.roomMapX = roomMapX;

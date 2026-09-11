@@ -2,6 +2,7 @@
 // This isolates drawing, not camera movement, IRQ timing or scene composition.
 #include "native-bounded-cpu.h"
 #include "snes/ppu.h"
+#include "native-spin-door-probe.h"
 int DiagnosticElevatorDraw(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
@@ -102,4 +103,24 @@ int DiagnosticElevatorPpu(const char *rom, const char *input, const char *output
   printf("Independent PPU experiment %d top-edge palette differences: %d\n", experiment, count);
   }
   fclose(f); free(images); return 0;
+}
+
+// Execute the cartridge's Green Brinstar destination header and asset loader,
+// independently of managed room expansion. Report only diagnostic hashes.
+int DiagnosticElevatorRoomAssets(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false;
+  door_def_ptr = 0x8ca6; samus_x_pos = 128; samus_y_pos = 16;
+  samus_health = samus_max_health = 99;
+  collected_items = equipped_items = 4; samus_missiles = 5;
+  reg_NMITIMEN = 0x30; fx_y_pos = lava_acid_y_pos = 0xffff;
+  SpinDoorRun(0x82de12); // Load destination room/header.
+  SpinDoorRun(0x82e36e); // Decompress and install room graphics/level data.
+  uint32 hash = 2166136261u;
+  uint8 *tile = (uint8 *)g_snes->ppu->vram + 0x338 * 32;
+  for (int b = 0; b < 32; b++) hash = (hash ^ tile[b]) * 16777619u;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "block55,tile0338hash\n%04X,%08X\n", level_data[55], hash);
+  fclose(f); return 0;
 }

@@ -131,6 +131,7 @@ internal static class ElevatorTopEdgeAudit
                                 if (firstWitness)
                                 {
                                     ElevatorPpuWitness.Write(Path.Combine(directory, "local-ppu-witness.bin"), packet);
+                                    ElevatorPpuWitness.InspectTerrain(runtime, packet, pixel % 256, pixel / 256);
                                     // Find the actual OAM owner instead of assuming that
                                     // every use of palette four belongs to Samus.
                                     for (int sprite = 0; sprite < packet.Memory.ModeledSpriteCount; sprite++)

@@ -204,3 +204,25 @@ including (116,32), with either BG-sampling control. Thus the verified composito
 fix does not establish resolution of that second room's artifact. Its prior
 room loading/streaming and full native sequence still need comparison. Keep
 #516 open without claiming all upward elevators are ready for validation.
+
+## Green Brinstar foreground witness checked against cartridge loading
+
+The first failing position is output (116,32), world (116,51) under the
+displayed camera. Logical foreground block 55 contains `$00FF`. Its expanded
+tile is `$0338`, and the live ring entry at VRAM word `$50CE` is also `$0338`.
+The audit now checks this correspondence explicitly and fails if the live
+tilemap differs from the room's current block definition.
+
+The headless probe's `--diagnostic-elevator-assets ROM OUTPUT.csv` command
+independently executes the original destination header loader `$82:DE12` and
+room asset loader `$82:E36E` for door `$83:8CA6`. The original decompressed block
+55 is also `$00FF`; native tile `$0338` and the captured managed tile both have
+FNV-1a hash `0B2AE445` across their 32 graphics bytes. The native probe reports
+only the block identifier and hash, not copyrighted graphic bytes.
+
+This rules out a wrong foreground block/ring entry/character at the first
+Green Brinstar witness. It does not prove full original door IRQ timing, actor
+scheduling, or every pixel in the second failing frame. The 36-difference scene
+assertion remains failing and the issue stays open. No speculative production
+change was made; the Release build and terrain correspondence assertion pass.
+The native patch was reversed, and captures/output CSV remain local.

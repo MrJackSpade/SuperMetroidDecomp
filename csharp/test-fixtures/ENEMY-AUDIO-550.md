@@ -59,3 +59,22 @@ remaining corpus failure is not a newly introduced regression.
 Do not mark #550 resolved on these results. Further work must examine transition
 predictor history and extracted loop representation, compare complete PCM rather
 than merely moving the first failure, and establish the actual reported encounter.
+
+## Complete comparison after the live-source correction
+
+`--sound-native-audio-survey AUDIO_DIRECTORY NATIVE_DLL LIBRARY SOUND_HEX`
+continues through the complete 180-frame standalone sequence instead of stopping
+at its first PCM difference. It still checks every port acknowledgement and returns
+failure if any PCM differs; it does not turn the known failure into a passing test.
+
+For library two/$2F, only frame 21 differs: 166 interleaved stereo sample values,
+maximum absolute delta 55, whole-run RMS delta 0.4703, managed peak 4015. The other
+179 frames match exactly. All acknowledgements match. Control library one/$0B has
+zero differing samples, maximum and RMS delta zero, and peak 8048.
+
+This localizes the remaining mismatch to a brief release transition, not the whole
+attack sound. These measurements alone cannot establish perceptual audibility or
+identify the player's enemy. The unfolded WAV loop encodes a particular predictor
+history; switching to another source can supply a different history in the native
+decoder. This is the next sample-representation seam to test, not yet a proven
+complete explanation or an excuse to accept approximate parity.

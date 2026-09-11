@@ -40,6 +40,8 @@ internal static class NativeAudioCorpusAudit
             {
                 byte port = checked((byte)(SoundEffectLibraries.ToQueueIndex(sound.Library) + 1));
                 int audiblePeak = 0;
+                int differingSamples = 0, firstDifferenceFrame = -1, lastDifferenceFrame = -1, maximumDifference = 0;
+                long squaredDifference = 0;
                 Scenario($"standalone-{sound}", 180, frame => frame switch
                 {
                     0 => [U(AudioUploadAddresses.SpcEngine), W(port, sound.Value)],
@@ -49,12 +51,27 @@ internal static class NativeAudioCorpusAudit
                 {
                     // Supplying an observer replaces Scenario's default PCM assertion.
                     // Keep exact equality here as well as the non-silence coverage check.
-                    if (!actual.AsSpan().SequenceEqual(expected))
+                    if (!survey && !actual.AsSpan().SequenceEqual(expected))
                         throw new InvalidDataException($"{sound} PCM differs from native translation at frame {frame}.");
+                    for (int index = 0; index < actual.Length; index++)
+                    {
+                        int difference = Math.Abs((int)actual[index] - expected[index]);
+                        if (difference == 0) continue;
+                        differingSamples++;
+                        if (firstDifferenceFrame < 0) firstDifferenceFrame = frame;
+                        lastDifferenceFrame = frame;
+                        maximumDifference = Math.Max(maximumDifference, difference);
+                        squaredDifference += (long)difference * difference;
+                    }
                     audiblePeak = Math.Max(audiblePeak, actual.Max(sample => Math.Abs((int)sample)));
                 });
                 if (audiblePeak == 0)
                     throw new InvalidDataException($"Standalone {sound} produced no audible PCM.");
+                if (survey)
+                {
+                    Console.WriteLine($"{sound}: {differingSamples} differing stereo samples across frames {firstDifferenceFrame}..{lastDifferenceFrame}; maximum delta={maximumDifference}, whole-run RMS delta={Math.Sqrt(squaredDifference / (180.0 * 1600)):F4}, managed peak={audiblePeak}. All port acknowledgements match. This measures PCM differences, not perceptual audibility or gameplay triggering.");
+                    return differingSamples == 0 ? 0 : 1;
+                }
                 Console.WriteLine($"{sound}: 180 PCM/acknowledgement frames match native translation; peak={audiblePeak}. This does not verify endpoint playback or gameplay triggering.");
                 return 0;
             }
@@ -283,7 +300,7 @@ internal static class NativeAudioCorpusAudit
                         mutedImpactControl.GenerateFrame(mutedImpactPcm!);
                         impactChangedPcm |= !actual.AsSpan().SequenceEqual(mutedImpactPcm);
                     }
-                    if ((observePcm is null || soundOnly is not null) && !actual.AsSpan().SequenceEqual(nativeHost))
+                    if ((observePcm is null || (soundOnly is not null && !survey)) && !actual.AsSpan().SequenceEqual(nativeHost))
                     {
                         foreach (string recent in recentCommands) Console.WriteLine(recent);
                         for (int index = 0; index < writeCount(native); index++)

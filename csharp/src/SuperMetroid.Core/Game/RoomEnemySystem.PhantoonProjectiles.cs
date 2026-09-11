@@ -73,9 +73,8 @@ public sealed partial class RoomEnemySystem
                 break;
 
             case 2:
-                // Japan/USA uses +/-3; the PAL branch uses +/-2. This project targets the
-                // retail Japan/USA cartridge identified by the ROM audit.
-                flame.XVelocity = index >= 8 ? unchecked((ushort)-3) : (ushort)3;
+                flame.XVelocity = unchecked((ushort)(index >= 8
+                    ? -PhantoonFlameMotionRomData.RageAngleStep : PhantoonFlameMotionRomData.RageAngleStep));
                 flame.Variable0 = _bus!.ReadByte(
                     EnemyRomTablePointers.Phantoon.FlameAngleBytes + index);
                 flame.XPosition = body.XPosition;
@@ -235,7 +234,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + 5));
+        flame.YVelocity = unchecked((ushort)(flame.YVelocity + PhantoonFlameMotionRomData.RageRadiusStep));
         flame.Variable0 = unchecked((byte)(flame.Variable0 + (byte)flame.XVelocity));
         PositionPhantoonFlameAroundBody(
             flame,
@@ -272,8 +271,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        flame.YVelocity = unchecked((ushort)(flame.YVelocity + 3));
-        flame.Variable0 = unchecked((byte)(flame.Variable0 + 3));
+        flame.YVelocity = unchecked((ushort)(flame.YVelocity + PhantoonFlameMotionRomData.SpiralRadiusStep));
+        flame.Variable0 = unchecked((byte)(flame.Variable0 + PhantoonFlameMotionRomData.SpiralAngleStep));
         PositionPhantoonFlameAroundBody(
             flame,
             state.Body,

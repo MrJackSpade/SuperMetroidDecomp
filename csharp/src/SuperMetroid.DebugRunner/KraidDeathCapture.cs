@@ -3,6 +3,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// Captures the actual runtime-rendered defeat and independent arm state for #520.
@@ -14,6 +15,7 @@ internal sealed class KraidDeathCapture : IDisposable
     private readonly string _directory;
     private readonly StreamWriter _trace;
     private ushort? _lastPhase;
+    private Rgba32[]? _floorBefore;
 
     public KraidDeathCapture(string directory)
     {
@@ -39,6 +41,32 @@ internal sealed class KraidDeathCapture : IDisposable
         _lastPhase = body.VariableA;
         if (frame == -1 || runtime.Enemies.Kraid?.DeathSequenceComplete == true)
         {
+            var ppu = runtime.DisplayedGameplayPpu;
+            var bg1 = SnesBgTilemapRenderer.Render4BppViewport(runtime.Vram, runtime.Cgram,
+                    SnesPpuLayout.GameplayBg1TilemapWord, 0,
+                    ppu.Bg1HorizontalScroll, ppu.Bg1VerticalScroll,
+                    FrontendFrame.Width, FrontendFrame.Height);
+            PngWriter.WriteRgba(Path.Combine(_directory, $"bg1-{frame + 1:D4}.png"),
+                FrontendFrame.Width, FrontendFrame.Height, bg1);
+            // This rectangle is the visible part of the hazard row only in the
+            // bottom-left observer. Do not silently apply it to the arm viewport.
+            if (camera.XPosition == 0 && camera.YPosition == 256)
+            {
+                if (frame == -1) _floorBefore = bg1;
+                else if (_floorBefore is not null)
+                {
+                    int same = 0, total = 0;
+                    for (int y = 176; y < 192; y++)
+                    for (int x = 80; x < 256; x++)
+                    {
+                        int pixel = y * FrontendFrame.Width + x;
+                        if (bg1[pixel] == _floorBefore[pixel]) same++;
+                        total++;
+                    }
+                    Console.WriteLine($"Live spike-strip pixels unchanged after death: {same}/{total} (diagnostic, not expected cartridge behavior).");
+                }
+            }
+            Console.WriteLine($"Kraid floor frame={frame}: camera=({camera.XPosition},{camera.YPosition}), BG1 scroll=({ppu.Bg1HorizontalScroll},{ppu.Bg1VerticalScroll}).");
             var level = runtime.LevelData ?? throw new InvalidDataException("Floor capture requires level data.");
             using var hazards = new StreamWriter(Path.Combine(_directory, $"hazards-{frame + 1:D4}.csv"));
             hazards.WriteLine("x,y,levelword,bts");
@@ -47,7 +75,11 @@ internal sealed class KraidDeathCapture : IDisposable
             {
                 var block = level.GetCollisionBlock(x, y);
                 if (block.CollisionType is RoomCollisionType.SpikeAir or RoomCollisionType.SpikeBlock)
+                {
                     hazards.WriteLine($"{x},{y},{block.LevelWord:X4},{block.Behavior:X2}");
+                    if (x == 5 && y == 27)
+                        Console.WriteLine($"Spike block expands to {LevelBlockTilemapExpander.Expand(block.LevelWord, level.BlockDefinitions.Span)}");
+                }
             }
         }
     }

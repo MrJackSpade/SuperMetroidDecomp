@@ -52,3 +52,27 @@ or mark the issue awaiting validation from these captures.
 Verification: floor capture completes the death sequence, publishes both hazard
 snapshots, and keeps the existing reload and encounter checks. No ROM, images,
 state fixtures or generated traces are included in the public commit.
+
+## Observer correction and visible reproduction
+
+The earlier bottom capture was invalid because moving Samus directly to (48,480)
+could move the camera across multiple tilemap rows in one frame. Waiting afterward
+did not refill those skipped rows. The observer now approaches its target one pixel
+per frame before settling; no production camera or renderer code was changed.
+
+`csharp/test-temp/kraid-floor-269-visible` is the corrected capture. At camera and
+BG1 scroll (0,256), the isolated BG1 images show the spikes at screen x=80..255,
+y=176..191 before and after death. All 2816 pixels in that region are unchanged.
+The composed `death-0357-C843.png` also visibly retains the spike strip. The hazard
+snapshot still contains all 22 blocks. This now reproduces the current port's
+visible persistence, rather than merely its collision data.
+
+The capture emits isolated BG1 images and logs scroll positions and the sampled
+block's four character words. The floor block expands to $17A0/$17A1/$17B0/$17B1;
+the Kraid room-background character upload alone does not establish its removal.
+The native removal path and timing still require independent confirmation. No
+production spike-clear call has been added speculatively.
+
+The one-pixel observer approach also applies to the upper-body capture option;
+older captures with different observer histories must not be treated as equivalent
+frame-zero fixtures without checking their input/body trajectory.

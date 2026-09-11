@@ -866,11 +866,20 @@ internal static class KraidAudit
             // The old handoff-only fixture can finish with its observer above the boss.
             // Place an input-locked observer beside the upper body. This is a diagnostic
             // viewpoint, not a controller-route claim; the enemy/death/render loop is live.
-            samus.XPosition = (ushort)(observeFloor ? 48 : 256);
-            samus.YPosition = (ushort)(observeFloor ? 480 : 256);
             samus.InputLocked = true;
-            // Let ordinary scrolling stream each crossed row; directly teleporting the
-            // camera leaves stale ring-buffer tiles and invalidates a visual comparison.
+            // Moving the observer in one large jump can itself make the camera cross
+            // several ring-buffer rows in one frame. Waiting afterward does not repair
+            // skipped rows. Advance the observer one pixel per frame instead.
+            int observerX = samus.XPosition, observerY = samus.YPosition;
+            int targetX = observeFloor ? 48 : 256, targetY = observeFloor ? 480 : 256;
+            while (observerX != targetX || observerY != targetY)
+            {
+                observerX += Math.Sign(targetX - observerX);
+                observerY += Math.Sign(targetY - observerY);
+                samus.XPosition = (ushort)observerX;
+                samus.YPosition = (ushort)observerY;
+                runtime.StepFrame(0);
+            }
             for (int settle = 0; settle < 120; settle++)
                 runtime.StepFrame(0);
         }

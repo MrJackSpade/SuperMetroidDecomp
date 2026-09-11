@@ -41,6 +41,19 @@ internal static class YardQuakeNativeAudit
             {
                 enemies.EarthquakeTimer = frame != 0 ? (ushort)0 : (ushort)(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration - (control == 1 ? 1 : 0));
                 enemies.EarthquakeType = control == 2 ? CrawlerQuakeAuditData.HorizontalQuakeControl : SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType;
+                if (frame == 0)
+                {
+                    // A0's enemy dispatcher and earthquake consumer both stop
+                    // during frozen game time. On resume the pending event must
+                    // still produce the same original-CPU trace below.
+                    var before = Snapshot();
+                    for (int frozenFrame = 0; frozenFrame < 5; frozenFrame++)
+                    {
+                        enemies.StepFrame(0, 0, true, samus, level: level);
+                        if (Snapshot() != before)
+                            throw new InvalidDataException("Frozen game time advanced Yard motion or consumed its earthquake.");
+                    }
+                }
                 enemies.StepFrame(0, 0, false, samus, level: level);
                 string actual = $"{behavior},{control},{facing},{frame},{state.Behavior:X4},{(ushort)state.MovementFunction:X4}," +
                     $"{actor.XPosition:X4},{actor.XSubposition:X4},{actor.YPosition:X4},{actor.YSubposition:X4}," +
@@ -48,8 +61,10 @@ internal static class YardQuakeNativeAudit
                 if (actual != rows[row]) throw new InvalidDataException($"Yard CPU mismatch row {row}: expected {rows[row]}, actual {actual}.");
                 row++;
             }
+            string Snapshot() => $"{state.Behavior},{state.MovementFunction},{actor.XPosition},{actor.XSubposition},{actor.YPosition},{actor.YSubposition}," +
+                $"{state.AirborneXVelocity},{state.AirborneXSubvelocity},{state.AirborneYVelocity},{state.AirborneYSubvelocity},{actor.CurrentInstruction},{state.HidingInstructionList},{enemies.EarthquakeTimer},{enemies.EarthquakeType}";
         }
-        Console.WriteLine("Yard quake original CPU: 36 setups / 288 frames match eligibility, ignored airborne retriggers, selected lists and exact trajectories.");
+        Console.WriteLine("Yard quake original CPU: 36 setups / 288 frames match eligibility, ignored airborne retriggers, selected lists and exact trajectories; 180 frozen-time frames preserve the pending response.");
         return 0;
     }
 }

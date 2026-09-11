@@ -1,7 +1,9 @@
 # Super Missile enemy detachment (#563)
 
-Affected reported version: 0.1.1. Status: shared crawler omission fixed;
-broader native/projectile integration investigation still open, not awaiting validation.
+Affected reported version: 0.1.1. Status: shared crawler omission fixed and
+representative native/projectile checks complete; awaiting player validation.
+The sections below preserve the sequence of findings; the final section records
+the current acceptance result rather than the earlier partial-work status.
 
 ## Cartridge trigger and omission
 
@@ -163,3 +165,30 @@ Accepted CSV SHA256:
 Generated traces remain private in ignored test-temp. Remaining acceptance work
 includes the Yard projectile-to-AI handoff and time-freeze suppression; do not
 interpret this isolated comparison as completion of those integration checks.
+
+## Final integration and acceptance
+
+`--missile-yard-detach-audit ROM` executes controller firing, projectile movement,
+remote wall impact, and Yard AI together. The normal Missile impacts at frame 19
+without detachment; the Super Missile impacts and detaches Yard at frame 11.
+Every position/subposition across both 25-frame runs is asserted. Yard immediately
+executes its newly selected airborne owner (zero initial displacement, then one
+eighth-pixel acceleration), unlike the shared crawler's next-call handoff. Health
+and X remain unchanged, excluding a direct hit or kick as an alternate trigger.
+This controlled fixture disables animation-driven crawling to isolate the event.
+
+The Yard native-comparison test now also inserts five frozen-game-time frames
+before every setup (180 frames total). Position, velocity, behavior, lists and the
+pending quake remain unchanged. Resuming then matches all 288 original-CPU rows.
+Native A0 enemy dispatch suppresses normal AI/instructions in frozen game time;
+the earthquake consumer also stops. This is separate from the previously tested
+Ice-frozen Zoomer AI controls.
+
+The bank-A2..AD source scan identifies the shared crawler, HZoomer and Yard gates
+as the enemy detach consumers of type20/timer30. Representative original-CPU
+trajectories, all eight crawler wrappers' controller-to-impact routes, Yard's
+distinct handoff/state controls, regular-Missile controls and freeze controls now
+cover the request. This does not claim every room placement or every enemy should
+fall. The only diagnosed gameplay mismatch was the shared attached-crawler gates,
+fixed in 788cb9a2. Subsequent commits add verification, not alternate mechanics.
+Keep #563 open for player confirmation.

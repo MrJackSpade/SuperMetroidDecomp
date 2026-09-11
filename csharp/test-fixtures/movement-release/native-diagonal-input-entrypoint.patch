@@ -1,0 +1,46 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -81,15 +81,16 @@
+ static uint32 g_gamepad_modifiers;
+ static uint16 g_gamepad_last_cmd[kGamepadBtn_Count];
+ extern Snes *g_snes;
++static bool diagonal_headless;
+ 
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!diagonal_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+   fprintf(stderr, "Error: %s\n", error);
+   exit(1);
+ }
+ 
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!diagonal_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+   fprintf(stderr, "Warning: %s\n", error);
+ }
+ 
+@@ -313,6 +314,11 @@
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-diagonal-input") == 0) {
++    diagonal_headless = true;
++    extern int DiagnosticDiagonalInput(const char *, const char *);
++    return DiagnosticDiagonalInput(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -95,6 +95,8 @@
+ } StateRecorder;
+ 
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-diagonal-input-probe.h"
+ 
+ void StateRecorder_Init(StateRecorder *sr) {
+   ByteArray_Destroy(&sr->log);

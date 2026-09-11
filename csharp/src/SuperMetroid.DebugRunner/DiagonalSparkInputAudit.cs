@@ -1,10 +1,47 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
 /// <summary>Charge acquisition through launch, without seeding stored shine or a launch pose.</summary>
 internal static class DiagonalSparkInputAudit
 {
+    public static int CompareNative(string rom, string path)
+    {
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) !=
+            "782C3EAD92A3FD7D20F526FF7BD55A5FE31A522B2466C05135212727711A34CF")
+            throw new InvalidDataException("Use the accepted original-CPU diagonal input trace.");
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        int compared = 0;
+        foreach (var group in File.ReadLines(path).Skip(1).Select(line => line.Split(','))
+            .GroupBy(row => string.Join(',', row[..2])))
+        {
+            bool left = group.First()[0] == "1";
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
+            var samus = runtime.Samus!;
+            samus.XPosition = (ushort)(left ? 1200 : 128);
+            samus.YPosition = 235;
+            samus.Health = samus.MaxHealth = 999;
+            samus.EquippedItems = (ushort)SamusEquipmentFlags.SpeedBooster;
+            samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            samus.RefreshCollisionRadii(bus);
+            samus.InitializeAnimation(bus);
+            var audio = new CartridgeAudioState();
+            foreach (var row in group)
+            {
+                runtime.StepFrame(Convert.ToUInt16(row[3], 16), queueEchoSound: () =>
+                    audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.SpeedBoosterEcho, 6));
+                string actual = $"{samus.Pose:X4},{samus.HorizontalSpeed.SpeedBoostCounter:X4},{samus.Shinespark.ShineTimer:X4},{samus.Shinespark.StartStopTimer:X4},{samus.XPosition:X4}{samus.Kinematics.XSubposition:X4},{samus.YPosition:X4}{samus.Kinematics.YSubposition:X4}";
+                if (actual != string.Join(',', row[4..]))
+                    throw new InvalidDataException($"Native diagonal {group.Key}, frame {row[2]}: expected {string.Join(',', row[4..])}; actual {actual}.");
+                compared++;
+            }
+        }
+        if (compared != 3578) throw new InvalidDataException("Incomplete diagonal input matrix.");
+        Console.WriteLine($"Native charge-to-diagonal: {compared} frame records match.");
+        return 0;
+    }
+
     public static int Run(string rom)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);

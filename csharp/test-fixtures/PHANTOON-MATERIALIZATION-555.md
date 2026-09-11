@@ -216,3 +216,30 @@ fade tail. The old opaque control still reproduces 1974 erased pixels.
 
 Final-death wave/mosaic composition and remaining full-sequence visual checks
 are still pending, so #555 is not yet awaiting player validation.
+
+## Final-death mosaic reproduction
+
+`--phantoon-death-visual-audit ROM LOCAL-OUTPUT-DIRECTORY` is a separate,
+currently failing diagnostic. It uses the corrected real-room setup, runs 1000
+ordinary frames, constructs the lethal-hit result, and invokes the production
+death-entry callback. Thereafter it advances normal runtime frames without
+forcing intermediate death phases/timers. This is a focused death-render fixture,
+not an end-to-end controller battle or projectile damage test.
+
+The sequence reaches death frame 648 with mosaic $42 stable across the NMI/AI
+boundary: BG2 mosaic enabled, five-pixel sample width. Its isolated production
+BG2 render has 3024 pixels violating horizontal five-pixel repetition. A substantial
+visible body is required so an empty image cannot satisfy the check. Full-frame
+and isolated-body captures expose the unpixelated body and remain local.
+
+The death AI updates `MosaicRegister` every 16 NMI counts, but render capture and
+both composition paths have no mosaic consumer. The existing wave is present;
+it does not replace this separate PPU effect. The first provisional test sampled
+the register-change frame (647); the accepted test waits for stable frame 648
+to avoid confusing live and displayed register values.
+
+Next implementation must latch the register, apply BG2-only mosaic sampling
+before priority/color math in CPU and GPU paths, preserve HUD/OBJ/BG1, retain
+packet/state compatibility, and test vertical phase and scroll interaction as
+well as horizontal repeats. A final-image pixelation overlay would be incorrect.
+No claim of a mosaic fix yet; #555 remains open without awaiting validation.

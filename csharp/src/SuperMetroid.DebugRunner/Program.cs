@@ -322,6 +322,8 @@ if (args.Length == 3 && args[0] == "--phantoon-transparency-audit")
     return PhantoonTransparencyAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--phantoon-fade-comparison-audit")
     return PhantoonFadeComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--phantoon-death-visual-audit")
+    return PhantoonDeathVisualAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--phantoon-wave-comparison-audit")
     return PhantoonWaveComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--elevator-draw-native-comparison")

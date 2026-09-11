@@ -1,6 +1,6 @@
 # Candidate enemy audio investigation (#550)
 
-Status: unresolved diagnostic, not a gameplay fix or player reproduction.
+Status: player report unresolved; two independent PCM loop handoff defects corrected.
 The player reported an unidentified floor snake's Ice Beam-like sound on 0.1.1.
 Yapping Maw remains a candidate only.
 
@@ -110,3 +110,37 @@ switching WAVs or adjusting pitch cannot recover information absent from the WAV
 Any correction must keep ordinary HD PCM replacement supported and avoid imposing
 stock BRR filtering on replacement audio. No production correction is made
 here; tracing the actual $2F release against this mechanism remains necessary.
+
+## Independent directory loop entry correction
+
+The stock release mismatch was not the constructed predictor-history case above.
+At frame 21 the driver restores voice seven SRCN to zero. Common-bank source zero
+starts at $6E00 but its DIR loop address is $73C4, the start of source one. Source
+zero's WAV is non-looping. The previous managed handoff restarted that WAV instead
+of entering source one. The destination BRR header uses filter zero, discarding
+incoming predictor history; the constructed filter-one limitation is independent.
+
+The asset loader now derives cross-source loop aliases from existing manifest
+start/loop addresses. The DSP resolves that entry at END/LOOP without changing
+key-on lookup or the preceding interpolation window. Explicit WAV loops, including
+replacement loops, keep their own entry. Unknown/internal loop destinations and
+arbitrary predictor histories are not solved by this change: the existing fallback
+remains for those entries. Do not claim complete BRR-address representation.
+
+The constructed `--pcm-loop-entry` regression fails with the old decoder and passes
+with the corrected one: a live source change must enter negative PCM at its separate
+loop address, whereas a new key-on must play positive PCM at its start. Invalid
+alias targets are rejected. Sources are long enough to observe the transition
+before their non-looping end silences the voice.
+
+After this correction, the complete 180-frame library-two/$2F survey has **zero**
+differing samples (maximum/RMS delta zero, peak 4015); all port acknowledgements
+match. Library-one/$0B still matches all 180 frames, peak 8048. The broader native
+corpus matches 4680 complete frames before its next difference, Upper Crateria
+music frame 320/sample 1358 (managed 590, native 589). Its former map-menu overlap
+failure is no longer the first failing scenario. Full managed verification passes,
+and the Windows desktop builds with zero warnings/errors. This remains a native
+translation comparison, not original-SPC-CPU or endpoint listening evidence.
+
+Issue #550 stays open without a validation label: the candidate sound now agrees,
+but the player's exact enemy, action and Ice-Beam-like sound remain unconfirmed.

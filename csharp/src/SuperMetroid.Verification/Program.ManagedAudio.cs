@@ -9,6 +9,7 @@ internal static partial class Program
         VerifyManagedDspResetProducesSilence();
         VerifyManagedDspPlaysConstructedPcmSample();
         VerifyManagedDspUsesLiveSourceAtLoop();
+        VerifyManagedDspUsesIndependentLoopEntry();
         VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
@@ -38,6 +39,37 @@ internal static partial class Program
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "source write does not reset voice output");
         for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
+    }
+
+    private static void VerifyManagedDspUsesIndependentLoopEntry()
+    {
+        var dsp = new ManagedSnesDsp(new byte[65536]);
+        var sources = new Dictionary<byte, ManagedPcmSample>
+        {
+            [0] = new("initial", 32000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
+            [1] = new("key-on-positive", 32000, Enumerable.Repeat((short)8000, 256).ToArray(), null),
+            [2] = new("loop-entry-negative", 32000, Enumerable.Repeat((short)-8000, 256).ToArray(), null),
+        };
+        dsp.SetSampleBank(new ManagedPcmSampleBank("independent-loop-entry", 0, sources,
+            new Dictionary<byte, byte> { [1] = 2 }));
+        ConfigureAudibleVoiceZero(dsp);
+        for (int tick = 0; tick < 32; tick++) dsp.Cycle();
+        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0,
+            "source change retains current interpolation window");
+        for (int tick = 0; tick < 32; tick++) dsp.Cycle();
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) < 0,
+            "END/LOOP uses the independent directory loop address, not the selected source start");
+
+        var keyOn = new ManagedSnesDsp(new byte[65536]);
+        keyOn.SetSampleBank(new ManagedPcmSampleBank("independent-key-on", 0, sources,
+            new Dictionary<byte, byte> { [1] = 2 }));
+        ConfigureAudibleVoiceZero(keyOn, sourceNumber: 1);
+        for (int tick = 0; tick < 32; tick++) keyOn.Cycle();
+        AssertTrue(unchecked((sbyte)keyOn.ReadRegister(SnesDspRegisterMap.Voice.SampleOutput)) > 0,
+            "key-on uses directory start rather than its independent loop destination");
+        AssertThrows<InvalidDataException>(() => new ManagedPcmSampleBank("invalid-loop", 0, sources,
+            new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
     }
 
     private static void VerifyStereoPcmContinuityMeter()
@@ -254,13 +286,13 @@ internal static partial class Program
         AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
     }
 
-    private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp)
+    private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
         dsp.WriteRegister(0x00, 0x7f);
         dsp.WriteRegister(0x01, 0x7f);
         dsp.WriteRegister(0x02, 0xff);
         dsp.WriteRegister(0x03, 0x3f);
-        dsp.WriteRegister(0x04, 0);
+        dsp.WriteRegister(0x04, sourceNumber);
         dsp.WriteRegister(0x05, 0);
         dsp.WriteRegister(0x07, 0x7f);
         dsp.WriteRegister(0x0c, 0x7f);

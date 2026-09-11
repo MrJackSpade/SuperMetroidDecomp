@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pcm-loop-entry"])
+{
+    VerifyManagedDspUsesIndependentLoopEntry();
+    return 0;
+}
 if (args is ["--wall-spread-trace", var wallTrace])
 {
     VerifyAerialSpreadTransitions(outputPath: wallTrace, wallRoute: true);

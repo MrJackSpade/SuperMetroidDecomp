@@ -49,14 +49,20 @@ public sealed class ManagedPcmSample
 public sealed class ManagedPcmSampleBank
 {
     private readonly Dictionary<byte, ManagedPcmSample> samples;
+    private readonly Dictionary<byte, byte> loopEntrySources;
 
-    public ManagedPcmSampleBank(string name, int uploadAddress, IReadOnlyDictionary<byte, ManagedPcmSample> samples)
+    public ManagedPcmSampleBank(string name, int uploadAddress, IReadOnlyDictionary<byte, ManagedPcmSample> samples,
+        IReadOnlyDictionary<byte, byte>? loopEntrySources = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNull(samples);
         Name = name;
         UploadAddress = uploadAddress;
         this.samples = new Dictionary<byte, ManagedPcmSample>(samples);
+        this.loopEntrySources = loopEntrySources is null ? [] : new(loopEntrySources);
+        foreach (var entry in this.loopEntrySources)
+            if (!this.samples.ContainsKey(entry.Key) || !this.samples.ContainsKey(entry.Value))
+                throw new InvalidDataException($"PCM bank '{name}' has an unmapped loop-entry source ${entry.Key:X2}->${entry.Value:X2}.");
     }
 
     public string Name { get; }
@@ -70,4 +76,17 @@ public sealed class ManagedPcmSampleBank
             ? sample
             : throw new InvalidDataException(
                 $"PCM bank '{Name}' (${UploadAddress:X6}) does not map source ${sourceNumber:X2}.");
+
+    /// <summary>
+    /// Resolves DIR's loop entry independently of key-on's start entry. A non-looping
+    /// source can still be selected while a different voice sample reaches END/LOOP;
+    /// its native loop address can point to the start of another canonical sample.
+    /// </summary>
+    public (ManagedPcmSample Sample, int Cursor) ResolveLoopEntry(byte sourceNumber)
+    {
+        if (loopEntrySources.TryGetValue(sourceNumber, out byte target))
+            return (Resolve(target), 0);
+        ManagedPcmSample sample = Resolve(sourceNumber);
+        return (sample, sample.LoopSampleIndex ?? 0);
+    }
 }

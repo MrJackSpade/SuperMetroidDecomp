@@ -102,7 +102,23 @@ public sealed class ExtractedAudioAssetCatalog
                 if (!sources.TryAdd(mapping.Source, sample))
                     throw new InvalidDataException($"Audio bank '{bank.Name}' repeats source ${mapping.Source:X2}.");
             }
-            if (!banks.TryAdd(bank.SnesAddress, new ManagedPcmSampleBank(bank.Name, bank.SnesAddress, sources)))
+            Dictionary<byte, byte> loopEntries = [];
+            foreach (AudioSampleMetadata mapping in bank.Samples)
+            {
+                // A non-looping WAV still has a native DIR loop address. A live
+                // SRCN change can enter that address without keying on this WAV.
+                // Explicit WAV loops (including replacements) retain their own entry.
+                if (sources[mapping.Source].LoopSampleIndex.HasValue)
+                    continue;
+                AudioSampleMetadata[] targets = bank.Samples
+                    .Where(candidate => candidate.StartAddress == mapping.LoopAddress).ToArray();
+                if (targets.Length == 0)
+                    continue;
+                if (targets.Any(target => target.SampleId != targets[0].SampleId))
+                    throw new InvalidDataException($"PCM bank '{bank.Name}' has ambiguous loop entry ${mapping.LoopAddress:X4}.");
+                loopEntries.Add(mapping.Source, targets[0].Source);
+            }
+            if (!banks.TryAdd(bank.SnesAddress, new ManagedPcmSampleBank(bank.Name, bank.SnesAddress, sources, loopEntries)))
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
         }
         int[] missingBanks = AudioAssetCatalogData.All

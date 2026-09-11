@@ -420,10 +420,9 @@ public sealed class ManagedSnesDsp
             // KON. The sound driver can restore an instrument during release.
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
-            sample = (sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank."))
-                .Resolve(voice.SourceNumber);
+            (sample, voice.SampleCursor) = (sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank."))
+                .ResolveLoopEntry(voice.SourceNumber);
             voice.Sample = sample;
-            voice.SampleCursor = sample.LoopSampleIndex ?? 0;
             if (voice.PreviousFlags == 1)
             {
                 voice.AdsrState = EnvelopeState.Release;

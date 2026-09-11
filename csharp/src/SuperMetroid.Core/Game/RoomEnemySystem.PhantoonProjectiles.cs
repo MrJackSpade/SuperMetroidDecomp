@@ -251,7 +251,11 @@ public sealed partial class RoomEnemySystem
         if (flame.XVelocity != 0)
         {
             flame.XVelocity = unchecked((ushort)(flame.XVelocity - 1));
-            return;
+            if (flame.XVelocity != 0 && unchecked((short)flame.XVelocity) >= 0)
+                return;
+            // Expiry falls through to movement on this call, including signed
+            // underflow. Keep each actor's native queue call rather than a last-SFX latch.
+            QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
         }
 
         flame.YVelocity = unchecked((ushort)(flame.YVelocity + 16));
@@ -261,6 +265,7 @@ public sealed partial class RoomEnemySystem
         flame.InstructionTimer = 1;
         flame.YPosition = unchecked((ushort)(flame.YPosition + 8));
         flame.PreInstruction = EnemyProjectileCodePointers.RTS_869A44;
+        QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
     }
 
     private void RunPhantoonSpiralFlame(RoomEnemyProjectileSlot flame)

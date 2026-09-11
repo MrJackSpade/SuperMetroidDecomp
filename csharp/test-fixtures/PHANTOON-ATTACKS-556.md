@@ -30,3 +30,22 @@ Core verification and both real-room hit-fade/no-input transparency audits pass.
 This fixes rotation/expansion that were too fast; it does not yet prove the
 reported attacks have correct spawn counts, display, collision, or lifetime.
 The attack issue remains open without awaiting-player-validation.
+
+## Rain timer and sound handoff
+
+Pinned bank-$86 `$9A94` decrements the delay and falls through to acceleration
+on the same call when it reaches zero or becomes negative. The translation
+returned unconditionally after every nonzero delay, adding an extra frame.
+It also omitted both `QueueSound_Lib3_Max6($1D)` calls: delay expiry at `$9AA0`
+and terrain impact at `$9AD2`.
+
+`--phantoon-rain-timing-audit ROM` reproduces timer 1 leaving velocity zero
+instead of 16. The corrected production callback passes seven timer cases
+(0, 1, 2, 8, $8000, $8001, $FFFF), including signed-underflow behavior and exact
+sound library/ID/queue cap. A real-room flame continues for 69 more motion calls
+to terrain impact and retains both sound requests. Publication uses the existing
+lossless per-frame enemy sound queue, not a single last-sound field.
+
+Core verification and the production-hit fade/no-input transparency sequences
+pass unchanged. These tests verify sound requests, not a new end-to-end audio
+recording. Full attack spawn/trajectory/render/collision coverage remains pending.

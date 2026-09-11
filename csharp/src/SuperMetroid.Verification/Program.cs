@@ -388,8 +388,8 @@ if (args is ["--grapple-sounds"])
 }
 if (args is ["--grapple-doors"])
 {
-        VerifyGrappleBlueDoors();
-        VerifyGrapplePoseRefire();
+    VerifyGrappleBlueDoors();
+    VerifyGrapplePoseRefire();
     return 0;
 }
 if (args is ["--phantoon-position"])
@@ -521,6 +521,7 @@ VerifySamusKnockbackAndDamageBoost();
 VerifySamusGrappleSwingAndRelease();
 VerifyGrappleBlueDoors();
 VerifyGrappleSounds();
+VerifyGrapplePoseRefire();
 VerifyGrappleSpinInput();
 VerifyGrappleGreenGateVisibility();
 VerifyGrappleEnemyDeath();

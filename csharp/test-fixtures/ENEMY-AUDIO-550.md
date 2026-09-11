@@ -34,3 +34,28 @@ selection or declaring the player report resolved. The room/enemy/action identit
 still needs evidence from the reported encounter.
 
 No ROM, samples, PCM, state files, or screenshots are published with this fixture.
+
+## Live source correction (partial engine fix)
+
+The native `upstream-sm/src/snes/dsp.c` decoder reads the live DIR/SRCN entry
+at each END/LOOP, retaining its preceding interpolation and BRR predictor history.
+The managed decoder instead retained the sample selected at key-on indefinitely.
+The SFX driver restores a source number during release, so this distinction is
+observable even without another key-on.
+
+A constructed positive/negative looping-source test reproduced that stale source:
+write SRCN during a note, preserve its current output, then require the next loop
+to play the new source without KON. It failed before the change and passes after
+resolving the current sample bank/source at the loop boundary. The full managed
+verification suite also passes with this correction.
+
+This is not complete PCM parity. The candidate comparison's first differing sample
+moves from 682 (8 versus 15) to 738 (1 versus 0) in frame 21. The full native corpus
+also has a pre-existing `map-scroll-confirm-overlap` failure: before the change,
+frame 4/sample 1448 is -3459 versus -3457; afterward, the first difference is at
+sample 1476 (15 versus 12). Both baseline and corrected runs were executed; the
+remaining corpus failure is not a newly introduced regression.
+
+Do not mark #550 resolved on these results. Further work must examine transition
+predictor history and extracted loop representation, compare complete PCM rather
+than merely moving the first failure, and establish the actual reported encounter.

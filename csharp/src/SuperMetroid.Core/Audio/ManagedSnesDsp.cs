@@ -87,7 +87,8 @@ public sealed class ManagedSnesDsp
 
     /// <summary>
     /// Installs the source-number map associated with the latest cartridge upload. Existing
-    /// voices retain their waveform while releasing; future key-ons resolve through this bank.
+    /// voices retain their current window; key-ons and subsequent loop-directory reads
+    /// resolve through this bank.
     /// </summary>
     public void SetSampleBank(ManagedPcmSampleBank bank) =>
         sampleBank = bank ?? throw new ArgumentNullException(nameof(bank));
@@ -410,12 +411,18 @@ public sealed class ManagedSnesDsp
         Voice voice = voices[voiceIndex];
         ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
             $"S-DSP voice {voiceIndex} cannot decode without a PCM sample.");
-        ReadOnlySpan<short> source = sample.Samples.Span;
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
         voice.DecodeBuffer[1] = voice.DecodeBuffer[17];
         voice.DecodeBuffer[2] = voice.DecodeBuffer[18];
         if (voice.PreviousFlags is 1 or 3)
         {
+            // END/LOOP re-reads DIR + SRCN in the native decoder, without a new
+            // KON. The sound driver can restore an instrument during release.
+            // Preserve the old interpolation window above, then follow the live
+            // source for the next window rather than retaining the key-on source.
+            sample = (sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank."))
+                .Resolve(voice.SourceNumber);
+            voice.Sample = sample;
             voice.SampleCursor = sample.LoopSampleIndex ?? 0;
             if (voice.PreviousFlags == 1)
             {
@@ -425,6 +432,7 @@ public sealed class ManagedSnesDsp
             registers[SnesDspRegisterMap.Global.EndFlags] |= unchecked((byte)(1 << voiceIndex));
         }
 
+        ReadOnlySpan<short> source = sample.Samples.Span;
         voice.PreviousFlags = 0;
         for (int sampleIndex = 0; sampleIndex < PcmSampleFormat.StreamingWindowSampleCount; sampleIndex++)
         {

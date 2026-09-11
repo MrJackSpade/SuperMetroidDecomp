@@ -8,6 +8,7 @@ internal static partial class Program
     {
         VerifyManagedDspResetProducesSilence();
         VerifyManagedDspPlaysConstructedPcmSample();
+        VerifyManagedDspUsesLiveSourceAtLoop();
         VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();
@@ -16,6 +17,27 @@ internal static partial class Program
         VerifyManagedSpcUsesAddressedFirCoefficients();
         VerifyManagedSpcSoundOwnershipPreservesPhase();
         VerifyBrrLoopExtractionRetainsPredictorHistory();
+    }
+
+    private static void VerifyManagedDspUsesLiveSourceAtLoop()
+    {
+        var dsp = new ManagedSnesDsp(new byte[0x10000]);
+        dsp.SetSampleBank(new ManagedPcmSampleBank("live-source", 0,
+            new Dictionary<byte, ManagedPcmSample>
+            {
+                [0] = new("positive", 32_000, Enumerable.Repeat((short)8000, 16).ToArray(), 0),
+                [1] = new("negative", 32_000, Enumerable.Repeat((short)-8000, 16).ToArray(), 0),
+            }));
+        ConfigureAudibleVoiceZero(dsp);
+        for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
+        byte outputRegister = SnesDspRegisterMap.Voice.SampleOutput;
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "initial source is positive");
+        // SRCN is not a key-on operation. The existing interpolation window remains
+        // audible until END/LOOP resolves the live directory entry (native dsp_decodeBrr).
+        dsp.WriteRegister(SnesDspRegisterMap.Voice.SourceNumber, 1);
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) > 0, "source write does not reset voice output");
+        for (int cycle = 0; cycle < 32; cycle++) dsp.Cycle();
+        AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
     }
 
     private static void VerifyStereoPcmContinuityMeter()

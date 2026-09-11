@@ -165,3 +165,23 @@ DebugRunner --native-phantoon-plasma-audit "Super Metroid.smc" NEW.csv
 
 The trace remains private. Temporary native hooks were removed after capture.
 No player state or recording is used. The broader #402 acceptance remains open.
+
+### Post-hit frozen dispatcher comparison
+
+The v4 probe adds twenty original EnemyMain calls with time frozen after each
+contact pair. All 264 records match, including X/Y and instruction position as
+well as the previously compared combat state. The boss body is the only active
+native record; its real header, callbacks and spritemap remain in use. The
+managed comparison uses the normal loaded boss and frozen enemy-frame entry.
+
+Swooping charged-Plasma contacts count invincibility down from sixteen to zero
+without moving the body or advancing its reaction/instruction state. Eye-tracking
+charged contacts have already set the intangible property; their invincibility
+stays at sixteen. This distinguishes the tangible countdown from incorrectly
+resetting every boss timer on X-ray activation.
+
+Two independent v4 captures agree, SHA-256
+`85D7E253C3B9EBE1BA3819FDAC505AC8ACC7B8616360C22E518EF4E23CDCE631`.
+The comparator now requires this expanded capture rather than v2. It does not
+yet cover unfrozen boss evolution or full controller activation/release against
+the native encounter, and therefore does not complete #402.

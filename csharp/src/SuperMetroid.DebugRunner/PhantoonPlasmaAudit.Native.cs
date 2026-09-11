@@ -9,8 +9,8 @@ internal static partial class PhantoonPlasmaAudit
     public static int RunNative(string rom, string trace)
     {
         if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
-            "6D1D3D531FBD8FBA747045DA88232BA0CFB6520B097567AE697EA66B8CFD907F")
-            throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v2 capture.");
+            "85D7E253C3B9EBE1BA3819FDAC505AC8ACC7B8616360C22E518EF4E23CDCE631")
+            throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v4 capture.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var room = CartridgeRoomHeader.Load(bus, 0xcd13);
         var assets = CartridgeRoomAssets.Load(bus, room);
@@ -19,7 +19,7 @@ internal static partial class PhantoonPlasmaAudit
         foreach (string line in File.ReadLines(trace).Skip(1))
         {
             ushort[] row = line.Split(',').Select(ushort.Parse).ToArray();
-            if (row.Length != 14) throw new InvalidDataException("Invalid Phantoon trace row.");
+            if (row.Length != 17) throw new InvalidDataException("Invalid Phantoon trace row.");
             if (row[3] == 0)
             {
                 enemies = new RoomEnemySystem();
@@ -38,7 +38,11 @@ internal static partial class PhantoonPlasmaAudit
                 enemies.Phantoon.Tentacles.VariableB = 0;
                 enemies.Phantoon.Tentacles.Parameter2 = 0;
             }
-            if (row[3] != 0 || row[1] != 0)
+            if (row[3] >= 2)
+            {
+                enemies.StepFrame(0, 0, timeIsFrozen: true, level: assets.LevelData);
+            }
+            else if (row[3] != 0 || row[1] != 0)
             {
                 var shots = new SamusProjectileSystem();
                 var shot = shots.Slots[0];
@@ -56,14 +60,15 @@ internal static partial class PhantoonPlasmaAudit
             ushort[] actual = [head.Health, head.InvincibilityTimer, head.FlashTimer,
                 head.VariableF, head.VariableE, head.Properties, state.Tentacles!.VariableB,
                 state.Tentacles.VariableA, state.Tentacles.Parameter2];
-            if (!actual.SequenceEqual(row[4..13]))
+            if (!actual.SequenceEqual(row[4..13]) || head.XPosition != row[14] ||
+                head.YPosition != row[15] || head.CurrentInstruction != row[16])
             {
                 failures++;
                 Console.WriteLine($"Phantoon {string.Join(',', row[..4])}: {string.Join(',', actual)} != {string.Join(',', row[4..13])}");
             }
             count++;
         }
-        if (count != 24) throw new InvalidDataException("Expected all 24 native contact records.");
+        if (count != 264) throw new InvalidDataException("Expected all 264 native contact/freeze records.");
         Console.WriteLine($"Native Phantoon Plasma: {count} records, {failures} mismatches.");
         return failures == 0 ? 0 : 1;
     }

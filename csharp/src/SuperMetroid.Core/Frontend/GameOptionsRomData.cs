@@ -61,8 +61,13 @@ public static class GameOptionsRomData
 
         public const ushort PrimaryX = 0x18;
         public const ushort ControllerX = 0x28;
+        /// <summary>$82:F2E0: selector X when the active page phase has no cursor table (including scroll phases).</summary>
+        public const ushort HiddenX = 0x180;
+        /// <summary>$82:F2E6: selector Y paired with the off-screen X anchor.</summary>
+        public const ushort HiddenY = 0x10;
         public const ushort SpecialX = 0x10;
         public static ReadOnlySpan<ushort> PrimaryY => PrimaryRows;
+        /// <summary>$82:F31D and subsequent Y words are screen-space anchors; END/RESET already account for page scrolling.</summary>
         public static ReadOnlySpan<ushort> ControllerY => ControllerRows;
         public static ReadOnlySpan<ushort> SpecialY => SpecialRows;
     }

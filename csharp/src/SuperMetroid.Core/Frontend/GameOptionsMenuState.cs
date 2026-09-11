@@ -476,6 +476,10 @@ public sealed class GameOptionsMenuState
 
     private (ushort X, ushort Y) CursorPosition()
     {
+        // Scroll phases have null native position-table entries. The selector moves
+        // off screen until the page settles; only the heading follows the BG scroll.
+        if (Phase is GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp)
+            return (GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY);
         return page switch
         {
             GameOptionsPage.Primary =>
@@ -483,8 +487,7 @@ public sealed class GameOptionsMenuState
                     GameOptionsRomData.Cursors.PrimaryY[SelectedItem]),
             GameOptionsPage.Controller =>
                 (GameOptionsRomData.Cursors.ControllerX,
-                    unchecked((ushort)(
-                        GameOptionsRomData.Cursors.ControllerY[SelectedItem] - bg1VerticalScroll))),
+                    GameOptionsRomData.Cursors.ControllerY[SelectedItem]),
             GameOptionsPage.Special =>
                 (GameOptionsRomData.Cursors.SpecialX,
                     GameOptionsRomData.Cursors.SpecialY[SelectedItem]),

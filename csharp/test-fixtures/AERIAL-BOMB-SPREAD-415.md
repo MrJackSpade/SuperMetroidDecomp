@@ -72,3 +72,23 @@ The trace does not yet compare individual aerial bomb origins/trajectories or
 the separate charged-walljump route. Those remain required before #415 is ready
 for player validation. Existing grounded trajectory coverage is not substituted
 for those acceptance checks.
+
+## Full aerial bomb lifetime extension
+
+The sweep now runs 260 frames per case, releases Jump and horizontal direction
+at 125, and widens the local floor clearing to block columns 16 through 47. The
+original 125-frame trace above is historical; regenerate it for the new comparator.
+Successful cases additionally record all five bomb slots on frames 105 through
+259. Every live slot compares type, X/Y and subpixels, X/Y velocity and fractional
+Y velocity, fuse, collision radii, instruction pointer/timer and spritemap.
+Inactive slots compare ownership only: native cleared slots retain scratch words
+that are no longer read and are overwritten on allocation.
+
+All **5,200 frame rows and 1,550 bomb-slot observations** match the original CPU,
+including both initial aerial origins and the complete trajectory/fuse/animation
+lifetime. Both generated files have SHA256
+`290F7C61AD582D1E9E3211B8124F66F15EA048EF792894C7D30AD2D4591609A7`.
+The standard regression requires all bombs to expire by frame 259 and retains
+the one-frame success window and held/consumed-charge assertions. This changes
+tests only; no production discrepancy was found. The charged-walljump route is
+still outstanding, so #415 is not yet awaiting player validation.

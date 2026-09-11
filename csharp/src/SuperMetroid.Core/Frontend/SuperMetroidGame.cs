@@ -691,7 +691,8 @@ public sealed partial class SuperMetroidGame
                 bool unpauseRequested = pauseMenu!.Step(
                     runtime.System.TimedHeldInput,
                     runtime.Controller1.NewlyPressed,
-                    runtime.Controller1.Current);
+                    runtime.Controller1.Current,
+                    runtime.NmiFrameCounter8);
                 PublishMenu(pauseMenu);
                 if (unpauseRequested)
                 {

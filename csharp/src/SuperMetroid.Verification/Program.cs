@@ -30,6 +30,11 @@ if (args is ["--pause-reserve-manual"])
     VerifyPauseReserveManual();
     return 0;
 }
+if (args is ["--pause-reserve-arrow"])
+{
+    VerifyPauseReserveArrow();
+    return 0;
+}
 if (args is ["--projectile-runtime-phase"])
 {
     VerifyProjectileRuntimePhase();
@@ -462,6 +467,7 @@ VerifyTitleSequenceRomData();
 VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();
 VerifyPauseReserveManual();
+VerifyPauseReserveArrow();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();

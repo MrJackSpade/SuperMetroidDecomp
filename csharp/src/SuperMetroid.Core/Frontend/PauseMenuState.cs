@@ -200,8 +200,10 @@ internal sealed partial class PauseMenuState
     /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
     /// bank-$80 delayed-held filter. Returns true when Start requests game state $10.
+    /// The runtime supplies its accepted-NMI byte counter for cartridge palette phase;
+    /// standalone diagnostic callers may leave that phase at zero.
     /// </summary>
-    public bool Step(ushort delayedHeldInput, ushort newlyPressedInput, ushort? heldInput = null)
+    public bool Step(ushort delayedHeldInput, ushort newlyPressedInput, ushort? heldInput = null, byte nmiFrameCounter8 = 0)
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
@@ -251,7 +253,7 @@ internal sealed partial class PauseMenuState
 
         // EquipmentScreenMain consumes the ordinary $8F rising-edge word for D-pad/A;
         // only the shared L/R/Start chrome uses the delayed-held word at $05DF.
-        HandleEquipmentInput(newlyPressed);
+        HandleEquipmentInput(newlyPressed, nmiFrameCounter8);
         // EquipmentScreenMain refreshes the reserve amount independently of selected
         // label edits. Keep this per-frame write without rebuilding the whole tilemap,
         // which would erase the cartridge's same-frame VAR overrun.
@@ -403,6 +405,9 @@ internal sealed partial class PauseMenuState
                 if (transition == PauseMenuTransition.MapToEquipmentFadeOut)
                 {
                     ScreenMode = 1;
+                    // Equipment setup lights the arrow when reserves are nonempty;
+                    // subsequent tank dispatches own animation and selection changes.
+                    if (samus.ReserveEnergy != 0) SetReserveArrow(enabled: true);
                     UploadEquipmentTilemap();
                     ResetItemSelectorAnimation();
                     transition = PauseMenuTransition.MapToEquipmentFadeIn;

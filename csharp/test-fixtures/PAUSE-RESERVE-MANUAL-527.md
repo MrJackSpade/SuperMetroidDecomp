@@ -43,10 +43,29 @@ legacy field mapping. It does not claim audible PCM or rendered tank animation.
 
 ## Remaining work before issue 527 is ready
 
-- Rendered reserve-tank fill/animation and energy-arrow palette/tile effects.
+- Rendered reserve-tank fill/animation.
 - Live pause HUD energy and AUTO-indicator publication during manual changes.
 - Automatic-recovery presentation and frame ordering, separately from manual.
 - Cartridge playback comparison of the reported visual/timing behavior.
 
 Issue 527 remains open **without** awaiting-player-validation until that work is
 implemented and verified. This slice restores missing controls, not full parity.
+
+## Follow-up: rendered energy arrow
+
+The missing arrow was reproduced by comparing the actual pause frame with the
+native ten tile-palette writes and two color writes. AUTO phase zero failed
+before implementation. The production path now ports $82:AD0A-$AE89: AUTO uses
+the runtime's accepted-NMI byte counter modulo 32, the manual transfer item uses
+solid enabled colors, and leaving tanks or completing manual refill disables the
+arrow. Equipment-page entry retains $82:AC1A's nonempty-reserve solid enable.
+The native tank dispatcher owns these updates; unrelated categories do not
+invent another animation clock. Rendering remains side-effect free.
+
+`--pause-reserve-arrow` (also in the full suite) compares complete rendered frames
+against independently patched native palette/tile writes for all 32 AUTO phases,
+MANUAL mode, transfer selection, active transfer, completion, and leaving tanks.
+It also requires actual pixel differences inside the arrow, so changing unused
+palette words cannot satisfy the test. The local phase-15 PNG was visually
+inspected; screenshots are ignored/local, not published. This is a software
+render comparison, not external-emulator playback or player confirmation.

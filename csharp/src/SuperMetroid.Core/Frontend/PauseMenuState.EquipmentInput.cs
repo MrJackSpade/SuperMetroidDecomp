@@ -7,13 +7,14 @@ namespace SuperMetroid.Core.Frontend;
 
 internal sealed partial class PauseMenuState
 {
-    private void HandleEquipmentInput(SnesButton pressed)
+    private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
     {
         int dispatchedCategory = selectedCategory;
         if (dispatchedCategory == PauseEquipmentCategories.Reserves)
         {
             HandleReserveInput(pressed);
             MoveEquipmentSelector(pressed);
+            UpdateReserveArrow(nmiFrameCounter8);
             return;
         }
         MoveEquipmentSelector(pressed);

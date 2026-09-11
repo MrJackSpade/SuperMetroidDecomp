@@ -43,7 +43,6 @@ legacy field mapping. It does not claim audible PCM or rendered tank animation.
 
 ## Remaining work before issue 527 is ready
 
-- Live pause HUD energy and AUTO-indicator publication during manual changes.
 - Automatic-recovery presentation and frame ordering, separately from manual.
 - Cartridge playback comparison of the reported visual/timing behavior.
 
@@ -90,3 +89,24 @@ hardcodes palette three. No extra palette cycling is invented. The visible fill
 flicker uses the independent NMI counter, now passed through stable and fading
 pause states. Older pause states warn and restore phase zero until the next
 accepted frame, retaining the earlier manual-transfer migration as needed.
+
+## Follow-up: live pause HUD publication
+
+The real frontend paused dispatcher reproduced the stale AUTO indicator: after
+switching to MANUAL and accepting the next NMI, its tile remained $3C33 instead
+of the native blank $2C0F. Pause retained only its initial gameplay HUD copy and
+never ran the normal HUD counter/upload routine after input.
+
+State $0F now follows $82:90F2/$90F6: dispatch pause input, clear the six AUTO
+cells for AUTO-to-MANUAL ($82:AF33), update the existing HUD, and queue its normal
+DMA. AUTO uses the existing $80:998B/$9997 tables. The isolated pause PPU mirrors
+only the mutable HUD range **after** the next accepted NMI, including the first
+unpause fade frame; it does not display queued writes early or recopy gameplay
+FX into the deliberately cleared pause background.
+
+`--pause-reserve-hud` (also in the full suite) constructs a paused boundary and
+uses real frontend input, HUD writers and DMA. It checks all six AUTO cells,
+exact per-frame health tile words, actual rendered health-digit changes, empty
+AUTO restoration, preservation of other HUD cells/FX rows, and the last pending
+upload across unpause. Targeted and full verification and the Windows Release
+build pass. This is not external-emulator playback or player confirmation.

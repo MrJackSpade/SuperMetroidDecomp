@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pause-reserve-hud"])
+{
+    VerifyPauseReserveHud();
+    return 0;
+}
 if (args is ["--pause-reserve-manual"])
 {
     VerifyPauseReserveManual();
@@ -474,6 +479,7 @@ VerifyReserveAutoRecovery();
 VerifyPauseReserveManual();
 VerifyPauseReserveArrow();
 VerifyPauseReserveTanks();
+VerifyPauseReserveHud();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();

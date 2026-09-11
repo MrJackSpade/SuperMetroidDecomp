@@ -17,7 +17,6 @@ public sealed class HudState
 
     private const int TemplateAddress = 0x8098cb;
     private const int IconTableAddress = 0x8099a3;
-    private const int AutoReserveTableAddress = 0x80998b;
     private const int HealthDigitsAddress = 0x809dbf;
     private const int AmmoDigitsAddress = 0x809dd3;
     private const ushort BlankTile = 0x2c0f;
@@ -299,10 +298,18 @@ public sealed class HudState
 
     private void DrawAutoReserve(ISnesAddressSpace bus, bool containsEnergy)
     {
-        int source = AutoReserveTableAddress + (containsEnergy ? 0 : 12);
-        int[] destinations = [8, 9, 40, 41, 72, 73];
+        ReadOnlySpan<int> destinations = HudReserveLayout.TileIndices;
+        int source = HudReserveLayout.AutoTable + (containsEnergy ? 0 : destinations.Length * 2);
         for (int tile = 0; tile < destinations.Length; tile++)
             _tiles[destinations[tile]] = ReadRomWord(bus, source + tile * 2);
+    }
+
+    /// <summary>Ports $82:AF33 without reinitializing icons, counters or the minimap.</summary>
+    public void ClearAutoReserveIndicator()
+    {
+        if (!IsInitialized) throw new InvalidOperationException("Initialize the HUD before clearing AUTO.");
+        foreach (int index in HudReserveLayout.TileIndices)
+            _tiles[index] = HudReserveLayout.Blank;
     }
 
     private void AddMissileIcon(ISnesAddressSpace bus)

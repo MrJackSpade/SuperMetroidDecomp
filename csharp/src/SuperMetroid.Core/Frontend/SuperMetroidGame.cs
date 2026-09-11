@@ -687,12 +687,21 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.PausedB:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseMenu!.SynchronizeAcceptedHud(runtime.Vram);
                 runtime.UpdatePauseHeldInput();
+                ushort previousReserveMode = runtime.Samus!.ReserveTankMode;
                 bool unpauseRequested = pauseMenu!.Step(
                     runtime.System.TimedHeldInput,
                     runtime.Controller1.NewlyPressed,
                     runtime.Controller1.Current,
                     runtime.NmiFrameCounter8);
+                // State $0F runs the HUD writer after pause input. Its DMA is visible
+                // at the next accepted NMI, including the first unpause fade frame.
+                if (previousReserveMode == PauseReserveLabelRomData.AutoMode &&
+                    runtime.Samus.ReserveTankMode == PauseReserveTransferRomData.ManualMode)
+                    runtime.Hud.ClearAutoReserveIndicator();
+                runtime.Hud.UpdateGameplayCounters(bus, runtime.Samus, timeIsFrozen: true);
+                runtime.Hud.QueueUpload(bus, runtime.VramWrites);
                 PublishMenu(pauseMenu);
                 if (unpauseRequested)
                 {
@@ -703,6 +712,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.UnpausingA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                pauseMenu!.SynchronizeAcceptedHud(runtime.Vram);
                 pauseMenu!.AdvanceAnimations(runtime.NmiFrameCounter8);
                 PublishMenu(pauseMenu!);
                 AdvancePauseFade(brightening: false);

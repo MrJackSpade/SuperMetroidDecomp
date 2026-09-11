@@ -10,14 +10,7 @@ internal static class PhantoonMaterializationAudit
     public static int Run(string rom, string directory)
     {
         Directory.CreateDirectory(directory);
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xcd13);
-        runtime.InitializeDebugGroundedSamus(64, 192, 12);
-        runtime.Samus!.InputLocked = false;
+        var runtime = CreateEncounter(rom);
         int waveFrames = 0, varyingRows = 0;
         using var trace = new StreamWriter(Path.Combine(directory, "frames.csv"));
         trace.WriteLine("frame,phase,amplitude,layerFlags,bg2X,bg2Y,scrollRows,distinctScrolls");
@@ -51,5 +44,18 @@ internal static class PhantoonMaterializationAudit
         if (waveFrames != 165 || varyingRows != 162)
             throw new InvalidDataException("Phantoon's real-room materialization does not publish a visible per-scanline wave.");
         return 0;
+    }
+
+    internal static SuperMetroidRuntime CreateEncounter(string rom)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(0xcd13);
+        runtime.InitializeDebugGroundedSamus(64, 192, 12);
+        runtime.Samus!.InputLocked = false;
+        return runtime;
     }
 }

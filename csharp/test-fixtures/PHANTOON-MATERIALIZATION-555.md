@@ -108,3 +108,31 @@ Core verification and ordinary render parity pass (96 gameplay comparisons and
 full battle verification. Later reappearances, fade-out, and the reported black
 silhouette/background contribution remain unfinished; #555 stays open without
 the awaiting-player-validation label.
+
+## Full-frame black silhouette reproduction
+
+Run `--phantoon-transparency-audit ROM LOCAL-OUTPUT-DIRECTORY`. This separate
+diagnostic currently **fails intentionally**; it is not a passing suite test.
+It uses the same unforced real encounter but runs 2400 frames and captures full
+gameplay composition rather than the ordinary base alone. It checks 1363 frames
+with the native semi-transparency flag set. A single introductory frame (620)
+did not reproduce the black silhouette; the extended sequence does.
+
+At frame 1936, phase $D7F7, 1974 otherwise colored scenery pixels are replaced
+with black. The saved full-frame image visibly shows the opaque black body;
+the corresponding image with BG2 removed shows the scenery underneath. Both
+were inspected locally. CSV includes every tested frame and the first erased
+pixel coordinate. Images remain local and must not be published.
+
+Cartridge $88:E449 selects blending configuration $1A while the flag is set.
+The pinned disassembly's $88:80D9 sets main screen $15, subscreen $02, and
+CGADSUB $35: body BG2 belongs to the additive subscreen. Black cannot erase
+the main scene in that operation. Current full capture instead leaves BG2 on
+the opaque ordinary main screen and never consumes the transparency flag.
+
+This establishes the black-silhouette reproduction, not a completed blending
+fix. Its no-erased-color assertion alone would also pass if the body were
+incorrectly hidden altogether. The implementation must additionally verify
+nonzero body-color contribution, source-sensitive OBJ behavior, frame ownership,
+and the cartridge's hidden/opaque/translucent transitions; do not substitute
+this single negative assertion for those positive fidelity checks.

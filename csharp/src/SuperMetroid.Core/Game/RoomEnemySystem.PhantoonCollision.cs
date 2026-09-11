@@ -126,6 +126,10 @@ public sealed partial class RoomEnemySystem
                     ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;
                     body.FlashTimer = unchecked((ushort)(hurtTime + 8));
                     body.AiHandlerBits |= 0x0002;
+                    // Use the captured pre-impact type: collision may replace the
+                    // live projectile with an explosion before common shot effects.
+                    if ((projectileType & (ushort)SamusBeamFlags.Plasma) != 0)
+                        body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
                     body.Health = damage >= body.Health
                         ? (ushort)0
                         : unchecked((ushort)(body.Health - damage));

@@ -1554,7 +1554,7 @@ public sealed partial class RoomEnemySystem
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
                     if ((projectileType & 0x0008) != 0)
-                        enemy.InvincibilityTimer = 16;
+                        enemy.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&

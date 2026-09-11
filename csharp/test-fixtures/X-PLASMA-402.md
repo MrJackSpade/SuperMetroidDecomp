@@ -121,3 +121,18 @@ Both traces pass. These exact frame numbers are port regression observations,
 not yet original-CPU parity evidence. Native encounter comparison and the
 other targets required by #402 remain unfinished; the issue stays open without
 the awaiting-player-validation label.
+
+## Phantoon common-shot invincibility omission
+
+`DebugRunner --phantoon-plasma-audit "Super Metroid.smc"` loads the real
+Phantoon population and exercises its extended full-body hitbox while swooping.
+A constructed charged Plasma shot deals 450 damage. Before correction, health
+2500 -> 2050 was correct but invincibility remained zero. Pinned disassembly
+`bank_A0.asm` at $A0:A854-$A0:A85F and `sm_a0.c`'s common shot handler both
+set sixteen frames when the damaging projectile's Plasma bit is set.
+
+Phantoon's separate common-damage adapter omitted that write. It now uses the
+captured pre-impact type and the shared `EnemyShotTiming` definition. The same
+fixture now verifies sixteen frames and rejects immediate repeat contact.
+This reproduced adapter defect is fixed; full original-CPU Phantoon encounter
+comparison, including its initial non-Plasma hit, remains required.

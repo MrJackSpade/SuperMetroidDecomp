@@ -1287,6 +1287,9 @@ if (args.Length >= 2 && args[0] == "--escape-animals-audit")
 if (args.Length >= 2 && args[0] == "--crocomire-projectile-drop")
     return CrocomireAudit.RunProjectileDrop(args[1]);
 
+if (args.Length >= 2 && args[0] == "--crocomire-impact-lifetime")
+    return CrocomireAudit.RunImpactLifetime(args[1]);
+
 if (args.Length >= 2 && args[0] == "--crocomire-audit")
 {
     string crocomireRomPath = string.Join(' ', args[1..]).Trim('"');

@@ -25,5 +25,28 @@ int DiagnosticPhantoonHdma(const char *rom, const char *output) {
       }
     }
   }
+  fclose(f);
+  char lifecycle_path[1024];
+  if (snprintf(lifecycle_path, sizeof(lifecycle_path), "%s.lifecycle.csv", output) >= sizeof(lifecycle_path)) return 5;
+  f = fopen(lifecycle_path, "wx"); if (!f) return 4;
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
+  Get_Phantoon(0)->phant_var_E = 1;
+  // Execute the actual materialization transition, including SpawnHdmaObject.
+  ProbeRunBoundedRegisters(0xa7d508, 0, 0, 0);
+  fprintf(f, "frame,mode,pending,amplitude,phase,timer,list,channel,scroll0\n");
+  for (int frame = -1; frame < 8; frame++) {
+    // Controlled disable after several live updates exercises the sleep/delete tail.
+    if (frame == 5) enemy_data[1].parameter_1 = 0;
+    if (frame >= 0 && hdma_object_channels_bitmask[0]) {
+      hdma_object_index = 0;
+      ProbeRunBoundedRegisters(0x88851c, 0, 0, 0);
+    }
+    fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%d,%d\n", frame,
+      enemy_data[1].parameter_1, enemy_data[2].parameter_1,
+      enemy_data[3].ai_var_D, hdma_object_A[0], hdma_object_instruction_timers[0],
+      hdma_object_instruction_list_pointers[0], hdma_object_channels_bitmask[0],
+      g_ram[0x9100] | g_ram[0x9101] << 8);
+  }
   fclose(f); return 0;
 }

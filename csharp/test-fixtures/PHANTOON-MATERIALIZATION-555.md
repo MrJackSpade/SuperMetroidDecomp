@@ -57,3 +57,27 @@ $A7:D539-$D53C assigns the intro maximum amplitude. The existing maximum-amplitu
 assignment is therefore not itself evidence of a bug. Native HDMA setup also
 copies the pending wave mode into the eye record; the missing mode handoff must
 be preserved when integrating this owner.
+
+## Original-CPU lifecycle checkpoint
+
+The native probe additionally writes `OUTPUT.lifecycle.csv`. It executes the
+actual $A7:D508 transition (timer one), then the original $88:851C HDMA instruction
+handler. It disables the mode at call five and, like the native outer handler,
+does not call an already deleted channel. The corrected probe completes cleanly.
+
+Observed sequence:
+
+- Immediately after the AI transition: pending mode 2, active mode 0, amplitude
+  3072, instruction timer 1, instruction list $E4A8, channel enabled.
+- First HDMA call: active mode becomes 2; phase becomes $FFFE; list reaches
+  $E4B9 (sleep); no scroll-data calculation has occurred yet.
+- Following calls: phases 14, 30, 46, 62 and first scroll samples 2, 4, 6, 8
+  with zero base scroll. The instruction timer underflows during sleep, as native.
+- Disabling active mode deletes the channel during that same call; it leaves
+  phase and scroll data unchanged. Later outer-handler calls skip that channel.
+
+`RunOneFrameOfGameInner` calls HDMA before enemy AI. Runtime capture must latch
+the prior completed effect data alongside the other NMI presentation state;
+feeding live post-AI amplitude into render capture would change that ownership.
+The first setup-only call must not be collapsed into an immediate wave update.
+These are original-CPU observations, not yet an integrated lifecycle fix.

@@ -7,9 +7,13 @@ internal static class CeresActorNativeAudit
 {
     public static int Run(string romPath, string nativeCsv)
     {
-        var rows = File.ReadLines(nativeCsv).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray())
+        var records = File.ReadLines(nativeCsv).Skip(1).Select(line => line.Split(',')).ToArray();
+        var rows = records.Select(row => row.Take(9).Select(int.Parse).ToArray())
             .ToDictionary(row => (row[0], row[1], row[2]));
-        var scene = new CeresDestructionCinematicState(SuperMetroidAddressSpace.LoadRetailRom(romPath));
+        var drawRows = records.ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1]), int.Parse(row[2])),
+            row => (Low: Convert.FromHexString(row[9]), High: Convert.FromHexString(row[10])));
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var scene = new CeresDestructionCinematicState(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         object Field(string name) => typeof(CeresDestructionCinematicState).GetField(name, flags)!.GetValue(scene)!;
         var actors = (List<IntroDiscoverySprite>)Field("actors");
@@ -46,10 +50,20 @@ internal static class CeresActorNativeAudit
                         $"actual active={actor.IsActive} XY={actor.XPosition}.{actor.XSubPosition}/{actor.YPosition}.{actor.YSubPosition} map={actor.SpriteMapPointer:X4}; " +
                         $"native active={expected[3]} XY={x}.{expected[5]}/{y}.{expected[7]} map={expected[8]:X4}.");
                 checkedFrames++;
+                // Restore the native probe's zero-camera origin through the production
+                // draw API. This compares byte packing, attributes and component order;
+                // it does not claim coverage of clipping at the real scene's edges.
+                var oam = new OamBuffer();
+                oam.BeginFrame();
+                actor.Draw(bus, oam, unchecked((ushort)-item.X), unchecked((ushort)-item.Y));
+                var draw = drawRows[(item.Group, item.Param, age)];
+                if (!oam.LowTable[..oam.NextByteOffset].SequenceEqual(draw.Low) ||
+                    !oam.HighTable.SequenceEqual(draw.High))
+                    throw new InvalidDataException($"Ceres group {item.Group}/{item.Param} age {age}: original-CPU OAM differs.");
             }
         }
         if (tracked.Count != 15) throw new InvalidDataException($"Expected 15 spawner children, observed {tracked.Count}.");
-        Console.WriteLine($"Ceres native actor comparison: {tracked.Count} actors, {checkedFrames} frame states match position/subposition, spritemap and lifetime.");
+        Console.WriteLine($"Ceres native actor comparison: {tracked.Count} actors, {checkedFrames} frame states match position/subposition, spritemap, lifetime and normalized-origin OAM.");
         return 0;
     }
 }

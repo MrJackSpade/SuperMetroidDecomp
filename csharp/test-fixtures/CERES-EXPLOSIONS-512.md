@@ -108,3 +108,17 @@ This eliminates actor animation/lifetime/motion discrepancies for the tested
 sequence. It does not compare final OAM or composed pixels, does not exercise
 native full-scene scheduling, and excludes the separate departure explosion.
 Those boundaries remain important to the still-open visual report.
+
+Follow-up draw coverage: the native probe now additionally runs the original
+`$8B:9746` draw routine after each sprite-handler call and records the used low
+OAM bytes and all high-table bytes. Regenerate the private trace with this probe
+version before running the managed audit; the CSV now requires `oam,high` columns.
+The managed comparison invokes each production actor's `Draw` with an inverse
+birth-camera offset to restore the native zero-camera origin. All 3,900 frames
+also match exact OAM bytes, including component order, tile/attribute words,
+coordinates, size and X-high bits. Invisible/deleted frames emit no low OAM.
+
+This supersedes the earlier absence of an OAM check, but only at that normalized
+origin. Real-scene clipping, interaction with other actors, VRAM/CGRAM contents,
+Mode 7 composition and full-scene scheduling are not established by this test.
+No production draw change was justified by these results.

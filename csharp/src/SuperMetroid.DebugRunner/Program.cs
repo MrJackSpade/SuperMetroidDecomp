@@ -336,6 +336,8 @@ if (args.Length == 3 && args[0] == "--phantoon-flame-coordinate-audit")
     return PhantoonFlameCoordinateAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--phantoon-rage-wave-audit")
     return PhantoonRageWaveAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--phantoon-flame-collision-audit")
+    return PhantoonFlameCollisionAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--phantoon-wave-comparison-audit")
     return PhantoonWaveComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--elevator-draw-native-comparison")

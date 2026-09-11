@@ -111,3 +111,34 @@ Core verification and both real-room missile/Super Missile hit-fade branches
 pass. This verifies queued sound, not a separate audible playback capture.
 Projectile lifetime and collision parity remain outstanding; #556 is not yet
 ready for player validation.
+
+## Collision and lifetime completion
+
+`--phantoon-flame-collision-audit ROM` uses production flame initialization,
+constructed shot/touch positions, the common collision dispatchers and the real
+enemy-projectile instruction pass. All sixteen cases pass without another
+production change:
+
+- Casual falling flames are neither shootable nor harmful at this stage.
+- Rain/rage/spiral flames damage Samus for 40 without suits, request 96 frames of
+  invincibility and five of knockback, and delete on contact. Exact touch edges
+  miss; one pixel of overlap hits.
+- Shots use the native 32-pixel-cell comparison, not ordinary hitbox overlap.
+  A distant corner of the same cell hits; a neighboring pixel across its edge
+  misses. Hits install the definition's shot list and clear shootability.
+- Shot deaths display all four ROM sprite maps for five frames each without
+  moving, then request exactly one drop and delete.
+- Forty-eight rage/spiral trajectories (all direction indices, two body heights)
+  delete on the first boundary crossing, at 26..96 frames, without drops.
+  This checks lifecycle using the separately CPU-verified coordinate helper as
+  its boundary predictor; it is not an independent second coordinate oracle.
+- Real-room rain impacts at frame 76 for the chosen initial delay, displays its
+  eight-frame impact image and four five-frame dying images, then deletes with
+  no drop. The prior timing audit independently covers delay expiry.
+
+Together with the real-room population/render captures, exhaustive original-CPU
+coordinate comparison, ROM regional operands and production Super Missile rage
+branch, this completes the reported rain/outward-pattern implementation checks.
+The tests construct projectile contacts rather than claiming a controller-driven
+whole fight; sound assertions verify queue handoff rather than audible output.
+The issue is ready for player validation and must remain open until confirmed.

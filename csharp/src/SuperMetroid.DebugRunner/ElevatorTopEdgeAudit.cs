@@ -77,6 +77,8 @@ internal static class ElevatorTopEdgeAudit
             Capture(phase.ToString());
         }
         if (transition.IsActive) throw new InvalidDataException("Elevator transition timed out.");
+        if (runtime.ActiveRoom!.Pointer != destinationRoom)
+            throw new InvalidDataException("Elevator arrived in the wrong destination room.");
         int settled = 0;
         for (int i = 0; i < 600 && settled < 30; i++)
         {
@@ -109,12 +111,13 @@ internal static class ElevatorTopEdgeAudit
             trace.WriteLine($"{frame},{phase},{runtime.ActiveRoom!.Pointer:X4},{samus.YPosition},{runtime.Camera!.YPosition}," +
                 $"{runtime.DisplayedGameplayPpu.Layer1YPosition},{relativeY},{runtime.Enemies.ElevatorStatus}," +
                 $"{samus.Pose},{samus.AnimationFrame},{runtime.NmiFrameCounter}");
-            // Capture each potentially wrapped arrival frame, plus periodic settled
-            // views. These are observations; no camera or sprite state is modified.
-            if (runtime.ActiveRoom.Pointer == destinationRoom &&
-                (relativeY >= 224 || frame % 8 == 0))
+            // Capture EVERY displayed transition/arrival frame. Sampling every eighth
+            // frame can alias the elevator's alternating visibility and systematically
+            // omit Samus. Do not force a draw or add an NMI to compensate for flicker.
             {
                 var packet = GameplayDisplayCapture.TryCaptureFrame(runtime);
+                if (packet is null)
+                    throw new InvalidDataException($"Missing display packet at elevator frame {frame} ({phase}).");
                 if (packet is not null)
                 {
                     var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);

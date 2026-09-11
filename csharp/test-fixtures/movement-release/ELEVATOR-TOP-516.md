@@ -1,5 +1,28 @@
 # Upward Blue Brinstar elevator top-edge reproduction (#516)
 
+## Current player feedback: reproduction not established
+
+The player explicitly rejected the Green Brinstar capture set as showing their
+reported visual defect and requested the originally reported room, $00/$14.
+Do not equate the single-row palette differences in that other room with the
+player's visible feet report. The historical findings below are diagnostic
+observations, not player confirmation or a validated reproduction of the current
+report.
+
+The capture previously saved every potentially wrapped arrival frame but only
+every eighth later frame. That sampling can alias the elevator's alternating
+Samus visibility. It now saves **every displayed transition and arrival frame**,
+including source-room frames, without forcing Samus visible or adding an NMI.
+A missing display packet is an explicit diagnostic error.
+
+The corrected $00/$14 run is local at
+`csharp/test-temp/elevator-0014-every-frame-516`: all 231 numbered PNGs exist
+consecutively, the destination is $8F:97B5, and the current top-edge assertion
+passes. This is not evidence that the user's current symptom has been reproduced
+or resolved. Keep #516 open; focus the next reproduction on this reported route
+and the actual visible behavior, not the rejected Green Brinstar residual.
+Captures remain local and are not published.
+
 Affected version: **0.1.1**. Reproduced; one contributing scheduling defect is
 fixed, but the remaining pixel failure is unresolved. No validation label yet.
 

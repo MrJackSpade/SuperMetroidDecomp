@@ -15,7 +15,7 @@ internal static class NativeAudioCorpusAudit
 {
     public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
         string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null, bool missileImpactOnly = false,
-        bool healthWarningOnly = false)
+        bool healthWarningOnly = false, SoundEffectId? soundOnly = null)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -36,6 +36,28 @@ internal static class NativeAudioCorpusAudit
         int totalFrames = 0;
         try
         {
+            if (soundOnly is { } sound)
+            {
+                byte port = checked((byte)(SoundEffectLibraries.ToQueueIndex(sound.Library) + 1));
+                int audiblePeak = 0;
+                Scenario($"standalone-{sound}", 180, frame => frame switch
+                {
+                    0 => [U(AudioUploadAddresses.SpcEngine), W(port, sound.Value)],
+                    1 => [W(port, 0)],
+                    _ => [],
+                }, observePcm: (frame, actual, expected) =>
+                {
+                    // Supplying an observer replaces Scenario's default PCM assertion.
+                    // Keep exact equality here as well as the non-silence coverage check.
+                    if (!actual.AsSpan().SequenceEqual(expected))
+                        throw new InvalidDataException($"{sound} PCM differs from native translation at frame {frame}.");
+                    audiblePeak = Math.Max(audiblePeak, actual.Max(sample => Math.Abs((int)sample)));
+                });
+                if (audiblePeak == 0)
+                    throw new InvalidDataException($"Standalone {sound} produced no audible PCM.");
+                Console.WriteLine($"{sound}: 180 PCM/acknowledgement frames match native translation; peak={audiblePeak}. This does not verify endpoint playback or gameplay triggering.");
+                return 0;
+            }
             if (healthWarningOnly)
             {
                 int activePeak = 0, stoppedPeak = 0;
@@ -261,8 +283,7 @@ internal static class NativeAudioCorpusAudit
                         mutedImpactControl.GenerateFrame(mutedImpactPcm!);
                         impactChangedPcm |= !actual.AsSpan().SequenceEqual(mutedImpactPcm);
                     }
-                    observePcm?.Invoke(frame, actual, nativeHost);
-                    if (observePcm is null && !actual.AsSpan().SequenceEqual(nativeHost))
+                    if ((observePcm is null || soundOnly is not null) && !actual.AsSpan().SequenceEqual(nativeHost))
                     {
                         foreach (string recent in recentCommands) Console.WriteLine(recent);
                         for (int index = 0; index < writeCount(native); index++)
@@ -278,6 +299,7 @@ internal static class NativeAudioCorpusAudit
                         int first = Enumerable.Range(0, actual.Length).First(i => actual[i] != nativeHost[i]);
                         throw new InvalidDataException($"Native corpus {name} frame={frame} sample={first}: managed={actual[first]}, native={nativeHost[first]}.");
                     }
+                    observePcm?.Invoke(frame, actual, nativeHost);
                     for (int port = 0; port < 4; port++)
                     {
                         int expected = read(native, port);

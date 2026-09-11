@@ -288,6 +288,10 @@ if (args.Length == 3 && args[0] == "--native-audio-corpus-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--health-warning-native-audio-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2], healthWarningOnly: true);
+if (args.Length == 5 && args[0] == "--sound-native-audio-audit")
+    return NativeAudioCorpusAudit.Run(args[1], args[2], soundOnly: new SoundEffectId(
+        SoundEffectLibraries.FromCartridge(byte.Parse(args[3]), "diagnostic command line"),
+        byte.Parse(args[4], System.Globalization.NumberStyles.HexNumber)));
 if (args.Length == 4 && args[0] == "--missile-impact-native-audio-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2], romPath: args[3], missileImpactOnly: true);
 if (args.Length == 5 && args[0] == "--ridley-death-native-audio-audit")
@@ -1022,6 +1026,8 @@ if (args.Length >= 2 && args[0] == "--wrecked-ship-ghost-audit")
 
 if (args.Length >= 2 && args[0] == "--yapping-maw-runtime-contact-audit")
     return YappingMawAudit.RunRuntimeContact(Path.GetFullPath(args[1]));
+if (args.Length == 2 && args[0] == "--yapping-maw-audio-audit")
+    return YappingMawAudit.RunAudio(Path.GetFullPath(args[1]));
 
 if (args.Length >= 2 && args[0] is "--yapping-maw-audit" or "--yapping-maw-history-audit")
 {

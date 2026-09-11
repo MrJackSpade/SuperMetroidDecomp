@@ -20,7 +20,12 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        // Keep the constructed clearing visible; the old mechanics-only fixture
+        // left the displayed camera at zero, outside the tested Samus trajectory.
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, cameraX: 384, cameraY: 384);
+        for (int y = 1; y <= 2; y++)
+        for (int x = 1; x <= 2; x++)
+            runtime.Camera!.Scrolls.SetLogicalState(x, y, RoomScrollState.Green);
         var level = runtime.LevelData!;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)
@@ -52,6 +57,7 @@ internal static partial class Program
         bool bubble = false, drained = false;
         RoomEnemySlot? contactEnemy = null;
         bool contactVerified = false;
+        int visibleBodyFrames = 0, visibleWindowFrames = 0;
         for (int frame = 0; frame < 1000; frame++)
         {
             if (refill && frame == 60)
@@ -106,6 +112,9 @@ internal static partial class Program
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
             if (started >= 0)
             {
+                var visible = VerifyCrystalFlashVisualFrame(runtime, frame - started);
+                if (visible.Body) visibleBodyFrames++;
+                if (visible.Window) visibleWindowFrames++;
                 AssertEqual(512, samus.XPosition, "Crystal Flash owns horizontal movement");
                 AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.YPosition,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
@@ -127,6 +136,9 @@ internal static partial class Program
         AssertEqual(0, samus.Missiles, "runtime consumes ten missiles");
         AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");
         AssertEqual(0, samus.PowerBombs, "runtime consumes ten remaining Power Bombs");
+        Console.WriteLine($"Crystal Flash visual coverage: body={visibleBodyFrames}, window={visibleWindowFrames} frames.");
+        AssertEqual(253, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
+        AssertEqual(82, visibleWindowFrames, "complete observed Crystal Flash color window visibility duration");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame((ushort)SnesButton.Right);
         AssertTrue(samus.XPosition > 512, "normal movement resumes after Crystal Flash");
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");

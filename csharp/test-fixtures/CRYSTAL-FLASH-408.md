@@ -242,3 +242,33 @@ This compares the admitted touch/handler sequence, not the native enemy broadpha
 or whole-room scheduling. The separate full-runtime contact fixture exercises
 managed room ordering. The rendered bubble/palette and original-game integrated
 presentation remain unverified; #408 is still open without a validation label.
+
+## Full-runtime visual capture
+
+The mechanics fixture's displayed camera originally stayed at (0,0), leaving
+Samus at (512,505) outside the screen. Initial visual assertions therefore failed
+with zero body/window contribution; this was an invalid visual fixture, not a
+diagnosed gameplay rendering bug. The fixture now loads camera (384,384) and
+permits green scrolling in its four constructed local screen cells. An assertion
+requires the entire tested sprite to stay inside the visible region. Other room
+scenery retains its original graphics; the collision clearing is synthetic.
+
+Both successful runtime routes now capture every frame from activation through
+completion. An independent elapsed-time lookup into ROM body record durations
+and the six five-frame bubble palettes checks all sixteen published palette
+words. It does not inspect production palette timers to derive expectations.
+Counterfactual renders remove only OBJ palette six, or only the color window,
+to verify the visible contribution and unchanged HUD pixels. The complete paths
+have 253 body-contributing and 82 color-window-contributing frames each. These
+counts lock down the observed managed sequence; they are not independently
+measured native raster timing.
+
+Optional `SM_CRYSTAL_FLASH_CAPTURE` points to a private diagnostic directory;
+`--crystal-flash-runtime` writes frames10/30/100 there. Frames30/100 were visually
+inspected: Samus is centered inside the circular bubble with different authored
+body colors. Files stay under ignored test-temp and are not published. The
+ordinary/refill routes retain their contact, resources and input-lock assertions.
+
+No production change is needed for this coverage. Original-CPU palette/HDMA
+presentation comparison remains separate from the already completed native
+movement/contact comparisons; no complete visual parity or closure is claimed.

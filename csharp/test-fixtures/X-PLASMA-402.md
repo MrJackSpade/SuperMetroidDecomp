@@ -290,3 +290,22 @@ audit and existing complete Ninja family audit pass without production changes.
 An original-CPU steel-Pirate comparison and normally fired/controller-driven
 vulnerability-window test remain outstanding. Do not treat this as completion
 of #402 or proof of the practical window's duration.
+
+### Original-CPU steel comparison
+
+The overlap fixture now also executes the pinned cartridge's extended collision
+routine and EnemyMain through `native-xplasma-steel-probe.h`. Both sides start
+the actor at (128,128), with the projectile at (118,118). Optional CSV input to
+`--ninja-x-plasma-audit` compares every contact, frozen pass, and release record:
+all 70 records match for health, invincibility, flash, map, actor position,
+projectile type, and damage. The native flash is 12 during freeze and 11 after
+release, whether the entry invincibility gate accepts or rejects the shot.
+
+Two independent private captures agree, SHA-256
+`536D49163068522E708A29DA9C15D8C487A6C0C8D008859BFD020A8CF9DEAB1A`.
+Regenerate using `native-xplasma-steel-entrypoint.patch`, then
+`sm.exe --diagnostic-xplasma-steel "Super Metroid.smc" NEW.csv`. Supply that
+CSV after the ROM argument to the managed audit. Native hooks were reversed
+and the ordinary native executable rebuilt afterward. This supersedes the
+missing original-CPU overlap comparison above; the practical firing window
+and controller-driven encounter remain unverified. No production change.

@@ -1427,7 +1427,7 @@ if (args.Length >= 2 && args[0] == "--crateria-wall-pirate-audit")
 // The Metal Pirates room contains exactly two untouched gold ninja Pirates facing inward,
 // making both directions and all post-relative branches independently reproducible.
 if (args.Length >= 2 && args[0] == "--ninja-x-plasma-audit")
-    return NinjaSpacePirateAudit.RunXPlasma(args[1]);
+    return NinjaSpacePirateAudit.RunXPlasma(args[1], args.Length >= 3 ? args[2] : null);
 
 if (args.Length >= 2 && args[0] == "--norfair-ninja-pirate-audit")
 {

@@ -5,9 +5,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Bank-$86 projectile $8F8F fired by Crocomire's open-mouth volley.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int CrocomireProjectileGradientTable = 0x869059;
-    private const int CrocomireProjectileSineTable = 0xa0b443;
-
     // These three tables are indexed by the physical bank-$86 projectile slot. Crocomire
     // deliberately clears the pool and then allocates eight actors from slot 17 downward,
     // so entries 10..17 produce the wall's authored fan rather than eight identical shards.
@@ -69,11 +66,15 @@ public sealed partial class RoomEnemySystem
         // that documented OOB behavior instead of clamping it to a friendly host array.
         short gradient = unchecked((short)ReadWord(
             _bus!,
-            CrocomireProjectileGradientTable + (projectile.DirectionParameter >> 1) * 2));
+            CrocomireProjectileRomData.Gradients + (projectile.DirectionParameter >> 1) * 2));
         byte angle = CalculateCartridgeAngle(-64, gradient);
+        // The native angle starts at up, not right. Use the two long-read
+        // operands directly; the decompilation's combined array has a prefix
+        // before the sine label and cannot be rebased without changing indices.
         projectile.XVelocity = ReadCrocomireProjectileVelocity(
-            unchecked((byte)(angle + 64)));
-        projectile.YVelocity = ReadCrocomireProjectileVelocity(angle);
+            CrocomireProjectileRomData.XVelocitySine, angle);
+        projectile.YVelocity = ReadCrocomireProjectileVelocity(
+            CrocomireProjectileRomData.YVelocityNegativeCosine, angle);
         projectile.PreInstruction =
             EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired;
     }
@@ -90,12 +91,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private ushort ReadCrocomireProjectileVelocity(byte angle)
+    private ushort ReadCrocomireProjectileVelocity(int table, byte angle)
     {
         short sample = unchecked((short)ReadWord(
             _bus!,
-            CrocomireProjectileSineTable + angle * 2));
-        return unchecked((ushort)(sample * 4));
+            table + angle * 2));
+        return unchecked((ushort)(sample * CrocomireProjectileRomData.VelocityMultiplier));
     }
 
     /// <summary>Ports <c>Crocomire_Func_52</c> and initializer $86:9286.</summary>

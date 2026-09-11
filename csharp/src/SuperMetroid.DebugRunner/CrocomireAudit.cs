@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 /// Retail-ROM regression for Crocomire's multipart load, extended hitboxes, fight bytecode,
 /// movement callbacks, mouth damage response, power-bomb reaction, and bank-$86 projectile.
 /// </summary>
-internal static class CrocomireAudit
+internal static partial class CrocomireAudit
 {
     private const ushort RoomHeader = 0xa98d;
     private const ushort NormalRoomState = 0xa99f;

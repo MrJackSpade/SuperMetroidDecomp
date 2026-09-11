@@ -470,6 +470,7 @@ VerifyManagedSnesDsp();
 VerifyTypedNativeWords();
 VerifyProductionMagicNumberAudit();
 VerifyPhantoonWaveLifecycle();
+VerifyBackgroundMosaicSampling();
 VerifyOamSpritemapPacking();
 VerifyCeresElevatorArrivalGraphicsIndex();
 VerifySamusRenderingSlice();

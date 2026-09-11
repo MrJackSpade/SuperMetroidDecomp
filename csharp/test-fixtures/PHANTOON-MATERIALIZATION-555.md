@@ -243,3 +243,19 @@ before priority/color math in CPU and GPU paths, preserve HUD/OBJ/BG1, retain
 packet/state compatibility, and test vertical phase and scroll interaction as
 well as horizontal repeats. A final-image pixelation overlay would be incorrect.
 No claim of a mosaic fix yet; #555 remains open without awaiting validation.
+
+## Mosaic sampling prerequisite
+
+`BackgroundMosaicSampling` defines the shared frame-start background coordinate
+rule. The pinned `upstream-sm/src/snes/ppu.c` resets mosaic start to physical line
+one at frame start; its background fetch quantizes screen X/Y before adding the
+current background scroll. Consequently a per-line HDMA scroll change remains
+effective inside a vertical block: this is not equivalent to copying the fully
+rendered block's first output row. HUD row 32 is not a fresh vertical-group origin.
+
+Core verification covers 16384 coordinate cases across all sizes 1..16 and
+scroll values 0/7/255/65535, plus explicit HUD-boundary, scroll-order and default
+descriptor cases. The default descriptor is size one. The helper deliberately
+does not claim active-display MOSAIC-write phase resets; Phantoon publishes its
+shadow register at NMI. No renderer uses this prerequisite yet, so the final-death
+visual reproduction remains failing and the issue stays open.

@@ -3,29 +3,36 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rom;
+using System.Reflection;
 
 internal static partial class Program
 {
     private static void VerifyAttractCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
-        var source = new SuperMetroidAddressSpace(rom);
-        int list = AttractDemoRomData.RoomBank | RomDataReader.ReadWordFixedBank(source, AttractDemoRomData.RoomSetPointers);
-        // Keep the real first-room/input/graphics setup, but bound this rendering test
-        // to sixteen gameplay ticks and one scene rather than a multi-room demo tour.
-        WriteRomWord(rom, list + AttractDemoRomData.RoomFields.Duration, 16);
-        WriteRomWord(rom, list + AttractDemoRomData.RoomRecordBytes, AttractDemoRomData.EndOfSet);
+        // Scene setup is compiled now. Bound only the live verification instance after
+        // its real first scene has loaded; ROM table patches no longer affect admission.
+        FieldInfo countdown = typeof(SuperMetroidGame).GetField("demoFramesRemaining", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        FieldInfo nextScene = typeof(SuperMetroidGame).GetField("demoScene", BindingFlags.Instance | BindingFlags.NonPublic)!;
         int samples = 0;
         foreach (bool cancel in new[] { false, true })
         {
             var legacy = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
             var captured = new SuperMetroidGame(new SuperMetroidAddressSpace(rom));
             var states = new HashSet<SuperMetroidGameState>();
-            bool sawHold = false, returned = false;
+            bool sawHold = false, returned = false, bounded = false;
             Rgba32[]? held = null;
             for (int tick = 0; tick < 8000; tick++)
             {
+                if (!bounded && legacy.GameState == SuperMetroidGameState.TransitionToDemoB)
+                {
+                    foreach (var game in new[] { legacy, captured })
+                    {
+                        countdown.SetValue(game, 16);
+                        nextScene.SetValue(game, 6);
+                    }
+                    bounded = true;
+                }
                 ushort input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? (ushort)SnesButton.Start : (ushort)0;
                 FrontendFrame expected = legacy.Step(input);
                 CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 1);

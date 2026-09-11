@@ -14,7 +14,7 @@ public sealed partial class SuperMetroidRuntime
     {
         if (_attractDemoInput is null) return;
         Samus!.PreviousDrawNewInput = _attractDemoInput.Script.NewlyPressed;
-        _attractDemoInput.Step(_addressSpace, SuperMetroidGameState.PlayingDemo,
+        _attractDemoInput.StepStock(SuperMetroidGameState.PlayingDemo,
             Samus!.ReadMovementType(_addressSpace));
         _attractDemoInputRestore = Controller1.UseDemoInput(
             _attractDemoInput.Script.Held, _attractDemoInput.Script.NewlyPressed);
@@ -78,7 +78,7 @@ public sealed partial class SuperMetroidRuntime
         Samus.PrimeGraphics(_addressSpace);
         Samus.LiquidPhysics.RoomIdentity = room.Identity;
         GroundedSamusMovementEnabled = true;
-        _attractDemoInput = new AttractDemoInput(_addressSpace, scene);
+        _attractDemoInput = new AttractDemoInput(scene);
     }
 
     private void ApplyAttractSamusSetup(ushort pointer)

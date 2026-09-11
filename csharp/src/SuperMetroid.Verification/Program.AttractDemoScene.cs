@@ -82,6 +82,7 @@ internal static partial class Program
                 AssertEqual(AttractDemoScene.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
                     $"compiled scene {set}/{scene} matches every cartridge setup field");
                 total++;
+                VerifyCompiledAttractInput(retail, StockAttractDemoScenes.Get(set, scene)!);
             }
             AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
                 AttractDemoScene.Read(retail, set, counts[set]) is null, "stock set sentinel");
@@ -91,5 +92,33 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
         AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
+    }
+
+    private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
+    {
+        // Run well beyond each displayed scene: this also checks script tails that ordinary
+        // frontend timing does not reach. Separate schedules exercise both native $1A
+        // pre-instruction branches and cancellation before/during/after timed records.
+        foreach (int leaveFrame in new[] { -1, 0, 19, (int)scene.Duration })
+        {
+            var reference = new AttractDemoInput(bus, scene);
+            var compiled = new AttractDemoInput(scene);
+            for (int frame = 0; frame < 6000; frame++)
+            {
+                var gameState = frame == leaveFrame
+                    ? SuperMetroidGameState.TransitionFromDemoB : SuperMetroidGameState.PlayingDemo;
+                var movement = frame < 200 ? SamusMovementType.DraygonHeld : SamusMovementType.Standing;
+                reference.Step(bus, gameState, movement);
+                compiled.StepStock(gameState, movement);
+                AssertEqual(Snapshot(reference.Script), Snapshot(compiled.Script),
+                    $"compiled attract ${scene.InputObject:X4}, leave {leaveFrame}, frame {frame}");
+            }
+        }
+
+        static string Snapshot(DemoInputState state) =>
+            $"{state.Enabled}/{state.InitializationParameter}/{state.PreInstructionPointer}/" +
+            $"{state.InstructionPointer}/{state.InstructionTimer}/{state.Timer}/{state.Held}/" +
+            $"{state.NewlyPressed}/{state.PreviousHeld}/{state.PreviousNewlyPressed}/" +
+            $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 }

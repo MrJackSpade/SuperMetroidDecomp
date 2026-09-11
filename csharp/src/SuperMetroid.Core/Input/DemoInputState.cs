@@ -87,6 +87,56 @@ public sealed class DemoInputState
     /// <summary>Models <c>$91:834E</c>; loading and enabling remain separate native steps.</summary>
     public void Enable() => Enabled = true;
 
+    /// <summary>Loads a compiled title-demo header without accessing cartridge memory.</summary>
+    public void LoadStockAttractObject(ushort objectPointer)
+    {
+        var definition = StockAttractInputPrograms.GetObject(objectPointer);
+        if (definition.Initializer != DemoInputRomData.Routines.NoOp)
+            throw UnsupportedRoutine("compiled initializer", definition.Initializer);
+        InitializationParameter = objectPointer;
+        PreInstructionPointer = definition.PreInstruction;
+        InstructionPointer = definition.Start;
+        InstructionTimer = 1;
+        Timer = 0;
+    }
+
+    /// <summary>Publishes one compiled stock title-demo frame using native timer semantics.</summary>
+    public void StepStockAttract(Action<DemoInputState, ushort> preInstruction)
+    {
+        if (!Enabled || InstructionPointer == 0) return;
+        preInstruction(this, PreInstructionPointer);
+        InstructionTimer = NativeWordCounter.Decrement(InstructionTimer).Value;
+        if (InstructionTimer == 0)
+        {
+            ushort cursor = InstructionPointer;
+            while (true)
+            {
+                var command = StockAttractInputPrograms.GetCommand(cursor);
+                if (command.Kind == StockAttractInputPrograms.Operation.Goto)
+                {
+                    cursor = command.Next;
+                    continue;
+                }
+                if (command.Kind == StockAttractInputPrograms.Operation.Delete)
+                {
+                    InstructionPointer = Held = NewlyPressed = 0;
+                    break;
+                }
+                if (command.Kind != StockAttractInputPrograms.Operation.Input)
+                    throw new InvalidDataException("Invalid compiled attract operation.");
+                InstructionTimer = command.Duration;
+                Held = (ushort)command.Held;
+                NewlyPressed = (ushort)command.NewlyPressed;
+                InstructionPointer = command.Next;
+                break;
+            }
+        }
+        PublishedPreviousHeld = PreviousHeld;
+        PublishedPreviousNewlyPressed = PreviousNewlyPressed;
+        PreviousHeld = Held;
+        PreviousNewlyPressed = NewlyPressed;
+    }
+
     /// <summary>Models <c>$91:835F</c> without destroying the loaded object's RAM.</summary>
     public void Disable() => Enabled = false;
 

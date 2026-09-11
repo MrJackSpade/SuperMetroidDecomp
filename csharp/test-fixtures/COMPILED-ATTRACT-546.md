@@ -22,11 +22,28 @@ DebugRunner `--attract-demo-frontend-audit ROM` passes the actual title timeout,
 18 ordinary scene durations, 90-frame frozen holds, cycling and cancellation
 with unchanged SRAM using the compiled frontend selection path.
 
+## Controller programs migrated
+
+StockAttractInputPrograms contains 23 object headers and 823 reachable decoded
+records, including the shared delete list and the pre-instruction continuation.
+The shipped control flow uses only timed input, goto and delete. Held and edge
+buttons are independent typed values; addresses identify native control-flow
+labels, not an emulated memory blob. The catalog is split into bounded files.
+
+Production runtime loading and stepping use the compiled path without an address
+space. The original ROM reader/interpreter remains available for intro scenes and
+as the development comparison path. No serialized instance fields were added.
+
+The standard scene test now compares all twelve observable script-state values
+on 552,000 handler calls: 23 scenes, four cancellation schedules, 6,000 calls each.
+Both sides of the native movement-type-$1A pre-instruction are exercised. The
+normal frontend audit also passes with compiled controller playback, not merely
+compiled scene selection. These are ROM-backed interpreter comparisons, not a
+new independent native CPU replay of all movement outcomes.
+
 ## Remaining scope
 
-DemoInputState/AttractDemoInput still read cartridge object and instruction data.
-Those need compiled typed input programs, with every stock controller frame and
-branch compared to the reference interpreter. Room loading, animation and other
+Room loading, animation and other
 presentation still depend on the wider #530/#549 migrations; this is not yet a
 ROM-free game or a completed #546. Preserve user recordings as separate tool
 data, not editable engine programs. Replacement audiovisual asset tests and

@@ -79,3 +79,46 @@ yet prove no-self-launch. Full jump-to-unmorph retention, admission failures wit
 Power Bomb selection/occupied slots, and wall/slope collision cases remain. This
 isolated alpha/overlap fixture does not run movement, room AI, or the full game
 loop. Do not mark the whole technique ready based on these passing trajectories.
+
+## Deliberate overlap and admission follow-up
+
+The extended native trace now appends 30 deliberate overlap cases and a 32-case
+producer admission matrix. It retains the preceding 23,080 trajectory observations.
+Updated trace SHA256:
+`14977C4B36DC4F93F6AF601301E8ECE8AFE39199594669082DBC9E0BCDEB3068`.
+
+For each spread slot, set its fuse to eight and overlap Samus at X deltas -1, 0,
+and +1. All 15 cases return no bomb-jump direction. Clear only the native type
+sign bit in the otherwise identical controls: all 15 now return left, straight,
+or right as appropriate. C# runs the production overlap dispatcher with the same
+post-allocation setup and matches. This confirms no-self-launch with positive
+collision controls, rather than interpreting distant bombs as a successful test.
+
+Admission cases start with full charge and cross Power Bomb selection, one
+existing ordinary bomb, Down, newly pressed Shoot, and held Shoot (32 cases).
+The existing bomb is created by the producer and its cooldown expires through
+normal ticks before the tested call. Assertions cover consumed/retained charge,
+spread hold counter, slot count, ammunition and first-slot type. Only normal
+selection, empty slots, held Shoot and released Down launch a spread. The test
+also records synthetic new-Shoot-without-held-Shoot combinations to establish
+the outer held-input guard; these are not claimed as normal controller states.
+
+**Reproduced defect and fix:** with Power Bombs selected and Shoot released,
+native `$90:BFA0-$BFC4` clears charge, but C# returned before testing Shoot and
+kept charge 60. The native comparison failed on that exact state before the fix.
+Moved the selected-Power-Bomb bypass below the released-Shoot check to match the
+cartridge's branch ordering. Corrected the stale address comment: `$90:BF75`
+belongs to missile handling, not charge release. The 32-case comparison passes
+after the change. An eight-case standard-suite regression covers zero/partial/
+full charge, both HUD selections, cancellation SFX and unchanged ammunition.
+
+The focused bomb producer emits `BeamChargeConsumed` for the runtime's existing
+charge/palette bridge. Admission comparison evaluates that command's resulting
+charge; it does not claim to execute the full runtime bridge or compare palette
+pixels. Native samples stop after the producer while C# also advances slots;
+the compared admission fields are unchanged by that same-call projectile step.
+
+Remaining #414 completion work: native/full-production jump-to-unmorph charge
+retention and its adjacent failure cases. Wall/slope collision trajectories can
+extend the flat-floor coverage but are not established by this trace. Keep #414
+open rather than marking the complete technique ready from this partial fix.

@@ -8,6 +8,7 @@ internal static partial class Program
 {
     private static void VerifyBombChargeRejection()
     {
+        VerifyBombChargeRelease();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
         foreach (ushort charge in new ushort[] { 0, 58, 60 })
@@ -41,6 +42,28 @@ internal static partial class Program
             AssertEqual(cancelled ? 1 : 0, cancellations.Length, $"single native charge cancellation sound: {context}");
             AssertEqual(helperRuns && freshShoot ? 1 : 0, bombs.BombCounter,
                 $"rejection must not allocate a projectile: {context}");
+        }
+    }
+
+    private static void VerifyBombChargeRelease()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
+        foreach (ushort charge in new ushort[] { 0, 1, 59, 60 })
+        foreach (ushort selection in new ushort[] { 0, 3 })
+        {
+            var samus = new SamusState { Pose = SamusPoseIds.MorphBallGroundRightPose,
+                EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
+                SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
+                XPosition = 80, YPosition = 80 };
+            var bombs = new SamusBombProjectileSystem();
+            var result = bombs.StepFrame(bus, level, samus, (ushort)SnesButton.Down, 0);
+            string context = $"Shoot released, charge {charge}, HUD selection {selection}";
+            AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
+            AssertEqual(charge != 0 ? 1 : 0, result.SoundRequests!.Count(sound => sound ==
+                new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9)), $"charge cancellation sound: {context}");
+            AssertEqual((ushort)0, bombs.BombCounter, $"release never places a bomb: {context}");
+            AssertEqual((ushort)2, samus.PowerBombs, $"release never spends ammunition: {context}");
         }
     }
 }

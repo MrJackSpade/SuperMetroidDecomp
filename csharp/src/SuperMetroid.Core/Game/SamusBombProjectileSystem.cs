@@ -382,19 +382,20 @@ public sealed class SamusBombProjectileSystem
         SamusState samus,
         ushort controllerInput)
     {
-        // The power-bomb HUD branch bypasses `$90:C0AB` entirely.
-        if (samus.SelectedHudItem == 3)
-            return BombSpreadAdmission.NotApplicable;
-
         bool shootHeld = (controllerInput & (ushort)SnesButton.X) != 0;
         if (!shootHeld)
         {
-            // `$90:BF75` cancels a carried humanoid charge when the Morph-Ball handler
-            // observes Shoot released. The palette/SFX bridge is consumed by runtime.
+            // The outer Morph-Ball handler cancels charge before testing HUD selection
+            // ($90:BFA0-$BFC4). Releasing Shoot must also cancel with Power Bombs selected;
+            // only held Shoot reaches their branch. Runtime consumes the palette/SFX bridge.
             return samus.ProjectileFlareCounter != 0
                 ? BombSpreadAdmission.ChargeCancelled
                 : BombSpreadAdmission.NotApplicable;
         }
+
+        // Held Shoot with Power Bomb selected bypasses the ordinary spread helper.
+        if (samus.SelectedHudItem == 3)
+            return BombSpreadAdmission.NotApplicable;
 
         if (!samus.EquippedItems.HasAny(SamusEquipmentFlags.Bombs) ||
             samus.ProjectileFlareCounter < SamusBombSpreadRomData.RequiredChargeFrames ||

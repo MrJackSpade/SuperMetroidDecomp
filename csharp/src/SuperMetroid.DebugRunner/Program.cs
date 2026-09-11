@@ -567,6 +567,9 @@ if (args.Length == 3 && args[0] == "--ceres-zoom-timing-audit")
 if (args.Length == 3 && args[0] == "--ceres-actor-native-audit")
     return CeresActorNativeAudit.Run(args[1], args[2]);
 
+if (args.Length == 3 && args[0] == "--ceres-scene-native-audit")
+    return CeresSceneNativeAudit.Run(args[1], args[2]);
+
 if (args.Length == 3 && args[0] == "--zebes-ship-visibility-audit")
     return ZebesShipVisibilityAudit.Run(args[1], args[2]);
 

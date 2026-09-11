@@ -25,6 +25,7 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly SnesCgram cgram = new();
     private readonly byte[] ceresTilemaps;
     private readonly List<IntroDiscoverySprite> actors = [];
+    private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     private IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
@@ -293,6 +294,10 @@ internal sealed partial class CeresDestructionCinematicState
         actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialAsteroids));
         actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialSmallAsteroids));
         actors.Add(CreateActor(CeresDestructionRomData.Sprites.InitialVortex));
+        ceresActorSlots.Clear();
+        ceresActorSlots.Add(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot);
+        ceresActorSlots.Add(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot);
+        ceresActorSlots.Add(actors[2], CeresDestructionRomData.Sprites.VortexSlot);
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 

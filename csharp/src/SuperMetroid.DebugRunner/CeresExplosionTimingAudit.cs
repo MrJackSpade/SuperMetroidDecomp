@@ -18,7 +18,9 @@ internal static class CeresExplosionTimingAudit
         var actual = new List<int>();
         int departureFrame = int.MaxValue;
         int Word(int address) => bus.ReadByte(address) | bus.ReadByte(address + 1) << 8;
-        int first = Word(CeresExplosionAuditRomData.InitialWait);
+        // A newly initialized actor first spends one handler call fetching its
+        // initial duration; the wait does not begin at construction time.
+        int first = 1 + Word(CeresExplosionAuditRomData.InitialWait);
         int second = first + Word(CeresExplosionAuditRomData.InterGroupWait) + 1;
         int final = second - 1 + Word(CeresExplosionAuditRomData.RepeatingWait);
         int period = Word(CeresExplosionAuditRomData.RepeatingPeriodOperand);

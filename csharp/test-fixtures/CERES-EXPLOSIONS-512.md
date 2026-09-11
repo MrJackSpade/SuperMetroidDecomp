@@ -122,3 +122,43 @@ This supersedes the earlier absence of an OAM check, but only at that normalized
 origin. Real-scene clipping, interaction with other actors, VRAM/CGRAM contents,
 Mode 7 composition and full-scene scheduling are not established by this test.
 No production draw change was justified by these results.
+
+## Whole-population reproduction and correction
+
+The next comparison exposed what the isolated checks could not. Use the same
+headless native entrypoint/build workflow with:
+
+```
+sm.exe --diagnostic-ceres-scene "Super Metroid.smc" NEW_PRIVATE_CSV
+--ceres-scene-native-audit "Super Metroid.smc" PRIVATE_CSV
+```
+
+The native probe seeds the documented C11B scalar/actor initialization, runs
+original CPU phase handlers, the complete sprite handler and the original draw
+routine. It deliberately fixes the initial music wait at fourteen calls to match
+the no-audio managed fixture; it is not an SPC or full machine boot comparison.
+It does not initialize native graphics memory or render native pixels.
+
+Before correction: the first OAM mismatch is zero-based frame 127, with 69
+managed sprites versus 68 native. The port omitted the initial call that fetches
+CF33's first instruction duration. Adding that call moves the one-based birth
+schedule to 129; 210/222/234/246/258/270; and 273. This supersedes the earlier
+ROM-operand-only audit's absolute schedule, which shared that missing fetch.
+
+After correcting timing, unordered sprite components match every compared frame,
+but OAM order still differs on 270 of the first 398 frames. Production used list
+creation order, whereas native allocation reuses the highest free numbered slot
+and draws in descending slot order. Track those native slots for Ceres, reserve
+the invisible spawner's slot through its last instruction, release deleted slots,
+and draw in native slot order. Full-slot allocation returns failure as native
+938A does; its cinematic callers intentionally ignore that carry result.
+
+After both corrections: all 600 compared frames match phase, scale, camera,
+brightness, the complete unordered component population and exact low/high OAM
+bytes. This includes departure and the post-explosion hold. Full Verification,
+Windows Release build, and the complete Ceres/Zebes landing/save audit pass.
+
+These are reproduced timing and composition fixes, now ready for player
+confirmation. Whole-renderer pixel parity and real audio-queue timing remain
+outside the evidence; the issue should stay open with awaiting-player-validation,
+not be closed solely on this diagnostic.

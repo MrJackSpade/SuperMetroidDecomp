@@ -67,7 +67,10 @@ internal sealed partial class CeresDestructionCinematicState
 
             actor.Step(bus);
             if (!actor.IsActive)
+            {
+                ceresActorSlots.Remove(actor);
                 actors.RemoveAt(index);
+            }
         }
     }
 
@@ -80,7 +83,7 @@ internal sealed partial class CeresDestructionCinematicState
         stationExplosion.Spawn(x, y);
         audio?.QueueSound(SuperMetroid.Core.Audio.SoundEffectLibrary1Sounds.PowerBombExplosion,
             maximumQueued: 15);
-        actors.Add(new IntroDiscoverySprite(
+        _ = TryAddCeresActor(new IntroDiscoverySprite(
             x,
             y,
             CeresDestructionRomData.Sprites.ExplosionPalette.Raw,
@@ -115,7 +118,27 @@ internal sealed partial class CeresDestructionCinematicState
         // GeneralTimer is a different WRAM array used by decrement-and-goto opcodes; using
         // it here would make all five blasts appear immediately despite distinct delays.
         actor.DelayFirstInstruction(unchecked((ushort)delay));
-        actors.Add(actor);
+        _ = TryAddCeresActor(actor);
+    }
+
+    private bool TryAddCeresActor(IntroDiscoverySprite actor)
+    {
+        // Native allocation searches the highest free slot. The invisible spawner
+        // owns its slot until its final spawn instruction and deletion have run.
+        for (int slot = CeresDestructionRomData.Sprites.AsteroidSlot; slot >= 0; slot--)
+        {
+            if (slot == CeresDestructionRomData.Sprites.SpawnerSlot &&
+                explosionSpawnerFrame <= CeresDestructionRomData.Timing.FinalExplosionFrame)
+                continue;
+            if (ceresActorSlots.ContainsValue(slot)) continue;
+            ceresActorSlots.Add(actor, slot);
+            actors.Add(actor);
+            return true;
+        }
+        // $8B:938A returns carry set when all slots are occupied. These cinematic
+        // callers intentionally do not branch on it: this is native capacity
+        // behavior, not an unsupported instruction or swallowed runtime failure.
+        return false;
     }
 
     private static void MoveExplosion(IntroDiscoverySprite actor)

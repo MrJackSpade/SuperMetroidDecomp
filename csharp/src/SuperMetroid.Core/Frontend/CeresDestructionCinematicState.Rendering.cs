@@ -108,7 +108,11 @@ internal sealed partial class CeresDestructionCinematicState
     {
         var oam = new OamBuffer();
         oam.BeginFrame();
-        foreach (IntroDiscoverySprite actor in actors) actor.Draw(bus, oam);
+        // Same-priority OBJ overlap is decided by OAM order. Allocation order is
+        // not stable slot order after an earlier explosion dies and its slot is reused.
+        IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
+            ? actors.OrderByDescending(actor => ceresActorSlots[actor]) : actors;
+        foreach (IntroDiscoverySprite actor in drawActors) actor.Draw(bus, oam);
         oam.FinalizeFrame();
         return oam;
     }

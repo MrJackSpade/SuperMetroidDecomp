@@ -10,8 +10,13 @@ diff --git a/src/main.c b/src/main.c
  void Warning(const char *error) {
 -  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
 +  if (!ceres_actors_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
-@@ -315,1 +316,6 @@
+@@ -315,1 +316,11 @@
  int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-ceres-scene") == 0) {
++    ceres_actors_headless = true;
++    extern int DiagnosticCeresScene(const char *, const char *);
++    return DiagnosticCeresScene(argv[2], argv[3]);
++  }
 +  if (argc == 4 && strcmp(argv[1], "--diagnostic-ceres-actors") == 0) {
 +    ceres_actors_headless = true;
 +    extern int DiagnosticCeresActors(const char *, const char *);

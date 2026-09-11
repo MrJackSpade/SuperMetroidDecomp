@@ -61,13 +61,14 @@ public static class CeresDestructionRomData
 
     public static class Timing
     {
-        public const int FirstExplosionFrame = 0x0080;
-        /// <summary>$8B:CE35/CE3B/CE3F: $80 + $50 frames, then the installed pre-instruction runs next frame.</summary>
-        public const int SecondaryExplosionFirstFrame = 0x00d1;
+        /// <summary>$8B:CE35: one initial instruction fetch, then the $80-frame invisible wait.</summary>
+        public const int FirstExplosionFrame = 0x0081;
+        /// <summary>$8B:CE35/CE3B/CE3F: initial fetch, $80 + $50 frames, then the pre-instruction runs next frame.</summary>
+        public const int SecondaryExplosionFirstFrame = 0x00d2;
         /// <summary>$8B:CE43/CE49: the spawner remains alive through its final $40-frame wait.</summary>
-        public const int SecondaryExplosionLastFrame = 0x0110;
+        public const int SecondaryExplosionLastFrame = 0x0111;
         public const int SecondaryExplosionPeriod = 12;
-        public const int FinalExplosionFrame = 0x0110;
+        public const int FinalExplosionFrame = 0x0111;
         public const ushort ExplosionHoldFrames = 0x00c0;
         public const ushort ZebesHoldFrames = 0x0040;
         public const byte InitialMosaicRegister = 0x81;
@@ -102,6 +103,14 @@ public static class CeresDestructionRomData
 
     public static class Sprites
     {
+        /// <summary>$8B:C27F: first automatic allocation owns native byte index $1E (slot 15).</summary>
+        public const int AsteroidSlot = 15;
+        /// <summary>$8B:C285/C28A: explicit byte index $02 reserves slot 1 for small asteroids.</summary>
+        public const int SmallAsteroidSlot = 1;
+        /// <summary>$8B:C290/C295: explicit byte index $00 reserves slot 0 for the vortex.</summary>
+        public const int VortexSlot = 0;
+        /// <summary>$8B:C29B: second automatic allocation reserves slot 14 for invisible CF33.</summary>
+        public const int SpawnerSlot = 14;
         public static readonly SnesObjAttributeWord ScenePalette = SnesObjPalettes.Index4;
         public static readonly SnesObjAttributeWord ExplosionPalette = SnesObjPalettes.Index5;
         public static readonly SnesObjAttributeWord PlanetPalette = SnesObjPalettes.Index7;

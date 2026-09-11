@@ -21,10 +21,15 @@ index 64ececa..abad3a2 100644
    fprintf(stderr, "Warning: %s\n", error);
  }
  
-@@ -313,6 +314,16 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+@@ -313,6 +314,21 @@ static const struct RendererFuncs kSdlRendererFuncs = {
  
  #undef main
  int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-crystal-flash-contact") == 0) {
++    crystal_headless = true;
++    extern int DiagnosticCrystalFlashContact(const char *, const char *);
++    return DiagnosticCrystalFlashContact(argv[2], argv[3]);
++  }
 +  if (argc == 4 && strcmp(argv[1], "--diagnostic-crystal-flash-lifetime") == 0) {
 +    crystal_headless = true;
 +    extern int DiagnosticCrystalFlashLifetime(const char *, const char *);

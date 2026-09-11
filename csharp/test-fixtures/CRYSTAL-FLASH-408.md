@@ -210,3 +210,35 @@ rebuilt after the experiment; unrelated native checkout changes were preserved.
 
 This improves activation-boundary evidence, not full-game contact ordering or
 rendered bubble/palette acceptance. Those remaining requirements keep #408 open.
+
+## Original-CPU contact followed by refill
+
+The headless `--diagnostic-crystal-flash-contact ROM CSV` probe extends the
+movement/animation lifetime with one deliberately admitted normal touch at frame
+30, before the beta movement handler. It executes original `$A0:A4A1` using the
+retail Ripper damage header, then the installed Crystal Flash movement, animation
+and pose-transition routines. Three suit states (none, Varia, Gravity), both
+facings and eight initial NMI phases produce 12,264 compared frames through
+completion. Unlike the timer-injection lifetime probe, no artificial hit timers
+are inserted during these sequences.
+
+Managed comparison command: `--crystal-flash-contact-native ROM CSV`. Its
+constructed overlapping Ripper enters the real ordinary contact dispatcher;
+the production interactive list is built in a frozen enemy pass so AI does not
+advance before this intentionally admitted contact. It asserts immediate damage
+of five/two/one, immunity 96 and pending knockback five before movement. Every
+post-movement frame then compares phase, pose, animation frame/delay, Y, health,
+ammo and both hit timers against the native trace. All 12,264 frames match,
+including refill and no-refill timing phases, timer clearing and normal completion.
+No production change was required.
+
+Native trace SHA256:
+`A9E43DA426DD832D9DFBBCF820A374CDA109A2E715764E5012B6AF9174CCB5F3`.
+Private output: `csharp/test-temp/crystal-flash-408-contact-a.csv`. The shared
+entrypoint patch includes this command and passes `git apply --check`; temporary
+hooks were removed and the normal native executable rebuilt after capturing.
+
+This compares the admitted touch/handler sequence, not the native enemy broadphase
+or whole-room scheduling. The separate full-runtime contact fixture exercises
+managed room ordering. The rendered bubble/palette and original-game integrated
+presentation remain unverified; #408 is still open without a validation label.

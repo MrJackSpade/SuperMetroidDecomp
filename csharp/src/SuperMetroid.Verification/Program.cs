@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crystal-flash-contact-native", var contactRom, var contactTrace])
+{
+    VerifyCrystalFlashContactNative(contactRom, contactTrace);
+    return 0;
+}
 if (args is ["--crystal-flash-runtime"])
 {
     VerifyCrystalFlashRuntime();

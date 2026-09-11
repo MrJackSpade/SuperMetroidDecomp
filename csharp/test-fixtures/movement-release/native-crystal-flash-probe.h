@@ -60,10 +60,12 @@ int DiagnosticCrystalFlash(const char *rom, const char *output) {
   fclose(f); return 0;
 }
 
-int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
+static int ProbeCrystalFlashLifetime(const char *rom, const char *output, bool contact) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
+  if (contact) fprintf(f, "suit,");
   fprintf(f, "left,offset,frame,phase,pose,anim,timer,y,health,missiles,supers,pbs,immunity,knockback\n");
+  for (int suit = 0; suit < (contact ? 3 : 1); suit++)
   for (int left = 0; left < 2; left++) for (int offset = 0; offset < 8; offset++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
@@ -74,6 +76,7 @@ int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
     samus_x_pos = power_bomb_explosion_x_pos = 128;
     samus_y_pos = power_bomb_explosion_y_pos = 128;
     samus_health = 49; samus_max_health = 1499;
+    equipped_items = suit == 1 ? 1 : suit == 2 ? 0x20 : 0;
     samus_missiles = samus_super_missiles = samus_power_bombs = 10;
     power_bomb_flag = 0xffff; samus_input_handler = 0xe913;
     room_width_in_blocks = room_height_in_blocks = 16;
@@ -84,11 +87,20 @@ int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
     int done = 0;
     for (int frame = 0; frame < 400; frame++) {
       nmi_frame_counter_word = frame + offset;
-      samus_invincibility_timer = 77; samus_knockback_timer = 5;
+      if (!contact) { samus_invincibility_timer = 77; samus_knockback_timer = 5; }
+      if (contact && frame == 30) {
+        // A deliberately admitted ordinary touch before beta; compare its damage
+        // and the subsequent native movement/animation handlers, not broadphase.
+        cur_enemy_index = 0;
+        gEnemyData(0)->enemy_ptr = 0xd47f; // Retail Ripper header, damage five.
+        gEnemyData(0)->x_pos = samus_x_pos;
+        RunAsmCode(0xa0a4a1, 0, 0, 0, 0);
+      }
       RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
       RunAsmCode(0x908000, 0, 0, 0, 0);
       RunAsmCode(0x91eb88, 0, 0, 0, 0);
       int phase = samus_movement_handler == 0xd678 ? 1 : samus_movement_handler == 0xd6ce ? 2 : samus_movement_handler == 0xd75b ? 3 : 0;
+      if (contact) fprintf(f, "%d,", suit);
       fprintf(f, "%d,%d,%d,%d,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
         left,offset,frame,phase,samus_pose,samus_anim_frame,samus_anim_frame_timer,
         samus_y_pos,samus_health,samus_missiles,samus_super_missiles,samus_power_bombs,samus_invincibility_timer,samus_knockback_timer);
@@ -97,4 +109,11 @@ int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
     if (!done) { fclose(f); return 5; }
   }
   fclose(f); return 0;
+}
+
+int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
+  return ProbeCrystalFlashLifetime(rom, output, false);
+}
+int DiagnosticCrystalFlashContact(const char *rom, const char *output) {
+  return ProbeCrystalFlashLifetime(rom, output, true);
 }

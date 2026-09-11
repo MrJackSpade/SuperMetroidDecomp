@@ -203,10 +203,17 @@ public sealed class GameOptionsMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
-        DrawMenuSpritemap(
-            GameOptionsRomData.Spritemaps.OptionModeBorder,
-            GameOptionsRomData.Spritemaps.OptionModeBorderX,
-            GameOptionsRomData.Spritemaps.OptionModeBorderY);
+        // Each native page replaces the heading actor while the dissolve is black.
+        // The controller actor's pre-instruction also follows BG1's page scroll.
+        (ushort border, ushort x) = page switch
+        {
+            GameOptionsPage.Primary => (GameOptionsRomData.Spritemaps.OptionModeBorder, GameOptionsRomData.Spritemaps.OptionModeBorderX),
+            GameOptionsPage.Controller => (GameOptionsRomData.Spritemaps.ControllerModeBorder, GameOptionsRomData.Spritemaps.ControllerModeBorderX),
+            GameOptionsPage.Special => (GameOptionsRomData.Spritemaps.SpecialModeBorder, GameOptionsRomData.Spritemaps.SpecialModeBorderX),
+            _ => throw new InvalidOperationException($"Unknown options page {page}."),
+        };
+        ushort y = unchecked((ushort)(GameOptionsRomData.Spritemaps.OptionModeBorderY - bg1VerticalScroll));
+        DrawMenuSpritemap(border, x, y);
         (ushort cursorX, ushort cursorY) = CursorPosition();
         DrawMenuSpritemap(GameOptionsRomData.Spritemaps.MissileFrameIds[missileFrame], cursorX, cursorY);
         oam.FinalizeFrame();

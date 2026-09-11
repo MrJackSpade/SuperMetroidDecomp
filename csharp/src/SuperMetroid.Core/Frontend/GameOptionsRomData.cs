@@ -118,6 +118,14 @@ public static class GameOptionsRomData
         public const ushort OptionModeBorder = 0x4b;
         public const ushort OptionModeBorderX = 0x7c;
         public const ushort OptionModeBorderY = 0x10;
+        /// <summary>$82:F48E selects $82:D2F7, menu spritemap $4C at table entry $82:C601. The pinned disassembly's label incorrectly says 49.</summary>
+        public const ushort ControllerModeBorder = 0x4c;
+        /// <summary>$82:F353, controller-heading border setup X position.</summary>
+        public const ushort ControllerModeBorderX = 0x84;
+        /// <summary>$82:F49E, SPECIAL SETTING MODE border instruction list selects menu spritemap $4D.</summary>
+        public const ushort SpecialModeBorder = 0x4d;
+        /// <summary>$82:F35B, special-heading border setup X position.</summary>
+        public const ushort SpecialModeBorderX = 0x80;
         public const int MissileFrameDuration = 8;
         public static ReadOnlySpan<ushort> MissileFrameIds => MissileFrames;
     }

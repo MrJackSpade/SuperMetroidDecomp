@@ -226,6 +226,8 @@ if (args.Length == 3 && args[0] == "--moonwalk-comparison-audit")
     return MoonwalkComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--moonwalk-options-audit")
     return MoonwalkOptionsAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--options-heading-audit")
+    return OptionsHeadingAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--file-select-native-audit")
     return NativeAudioCorpusAudit.Run("standalone-assets/audio", args[1], "Super Metroid.smc", fileSelectOnly: true);
 if (args.Length == 4 && args[0] == "--recorded-native-audio-audit")

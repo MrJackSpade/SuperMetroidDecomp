@@ -1,7 +1,7 @@
 # Spore Spawn background glow (#562)
 
-Affected version: 0.1.1. Investigation remains open, not awaiting validation.
-No production change or confirmed mismatch in this pass.
+Affected version: 0.1.1. Closed at player direction after battle glow confirmation.
+No production change or confirmed mismatch.
 
 ## Cartridge definition
 
@@ -25,7 +25,7 @@ provides 1499 health. It does not force boss AI phases or palette writes.
 All 980 displayed-palette samples match an independent transcription of the
 disassembly's three-color records and ten-frame cadence. There are 596 frames
 in the moving-fight phase; the other frames include initial idle/descent.
-The initial 420-frame run intentionally failed the active-fight coverage assertion
+The initial 420-frame run failed the active-fight coverage assertion
 (only 36 moving frames); extending the observation fixed the test setup, not gameplay.
 
 Each frame is rendered twice: unchanged, then with only CGRAM words 113..115
@@ -38,11 +38,12 @@ Bright/dim combat captures at frames 560 and 630 were visually inspected: the
 blue background spores visibly change intensity behind the live boss. Images and
 CSV remain private under ignored `csharp/test-temp/spore-glow-562`; none published.
 
-## Limits and remaining acceptance
+## Evidence limits and closure
 
 The expected cadence comes from pinned source/data, not yet an independent
-original-CPU palette handler capture. Full active-fight native timing comparison
-and the live-death/defeated-reentry palette ownership checks remain to be done.
+original-CPU palette handler capture. The player explicitly directed closure once
+battle glow was confirmed and rejected death/re-entry animation checks as outside
+the requested behavior. Those extra checks are not completion requirements.
 The counterfactual render verifies palette propagation and visible contribution;
 it is not a native-emulator screenshot comparison or independent rasterizer oracle.
-Do not close or label this issue ready based solely on this partial investigation.
+Issue #562 is closed on that basis; no native-handler replay is claimed.

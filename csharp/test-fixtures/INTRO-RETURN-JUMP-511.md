@@ -63,3 +63,34 @@ Remaining verification: independent original-CPU/emulator trajectory and timing
 comparison. Do not claim exact native return coordinates from these observed
 results alone. The missing movement is implemented, but #511 remains open without
 the awaiting-player-validation label until that comparison is complete.
+
+## Original-CPU comparison probe
+
+`movement-release/native-intro-return-probe.h` executes the original ROM's demo
+alpha ($90:E6C9) and intro beta ($90:E833), using a constructed post-hit starting
+state and the retail collision data. It restores original ROM bytes after native
+harness initialization. The bounded calls and headless entrypoint suppress GUI
+error dialogs. No full native cinematic or earlier knockback is claimed.
+
+Apply `native-intro-return-entrypoint.patch` inside upstream-sm with
+`git apply --unidiff-zero`, build Release/x64, and run:
+
+```
+sm.exe --diagnostic-intro-return ROM NEW_OUTPUT_CSV
+```
+
+The output is created exclusively; use a new path for another run. Reverse only
+that patch afterward, preserving other native-worktree modifications. The patch
+was checked against the current native worktree; the probe built and ran. Its
+temporary entrypoint edits were removed after the experiment.
+
+Native frame zero corresponds to port audit frame 250. For the 80-frame bounded
+comparison, the jump Y coordinates and pose timeline match. Spin animation and
+landing timing match: spin at relative frame 9, landing at 44, standing at 54.
+However, native X becomes 203 on frame 1 where the port remains 204; that one-pixel
+difference persists through native landing X=148 versus port X=149. Added fractional
+position and horizontal-speed columns to the port trace: at frame 250 its X is
+204.0000 and base speed is zero, so a guessed initial fractional X is not an
+explanation. Native setup/history and first-frame transition behavior still need
+comparison before deciding whether this is a fixture or production defect. No
+compensating offset was added. Keep #511 open pending that work.

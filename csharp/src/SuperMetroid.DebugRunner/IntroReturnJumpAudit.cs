@@ -22,7 +22,7 @@ internal static class IntroReturnJumpAudit
         intro.Step((ushort)SnesButton.A);
         Directory.CreateDirectory(outputDirectory);
         using var trace = new StreamWriter(Path.Combine(outputDirectory, "trajectory.csv"));
-        trace.WriteLine("frame,phase,held,new,pose,x,y,animation,knockback");
+        trace.WriteLine("frame,phase,held,new,pose,x,y,animation,knockback,xsub,ysub,base,baseSub");
         bool hit = false, jumpRequested = false, roseAfterJump = false;
         bool descended = false, landed = false, stoodAfterLanding = false;
         int minimumY = int.MaxValue;
@@ -59,7 +59,7 @@ internal static class IntroReturnJumpAudit
                 landingFrames.Add(samus.AnimationFrame);
             }
             stoodAfterLanding |= landed && samus.Pose == SamusPoseIds.FacingLeftNormalPose;
-            trace.WriteLine($"{frame},{intro.Phase},{demo.Held:X4},{demo.NewlyPressed:X4},{samus.Pose:X2},{samus.XPosition},{samus.YPosition},{samus.AnimationFrame},{samus.KnockbackActive}");
+            trace.WriteLine($"{frame},{intro.Phase},{demo.Held:X4},{demo.NewlyPressed:X4},{samus.Pose:X2},{samus.XPosition},{samus.YPosition},{samus.AnimationFrame},{samus.KnockbackActive},{samus.Kinematics.XSubposition:X4},{samus.Kinematics.YSubposition:X4},{samus.HorizontalSpeed.BaseSpeed:X4},{samus.HorizontalSpeed.BaseSubspeed:X4}");
             if (frame % 8 == 0 && hit)
                 PngWriter.WriteRgba(Path.Combine(outputDirectory, $"frame-{frame:D4}.png"), 256, 224, pixels);
         }

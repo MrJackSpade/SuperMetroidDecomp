@@ -184,3 +184,35 @@ cover setup, control-byte semantics, latch isolation, deletion and debugger rest
 The reproduced silhouette is fixed. #555 remains open pending verification of
 the rest of its fade-out/reappearance and final-death visual scope; these checks
 do not yet establish complete parity throughout every battle branch.
+
+## Original-CPU palette-fade correction
+
+Ordinary fade-out/reappearance paths call palette routines $A7:D464/$D486;
+they do not all spawn a wavy HDMA channel. The pinned source has wave spawns at
+the introduction and final death. Do not add a bespoke wave to every fade.
+
+The native probe now also emits `OUTPUT.fade.csv`, executing those original
+65816 wrappers for fade-in/out, denominators 1/12, health 1/312/313/2496/2500,
+and 40 consecutive NMI counts. It captures all 16 colors and numerator/completion
+latches. `--phantoon-fade-comparison-audit ROM LOCAL-CSV` invokes the production
+callbacks and checks the pinned capture: 800 calls and 12800 colors.
+
+Before correction, the comparison failed at fade-out denominator 1, health 1,
+frame 2, color 0: managed color 7 versus native 0. The old formula used
+`denominator - numerator + 2` and truncated signed integer division. Cartridge
+$A7:DCF1 instead divides the absolute delta in 8.8 fixed point by the eight-bit
+`denominator - numerator + 1`, applies the sign, then selects the result's high
+byte. This also rounds decreasing colors differently. Production now uses the
+native arithmetic, including the register's divide-by-zero result.
+
+All 12800 colors and 800 timing states now agree. The final rebuilt native probe
+reproduces SHA256 A5C86B65561B3CC7695125294D5F54DB41A636F85E711949344FEF9C7883E2A0;
+its temporary upstream patch was reversed. Core verification includes fixed
+original-CPU color expectations without needing the local trace, and passes.
+The real-room wave remains 165/162 frames; transparency remains 1363 flagged /
+1353 additive / zero erased pixels. Positive-contribution frames change from
+1094 to 1084 because the corrected native rounding removes the incorrect faint
+fade tail. The old opaque control still reproduces 1974 erased pixels.
+
+Final-death wave/mosaic composition and remaining full-sequence visual checks
+are still pending, so #555 is not yet awaiting player validation.

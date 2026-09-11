@@ -1,5 +1,34 @@
 #include "native-bounded-cpu.h"
 
+// Palette fade wrappers include their even-NMI gate and completion latch. Keep this
+// separate from wave sampling: ordinary reappearances/fades do not spawn wave HDMA.
+static int DiagnosticPhantoonFadeCsv(const char *output) {
+  char path[1024];
+  if (snprintf(path, sizeof(path), "%s.fade.csv", output) >= sizeof(path)) return 5;
+  FILE *f = fopen(path, "wx"); if (!f) return 4;
+  const int health_values[] = {1, 312, 313, 2496, 2500};
+  const int denominators[] = {1, 12};
+  fprintf(f, "fadeIn,denominator,health,frame,numerator,complete,color,value\n");
+  for (int fade_in = 0; fade_in <= 1; fade_in++)
+  for (int d = 0; d < 2; d++) for (int h = 0; h < 5; h++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
+    enemy_data[0].health = health_values[h];
+    int band = (health_values[h] - 1) / 312; if (band > 7) band = 7;
+    uint32 palette_address = 0xa7cb41 + band * 32;
+    if (!fade_in) memcpy(&palette_buffer[112], RomFixedPtr(palette_address), 32);
+    for (int frame = 0; frame < 40; frame++) {
+      nmi_frame_counter_word = frame;
+      ProbeRunBoundedRegisters(fade_in ? 0xa7d486 : 0xa7d464, denominators[d], 0, 0);
+      for (int color = 0; color < 16; color++)
+        fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%d\n", fade_in, denominators[d],
+          health_values[h], frame, enemy_data[1].ai_var_E, enemy_data[1].ai_preinstr,
+          color, palette_buffer[112 + color]);
+    }
+  }
+  fclose(f); return 0;
+}
+
 // Original 65816 wave setup/update, not the upstream C reimplementation.
 int DiagnosticPhantoonHdma(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
@@ -48,5 +77,5 @@ int DiagnosticPhantoonHdma(const char *rom, const char *output) {
       hdma_object_instruction_list_pointers[0], hdma_object_channels_bitmask[0],
       g_ram[0x9100] | g_ram[0x9101] << 8);
   }
-  fclose(f); return 0;
+  fclose(f); return DiagnosticPhantoonFadeCsv(output);
 }

@@ -591,8 +591,14 @@ public sealed partial class RoomEnemySystem
             return current;
         if (numerator - 1 == denominator)
             return target;
-        int remainingSteps = denominator - numerator + 2;
-        return current + (target - current) / remainingSteps;
+        // $A7:DCF1 divides the absolute component delta in 8.8 fixed point,
+        // then applies its sign before selecting the high byte. Integer division
+        // of the signed delta both adds an extra fade step and rounds darkening
+        // in the wrong direction. The native divisor is an eight-bit register.
+        byte remainingSteps = unchecked((byte)(denominator - numerator + 1));
+        int quotient = remainingSteps == 0 ? ushort.MaxValue : (Math.Abs(target - current) << 8) / remainingSteps;
+        int signedStep = target < current ? -quotient : quotient;
+        return unchecked((ushort)((current << 8) + signedStep)) >> 8;
     }
 
     private static bool AdvancePhantoonWaveAmplitude(

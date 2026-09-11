@@ -90,8 +90,8 @@ internal static class PhantoonTransparencyAudit
         Console.WriteLine($"Opaque control still reproduces {opaqueControlWorst} erased scenery pixels with the corrected bootstrap fixture.");
         // $88:E449 selects $1A, whose $88:80D9 setup places BG2 on the additive
         // subscreen with no subtraction/halving. Adding black cannot erase color.
-        if (checkedFrames != 1363 || worst != 0 || additiveFrames != 1353 || contributingFrames != 1094 || opaqueControlWorst == 0)
-            throw new InvalidDataException("Phantoon semi-transparency erases visible scenery with black body pixels.");
+        if (checkedFrames != 1363 || worst != 0 || additiveFrames != 1353 || contributingFrames != 1084 || opaqueControlWorst == 0)
+            throw new InvalidDataException("Phantoon transparency coverage, color contribution or scenery preservation differs from the verified sequence.");
         return 0;
     }
 }

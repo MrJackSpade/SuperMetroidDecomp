@@ -52,7 +52,23 @@ internal static partial class Program
         var waveEra = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 1);
         AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "_blending")), "wave-era migration preserves recorded wave history");
         VerifyPhantoonBlendingLifecycle(boss);
+        VerifyPhantoonFadeColors();
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");
+    }
+
+    private static void VerifyPhantoonFadeColors()
+    {
+        var calculate = typeof(RoomEnemySystem).GetMethod("CalculatePhantoonTransitionColor", BindingFlags.Static | BindingFlags.NonPublic)!;
+        // Original $A7:D464/$D486 captures: health one, denominator twelve,
+        // second even-frame update. These fixed colors distinguish signed rounding
+        // and the old extra-step denominator without requiring the local CPU trace.
+        foreach (var (current, target, expected) in new[] { (14, 0, 12), (9692, 0, 8601), (0, 14, 1), (0, 9692, 34) })
+        {
+            ushort actual = (ushort)calculate.Invoke(null, new object[] { (ushort)1, (ushort)12, (ushort)current, (ushort)target })!;
+            AssertEqual(expected, actual, "original-CPU Phantoon fixed-point palette component rounding");
+        }
+        AssertEqual(0, (ushort)calculate.Invoke(null, new object[] { (ushort)1, (ushort)1, (ushort)14, (ushort)0 })!,
+            "fast fade reaches target on first interpolated update");
     }
 
     private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)

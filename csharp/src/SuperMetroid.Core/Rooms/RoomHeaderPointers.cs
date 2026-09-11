@@ -3,6 +3,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named 16-bit room-header pointers within cartridge bank $8F.</summary>
 public static class RoomHeaderPointers
 {
+    /// <summary>RoomHeader_Hellway at $8F:A2F7, Brinstar room $23.</summary>
+    public const ushort Hellway = 0xa2f7;
+
+    /// <summary>RoomHeader_Caterpillar at $8F:A322, Brinstar room $24.</summary>
+    public const ushort Caterpillar = 0xa322;
+
     /// <summary>Bank-$8F:9CB3, Brinstar room $08; includes the Dachora Speed Booster floor and shaft.</summary>
     public const ushort BrinstarRoom08 = 0x9cb3;
     /// <summary>Landing Site at $8F:91F8.</summary>

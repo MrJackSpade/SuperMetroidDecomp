@@ -332,6 +332,8 @@ if (args.Length is 6 or 9 or 10 && args[0] is "--door-exit-momentum-audit" or "-
         args.Length >= 9 ? Convert.ToUInt16(args[8], 16) : (ushort)0,
         args.Length == 10 ? args[9] : null,
         spinJump: args[0] == "--spin-door-exit-momentum-audit");
+if (args.Length == 2 && args[0] == "--map-door-exploration-audit")
+    return MapDoorExplorationAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--short-tap-audit")
     return ShortTapAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--short-tap-comparison-audit")

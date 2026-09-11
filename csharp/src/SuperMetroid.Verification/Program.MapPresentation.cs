@@ -8,6 +8,7 @@ internal static partial class Program
 {
     private static void VerifyMapPresentation()
     {
+        VerifyIndexedPng();
         var rules = new PresentationMapRules();
         var cell = new MapPresentationCell { TileColumn = 17, TileRow = 2, Palette = 3,
             Priority = true, FlipX = true, FlipY = false };

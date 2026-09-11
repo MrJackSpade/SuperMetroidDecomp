@@ -168,3 +168,25 @@ unchanged, demonstrating that the external catalog is not captured by the retain
 delegate. This is a current-version full-menu state round trip, not an old-binary
 fixture migration claim. Load-station/room metadata, artwork and palette ROM reads
 remain outside this completed layout/reveal-table removal.
+
+## Indexed PNG prerequisite
+
+The old `WriteIndexedAsRgba` diagnostic helper expands pixels to RGBA and cannot
+preserve source palette-index identity for editable atlases. `IndexedPng` adds a
+stream-based indexed encoder/decoder without Windows/native imaging dependencies.
+It writes 8-bit indexed files with PLTE and optional tRNS, and reads noninterlaced
+1/2/4/8-bit indexed images with all five PNG filters and consecutive IDAT chunks.
+It preserves RGB/alpha palette entries and indexes separately. Unsupported RGBA,
+interlace and animation fail explicitly rather than guessing palette assignments.
+
+Dimensions must match the caller's expected native atlas size (at most 2048 in
+either dimension). Encoded data is capped at 16 MiB and inflated rows are exact
+length. CRCs, critical chunk ordering, palette index bounds, truncation and extra
+image data are checked. Ancillary metadata does not affect tile indexes.
+Reference: https://www.w3.org/TR/png-3/ (filter and critical-chunk specifications).
+
+Tests assert the actual indexed IHDR type, a known IEND CRC, index/palette/alpha
+round trip, independently hand-calculated filter rows, odd-width packed depths,
+split IDAT, and malformed/unsupported resources. This commit provides the codec;
+the normal map importer/catalog has not yet been wired to PNG atlases. No claim
+that editing PNG artwork already affects the live game is made here.

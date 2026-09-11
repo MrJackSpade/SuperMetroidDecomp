@@ -82,7 +82,7 @@ public static class PngWriter
     }
 
     /// <summary>Writes a length/type/data/CRC PNG chunk.</summary>
-    private static void WriteChunk(Stream output, string name, ReadOnlySpan<byte> data)
+    internal static void WriteChunk(Stream output, string name, ReadOnlySpan<byte> data)
     {
         Span<byte> length = stackalloc byte[4];
         BinaryPrimitives.WriteUInt32BigEndian(length, (uint)data.Length);
@@ -100,7 +100,7 @@ public static class PngWriter
         output.Write(checksum);
     }
 
-    private static uint UpdateCrc(uint crc, byte value)
+    internal static uint UpdateCrc(uint crc, byte value)
     {
         crc ^= value;
         for (int bit = 0; bit < 8; bit++)

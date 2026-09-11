@@ -636,10 +636,12 @@ if (args.Length >= 2 && args[0] == "--pause-message-gate-audit")
     return PauseMessageGateAudit.Run(pauseMessageRomPath);
 }
 
-if (args.Length >= 2 && args[0] == "--map-station-pause-gate-audit")
+if (args.Length >= 2 && args[0] is "--map-station-pause-gate-audit" or "--map-station-controls-audit")
 {
     string mapStationRomPath = string.Join(' ', args[1..]).Trim('"');
-    return MapStationPauseGateAudit.Run(mapStationRomPath);
+    return args[0] == "--map-station-controls-audit"
+        ? MapStationPauseGateAudit.RunLockedControls(mapStationRomPath)
+        : MapStationPauseGateAudit.Run(mapStationRomPath);
 }
 
 if (args.Length >= 3 && args[0] == "--save-station-audit")

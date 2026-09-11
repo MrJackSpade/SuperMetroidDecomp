@@ -1926,7 +1926,9 @@ public sealed partial class SuperMetroidRuntime
                         Camera.XPosition,
                         Camera.YPosition,
                         BombProjectiles,
-                        projectileProducerEnabled: !DebugGrappleItemSelected,
+                        // Locked alpha advances existing shots without dispatching the
+                        // HUD weapon producer (including station command six).
+                        projectileProducerEnabled: !Samus.InputLocked && !DebugGrappleItemSelected,
                         roomPlms: Plms);
 
                     if (!TimeIsFrozen)

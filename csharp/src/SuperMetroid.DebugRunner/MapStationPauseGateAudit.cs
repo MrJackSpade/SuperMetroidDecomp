@@ -14,7 +14,18 @@ internal static class MapStationPauseGateAudit
 {
     private const ushort CrateriaMapEntranceDoor = 0x8bda;
 
-    public static int Run(string romPath)
+    public static int RunLockedControls(string romPath)
+    {
+        // Exercise both continuous and fresh Shoot input for each humanoid weapon
+        // producer; every case enters the real station through normal collision.
+        foreach (ushort selectedWeapon in new ushort[] { 0, 1, 2 })
+        foreach (bool holdShoot in new[] { false, true })
+            Run(romPath, auditLockedControls: true, selectedWeapon, holdShoot);
+        return 0;
+    }
+
+    public static int Run(string romPath, bool auditLockedControls = false,
+        ushort selectedWeapon = 0, bool holdShoot = false)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
@@ -39,6 +50,12 @@ internal static class MapStationPauseGateAudit
         // Start beside the real access block; activation must come from ordinary
         // movement/collision, not a direct notification that bypasses station setup.
         SamusState samus = runtime.Samus!;
+        if (auditLockedControls)
+        {
+            samus.SelectedHudItem = selectedWeapon;
+            samus.Missiles = samus.MaxMissiles = 10;
+            samus.SuperMissiles = samus.MaxSuperMissiles = 10;
+        }
         samus.XPosition = checked((ushort)((station.BlockIndex % runtime.LevelData!.WidthInBlocks + 1) * 16 + 40));
         samus.YPosition = checked((ushort)(station.BlockIndex / runtime.LevelData.WidthInBlocks * 16 + 11));
 
@@ -49,11 +66,26 @@ internal static class MapStationPauseGateAudit
         while (ownedFrames < 500)
         {
             bool messageAtEntry = runtime.MessageBox.IsActive;
+            bool lockedAtEntry = samus.InputLocked;
+            byte poseAtEntry = samus.Pose;
             ushort input = messageAtEntry
                 ? (ownedFrames & 1) == 0 ? (ushort)SnesButton.A : (ushort)0
                 : (ushort)SnesButton.Left;
+            if (auditLockedControls && lockedAtEntry && !messageAtEntry)
+                input = (ushort)(SnesButton.Right |
+                    (holdShoot || (ownedFrames & 1) == 0 ? SnesButton.X : 0));
+            if (auditLockedControls && lockedAtEntry && messageAtEntry)
+                input |= (ushort)SnesButton.Right;
             frame = game.Step(input);
             ownedFrames++;
+
+            if (auditLockedControls && lockedAtEntry && !messageAtEntry)
+            {
+                if (runtime.Projectiles.LastFiredProjectileSnapshot is not null)
+                    throw new InvalidDataException($"Station lock admitted a new shot at frame {ownedFrames}.");
+            }
+            if (auditLockedControls && lockedAtEntry && samus.Pose != poseAtEntry)
+                throw new InvalidDataException($"Station lock changed pose {poseAtEntry:X2} to {samus.Pose:X2} at frame {ownedFrames}.");
 
             if (messageAtEntry && !runtime.MessageBox.IsActive)
             {
@@ -100,9 +132,29 @@ internal static class MapStationPauseGateAudit
         frame = FrontendAuditDriver.StepUntil(game, frame,
             _ => game.GameState == SuperMetroidGameState.MainGameplay, 120,
             "Station map dismissal did not resume gameplay");
-        for (int i = 0; i < 180; i++) game.Step((ushort)SnesButton.Left);
+        for (int i = 0; i < 180; i++)
+        {
+            bool locked = samus.InputLocked;
+            byte pose = samus.Pose;
+            game.Step((ushort)(auditLockedControls && locked
+                ? SnesButton.Right | ((i & 1) == 0 ? SnesButton.X : 0)
+                : SnesButton.Left));
+            if (auditLockedControls && locked &&
+                (samus.Pose != pose || runtime.Projectiles.LastFiredProjectileSnapshot is not null))
+                throw new InvalidDataException("Station retraction admitted a turn or shot after map dismissal.");
+        }
         if (game.GameState != SuperMetroidGameState.MainGameplay || runtime.MessageBox.IsActive || samus.InputLocked)
             throw new InvalidDataException("Acquired station repeated its prompt or failed to release Samus.");
+
+        if (auditLockedControls)
+        {
+            if (samus.Missiles != 10 || samus.SuperMissiles != 10)
+                throw new InvalidDataException("Station-owned input consumed ammunition.");
+            game.Step(0);
+            game.Step((ushort)SnesButton.X);
+            if (runtime.Projectiles.LastFiredProjectileSnapshot is null)
+                throw new InvalidDataException("Station release did not restore shooting.");
+        }
 
         Console.WriteLine(
             $"Map-station pause gate passed {ownedFrames} station-owned frames across " +

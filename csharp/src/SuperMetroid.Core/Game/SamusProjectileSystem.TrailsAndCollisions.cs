@@ -30,8 +30,7 @@ public sealed partial class SamusProjectileSystem
             // The multibox collision walker writes the same global quake as a normal Super
             // Missile impact before dispatching the hitbox callback. This remains observable
             // even when gold Ninja armor ignores a fresh, not-yet-linked Super Missile.
-            EarthquakeType = 20;
-            EarthquakeTimer = 30;
+            RequestSuperMissileEarthquake();
         }
 
         if (markCollisionState)
@@ -771,11 +770,9 @@ public sealed partial class SamusProjectileSystem
 
         if (wasSuperMissile)
         {
-            // `$93:8125-$812E` is presentation state, but it is authored by the projectile
-            // impact itself: quake type $14 for thirty frames. The screen-offset consumer is
-            // still separate, so expose the exact words for debugger watches and integration.
-            EarthquakeType = 20;
-            EarthquakeTimer = 30;
+            // The impact writes the shared room quake immediately; later native producers
+            // can replace it before the frame's shake handler consumes the request.
+            RequestSuperMissileEarthquake();
         }
 
         // Only cooldowns 21+ are shortened to 20. A normal missile begins at ten, so ordinary

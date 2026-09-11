@@ -96,7 +96,7 @@ public sealed partial class SamusProjectileSystem
             ProjectileInvincibilityTimer--;
     }
 
-    /// <summary>Global quake words written by a super-missile impact at `$93:8125-$812E`.</summary>
+    /// <summary>Last impact's quake request; runtime requests also write the shared room owner immediately.</summary>
     public ushort EarthquakeType { get; private set; }
     public ushort EarthquakeTimer { get; private set; }
 

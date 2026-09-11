@@ -312,6 +312,8 @@ if (args.Length == 2 && args[0] == "--elevator-charge-audit")
     return ElevatorChargeAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--door-charge-audit")
     return DoorChargeAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--missile-impact-shake-audit")
+    return MissileImpactShakeAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--elevator-draw-native-comparison")
     return ElevatorDrawNativeComparison.Run(args[1], args[2]);
 if (args.Length is 3 or 4 && args[0] == "--green-elevator-top-edge-audit")

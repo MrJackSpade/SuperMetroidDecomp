@@ -146,6 +146,10 @@ public static class SamusProjectileRomData
         public const int BombExplosionInstructionPointer = 0x938683;
         /// <summary>Pointer cell selecting Super Missile explosion instructions.</summary>
         public const int SuperMissileExplosionInstructionPointer = 0x938693;
+        /// <summary>$93:8125, KillProjectileInner: one-pixel diagonal quake affecting both BGs and enemies.</summary>
+        public const ushort SuperMissileEarthquakeType = 20;
+        /// <summary>$93:812B, KillProjectileInner: thirty room-shaking calls after Super Missile impact.</summary>
+        public const ushort SuperMissileEarthquakeDuration = 30;
         /// <summary>Bytes in one direction's acceleration/subacceleration record.</summary>
         public const int AccelerationRecordByteCount = 4;
     }

@@ -52,6 +52,7 @@ public sealed partial class SuperMetroidRuntime
         // cooldown $0CCC until the remaining weapon producers are consolidated.
         BombProjectiles = new SamusBombProjectileSystem();
         Projectiles = new SamusProjectileSystem();
+        Projectiles.BindRoomEarthquakeOwner(Enemies);
 
         // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
         // game stages this through WRAM before NMI uploads CGRAM; initializing the modeled
@@ -1384,6 +1385,9 @@ public sealed partial class SuperMetroidRuntime
         Func<ushort>? queueEchoSound)
     {
 
+        // Routing references are deliberately not serialized as duplicate native state.
+        // Reattach before any producer executes, including after loading an older snapshot.
+        Projectiles.BindRoomEarthquakeOwner(Enemies);
         ApplyPendingChozoStatuePlms();
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();

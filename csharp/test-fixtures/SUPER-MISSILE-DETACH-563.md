@@ -133,3 +133,33 @@ gravity and qualifying-quake drop checks. A native comparison of Yard's separate
 behavior gates (especially already-airborne states 3/4/5) remains outstanding; the
 shared crawler comparison does not cover it. #563 is therefore still open, not
 awaiting validation.
+
+## Original-CPU Yard state comparison
+
+The headless probe now also executes the original ROM's A3:CE64 Yard main.
+Six behavior states, three earthquake controls (type20/timer30, timer29, type18),
+two facing values, and eight frames produce **36 setups / 288 comparisons**.
+All match the production enemy dispatcher: behavior and function selection,
+instruction-list selection, position/subposition, and both 16.16 velocity words.
+States 0/1/2 enter the earthquake fall; states 3/4/5 preserve their existing
+airborne motion rather than restarting it. The two wrong-quake controls do not
+detach. Nonzero initial velocities make an accidental reset observable.
+
+This uses a constructed empty room with Samus far away, no instruction animation,
+and controlled state fields. It isolates the quake gate and airborne owner; it is
+not a controller replay of a retail Yard encounter or a native landing comparison.
+No additional production change was needed. The native hook was removed and the
+normal executable rebuilt after capture; no GUI was launched.
+
+Regenerate with the same temporary patch/build/reverse workflow above:
+
+```
+upstream-sm/build/bin-x64-Release/sm.exe --diagnostic-yard-quake "Super Metroid.smc" NEW.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --yard-quake-native-audit "Super Metroid.smc" NEW.csv
+```
+
+Accepted CSV SHA256:
+`FD56C7E6CF84C58FC6913DF14D7D7A6700817AAAE04111657F0FBEC143271581`.
+Generated traces remain private in ignored test-temp. Remaining acceptance work
+includes the Yard projectile-to-AI handoff and time-freeze suppression; do not
+interpret this isolated comparison as completion of those integration checks.

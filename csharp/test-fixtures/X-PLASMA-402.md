@@ -76,8 +76,26 @@ direction, instruction pointer and animation timer. The focused selector is
 `--plasma-penetration`.
 
 Required remaining work includes
-normal controller X-ray activation/release with a retained penetrating shot,
+normal firing/trajectory with controller X-ray activation/release,
 per-hit health/position traces for Phantoon (including the initial non-Plasma
 hit), Botwoon, Draygon, steel pirates and Hyper Beam, failed timing and
 nonpenetrating controls, and matching native encounter sequences. Leave the
 issue open and not awaiting player validation until those cases are verified.
+
+## Controller-driven scope integration
+
+`DebugRunner --botwoon-x-plasma-controls "Super Metroid.smc"` uses the full
+runtime, unmodified room geometry, normal ItemSelect and Run bindings, and no
+gameplay cheats. Samus starts grounded at X=64 on the room's first supported
+surface at/after block row eight. X-ray/Charge/Plasma are equipped; ammunition
+is zero. After 360 ordinary frames an overlapping stationary 100-damage Plasma
+fixture is installed once. Three 60-held/4-released Run cycles then produce
+health changes at relative frames 0, 63, 127 and 191: 3000 -> 2600. Assertions
+cover actual scope activations/releases, timer countdown, fixed position/flash
+while frozen, damage exclusion during scanning, and retained projectile family.
+
+This removes direct injection of time-freeze state from the earlier combat test.
+It does not remove the synthetic projectile placement/lifetime: the ordinary
+firing trajectory and an equivalent native encounter still need reproduction.
+An initial normally fired-shot trial passed above the head and therefore did not
+establish that case; it was not treated as a game defect or a successful test.

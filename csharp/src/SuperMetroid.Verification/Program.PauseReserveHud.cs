@@ -58,6 +58,7 @@ internal static partial class Program
         AssertTrue(Enumerable.Range(24, 8).Any(y => Enumerable.Range(48, 16).Any(x =>
             beforeRefill[y * 256 + x] != afterRefill[y * 256 + x])), "actual rendered health digits change during refill");
         Step(SnesButton.A); Step();
+        AssertTrue(!samus.HealthWarning.IsActive, "paused input does not invoke ordinary low-health beta check");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
             AssertEqual(ReadWord(0x809997 + offset), displayed.ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(new[] { 8, 9, 40, 41, 70, 71, 72, 73 }))

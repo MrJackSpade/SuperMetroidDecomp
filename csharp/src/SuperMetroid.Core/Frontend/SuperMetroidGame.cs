@@ -386,7 +386,7 @@ public sealed partial class SuperMetroidGame
                 runtime!.StepFrame(
                     controllerInput,
                     allowCeresElevatorDeparture: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 if (ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator)
                 {
@@ -413,7 +413,7 @@ public sealed partial class SuperMetroidGame
                 // frame. Retraction can restore normal input later in StepFrame, after the
                 // cartridge's Samus-handler call site has already passed pause-check.
                 bool samusInputLockedAtFrameStart = runtime.Samus?.InputLocked == true;
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 HandleSaveStationPersistence();
                 PublishGameplay(runtime);
                 HandleGunshipLandingSave();
@@ -483,7 +483,7 @@ public sealed partial class SuperMetroidGame
                             GameState = SuperMetroidGameState.MainGameplay;
                         }
                     },
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 // $82:DC2B invokes the external low-health check even while the
                 // locked Samus beta handler omits it. Publish prior gameplay sounds
@@ -498,7 +498,7 @@ public sealed partial class SuperMetroidGame
                 // global freeze word, then snapshots the visible palette and makes every
                 // target row black except Samus's sixteen-color suit row.
                 runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 PrepareDeathPaletteFade();
                 SamusState dyingSamus = runtime.Samus
@@ -513,7 +513,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.DeathBlackOutSurroundings:
                 runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 bool paletteBlackoutComplete = StepDeathPaletteFade();
                 PublishGameplay(runtime);
                 if (paletteBlackoutComplete)
@@ -647,7 +647,7 @@ public sealed partial class SuperMetroidGame
                 // State $0C continues running ordinary gameplay while INIDISP darkens.
                 // This matters for moving enemies/projectiles and is why pause cannot be
                 // represented as a desktop-only frozen bitmap.
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -758,7 +758,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.Unpausing:
                 // State $12 resumes the full state-eight loop behind an INIDISP fade.
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 AdvancePauseFade(brightening: true);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -770,7 +770,7 @@ public sealed partial class SuperMetroidGame
                 runtime!.StepFrame(
                     controllerInput,
                     allowCeresElevatorDeparture: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 bool ceresReachedForcedBlank = ceresDeparture.StepFadeAfterGameplay();
                 ApplyDisplayBrightness(ceresDeparture.Brightness);
@@ -832,7 +832,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.MainGameplayFadeIn:
-                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                runtime!.StepFrame(controllerInput, queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 ApplyDisplayBrightness(postCeresFadeBrightness);
                 HandleGunshipLandingSave();
@@ -891,7 +891,7 @@ public sealed partial class SuperMetroidGame
                 // HandleFadeOut. The fleeing gunship, room animations, and APU publishers
                 // therefore continue behind every darkening frame.
                 runtime!.StepFrame(controllerInput, advanceGameTime: false,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime), checkLowHealth: () => gameplayAudio.CheckLowHealth(runtime));
                 PublishGameplay(runtime);
                 if (endingFadeCounter-- <= 0)
                 {

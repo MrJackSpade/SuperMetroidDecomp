@@ -192,3 +192,21 @@ and initialize the unavailable latch inactive on their next admitted check.
 This integrates **automatic recovery only**. The separate ordinary beta/gunship
 admission paths and audible playback remain work for #560; no claim is made that
 all gameplay low-health warnings are now present.
+
+## Ordinary beta and gunship warning integration (#560)
+
+The runtime now accepts a per-frame health-check publication callback beside its
+existing echo callback. The ordinary beta seam invokes it after periodic damage,
+excluding death, demos, locked Samus and X-ray owners. The frontend connects its
+normal gameplay/fade calls to the shared warning owner and audio queue; NMI-only
+pause and door-scroll calls do not fabricate checks. The gunship's command-$1A
+entry/exit phases admit the dedicated $90:E902 handler despite locked input; its
+lifetime is derived from native actor functions, with no duplicate saved flag.
+The initial post-Ceres descent does not install this handler.
+
+The real frontend regression verifies healthy-to-critical and critical-to-healthy
+commands in ordinary gameplay, omission while generically locked, resumption on
+unlock, and the gunship entry exception in a loaded Landing Site. The pause HUD
+test also checks that low health while paused does not start the gameplay warning.
+No audible playback claim is made yet; #560 remains open for independent native
+handler/queue comparison and audible checks.

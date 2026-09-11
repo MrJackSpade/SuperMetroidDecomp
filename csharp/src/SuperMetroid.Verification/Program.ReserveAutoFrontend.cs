@@ -73,6 +73,28 @@ internal static partial class Program
         DebuggerObjectGraphSerializer.Serialize(saved, samus); saved.Position = 0;
         AssertTrue(DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved).HealthWarning.IsActive,
             "Samus debugger graph retains warning latch");
+        // Continue in actual state eight: ordinary beta must own the same latch,
+        // while a generic locked handler must not acquire that responsibility.
+        samus.Health = 31; audio.Reset(); game.StepCaptured(0, 40, 1);
+        AssertTrue(!samus.HealthWarning.IsActive, "ordinary beta stops warning at healthy threshold");
+        samus.InputLocked = true; samus.Health = 30;
+        audio.Reset(); game.StepCaptured(0, 41, 1);
+        AssertTrue(!samus.HealthWarning.IsActive, "locked handler does not run ordinary health check");
+        samus.InputLocked = false;
+        audio.Reset(); game.StepCaptured(0, 42, 1);
+        AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
+        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "ordinary gameplay publishes actual warning command");
+        runtime.InitializePostCeresZebesRoom();
+        AssertTrue(!runtime.Enemies.HasGunshipHealthHandler, "initial post-Ceres descent does not install command 1A");
+        var ship = runtime.Enemies.Slots[0];
+        ship.VariableF = GunshipCodePointers.WaitForEntranceToOpen;
+        ship.VariableA = 100;
+        samus.HealthWarning.Update(99, audio);
+        samus.Health = 30; samus.InputLocked = true;
+        audio.Reset(); game.StepCaptured(0, 43, 1);
+        AssertTrue(runtime.Enemies.HasGunshipHealthHandler && samus.HealthWarning.IsActive,
+            "gunship entry handler checks low health despite locked input");
+        AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
     }
 }

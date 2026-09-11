@@ -62,4 +62,13 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
             soundSuppressed: runtime.IsAttractDemo ||
                 unchecked((short)runtime.PowerBombExplosionStatus) < 0);
     }
+
+    /// <summary>Publishes the admitted Samus beta health check after earlier prefix producers.</summary>
+    public void CheckLowHealth(SuperMetroidRuntime runtime)
+    {
+        PublishPrefix(runtime);
+        if (runtime.Samus is not { } samus) throw new InvalidOperationException("Health check requires Samus.");
+        samus.HealthWarning.Update(samus.Health, audio,
+            soundSuppressed: runtime.IsAttractDemo || unchecked((short)runtime.PowerBombExplosionStatus) < 0);
+    }
 }

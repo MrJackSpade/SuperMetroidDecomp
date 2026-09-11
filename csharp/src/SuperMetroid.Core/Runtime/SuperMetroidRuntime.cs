@@ -1347,7 +1347,8 @@ public sealed partial class SuperMetroidRuntime
         bool allowCeresElevatorDeparture = true,
         Action? afterAcceptedNmi = null,
         bool advanceGameTime = true,
-        Func<ushort>? queueEchoSound = null)
+        Func<ushort>? queueEchoSound = null,
+        Action? checkLowHealth = null)
     {
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard =
             HostInfiniteAmmoFrameGuard.Begin(InfiniteAmmoEnabled, Samus);
@@ -1361,7 +1362,8 @@ public sealed partial class SuperMetroidRuntime
                 afterAcceptedNmi,
                 advanceGameTime,
                 infiniteAmmoGuard,
-                queueEchoSound);
+                queueEchoSound,
+                checkLowHealth);
         }
         finally
         {
@@ -1382,7 +1384,8 @@ public sealed partial class SuperMetroidRuntime
         Action? afterAcceptedNmi,
         bool advanceGameTime,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
-        Func<ushort>? queueEchoSound)
+        Func<ushort>? queueEchoSound,
+        Action? checkLowHealth)
     {
 
         // Routing references are deliberately not serialized as duplicate native state.
@@ -3908,6 +3911,11 @@ public sealed partial class SuperMetroidRuntime
                 Samus.LiquidPhysics.ApplyPeriodicDamage(
                     Samus,
                     timeIsFrozen: TimeIsFrozen);
+                // Normal beta ends in LowEnergyCheck. Locked/elevator/appearance
+                // handlers omit it; gunship command $1A installs a dedicated checker.
+                // Automatic reserves invoke their external check in the frontend.
+                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) && !Samus.Xray.IsActive)
+                    checkLowHealth?.Invoke();
             }
 
             // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer

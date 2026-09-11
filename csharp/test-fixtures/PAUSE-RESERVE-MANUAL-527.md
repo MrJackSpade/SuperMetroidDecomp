@@ -153,9 +153,23 @@ includes a companion `.oam.csv`. Run Verification with
 `--reserve-native-trace NEW_OUTPUT.csv`, then reverse only the temporary entrypoint
 patch. The probe returns before SDL initialization and sends errors to the console.
 No native output, ROM data or screenshot is published. Local results are under
-`csharp/test-temp/reserve-native-527/refill-v3.csv`.
+`csharp/test-temp/reserve-native-527/refill-audio.csv`.
 
 This is cartridge **routine execution**, not full-game emulator playback. It
 independently validates the refill counters and manual strip across their full
 duration, but does not establish all automatic gameplay presentation, controller
 handler interactions or audible output. Those remaining checks keep #527 open.
+
+The native trace now also records the library-three refill request each frame,
+draining that queue between calls. All 402 frames match: manual transfer emits
+$2D according to its rounded transfer-delay word, automatic recovery according
+to the accepted NMI word. The C# manual comparison inspects the real audio queue;
+automatic comparison checks the recovery owner's request publication. This does
+not validate the frontend ordering of that publication relative to other sound
+producers, or audible PCM output. Regenerate older traces before using the new
+comparator because the final sound column is required.
+
+During this audit, the native low-health warning latch/producer was found absent
+from the translation. It is tracked separately as #560, including the external
+check called by automatic reserve state at $82:DC2B and the 30-to-31 threshold
+handoff. Refill sound $2D itself is distinct from that warning's $02/$01 commands.

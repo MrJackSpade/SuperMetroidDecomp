@@ -8,7 +8,7 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
   char sprite_path[1024];
   if (snprintf(sprite_path, sizeof(sprite_path), "%s.oam.csv", output) >= sizeof(sprite_path)) { fclose(f); return 5; }
   FILE *sprites = fopen(sprite_path, "wx"); if (!sprites) { fclose(f); return 4; }
-  fprintf(f, "manual,supply,frame,health,reserve,delay,hudTens,hudOnes,auto0,auto1,auto2,auto3,auto4,auto5\n");
+  fprintf(f, "manual,supply,frame,health,reserve,delay,hudTens,hudOnes,auto0,auto1,auto2,auto3,auto4,auto5,refillSound\n");
   const int supplies[] = {2, 21, 99, 199};
   for (int manual = 0; manual <= 1; manual++) for (int s = 0; s < 4; s++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -22,10 +22,12 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
       joypad1_newkeys = frame == 0 ? 0x80 : 0;
       ProbeRunBoundedRegisters(manual ? 0x82af4f : 0x82dc31, 0, 0, 0);
       ProbeRunBoundedRegisters(0x809b44, 0, 0, 0);
-      fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+      fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
         manual, supplies[s], frame, samus_health, samus_reserve_health,
         pausemenu_reserve_tank_delay_ctr, hud_tilemap[70], hud_tilemap[71],
-        hud_tilemap[8], hud_tilemap[9], hud_tilemap[40], hud_tilemap[41], hud_tilemap[72], hud_tilemap[73]);
+        hud_tilemap[8], hud_tilemap[9], hud_tilemap[40], hud_tilemap[41], hud_tilemap[72], hud_tilemap[73],
+        sfx_writepos[2] != sfx_readpos[2] ? sfx3_queue[sfx_readpos[2]] : 0);
+      sfx_readpos[2] = sfx_writepos[2];
       // These queues normally drain at NMI; keep this bounded routine experiment
       // from filling the WRAM queue while retaining the actual native HUD writer.
       vram_write_queue_tail = 0;

@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Audio;
 
 internal static partial class Program
 {
@@ -23,7 +24,8 @@ internal static partial class Program
             hud.Initialize(bus, HudSnapshot.CeresDebug with { Health = samus.Health,
                 ReserveHealth = samus.ReserveEnergy, ReserveMode = samus.ReserveTankMode });
             var auto = new SamusReserveAutoRecoveryState();
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0);
+            var audio = new CartridgeAudioState();
+            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, 0, 0, audio);
             if (group.Key.Manual)
             {
                 pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
@@ -35,12 +37,18 @@ internal static partial class Program
             foreach (int[] row in group)
             {
                 int frame = row[2];
+                audio.Reset();
+                bool autoSound = false;
                 if (group.Key.Manual) pause.Step(0, frame == 0 ? (ushort)SnesButton.A : (ushort)0, nmiFrameCounter8: (byte)frame);
-                else auto.StepAfterNmi(samus, (ushort)frame);
+                else autoSound = auto.StepAfterNmi(samus, (ushort)frame).RefillSoundRequested;
                 hud.UpdateGameplayCounters(bus, samus, timeIsFrozen: true);
                 string context = $"native manual={group.Key.Manual} supply={group.Key.Supply} frame={frame}";
                 AssertEqual(row[3], samus.Health, context + " health");
                 AssertEqual(row[4], samus.ReserveEnergy, context + " supply");
+                var positions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+                var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+                bool manualSound = Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 0x2d);
+                AssertEqual(row[14], (group.Key.Manual ? manualSound : autoSound) ? 0x2d : 0, context + " refill sound request");
                 if (group.Key.Manual)
                     AssertEqual(row[5], (ushort)typeof(PauseMenuState).GetField("reserveTransferSoundDelay",
                         BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!, context + " transfer timer");
@@ -85,6 +93,6 @@ internal static partial class Program
         AssertEqual(8, File.ReadLines(path).Skip(1).Select(line => string.Join(',', line.Split(',').Take(2))).Distinct().Count(), "all eight native refill cases present");
         AssertEqual(402, checkedFrames, "complete native frame coverage");
         AssertEqual(181, sprites.Count, "complete native manual sprite coverage");
-        Console.WriteLine($"Original cartridge reserve trace: {checkedFrames} frames of transfer/timer/HUD and {sprites.Count} rendered tank frames compared.");
+        Console.WriteLine($"Original cartridge reserve trace: {checkedFrames} frames of transfer/timer/HUD/refill-sound requests and {sprites.Count} rendered tank frames compared.");
     }
 }

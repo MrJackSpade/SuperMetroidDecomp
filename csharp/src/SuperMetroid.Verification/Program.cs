@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pause-reserve-manual"])
+{
+    VerifyPauseReserveManual();
+    return 0;
+}
 if (args is ["--projectile-runtime-phase"])
 {
     VerifyProjectileRuntimePhase();
@@ -456,6 +461,7 @@ VerifyGameOverRomData();
 VerifyTitleSequenceRomData();
 VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();
+VerifyPauseReserveManual();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();

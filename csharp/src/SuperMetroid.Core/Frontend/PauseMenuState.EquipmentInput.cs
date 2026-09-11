@@ -10,8 +10,14 @@ internal sealed partial class PauseMenuState
     private void HandleEquipmentInput(SnesButton pressed)
     {
         int dispatchedCategory = selectedCategory;
+        if (dispatchedCategory == PauseEquipmentCategories.Reserves)
+        {
+            HandleReserveInput(pressed);
+            MoveEquipmentSelector(pressed);
+            return;
+        }
         MoveEquipmentSelector(pressed);
-        if (dispatchedCategory == PauseEquipmentCategories.Reserves || (pressed & SnesButton.A) == 0)
+        if ((pressed & SnesButton.A) == 0)
             return;
         if (dispatchedCategory == PauseEquipmentCategories.Beams && samus.CollectedBeams == 0)
             return;
@@ -141,7 +147,26 @@ internal sealed partial class PauseMenuState
                 {
                     if (down || !TrySelectEquipment(suits, 0, 1)) TrySelectEquipment(boots, 0, 1);
                 }
-                else if (down) TrySelectEquipment(beams, 0, 1);
+                else if (up)
+                {
+                    if (selectedItem != PauseReserveTransferRomData.ModeItem)
+                    {
+                        selectedItem--;
+                        audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                    }
+                }
+                else if (down)
+                {
+                    if (selectedItem == PauseReserveTransferRomData.TransferItem ||
+                        samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode)
+                        TrySelectEquipment(beams, 0, 1);
+                    else
+                    {
+                        selectedItem++;
+                        if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, 0, 1);
+                        else audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                    }
+                }
                 break;
         }
     }

@@ -17,6 +17,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" && count == current.Length - 1 &&
+            current.Any(field => field.Name == "reserveTransferSoundDelay"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy pause state predates manual reserve transfer; restores with no transfer pending.");
+            return current.Where(field => field.Name != "reserveTransferSoundDelay").ToArray();
+        }
         if (type == typeof(SamusGrappleState) && count == current.Length - 1)
         {
             Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");

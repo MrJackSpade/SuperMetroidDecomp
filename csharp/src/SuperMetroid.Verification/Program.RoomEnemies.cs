@@ -255,7 +255,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 /// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
 /// the assertions then enter only through the public loader/frame/contact/projectile seams.
 /// </summary>
-static void VerifyRipperEnemy(bool verifyDeferredContact = false)
+static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false)
 {
     const ushort definitionPointer = 0xd47f;
     const ushort populationPointer = 0x9580;
@@ -344,6 +344,45 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false)
     var enemies = new RoomEnemySystem();
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
     RoomEnemySlot ripper = enemies.Slots[0];
+    if (verifyXrayTimers)
+    {
+        ripper.InvincibilityTimer = 10;
+        ripper.FlashTimer = 16;
+        ripper.FrozenTimer = 400;
+        ushort initialX = ripper.XPosition;
+        ushort initialInstruction = ripper.CurrentInstruction;
+        for (int frame = 1; frame <= 12; frame++)
+        {
+            enemies.StepFrame(0, 0, timeIsFrozen: true, level: level);
+            AssertEqual(Math.Max(0, 10 - frame), ripper.InvincibilityTimer,
+                $"X-Plasma prerequisite: tangible invincibility expires during X-ray frame {frame}");
+            AssertEqual(16, ripper.FlashTimer, "X-ray holds flash timer independently");
+            AssertEqual(400, ripper.FrozenTimer, "X-ray holds Ice freeze timer independently");
+            AssertEqual(initialX, ripper.XPosition, "X-ray holds enemy movement");
+            AssertEqual(initialInstruction, ripper.CurrentInstruction, "X-ray holds enemy instruction pointer");
+        }
+        ripper.Properties |= (ushort)EnemyProperties.IgnoreSamusCollision;
+        ripper.InvincibilityTimer = 10;
+        enemies.StepFrame(0, 0, timeIsFrozen: true, level: level);
+        AssertEqual(10, ripper.InvincibilityTimer, "intangible actor bypasses native invincibility clock");
+        ripper.Properties &= unchecked((ushort)~(ushort)EnemyProperties.IgnoreSamusCollision);
+        ripper.InvincibilityTimer = 1;
+        ripper.FlashTimer = ripper.FrozenTimer = 0;
+        var touchingSamus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            Health = 99,
+            XPosition = ripper.XPosition,
+            YPosition = ripper.YPosition,
+        };
+        enemies.StepFrame(0, 0, false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
+        AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
+        AssertEqual(99, touchingSamus.Health, "expiration frame still skips native collision branch");
+        enemies.StepFrame(0, 0, false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
+        AssertEqual(94, touchingSamus.Health, "following frame resumes body contact damage");
+        Console.WriteLine("X-Plasma timer prerequisite: invincibility expires while movement/flash/Ice remain frozen.");
+        return;
+    }
     AssertEqual(0xe477, ripper.CurrentInstruction, "Ripper init right animation list");
     AssertEqual(1, ripper.VariableD, "Ripper init signed whole X velocity");
     AssertEqual(0, ripper.VariableC, "Ripper init X subvelocity");

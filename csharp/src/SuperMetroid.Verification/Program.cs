@@ -195,6 +195,11 @@ if (args is ["--enemy-contact-phase"])
     VerifyRipperEnemy(verifyDeferredContact: true);
     return 0;
 }
+if (args is ["--x-plasma-timers"])
+{
+    VerifyRipperEnemy(verifyXrayTimers: true);
+    return 0;
+}
 if (args is ["--window-pixels"])
 {
     VerifyWindowPixels();
@@ -785,6 +790,7 @@ VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();
+VerifyRipperEnemy(verifyXrayTimers: true);
 VerifyPostCeresGunshipLanding();
 VerifyCeresElevatorPlatformAnimation();
 VerifyCeresDoorBossBranch();

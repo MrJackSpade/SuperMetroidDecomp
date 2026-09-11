@@ -558,10 +558,17 @@ public sealed partial class RoomEnemySystem
         foreach (ushort nativeIndex in _activeEnemyIndexes)
         {
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
+            // EnemyMain $A0:9021-$902E decrements tangible actors' invincibility
+            // before checking time freeze. X-ray therefore stops their movement but
+            // not this clock. Remember the entry value: the call that reaches zero
+            // still skips collision, and a new AI-owned timer must not lose a tick.
+            bool invincibleAtEntry = slot.InvincibilityTimer != 0;
+            if (!slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) && invincibleAtEntry)
+                slot.InvincibilityTimer = unchecked((ushort)(slot.InvincibilityTimer - 1));
             // EnemyMain checks contact against the pre-movement actor, not the position
             // just moved into by AI. A rising support temporarily overlaps its rider until
             // bank $90 consumes the carry; a late touch pass would retrigger that support.
-            if (!timeIsFrozen && resolveSamusContactBeforeAi && samus is not null)
+            if (!timeIsFrozen && !invincibleAtEntry && resolveSamusContactBeforeAi && samus is not null)
             {
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
@@ -743,8 +750,6 @@ public sealed partial class RoomEnemySystem
                 if (unchecked((short)(slot.FlashTimer - 8)) < 0)
                     slot.AiHandlerBits = unchecked((ushort)(slot.AiHandlerBits & ~0x0002));
             }
-            if (!timeIsFrozen && slot.InvincibilityTimer != 0)
-                slot.InvincibilityTimer = unchecked((ushort)(slot.InvincibilityTimer - 1));
         }
 
         // DetermineWhichEnemiesToProcess freezes only the index list. Later bank-$94

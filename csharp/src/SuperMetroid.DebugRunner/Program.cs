@@ -344,6 +344,8 @@ if (args.Length == 3 && args[0] == "--yard-quake-native-audit")
     return YardQuakeNativeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--missile-yard-detach-audit")
     return MissileYardDetachmentAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--spore-glow-audit")
+    return SporeSpawnGlowAudit.Run(args[1], args[2]);
 
 if (args.Length == 2 && args[0] == "--missile-impact-shake-audit")
     return MissileImpactShakeAudit.Run(args[1]);

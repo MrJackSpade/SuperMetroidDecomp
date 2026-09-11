@@ -41,3 +41,42 @@ int DiagnosticCrystalFlash(const char *rom, const char *output) {
   }
   fclose(f); return 0;
 }
+
+int DiagnosticCrystalFlashLifetime(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "left,offset,frame,phase,pose,anim,timer,y,health,missiles,supers,pbs,immunity,knockback\n");
+  for (int left = 0; left < 2; left++) for (int offset = 0; offset < 8; offset++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
+    game_state = 8; button_config_shoot_x = 0x40; joypad1_lastkeys = 0x470;
+    samus_pose = samus_prev_pose = left ? 0x41 : 0x1d;
+    samus_pose_x_dir = samus_prev_pose_x_dir = left ? 4 : 8;
+    samus_movement_type = samus_prev_movement_type = 4;
+    samus_x_pos = power_bomb_explosion_x_pos = 128;
+    samus_y_pos = power_bomb_explosion_y_pos = 128;
+    samus_health = 49; samus_max_health = 1499;
+    samus_missiles = samus_super_missiles = samus_power_bombs = 10;
+    power_bomb_flag = 0xffff; samus_input_handler = 0xe913;
+    room_width_in_blocks = room_height_in_blocks = 16;
+    interactive_enemy_indexes[0] = 0xffff;
+    samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
+    fx_y_pos = lava_acid_y_pos = 0xffff;
+    RunAsmCode(0x888b4e, 0, 0, 0, 0);
+    int done = 0;
+    for (int frame = 0; frame < 400; frame++) {
+      nmi_frame_counter_word = frame + offset;
+      samus_invincibility_timer = 77; samus_knockback_timer = 5;
+      RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
+      RunAsmCode(0x908000, 0, 0, 0, 0);
+      RunAsmCode(0x91eb88, 0, 0, 0, 0);
+      int phase = samus_movement_handler == 0xd678 ? 1 : samus_movement_handler == 0xd6ce ? 2 : samus_movement_handler == 0xd75b ? 3 : 0;
+      fprintf(f, "%d,%d,%d,%d,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
+        left,offset,frame,phase,samus_pose,samus_anim_frame,samus_anim_frame_timer,
+        samus_y_pos,samus_health,samus_missiles,samus_super_missiles,samus_power_bombs,samus_invincibility_timer,samus_knockback_timer);
+      if (!phase) { done = 1; break; }
+    }
+    if (!done) { fclose(f); return 5; }
+  }
+  fclose(f); return 0;
+}

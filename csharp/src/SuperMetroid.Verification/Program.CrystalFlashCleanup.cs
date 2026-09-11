@@ -5,6 +5,46 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyCrystalFlashLifetime(string rom, string nativeCsv)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        AssertEqual("CA77210D138C654AEF79E44AAA897B5BE0F79244E2F72AB362D46303521BC043",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeCsv))),
+            "accepted original-CPU lifetime capture");
+        string[] rows = File.ReadAllLines(nativeCsv);
+        AssertEqual("left,offset,frame,phase,pose,anim,timer,y,health,missiles,supers,pbs,immunity,knockback", rows[0], "native lifetime schema");
+        int row = 1;
+        for (int left = 0; left < 2; left++)
+        for (int offset = 0; offset < 8; offset++)
+        {
+            var samus = new SamusState
+            {
+                Pose = left != 0 ? SamusPoseIds.MorphBallGroundLeftPose : SamusPoseIds.MorphBallGroundRightPose,
+                XPosition = 128, YPosition = 128, Health = 49, MaxHealth = 1499,
+                Missiles = 10, SuperMissiles = 10, PowerBombs = 10,
+            };
+            samus.RefreshCollisionRadii(bus);
+            ushort input = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+            AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, input), "lifetime starts from valid activation");
+            int frame = 0;
+            do
+            {
+                samus.InvincibilityTimer = 77;
+                samus.KnockbackTimer = 5;
+                samus.CrystalFlash.Step(bus, samus, (ushort)(frame + offset));
+                samus.AnimateNoFx(bus, input);
+                if (samus.PendingTransitionalPose is not null)
+                    samus.ApplyPendingVerifiedAnimationTransition(bus);
+                string actual = $"{left},{offset},{frame},{(int)samus.CrystalFlash.Phase},{samus.Pose:X4},{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4},{samus.YPosition:X4},{samus.Health:X4},{samus.Missiles:X4},{samus.SuperMissiles:X4},{samus.PowerBombs:X4},{samus.InvincibilityTimer:X4},{samus.KnockbackTimer:X4}";
+                AssertTrue(row < rows.Length, "native lifetime capture is not truncated");
+                AssertEqual(rows[row++], actual, $"native lifetime left={left}, offset={offset}, frame={frame}");
+                if (++frame > 400) throw new InvalidDataException("Crystal Flash did not finish.");
+            } while (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive);
+        }
+        AssertEqual(rows.Length, row, "native lifetime has no unconsumed rows");
+        Console.WriteLine($"Crystal Flash: {row - 1} original-CPU lifetime frames match across both facings and all eight NMI phases.");
+    }
+
     /// <summary>Compare real Power Bomb cleanup admission with the original bank-$88 CPU probe.</summary>
     private static void VerifyCrystalFlashCleanup(string rom, string nativeCsv)
     {

@@ -248,7 +248,9 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash standing transition is applied");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
+    samus.InvincibilityTimer = 77;
     CrystalFlashMovementResult cleanup = samus.CrystalFlash.Step(bus, samus, 0x0200);
+    AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash normal-input completion clears hit immunity");
     AssertTrue(cleanup.Completed, "following beta pass restores normal movement handler");
     AssertEqual(0xffff, samus.CrystalFlash.SpecialPaletteTimer,
         "cleanup requests normal palette restoration");

@@ -285,6 +285,8 @@ public sealed class SamusCrystalFlashState
             return;
 
         SpecialPaletteTimer = 0xffff;
+        // Normal-input completion clears the same hit timers as the native return path.
+        samus.InvincibilityTimer = 0;
         samus.KnockbackTimer = 0;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Inactive;

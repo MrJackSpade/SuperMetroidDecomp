@@ -89,3 +89,40 @@ removed and normal native executable rebuilt after capture. This slice adds no
 production fix; the prior timer correction now agrees with actual CPU activation.
 Still outstanding: full input/resource boundary sweep, frame-by-frame entire
 technique, real refill collection and contact-damage/animation/control comparison.
+
+## Original-CPU movement and animation lifetime
+
+`--diagnostic-crystal-flash-lifetime` now extends the native probe through the
+installed movement handler, animation ($90:8000) and pose dispatcher ($91:EB88),
+until normal movement returns. Both facings and all eight initial NMI phases
+produce **4088** compared frames. Health starts at 49 with maximum 1499, each ammo
+family at ten. The trace compares phase, pose, animation frame/delay, whole Y,
+health/ammo, and the two hit timers on every frame.
+
+Nonzero immunity 77 and knockback 5 are injected before each handler call to expose
+its writes independently of any earlier clear. This found an additional omission:
+the final normal-input completion should clear immunity ($90:D78C). The baseline
+case failed at frame 257, native zero versus managed 77. The production finish
+handler now performs the clear, and all 4088 frames agree. The standard focused
+Crystal Flash test also checks this final clear without requiring the native file.
+
+The first native fixture incorrectly left pending-pose words zero after RAM reset;
+that requests pose zero, not 'no transition'. It was rejected. The accepted fixture
+initializes all three pending-pose words to $FFFF and liquid heights to $FFFF.
+Earlier incomplete local captures are not accepted by the comparator.
+
+Accepted lifetime CSV SHA256:
+`CA77210D138C654AEF79E44AAA897B5BE0F79244E2F72AB362D46303521BC043`.
+Commands after applying the same headless entrypoint patch:
+
+```
+upstream-sm/build/bin-x64-Release/sm.exe --diagnostic-crystal-flash-lifetime "Super Metroid.smc" NEW_NATIVE.csv
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --crystal-flash-lifetime "Super Metroid.smc" NEW_NATIVE.csv
+```
+
+The native and managed probes call movement/animation owners directly; they do
+not execute the whole room, contact damage, input-handler interruption, palette
+or bubble rendering in this lifetime comparison. Native demo input has a distinct
+completion branch and is not covered by this normal-gameplay fixture. Actual
+refill collection and contact-damage/full-runtime ownership checks remain open.
+No issue completion/validation label follows from this partial comparison.

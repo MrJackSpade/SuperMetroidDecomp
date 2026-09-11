@@ -1,5 +1,9 @@
 # Yapping Maw capture / issue 525
 
+Historical investigation of the wrong actor for this report. The player has now
+identified Samus Eater (a plant PLM), not Yapping Maw. See SAMUS-EATER-525.md for
+the actual defect and implementation. The Maw range fix remains independently valid.
+
 Affected player version: **0.1.1**. The reported "flesh flower" identity and room
 are still unconfirmed. This work fixes a proven Yapping Maw translation defect;
 it does not establish that every reported missed grab has been reproduced.

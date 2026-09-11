@@ -45,6 +45,12 @@ public static class SamusInsideBlockReactions
             ushort setup = Word(QuicksandRomData.PlmBank | header);
             switch (setup)
             {
+                case SamusEaterPlmRomData.FloorSetup:
+                case SamusEaterPlmRomData.CeilingSetup:
+                    (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
+                        .TrySpawnSamusEater(bus, level, block, header,
+                            setup == SamusEaterPlmRomData.CeilingSetup, samus);
+                    break;
                 case QuicksandRomData.SurfaceSetup:
                     // Native setup cancels running momentum even for center/top samples,
                     // but preserves the lower fractional bits rather than zeroing base X.

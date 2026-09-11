@@ -53,6 +53,7 @@ public sealed partial class RoomPlmSystem
         foreach (PlmSlot slot in _slots)
         {
             slot.Active = false;
+            slot.PlantHeldX = slot.PlantHeldY = 0;
             slot.HeaderPointer = 0;
             slot.BlockIndex = 0;
             slot.RestoreLevelWord = 0;
@@ -1275,6 +1276,7 @@ public sealed partial class RoomPlmSystem
             }
 
             RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
+            RunSamusEaterPreInstruction(slot);
             RunSpeedBoosterEscapePreInstruction(bus, slot);
             RunWreckedShipAtticPreInstruction(slot);
             RunBombTorizoHandPreInstruction(slot);
@@ -1344,6 +1346,14 @@ public sealed partial class RoomPlmSystem
 
             switch (instruction)
             {
+                case SamusEaterPlmRomData.DamageInstruction:
+                    RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, 2);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+                case SamusEaterPlmRomData.ReleaseImmunityInstruction:
+                    RequirePlantSamus().InvincibilityTimer = 0x30;
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
                 case EscapeAnimalPlmRomData.SetEscapedEventInstruction:
                     (_setEvent ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))(EventNumber.CrittersEscaped);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
@@ -1726,6 +1736,10 @@ public sealed partial class RoomPlmSystem
 
     private sealed class PlmSlot
     {
+        /// <summary>Native PLM_Vars coordinate saved by the Brinstar plant setup.</summary>
+        public ushort PlantHeldX { get; set; }
+        /// <summary>Native PLMExtra_Vars coordinate saved by the Brinstar plant setup.</summary>
+        public ushort PlantHeldY { get; set; }
         public bool Active { get; set; }
         public ushort HeaderPointer { get; set; }
         public int BlockIndex { get; set; }

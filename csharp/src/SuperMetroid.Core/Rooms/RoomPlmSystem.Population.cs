@@ -227,6 +227,7 @@ public sealed partial class RoomPlmSystem
         // must pass through this reset or a recycled bomb/door block can execute the old
         // item's handler before its own instruction stream.
         slot.Active = false;
+        slot.PlantHeldX = slot.PlantHeldY = 0;
         slot.HeaderPointer = 0;
         slot.BlockIndex = 0;
         slot.RestoreLevelWord = 0;

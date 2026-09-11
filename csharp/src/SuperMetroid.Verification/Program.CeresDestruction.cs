@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -7,6 +8,13 @@ internal static partial class Program
 static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
+
+    // The timeline fixture has no visible engine art. Supply a valid terminating
+    // palette program; the retail pixel audit covers the alternating engine colors.
+    int engineDefinition = 0x8d0000 | CeresDestructionRomData.PaletteFx.EngineFlicker;
+    WriteRomWord(rom, engineDefinition, PaletteFxSetupCodes.Null);
+    WriteRomWord(rom, engineDefinition + 2, (ushort)(engineDefinition + 4));
+    WriteRomWord(rom, engineDefinition + 4, PaletteFxInstructionCodes.Delete);
 
     AssertEqual(SnesAngle.FromTableIndex(0x20), CeresDestructionRomData.Motion.ApproachAngle,
         "Ceres destruction typed approach angle");

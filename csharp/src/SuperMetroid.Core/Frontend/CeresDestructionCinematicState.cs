@@ -27,6 +27,7 @@ internal sealed partial class CeresDestructionCinematicState
     private readonly List<IntroDiscoverySprite> actors = [];
     private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
     private readonly SamusPowerBombExplosionState stationExplosion = new();
+    private RoomPaletteFxSystem? paletteFx;
     private IntroDiscoverySprite? zebesPlanetActor;
     private IntroDiscoverySprite? zebesCompletionStarActor;
 
@@ -238,6 +239,21 @@ internal sealed partial class CeresDestructionCinematicState
 
         if (Phase <= CeresDestructionPhase.FadeOutCeres)
             StepCeresActors();
+
+        // GameState_37 runs PaletteFxHandler after cinematic objects, including the
+        // frame which spawns the program. Older debugger states lack this owner;
+        // resume their visible effect rather than leaving the engines permanently lit.
+        if (Phase >= CeresDestructionPhase.WaitForZebesMusicQueue)
+        {
+            if (paletteFx is null)
+            {
+                paletteFx = new RoomPaletteFxSystem();
+                paletteFx.SpawnDefinition(bus, CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
+            }
+            paletteFx.Step(bus, cgram, 0, 0, false, false);
+            if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
+                throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
+        }
 
         // GameState_37 increments the shared cinematic frame word after calling the
         // current function but before object handling. The mosaic test therefore observes

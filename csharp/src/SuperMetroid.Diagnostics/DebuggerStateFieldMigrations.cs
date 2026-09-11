@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type.FullName == "SuperMetroid.Core.Frontend.CeresDestructionCinematicState" && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");
+            return current.Where(field => field.Name != "paletteFx").ToArray();
+        }
         if (type == typeof(SuperMetroid.Core.Hardware.VramWriteEntry) && count == 3 && current.Length == 4)
         {
             // Old records only had bus sources. Default None retains their exact

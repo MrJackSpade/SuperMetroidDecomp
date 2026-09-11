@@ -159,45 +159,76 @@ internal static class RioAudit
         samus.KnockbackActive = false;
         samus.XPosition = rio.XPosition;
         samus.YPosition = rio.YPosition;
+        byte contactPose = samus.Pose;
+        ushort contactX = samus.XPosition, contactY = samus.YPosition;
+        // $A0:A4A1 publishes damage, timers and source side; it does not install
+        // movement. The later $90:DDE9 handler admits the request after animation.
         if (!enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0) ||
-            samus.Health != 984 || !samus.KnockbackActive || rio.Health != 45)
+            samus.Health != 984 || samus.InvincibilityTimer != 96 ||
+            samus.KnockbackTimer != 5 || samus.KnockbackXDirection != 1 ||
+            samus.KnockbackDirection != 0 || samus.KnockbackActive || rio.Health != 45 ||
+            samus.Pose != contactPose || samus.XPosition != contactX || samus.YPosition != contactY)
         {
             throw new InvalidDataException(
                 $"Rio contact mismatch: Samus health={samus.Health}, " +
                 $"knockback={samus.KnockbackActive}, Rio health={rio.Health}.");
         }
 
+        if (SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: true) ||
+            samus.KnockbackActive || samus.Pose != contactPose || samus.KnockbackTimer != 5)
+            throw new InvalidDataException("Rio contact was admitted while time was frozen.");
+        if (!SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: false) ||
+            !samus.KnockbackActive || samus.Pose != SamusPoseIds.KnockbackRightPose ||
+            samus.KnockbackDirection != 2 || samus.HurtFlashCounter != 1 ||
+            samus.Kinematics.YSpeed != 5 || samus.Kinematics.YSubspeed != 0 ||
+            samus.Kinematics.YDirection != 1 || samus.Health != 984 ||
+            samus.XPosition != contactX || samus.YPosition != contactY ||
+            SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: false))
+            throw new InvalidDataException("Rio contact did not admit exactly one native up-right knockback.");
+
         (enemies, samus) = LoadRoom(bus, room, assets);
         rio = GetRio(enemies);
         enemies.StepFrame(CameraX, CameraY, false, samus, level: assets.LevelData);
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
+        ushort deathX = rio.XPosition, deathY = rio.YPosition;
         ArmLethalBeam(shots.Slots[0], rio);
-        if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
-            !rio.Properties.HasAny(EnemyProperties.Deleted) || rio.Health != 0 ||
-            enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Rio beam death mismatch: health={rio.Health}, " +
-                $"deleted={rio.Properties.HasAny(EnemyProperties.Deleted)}, " +
-                $"kills={enemies.EnemiesKilled}.");
-        }
+        if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1)
+            throw new InvalidDataException("Rio lethal beam did not register exactly one hit.");
+        VerifyDeathPublication(enemies, rio, deathX, deathY, "beam", expectedProperties: 0);
 
         (enemies, samus) = LoadRoom(bus, room, assets);
         rio = GetRio(enemies);
+        deathX = rio.XPosition;
+        deathY = rio.YPosition;
         int reactions = enemies.ResolveOrdinaryPowerBombHits(
             bus,
             rio.XPosition,
             rio.YPosition,
             explosionRadius: 32);
-        if (reactions != 1 || !rio.Properties.HasAny(EnemyProperties.Deleted) ||
-            rio.Health != 0 || enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Rio power-bomb mismatch: reactions={reactions}, health={rio.Health}, " +
-                $"deleted={rio.Properties.HasAny(EnemyProperties.Deleted)}, " +
-                $"kills={enemies.EnemiesKilled}.");
-        }
+        if (reactions != 1)
+            throw new InvalidDataException($"Rio power bomb registered {reactions} reactions instead of one.");
+        // $A0:A306 sets ProcessOffScreen AFTER the death callback clears the slot.
+        VerifyDeathPublication(enemies, rio, deathX, deathY, "power bomb",
+            expectedProperties: EnemyProperties.ProcessOffScreen);
+    }
+
+    private static void VerifyDeathPublication(
+        RoomEnemySystem enemies, RoomEnemySlot rio, ushort deathX, ushort deathY, string cause,
+        EnemyProperties expectedProperties)
+    {
+        // $A0:A3AF spawns the effect BEFORE clearing the 64-byte enemy slot;
+        // the old Deleted-bit expectation contradicted that native memset.
+        if (rio.EnemyDefinitionPointer != 0 || rio.Properties != (ushort)expectedProperties || rio.Health != 0 ||
+            rio.XPosition != 0 || rio.YPosition != 0 || enemies.EnemiesKilled != 1)
+            throw new InvalidDataException($"Rio {cause} death: header={rio.EnemyDefinitionPointer:X4}, properties={rio.Properties}, health={rio.Health}, position={rio.XPosition}/{rio.YPosition}, kills={enemies.EnemiesKilled}.");
+        var effects = enemies.EnemyProjectiles
+            .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();
+        if (effects.Length != 1 || effects[0].EnemyHeaderPointer != DefinitionPointer ||
+            effects[0].KilledEnemyNativeIndex != rio.NativeIndex ||
+            effects[0].XPosition != deathX || effects[0].YPosition != deathY ||
+            effects[0].GraphicsIndex != 0 || effects[0].InstructionTimer != 1)
+            throw new InvalidDataException($"Rio {cause} did not preserve its identity/position in exactly one death effect.");
     }
 
     private static (RoomEnemySystem Enemies, SamusState Samus) LoadRoom(

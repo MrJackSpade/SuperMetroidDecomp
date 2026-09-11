@@ -3,8 +3,9 @@
 Affected player version: 0.1.1. Investigation checkpoint, not a completed fix.
 
 Run DebugRunner `--phantoon-materialization-audit ROM LOCAL-OUTPUT-DIRECTORY`.
-This diagnostic currently **must fail** at its final wave assertion; it is not
-registered as a passing general-suite test. Do not mark #555 awaiting validation.
+The missing introductory wave was reproduced before the integration below. The
+diagnostic now passes; it remains a separate real-room audit. Do not mark #555
+awaiting validation until the other reported visual properties are verified.
 
 The diagnostic loads the real Phantoon room ($8F:CD13), places Samus on its floor,
 then runs 1000 production runtime frames with no input. It does not set the boss's
@@ -19,7 +20,7 @@ flags $4000, and the render packet contains zero horizontal-scroll rows. Frame
 were visually inspected. This reproduces missing introductory shimmer, not the
 later black silhouette or fade-out symptoms.
 
-Pinned source leads:
+Pinned source leads (before integration):
 
 - `$A7:D508` starts materialization and calls `$88:E487`, spawning wave HDMA.
 - `$88:E4BD` initializes its table/phase; `$88:E567` computes BG2 horizontal
@@ -29,7 +30,7 @@ Pinned source leads:
 - `GameplayDisplayCapture` publishes water/lava/sky horizontal offsets, not
   Phantoon's wave. Its translucency flag currently has no rendering consumer.
 
-Next: translate the native wave initialization/update and blending setup with
+The initial investigation plan was to translate wave initialization/update and blending setup with
 correct frame ownership, compare its exact table output against original code,
 then rerun this visual reproduction. Independently reproduce fade-out and the
 black/translucent phase before claiming the whole issue resolved.
@@ -48,9 +49,9 @@ original 65816 calculation, not an upstream C formula used as the oracle.
 The builder truncates unsigned product magnitude before applying the sign, then
 mirrors the first half-cycle and wraps the base scroll as a native word.
 
-The builder alone is not the gameplay fix. Native HDMA lifecycle, accepted-frame
-publication, screen-row expansion and transparency integration remain to be wired.
-No claim that the materialization regression passes yet.
+At this checkpoint the builder alone was not the gameplay fix. Lifecycle,
+accepted-frame publication and row expansion were subsequently integrated below;
+transparency remains unfinished.
 
 Initialization clarification: $A7:D535 calls the HDMA spawn/reset *before*
 $A7:D539-$D53C assigns the intro maximum amplitude. The existing maximum-amplitude
@@ -80,4 +81,30 @@ Observed sequence:
 the prior completed effect data alongside the other NMI presentation state;
 feeding live post-AI amplitude into render capture would change that ownership.
 The first setup-only call must not be collapsed into an immediate wave update.
-These are original-CPU observations, not yet an integrated lifecycle fix.
+These original-CPU observations are now covered by the integrated lifecycle test.
+
+## Integrated introductory wave checkpoint
+
+The runtime now advances the separate bank-$88 wave owner before enemy AI and
+latches its completed scroll data at NMI. Both gameplay rendering paths consume
+that same latched per-row BG2 table. The native setup-only first call is retained;
+the mode handoff also prevents the body from updating its scalar anchor while
+wave HDMA owns BG2. Intro and death call sites schedule their native wave modes.
+
+The real-room audit now finds 165 qualifying amplitude frames and 162 frames
+with varying horizontal scroll rows. It compares each varying frame against an
+otherwise identical undistorted render: gameplay pixels must change while HUD
+pixels remain identical. This verifies the introductory wave, not translucency.
+The ordinary-base capture intentionally does not establish final color blending.
+
+Core verification covers original-CPU lifecycle values, immutable display
+latching, exact debugger-state round-trip, deletion, and legacy field migration
+selection. Legacy states have no recorded wave history: loading them emits an
+explicit warning and leaves that missing owner inactive until its next native
+spawn. No exact reconstruction of a legacy mid-wave phase is claimed.
+
+Core verification and ordinary render parity pass (96 gameplay comparisons and
+128 window frames each on hardware and WARP). Final-death wave wiring still needs
+full battle verification. Later reappearances, fade-out, and the reported black
+silhouette/background contribution remain unfinished; #555 stays open without
+the awaiting-player-validation label.

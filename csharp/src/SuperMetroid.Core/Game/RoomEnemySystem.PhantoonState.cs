@@ -104,6 +104,8 @@ public sealed class PhantoonEnemyState
     /// owner, so the enemy publishes the exact authored request rather than editing terrain.
     /// </summary>
     public ushort? BossDoorPlmRequest { get; internal set; }
+    private PhantoonWaveHdmaState? _wave;
+    public PhantoonWaveHdmaState Wave => _wave ??= new();
 }
 
 /// <summary>

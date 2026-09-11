@@ -107,7 +107,7 @@ public static partial class GameplayDisplayCapture
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         var layer = new OrdinaryGameplayRenderLayer(registers,
-            VisibleLines(lavaX ?? waterX ?? skyX),
+            VisibleLines(runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaX ?? waterX ?? skyX),
             VisibleLines(crocomireBg
                 ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                     ? melting.Bg2ScrollByScanline : null

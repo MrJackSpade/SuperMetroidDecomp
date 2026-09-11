@@ -287,6 +287,8 @@ public sealed partial class RoomEnemySystem
         state.Eye!.VariableF = 0;
         state.MusicRequest = MusicCommand.SelectTrack(5);
         state.Mouth.VariableF = PhantoonWavyPhaseDelta;
+        state.Tentacles!.Parameter1 = PhantoonWaveRomData.IntroMode;
+        state.Wave.Begin(PhantoonWaveRomData.IntroMode);
     }
 
     private void RunPhantoonWavyFadeIn(

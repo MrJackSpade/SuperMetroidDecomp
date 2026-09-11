@@ -93,6 +93,8 @@ public sealed partial class RoomEnemySystem
         mouth.VariableD = 0;
         mouth.VariableE = 0;
         mouth.VariableF = PhantoonWavyPhaseDelta;
+        state.Tentacles!.Parameter1 = PhantoonWaveRomData.DeathMode;
+        state.Wave.Begin(PhantoonWaveRomData.DeathMode);
         body.VariableF = (ushort)PhantoonAiFunction.DyingFadeOut;
         state.Eye!.VariableC = 2;
         state.MosaicRegister = 2;

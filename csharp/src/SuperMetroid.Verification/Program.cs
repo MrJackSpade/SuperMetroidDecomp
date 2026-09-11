@@ -469,6 +469,7 @@ VerifyCartridgeAudioQueues();
 VerifyManagedSnesDsp();
 VerifyTypedNativeWords();
 VerifyProductionMagicNumberAudit();
+VerifyPhantoonWaveLifecycle();
 VerifyOamSpritemapPacking();
 VerifyCeresElevatorArrivalGraphicsIndex();
 VerifySamusRenderingSlice();

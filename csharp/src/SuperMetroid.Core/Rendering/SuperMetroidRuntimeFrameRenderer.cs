@@ -163,7 +163,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                             ? unchecked((ushort)(displayedPpu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2Y))
                             : bg2VerticalScroll,
                 bg2HorizontalScrollByLine:
-                    lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
+                    runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
                 bg2VerticalScrollByLine: crocomireOwnsBg2
                     ? runtime.Enemies.CrocomireDeath is { MeltingHdmaActive: true } melting
                         ? melting.Bg2ScrollByScanline : null

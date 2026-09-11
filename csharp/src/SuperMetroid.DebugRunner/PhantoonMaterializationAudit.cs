@@ -34,11 +34,21 @@ internal static class PhantoonMaterializationAudit
                 waveFrames++;
                 if (distinct > 1) varyingRows++;
                 var pixels = SoftwareLayeredSnapshotRenderer.Render(packet);
+                if (distinct > 1)
+                {
+                    var flatLayer = new OrdinaryGameplayRenderLayer(layer.Registers, [], layer.VerticalScrolls.ToArray());
+                    var flat = SoftwareLayeredSnapshotRenderer.Render(new LayeredRenderSnapshot(
+                        packet.Memory, [flatLayer], packet.ObjectSelection, packet.Brightness));
+                    if (pixels.AsSpan().SequenceEqual(flat))
+                        throw new InvalidDataException("Wave table varies but actual body pixels do not move.");
+                    if (!pixels.AsSpan(0, 256 * 32).SequenceEqual(flat.AsSpan(0, 256 * 32)))
+                        throw new InvalidDataException("Phantoon wave moved the HUD.");
+                }
                 PngWriter.WriteRgba(Path.Combine(directory, $"wave-{frame:D4}.png"), 256, 224, pixels);
             }
         }
         Console.WriteLine($"Phantoon materialization: {waveFrames} active-amplitude frames, {varyingRows} with per-row scroll variation.");
-        if (waveFrames == 0 || varyingRows == 0)
+        if (waveFrames != 165 || varyingRows != 162)
             throw new InvalidDataException("Phantoon's real-room materialization does not publish a visible per-scanline wave.");
         return 0;
     }

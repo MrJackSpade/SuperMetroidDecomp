@@ -210,3 +210,21 @@ unlock, and the gunship entry exception in a loaded Landing Site. The pause HUD
 test also checks that low health while paused does not start the gameplay warning.
 No audible playback claim is made yet; #560 remains open for independent native
 handler/queue comparison and audible checks.
+
+## Automatic recovery rendered HUD continuation
+
+`--reserve-auto-frontend` additionally checks 33 successive captured gameplay
+frames after seeding the pre-transfer HUD through the real upload queue and NMI.
+The displayed health words match the cartridge digit table for the preceding
+frame's health, including during frozen recovery. Every ones digit has distinct
+rendered pixels, and repeated occurrences of the same digit match exactly.
+The first post-completion NMI publishes all six empty AUTO indicator cells from
+the cartridge table. Existing checks still cover the same-frame completion
+unfreeze and low-health warning threshold.
+
+This closes the earlier gap between counter-only automatic checks and actual
+HUD presentation. No production change was needed for these properties. The
+402-frame cartridge routine comparison, 181 native-OAM tank render comparisons,
+and manual frontend HUD regression were rerun successfully. Full-game native
+playback and audible output are not established by this added coverage; #527
+remains open, without claiming a missing whole-body refill animation.

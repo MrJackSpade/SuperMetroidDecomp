@@ -25,6 +25,21 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--aerial-spread-trace", var aerialTrace])
+{
+    VerifyAerialSpreadTransitions(outputPath: aerialTrace);
+    return 0;
+}
+if (args is ["--aerial-spread-transition"])
+{
+    VerifyAerialSpreadTransitions();
+    return 0;
+}
+if (args is ["--aerial-spread-transition", var nativeAerialTrace])
+{
+    VerifyAerialSpreadTransitions(nativeAerialTrace);
+    return 0;
+}
 if (args is ["--grounded-spread-transition"])
 {
     VerifyGroundedSpreadTransition();
@@ -625,6 +640,7 @@ VerifyPauseMomentumReconciliation();
 VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 VerifyGroundedSpreadTransition();
+VerifyAerialSpreadTransitions();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
 VerifySamusGunExtendedMovement();

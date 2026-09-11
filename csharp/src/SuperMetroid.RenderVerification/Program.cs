@@ -5,6 +5,11 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--compare-sparse-sequence", var sparseDirectory])
+    {
+        SnapshotSequenceComparison.RunSparse(sparseDirectory);
+        return;
+    }
     if (args is ["--compare-sequence", var directory])
     {
         SnapshotSequenceComparison.Run(directory);

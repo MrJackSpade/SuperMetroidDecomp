@@ -46,3 +46,21 @@ effects, Android presentation, or dropped display packets. Software/GPU agreemen
 also cannot establish cartridge parity when both consume the same wrong packet.
 Keep #554 open without `awaiting-player-validation` until the reported transient
 is reproduced and a matching assertion verifies its fix.
+
+## Sparse display-consumer experiment
+
+`SuperMetroid.RenderVerification --compare-sparse-sequence <capture-directory>`
+renders the same complete captured packets while deliberately omitting display
+submissions. It always submits the initial ordinary frame, then tests every phase
+of strides two through eight. Each schedule uses one persistent renderer, so
+resource state carries across first activation, release and subsequent activation.
+Software expectations are generated from each retained packet, not from adjacent
+frames or a regenerated gameplay run.
+
+Using the existing 151-frame aligned capture, RTX 3090 and WARP each passed all
+35 schedules (1,085 retained frames per device) with exact pixel parity. This
+rules out skipped setup/display packets at those cadences as a cause in this
+fixture. It does not reproduce #554, establish cartridge framebuffer parity,
+exercise a real frontend mailbox or asynchronous swapchain, or cover Android.
+The next reproduction work remains the actual room-entry/frontend/effect context;
+do not label the issue fixed or awaiting player validation based on this result.

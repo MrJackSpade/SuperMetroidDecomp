@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// ninjas, with opposite starting posts, and no unrelated enemy can accidentally satisfy a
 /// movement or projectile assertion.
 /// </summary>
-internal static class NinjaSpacePirateAudit
+internal static partial class NinjaSpacePirateAudit
 {
     private const ushort MetalPiratesRoomPointer = 0xb62b;
 

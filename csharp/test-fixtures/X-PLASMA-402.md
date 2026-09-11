@@ -268,3 +268,25 @@ port agrees, including acceleration and position. Two v2 captures agree:
 SHA-256 `3920203CBC1B550415DBA4E5871FCCFC98274188BEE49B151C2F7CBB0F561007`.
 All three Botwoon cases and all four Draygon cases pass. This expands evidence
 without another production change and does not finish #402's remaining scope.
+
+## Steel Pirate overlap boundary
+
+`DebugRunner --ninja-x-plasma-audit "Super Metroid.smc"` loads the Metal
+Pirates room and isolates one gold Ninja. The initial vulnerable component map
+and stationary overlapping Plasma shot are constructed. This is an enemy-pass
+prerequisite, not controller admission or a normal jump/firing trajectory.
+
+Both uncharged (150 damage) and charged (450 damage) Plasma survive contact
+with the vulnerable component. Frozen passes preserve position, map, health,
+and flash while counting invincibility down. Releasing after 15 frozen passes
+rejects the next hit even though the entry timer changes from one to zero;
+releasing after 16 admits the retained shot through the production pre-AI
+dispatcher. Final health is respectively 1650/1500 for uncharged and 1350/900
+for charged. Projectile type and damage are retained throughout.
+
+The pinned B2:87C8 callback checks the actual beam vulnerability before normal
+shot handling; B2:883E reflects armored contacts. The new four-case boundary
+audit and existing complete Ninja family audit pass without production changes.
+An original-CPU steel-Pirate comparison and normally fired/controller-driven
+vulnerability-window test remain outstanding. Do not treat this as completion
+of #402 or proof of the practical window's duration.

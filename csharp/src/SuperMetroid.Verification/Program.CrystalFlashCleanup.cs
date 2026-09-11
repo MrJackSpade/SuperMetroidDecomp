@@ -2,9 +2,98 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    private static void VerifyCrystalFlashRuntime()
+    {
+        VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false);
+        VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true);
+        VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: false);
+    }
+
+    private static void VerifyCrystalFlashRuntimeRoute(ushort capacity, bool refill)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite);
+        var level = runtime.LevelData!;
+        for (int y = 16; y < 36; y++)
+        for (int x = 16; x < 48; x++)
+        {
+            int index = y * level.WidthInBlocks + x;
+            level.SetForegroundEntry(index, RoomLevelWord.Create(0, 0,
+                y >= 32 ? RoomCollisionType.SolidBlock : RoomCollisionType.Air).Raw);
+            level.SetBehavior(index, 0);
+        }
+        var samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.Pose = SamusPoseIds.MorphBallGroundRightPose;
+        samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
+        samus.Health = 49; samus.MaxHealth = 1499;
+        samus.Missiles = samus.MaxMissiles = 10;
+        samus.SuperMissiles = samus.MaxSuperMissiles = 10;
+        samus.PowerBombs = samus.MaxPowerBombs = capacity;
+        samus.SelectedHudItem = 3;
+        samus.XPosition = 512;
+        samus.RefreshCollisionRadii(bus);
+        samus.YPosition = (ushort)(511 - samus.Kinematics.YRadius);
+        samus.InitializeAnimation(bus);
+        runtime.StepFrame(0);
+        ushort startingY = samus.YPosition;
+        runtime.StepFrame(runtime.ControllerBindings.Shoot);
+        AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
+        ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
+        int started = -1, finished = -1;
+        bool bubble = false, drained = false;
+        for (int frame = 0; frame < 1000; frame++)
+        {
+            if (refill && frame == 60)
+            {
+                // A constructed drop owner collides an actual Power Bomb pickup with
+                // this runtime's Samus. No direct ammo write substitutes for collection.
+                AssertEnemyPickupEffect(EnemyPickupKind.PowerBomb, samus, expectedSound: 5,
+                    assertEffect: collected => AssertEqual(10, collected.PowerBombs,
+                        "refill after placement reaches ten without increasing capacity"));
+            }
+            bool active = samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive;
+            // Once activated, challenge the inert input handler with movement/jump.
+            ushort input = active ? (ushort)(SnesButton.Right | SnesButton.A) : chord;
+            runtime.StepFrame(input);
+            if (started < 0 && samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive) started = frame;
+            bubble |= runtime.BombProjectiles.PowerBombExplosion.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
+            drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
+            if (started >= 0)
+            {
+                AssertEqual(512, samus.XPosition, "Crystal Flash owns horizontal movement");
+                AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.YPosition,
+                    "held Jump cannot replace the native Crystal Flash vertical trajectory");
+                if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
+            }
+        }
+        if (capacity == 10 && !refill)
+        {
+            AssertEqual(-1, started, "nine remaining Power Bombs reject Crystal Flash");
+            AssertEqual(9, samus.PowerBombs, "failed activation preserves remaining Power Bombs");
+            AssertEqual(49, samus.Health, "failed activation restores no energy");
+            AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsArmed, "failed activation releases the Power Bomb lock");
+            Console.WriteLine("Runtime Crystal Flash: ten-capacity no-refill control rejects activation.");
+            return;
+        }
+        AssertTrue(started >= 0 && finished > started && bubble && drained, "runtime completes the activated Crystal Flash and bubble");
+        AssertEqual(1499, samus.Health, "runtime restores energy");
+        AssertEqual(0, samus.Missiles, "runtime consumes ten missiles");
+        AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");
+        AssertEqual(0, samus.PowerBombs, "runtime consumes ten remaining Power Bombs");
+        for (int frame = 0; frame < 30; frame++) runtime.StepFrame((ushort)SnesButton.Right);
+        AssertTrue(samus.XPosition > 512, "normal movement resumes after Crystal Flash");
+        Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
+    }
+
     private static void VerifyCrystalFlashLifetime(string rom, string nativeCsv)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);

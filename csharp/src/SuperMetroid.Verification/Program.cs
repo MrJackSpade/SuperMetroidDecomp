@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crystal-flash-runtime"])
+{
+    VerifyCrystalFlashRuntime();
+    return 0;
+}
 if (args is ["--crystal-flash-lifetime", var lifetimeRom, var lifetimeTrace])
 {
     VerifyCrystalFlashLifetime(lifetimeRom, lifetimeTrace);
@@ -618,6 +623,7 @@ VerifySamusHorizontalSpeed();
 VerifySamusExtraDisplacement();
 VerifySamusStoredShineAndShinespark();
 VerifySamusCrystalFlash();
+VerifyCrystalFlashRuntime();
 VerifySamusXray();
 VerifySamusDeathSequence();
 VerifyMotherBrainBeamWindow();

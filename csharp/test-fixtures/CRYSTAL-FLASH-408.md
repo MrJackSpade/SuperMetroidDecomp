@@ -126,3 +126,33 @@ or bubble rendering in this lifetime comparison. Native demo input has a distinc
 completion branch and is not covered by this normal-gameplay fixture. Actual
 refill collection and contact-damage/full-runtime ownership checks remain open.
 No issue completion/validation label follows from this partial comparison.
+
+## Full runtime placement and refill integration
+
+`--crystal-flash-runtime` (also in standard verification) initializes a flat
+constructed clearing in Landing Site and runs `SuperMetroidRuntime.StepFrame`.
+Samus starts grounded in Morph Ball, cheats off, with 49/1499 energy, ten missiles
+and supers. Normal Shoot placement consumes one Power Bomb. The exact chord is
+held until cleanup; after activation, held Right/Jump challenges input ownership.
+
+Three routes pass:
+
+- Eleven-capacity/no refill: placement leaves ten; activation at fixture frame
+  245, completion at 502; final health 1499 and all three ammo counts zero.
+- Ten-capacity/refill: placement leaves nine; a Power Bomb drop is collected at
+  frame 60, restoring one without changing capacity. Same activation/completion.
+- Ten-capacity/no refill: no activation in 1000 frames, no healing or extra
+  consumption, and the Power Bomb armed lock is released.
+
+The refill is not a direct ammo assignment: the existing constructed enemy-drop
+fixture collides a real pickup projectile with the runtime's Samus, checking its
+collection identity, sound and effect. That drop uses a separate constructed enemy
+owner rather than a naturally killed enemy in the runtime's room. This bounds the
+integration claim; enemy generation and original-CPU refill timing remain separate.
+
+Successful routes assert the Crystal Flash bubble phase, ammo-drain phase, exact
+two-pixel-per-frame ten-call rise, fixed X despite held Right/Jump, full resource
+result, and resumed movement after completion. No production correction was needed
+in this slice. This is runtime integration evidence, not a native full-room replay
+or a visual pixel comparison. Actual contact damage, complete boundary sweep and
+native full-runtime ordering still need coverage before closing the technique audit.

@@ -49,6 +49,32 @@ temporary patch was reversed, unrelated native edits retained, and the normal
 native executable rebuilt. The reusable probe and comparator are tracked.
 
 This establishes a required timing mechanism, not completion of #402.
+
+## Botwoon retained-shot prerequisite
+
+`DebugRunner --botwoon-x-plasma "Super Metroid.smc"` loads the real Botwoon
+population and waits for its authored shootable head. A constructed charged
+Plasma shot (100 damage, chosen to keep this test nonlethal) overlaps the head.
+Before the second fix, ordinary shot collision changed type `$8018` into
+explosion `$8718` and damage 100 into 8. No retained shot remained for X-Plasma.
+
+Pinned `sm_a0.c` ordinary and multibox collision preludes mark direction bit
+$10 only for non-Plasma shots or Plasma-blocking targets. The managed impact
+adapter preserved this behavior for special beam-combo particles but unconditionally
+killed ordinary beam-family projectiles. It now retains ordinary Plasma as well.
+
+The fixture asserts health 3000 -> 2900 -> 2800 without rearming the shot,
+fourteen frozen dispatcher calls with fixed flash/position and a live invincibility
+countdown, rejection on the first release call (timer one), then a repeat hit
+on the next call. Separate controls consume a non-Plasma charged beam and a
+Plasma shot hitting a Plasma-blocking target. This is not an input-driven X-ray
+or original-CPU boss comparison; those remain required below.
+
+Standard Verification also checks all sixteen charged/uncharged Plasma-bearing
+type combinations through two accepted impacts each, preserving type, damage,
+direction, instruction pointer and animation timer. The focused selector is
+`--plasma-penetration`.
+
 Required remaining work includes
 normal controller X-ray activation/release with a retained penetrating shot,
 per-hit health/position traces for Phantoon (including the initial non-Plasma

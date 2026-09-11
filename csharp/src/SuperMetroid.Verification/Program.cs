@@ -75,6 +75,11 @@ if (args is ["--crystal-flash"])
     VerifySamusCrystalFlash();
     return 0;
 }
+if (args is ["--plasma-penetration"])
+{
+    VerifyPlasmaEnemyPenetration();
+    return 0;
+}
 if (args is ["--pcm-loop-entry"])
 {
     VerifyManagedDspUsesIndependentLoopEntry();

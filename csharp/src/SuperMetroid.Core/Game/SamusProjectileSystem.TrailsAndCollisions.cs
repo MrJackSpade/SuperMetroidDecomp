@@ -206,6 +206,12 @@ public sealed partial class SamusProjectileSystem
         switch (slot.PackedType.Family)
         {
             case SamusProjectileFamily.Beam:
+                // Native enemy collision marks direction bit $10 only when the
+                // target blocks Plasma or the shot lacks Plasma. Ordinary penetrating
+                // beams, not just special beam-combo particles, retain their lifecycle.
+                if (!blocksPlasmaBeam &&
+                    (slot.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) != 0)
+                    return true;
                 KillBeam(bus, slot);
                 return true;
             case SamusProjectileFamily.Missile:

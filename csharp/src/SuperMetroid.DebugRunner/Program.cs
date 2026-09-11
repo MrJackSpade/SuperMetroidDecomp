@@ -1131,6 +1131,8 @@ if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
     return PipeBugAudit.Run(pipeBugRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--botwoon-x-plasma")
+    return BotwoonAudit.RunXPlasma(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-audit")
 {
     string botwoonRomPath = string.Join(' ', args[1..]).Trim('"');

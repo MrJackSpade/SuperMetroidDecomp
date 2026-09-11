@@ -14,6 +14,7 @@ internal static partial class Program
 /// <summary>Samus beam and missile projectile verification.</summary>
 static void VerifySamusPowerBeamProjectiles()
 {
+    VerifyPlasmaEnemyPenetration();
     var bus = new TestAddressSpace();
 
     // Construct the literal ROM records consumed by `$90:B887`, `$93:8000`, and

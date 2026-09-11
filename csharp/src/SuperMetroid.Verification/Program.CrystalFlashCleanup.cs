@@ -176,14 +176,18 @@ internal static partial class Program
     private static void VerifyCrystalFlashCleanup(string rom, string nativeCsv)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        AssertEqual("CCD507BE8423FEC78122CD95458577F21F58624510578184BF51EE25FF22A5F3",
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeCsv))),
-            "accepted original-CPU Crystal Flash cleanup capture");
+        string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeCsv)));
+        int cases = hash switch
+        {
+            "CCD507BE8423FEC78122CD95458577F21F58624510578184BF51EE25FF22A5F3" => 18,
+            "4A6DEB28F4CE497B73D45EFFC7164C78D62F4A6B12A113FE8CE581A30AE3A223" => 44,
+            _ => throw new InvalidDataException("Unrecognized original-CPU Crystal Flash cleanup capture."),
+        };
         string[] rows = File.ReadAllLines(nativeCsv);
-        AssertEqual(37, rows.Length, "complete native Crystal Flash matrix");
+        AssertEqual(cases * 2 + 1, rows.Length, "complete native Crystal Flash matrix");
         AssertEqual("case,left,pose,flag,immunity,knockback,health,missiles,supers,pbs", rows[0], "native cleanup trace schema");
         int row = 1;
-        for (int test = 0; test < 18; test++)
+        for (int test = 0; test < cases; test++)
         for (int left = 0; left < 2; left++)
         {
             var samus = new SamusState
@@ -214,6 +218,30 @@ internal static partial class Program
                 case 15: samus.MaxReserveEnergy = 100; break;
                 case 16: samus.MaxPowerBombs = 10; break;
                 case 17: samus.Health = 0; break;
+                case >= 18 and < 34:
+                    int chord = test - 18;
+                    input = (ushort)(((chord & 1) != 0 ? SnesButton.Down : 0) |
+                        ((chord & 2) != 0 ? SnesButton.L : 0) |
+                        ((chord & 4) != 0 ? SnesButton.R : 0) |
+                        ((chord & 8) != 0 ? SnesButton.X : 0));
+                    break;
+                case 34:
+                case 35:
+                    // The runtime normalizes physical bindings before bomb alpha.
+                    // Exercise that actual bridge instead of changing TryBegin's
+                    // canonical Shoot argument to accommodate the test.
+                    input = ControllerBindings.Default.AssignAndSwap(0, (ushort)SnesButton.B).Normalize(
+                        (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R |
+                            (test == 34 ? SnesButton.B : SnesButton.X)));
+                    break;
+                case 36: samus.XPosition--; break;
+                case 37: samus.YPosition--; break;
+                case 38: samus.Missiles = 11; break;
+                case 39: samus.SuperMissiles = 11; break;
+                case 40: samus.PowerBombs = 11; break;
+                case 41: samus.Missiles = 0; break;
+                case 42: samus.SuperMissiles = 0; break;
+                case 43: samus.PowerBombs = 0; break;
             }
             var level = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[0x2000]);
             var bombs = new SamusBombProjectileSystem();
@@ -228,7 +256,7 @@ internal static partial class Program
             string actual = $"{test},{left},{samus.Pose:X4},{bombs.PowerBombExplosion.Flag:X4},{samus.InvincibilityTimer:X4},{samus.KnockbackTimer:X4},{samus.Health:X4},{samus.Missiles:X4},{samus.SuperMissiles:X4},{samus.PowerBombs:X4}";
             AssertEqual(rows[row++], actual, $"original-CPU cleanup case {test}, left={left}");
         }
-        Console.WriteLine("Crystal Flash: 36 original-CPU cleanup admission/resource/timer comparisons match.");
+        Console.WriteLine($"Crystal Flash: {cases * 2} original-CPU cleanup admission/resource/timer comparisons match.");
     }
 }
 

@@ -182,3 +182,31 @@ nonzero RNG avoids an invalid zero-only drop-selection loop.
 This closes the managed full-runtime contact coverage gap, not the remaining native
 contact/timing comparison or visual acceptance scope. Issue #408 remains open without
 an awaiting-validation label. No private captures are required for this regression.
+
+## Expanded cleanup admission boundaries
+
+The original-CPU cleanup probe now runs 44 cases in both facings (88 comparisons).
+Alongside the original eighteen cases it exhausts all sixteen subsets of held
+Down/L/R/Shoot, remaps Shoot to B with a correct-button and old-button control,
+checks one-pixel offsets on the opposite side of each explosion-center axis, and
+checks zero and eleven units independently for all three ammo families. Only
+the complete required chord is admitted. Adjacent whole-pixel offsets fail;
+ammo eleven succeeds and zero fails, with the original nine/ten boundary retained.
+
+For the remapped cases, the managed fixture uses the production controller
+normalizer before bomb alpha, matching the runtime boundary; it does not bypass
+cleanup or change Crystal Flash's canonical input argument. Native executes the
+original configurable Shoot-word lookup. No gameplay cheats are enabled.
+
+Two independent captures have identical SHA256:
+`4A6DEB28F4CE497B73D45EFFC7164C78D62F4A6B12A113FE8CE581A30AE3A223`.
+The existing `--crystal-flash-native ROM CSV` comparison validates either this
+expanded capture or the earlier 36-case capture, checking identity, row count,
+and every result. All 88 expanded cases pass without a production change.
+Private outputs are `csharp/test-temp/crystal-flash-408-expanded-a.csv` and `-b.csv`.
+Use the same committed headless entrypoint patch and capture command described
+above to regenerate. Temporary hooks were removed and the normal native binary
+rebuilt after the experiment; unrelated native checkout changes were preserved.
+
+This improves activation-boundary evidence, not full-game contact ordering or
+rendered bubble/palette acceptance. Those remaining requirements keep #408 open.

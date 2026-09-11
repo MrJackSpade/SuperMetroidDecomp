@@ -4,7 +4,7 @@ int DiagnosticCrystalFlash(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   fprintf(f, "case,left,pose,flag,immunity,knockback,health,missiles,supers,pbs\n");
-  for (int test = 0; test < 18; test++) for (int left = 0; left < 2; left++) {
+  for (int test = 0; test < 44; test++) for (int left = 0; left < 2; left++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
     game_state = 8; button_config_shoot_x = 0x40; joypad1_lastkeys = 0x470;
@@ -34,6 +34,24 @@ int DiagnosticCrystalFlash(const char *rom, const char *output) {
     if (test == 15) samus_max_reserve_health = 100;
     if (test == 16) samus_max_power_bombs = 10;
     if (test == 17) samus_health = 0;
+    // Exhaust the held-input chord independently of edge/new-input history.
+    if (test >= 18 && test < 34) {
+      int chord = test - 18;
+      joypad1_lastkeys = ((chord & 1) ? 0x400 : 0) | ((chord & 2) ? 0x20 : 0) |
+                        ((chord & 4) ? 0x10 : 0) | ((chord & 8) ? 0x40 : 0);
+    }
+    if (test == 34 || test == 35) {
+      button_config_shoot_x = 0x8000;
+      joypad1_lastkeys = test == 34 ? 0x8430 : 0x470;
+    }
+    if (test == 36) samus_x_pos--;
+    if (test == 37) samus_y_pos--;
+    if (test == 38) samus_missiles = 11;
+    if (test == 39) samus_super_missiles = 11;
+    if (test == 40) samus_power_bombs = 11;
+    if (test == 41) samus_missiles = 0;
+    if (test == 42) samus_super_missiles = 0;
+    if (test == 43) samus_power_bombs = 0;
     RunAsmCode(0x888b4e, 0, 0, 0, 0);
     fprintf(f, "%d,%d,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
       test,left,samus_pose,power_bomb_flag,samus_invincibility_timer,samus_knockback_timer,

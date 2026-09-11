@@ -561,6 +561,9 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
 if (args.Length == 3 && args[0] == "--ceres-explosion-timing-audit")
     return CeresExplosionTimingAudit.Run(args[1], args[2]);
 
+if (args.Length == 3 && args[0] == "--ceres-zoom-timing-audit")
+    return CeresZoomTimingAudit.Run(args[1], args[2]);
+
 if (args.Length == 3 && args[0] == "--zebes-ship-visibility-audit")
     return ZebesShipVisibilityAudit.Run(args[1], args[2]);
 

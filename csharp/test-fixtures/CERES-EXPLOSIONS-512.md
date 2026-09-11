@@ -50,3 +50,26 @@ appearance sequence. No production behavior changed. The complete audit then
 passes: 1678 cinematic calls, 641 landing frames, and checkpoint 10.41 restored;
 the Landing Site left-travel checks also finish. This corrects the test failure
 above, without upgrading the unconfirmed visual report to a verified fix.
+
+## Follow-up: duplicated approach scale increment
+
+The production approach handler called a drift helper that incremented scale,
+then incremented scale again itself. Native `$8B:C345` increments once; the
+preceding fade handler `$8B:C2F1` also increments once. Scale advancement now
+belongs to those individual phase handlers, not their shared position helper.
+
+`--ceres-zoom-timing-audit "Super Metroid.smc" OUTPUT_DIRECTORY` reproduced
+177 incorrect per-call scale increments before the fix and zero afterward.
+Departure moved from zero-based step 221 to 398. These step indices differ from
+the explosion actor clock used above; they are not emulator recording indices.
+Same-step 220 captures show the changed station scale. This is timing and scale
+evidence, not a claim that every explosion pixel matches native rendering.
+
+With the corrected approach duration, the explosion audit passes with the
+initial five actors at 128, repeats at 209/221/233/245/257/269, and terminal four
+at 272. The formerly premature departure no longer truncates that repeat range.
+The complete Ceres/Zebes audit passes at 1854 calls, including landing and save
+restoration. Full Verification and the Windows Release build also pass.
+
+The duplicate-looking explosion report remains open: native visual comparison
+of the actor sets is still required before claiming the entire report resolved.

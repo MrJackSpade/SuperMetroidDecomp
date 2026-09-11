@@ -109,6 +109,7 @@ internal sealed partial class CeresDestructionCinematicState
 
             case CeresDestructionPhase.FadeInAndDrift:
                 StepInitialDrift();
+                zoom++;
                 StepSlowFadeIn();
                 if (brightness == 15)
                     Phase = CeresDestructionPhase.ApproachExplosion;
@@ -370,7 +371,6 @@ internal sealed partial class CeresDestructionCinematicState
             CeresDestructionRomData.Motion.SixteenthPixel16Point16);
         AddSignedSixteenSixteen(ref backgroundX, ref backgroundXSubPosition,
             CeresDestructionRomData.Motion.NegativeQuarterPixel16Point16);
-        zoom++;
     }
 
     private void StepSlowFadeIn()

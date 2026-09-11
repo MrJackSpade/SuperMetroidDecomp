@@ -208,7 +208,7 @@ public sealed partial class PlayableGameControl : UserControl
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
         mapPresentation = playerDataDirectory is null ? null :
-            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadMaps(addressSpace);
+            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadMaps();
         game.BindMapPresentation(mapPresentation);
         if (replay is null)
         {

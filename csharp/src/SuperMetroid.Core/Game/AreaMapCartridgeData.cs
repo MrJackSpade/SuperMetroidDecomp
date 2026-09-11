@@ -46,8 +46,8 @@ public sealed class AreaMapCartridgeData : IAreaMapView
     /// Whether the cartridge tilemap defines a discoverable cell, including secret cells
     /// deliberately absent from the map-station reveal plane.
     /// </summary>
-    public bool IsDiscoverable(int mapX, int mapY) => !GetTile(mapX, mapY).IsBlank;
+    public bool IsDiscoverable(int mapX, int mapY) => AreaMapExplorationRules.IsDiscoverable(GetTile(mapX, mapY));
 
     public bool RevealsCellAbove(int x, int y) =>
-        (GetTile(x, y).Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter;
+        AreaMapExplorationRules.RevealsCellAbove(GetTile(x, y));
 }

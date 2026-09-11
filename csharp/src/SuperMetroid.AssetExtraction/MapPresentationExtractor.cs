@@ -14,11 +14,15 @@ public static class MapPresentationExtractor
     {
         Directory.CreateDirectory(directory);
         var hashes = new Dictionary<string, string>();
+        var stationCells = new Dictionary<string, int[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             cancellationToken.ThrowIfCancellationRequested();
             using var buffer = new MemoryStream();
-            AreaMapPresentationAsset.Write(buffer, AreaMapRomData.Load(bus, area));
+            var map = AreaMapRomData.Load(bus, area);
+            AreaMapPresentationAsset.Write(buffer, map);
+            stationCells.Add(area.ToString(), Enumerable.Range(0, AreaMapLayout.WidthInTiles * AreaMapLayout.HeightInTiles)
+                .Where(i => map.IsRevealedByMapStation(i % AreaMapLayout.WidthInTiles, i / AreaMapLayout.WidthInTiles)).ToArray());
             byte[] bytes = buffer.ToArray();
             string name = AreaMapCatalogFormat.FileName(area);
             // Exclusive creation prevents this stock importer from overwriting edited
@@ -27,6 +31,10 @@ public static class MapPresentationExtractor
                 file.Write(bytes);
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(bytes)));
         }
+        byte[] revealBytes = JsonSerializer.SerializeToUtf8Bytes(stationCells, new JsonSerializerOptions { WriteIndented = true });
+        using (var file = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile), FileMode.CreateNew, FileAccess.Write))
+            file.Write(revealBytes);
+        hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

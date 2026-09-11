@@ -93,9 +93,18 @@ internal static partial class Program
         string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => AreaMapRomData.Load(bus, area));
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance");
-        IAreaMapView Rules(AreaId area) => rules[area];
-        var original = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
-        var reopened = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        var original = new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps();
+        var reopened = AreaMapPresentationCatalog.Load(stock, overrides);
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+        {
+            var actual = original.Get(area);
+            AssertEqual(rules[area].GetTile(x, y), actual.GetTile(x, y), "ROM-free catalog retains stock cells");
+            AssertEqual(rules[area].IsDiscoverable(x, y), actual.IsDiscoverable(x, y), "ROM-free stock discovery parity");
+            AssertEqual(rules[area].IsRevealedByMapStation(x, y), actual.IsRevealedByMapStation(x, y), "ROM-free station mask parity");
+            AssertEqual(rules[area].RevealsCellAbove(x, y), actual.RevealsCellAbove(x, y), "ROM-free stock slope parity");
+        }
         AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
         Directory.CreateDirectory(overrides);
         string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
@@ -107,21 +116,30 @@ internal static partial class Program
         string replacement = Path.Combine(overrides, name);
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
         byte[] editedBytes = File.ReadAllBytes(replacement);
-        var edited = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        foreach (AreaId area in Enum.GetValues<AreaId>())
+        for (int y = 0; y < AreaMapLayout.HeightInTiles; y++)
+        for (int x = 0; x < AreaMapLayout.WidthInTiles; x++)
+        {
+            AssertEqual(original.Get(area).IsDiscoverable(x, y), edited.Get(area).IsDiscoverable(x, y), "override cannot alter discovery");
+            AssertEqual(original.Get(area).IsRevealedByMapStation(x, y), edited.Get(area).IsRevealedByMapStation(x, y), "override cannot alter station reveal");
+            AssertEqual(original.Get(area).RevealsCellAbove(x, y), edited.Get(area).RevealsCellAbove(x, y), "override cannot alter slope exploration");
+        }
         VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray());
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).GetTile(0, 0) != original.Get(AreaId.Crateria).GetTile(0, 0), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
-        var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides, Rules);
+        var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides);
         AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
         AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
+        VerifyBundledMapMaskValidation(repaired);
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides, Rules), "corrupt override fails instead of selecting stock");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
         AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
         File.WriteAllBytes(replacement, editedBytes);
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
-        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides, Rules), "stock integrity failure remains visible with override present");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 

@@ -121,3 +121,31 @@ recording or historical binary state migration test.
 File-select scroll bounds still use the original ROM rule loader. PNG artwork,
 compiled rule definitions and other map presentation resources remain unfinished;
 this slice must not be described as complete runtime ROM independence.
+
+## ROM-free installed catalog bootstrap
+
+Catalog manifest version 2 adds `station-reveal.json`, a hash-checked stock-only
+dictionary of area names to logical row-major reveal-cell indexes. These are
+authored map-station masks, not SRAM offsets, callbacks or a supported gameplay
+override surface. Presentation JSON remains version 1. Older installations fail
+the existing completeness check and rebuild stock through normal staging; the
+separate user override directory is unchanged.
+
+`GameInstallation.LoadMaps()` no longer takes a ROM bus. Catalog loading decodes
+the immutable stock layout, attaches bundled station masks, then applies editable
+presentation separately. Compiled `AreaMapExplorationRules` determines stock blank
+and slope semantics identically to the diagnostic cartridge loader. Exploration
+updates, SRAM packing and progression remain application code. The content hash
+now includes baseline stock/rule content as well as selected presentation bytes.
+
+All seven areas / 14,336 cells are compared to the cartridge for exact tile words,
+discovery, station reveals and corner reveals. The same properties are checked
+after applying a visible artwork override. Tests reject absent/corrupt mask files,
+duplicate/out-of-range cells, null masks and missing areas, including malformed
+semantic data with an otherwise valid file hash. Extraction/stock replacement
+continues to preserve override bytes. Full installer replacement and on-device
+Android coverage are still pending.
+
+This supersedes the earlier ROM-bootstrap note for installed catalog loading.
+File-select scroll initialization, glyph/palette graphics and other presentation
+resources still have ROM dependencies and remain work under this issue.

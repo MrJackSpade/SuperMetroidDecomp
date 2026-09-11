@@ -36,7 +36,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game = new SuperMetroidGame(Bus, Options);
         // Explicit diagnostic cartridge paths retain their legacy fixture setup;
         // ordinary installed Android sessions require the installed map catalog.
-        maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps(Bus) : null;
+        maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
         Game.SaveRamChanged += PersistSave;
         assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));

@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -14,9 +12,8 @@ public sealed record GameInstallation(string Root)
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
-    /// <summary>Temporary bootstrap of rule data; live map rendering uses the immutable catalog afterward.</summary>
-    public AreaMapPresentationCatalog LoadMaps(ISnesAddressSpace bus) =>
-        AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory, area => AreaMapRomData.Load(bus, area));
+    /// <summary>Loads installed maps and stock exploration masks without a cartridge address space.</summary>
+    public AreaMapPresentationCatalog LoadMaps() => AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory);
 }
 
 /// <summary>Shared on-disk layout used by the desktop host, Android host, and installation CLI.</summary>

@@ -1839,6 +1839,12 @@ public sealed partial class RoomEnemySystem
                     SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, DraygonEyeDefinition);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
+                case EnemyProjectileCodePointers.Instruction_SpawnEnemyDropsWithCrocomireChances:
+                    // Allocate before the following goto/delete frees the impact actor.
+                    // There is no inline operand; the next word remains an instruction.
+                    SpawnEnemyDropFromEnemyHeader(projectile.XPosition, projectile.YPosition, CrocomireDefinition);
+                    cursor = unchecked((ushort)(cursor + 2));
+                    break;
                 case KagoBugStartJumpInstruction:
                     StartKagoBugJump(projectile);
                     cursor = unchecked((ushort)(cursor + 2));

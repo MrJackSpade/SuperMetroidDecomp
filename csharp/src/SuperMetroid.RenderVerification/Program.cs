@@ -5,6 +5,11 @@ using SuperMetroid.Rendering.Direct3D11;
 NativeConsoleErrors.DisableDialogs();
 try
 {
+    if (args is ["--compare-sequence", var directory])
+    {
+        SnapshotSequenceComparison.Run(directory);
+        return;
+    }
     if (args is ["--background-mosaic"])
     {
         foreach (D3D11DeviceKind kind in Enum.GetValues<D3D11DeviceKind>())

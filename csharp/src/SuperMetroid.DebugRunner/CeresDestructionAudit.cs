@@ -194,7 +194,11 @@ internal static class CeresDestructionAudit
             bus,
             new SuperMetroidGameOptions { SkipOpeningCinematic = true });
         FrontendFrame restartedFrame = FrontendAuditDriver.EnterSelectedSlot(restarted);
-        if (restartedFrame.GameState != SuperMetroidGameState.MainGameplay ||
+        // The controller driver returns at runtime creation, before the native state-seven
+        // fade finishes. Check the restored checkpoint here, before frame advancement can
+        // change its saved clock; separately require state eight and control below.
+        if (restartedFrame.GameState is not (SuperMetroidGameState.MainGameplayFadeIn or
+                SuperMetroidGameState.MainGameplay) ||
             restarted.GameplayActiveRoomPointer != runtime.ActiveRoom?.Pointer ||
             restarted.GameplayHealth != landingSave.Health ||
             restarted.GameplayTimeSeconds != landingSave.GameTimeSeconds ||
@@ -216,7 +220,8 @@ internal static class CeresDestructionAudit
         restartedFrame = FrontendAuditDriver.StepUntil(
             restarted,
             restartedFrame,
-            _ => restarted.GameplayMovementEnabled,
+            candidate => candidate.GameState == SuperMetroidGameState.MainGameplay &&
+                restarted.GameplayMovementEnabled,
             maximumFrames: 361,
             "saved-game load appearance did not restore ordinary movement");
 

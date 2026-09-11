@@ -75,3 +75,37 @@ after checking that source ordering, without changing production timing.
 This establishes the managed controller/projectile/wall/quake/enemy route and one
 frozen-state control. The original-CPU comparison and broader family/state acceptance
 remain open. No additional gameplay fix was required in this integration step.
+
+## Original-CPU shared crawler comparison
+
+`movement-release/native-crawler-quake-probe.h` runs the unmodified ROM's A3:E6C2
+shared main routine on the 65816 emulator, not the translated C routine. Six cases
+(ceiling/wall crossed with valid, timer-29 and type-18 quakes) each run forty calls.
+The constructed 16x16 room has square ceiling, wall and floor. Both implementations
+use radius eight, matching positions/velocities, and no instruction animation; this
+isolates the movement owner while the runtime test above covers its integration.
+
+All **240 frames** match X/Y positions and subpositions, current/saved functions,
+attached velocities, and falling velocity/subvelocity. The comparison continues
+through floor collision: Y becomes 184.FFFF, falling velocity clears, and the
+saved attached function resumes. No new production change was needed.
+
+Pins rechecked: native source `578f90b3cc49557bb70060ad033bb90b8cf8ac50`,
+disassembly `362be646929cf8e483f692b73a6561cfc2dc1d0d`, ROM SHA256
+`12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
+Accepted CSV SHA256:
+`C73CA9BC272FE6C8383526213705E03146F3EF64456555BBDBAA1D3B5FA51C9D`.
+
+To regenerate, apply `native-crawler-quake-entrypoint.patch` to `upstream-sm`, build
+its Release x64 executable with the local toolset, and run the headless command:
+
+```
+upstream-sm/build/bin-x64-Release/sm.exe --diagnostic-crawler-quake "Super Metroid.smc" NEW.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --crawler-quake-native-audit "Super Metroid.smc" NEW.csv
+```
+
+The output must not already exist. Reverse the entrypoint patch and rebuild the
+normal executable afterward; that cleanup was completed for this run. Output stays
+ignored under test-temp. No native GUI was launched. No ROM, screenshots or state
+fixture is added. Yard's distinct state gates and remaining species-specific scope
+are not established by this shared-routine comparison; #563 remains open.

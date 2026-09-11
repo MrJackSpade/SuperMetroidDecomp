@@ -338,6 +338,8 @@ if (args.Length == 2 && args[0] == "--door-charge-audit")
     return DoorChargeAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--missile-crawler-detach-audit")
     return MissileCrawlerDetachmentAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--crawler-quake-native-audit")
+    return CrawlerQuakeNativeAudit.Run(args[1], args[2]);
 
 if (args.Length == 2 && args[0] == "--missile-impact-shake-audit")
     return MissileImpactShakeAudit.Run(args[1]);

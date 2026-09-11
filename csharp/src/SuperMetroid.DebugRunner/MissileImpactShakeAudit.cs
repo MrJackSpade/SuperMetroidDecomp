@@ -71,6 +71,8 @@ internal static class MissileImpactShakeAudit
                 throw new InvalidDataException($"selection={selection}: displayed shake lasted {displayedShakeFrames} frames, expected {(shouldShake ? 30 : 0)}.");
         }
         VerifyRequestOrdering(rom);
+        MissileExplosionAnimationAudit.Verify(rom);
+        MissileEnemyImpactAudit.Verify(rom);
         Console.WriteLine("Missile control and Super Missile impact shake reach the displayed backgrounds with exact lifetimes.");
         return 0;
     }

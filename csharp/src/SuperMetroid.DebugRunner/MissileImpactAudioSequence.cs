@@ -12,9 +12,12 @@ internal sealed class MissileImpactAudioSequence
     private readonly SuperMetroidGame game;
     private readonly SuperMetroidRuntime runtime;
     private int impactFrame = -1, soundFrame = -1, sounds;
+    private readonly byte expectedLaunchSound;
+    private int launchSounds;
 
     public MissileImpactAudioSequence(string rom, ushort selection)
     {
+        expectedLaunchSound = selection == 1 ? (byte)3 : (byte)4;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
         runtime.Samus!.SelectedHudItem = selection;
@@ -41,12 +44,20 @@ internal sealed class MissileImpactAudioSequence
         if (impactFrame < 0 && runtime.Projectiles.Slots.Any(s => s.IsActive &&
             s.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion))) impactFrame = frame;
         foreach (var command in result.AudioCommands)
+        {
+            if (command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 1 && command.Value is 3 or 4)
+            {
+                if (frame != 60 || command.Value != expectedLaunchSound)
+                    throw new InvalidDataException("Launch sound selection/timing differs from bank $90 missile producer.");
+                launchSounds++;
+            }
             if (command.Kind == CartridgeAudioCommandKind.WritePort && command.Port == 2 &&
                 command.Value == SoundEffectLibrary2Sounds.MissileImpact.Value)
             {
                 sounds++;
                 soundFrame = frame;
             }
+        }
         return result.AudioCommands.ToArray();
     }
 
@@ -54,7 +65,7 @@ internal sealed class MissileImpactAudioSequence
 
     public void Verify()
     {
-        if (impactFrame < 0 || sounds != 1 || soundFrame != impactFrame)
+        if (impactFrame < 0 || sounds != 1 || soundFrame != impactFrame || launchSounds != 1)
             throw new InvalidDataException($"Impact audio: collision={impactFrame}, sound={soundFrame}, count={sounds}.");
         Console.WriteLine($"Impact audio: collision={impactFrame}, port-write={soundFrame}, exactly one impact sound.");
     }

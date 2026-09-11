@@ -65,9 +65,31 @@ It runs input, collision, sound publication, APU commands, acknowledgements and 
 - Direct enemy-impact conversion survives the subsequent projectile step; the
   same conversion in cinematic context remains silent; next-frame publication clears.
 
-## Remaining scope
+## Target, launch and explosion follow-up
 
-Broader enemy-target coverage and displayed explosion-animation comparison remain
-within #553. The existing cartridge data selects separate regular and Super
-explosion lists; that observation alone is not a rendered animation regression.
-Keep the issue open without awaiting-player-validation until those checks finish.
+The shake audit additionally runs actual ordinary enemy overlap/shot dispatch
+against cartridge Zoomer ($DCFF) and Ripper ($D47F) definitions. Population shape
+and overlap are constructed; their definitions and vulnerability data are retail.
+Both missile types kill the 15-health Zoomer. Regular Missiles leave the Ripper's
+200 health unchanged; Supers kill it. All four impacts emit one impact sound;
+only Supers request 30 frames of shake. The previously documented direct extended
+collision prelude covers the shared request before a custom callback, not every
+boss-specific reaction or an exhaustive enemy matrix.
+
+`MissileExplosionAnimationAudit` reads the straight-line retail instruction lists
+independently and checks every post-wall-collision frame against those durations
+and spritemaps. It independently decodes each spritemap's position, size, tile,
+palette, priority and flip attributes and compares the production draw's OAM.
+The production OBJ renderer then verifies nontransparent pixels and six distinct
+images. Impact is normalized to screen center by camera subtraction for this
+OBJ-only check; it is not an assertion about layering over every room background.
+Regular Missile: 18 stationary frames; Super Missile: 30 stationary frames;
+both delete afterward. No animation change was needed.
+
+The frontend/native-PCM test also verifies exactly one library-one launch sound
+on the fire-input frame: command 3 regular, command 4 Super, matching bank $90's
+missile producer. Impact audio is intentionally shared, not intensified for Supers.
+
+Focused checks are complete and the issue is ready for player confirmation.
+No claim is made that every enemy callback, concurrent queue saturation, or
+room-specific compositor has been exhaustively tested.

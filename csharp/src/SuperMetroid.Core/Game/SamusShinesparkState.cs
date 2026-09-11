@@ -289,7 +289,7 @@ public sealed class SamusShinesparkState
             ShinesparkPhase.Vertical or ShinesparkPhase.Diagonal))
         {
             if (Phase == ShinesparkPhase.Crash)
-                return StepCrashOrbit(bus, samus, phaseAtStart);
+                return StepCrashOrbit(samus, phaseAtStart);
             if (Phase == ShinesparkPhase.CrashEchoCircle)
                 return StepCrashEchoCircle(phaseAtStart);
             if (Phase == ShinesparkPhase.CrashFinish)
@@ -437,7 +437,6 @@ public sealed class SamusShinesparkState
 
     /// <summary>Ports `$90:D346-$D3F2`, including the three overloaded-index substates.</summary>
     private ShinesparkMovementResult StepCrashOrbit(
-        ISnesAddressSpace bus,
         SamusState samus,
         ShinesparkPhase phaseAtStart)
     {
@@ -483,9 +482,9 @@ public sealed class SamusShinesparkState
         // Projectile_SinLookup consumes a byte angle/radius and returns wrapped 16-bit
         // offsets. Both additions below deliberately retain that unsigned WRAM wrapping.
         (ushort firstOffsetX, ushort firstOffsetY) =
-            ProjectileSinLookup(bus, FirstCrashEchoAngle, CrashRadius);
+            ProjectileSinLookup(FirstCrashEchoAngle, CrashRadius);
         (ushort secondOffsetX, ushort secondOffsetY) =
-            ProjectileSinLookup(bus, SecondCrashEchoAngle, CrashRadius);
+            ProjectileSinLookup(SecondCrashEchoAngle, CrashRadius);
         ushort encodedIndex = unchecked((ushort)((CrashSubphase << 8) | CrashRadius));
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex,
@@ -595,16 +594,16 @@ public sealed class SamusShinesparkState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
         StepReleasedCrashEcho(
-            bus, samus, layer1X, layer1Y, nativeSlot: 3, _firstReleasedCrashEcho);
+            samus, layer1X, layer1Y, nativeSlot: 3, _firstReleasedCrashEcho);
         StepReleasedCrashEcho(
-            bus, samus, layer1X, layer1Y, nativeSlot: 4, _secondReleasedCrashEcho);
+            samus, layer1X, layer1Y, nativeSlot: 4, _secondReleasedCrashEcho);
     }
 
     /// <summary>
     /// The projectile radius/angle belong to its current slot owner. Drawing enable and
     /// coordinates are separate native words and may survive replacement of that owner.
     /// </summary>
-    internal bool StepOwnedReleasedCrashEcho(ISnesAddressSpace bus, SamusState samus,
+    internal bool StepOwnedReleasedCrashEcho(SamusState samus,
         ushort layer1X, ushort layer1Y, SamusProjectileSlot projectile)
     {
         ReleasedEchoSlot echo = projectile.SlotIndex switch
@@ -615,7 +614,7 @@ public sealed class SamusShinesparkState
         };
         echo.Radius = unchecked((ushort)projectile.XVelocity);
         echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
-        if (!StepReleasedCrashEcho(bus, samus, layer1X, layer1Y,
+        if (!StepReleasedCrashEcho(samus, layer1X, layer1Y,
             (byte)projectile.SlotIndex, echo, projectileOwnsSlot: true)) return false;
         projectile.XVelocity = unchecked((short)echo.Radius);
         projectile.XPosition = echo.XPosition;
@@ -624,7 +623,6 @@ public sealed class SamusShinesparkState
     }
 
     private bool StepReleasedCrashEcho(
-        ISnesAddressSpace bus,
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
@@ -640,7 +638,7 @@ public sealed class SamusShinesparkState
         // are expanding radial copies, not ordinary projectiles with independent velocity.
         slot.Radius = unchecked((ushort)(slot.Radius + 8));
         (ushort offsetX, ushort offsetY) =
-            ProjectileSinLookup(bus, slot.Angle, unchecked((byte)slot.Radius));
+            ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
         slot.XPosition = unchecked((ushort)(samus.XPosition + offsetX));
 
         // Native performs the X viewport rejection before calculating/publishing Y. The
@@ -671,38 +669,23 @@ public sealed class SamusShinesparkState
 
     /// <summary>Exact byte-split multiplication used by `$90:CC39/$90:CC8A`.</summary>
     private static (ushort X, ushort Y) ProjectileSinLookup(
-        ISnesAddressSpace bus,
         SnesAngle angle,
         byte radius)
     {
-        ushort x = LookupSignedComponent(bus, angle, radius);
+        ushort x = LookupSignedComponent(angle, radius);
         ushort y = LookupSignedComponent(
-            bus,
             angle.AddRaw(-SnesAngle.QuarterTurn.RawValue),
             radius);
         return (x, y);
     }
 
     private static ushort LookupSignedComponent(
-        ISnesAddressSpace bus,
         SnesAngle angle,
         byte radius)
     {
-        bool negative = angle.RawValue >= SnesAngle.HalfTurn.RawValue;
-        SnesAngle positiveAngle = negative
-            ? angle.AddRaw(SnesAngle.HalfTurn.RawValue)
-            : angle;
-        // The complete signed sine/cosine table begins at `$A0:B3C3`. Native routine
-        // `$90:CC8A` deliberately biases its long pointer by 64 words, so index zero in
-        // this positive-half lookup is the table's entry 64 at `$A0:B443`. Multiplying
-        // that signed 8.8 entry by the byte radius and shifting produces the same whole-
-        // pixel component as the native pair of byte multiplies.
-        ushort tableWord = ReadWord(
-            bus,
-            SamusSpecialSequenceRomData.Shinespark.PositiveSineTable +
-                positiveAngle.SineTableByteOffset);
-        ushort magnitude = unchecked((ushort)(((uint)tableWord * radius) >> 8));
-        return negative ? unchecked((ushort)-magnitude) : magnitude;
+        // Native multiplies the positive half-wave, discards the fraction, then
+        // restores sign. Shifting a negative product would round differently.
+        return EnemyTrigonometryTables.MultiplySignedSine(radius, angle.TableIndex);
     }
 
     private BlockMoveResult MoveX(

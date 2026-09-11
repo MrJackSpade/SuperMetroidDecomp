@@ -26,7 +26,7 @@ public sealed partial class SamusProjectileSystem
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.ShinesparkEcho)
             throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");
-        if (!samus.Shinespark.StepOwnedReleasedCrashEcho(bus, samus, cameraX, cameraY, slot))
+        if (!samus.Shinespark.StepOwnedReleasedCrashEcho(samus, cameraX, cameraY, slot))
             ClearProjectile(slot);
     }
 }

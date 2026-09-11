@@ -60,11 +60,8 @@ internal static partial class Program
             SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd -
                 SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
             "Power Bomb yellow shape stream");
-        TouchRange(bus, SamusSpecialSequenceRomData.Shinespark.PositiveSineTable,
-            SnesAngle.HalfTurn.TableIndex * sizeof(ushort),
-            "shinespark positive sine table");
 
         Console.WriteLine(
-            "  Samus special sequence ROM data: death DMA, suit beam, Power Bomb shapes, and shinespark sine ranges are valid.");
+            "  Samus special sequence ROM data: death DMA, suit beam and Power Bomb shape ranges are valid; compiled sine values have a separate exhaustive audit.");
     }
 }

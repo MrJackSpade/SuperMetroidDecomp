@@ -68,13 +68,9 @@ public sealed partial class RoomEnemySystem
             _bus!,
             CrocomireProjectileRomData.Gradients + (projectile.DirectionParameter >> 1) * 2));
         byte angle = CalculateCartridgeAngle(-64, gradient);
-        // The native angle starts at up, not right. Use the two long-read
-        // operands directly; the decompilation's combined array has a prefix
-        // before the sine label and cannot be rebased without changing indices.
-        projectile.XVelocity = ReadCrocomireProjectileVelocity(
-            CrocomireProjectileRomData.XVelocitySine, angle);
-        projectile.YVelocity = ReadCrocomireProjectileVelocity(
-            CrocomireProjectileRomData.YVelocityNegativeCosine, angle);
+        // The native angle starts at up, not right: Y uses negative cosine.
+        (projectile.XVelocity, projectile.YVelocity) =
+            CalculateCrocomireProjectileVelocity(angle);
         projectile.PreInstruction =
             EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_CrocomiresProjectile_Fired;
     }
@@ -91,12 +87,14 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private ushort ReadCrocomireProjectileVelocity(int table, byte angle)
+    private static (ushort X, ushort Y) CalculateCrocomireProjectileVelocity(byte angle)
     {
-        short sample = unchecked((short)ReadWord(
-            _bus!,
-            table + angle * 2));
-        return unchecked((ushort)(sample * CrocomireProjectileRomData.VelocityMultiplier));
+        // Preserve the two native word shifts, including negative two's-complement bits.
+        return (
+            unchecked((ushort)(EnemyTrigonometryTables.SignedSine(angle) *
+                CrocomireProjectileRomData.VelocityMultiplier)),
+            unchecked((ushort)(EnemyTrigonometryTables.SignedNegativeCosineWord(angle) *
+                CrocomireProjectileRomData.VelocityMultiplier)));
     }
 
     /// <summary>Ports <c>Crocomire_Func_52</c> and initializer $86:9286.</summary>

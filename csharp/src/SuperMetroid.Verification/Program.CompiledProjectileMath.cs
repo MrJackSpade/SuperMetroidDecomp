@@ -25,6 +25,25 @@ internal static partial class Program
         var shaktool = Reader<Func<int, ushort>>(typeof(RoomEnemySystem), "ReadShaktoolCommonSineSample");
         var phantoon = Reader<Func<ushort, ushort, int>>(typeof(RoomEnemySystem), "ReadPhantoonFlameComponent");
         var arc = Reader<Action<RoomEnemyProjectileSlot, ushort>>(typeof(RoomEnemySystem), "MoveNoobTubeProjectileHorizontallyAlongArc");
+        var crocomire = Reader<Func<byte, (ushort X, ushort Y)>>(
+            typeof(RoomEnemySystem), "CalculateCrocomireProjectileVelocity");
+        var echo = Reader<Func<SnesAngle, byte, (ushort X, ushort Y)>>(
+            typeof(SamusShinesparkState), "ProjectileSinLookup");
+
+        // Exercise every fractional angle word and every radius byte. The reference
+        // uses the cartridge's positive half, truncates, then restores each sign.
+        for (int rawAngle = 0; rawAngle <= ushort.MaxValue; rawAngle++)
+        for (int radius = 0; radius <= byte.MaxValue; radius++)
+        {
+            int xAngle = rawAngle >> 8;
+            int yAngle = ((rawAngle - 16384) & 65535) >> 8;
+            ushort xMagnitude = (ushort)(native[(xAngle & 127) + 64] * radius / 256);
+            ushort yMagnitude = (ushort)(native[(yAngle & 127) + 64] * radius / 256);
+            ushort x = xAngle < 128 ? xMagnitude : unchecked((ushort)-xMagnitude);
+            ushort y = yAngle < 128 ? yMagnitude : unchecked((ushort)-yMagnitude);
+            if (echo(SnesAngle.FromRaw((ushort)rawAngle), (byte)radius) != (x, y))
+                throw new InvalidDataException($"Shinespark vector differs: angle={rawAngle:X4}, radius={radius}.");
+        }
 
         // An independent reference retains the unsigned multiplication and sign
         // restoration used by $86:C27A. Every speed word is legal to the helper.
@@ -54,6 +73,9 @@ internal static partial class Program
         }
         for (int angle = 0; angle < 256; angle++)
         {
+            AssertEqual((unchecked((ushort)(native[angle + 64] << 2)),
+                    unchecked((ushort)(native[angle] << 2))), crocomire((byte)angle),
+                "Crocomire projectile signed X/Y shifts and negative-cosine origin");
             AssertEqual(unchecked((ushort)native[angle + 64]), rio((byte)angle), "Rio signed word bits");
             for (int radius = 0; radius < 256; radius++)
             {
@@ -83,6 +105,6 @@ internal static partial class Program
                 projectile.XVelocity != unchecked((ushort)(phase + step)))
                 throw new InvalidDataException($"N00b tube arc differs: phase={phase}, step={step}, initial={initial:X8}.");
         }
-        Console.WriteLine("Compiled projectile math: 16,777,216 products across four production readers, all sample/index variants, 65,536 Phantoon vectors and 393,216 N00b-tube arc steps match without a production bus.");
+        Console.WriteLine("Compiled projectile math: 16,777,216 products across four production readers, all sample/index variants, 65,536 Phantoon vectors, 256 Crocomire vectors, 16,777,216 Shinespark vectors and 393,216 N00b-tube arc steps match without a production bus.");
     }
 }

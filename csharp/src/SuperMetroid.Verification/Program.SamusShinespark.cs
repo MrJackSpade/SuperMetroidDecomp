@@ -42,11 +42,7 @@ static void VerifySamusStoredShineAndShinespark()
     WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc500);
     bus.WriteByte(0x91c500, 4);
 
-    // Give every positive-half sine/cosine entry magnitude 1.000. This deliberately is
-    // not a trigonometric approximation: it makes `$90:CC8A`'s byte-angle sign folding and
-    // radius multiplication observable with simple ±radius expectations below.
-    for (int angle = 0; angle < 128; angle++)
-        WriteTestWord(bus, 0xa0b443 + angle * 2, 0x0100);
+    // No sine-table region is installed: echo mechanics use compiled stock samples.
 
     // Stored-shine table `$91:DB10` -> bank-$91 list -> bank-$9B palette. Distinct
     // sentinel colors make either missing indirection immediately observable.
@@ -328,13 +324,13 @@ static void VerifySamusStoredShineAndShinespark()
         bus, empty, horizontal, nmiFrameCounter: 6);
     AssertEqual(4, horizontal.Shinespark.CrashRadius,
         "crash orbit expands by four");
-    AssertEqual(unchecked((ushort)(crashCenterX - 4)),
+    AssertEqual(unchecked((ushort)(crashCenterX - 2)),
         horizontal.HorizontalSpeed.FirstSpeedEchoXPosition,
         "right-facing first crash echo folds into negative X half");
-    AssertEqual(unchecked((ushort)(crashCenterY - 4)),
+    AssertEqual(unchecked((ushort)(crashCenterY - 2)),
         horizontal.HorizontalSpeed.FirstSpeedEchoYPosition,
         "right-facing first crash echo folds into negative Y half");
-    AssertEqual(unchecked((ushort)(crashCenterX + 4)),
+    AssertEqual(unchecked((ushort)(crashCenterX + 2)),
         horizontal.HorizontalSpeed.SecondSpeedEchoXPosition,
         "opposite crash echo uses positive X half");
     AssertTrue(!firstCrash.CrashSequenceFinished,
@@ -381,27 +377,34 @@ static void VerifySamusStoredShineAndShinespark()
         layer1Y: 0);
     AssertEqual(8, horizontal.Shinespark.FirstReleasedCrashEcho.Radius,
         "speed-echo pre-instruction expands radius by eight");
-    AssertEqual(unchecked((ushort)(crashCenterX + 8)),
+    AssertEqual(crashCenterX,
         horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
-        "angle-zero departing echo uses positive sine-table X component");
+        "angle-zero departing echo has zero X component");
     AssertEqual(unchecked((ushort)(crashCenterY - 8)),
         horizontal.Shinespark.FirstReleasedCrashEcho.YPosition,
         "angle-zero departing echo uses negative cosine-table Y component");
-    AssertEqual(unchecked((ushort)(crashCenterX - 8)),
+    AssertEqual(crashCenterX,
         horizontal.Shinespark.SecondReleasedCrashEcho.XPosition,
-        "angle-$80 departing echo uses negative sine-table X component");
+        "angle-$80 departing echo has zero X component");
     AssertEqual(unchecked((ushort)(crashCenterY + 8)),
         horizontal.Shinespark.SecondReleasedCrashEcho.YPosition,
         "angle-$80 departing echo uses positive cosine-table Y component");
 
-    // Both rays leave the 256-pixel-tall viewport at radius 136. The pre-instruction
-    // clears every published word at that instant; it does not keep an off-screen ghost.
-    for (int frame = 0; frame < 16; frame++)
+    // These are vertical rays, not diagonals. The downward ray reaches row 256 at
+    // radius 96; the upward ray survives row zero at 160 and clears at radius 168.
+    // Verify each exact admission boundary rather than only eventual disappearance.
+    for (int radius = 16; radius <= 168; radius += 8)
     {
         horizontal.Shinespark.StepReleasedCrashEchoProjectiles(
             bus, horizontal,
             layer1X: unchecked((ushort)(crashCenterX - 128)),
             layer1Y: 0);
+        AssertEqual(crashCenterY - radius >= 0,
+            horizontal.Shinespark.FirstReleasedCrashEcho.Active,
+            "upward echo remains active through row zero");
+        AssertEqual(crashCenterY + radius < 256,
+            horizontal.Shinespark.SecondReleasedCrashEcho.Active,
+            "downward echo clears on reaching row 256");
     }
     AssertEqual(0, horizontal.Shinespark.ReleasedCrashEchoCount,
         "departing crash echoes delete themselves outside the 256-pixel viewport");

@@ -135,10 +135,38 @@ Additional encounter checks:
 - Phantoon: 16 touch/shot cases, 48 expansion lifetimes and rain impact pass.
 - The preserved, SHA-gated original-CPU Phantoon coordinate capture still matches
   all 65,536 cases after migration (no mismatches).
-- Rio contact and Mother Brain phase-three recoil audits fail identically on
-  clean 71f1c01f and the migration. These are NOT passing evidence; #577 and #578
-  track investigation. The temporary baseline worktree and executable were
-  removed after comparison, leaving the active checkout untouched.
+- Rio contact and Mother Brain phase-three recoil audits originally failed
+  identically on clean 71f1c01f and the migration. Their obsolete expectations
+  were subsequently repaired under #577/#578, without changing gameplay; both
+  complete audits now pass. See RIO-AUDIT-577.md and MOTHER-BRAIN-AUDIT-578.md.
+  The temporary baseline worktree and executable were removed after comparison.
+
+### Crocomire projectile vectors and Shinespark echoes
+
+Crocomire's two signed waveform reads now use compiled sine and negative cosine,
+retaining the native pair of left shifts from $86:9095-$90A9. All 256 vectors are
+compared against independent ROM samples. The gradient selection is unchanged,
+including the ninth volley shot's intentional read past the declared gradient
+table; this slice does not claim that gradient table is ROM-free.
+
+Shinespark's $90:CC39/$CC8A radial calculation also uses compiled integer math.
+All 65,536 raw angle words times all 256 radius bytes (16,777,216 vectors) match
+the reference, including fractional-byte truncation, quarter-turn subtraction,
+sign restoration after truncation, and wrapped negative coordinates. The tested
+production delegates have no bus parameter, preventing a hidden lookup fallback.
+
+The old Shinespark fixture injected a constant magnitude instead of stock sine.
+It was changed to stock samples and passed against the original ROM-reading
+implementation before the production switch. It now supplies no sine memory and
+asserts the same stock positions: diagonal radius-four offsets of two pixels,
+vertical departing rays with zero X displacement, and exact viewport deletion at
+downward radius 96/upward radius 168 from Y=160. Existing orbit timing, slot
+capacity, movement, collision and energy checks remain.
+
+The complete Release Verification suite, clean Windows Release build and complete
+Crocomire encounter audit pass. The latter includes all nine volley vectors,
+mouth reactions, bridge collapse, both melting passes, skeleton wall break,
+spike debris, item drop and boss completion. No serialized state layout changes.
 
 ### Outstanding scope
 

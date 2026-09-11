@@ -114,3 +114,36 @@ whole-encounter phase timing or rendered pixels. Recorded body/camera movement
 and list activation frames are inputs, not independently generated native facts.
 No production discrepancy was found in that sequence. Next compare the rendered
 arm contribution/component visibility; the player report remains unresolved.
+
+## Current component capture (2026-09-11)
+
+The same command now captures three views at each checkpoint: the normal gameplay
+packet, a background-only counterfactual with zero modeled OBJ records, and an
+OBJ-only counterfactual using the same published VRAM/CGRAM/OAM. These copied
+packets do not mutate gameplay or pretend to be cartridge composites. They
+separate the independent hand/forearm from the arm stub baked into BG2 artwork.
+
+Current private capture: `csharp/test-temp/kraid-520-components-verified-exit`.
+There are 57 checkpoints. With camera (192,144), the independent OBJ hand is
+visible in the inspected pre-death, sinking frame 32, frame 112, and frame 128
+views. It retracts and sinks rather than immediately disappearing. At simulation
+frame 139 the recorded arm anchor reaches Y=368, exactly cameraY+224, and its
+Invisible bit becomes set. This is consistent with the native anchor cutoff
+already compared above, not proof that the player's unspecified left-hand
+component is correct in every reported frame. This new observer trajectory is
+not asserted equal to the older fixed-trajectory native CSV.
+
+The current command initially stopped before reaching death because the separate
+#268 post-growth pixel assertion failed (5002 of 7675 opaque reference pixels).
+For explicitly requested hand captures only, that pixel failure now saves
+`growth-actual.png` and `growth-bg1-reference.png`, prints an error, completes the
+hand capture, and then throws: **exit code remains nonzero**, and no audit-pass
+message is printed. Ordinary `--kraid-audit` still stops at the original assertion.
+Invalid camera/structural preconditions still throw immediately. This is evidence
+preservation, not suppression or a claimed fix of #268. The current picture and
+fixture history need diagnosis before calling this a confirmed player regression.
+
+Verified: DebugRunner builds; scoped capture emits the layer images through death
+and exits 1 for the preserved background failure. Inspected the actual and isolated
+OBJ views above. No production rendering change, no new hand diagnosis, no player
+save changes, and no ROM/image/trace publication. #520 remains under investigation.

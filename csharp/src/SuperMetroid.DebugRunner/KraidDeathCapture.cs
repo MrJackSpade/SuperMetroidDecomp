@@ -34,10 +34,14 @@ internal sealed class KraidDeathCapture : IDisposable
             $"{camera.XPosition},{camera.YPosition},{arm.XPosition},{arm.YPosition}," +
             $"{(ushort)arm.Properties:X4},{arm.CurrentInstruction:X4},{arm.SpritemapPointer:X4},{arm.InstructionTimer}");
         if (frame % 8 == 0 || _lastPhase != body.VariableA)
+        {
+            var packet = GameplayDisplayCapture.TryCaptureFrame(runtime)
+                ?? throw new InvalidDataException("Kraid capture did not produce a gameplay packet.");
             PngWriter.WriteRgba(Path.Combine(_directory, $"death-{frame + 1:D4}-{body.VariableA:X4}.png"),
                 FrontendFrame.Width, FrontendFrame.Height,
-                SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)
-                    ?? throw new InvalidDataException("Kraid capture did not produce a gameplay packet.")));
+                SoftwareLayeredSnapshotRenderer.Render(packet));
+            CaptureComponents(packet, frame, body.VariableA);
+        }
         _lastPhase = body.VariableA;
         if (frame == -1 || runtime.Enemies.Kraid?.DeathSequenceComplete == true)
         {
@@ -85,6 +89,23 @@ internal sealed class KraidDeathCapture : IDisposable
     }
 
     public void Dispose() => _trace.Dispose();
+
+    /// <summary>
+    /// Counterfactual display packets distinguish the independent OBJ arm from the
+    /// body artwork. They never change live enemy properties or gameplay OAM/VRAM.
+    /// These are diagnostic layers, not claims of cartridge-visible composites.
+    /// </summary>
+    private void CaptureComponents(LayeredRenderSnapshot packet, int frame, ushort phase)
+    {
+        var source = packet.Memory;
+        var noObjects = new PpuMemorySnapshot(source.Vram, source.Cgram, source.Oam, modeledSpriteCount: 0);
+        var background = new LayeredRenderSnapshot(noObjects, packet.Layers, packet.ObjectSelection, packet.Brightness);
+        var objects = new LayeredRenderSnapshot(source, new RenderLayer[] { new ObjRenderLayer() }, packet.ObjectSelection, packet.Brightness);
+        PngWriter.WriteRgba(Path.Combine(_directory, $"background-{frame + 1:D4}-{phase:X4}.png"),
+            FrontendFrame.Width, FrontendFrame.Height, SoftwareLayeredSnapshotRenderer.Render(background));
+        PngWriter.WriteRgba(Path.Combine(_directory, $"objects-{frame + 1:D4}-{phase:X4}.png"),
+            FrontendFrame.Width, FrontendFrame.Height, SoftwareLayeredSnapshotRenderer.Render(objects));
+    }
 
     /// <summary>
     /// Checks the live runtime's capture against original-CPU arm AI/interpreter output.

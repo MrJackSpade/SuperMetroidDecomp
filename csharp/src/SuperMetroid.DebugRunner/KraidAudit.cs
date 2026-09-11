@@ -858,8 +858,7 @@ internal static class KraidAudit
         // The floor diagnostic must reach the reported death frames even when the
         // separate upper-body composition assertion fails. Keep that assertion in
         // the ordinary audit; this scoped capture makes no claim about issue #268.
-        if (!observeFloor)
-            VerifyKraidGrowthArtifactRegion(runtime);
+        bool backgroundVerified = observeFloor || VerifyKraidGrowthArtifactRegion(runtime, deathCaptureDirectory);
 
         if (deathCaptureDirectory is not null)
         {
@@ -945,6 +944,8 @@ internal static class KraidAudit
 
         VerifyBothDefeatedKraidExits(bus, runtime);
         VerifyDefeatedRoomReload(runtime);
+        if (!backgroundVerified)
+            throw new InvalidDataException("Kraid hand capture completed, but the separate #268 background assertion failed; see preserved growth comparison images. This run is not an audit pass.");
     }
 
     /// <summary>
@@ -973,7 +974,7 @@ internal static class KraidAudit
     /// Reproduces issue #268 at the exact post-growth frame where Kraid's priority BG2 tail
     /// used to expose eight zero-filled rows over the now-visible room background.
     /// </summary>
-    private static void VerifyKraidGrowthArtifactRegion(SuperMetroidRuntime runtime)
+    private static bool VerifyKraidGrowthArtifactRegion(SuperMetroidRuntime runtime, string? diagnosticDirectory = null)
     {
         KraidEnemyState state = runtime.Enemies.Kraid ??
             throw new InvalidDataException("Kraid artifact audit lost encounter state.");
@@ -1027,11 +1028,24 @@ internal static class KraidAudit
         if (comparedOpaquePixels < KraidAuditDefinitions.MinimumArtifactRegionBg1Pixels ||
             differingOpaquePixels != 0)
         {
-            throw new InvalidDataException(
+            string failure =
                 $"Reproduced issue #268: Kraid's post-growth region retained " +
                 $"{differingOpaquePixels}/{comparedOpaquePixels} pixels over the " +
-                "cartridge-authored opaque BG1 background.");
+                "cartridge-authored opaque BG1 background.";
+            if (diagnosticDirectory is null)
+                throw new InvalidDataException(failure);
+            // A hand-only diagnostic must not lose its later evidence to a different
+            // pixel assertion. Preserve the failing comparison and announce it loudly;
+            // ordinary --kraid-audit still throws, and this is not a #268 pass.
+            Directory.CreateDirectory(diagnosticDirectory);
+            PngWriter.WriteRgba(Path.Combine(diagnosticDirectory, "growth-actual.png"),
+                FrontendFrame.Width, FrontendFrame.Height, actual);
+            PngWriter.WriteRgba(Path.Combine(diagnosticDirectory, "growth-bg1-reference.png"),
+                FrontendFrame.Width, FrontendFrame.Height, expectedBg1);
+            Console.Error.WriteLine($"SEPARATE BACKGROUND ASSERTION FAILED: {failure} Continuing the scoped hand capture only.");
+            return false;
         }
+        return true;
     }
 
     /// <summary>

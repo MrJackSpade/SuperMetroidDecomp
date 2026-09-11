@@ -260,3 +260,22 @@ is tested separately, not presented as loading a historical binary fixture.
 Remaining: editable palette resources, visual room placements and other in-scope
 presentation reads; full installer/device checks; historical full-session state
 compatibility and reloading changed artwork into already-displayed gameplay state.
+
+## Already-displayed gameplay HUD rebinding
+
+A serialized runtime with no pending HUD upload reproduced stale characters after
+binding an edited catalog. Binding now requests a nonserialized, one-shot refresh
+at the next accepted NMI, before ordinary queued writes. Lag NMIs and binding itself
+do not mutate VRAM or republish the retained display. Only the 4 KiB character range
+is refreshed: replaying the initial 8 KiB upload would clear live BG2 room tilemaps.
+
+The regression failed before the change and now verifies edited character bytes,
+exact edited HUD pixels, lag gating, and every byte outside that range remaining
+unchanged, including a sentinel-filled former clearing range. Pause owns a separate
+PPU image; its existing bind updates that image independently and teardown discards
+it rather than restoring an old VRAM backup over the gameplay refresh. No immediate
+zero-step replacement of an immutable retained render packet is claimed.
+
+This completes the already-displayed runtime HUD refresh gap above. Historical
+full-session fixtures, palette/placement resources and installer/device checks
+remain separate work; this is not completion of #282.

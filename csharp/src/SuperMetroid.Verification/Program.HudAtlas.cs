@@ -34,6 +34,27 @@ internal static partial class Program
         for (int i = 0; i < image.Pixels.Length; i++) image.Pixels[i] = (byte)((image.Pixels[i] + 1) % 4);
         using (var output = File.Create(replacement)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
+        // Unlike the pending-upload case below, this snapshot already contains the
+        // old HUD. The original transfer's clearing half now belongs to room data.
+        using var displayedSnapshot = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(displayedSnapshot, installed);
+        displayedSnapshot.Position = 0;
+        var displayed = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidRuntime>(displayedSnapshot);
+        int characterStart = HudTileAtlasFormat.DestinationWord * 2;
+        int characterEnd = characterStart + HudTileAtlasFormat.CharacterByteCount;
+        displayed.Vram.LoadBytes(characterEnd, Enumerable.Repeat((byte)0x5a, HudTileAtlasFormat.CharacterByteCount).ToArray());
+        byte[] previousDisplay = displayed.Vram.Bytes.ToArray();
+        displayed.MapPresentation = edited;
+        AssertTrue(previousDisplay.AsSpan().SequenceEqual(displayed.Vram.Bytes), "catalog binding does not publish outside NMI");
+        displayed.RunNmi(0, false);
+        AssertTrue(previousDisplay.AsSpan().SequenceEqual(displayed.Vram.Bytes), "lag NMI retains already displayed HUD");
+        displayed.RunNmi(0, true);
+        AssertTrue(edited.Resolve(VramAssetId.StandardHudTiles).Span[..HudTileAtlasFormat.CharacterByteCount]
+            .SequenceEqual(displayed.Vram.Bytes.Slice(characterStart, HudTileAtlasFormat.CharacterByteCount)),
+            "accepted NMI refreshes already displayed HUD from newly bound PNG");
+        AssertTrue(previousDisplay.AsSpan(0, characterStart).SequenceEqual(displayed.Vram.Bytes[..characterStart]) &&
+            previousDisplay.AsSpan(characterEnd).SequenceEqual(displayed.Vram.Bytes[characterEnd..]),
+            "HUD rebind preserves every VRAM byte outside characters, including live room tilemaps");
         var pending = new SuperMetroidRuntime(guard) { MapPresentation = original };
         Initialize(pending);
         using var snapshot = new MemoryStream();
@@ -46,6 +67,8 @@ internal static partial class Program
             restored.Vram.Bytes.Slice(HudTileAtlasFormat.DestinationWord * 2, HudTileAtlasFormat.TransferByteCount)),
             "restored pending HUD upload uses newly bound PNG, not captured old pixels");
         Rgba32[] modified = Render(restored);
+        AssertTrue(Render(displayed).AsSpan().SequenceEqual(modified),
+            "already displayed HUD rebind renders the same edited pixels as a fresh pending upload");
         AssertTrue(Enumerable.Range(8, 24).Any(y => Enumerable.Range(216, 40).Any(x => baseline[y * 256 + x] != modified[y * 256 + x])),
             "edited HUD PNG changes rendered minimap region after accepted NMI");
         var legacy = new SuperMetroidRuntime(bus);

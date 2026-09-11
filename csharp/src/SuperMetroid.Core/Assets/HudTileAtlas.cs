@@ -10,6 +10,10 @@ public sealed class HudTileAtlas
     internal ReadOnlyMemory<byte> Transfer => transfer;
     public void LoadTo(SnesVram vram, int destinationByteAddress) => vram.LoadBytes(destinationByteAddress, transfer);
 
+    /// <summary>Refreshes artwork without replaying the initial transfer's room-tilemap clearing half.</summary>
+    public void LoadCharactersTo(SnesVram vram, int destinationByteAddress) =>
+        vram.LoadBytes(destinationByteAddress, transfer.AsSpan(0, HudTileAtlasFormat.CharacterByteCount));
+
     public static HudTileAtlas Load(Stream png)
     {
         var image = IndexedPng.Read(png, MapTileAtlasFormat.Width, MapTileAtlasFormat.Height);

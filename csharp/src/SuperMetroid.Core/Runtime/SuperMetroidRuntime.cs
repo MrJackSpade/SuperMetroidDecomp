@@ -4483,6 +4483,7 @@ public sealed partial class SuperMetroidRuntime
             TourianStatues.LatchDisplay();
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
+            PublishReboundHudArtwork();
             VramWrites.DrainTo(Vram, _addressSpace, MapPresentation);
             TransferXrayBg1Read();
             // Menu code consumes raw physical buttons before a runtime exists. Once room

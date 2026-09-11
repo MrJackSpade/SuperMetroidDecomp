@@ -1844,7 +1844,9 @@ public sealed partial class SuperMetroidRuntime
                 // HandleProjectile. The outer gameplay loop then runs bank-$A0 overlap
                 // before beta movement. A newly placed bomb therefore counts 60 -> 59 and
                 // selects its first bank-$93 art record in the placement frame itself.
-                if (!TimeIsFrozen && !deathOwnsSamus)
+                // The door fade's EnemyMain/draw pass does not execute normal alpha.
+                // In particular its draw-only zero input must not release a held charge.
+                if (!TimeIsFrozen && !deathOwnsSamus && !Enemies.ElevatorDoorTransitionActive)
                 {
                     // `$90:C4E7` runs before the movement-type HUD projectile producer.
                     // Consequently a Select edge can choose missiles and an X edge can

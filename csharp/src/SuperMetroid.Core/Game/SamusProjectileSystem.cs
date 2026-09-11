@@ -721,11 +721,30 @@ public sealed partial class SamusProjectileSystem
     }
 
     /// <summary>
-    /// Clears ordinary projectile storage. Gameplay supplies Samus so ResetProjectileData
-    /// ($90:AD22) also clears its shared echo words; standalone projectile-only hosts may
-    /// omit that owner when they have no associated Samus state.
+    /// Fully clears projectile storage and held-charge presentation for session resets
+    /// and forced owners such as elevator boarding. Ordinary room transitions must use
+    /// <see cref="ResetForRoomTransition"/> because native projectile deletion preserves charge.
     /// </summary>
     public void Reset(SamusState? samus = null)
+    {
+        ResetForRoomTransition(samus);
+        FlareCounter = 0;
+        PreviousBeamChargeCounter = 0;
+        ChargedShotGlowTimer = 0;
+        Array.Clear(_flareFrames);
+        Array.Clear(_flareTimers);
+        LastBeamChargePaletteStep = default;
+        LastVisorPaletteStep = default;
+        SamusChargePaletteIndex = 0;
+    }
+
+    /// <summary>
+    /// Clears departing projectile storage without cancelling held beam charge.
+    /// Native ResetProjectileData ($90:AD22) does not write the flare counter,
+    /// flare animation words or charge palette state. Full session/elevator reset
+    /// callers still use <see cref="Reset"/> when those owners must also be cleared.
+    /// </summary>
+    public void ResetForRoomTransition(SamusState? samus = null)
     {
         if (samus is not null)
         {
@@ -738,19 +757,11 @@ public sealed partial class SamusProjectileSystem
         foreach (SamusProjectileTrailSlot trail in _trailSlots)
             trail.ClearFields();
         ProjectileCounter = 0;
-        FlareCounter = 0;
-        PreviousBeamChargeCounter = 0;
-        ChargedShotGlowTimer = 0;
         ProjectileInvincibilityTimer = 0;
         EarthquakeType = 0;
         EarthquakeTimer = 0;
-        Array.Clear(_flareFrames);
-        Array.Clear(_flareTimers);
         LastFrameResult = default;
         LastFiredProjectileSnapshot = null;
-        LastBeamChargePaletteStep = default;
-        LastVisorPaletteStep = default;
-        SamusChargePaletteIndex = 0;
     }
 
 }

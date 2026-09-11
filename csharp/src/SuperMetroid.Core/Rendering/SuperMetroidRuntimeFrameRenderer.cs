@@ -24,7 +24,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         // X-ray needs layer/palette identity until the final color-math operation.
         // Both retained GPU packets and immediate software rendering consume that
         // capture; a post-composition tint cannot implement its native windows.
-        if (runtime.Enemies.MotherBrain is not null || runtime.RoomLayer3Fx.Type == RoomFxType.Fireflea || runtime.Samus?.Xray.IsActive == true || runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish })
+        if (runtime.Enemies.Phantoon is not null || runtime.Enemies.MotherBrain is not null || runtime.RoomLayer3Fx.Type == RoomFxType.Fireflea || runtime.Samus?.Xray.IsActive == true || runtime.LastXrayBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish })
             return SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!);
 
         GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;

@@ -47,8 +47,46 @@ internal static partial class Program
         AssertTrue(wave.DisplayedScrolls is null, "deleted wave stops on next display latch");
         var fields = typeof(PhantoonEnemyState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 1);
-        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "_wave")), "legacy migration preserves every prior field identity/order");
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 2);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name is not ("_wave" or "_blending"))), "legacy migration preserves every prior field identity/order");
+        var waveEra = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonEnemyState), fields, fields.Length - 1);
+        AssertTrue(waveEra.SequenceEqual(fields.Where(field => field.Name != "_blending")), "wave-era migration preserves recorded wave history");
+        VerifyPhantoonBlendingLifecycle(boss);
         Console.WriteLine("  Phantoon wave: original-CPU lifecycle, display latch, debugger round-trip and explicit legacy migration agree.");
+    }
+
+    private static void VerifyPhantoonBlendingLifecycle(PhantoonEnemyState boss)
+    {
+        var blend = boss.Blending;
+        boss.SemiTransparencyLayerFlags = PhantoonBlendingRomData.SemiTransparentBit;
+        boss.Mouth!.Parameter1 = PhantoonBlendingRomData.DeleteControl;
+        for (int i = 0; i < PhantoonBlendingRomData.SetupCalls; i++)
+        {
+            blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+            AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "blend setup does not run pre-instruction");
+        }
+        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.Configuration, "flag takes priority over delete control");
+        blend.LatchDisplay();
+        boss.SemiTransparencyLayerFlags = 0;
+        boss.Mouth.Parameter1 = 0x8001;
+        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
+        AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
+        boss.Mouth.Parameter1 = 0x8000;
+        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "zero low byte hides body");
+        boss.Mouth.Parameter1 = 0xffff;
+        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "delete call still publishes hidden configuration");
+        boss.SemiTransparencyLayerFlags = PhantoonBlendingRomData.SemiTransparentBit;
+        blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "deleted owner no longer overrides room");
+        using var stream = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(stream, blend);
+        stream.Position = 0;
+        var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBlendingState>(stream);
+        restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
+        AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
     }
 }

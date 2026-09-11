@@ -20,6 +20,8 @@ public static partial class GameplayDisplayCapture
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         bool doorOwnsDisplay = runtime.DoorTransitionMainScreenLayers is not null;
         if (!doorOwnsDisplay && CaptureXray(runtime, basis) is { } xray) return xray;
+        if (!doorOwnsDisplay && runtime.Enemies.Phantoon is not null)
+            layers[0] = CapturePhantoonBlending(runtime, basis);
         if (!doorOwnsDisplay && runtime.RoomLayer3Fx.Type == RoomFxType.Fireflea)
             layers[0] = CaptureFirefleaDarkness(runtime, basis);
         if (!doorOwnsDisplay)

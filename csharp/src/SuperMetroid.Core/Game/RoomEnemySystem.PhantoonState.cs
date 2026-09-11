@@ -106,6 +106,8 @@ public sealed class PhantoonEnemyState
     public ushort? BossDoorPlmRequest { get; internal set; }
     private PhantoonWaveHdmaState? _wave;
     public PhantoonWaveHdmaState Wave => _wave ??= new();
+    private PhantoonBlendingState? _blending;
+    public PhantoonBlendingState Blending => _blending ??= new();
 }
 
 /// <summary>

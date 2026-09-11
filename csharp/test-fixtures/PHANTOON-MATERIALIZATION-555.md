@@ -112,7 +112,7 @@ the awaiting-player-validation label.
 ## Full-frame black silhouette reproduction
 
 Run `--phantoon-transparency-audit ROM LOCAL-OUTPUT-DIRECTORY`. This separate
-diagnostic currently **fails intentionally**; it is not a passing suite test.
+diagnostic initially **failed intentionally**; the integrated checkpoint below now passes.
 It uses the same unforced real encounter but runs 2400 frames and captures full
 gameplay composition rather than the ordinary base alone. It checks 1363 frames
 with the native semi-transparency flag set. A single introductory frame (620)
@@ -152,3 +152,35 @@ palette groups. Patterned scenes exercise BG2 scrolls/arithmetic; version-25
 packets round-trip, and constructed version-24 packets retain their old behavior.
 Core verification also passes. This prerequisite alone does not change the live
 Phantoon encounter: timed native blend-state publication still needs integration.
+
+## Integrated translucency checkpoint
+
+The independent $A7:CE96/$88:E449 owner now runs before enemy AI. Its two setup
+calls precede the first pre-instruction. Each pass starts from the room blend
+default; the native flag selects translucent mode, low control zero selects
+hidden, other low control values preserve that pass's default, and $FF selects
+hidden and deletes the owner. Flag priority over $FF is preserved. NMI separately
+latches the completed configuration, so rendering never consults post-AI flags.
+Both immediate software rendering and captured GPU frames use the same source-aware
+composition. Debugger state preserves this owner; older layouts emit a loss-aware
+warning and restart absent blend setup rather than pretending its history exists.
+
+Visual inspection caught an independent diagnostic setup defect: the Ceres
+bootstrap's queued $4000..$4FFF upload overwrote the newly loaded boss map on the
+first NMI. Opaque BG1 had masked this outside-body garbage. The fixture now drains
+that bootstrap transfer before loading Phantoon, and asserts the unused BG2 map
+word remains native blank tile $0338. This is a fixture correction, not an in-game
+room-loader change. With the corrected fixture, the opaque-render control still
+reproduces exactly 1974 blackened scenery pixels, preserving the original finding.
+
+The 2400-frame integrated run checks 1363 flagged frames: zero blackened scenery
+pixels; 1353 latched additive frames, 1094 with positive body-color contribution.
+Every additive frame preserves the HUD and never darkens a background channel.
+Frames 620 and 1936 were visually inspected and match exactly on hardware and WARP
+after packet serialization. Captures remain local. Intro wave remains 165/162;
+core verification and the 1400-frame positioning regression pass. Lifecycle tests
+cover setup, control-byte semantics, latch isolation, deletion and debugger restore.
+
+The reproduced silhouette is fixed. #555 remains open pending verification of
+the rest of its fade-out/reappearance and final-death visual scope; these checks
+do not yet establish complete parity throughout every battle branch.

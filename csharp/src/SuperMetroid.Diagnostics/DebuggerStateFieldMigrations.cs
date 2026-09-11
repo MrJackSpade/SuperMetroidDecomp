@@ -17,11 +17,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
-        if (type == typeof(PhantoonEnemyState) && count == current.Length - 1 &&
-            current.Any(field => field.Name == "_wave"))
+        if (type == typeof(PhantoonEnemyState) &&
+            (count == current.Length - 1 || count == current.Length - 2))
         {
-            Console.Error.WriteLine("WARNING: Legacy Phantoon state has no wave HDMA history; the missing effect initializes inactive until its next native spawn.");
-            return current.Where(field => field.Name != "_wave").ToArray();
+            Console.Error.WriteLine("WARNING: Legacy Phantoon state lacks blend HDMA history; setup restarts. Pre-wave states also restore missing wave history inactive until its next native spawn.");
+            return current.Where(field => field.Name != "_blending" &&
+                (count != current.Length - 2 || field.Name != "_wave")).ToArray();
         }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "_poseHistory") &&
             (count == current.Length - 1 || count == current.Length - 2 ||

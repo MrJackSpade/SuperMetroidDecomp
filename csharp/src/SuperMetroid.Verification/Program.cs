@@ -35,6 +35,11 @@ if (args is ["--reserve-auto-frontend"])
     VerifyReserveAutoFrontend();
     return 0;
 }
+if (args is ["--health-warning"])
+{
+    VerifyHealthWarning();
+    return 0;
+}
 if (args is ["--reserve-native-trace", var reserveTrace])
 {
     VerifyReserveNativeTrace(reserveTrace);
@@ -486,6 +491,7 @@ VerifyGameOverRomData();
 VerifyTitleSequenceRomData();
 VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();
+VerifyHealthWarning();
 VerifyReserveAutoFrontend();
 VerifyPauseReserveManual();
 VerifyPauseReserveArrow();

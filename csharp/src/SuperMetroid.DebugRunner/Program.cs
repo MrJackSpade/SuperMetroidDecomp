@@ -286,6 +286,8 @@ if (args.Length == 2 && args[0] == "--sand-room-audit")
     return SandRoomAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--native-audio-corpus-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--dsp-source-transition-audit")
+    return DspSourceTransitionAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--health-warning-native-audio-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2], healthWarningOnly: true);
 if (args.Length == 3 && args[0] == "--item-message-audio-audit")

@@ -78,3 +78,35 @@ identify the player's enemy. The unfolded WAV loop encodes a particular predicto
 history; switching to another source can supply a different history in the native
 decoder. This is the next sample-representation seam to test, not yet a proven
 complete explanation or an excuse to accept approximate parity.
+
+## Constructed predictor-history reproduction
+
+`--dsp-source-transition-audit NATIVE_DLL` needs no ROM or extracted assets.
+It creates two private one-block looping BRR sources: filter-zero constant 1024,
+then zero residuals with either filter zero (control) or filter one. From reset,
+the second source decodes to the identical all-zero WAV for both filters. After
+switching SRCN at tick 40 without KON, native filter one retains the preceding
+predictor history and decays; the PCM source has already lost that information.
+
+The probe runs the vendored native DSP decoder and managed DSP directly, with
+identical register writes, pitch and direct gain. The filter-zero control matches
+all 320 OUTX ticks. Filter one differs on **32 ticks**, first at tick **48**:
+managed OUTX $06 versus native $07. Both cases require a nonzero initial signal.
+The command deliberately exits **1** while either case differs; it is not included
+as a passing standard regression and does not use a tolerance.
+
+The diagnostic bridge adds explicitly named bounded RAM/register writes and a
+single-cycle DSP call. Invalid addresses/null targets are rejected, and cycling
+stops before overflowing the frame buffer. These exports affect only explicitly
+allocated diagnostic instances; normal driver generation and playback are unchanged.
+The runtime still uses managed audio, not this DLL. Native vendor files remain
+untouched. Build the bridge before running this new command.
+
+This establishes a real limitation of PCM-only loop transition representation,
+independent of the reported enemy. Exact stock transitions need information about
+the original loop boundaries and predictor operation/history, or an equivalent
+precomputed representation that preserves all admitted incoming histories. Merely
+switching WAVs or adjusting pitch cannot recover information absent from the WAV.
+Any correction must keep ordinary HD PCM replacement supported and avoid imposing
+stock BRR filtering on replacement audio. No production correction is made
+here; tracing the actual $2F release against this mechanism remains necessary.

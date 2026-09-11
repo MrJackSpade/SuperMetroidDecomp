@@ -86,6 +86,27 @@ SM_AUDIO_EXPORT int sm_audio_read_apu_ram(SpcPlayer *player, int address) {
   return player->ram[address];
 }
 
+// Explicit diagnostic-only DSP controls. They operate on the private emulated
+// instance, never host memory outside its APU/register bounds. They allow a
+// constructed sample transition to be tested without a cartridge or sequencer.
+SM_AUDIO_EXPORT int sm_audio_diagnostic_write_ram(SpcPlayer *player, int address, uint8_t value) {
+  if (player == NULL || (unsigned)address >= 0x10000) return 0;
+  player->ram[address] = value;
+  return 1;
+}
+
+SM_AUDIO_EXPORT int sm_audio_diagnostic_write_dsp(SpcPlayer *player, int address, uint8_t value) {
+  if (player == NULL || (unsigned)address >= 0x80) return 0;
+  dsp_write(player->dsp, (uint8_t)address, value);
+  return 1;
+}
+
+SM_AUDIO_EXPORT int sm_audio_diagnostic_cycle_dsp(SpcPlayer *player) {
+  if (player == NULL || player->dsp->sampleOffset >= 534) return 0;
+  dsp_cycle(player->dsp);
+  return 1;
+}
+
 SM_AUDIO_EXPORT int sm_audio_begin_dsp_write_capture(SpcPlayer *player) {
   if (player == NULL)
     return 0;

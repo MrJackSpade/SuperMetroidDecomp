@@ -127,7 +127,6 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawBodyProjectileInstruction = 0xec5c;
     private const ushort YappingMawAlternateBodyProjectileInstruction = 0xec56;
     private const ushort YappingMawGrabSafetyDistance = 32;
-    private const ushort YappingMawMinimumTargetDistance = 64;
     private const ushort YappingMawMaximumCurl = 128;
     private const ushort YappingMawGrabCooldownFrames = 48;
     private const ushort YappingMawRetractedDelayFrames = 64;
@@ -304,15 +303,10 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)(distance - state.ActivationDistance)) >= 0)
             return;
 
-        if (unchecked((short)(state.DistanceToSamus - YappingMawMinimumTargetDistance)) >= 0)
-        {
-            // Distances at least 64 are already usable. Smaller accepted distances are
-            // expanded to 64 so the four-link curve never collapses into the root art.
-        }
-        else
-        {
-            state.DistanceToSamus = YappingMawMinimumTargetDistance;
-        }
+        // Native BMI skips the assignment for a shorter target. Inflating a short
+        // distance instead makes the mouth overshoot the position it aimed at.
+        if (unchecked((short)(state.DistanceToSamus - YappingMawRomData.MaximumTargetDistance)) >= 0)
+            state.DistanceToSamus = YappingMawRomData.MaximumTargetDistance;
 
         state.AimAngle = angle;
         state.Function = YappingMawAiFunction.BeginExtension;

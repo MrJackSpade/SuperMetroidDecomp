@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// body links, and the bank-$B4 root object. A flat host sprite would look plausible while
 /// losing the exact animation, freeze-palette, grab, and cleanup ownership rules.
 /// </summary>
-internal static class YappingMawAudit
+internal static partial class YappingMawAudit
 {
     private const ushort DefinitionPointer = 0xe7bf;
     private const ushort AuditRoomPointer = 0x965b;
@@ -155,9 +155,10 @@ internal static class YappingMawAudit
             throw new InvalidDataException("Yapping Maw multipart initialization diverged from ROM.");
         }
 
-        // Samus begins exactly 64 pixels below the root. The first main pass schedules setup,
+        // Samus begins 65 pixels below the root. The first main pass schedules setup,
         // the second selects the directional list, and subsequent passes solve the four-link
         // curve. This proves the state transition rather than accepting a static assembled pose.
+        // Eight-bit cosine measures this target as 64, giving a 32-pixel half radius.
         Step(loaded, assets, frame: 0);
         if (state.Function != YappingMawAiFunction.BeginExtension)
             throw new InvalidDataException("Maw did not admit the strict in-range target.");
@@ -372,7 +373,7 @@ internal static class YappingMawAudit
             MaxHealth = 999,
             Pose = SamusPoseIds.FacingRightNormalPose,
             XPosition = 0x0088,
-            YPosition = 0x0078,
+            YPosition = 0x0079,
         };
         samus.RefreshCollisionRadii(isolatedPopulation);
         samus.InitializeAnimation(isolatedPopulation);

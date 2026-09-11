@@ -1018,6 +1018,9 @@ if (args.Length >= 2 && args[0] == "--wrecked-ship-ghost-audit")
     return WreckedShipGhostAudit.Run(ghostRomPath);
 }
 
+if (args.Length >= 2 && args[0] == "--yapping-maw-runtime-contact-audit")
+    return YappingMawAudit.RunRuntimeContact(Path.GetFullPath(args[1]));
+
 if (args.Length >= 2 && args[0] is "--yapping-maw-audit" or "--yapping-maw-history-audit")
 {
     string yappingMawRomPath = string.Join(' ', args[1..]).Trim('"');

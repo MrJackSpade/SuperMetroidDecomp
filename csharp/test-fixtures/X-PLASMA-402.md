@@ -314,7 +314,7 @@ and controller-driven encounter remain unverified. No production change.
 
 `--ninja-fired-plasma-audit "Super Metroid.smc"` now exercises the untouched
 Metal Pirates population with actual Shoot and ItemSelect/Run inputs. Initial
-grounded Samus is (328,166), initialized with radius 8, 999 energy, no ammo,
+grounded Samus requests X=328 / screen Y=166, searching from floor row 8, with 999 energy, no ammo,
 X-ray and Varia (the room is heated), and uncharged Plasma. Setup inputs are
 Left, neutral, ItemSelect, leaving her at (325,187). No enemy, projectile, or
 freeze state is modified after initialization; gameplay cheats are not enabled.
@@ -334,3 +334,49 @@ missing practical port firing-window coverage. Exact controller trajectories
 have not yet been compared to original CPU execution; the native steel oracle
 above proves the isolated contact/freeze/release semantics, not this whole
 encounter. #402 is still incomplete under the parent parity contract.
+
+### Native controller comparison and activation-frame correction
+
+`native-steel-fired-probe.h` loads the retail room, level/scroll/CRE data,
+and both enemies, then runs original game-state 8 with the same controller
+sequence. It runs HDMA before gameplay and advances frame RNG, as the main
+loop does. Enemy projectiles are enabled. Samus starts at (328,187), camera
+(232,21), pose 1, and zero subpositions; equipment/ammo match the managed setup.
+The setup's three input frames are retained in the CSV; the following 529
+frames compare directly through optional CSV input to `--ninja-fired-plasma-audit`.
+Compared fields are input, freeze, Pirate HP/invincibility/flash/map/XY, Samus
+XY/pose/HUD selection, and shot type/XY. Subpixel preservation is separately
+asserted during frozen port frames, not compared as a native CSV column.
+
+This stronger comparison reproduced a real mismatch: native shot X remained
+250 on activation frame 30 while the port moved it to 245. The runtime tested
+freeze before scope admission, then both projectile owners still advanced
+their slots after admission. Native `Samus_HandleHudSpecificBehaviorAndProjs`
+tests the newly changed flag before `HandleProjectile`. Both slot loops now
+honor that live flag, preserving the cooldown pass; the post-alpha bomb overlap
+call is also skipped while frozen. A focused constructed-bomb test verifies
+that activation preserves fuse and instruction timer with default/remapped Run.
+The normal firing test now asserts frozen position on activation itself, not
+only after two consecutive frozen frames.
+
+All 529 native frames now match, including successful and adjacent failed repeat
+hits and the no-scope control. Two final captures agree, SHA-256
+`DDC67E5FDD751B54409684225656ED32D2125AD64D3B9AAFDEEEC31BB43A9DD3`.
+Regenerate with `native-steel-fired-entrypoint.patch` and
+`sm.exe --diagnostic-steel-fired "Super Metroid.smc" NEW.csv`. Native hooks
+were removed and the ordinary executable rebuilt. Intermediate diagnostic
+captures had incomplete camera/dispatcher setup and are not accepted oracles.
+
+The shared fix leaves Botwoon's charged-Plasma hit frames unchanged. The Hyper
+frame-296 port trace now reaches a third hit at 446 instead of moving beyond
+the target after two hits; its assertion is updated accordingly. Both scoped
+Hyper cases now kill with three hits, while the no-scope case still hits once.
+These Botwoon trajectories still need their own full native comparison. This
+section supersedes the earlier missing steel full-input comparison, not the
+remaining #402 encounter work.
+
+Verification after the shared correction: full Verification suite passes;
+focused X-ray controls pass in Release with both binding layouts; all 529
+steel native records and both charged-Plasma / all three Hyper Botwoon cases
+pass. Windows Release builds with zero warnings and errors. The focused bomb
+assertions were added after the full suite started and run separately in Release.

@@ -76,7 +76,9 @@ internal static partial class BotwoonAudit
                 }
                 if (head.Health == 0) break;
             }
-            int[] expected = !useScope ? [318] : fireAt == 296 ? [318, 382] : [318, 382, 446];
+            // Both retained shots now reach the third hit: activation itself must
+            // not advance a projectile before the following frozen frames begin.
+            int[] expected = !useScope ? [318] : [318, 382, 446];
             if (spawns != 1 || !hits.SequenceEqual(expected) || head.Health != 3000 - expected.Length * 1000 ||
                 (useScope ? frozenFrames == 0 : frozenFrames != 0))
                 throw new InvalidDataException($"Hyper trace differs: fire={fireAt}, scope={useScope}, hits=[{string.Join(',', hits)}].");

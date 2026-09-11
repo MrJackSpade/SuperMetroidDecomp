@@ -11,8 +11,12 @@ internal static partial class NinjaSpacePirateAudit
     /// vulnerable component. No actor/projectile/freeze state is injected after setup.
     /// Exact trajectory expectations are port regressions, not native replay claims.
     /// </summary>
-    public static int RunFiredPlasma(string romPath)
+    public static int RunFiredPlasma(string romPath, string? nativeTracePath = null)
     {
+        var nativeRows = nativeTracePath is null ? null : File.ReadAllLines(nativeTracePath).Skip(1)
+            .Select(line => line.Split(',').Select(int.Parse).ToArray())
+            .Where(row => row[2] >= 0).ToDictionary(row => (row[0], row[1], row[2]));
+        int compared = 0;
         foreach (var (shootAt, useScope) in new[] { (16, true), (17, true), (16, false) })
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(romPath));
@@ -52,6 +56,19 @@ internal static partial class NinjaSpacePirateAudit
                 var shotBefore = shot is null ? default :
                     (shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition);
                 runtime.StepFrame(input);
+                if (nativeRows is not null)
+                {
+                    var native = nativeRows[(shootAt, useScope ? 1 : 0, frame)];
+                    var projectile = runtime.Projectiles.Slots[0];
+                    int[] actual = [shootAt, useScope ? 1 : 0, frame, input,
+                        runtime.TimeIsFrozen ? 1 : 0, actor.Health, actor.InvincibilityTimer,
+                        actor.FlashTimer, actor.SpritemapPointer, actor.XPosition, actor.YPosition,
+                        samus.XPosition, samus.YPosition, samus.Pose, samus.SelectedHudItem,
+                        projectile.Type, projectile.XPosition, projectile.YPosition];
+                    if (!actual.SequenceEqual(native))
+                        throw new InvalidDataException($"Native fired steel mismatch: port={string.Join(',', actual)}; native={string.Join(',', native)}.");
+                    compared++;
+                }
                 if (samus.Health != samusHealthBefore)
                     Console.WriteLine($"Samus damage frame={frame}: {samusHealthBefore}->{samus.Health}, shot={shot?.XPosition},{shot?.YPosition}, direction={shot?.Direction:X4}.");
                 if (!frozenBefore && runtime.TimeIsFrozen) activations++;
@@ -69,7 +86,9 @@ internal static partial class NinjaSpacePirateAudit
                     if (fired.PackedType.IsChargedBeam || fired.Damage != 150)
                         throw new InvalidDataException("Expected one normally fired uncharged Plasma shot.");
                 }
-                if (frozenBefore && runtime.TimeIsFrozen &&
+                // Include activation, not only consecutive frozen frames: otherwise
+                // one extra movement step on each Run edge escapes this regression.
+                if (runtime.TimeIsFrozen &&
                     (actor.Health != health || actorBefore !=
                         (actor.XPosition, actor.YPosition, actor.FlashTimer, actor.SpritemapPointer) ||
                      shot is not null && shotBefore !=
@@ -97,6 +116,9 @@ internal static partial class NinjaSpacePirateAudit
                 throw new InvalidDataException($"Steel firing trace differs: fire={shootAt}, scope={useScope}, hits=[{string.Join(',', hitFrames)}], spawns={spawns}, cycles={activations}/{releases}, Samus HP={samus.Health}.");
             Console.WriteLine($"Passed fire={shootAt}, scope={useScope}, activations={activations}, releases={releases}.");
         }
+        if (nativeRows is not null && compared != nativeRows.Count)
+            throw new InvalidDataException("Native steel firing trace has unconsumed records.");
+        if (nativeRows is not null) Console.WriteLine($"Compared {compared} native gameplay/HDMA frames.");
         return 0;
     }
 }

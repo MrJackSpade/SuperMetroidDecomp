@@ -38,7 +38,17 @@ internal static partial class Program
             for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
             ushort poseBeforeActivation = samus.PoseHistory.PreviousPose;
             ushort metadataBeforeActivation = samus.PoseHistory.PreviousDirectionAndMovement;
+            // Construct an already-placed bomb, far from Samus, to isolate the shared
+            // ten-slot update gate. Its long instruction delay avoids consuming data.
+            var pendingBomb = runtime.BombProjectiles.Slots[0];
+            pendingBomb.Type = (ushort)SamusProjectileFamily.Bomb;
+            pendingBomb.InstructionPointer = 0x9000;
+            pendingBomb.InstructionTimer = 100;
+            pendingBomb.BombTimer = 60;
             runtime.StepFrame((ushort)(runtime.ControllerBindings.Dash | runtime.ControllerBindings.Shoot));
+            AssertEqual(60, pendingBomb.BombTimer, "X-ray activation freezes an existing bomb fuse immediately");
+            AssertEqual(100, pendingBomb.InstructionTimer, "X-ray activation skips existing bomb animation immediately");
+            pendingBomb.ClearFields();
             AssertTrue(samus.Xray.IsActive && runtime.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");

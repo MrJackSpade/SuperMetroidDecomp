@@ -1929,7 +1929,8 @@ public sealed partial class SuperMetroidRuntime
                         projectileProducerEnabled: !DebugGrappleItemSelected,
                         roomPlms: Plms);
 
-                    BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);
+                    if (!TimeIsFrozen)
+                        BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);
 
                     // `$90:E6C0` dispatches the selected HUD producer and `$90:EB20`
                     // immediately clears `$0B5E`. Pose initialization occurs later in the

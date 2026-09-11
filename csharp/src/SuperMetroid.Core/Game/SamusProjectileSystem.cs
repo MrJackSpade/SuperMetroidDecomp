@@ -458,7 +458,9 @@ public sealed partial class SamusProjectileSystem
         // `$90:AECE` walks the complete ten-slot arrays from byte index $12 down to zero.
         // Bombs were handled by the companion class first; preserve the ordinary half's
         // descending $08->$00 order here because instruction deletion changes the counter.
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        // The HUD producer can activate X-ray during this alpha pass. Native checks
+        // the newly published freeze flag before HandleProjectile, not only at entry.
+        for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
             SamusProjectileSlot slot = _slots[slotIndex];
             if (slot.InstructionPointer == 0)

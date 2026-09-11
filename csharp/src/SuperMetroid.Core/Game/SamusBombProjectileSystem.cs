@@ -146,7 +146,9 @@ public sealed class SamusBombProjectileSystem
 
         // HandleProjectile starts at projectile byte index $12 and walks downward. Those
         // are bomb slots four through zero after removing the ordinary-projectile half.
-        for (int slotIndex = SlotCount - 1; slotIndex >= 0; slotIndex--)
+        // X-ray may have frozen time in this same HUD pass. Cooldown above still
+        // runs, but native skips HandleProjectile for all ten slots after admission.
+        for (int slotIndex = SlotCount - 1; !samus.Xray.TimeIsFrozen && slotIndex >= 0; slotIndex--)
         {
             SamusBombProjectileSlot slot = _slots[slotIndex];
             if (slot.InstructionPointer == 0)

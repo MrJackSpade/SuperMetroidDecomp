@@ -31,3 +31,11 @@ Rinka movement checks but fails a later Ceres-haze assertion; it is not claimed
 passing. That separate haze check operates on an isolated black pixel array, not
 this intro Samus. Full Verification passes.
 The return-jump report (#511) is not resolved by this palette fix.
+
+Follow-up diagnostic correction: the wider frontend-parity assertion still expected
+nonzero haze at line 32. Native $88:DF03 repeats the zero component for 64 lines,
+then begins the rising bands. The renderer and detailed Ceres-haze verification
+already implement that correctly. The wider assertion now checks zero at lines
+32 and 63 and nonzero at 64, retaining the increasing-gradient check. The complete
+frontend-parity audit passes, including Rinka recovery and four later Mother Brain
+hits (388 flashback frames). This follow-up changes only the test, not the haze.

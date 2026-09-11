@@ -2178,8 +2178,12 @@ if (args.Length >= 2 && args[0] == "--frontend-parity-audit")
     var hazeAudit = new Rgba32[SnesGameplayFrameRenderer.Width * SnesGameplayFrameRenderer.Height];
     Array.Fill(hazeAudit, new Rgba32(0, 0, 0, 255));
     SnesGameplayFrameRenderer.ApplyCeresHaze(hazeAudit, ridleyIsDead: false);
+    // The retail HDMA table holds component zero for the first 64 scanlines.
+    // The first nonzero band starts below that, not immediately below the HUD.
     if (hazeAudit[0].B != 0 ||
-        hazeAudit[32 * SnesGameplayFrameRenderer.Width].B == 0 ||
+        hazeAudit[32 * SnesGameplayFrameRenderer.Width].B != 0 ||
+        hazeAudit[63 * SnesGameplayFrameRenderer.Width].B != 0 ||
+        hazeAudit[64 * SnesGameplayFrameRenderer.Width].B == 0 ||
         hazeAudit[223 * SnesGameplayFrameRenderer.Width].B <=
             hazeAudit[64 * SnesGameplayFrameRenderer.Width].B)
     {

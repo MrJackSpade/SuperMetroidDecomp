@@ -40,6 +40,11 @@ if (args is ["--health-warning"])
     VerifyHealthWarning();
     return 0;
 }
+if (args is ["--health-warning-native", var healthWarningTrace])
+{
+    VerifyHealthWarningNative(healthWarningTrace);
+    return 0;
+}
 if (args is ["--reserve-native-trace", var reserveTrace])
 {
     VerifyReserveNativeTrace(reserveTrace);

@@ -1,4 +1,5 @@
 #include "native-bounded-cpu.h"
+#include "native-health-warning-probe.h"
 
 // Original 65816 routines, with fresh constructed state for each refill. No ROM
 // or captured player state is embedded in this source. CSV output stays local.
@@ -41,5 +42,5 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
       if (!samus_reserve_health) break;
     }
   }
-  fclose(sprites); fclose(f); return 0;
+  fclose(sprites); fclose(f); return DiagnosticHealthWarning(output);
 }

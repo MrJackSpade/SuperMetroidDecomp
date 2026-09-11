@@ -14,7 +14,8 @@ using SuperMetroid.Core.Input;
 internal static class NativeAudioCorpusAudit
 {
     public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
-        string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null, bool missileImpactOnly = false)
+        string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null, bool missileImpactOnly = false,
+        bool healthWarningOnly = false)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -35,6 +36,29 @@ internal static class NativeAudioCorpusAudit
         int totalFrames = 0;
         try
         {
+            if (healthWarningOnly)
+            {
+                int activePeak = 0, stoppedPeak = 0;
+                Scenario("critical-health-start-stop", 300, frame => frame switch
+                {
+                    0 => [U(AudioUploadAddresses.SpcEngine), W(3, SamusHealthWarningRomData.Start.Value)],
+                    1 => [W(3, 0)],
+                    180 => [W(3, SamusHealthWarningRomData.Stop.Value)],
+                    181 => [W(3, 0)],
+                    _ => [],
+                }, observePcm: (frame, actual, expected) =>
+                {
+                    if (!actual.AsSpan().SequenceEqual(expected))
+                        throw new InvalidDataException($"Low-health warning PCM differs from native translation at frame {frame}.");
+                    int peak = actual.Max(sample => Math.Abs((int)sample));
+                    if (frame is >= 60 and < 180) activePeak = Math.Max(activePeak, peak);
+                    if (frame >= 240) stoppedPeak = Math.Max(stoppedPeak, peak);
+                });
+                if (activePeak == 0 || stoppedPeak != 0)
+                    throw new InvalidDataException($"Warning PCM did not sustain then stop: active peak={activePeak}, stopped peak={stoppedPeak}.");
+                Console.WriteLine($"Warning PCM: 300 frames match native translation; active peak={activePeak}, post-stop peak={stoppedPeak}. This does not verify Windows/RDP endpoint playback.");
+                return 0;
+            }
             if (missileImpactOnly)
             {
                 MissileImpactAudioSequence.VerifyEnemyImpactAndCinematicSuppression(romPath ?? throw new ArgumentNullException(nameof(romPath)));

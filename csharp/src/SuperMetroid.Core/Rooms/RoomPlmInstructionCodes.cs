@@ -44,6 +44,9 @@ public static class RoomPlmInstructionCodes
     /// <summary><c>$84:874E Instruction_PLM_SetTimer8Bit</c>.</summary>
     public const ushort SetEightBitTimer = 0x874e;
 
+    /// <summary><c>$84:ABD6 Instruction_PLM_MovePLMRight1Block</c>: increment the native block byte index twice.</summary>
+    public const ushort MoveRightOneBlock = 0xabd6;
+
     /// <summary><c>$84:8764 Instruction_PLM_LoadItemPLMGfx</c>: load an item's graphics set.</summary>
     public const ushort LoadItemGraphics = 0x8764;
 

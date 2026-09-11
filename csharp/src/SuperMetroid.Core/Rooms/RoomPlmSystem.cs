@@ -224,10 +224,11 @@ public sealed partial class RoomPlmSystem
                 RoomPlmInstructionLists.CrumbleKraidCeilingIntoBackground3,
             RoomPlmHeaders.ClearKraidCeiling => RoomPlmInstructionLists.ClearKraidCeiling,
             RoomPlmHeaders.ClearKraidSpikes => RoomPlmInstructionLists.ClearKraidSpikes,
+            RoomPlmHeaders.CrumbleKraidSpikes => RoomPlmInstructionLists.CrumbleKraidSpikes,
             _ => throw new ArgumentOutOfRangeException(
                 nameof(header),
                 header,
-                "Kraid room mutation header is outside $B7A3-$B7BB's authored set."),
+                "Kraid room mutation header is outside the authored Kraid mutation set."),
         };
 
         int blockIndex = level.GetBlockIndex(blockX, blockY);
@@ -1491,6 +1492,13 @@ public sealed partial class RoomPlmSystem
                     // two raw leading cells semantically while retaining the same WRAM mirror.
                     scrolls.SetLogicalState(0, 0, RoomScrollState.Blue);
                     scrolls.SetLogicalState(1, 0, RoomScrollState.Blue);
+                    slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
+                    continue;
+
+                case RoomPlmInstructionCodes.MoveRightOneBlock:
+                    // The cartridge increments its byte offset twice; our index
+                    // already addresses whole level words. Drawing stays list-owned.
+                    slot.BlockIndex = checked(slot.BlockIndex + 1);
                     slot.InstructionPointer = unchecked((ushort)(slot.InstructionPointer + 2));
                     continue;
 

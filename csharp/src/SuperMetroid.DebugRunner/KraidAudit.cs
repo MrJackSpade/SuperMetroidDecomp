@@ -701,7 +701,7 @@ internal static class KraidAudit
 
         VerifyRuntimeDefeatHandoff(bus, deathCaptureDirectory, observeFloor);
         if (observeFloor)
-            Console.WriteLine("Floor diagnostic only: upper-body #268 pixel assertion excluded; capture completion is not proof of #269 visual parity.");
+            Console.WriteLine("Floor scope: live spike words/cadence and visible removal verified; separate upper-body #268 pixel assertion excluded. Not a full native-video comparison.");
         VerifyDefeatedRoom(bus, room);
         Console.WriteLine(
             $"Kraid audit passed through repeating first-phase combat after {frame} rise frames: " +
@@ -898,10 +898,12 @@ internal static class KraidAudit
         }
 
         bool sawRoomMusic = false;
+        var spikeAudit = new KraidLiveSpikeAudit(liveLevel);
         int deathFrames = 0;
         while (!state.DeathSequenceComplete && deathFrames < 1200)
         {
             runtime.StepFrame(controller1Input: 0);
+            spikeAudit.Step();
             deathCapture?.Capture(runtime, deathFrames);
             sawRoomMusic |= runtime.Enemies.MusicRequests.Any(
                 request => request.Command.RawValue == 3);
@@ -922,6 +924,7 @@ internal static class KraidAudit
         }
 
         VerifyStandardBg3Restored(bus, runtime);
+        spikeAudit.VerifyComplete();
         ReportLiveDefeatSpikeState(
             runtime,
             liveLevel,
@@ -968,6 +971,18 @@ internal static class KraidAudit
                 $"${authoredLiveSpikes:X4}->${liveSpikesAfterDeath:X4}, " +
                 $"active={runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes)}, " +
                 $"requested={runtime.Enemies.KraidPlmRequests.Contains(spikeClear)}.");
+        // The supplied native death-state has an active B7BF actor sweeping this
+        // strip, with completed pairs 0111/0110 behind it. ABB8/ABCA draw the
+        // same alternating pair eleven times; the reload-only B7BB is unrelated.
+        for (int offset = 0; offset < KraidSpikeAuditData.BlockCount; offset++)
+        {
+            ushort actual = level.GetCollisionBlock(spikeClear.BlockX + offset, spikeClear.BlockY).LevelWord;
+            ushort expected = KraidSpikeAuditData.ClearedWords[offset % 2];
+            if (actual != expected)
+                throw new InvalidDataException(
+                    $"Kraid live spike crumble missing at x={spikeClear.BlockX + offset}: " +
+                    $"expected ${expected:X4}, actual ${actual:X4}; room has not been reloaded.");
+        }
     }
 
     /// <summary>

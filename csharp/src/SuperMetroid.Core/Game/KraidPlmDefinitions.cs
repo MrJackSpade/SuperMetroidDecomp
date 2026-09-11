@@ -12,6 +12,12 @@ public readonly record struct KraidPlmRequest(byte BlockX, byte BlockY, ushort H
 /// </summary>
 public static class KraidPlmDefinitions
 {
+    /// <summary>
+    /// <c>$A7:C3F0</c>, the final SpawnHardcodedPLM call in KraidDeath_Initialisation:
+    /// start the animated spike sweep at (5,27), independently of defeated-room clearing.
+    /// </summary>
+    public static readonly KraidPlmRequest LiveDeathSpikes = new(0x05, 0x1b, RoomPlmHeaders.CrumbleKraidSpikes);
+
     private static readonly KraidPlmRequest[] DefeatedRoomRequests =
     [
         new(0x02, 0x12, RoomPlmHeaders.ClearKraidCeiling),

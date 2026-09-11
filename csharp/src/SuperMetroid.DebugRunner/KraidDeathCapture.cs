@@ -67,7 +67,9 @@ internal sealed class KraidDeathCapture : IDisposable
                         if (bg1[pixel] == _floorBefore[pixel]) same++;
                         total++;
                     }
-                    Console.WriteLine($"Live spike-strip pixels unchanged after death: {same}/{total} (diagnostic, not expected cartridge behavior).");
+                    Console.WriteLine($"Live spike-strip pixels unchanged after death: {same}/{total} (removal regression).");
+                    if (same != 0)
+                        throw new InvalidDataException($"Kraid's visible spike strip retained {same} old pixels after the live crumble.");
                 }
             }
             Console.WriteLine($"Kraid floor frame={frame}: camera=({camera.XPosition},{camera.YPosition}), BG1 scroll=({ppu.Bg1HorizontalScroll},{ppu.Bg1VerticalScroll}).");

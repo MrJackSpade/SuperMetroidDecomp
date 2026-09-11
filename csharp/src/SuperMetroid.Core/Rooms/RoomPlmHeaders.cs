@@ -130,6 +130,9 @@ internal static class RoomPlmHeaders
     /// <summary>Clear Kraid-room spikes after an already-defeated room load at $84:B7BB.</summary>
     public const ushort ClearKraidSpikes = 0xb7bb;
 
+    /// <summary><c>$84:B7BF PLMEntries_crumbleKraidSpikeBlocks</c>: animated live-death floor sweep.</summary>
+    public const ushort CrumbleKraidSpikes = 0xb7bf;
+
     /// <summary>Speed Booster escape lavaquake controller at $84:B8AC.</summary>
     public const ushort SpeedBoosterEscape = 0xb8ac;
 

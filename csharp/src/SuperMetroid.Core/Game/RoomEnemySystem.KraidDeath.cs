@@ -143,6 +143,9 @@ public sealed partial class RoomEnemySystem
             _slots[slot].Properties = _slots[slot].Properties.With(
                 EnemyProperties.Deleted | EnemyProperties.Invisible);
         }
+        // The live sequence crumbles successive blocks while Kraid fades/sinks.
+        // It must not substitute the instantaneous already-defeated-room clear.
+        _kraidPlmRequests.Add(KraidPlmDefinitions.LiveDeathSpikes);
     }
 
     private void RunKraidDeathSink(RoomEnemySlot body, KraidEnemyState state)

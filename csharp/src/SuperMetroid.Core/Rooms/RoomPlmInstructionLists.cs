@@ -60,6 +60,9 @@ public static class RoomPlmInstructionLists
     /// <summary>Already-defeated Kraid spike clear list at $84:ABDD.</summary>
     public const ushort ClearKraidSpikes = 0xabdd;
 
+    /// <summary><c>$84:ABA9 InstList_PLM_CrumbleKraidSpikeBlocks_0</c>: eleven pairs of animated floor removals.</summary>
+    public const ushort CrumbleKraidSpikes = 0xaba9;
+
     public const ushort FillMotherBrainsWall = 0xac05;
     /// <summary>$84:AC0B draws the opened escape door then deletes the one-shot PLM.</summary>
     public const ushort MotherBrainsRoomEscapeDoor = 0xac0b;

@@ -1,8 +1,40 @@
 # Kraid live floor investigation (#269)
 
-Status: unresolved. The player's 2026-09-11 live-ROM observation supersedes the
-earlier unsupported claim that visible spikes should remain until room reload.
-No production fix is included in this diagnostic update.
+Status: live-death crumble implemented; awaiting player confirmation. The player's
+native death-state supplied the missing evidence. Earlier diagnostic sections below
+are retained as history, not the current conclusion.
+
+## Native-state finding and live-death fix (2026-09-11)
+
+`issue-269-kraid-spike-destruction/SuperMetroid.001` has SHA256
+`D8023E1C5D1EBEA0994204D4A612A5BCDA8A850F483997B8847276CF699700D4`.
+Read-only inspection (`pwsh -File csharp/tools/inspect-kraid-spike-reference.ps1`)
+finds Kraid room A59F and active PLM **B7BF**, instruction ABC2, with completed
+0111/0110 floor pairs at x5..11, a crumble frame at x12, and spikes at x13..26.
+This is snapshot evidence, not a replay or independent verification of ROM identity.
+
+The earlier audit followed B7BB, the instantaneous defeated-room clear, and missed
+the different **B7BF** spawn at **A7:C3F0** in death initialization. Both pinned C
+and disassembly contain that call. The port omitted it and had no B7BF loader arm
+or ABD6 move-right instruction. Restored that request and interpreter instruction;
+the existing production PLM engine now reads the actual ABA9 ROM list. It executes
+eleven two-block iterations, four three-frame draws per block, then deletes itself.
+There is no hardcoded instant-clear workaround and no change to reload behavior.
+
+Before the change, the real-room death capture failed the live floor assertion
+at x5 (expected 0111, actual 2160); all 2816 visible spike-strip pixels persisted.
+Afterward all 22 words match the exact list-derived animation cadence on every
+frame (352 frames from first crumble through encounter completion), and zero old
+pixels remain in the same 2816-pixel rectangle. Composed before/after frames were
+visually inspected: the projecting spikes disappear, while the green floor below
+remains. The complete death, door unlock, both exits, and defeated reload audit pass.
+These tests use a retail runtime encounter with an input-locked observer and seeded
+lethal damage, not a controller playthrough or full native-video comparison.
+
+Ignored local captures: `csharp/test-temp/kraid-floor-269-native-reference-before`,
+`kraid-floor-269-native-reference-after`, and `kraid-floor-269-cadence`.
+Separate #268 upper-body validation remains excluded explicitly in floor mode.
+No new state, ROM, screenshot, or generated capture is published by this fix.
 
 ## Why the earlier audit was insufficient
 

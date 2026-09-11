@@ -54,7 +54,7 @@ public sealed partial class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
-        areaGraphics = new FileSelectAreaMapGraphics(bus, area);
+        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),

@@ -14,10 +14,10 @@ public sealed partial class FileSelectAreaMapGraphics
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
 
-    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea)
+    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ppu = new MenuPpuState(bus);
+        ppu = new MenuPpuState(bus, mapTiles);
         ppu.LoadBg1(RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);

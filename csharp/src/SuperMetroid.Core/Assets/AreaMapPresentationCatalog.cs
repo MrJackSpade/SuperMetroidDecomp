@@ -9,13 +9,15 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
+        Tiles = tiles;
     }
 
     public string ContentIdentity { get; }
+    public MapTileAtlas Tiles { get; }
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
 
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
@@ -51,7 +53,13 @@ public sealed class AreaMapPresentationCatalog
             // replacement is reloaded, without rewriting original extraction provenance.
             AppendFramed(selected);
         }
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()));
+        string? atlasOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapTileAtlasFormat.FileName);
+        byte[] atlasBytes = atlasOverride is not null && File.Exists(atlasOverride) ? File.ReadAllBytes(atlasOverride) : stock.Atlas;
+        MapTileAtlas tiles;
+        try { tiles = MapTileAtlas.Load(new MemoryStream(atlasBytes, writable: false)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map tile atlas ({atlasOverride ?? stockDirectory}): {error.Message}", error); }
+        AppendFramed(atlasBytes);
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles);
 
         void AppendFramed(byte[] bytes)
         {
@@ -65,7 +73,7 @@ public sealed class AreaMapPresentationCatalog
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -75,8 +83,8 @@ public sealed class AreaMapPresentationCatalog
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 1)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and station-reveal hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 2)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal and tile-atlas hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -100,7 +108,9 @@ public sealed class AreaMapPresentationCatalog
                 throw new InvalidDataException($"Invalid or duplicate station reveal cells for {area}.");
             stationCells.Add(area, cells.ToHashSet());
         }
-        return (result, stationCells);
+        byte[] atlas = ReadChecked(MapTileAtlasFormat.FileName);
+        _ = MapTileAtlas.Load(new MemoryStream(atlas, writable: false));
+        return (result, stationCells, atlas);
 
         byte[] ReadChecked(string file)
         {
@@ -124,7 +134,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

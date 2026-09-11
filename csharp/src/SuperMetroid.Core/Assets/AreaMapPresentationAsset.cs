@@ -124,7 +124,7 @@ public static class MapPresentationFormat
 {
     public const int Version = 1;
     public const int AtlasColumns = 32;
-    public const int AtlasRows = 32;
+    public const int AtlasRows = MapTileAtlasFormat.Height / 8;
     public const int PaletteCount = 8;
     public const int PaletteShift = 10;
     public const int PriorityBit = 0x2000;

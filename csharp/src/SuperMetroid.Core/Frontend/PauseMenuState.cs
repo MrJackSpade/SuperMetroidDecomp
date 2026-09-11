@@ -79,7 +79,13 @@ internal sealed partial class PauseMenuState
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
-        vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTiles, 0x4000));
+        if (mapPresentation is null) vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTiles, 0x4000));
+        else
+        {
+            mapPresentation.Tiles.LoadTo(vram, 0);
+            vram.LoadBytes(MapTileAtlasFormat.ByteCount, RomDataReader.ReadFixedBank(bus,
+                PauseMenuRomData.BackgroundTiles + MapTileAtlasFormat.ByteCount, 0x4000 - MapTileAtlasFormat.ByteCount));
+        }
         vram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.ObjectTiles, 0x2000));
         vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.SamusObjectTiles, 0x2000));
         vram.LoadBytes(

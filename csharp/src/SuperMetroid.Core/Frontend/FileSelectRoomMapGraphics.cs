@@ -28,7 +28,7 @@ public sealed partial class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus);
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
@@ -51,6 +51,9 @@ public sealed partial class FileSelectRoomMapGraphics
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
+        if (catalog is not null) catalog.Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
+        else Vram.LoadBytes(FileSelectMapRomData.RoomCharacters * 2,
+            RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
         var system = icons.MapSystem;
         var area = icons.MapArea;
         MapTileWord hidden = system.HasAreaMap(area)

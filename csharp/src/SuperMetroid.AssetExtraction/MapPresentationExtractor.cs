@@ -3,6 +3,7 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.AssetExtraction;
 
@@ -35,6 +36,17 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile), FileMode.CreateNew, FileAccess.Write))
             file.Write(revealBytes);
         hashes.Add(AreaMapCatalogFormat.StationRevealFile, Convert.ToHexString(SHA256.HashData(revealBytes)));
+        byte[] tilePixels = SnesGraphics.DecodePlanarTiles(
+            RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount),
+            4, MapTileAtlasFormat.TileColumns, out int atlasWidth, out int atlasHeight);
+        using var atlas = new MemoryStream();
+        // Palette indexes are tile content; runtime CGRAM supplies the selected map
+        // palette. This neutral preview palette is not an imported gameplay palette.
+        IndexedPng.Write(atlas, atlasWidth, atlasHeight, tilePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
+        byte[] atlasBytes = atlas.ToArray();
+        using (var file = new FileStream(Path.Combine(directory, MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(atlasBytes);
+        hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

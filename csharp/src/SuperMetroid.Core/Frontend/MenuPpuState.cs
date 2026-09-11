@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -18,11 +19,12 @@ internal sealed class MenuPpuState
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
-    public MenuPpuState(ISnesAddressSpace bus)
+    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         Vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, 0x8e8000, 0x5600));
-        Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(bus, 0xb68000, 0x2000));
+        if (mapTiles is null) Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
+        else mapTiles.LoadTo(Vram, 0x6000);
         Vram.LoadBytes(0xc000, RomDataReader.ReadFixedBank(bus, 0xb6c000, 0x2000));
         Vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, 0x8ed600, 0x0600));
         Cgram.LoadFromBus(bus, 0x8ee400);

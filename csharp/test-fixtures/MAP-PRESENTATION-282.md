@@ -190,3 +190,36 @@ round trip, independently hand-calculated filter rows, odd-width packed depths,
 split IDAT, and malformed/unsupported resources. This commit provides the codec;
 the normal map importer/catalog has not yet been wired to PNG atlases. No claim
 that editing PNG artwork already affects the live game is made here.
+
+## Live pause/file-select PNG atlas
+
+Catalog manifest version 3 adds hash-checked `map-tiles.png`. The importer decodes
+the shared $B6:8000-$B6:9FFF characters into a native 256x64 indexed atlas: 32 columns
+by eight rows of 8x8 tiles. PNG indexes must stay in 0-15; their RGB preview palette
+does not set gameplay colors. CGRAM/palette-reference extraction is still pending.
+The current preview is grayscale to expose index identity without claiming one
+palette for characters reused under multiple runtime palettes. Edit pixel indexes,
+not preview RGB values. PNG alpha likewise does not change the SNES transparent
+index rule. Color customization is not yet supported by this atlas.
+
+Copy `game/maps/map-tiles.png` into `overrides/maps/map-tiles.png` and edit it as an
+indexed image without changing its dimensions. Restart reloads the selected PNG;
+state loading rebinds the current session's catalog. Wrong dimensions, corrupt PNG
+or out-of-range indexes throw rather than silently selecting stock. Stock repair
+continues to preserve the separate override. Layout JSON now rejects atlas rows
+outside the eight installed rows rather than referencing unprovided characters.
+
+Pause and file-select graphics now upload the immutable compiled atlas at their
+respective native VRAM destinations instead of reading that cartridge range. The
+world-map menu's shared initial PPU load is also bound, so entry does not sneak in
+the same ROM read. Pause retains the second half of its character sheet from its
+existing source; gameplay minimap uses a separate 2-bpp sheet and remains pending.
+Map/layout definitions still govern exploration independently of PNG edits.
+
+Tests compare all 8,192 stock planar bytes and exact rendered pause/file-select
+stock pixels, with the tile-ROM range blocked. An actual PNG override changes every
+decoded pixel as authored and changes pixels inside both map holders. Rebinding
+stock after a graphics-state restore produces the original pixels exactly. Tests
+also cover replacement preservation, invalid PNG/dimensions/color indexes and
+missing stock artwork despite a valid override. These are managed pipeline tests,
+not Android on-device or full installation transaction validation.

@@ -32,6 +32,28 @@ Pinned source leads:
 Next: translate the native wave initialization/update and blending setup with
 correct frame ownership, compare its exact table output against original code,
 then rerun this visual reproduction. Independently reproduce fade-out and the
-black/translucent phase before claiming the whole issue resolved. The existing
-amplitude initialization also needs comparison with the native HDMA setup, which
-resets fields after the AI has assigned them.
+black/translucent phase before claiming the whole issue resolved.
+
+## Original-CPU scroll-table checkpoint
+
+`native-phantoon-hdma-probe.h` executes original ROM routines $88:E4BD and
+$88:E567 using the bounded CPU harness. It samples both modes, amplitudes 0,
+$40, $100, $340, $C00 and $FFFF, and 40 successive phase updates per case.
+The headless entrypoint patch suppresses native dialogs and must be reversed
+after building/running the diagnostic. It was reversed after this capture.
+
+`--phantoon-wave-comparison-audit ROM LOCAL-CSV` verifies all 46,080 scroll words
+across 480 cycles against `PhantoonWaveTable.Build`. All match. This is the
+original 65816 calculation, not an upstream C formula used as the oracle.
+The builder truncates unsigned product magnitude before applying the sign, then
+mirrors the first half-cycle and wraps the base scroll as a native word.
+
+The builder alone is not the gameplay fix. Native HDMA lifecycle, accepted-frame
+publication, screen-row expansion and transparency integration remain to be wired.
+No claim that the materialization regression passes yet.
+
+Initialization clarification: $A7:D535 calls the HDMA spawn/reset *before*
+$A7:D539-$D53C assigns the intro maximum amplitude. The existing maximum-amplitude
+assignment is therefore not itself evidence of a bug. Native HDMA setup also
+copies the pending wave mode into the eye record; the missing mode handoff must
+be preserved when integrating this owner.

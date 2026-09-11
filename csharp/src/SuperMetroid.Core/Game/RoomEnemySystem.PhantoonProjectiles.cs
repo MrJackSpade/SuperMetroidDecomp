@@ -292,12 +292,21 @@ public sealed partial class RoomEnemySystem
         ushort angle,
         ushort radius)
     {
-        // $86:9BA2 defines angle zero at the top and advances clockwise. These helpers read
-        // the same cartridge sine bytes and retain their negative-fraction truncation quirk.
-        int xOffset = ReadEightBitSineProduct(angle, radius);
-        int yOffset = -ReadEightBitCosineProduct(angle, radius);
+        // Unlike the common byte-table enemy sine routine, this callback uses a
+        // word sample. Its high byte preserves the exact full radius at cardinal angles.
+        int xOffset = ReadPhantoonFlameComponent(angle, radius);
+        int yOffset = ReadPhantoonFlameComponent(unchecked((byte)(angle - 64)), radius);
         flame.XPosition = unchecked((ushort)(body.XPosition + xOffset));
         flame.YPosition = unchecked((ushort)(body.YPosition + 16 + yOffset));
+    }
+
+    /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
+    private int ReadPhantoonFlameComponent(ushort angle, ushort radius)
+    {
+        int byteAngle = angle & 255;
+        int sample = ReadWord(_bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + (byteAngle & 127) * 2);
+        int magnitude = ((sample & 255) * (radius & 255) >> 8) + (sample >> 8) * (radius & 255);
+        return byteAngle < 128 ? magnitude : -magnitude;
     }
 
     private static void DeletePhantoonFlameOutsideRoom(RoomEnemyProjectileSlot flame)

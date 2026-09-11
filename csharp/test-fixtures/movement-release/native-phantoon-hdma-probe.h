@@ -1,5 +1,21 @@
 #include "native-bounded-cpu.h"
 
+// Execute the original bank-$86 coordinate helper over its complete byte inputs.
+static int DiagnosticPhantoonFlameCoordinates(const char *output) {
+  char path[1024];
+  if (snprintf(path, sizeof(path), "%s.flame-coordinates.csv", output) >= sizeof(path)) return 5;
+  FILE *f = fopen(path, "wx"); if (!f) return 4;
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+  g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
+  fprintf(f, "angle,radius,x,y\n");
+  for (int angle = 0; angle < 256; angle++) for (int radius = 0; radius < 256; radius++) {
+    ProbeRunBoundedRegisters(0x869ba2, radius, 0, angle);
+    fprintf(f, "%d,%d,%d,%d\n", angle, radius,
+      g_ram[0x14] | g_ram[0x15] << 8, g_ram[0x16] | g_ram[0x17] << 8);
+  }
+  fclose(f); return 0;
+}
+
 // Palette fade wrappers include their even-NMI gate and completion latch. Keep this
 // separate from wave sampling: ordinary reappearances/fades do not spawn wave HDMA.
 static int DiagnosticPhantoonFadeCsv(const char *output) {
@@ -77,5 +93,7 @@ int DiagnosticPhantoonHdma(const char *rom, const char *output) {
       hdma_object_instruction_list_pointers[0], hdma_object_channels_bitmask[0],
       g_ram[0x9100] | g_ram[0x9101] << 8);
   }
-  fclose(f); return DiagnosticPhantoonFadeCsv(output);
+  fclose(f);
+  status = DiagnosticPhantoonFadeCsv(output); if (status) return status;
+  return DiagnosticPhantoonFlameCoordinates(output);
 }

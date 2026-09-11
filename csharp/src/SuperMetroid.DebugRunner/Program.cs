@@ -332,6 +332,8 @@ if (args.Length == 2 && args[0] == "--phantoon-rain-timing-audit")
     return PhantoonRainTimingAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--phantoon-attack-population-audit")
     return PhantoonAttackPopulationAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--phantoon-flame-coordinate-audit")
+    return PhantoonFlameCoordinateAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--phantoon-wave-comparison-audit")
     return PhantoonWaveComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--elevator-draw-native-comparison")

@@ -68,3 +68,24 @@ This rules out absent spawn dispatch for these two patterns in this tested
 sequence. It does not establish original-CPU trajectory parity, every conditional
 rage-wave count, or contact/shot collision parity. Those remain open requirements
 before #556 can move to awaiting player validation.
+
+## Original CPU flame-coordinate comparison
+
+The headless native Phantoon probe now executes original `$86:9BA2` for all
+256 byte angles and 256 byte radii. It records DP `$14/$16` results rather than
+calling the upstream C port. The complete local capture has SHA256
+`2B3ECC25B05166235C9B5D3EE88A309D93F10F6A1E97E75652386175C0E37464`.
+The temporary upstream entrypoint patch was reversed after capture.
+
+`--phantoon-flame-coordinate-audit ROM CSV` reproduced 1020 mismatches among
+65536 combinations. At angle zero/radius one, managed flame offset Y was zero
+but original CPU returned -1. The shared enemy byte-sine routine used by the port
+tops out at 255; Phantoon's `$86:9BF3` instead multiplies both bytes of a word sine
+sample, preserving 256 at cardinal angles. A Phantoon-specific component helper
+now follows that exact multiplication and whole-result negation. The common
+helper remains unchanged for other enemies that genuinely use the byte routine.
+
+After the fix, all 65536 original-CPU coordinate pairs match. Core verification,
+real-room rain/spiral population and no-input transparency audits pass. The CSV
+remains local; the committed probe regenerates it from the user's ROM. This
+proves component-coordinate parity, not every spawn/lifetime/collision path.

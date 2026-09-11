@@ -26,8 +26,28 @@ but has no text-glow slots or palette-bit updates. Consequently mature glyphs
 retain the weak green-26 outline rather than native green-11. This matches the
 reported direction of the contrast defect without applying arbitrary sharpening.
 
-Implementation remains pending. Add the native pool/timer/rectangle behavior,
-an exact glyph-age palette regression and native-resolution comparison, preserving
-debugger-state compatibility. Do not label awaiting validation yet. The supplied
-emulator recording's display filter still is not independently identified; do not
-claim that recreating its video-processing blur is part of cartridge rendering.
+## Implemented and verified
+
+`CinematicTextGlowSystem` now models the eight descending slots, one-call startup,
+five-call palette intervals and release after palette three. Character callbacks
+spawn it before copying the glyph; the frame advances it after BG objects and
+before the text VRAM transfer. No glyph artwork, palette values or scaling filter
+was changed.
+
+Before the fix, the production intro capture failed because the mature first
+glyph retained palette zero. It now selects palette three and its actual 8x8
+rendered glyph contains green-11 outline pixels (RGBA green 90) and green-31
+interior pixels (255). Before/after native-resolution captures were inspected.
+The resulting 256x224 frame matches the Direct3D11 hardware renderer exactly.
+
+Core verification checks the exact palettes at ages 0/5/10/15, preservation of
+glyph/flip/priority bits, rectangle bounds, eight-slot exhaustion and reuse, and
+serialization/restoration during an active glow. Older intro snapshots explicitly
+warn that missing historical glyph ages cannot be reconstructed; their existing
+fields restore unchanged and new glyphs initialize glow normally. Full core
+verification passes.
+
+Ready for player validation. The supplied emulator recording's display filter
+still is not independently identified; this fixes the proven native-palette
+progression defect, not arbitrary video-processing differences. Captures remain
+local and the issue stays open pending confirmation.

@@ -31,6 +31,8 @@ internal sealed class IntroCinematicObjectSystem
     private ushort caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
     private ushort caretY = IntroCinematicRomData.ObjectSystem.CaretFirstTextY;
     private bool typewriterSoundToggle;
+    // Nullable for older debugger snapshots that predate text-glow state.
+    private CinematicTextGlowSystem? textGlow;
 
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
@@ -160,6 +162,7 @@ internal sealed class IntroCinematicObjectSystem
         StepBgObject(ref eyeInstructionPointer, ref eyeInstructionTimer);
         if (textInstructionPointer != 0)
             StepBgObject(ref textInstructionPointer, ref textInstructionTimer);
+        textGlow?.Step(textTilemap);
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
@@ -343,6 +346,9 @@ internal sealed class IntroCinematicObjectSystem
         switch (drawFunction)
         {
             case CinematicCodePointers.IndirectInstruction_DrawTextCharacter:
+                // The native character callback allocates glow before drawing. Its
+                // first palette update runs after all BG objects in this same frame.
+                (textGlow ??= new()).Spawn(destinationX, destinationY, width, height);
                 // `$8B:884D-$8B:889F` does more than copy the glyph. It looks ahead from
                 // the *current six-byte BG-object record* to the following record and moves
                 // cinematic sprite slot $1E to that next character cell. If the following

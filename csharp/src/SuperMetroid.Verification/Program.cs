@@ -220,6 +220,7 @@ VerifyAndroidHostPolicies();
 VerifyBoostFloorScroll();
 VerifyXrayControls();
 VerifyIntroPoseHistory();
+VerifyCinematicTextGlow();
 VerifyProjectileContactPhase(verifyPhase: true);
 VerifyProjectileRuntimePhase();
 VerifyMorphedSpikeRelease();

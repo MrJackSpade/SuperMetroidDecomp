@@ -200,6 +200,11 @@ if (args is ["--x-plasma-timers"])
     VerifyRipperEnemy(verifyXrayTimers: true);
     return 0;
 }
+if (args is ["--native-x-plasma-timers", var timerTrace])
+{
+    VerifyRipperEnemy(verifyXrayTimers: true, nativeXrayTimerTrace: timerTrace);
+    return 0;
+}
 if (args is ["--window-pixels"])
 {
     VerifyWindowPixels();

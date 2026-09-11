@@ -255,7 +255,8 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 /// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
 /// the assertions then enter only through the public loader/frame/contact/projectile seams.
 /// </summary>
-static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false)
+static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false,
+    string? nativeXrayTimerTrace = null)
 {
     const ushort definitionPointer = 0xd47f;
     const ushort populationPointer = 0x9580;
@@ -346,6 +347,32 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     RoomEnemySlot ripper = enemies.Slots[0];
     if (verifyXrayTimers)
     {
+        if (nativeXrayTimerTrace is not null)
+        {
+            string[] lines = File.ReadAllLines(nativeXrayTimerTrace);
+            AssertEqual("intangible,initial,frame,invincibility,flash,frozen,x,instruction", lines[0],
+                "original EnemyMain trace schema");
+            AssertEqual(121, lines.Length, "all ten native cases and twelve frames");
+            int index = 1;
+            foreach (bool intangible in new[] { false, true })
+            foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
+            {
+                ripper.Properties = (ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
+                    (intangible ? EnemyProperties.IgnoreSamusCollision : EnemyProperties.None));
+                ripper.InvincibilityTimer = initial;
+                ripper.FlashTimer = 16;
+                ripper.FrozenTimer = 400;
+                for (int frame = 1; frame <= 12; frame++)
+                {
+                    enemies.StepFrame(0, 0, true, level: level);
+                    string actual = $"{(intangible ? 1 : 0)},{initial},{frame},{ripper.InvincibilityTimer}," +
+                        $"{ripper.FlashTimer},{ripper.FrozenTimer},{ripper.XPosition},{ripper.CurrentInstruction}";
+                    AssertEqual(lines[index++], actual, "original CPU versus production frozen EnemyMain");
+                }
+            }
+            Console.WriteLine("X-Plasma: 120 original-CPU EnemyMain frame records match production exactly.");
+            return;
+        }
         ripper.InvincibilityTimer = 10;
         ripper.FlashTimer = 16;
         ripper.FrozenTimer = 400;

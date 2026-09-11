@@ -304,3 +304,24 @@ Its phase coverage includes initial materialization, figure-eight, initial and
 repeated flame-rain fade-out. It does not cover damage-triggered swoop or Super
 Missile rage fades; those production-hit branches remain the specific gap before
 the full #555 handoff, rather than an unspecified full-game controller test.
+
+### Damage-triggered fade branches
+
+`--phantoon-hit-fades-audit ROM LOCAL_DIRECTORY` runs two 3600-frame real-room
+sequences. Each waits for the eye-open phase and finds a damaging contact through
+the production extended-hitbox query. It initializes a real missile and positions
+that contact at the eye, then invokes the normal hit dispatcher. No AI phase is
+assigned by the test. This constructed contact deliberately does not test aiming
+or projectile travel.
+
+The missile deals 100 damage and exercises 30 swoop fade-out and 29 subsequent
+figure-eight fade-in frames. The Super Missile deals 600 damage and exercises 38
+pre-rage fade-out, 30 rage fade-in, 30 post-rage fade-out, and 29 subsequent
+figure-eight fade-in frames. Every required phase changes visible body contribution;
+additive frames preserve scenery channels and HUD pixels. Six representative full
+packets match software on hardware and WARP (12 comparisons). These cover the
+previously missing branches alongside the native palette arithmetic comparison,
+intro wave test, no-input translucency sequence and full death test above.
+
+#555 is ready for player validation; this does not resolve #556's independent
+attack-pattern count, trajectory, timing and collision investigation.

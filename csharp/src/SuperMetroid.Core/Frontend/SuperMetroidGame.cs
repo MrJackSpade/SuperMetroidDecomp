@@ -471,16 +471,19 @@ public sealed partial class SuperMetroidGame
                         reserveStep = reserveRecovery.StepAfterNmi(
                             samus,
                             runtime.NmiFrameCounter);
+                        // $82:DC18-$DC24 clears the freeze and restores state eight
+                        // BEFORE calling gameplay. Unfreezing after StepFrame lets
+                        // Samus resume while projectiles/enemies remain a frame behind.
+                        if (reserveStep.Completed)
+                        {
+                            runtime.GameplayTimeFrozen = false;
+                            GameState = SuperMetroidGameState.MainGameplay;
+                        }
                     },
                     queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
                 if (reserveStep.RefillSoundRequested)
                     audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
-                if (reserveStep.Completed)
-                {
-                    runtime.GameplayTimeFrozen = false;
-                    GameState = SuperMetroidGameState.MainGameplay;
-                }
                 break;
 
             case SuperMetroidGameState.DeathSequenceStart:

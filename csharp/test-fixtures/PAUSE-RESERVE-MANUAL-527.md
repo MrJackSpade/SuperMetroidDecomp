@@ -110,3 +110,21 @@ exact per-frame health tile words, actual rendered health-digit changes, empty
 AUTO restoration, preservation of other HUD cells/FX rows, and the last pending
 upload across unpause. Targeted and full verification and the Windows Release
 build pass. This is not external-emulator playback or player confirmation.
+
+## Follow-up: automatic completion frame ordering
+
+The automatic frontend cleared the global freeze only after its completion-frame
+gameplay pass, although the refill helper had already unlocked Samus. Native
+$82:DC18-$DC28 clears freeze, selects state eight and restores Samus handlers
+before calling gameplay. The frontend now performs that handoff inside the
+accepted-NMI callback, before the gameplay systems run.
+
+`--reserve-auto-frontend` (also in the full suite) constructs the real automatic
+recovery boundary with two reserve energy and a pending shared projectile cooldown.
+The nonfinal frame must keep the freeze, input lock and cooldown. The final frame
+must clear both locks and advance the cooldown from 10 to 9; before the fix it
+remained 10. Merely checking the final freeze flag or Samus movement was insufficient:
+both could pass even while the projectile pass incorrectly remained frozen.
+Existing transfer tests separately cover one-point cadence, sound requests,
+exhaustion and maximum-health depletion. Cartridge playback/presentation comparison
+is still outstanding; this regression verifies the specific completion-order defect.

@@ -99,11 +99,15 @@ internal static class HZoomerAudit
         samus.YPosition = slot.YPosition;
         samus.Health = 99;
         samus.InvincibilityTimer = 0;
+        // Normal touch publishes the native hurt request. The full runtime's
+        // later movement phase, absent from this isolated contact call, starts
+        // knockback. Do not require that later state prematurely.
         if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 94 ||
-            !samus.KnockbackActive)
+            samus.KnockbackActive || samus.KnockbackTimer != 5 ||
+            samus.InvincibilityTimer != 96 || samus.KnockbackXDirection != 1)
         {
             throw new InvalidDataException(
-                $"HZoomer contact failed: health={samus.Health}, knockback={samus.KnockbackActive}.");
+                $"HZoomer contact failed: health={samus.Health}, knockback={samus.KnockbackActive}, pending={samus.KnockbackTimer}, immunity={samus.InvincibilityTimer}, direction={samus.KnockbackXDirection}.");
         }
 
         Console.WriteLine(

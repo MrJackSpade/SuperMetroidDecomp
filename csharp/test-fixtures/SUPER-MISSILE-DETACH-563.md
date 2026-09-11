@@ -109,3 +109,27 @@ normal executable afterward; that cleanup was completed for this run. Output sta
 ignored under test-temp. No native GUI was launched. No ROM, screenshots or state
 fixture is added. Yard's distinct state gates and remaining species-specific scope
 are not established by this shared-routine comparison; #563 remains open.
+
+## Species coverage and isolated contact assertion
+
+The controller-impact fixture now covers Sciser, Zero, Viola, Zeela, Sova, Zoomer,
+Stone Zoomer and HZoomer, each with normal and Super Missile controls, plus the two
+frozen Zoomer controls: **18 cases / 1260 runtime frames**. Every unfrozen species
+detaches on the Super impact frame and matches the first eight falling positions;
+all normal-Missile and frozen controls remain attached. No enemy takes direct damage.
+This uses constructed ceiling placement, not a claim that every species has a retail
+ceiling placement or can be frozen. HZoomer uses its own attached function rather
+than being forced through the ordinary crawler function.
+
+The earlier Pre-Bowling contact failure is now corrected in the test: direct normal
+touch must publish five damage, immunity 96, knockback timer five and direction one
+for equal X; it must not immediately install active knockback. Native A0:A4A1 and the
+production common contact owner both publish that pending request for the later
+movement phase. The full Pre-Bowling audit now passes, including homing animation,
+quake detachment and contact. No production contact behavior was changed.
+
+The existing Aqueduct Yard audit also passes its hiding, release, beam launch,
+gravity and qualifying-quake drop checks. A native comparison of Yard's separate
+behavior gates (especially already-airborne states 3/4/5) remains outstanding; the
+shared crawler comparison does not cover it. #563 is therefore still open, not
+awaiting validation.

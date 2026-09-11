@@ -8,9 +8,13 @@ internal static class MissileCrawlerDetachmentAudit
 {
     public static int Run(string rom)
     {
+        foreach (ushort definition in MissileCrawlerFixtureData.Definitions)
         foreach (ushort selection in new ushort[] { 1, 2 })
         foreach (bool frozen in new[] { false, true })
         {
+            // The frozen Zoomer is a state-dispatch control, not a claim that
+            // Ice can freeze every member of the shared crawler family.
+            if (frozen && definition != DownbackFixtureData.ZoomerDefinition) continue;
             var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
             var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
             var level = runtime.LevelData!;
@@ -26,13 +30,14 @@ internal static class MissileCrawlerDetachmentAudit
             // the same Ice loadout in both controls so only frozen state differs.
             samus.EquippedBeams |= (ushort)SamusBeamFlags.Ice;
             var population = new PopulationSelectionAddressSpace(bus,
-                [new RoomEnemyPopulationRecord(DownbackFixtureData.ZoomerDefinition, 128, 120,
+                [new RoomEnemyPopulationRecord(definition, 128, 120,
                     0, (ushort)(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen), 0, 0, 0)]);
             runtime.Enemies.Load(population, PopulationSelectionAddressSpace.PopulationPointer,
                 PopulationSelectionAddressSpace.TilesetPointer, runtime.Vram, runtime.Cgram, () => 1, samus: samus);
             var enemy = runtime.Enemies.Slots[0];
             var state = runtime.Enemies.CrawlerStates[0] ?? throw new InvalidDataException("No crawler loaded.");
-            state.Function = CrawlerEnemyFunction.CrawlingHorizontally;
+            state.Function = definition == RoomEnemySystem.HZoomerDefinition
+                ? CrawlerEnemyFunction.HZoomerCrawlingHorizontally : CrawlerEnemyFunction.CrawlingHorizontally;
             state.XVelocity = 0;
             state.YVelocity = unchecked((ushort)-128);
             enemy.YPosition = (ushort)(112 + enemy.YRadius);
@@ -70,7 +75,7 @@ internal static class MissileCrawlerDetachmentAudit
             bool shouldFall = selection == 2 && !frozen;
             if (impact < 0 || (shouldFall ? detached != impact || enemy.YPosition <= initialY : detached >= 0 || enemy.YPosition != initialY))
                 throw new InvalidDataException($"Remote quake response: selection={selection}, frozen={frozen}, impact={impact}, detach={detached}, Y={initialY}->{enemy.YPosition}.");
-            Console.WriteLine($"Remote wall impact: missile={selection}, frozen={frozen}, impact={impact}, detach={detached}, Y={initialY}->{enemy.YPosition}; no direct damage.");
+            Console.WriteLine($"Remote wall impact: enemy={definition:X4}, missile={selection}, frozen={frozen}, impact={impact}, detach={detached}, Y={initialY}->{enemy.YPosition}; no direct damage.");
         }
         return 0;
     }
@@ -79,6 +84,12 @@ internal static class MissileCrawlerDetachmentAudit
 /// <summary>Native state required by the constructed frozen-enemy control.</summary>
 internal static class MissileCrawlerFixtureData
 {
+    /// <summary>The seven shared crawler wrappers and the separate HZoomer AI.</summary>
+    public static ReadOnlySpan<ushort> Definitions => [
+        RoomEnemySystem.SciserDefinition, RoomEnemySystem.ZeroDefinition,
+        RoomEnemySystem.ViolaDefinition, RoomEnemySystem.ZeelaDefinition,
+        RoomEnemySystem.SovaDefinition, RoomEnemySystem.ZoomerDefinition,
+        RoomEnemySystem.StoneZoomerDefinition, RoomEnemySystem.HZoomerDefinition];
     /// <summary>Enemy AI-handler bit two selects the frozen handler and suppresses instruction animation.</summary>
     public const ushort FrozenAiBit = 4;
 }

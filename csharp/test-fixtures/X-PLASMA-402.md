@@ -309,3 +309,28 @@ CSV after the ROM argument to the managed audit. Native hooks were reversed
 and the ordinary native executable rebuilt afterward. This supersedes the
 missing original-CPU overlap comparison above; the practical firing window
 and controller-driven encounter remain unverified. No production change.
+
+### Normally fired steel Pirate trace
+
+`--ninja-fired-plasma-audit "Super Metroid.smc"` now exercises the untouched
+Metal Pirates population with actual Shoot and ItemSelect/Run inputs. Initial
+grounded Samus is (328,166), initialized with radius 8, 999 energy, no ammo,
+X-ray and Varia (the room is heated), and uncharged Plasma. Setup inputs are
+Left, neutral, ItemSelect, leaving her at (325,187). No enemy, projectile, or
+freeze state is modified after initialization; gameplay cheats are not enabled.
+
+One-frame Shoot at frame 16, followed after the first hit by repeating 60 Run /
+4 neutral frames, deals 150 damage at frames 29 and 93. Shoot at 17 instead
+hits once at frame 30. Shoot at 16 without Run hits once at 29. Every case fires
+exactly one uncharged projectile. The scope cases complete two releases and
+enter a third scan; assertions compare health and invincibility at every scope
+boundary, plus frozen actor/map/flash/projectile position and subposition.
+The first failed repeat reaches the armor reflection timer (10), not another
+damage event. Final Pirate HP is 1500/1650/1650. Samus remains at 999 with scope;
+the unpaused control takes 10 damage at frame 33 and ends at 989.
+
+All three cases pass without a production change. This fills the previously
+missing practical port firing-window coverage. Exact controller trajectories
+have not yet been compared to original CPU execution; the native steel oracle
+above proves the isolated contact/freeze/release semantics, not this whole
+encounter. #402 is still incomplete under the parent parity contract.

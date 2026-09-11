@@ -1,6 +1,7 @@
 # Samus Eater capture (#525)
 
 Affected version: 0.1.1. Player confirmed Samus Eater, not Yapping Maw.
+Status: implemented and verified; awaiting player validation.
 The earlier Maw diagnostics concern a different actor and do not resolve this report.
 
 ## Reproduced omission and implementation
@@ -33,8 +34,29 @@ The real-room floor fixture now checks every frame through the first 257 calls:
 - four library2/$31/max6 sound requests at frames15,55,95,135;
 - right input after release moves Samus away without a forced input unlock.
 
-The draw assertion currently checks the authored trigger tile word, not the full
-composed mouth pixels. Ceiling orientation, admission boundaries, captured-state
-round-trip and visual capture remain to verify before the overall ticket is ready.
+## Completed follow-up checks
+
+Six constructed inside-block cases cover exact floor/ceiling alignment and both
+one-pixel misses. Only aligned samples allocate a slot and deactivate the trigger.
+The ceiling list is tested separately through 417 PLM handler calls: eight chewing
+cycles, 32 total damage, eight sounds, position ownership through frame320, release,
+and trigger restoration416. Pre-pass X displacement proves the hold/release boundary.
+This isolates the ceiling coroutine from terrain movement, not a full-room approach.
+
+At floor capture frame50, the actual debugger graph serializer saves/restores the
+entire runtime in memory. All 206 subsequent frames match coordinates, immunity,
+health, foreground words and complete software-rendered pixels through restoration.
+No player state files are touched. DebugRunner references the existing diagnostics
+assembly to exercise the real serializer rather than a test-only state copier.
+
+Optional third argument supplies a private capture directory. Composed floor
+frames5/15 were visually inspected: the plant mouth changes between the authored
+open/chewing artwork around Samus. Captures remain in ignored test-temp, not published.
+The draw timing assertion checks the trigger tile; the complete-render comparison
+proves saved-state continuity, not an independent native rasterizer comparison.
+
 The ROM list/source drives this implementation; no independent native-CPU replay
-of the complete plant sequence has been performed. Keep open, not awaiting validation.
+of the complete plant sequence is claimed. Full Verification and Windows build
+passed with the production fix; follow-up admission, ceiling, graph/pixel continuation
+and real-room floor tests pass. No further gameplay changes were needed. Keep open
+for player confirmation with awaiting-player-validation.

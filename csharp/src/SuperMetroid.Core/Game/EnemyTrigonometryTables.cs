@@ -4,6 +4,24 @@ namespace SuperMetroid.Core.Game;
 /// These are engine math definitions, not editable presentation assets.</summary>
 public static class EnemyTrigonometryTables
 {
+    /// <summary>$A0:B443-$B642, SineCosineTables_8bitSine_SignExtended and
+    /// its three quadrant continuations. Unlike the byte table, peaks are +/-256.</summary>
+    public static short SignedSine(byte angle)
+    {
+        int halfWaveIndex = angle & 127;
+        int magnitude = halfWaveIndex == 64 ? 256 : EightBitHalfWave[halfWaveIndex];
+        return (short)(angle < 128 ? magnitude : -magnitude);
+    }
+
+    /// <summary>$A0:B3C3-$B642, SineCosineTables_NegativeCosine_SignExtended
+    /// followed by the full signed sine wave. The 320-word range admits byte angle
+    /// plus a 64-word offset; do not truncate the supplied index before validation.</summary>
+    public static short SignedNegativeCosineWord(int index)
+    {
+        if ((uint)index >= 320) throw new ArgumentOutOfRangeException(nameof(index));
+        return SignedSine(unchecked((byte)(index - 64)));
+    }
+
     /// <summary>$A0:B143, SineCosineTables_8bitSine and its cosine continuation.
     /// The positive half-wave peaks at 255, not 256. Callers supply sign separately.</summary>
     public static ReadOnlySpan<byte> EightBitHalfWave =>

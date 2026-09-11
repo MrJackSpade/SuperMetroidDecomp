@@ -410,7 +410,7 @@ public sealed class RoomLayer3FxState
         ushort randomNumber)
     {
         StepLiquidRise(randomNumber);
-        StepLiquidTide(bus);
+        StepLiquidTide();
         CurrentYPosition = ComputeTidalYPosition();
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = unchecked((ushort)(
@@ -454,7 +454,7 @@ public sealed class RoomLayer3FxState
         ushort randomNumber)
     {
         StepLiquidRise(randomNumber);
-        StepLiquidTide(bus);
+        StepLiquidTide();
         CurrentYPosition = ComputeTidalYPosition();
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - cameraY));
         HorizontalScroll = cameraX;
@@ -600,7 +600,7 @@ public sealed class RoomLayer3FxState
     /// one byte into the 16.16 offset pair, equivalent to the eight-bit shift below. The
     /// asymmetric phase deltas deliberately spend different durations in each half-wave.
     /// </summary>
-    private void StepLiquidTide(ISnesAddressSpace bus)
+    private void StepLiquidTide()
     {
         int scale;
         ushort positiveDelta;
@@ -623,9 +623,7 @@ public sealed class RoomLayer3FxState
             return;
         }
 
-        short sample = unchecked((short)ReadWord(
-            bus,
-            RoomFxRomData.LiquidTide.SignedSineTableAddress + (tidePhase >> 8) * 2));
+        short sample = EnemyTrigonometryTables.SignedSine((byte)(tidePhase >> 8));
         tideFixedOffset = sample * scale << 8;
         tidePhase = unchecked((ushort)(
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));

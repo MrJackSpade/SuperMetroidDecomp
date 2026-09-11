@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -126,10 +127,7 @@ internal sealed partial class CeresDestructionCinematicState
         return (a, b, unchecked((short)-b), a);
     }
 
-    private short ReadSine(byte index) => unchecked((short)
-        RomDataReader.ReadWordFixedBank(
-            bus,
-            CeresDestructionRomData.Assets.SignedSineTable + index * sizeof(ushort)));
+    private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));

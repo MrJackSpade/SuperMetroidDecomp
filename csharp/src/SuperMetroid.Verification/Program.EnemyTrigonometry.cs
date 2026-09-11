@@ -1,6 +1,7 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Frontend;
 
 internal static partial class Program
 {
@@ -17,6 +18,7 @@ internal static partial class Program
         }
         AssertTrue(bytes.AsSpan().SequenceEqual(EnemyTrigonometryTables.EightBitHalfWave), "all compiled byte samples match ROM");
         AssertTrue(words.AsSpan().SequenceEqual(EnemyTrigonometryTables.UnsignedHalfWave), "all compiled unsigned samples match ROM");
+        VerifyCompiledSignedTrigonometry(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
@@ -74,10 +76,68 @@ internal static partial class Program
         Console.WriteLine("Compiled enemy sine: 256 exact samples, 65,536 byte inputs including both Sbug vector phases, and 8,388,608 unsigned products (two wrapped offsets) pass without any production bus dependency.");
     }
 
+    private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom)
+    {
+        short Reference(int index)
+        {
+            int address = EnemyMathReferenceData.SignedNegativeCosine + index * 2;
+            return unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        }
+        var cinematicReaders = new[] { typeof(CeresDestructionCinematicState), typeof(EndingCreditsState), typeof(IntroCeresFlightState) }
+            .Select(type => type.GetMethod("ReadSine", BindingFlags.NonPublic | BindingFlags.Static)!
+                .CreateDelegate<Func<byte, short>>()).ToArray();
+        for (int index = 0; index < 320; index++)
+        {
+            short expected = Reference(index);
+            AssertEqual(expected, EnemyTrigonometryTables.SignedNegativeCosineWord(index), "all 320 native prefix/full-wave words");
+            if (index >= 64)
+            {
+                byte angle = (byte)(index - 64);
+                AssertEqual(expected, EnemyTrigonometryTables.SignedSine(angle), "all signed sine quadrants match cartridge");
+                foreach (var reader in cinematicReaders)
+                    AssertEqual(expected, reader(angle), "cinematic matrix sample matches cartridge without bus");
+            }
+        }
+        foreach (int invalid in new[] { -1, 320, int.MinValue, int.MaxValue })
+        {
+            bool rejected = false;
+            try { _ = EnemyTrigonometryTables.SignedNegativeCosineWord(invalid); }
+            catch (ArgumentOutOfRangeException) { rejected = true; }
+            AssertTrue(rejected, "signed table does not silently wrap invalid prefix indexes");
+        }
+        Console.WriteLine("Compiled signed sine: all 320 native words and three cinematic readers match, including +/-256 peaks and prefix bounds.");
+        var tide = new RoomLayer3FxState();
+        var phaseField = typeof(RoomLayer3FxState).GetField("tidePhase", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var offsetField = typeof(RoomLayer3FxState).GetField("tideFixedOffset", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var options = typeof(RoomLayer3FxState).GetProperty(nameof(RoomLayer3FxState.LiquidOptions))!;
+        var step = typeof(RoomLayer3FxState).GetMethod("StepLiquidTide", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .CreateDelegate<Action>(tide);
+        foreach (ushort option in new ushort[] { 0, 0x40, 0x80, 0xc0 })
+        {
+            options.SetValue(tide, option);
+            for (int phase = 0; phase <= ushort.MaxValue; phase++)
+            {
+                phaseField.SetValue(tide, (ushort)phase);
+                offsetField.SetValue(tide, 12345);
+                step();
+                short sample = Reference(64 + (phase >> 8));
+                bool small = (option & 0x80) != 0;
+                int scale = option == 0 ? 0 : small ? 8 : 32;
+                int delta = option == 0 ? 0 : small ? (sample >= 0 ? 288 : 192) : (sample >= 0 ? 224 : 128);
+                if ((int)offsetField.GetValue(tide)! != (sample * scale << 8) ||
+                    (ushort)phaseField.GetValue(tide)! != unchecked((ushort)(phase + delta)))
+                    throw new InvalidDataException($"Native tide differs at options={option:X2}, phase={phase:X4}.");
+            }
+        }
+        Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
+    }
+
 }
 
 internal static class EnemyMathReferenceData
 {
+    /// <summary>Pinned $A0:B3C3 negative-cosine prefix followed by the full signed sine wave.</summary>
+    public const int SignedNegativeCosine = 0xa0b3c3;
     /// <summary>Pinned $A0:B143 positive byte sine/cosine sample range.</summary>
     public const int ByteSine = 0xa0b143;
     /// <summary>Pinned $A0:B7EE UnsignedSineTable.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -12,7 +13,6 @@ internal sealed class IntroCeresFlightState
     private const int Mode7CharacterAddress = 0x95a82f;
     private const int Mode7TilemapAddress = 0x96fe69;
     private const int ObjectCharacterAddress = 0x96d10a;
-    private const int SignedSineTableAddress = 0xa0b443;
     private const ushort SpaceColonyTilemapWord = 0x5c00;
     private const ushort SpaceColonyCharacterWord = 0x6000;
 
@@ -484,8 +484,7 @@ internal sealed class IntroCeresFlightState
         return (a, b, unchecked((short)-b), a);
     }
 
-    private short ReadSine(byte tableIndex) => unchecked((short)
-        RomDataReader.ReadWordFixedBank(bus, SignedSineTableAddress + tableIndex * 2));
+    private static short ReadSine(byte tableIndex) => EnemyTrigonometryTables.SignedSine(tableIndex);
 
     private static short Scale(short component, ushort scalar) =>
         unchecked((short)((component * unchecked((short)scalar)) >> 8));

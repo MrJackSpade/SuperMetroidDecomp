@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
@@ -148,10 +149,7 @@ internal sealed partial class EndingCreditsState
         return oam;
     }
 
-    private short ReadSine(byte index) => unchecked((short)
-        RomDataReader.ReadWordFixedBank(
-            bus,
-            EndingCreditsRomData.Assets.SignedSineTable + index * sizeof(ushort)));
+    private static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(index);
 
     private byte CurrentRewardObjectSelection => rewardJump?.ObjectSelection
         ?? EndingCreditsRomData.Rendering.RewardObjectSelection;

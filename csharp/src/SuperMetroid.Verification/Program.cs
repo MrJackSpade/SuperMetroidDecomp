@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--map-installation", var installationRom])
+{
+    VerifyMapInstallation(installationRom);
+    return 0;
+}
 if (args is ["--map-presentation"])
 {
     VerifyMapPresentation();

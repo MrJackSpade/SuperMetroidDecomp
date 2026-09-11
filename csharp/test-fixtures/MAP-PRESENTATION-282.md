@@ -354,3 +354,28 @@ These are the map-menu base palettes, not all gameplay palettes. The live HUD ge
 colors through room/palette systems whose extraction remains in the shared palette
 work. Other remaining #282 work includes visual placement resources, historical
 full-session compatibility, complete installer replacement and Android validation.
+
+## Full installer transaction verification
+
+Run the opt-in `SuperMetroid.Verification --map-installation <ROM path>` check to
+exercise `GameAssetInstaller` itself, including real audio/map extraction and
+publication, rather than calling only the map exporter. It creates an isolated,
+ignored `csharp/test-temp/map-installation-<guid>` root and never touches the real
+player installation. The original input ROM is verified unchanged by SHA-256.
+
+The check installs from scratch, edits a static palette override, marks the map
+manifest as the previous format, cancels a complete extraction immediately before
+publication, and verifies the old installed manifest and all player sentinels
+remain unchanged. It then performs a successful upgrade, verifies current catalog
+version and edited content identity, and checks a complete-installation restart
+does not extract again. A corrupt override is retained and rejected by the content
+loader rather than silently replaced by the installer.
+
+Byte-exact preservation covers the override, `SuperMetroid.ini`,
+`SuperMetroid.save.json`, legacy `SuperMetroid.srm`, a named slot in `debug-states`
+and an `input-recordings` file. Player files contain synthetic sentinel payloads:
+this proves transaction isolation, not save-format deserialization compatibility.
+The cancelled transaction also leaves no staging directories. This completed the
+previously pending normal installer-upgrade/cancellation gate on Windows. Process
+termination recovery, historical full-session compatibility and Android device
+validation remain separate checks.

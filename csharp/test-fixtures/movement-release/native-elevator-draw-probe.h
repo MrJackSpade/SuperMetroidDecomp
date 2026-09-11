@@ -1,6 +1,7 @@
 // #516: original CPU draw output across the below-viewport elevator range.
 // This isolates drawing, not camera movement, IRQ timing or scene composition.
 #include "native-bounded-cpu.h"
+#include "snes/ppu.h"
 int DiagnosticElevatorDraw(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
@@ -46,4 +47,59 @@ int DiagnosticElevatorArrival(const char *rom, const char *output) {
       layer1_y_pos, layer1_y_subpos, elevator_status);
   }
   fclose(f); return 0;
+}
+
+// Independent PPU composition using the SAME captured memory, not a claim that
+// the original CPU loaded those tiles. Only numerical pixel witnesses are output.
+int DiagnosticElevatorPpu(const char *rom, const char *input, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(input, "rb"); if (!f) return 4;
+  Ppu *p = g_snes->ppu; ppu_reset(p);
+  uint16 regs[13];
+  if (fread(p->vram, 1, sizeof(p->vram), f) != sizeof(p->vram) ||
+      fread(p->cgram, 1, sizeof(p->cgram), f) != sizeof(p->cgram) ||
+      fread(p->oam, 1, sizeof(p->oam), f) != sizeof(p->oam) ||
+      fread(p->highOam, 1, sizeof(p->highOam), f) != sizeof(p->highOam) ||
+      fread(regs, 1, sizeof(regs), f) != sizeof(regs) || fgetc(f) != EOF) {
+    fclose(f); fprintf(stderr, "Invalid elevator PPU witness size.\n"); return 5;
+  }
+  fclose(f);
+  ppu_write(p, 0x00, regs[12]); ppu_write(p, 0x01, regs[11]);
+  ppu_write(p, 0x05, 9); // Mode 1, BG3 priority as in gameplay.
+  ppu_write(p, 0x2c, regs[10]);
+  p->bgLayer[0].tilemapAdr = 0x5000; p->bgLayer[0].tilemapWider = true;
+  p->bgLayer[0].tileAdr = regs[7];
+  p->bgLayer[0].hScroll = regs[0]; p->bgLayer[0].vScroll = regs[1];
+  p->bgLayer[1].tilemapAdr = regs[6]; p->bgLayer[1].tileAdr = regs[8];
+  p->bgLayer[1].tilemapWider = regs[4] == 64; p->bgLayer[1].tilemapHigher = regs[5] == 64;
+  p->bgLayer[1].hScroll = regs[2]; p->bgLayer[1].vScroll = regs[3];
+  p->bgLayer[2].tilemapAdr = 0x5800; p->bgLayer[2].tileAdr = regs[9];
+  uint8 *images = calloc(2, 256 * 224 * 4); if (!images) return 7;
+  uint16 originalPalette[16]; memcpy(originalPalette, p->cgram + 192, sizeof(originalPalette));
+  f = fopen(output, "wx"); if (!f) { free(images); return 4; }
+  fprintf(f, "experiment,x,y\n");
+  for (int experiment = 0; experiment < 2; experiment++) {
+  // Negative control: compensate the PPU's physical-line offset to emulate the
+  // managed compositor's current zero-based BG sampling, without moving OBJ.
+  p->bgLayer[0].vScroll = regs[1] - experiment;
+  p->bgLayer[1].vScroll = regs[3] - experiment;
+  memcpy(p->cgram + 192, originalPalette, sizeof(originalPalette));
+  for (int pass = 0; pass < 2; pass++) {
+    if (pass) memset(p->cgram + 192, 0, 16 * sizeof(uint16));
+    PpuBeginDrawing(p, images + pass * 256 * 224 * 4, 256 * 4, 0);
+    ppu_runLine(p, 0);
+    for (int line = 1; line <= 224; line++) {
+      ppu_write(p, 0x2c, line <= 32 ? 4 : regs[10]);
+      ppu_runLine(p, line);
+    }
+  }
+  int count = 0;
+  for (int pixel = 0; pixel < 256 * 80; pixel++) {
+    if (memcmp(images + pixel * 4, images + 256 * 224 * 4 + pixel * 4, 3)) {
+      fprintf(f, "%d,%d,%d\n", experiment, pixel % 256, pixel / 256); count++;
+    }
+  }
+  printf("Independent PPU experiment %d top-edge palette differences: %d\n", experiment, count);
+  }
+  fclose(f); free(images); return 0;
 }

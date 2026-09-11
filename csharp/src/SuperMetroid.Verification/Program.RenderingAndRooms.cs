@@ -1152,15 +1152,16 @@ static void VerifyFourBitBackgroundRendering()
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
 
     // Exercise that same BGSC geometry through the production priority compositor. Its
-    // first gameplay scanline is physical Y=32, so VOFS=$E0 selects source Y=$100. A
-    // per-line HOFS of eight must then select tile one from the lower vertical screen.
+    // first gameplay output row is 32, physical scanline 33, so VOFS=$E0 selects
+    // source Y=$101. A per-line HOFS of eight selects tile one in the lower screen.
+    // Put its only pixel on character row one: old zero-based BG sampling fails.
     var gameplayVram = new SnesVram();
     var gameplayCgram = new SnesCgram();
     var gameplayOam = new OamBuffer();
     var redCharacter = new byte[32];
     var blueCharacter = new byte[32];
-    redCharacter[0] = 0x80;
-    blueCharacter[0] = 0x80;
+    redCharacter[2] = 0x80;
+    blueCharacter[2] = 0x80;
     // Leave character zero transparent because empty BG1 map words select it above BG2.
     gameplayVram.LoadBytes(0x0020, redCharacter);
     gameplayVram.LoadBytes(0x0040, blueCharacter);

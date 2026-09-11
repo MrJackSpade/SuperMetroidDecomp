@@ -79,12 +79,12 @@ public static class SoftwareXrayGameplayRenderer
             {
                 int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
                 int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                var pixel = bg2Sampler.Sample(x + sx, y + sy);
+                var pixel = bg2Sampler.Sample(x + sx, y + sy + SnesPpuLayout.FirstVisibleBackgroundScanline);
                 Insert(pixel.Color, pixel.High ? 5 : 2, SnesColorMathControl.Bg2);
             }
             if ((!layer.RevealBlocks || !inside) && showBg1)
             {
-                var pixel = bg1Sampler.Sample(x + r.Bg1X, y + r.Bg1Y);
+                var pixel = bg1Sampler.Sample(x + r.Bg1X, y + r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline);
                 Insert(pixel.Color, pixel.High ? 6 : 3, SnesColorMathControl.Bg1);
             }
             if (showObjects && priorities[i] != SnesObjRenderer.TransparentPriority)

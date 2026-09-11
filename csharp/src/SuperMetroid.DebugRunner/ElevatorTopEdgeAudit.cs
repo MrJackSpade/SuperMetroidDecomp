@@ -11,8 +11,14 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Captures #516's actual upward ride, not a fabricated pending door.</summary>
 internal static class ElevatorTopEdgeAudit
 {
-    public static int Run(string rom, string directory, string? nativeArrivalCsv = null)
+    public static int Run(string rom, string directory, string? nativeArrivalCsv = null,
+        bool greenBrinstar = false)
     {
+        if (greenBrinstar && nativeArrivalCsv is not null)
+            throw new ArgumentException("The native arrival trace covers only the Blue Brinstar destination.");
+        ushort sourceRoom = greenBrinstar ? RoomHeaderPointers.GreenBrinstarMainShaft : RoomHeaderPointers.MorphBallRoom;
+        ushort destinationRoom = greenBrinstar ? RoomHeaderPointers.GreenBrinstarElevatorRoom : RoomHeaderPointers.BlueBrinstarElevatorRoom;
+        ushort expectedDoor = greenBrinstar ? DoorPointers.GreenBrinstarElevatorFromMainShaft : DoorPointers.BlueBrinstarElevatorFromMorphBall;
         string[]? nativeArrival = nativeArrivalCsv is null ? null : File.ReadAllLines(nativeArrivalCsv);
         const int nativeArrivalFrames = 100;
         if (nativeArrival is not null && (nativeArrival.Length != nativeArrivalFrames + 1 ||
@@ -27,7 +33,7 @@ internal static class ElevatorTopEdgeAudit
         var samus = runtime.Samus!;
         samus.CollectedItems = samus.EquippedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.Missiles = samus.MaxMissiles = 5;
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.MorphBallRoom);
+        runtime.LoadCartridgeRoomForDebug(sourceRoom);
         var platform = runtime.Enemies.Slots.Single(s => s.EnemyDefinitionPointer == RoomEnemySystem.ElevatorDefinition);
         samus.ApplyForwardFacingPoseSetup(bus);
         samus.XPosition = platform.XPosition;
@@ -38,7 +44,7 @@ internal static class ElevatorTopEdgeAudit
             ushort input = i % 30 == 0 ? (ushort)SnesButton.Up : (ushort)0;
             runtime.StepFrame(input);
         }
-        if (runtime.PendingDoorTransition?.Pointer != DoorPointers.BlueBrinstarElevatorFromMorphBall)
+        if (runtime.PendingDoorTransition?.Pointer != expectedDoor)
             throw new InvalidDataException("The upward ride did not reach the reported elevator door.");
         using var trace = new StreamWriter(Path.Combine(directory, "frames.csv"));
         trace.WriteLine("frame,phase,room,samusY,cameraY,displayY,screenY,status,pose,animation,nmi");
@@ -93,7 +99,7 @@ internal static class ElevatorTopEdgeAudit
                 $"{samus.Pose},{samus.AnimationFrame},{runtime.NmiFrameCounter}");
             // Capture each potentially wrapped arrival frame, plus periodic settled
             // views. These are observations; no camera or sprite state is modified.
-            if (runtime.ActiveRoom.Pointer == RoomHeaderPointers.BlueBrinstarElevatorRoom &&
+            if (runtime.ActiveRoom.Pointer == destinationRoom &&
                 (relativeY >= 224 || frame % 8 == 0))
             {
                 var packet = GameplayDisplayCapture.TryCaptureFrame(runtime);
@@ -124,6 +130,7 @@ internal static class ElevatorTopEdgeAudit
                                 if (firstWitness) firstWrappedFrame = frame;
                                 if (firstWitness)
                                 {
+                                    ElevatorPpuWitness.Write(Path.Combine(directory, "local-ppu-witness.bin"), packet);
                                     // Find the actual OAM owner instead of assuming that
                                     // every use of palette four belongs to Samus.
                                     for (int sprite = 0; sprite < packet.Memory.ModeledSpriteCount; sprite++)

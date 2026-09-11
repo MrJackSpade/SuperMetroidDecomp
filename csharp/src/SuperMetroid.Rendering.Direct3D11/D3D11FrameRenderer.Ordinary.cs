@@ -27,7 +27,9 @@ public sealed partial class D3D11FrameRenderer
         {
             if ((r.MainScreenLayers & SnesMainScreenLayers.Bg1) != 0)
                 DispatchTile(D3D11TileOperation.Bg4, SnesPpuLayout.GameplayBg1TilemapWord,
-                    r.Bg1CharacterWord, r.Bg1X, r.Bg1Y, 64, 32, Priority(high),
+                    r.Bg1CharacterWord, r.Bg1X,
+                    unchecked((ushort)(r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline)),
+                    64, 32, Priority(high),
                     firstScanline: SnesPpuLayout.GameplayHudHeightPixels,
                     windows: r.Windows, windowMask: r.MainScreenWindowMask, windowTarget: SnesWindowTarget.Bg1);
         }
@@ -52,7 +54,8 @@ public sealed partial class D3D11FrameRenderer
             int line = y - SnesPpuLayout.GameplayHudHeightPixels;
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
             data[offset] = layer.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.HorizontalScrolls[line];
-            data[offset + 1] = layer.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.VerticalScrolls[line];
+            ushort verticalScroll = layer.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.VerticalScrolls[line];
+            data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);

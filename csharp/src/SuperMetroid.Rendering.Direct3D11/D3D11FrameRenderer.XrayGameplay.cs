@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Rendering.Direct3D11;
 
@@ -13,7 +14,8 @@ public sealed partial class D3D11FrameRenderer
         data[0] = (uint)D3D11TileOperation.XrayGameplay;
         // Xray.hlsli reuses the tile header for BG1/BG2 registers and CGADSUB.
         data[1] = r.Bg1CharacterWord; data[2] = r.Bg2CharacterWord;
-        data[3] = r.Bg1X; data[4] = r.Bg1Y;
+        data[3] = r.Bg1X;
+        data[4] = unchecked((ushort)(r.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
@@ -32,7 +34,8 @@ public sealed partial class D3D11FrameRenderer
         {
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4, line = y - 32;
             data[offset] = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[line];
-            data[offset + 1] = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[line];
+            ushort verticalScroll = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[line];
+            data[offset + 1] = unchecked((ushort)(verticalScroll + SnesPpuLayout.FirstVisibleBackgroundScanline));
             data[offset + 2] = (uint)(layer.Lines[y].Left | layer.Lines[y].Right << 8);
             if (layer.Subscreen is { } bg3)
                 data[offset + 3] = (uint)(bg3.Scrolls[y].X | bg3.Scrolls[y].Y << 16);

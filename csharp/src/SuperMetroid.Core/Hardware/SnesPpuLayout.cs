@@ -17,6 +17,13 @@ public static class SnesPpuLayout
     /// <summary>NTSC visible height emitted by Super Metroid.</summary>
     public const int ScreenHeightPixels = 224;
 
+    /// <summary>
+    /// The first stored NTSC output row is physical PPU scanline one. Background
+    /// sampling uses that physical line; OBJ evaluation uses the preceding line.
+    /// Verified against the independent PPU with #516's captured frame memory.
+    /// </summary>
+    public const int FirstVisibleBackgroundScanline = 1;
+
     /// <summary>Physical scanlines reserved for the gameplay BG3 HUD.</summary>
     public const int GameplayHudHeightPixels = 32;
 

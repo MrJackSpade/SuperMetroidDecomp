@@ -364,14 +364,17 @@ public static partial class SnesGameplayFrameRenderer
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             bool bg2Enabled = bg2LayerEnabled && screenY >= bg2FirstScanline && screenY < bg2EndScanline;
-            int bg1ScrolledY = unchecked(bg1VerticalScroll + screenY) & 0xff;
+            // Output rows are zero-based, while Mode-1 BG sampling starts on
+            // physical scanline one. OBJ's preceding-line evaluation is separate.
+            int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
+            int bg1ScrolledY = unchecked(bg1VerticalScroll + physicalBackgroundY) & 0xff;
             ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine is null
                 ? bg2HorizontalScroll
                 : bg2HorizontalScrollByLine[screenY - HudHeight];
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
                 ? bg2VerticalScroll
                 : bg2VerticalScrollByLine[screenY - HudHeight];
-            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + screenY) & bg2YMask;
+            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + physicalBackgroundY) & bg2YMask;
             int bg1TileY = bg1ScrolledY >> 3;
             int bg2TileY = bg2ScrolledY >> 3;
             int bg1PixelY = bg1ScrolledY & 7;

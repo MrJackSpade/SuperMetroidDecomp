@@ -156,3 +156,51 @@ Local native arrival trace SHA-256:
 `0EA0825420B282DF23F4EAEF22353D108224057BE0628A6B557295463B9AFFB5`.
 The temporary native entrypoint patch was reversed after the bounded probe;
 no screenshots, ROM data or generated trace were committed.
+
+## Reproduced compositor defect and shared correction
+
+The first failing packet is now written to `local-ppu-witness.bin` inside the
+local output directory. It is never committed or uploaded. The bounded native
+entrypoint accepts `--diagnostic-elevator-ppu ROM INPUT.bin OUTPUT.csv` to load
+the exact same VRAM/CGRAM/OAM and ordinary-layer register values into the
+independent upstream SNES PPU. It emits only numerical palette-difference
+coordinates, not an image. This is an independent renderer comparison, **not**
+a full original-cartridge playthrough or proof of the captured tile-memory state.
+
+For Blue Brinstar frame 113, the independent PPU finds **zero** visible
+palette-four changes. A negative control moving only BG1/BG2 sampling back one
+line produces precisely the managed failure: one pixel at (130,32). The managed
+ordinary compositor sampled backgrounds using zero-based output Y; the original
+PPU uses physical scanline Y+1 while its OBJ evaluation uses the preceding line.
+This left one pixel of the wrapped boot exposed above the terrain.
+
+The software and Direct3D ordinary BG1/BG2 samplers now apply the physical-line
+offset. X-ray's alternate BG1/BG2 compositor applies the same correction so
+switching the reveal effect does not shift the underlying terrain. OAM packing,
+Samus coordinates, camera movement and scene-specific clipping are unchanged.
+The constructed BGSC test now puts its single colored pixel on character row
+one, explicitly verifying this physical-line relationship instead of preserving
+the former zero-based assumption.
+
+Verification:
+
+- Blue Brinstar actual upward ride: **231 frames, zero wrapped pixel differences**;
+  all 100 original-CPU arrival comparisons remain exact.
+- Full Core verification passes.
+- Direct3D hardware and WARP: 96 ordinary comparisons and 128 hardware-window
+  cases each pass, including vertical scroll arrays and alternate BGSC layouts.
+- Direct3D hardware and WARP: 161 source-aware X-ray and 176 X-ray window cases
+  each pass.
+- Temporary native source changes were reversed; captures stay local.
+
+## Broader upward-elevator report: still open
+
+The player notes this may affect every upward elevator (affected version 0.1.1).
+`--green-elevator-top-edge-audit ROM OUTPUT_DIRECTORY` now reproduces the actual
+Green Brinstar Main Shaft -> Crateria elevator, using the same door/camera checks.
+It **still fails** with 36 pixel-frame differences, beginning at frame 103.
+The independent PPU also exposes 18 pixels for its first captured failing frame,
+including (116,32), with either BG-sampling control. Thus the verified compositor
+fix does not establish resolution of that second room's artifact. Its prior
+room loading/streaming and full native sequence still need comparison. Keep
+#516 open without claiming all upward elevators are ready for validation.

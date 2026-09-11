@@ -288,6 +288,8 @@ if (args.Length == 3 && args[0] == "--native-audio-corpus-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--health-warning-native-audio-audit")
     return NativeAudioCorpusAudit.Run(args[1], args[2], healthWarningOnly: true);
+if (args.Length == 3 && args[0] == "--item-message-audio-audit")
+    return ItemMessageAudioAudit.Run(args[1], args[2]);
 if (args.Length == 5 && args[0] is "--sound-native-audio-audit" or "--sound-native-audio-survey")
     return NativeAudioCorpusAudit.Run(args[1], args[2], survey: args[0] == "--sound-native-audio-survey", soundOnly: new SoundEffectId(
         SoundEffectLibraries.FromCartridge(byte.Parse(args[3]), "diagnostic command line"),

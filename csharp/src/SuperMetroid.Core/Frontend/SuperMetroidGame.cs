@@ -244,6 +244,7 @@ public sealed partial class SuperMetroidGame
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
     {
+        bool messageWasActive = runtime?.MessageBox.IsActive == true;
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
         switch (GameState)
@@ -954,6 +955,13 @@ public sealed partial class SuperMetroidGame
         }
 
         CollectTranslatedAudioRequests(gameplayAudio);
+        // DisplayMessageBox ($85:8080) calls CancelSoundEffects before its first
+        // NMI wait. Publish earlier gameplay requests first, then cancel once at
+        // this entry boundary; repeating it during the wait would cancel the
+        // message's own cursor/saving sounds. A loaded active message is not an
+        // entry and must not inject a new command merely because the host resumed.
+        if (!messageWasActive && runtime?.MessageBox.IsActive == true)
+            audio.QueueCancelSoundEffects();
         lastAudioCommands = audio.AdvanceFrame(bus, audioAcknowledgements);
         return CurrentFrame;
     }

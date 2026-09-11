@@ -49,3 +49,29 @@ produces the identical failure. HZoomer's helper behavior is unchanged; this old
 audit expects immediate active knockback although normal contact now publishes a
 pending timer for the runtime's later movement owner. This turn does not change that
 assertion or claim the complete HZoomer audit passed.
+
+## Controller-to-impact runtime integration
+
+`--missile-crawler-detach-audit ROM` runs four 70-frame cases through the full
+runtime with cheats off: regular/Super Missile crossed with frozen/unfrozen Zoomer.
+A controller Shoot pulse launches toward a constructed right wall; the crawler is
+behind Samus and attached to a ceiling above the projectile trajectory. Its health
+must remain unchanged, ruling out a direct hit as the reason for detachment.
+
+Regular Missile impact occurs at fixture frame 19 and never detaches the crawler.
+Super Missile impact occurs at frame 11 and installs Falling on that same frame;
+the following eight frames match the exact half-pixel-acceleration trajectory.
+The crawler subsequently reaches the floor (Y120 -> Y248). Both frozen controls
+retain Y120 without detaching. Ice stays equipped in all cases; the native frozen
+handler would otherwise thaw immediately. Frozen AI bit and timer are constructed
+starting conditions, not a claim that the fixture fired an Ice shot.
+
+The same-frame transition is supported by native GameState_8_MainGameplay ordering:
+HandleControllerInputForGamePhysics executes alpha and HandleProjectile before
+EnemyMain. The falling handler first executes on the following AI frame. An initial
+test expectation of next-frame *state selection* was incorrect and was corrected
+after checking that source ordering, without changing production timing.
+
+This establishes the managed controller/projectile/wall/quake/enemy route and one
+frozen-state control. The original-CPU comparison and broader family/state acceptance
+remain open. No additional gameplay fix was required in this integration step.

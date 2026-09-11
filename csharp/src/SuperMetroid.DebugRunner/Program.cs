@@ -336,6 +336,9 @@ if (args.Length == 2 && args[0] == "--elevator-charge-audit")
     return ElevatorChargeAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--door-charge-audit")
     return DoorChargeAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--missile-crawler-detach-audit")
+    return MissileCrawlerDetachmentAudit.Run(args[1]);
+
 if (args.Length == 2 && args[0] == "--missile-impact-shake-audit")
     return MissileImpactShakeAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--phantoon-materialization-audit")

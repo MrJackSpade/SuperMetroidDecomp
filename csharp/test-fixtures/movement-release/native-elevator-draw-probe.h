@@ -124,3 +124,32 @@ int DiagnosticElevatorRoomAssets(const char *rom, const char *output) {
   fprintf(f, "block55,tile0338hash\n%04X,%08X\n", level_data[55], hash);
   fclose(f); return 0;
 }
+
+int DiagnosticElevatorHandoff(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram)); g_snes->cpu->e = false;
+  // Actual managed departure boundary from Green Brinstar's upward ride.
+  door_def_ptr = 0x8ca6; samus_x_pos = samus_prev_x_pos = 128;
+  samus_y_pos = samus_prev_y_pos = 0xfff8;
+  elevator_flags = elevator_status = 1; elevator_direction = 0x8000;
+  door_transition_flag_elevator_zebetites = 1;
+  samus_health = samus_max_health = 99; collected_items = equipped_items = 4;
+  samus_missiles = 5; samus_x_radius = 5; samus_y_radius = 21;
+  reg_NMITIMEN = 0x30; fx_y_pos = lava_acid_y_pos = 0xffff;
+  uint32 stages[] = {0x82de12, 0x82e353, 0x82e36e, 0x82e38e, 0x82e3c0, 0x82e4a9, 0x82e6a2};
+  fprintf(f, "stage,samusY,cameraY,bg1Y,elevatorStatus,elevatorFlags\n");
+  for (int i = 0; i < 7; i++) {
+    if (i == 5) {
+      // Run the real directional dispatcher, including its final camera snap.
+      int budget = 100;
+      while (!(door_transition_flag & 0x8000) && budget--) SpinDoorRun(0x80ae4e);
+      if (!(door_transition_flag & 0x8000)) { fclose(f); return 6; }
+    }
+    SpinDoorRun(stages[i]);
+    fprintf(f, "%06X,%04X,%04X,%04X,%04X,%04X\n", stages[i], samus_y_pos,
+      layer1_y_pos, reg_BG1VOFS, elevator_status, elevator_flags);
+    fflush(f);
+  }
+  fclose(f); return 0;
+}

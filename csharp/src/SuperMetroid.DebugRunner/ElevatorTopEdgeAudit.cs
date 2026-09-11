@@ -12,7 +12,7 @@ using SuperMetroid.Core.Runtime;
 internal static class ElevatorTopEdgeAudit
 {
     public static int Run(string rom, string directory, string? nativeArrivalCsv = null,
-        bool greenBrinstar = false)
+        bool greenBrinstar = false, string? nativeHandoffCsv = null)
     {
         if (greenBrinstar && nativeArrivalCsv is not null)
             throw new ArgumentException("The native arrival trace covers only the Blue Brinstar destination.");
@@ -46,6 +46,10 @@ internal static class ElevatorTopEdgeAudit
         }
         if (runtime.PendingDoorTransition?.Pointer != expectedDoor)
             throw new InvalidDataException("The upward ride did not reach the reported elevator door.");
+        Console.WriteLine($"Elevator source handoff: Samus={samus.XPosition:X4},{samus.Kinematics.YFixed:X8}, " +
+            $"camera={runtime.Camera!.XPosition:X4},{runtime.Camera.YPosition:X4}, " +
+            $"flags={runtime.Enemies.ElevatorFlags:X4}, status={(ushort)runtime.Enemies.ElevatorStatus}, " +
+            $"direction={runtime.Enemies.ElevatorDirection:X4}.");
         using var trace = new StreamWriter(Path.Combine(directory, "frames.csv"));
         trace.WriteLine("frame,phase,room,samusY,cameraY,displayY,screenY,status,pose,animation,nmi");
         var transition = new DoorTransitionState();
@@ -59,6 +63,14 @@ internal static class ElevatorTopEdgeAudit
             var phase = transition.Phase;
             ushort beforeCameraY = runtime.Camera!.YPosition;
             transition.Step(runtime, audio, 0);
+            if (phase == DoorTransitionPhase.HandleTransition)
+            {
+                Console.WriteLine($"Destination handoff: Samus={samus.YPosition:X4}, camera={runtime.Camera.YPosition:X4}, " +
+                    $"BG1={runtime.BackgroundScroll.Bg1VerticalScroll:X4}, displayedBG1={runtime.DisplayedGameplayPpu.Bg1VerticalScroll:X4}, " +
+                    $"status={(ushort)runtime.Enemies.ElevatorStatus}, flags={runtime.Enemies.ElevatorFlags:X4}.");
+                if (nativeHandoffCsv is not null)
+                    ElevatorPpuWitness.CompareHandoff(runtime, nativeHandoffCsv);
+            }
             if (phase is DoorTransitionPhase.HandleTransition or DoorTransitionPhase.FadeInDestinationPalette &&
                 runtime.Camera.YPosition != beforeCameraY)
                 throw new InvalidDataException($"Door fade ran gameplay camera: {beforeCameraY} -> {runtime.Camera.YPosition} during {phase}.");

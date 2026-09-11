@@ -7,6 +7,20 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Local-only memory input for the independent #516 PPU comparison.</summary>
 internal static class ElevatorPpuWitness
 {
+    public static void CompareHandoff(SuperMetroidRuntime runtime, string nativeCsv)
+    {
+        string[] rows = File.ReadAllLines(nativeCsv);
+        if (rows.Length != 8 || rows[0] != "stage,samusY,cameraY,bg1Y,elevatorStatus,elevatorFlags" ||
+            !rows[^1].StartsWith("82E6A2,", StringComparison.Ordinal))
+            throw new InvalidDataException("Incomplete or unrecognized native elevator handoff trace.");
+        string actual = $"82E6A2,{runtime.Samus!.YPosition:X4},{runtime.Camera!.YPosition:X4}," +
+            $"{runtime.BackgroundScroll.Bg1VerticalScroll:X4},{(ushort)runtime.Enemies.ElevatorStatus:X4}," +
+            $"{runtime.Enemies.ElevatorFlags:X4}";
+        if (actual != rows[^1])
+            throw new InvalidDataException($"Elevator handoff differs.\nNative: {rows[^1]}\nManaged: {actual}");
+        Console.WriteLine("Native loading/placement endpoint matches Samus, camera, BG1 register and elevator status/flags.");
+    }
+
     public static void InspectTerrain(SuperMetroidRuntime runtime, LayeredRenderSnapshot packet, int x, int y)
     {
         var r = ((OrdinaryGameplayRenderLayer)packet.Layers[0]).Registers;

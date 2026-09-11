@@ -226,3 +226,34 @@ scheduling, or every pixel in the second failing frame. The 36-difference scene
 assertion remains failing and the issue stays open. No speculative production
 change was made; the Release build and terrain correspondence assertion pass.
 The native patch was reversed, and captures/output CSV remain local.
+
+## Original upward-door loading and placement endpoint
+
+`--diagnostic-elevator-handoff ROM OUTPUT.csv` now starts from the actual
+Green Brinstar departure boundary: Samus X=$0080/Y=$FFF8, camera (0,0), elevator
+flags=1/status=1/direction=$8000. It executes the original header loader,
+upward-door fixup, room setup, scrolling setup, Samus placement, remaining
+room/enemy/PLM loading, and final transition handler. It runs the actual
+directional scroll dispatcher through its final camera snap rather than
+assigning that endpoint by hand.
+
+The last native row is:
+
+```text
+stage,samusY,cameraY,bg1Y,elevatorStatus,elevatorFlags
+82E6A2,0126,0020,FF1F,0002,0080
+```
+
+The real managed route matches all five values, including the pre-snap BG1
+register `$FF1F` rather than an assumed `$FF20`. Its displayed BG1 register at
+this boundary is also `$FF1F`. Pass the native CSV as an optional final argument
+to `--green-elevator-top-edge-audit` to assert this endpoint before continuing
+through arrival and the independent pixel check.
+
+This is a **stage/register-lifetime** experiment. The reused bounded CPU runner
+services vblank polling and clears transfer-wait flags; it is not a real-time
+PPU/DMA/IRQ schedule or rendered original-cartridge playthrough. The comparison
+rules out these placement/scroll/status endpoint discrepancies, not every
+intermediate displayed frame. The build and endpoint assertion pass; the
+overall Green Brinstar visual assertion still fails with 36 pixel-frame
+differences. No production change, closure or player-validation claim is made.

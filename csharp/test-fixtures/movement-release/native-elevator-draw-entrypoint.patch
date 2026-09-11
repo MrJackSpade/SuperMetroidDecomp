@@ -19,7 +19,7 @@ diff --git a/src/main.c b/src/main.c
    fprintf(stderr, "Warning: %s\n", error);
  }
  
-@@ -313,6 +314,26 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+@@ -313,6 +314,31 @@ static const struct RendererFuncs kSdlRendererFuncs = {
  
  #undef main
  int main(int argc, char** argv) {
@@ -42,6 +42,11 @@ diff --git a/src/main.c b/src/main.c
 +    elevator_draw_headless = true;
 +    extern int DiagnosticElevatorRoomAssets(const char *, const char *);
 +    return DiagnosticElevatorRoomAssets(argv[2], argv[3]);
++  }
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-elevator-handoff") == 0) {
++    elevator_draw_headless = true;
++    extern int DiagnosticElevatorHandoff(const char *, const char *);
++    return DiagnosticElevatorHandoff(argv[2], argv[3]);
 +  }
  #ifdef __SWITCH__
    SwitchImpl_Init();

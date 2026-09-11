@@ -50,9 +50,10 @@ internal static class IntroSamusDemoMovement
         }
 
         byte poseAtFrameStart = samus.Pose;
+        GroundedMovementResult movement;
         if (SamusState.IsLeftFacingRunningPose(poseAtFrameStart))
         {
-            SamusGroundedMovement.StepRunningLeft(
+            movement = SamusGroundedMovement.StepRunningLeft(
                 bus,
                 level,
                 samus,
@@ -61,7 +62,7 @@ internal static class IntroSamusDemoMovement
         }
         else if (SamusState.IsLeftFacingStandingPose(poseAtFrameStart))
         {
-            SamusGroundedMovement.StepStandingLeft(bus, level, samus, nmiFrameCounter);
+            movement = SamusGroundedMovement.StepStandingLeft(bus, level, samus, nmiFrameCounter);
         }
         else
         {
@@ -72,6 +73,21 @@ internal static class IntroSamusDemoMovement
         }
 
         samus.AnimateNoFx(bus, heldInput, nmiFrameCounter);
+
+        // Native pose commit probes a proposed run before installing it. The clear
+        // probe retains its movement; this is shared gameplay behavior, not cosmetic
+        // alignment. No-input running fallbacks use the same prospective slot.
+        byte? candidate = prospective is { } proposed
+            ? checked((byte)proposed.ProspectivePose)
+            : fallback is { } retained ? checked((byte)retained) : null;
+        byte? wallPose = samus.CheckProspectiveRunningPoseForWall(bus, level, candidate,
+            movement.Horizontal.Collided, out _);
+        if (wallPose is { } stoppedPose)
+        {
+            samus.ApplyRanIntoWallPoseChange(bus, stoppedPose);
+            samus.CommitPoseHistory(bus);
+            return;
+        }
 
         if (prospective is { } transition)
         {

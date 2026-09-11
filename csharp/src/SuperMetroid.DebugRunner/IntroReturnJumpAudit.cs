@@ -8,7 +8,7 @@ using SuperMetroid.Core.Input;
 /// <summary>Captures the scripted return jump after the real intro Rinka hit.</summary>
 internal static class IntroReturnJumpAudit
 {
-    public static int Run(string romPath, string outputDirectory)
+    public static int Run(string romPath, string outputDirectory, string? nativeCsv = null)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var intro = new IntroCinematicState(bus);
@@ -29,6 +29,7 @@ internal static class IntroReturnJumpAudit
         var spinFrames = new HashSet<ushort>();
         var landingFrames = new HashSet<ushort>();
         int jumpY = 0;
+        var comparison = new Dictionary<int, string>();
         for (int frame = 0; frame < 800; frame++)
         {
             intro.Step(0);
@@ -38,6 +39,7 @@ internal static class IntroReturnJumpAudit
             var samus = (SamusState?)samusField.GetValue(intro);
             var demo = (DemoInputState?)demoField.GetValue(intro);
             if (samus is null || demo is null) continue;
+            comparison[frame] = $"{demo.Held:X4},{samus.Pose:X2},{samus.XPosition},{samus.YPosition},{samus.AnimationFrame},{samus.AnimationFrameTimer}";
             hit |= samus.KnockbackActive;
             if (hit && !jumpRequested && (demo.NewlyPressed & (ushort)SnesButton.A) != 0)
             {
@@ -68,6 +70,23 @@ internal static class IntroReturnJumpAudit
         if (!hit || !jumpRequested || !roseAfterJump || !descended || !landed || !stoodAfterLanding ||
             spinFrames.Count < 2 || landingFrames.Count < 2)
             throw new InvalidDataException("The actual intro demo requested a return jump without its upward trajectory.");
+        if (nativeCsv is not null)
+        {
+            int compared = 0;
+            foreach (string row in File.ReadLines(nativeCsv).Skip(1))
+            {
+                int comma = row.IndexOf(',');
+                int nativeFrame = int.Parse(row.AsSpan(0, comma));
+                // Native starts from a constructed post-hit standing animation. The
+                // first run transition initializes matching animation state independently.
+                if (nativeFrame == 0) continue;
+                if (!comparison.TryGetValue(nativeFrame + 250, out string? actual) || actual != row[(comma + 1)..])
+                    throw new InvalidDataException($"Native return frame {nativeFrame}: {row[(comma + 1)..]}, port {actual}.");
+                compared++;
+            }
+            if (compared != 79) throw new InvalidDataException($"Expected 79 native comparison frames, got {compared}.");
+            Console.WriteLine("79 original-CPU frames match input, pose, X/Y, animation frame and timer exactly.");
+        }
         return 0;
     }
 }

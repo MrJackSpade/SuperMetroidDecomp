@@ -567,8 +567,8 @@ if (args.Length == 3 && args[0] == "--zebes-ship-visibility-audit")
 if (args.Length == 3 && args[0] == "--intro-hurt-palette-audit")
     return IntroHurtPaletteAudit.Run(args[1], args[2]);
 
-if (args.Length == 3 && args[0] == "--intro-return-jump-audit")
-    return IntroReturnJumpAudit.Run(args[1], args[2]);
+if (args.Length is 3 or 4 && args[0] == "--intro-return-jump-audit")
+    return IntroReturnJumpAudit.Run(args[1], args[2], args.Length == 4 ? args[3] : null);
 
 if (args.Length >= 3 && args[0] == "--ceres-destruction-audit")
 {

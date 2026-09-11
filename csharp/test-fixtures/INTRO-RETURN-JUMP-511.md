@@ -94,3 +94,27 @@ position and horizontal-speed columns to the port trace: at frame 250 its X is
 explanation. Native setup/history and first-frame transition behavior still need
 comparison before deciding whether this is a fixture or production defect. No
 compensating offset was added. Keep #511 open pending that work.
+
+## Native comparison completed
+
+Stage checkpoints localized the missing pixel to native pose commit: X remained
+204.0000 after alpha and after movement, then became 203.0000 during UpdateSamusPose.
+That routine calls $91:EADE, the prospective-running wall check. Its unobstructed
+one-pixel movement is retained by the cartridge. Gameplay already implements it as
+`CheckProspectiveRunningPoseForWall`; the shared intro coordinator omitted the call.
+The coordinator now runs that same collision-aware probe before installing the
+prospective/fallback pose and honors its blocked-pose result. No offset workaround.
+
+Add the native CSV as a fourth argument to the return-jump audit. It asserts exact
+input, pose, X, Y, animation frame and animation timer agreement for all 79 native
+frames from first run input through final standing. The initial constructed native
+standing frame is excluded because its animation timer was seeded rather than
+reproduced from the earlier Rinka hit. The first run transition initializes matching
+animation state independently. All 79 frames now match; previously X differed on
+every one. Native/port landing is (148,115), with spin at relative frame 9, landing
+at 44, and standing at 54. Ascent/descent/landing captures remain local.
+
+Full Verification, the real-hit palette audit, and Windows Release build pass.
+Temporary native instrumentation and entrypoint edits were removed. This verifies
+the return sequence against original CPU execution, not the complete prior Rinka
+history or an emulator-video pixel comparison. #511 is ready for player validation.

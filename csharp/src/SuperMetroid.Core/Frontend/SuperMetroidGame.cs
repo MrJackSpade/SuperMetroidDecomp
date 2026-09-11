@@ -614,7 +614,7 @@ public sealed partial class SuperMetroidGame
                         // Menu construction consumes only save/map data. A dead runtime
                         // must not keep publishing gameplay audio during map selection.
                         runtime = null;
-                        fileSelectMap = new FileSelectMapMenuState(bus, audio, mapSlot, controllerInput);
+                        fileSelectMap = new FileSelectMapMenuState(bus, audio, mapSlot, controllerInput, mapPresentation);
                     }
                     else fileSelectMap.Step(controllerInput);
                     PublishFileMap(fileSelectMap);

@@ -35,7 +35,7 @@ public sealed partial class FileSelectMapMenuState
     private byte brightness = 15;
 
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
-        SuperMetroidSaveSlot slot, ushort initialHeldInput)
+        SuperMetroidSaveSlot slot, ushort initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
@@ -54,7 +54,7 @@ public sealed partial class FileSelectMapMenuState
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
         areaGraphics = new FileSelectAreaMapGraphics(bus, area);
-        roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea);
+        roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
             (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
@@ -68,6 +68,9 @@ public sealed partial class FileSelectMapMenuState
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
     public bool LoadRequested { get; private set; }
     public bool OptionsRequested { get; private set; }
+
+    /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog) => roomGraphics.BindMapPresentation(catalog);
 
     public void Step(ushort input)
     {

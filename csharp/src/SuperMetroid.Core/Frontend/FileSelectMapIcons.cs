@@ -7,6 +7,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
 public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState system, AreaId area)
 {
+    // Reuse the saved exploration owner already retained by these icons. Adding
+    // another serialized owner to the menu would invalidate older debugger graphs.
+    internal Bank80SystemState MapSystem => system;
+    internal AreaId MapArea => area;
+
     /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
     public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
     {

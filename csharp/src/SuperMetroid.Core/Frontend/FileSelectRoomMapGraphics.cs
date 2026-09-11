@@ -18,7 +18,7 @@ public sealed partial class FileSelectRoomMapGraphics
     public SnesCgram Cgram => ppu.Cgram;
 
     public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
-        MapRevealMode revealMode = MapRevealMode.None)
+        MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
@@ -31,7 +31,7 @@ public sealed partial class FileSelectRoomMapGraphics
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
-            AreaMapTilemapBuilder.Build(AreaMapRomData.Load(bus, area), system, hidden, revealMode));
+            AreaMapTilemapBuilder.Build(mapPresentation?.Get(area) ?? AreaMapRomData.Load(bus, area), system, hidden, revealMode));
 
         var frame = new byte[FileSelectMapRomData.TilemapBytes];
         RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrame, 1600).CopyTo(frame, 0);
@@ -45,6 +45,17 @@ public sealed partial class FileSelectRoomMapGraphics
                 (ushort)(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (label + word * 2))
                     & FileSelectMapRomData.RoomLabelMask));
         ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
+    }
+
+    /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        var system = icons.MapSystem;
+        var area = icons.MapArea;
+        MapTileWord hidden = system.HasAreaMap(area)
+            ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
+        ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
+            AreaMapTilemapBuilder.Build(catalog?.Get(area) ?? AreaMapRomData.Load(bus, area), system, hidden));
     }
 
     /// <summary>BG2-only endpoint of $81:AC2D; room-map cells are not installed until $81:AD17.</summary>

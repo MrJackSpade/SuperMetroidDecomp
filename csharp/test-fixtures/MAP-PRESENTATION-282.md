@@ -101,3 +101,23 @@ not yet a full paused-game state round trip or on-device Android launch test.
 The earlier note that no normal gameplay consumed the catalog is superseded for
 minimap/pause only. File-select room-map injection, compiled rules, PNG artwork,
 other presentation assets and full installation/state compatibility coverage remain.
+
+## File-select room-map presentation binding
+
+The normal frontend now passes the installed catalog into the file-select room
+map graphics. Host rebinding also refreshes that menu's BG1 from the current
+catalog after debugger restoration. The saved exploration owner is reused from
+the existing icon object: no serialized fields or delegate closure shapes were
+changed, and no external catalog is captured in the menu graph. Area selection,
+scroll position, windows and animation timers are not restarted by rebinding.
+This menu uses normal saved exploration, not the diagnostic map-reveal override.
+
+Focused coverage compares exact stock-rendered pixels, rejects map-ROM accesses
+while constructing/rebinding room graphics, verifies all edited BG1 words and
+round-trips the graphics object through the debugger serializer before rebinding
+different content. This is graphics-state coverage, not a full file-select menu
+recording or historical binary state migration test.
+
+File-select scroll bounds still use the original ROM rule loader. PNG artwork,
+compiled rule definitions and other map presentation resources remain unfinished;
+this slice must not be described as complete runtime ROM independence.

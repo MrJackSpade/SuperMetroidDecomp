@@ -102,6 +102,8 @@ internal static partial class Program
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
         document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
+        int visibleCell = Enumerable.Range(0, document.Cells.Length).First(i => rules[AreaId.Crateria].IsDiscoverable(i % 64, i / 64));
+        document.Cells[visibleCell] = document.Cells[visibleCell] with { Palette = (document.Cells[visibleCell].Palette + 1) % 8 };
         string replacement = Path.Combine(overrides, name);
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
         byte[] editedBytes = File.ReadAllBytes(replacement);
@@ -154,7 +156,35 @@ internal static partial class Program
         AssertEqual(x, pause.MapHorizontalScroll, "pause content rebind retains horizontal scroll");
         AssertEqual(y, pause.MapVerticalScroll, "pause content rebind retains vertical scroll");
         _ = pause.Render();
+        VerifyFileSelectMapCatalog(bus, guard, original, edited);
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
+    }
+
+    private static void VerifyFileSelectMapCatalog(ISnesAddressSpace bus, ISnesAddressSpace guard,
+        AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+    {
+        var system = new Bank80SystemState();
+        system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
+        var stock = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(bus, system, AreaId.Crateria);
+        var installed = new SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics(guard, system, AreaId.Crateria,
+            mapPresentation: original);
+        AssertTrue(stock.RenderBackgrounds(0, 0).AsSpan().SequenceEqual(installed.RenderBackgrounds(0, 0)),
+            "file-select installed stock renders identical pixels without map ROM reads");
+        installed.BindMapPresentation(edited);
+        byte[] expected = AreaMapTilemapBuilder.Build(edited.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank);
+        byte[] unchanged = AreaMapTilemapBuilder.Build(original.Get(AreaId.Crateria), system, MapTileWords.FileSelectUndownloadedBlank);
+        AssertTrue(!expected.AsSpan().SequenceEqual(unchanged), "override changes a visible file-select cell");
+        for (int i = 0; i < expected.Length / 2; i++)
+            AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(expected.AsSpan(i * 2)),
+                installed.Vram.ReadWord(SuperMetroid.Core.Frontend.MenuPpuState.Bg1TilemapWord + i), "file-select rebind writes exact edited tilemap");
+        using var snapshot = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, installed);
+        snapshot.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.FileSelectRoomMapGraphics>(snapshot);
+        restored.BindMapPresentation(original);
+        AssertTrue(stock.RenderBackgrounds(0, 0).AsSpan().SequenceEqual(restored.RenderBackgrounds(0, 0)),
+            "restored file-select graphics accept current stock without stale override pixels");
+        Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
     private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) : ISnesAddressSpace

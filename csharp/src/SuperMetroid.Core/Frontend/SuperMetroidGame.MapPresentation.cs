@@ -16,5 +16,6 @@ public sealed partial class SuperMetroidGame
         mapPresentation = catalog;
         if (runtime is not null) runtime.MapPresentation = catalog;
         pauseMenu?.BindMapPresentation(catalog);
+        fileSelectMap?.BindMapPresentation(catalog);
     }
 }

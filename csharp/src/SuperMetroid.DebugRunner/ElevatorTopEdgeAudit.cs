@@ -11,8 +11,13 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Captures #516's actual upward ride, not a fabricated pending door.</summary>
 internal static class ElevatorTopEdgeAudit
 {
-    public static int Run(string rom, string directory)
+    public static int Run(string rom, string directory, string? nativeArrivalCsv = null)
     {
+        string[]? nativeArrival = nativeArrivalCsv is null ? null : File.ReadAllLines(nativeArrivalCsv);
+        const int nativeArrivalFrames = 100;
+        if (nativeArrival is not null && (nativeArrival.Length != nativeArrivalFrames + 1 ||
+            nativeArrival[0] != "frame,samusY,cameraY,cameraSubY,status"))
+            throw new InvalidDataException("Incomplete or unrecognized original-CPU elevator arrival trace.");
         Directory.CreateDirectory(directory);
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
@@ -60,6 +65,16 @@ internal static class ElevatorTopEdgeAudit
             // StepFrame owns the accepted NMI, just as in SuperMetroidGame.
             // A second NMI uploads next-frame OAM early and defeats elevator flicker.
             runtime.StepFrame(0);
+            if (nativeArrival is not null && i < nativeArrivalFrames)
+            {
+                string actual = $"{i},{samus.YPosition},{runtime.Camera!.YPosition}," +
+                    $"{runtime.Camera.YSubposition},{(ushort)runtime.Enemies.ElevatorStatus}";
+                if (actual != nativeArrival[i + 1])
+                    throw new InvalidDataException($"Elevator arrival differs at frame {i}.\n" +
+                        $"Native: {nativeArrival[i + 1]}\nManaged: {actual}");
+                if (i == nativeArrivalFrames - 1)
+                    Console.WriteLine($"Original-CPU arrival: {nativeArrivalFrames} frames match Samus Y, camera Y/subY and elevator status.");
+            }
             Capture("Arrival");
             if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive) settled++;
         }

@@ -125,3 +125,34 @@ Local trace: `csharp/test-temp/elevator-native-draw-516-v1.csv`, SHA-256
 The trace and screenshots are not published. Source, comparison tooling and
 these numerical findings are committed. Release build and all 663 comparisons
 pass; no production change or player-validation claim is made here.
+
+## Original CPU arrival-camera comparison
+
+The same headless entrypoint also accepts `--diagnostic-elevator-arrival ROM
+OUTPUT.csv`. It seeds the destination's one-screen room, blue scroll cell,
+native scroller offsets and elevator population values, then executes retail
+`Elevator_Init`, followed by 100 calls to the elevator state dispatcher and
+`MainScrollingRoutine`. Initial camera Y=32 is the observed end-of-door value;
+this probe does not independently establish the preceding door coroutine.
+
+Pass its output as the optional fourth argument to `--elevator-top-edge-audit`:
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --elevator-top-edge-audit 'Super Metroid.smc' csharp/test-temp/elevator-arrival `
+  csharp/test-temp/elevator-native-arrival-516-v1.csv
+```
+
+All **100 arrival frames** match the actual managed room route for Samus Y,
+camera Y, fractional camera Y, and elevator status. Native camera Y follows
+32 -> 30 -> 28 -> ... -> 0, including the two frames with the residual pixel.
+This eliminates an arrival actor/camera arithmetic mismatch for this initial
+state; it does not establish scene composition, tile DMA, or IRQ/display timing.
+The scene assertion still fails with two pixel-frame differences at (130,32),
+and the overall command intentionally exits nonzero after reporting the passing
+camera comparison. Do not describe that overall run as a passing visual test.
+
+Local native arrival trace SHA-256:
+`0EA0825420B282DF23F4EAEF22353D108224057BE0628A6B557295463B9AFFB5`.
+The temporary native entrypoint patch was reversed after the bounded probe;
+no screenshots, ROM data or generated trace were committed.

@@ -90,7 +90,7 @@ public sealed partial class RoomEnemySystem
         state.GoopProjectilesSpawned++;
     }
 
-    private void SetDraygonProjectileVelocity(
+    private static void SetDraygonProjectileVelocity(
         RoomEnemyProjectileSlot projectile,
         byte angle,
         ushort speed)

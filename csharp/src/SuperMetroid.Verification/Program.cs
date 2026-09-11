@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--compiled-enemy-sine"])
+{
+    VerifyCompiledEnemyTrigonometry();
+    return 0;
+}
 if (args is ["--stock-attract-scenes"])
 {
     VerifyStockAttractScenes();
@@ -803,6 +808,7 @@ VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
+VerifyCompiledEnemyTrigonometry();
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();
 VerifyRipperEnemy(verifyXrayTimers: true);

@@ -203,7 +203,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void MoveDraygonAtMovementAngle(RoomEnemySlot body, byte movementAngle, ushort speed)
+    private static void MoveDraygonAtMovementAngle(RoomEnemySlot body, byte movementAngle, ushort speed)
     {
         uint xMagnitude = unchecked((uint)ReadUnsignedSineMagnitudeProduct(
             movementAngle,

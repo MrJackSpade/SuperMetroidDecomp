@@ -137,8 +137,6 @@ public sealed partial class RoomEnemySystem
 
     private const int SbugInstructionPointerTable = 0xa3a111;
     private const int SbugActivationFunctionTable = 0xa3a121;
-    private const int EightBitSineTable = 0xa0b143;
-    private const int QuarterCircleEquationTable = 0xa0b7ee;
     private const ushort SbugRandomSeed = 0x000b;
     private const ushort SbugMovementSegmentFrames = 0x0020;
     private const ushort SbugLongRandomLifetime = 0x0200;
@@ -494,7 +492,7 @@ public sealed partial class RoomEnemySystem
             unchecked((ushort)fixedPosition));
     }
 
-    private SbugVelocityWords CalculateUnsignedSbugMagnitude(
+    private static SbugVelocityWords CalculateUnsignedSbugMagnitude(
         byte angle,
         byte speed,
         int phase)
@@ -503,15 +501,13 @@ public sealed partial class RoomEnemySystem
         // then performs a complete 16x16->32 multiplication. Population speed is a byte,
         // but retaining uint arithmetic documents the actual width of the result.
         int tableIndex = (angle + phase) & 0x7f;
-        uint product = (uint)ReadWord(
-            _bus!,
-            QuarterCircleEquationTable + tableIndex * 2) * speed;
+        uint product = (uint)EnemyTrigonometryTables.UnsignedHalfWave[tableIndex] * speed;
         return new SbugVelocityWords(
             unchecked((ushort)(product >> 16)),
             unchecked((ushort)product));
     }
 
-    private void CalculateSignedSbugVelocities(
+    private static void CalculateSignedSbugVelocities(
         byte angle,
         byte speed,
         out SbugVelocityWords xVelocity,
@@ -521,13 +517,13 @@ public sealed partial class RoomEnemySystem
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x80);
     }
 
-    private SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
+    private static SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
         // (when negative) negates those words independently. Recreate the operations rather
         // than using floating point or Math.Sin, both of which erase its rounding bug.
         byte tableAngle = unchecked((byte)(angle + phase));
-        int sineMagnitude = _bus!.ReadByte(EightBitSineTable + (tableAngle & 0x7f));
+        int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave[tableAngle & 0x7f];
         ushort product = unchecked((ushort)(sineMagnitude * speed));
         ushort pixel = unchecked((ushort)(product >> 8));
         ushort subpixel = unchecked((ushort)(product << 8));

@@ -280,7 +280,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports $A8:A235, including the deliberately approximate distance helper.</summary>
-    private void WaitForSamusWithYappingMaw(
+    private static void WaitForSamusWithYappingMaw(
         RoomEnemySlot slot,
         YappingMawEnemyState state,
         SamusState samus)
@@ -625,7 +625,7 @@ public sealed partial class RoomEnemySystem
         unchecked((short)(cameraY + 256 - slot.YPosition)) < 0;
 
     /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
-    private (ushort Distance, ushort Angle) CalculateYappingMawTarget(
+    private static (ushort Distance, ushort Angle) CalculateYappingMawTarget(
         ushort originX,
         ushort originY,
         ushort samusX,

@@ -129,7 +129,7 @@ public sealed partial class RoomEnemySystem
     /// Recreates $A0:B643's unsigned |cos|/|sin| products. Only parameter two's low byte is
     /// copied into the native magnitude word; its high byte is intentionally ignored.
     /// </summary>
-    private void CalculateMultiviolaVelocityMagnitudes(
+    private static void CalculateMultiviolaVelocityMagnitudes(
         RoomEnemySlot slot,
         MultiviolaEnemyState state)
     {

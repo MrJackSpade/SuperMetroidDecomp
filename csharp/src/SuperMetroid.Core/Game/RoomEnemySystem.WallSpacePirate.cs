@@ -174,7 +174,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_PirateWall</c> and its six function targets.</summary>
-    private void RunWallSpacePirateMain(
+    private static void RunWallSpacePirateMain(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
         SamusState? samus)
@@ -214,7 +214,7 @@ public sealed partial class RoomEnemySystem
             "Wall Space Pirate detection requires the active Samus position.");
     }
 
-    private void StepWallSpacePirateJumpRight(
+    private static void StepWallSpacePirateJumpRight(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {
@@ -228,7 +228,7 @@ public sealed partial class RoomEnemySystem
         SnapWallSpacePirateXToTile(slot);
     }
 
-    private void StepWallSpacePirateJumpLeft(
+    private static void StepWallSpacePirateJumpLeft(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {
@@ -242,7 +242,7 @@ public sealed partial class RoomEnemySystem
         SnapWallSpacePirateXToTile(slot);
     }
 
-    private void PositionWallSpacePirateOnArc(
+    private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
     {

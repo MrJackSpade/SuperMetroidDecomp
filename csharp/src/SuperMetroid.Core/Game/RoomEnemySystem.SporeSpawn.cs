@@ -272,7 +272,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>SporeSpawn_Func_3</c> at $A5:EB9B.</summary>
-    private void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
+    private static void SetupSporeSpawnDeathVelocity(RoomEnemySlot body, SporeSpawnEnemyState state)
     {
         byte direction = unchecked((byte)(64 - CalculateCartridgeAngle(
             unchecked((short)(SporeSpawnDeathCenterX - body.XPosition)),

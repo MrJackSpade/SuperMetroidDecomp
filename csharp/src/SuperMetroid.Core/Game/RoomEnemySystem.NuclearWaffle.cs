@@ -415,7 +415,7 @@ public sealed partial class RoomEnemySystem
             LastNuclearWaffleSoundEffect = NuclearWaffleTurnSoundEffect;
     }
 
-    private void PositionNuclearWaffleHead(
+    private static void PositionNuclearWaffleHead(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state,
         ushort angle)

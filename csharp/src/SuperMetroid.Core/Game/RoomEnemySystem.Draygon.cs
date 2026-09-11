@@ -726,7 +726,7 @@ public sealed partial class RoomEnemySystem
         state.Body.YPosition = 0xffb0;
     }
 
-    private void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
+    private static void MoveDraygonAlongGoopPath(DraygonEnemyState state, bool movingRight)
     {
         state.Body.YPosition = unchecked((ushort)(
             0x0180 + ReadEightBitCosineProduct(state.GoopYOscillationAngle, 0x0020)));

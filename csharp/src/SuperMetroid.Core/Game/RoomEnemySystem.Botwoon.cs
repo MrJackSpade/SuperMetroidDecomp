@@ -894,7 +894,7 @@ public sealed partial class RoomEnemySystem
         head.Properties = head.Properties.With(EnemyProperties.SolidToSamus);
     }
 
-    private void AddBotwoonAngleVector(
+    private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
         byte angle,
         ushort magnitude)

@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
     /// Ports <c>$A5:8F1E</c>: fly the grabbed pair toward the authored spiral center, then
     /// install the facing-specific roar before the expanding orbit begins.
     /// </summary>
-    private void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
+    private static void CarrySamusToDraygonSpiral(DraygonEnemyState state, SamusState? samus)
     {
         SamusState activeSamus = RequireDraygonGrabbedSamus(samus);
         if (IsDraygonGrappleConnected(activeSamus))
@@ -312,7 +312,7 @@ public sealed partial class RoomEnemySystem
     /// Implements the shared <c>ConvertAngleToXy</c> plus
     /// <c>MoveEnemyAccordingToAngleAndXYSpeeds</c> pair used by chase and carry.
     /// </summary>
-    private void MoveDraygonToward(
+    private static void MoveDraygonToward(
         RoomEnemySlot body,
         ushort targetX,
         ushort targetY,

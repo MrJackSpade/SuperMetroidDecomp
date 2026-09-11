@@ -10,8 +10,6 @@ public sealed partial class RoomEnemySystem
 {
     private const int LinearEnemySpeedTable = 0xa08187;
     private const int QuadraticEnemySpeedTable = 0xa0838f;
-    private const int SharedEightBitSineTable = 0xa0b143;
-    private const int SharedUnsignedSineTable = 0xa0b7ee;
 
     /// <summary>
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
@@ -128,22 +126,22 @@ public sealed partial class RoomEnemySystem
     /// <c>-floor(product / 256)</c> therefore preserves its documented negative-fraction bug;
     /// <c>Math.Sin</c> or a normal fixed-point negation would disagree by one pixel.
     /// </summary>
-    private int ReadEightBitSineProduct(ushort angle, ushort radius)
+    private static int ReadEightBitSineProduct(ushort angle, ushort radius)
     {
         int byteAngle = angle & 0xff;
-        int sample = _bus!.ReadByte(SharedEightBitSineTable + (byteAngle & 0x7f));
+        int sample = EnemyTrigonometryTables.EightBitHalfWave[byteAngle & 0x7f];
         int magnitude = sample * (radius & 0xff) >> 8;
         return byteAngle < 0x80 ? magnitude : -magnitude;
     }
 
     /// <summary>Ports <c>EightBitCosineMultiplication</c> at $A0:B0B2.</summary>
-    private int ReadEightBitCosineProduct(ushort angle, ushort radius) =>
+    private static int ReadEightBitCosineProduct(ushort angle, ushort radius) =>
         ReadEightBitSineProduct(
             unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
             radius);
 
     /// <summary>Ports <c>EightBitNegativeSineMultiplication</c> at $A0:B0C6.</summary>
-    private int ReadEightBitNegativeSineProduct(ushort angle, ushort radius) =>
+    private static int ReadEightBitNegativeSineProduct(ushort angle, ushort radius) =>
         ReadEightBitSineProduct(
             unchecked((ushort)(angle + SnesAngle.HalfTurn.TableIndex)),
             radius);
@@ -153,12 +151,12 @@ public sealed partial class RoomEnemySystem
     /// multiplier, including its independent whole/fraction negation bug. Evir needs both
     /// words for projectile motion; callers that only need pixels use the helpers above.
     /// </summary>
-    private (short Whole, ushort Fraction) ReadEightBitSineFixedProduct(
+    private static (short Whole, ushort Fraction) ReadEightBitSineFixedProduct(
         ushort angle,
         ushort radius)
     {
         int byteAngle = angle & 0xff;
-        int sample = _bus!.ReadByte(SharedEightBitSineTable + (byteAngle & 0x7f));
+        int sample = EnemyTrigonometryTables.EightBitHalfWave[byteAngle & 0x7f];
         ushort product = unchecked((ushort)(sample * (radius & 0xff)));
         ushort whole = unchecked((ushort)(product >> 8));
         ushort fraction = unchecked((ushort)(product << 8));
@@ -172,14 +170,14 @@ public sealed partial class RoomEnemySystem
         return (unchecked((short)whole), fraction);
     }
 
-    private (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
+    private static (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
         ReadEightBitSineFixedProduct(
             unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
             radius);
 
-    private (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
+    private static (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>
         ReadEightBitSineFixedProduct(
@@ -194,13 +192,13 @@ public sealed partial class RoomEnemySystem
     /// Keeping this table-backed avoids host floating-point rounding and makes the raw
     /// velocity words directly comparable with the SNES multiplication result.
     /// </summary>
-    private int ReadUnsignedSineMagnitudeProduct(
+    private static int ReadUnsignedSineMagnitudeProduct(
         ushort angle,
         ushort magnitude,
         ushort angleOffset)
     {
         int tableIndex = unchecked((ushort)(angle + angleOffset)) & 0x007f;
-        ushort sample = ReadWord(_bus!, SharedUnsignedSineTable + tableIndex * 2);
+        ushort sample = EnemyTrigonometryTables.UnsignedHalfWave[tableIndex];
         uint product = (uint)sample * magnitude;
         return unchecked((int)product);
     }

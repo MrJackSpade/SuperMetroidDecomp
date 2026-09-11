@@ -5,8 +5,8 @@ namespace SuperMetroid.Core.Runtime;
 
 public sealed partial class SuperMetroidRuntime
 {
-    // Retain the remaining beam/boss hit publication after EnemyMain. Phantoon
-    // beams and ordinary bombs now dispatch per enemy before AI, never again here.
+    // Only the remaining dedicated Ceres/Kraid adapters publish here. Ordinary
+    // shots, Phantoon beams and bombs dispatch per enemy before AI, never again here.
     private void ResolveUpdatedBeamHits()
     {
         Enemies.ResolveCeresRidleyProjectileHits(
@@ -17,11 +17,6 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             Projectiles,
             BombProjectiles);
-        Enemies.ResolveOrdinaryProjectileHits(
-            _addressSpace,
-            Projectiles,
-            BombProjectiles,
-            Samus);
     }
 
     // Terrain preparation owns the external movement words before alpha. Enemy

@@ -110,7 +110,7 @@ the room's supported surface, taps Left, and selects X-ray normally.
 
 Two traces hold Shoot for 90 frames and release at relative frame 296 or 304.
 After the first hit, each uses repeated 60-held/4-released Run cycles. Release
-296 hits once at frame 317. Release 304 hits at 317, 381, 445, 509 and 573:
+296 hits once at frame 318. Release 304 hits at 318, 382, 446, 510 and 574:
 3000 -> 2550 -> 2100 -> 1650 -> 1200 -> 750. Both spawn exactly one charged
 beam; Samus remains at 999 energy. The assertions check each 450-damage hit,
 the post-hit invincibility counter, retained beam family, and unchanged enemy
@@ -212,3 +212,35 @@ The full runtime also checks entry invincibility one: the frame decrements to
 zero but still rejects contact, preserving the cartridge's entry-value gate.
 The complete Verification suite, normal-firing Botwoon regressions and Windows
 Release build pass after the ordering change (build: zero warnings/errors).
+
+## Draygon and shared ordinary-shot dispatch
+
+The original-CPU Draygon release probe uses the real body header and extended
+map, a retained 450-damage charged Plasma shot, and entry invincibility zero/one.
+Original EnemyMain produces health/invincibility/flash 5550/16/11 or 6000/0/11,
+respectively. Its native shot callback increases swoop acceleration by eight
+only in the accepted case; both positions remain 128,128.
+
+`DebugRunner --draygon-plasma-release "Super Metroid.smc"` reproduced
+5550/16/12 through the full runtime before correction. The ordinary shot path
+had the same late publication problem as Phantoon. It now accepts a current
+native-slot parameter and runs before that actor's bombs/touch/AI, using the
+existing entry-invincibility gate. The old whole-list late publication is removed.
+This fixes shared dispatch, not a Draygon-specific timer adjustment.
+
+Two native captures agree, SHA-256
+`B10966384B016C372E0C81774D5D5288D6DAC81F73A98A34A1B2A20C62B687C0`.
+Regenerate with `native-xplasma-draygon-entrypoint.patch` and
+`sm.exe --diagnostic-xplasma-draygon "Super Metroid.smc" NEW.csv`.
+Both full-runtime boundary cases now match, including acceleration and position.
+Native hooks were removed and the ordinary executable rebuilt after capture.
+
+Botwoon's normally fired port regression now hits one frame later because shot
+collision samples the pre-AI head position rather than its newly moved position.
+The documented frames above are updated; one-hit/five-hit outcomes and damage
+remain unchanged. These are still port observations, not a claim that the full
+Botwoon trajectory has been compared to original CPU execution.
+
+After this shared change, the complete Verification suite, both Phantoon release
+and native comparison checks, both Botwoon input traces, and Windows Release
+build pass. Build output contains zero warnings and zero errors.

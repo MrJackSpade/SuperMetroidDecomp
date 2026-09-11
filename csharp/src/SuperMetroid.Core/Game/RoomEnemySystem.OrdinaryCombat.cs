@@ -651,11 +651,13 @@ public sealed partial class RoomEnemySystem
     /// Runs common normal-enemy shot AI for ordinary radius-based translated actors. One
     /// projectile may resolve per enemy per pass, matching the native collision-handler exit.
     /// </summary>
+    /// <param name="onlyNativeEnemyIndex">Current EnemyMain slot, or null for a standalone whole-population audit.</param>
     public int ResolveOrdinaryProjectileHits(
         ISnesAddressSpace bus,
         SamusProjectileSystem projectiles,
         SamusBombProjectileSystem sharedProjectiles,
-        SamusState? samus = null)
+        SamusState? samus = null,
+        ushort? onlyNativeEnemyIndex = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(projectiles);
@@ -665,6 +667,8 @@ public sealed partial class RoomEnemySystem
         int hitCount = 0;
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
         {
+            if (onlyNativeEnemyIndex.HasValue && nativeIndex != onlyNativeEnemyIndex.Value)
+                continue;
             RoomEnemySlot enemy = SlotFromNativeIndex(nativeIndex);
             bool isYard = enemy.EnemyDefinitionPointer == YardDefinition &&
                 enemy.Definition.ShotAiPointer == YardShotAi;

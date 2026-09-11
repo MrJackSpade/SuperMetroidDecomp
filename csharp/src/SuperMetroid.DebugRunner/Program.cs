@@ -92,6 +92,8 @@ if (args.Length == 2 && args[0] == "--phantoon-plasma-audit")
     return PhantoonPlasmaAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--phantoon-plasma-release")
     return PhantoonPlasmaAudit.RunRelease(args[1]);
+if (args.Length == 2 && args[0] == "--draygon-plasma-release")
+    return DraygonPlasmaAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--native-phantoon-plasma-audit")
     return PhantoonPlasmaAudit.RunNative(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--wave-phantoon-audit")

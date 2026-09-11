@@ -74,7 +74,7 @@ internal static partial class BotwoonAudit
                 }
                 if (firstHit < 0 && frame > shootAt + 100) break;
             }
-            int[] expected = shootAt == 296 ? [317] : [317, 381, 445, 509, 573];
+            int[] expected = shootAt == 296 ? [318] : [318, 382, 446, 510, 574];
             if (chargedSpawns != 1 || !hitFrames.SequenceEqual(expected) ||
                 head.Health != 3000 - expected.Length * 450 || samus.Health != 999)
                 throw new InvalidDataException($"Normal firing trace differs: release={shootAt}, spawns={chargedSpawns}, hits=[{string.Join(',', hitFrames)}].");

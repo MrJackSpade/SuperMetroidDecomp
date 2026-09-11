@@ -576,6 +576,9 @@ public sealed partial class RoomEnemySystem
                 if (slot.EnemyDefinitionPointer == PhantoonBodyDefinition &&
                     samusProjectiles is not null && sharedProjectiles is not null)
                     ResolvePhantoonProjectileHits(_bus!, samusProjectiles, sharedProjectiles);
+                if (samusProjectiles is not null && sharedProjectiles is not null)
+                    ResolveOrdinaryProjectileHits(_bus!, samusProjectiles, sharedProjectiles,
+                        samus, nativeIndex);
                 // Alpha already updated the bomb slots. Native EnemyMain checks
                 // them before this actor's touch and AI, so escape starts now.
                 if (sharedProjectiles is not null && samusProjectiles is not null)

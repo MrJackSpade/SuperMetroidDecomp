@@ -66,6 +66,7 @@ internal static partial class Program
                 }
             }
             Console.WriteLine("Map presentation: all 14,336 retail cell words round-trip exactly.");
+            VerifyMapPresentationCatalog(bus);
         }
         else Console.WriteLine("Map presentation: retail round-trip skipped; source ROM unavailable.");
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
@@ -84,5 +85,40 @@ internal static partial class Program
     {
         public byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected map ROM read {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected map bus write.");
+    }
+
+    private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
+    {
+        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "map-catalog-" + Guid.NewGuid().ToString("N")));
+        string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
+        var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => AreaMapRomData.Load(bus, area));
+        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance");
+        IAreaMapView Rules(AreaId area) => rules[area];
+        var original = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        var reopened = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        AssertEqual(original.ContentIdentity, reopened.ContentIdentity, "map catalog identity stable across reload");
+        Directory.CreateDirectory(overrides);
+        string name = AreaMapCatalogFormat.FileName(AreaId.Crateria);
+        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var document = JsonSerializer.Deserialize<MapPresentationDocument>(File.ReadAllText(Path.Combine(stock, name)), options)!;
+        document.Cells[0] = document.Cells[0] with { TileColumn = (document.Cells[0].TileColumn + 1) % MapPresentationFormat.AtlasColumns };
+        string replacement = Path.Combine(overrides, name);
+        File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
+        byte[] editedBytes = File.ReadAllBytes(replacement);
+        var edited = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
+        AssertTrue(edited.Get(AreaId.Crateria).GetTile(0, 0) != original.Get(AreaId.Crateria).GetTile(0, 0), "catalog prefers valid override");
+        SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
+        var afterRepair = AreaMapPresentationCatalog.Load(repaired, overrides, Rules);
+        AssertEqual(edited.ContentIdentity, afterRepair.ContentIdentity, "re-extracted stock preserves selected override");
+        AssertTrue(editedBytes.AsSpan().SequenceEqual(File.ReadAllBytes(replacement)), "stock extraction and reload never rewrite override bytes");
+        AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
+        File.WriteAllText(replacement, "{ broken JSON");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides, Rules), "corrupt override fails instead of selecting stock");
+        AssertEqual("{ broken JSON", File.ReadAllText(replacement), "invalid override retained for user repair");
+        File.WriteAllBytes(replacement, editedBytes);
+        File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
+        AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides, Rules), "stock integrity failure remains visible with override present");
+        Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 }

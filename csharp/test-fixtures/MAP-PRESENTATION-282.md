@@ -46,3 +46,30 @@ compiled exploration definitions; runtime injection across normal desktop and
 Android startup; map art/palettes/room-placement integration; restart/update/save
 and rendered replacement tests. No claim that ordinary game startup consumes
 user map files yet. Keep #282 open without awaiting-player-validation.
+
+## Stock installation and override catalog
+
+The shared desktop/Android `GameAssetInstaller` now extracts the seven semantic
+map JSON files to staged `game/maps` and checks their manifest hashes before
+publishing content. Existing installations without maps are incomplete and use
+the installer's existing stock rebuild transaction. Source ROMs and player data
+are not moved. Overrides belong in `<installation-root>/overrides/maps`, outside
+both `game` and its replacement/rollback directories.
+
+`AreaMapPresentationCatalog.Load` accepts the stock directory, optional override
+directory and application rule provider. Filenames are fixed lowercase area
+names (`crateria.json`, `wreckedship.json`, etc.), not manifest-supplied paths.
+It validates stock hashes, then loads each matching override in preference to
+stock. A malformed override throws with area/path context and is never erased or
+silently replaced. The complete selected catalog is immutable and receives a
+content hash distinct from stock provenance; explicit reload observes edits.
+Stock extraction exclusively creates files, refusing an existing target file.
+
+Tests run actual stock extraction twice into separate fresh directories, verify
+stable catalog identity, edit/reload an override, switch to re-extracted stock,
+and assert override bytes and selected identity survive. Corrupt stock/override
+and accidental importer overwrite fail loudly. These are real file operations
+in ignored test-temp directories, not a production installation replacement test.
+The full installer transaction, Android deployment and host game-constructor
+injection still require integration coverage. The normal game is not yet wired
+to consume the catalog; this commit advances installation/provider plumbing only.

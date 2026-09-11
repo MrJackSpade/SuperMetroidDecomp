@@ -1,5 +1,6 @@
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction;
@@ -72,6 +73,7 @@ public static class GameAssetInstaller
                 receipt.RomSha256 != SupportedCartridge.Sha256) return false;
             // This verifies hashes and opens every generated stream and waveform, not just the receipt.
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
+            AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
             return true;
         }
         catch (IOException) { return false; }
@@ -95,6 +97,11 @@ public static class GameAssetInstaller
             SpcAudioAssetExtractor.Extract(new SuperMetroidAddressSpace(rom), audio);
             cancellationToken.ThrowIfCancellationRequested();
             ExtractedAudioAssetCatalog.Load(audio);
+            progress?.Report("Extracting map presentation...");
+            string maps = Path.Combine(staging, GameInstallationLayout.MapDirectoryName);
+            MapPresentationExtractor.Extract(new SuperMetroidAddressSpace(rom), maps,
+                SupportedCartridge.Sha256, cancellationToken);
+            AreaMapPresentationCatalog.ValidateStock(maps);
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

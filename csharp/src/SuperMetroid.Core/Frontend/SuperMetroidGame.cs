@@ -410,6 +410,8 @@ public sealed partial class SuperMetroidGame
                 // StepFrame consumes the acknowledgement; checking IsActive afterward alone
                 // misses that final suspended frame.
                 bool messageBoxOwnedFrame = runtime!.MessageBox.IsActive;
+                bool mapStationMessageOwnedFrame = messageBoxOwnedFrame &&
+                    runtime.MessageBox.MessageId == GameplayMessageIds.MapDataAccessCompleted;
                 // Station command six installs an inert new-state handler before this
                 // frame. Retraction can restore normal input later in StepFrame, after the
                 // cartridge's Samus-handler call site has already passed pause-check.
@@ -434,8 +436,12 @@ public sealed partial class SuperMetroidGame
                     runtime.GameplayTimeFrozen = true;
                     GameState = SuperMetroidGameState.SamusEscapesFromZebes;
                 }
-                else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
+                else if ((mapStationMessageOwnedFrame && !runtime.MessageBox.IsActive) ||
+                    CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
                 {
+                    // Bank $85's message-close return explicitly selects state $0C
+                    // for map acquisition, independently of Start or station input lock.
+                    // Keep this separate from admission of a manual pause request.
                     // Samus_PauseCheck at `$90:EA45` executes during the already-completed
                     // state-eight frame. It initializes both fade counters and publishes
                     // state $0C; the following dispatcher call consumes the first delay.

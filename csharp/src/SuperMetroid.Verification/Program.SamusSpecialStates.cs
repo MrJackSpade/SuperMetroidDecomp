@@ -78,6 +78,7 @@ static void VerifySamusCrystalFlash()
         Missiles = 10,
         SuperMissiles = 10,
         PowerBombs = 10,
+        InvincibilityTimer = 96,
     };
     samus.RefreshCollisionRadii(bus);
 
@@ -87,6 +88,7 @@ static void VerifySamusCrystalFlash()
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord | (ushort)SnesButton.A),
         "Crystal Flash rejects extra held input");
+    AssertEqual(96, samus.InvincibilityTimer, "rejected Crystal Flash preserves hit immunity");
     samus.Kinematics.YSubspeed = 1;
     AssertTrue(!samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash rejects fractional vertical movement");
@@ -95,6 +97,7 @@ static void VerifySamusCrystalFlash()
         "rejected Crystal Flash must not shift history");
     AssertTrue(samus.CrystalFlash.TryBegin(bus, samus, chord),
         "Crystal Flash accepts exact chord and resources");
+    AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash activation clears native hit immunity");
     AssertEqual(SamusPoseIds.CrystalFlashRightPose, samus.Pose,
         "source direction selects right Crystal Flash pose");
     AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "Crystal Flash shifts previous pose");
@@ -138,16 +141,19 @@ static void VerifySamusCrystalFlash()
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.YPosition;
+    samus.InvincibilityTimer = 77;
     for (int frame = 0; frame < 9; frame++)
     {
         CrystalFlashMovementResult raise = samus.CrystalFlash.Step(bus, samus, (ushort)frame);
         AssertEqual(CrystalFlashPhase.Raising, raise.PhaseAfterStep,
             $"raise frame {frame} retains start handler");
+        AssertEqual(77, samus.InvincibilityTimer, "ordinary raise handler does not clear immunity");
         samus.AnimateNoFx(bus, chord);
     }
     AssertEqual((initialY - 18), samus.YPosition, "first nine raise calls move 18 pixels");
 
     CrystalFlashMovementResult raiseTransition = samus.CrystalFlash.Step(bus, samus, 9);
+    AssertEqual(0, samus.InvincibilityTimer, "raise completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.DrainingAmmo, raiseTransition.PhaseAfterStep,
         "tenth raise call installs ammo handler");
     AssertEqual((initialY - 20), samus.YPosition, "complete raise is 20 pixels");
@@ -203,11 +209,21 @@ static void VerifySamusCrystalFlash()
 
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
+    samus.InvincibilityTimer = 77;
+    samus.KnockbackTimer = 5;
     CrystalFlashMovementResult skipped = samus.CrystalFlash.Step(bus, samus, 15);
+    AssertEqual(0, samus.InvincibilityTimer, "non-draining main frame still clears hit immunity");
+    AssertEqual(0, samus.KnockbackTimer, "non-draining main frame still clears knockback timer");
     AssertTrue(!skipped.ConsumedAmmo && !skipped.RestoredEnergy,
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
+    {
+        samus.InvincibilityTimer = 77;
+        samus.KnockbackTimer = 5;
         samus.CrystalFlash.Step(bus, samus, unchecked((ushort)(drain * 8)));
+        AssertEqual(0, samus.InvincibilityTimer, "ammo-drain frame clears hit immunity, including final drain");
+        AssertEqual(0, samus.KnockbackTimer, "ammo-drain frame clears knockback timer");
+    }
 
     AssertEqual(0, samus.Missiles, "Crystal Flash consumes ten missiles");
     AssertEqual(0, samus.SuperMissiles, "Crystal Flash consumes ten supers");

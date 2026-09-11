@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crystal-flash"])
+{
+    VerifySamusCrystalFlash();
+    return 0;
+}
 if (args is ["--pcm-loop-entry"])
 {
     VerifyManagedDspUsesIndependentLoopEntry();

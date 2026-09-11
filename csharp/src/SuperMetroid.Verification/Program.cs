@@ -35,6 +35,11 @@ if (args is ["--reserve-auto-frontend"])
     VerifyReserveAutoFrontend();
     return 0;
 }
+if (args is ["--reserve-native-trace", var reserveTrace])
+{
+    VerifyReserveNativeTrace(reserveTrace);
+    return 0;
+}
 if (args is ["--pause-reserve-manual"])
 {
     VerifyPauseReserveManual();

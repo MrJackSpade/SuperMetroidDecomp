@@ -128,3 +128,34 @@ both could pass even while the projectile pass incorrectly remained frozen.
 Existing transfer tests separately cover one-point cadence, sound requests,
 exhaustion and maximum-health depletion. Cartridge playback/presentation comparison
 is still outstanding; this regression verifies the specific completion-order defect.
+
+## Original cartridge CPU comparison
+
+The headless `native-reserve-refill-probe.h` now executes the restored original
+65816 routines, not the upstream C translations: manual $82:AF4F, automatic
+$82:DC31, HUD $80:9B44 and manual tank drawing $82:B2AA. Both native NMI counters
+advance. Fresh constructed cases use supplies 2/21/99/199, manual health 20 or
+automatic health zero, maximum health 99 and reserve capacity 200.
+
+All **402** refill frames match C# health, reserve supply, manual delay and HUD
+digits; automatic cases also match all six AUTO cells through depletion. All
+**181** manual frames match rendered tank-strip pixels using the original
+routine's OAM output as the independent expected sprites. The separately animated
+selector remains identical on both sides because it overlaps the strip while
+transfer is selected. Initial probe-only mismatches were corrected by retaining
+that selector and advancing the separate native byte NMI counter; no speculative
+production change was made to accommodate them.
+
+To regenerate locally, apply `movement-release/native-reserve-refill-entrypoint.patch`
+inside `upstream-sm`, build its Release x64 target, then run its executable with
+`--diagnostic-reserve-refill ROM NEW_OUTPUT.csv`. Output is exclusive-create and
+includes a companion `.oam.csv`. Run Verification with
+`--reserve-native-trace NEW_OUTPUT.csv`, then reverse only the temporary entrypoint
+patch. The probe returns before SDL initialization and sends errors to the console.
+No native output, ROM data or screenshot is published. Local results are under
+`csharp/test-temp/reserve-native-527/refill-v3.csv`.
+
+This is cartridge **routine execution**, not full-game emulator playback. It
+independently validates the refill counters and manual strip across their full
+duration, but does not establish all automatic gameplay presentation, controller
+handler interactions or audible output. Those remaining checks keep #527 open.

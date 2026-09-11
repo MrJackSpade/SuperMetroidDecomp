@@ -1,0 +1,36 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -84,11 +84,12 @@ extern Snes *g_snes;
+ 
++static bool reserve_probe_headless;
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!reserve_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+   fprintf(stderr, "Error: %s\n", error);
+   exit(1);
+ }
+ 
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!reserve_probe_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+   fprintf(stderr, "Warning: %s\n", error);
+ }
+@@ -315,3 +316,8 @@
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-reserve-refill") == 0) {
++    reserve_probe_headless = true;
++    extern int DiagnosticReserveRefill(const char *, const char *);
++    return DiagnosticReserveRefill(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -97,3 +97,5 @@
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-reserve-refill-probe.h"
+ 
+ void StateRecorder_Init(StateRecorder *sr) {

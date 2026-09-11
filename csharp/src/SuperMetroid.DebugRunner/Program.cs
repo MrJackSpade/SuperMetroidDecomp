@@ -1645,13 +1645,31 @@ if (args.Length >= 2 && args[0] == "--climb-sbug-audit")
     climbSamus.YPosition = auditedSbug.YPosition;
     climbSamus.Health = 99;
     climbSamus.InvincibilityTimer = 0;
+    byte sbugContactPose = climbSamus.Pose;
+    ushort sbugContactX = climbSamus.XPosition, sbugContactY = climbSamus.YPosition;
+    // EnemyMain publishes the request; the post-animation bank-$90 handler owns
+    // admission. Requiring an active mover at this earlier boundary hid that ordering.
     if (!climbEnemies.ResolveOrdinarySamusContact(climbSamus, 0) ||
-        climbSamus.Health != 59 || !climbSamus.KnockbackActive)
+        climbSamus.Health != 59 || climbSamus.InvincibilityTimer != 96 ||
+        climbSamus.KnockbackTimer != 5 || climbSamus.KnockbackXDirection != 1 ||
+        climbSamus.KnockbackDirection != 0 || climbSamus.KnockbackActive ||
+        climbSamus.Pose != sbugContactPose || climbSamus.XPosition != sbugContactX ||
+        climbSamus.YPosition != sbugContactY)
     {
         throw new InvalidDataException(
             $"Sbug common contact failed: health={climbSamus.Health}, " +
             $"knockback={climbSamus.KnockbackActive}.");
     }
+    if (SamusKnockbackMovement.TryStartPendingHitInterruption(climbBus, climbSamus, 0, timeIsFrozen: true) ||
+        climbSamus.KnockbackActive || climbSamus.Pose != sbugContactPose || climbSamus.KnockbackTimer != 5)
+        throw new InvalidDataException("Sbug pending hit was admitted while time was frozen.");
+    if (!SamusKnockbackMovement.TryStartPendingHitInterruption(climbBus, climbSamus, 0, timeIsFrozen: false) ||
+        !climbSamus.KnockbackActive || climbSamus.Pose != SamusPoseIds.KnockbackRightPose ||
+        climbSamus.KnockbackDirection != 2 || climbSamus.HurtFlashCounter != 1 ||
+        climbSamus.Kinematics.YSpeed != 5 || climbSamus.Kinematics.YSubspeed != 0 ||
+        climbSamus.Kinematics.YDirection != 1 || climbSamus.Health != 59 ||
+        SamusKnockbackMovement.TryStartPendingHitInterruption(climbBus, climbSamus, 0, timeIsFrozen: false))
+        throw new InvalidDataException("Sbug pending hit did not install exactly one native up-right knockback.");
 
     var sbugProjectiles = new SamusProjectileSystem();
     var sbugBombs = new SamusBombProjectileSystem();

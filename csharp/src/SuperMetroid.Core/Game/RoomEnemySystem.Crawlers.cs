@@ -228,7 +228,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         RoomLevelData level)
     {
-        TriggerHZoomerEarthquakeFall(state);
+        TriggerCrawlerEarthquakeFall(state);
         int wallProbe = Shift8AddMagnitude(state.XVelocity, 1);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
@@ -265,7 +265,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         RoomLevelData level)
     {
-        TriggerHZoomerEarthquakeFall(state);
+        TriggerCrawlerEarthquakeFall(state);
         int surfaceProbe = Shift8AddMagnitude(state.YVelocity, 1);
         if (MoveEnemyVertically(level, slot, surfaceProbe))
         {
@@ -296,9 +296,10 @@ public sealed partial class RoomEnemySystem
         SetHZoomerHorizontalInstruction(slot, state);
     }
 
-    private void TriggerHZoomerEarthquakeFall(CrawlerEnemyState state)
+    private void TriggerCrawlerEarthquakeFall(CrawlerEnemyState state)
     {
-        if (EarthquakeTimer == 0x001e && EarthquakeType == 0x0014)
+        if (EarthquakeTimer == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration &&
+            EarthquakeType == SamusProjectileRomData.NonBeam.SuperMissileEarthquakeType)
             BeginCrawlerFall(state);
     }
 
@@ -360,6 +361,9 @@ public sealed partial class RoomEnemySystem
         CrawlerEnemyState state,
         RoomLevelData level)
     {
+        // Native sets the next function but still executes this attached movement
+        // call. Falling displacement begins on the following AI frame.
+        TriggerCrawlerEarthquakeFall(state);
         int wallProbe = Shift8AddMagnitude(state.XVelocity, 1);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, wallProbe))
         {
@@ -394,6 +398,7 @@ public sealed partial class RoomEnemySystem
         CrawlerEnemyState state,
         RoomLevelData level)
     {
+        TriggerCrawlerEarthquakeFall(state);
         int surfaceProbe = Shift8AddMagnitude(state.YVelocity, 1);
         if (MoveEnemyVertically(level, slot, surfaceProbe))
         {

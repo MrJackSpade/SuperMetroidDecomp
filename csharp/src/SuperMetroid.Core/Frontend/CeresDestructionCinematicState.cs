@@ -43,6 +43,7 @@ internal sealed partial class CeresDestructionCinematicState
     private int explosionSpawnerFrame;
     private int explosionOffsetIndex;
     private bool usesMode7 = true;
+    private SnesMainScreenLayers mainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj;
 
     public CeresDestructionCinematicState(
         ISnesAddressSpace bus,
@@ -213,6 +214,9 @@ internal sealed partial class CeresDestructionCinematicState
                 }
                 else
                 {
+                    // The cartridge disables the ship's BG1 plane before the hold, not
+                    // when the later pan starts. Planet and star OBJ remain enabled.
+                    mainScreenLayers = SnesMainScreenLayers.Obj;
                     phaseTimer = CeresDestructionRomData.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }

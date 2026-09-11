@@ -12,7 +12,12 @@ internal sealed partial class CeresDestructionCinematicState
         Rgba32[] pixels = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         OamBuffer oam = PrepareRenderOam();
 
-        if (usesMode7)
+        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        {
+            for (byte priority = 0; priority < 4; priority++)
+                CompositeObjPriority(pixels, oam, priority);
+        }
+        else if (usesMode7)
         {
             (short matrixA, short matrixB, short matrixC, short matrixD) = CalculateMatrix();
             CompositeObjPriority(pixels, oam, 0);
@@ -65,7 +70,12 @@ internal sealed partial class CeresDestructionCinematicState
     {
         OamBuffer oam = PrepareRenderOam();
         RenderLayer[] layers;
-        if (usesMode7)
+        if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
+        {
+            layers = [new ObjPriorityRenderLayer(0), new ObjPriorityRenderLayer(1),
+                new ObjPriorityRenderLayer(2), new ObjPriorityRenderLayer(3)];
+        }
+        else if (usesMode7)
         {
             var (a, b, c, d) = CalculateMatrix();
             var mode7 = new Mode7RenderRegisters(a, b, c, d,

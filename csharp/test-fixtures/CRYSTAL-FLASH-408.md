@@ -154,5 +154,31 @@ Successful routes assert the Crystal Flash bubble phase, ammo-drain phase, exact
 two-pixel-per-frame ten-call rise, fixed X despite held Right/Jump, full resource
 result, and resumed movement after completion. No production correction was needed
 in this slice. This is runtime integration evidence, not a native full-room replay
-or a visual pixel comparison. Actual contact damage, complete boundary sweep and
-native full-runtime ordering still need coverage before closing the technique audit.
+or a visual pixel comparison. Complete boundary sweep and native full-runtime
+ordering still need coverage before closing the technique audit.
+
+## Actual contact during ammo drain
+
+The eleven-capacity route now inserts a stationary retail Ripper at Samus's current
+position thirty frames after activation. The population and position are constructed;
+the header, AI, spritemap, contact dispatcher, damage and runtime update order are
+production paths. The first authored map is seeded because contact precedes the
+actor's first AI update. This is deliberately a controlled contact, not a naturally
+encountered enemy or a native full-room replay.
+
+On this frame health changes from 149 to 144 (retail damage five). The test checks
+contact-before-refill ordering, zero immunity and knockback timers, absence of active
+normal knockback, continued fixed Crystal Flash trajectory, and eventual completion
+at frame 502 with health 1499 and ammo zero. The conditional expected refill follows
+the normal every-eighth-NMI handler; this particular contact frame does not refill.
+
+Mutation verification: temporarily removing the already-implemented main wrapper's
+two timer clears makes this actual-contact test fail: expected immunity zero, got 95.
+Restoring the production clears passes all three runtime routes. The mutation is not
+retained and no new gameplay change is claimed. Header damage is sampled before the
+frame because later projectile processing may delete/recycle the actor. The fixture's
+nonzero RNG avoids an invalid zero-only drop-selection loop.
+
+This closes the managed full-runtime contact coverage gap, not the remaining native
+contact/timing comparison or visual acceptance scope. Issue #408 remains open without
+an awaiting-validation label. No private captures are required for this regression.

@@ -50,6 +50,8 @@ internal static partial class Program
         ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
         int started = -1, finished = -1;
         bool bubble = false, drained = false;
+        RoomEnemySlot? contactEnemy = null;
+        bool contactVerified = false;
         for (int frame = 0; frame < 1000; frame++)
         {
             if (refill && frame == 60)
@@ -61,9 +63,44 @@ internal static partial class Program
                         "refill after placement reaches ten without increasing capacity"));
             }
             bool active = samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive;
+            bool testContact = capacity == 11 && started >= 0 && frame == started + 30;
+            if (testContact)
+            {
+                AssertEqual(CrystalFlashPhase.DrainingAmmo, samus.CrystalFlash.Phase,
+                    "contact fixture enters the intended ammo-drain phase");
+                // Replace the population at the contact boundary; retain retail AI,
+                // header damage and the runtime's ordinary collision ordering. A
+                // zero-only RNG would hang native-style drop selection on death.
+                var contactBus = new CrystalFlashContactPopulation(bus, samus.XPosition, samus.YPosition);
+                runtime.Enemies.Load(contactBus, CrystalFlashContactDefinitions.Pointer,
+                    CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, () => 1);
+                contactEnemy = runtime.Enemies.Slots[0];
+                contactEnemy.VariableC = contactEnemy.VariableD = 0;
+                // Contact runs before AI publishes its first map. Seed that same
+                // authored map so this fixture tests contact on this exact frame.
+                contactEnemy.SpritemapPointer = (ushort)(bus.ReadByte(CrystalFlashContactDefinitions.AiBank | (contactEnemy.CurrentInstruction + 2)) |
+                    bus.ReadByte(CrystalFlashContactDefinitions.AiBank | (contactEnemy.CurrentInstruction + 3)) << 8);
+            }
+            ushort beforeHealth = samus.Health;
+            // Later projectile processing can delete the actor and clear its header.
+            // Read the contact damage before stepping, not from a recycled slot.
+            ushort contactDamage = testContact ? contactEnemy!.Definition.Damage : (ushort)0;
             // Once activated, challenge the inert input handler with movement/jump.
             ushort input = active ? (ushort)(SnesButton.Right | SnesButton.A) : chord;
             runtime.StepFrame(input);
+            if (testContact)
+            {
+                int afterDamage = Math.Max(0, beforeHealth - contactDamage);
+                int expected = Math.Min(samus.MaxHealth, afterDamage + ((runtime.NmiFrameCounter & 7) == 0 ? 50 : 0));
+                AssertTrue(contactDamage > 0, "constructed contact actor has nonzero retail damage");
+                AssertEqual(expected, samus.Health, "enemy contact damages Crystal Flash before its energy refill");
+                AssertEqual(0, samus.InvincibilityTimer, "Crystal Flash clears immunity after actual contact");
+                AssertEqual(0, samus.KnockbackTimer, "Crystal Flash suppresses the contact knockback request");
+                AssertTrue(!samus.KnockbackActive, "contact does not install ordinary knockback during ammo drain");
+                contactEnemy!.XPosition += 128;
+                contactVerified = true;
+                Console.WriteLine($"Runtime Crystal Flash contact: health {beforeHealth}->{samus.Health}, retail damage={contactDamage}; no retained immunity or knockback.");
+            }
             if (started < 0 && samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive) started = frame;
             bubble |= runtime.BombProjectiles.PowerBombExplosion.Phase == PowerBombExplosionPhase.CrystalFlashExplosion;
             drained |= samus.CrystalFlash.Phase == CrystalFlashPhase.DrainingAmmo;
@@ -85,6 +122,7 @@ internal static partial class Program
             return;
         }
         AssertTrue(started >= 0 && finished > started && bubble && drained, "runtime completes the activated Crystal Flash and bubble");
+        if (capacity == 11) AssertTrue(contactVerified, "runtime exercised real enemy contact during Crystal Flash");
         AssertEqual(1499, samus.Health, "runtime restores energy");
         AssertEqual(0, samus.Missiles, "runtime consumes ten missiles");
         AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");
@@ -192,4 +230,40 @@ internal static partial class Program
         }
         Console.WriteLine("Crystal Flash: 36 original-CPU cleanup admission/resource/timer comparisons match.");
     }
+}
+
+/// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
+internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) : ISnesAddressSpace
+{
+    public byte ReadByte(int address)
+    {
+        ReadOnlySpan<ushort> population = [CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
+            CrystalFlashContactDefinitions.Properties, 0, 0, 0, 0xffff, 0];
+        ReadOnlySpan<ushort> tileset = [CrystalFlashContactDefinitions.RipperHeader, 0, 0xffff];
+        int offset = address - CrystalFlashContactDefinitions.PopulationAddress;
+        if ((uint)offset < population.Length * 2)
+            return (byte)(population[offset / 2] >> ((offset & 1) * 8));
+        offset = address - CrystalFlashContactDefinitions.TilesetAddress;
+        if ((uint)offset < tileset.Length * 2)
+            return (byte)(tileset[offset / 2] >> ((offset & 1) * 8));
+        return inner.ReadByte(address);
+    }
+    public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
+}
+
+/// <summary>Address-space overrides for the controlled Crystal Flash contact fixture.</summary>
+internal static class CrystalFlashContactDefinitions
+{
+    /// <summary>Constructed population/tileset offset in their respective retail banks.</summary>
+    public const ushort Pointer = 0x8000;
+    /// <summary>Constructed population occupies $A1:8000.</summary>
+    public const int PopulationAddress = 0xa18000;
+    /// <summary>Constructed tileset occupies $B4:8000.</summary>
+    public const int TilesetAddress = 0xb48000;
+    /// <summary>Retail Ripper enemy header $A0:D47F.</summary>
+    public const ushort RipperHeader = 0xd47f;
+    /// <summary>Ripper AI and instruction-list bank $A2.</summary>
+    public const int AiBank = 0xa20000;
+    /// <summary>Population flags: process instructions and process off screen.</summary>
+    public const ushort Properties = 0x2800;
 }

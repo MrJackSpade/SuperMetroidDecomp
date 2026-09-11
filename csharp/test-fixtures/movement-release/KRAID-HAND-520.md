@@ -147,3 +147,21 @@ Verified: DebugRunner builds; scoped capture emits the layer images through deat
 and exits 1 for the preserved background failure. Inspected the actual and isolated
 OBJ views above. No production rendering change, no new hand diagnosis, no player
 save changes, and no ROM/image/trace publication. #520 remains under investigation.
+
+## Background reference correction (2026-09-11)
+
+The separate #268 assertion was a stale diagnostic reference, not evidence of a
+new renderer regression. The raw BG1 viewport helper starts at its supplied row;
+the gameplay compositor samples physical background scanline one for output row
+zero. The reference omitted `SnesPpuLayout.FirstVisibleBackgroundScanline`.
+Adding that existing offset to the reference scroll removes the mismatch without
+changing production rendering or weakening the opaque-pixel comparison.
+
+Before correction, the audit failed at 5002/7675 pixels. Temporary diagnostics
+confirmed that immediate rendering and the published software packet agreed at
+the sampled mismatches, with native blank BG2 tile $0338 at those locations.
+After correction, `--kraid-audit ROM` completes successfully through growth,
+death, both room exits, and defeated-room reload. Temporary pixel logging was
+removed. The earlier nonzero hand-capture result above remains historical
+evidence; it is not a current background failure. This fixes only the test's
+reference alignment and does not resolve the #520 player report or deferred #269.

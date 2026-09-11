@@ -993,8 +993,11 @@ internal static class KraidAudit
             throw new InvalidDataException("The #268 visual fixture requires its upper-left reference viewport.");
         ushort bg1X = unchecked((ushort)(
             ppu.Bg1HorizontalScroll + ppu.RoomShake.Bg1X));
+        // The raw viewport helper samples its supplied source row literally. Gameplay
+        // starts BG sampling on physical scanline one, not output row zero; account
+        // for that here or ordinary tile edges falsely look like BG2 corruption.
         ushort bg1Y = unchecked((ushort)(
-            ppu.Bg1VerticalScroll + ppu.RoomShake.Bg1Y));
+            ppu.Bg1VerticalScroll + ppu.RoomShake.Bg1Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
         Rgba32[] expectedBg1 = SnesBgTilemapRenderer.Render4BppViewport(
             runtime.Vram,
             runtime.Cgram,

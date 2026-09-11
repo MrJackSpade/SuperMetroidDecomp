@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grounded-bomb-spread"])
+{
+    VerifyGroundedBombSpread();
+    return 0;
+}
 if (args is ["--map-installation", var installationRom])
 {
     VerifyMapInstallation(installationRom);
@@ -603,6 +608,7 @@ VerifySamusMorphBallMovement();
 VerifyCompactWalkOffCollision();
 VerifyPauseMomentumReconciliation();
 VerifyBombChargeRejection();
+VerifyGroundedBombSpread();
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
 VerifySamusGunExtendedMovement();

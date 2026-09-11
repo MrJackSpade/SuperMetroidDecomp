@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--botwoon-plm-identity"])
+{
+    VerifyBotwoonPlmIdentity();
+    return 0;
+}
 if (args is ["--compiled-enemy-sine"])
 {
     VerifyCompiledEnemyTrigonometry();
@@ -808,6 +813,7 @@ VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();
 VerifyRoomEnemyLoading();
+VerifyBotwoonPlmIdentity();
 VerifyCompiledEnemyTrigonometry();
 VerifyEnemyProjectileCollisionLifecycle();
 VerifyRipperEnemy();

@@ -139,6 +139,9 @@ public sealed partial class RoomPlmSystem
             slot.Active = true;
             slot.BlockIndex = blockIndex;
             slot.RestoreLevelWord = 0;
+            // SpawnHardcodedPlm stores the header before setup. Keep identity intact
+            // for owner queries and mixed populations, not just instruction dispatch.
+            slot.HeaderPointer = header;
             slot.LoopTimer = 0;
             slot.InstructionPointer = header == RoomPlmHeaders.ClearBotwoonWall
                 ? RoomPlmInstructionLists.ClearBotwoonWall

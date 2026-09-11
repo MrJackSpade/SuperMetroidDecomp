@@ -51,6 +51,12 @@ Those diagnostics need separate investigation to distinguish obsolete fixture
 assumptions from gameplay defects. The temporary baseline worktree was removed
 after comparison; no historical executable remains available to launch there.
 
+Follow-up: #574 and #575 were repaired as ordering-sensitive diagnostic checks;
+#576 corrected mixed-population expectations and the wall spawner's missing
+header identity. All three complete encounter audits now pass. See
+BOTWOON-PLM-IDENTITY-576.md for details. The original baseline failures above
+remain recorded as evidence, not silently rewritten as passing runs.
+
 ## Still required for #547
 
 This is not the entire lookup-table migration. Signed trigonometry variants,

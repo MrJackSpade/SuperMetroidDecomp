@@ -12,7 +12,7 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static partial class BotwoonAudit
 {
-    private const ushort RoomPointer = 0xd95e;
+    private const ushort RoomPointer = RoomHeaderPointers.Botwoon;
     private const ushort Definition = 0xf293;
     private const ushort PopulationPointer = 0xde5a;
     private const ushort ClearWallHeader = 0xb797;
@@ -354,12 +354,20 @@ internal static partial class BotwoonAudit
         // same Bank80SystemState callback used by normal door loading.
         runtime.System.SetBossBits(areaIndex: AreaId.Maridia, BossBits.AreaMiniBoss);
         runtime.LoadCartridgeRoomForDebug(RoomPointer, CameraX, CameraY);
-        if (runtime.Plms.ActiveCount != 1 || runtime.Camera is null ||
+        var initialSlots = runtime.Plms.PopulationSlots;
+        var wallSlots = initialSlots.Where(slot => slot.HeaderPointer == RoomPlmHeaders.ClearBotwoonWall).ToArray();
+        var doorSlots = initialSlots.Where(slot => slot.HeaderPointer == RoomPlmHeaders.GreyDoorFacingRight).ToArray();
+        if (initialSlots.Count != 2 || wallSlots.Length != 1 || doorSlots.Length != 1 ||
+            wallSlots[0].InstructionPointer != RoomPlmInstructionLists.ClearBotwoonWall ||
+            wallSlots[0].InstructionTimer != 1 ||
+            wallSlots[0].BlockIndex != runtime.LevelData!.GetBlockIndex(15, 4) || runtime.Camera is null ||
             runtime.Camera.Scrolls.ReadStorage(0) != 1 ||
             runtime.Camera.Scrolls.ReadStorage(1) != 1)
         {
             throw new InvalidDataException(
-                "Runtime did not consume Botwoon's $B797 publication during room load.");
+                $"Runtime did not consume Botwoon's $B797 publication during room load: " +
+                $"slots={string.Join(',', runtime.Plms.PopulationSlots.Select(slot => $"{slot.HeaderPointer:X4}"))}, " +
+                $"scrolls={runtime.Camera?.Scrolls.ReadStorage(0)}/{runtime.Camera?.Scrolls.ReadStorage(1)}.");
         }
 
         // The first gameplay PLM pass draws the complete nine-block vertical air list; the
@@ -375,8 +383,11 @@ internal static partial class BotwoonAudit
                 throw new InvalidDataException($"Runtime clear-wall row {row} remained solid.");
         }
         runtime.StepFrame(0);
-        if (runtime.Plms.ActiveCount != 0)
-            throw new InvalidDataException("Runtime did not retire Botwoon's clear-wall PLM.");
+        if (runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearBotwoonWall) ||
+            runtime.Plms.PopulationSlots.Count != 1 ||
+            runtime.Plms.PopulationSlots[0].HeaderPointer != RoomPlmHeaders.GreyDoorFacingRight ||
+            runtime.Plms.PopulationSlots[0].NativeSlotIndex != doorSlots[0].NativeSlotIndex)
+            throw new InvalidDataException("Runtime did not retire only Botwoon's clear-wall PLM while retaining the native grey door.");
     }
 
     private static LoadedBotwoon Load(

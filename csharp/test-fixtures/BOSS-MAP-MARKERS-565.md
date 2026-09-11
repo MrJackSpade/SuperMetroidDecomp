@@ -33,3 +33,21 @@ conditions, first subsequent opening, area/room re-entry and real save/reload
 persistence, and confirmation of map-surface differences. This initial pixel
 regression proves the missing pause invocation, not the complete #565 contract.
 Keep the issue open without awaiting-player-validation until those checks finish.
+
+## Original-CPU icon composition and visibility
+
+Executed original `$82:B892` with A=9, X=C7CB, scroll=(64,16), for every boss
+byte (0..255), both downloaded/undownloaded states, and all six gameplay areas.
+All 3,072 cases match the shared managed drawing path byte-for-byte: used OAM
+records, record count and complete high table. This independently verifies
+artwork tile/flip selection, palette bits, defeated overlay order, coordinates,
+unused-bit behavior and visibility. Areas without authored bosses emit none.
+This is original sprite construction, not an independent PPU raster capture.
+
+Regenerate with `movement-release/native-boss-map-entrypoint.patch` and
+`sm.exe --diagnostic-boss-map ROM NEW.csv`; compare using Verification
+`--native-boss-markers NEW.csv`. Accepted private trace SHA256:
+`B6A536857F129A6F1F8BC1C92EFDECCA8C58EBAF9AC626DC2EC6E3FB5EDC50DD`.
+The command is bounded/headless and creates a new output exclusively. No
+production change was needed after the missing pause call was restored.
+Save/reload and subsequent-opening coverage remains outstanding.

@@ -5,6 +5,34 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    private static void VerifyNativeBossMarkers(string path)
+    {
+        AssertEqual("B6A536857F129A6F1F8BC1C92EFDECCA8C58EBAF9AC626DC2EC6E3FB5EDC50DD",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))), "native boss-map trace");
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        using var trace = File.OpenText(path);
+        AssertEqual("area,map,bits,bytes,low,high", trace.ReadLine(), "boss-map schema");
+        int cases = 0;
+        for (int area = 0; area < 6; area++)
+        for (int map = 0; map < 2; map++)
+        for (int bits = 0; bits < 256; bits++)
+        {
+            var system = new Bank80SystemState();
+            if (map != 0) system.SetAreaMapAcquired(area);
+            byte[] bosses = new byte[8];
+            bosses[area] = (byte)bits;
+            system.LoadBossBytes(bosses);
+            var oam = new OamBuffer();
+            oam.BeginFrame();
+            new FileSelectMapIcons(bus, system, (AreaId)area).DrawBossMarkers(oam, 64, 16);
+            string actual = $"{area},{map},{bits},{oam.NextByteOffset},{Convert.ToHexString(oam.LowTable[..oam.NextByteOffset])},{Convert.ToHexString(oam.HighTable)}";
+            AssertEqual(trace.ReadLine(), actual, "native boss-marker OAM positions/artwork/palette/order/visibility");
+            cases++;
+        }
+        AssertTrue(trace.ReadLine() is null, "native boss-map trace consumed");
+        Console.WriteLine($"Boss-marker native OAM: {cases} area/download/boss-byte combinations match.");
+    }
+
     private static void VerifyPauseBossMarkers()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

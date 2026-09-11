@@ -48,6 +48,8 @@ public sealed partial class D3D11FrameRenderer
         data[5] = (uint)r.Bg2WidthTiles; data[6] = (uint)r.Bg2HeightTiles;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[25] = (uint)r.Bg2FirstScanline; data[26] = (uint)r.Bg2EndScanline;
+        // Header word 27 is the BG4 gameplay mosaic width (zero elsewhere).
+        data[27] = (uint)r.Bg2Mosaic.Size;
         SetWindowConstants(data, r.Windows, r.MainScreenWindowMask, SnesWindowTarget.Bg2);
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < SnesPpuLayout.ScreenHeightPixels; y++)
         {

@@ -212,7 +212,8 @@ public static partial class SnesGameplayFrameRenderer
         Rgba32[]? outputBuffer = null,
         int bg2FirstScanline = 32, int bg2EndScanline = 224,
         SnesWindowRegisters windowRegisters = default,
-        SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None)
+        SnesMainScreenLayers mainScreenWindowMask = SnesMainScreenLayers.None,
+        BackgroundMosaicSampling bg2Mosaic = default)
     {
         Rgba32[] output = CreateBackdrop(cgram, outputBuffer);
         Span<SnesMainScreenLayers> windowMasks = stackalloc SnesMainScreenLayers[Width];
@@ -261,7 +262,7 @@ public static partial class SnesGameplayFrameRenderer
                 bg2TilemapWidthInTiles,
                 bg2TilemapHeightInTiles,
                 bg2TilemapBaseWord,
-                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks);
+                mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks, bg2Mosaic);
         }
         finally
         {
@@ -310,7 +311,7 @@ public static partial class SnesGameplayFrameRenderer
         ushort bg2TilemapBaseWord,
         SnesMainScreenLayers mainScreenLayers,
         int bg2FirstScanline, int bg2EndScanline,
-        ReadOnlySpan<SnesMainScreenLayers> windowMasks)
+        ReadOnlySpan<SnesMainScreenLayers> windowMasks, BackgroundMosaicSampling bg2Mosaic)
     {
         if (objectPixels.Length != output.Length ||
             objectPriorities.Length != output.Length)
@@ -374,7 +375,7 @@ public static partial class SnesGameplayFrameRenderer
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
                 ? bg2VerticalScroll
                 : bg2VerticalScrollByLine[screenY - HudHeight];
-            int bg2ScrolledY = unchecked(activeBg2VerticalScroll + physicalBackgroundY) & bg2YMask;
+            int bg2ScrolledY = bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll) & bg2YMask;
             int bg1TileY = bg1ScrolledY >> 3;
             int bg2TileY = bg2ScrolledY >> 3;
             int bg1PixelY = bg1ScrolledY & 7;
@@ -394,7 +395,7 @@ public static partial class SnesGameplayFrameRenderer
                 // output pixels. Cache each BGSC word across that run; rereading the same
                 // two VRAM bytes for every pixel was pure interpreter overhead, especially
                 // in Debug builds where these tiny accessors are not reliably inlined.
-                int bg2ScrolledX = unchecked(activeBg2HorizontalScroll + screenX) & bg2XMask;
+                int bg2ScrolledX = bg2Mosaic.SourceX(screenX, activeBg2HorizontalScroll) & bg2XMask;
                 int bg2TileX = bg2ScrolledX >> 3;
                 if (bg2Enabled && bg2TileX != previousBg2TileX)
                 {

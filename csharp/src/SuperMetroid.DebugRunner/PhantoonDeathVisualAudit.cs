@@ -49,6 +49,8 @@ internal static class PhantoonDeathVisualAudit
                 if (pixels[y * 256 + x] != pixels[y * 256 + x / size * size]) mismatches++;
             PngWriter.WriteRgba(Path.Combine(directory, "full-death.png"), 256, 224, SoftwareLayeredSnapshotRenderer.Render(full));
             PngWriter.WriteRgba(Path.Combine(directory, "isolated-body.png"), 256, 224, pixels);
+            File.WriteAllBytes(Path.Combine(directory, "full-death.smframe"),
+                RenderFrameSnapshotCodec.Serialize(new RenderFrameSnapshot(new(frame, 1, runtime.NmiFrameCounter), full)));
             Console.WriteLine($"Phantoon death frame {frame}: mosaic={boss.MosaicRegister:X2}, size={size}, {mismatches} pixels violate horizontal mosaic repetition.");
             if (mismatches != 0) throw new InvalidDataException("Final-death BG2 mosaic is not applied to rendered body pixels.");
             return 0;

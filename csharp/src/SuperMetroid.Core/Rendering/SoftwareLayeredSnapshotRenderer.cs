@@ -118,7 +118,7 @@ public static class SoftwareLayeredSnapshotRenderer
                         r.Bg2WidthTiles, r.Bg2HeightTiles, r.Bg2TilemapWord,
                         r.Bg1CharacterWord, r.Bg2CharacterWord, r.HudCharacterWord,
                         snapshot.ObjectSelection, r.MainScreenLayers, gameplayOutputBuffer,
-                        r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask);
+                        r.Bg2FirstScanline, r.Bg2EndScanline, r.Windows, r.MainScreenWindowMask, r.Bg2Mosaic);
                     break;
                 case Bg2BppViewportRenderLayer bg:
                     Rgba32[] plane = SnesBgTilemapRenderer.Render2Bpp(memory.Vram, memory.Cgram,

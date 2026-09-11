@@ -259,3 +259,31 @@ descriptor cases. The default descriptor is size one. The helper deliberately
 does not claim active-display MOSAIC-write phase resets; Phantoon publishes its
 shadow register at NMI. No renderer uses this prerequisite yet, so the final-death
 visual reproduction remains failing and the issue stays open.
+
+## BG2 mosaic integration
+
+The renderer now consumes a separately NMI-latched MOSAIC value. Ordinary and
+source-aware BG2 fetches quantize screen coordinates before current-line HDMA
+scroll, in both software and Direct3D. Priority and color math still happen after
+sampling; BG1, OBJ, and HUD do not inherit the grouping. This is not a final-image
+pixelation overlay.
+
+The exact death reproduction now passes at frame 648, register $42: the previous
+3024 horizontal-repeat violations are zero. Its full display packet matches
+software pixel-for-pixel on hardware and WARP. Captures remain local. The full
+frame was also inspected visually; the stretched body is visibly grouped while
+the room and Samus remain ungrouped.
+
+`RenderVerification --background-mosaic` independently checks every output pixel
+in 64 constructed frames per device, across all sixteen sizes, changing per-line
+horizontal/vertical scroll, ordinary BG2, source-aware main BG2, additive BG2,
+and unaffected BG1/OBJ/HUD. Packet round trips preserve the effect. Existing
+ordinary and X-ray/window GPU suites pass on hardware and WARP. Core verification
+passes, including register decoding, NMI latch immutability, debugger round trip,
+and supported legacy field layouts.
+
+Packet version 26 adds BG2 mosaic width; older packets restore size one. Legacy
+debugger states warn about unavailable display history and refresh at NMI.
+The death fixture still starts at a constructed lethal-hit boundary, not a complete
+controller-driven battle. This component does not establish full encounter parity;
+#555 remains open pending the remaining encounter-level visual audit.

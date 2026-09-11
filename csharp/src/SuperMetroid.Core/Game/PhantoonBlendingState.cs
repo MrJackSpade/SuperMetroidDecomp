@@ -7,6 +7,8 @@ public sealed class PhantoonBlendingState
     private bool _deleted;
     public LayerBlendingConfiguration Configuration { get; private set; }
     public LayerBlendingConfiguration DisplayedConfiguration { get; private set; }
+    /// <summary>The MOSAIC shadow value accepted by NMI, before this frame's enemy AI changes it.</summary>
+    public byte DisplayedMosaic { get; private set; }
 
     public void Step(PhantoonEnemyState boss, LayerBlendingConfiguration roomDefault)
     {
@@ -26,5 +28,9 @@ public sealed class PhantoonBlendingState
         }
     }
 
-    public void LatchDisplay() => DisplayedConfiguration = Configuration;
+    public void LatchDisplay(byte mosaic = 0)
+    {
+        DisplayedConfiguration = Configuration;
+        DisplayedMosaic = mosaic;
+    }
 }

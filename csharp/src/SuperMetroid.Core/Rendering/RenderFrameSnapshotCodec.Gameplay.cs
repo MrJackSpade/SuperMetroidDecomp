@@ -18,6 +18,7 @@ public static partial class RenderFrameSnapshotCodec
         writer.Write(w.FirstLeft); writer.Write(w.FirstRight); writer.Write(w.SecondLeft); writer.Write(w.SecondRight);
         writer.Write(w.BackgroundLogic); writer.Write(w.ObjectColorLogic);
         writer.Write((byte)r.MainScreenWindowMask);
+        writer.Write((byte)r.Bg2Mosaic.Size);
     }
 
     private static OrdinaryGameplayRenderLayer ReadGameplayLayer(BinaryReader reader, ushort version)
@@ -36,6 +37,8 @@ public static partial class RenderFrameSnapshotCodec
                 MainScreenWindowMask = (SnesMainScreenLayers)reader.ReadByte(),
             };
         }
+        if (version >= RenderPacketFormat.GameplayMosaicVersion)
+            registers = registers with { Bg2Mosaic = new(reader.ReadByte()) };
         return new(registers, horizontal, vertical);
     }
 

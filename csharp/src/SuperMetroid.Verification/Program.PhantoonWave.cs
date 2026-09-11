@@ -83,12 +83,14 @@ internal static partial class Program
         }
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.Configuration, "flag takes priority over delete control");
-        blend.LatchDisplay();
+        blend.LatchDisplay(0x42);
+        boss.MosaicRegister = 0x52;
         boss.SemiTransparencyLayerFlags = 0;
         boss.Mouth.Parameter1 = 0x8001;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.NormalGameplay, blend.Configuration, "nonzero low byte retains current room default, not previous blend");
         AssertEqual(LayerBlendingConfiguration.PhantoonSemiTransparent, blend.DisplayedConfiguration, "live change cannot mutate latched blend");
+        AssertEqual(0x42, blend.DisplayedMosaic, "live mosaic change waits for next accepted NMI");
         boss.Mouth.Parameter1 = 0x8000;
         blend.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(LayerBlendingConfiguration.PhantoonHidden, blend.Configuration, "zero low byte hides body");
@@ -104,5 +106,10 @@ internal static partial class Program
         var restored = DebuggerObjectGraphSerializer.Deserialize<PhantoonBlendingState>(stream);
         restored.Step(boss, LayerBlendingConfiguration.NormalGameplay);
         AssertEqual(blend.Configuration, restored.Configuration, "deleted blend owner survives debugger roundtrip");
+        AssertEqual(0x42, restored.DisplayedMosaic, "display mosaic survives debugger roundtrip");
+        var fields = typeof(PhantoonBlendingState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+            .OrderBy(field => field.MetadataToken).ToArray();
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PhantoonBlendingState), fields, fields.Length - 1);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<DisplayedMosaic>k__BackingField")), "legacy blend preserves all prior field identities");
     }
 }

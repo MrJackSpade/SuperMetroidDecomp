@@ -4466,7 +4466,8 @@ public sealed partial class SuperMetroidRuntime
                 Enemies.LastRoomShake, bg2Window.First, bg2Window.End);
             DisplayedRoomLayer3Fx = RoomLayer3Fx.CaptureForDisplay();
             Enemies.Phantoon?.Wave.LatchDisplay();
-            Enemies.Phantoon?.Blending.LatchDisplay();
+            if (Enemies.Phantoon is { } phantoonDisplay)
+                phantoonDisplay.Blending.LatchDisplay(phantoonDisplay.MosaicRegister);
             TourianStatues.LatchDisplay();
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);

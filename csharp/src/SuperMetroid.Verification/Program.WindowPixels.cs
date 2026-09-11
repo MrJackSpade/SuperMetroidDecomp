@@ -44,9 +44,10 @@ internal static partial class Program
             if (operation == 0 && mask == 0)
             {
                 // A single-layer v20 packet is the identical prefix without v21's
-                // nine window bytes and TMW. It must decode with windowing disabled.
+                // nine window bytes, TMW, and v26's mosaic byte. It must decode
+                // with windowing and mosaic disabled.
                 byte[] modern = RenderFrameSnapshotCodec.Serialize(packet);
-                byte[] old = modern.AsSpan(0, modern.Length - 10).ToArray();
+                byte[] old = modern.AsSpan(0, modern.Length - 11).ToArray();
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
                     old.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.ObjPriorityFixedColorVersion);
                 var legacy = RenderFrameSnapshotCodec.Deserialize(old);
@@ -55,7 +56,7 @@ internal static partial class Program
                 AssertTrue(reference[layers].AsSpan().SequenceEqual(SoftwareFrameSnapshotRenderer.Render(legacy)),
                     "v20 gameplay pixels remain unchanged");
                 AssertThrows<EndOfStreamException>(() => RenderFrameSnapshotCodec.Deserialize(modern.AsSpan(0, modern.Length - 1)),
-                    "truncated v21 window data remains a loud error");
+                    "truncated current gameplay data remains a loud error");
             }
             for (int y = 0; y < 224; y++)
             for (int x = 0; x < 256; x++)

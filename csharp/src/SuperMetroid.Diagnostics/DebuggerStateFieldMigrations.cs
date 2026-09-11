@@ -17,6 +17,17 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(PhantoonBlendingState) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Legacy Phantoon display state lacks MOSAIC history; restores ungrouped until the next accepted NMI.");
+            return current.Where(field => field.Name != "<DisplayedMosaic>k__BackingField").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Rendering.OrdinaryGameplayRegisters) &&
+            current.Any(field => field.Name == "<Bg2Mosaic>k__BackingField") && count is 11 or 13 or 15)
+        {
+            Console.Error.WriteLine("WARNING: Legacy gameplay display registers lack BG2 mosaic; restoring original ungrouped sampling.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "<Bg2Mosaic>k__BackingField").ToArray(), count);
+        }
         if (type == typeof(PhantoonEnemyState) &&
             (count == current.Length - 1 || count == current.Length - 2))
         {

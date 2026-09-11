@@ -10,6 +10,10 @@ public readonly struct BackgroundMosaicSampling
     /// <summary>The PPU encodes widths one through sixteen as zero through fifteen.</summary>
     public int Size => _encodedSize + 1;
 
+    /// <summary>MOSAIC ($2106): BG2 enable is bit one; the high nibble encodes size minus one.</summary>
+    public static BackgroundMosaicSampling ForBg2(byte register) =>
+        (register & 2) == 0 ? default : new((register >> 4) + 1);
+
     public BackgroundMosaicSampling(int size)
     {
         if (size is < 1 or > 16) throw new ArgumentOutOfRangeException(nameof(size));

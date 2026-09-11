@@ -105,7 +105,8 @@ public static partial class GameplayDisplayCapture
             runtime.DoorTransitionMainScreenLayers ??
                 (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
                     (runtime.Enemies.MotherBrain?.DeathBg2Hidden == true ? 0 : SnesMainScreenLayers.Bg2)),
-            ppu.Bg2FirstScanline, ppu.Bg2EndScanline);
+            ppu.Bg2FirstScanline, ppu.Bg2EndScanline,
+            Bg2Mosaic: BackgroundMosaicSampling.ForBg2(runtime.Enemies.Phantoon?.Blending.DisplayedMosaic ?? 0));
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.
         var layer = new OrdinaryGameplayRenderLayer(registers,

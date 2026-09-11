@@ -79,7 +79,7 @@ public static class SoftwareXrayGameplayRenderer
             {
                 int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
                 int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                var pixel = bg2Sampler.Sample(x + sx, y + sy + SnesPpuLayout.FirstVisibleBackgroundScanline);
+                var pixel = bg2Sampler.Sample(r.Bg2Mosaic.SourceX(x, (ushort)sx), r.Bg2Mosaic.SourceY(y, (ushort)sy));
                 Insert(pixel.Color, pixel.High ? 5 : 2, SnesColorMathControl.Bg2);
             }
             if ((!layer.RevealBlocks || !inside) && showBg1)
@@ -101,7 +101,7 @@ public static class SoftwareXrayGameplayRenderer
                 {
                     int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
                     int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
-                    sub = bg2Sampler.Sample(x + sx, y + sy + SnesPpuLayout.FirstVisibleBackgroundScanline).Color;
+                    sub = bg2Sampler.Sample(r.Bg2Mosaic.SourceX(x, (ushort)sx), r.Bg2Mosaic.SourceY(y, (ushort)sy)).Color;
                 }
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {

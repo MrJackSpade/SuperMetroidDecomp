@@ -24,6 +24,7 @@ public sealed partial class D3D11FrameRenderer
         data[16] = r.Bg2TilemapWord; data[17] = r.HudCharacterWord;
         data[22] = layer.AddSubscreen ? 1u : 0u;
         data[26] = 224;
+        data[27] = (uint)r.Bg2Mosaic.Size;
         // Subscreen descriptor: none, captured BG3, or gameplay BG2 registers.
         if (layer.SubscreenUsesBg2) data[15] = (uint)D3D11GameplaySubscreenKind.GameplayBg2;
         if (layer.Subscreen is { } sub)

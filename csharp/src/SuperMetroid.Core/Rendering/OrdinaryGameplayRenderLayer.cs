@@ -10,7 +10,8 @@ public readonly record struct OrdinaryGameplayRegisters(
     SnesMainScreenLayers MainScreenLayers,
     int Bg2FirstScanline = 32, int Bg2EndScanline = 224,
     SnesWindowRegisters Windows = default,
-    SnesMainScreenLayers MainScreenWindowMask = SnesMainScreenLayers.None);
+    SnesMainScreenLayers MainScreenWindowMask = SnesMainScreenLayers.None,
+    BackgroundMosaicSampling Bg2Mosaic = default);
 
 /// <summary>
 /// Fused backdrop/HUD/Mode-1/OBJ composition. This must be the first operation;

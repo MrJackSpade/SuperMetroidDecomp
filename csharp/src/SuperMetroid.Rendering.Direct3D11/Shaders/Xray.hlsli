@@ -39,12 +39,14 @@ uint XrayGameplay(uint2 screen)
     else
     {
     uint4 scan = ScanlineParameters[screen.y];
+    uint2 bg2Screen = screen;
+    if (Reserved27 > 1) bg2Screen -= bg2Screen % Reserved27;
     bool inside = screen.x >= (scan.z & 255) && screen.x <= ((scan.z >> 8) & 255);
     uint source = 32;
     int rank = -1;
     if ((TransparentZero == 0 || inside) && (PriorityFilter & 2) != 0)
     {
-        uint2 bg = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), screen + scan.xy, true, false);
+        uint2 bg = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false);
         XrayInsert(bg, bg.y != 0 ? 5 : 2, 2, winner, rank, source);
     }
     if ((TransparentZero == 0 || !inside) && (PriorityFilter & 1) != 0)
@@ -63,7 +65,7 @@ uint XrayGameplay(uint2 screen)
     {
         uint sub = 0;
         if (OffsetX != 0 && Reserved3 == SubscreenGameplayBg2)
-            sub = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), screen + scan.xy, true, false).x;
+            sub = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), bg2Screen + scan.xy, true, false).x;
         if (OffsetX != 0 && Reserved3 == SubscreenCapturedBg3 && screen.y >= (uint)CenterY)
             sub = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
                 screen + uint2(scan.w & 65535, scan.w >> 16), false, false).x;

@@ -232,8 +232,11 @@ void Main(uint3 id : SV_DispatchThreadID)
     }
     bool backgroundMath = Operation == OpBgAdd || Operation == OpBgSubtract;
     uint2 scroll = (backgroundMath || Reserved3 != 0) ? ScanlineParameters[id.y].xy : uint2(HorizontalScroll, VerticalScroll);
-    uint x = (id.x + scroll.x) & (MapWidth * 8 - 1);
-    uint y = (id.y + scroll.y) & (MapHeight * 8 - 1);
+    // BG2-only grouping happens before the current scanline's HDMA scroll.
+    uint2 sampleScreen = id.xy;
+    if (Operation == OpBg4 && Reserved27 > 1) sampleScreen -= sampleScreen % Reserved27;
+    uint x = (sampleScreen.x + scroll.x) & (MapWidth * 8 - 1);
+    uint y = (sampleScreen.y + scroll.y) & (MapHeight * 8 - 1);
     uint tileX = x >> 3, tileY = y >> 3;
     uint page = ((tileY >> 5) * (MapWidth >> 5) + (tileX >> 5)) * 1024;
     uint entry = ReadWord(TilemapWord + page + (tileY & 31) * 32 + (tileX & 31));

@@ -68,7 +68,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort MemuDefinition = 0xd17f;
 
     private const ushort FlyInstructionList = 0xb013;
-    private const int SignedSineCosineTable = 0xa0b3c3;
     private const int FlyAttackHorizontalRange = 0x70;
     private readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[MaximumEnemyCount];
 
@@ -123,7 +122,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunFlyCircle(
+    private static void RunFlyCircle(
         RoomEnemySlot slot,
         FlyEnemyState state,
         SamusState samus,
@@ -150,7 +149,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void SetFlyToAttackSamus(
+    private static void SetFlyToAttackSamus(
         RoomEnemySlot slot,
         FlyEnemyState state,
         SamusState samus)
@@ -179,7 +178,7 @@ public sealed partial class RoomEnemySystem
         state.Function = FlyEnemyFunction.Retreat;
     }
 
-    private void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
+    private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle >> 1;
         (slot.XPosition, slot.XSubposition) = AddEightBitVelocity(
@@ -204,13 +203,11 @@ public sealed partial class RoomEnemySystem
             state.YVelocity);
     }
 
-    private short ReadSignedSineCosine(int index)
+    private static short ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
         // and continues far enough for every byte angle plus the cosine phase offset.
-        if ((uint)index >= 320)
-            throw new ArgumentOutOfRangeException(nameof(index));
-        return unchecked((short)ReadWord(_bus!, SignedSineCosineTable + index * 2));
+        return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
     private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>

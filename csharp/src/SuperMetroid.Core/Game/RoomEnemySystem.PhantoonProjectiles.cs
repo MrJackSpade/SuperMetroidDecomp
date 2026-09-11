@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
         DeletePhantoonFlameOutsideRoom(flame);
     }
 
-    private void PositionPhantoonFlameAroundBody(
+    private static void PositionPhantoonFlameAroundBody(
         RoomEnemyProjectileSlot flame,
         RoomEnemySlot body,
         ushort angle,
@@ -301,10 +301,10 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports $86:9BA2/$9BF3: unsigned half-wave multiplication followed by whole-result negation.</summary>
-    private int ReadPhantoonFlameComponent(ushort angle, ushort radius)
+    private static int ReadPhantoonFlameComponent(ushort angle, ushort radius)
     {
         int byteAngle = angle & 255;
-        int sample = ReadWord(_bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + (byteAngle & 127) * 2);
+        int sample = EnemyTrigonometryTables.SignedSine((byte)(byteAngle & 127));
         int magnitude = ((sample & 255) * (radius & 255) >> 8) + (sample >> 8) * (radius & 255);
         return byteAngle < 128 ? magnitude : -magnitude;
     }

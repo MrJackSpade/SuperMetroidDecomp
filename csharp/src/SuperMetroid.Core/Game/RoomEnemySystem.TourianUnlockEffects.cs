@@ -42,8 +42,8 @@ public sealed partial class RoomEnemySystem
         if (definition != TourianStatueRomData.Particle) return;
         byte angle = unchecked((byte)((_nextRandom!() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
-        projectile.XVelocity = ReadWord(_bus!, TourianStatueRomData.SignedSine + (angle + 64) * 2);
-        projectile.YVelocity = unchecked((ushort)(4 * ReadWord(_bus!, TourianStatueRomData.SignedSine + angle * 2)));
+        projectile.XVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64));
+        projectile.YVelocity = unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
     }
 
     private bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)

@@ -191,11 +191,9 @@ public sealed partial class RoomEnemySystem
         projectile.YVelocity = unchecked((ushort)(projectile.YVelocity + 12));
     }
 
-    private short ReadEyeDoorAcceleration(int tableIndex)
+    private static short ReadEyeDoorAcceleration(int tableIndex)
     {
-        short sample = unchecked((short)ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Common.SignedSineCosineWords + ((tableIndex & 0xff) * 2)));
+        short sample = EnemyTrigonometryTables.SignedSine(unchecked((byte)tableIndex));
         return unchecked((short)(sample >> 4));
     }
 

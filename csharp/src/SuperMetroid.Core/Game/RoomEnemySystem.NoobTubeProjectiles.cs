@@ -164,14 +164,12 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void MoveNoobTubeProjectileHorizontallyAlongArc(
+    private static void MoveNoobTubeProjectileHorizontallyAlongArc(
         RoomEnemyProjectileSlot projectile,
         ushort angleStep)
     {
         ushort tableOffset = unchecked((ushort)((projectile.XVelocity & 0x01fe) | 0x0080));
-        short sine = unchecked((short)ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Common.SignedSineCosineWords + tableOffset));
+        short sine = EnemyTrigonometryTables.SignedSine((byte)(tableOffset >> 1));
         ushort horizontalVelocity = unchecked((ushort)(sine >> 2));
         (projectile.Variable1, projectile.Variable0) = AddEightBitVelocity(
             projectile.Variable1,

@@ -111,7 +111,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
+    private static void UpdateCeresRidleyMode7Matrix(RidleyEnemyState state)
     {
         byte angle = state.Mode7Angle.TableIndex;
         ushort diagonal = MultiplyCartridgeSinCos(state.Mode7Zoom, unchecked((byte)(angle + 64)));

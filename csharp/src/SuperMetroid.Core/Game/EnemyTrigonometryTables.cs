@@ -4,6 +4,16 @@ namespace SuperMetroid.Core.Game;
 /// These are engine math definitions, not editable presentation assets.</summary>
 public static class EnemyTrigonometryTables
 {
+    /// <summary>$86:C26C/$C27A, CalculateSine/Cosine: multiply unsigned speed by
+    /// the $A0:B443 signed sample, keep product bits 8..23, then restore the sign.
+    /// Callers add a quarter-turn themselves when selecting cosine.</summary>
+    public static ushort MultiplySignedSine(ushort speed, byte angle)
+    {
+        short sample = SignedSine(angle);
+        int magnitude = speed * Math.Abs((int)sample) >> 8;
+        return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
+    }
+
     /// <summary>$A0:B443-$B642, SineCosineTables_8bitSine_SignExtended and
     /// its three quadrant continuations. Unlike the byte table, peaks are +/-256.</summary>
     public static short SignedSine(byte angle)

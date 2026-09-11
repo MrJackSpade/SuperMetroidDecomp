@@ -146,23 +146,17 @@ public sealed partial class BabyMetroidCutsceneState
         }
 
         byte angleByte = unchecked((byte)(Angle >> 8));
-        XVelocity = CalculateVelocityComponent(bus, Speed, angleByte);
-        YVelocity = CalculateVelocityComponent(bus, Speed, unchecked((byte)(angleByte + 0x40)));
+        XVelocity = CalculateVelocityComponent(Speed, angleByte);
+        YVelocity = CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)));
     }
 
     private static ushort CalculateVelocityComponent(
-        ISnesAddressSpace bus,
         ushort speed,
         byte sineIndex)
     {
-        int address = SignedSineTable + sineIndex * 2;
-        short sine = unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
-
         // Bank `$86:C27A` multiplies unsigned speed by the absolute signed-table value,
         // returns product bits 8..23, then reapplies the original sign.
-        uint product = unchecked((uint)(speed * Math.Abs((int)sine)));
-        ushort magnitude = unchecked((ushort)(product >> 8));
-        return sine < 0 ? unchecked((ushort)-magnitude) : magnitude;
+        return EnemyTrigonometryTables.MultiplySignedSine(speed, sineIndex);
     }
 
     private void MoveAccordingToVelocity()

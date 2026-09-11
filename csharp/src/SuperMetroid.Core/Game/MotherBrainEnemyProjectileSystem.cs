@@ -40,7 +40,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
     /// <summary>Initial animation-list pointer stored by definition <c>$86:CB4B</c>.</summary>
     public const ushort InitialInstructionList = 0xc432;
 
-    private const int SignedSineTable = 0xa0b443;
     private const ushort SetXAndYRadiusInstruction = 0x8298;
     private const ushort DeleteInstruction = 0x8154;
     private const ushort SleepInstruction = 0x8159;
@@ -112,9 +111,8 @@ public sealed partial class MotherBrainEnemyProjectileSystem
 
         // `$86:C27A` multiplies `$0450` by a sign-extended ROM sine entry, shifts the
         // unsigned magnitude right eight, then restores the sign. Cosine is sine+`$40`.
-        slot.XVelocity = CalculateVelocityComponent(bus, 0x0450, request.Angle.TableIndex);
+        slot.XVelocity = CalculateVelocityComponent(0x0450, request.Angle.TableIndex);
         slot.YVelocity = CalculateVelocityComponent(
-            bus,
             0x0450,
             request.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
         PinToBrain(slot, motherBrain);

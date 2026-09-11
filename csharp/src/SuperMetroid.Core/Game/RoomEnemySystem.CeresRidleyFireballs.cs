@@ -681,12 +681,9 @@ public sealed partial class RoomEnemySystem
         state.FireballYVelocity = MultiplyCartridgeSinCos(0x0500, unchecked((byte)(angle + 64)));
     }
 
-    private ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
+    private static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {
-        short tableValue = unchecked((short)ReadWord(
-            _bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + angle * 2));
-        int magnitude = speed * Math.Abs((int)tableValue) >> 8;
-        return unchecked((ushort)(tableValue < 0 ? -magnitude : magnitude));
+        return EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
     }
 
     /// <summary>Allocates and initializes enemy projectile $86:9642.</summary>
@@ -1596,14 +1593,8 @@ public sealed partial class RoomEnemySystem
                         unchecked((short)(samus.XPosition - projectile.XPosition)),
                         unchecked((short)(samus.YPosition - projectile.YPosition)))));
                     int eyeDoorAngle = projectile.Variable0 >> 1;
-                    projectile.XVelocity = unchecked((ushort)ReadWord(
-                        _bus!,
-                        EnemyRomTablePointers.Common.SignedSineCosineWords +
-                        ((eyeDoorAngle & 0xff) * 2)));
-                    projectile.YVelocity = unchecked((ushort)ReadWord(
-                        _bus!,
-                        EnemyRomTablePointers.Common.SignedSineCosineWords +
-                        (((eyeDoorAngle - 64) & 0xff) * 2)));
+                    projectile.XVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)eyeDoorAngle));
+                    projectile.YVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileCodePointers.Instruction_EnemyProjectile_ClearPreInstruction:

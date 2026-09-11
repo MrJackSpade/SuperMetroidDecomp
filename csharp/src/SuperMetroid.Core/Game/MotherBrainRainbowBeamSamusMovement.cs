@@ -22,7 +22,6 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 {
     // `$A0:B443` is the signed 8-bit sine table consumed by the shared bank-$86 velocity
     // component routine. Entries are 16-bit sign-extended values in the range -256..256.
-    private const int SignedSineTable = 0xa0b443;
 
     /// <summary>Mother Brain body extra word <c>$0FB2</c>, interpreted as signed 8.8.</summary>
     public ushort CustomXVelocity { get; private set; }
@@ -56,7 +55,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         {
             // `$86:C272` adds $40 before indexing the sine table. Its multiplication returns
             // product bits 8..23, i.e. a signed 8.8 component for the supplied 8.8 speed.
-            yVelocity = CalculateYVelocity(bus, speed: 0x1000, RainbowBeamAngle);
+            yVelocity = CalculateYVelocity(speed: 0x1000, RainbowBeamAngle);
             reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
 
             // `$A9:BBCD` unconditionally clears carry after the vertical helper. The caller
@@ -144,21 +143,13 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     private static ushort CalculateYVelocity(
-        ISnesAddressSpace bus,
         ushort speed,
         SnesAngle angle)
     {
-        int sineAddress = SignedSineTable +
-            angle.AddRaw(SnesAngle.QuarterTurn.RawValue).SineTableByteOffset;
-        short sine = unchecked((short)(
-            bus.ReadByte(sineAddress) |
-            (bus.ReadByte(sineAddress + 1) << 8)));
-
         // `$86:C27A` multiplies unsigned speed by the magnitude, selects product bits 8..23,
         // then reapplies the table entry's sign with 16-bit two's-complement negation.
-        uint magnitude = unchecked((uint)(speed * Math.Abs((int)sine)));
-        ushort component = unchecked((ushort)(magnitude >> 8));
-        return sine < 0 ? unchecked((ushort)-component) : component;
+        return EnemyTrigonometryTables.MultiplySignedSine(
+            speed, angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
     }
 
     private static bool MoveVerticallyTowardCeilingOrFloor(

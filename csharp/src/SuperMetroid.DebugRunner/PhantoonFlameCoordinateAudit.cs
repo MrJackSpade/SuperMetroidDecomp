@@ -14,12 +14,13 @@ internal static class PhantoonFlameCoordinateAudit
         var body = runtime.Enemies.Phantoon!.Body;
         body.XPosition = 128; body.YPosition = 112;
         var flame = runtime.Enemies.EnemyProjectiles[0];
-        var position = typeof(RoomEnemySystem).GetMethod("PositionPhantoonFlameAroundBody", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var position = typeof(RoomEnemySystem).GetMethod("PositionPhantoonFlameAroundBody", BindingFlags.NonPublic | BindingFlags.Static)!
+            .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomEnemySlot, ushort, ushort>>();
         int cases = 0, failures = 0;
         foreach (string line in File.ReadLines(csv).Skip(1))
         {
             ushort[] row = line.Split(',').Select(ushort.Parse).ToArray();
-            position.Invoke(runtime.Enemies, [flame, body, row[0], row[1]]);
+            position(flame, body, row[0], row[1]);
             ushort x = unchecked((ushort)(128 + row[2])), y = unchecked((ushort)(128 + row[3]));
             if (flame.XPosition != x || flame.YPosition != y)
             {

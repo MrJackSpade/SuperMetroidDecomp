@@ -108,6 +108,40 @@ This removes the grapple signed-table dependency, not all grapple ROM accesses.
 
 ## Remaining work
 
+### Signed enemy/projectile caller follow-up
+
+The shared $86:C27A speed multiplication now uses compiled signed samples for
+Ridley/Mode-7/tail, Rinka, Mother Brain's rings/hand beam/baby steering, the
+standalone baby/projectile systems and rainbow-beam Samus movement. The exact
+unsigned product, shift and sign restoration are shared; no floating-point math
+is introduced. Fly and glass prefix reads, Rio, eye-door acceleration/direction,
+N00b-tube arcs, Phantoon flame components, Shaktool's common wave and Tourian
+unlock particles also use compiled samples. Each retains its native indexing,
+truncation, arithmetic shift and overflow behavior. Family-specific Shaktool
+tables are not part of this change.
+
+The no-bus production-delegate audit checks every speed word at every angle
+(16,777,216 cases) across four production readers plus the shared catalog method;
+all fly/glass samples; signed/wrapped eye and Shaktool indices; all Rio samples;
+65,536 Phantoon components; and 393,216 N00b-tube arc steps, including word
+wrap and retained low subpixel bytes. The full Release suite and Windows build
+pass. The Phantoon diagnostic reflection callers now use static delegates after
+their production helper became pure.
+
+Additional encounter checks:
+
+- Mother Brain glass: all 16 RNG selectors, eight shard loops/64 maps, flight,
+  gravity, page deletion and sparkle lifecycle pass.
+- Phantoon: 16 touch/shot cases, 48 expansion lifetimes and rain impact pass.
+- The preserved, SHA-gated original-CPU Phantoon coordinate capture still matches
+  all 65,536 cases after migration (no mismatches).
+- Rio contact and Mother Brain phase-three recoil audits fail identically on
+  clean 71f1c01f and the migration. These are NOT passing evidence; #577 and #578
+  track investigation. The temporary baseline worktree and executable were
+  removed after comparison, leaving the active checkout untouched.
+
+### Outstanding scope
+
 This is not the entire lookup-table migration. Remaining signed-table callers,
 linear/quadratic speed tables, family-specific tables, callback classification
 reads and indirect/banked caller inventory remain. Mutable WRAM must remain

@@ -295,8 +295,8 @@ public sealed partial class RoomEnemySystem
     /// Reads one sign-extended entry from kSinCosTable8bit_Sext at $A0:B443. Rio consumes
     /// the raw table sample as an 8.8 velocity; unlike Rinka, it performs no speed multiply.
     /// </summary>
-    private ushort ReadRioSignedSineCosineSample(byte angle) =>
-        ReadWord(_bus!, EnemyRomTablePointers.Common.SignedSineCosineWords + angle * 2);
+    private static ushort ReadRioSignedSineCosineSample(byte angle) =>
+        unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
     private static void RequireRioLevel(RoomLevelData? level)
     {

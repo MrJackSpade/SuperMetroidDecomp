@@ -61,7 +61,6 @@ public sealed partial class BabyMetroidCutsceneState
 
     // Shared bank-$86 component math indexes this 16-bit sign-extended table with an
     // eight-bit angle. Angle zero points down; positive rotation is anti-clockwise.
-    private const int SignedSineTable = 0xa0b443;
 
     /// <summary>Current native function-pointer equivalent.</summary>
     public BabyMetroidCutscenePhase Phase { get; private set; } =

@@ -135,14 +135,15 @@ internal static class PhantoonFlameCollisionAudit
             // Here invoke that helper only to predict the first boundary crossing;
             // exercise removal through the real pre-instruction/bytecode frame pass.
             var prediction = runtime.Enemies.EnemyProjectiles.First(p => !p.IsActive);
-            var position = typeof(RoomEnemySystem).GetMethod("PositionPhantoonFlameAroundBody", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            var position = typeof(RoomEnemySystem).GetMethod("PositionPhantoonFlameAroundBody", BindingFlags.NonPublic | BindingFlags.Static)!
+                .CreateDelegate<Action<RoomEnemyProjectileSlot, RoomEnemySlot, ushort, ushort>>();
             int angle = flame.Variable0;
             int delta = spiral ? 2 : (short)flame.XVelocity;
             int step = spiral ? 2 : 4;
             int expectedDeath = 0;
             for (int frame = 1; frame < 256; frame++)
             {
-                position.Invoke(runtime.Enemies, [prediction, body, (ushort)((angle + delta * frame) & 255), (ushort)((step * frame) & 255)]);
+                position(prediction, body, (ushort)((angle + delta * frame) & 255), (ushort)((step * frame) & 255));
                 bool outside = prediction.XPosition >= 256 || prediction.YPosition >= 256;
                 runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, null);
                 if (flame.IsActive == outside)

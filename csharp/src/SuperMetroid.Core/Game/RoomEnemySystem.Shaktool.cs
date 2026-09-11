@@ -94,7 +94,6 @@ public sealed partial class RoomEnemySystem
     private const int ShaktoolOrientationListTable = 0xaadd15;
     private const int ShaktoolSineTable = 0xaae0bd;
     private const int ShaktoolNegativeCosineTable = 0xaae03d;
-    private const int CommonSignedSineTable = 0xa0b443;
 
     private readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[MaximumEnemyCount];
@@ -574,7 +573,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the one-frame sine movement helper at <c>$AA:D956</c>.</summary>
-    private void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, byte angle)
+    private static void MoveShaktoolSegmentForAnimation(RoomEnemySlot slot, byte angle)
     {
         // The decompilation names a 320-word view whose indices 64..319 are the cartridge's
         // 256-word table at $A0:B443. Convert those full-view indices explicitly: X reads
@@ -592,10 +591,8 @@ public sealed partial class RoomEnemySystem
             yVelocity);
     }
 
-    private ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
-        ReadWord(
-            _bus!,
-            CommonSignedSineTable + (((fullTableIndex - 64) & 0xff) * 2));
+    private static ushort ReadShaktoolCommonSineSample(int fullTableIndex) =>
+        unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(fullTableIndex - 64)));
 
     /// <summary>
     /// Ports unused retail routine <c>$AA:DAE5</c>. No cartridge caller reaches it, so the

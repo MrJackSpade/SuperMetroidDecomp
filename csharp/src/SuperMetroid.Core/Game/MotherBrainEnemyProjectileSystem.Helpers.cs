@@ -631,15 +631,10 @@ public sealed partial class MotherBrainEnemyProjectileSystem
     }
 
     private static ushort CalculateVelocityComponent(
-        ISnesAddressSpace bus,
         ushort speed,
         byte sineIndex)
     {
-        int address = SignedSineTable + sineIndex * 2;
-        short sine = unchecked((short)ReadWord(bus, address));
-        uint product = unchecked((uint)(speed * Math.Abs((int)sine)));
-        ushort magnitude = unchecked((ushort)(product >> 8));
-        return sine < 0 ? unchecked((ushort)-magnitude) : magnitude;
+        return EnemyTrigonometryTables.MultiplySignedSine(speed, sineIndex);
     }
 
     private static bool StrictAxisOverlap(

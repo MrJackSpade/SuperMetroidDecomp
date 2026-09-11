@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
     /// retaining that documented anomaly is why the tail curls and rotates at the same
     /// rate as the cartridge.
     /// </summary>
-    private void TickRidleyTail(
+    private static void TickRidleyTail(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -297,7 +297,7 @@ public sealed partial class RoomEnemySystem
     /// offset consumed by $A6:CEBA. This is deliberately independent of the segment's active
     /// flag: inactive tail pieces keep their established pose rather than collapsing.
     /// </summary>
-    private void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
+    private static void UpdateRidleyTailSegmentOffset(RidleyEnemyState state, int index)
     {
         RidleyTailSegment segment = state.TailSegments[index];
         byte angle = unchecked((byte)segment.Angle);

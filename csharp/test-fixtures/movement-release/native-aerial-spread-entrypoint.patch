@@ -21,14 +21,15 @@ index 64ececa..622958c 100644
    fprintf(stderr, "Warning: %s\n", error);
  }
  
-@@ -313,6 +314,11 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+@@ -313,6 +314,12 @@ static const struct RendererFuncs kSdlRendererFuncs = {
  
  #undef main
  int main(int argc, char** argv) {
-+  if (argc == 4 && strcmp(argv[1], "--diagnostic-aerial-spread") == 0) {
++  if (argc == 4 && (strcmp(argv[1], "--diagnostic-aerial-spread") == 0 || strcmp(argv[1], "--diagnostic-wall-spread") == 0)) {
 +    aerial_spread_headless = true;
 +    extern int DiagnosticAerialSpread(const char *, const char *);
-+    return DiagnosticAerialSpread(argv[2], argv[3]);
++    extern int DiagnosticWallSpread(const char *, const char *);
++    return strcmp(argv[1], "--diagnostic-wall-spread") == 0 ? DiagnosticWallSpread(argv[2], argv[3]) : DiagnosticAerialSpread(argv[2], argv[3]);
 +  }
  #ifdef __SWITCH__
    SwitchImpl_Init();

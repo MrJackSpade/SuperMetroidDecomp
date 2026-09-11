@@ -2,7 +2,8 @@
 
 Technique source: https://wiki.supermetroid.run/Bomb_Spread (down-aim turnaround
 and alternate charged-walljump routes). This is a technique audit, not a new
-player-version report. The walljump route remains outstanding.
+player-version report. Both routes are now verified against original CPU routines
+and ready for player validation; earlier remaining-work notes below are historical.
 
 ## Down-aim turnaround: original CPU comparison
 
@@ -92,3 +93,56 @@ The standard regression requires all bombs to expire by frame 259 and retains
 the one-frame success window and held/consumed-charge assertions. This changes
 tests only; no production discrepancy was found. The charged-walljump route is
 still outstanding, so #415 is not yet awaiting player validation.
+
+## Charged-walljump completion
+
+The shared fixture adds a full-height solid wall at block column 33 when starting
+right-facing, or 29 when left-facing. No walljump or charged pose is injected.
+The same real runtime earns charge and accepts a walljump from controller input.
+The original-CPU probe uses identical geometry, equipment, bindings and inputs.
+
+For the primary sequence: hold Shoot to charge; move toward the wall on 68..86;
+hold Jump on 70..85; release Shoot and turn away on 87; press Jump again on 89
+and hold it through 199. Keep moving away through 139. On frame 94 plus the tested
+delay, repress Shoot and press Down, retaining both until releasing Down on
+115 plus delay. Shoot remains held thereafter. All cases run 300 frames.
+
+Both facings test delays 0..9, 40 and 41 plus two failure controls (CSV case IDs
+42 and 43): never release Shoot, or insert a one-frame turn back toward the wall
+on frame 93 before the delay-zero morph input.
+
+Original CPU and runtime agree on all **8,400 frame records and 25,900 bomb-slot
+observations** through expiration. All twelve timing cases succeed in both
+facings; neither control produces bombs. Held Shoot interrupts the walljump into
+normal jumping on frame 90, preventing the morph route. The intervening turn
+returns to spin and then fires the stored charge instead of morphing, clearing
+charge on 95. The successful route retains charge 71 across released Shoot,
+walljump and morph; six morph frames finish before the hold timer advances.
+Down release creates all five bombs and consumes charge. Bombs expire by 299.
+
+The late cases deliberately dispute the wiki's before-apex restriction: in delay
+41, Samus's native Y/subpixel position is already increasing on frame 134, before
+morph begins on 135, yet the spread succeeds. Pinned bank-$91 handler $8167
+dispatches the normal transition table; walljump tables $A9EC/$AA12 place newly
+pressed Down before held Shoot, with no apex check. No artificial restriction
+was added. This conclusion is for this pinned NTSC setup, not PAL/modified ROMs.
+
+Native/managed CSV SHA256:
+`E1BD187448DD564AA81F49FC78BF20EFB9CDA33C28E97A504E1E3D68F2E519A1`.
+Use the same temporary native entrypoint patch, now supporting
+`--diagnostic-wall-spread ROM NEW_NATIVE_CSV`. Managed commands:
+
+```text
+--wall-spread-transition
+--wall-spread-transition NATIVE_CSV
+--wall-spread-trace NEW_MANAGED_CSV
+```
+
+The standard suite includes both route regressions: actual walljump admission,
+six-frame morph, charge/hold cadence, late descent success, distinct failure
+controls and expiry. CSV mode additionally compares every recorded frame and
+live bomb field. The previously documented native omissions remain: this is a
+controlled local gameplay-logic comparison, not audio/video or full-room AI parity.
+Neither route required a new production fix. No player state was overwritten and
+no ROM, trace or screenshot was published. #415 can await player validation;
+Mockball-carried charge remains the separate #471 task.

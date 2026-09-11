@@ -25,6 +25,21 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--wall-spread-trace", var wallTrace])
+{
+    VerifyAerialSpreadTransitions(outputPath: wallTrace, wallRoute: true);
+    return 0;
+}
+if (args is ["--wall-spread-transition", var wallNative])
+{
+    VerifyAerialSpreadTransitions(tracePath: wallNative, wallRoute: true);
+    return 0;
+}
+if (args is ["--wall-spread-transition"])
+{
+    VerifyAerialSpreadTransitions(wallRoute: true);
+    return 0;
+}
 if (args is ["--aerial-spread-trace", var aerialTrace])
 {
     VerifyAerialSpreadTransitions(outputPath: aerialTrace);
@@ -641,6 +656,7 @@ VerifyBombChargeRejection();
 VerifyGroundedBombSpread();
 VerifyGroundedSpreadTransition();
 VerifyAerialSpreadTransitions();
+VerifyAerialSpreadTransitions(wallRoute: true);
 VerifySamusStandingAimMovement();
 VerifySamusAimedAerialMovement();
 VerifySamusGunExtendedMovement();

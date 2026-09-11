@@ -1,16 +1,18 @@
 // #415: earned-charge, down-aim turnaround sweep. Original CPU routines only.
 // Include after native-release-probe.h. No SDL or player save is involved.
-int DiagnosticAerialSpread(const char *rom, const char *output) {
+static int DiagnosticAerialSpreadRoute(const char *rom, const char *output, int wall) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   fprintf(f, "left,delay,frame,input,pose,x,xsub,y,ysub,charge,spread,bombs\n");
   for (int left = 0; left < 2; left++)
-  for (int delay = 0; delay < 10; delay++) {
+  for (int timing = 0; timing < (wall ? 14 : 10); timing++) {
+    int delay = timing < 10 ? timing : timing + 30;
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
     room_width_in_blocks = room_height_in_blocks = 64;
     room_width_in_scrolls = room_height_in_scrolls = 4;
     for (int y = 32; y < 36; y++) for (int x = 16; x < 48; x++) level_data[y * 64 + x] = 0x8000;
+    if (wall) for (int y = 16; y < 32; y++) level_data[y * 64 + (left ? 29 : 33)] = 0x8000;
     interactive_enemy_indexes[0] = 0xffff;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     samus_pose = samus_prev_pose = left ? 2 : 1;
@@ -23,11 +25,20 @@ int DiagnosticAerialSpread(const char *rom, const char *output) {
     samus_input_handler = 0xe913; grapple_beam_function = 0xc4f0;
     samus_anim_frame_timer = 5; game_state = 8;
     uint16 previous = 0;
-    for (int frame = 0; frame < 260; frame++) {
+    for (int frame = 0; frame < (wall ? 300 : 260); frame++) {
       uint16 input = 0x40;
       if (frame >= 70 && frame < 125) input |= 0x80;
       if (frame >= 76 && frame < 105 && frame != 78 + delay) input |= 0x400;
       if (frame >= 78 && frame < 125) input |= left ? 0x100 : 0x200;
+      if (wall) {
+        int morph_delay = timing >= 12 ? 0 : delay;
+        input = timing == 12 || frame < 87 || frame >= 94 + morph_delay ? 0x40 : 0;
+        if ((frame >= 70 && frame < 86) || (frame >= 89 && frame < 200)) input |= 0x80;
+        if (frame >= 68 && frame < 87) input |= left ? 0x200 : 0x100;
+        if (frame >= 87 && frame < 140) input |= left ? 0x100 : 0x200;
+        if (timing == 13 && frame == 93) { input &= ~0x300; input |= left ? 0x200 : 0x100; }
+        if (frame >= 94 + morph_delay && frame < 115 + morph_delay) input |= 0x400;
+      }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       RunAsmCode(0x90e695, 0, 0, 0, 0);
       RunAsmCode(0xa09785, 0, 0, 0, 0);
@@ -38,7 +49,7 @@ int DiagnosticAerialSpread(const char *rom, const char *output) {
       fprintf(f, "%d,%d,%d,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
         left,delay,frame,input,samus_pose,samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,
         flare_counter,bomb_spread_charge_timeout_counter,bomb_counter);
-      if (delay == 6 && frame >= 105) for (int slot = 0; slot < 5; slot++) {
+      if (wall ? frame >= 115 : delay == 6 && frame >= 105) for (int slot = 0; slot < 5; slot++) {
         int i = slot + 5;
         if (!projectile_bomb_instruction_ptr[i]) fprintf(f, "bomb,%d,0\n", slot);
         else fprintf(f, "bomb,%d,1,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
@@ -50,3 +61,5 @@ int DiagnosticAerialSpread(const char *rom, const char *output) {
   }
   fclose(f); return 0;
 }
+int DiagnosticAerialSpread(const char *rom, const char *output) { return DiagnosticAerialSpreadRoute(rom, output, 0); }
+int DiagnosticWallSpread(const char *rom, const char *output) { return DiagnosticAerialSpreadRoute(rom, output, 1); }

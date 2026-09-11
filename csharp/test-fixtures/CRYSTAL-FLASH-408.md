@@ -315,3 +315,28 @@ Repeat with the shared entrypoint patch and
 Probe commands remain headless. Temporary hooks removed; normal native binary
 rebuilt and repeat patch checked. Original-CPU palette routine comparison remains
 outstanding, so the overall technique ticket stays open.
+
+## Original-CPU palette comparison completed
+
+The final palette comparison executes original activation `$90:D5A2` and palette
+handler `$91:DB93`. Twelve cases combine four beam loadouts (none, Charge,
+Wave+Ice, Plasma) with inherited body-record offsets 0, 4 and 36. All 2,172 calls
+match the managed handler: palette kind, bubble frame/timer, body-record offset,
+and all sixteen CGRAM colors. This covers independent body/bubble cycles and
+beam-palette restoration. The final call supplies the explicit finish sentinel
+to both implementations; movement-owned finish timing is established separately
+by the original-CPU lifetime comparison, not by this isolated palette probe.
+
+Repeat using the shared native entrypoint patch:
+`sm.exe --diagnostic-crystal-palette ROM NEW.csv`, then Verification
+`--crystal-palette-native ROM NEW.csv`. Accepted private trace SHA256:
+`7DD811C738134358AB18F3C4BD609F455E6099AC90A2FAA29C9B9FECE5F209C8`.
+No ROM, trace, rendered image or audio is published. No additional production
+change was required. Native inactive body-timer scratch is not compared; active
+palette selection, timing and every resulting color are compared.
+
+Together with the admission matrix, movement/animation and contact lifetime
+comparisons, runtime resource/input integration, composed body/window checks and
+the reproduced byte-timer fix above, this completes the implementation audit.
+The ticket is ready for player validation, not claimed player-confirmed or a
+full native-room/PPU replay. Earlier outstanding-palette notes are superseded.

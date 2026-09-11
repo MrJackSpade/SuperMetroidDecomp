@@ -21,10 +21,15 @@ index 64ececa..abad3a2 100644
    fprintf(stderr, "Warning: %s\n", error);
  }
  
-@@ -313,6 +314,26 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+@@ -313,6 +314,31 @@ static const struct RendererFuncs kSdlRendererFuncs = {
  
  #undef main
  int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-crystal-palette") == 0) {
++    crystal_headless = true;
++    extern int DiagnosticCrystalPalette(const char *, const char *);
++    return DiagnosticCrystalPalette(argv[2], argv[3]);
++  }
 +  if (argc == 4 && strcmp(argv[1], "--diagnostic-crystal-window") == 0) {
 +    crystal_headless = true;
 +    extern int DiagnosticCrystalWindow(const char *, const char *);

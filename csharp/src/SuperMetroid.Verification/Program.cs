@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crystal-palette-native", var paletteRom, var paletteTrace])
+{
+    VerifyCrystalPaletteNative(paletteRom, paletteTrace);
+    return 0;
+}
 if (args is ["--crystal-window-native", var windowRom, var windowTrace])
 {
     VerifyCrystalWindowNative(windowRom, windowTrace);

@@ -564,6 +564,9 @@ if (args.Length == 3 && args[0] == "--ceres-explosion-timing-audit")
 if (args.Length == 3 && args[0] == "--zebes-ship-visibility-audit")
     return ZebesShipVisibilityAudit.Run(args[1], args[2]);
 
+if (args.Length == 3 && args[0] == "--intro-hurt-palette-audit")
+    return IntroHurtPaletteAudit.Run(args[1], args[2]);
+
 if (args.Length >= 3 && args[0] == "--ceres-destruction-audit")
 {
     string destructionRomPath = string.Join(' ', args[1..^1]).Trim('"');

@@ -552,6 +552,9 @@ public sealed partial class IntroCinematicState
             Missiles = 900,
             MaxMissiles = 900,
         };
+        // Shared Samus handlers read the nonzero cinematic-function word to select
+        // intro palette restoration and suppress gameplay-only sound/landing effects.
+        flashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         flashbackSamus.RefreshCollisionRadii(bus);
         flashbackSamus.InitializeAnimation(bus);
         flashbackSamus.CommitPoseHistory(bus);

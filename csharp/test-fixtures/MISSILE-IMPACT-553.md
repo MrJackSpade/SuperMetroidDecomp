@@ -1,6 +1,6 @@
 # Super Missile impact shake (#553)
 
-Affected player version: 0.1.1. This change addresses the shake portion only.
+Affected player version: 0.1.1. Shake and impact audio now have focused coverage.
 
 ## Cartridge evidence and defect
 
@@ -39,12 +39,35 @@ display-capture and software rendering paths, with a constructed solid wall.
 
 No screenshots, ROM data, or debugger-state files are published.
 
-## Still open in #553
+## Impact audio follow-up
 
 The native impact sound is library 2, command 7 for both regular and Super
-Missiles, not a louder Super-only sound. Managed `KillMissile` currently contains
-an explicitly missing sound handoff. Its audio producer/publication path and
-actual PCM timing still require implementation and verification, including the
-native cinematic suppression. Launch sound and distinct explosion animation also
-remain within the issue's investigation scope. Do not mark the whole issue ready
-for player validation based solely on this shake test.
+Missiles, not a louder Super-only sound. Managed `KillMissile` had no handoff.
+It now publishes a separate frame-scoped impact list, retained across projectile
+movement when an earlier enemy collision generated it. The gameplay publication
+generation guard prevents replaying the list during NMI-only frontend frames.
+Intro cinematic frames explicitly apply the native missile-sound suppression.
+The new transient fields are nonserialized, preserving debugger-state schemas.
+
+Run DebugRunner `--missile-impact-native-audio-audit AUDIO-DIRECTORY NATIVE-DLL ROM`.
+The native DLL is a local diagnostic dependency, not a new production audio path.
+The fixture injects a constructed room into the real frontend gameplay dispatcher.
+It runs input, collision, sound publication, APU commands, acknowledgements and PCM.
+
+- Disabling only the added impact request reproduces failure: PCM is identical
+  to a control which removes every missile impact command.
+- Fixed regular Missile: wall collision and impact port write both at frame 79.
+- Fixed Super Missile: wall collision and impact port write both at frame 71.
+- Exactly one impact command per shot; both differ audibly from the muted control.
+- All 480 complete PCM/acknowledgement frames match native SPC/DSP playback fed
+  the same production commands. This verifies synthesis, not independent original
+  65816 gameplay queue timing; same-frame impact selection is checked separately.
+- Direct enemy-impact conversion survives the subsequent projectile step; the
+  same conversion in cinematic context remains silent; next-frame publication clears.
+
+## Remaining scope
+
+Broader enemy-target coverage and displayed explosion-animation comparison remain
+within #553. The existing cartridge data selects separate regular and Super
+explosion lists; that observation alone is not a rendered animation regression.
+Keep the issue open without awaiting-player-validation until those checks finish.

@@ -215,6 +215,7 @@ public sealed partial class IntroCinematicState
 
     public void Step(ushort controllerInput)
     {
+        flashbackProjectiles.BeginImpactAudioFrame(cinematicActive: true);
         // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.

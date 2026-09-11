@@ -14,7 +14,7 @@ using SuperMetroid.Core.Input;
 internal static class NativeAudioCorpusAudit
 {
     public static int Run(string audioDirectory, string dllPath, string? romPath = null, string? recordingPath = null, bool survey = false,
-        string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null)
+        string? captureDirectory = null, bool fileSelectOnly = false, string? ridleyTracePath = null, bool missileImpactOnly = false)
     {
         var assets = ExtractedAudioAssetCatalog.Load(audioDirectory);
         nint library = NativeLibrary.Load(Path.GetFullPath(dllPath));
@@ -35,6 +35,18 @@ internal static class NativeAudioCorpusAudit
         int totalFrames = 0;
         try
         {
+            if (missileImpactOnly)
+            {
+                MissileImpactAudioSequence.VerifyEnemyImpactAndCinematicSuppression(romPath ?? throw new ArgumentNullException(nameof(romPath)));
+                foreach (ushort selection in new ushort[] { 1, 2 })
+                {
+                    var sequence = new MissileImpactAudioSequence(romPath ?? throw new ArgumentNullException(nameof(romPath)), selection);
+                    Scenario($"missile-impact-{selection}", 240, sequence.Step, sequence.Acknowledge);
+                    sequence.Verify();
+                }
+                Console.WriteLine($"Missile impact audio: {totalFrames} complete PCM and acknowledgement frames matched native playback.");
+                return 0;
+            }
             if (ridleyTracePath != null)
             {
                 foreach (int warmup in new[] { 120, 600, 1800 })
@@ -182,6 +194,9 @@ internal static class NativeAudioCorpusAudit
             try
             {
                 var managed = new ManagedSpcPlayer();
+                var mutedImpactControl = missileImpactOnly ? new ManagedSpcPlayer() : null;
+                var mutedImpactPcm = missileImpactOnly ? new short[1600] : null;
+                bool impactChangedPcm = false;
                 var nativeRaw = new short[1068];
                 var nativeHost = new short[1600];
                 var actual = new short[1600];
@@ -201,11 +216,15 @@ internal static class NativeAudioCorpusAudit
                             if (upload(native, stream, stream.Length) != 1) throw new InvalidDataException("Native upload rejected.");
                             managed.Upload(stream);
                             managed.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
+                            mutedImpactControl?.Upload(stream);
+                            mutedImpactControl?.SetSampleBank(assets.GetSampleBank(command.UploadAddress));
                         }
                         else
                         {
                             if (write(native, command.Port, command.Value) != 1) throw new InvalidDataException("Native port write rejected.");
                             managed.WritePort(command.Port, command.Value);
+                            if (command.Port != 2 || command.Value != SoundEffectLibrary2Sounds.MissileImpact.Value)
+                                mutedImpactControl?.WritePort(command.Port, command.Value);
                         }
                     }
                     // Read native samples at native rate, then use the independently tested
@@ -213,6 +232,11 @@ internal static class NativeAudioCorpusAudit
                     if (generate(native, nativeRaw, 534) != 534) throw new InvalidDataException("Native PCM frame incomplete.");
                     PcmFrameResampler.ResampleStereoLinear(nativeRaw, nativeHost);
                     managed.GenerateFrame(actual);
+                    if (mutedImpactControl is not null)
+                    {
+                        mutedImpactControl.GenerateFrame(mutedImpactPcm!);
+                        impactChangedPcm |= !actual.AsSpan().SequenceEqual(mutedImpactPcm);
+                    }
                     observePcm?.Invoke(frame, actual, nativeHost);
                     if (observePcm is null && !actual.AsSpan().SequenceEqual(nativeHost))
                     {
@@ -243,6 +267,8 @@ internal static class NativeAudioCorpusAudit
                     acknowledge?.Invoke(ports);
                     totalFrames++;
                 }
+                if (missileImpactOnly && !impactChangedPcm)
+                    throw new InvalidDataException("Impact request did not change audible PCM against the impact-muted control.");
             }
             finally { destroy(native); }
         }

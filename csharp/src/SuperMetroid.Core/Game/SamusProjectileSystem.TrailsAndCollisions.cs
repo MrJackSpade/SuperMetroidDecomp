@@ -754,9 +754,9 @@ public sealed partial class SamusProjectileSystem
         // Missile point collisions already supply the impact coordinate. Only the beam
         // branch of the native dispatcher applies a leading-edge radius adjustment.
 
-        // `$93:80CF` queues library-two sound seven, converts non-beams to family `$0800`,
-        // selects `$86:7F`, and leaves the slot counted until its delete opcode. Sound-library
-        // two has no public frame-result channel yet; every stateful effect is retained here.
+        // Impact audio is separate from launch audio and can also originate in enemy
+        // collision before the projectile movement owner executes.
+        RequestMissileImpactSound();
         bool wasSuperMissile = slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
         slot.InstructionPointer = ReadWord(

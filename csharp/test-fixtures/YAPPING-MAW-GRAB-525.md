@@ -62,3 +62,32 @@ The separate range test covers the formerly hidden rounding/clamp boundary.
 Issue 525 stays open without the awaiting-player-validation label: identifying
 the reported encounter and reproducing its missed grab are still outstanding.
 No saved state from another report is assumed to identify this enemy.
+
+## Floor-mounted contact follow-up
+
+`--floor-maw-contact-audit ROM` adds Beta Power Bomb room $8F:A37C, population
+$A1:90C7, first floor-mounted Maw at (368,208). This does not claim that the player
+reported this particular room. Native population parameter 2 is one, unlike the
+prior ceiling fixture. The actual room, enemy population and contact dispatcher
+remain loaded. Samus starts above the root and settles onto the floor; no equipment,
+invulnerability timer or host cheats are enabled.
+
+The unmodified room's roof limits the jump to center Y195; resting center is Y219.
+Both remain within the native measured 32-pixel safety distance of the mouth.
+For all 300 calls in standing and jump cases, the audit asserts measured distance
+below 32, neutral AI, cooldown refreshed to 48, and no capture. This agrees with
+the pinned A8:A235 neutral routine; it does not independently verify the terrain
+collision trajectory against an original-CPU movement replay.
+
+A paired synthetic control clears foreground rows 0..13 but retains the floor
+and same retail actor. With room to jump out of that safety radius, the floor Maw
+captures on call 146 and releases on call 213. Every held call checks input lock
+and mouth-relative position; release restores input. Standing still remains safe.
+The four cases pass through full runtime stepping, with no direct touch injection.
+
+The initial expectation that a jump under the intact roof should necessarily grab
+failed. Investigation showed it never exits the source-defined safety radius;
+the revised assertion checks that actual condition instead of changing gameplay
+to satisfy an unsupported capture assumption. No additional production fix.
+This narrows floor-orientation/terrain conditions but still does not establish the
+reported enemy identity or resolve universal missed grabs. Issue remains open.

@@ -346,6 +346,8 @@ if (args.Length == 2 && args[0] == "--missile-yard-detach-audit")
     return MissileYardDetachmentAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--spore-glow-audit")
     return SporeSpawnGlowAudit.Run(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--floor-maw-contact-audit")
+    return YappingMawAudit.RunFloorContact(args[1]);
 
 if (args.Length == 2 && args[0] == "--missile-impact-shake-audit")
     return MissileImpactShakeAudit.Run(args[1]);

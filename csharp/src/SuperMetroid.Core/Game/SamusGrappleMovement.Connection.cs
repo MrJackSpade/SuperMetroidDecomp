@@ -317,7 +317,6 @@ public static partial class SamusGrappleMovement
         // angle, and possibly shortened rope. This is the hand attachment point, not the
         // independently authored Flare pair from the firing tables.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
-            bus,
             grapple,
             angle.TableIndex,
             grapple.RopeLength);

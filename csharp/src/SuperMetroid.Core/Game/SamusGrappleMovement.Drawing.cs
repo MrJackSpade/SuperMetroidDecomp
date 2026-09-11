@@ -81,9 +81,9 @@ public static partial class SamusGrappleMovement
         int beamDeltaY = unchecked((short)(grapple.AnchorY - grapple.BeamStartY));
         SnesAngle drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
         int stepX = ScaleCoordinate(
-            ReadSignedSine(bus, drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex),
+            ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex),
             8);
-        int stepY = ScaleCoordinate(ReadSignedSine(bus, drawAngle.TableIndex), 8);
+        int stepY = ScaleCoordinate(ReadSignedSine(drawAngle.TableIndex), 8);
 
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.

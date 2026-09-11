@@ -19,6 +19,7 @@ internal static partial class Program
         AssertTrue(bytes.AsSpan().SequenceEqual(EnemyTrigonometryTables.EightBitHalfWave), "all compiled byte samples match ROM");
         AssertTrue(words.AsSpan().SequenceEqual(EnemyTrigonometryTables.UnsignedHalfWave), "all compiled unsigned samples match ROM");
         VerifyCompiledSignedTrigonometry(rom);
+        VerifyCompiledGrappleMath(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

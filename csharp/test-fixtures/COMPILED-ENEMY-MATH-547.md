@@ -71,12 +71,40 @@ under no tide, small tide, large tide, and both flags. These 262,144 tide cases
 assert exact fixed-point offset and phase advancement, including small-tide
 precedence. Invalid prefix indexes are rejected rather than silently wrapped.
 
-Grapple migration was attempted but deliberately excluded from this commit:
+Grapple migration was attempted but deliberately excluded from e695d0a5:
 Program.SamusGrapple replaces several ROM samples with invented axis-aligned
 vectors to isolate collision geometry. The compiled wave exposed that dependency
 (first assertion: anchor Y expected 56, actual 55). These fixtures must be rebuilt
 using native vectors before switching that production reader. Their assertions
-have not been weakened, and grapple continues using its existing ROM reader.
+were not weakened in that commit, and grapple retained its existing ROM reader.
+
+## Grapple follow-up
+
+The synthetic swing fixture now uses native vectors. It first passed with the
+unchanged production reader and a complete ROM-derived signed wave. Production
+then switched to compiled samples, and the fixture's sine region was removed
+entirely. No tests need to inject engine trigonometry to arrange a collision.
+
+The revised geometry preserves acquisition/extension, exact anchor biases,
+pendulum position and art offsets, full rope/flare OAM, release velocity, six-point
+collision ordering, spike damage, bounce/kick timing, growth extension collision,
+wall-grab, wall-jump, and locked cancellation assertions. In particular:
+
+- $CA connection uses (-248,-62), not (-256,0).
+- $80/$81 pendulum uses (0,256)/(-6,255), not invented leftward vectors.
+- $41's nearest probe is (175,136), block (10,8), not (176,136).
+- $6B wall-grab probes (143,150), block (8,9); $D7 locked contact uses (7,7).
+
+`VerifyCompiledGrappleMath`, included in `--compiled-enemy-sine` and the full
+suite, independently reads pinned samples and compares 184,320 radial points
+(all angles, distances 0..119, six wrap/bias anchors) and 590,080 releases (all
+angle bytes and every permitted angular velocity). It checks exact coordinates,
+mutated anchor biases, block-byte masking, whole/fraction speeds, direction and
+deceleration mode. Production point/release delegates accept no address space.
+References: $94:A957 radial helper and $9B:CA65 release in the pinned sources.
+
+No gameplay arithmetic, pose policy, save fields, or presentation tables change.
+This removes the grapple signed-table dependency, not all grapple ROM accesses.
 
 ## Remaining work
 

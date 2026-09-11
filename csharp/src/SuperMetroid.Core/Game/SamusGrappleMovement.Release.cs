@@ -22,7 +22,6 @@ public static partial class SamusGrappleMovement
         // CalculateCollisionPoint; using one helper prevents visible art from disagreeing
         // with the collision body by one pixel.
         GrappleCollisionPoint ropeStart = CalculateCollisionPoint(
-            bus,
             grapple,
             grapple.Angle.TableIndex,
             grapple.RopeLength);
@@ -52,14 +51,12 @@ public static partial class SamusGrappleMovement
     }
 
     private static void PropelSamusFromSwing(
-        ISnesAddressSpace bus,
         SamusState samus,
         SamusGrappleState grapple)
     {
         int absoluteVelocity = Math.Abs((int)grapple.AngularVelocity);
         int doubledVelocity = absoluteVelocity * 2;
         short cosine = ReadSignedSine(
-            bus,
             grapple.Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex);
 
         uint verticalFixed = unchecked((uint)(Math.Abs(cosine) * doubledVelocity));
@@ -74,7 +71,7 @@ public static partial class SamusGrappleMovement
         samus.HorizontalSpeed.AccelerationMode = 2;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
         byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
-        int horizontalSine = Math.Abs(ReadSignedSine(bus, horizontalAngle + 64));
+        int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));
         uint horizontalFixed = unchecked((uint)(horizontalSine * doubledVelocity));
         samus.HorizontalSpeed.BaseSpeed = unchecked((ushort)(horizontalFixed >> 16));
         samus.HorizontalSpeed.BaseSubspeed = unchecked((ushort)horizontalFixed);
@@ -146,10 +143,9 @@ public static partial class SamusGrappleMovement
         _ => (sine * length) >> 8,
     };
 
-    private static short ReadSignedSine(ISnesAddressSpace bus, int index)
+    private static short ReadSignedSine(int index)
     {
-        int address = SamusGrappleRomData.Physics.SignedSineTable + index * 2;
-        return unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

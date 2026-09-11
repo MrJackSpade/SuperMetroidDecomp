@@ -516,7 +516,7 @@ public static partial class SamusGrappleMovement
                     DropQueued: true);
             }
 
-            PropelSamusFromSwing(bus, samus, grapple);
+            PropelSamusFromSwing(samus, grapple);
             // `$9B:C7C1` installs `$90:946E` immediately. The beam function remains in
             // its one-frame release-cleanup phase, but beta movement already uses the
             // independent release handler during this same gameplay frame.
@@ -581,7 +581,7 @@ public static partial class SamusGrappleMovement
                     DropQueued: true);
             }
 
-            PropelSamusFromSwing(bus, samus, grapple);
+            PropelSamusFromSwing(samus, grapple);
             grapple.ReleasedMovementActive = true;
             grapple.Phase = GrapplePhase.ReleaseFromSwing;
             return new GrappleMovementResult(

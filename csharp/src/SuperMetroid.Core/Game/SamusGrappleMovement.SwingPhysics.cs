@@ -106,7 +106,6 @@ public static partial class SamusGrappleMovement
             int candidateLength = currentLength + direction;
             int probeDistance = candidateLength + frontBoundaryOffset;
             GrappleCollisionPoint point = CalculateCollisionPoint(
-                bus,
                 grapple,
                 grapple.Angle.TableIndex,
                 probeDistance);
@@ -321,7 +320,6 @@ public static partial class SamusGrappleMovement
         for (int distanceFromFeet = 6; distanceFromFeet >= 1; distanceFromFeet--)
         {
             GrappleCollisionPoint point = CalculateCollisionPoint(
-                bus,
                 grapple,
                 candidateAngleByte,
                 distance);
@@ -339,13 +337,12 @@ public static partial class SamusGrappleMovement
     }
 
     private static GrappleCollisionPoint CalculateCollisionPoint(
-        ISnesAddressSpace bus,
         SamusGrappleState grapple,
         byte angleByte,
         int distance)
     {
-        short xSine = ReadSignedSine(bus, angleByte + 64);
-        short yNegativeCosine = ReadSignedSine(bus, angleByte);
+        short xSine = ReadSignedSine(angleByte + 64);
+        short yNegativeCosine = ReadSignedSine(angleByte);
 
         // For a block anchor, $94:A95F-$A996 biases the low nibble toward the side from
         // which the rope leaves the block: eight for a nonnegative component, seven for a

@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--pause-boss-markers"])
+{
+    VerifyPauseBossMarkers();
+    return 0;
+}
 if (args is ["--crystal-palette-native", var paletteRom, var paletteTrace])
 {
     VerifyCrystalPaletteNative(paletteRom, paletteTrace);
@@ -546,6 +551,7 @@ VerifyViewportTileRowParity();
 VerifyPpuMemorySnapshotOwnership();
 VerifyTitleRenderSnapshots();
 VerifyPauseRenderSnapshots();
+VerifyPauseBossMarkers();
 VerifyFileMenuRenderSnapshots();
 VerifyRenderFrameHandoff();
 VerifyRenderPresentationGate();

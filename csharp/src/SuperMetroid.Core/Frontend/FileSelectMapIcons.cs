@@ -12,8 +12,8 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     internal Bank80SystemState MapSystem => system;
     internal AreaId MapArea => area;
 
-    /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
-    public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
+    /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
+    public void DrawBossMarkers(OamBuffer oam, ushort scrollX, ushort scrollY)
     {
         ushort pointer = Pointer(FileSelectMapIconRomData.BossLists);
         int bits = system.GetBossBitsRaw(area);
@@ -45,6 +45,14 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
                 bits >>= 1;
             }
         }
+        void Draw(ushort id, ushort x, ushort y, ushort palette) =>
+            Add(oam, id, x, y, scrollX, scrollY, palette);
+    }
+
+    /// <summary>Native $82:B6DD draws these objects before Samus's selected-station indicator.</summary>
+    public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
+    {
+        DrawBossMarkers(oam, scrollX, scrollY);
         Simple(FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.Missile);
         Simple(FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.Energy);
         Simple(FileSelectMapIconRomData.MapStationLists, FileSelectMapIconRomData.MapStation);

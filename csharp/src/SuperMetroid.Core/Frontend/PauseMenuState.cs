@@ -353,7 +353,13 @@ internal sealed partial class PauseMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
-        if (ScreenMode == 0) DrawMapPositionIndicator();
+        if (ScreenMode == 0)
+        {
+            DrawMapPositionIndicator();
+            // Native pause draws the same boss lists and defeated overlays as
+            // file select, after the player marker. Use the live progression owner.
+            new FileSelectMapIcons(bus, system, area).DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
+        }
         else
         {
             DrawEquipmentItemSelector();

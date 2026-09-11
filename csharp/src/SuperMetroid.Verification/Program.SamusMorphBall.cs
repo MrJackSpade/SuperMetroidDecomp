@@ -1283,7 +1283,7 @@ static void VerifySamusMorphBallMovement()
         "white shapes advance to stage-five afterglow");
 
     // Moving one pixel guarantees cleanup cannot begin Crystal Flash. The 32-step byte
-    // counter performs 31 fades four frames apart, then `$88:8B4E` clears status/radii and
+    // counter performs 31 consecutive fades, then `$88:8B4E` clears status/radii and
     // releases the flag; the same projectile pass sees flag zero and deletes the slot.
     powerBombSamus.XPosition++;
     int afterglowFrames = 0;
@@ -1294,8 +1294,8 @@ static void VerifySamusMorphBallMovement()
         afterglowFrames++;
         AssertTrue(afterglowFrames < 160, "power-bomb afterglow reaches cleanup");
     }
-    AssertEqual(125, afterglowFrames,
-        "afterglow uses wrapping timer zero then 31 four-frame waits");
+    AssertEqual(32, afterglowFrames,
+        "afterglow retains the underflowed timer high byte across its low-byte reload");
     AssertTrue(cleanupFrame.ProjectileDeleted,
         "cleanup frame deletes released power-bomb projectile");
     AssertEqual(0, powerBombs.BombCounter,

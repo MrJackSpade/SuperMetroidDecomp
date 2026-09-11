@@ -137,8 +137,8 @@ internal static partial class Program
         AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");
         AssertEqual(0, samus.PowerBombs, "runtime consumes ten remaining Power Bombs");
         Console.WriteLine($"Crystal Flash visual coverage: body={visibleBodyFrames}, window={visibleWindowFrames} frames.");
-        AssertEqual(253, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
-        AssertEqual(82, visibleWindowFrames, "complete observed Crystal Flash color window visibility duration");
+        AssertEqual(250, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
+        AssertEqual(34, visibleWindowFrames, "native Crystal Flash color window visibility duration");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame((ushort)SnesButton.Right);
         AssertTrue(samus.XPosition > 512, "normal movement resumes after Crystal Flash");
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");

@@ -101,6 +101,8 @@ public static class SamusSpecialSequenceRomData
         public const ushort ExplosionYellowLimit = 0x8600;
         /// <summary>Crystal Flash's shorter explosion radius limit.</summary>
         public const ushort CrystalFlashRadiusLimit = 0x2000;
+        /// <summary>$88:8B96, byte reloaded by ordinary and Crystal Flash afterglow handlers.</summary>
+        public const byte AfterglowTimerReload = 3;
     }
 
     /// <summary>Shared trigonometric and boost-state constants used by shinespark.</summary>

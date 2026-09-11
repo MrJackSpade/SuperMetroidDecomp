@@ -385,9 +385,7 @@ public sealed class SamusPowerBombExplosionState
         if (FixedColorBlue != 0)
             FixedColorBlue--;
 
-        // The assembly writes three into the low byte. Starting from three means the
-        // wrapping negative test succeeds again four frames later.
-        _afterglowTimer = 3;
+        ReloadAfterglowTimerLowByte();
         return false;
     }
 
@@ -423,7 +421,8 @@ public sealed class SamusPowerBombExplosionState
 
         // Unlike ordinary Power Bomb stage five, `$88:A35D` uses the three current color
         // components as its completion criterion. This retains the final radius window
-        // while each nonzero component fades once every four handler calls.
+        // while each nonzero component fades. The byte reload retains the underflowed
+        // high byte, so the signed timer remains negative on the next call.
         if ((FixedColorRed | FixedColorGreen | FixedColorBlue) != 0)
         {
             if (FixedColorRed != 0)
@@ -432,7 +431,7 @@ public sealed class SamusPowerBombExplosionState
                 FixedColorGreen--;
             if (FixedColorBlue != 0)
                 FixedColorBlue--;
-            _afterglowTimer = 3;
+            ReloadAfterglowTimerLowByte();
             return false;
         }
 
@@ -451,6 +450,14 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = 0;
         RenderedExplosionRadius = 0;
         return true;
+    }
+
+    private void ReloadAfterglowTimerLowByte()
+    {
+        // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
+        // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
+        _afterglowTimer = (ushort)((_afterglowTimer & 0xff00) |
+            SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 
     private void ReadFixedColor(ISnesAddressSpace bus, int tableAddress, int colorIndex)

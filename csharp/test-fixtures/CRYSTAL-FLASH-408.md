@@ -272,3 +272,46 @@ ordinary/refill routes retain their contact, resources and input-lock assertions
 No production change is needed for this coverage. Original-CPU palette/HDMA
 presentation comparison remains separate from the already completed native
 movement/contact comparisons; no complete visual parity or closure is claimed.
+
+## Native window comparison: reproduced byte-store timing defect
+
+The next original-CPU probe executes Crystal Flash setup, `$88:A552` expansion,
+`$88:A35D` afterglow and cleanup. It records the radius, speed, RGB components
+and all 192 bytes of each left/right half-profile. The renderer comparison
+checks the corresponding visible-row endpoints about an on-screen center
+(128,112), treating FF/00 and 1/0 as equivalent empty intervals. This is native
+profile-generation evidence, not execution of the whole PPU's indirect HDMA.
+
+**Failure before the production fix:** on afterglow frame20, native red was 15
+while managed remained 16. The timer underflows from zero to FFFF. Both native
+`$88:A3A2` and ordinary Power Bomb `$88:8BD5` reload only its low byte with three,
+retaining FF in the high byte. Managed assigned the full word to three, adding
+three extra wait frames between every fade. A shared byte-reload helper now
+preserves the high byte. No gameplay-specific delay or forced finish was added.
+
+All 36 Crystal Flash radius/color/profile frames now match through cleanup. A
+second original-CPU control seeds ordinary afterglow with RGB31 and its 32-step
+counter: all 32 fade/wake calls match. Managed reaches that phase through its
+normal explosion sequence, then the diagnostic supplies the same RGB31 stimulus;
+this control does not claim the preceding stock explosion ends at RGB31.
+Native retains unused radius-speed scratch after cleanup; that inactive word is
+not compared to the semantic owner's reset, while active values are compared.
+
+Standard regressions now assert the native 32-call ordinary fade and the
+five-call synthetic Crystal Flash fade from RGB4/3/2. Actual-runtime ordinary
+cleanup is 93 frames earlier: Crystal Flash begins at fixture152 and completes
+at406. The changed accepted-NMI phase shifts the refill duration by three frames;
+both successful routes retain matching palette timelines, fixed movement, correct
+resources/contact and observed 250 body-contributing frames. Their window has
+34 nonzero rendered frames, matching the native profile/color lifetime (remaining
+calls have zero color or perform cleanup). Earlier 253/82 and 245/502 counts above
+describe the reproduced baseline, not the corrected expectations.
+
+Repeat with the shared entrypoint patch and
+`sm.exe --diagnostic-crystal-window ROM NEW.csv`, then Verification
+`--crystal-window-native ROM NEW.csv`. Accepted private trace
+`csharp/test-temp/crystal-window-408-b.csv` SHA256:
+`282BFF5EBE3C4EB99ECC2CCD0214A9FB544FB0E18A437FD01065909BED57A9C4`.
+Probe commands remain headless. Temporary hooks removed; normal native binary
+rebuilt and repeat patch checked. Original-CPU palette routine comparison remains
+outstanding, so the overall technique ticket stays open.

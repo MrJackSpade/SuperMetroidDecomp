@@ -193,12 +193,12 @@ static void VerifySamusCrystalFlash()
     AssertEqual(4, crystalWindow.FixedColorRed,
         "Crystal Flash transition selects shared fixed-color entry three");
 
-    // Components 4/3/2 decrement on afterglow calls 1/5/9/13. Calls 14..16 count down
-    // timer 3..0; call 17 observes all-zero color and executes `$88:A317` cleanup.
-    for (int hdmaCall = 1; hdmaCall <= 16; hdmaCall++)
+    // Low-byte timer reload retains FF in the high byte after underflow. Components
+    // 4/3/2 decrement on calls 1..4; call 5 observes zero and executes cleanup.
+    for (int hdmaCall = 1; hdmaCall <= 4; hdmaCall++)
         AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash afterglow call {hdmaCall}");
     AssertTrue(crystalWindow.StepFrame(bus),
-        "Crystal Flash afterglow call seventeen performs cleanup");
+        "Crystal Flash afterglow call five performs cleanup");
     AssertEqual(PowerBombExplosionPhase.Inactive, crystalWindow.Phase,
         "Crystal Flash HDMA cleanup clears phase");
     AssertEqual(0, crystalWindow.Status,

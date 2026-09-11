@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "_healthWarning"))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state lacks the low-health warning latch; it starts inactive until the next admitted native health check.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_healthWarning").ToArray(), count);
+        }
         if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
             current.Any(field => field.Name == "pauseNmiFrameCounter8") &&
             (count == current.Length - 1 || count == current.Length - 2))

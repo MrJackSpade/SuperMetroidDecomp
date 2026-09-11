@@ -138,6 +138,8 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$82:DC3E/$AF7A, library-three $2D during automatic/manual reserve refill.</summary>
+    public static readonly SoundEffectId ReserveRefill = new(SoundEffectLibrary.Library3, 0x2d); // magic-number-audit: allow(AudioId) - named cartridge reserve-refill SFX identity
     /// <summary>$A0:A8AE, normal enemy shot: library-three $0A when an enemy becomes frozen.</summary>
     public static readonly SoundEffectId EnemyFreeze = new(SoundEffectLibrary.Library3, 0x0a); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
     /// <summary>$90:85A6 queues library-three $03 when Speed Booster reaches stage four.</summary>

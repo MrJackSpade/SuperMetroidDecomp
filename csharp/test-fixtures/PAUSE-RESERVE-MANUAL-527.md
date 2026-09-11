@@ -173,3 +173,22 @@ During this audit, the native low-health warning latch/producer was found absent
 from the translation. It is tracked separately as #560, including the external
 check called by automatic reserve state at $82:DC2B and the 30-to-31 threshold
 handoff. Refill sound $2D itself is distinct from that warning's $02/$01 commands.
+
+## Automatic warning integration (#560)
+
+The automatic frontend test reproduced the missing external check: after the
+first frozen refill frame, the warning latch remained inactive. Automatic state
+now executes the $82:DC2B check after publishing preceding gameplay audio requests.
+It starts the library-three warning once and stops it exactly as refill crosses
+30 to 31 energy. Refill sound $2D was also moved into the pre-gameplay callback,
+matching $82:DC31's original position; Power Bomb suppression is honored there.
+
+`--reserve-auto-frontend` now follows 33 actual frontend refill frames and checks
+health, persistent warning state and the real audio queue's start/stop requests.
+It retains the completion-frame freeze/cooldown regression and verifies Samus
+graph serialization plus the explicit older-layout migration. Old states warn
+and initialize the unavailable latch inactive on their next admitted check.
+
+This integrates **automatic recovery only**. The separate ordinary beta/gunship
+admission paths and audible playback remain work for #560; no claim is made that
+all gameplay low-health warnings are now present.

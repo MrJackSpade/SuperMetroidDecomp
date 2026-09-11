@@ -471,6 +471,9 @@ public sealed partial class SuperMetroidGame
                         reserveStep = reserveRecovery.StepAfterNmi(
                             samus,
                             runtime.NmiFrameCounter);
+                        if (reserveStep.RefillSoundRequested)
+                            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary3Sounds.ReserveRefill, 3,
+                                soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
                         // $82:DC18-$DC24 clears the freeze and restores state eight
                         // BEFORE calling gameplay. Unfreezing after StepFrame lets
                         // Samus resume while projectiles/enemies remain a frame behind.
@@ -482,8 +485,12 @@ public sealed partial class SuperMetroidGame
                     },
                     queueEchoSound: () => gameplayAudio.QueueEcho(runtime));
                 PublishGameplay(runtime);
-                if (reserveStep.RefillSoundRequested)
-                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2d), maximumQueued: 3);
+                // $82:DC2B invokes the external low-health check even while the
+                // locked Samus beta handler omits it. Publish prior gameplay sounds
+                // first; their native queue occupancy affects this final Max6 call.
+                CollectTranslatedAudioRequests(gameplayAudio);
+                runtime.Samus!.HealthWarning.Update(runtime.Samus.Health, audio,
+                    soundSuppressed: unchecked((short)runtime.PowerBombExplosionStatus) < 0);
                 break;
 
             case SuperMetroidGameState.DeathSequenceStart:

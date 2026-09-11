@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--grounded-bomb-spread-native", var spreadTrace])
+{
+    VerifyGroundedBombSpreadNative(spreadTrace);
+    return 0;
+}
 if (args is ["--grounded-bomb-spread"])
 {
     VerifyGroundedBombSpread();

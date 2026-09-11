@@ -272,6 +272,7 @@ public sealed class ManagedSnesDsp
         ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException(
             "S-DSP received key-on before an extracted PCM sample bank was installed.");
         voice.PreviousFlags = 0;
+        voice.ReleasedBrrCursor = null;
         voice.Sample = bank.Resolve(voice.SourceNumber);
         voice.SampleCursor = 0;
         Array.Clear(voice.DecodeBuffer);
@@ -409,6 +410,11 @@ public sealed class ManagedSnesDsp
     private void DecodePcm(int voiceIndex)
     {
         Voice voice = voices[voiceIndex];
+        if (voice.ReleasedBrrCursor.HasValue)
+        {
+            AdvanceReleasedBrr(voiceIndex);
+            return;
+        }
         ManagedPcmSample sample = voice.Sample ?? throw new InvalidOperationException(
             $"S-DSP voice {voiceIndex} cannot decode without a PCM sample.");
         voice.DecodeBuffer[0] = voice.DecodeBuffer[16];
@@ -420,8 +426,20 @@ public sealed class ManagedSnesDsp
             // KON. The sound driver can restore an instrument during release.
             // Preserve the old interpolation window above, then follow the live
             // source for the next window rather than retaining the key-on source.
-            (sample, voice.SampleCursor) = (sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank."))
-                .ResolveLoopEntry(voice.SourceNumber);
+            ManagedPcmSampleBank bank = sampleBank ?? throw new InvalidOperationException("PCM loop has no installed sample bank.");
+            if (!bank.Samples.ContainsKey(voice.SourceNumber) &&
+                voice.AdsrState == EnvelopeState.Release && voice.Gain == 0)
+            {
+                // Uploads can invalidate a retired voice's DIR entry ($FFFF in the
+                // narration bank). The hardware continues reading RAM, but release
+                // at zero gain cannot become audible again without KON. Follow its
+                // block headers/ENDX without requiring a nonexistent playable WAV.
+                // Audible voices still require a real, replaceable sample mapping.
+                voice.ReleasedBrrCursor = ReadLoopAddress(voice.SourceNumber);
+                AdvanceReleasedBrr(voiceIndex);
+                return;
+            }
+            (sample, voice.SampleCursor) = bank.ResolveLoopEntry(voice.SourceNumber);
             voice.Sample = sample;
             if (voice.PreviousFlags == 1)
             {
@@ -454,6 +472,32 @@ public sealed class ManagedSnesDsp
         }
         if (voice.SampleCursor == source.Length)
             voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
+    }
+
+    private ushort ReadLoopAddress(byte source)
+    {
+        int directory = (registers[SnesDspRegisterMap.Global.SourceDirectory] << 8) +
+            source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
+        return unchecked((ushort)(apuRam[directory & ushort.MaxValue] |
+            apuRam[(directory + 1) & ushort.MaxValue] << 8));
+    }
+
+    /// <summary>
+    /// Preserves native BRR address wrapping and ENDX for an irreversibly silent
+    /// released voice. Predictor samples cannot affect output, echo or pitch modulation
+    /// at zero gain; KON clears this state and starts a fully validated PCM voice.
+    /// </summary>
+    private void AdvanceReleasedBrr(int index)
+    {
+        Voice voice = voices[index];
+        ushort cursor = voice.ReleasedBrrCursor!.Value;
+        if ((voice.PreviousFlags & DspBrrLayout.EndFlag) != 0)
+        {
+            cursor = ReadLoopAddress(voice.SourceNumber);
+            registers[SnesDspRegisterMap.Global.EndFlags] |= unchecked((byte)(1 << index));
+        }
+        voice.PreviousFlags = unchecked((byte)(apuRam[cursor] & DspBrrLayout.HeaderFlagsMask));
+        voice.ReleasedBrrCursor = unchecked((ushort)(cursor + DspBrrLayout.BlockBytes));
     }
 
     private void HandleNoise()
@@ -550,6 +594,7 @@ public sealed class ManagedSnesDsp
         public ManagedPcmSample? Sample;
         public int SampleCursor;
         public byte PreviousFlags;
+        public ushort? ReleasedBrrCursor;
         public bool UseNoise;
         public ushort[] AdsrRates { get; } = new ushort[4];
         public ushort RateCounter;
@@ -574,6 +619,7 @@ public sealed class ManagedSnesDsp
             Sample = null;
             SampleCursor = 0;
             PreviousFlags = 0;
+            ReleasedBrrCursor = null;
             UseNoise = false;
             Array.Clear(AdsrRates);
             RateCounter = 0;

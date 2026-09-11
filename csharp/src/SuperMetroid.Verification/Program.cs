@@ -80,6 +80,11 @@ if (args is ["--pcm-loop-entry"])
     VerifyManagedDspUsesIndependentLoopEntry();
     return 0;
 }
+if (args is ["--audio-bank-transition", var audioDirectory])
+{
+    VerifyAudioBankTransition(audioDirectory);
+    return 0;
+}
 if (args is ["--wall-spread-trace", var wallTrace])
 {
     VerifyAerialSpreadTransitions(outputPath: wallTrace, wallRoute: true);

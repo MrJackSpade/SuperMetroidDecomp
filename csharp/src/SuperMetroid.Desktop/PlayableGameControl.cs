@@ -22,6 +22,7 @@ public sealed partial class PlayableGameControl : UserControl
     private readonly SuperMetroidGameOptions gameOptions;
     private readonly ControllerInputRecording? replay;
     private readonly GitHubErrorReporter? errorReporter;
+    private readonly AudioFrameRecovery audioFrameRecovery = new();
     private readonly RuntimeCanvas canvas = new() { Dock = DockStyle.Fill, TabStop = true };
     private readonly ToolStripLabel statusLabel = HostToolbarLayout.CreateStatusLabel();
     private readonly System.Windows.Forms.Timer playbackTimer = new() { Interval = 8 };
@@ -422,9 +423,24 @@ public sealed partial class PlayableGameControl : UserControl
             // never influence controller recording or gameplay state.
             if (audioEngine is not null && audioDevice is not null)
             {
-                ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
-                audioDevice.Submit(samples);
-                game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
+                audioFrameRecovery.Run(() =>
+                {
+                    ReadOnlySpan<short> samples = audioEngine.RenderFrame(frame.AudioCommands);
+                    audioDevice.Submit(samples);
+                    game.SetAudioAcknowledgements(audioEngine.ReadAcknowledgements());
+                }, exception =>
+                {
+                    lastRecoverableError = errorReporter?.Report(exception, new GitHubErrorContext(
+                        Boundary: "audio rendering/submission after completed gameplay frame",
+                        FrameNumber: game.FrameNumber,
+                        GameState: $"${(ushort)game.GameState:X2} {game.GameState}",
+                        Phase: game.CurrentFrame.Phase,
+                        ControllerInput: input,
+                        RoomPointer: game.GameplayActiveRoomPointer,
+                        RoomStatePointer: game.GameplayActiveRoomStatePointer,
+                        DoorPointer: game.GameplayActiveDoorPointer,
+                        InputRecordingPath: inputRecorder?.Path)) ?? "audio failure (see console; GitHub reporting disabled)";
+                });
             }
             frameTimings.RecordEmulatedFrame(Stopwatch.GetTimestamp() - frameStarted);
             PublishGpuDisplay();

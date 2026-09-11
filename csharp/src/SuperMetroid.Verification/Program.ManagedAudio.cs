@@ -10,6 +10,7 @@ internal static partial class Program
         VerifyManagedDspPlaysConstructedPcmSample();
         VerifyManagedDspUsesLiveSourceAtLoop();
         VerifyManagedDspUsesIndependentLoopEntry();
+        VerifyReleasedVoiceBankSwitch();
         VerifyManagedDspPlaysAndCancelsHighDefinitionReplacement();
         VerifyPcmReplacementPreservesStableIdentity();
         VerifyManagedDspRejectsInvalidBoundaries();

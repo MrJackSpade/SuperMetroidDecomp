@@ -5,6 +5,7 @@ public static class GitHubErrorReporterSmokeTest
 {
     public static GitHubErrorReporterSmokeTestResult Run()
     {
+        VerifyAudioRecovery();
         var client = new RecordingIssueClient();
         Exception repeated = CaptureFixtureException("door callback $8F:B9A2 is untranslated");
         Exception existing = CaptureFixtureException("PLM instruction $84:BA6F is untranslated");
@@ -69,6 +70,31 @@ public static class GitHubErrorReporterSmokeTest
             repeatedFingerprint,
             client.FindCalls.Count,
             client.CreatedIssues.Count);
+    }
+
+    private static void VerifyAudioRecovery()
+    {
+        var recovery = new AudioFrameRecovery();
+        var client = new RecordingIssueClient();
+        using var reporter = new GitHubErrorReporter("owner/private-repository", client);
+        var context = new GitHubErrorContext("audio rendering/submission after completed gameplay frame");
+        int completedFrames = 0;
+        for (int frame = 0; frame < 3; frame++)
+        {
+            recovery.Run(() => throw new InvalidDataException("fixture missing PCM source"),
+                error => reporter.Report(error, context));
+            completedFrames++;
+        }
+        reporter.FlushAsync().GetAwaiter().GetResult();
+        Require(completedFrames == 3 && client.CreatedIssues.Count == 1 && client.FindCalls.Count == 1,
+            "Audio errors must preserve frame completion and deduplicate GitHub reports.");
+        recovery.Run(() => throw new InvalidDataException("reporting disabled"), null);
+        recovery.Run(() => throw new InvalidDataException("transport failure"),
+            _ => throw new InvalidOperationException("fixture reporter failure"));
+        bool resumed = false;
+        recovery.Run(() => resumed = true, null);
+        Require(resumed, "Audio must resume attempts after a failed frame or report.");
+        Console.WriteLine("PASS audio recovery: repeated failure, reporting disabled, failed reporter, deduplication and subsequent successful frame.");
     }
 
     private static Exception CaptureFixtureException(string message)

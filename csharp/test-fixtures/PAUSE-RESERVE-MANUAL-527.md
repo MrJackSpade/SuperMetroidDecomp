@@ -43,7 +43,6 @@ legacy field mapping. It does not claim audible PCM or rendered tank animation.
 
 ## Remaining work before issue 527 is ready
 
-- Rendered reserve-tank fill/animation.
 - Live pause HUD energy and AUTO-indicator publication during manual changes.
 - Automatic-recovery presentation and frame ordering, separately from manual.
 - Cartridge playback comparison of the reported visual/timing behavior.
@@ -69,3 +68,25 @@ It also requires actual pixel differences inside the arrow, so changing unused
 palette words cannot satisfy the test. The local phase-15 PNG was visually
 inspected; screenshots are ignored/local, not published. This is a software
 render comparison, not external-emulator playback or player confirmation.
+
+## Follow-up: reserve tank strip and fill flicker
+
+The missing tank strip was reproduced in an empty-tank rendered comparison:
+pixel (24,97) should have been gray but was black. The equipment OAM pass now
+ports $82:B2AA-$B3D8: full tank maps, native fourteen-energy partial-fill maps,
+empty tanks, and a final cap, with ROM X/Y origins and OBJ palette three.
+The low partial-fill dither uses accepted-NMI bit two and the native comparison
+of **twice** the fill quotient against seven. Rendering never advances the phase.
+
+`--pause-reserve-tanks` (also in the full suite) compares the rendered strip and
+cap against independent native spritemap construction for 128 capacity/supply/
+phase cases, including zero capacity, 0/100/200/300/400 boundaries, low fill and
+14-energy boundaries. Repeated redraws must be identical, and a serialized pause
+must retain nonzero NMI phase. The local 199-energy PNG was visually inspected;
+it remains ignored and unpublished.
+
+The native palette setup at $82:B3F9 advances an internal counter but ultimately
+hardcodes palette three. No extra palette cycling is invented. The visible fill
+flicker uses the independent NMI counter, now passed through stable and fading
+pause states. Older pause states warn and restore phase zero until the next
+accepted frame, retaining the earlier manual-transfer migration as needed.

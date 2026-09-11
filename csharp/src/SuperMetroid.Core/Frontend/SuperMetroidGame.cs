@@ -678,7 +678,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.PausedA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 AdvancePauseFade(brightening: true);
-                pauseMenu!.AdvanceAnimations();
+                pauseMenu!.AdvanceAnimations(runtime.NmiFrameCounter8);
                 PublishMenu(pauseMenu!);
                 ApplyDisplayBrightness(pauseBrightness);
                 if (pauseBrightness == PauseFadeTiming.FullyLit)
@@ -703,7 +703,7 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.UnpausingA:
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
-                pauseMenu!.AdvanceAnimations();
+                pauseMenu!.AdvanceAnimations(runtime.NmiFrameCounter8);
                 PublishMenu(pauseMenu!);
                 AdvancePauseFade(brightening: false);
                 ApplyDisplayBrightness(pauseBrightness);

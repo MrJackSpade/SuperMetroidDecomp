@@ -207,7 +207,7 @@ internal sealed partial class PauseMenuState
     {
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
-        AdvanceAnimations();
+        AdvanceAnimations(nmiFrameCounter8);
         SnesButton delayedPressed = (SnesButton)delayedHeldInput;
         SnesButton newlyPressed = (SnesButton)newlyPressedInput;
         if (transition != PauseMenuTransition.None)
@@ -271,8 +271,9 @@ internal sealed partial class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations()
+    public void AdvanceAnimations(byte nmiFrameCounter8 = 0)
     {
+        pauseNmiFrameCounter8 = nmiFrameCounter8;
         if (paletteAnimation.Step(cgram))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == 0)
@@ -341,7 +342,11 @@ internal sealed partial class PauseMenuState
     {
         oam.BeginFrame();
         if (ScreenMode == 0) DrawMapPositionIndicator();
-        else DrawEquipmentItemSelector();
+        else
+        {
+            DrawEquipmentItemSelector();
+            DrawReserveTanks();
+        }
         oam.FinalizeFrame();
     }
 

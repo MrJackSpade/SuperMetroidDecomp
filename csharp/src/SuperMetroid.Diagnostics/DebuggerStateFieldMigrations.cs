@@ -17,6 +17,13 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" &&
+            current.Any(field => field.Name == "pauseNmiFrameCounter8") &&
+            (count == current.Length - 1 || count == current.Length - 2))
+        {
+            Console.Error.WriteLine("WARNING: Legacy pause state lacks reserve fill-flicker NMI phase; restores phase zero until the next accepted frame.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "pauseNmiFrameCounter8").ToArray(), count);
+        }
         if (type.FullName == "SuperMetroid.Core.Frontend.PauseMenuState" && count == current.Length - 1 &&
             current.Any(field => field.Name == "reserveTransferSoundDelay"))
         {

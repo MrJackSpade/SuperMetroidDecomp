@@ -49,9 +49,9 @@ internal static partial class Program
         VerifyManualReserveSoundAndClamp(bus);
         var fields = typeof(PauseMenuState).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
             .OrderBy(field => field.MetadataToken).ToArray();
-        var oldFields = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PauseMenuState), fields, fields.Length - 1);
-        AssertTrue(oldFields.SequenceEqual(fields.Where(field => field.Name != "reserveTransferSoundDelay")),
-            "legacy pause layout omits only the new manual transfer timer");
+        var oldFields = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(PauseMenuState), fields, fields.Length - 2);
+        AssertTrue(oldFields.SequenceEqual(fields.Where(field => field.Name is not "reserveTransferSoundDelay" and not "pauseNmiFrameCounter8")),
+            "legacy pause layout omits only new reserve transfer/flicker state");
         Console.WriteLine("Manual reserves: mode, selection, transfer ordering, suspended/resumed refill and visible supply pass.");
     }
 

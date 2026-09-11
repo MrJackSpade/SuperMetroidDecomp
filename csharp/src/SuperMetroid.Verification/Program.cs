@@ -35,6 +35,11 @@ if (args is ["--pause-reserve-arrow"])
     VerifyPauseReserveArrow();
     return 0;
 }
+if (args is ["--pause-reserve-tanks"])
+{
+    VerifyPauseReserveTanks();
+    return 0;
+}
 if (args is ["--projectile-runtime-phase"])
 {
     VerifyProjectileRuntimePhase();
@@ -468,6 +473,7 @@ VerifyStrictFailureBoundaries();
 VerifyReserveAutoRecovery();
 VerifyPauseReserveManual();
 VerifyPauseReserveArrow();
+VerifyPauseReserveTanks();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();

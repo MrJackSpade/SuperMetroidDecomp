@@ -136,3 +136,32 @@ captured pre-impact type and the shared `EnemyShotTiming` definition. The same
 fixture now verifies sixteen frames and rejects immediate repeat contact.
 This reproduced adapter defect is fixed; full original-CPU Phantoon encounter
 comparison, including its initial non-Plasma hit, remains required.
+
+## Original-CPU Phantoon contact matrix
+
+The `native-xplasma-phantoon-probe.h` probe executes original extended collision
+at $A0:9B7F and Phantoon's real callback. Twelve constructed boss contact setups
+cover eye-tracking/swooping, with/without a charged Power Beam primer, followed
+by uncharged Power, uncharged Plasma, or charged Plasma. Two records per setup
+compare health, invincibility, flash, function, reaction timer, properties,
+accumulated damage and the tentacle reaction markers. All 24 records match.
+
+The native result confirms the sixteen-frame Plasma timer. An uncharged primer
+does no damage; the accepted fixture instead uses a charged 60-damage non-Plasma
+hit. In eye-tracking it sets the reaction timer to sixteen and starts the round's
+damage bookkeeping. Subsequent charged Plasma closes that window; swooping
+instead sets the swoop timer to one. This is contact-level evidence, not yet
+controller-driven X-ray activation or frozen/released AI evolution.
+
+Two native captures are identical, SHA-256
+`6D1D3D531FBD8FBA747045DA88232BA0CFB6520B097567AE697EA66B8CFD907F`.
+The comparator rejects other captures. Regenerate with the corresponding
+`native-xplasma-phantoon-entrypoint.patch` and bounded, dialog-free invocation:
+
+```text
+sm.exe --diagnostic-xplasma-phantoon "Super Metroid.smc" NEW.csv
+DebugRunner --native-phantoon-plasma-audit "Super Metroid.smc" NEW.csv
+```
+
+The trace remains private. Temporary native hooks were removed after capture.
+No player state or recording is used. The broader #402 acceptance remains open.

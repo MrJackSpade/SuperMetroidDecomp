@@ -1,0 +1,70 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
+using System.Security.Cryptography;
+
+internal static partial class PhantoonPlasmaAudit
+{
+    /// <summary>Compare original-CPU contacts, with/without a preliminary Power Beam hit.</summary>
+    public static int RunNative(string rom, string trace)
+    {
+        if (Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(trace))) !=
+            "6D1D3D531FBD8FBA747045DA88232BA0CFB6520B097567AE697EA66B8CFD907F")
+            throw new InvalidDataException("Use the accepted xplasma-phantoon-native-v2 capture.");
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var room = CartridgeRoomHeader.Load(bus, 0xcd13);
+        var assets = CartridgeRoomAssets.Load(bus, room);
+        RoomEnemySystem enemies = null!;
+        int count = 0, failures = 0;
+        foreach (string line in File.ReadLines(trace).Skip(1))
+        {
+            ushort[] row = line.Split(',').Select(ushort.Parse).ToArray();
+            if (row.Length != 14) throw new InvalidDataException("Invalid Phantoon trace row.");
+            if (row[3] == 0)
+            {
+                enemies = new RoomEnemySystem();
+                enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
+                    new SnesVram(), new SnesCgram(), () => 1, level: assets.LevelData,
+                    samus: new SamusState(), isAreaBossDefeated: () => false);
+                var body = enemies.Phantoon!.Body;
+                body.XPosition = body.YPosition = 128;
+                body.Health = 2500;
+                body.SpritemapPointer = 0xdee7;
+                body.Properties = 0;
+                body.ExtraProperties = 4;
+                body.VariableF = row[0];
+                body.VariableE = 60;
+                enemies.Phantoon.Tentacles!.VariableA = 0;
+                enemies.Phantoon.Tentacles.VariableB = 0;
+                enemies.Phantoon.Tentacles.Parameter2 = 0;
+            }
+            if (row[3] != 0 || row[1] != 0)
+            {
+                var shots = new SamusProjectileSystem();
+                var shot = shots.Slots[0];
+                shot.Type = row[3] == 0 ? (ushort)0x8010 : row[2];
+                shot.Damage = shot.Type switch { 0x8000 => 20, 0x8010 => 60, 0x8008 => 150, 0x8018 => 450,
+                    _ => throw new InvalidDataException("Unexpected native shot type.") };
+                shot.XPosition = shot.YPosition = 128;
+                shot.XRadius = shot.YRadius = 4;
+                shot.InstructionPointer = 0x9000;
+                shot.InstructionTimer = 1;
+                enemies.ResolvePhantoonProjectileHits(bus, shots, new SamusBombProjectileSystem());
+            }
+            var state = enemies.Phantoon!;
+            var head = state.Body;
+            ushort[] actual = [head.Health, head.InvincibilityTimer, head.FlashTimer,
+                head.VariableF, head.VariableE, head.Properties, state.Tentacles!.VariableB,
+                state.Tentacles.VariableA, state.Tentacles.Parameter2];
+            if (!actual.SequenceEqual(row[4..13]))
+            {
+                failures++;
+                Console.WriteLine($"Phantoon {string.Join(',', row[..4])}: {string.Join(',', actual)} != {string.Join(',', row[4..13])}");
+            }
+            count++;
+        }
+        if (count != 24) throw new InvalidDataException("Expected all 24 native contact records.");
+        Console.WriteLine($"Native Phantoon Plasma: {count} records, {failures} mismatches.");
+        return failures == 0 ? 0 : 1;
+    }
+}

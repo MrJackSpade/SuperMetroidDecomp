@@ -2,7 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static class PhantoonPlasmaAudit
+internal static partial class PhantoonPlasmaAudit
 {
     // Isolate the real boss's extended collision adapter from movement/AI.
     // The swooping state keeps the hitbox available after taking charged damage.

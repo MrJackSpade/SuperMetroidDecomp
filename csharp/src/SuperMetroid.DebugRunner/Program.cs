@@ -558,6 +558,9 @@ if (args.Length >= 3 && args[0] == "--frontend-skip-intro-capture")
     return FrontendSkipIntroAudit.Run(skipIntroRomPath, skipIntroOutputPath);
 }
 
+if (args.Length == 3 && args[0] == "--ceres-explosion-timing-audit")
+    return CeresExplosionTimingAudit.Run(args[1], args[2]);
+
 if (args.Length >= 3 && args[0] == "--ceres-destruction-audit")
 {
     string destructionRomPath = string.Join(' ', args[1..^1]).Trim('"');

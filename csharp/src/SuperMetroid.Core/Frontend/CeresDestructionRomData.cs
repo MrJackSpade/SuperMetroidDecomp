@@ -62,8 +62,10 @@ public static class CeresDestructionRomData
     public static class Timing
     {
         public const int FirstExplosionFrame = 0x0080;
-        public const int SecondaryExplosionFirstFrame = 0x0081;
-        public const int SecondaryExplosionLastFrame = 0x00d0;
+        /// <summary>$8B:CE35/CE3B/CE3F: $80 + $50 frames, then the installed pre-instruction runs next frame.</summary>
+        public const int SecondaryExplosionFirstFrame = 0x00d1;
+        /// <summary>$8B:CE43/CE49: the spawner remains alive through its final $40-frame wait.</summary>
+        public const int SecondaryExplosionLastFrame = 0x0110;
         public const int SecondaryExplosionPeriod = 12;
         public const int FinalExplosionFrame = 0x0110;
         public const ushort ExplosionHoldFrames = 0x00c0;

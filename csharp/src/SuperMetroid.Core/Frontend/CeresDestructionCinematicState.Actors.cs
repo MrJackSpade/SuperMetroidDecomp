@@ -12,8 +12,9 @@ internal sealed partial class CeresDestructionCinematicState
         explosionSpawnerFrame++;
 
         // CF33 remains invisible for $80 frames, spawns five staggered small blasts,
-        // waits $50, creates one repeating blast every $0C frames during that interval,
-        // then waits $40 and creates the four large terminal blasts.
+        // waits $50 BEFORE installing the repeating-blast pre-instruction, then runs
+        // it during the final $40-frame wait. The pre-instruction stops on departure;
+        // the instruction list still reaches its four terminal blasts afterward.
         if (explosionSpawnerFrame == CeresDestructionRomData.Timing.FirstExplosionFrame)
         {
             short[] x = [16, -16, 16, -16, 0];
@@ -27,8 +28,9 @@ internal sealed partial class CeresDestructionCinematicState
                     delays[index]);
         }
         else if (explosionSpawnerFrame is
-                    > CeresDestructionRomData.Timing.FirstExplosionFrame and
+                    >= CeresDestructionRomData.Timing.SecondaryExplosionFirstFrame and
                     <= CeresDestructionRomData.Timing.SecondaryExplosionLastFrame &&
+                 Phase < CeresDestructionPhase.FlyingAwayFromExplosion &&
                  (explosionSpawnerFrame -
                     CeresDestructionRomData.Timing.SecondaryExplosionFirstFrame) %
                     CeresDestructionRomData.Timing.SecondaryExplosionPeriod == 0)

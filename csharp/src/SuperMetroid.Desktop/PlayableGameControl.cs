@@ -81,7 +81,6 @@ public sealed partial class PlayableGameControl : UserControl
         var restartButton = new ToolStripButton("Restart");
         var playButton = new ToolStripButton("Pause") { CheckOnClick = true, Checked = true };
         var stepButton = new ToolStripButton("Step");
-        var skipButton = new ToolStripButton("Press Start");
         var stateSlot = new ToolStripComboBox
         {
             AutoSize = false,
@@ -105,7 +104,6 @@ public sealed partial class PlayableGameControl : UserControl
         toolStrip.Items.Add(restartButton);
         toolStrip.Items.Add(playButton);
         toolStrip.Items.Add(stepButton);
-        toolStrip.Items.Add(skipButton);
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(new ToolStripLabel("State slot"));
         toolStrip.Items.Add(stateSlot);
@@ -143,7 +141,6 @@ public sealed partial class PlayableGameControl : UserControl
             canvas.Focus();
         };
         stepButton.Click += (_, _) => { StepFrame(); canvas.Focus(); };
-        skipButton.Click += (_, _) => { StepFrame((ushort)SnesButton.Start); StepFrame(); canvas.Focus(); };
         saveStateButton.Click += (_, _) =>
         {
             SaveDebuggerState(stateSlot.SelectedIndex);

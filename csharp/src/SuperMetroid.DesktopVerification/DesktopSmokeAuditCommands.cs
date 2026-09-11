@@ -5,6 +5,11 @@ internal static class DesktopSmokeAuditCommands
 {
     public static bool TryRun(string[] args)
     {
+        if (args is ["--toolbar-controls-audit", var rom])
+        {
+            HostToolbarControlsTest.Run(rom);
+            return true;
+        }
         if (args is ["--configuration-package-audit", var configuredGameAssembly])
         {
             GameConfigurationPackageVerification.Run(configuredGameAssembly);

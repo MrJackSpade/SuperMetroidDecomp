@@ -19,7 +19,6 @@ public static class HostViewportLayoutSmokeTest
         toolStrip.Items.Add(new ToolStripButton("Restart"));
         toolStrip.Items.Add(new ToolStripButton("Pause"));
         toolStrip.Items.Add(new ToolStripButton("Step"));
-        toolStrip.Items.Add(new ToolStripButton("Press Start"));
         toolStrip.Items.Add(new ToolStripSeparator());
         toolStrip.Items.Add(new ToolStripLabel("State slot"));
         toolStrip.Items.Add(new ToolStripComboBox { AutoSize = false, Width = 48 });

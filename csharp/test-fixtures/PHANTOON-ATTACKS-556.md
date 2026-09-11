@@ -49,3 +49,22 @@ lossless per-frame enemy sound queue, not a single last-sound field.
 Core verification and the production-hit fade/no-input transparency sequences
 pass unchanged. These tests verify sound requests, not a new end-to-end audio
 recording. Full attack spawn/trajectory/render/collision coverage remains pending.
+
+## Real encounter population and visible patterns
+
+`--phantoon-attack-population-audit ROM LOCAL_DIRECTORY` runs 3600 no-input
+frames in the actual room, without assigning AI phases or manually spawning
+flames. Eight spiral records appear at frame 1495; eight rain records appear at
+frame 1603. Each has a live sprite map. The fixture asserts both populations and
+writes per-frame slot/position/angle/radius/delay/sprite/collision-property traces.
+
+The spawn-frame display still reflects the preceding NMI. Captures 16, 32 and 48
+frames later avoid mistaking that normal display delay for missing rendering.
+Visually inspected frame +32 shows eight blue flames distributed around the boss
+for spiral, and eight blue flames forming a staggered falling row for rain.
+All captures remain local; none are published with this source-only fixture.
+
+This rules out absent spawn dispatch for these two patterns in this tested
+sequence. It does not establish original-CPU trajectory parity, every conditional
+rage-wave count, or contact/shot collision parity. Those remain open requirements
+before #556 can move to awaiting player validation.

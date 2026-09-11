@@ -9,7 +9,7 @@ public static class AreaMapTilemapBuilder
     /// Projects immutable cartridge cells into native two-page VRAM order. The caller
     /// supplies its screen's hidden-cell character; reveal overrides never modify SRAM.
     /// </summary>
-    public static byte[] Build(AreaMapCartridgeData map, Bank80SystemState system,
+    public static byte[] Build(IAreaMapView map, Bank80SystemState system,
         MapTileWord hiddenCell, MapRevealMode revealMode = MapRevealMode.None)
     {
         ArgumentNullException.ThrowIfNull(map);
@@ -24,7 +24,7 @@ public static class AreaMapTilemapBuilder
             if (explored)
                 word = word.AsExplored();
             else if (!AreaMapVisibility.IsVisible(explored, downloaded,
-                         map.IsRevealedByMapStation(x, y), !word.IsBlank, revealMode))
+                         map.IsRevealedByMapStation(x, y), map.IsDiscoverable(x, y), revealMode))
                 word = hiddenCell;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 bytes.AsSpan(AreaMapLayout.GetTilemapWordIndex(x, y) * 2), word.Raw);

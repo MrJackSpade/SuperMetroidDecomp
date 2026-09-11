@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--map-presentation"])
+{
+    VerifyMapPresentation();
+    return 0;
+}
 if (args is ["--pause-reserve-hud"])
 {
     VerifyPauseReserveHud();
@@ -628,6 +633,7 @@ VerifyRoomMainCodeCatalog();
 VerifyRoomSetupCodeCatalog();
 VerifyRoomAssetRomData();
 VerifyAreaMapAssets();
+VerifyMapPresentation();
 VerifyBackgroundTilemapStreamer();
 VerifyFourBitBackgroundRendering();
 VerifyLoRomCrossBankCompressedData();

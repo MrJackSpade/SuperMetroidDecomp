@@ -172,13 +172,16 @@ public sealed class HudState
         ushort samusX,
         ushort samusY,
         byte nmiFrameCounter,
-        MapRevealMode mapRevealMode = MapRevealMode.None)
+        MapRevealMode mapRevealMode = MapRevealMode.None,
+        IAreaMapView? presentationMap = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
         int areaTableIndex = AreaIds.ToIndex(areaIndex);
+        if (presentationMap is not null && presentationMap.Area != areaIndex)
+            throw new ArgumentException("Map presentation belongs to a different area.", nameof(presentationMap));
         if (roomWidthInBlocks <= 0 || roomHeightInBlocks <= 0)
             throw new ArgumentOutOfRangeException(nameof(roomWidthInBlocks));
 
@@ -204,13 +207,13 @@ public sealed class HudState
         bool hasAreaMap = system.HasAreaMap(areaIndex);
 
         int areaMapPointerAddress = AreaMapRomData.TilemapPointerTable + areaTableIndex * 3;
-        int areaMapAddress =
+        int areaMapAddress = presentationMap is null ?
             bus.ReadByte(areaMapPointerAddress) |
             (bus.ReadByte(areaMapPointerAddress + 1) << 8) |
-            (bus.ReadByte(areaMapPointerAddress + 2) << 16);
-        ushort mapDataPointer = ReadRomWord(
+            (bus.ReadByte(areaMapPointerAddress + 2) << 16) : 0;
+        ushort mapDataPointer = presentationMap is null ? ReadRomWord(
             bus,
-            AreaMapRomData.StationRevealMaskPointerTable + areaTableIndex * 2);
+            AreaMapRomData.StationRevealMaskPointerTable + areaTableIndex * 2) : (ushort)0;
         int mapDataAddress = AreaMapRomData.StationRevealMaskBank | mapDataPointer;
 
         for (int outputY = 0; outputY < 3; outputY++)
@@ -227,17 +230,19 @@ public sealed class HudState
                 }
 
                 bool explored = system.IsMapTileExplored(areaIndex, mapX, mapY);
-                bool stationVisible = ReadMapBit(bus, mapDataAddress, mapX, mapY);
+                bool stationVisible = presentationMap?.IsRevealedByMapStation(mapX, mapY) ??
+                    ReadMapBit(bus, mapDataAddress, mapX, mapY);
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
                 int tilemapIndex = AreaMapLayout.GetTilemapWordIndex(mapX, mapY);
-                MapTileWord mapTile = ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
+                MapTileWord mapTile = presentationMap?.GetTile(mapX, mapY) ??
+                    (MapTileWord)ReadRomWord(bus, areaMapAddress + tilemapIndex * 2);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
                         stationVisible,
-                        !mapTile.IsBlank,
+                        presentationMap?.IsDiscoverable(mapX, mapY) ?? !mapTile.IsBlank,
                         mapRevealMode))
                 {
                     _tiles[destination] = (ushort)MapTileWords.HudBlank;
@@ -249,7 +254,8 @@ public sealed class HudState
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
-                    (mapTile.Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter)
+                    (presentationMap?.RevealsCellAbove(mapX, mapY) ??
+                     ((mapTile.Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter)))
                     system.MarkExploredMapTile(areaIndex, centerX, centerY - 1);
             }
         }

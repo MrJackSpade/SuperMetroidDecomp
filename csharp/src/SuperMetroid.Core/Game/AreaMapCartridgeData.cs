@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Lossless decoded view of one retail area map and station reveal plane.</summary>
-public sealed class AreaMapCartridgeData
+public sealed class AreaMapCartridgeData : IAreaMapView
 {
     private readonly MapTileWord[] tilemap;
 
@@ -47,4 +47,7 @@ public sealed class AreaMapCartridgeData
     /// deliberately absent from the map-station reveal plane.
     /// </summary>
     public bool IsDiscoverable(int mapX, int mapY) => !GetTile(mapX, mapY).IsBlank;
+
+    public bool RevealsCellAbove(int x, int y) =>
+        (GetTile(x, y).Raw & MapTileWords.SlopedHallwayIdentityMask) == MapTileWords.SlopedHallwayCharacter;
 }

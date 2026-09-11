@@ -64,6 +64,38 @@ internal static class XrayGameplayTests
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), $"{device.Kind}: source-aware X-ray {count}");
             var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
             PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "source-aware X-ray packet round trip");
+            // The version-24 single-X-ray-layer packet ends after its optional BG3
+            // child. Remove only version 25's trailing BG2 selector and restore the
+            // historical header, checking that old packets still select no BG2 operand.
+            byte[] legacyBytes = RenderFrameSnapshotCodec.Serialize(packet)[..^1];
+            legacyBytes[8] = 24; legacyBytes[9] = 0;
+            var legacy = RenderFrameSnapshotCodec.Deserialize(legacyBytes);
+            PixelComparison.Verify(legacy, pixels, renderer.RenderForReadback(legacy), "version-24 subscreen compatibility");
+            if (!reveal && !sub && !half && !subtract)
+            {
+                // Native Phantoon configuration adds BG2 to main BG1/eligible OBJ,
+                // without putting the body in the main-screen priority contest.
+                var additive = new XrayGameplayRenderLayer(new(registers with
+                {
+                    MainScreenLayers = SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj,
+                }), Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
+                    SnesColorMathControl.Bg1 | SnesColorMathControl.Bg3 | SnesColorMathControl.Obj | SnesColorMathControl.Backdrop,
+                    true, 0, 0, 0, subscreenUsesBg2: true);
+                foreach (bool blackBody in new[] { false, true })
+                {
+                    var bodyColors = cgram.Colors.ToArray();
+                    if (blackBody) bodyColors[2] = 0;
+                    var addScene = new LayeredRenderSnapshot(new(vram.Bytes, bodyColors, oam, 1), [additive], 0, 15);
+                    var addPixels = SoftwareLayeredSnapshotRenderer.Render(addScene);
+                    var yellow = new Rgba32(255, blackBody ? (byte)0 : (byte)165, 0);
+                    Check(addPixels[64 * 256 + 64], yellow, "BG2 additive color contribution / black identity");
+                    Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
+                    Check(addPixels[0], pixels[0], "BG2 subscreen preserves HUD");
+                    var addPacket = new RenderFrameSnapshot(new(++count, 1, 0), addScene);
+                    var addRestored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(addPacket));
+                    PixelComparison.Verify(addRestored, addPixels, renderer.RenderForReadback(addRestored), "BG2 subscreen positive colors and black identity");
+                }
+            }
             if (!reveal && !sub && !half && !subtract && palette == 0)
             {
                 // Expose BG2 at x64 and the backdrop at x72 using transparent tile
@@ -102,8 +134,10 @@ internal static class XrayGameplayTests
             var lines = Enumerable.Range(0, 224).Select(_ => new XrayWindowLine((byte)random.Next(256), (byte)random.Next(256))).ToArray();
             var bg3 = new Bg2BppColorMathRenderLayer(Word(), Word(), frame % 2 == 0 ? 32 : 64, 32,
                 ExpandedColorMathOperation.Add, Enumerable.Range(0, 224).Select(_ => new BackgroundLineScroll(Word(), Word())).ToArray());
+            bool bg2Subscreen = frame % 4 == 0;
             var layer = new XrayGameplayRenderLayer(gameplay, lines, frame % 2 == 0, (SnesColorMathControl)random.Next(256),
-                frame % 3 != 0, (byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32), bg3);
+                bg2Subscreen || frame % 3 != 0, (byte)random.Next(32), (byte)random.Next(32), (byte)random.Next(32),
+                bg2Subscreen ? null : bg3, bg2Subscreen);
             var scene = new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, (byte)random.Next(256), (byte)(frame % 16));
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);

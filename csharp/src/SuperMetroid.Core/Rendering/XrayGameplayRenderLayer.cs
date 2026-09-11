@@ -34,12 +34,17 @@ public sealed record XrayGameplayRenderLayer : RenderLayer
     public byte FixedGreen { get; }
     public byte FixedBlue { get; }
     public Bg2BppColorMathRenderLayer? Subscreen { get; }
+    /// <summary>Select the gameplay BG2 plane as the color-math operand instead of a BG3 plane.</summary>
+    public bool SubscreenUsesBg2 { get; }
 
     public XrayGameplayRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines,
         bool revealBlocks, SnesColorMathControl colorMath, bool addSubscreen,
-        byte fixedRed, byte fixedGreen, byte fixedBlue, Bg2BppColorMathRenderLayer? subscreen = null)
+        byte fixedRed, byte fixedGreen, byte fixedBlue, Bg2BppColorMathRenderLayer? subscreen = null,
+        bool subscreenUsesBg2 = false)
     {
         ArgumentNullException.ThrowIfNull(gameplay);
+        if (subscreenUsesBg2 && (subscreen is not null || !addSubscreen))
+            throw new ArgumentException("BG2 subscreen requires subscreen arithmetic and cannot also select BG3.", nameof(subscreenUsesBg2));
         if (lines.Length != SnesPpuLayout.ScreenHeightPixels)
             throw new ArgumentException("X-ray requires one interval for each physical scanline.", nameof(lines));
         if (fixedRed > 31 || fixedGreen > 31 || fixedBlue > 31)
@@ -53,5 +58,6 @@ public sealed record XrayGameplayRenderLayer : RenderLayer
         FixedGreen = fixedGreen;
         FixedBlue = fixedBlue;
         Subscreen = subscreen;
+        SubscreenUsesBg2 = subscreenUsesBg2;
     }
 }

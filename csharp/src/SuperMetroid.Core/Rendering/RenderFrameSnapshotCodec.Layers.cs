@@ -15,6 +15,7 @@ public static partial class RenderFrameSnapshotCodec
                 writer.Write(gameplayXray.FixedRed); writer.Write(gameplayXray.FixedGreen); writer.Write(gameplayXray.FixedBlue);
                 writer.Write(gameplayXray.Subscreen is not null);
                 if (gameplayXray.Subscreen is { } bg3) WriteLayer(writer, bg3);
+                writer.Write(gameplayXray.SubscreenUsesBg2);
                 break;
             case XrayWindowRenderLayer xray:
                 writer.Write((byte)RenderPacketLayerKind.XrayWindow);
@@ -192,7 +193,8 @@ public static partial class RenderFrameSnapshotCodec
                 throw new InvalidDataException("X-ray subscreen must be a BG3 plane.");
             sub = ReadBgColorMath(reader);
         }
-        return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub);
+        bool bg2 = version >= RenderPacketFormat.Bg2GameplaySubscreenVersion && ReadBoolean(reader);
+        return new(gameplay, lines, reveal, control, addSubscreen, red, green, blue, sub, bg2);
     }
 
     private static XrayWindowRenderLayer ReadXrayWindow(BinaryReader reader, ushort version)

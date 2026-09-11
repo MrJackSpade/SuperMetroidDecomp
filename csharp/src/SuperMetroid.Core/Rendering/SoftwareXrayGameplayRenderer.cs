@@ -97,6 +97,12 @@ public static class SoftwareXrayGameplayRenderer
             if (!inside && (layer.ColorMath & source) != 0)
             {
                 Rgba32 sub = default;
+                if (layer.SubscreenUsesBg2)
+                {
+                    int sx = layer.Gameplay.HorizontalScrolls.IsEmpty ? r.Bg2X : layer.Gameplay.HorizontalScrolls[lineIndex];
+                    int sy = layer.Gameplay.VerticalScrolls.IsEmpty ? r.Bg2Y : layer.Gameplay.VerticalScrolls[lineIndex];
+                    sub = bg2Sampler.Sample(x + sx, y + sy + SnesPpuLayout.FirstVisibleBackgroundScanline).Color;
+                }
                 if (layer.AddSubscreen && layer.Subscreen is { } bg3 && y >= bg3.FirstScanline)
                 {
                     BackgroundLineScroll scroll = bg3.Scrolls[y];

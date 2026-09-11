@@ -136,3 +136,19 @@ incorrectly hidden altogether. The implementation must additionally verify
 nonzero body-color contribution, source-sensitive OBJ behavior, frame ownership,
 and the cartridge's hidden/opaque/translucent transitions; do not substitute
 this single negative assertion for those positive fidelity checks.
+
+## Shared compositor prerequisite
+
+Source-aware gameplay composition now supports selecting its BG2 plane as the
+additive subscreen operand. This extends the existing window/color-math operation
+rather than applying a whole-frame tint. Both software and Direct3D sample the
+same BG2 geometry and per-scanline scrolls. BG3 and BG2 operands are mutually
+exclusive and invalid descriptor combinations throw.
+
+`RenderVerification --xray-window` passes on hardware and WARP: 177 source-aware
+cases and 176 window cases per device. New independent scalar checks verify
+nonzero BG2 color addition, black identity, HUD preservation and all eight OBJ
+palette groups. Patterned scenes exercise BG2 scrolls/arithmetic; version-25
+packets round-trip, and constructed version-24 packets retain their old behavior.
+Core verification also passes. This prerequisite alone does not change the live
+Phantoon encounter: timed native blend-state publication still needs integration.

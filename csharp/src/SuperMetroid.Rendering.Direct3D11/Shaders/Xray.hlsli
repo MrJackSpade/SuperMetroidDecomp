@@ -3,6 +3,9 @@
 // Word addresses shared with SnesPpuLayout's gameplay tilemap definitions.
 static const uint XrayGameplayBg1MapWord = 20480;
 static const uint XrayGameplayHudMapWord = 22528;
+// D3D11GameplaySubscreenKind header contract.
+static const uint SubscreenCapturedBg3 = 1;
+static const uint SubscreenGameplayBg2 = 2;
 uint2 XrayBackground(uint map, uint chars, uint2 size, uint2 position, bool fourBit, bool opaqueZero)
 {
     position &= size * 8 - 1;
@@ -59,7 +62,9 @@ uint XrayGameplay(uint2 screen)
     if (!inside && (Level & source) != 0)
     {
         uint sub = 0;
-        if (OffsetX != 0 && Reserved3 != 0 && screen.y >= (uint)CenterY)
+        if (OffsetX != 0 && Reserved3 == SubscreenGameplayBg2)
+            sub = XrayBackground((uint)MatrixA, CharacterWord, uint2(MapWidth,MapHeight), screen + scan.xy, true, false).x;
+        if (OffsetX != 0 && Reserved3 == SubscreenCapturedBg3 && screen.y >= (uint)CenterY)
             sub = XrayBackground((uint)MatrixC, (uint)MatrixD, uint2(32,(uint)CenterX),
                 screen + uint2(scan.w & 65535, scan.w >> 16), false, false).x;
         bool useSub = OffsetX != 0 && (sub >> 24) != 0;

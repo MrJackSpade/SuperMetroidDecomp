@@ -1,6 +1,7 @@
 # #565 boss map marker audit
 
-Affected version: 0.1.1. Partial implementation fix; wider validation remains open.
+Affected version: 0.1.1. Ready for player validation after the persistence checks below.
+Earlier remaining-work notes describe chronological checkpoints.
 
 ## Reproduced pause omission
 
@@ -51,3 +52,33 @@ Regenerate with `movement-release/native-boss-map-entrypoint.patch` and
 The command is bounded/headless and creates a new output exclusively. No
 production change was needed after the missing pause call was restored.
 Save/reload and subsequent-opening coverage remains outstanding.
+
+## Persistence and reopening acceptance
+
+All four authored markers now pass full-image equality across a new pause-page
+instance, production save snapshot/SRAM slot checksum, JSON serialization and
+restoration into a fresh address space, and the existing-save menu constructor's
+own progression owner. Two ordinary room loads of the area's real save-station
+room also retain the exact defeated pause image. All saves are disposable memory;
+no player files are read or overwritten. Scroll centering remains a diagnostic
+fixture operation, not a change to production map positioning.
+
+The live transition uses SetBossBits(AreaBoss), and setting all other areas'
+boss bits first leaves this area's complete pause image unchanged. Every authored
+record is bit0: Kraid (Brinstar), Ridley (Norfair), Phantoon (Wrecked Ship),
+Draygon (Maridia). The native all-byte comparison covers unrelated miniboss and
+Torizo bits without inventing markers for them. Undefeated icons require the
+area map; defeated icons draw their cross and recolored marker even without it.
+
+Boss overlays belong to the pause map and file-select room map. The world-area
+selection graphic is separate artwork. Native minimap $90:A91B/$90:AA43 updates
+HUD tilemap cells from the area layout/exploration masks, not the boss-icon OAM
+lists; boss-room entry $90:A7E2 can disable that minimap and mark cells explored.
+No new boss overlay was added to either of those surfaces.
+
+The shared original-CPU OAM comparison plus failing-before/passing-after pause
+pixel transition and save/room-reload pixel checks support player validation.
+This is not a replay of four boss fights, physical save-pod input, or independent
+native PPU rasterization. Room re-entry is exercised at the production room-load
+boundary rather than a multi-room controller route. No additional gameplay fix
+was needed beyond restoring the omitted pause drawing call in 96b9c6b6.

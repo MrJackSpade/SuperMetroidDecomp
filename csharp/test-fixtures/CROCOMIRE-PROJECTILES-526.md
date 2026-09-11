@@ -58,5 +58,6 @@ encounter. Leave #526 open awaiting player validation after verification.
 ## Separate Power Bomb report (#528)
 
 Native $A4:B992 explicitly chooses the Power Bomb forward-charge program rather
-than projectile knockback. That source finding is not a completed trajectory and
-timing comparison. #528 remains an investigation; this fix does not change it.
+than projectile knockback. The subsequent trajectory/timing comparison is recorded
+in [CROCOMIRE-POWER-BOMB-528.md](CROCOMIRE-POWER-BOMB-528.md); this projectile fix does
+not change that reaction.

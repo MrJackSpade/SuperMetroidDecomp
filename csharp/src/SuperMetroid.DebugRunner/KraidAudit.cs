@@ -162,7 +162,7 @@ internal static class KraidAudit
         return 0;
     }
 
-    public static int Run(string romPath, string? deathCaptureDirectory = null)
+    public static int Run(string romPath, string? deathCaptureDirectory = null, bool observeFloor = false)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
@@ -699,7 +699,9 @@ internal static class KraidAudit
                 $"{string.Join(',', deathFunctions)}.");
         }
 
-        VerifyRuntimeDefeatHandoff(bus, deathCaptureDirectory);
+        VerifyRuntimeDefeatHandoff(bus, deathCaptureDirectory, observeFloor);
+        if (observeFloor)
+            Console.WriteLine("Floor diagnostic only: upper-body #268 pixel assertion excluded; capture completion is not proof of #269 visual parity.");
         VerifyDefeatedRoom(bus, room);
         Console.WriteLine(
             $"Kraid audit passed through repeating first-phase combat after {frame} rise frames: " +
@@ -784,7 +786,7 @@ internal static class KraidAudit
     /// multibox callback, and then proves NMI, PLMs, boss state, music, and the grey-door
     /// handoff continue advancing beyond the formerly failing sinking-table frame.
     /// </summary>
-    private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus, string? deathCaptureDirectory)
+    private static void VerifyRuntimeDefeatHandoff(SuperMetroidAddressSpace bus, string? deathCaptureDirectory, bool observeFloor)
     {
         CartridgeDoorHeader door = CartridgeDoorHeader.Load(bus, IncomingDoorPointer);
         if (door.DestinationRoomPointer != RoomPointer)
@@ -853,15 +855,19 @@ internal static class KraidAudit
             samus.YPosition = (ushort)(300 - settle);
             runtime.StepFrame(0);
         }
-        VerifyKraidGrowthArtifactRegion(runtime);
+        // The floor diagnostic must reach the reported death frames even when the
+        // separate upper-body composition assertion fails. Keep that assertion in
+        // the ordinary audit; this scoped capture makes no claim about issue #268.
+        if (!observeFloor)
+            VerifyKraidGrowthArtifactRegion(runtime);
 
         if (deathCaptureDirectory is not null)
         {
             // The old handoff-only fixture can finish with its observer above the boss.
             // Place an input-locked observer beside the upper body. This is a diagnostic
             // viewpoint, not a controller-route claim; the enemy/death/render loop is live.
-            samus.XPosition = 256;
-            samus.YPosition = 256;
+            samus.XPosition = (ushort)(observeFloor ? 48 : 256);
+            samus.YPosition = (ushort)(observeFloor ? 480 : 256);
             samus.InputLocked = true;
             // Let ordinary scrolling stream each crossed row; directly teleporting the
             // camera leaves stale ring-buffer tiles and invalidates a visual comparison.
@@ -908,7 +914,7 @@ internal static class KraidAudit
         }
 
         VerifyStandardBg3Restored(bus, runtime);
-        VerifyLiveDefeatRetainsSpikes(
+        ReportLiveDefeatSpikeState(
             runtime,
             liveLevel,
             defeatedRoomSpikeClear,
@@ -933,12 +939,11 @@ internal static class KraidAudit
     }
 
     /// <summary>
-    /// Locks down the cartridge result behind issue #269's clarified observation. The live
-    /// death coroutine never calls <c>$A7:C171</c>; that spike-clear PLM belongs exclusively
-    /// to the already-defeated initialization branch. The authored floor therefore remains
-    /// through the completed fight and is removed only when the room is loaded again.
+    /// Records the current level/PLM outcome without treating an unchanged collision word
+    /// as proof of rendered cartridge behavior. The player has contradicted the prior
+    /// reload-only visual conclusion; that conclusion must not be enforced as a regression.
     /// </summary>
-    private static void VerifyLiveDefeatRetainsSpikes(
+    private static void ReportLiveDefeatSpikeState(
         SuperMetroidRuntime runtime,
         RoomLevelData level,
         KraidPlmRequest spikeClear,
@@ -947,17 +952,12 @@ internal static class KraidAudit
         ushort liveSpikesAfterDeath = level.GetCollisionBlock(
             spikeClear.BlockX,
             spikeClear.BlockY).LevelWord;
-        if (liveSpikesAfterDeath != authoredLiveSpikes ||
-            runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes) ||
-            runtime.Enemies.KraidPlmRequests.Contains(spikeClear))
-        {
-            throw new InvalidDataException(
-                $"Kraid's live death incorrectly ran the reload-only spike clear: " +
+        Console.WriteLine(
+                $"Kraid live floor diagnostic (not a visual parity assertion): " +
                 $"block (${spikeClear.BlockX:X2},${spikeClear.BlockY:X2}) " +
                 $"${authoredLiveSpikes:X4}->${liveSpikesAfterDeath:X4}, " +
                 $"active={runtime.Plms.HasActiveHeader(RoomPlmHeaders.ClearKraidSpikes)}, " +
                 $"requested={runtime.Enemies.KraidPlmRequests.Contains(spikeClear)}.");
-        }
     }
 
     /// <summary>

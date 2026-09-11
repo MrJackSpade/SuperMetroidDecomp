@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// Captures the actual runtime-rendered defeat and independent arm state for #520.
@@ -36,6 +37,19 @@ internal sealed class KraidDeathCapture : IDisposable
                 SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)
                     ?? throw new InvalidDataException("Kraid capture did not produce a gameplay packet.")));
         _lastPhase = body.VariableA;
+        if (frame == -1 || runtime.Enemies.Kraid?.DeathSequenceComplete == true)
+        {
+            var level = runtime.LevelData ?? throw new InvalidDataException("Floor capture requires level data.");
+            using var hazards = new StreamWriter(Path.Combine(_directory, $"hazards-{frame + 1:D4}.csv"));
+            hazards.WriteLine("x,y,levelword,bts");
+            for (int y = 0; y < level.HeightInBlocks; y++)
+            for (int x = 0; x < level.WidthInBlocks; x++)
+            {
+                var block = level.GetCollisionBlock(x, y);
+                if (block.CollisionType is RoomCollisionType.SpikeAir or RoomCollisionType.SpikeBlock)
+                    hazards.WriteLine($"{x},{y},{block.LevelWord:X4},{block.Behavior:X2}");
+            }
+        }
     }
 
     public void Dispose() => _trace.Dispose();

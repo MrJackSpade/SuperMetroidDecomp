@@ -1135,6 +1135,8 @@ if (args.Length is 3 or 4 && args[0] == "--kraid-death-capture")
         KraidDeathCapture.VerifyNativeArmTrace(args[2], args[3]);
     return result;
 }
+if (args.Length == 3 && args[0] == "--kraid-floor-death-capture")
+    return KraidAudit.Run(args[1], args[2], observeFloor: true);
 
 if (args.Length is 3 or 4 && args[0] == "--fake-kraid-cadence")
     return FakeKraidCadenceAudit.Run(args[1], args[2], args.Length == 4 ? args[3] : null);

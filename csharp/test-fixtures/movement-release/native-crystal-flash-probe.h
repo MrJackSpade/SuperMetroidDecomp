@@ -1,0 +1,43 @@
+// #408: execute the original bank-$88 cleanup and its bank-$90 activation call.
+// Include after native-release-probe.h. No player save, GUI or translated routine.
+int DiagnosticCrystalFlash(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "case,left,pose,flag,immunity,knockback,health,missiles,supers,pbs\n");
+  for (int test = 0; test < 18; test++) for (int left = 0; left < 2; left++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
+    game_state = 8; button_config_shoot_x = 0x40; joypad1_lastkeys = 0x470;
+    samus_pose = samus_prev_pose = left ? 0x41 : 0x1d;
+    samus_pose_x_dir = samus_prev_pose_x_dir = left ? 4 : 8;
+    samus_movement_type = samus_prev_movement_type = 4;
+    samus_x_pos = power_bomb_explosion_x_pos = 128;
+    samus_y_pos = power_bomb_explosion_y_pos = 128;
+    samus_health = 49; samus_max_health = 99;
+    samus_missiles = samus_super_missiles = samus_power_bombs = 10;
+    samus_invincibility_timer = 96; samus_knockback_timer = 5;
+    power_bomb_flag = 0xffff; samus_input_handler = 0xe913;
+    if (test == 1) samus_health = 50;
+    if (test == 2) samus_health = 51;
+    if (test == 3) samus_missiles = 9;
+    if (test == 4) samus_super_missiles = 9;
+    if (test == 5) samus_power_bombs = 9;
+    if (test == 6) samus_reserve_health = 1;
+    if (test == 7) samus_y_speed = 1;
+    if (test == 8) samus_y_subspeed = 1;
+    if (test == 9) samus_x_pos++;
+    if (test == 10) samus_y_pos++;
+    if (test == 11) samus_x_subpos = 0xffff;
+    if (test == 12) samus_y_subpos = 0xffff;
+    if (test == 13) joypad1_lastkeys ^= 0x400;
+    if (test == 14) joypad1_lastkeys |= 0x80;
+    if (test == 15) samus_max_reserve_health = 100;
+    if (test == 16) samus_max_power_bombs = 10;
+    if (test == 17) samus_health = 0;
+    RunAsmCode(0x888b4e, 0, 0, 0, 0);
+    fprintf(f, "%d,%d,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
+      test,left,samus_pose,power_bomb_flag,samus_invincibility_timer,samus_knockback_timer,
+      samus_health,samus_missiles,samus_super_missiles,samus_power_bombs);
+  }
+  fclose(f); return 0;
+}

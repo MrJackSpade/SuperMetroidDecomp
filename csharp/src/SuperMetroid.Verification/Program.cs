@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--crystal-flash-native", var crystalRom, var crystalTrace])
+{
+    VerifyCrystalFlashCleanup(crystalRom, crystalTrace);
+    return 0;
+}
 if (args is ["--crystal-flash"])
 {
     VerifySamusCrystalFlash();

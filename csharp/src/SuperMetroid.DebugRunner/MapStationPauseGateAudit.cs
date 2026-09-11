@@ -5,6 +5,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Desktop;
 
 /// <summary>
 /// Drives ordinary collision into the retail Crateria map station, acknowledges its
@@ -20,12 +21,13 @@ internal static class MapStationPauseGateAudit
         // producer; every case enters the real station through normal collision.
         foreach (ushort selectedWeapon in new ushort[] { 0, 1, 2 })
         foreach (bool holdShoot in new[] { false, true })
-            Run(romPath, auditLockedControls: true, selectedWeapon, holdShoot);
+        foreach (bool enterFromLeft in new[] { false, true })
+            Run(romPath, auditLockedControls: true, selectedWeapon, holdShoot, enterFromLeft);
         return 0;
     }
 
     public static int Run(string romPath, bool auditLockedControls = false,
-        ushort selectedWeapon = 0, bool holdShoot = false)
+        ushort selectedWeapon = 0, bool holdShoot = false, bool enterFromLeft = false)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         SeedCrateriaSave(bus);
@@ -56,7 +58,12 @@ internal static class MapStationPauseGateAudit
             samus.Missiles = samus.MaxMissiles = 10;
             samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         }
-        samus.XPosition = checked((ushort)((station.BlockIndex % runtime.LevelData!.WidthInBlocks + 1) * 16 + 40));
+        SnesButton towardStation = enterFromLeft ? SnesButton.Right : SnesButton.Left;
+        SnesButton awayFromStation = enterFromLeft ? SnesButton.Left : SnesButton.Right;
+        int stationColumn = station.BlockIndex % runtime.LevelData!.WidthInBlocks;
+        samus.XPosition = checked((ushort)(enterFromLeft
+            ? (stationColumn - 2) * 16 - 40
+            : (stationColumn + 1) * 16 + 40));
         samus.YPosition = checked((ushort)(station.BlockIndex / runtime.LevelData.WidthInBlocks * 16 + 11));
 
         bool sawInsertionOrExtendedHold = false;
@@ -70,12 +77,13 @@ internal static class MapStationPauseGateAudit
             byte poseAtEntry = samus.Pose;
             ushort input = messageAtEntry
                 ? (ownedFrames & 1) == 0 ? (ushort)SnesButton.A : (ushort)0
-                : (ushort)SnesButton.Left;
+                : (ushort)towardStation;
             if (auditLockedControls && lockedAtEntry && !messageAtEntry)
-                input = (ushort)(SnesButton.Right |
+                input = (ushort)((holdShoot || (ownedFrames & 1) == 0 ? awayFromStation : 0) |
                     (holdShoot || (ownedFrames & 1) == 0 ? SnesButton.X : 0));
-            if (auditLockedControls && lockedAtEntry && messageAtEntry)
-                input |= (ushort)SnesButton.Right;
+            if (auditLockedControls && lockedAtEntry && messageAtEntry &&
+                (holdShoot || (ownedFrames & 1) == 0))
+                input |= (ushort)awayFromStation;
             frame = game.Step(input);
             ownedFrames++;
 
@@ -117,18 +125,52 @@ internal static class MapStationPauseGateAudit
                 $"and automatic pause within {ownedFrames} frames.");
         }
 
-        frame = FrontendAuditDriver.StepUntil(game, frame,
-            _ => game.GameState == SuperMetroidGameState.PausedB, 120,
-            "Automatic station map did not become visible");
+        byte downloadPose = samus.Pose;
+        int fadeFrames = 0;
+        while (game.GameState != SuperMetroidGameState.PausedB && fadeFrames++ < 120)
+        {
+            frame = game.Step(auditLockedControls && (holdShoot || (fadeFrames & 1) == 0)
+                ? (ushort)awayFromStation : (ushort)0);
+            if (auditLockedControls && samus.Pose != downloadPose)
+                throw new InvalidDataException($"Map download-to-display changed pose {downloadPose:X2} to {samus.Pose:X2} on fade frame {fadeFrames}; locked={samus.InputLocked}, state={game.GameState}.");
+        }
+        if (game.GameState != SuperMetroidGameState.PausedB)
+            throw new InvalidDataException("Automatic station map did not become visible.");
         if (game.PauseScreenMode != 0 || frame.Pixels.Distinct().Count() < 8)
             throw new InvalidDataException("Automatic station pause did not render the map screen.");
         const string captureDirectory = "csharp/test-temp/map-station-561";
         Directory.CreateDirectory(captureDirectory);
         PngWriter.WriteRgba(Path.Combine(captureDirectory, "automatic-map.png"),
             FrontendFrame.Width, FrontendFrame.Height, frame.Pixels);
+        if (auditLockedControls && selectedWeapon == 0 && !holdShoot && !enterFromLeft)
+        {
+            // Preserve the completed access-animation / still-locked distinction in
+            // debugger snapshots, without adding a new field to old object layouts.
+            using var state = new MemoryStream();
+            DebuggerObjectGraphSerializer.Serialize(state, game);
+            state.Position = 0;
+            game = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(state);
+            runtime = game.RuntimeForVerification!;
+            samus = runtime.Samus!;
+        }
         game.Step(0);
         // Pause chrome uses the cartridge's delayed-held input, not a one-NMI tap.
         for (int i = 0; i < 8; i++) frame = game.Step((ushort)SnesButton.Start);
+        if (auditLockedControls)
+        {
+            int teardownFrames = 0;
+            while (game.GameState != SuperMetroidGameState.UnpausingB && teardownFrames++ < 120)
+            {
+                if (!samus.InputLocked || samus.Pose != downloadPose)
+                    throw new InvalidDataException("Map station released Samus before native unpause setup.");
+                frame = game.Step((ushort)awayFromStation);
+            }
+            if (game.GameState != SuperMetroidGameState.UnpausingB)
+                throw new InvalidDataException("Station map did not reach unpause setup.");
+            frame = game.Step((ushort)awayFromStation);
+            if (samus.InputLocked)
+                throw new InvalidDataException("Native unpause setup failed to release station input.");
+        }
         frame = FrontendAuditDriver.StepUntil(game, frame,
             _ => game.GameState == SuperMetroidGameState.MainGameplay, 120,
             "Station map dismissal did not resume gameplay");
@@ -137,8 +179,8 @@ internal static class MapStationPauseGateAudit
             bool locked = samus.InputLocked;
             byte pose = samus.Pose;
             game.Step((ushort)(auditLockedControls && locked
-                ? SnesButton.Right | ((i & 1) == 0 ? SnesButton.X : 0)
-                : SnesButton.Left));
+                ? awayFromStation | ((i & 1) == 0 ? SnesButton.X : 0)
+                : towardStation));
             if (auditLockedControls && locked &&
                 (samus.Pose != pose || runtime.Projectiles.LastFiredProjectileSnapshot is not null))
                 throw new InvalidDataException("Station retraction admitted a turn or shot after map dismissal.");
@@ -157,7 +199,7 @@ internal static class MapStationPauseGateAudit
         }
 
         Console.WriteLine(
-            $"Map-station pause gate passed {ownedFrames} station-owned frames across " +
+            $"Map station (left={enterFromLeft}, weapon={selectedWeapon}, held={holdShoot}) passed {ownedFrames} station-owned frames across " +
             "insertion, map-data message, automatic map display, dismissal, and acquired-station control.");
         return 0;
     }

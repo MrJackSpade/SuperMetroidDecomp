@@ -15,6 +15,27 @@ public sealed partial class RoomPlmSystem
     private readonly List<StationActivationEvent> _stationActivationEvents = [];
     private bool _saveStationLockedOut;
 
+    /// <summary>
+    /// Applies the station-owned part of Samus command $0C ($90:F29E), called by
+    /// gameplay-resume setup at $82:A2E3. Map access-list deletion does not restore
+    /// the normal Samus handlers; leaving the automatically opened map does.
+    /// </summary>
+    public void ReleaseMapStationInputOnUnpause(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        foreach (PlmSlot slot in _slots)
+        {
+            if (!slot.Active || slot.Station is not { Kind: StationKind.Map } station ||
+                station.OperationPhase == StationOperationPhase.Idle)
+                continue;
+            // Unpause can arrive before the final access-art hold expires. Keep that
+            // remaining animation; only the Samus handler ownership changes here.
+            if (station.OperationPhase == StationOperationPhase.AwaitingMapUnpause)
+                station.OperationPhase = StationOperationPhase.Idle;
+            samus.InputLocked = false;
+        }
+    }
+
     /// <summary>Station messages/actions emitted by the most recent PLM handler pass.</summary>
     public IReadOnlyList<StationActivationEvent> StationActivationEvents =>
         _stationActivationEvents;
@@ -462,7 +483,7 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        if (station.OperationPhase != StationOperationPhase.Idle)
+        if (station.OperationPhase is not (StationOperationPhase.Idle or StationOperationPhase.AwaitingMapUnpause))
         {
             station.OperationTimer--;
             if (station.OperationTimer == 0)
@@ -506,10 +527,15 @@ public sealed partial class RoomPlmSystem
                         station.OperationTimer = StationAccessMovementFrames;
                         break;
                     case StationOperationPhase.FinalRetractionHold:
-                        station.OperationPhase = StationOperationPhase.Idle;
+                        station.OperationPhase = station.Kind == StationKind.Map && samus.InputLocked
+                            ? StationOperationPhase.AwaitingMapUnpause
+                            : StationOperationPhase.Idle;
                         station.AccessBlockIndex = -1;
                         station.AccessBehavior = null;
-                        samus.InputLocked = false;
+                        // The map access list only deletes itself. Command $0C,
+                        // executed by pause teardown, owns its later input release.
+                        if (station.Kind != StationKind.Map)
+                            samus.InputLocked = false;
                         break;
                     default:
                         throw new InvalidDataException(
@@ -743,6 +769,8 @@ public sealed partial class RoomPlmSystem
         PostActivationHold,
         Retracting,
         FinalRetractionHold,
+        // The access actor has finished; command $0C still owns the Samus release.
+        AwaitingMapUnpause,
     }
 }
 

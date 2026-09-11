@@ -757,6 +757,7 @@ public sealed partial class SuperMetroidGame
                 // Keep the speed pair until the next gameplay frame, as the cartridge does.
                 resumedSamus.HorizontalSpeed.ReconcilePauseSpeedBoosterState(
                     bus, (resumedSamus.EquippedItems & (ushort)SamusEquipmentFlags.SpeedBooster) != 0);
+                runtime.Plms.ReleaseMapStationInputOnUnpause(resumedSamus);
                 runtime!.RunNmi(controllerInput, mainLoopRequestedNmi: true);
                 pauseMenu = null;
                 BeginPauseFade(0);

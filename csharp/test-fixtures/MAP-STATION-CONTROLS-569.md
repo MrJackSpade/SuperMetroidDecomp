@@ -41,3 +41,11 @@ This is a source-confirmed, runtime-reproduced weapon-admission fix, not a nativ
 emulator frame comparison. The fixture currently enters from the right side;
 left-side facing, charge cancellation at attachment, and exact first-unlocked-NMI
 timing remain separate coverage gaps. No player state, ROM, or images are tracked.
+
+## Follow-up: #570
+
+The subsequent [facing audit](MAP-STATION-FACING-570.md) extends this command to
+twelve cases across both sides, supplies opposite input during the previously
+neutral map fade, and checks the exact unpause-setup input-release boundary.
+That extension reproduced a separate early-unlock defect; the initial six-case
+result above must not be read as verification of the entire fade interval.

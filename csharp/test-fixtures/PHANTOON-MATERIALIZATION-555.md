@@ -287,3 +287,20 @@ debugger states warn about unavailable display history and refresh at NMI.
 The death fixture still starts at a constructed lethal-hit boundary, not a complete
 controller-driven battle. This component does not establish full encounter parity;
 #555 remains open pending the remaining encounter-level visual audit.
+
+### Complete death-sequence verification
+
+The death audit now continues past frame 648 through power restoration, asserting
+the pre-AI MOSAIC latch on every frame (including value changes). It checks all
+271 grouped frames, of which 265 contain at least 100 colored body pixels. Every
+width 2..16 occurs and obeys horizontal repetition. MOSAIC clears and Wrecked Ship
+power finishes restoring at death frame 987. One actual full display packet per
+width matches software on both hardware and WARP (30 complete-frame comparisons).
+
+The 2400-frame no-input transparency audit was rerun after integration: 1363
+checked frames, 1353 additive frames, 1084 frames contributing body color, no
+erased scenery pixels; the opaque control still reproduces 1974 erased pixels.
+Its phase coverage includes initial materialization, figure-eight, initial and
+repeated flame-rain fade-out. It does not cover damage-triggered swoop or Super
+Missile rage fades; those production-hit branches remain the specific gap before
+the full #555 handoff, rather than an unspecified full-game controller test.

@@ -106,6 +106,7 @@ internal static partial class Program
         File.WriteAllText(replacement, JsonSerializer.Serialize(document, options));
         byte[] editedBytes = File.ReadAllBytes(replacement);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides, Rules);
+        VerifyLiveMapCatalog(bus, original, edited, rules.Values.ToArray());
         AssertTrue(edited.ContentIdentity != original.ContentIdentity, "map override changes content identity");
         AssertTrue(edited.Get(AreaId.Crateria).GetTile(0, 0) != original.Get(AreaId.Crateria).GetTile(0, 0), "catalog prefers valid override");
         SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, repaired, "test-provenance");
@@ -120,5 +121,53 @@ internal static partial class Program
         File.WriteAllText(Path.Combine(stock, name), "corrupt stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides, Rules), "stock integrity failure remains visible with override present");
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
+    }
+
+    private static void VerifyLiveMapCatalog(ISnesAddressSpace bus, AreaMapPresentationCatalog original,
+        AreaMapPresentationCatalog edited, AreaMapCartridgeData[] rules)
+    {
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        using var withoutContent = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withoutContent, game);
+        game.BindMapPresentation(original);
+        using var withContent = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(withContent, game);
+        AssertTrue(withoutContent.ToArray().AsSpan().SequenceEqual(withContent.ToArray()), "map resources do not enter debugger graph");
+        withContent.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(withContent);
+        AssertTrue(restored.MapPresentationIdentity is null, "restored graph requires host content rebind");
+        restored.BindMapPresentation(edited);
+        AssertEqual(edited.ContentIdentity, restored.MapPresentationIdentity, "state rebind uses current override identity");
+
+        var guard = new MapDataGuard(bus, rules);
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(guard) { MapPresentation = edited };
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenterX, runtime.Hud.MinimapCenterY).CharacterIndex,
+            (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
+        var room = runtime.ActiveRoom!;
+        var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, runtime.Samus!, runtime.System,
+            room.AreaIndex, room.MapX, room.MapY, mapPresentation: edited);
+        ushort x = pause.MapHorizontalScroll, y = pause.MapVerticalScroll;
+        pause.BindMapPresentation(original);
+        AssertEqual(x, pause.MapHorizontalScroll, "pause content rebind retains horizontal scroll");
+        AssertEqual(y, pause.MapVerticalScroll, "pause content rebind retains vertical scroll");
+        _ = pause.Render();
+        Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
+    }
+
+    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if ((address >= AreaMapRomData.TilemapPointerTable && address < AreaMapRomData.TilemapPointerTable + AreaIds.RetailCount * 3) ||
+                (address >= AreaMapRomData.StationRevealMaskPointerTable && address < AreaMapRomData.StationRevealMaskPointerTable + AreaIds.RetailCount * 2) ||
+                maps.Any(map => (address >= map.TilemapAddress && address < map.TilemapAddress + AreaMapRomData.TilemapByteCount) ||
+                    (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)))
+                throw new InvalidOperationException($"Live presentation read map ROM at {address:X6}.");
+            return source.ReadByte(address);
+        }
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

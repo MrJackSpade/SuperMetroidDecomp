@@ -1403,7 +1403,8 @@ public sealed partial class SuperMetroidRuntime
             Samus.XPosition,
             Samus.YPosition,
             NmiFrameCounter8,
-            MapRevealMode);
+            MapRevealMode,
+            MapPresentation?.Get(roomGeometry.AreaIndex));
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

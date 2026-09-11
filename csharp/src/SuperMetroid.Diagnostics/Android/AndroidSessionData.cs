@@ -17,6 +17,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly string romPath;
     private readonly string savePath;
     private readonly ExtractedAudioAssetCatalog assets;
+    private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
     private readonly DebuggerSaveStateStore states;
     private ControllerInputRecorder recorder;
 
@@ -33,6 +34,10 @@ internal sealed class AndroidSessionData : IDisposable
         GameSaveFileStore.LoadOrMigrate(Bus, savePath, Path.Combine(root, "SuperMetroid.srm"));
         AndroidFileImport.ActivatePendingSave(root, Bus, savePath);
         Game = new SuperMetroidGame(Bus, Options);
+        // Explicit diagnostic cartridge paths retain their legacy fixture setup;
+        // ordinary installed Android sessions require the installed map catalog.
+        maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps(Bus) : null;
+        Game.BindMapPresentation(maps);
         Game.SaveRamChanged += PersistSave;
         assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));
         Audio = new CartridgeAudioRenderer(assets);
@@ -73,6 +78,7 @@ internal sealed class AndroidSessionData : IDisposable
         recorder.Dispose();
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
+        Game.BindMapPresentation(maps);
         Game.SaveRamChanged += PersistSave;
         Audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
         Generation++;

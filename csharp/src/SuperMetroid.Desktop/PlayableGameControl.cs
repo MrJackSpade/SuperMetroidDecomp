@@ -207,6 +207,9 @@ public sealed partial class PlayableGameControl : UserControl
         else
             LoadReplaySaveRam();
         game = new SuperMetroidGame(addressSpace, gameOptions);
+        mapPresentation = playerDataDirectory is null ? null :
+            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadMaps(addressSpace);
+        game.BindMapPresentation(mapPresentation);
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;
@@ -283,6 +286,7 @@ public sealed partial class PlayableGameControl : UserControl
         if (rendererStopping || IsDisposed) return;
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
+        game.BindMapPresentation(mapPresentation);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;

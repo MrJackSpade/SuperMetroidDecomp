@@ -29,6 +29,7 @@ public sealed partial class SuperMetroidGame
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
                     runtime = new SuperMetroidRuntime(bus);
+                    runtime.MapPresentation = mapPresentation;
                     runtime.InitializeAttractDemo(scene);
                     demoFramesRemaining = scene.Duration;
                     demoScene++;

@@ -3898,7 +3898,8 @@ public sealed partial class SuperMetroidRuntime
                     Samus.XPosition,
                     Samus.YPosition,
                     NmiFrameCounter8,
-                    MapRevealMode);
+                    MapRevealMode,
+                    MapPresentation?.Get(roomGeometry.AreaIndex));
             }
 
             RestoreAttractPlayerInput();

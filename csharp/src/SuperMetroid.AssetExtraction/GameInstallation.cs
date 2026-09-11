@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>App-owned immutable cartridge/audio content, separate from persistent player data.</summary>
@@ -9,6 +13,10 @@ public sealed record GameInstallation(string Root)
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
+
+    /// <summary>Temporary bootstrap of rule data; live map rendering uses the immutable catalog afterward.</summary>
+    public AreaMapPresentationCatalog LoadMaps(ISnesAddressSpace bus) =>
+        AreaMapPresentationCatalog.Load(MapDirectory, MapOverrideDirectory, area => AreaMapRomData.Load(bus, area));
 }
 
 /// <summary>Shared on-disk layout used by the desktop host, Android host, and installation CLI.</summary>

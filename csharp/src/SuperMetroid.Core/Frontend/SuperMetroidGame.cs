@@ -679,7 +679,8 @@ public sealed partial class SuperMetroidGame
                     pauseRoom.MapY,
                     audio,
                     runtime.Vram,
-                    gameOptions.MapReveal);
+                    gameOptions.MapReveal,
+                    mapPresentation);
                 BeginPauseFade(0);
                 PublishMenu(pauseMenu);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -1222,6 +1223,7 @@ public sealed partial class SuperMetroidGame
             infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
             mapRevealMode: gameOptions.MapReveal,
             preventEscapeTimeout: gameOptions.PreventEscapeTimeout);
+        runtime.MapPresentation = mapPresentation;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;

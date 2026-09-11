@@ -30,6 +30,7 @@ internal sealed partial class PauseMenuState
     private readonly byte roomMapX;
     private readonly byte roomMapY;
     private readonly MapRevealMode mapRevealMode;
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly SnesVram vram = new();
     private readonly SnesCgram cgram = new();
     private readonly OamBuffer oam = new();
@@ -59,9 +60,11 @@ internal sealed partial class PauseMenuState
         byte roomMapY,
         CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null,
-        MapRevealMode mapRevealMode = MapRevealMode.None)
+        MapRevealMode mapRevealMode = MapRevealMode.None,
+        AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        this.mapPresentation = mapPresentation;
         this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
         this.system = system ?? throw new ArgumentNullException(nameof(system));
         this.audio = audio;
@@ -569,7 +572,7 @@ internal sealed partial class PauseMenuState
     private void LoadPauseMapTilemap()
     {
         int areaIndex = AreaIds.ToIndex(area);
-        AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+        IAreaMapView map = mapPresentation?.Get(area) ?? (IAreaMapView)AreaMapRomData.Load(bus, area);
         byte[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
@@ -588,7 +591,7 @@ internal sealed partial class PauseMenuState
         // or the persistent explored plane. Expressing the scan in coordinates is exactly
         // equivalent to its byte/bit loops and makes the two-page 64x32 layout explicit.
         bool hasAreaMap = system.HasAreaMap(areaIndex);
-        AreaMapCartridgeData map = AreaMapRomData.Load(bus, area);
+        IAreaMapView map = mapPresentation?.Get(area) ?? (IAreaMapView)AreaMapRomData.Load(bus, area);
         bool IsVisible(int x, int y)
         {
             bool explored = system.IsMapTileExplored(areaIndex, x, y);

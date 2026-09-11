@@ -193,10 +193,12 @@ internal static class DraygonCombatAudit
         var priorEvirPositions = new Dictionary<int, (ushort X, ushort Y)>();
         var movedEvirSlots = new HashSet<int>();
         int maximumBurialEvirs = 0;
+        int burialMusicRequests = 0;
         int deathFrame;
         for (deathFrame = 0; deathFrame < DeathFrameLimit; deathFrame++)
         {
             byte nmi = unchecked((byte)(readyFrame + deathFrame + 1));
+            DraygonAiFunction previousDeathFunction = state.Function;
             enemies.StepFrame(
                 cameraX: 0,
                 cameraY: 0,
@@ -205,6 +207,15 @@ internal static class DraygonCombatAudit
                 level: assets.LevelData,
                 nmiFrameCounter8: nmi);
             deathFunctions.Add(state.Function);
+            // Native Draygon_Func_31 publishes once when entering the sink phase,
+            // not at final deletion. Observe the host-facing queue before it resets.
+            bool enteredSink = previousDeathFunction == DraygonAiFunction.Dying &&
+                state.Function == DraygonAiFunction.DyingSink;
+            if (enemies.MusicRequests.Count != (enteredSink ? 1 : 0) ||
+                (enteredSink && enemies.MusicRequests[0] != new EnemyMusicRequest(
+                    MusicCommand.SelectTrack(3), MusicCommandDelay.EightFrames)))
+                throw new InvalidDataException($"Draygon burial music command/delay mismatch on death frame {deathFrame}.");
+            burialMusicRequests += enemies.MusicRequests.Count;
             enemies.DrawLayers(new OamBuffer(), 0, 0, firstLayer: 0, lastLayer: 7);
             // The final vulnerable eye hit leaves hurt AI active while the death drift
             // begins. Observe both palette targets here instead of manufacturing a hit on
@@ -246,23 +257,31 @@ internal static class DraygonCombatAudit
             DraygonAiFunction.DyingFinish,
         ];
 
-        if (!eyeContactResolved || healthAfterEyeContact != healthBeforeEyeContact ||
-            !shellContactResolved || healthBeforeShellContact - healthAfterShellContact != 160 ||
-            !protectedPartsRemainNonInteractive || !normalBombReactionAgreed ||
-            powerBombReactions != 0 || healthAfterPowerBomb != healthBeforePowerBomb ||
-            !allPartsIgnoredPowerBomb || !sawWhiteBgPalette || !sawWhiteSpritePalette ||
-            dudHits != 1 || healthAfterDud != healthBeforeDud || vulnerableEyeHits != 20 ||
-            body.Health != 0 || state.SwoopYAcceleration != 0x0098 ||
-            state.HealthPaletteTableByteIndex != 14 || !sawLowestHealthPalette ||
-            requiredDeathFunctions.Any(function => !deathFunctions.Contains(function)) ||
-            state.DeathAnimationObjectsSpawned == 0 || state.DeathSmokeObjectsSpawned == 0 ||
-            !state.DeathEvirsSpawned || maximumBurialEvirs != 6 || movedEvirSlots.Count != 6 ||
-            !state.ItemDropRequested || !state.BossDefeatPersisted || !bossBitSet ||
-            state.MusicRequest?.RawValue != 3 || !allPartsDeleted || !spritePoolCleared ||
-            deathFrame >= DeathFrameLimit)
+        (string Name, bool Passed)[] checks =
+        [
+            ("harmless eye contact", eyeContactResolved && healthAfterEyeContact == healthBeforeEyeContact),
+            ("shell contact damage", shellContactResolved && healthBeforeShellContact - healthAfterShellContact == 160),
+            ("protected parts", protectedPartsRemainNonInteractive),
+            ("normal bomb reaction", normalBombReactionAgreed),
+            ("Power Bomb immunity", powerBombReactions == 0 && healthAfterPowerBomb == healthBeforePowerBomb && allPartsIgnoredPowerBomb),
+            ("hurt palettes", sawWhiteBgPalette && sawWhiteSpritePalette),
+            ("dud immunity", dudHits == 1 && healthAfterDud == healthBeforeDud),
+            ("vulnerable eye damage", vulnerableEyeHits == 20 && body.Health == 0),
+            ("swoop acceleration", state.SwoopYAcceleration == 0x0098),
+            ("health palette", state.HealthPaletteTableByteIndex == 14 && sawLowestHealthPalette),
+            ("death phases", requiredDeathFunctions.All(deathFunctions.Contains)),
+            ("death particles", state.DeathAnimationObjectsSpawned != 0 && state.DeathSmokeObjectsSpawned != 0),
+            ("burial Evirs", state.DeathEvirsSpawned && maximumBurialEvirs == 6 && movedEvirSlots.Count == 6),
+            ("reward and persistence", state.ItemDropRequested && state.BossDefeatPersisted && bossBitSet),
+            ("single burial music request", burialMusicRequests == 1),
+            ("deletion and pool cleanup", allPartsDeleted && spritePoolCleared),
+            ("death deadline", deathFrame < DeathFrameLimit),
+        ];
+        string[] failedChecks = checks.Where(check => !check.Passed).Select(check => check.Name).ToArray();
+        if (failedChecks.Length != 0)
         {
             throw new InvalidDataException(
-                $"Draygon combat/death mismatch: ready={readyFrame}, contacts=" +
+                $"Draygon combat/death mismatch [{string.Join(", ", failedChecks)}]: ready={readyFrame}, contacts=" +
                 $"{eyeContactResolved}:{healthBeforeEyeContact}->{healthAfterEyeContact}/" +
                 $"{shellContactResolved}:{healthBeforeShellContact}->{healthAfterShellContact}, " +
                 $"protected parts/normal bomb={protectedPartsRemainNonInteractive}/" +

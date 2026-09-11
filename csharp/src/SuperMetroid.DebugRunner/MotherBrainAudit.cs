@@ -2957,6 +2957,11 @@ internal static class MotherBrainAudit
 
         ushort healthBefore = head.Health;
         ushort walkBefore = sequence.Phase3WalkCounter;
+        ushort shotTypeBefore = shot.Type;
+        ushort shotDirectionBefore = shot.Direction;
+        ushort shotXBefore = shot.XPosition;
+        ushort shotYBefore = shot.YPosition;
+        int projectileCountBefore = projectiles.ProjectileCounter;
         int hits = enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
@@ -2973,7 +2978,14 @@ internal static class MotherBrainAudit
         ushort expectedHealth = damage >= healthBefore
             ? (ushort)0
             : unchecked((ushort)(healthBefore - damage));
-        if (hits != 1 || shot.PackedType.Family != SamusProjectileFamily.BeamExplosion ||
+        // Hyper carries Plasma's penetration bit. The bank-$A0 collision prelude
+        // leaves its direction unmarked, and $A9:B507 applies no-death damage without
+        // replacing the projectile. Assert the live actor, not an impact explosion.
+        if (hits != 1 || !shot.IsActive || shot.Type != shotTypeBefore ||
+            shot.Direction != shotDirectionBefore || shot.Damage != 1000 ||
+            shot.PreInstruction != SamusProjectilePreInstruction.HyperBeam ||
+            shot.XPosition != shotXBefore || shot.YPosition != shotYBefore ||
+            projectiles.ProjectileCounter != projectileCountBefore ||
             head.Health != expectedHealth || sequence.Phase3WalkCounter != 0 ||
             state.WalkCounter != 0 || sequence.Phase3NeckPhase !=
                 MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil ||

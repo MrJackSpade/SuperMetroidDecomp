@@ -54,7 +54,7 @@ public sealed partial class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
-        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles);
+        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
@@ -65,7 +65,7 @@ public sealed partial class FileSelectMapMenuState
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         animations = new FileSelectMapAnimations(bus);
         animations.BindPalette(mapPresentation?.HighlightCycle);
-        entry = new FileSelectMapEntry(bus);
+        entry = new FileSelectMapEntry(bus, mapPresentation?.Palettes);
     }
 
     public FileSelectMapNavigationPhase Phase => entry.IsComplete ? navigation.Phase : FileSelectMapNavigationPhase.EnteringArea;
@@ -76,6 +76,8 @@ public sealed partial class FileSelectMapMenuState
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog;
+        areaGraphics.BindPalettes(catalog?.Palettes);
+        entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
         roomGraphics.BindMapPresentation(catalog);
     }

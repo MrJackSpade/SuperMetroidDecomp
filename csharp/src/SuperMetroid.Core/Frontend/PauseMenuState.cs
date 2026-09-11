@@ -119,7 +119,8 @@ internal sealed partial class PauseMenuState
             clearedFxTilemap,
             PauseMenuLayout.Bg3FxClearDestinationWord,
             wordIncrement: 1);
-        cgram.LoadFromBus(bus, PauseMenuRomData.Palette);
+        if (mapPresentation is null) cgram.LoadFromBus(bus, PauseMenuRomData.Palette);
+        else for (int color = 0; color < SnesCgram.ColorCount; color++) cgram.SetColor(color, mapPresentation.Palettes.Pause[color]);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM

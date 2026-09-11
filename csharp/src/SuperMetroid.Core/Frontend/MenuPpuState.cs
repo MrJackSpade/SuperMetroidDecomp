@@ -19,7 +19,7 @@ internal sealed class MenuPpuState
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
-    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null)
+    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         Vram.LoadBytes(0x0000, RomDataReader.ReadFixedBank(bus, 0x8e8000, 0x5600));
@@ -27,7 +27,8 @@ internal sealed class MenuPpuState
         else mapTiles.LoadTo(Vram, 0x6000);
         Vram.LoadBytes(0xc000, RomDataReader.ReadFixedBank(bus, 0xb6c000, 0x2000));
         Vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, 0x8ed600, 0x0600));
-        Cgram.LoadFromBus(bus, 0x8ee400);
+        if (mapPalettes is null) Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        else for (int color = 0; color < SnesCgram.ColorCount; color++) Cgram.SetColor(color, mapPalettes.FileSelect[color]);
         Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus, 0x8edc00, 0x0800));
     }
 

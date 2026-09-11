@@ -13,11 +13,13 @@ public sealed partial class FileSelectAreaMapGraphics
 {
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
+    [NonSerialized] private MapStaticPalettes? palettes;
 
-    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null)
+    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        ppu = new MenuPpuState(bus, mapTiles);
+        palettes = mapPalettes;
+        ppu = new MenuPpuState(bus, mapTiles, mapPalettes);
         ppu.LoadBg1(RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);
@@ -33,13 +35,26 @@ public sealed partial class FileSelectAreaMapGraphics
     {
         if ((uint)selectedArea >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(selectedArea));
-        for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
-            LoadAreaPalette(area, area == selectedArea);
+        if (palettes is not null) LoadInstalledPalette(selectedArea);
+        else for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
+                LoadAreaPalette(area, area == selectedArea);
         ppu.Vram.LoadBytes(FileSelectMapRomData.AreaBackgroundVram * 2,
             RomDataReader.ReadFixedBank(bus,
                 FileSelectMapRomData.AreaBackgrounds + selectedArea * FileSelectMapRomData.TilemapBytes,
                 FileSelectMapRomData.TilemapBytes));
         SelectedArea = selectedArea;
+    }
+
+    internal void BindPalettes(MapStaticPalettes? content)
+    {
+        palettes = content;
+        if (content is not null) LoadInstalledPalette(SelectedArea);
+    }
+
+    private void LoadInstalledPalette(int selectedArea)
+    {
+        var colors = palettes!.World((SuperMetroid.Core.Game.AreaId)selectedArea);
+        for (int color = 0; color < colors.Length; color++) Cgram.SetColor(color, colors[color]);
     }
 
     private void LoadAreaPalette(int area, bool active)

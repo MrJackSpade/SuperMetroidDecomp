@@ -16,16 +16,26 @@ public sealed class FileSelectMapEntry
     public int Top => FileSelectMapRomData.EntryWindowTop - revealSteps * FileSelectMapRomData.EntryWindowSpeed;
     public int Bottom => FrontendFrame.Height - Top;
 
-    public FileSelectMapEntry(ISnesAddressSpace bus)
+    public FileSelectMapEntry(ISnesAddressSpace bus, MapStaticPalettes? mapPalettes = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        if (mapPalettes is null) Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        else for (int color = 0; color < SnesCgram.ColorCount; color++) Cgram.SetColor(color, mapPalettes.FileSelect[color]);
         ushort[] target = Cgram.Colors.ToArray();
         target[14] = target[30] = 0;
         palette = new CartridgePaletteTransition(target, FileSelectMapRomData.EntryPaletteDenominator);
         // The gradual first-two-palettes routine starts at transition number one,
         // unlike the global door/death fade. Consume only the shared helper's no-op.
         palette.Step(Cgram);
+    }
+
+    internal void BindPalettes(MapStaticPalettes? content)
+    {
+        if (content is null) return;
+        // Update the destination without restarting the ongoing fade or replacing
+        // current interpolated colors. The native two cleared entries stay black.
+        for (int color = 0; color < SnesCgram.ColorCount; color++)
+            palette.SetTargetColor(color, color is 14 or 30 ? (ushort)0 : content.FileSelect[color]);
     }
 
     public void Step()

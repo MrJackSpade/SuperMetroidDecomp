@@ -8,6 +8,13 @@ internal sealed partial class PauseMenuState
     {
         mapPresentation = catalog;
         paletteAnimation.Bind(catalog?.HighlightCycle);
+        if (catalog is not null)
+            for (int color = 0; color < SuperMetroid.Core.Hardware.SnesCgram.ColorCount; color++)
+                // Live highlights and reserve-arrow colors belong to their animation
+                // owners. Replacing the static base must not reset their phase.
+                if ((color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount) &&
+                    color != PauseReserveArrowRomData.Color6Index && color != PauseReserveArrowRomData.Color11Index)
+                    cgram.SetColor(color, catalog.Palettes.Pause[color]);
         if (catalog is not null) catalog.Tiles.LoadTo(vram, 0);
         else vram.LoadBytes(0, SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus,
             MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));

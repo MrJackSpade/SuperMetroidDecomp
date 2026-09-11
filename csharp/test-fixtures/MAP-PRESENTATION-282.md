@@ -315,3 +315,42 @@ re-extraction preservation; malformed schemas, invalid durations/RGB and corrupt
 overrides. Existing full file-select navigation tests now forbid the palette ROM
 ranges too. This is not native emulator framebuffer comparison, device validation
 or completion of static palette and visual placement extraction.
+
+## Static pause, file-select and world-selection palettes
+
+Catalog version 6 adds `map-palettes.json`. Its version-1 document contains `pause`
+and `fileSelect` color arrays plus a `world` object with exactly the six Zebes area
+names (`Crateria`, `Brinstar`, `Norfair`, `WreckedShip`, `Maridia`, `Tourian`). Each
+palette contains 256 RGB5 objects using the same `red`/`green`/`blue` component
+schema as the highlight cycle. Copy the file into `overrides/maps`, edit colors,
+and restart. The first eight groups of sixteen color slots belong to background
+art; the remaining eight groups belong to sprites. Tile JSON palette references
+continue to select their existing color groups. No ROM addresses or copy programs
+are exposed in the replacement document. World keys select complete visual themes
+for each active area, not progression or navigation behavior.
+
+The importer resolves native active/inactive world-map color-copy programs into
+six complete palettes. Runtime world selection picks the named result instead of
+reading/interpreting those ROM records. Installed pause, shared file-map graphics
+and file-map entry also use the extracted base colors. Bound-state replacement
+preserves the selected area, scroll and menu phase. Ongoing entry fades receive new
+targets without restarting their counters or replacing interpolated current colors.
+Pause and room-map rebind deliberately retain colors owned by the highlight cycle;
+pause also retains its two reserve-arrow animation colors. Edit those through their
+animation assets rather than expecting static colors to override animation owners.
+The reserve-arrow cycle is not extracted in this change.
+
+Tests compare every pause/file-select base word and all six world-selection CGRAM
+images and rendered backgrounds against the cartridge-backed implementation. Real
+palette overrides visibly change pause, room-map and world-map pixels; stock
+rebinding restores them, including a serialized pause. An edited palette rebound
+mid-entry reaches its new fade target on the unchanged phase schedule. Existing
+full file-select navigation/state tests forbid the static palette ROM ranges, in
+addition to map layouts, artwork and highlight-cycle reads. Invalid versions,
+palette sizes, colors, missing world selections and corrupt overrides fail; stock
+re-extraction preserves replacement bytes and content identity.
+
+These are the map-menu base palettes, not all gameplay palettes. The live HUD gets
+colors through room/palette systems whose extraction remains in the shared palette
+work. Other remaining #282 work includes visual placement resources, historical
+full-session compatibility, complete installer replacement and Android validation.

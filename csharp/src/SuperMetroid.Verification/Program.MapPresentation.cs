@@ -138,6 +138,7 @@ internal static partial class Program
         VerifyMapAtlasIntegration(bus, stock, Path.Combine(root, "atlas-overrides"), original, rules.Values.ToArray());
         VerifyHudAtlasIntegration(bus, stock, Path.Combine(root, "hud-overrides"), original, rules.Values.ToArray());
         VerifyMapPaletteCycleIntegration(bus, stock, Path.Combine(root, "cycle-overrides"), original, rules.Values.ToArray());
+        VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray());
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");
@@ -215,6 +216,10 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
+            if ((address >= MapStaticPalettesRomData.PausePalette && address < MapStaticPalettesRomData.PausePalette + SnesCgram.ByteCount) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette && address < SuperMetroid.Core.Frontend.FileSelectMapRomData.EntryPalette + SnesCgram.ByteCount) ||
+                (address >= SuperMetroid.Core.Frontend.FileSelectMapRomData.PaletteColors && address < MapStaticPalettesRomData.WorldPaletteDataEnd))
+                throw new InvalidOperationException($"Live presentation read static map palette ROM at {address:X6}.");
             if ((address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming &&
                 address <= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTiming + SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteFrameCount * SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteTimingStride) ||
                 (address >= SuperMetroid.Core.Frontend.MapAnimationRomData.PaletteColors &&

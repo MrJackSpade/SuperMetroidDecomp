@@ -1143,6 +1143,8 @@ if (args.Length >= 2 && args[0] == "--botwoon-x-plasma-controls")
     return BotwoonAudit.RunXPlasmaControls(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-x-plasma-fired")
     return BotwoonAudit.RunFiredXPlasma(string.Join(' ', args[1..]).Trim('"'));
+if (args.Length >= 2 && args[0] == "--botwoon-hyper-audit")
+    return BotwoonAudit.RunHyper(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-x-plasma")
     return BotwoonAudit.RunXPlasma(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-audit")

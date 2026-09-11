@@ -244,3 +244,27 @@ Botwoon trajectory has been compared to original CPU execution.
 After this shared change, the complete Verification suite, both Phantoon release
 and native comparison checks, both Botwoon input traces, and Windows Release
 build pass. Build output contains zero warnings and zero errors.
+
+## Hyper Beam variant
+
+`DebugRunner --botwoon-hyper-audit "Super Metroid.smc"` uses normal firing
+and ItemSelect/Run controls after initializing Hyper plus X-ray in the retail
+room. It never installs a projectile or modifies the boss after setup. Each
+case fires exactly one real `$9018`, 1000-damage Hyper projectile:
+
+- Fire frame 300 with scope: hits 318/382/446, health 3000 -> 0.
+- Fire frame 296 with scope: hits 318/382, health 3000 -> 1000.
+- Fire frame 300 without scope: hit 318 only, health 3000 -> 2000.
+
+Assertions cover firing metadata, retained beam family, per-hit damage, normal
+scope selection, and fixed boss/projectile positions and flash while frozen.
+These exact trajectories are port regressions; a matching original-CPU
+controller encounter is still outstanding.
+
+The Draygon native probe and full-runtime release fixture additionally cover
+Hyper's type/damage at the release boundary. Native results are 5000/16/11 for
+health/invincibility/flash when admitted and 6000/0/11 at entry timer one; the
+port agrees, including acceleration and position. Two v2 captures agree:
+SHA-256 `3920203CBC1B550415DBA4E5871FCCFC98274188BEE49B151C2F7CBB0F561007`.
+All three Botwoon cases and all four Draygon cases pass. This expands evidence
+without another production change and does not finish #402's remaining scope.

@@ -11,6 +11,7 @@ internal static class DraygonPlasmaAudit
     /// </summary>
     public static int Run(string rom)
     {
+        foreach (bool hyper in new[] { false, true })
         foreach (ushort entryTimer in new ushort[] { 0, 1 })
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
@@ -31,19 +32,20 @@ internal static class DraygonPlasmaAudit
             body.ExtraProperties = 4;
             runtime.Enemies.Draygon.SwoopYAcceleration = 0;
             var shot = runtime.Projectiles.Slots[0];
-            shot.Type = SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Plasma, true);
-            shot.Damage = 450;
+            shot.Type = hyper ? (ushort)0x9018 : SamusProjectileTypeWord.CreateBeam((ushort)SamusBeamFlags.Plasma, true);
+            ushort damage = hyper ? (ushort)1000 : (ushort)450;
+            shot.Damage = damage;
             shot.XPosition = shot.YPosition = 128;
             shot.XRadius = shot.YRadius = 4;
             shot.InstructionPointer = 0x9000;
             shot.InstructionTimer = 100;
             runtime.StepFrame(0);
-            ushort health = entryTimer == 0 ? (ushort)5550 : (ushort)6000;
+            ushort health = entryTimer == 0 ? (ushort)(6000 - damage) : (ushort)6000;
             ushort timer = entryTimer == 0 ? (ushort)16 : (ushort)0;
             if (body.Health != health || body.InvincibilityTimer != timer || body.FlashTimer != 11 ||
                 runtime.Enemies.Draygon.SwoopYAcceleration != (entryTimer == 0 ? 8 : 0) ||
                 body.XPosition != 128 || body.YPosition != 128)
-                throw new InvalidDataException($"Draygon release (entry {entryTimer}): {body.Health}/{body.InvincibilityTimer}/{body.FlashTimer}, native {health}/{timer}/11.");
+                throw new InvalidDataException($"Draygon release (hyper {hyper}, entry {entryTimer}): {body.Health}/{body.InvincibilityTimer}/{body.FlashTimer}, native {health}/{timer}/11.");
         }
         Console.WriteLine("Draygon full-runtime release and entry-invincibility gate pass.");
         return 0;

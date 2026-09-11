@@ -6,7 +6,8 @@
 int DiagnosticXPlasmaDraygon(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
-  fprintf(f, "entry,health,invincibility,flash,acceleration,x,y\n");
+  fprintf(f, "hyper,entry,health,invincibility,flash,acceleration,x,y\n");
+  for (int hyper = 0; hyper < 2; hyper++)
   for (int entry = 0; entry < 2; entry++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
     g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
@@ -21,9 +22,10 @@ int DiagnosticXPlasmaDraygon(const char *rom, const char *output) {
     projectile_counter = 1;
     projectile_x_pos[0] = projectile_y_pos[0] = 128;
     projectile_x_radius[0] = projectile_y_radius[0] = 4;
-    projectile_type[0] = 0x8018; projectile_damage[0] = 450;
+    projectile_type[0] = hyper ? 0x9018 : 0x8018;
+    projectile_damage[0] = hyper ? 1000 : 450;
     ProbeRunBounded(0xa08fd4);
-    fprintf(f, "%d,%u,%u,%u,%u,%u,%u\n", entry, body->base.health,
+    fprintf(f, "%d,%d,%u,%u,%u,%u,%u,%u\n", hyper, entry, body->base.health,
       body->base.invincibility_timer, body->base.flash_timer, body->draygon_var_0F,
       body->base.x_pos, body->base.y_pos);
   }

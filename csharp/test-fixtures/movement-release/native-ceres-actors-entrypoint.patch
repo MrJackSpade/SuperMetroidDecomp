@@ -1,0 +1,26 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -84,2 +84,3 @@
++static bool ceres_actors_headless;
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!ceres_actors_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+@@ -91,2 +92,2 @@
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!ceres_actors_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+@@ -315,1 +316,6 @@
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-ceres-actors") == 0) {
++    ceres_actors_headless = true;
++    extern int DiagnosticCeresActors(const char *, const char *);
++    return DiagnosticCeresActors(argv[2], argv[3]);
++  }
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -97,1 +97,3 @@
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-ceres-actors-probe.h"

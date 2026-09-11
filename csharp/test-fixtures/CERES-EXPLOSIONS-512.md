@@ -73,3 +73,38 @@ restoration. Full Verification and the Windows Release build also pass.
 
 The duplicate-looking explosion report remains open: native visual comparison
 of the actor sets is still required before claiming the entire report resolved.
+
+## Original-CPU actor comparison
+
+`movement-release/native-ceres-actors-probe.h` runs the retail `$8B:938A`
+initializer and `$8B:93EF` sprite handler for all parameter variants of CEBB,
+CEC1 and CEC7, independently for 260 calls each. The bounded headless entrypoint
+patch suppresses native dialogs. Use the existing native Release build workflow
+after applying `native-ceres-actors-entrypoint.patch` with `--unidiff-zero`, run:
+
+```
+sm.exe --diagnostic-ceres-actors "Super Metroid.smc" NEW_PRIVATE_CSV
+```
+
+Reverse only that patch after the run. Output creation is exclusive; do not
+overwrite an earlier trace. No trace, ROM, screenshot or compiled binary belongs
+in the public commit. The loader restores original ROM bytes before CPU execution.
+
+Then run DebugRunner:
+
+```
+--ceres-actor-native-audit "Super Metroid.smc" PRIVATE_CSV
+```
+
+The managed audit observes actors spawned by the real production scene, retaining
+their identities after deletion. Native origins use a zero camera; subtracting
+the production camera at each birth compares exact initial offsets and subsequent
+integer/subpixel motion. All 15 actual spawner children match across 3,900 states:
+active/deleted status, X/Y and subpositions, and selected spritemap. The native
+trace also contains the two secondary parameters not reached by this schedule;
+those extra variants are not claimed as production-scene comparisons.
+
+This eliminates actor animation/lifetime/motion discrepancies for the tested
+sequence. It does not compare final OAM or composed pixels, does not exercise
+native full-scene scheduling, and excludes the separate departure explosion.
+Those boundaries remain important to the still-open visual report.

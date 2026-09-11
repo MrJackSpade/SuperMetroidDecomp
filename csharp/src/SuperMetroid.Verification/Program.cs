@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--stock-attract-scenes"])
+{
+    VerifyStockAttractScenes();
+    return 0;
+}
 if (args is ["--native-boss-markers", var bossTrace])
 {
     VerifyNativeBossMarkers(bossTrace);

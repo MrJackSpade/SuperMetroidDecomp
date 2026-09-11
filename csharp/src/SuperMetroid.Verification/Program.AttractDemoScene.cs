@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyAttractDemoScene()
     {
+        VerifyStockAttractScenes();
         var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
         WriteRomWord(rom, AttractDemoRomData.RoomSetPointers, 0x9000);
         WriteRomWord(rom, AttractDemoRomData.EquipmentSetPointers, 0xa000);
@@ -67,5 +68,28 @@ internal static partial class Program
         bus.WriteByte(AttractDemoRomData.CompletionMarkerAddress, 0);
         if (frontend.AvailableDemoSetCount() != 3)
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
+    }
+
+    private static void VerifyStockAttractScenes()
+    {
+        var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        int[] counts = [6, 6, 6, 5];
+        int total = 0;
+        for (int set = 0; set < counts.Length; set++)
+        {
+            for (int scene = 0; scene < counts[set]; scene++)
+            {
+                AssertEqual(AttractDemoScene.Read(retail, set, scene), StockAttractDemoScenes.Get(set, scene),
+                    $"compiled scene {set}/{scene} matches every cartridge setup field");
+                total++;
+            }
+            AssertTrue(StockAttractDemoScenes.Get(set, counts[set]) is null &&
+                AttractDemoScene.Read(retail, set, counts[set]) is null, "stock set sentinel");
+            AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(set, counts[set] + 1),
+                "reject scene beyond compiled set");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(-1, 0), "negative demo set");
+        AssertThrows<ArgumentOutOfRangeException>(() => StockAttractDemoScenes.Get(0, -1), "negative demo scene");
+        Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 }

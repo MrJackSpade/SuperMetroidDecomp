@@ -24,7 +24,7 @@ public sealed partial class SuperMetroidGame
             case SuperMetroidGameState.TransitionToDemoA:
                 if (demoLoadFramesRemaining < 0)
                 {
-                    AttractDemoScene scene = AttractDemoScene.Read(bus, demoSet, demoScene)
+                    AttractDemoScene scene = StockAttractDemoScenes.Get(demoSet, demoScene)
                         ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
@@ -85,7 +85,7 @@ public sealed partial class SuperMetroidGame
                 demoHasNextScene = false;
                 if (!demoCancelled)
                 {
-                    demoHasNextScene = AttractDemoScene.Read(bus, demoSet, demoScene) is not null;
+                    demoHasNextScene = StockAttractDemoScenes.Get(demoSet, demoScene) is not null;
                     if (!demoHasNextScene)
                     {
                         demoSet = (demoSet + 1) % AvailableDemoSetCount();

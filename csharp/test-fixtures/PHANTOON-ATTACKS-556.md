@@ -89,3 +89,25 @@ After the fix, all 65536 original-CPU coordinate pairs match. Core verification,
 real-room rain/spiral population and no-input transparency audits pass. The CSV
 remains local; the committed probe regenerates it from the user's ROM. This
 proves component-coordinate parity, not every spawn/lifetime/collision path.
+
+## Rage-wave population and sound
+
+The native `$A7:D8E0` DEY followed by CPY #8 / BPL still spawns direction eight.
+The translation stopped at nine, losing one flame in each odd-numbered wave.
+It also omitted the per-wave library-three sound `$29` at `$A7:D8E6`.
+`--phantoon-rage-wave-audit ROM` reproduced all four seven-versus-eight count
+failures and all eight missing sound publications before the production fix.
+
+The corrected loop includes direction eight and publishes the native sound using
+the existing lossless queue. The audit reads loop bounds, delays, count and sound
+ID from actual ROM operands, checks the full initialized angle population, then
+triggers a production 600-damage Super Missile eye hit in the actual room. Only
+projectile contact is constructed; the following AI sequence is unmodified.
+It produces waves at frames 1709, 1837, 1965, 2093, 2221, 2349, 2477 and 2605:
+alternating seven/eight live flames, 128 frames apart, one sound request per wave,
+followed by the normal fade-out. The first wave is four frames after rage entry.
+
+Core verification and both real-room missile/Super Missile hit-fade branches
+pass. This verifies queued sound, not a separate audible playback capture.
+Projectile lifetime and collision parity remain outstanding; #556 is not yet
+ready for player validation.

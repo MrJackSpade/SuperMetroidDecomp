@@ -93,7 +93,7 @@ internal static class PhantoonHitFadeAudit
         PhantoonAiFunction.FadeOutWhileSwooping or PhantoonAiFunction.FadeInBeforeFigureEight or
         PhantoonAiFunction.FadeOutBeforeRage or PhantoonAiFunction.FadeInForRage or PhantoonAiFunction.FadeOutAfterRage;
 
-    private static bool TryFindEyeContact(RoomEnemySystem enemies, RoomEnemySlot body, out ushort x, out ushort y)
+    internal static bool TryFindEyeContact(RoomEnemySystem enemies, RoomEnemySlot body, out ushort x, out ushort y)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
         var query = typeof(RoomEnemySystem).GetMethod("TryFindExtendedHitboxCallback", flags)!;

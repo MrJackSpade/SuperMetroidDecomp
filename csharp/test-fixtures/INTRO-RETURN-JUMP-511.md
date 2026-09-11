@@ -6,7 +6,7 @@ Run DebugRunner with the retail ROM:
 --intro-return-jump-audit "Super Metroid.smc" OUTPUT_DIRECTORY
 ```
 
-This diagnostic intentionally fails on the current production code. It navigates
+The initial reproduction commit intentionally failed on production code. It navigates
 the first intro page, allows the real Rinka to hit Samus, records every subsequent
 demo input/pose/position/animation frame, and captures every eighth post-hit frame.
 Outputs stay local/ignored; do not publish ROM assets or captures.
@@ -40,3 +40,26 @@ No production fix is included in this reproduction commit. Before closing the
 implementation, expand the assertion beyond this initial missing-rise detector:
 verify return trajectory, spin/landing animation, timing, and recovered position
 against the cartridge path. Issue remains open, not awaiting player validation.
+
+## Shared-movement integration
+
+The flashback now dispatches the shared grounded coordinator, ordinary jump
+initializer, spin/normal-jump movement, and spin landing transition. Grounded
+movement already animates, so the outer cinematic does not animate it twice.
+The pose-history regression now covers the four newly executed run/jump/landing/
+standing transitions as well as the existing hurt and scene-handoff transitions.
+
+The real script now runs at 251, enters spin pose $1A at 259, reaches Y=84,
+lands in pose $A7 at frame 294 at (149,115), and stands at 304. These are observed
+port results, not asserted native golden coordinates. The expanded audit verifies
+rise, descent, landing at the original ground Y, return to standing, and multiple
+spin and landing animation frames. It renders every frame so tile-transfer
+selection follows the host pipeline, saving only selected captures. Captures of
+ascent, descent and landing were inspected locally. Nine spin animation frames and
+three landing frames occur. The palette regression and full Verification pass;
+Windows Release builds.
+
+Remaining verification: independent original-CPU/emulator trajectory and timing
+comparison. Do not claim exact native return coordinates from these observed
+results alone. The missing movement is implemented, but #511 remains open without
+the awaiting-player-validation label until that comparison is complete.

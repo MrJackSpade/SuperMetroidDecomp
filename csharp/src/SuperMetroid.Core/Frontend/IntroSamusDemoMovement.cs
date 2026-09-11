@@ -5,7 +5,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// Grounded Samus alpha/beta subset used by the SR388 intro demo.
+/// Grounded Samus alpha/beta subset shared by the discovery and Mother Brain intro demos.
 /// </summary>
 /// <remarks>
 /// The shared movement and pose classes remain the authorities. This coordinator preserves
@@ -108,6 +108,13 @@ internal static class IntroSamusDemoMovement
     {
         if (sourcePose == targetPose)
             return;
+
+        if ((SamusState.IsLeftFacingRunningPose(sourcePose) && targetPose == SamusPoseIds.SpinJumpLeftPose) ||
+            (SamusState.IsLeftFacingStandingPose(sourcePose) && targetPose == SamusPoseIds.NeutralJumpTransitionLeftPose))
+        {
+            samus.ApplyOrdinaryJumpTransition(bus, targetPose);
+            return;
+        }
 
         if (sourcePose == SamusPoseIds.FacingLeftNormalPose &&
             targetPose == SamusPoseIds.MovingLeftNormalPose)

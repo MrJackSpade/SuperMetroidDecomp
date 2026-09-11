@@ -99,7 +99,7 @@ internal static partial class Program
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");
         }
-        AssertTrue(setup && terminal && handoff && transitions == 5, "intro history fixture covers setup, four hurt/fall/landing transitions, terminal and discovery");
+        AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; transitions={transitions}");
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
     }
 }

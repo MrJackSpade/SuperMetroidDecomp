@@ -892,6 +892,7 @@ public sealed partial class IntroCinematicState
         AerialMovementResult? fallingMovement = null;
         BlockMoveResult? hurtEndingProbe = null;
         bool transitionAccepted = false;
+        bool groundedDemoStepped = false;
         if (samus.KnockbackActive)
         {
             // `$90:E83C` dispatches the installed `$90:DF38` movement handler. Its shared
@@ -902,6 +903,25 @@ public sealed partial class IntroCinematicState
         {
             hurtEndingProbe = SamusGroundedMovement.StepKnockbackOrCrystalFlashEnding(
                 bus, level, samus, nmiFrameCounter);
+        }
+        else if (flashbackDemoInput?.Enabled == true &&
+            (SamusState.IsLeftFacingStandingPose(samus.Pose) || SamusState.IsLeftFacingRunningPose(samus.Pose)))
+        {
+            // The demo's later run/jump records use the same alpha/beta order as the
+            // discovery scene. This coordinator already animates and commits its pose.
+            IntroSamusDemoMovement.StepGroundedLeft(bus, level, samus, demoInput,
+                flashbackDemoInput.NewlyPressed, nmiFrameCounter);
+            groundedDemoStepped = true;
+        }
+        else if (samus.Pose == SamusPoseIds.SpinJumpLeftPose)
+        {
+            fallingMovement = SamusAerialMovement.StepSpinJump(bus, level, samus,
+                demoInput, nmiFrameCounter, flashbackDemoInput?.NewlyPressed ?? 0);
+        }
+        else if (SamusState.IsLeftFacingNormalJumpPose(samus.Pose))
+        {
+            fallingMovement = SamusAerialMovement.StepNormalJump(bus, level, samus,
+                demoInput, nmiFrameCounter);
         }
         else if (samus.Pose is SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose)
         {
@@ -918,7 +938,8 @@ public sealed partial class IntroCinematicState
 
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
-        samus.AnimateNoFx(bus, demoInput, nmiFrameCounter);
+        if (!groundedDemoStepped)
+            samus.AnimateNoFx(bus, demoInput, nmiFrameCounter);
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
@@ -939,7 +960,7 @@ public sealed partial class IntroCinematicState
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
-            samus.ApplyAerialLanding(bus, wasSpinning: false, demoInput);
+            samus.ApplyAerialLanding(bus, wasSpinning: samus.Pose == SamusPoseIds.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 

@@ -33,6 +33,7 @@ public sealed partial class FileSelectMapMenuState
     private FileSelectMapWindow? returnWindow;
     private int pendingFrames;
     private byte brightness = 15;
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     public FileSelectMapMenuState(ISnesAddressSpace bus, CartridgeAudioState audio,
         SuperMetroidSaveSlot slot, ushort initialHeldInput, AreaMapPresentationCatalog? mapPresentation = null)
@@ -58,7 +59,8 @@ public sealed partial class FileSelectMapMenuState
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
             (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
-        scroll = createScroll();
+        this.mapPresentation = mapPresentation;
+        scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         animations = new FileSelectMapAnimations(bus);
@@ -70,7 +72,24 @@ public sealed partial class FileSelectMapMenuState
     public bool OptionsRequested { get; private set; }
 
     /// <summary>Rebinds host presentation after restoration without restarting navigation.</summary>
-    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog) => roomGraphics.BindMapPresentation(catalog);
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        mapPresentation = catalog;
+        roomGraphics.BindMapPresentation(catalog);
+    }
+
+    private FileSelectMapScroll CreateScrollForCurrentContent()
+    {
+        // Keep the old closure untouched for historical debugger graphs and explicit
+        // cartridge diagnostics. Installed sessions never invoke its ROM map loader.
+        if (mapPresentation is null) return createScroll();
+        var typedArea = (AreaId)area;
+        LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)stationIndex));
+        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        return new FileSelectMapScroll(bus, mapPresentation.Get(typedArea), roomGraphics.MapSystem,
+            (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
+            (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
+    }
 
     public void Step(ushort input)
     {
@@ -103,7 +122,7 @@ public sealed partial class FileSelectMapMenuState
             if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(SoundEffectLibrary1Sounds.MapReturn);
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
-                scroll = createScroll();
+                scroll = CreateScrollForCurrentContent();
                 marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex);
                 markerDrawn = false;
                 animations.ResetPalette();

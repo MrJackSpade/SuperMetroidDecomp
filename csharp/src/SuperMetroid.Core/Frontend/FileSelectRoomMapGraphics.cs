@@ -16,6 +16,7 @@ public sealed partial class FileSelectRoomMapGraphics
     private readonly FileSelectMapIcons icons;
     public SnesVram Vram => ppu.Vram;
     public SnesCgram Cgram => ppu.Cgram;
+    internal Bank80SystemState MapSystem => icons.MapSystem;
 
     public FileSelectRoomMapGraphics(ISnesAddressSpace bus, Bank80SystemState system, AreaId area,
         MapRevealMode revealMode = MapRevealMode.None, AreaMapPresentationCatalog? mapPresentation = null)

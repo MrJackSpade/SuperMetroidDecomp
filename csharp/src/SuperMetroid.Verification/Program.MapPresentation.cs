@@ -175,6 +175,7 @@ internal static partial class Program
         AssertEqual(y, pause.MapVerticalScroll, "pause content rebind retains vertical scroll");
         _ = pause.Render();
         VerifyFileSelectMapCatalog(bus, guard, original, edited);
+        VerifyInstalledFileSelectMenu(bus, guard, original, edited);
         Console.WriteLine("Live map catalog: Ceres room-entry/pause reject map ROM access; debugger rebind excludes stale content and preserves scroll.");
     }
 

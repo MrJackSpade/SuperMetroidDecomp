@@ -20,7 +20,7 @@ public sealed class FileSelectMapScroll
     public ushort MaximumY { get; }
     public MapScrollDirection Direction { get; private set; }
 
-    public FileSelectMapScroll(ISnesAddressSpace bus, AreaMapCartridgeData map,
+    public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
         Bank80SystemState system, ushort playerMapX, ushort playerMapY)
     {
         ArgumentNullException.ThrowIfNull(bus);

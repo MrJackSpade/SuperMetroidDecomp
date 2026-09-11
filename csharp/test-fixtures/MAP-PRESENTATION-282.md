@@ -149,3 +149,22 @@ Android coverage are still pending.
 This supersedes the earlier ROM-bootstrap note for installed catalog loading.
 File-select scroll initialization, glyph/palette graphics and other presentation
 resources still have ROM dependencies and remain work under this issue.
+
+## Installed file-select scrolling and full-menu state round trip
+
+The installed file-select menu now builds scroll limits from the bound catalog's
+stock rule view. It no longer calls the cartridge map loader when initializing
+scrolling or returning from area selection. The legacy constructor closure is
+retained unchanged for debugger compatibility and explicit cartridge diagnostics;
+installed sessions bypass it. A nonserialized catalog reference is rebound by the
+existing host hook. No scrolling/animation fields are reset during rebind.
+
+The regression constructs the actual menu with all area-map pointers, tile grids
+and reveal-mask ROM reads forbidden. It compares every rendered frame and phase
+against the cartridge-backed control through entry, confirmation, an asserted
+horizontal scroll, full-menu serialization/restoration, cancellation and reentry.
+Rebinding a catalog whose changes are in another area leaves serialized menu bytes
+unchanged, demonstrating that the external catalog is not captured by the retained
+delegate. This is a current-version full-menu state round trip, not an old-binary
+fixture migration claim. Load-station/room metadata, artwork and palette ROM reads
+remain outside this completed layout/reveal-table removal.

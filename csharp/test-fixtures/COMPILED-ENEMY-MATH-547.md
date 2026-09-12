@@ -453,3 +453,17 @@ every authored word and ignored selector bit. The complete Volcano audit passes
 with the native three-draw launch, trajectory, cooldown underflow, contact and
 rendering checks. Full Release Verification and Windows Release build pass. The remaining family-table
 inventory is still open under #547.
+
+## Shaktool angular velocities
+
+`ShaktoolAngularVelocityDefinitions` replaces the seven angular words at
+$AA:DEE9 and their all-zero initialization subtrahends at $AA:DEF7. Both the
+initializer and group-target synchronization use the catalog. Live convergence
+speeds, aliased segment state and instruction/graphics tables are unchanged.
+
+All fourteen native words are verified. A constructed seven-segment group runs
+the real synchronization routine without a bus across every 16-bit target,
+rotating callers across all seven members and asserting every angle/velocity.
+The complete Shaktool audit passes, including initialization, linked placement,
+movement/reversal, contact, rendering, fatal teardown and unused attack circles.
+Full Release Verification and Windows Release build pass. This does not complete the broader #547 inventory.

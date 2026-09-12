@@ -87,8 +87,6 @@ public sealed partial class RoomEnemySystem
     private const int ShaktoolInitialAngleAndListTable = 0xaadeb1;
     private const int ShaktoolLayerTable = 0xaadecd;
     private const int ShaktoolPreInstructionTable = 0xaadedb;
-    private const int ShaktoolAngularVelocityTable = 0xaadee9;
-    private const int ShaktoolAngularVelocitySubtractTable = 0xaadef7;
     private const int ShaktoolCollisionListTable = 0xaadf13;
     private const int ShaktoolAttackListTable = 0xaadf21;
     private const int ShaktoolOrientationListTable = 0xaadd15;
@@ -128,9 +126,9 @@ public sealed partial class RoomEnemySystem
         state.PreInstruction = (ShaktoolPreInstruction)ReadWord(
             _bus!,
             ShaktoolPreInstructionTable + segmentIndex * 2);
-        state.AngularVelocity = unchecked((ushort)(
-            ReadWord(_bus!, ShaktoolAngularVelocityTable + segmentIndex * 2) -
-            ReadWord(_bus!, ShaktoolAngularVelocitySubtractTable + segmentIndex * 2)));
+        // Native initialization subtracts the parallel all-zero table; synchronization
+        // uses the same authored velocity directly.
+        state.AngularVelocity = ShaktoolAngularVelocityDefinitions.ForSegment(segmentIndex);
         state.OrbitAngle = ReadWord(
             _bus!,
             ShaktoolInitialAngleAndListTable + segmentIndex * 2);
@@ -428,9 +426,7 @@ public sealed partial class RoomEnemySystem
         {
             ShaktoolSegmentState state = RequireShaktoolState(group[index]);
             state.OrbitAngle = target;
-            state.AngularVelocity = ReadWord(
-                _bus!,
-                ShaktoolAngularVelocityTable + index * 2);
+            state.AngularVelocity = ShaktoolAngularVelocityDefinitions.ForSegment(index);
         }
     }
 

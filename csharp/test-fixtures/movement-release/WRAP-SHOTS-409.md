@@ -61,7 +61,7 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --wrap-s
 
 #409 remains open: the actual-room integration below complements this native
 matrix, but its precise beam-width boundary still needs independent cartridge
-comparison, and enemy non-aliasing assertions remain. This fixes the demonstrated
+comparison. Managed enemy non-aliasing controls are recorded below. This fixes the demonstrated
 shared addressing defect; it does not claim the entire technique ticket is complete.
 Ceiling byte-misalignment/PLM overload belongs to #410 and is not changed here.
 The evidence is pinned NTSC only; no PAL claim.
@@ -100,3 +100,36 @@ The search prints room cap locations and the first projectile/PLM candidate.
 Its cloned terrain also loads the native room population: omitting that step
 left the shaft's resident red-door trigger without an owner and was rejected as
 an invalid diagnostic fixture, not hidden by a gameplay exception catch.
+
+## Enemy world-space control
+
+`VerifyWrapShotEnemySeparation` runs both native-traced synthetic edge setups
+through ordinary firing and the real enemy projectile-hit dispatcher. A real
+Ripper loaded from Red Tower is relocated to the remote target tile's center.
+Other enemies are cleared. Its authored properties are preserved, with only
+ProcessOffScreen added, and its real animation is advanced until it publishes a
+collision-eligible spritemap. AI is then frozen while the actual interactive list
+is populated. This keeps the deliberately remote enemy eligible rather than
+relying on offscreen exclusion to manufacture a passing negative.
+
+At the native-established reaction frames (4/right, 3/left), the remote tile has
+changed to `$0052`, but the eligible enemy has no shot hit, health change or flash.
+Then only the enemy is moved to the still-live projectile's unchanged world
+coordinates. The same dispatcher reports one hit. This positive control matters:
+an early fixture version overwrote the ProcessInstructions property and left the
+empty spritemap sentinel active, which correctly failed the positive control.
+No production behavior was changed to pass this test.
+
+```
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --wrap-shot-enemies
+```
+
+Both directions pass, and the check runs in the default suite. This is managed
+integration on the native-traced projectile trajectory, not a new original-CPU
+enemy execution trace. It demonstrates separation of tile address aliasing and
+enemy world-space hitboxes, not damage vulnerability of every enemy species.
+Pinned bank-A0 cross-check: `Enemy_vs_ProjectileCollisionHandling` at `$A0:A143`
+rejects empty spritemaps at `$A162..A16A`, then compares world X at `$A1A6..A1BC`
+and world Y at `$A1BE..A1D6`. These subtract enemy coordinates and compare radii;
+they do not consume a bank-$94 tile index. The full verification suite passes
+with these positive and negative controls enabled.

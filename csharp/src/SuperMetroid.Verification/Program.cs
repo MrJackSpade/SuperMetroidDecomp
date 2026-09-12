@@ -55,6 +55,11 @@ if (args is ["--wrap-shot-rooms"])
     VerifyRetailWrapShotDoors();
     return 0;
 }
+if (args is ["--wrap-shot-enemies"])
+{
+    VerifyWrapShotEnemySeparation();
+    return 0;
+}
 if (args is ["--hero-shots"])
 {
     VerifyHeroShotCameraLifetime();
@@ -799,6 +804,7 @@ ProbeProjectileVelocityInheritance();
 VerifyProjectileCooldowns();
 VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv");
 VerifyRetailWrapShotDoors();
+VerifyWrapShotEnemySeparation();
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
 VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");

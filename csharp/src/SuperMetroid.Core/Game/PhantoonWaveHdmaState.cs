@@ -22,7 +22,7 @@ public sealed class PhantoonWaveHdmaState
         _pendingSetup = true;
     }
 
-    public void Step(ISnesAddressSpace bus, PhantoonEnemyState boss)
+    public void Step(PhantoonEnemyState boss)
     {
         if (_pendingSetup)
         {
@@ -41,7 +41,7 @@ public sealed class PhantoonWaveHdmaState
             return;
         }
         Phase = (ushort)((Phase + 2 * boss.Mouth!.VariableF) & PhantoonWaveRomData.PhaseMask);
-        PhantoonWaveTable.Build(bus, boss.Eye.Parameter1, Phase, boss.Mouth.VariableD,
+        PhantoonWaveTable.Build(boss.Eye.Parameter1, Phase, boss.Mouth.VariableD,
             boss.Bg2HorizontalScroll, _cycle.AsSpan(0, _cycleLength));
     }
 

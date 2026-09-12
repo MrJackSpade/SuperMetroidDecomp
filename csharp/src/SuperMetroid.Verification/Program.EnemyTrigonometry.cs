@@ -22,6 +22,7 @@ internal static partial class Program
         VerifyCompiledGrappleMath(rom);
         VerifyCompiledProjectileMath(rom);
         VerifyCompiledFamilyTrigonometry(rom);
+        VerifyPhantoonWaveMath(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();
@@ -139,6 +140,8 @@ internal static partial class Program
 
 internal static class EnemyMathReferenceData
 {
+    /// <summary>Pinned $A0:B443 sine bytes, including the following $B643 PHB byte for an odd final read.</summary>
+    public const int PhantoonSineByteRange = 0xa0b443;
     /// <summary>Pinned $A0:B1C3 signed 16-bit sine/cosine quadrants.</summary>
     public const int SignedSixteenBitSine = 0xa0b1c3;
     /// <summary>Pinned $AA:E03D Shaktool negative-cosine prefix and sine quadrants.</summary>

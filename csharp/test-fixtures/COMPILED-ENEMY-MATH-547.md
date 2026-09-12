@@ -203,7 +203,37 @@ Bull's obsolete immediate-knockback and Deleted-flag assertions were subsequentl
 repaired under #580 without a runtime change. Its complete audit now passes;
 see BULL-AUDIT-580.md for native ordering and exact replacement assertions.
 
-### Remaining work
+### Phantoon HDMA wave
+
+The wave builder and its live HDMA step no longer accept an address-space bus.
+They use compiled signed samples with the original nine-bit byte-offset indexing.
+Odd offsets still combine adjacent sample bytes; offset 511 includes the $8B PHB
+opcode at $A0:B643, which is retained as a named boundary definition rather than
+silently rounding an odd phase down to a word index.
+
+A source-literal regression reproduced a prior width mismatch before changing
+production: mode 1, phase 1, amplitude 3072, base scroll zero, index 2. The native
+$88:E5CF-E63E/$E65A-E6C9 byte products end with AND $FF00 / XBA, retaining only
+eight magnitude bits before sign restoration. The old host multiply retained
+more bits for unaligned samples. The builder now preserves the native width.
+Ordinary initialization/advancement uses even phases; no ordinary-play visual
+regression is claimed from this constructed odd-phase result.
+
+Verification includes all 65,536 phase words, all 65,535 active mode words,
+33,554,432 phase/amplitude products against literal byte arithmetic, and 21,504
+complete short/long cycles with signed scroll wrapping and mirrored halves.
+Inactive mode and wrong output lengths still fail explicitly. The existing
+setup-only call, phase progression, display latch and debugger round-trip tests
+now run without any ROM loaded for the wave lifecycle.
+
+The accepted original-CPU capture (SHA256
+540325129811D501D37987C45B3F3216099CBF43A6AF5A0009C0C0F97C37504A)
+matches all 480 cycles/46,080 scroll words both before and after migration.
+Its inputs are the normal even-phase corpus; the wider odd-phase checks above
+are source-literal tests, not an original-CPU recording.
+The complete Release Verification suite and Windows Release build pass.
+
+### Outstanding scope
 
 This is not the entire lookup-table migration. Remaining signed-table callers,
 linear/quadratic speed tables, family-specific tables, callback classification

@@ -1525,7 +1525,7 @@ public sealed partial class SuperMetroidRuntime
         // prevents rain/fog from advancing behind a station or item message.
         if (Enemies.Phantoon is { } waveBoss)
         {
-            waveBoss.Wave.Step(_addressSpace, waveBoss);
+            waveBoss.Wave.Step(waveBoss);
             waveBoss.Blending.Step(waveBoss, LayerBlendingDefaultConfig);
         }
         if (Camera is not null)

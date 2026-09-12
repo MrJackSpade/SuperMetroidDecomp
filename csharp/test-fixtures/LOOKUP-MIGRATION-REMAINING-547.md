@@ -17,9 +17,12 @@ finds 50 matching source lines. That count includes presentation reads and is
 neither a count of unique tables nor all immutable-ROM dependencies. Inspected
 the consumers rather than classifying them solely by the catalog names.
 
-| Mechanics group | Confirmed live consumer and semantics | Migration requirements |
-| --- | --- | --- |
-| Kraid hitboxes/projectiles | `KraidNails`: BF1D nail offsets | Inspect overlapping record strides, signed coordinates and actual collision/placement paths. Mouth hitboxes, BC65 spat-rock velocities, B163/B165 body contour and BE3E/BE46 indirect nail launch choices are now compiled. |
+The formerly enumerated named-table groups are now compiled, including BF1D's
+fingernail contour and the adjacent words consumed by its inherited bounded
+walk. This does **not** establish completion: the scan excludes uncatalogued
+indirection, mixed instruction streams and mutable-memory reads. In particular,
+the native unbounded contour walk versus the inherited 32-record cap still
+needs separate parity analysis rather than being hidden by this migration.
 
 ### Mixed instruction selectors and presentation reads
 

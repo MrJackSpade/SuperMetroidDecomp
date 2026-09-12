@@ -1289,3 +1289,19 @@ read. The wider mixed head-program migration remains outstanding.
 
 Full Release Verification, complete Kraid audit (including pointer-zero
 diagnostic handoff) and Windows Release build pass.
+
+## Kraid fingernail contour window
+
+Compiled the four left/top geometry records at BF1D..BF2C plus the adjacent
+instruction words through BF9C consumed by the existing bounded reader. Do not
+invent a sentinel after the four named rows: some relative-Y values select
+later records. This preserves the old 32-record host limit, not a proof of
+native unbounded-walk parity.
+
+All 64 words are compared against the pinned ROM. 983,040 actual contour calls
+cover every relative-Y word, wrapped body/edge positions, three edge distances
+and five velocity sign/boundary values. The fixture proves adjacent records
+are selected and rejects any production bus access. The table migration does
+not change the horizontal bounce arithmetic corrected separately in #599.
+
+Full Release Verification, complete Kraid audit and Windows Release build pass.

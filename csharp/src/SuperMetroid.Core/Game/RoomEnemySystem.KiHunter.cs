@@ -322,8 +322,7 @@ public sealed partial class RoomEnemySystem
 
         ushort signedXDistance = unchecked((ushort)(samus.XPosition - body.XPosition));
         ushort absoluteXDistance = WrappedMagnitude(signedXDistance);
-        ushort triggerDistance = ReadWord(
-            _bus!, EnemyRomTablePointers.KiHunter.TriggerDistanceWord);
+        ushort triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
         if (unchecked((short)(absoluteXDistance - triggerDistance)) >= 0 ||
             unchecked((short)(samus.YPosition - body.YPosition - 32)) < 0)
         {
@@ -474,8 +473,8 @@ public sealed partial class RoomEnemySystem
         (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
             state.VerticalVelocity,
             state.VerticalSubvelocity,
-            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackXRadiusWord),
-            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackYRadiusWord));
+            KiHunterMotionDefinitions.GravityWhole,
+            KiHunterMotionDefinitions.GravityFraction);
     }
 
     /// <summary>Ports grounded jump setup <c>$A8:F58B</c>.</summary>
@@ -539,8 +538,8 @@ public sealed partial class RoomEnemySystem
         (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
             state.VerticalVelocity,
             state.VerticalSubvelocity,
-            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackXRadiusWord),
-            ReadWord(_bus!, EnemyRomTablePointers.KiHunter.AttackYRadiusWord));
+            KiHunterMotionDefinitions.GravityWhole,
+            KiHunterMotionDefinitions.GravityFraction);
     }
 
     /// <summary>Ports post-landing wait/decision function <c>$A8:F68B</c>.</summary>
@@ -601,12 +600,12 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports detached wing orbit <c>$A8:F7DB</c>, including its odd ROM word read.</summary>
-    private void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
+    private static void RunDetachedKiHunterWingOrbit(RoomEnemySlot wings, KiHunterEnemyState state)
     {
         state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
             state.TargetXOrSpeedIndex,
             negativeHalf: true)));
-        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
+        ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         wings.YPosition = unchecked((ushort)(
             state.OrbitCenterY +
@@ -632,7 +631,7 @@ public sealed partial class RoomEnemySystem
         state.Angle = unchecked((ushort)(state.Angle + ReadKiHunterQuadraticAngleDelta(
             state.TargetXOrSpeedIndex,
             negativeHalf: false)));
-        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
+        ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         ushort desiredY = unchecked((ushort)(
             state.OrbitCenterY +
@@ -699,13 +698,13 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Initializes all fields written by <c>$A8:F701/$F851/$F87F/$F98D</c>.</summary>
-    private void DetachKiHunterWings(RoomEnemySlot wings, KiHunterEnemyState state)
+    private static void DetachKiHunterWings(RoomEnemySlot wings, KiHunterEnemyState state)
     {
         state.SavedWingY = wings.YPosition;
         state.SavedWingX = wings.XPosition;
         CalculateKiHunterDetachedSpeedReset(state);
 
-        ushort radius = _bus!.ReadByte(EnemyRomTablePointers.KiHunter.WinglessHopRadiusByte);
+        ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         state.OrbitXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xe0, radius));
         state.OrbitYOffset = unchecked((ushort)ReadEightBitNegativeSineProduct(0xe0, radius));
         state.FallingArcXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xa0, radius));

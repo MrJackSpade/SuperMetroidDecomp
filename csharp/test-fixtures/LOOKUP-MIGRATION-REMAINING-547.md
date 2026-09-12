@@ -19,7 +19,6 @@ the consumers rather than classifying them solely by the catalog names.
 
 | Mechanics group | Confirmed live consumer and semantics | Migration requirements |
 | --- | --- | --- |
-| KiHunter | $A8:F180 trigger distance; F182/F184 used as fractional/whole vertical acceleration in falling and hopping; F186 supplies detached-wing orbit radius | Existing AttackYRadius/AttackXRadius/WinglessHopRadius names do not accurately describe these consumers. Validate fixed-point ordering and all three wing-orbit callers, not only initializer values. |
 | Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer, ceiling-rock positions | Preserve byte selectors, countdown boundaries and current-RNG semantics. Keep palette reads in presentation scope. |
 | Kraid hitboxes/projectiles | `KraidCollisions`, `KraidProjectiles`, `KraidNails`: B163/B165 hitbox coordinates, BC65 rock X velocities, BF1D nail offsets | Inspect overlapping record strides, signed coordinates, current random selection and actual collision/placement paths. |
 | Kraid second-phase choices | `RunKraidSecondPhaseThinking`: BA7D six position/pointer records, followed by indirect target-X/timer pairs | The live dependency includes the pointed-to tables, not just six pointers. Existing fallback record offset four and random-offset clamp sixteen require explicit parity evidence. Assert actual walking direction/target/timer. |
@@ -34,6 +33,9 @@ Actual spawn and horizontal-motion tests reject reads of the migrated table.
 Dead-sidehopper launch pairs are also compiled. The actual post-landing dispatcher
 is verified for every timer word, all four ordinary phases, and both palette gates
 with a throwing bus; the rest of its corpse/animation system remains separate.
+KiHunter's proximity, gravity and detached-wing radius constants are compiled;
+the misleading attack-radius reference names are corrected. Its instruction
+programs, populations and presentation still belong to the broader integration.
 
 The remaining named-catalog users also include Golden Torizo's reflected Super
 Missile instruction selector, unpowered Work Robot instruction selection, and

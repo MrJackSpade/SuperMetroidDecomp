@@ -1117,3 +1117,25 @@ rather than interpreting arbitrary adjacent ROM data.
 Focused and full Release Verification pass. Windows Desktop builds with zero
 warnings and errors. This does not close #547 or establish full corpse-system
 parity; it verifies the migrated launch data and its real timer/phase consumer.
+
+## KiHunter proximity, gravity and detached-wing radius
+
+Compiled F180 proximity (96), F182/F184 fractional/whole gravity (E000/0000)
+and the F186 low-byte detached-wing radius (48). Native F55A and F5E4 use the
+same fractional ADC followed by whole-word ADC with carry. Existing reference
+names incorrectly called those acceleration words attack radii; corrected them.
+Removed live reads in patrol trigger, falling, hopping, detached-wing setup,
+orbit and collision arc. Orbit and detachment setup are now static/bus-free.
+
+Tests compare each constant with pinned ROM, exercise 65,536 actual orbit
+placements with wrapped coordinates, and verify all fractional gravity carries.
+The orbit expectation uses the already separately verified shared trigonometry
+and quadratic-angle helper, with the radius read independently from ROM; this
+is a constant-consumer check, not an independent revalidation of those helpers.
+Gravity arithmetic is compared with independent 32-bit packed addition.
+
+The orbit fixture uses native minimum speed index 0100 across all angle words;
+an initial arbitrary-speed sweep exceeded authored quadratic records and was
+corrected rather than relaxing production bounds. Full Release Verification,
+the complete KiHunter audit (38 body/wing records in six populations), and
+Windows build pass. Broader lookup/integration work remains open.

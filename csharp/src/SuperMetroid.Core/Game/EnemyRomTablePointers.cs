@@ -113,12 +113,12 @@ internal static class EnemyRomTablePointers
     {
         /// <summary>Attack trigger distance word at $A8:F180.</summary>
         public const int TriggerDistanceWord = 0xa8f180;
-        /// <summary>Attack ellipse Y-radius word at $A8:F182.</summary>
-        public const int AttackYRadiusWord = 0xa8f182;
-        /// <summary>Attack ellipse X-radius word at $A8:F184.</summary>
-        public const int AttackXRadiusWord = 0xa8f184;
-        /// <summary>Wingless hop radius byte at $A8:F186.</summary>
-        public const int WinglessHopRadiusByte = 0xa8f186;
+        /// <summary>Fractional falling/hopping acceleration word at $A8:F182.</summary>
+        public const int GravityFractionWord = 0xa8f182;
+        /// <summary>Whole falling/hopping acceleration word at $A8:F184.</summary>
+        public const int GravityWholeWord = 0xa8f184;
+        /// <summary>Detached-wing orbit radius low byte at $A8:F186.</summary>
+        public const int DetachedWingRadiusByte = 0xa8f186;
     }
 
     /// <summary>Kraid palettes, hitboxes, growth, and projectile motion data.</summary>

@@ -5,7 +5,7 @@
 In progress. The initial 30-run matrix and grounded/aerial closure-window controls
 now match native execution, but do not establish every technique in this ticket.
 Moving-barrage success now also matches native execution. Remaining acceptance includes spaced barrages and stuttered Dopplers,
-Samus-position effects on the returning boss. Finisher controls also match native execution. Do not mark awaiting validation
+with a successful spaced opening still needed. Samus-position return effects and finisher controls also match native execution. Do not mark awaiting validation
 based only on this first crash correction.
 
 ## Reproduced explosion-family crash
@@ -225,3 +225,37 @@ The numeric archive is `movement-release/phantoon-moving-400.zip`, with its
 matching probe and entrypoint patch. The expanded search also includes brief
 one-to-four-frame movements per ten-frame cycle and delayed movement starts;
 those exploratory outputs are not substitutes for the pinned successful controls.
+
+## Isolated Samus-height influence on return
+
+Two sequences differ only in releasing the opening Jump at1566 or1574. Both fire
+one missile at1565 and no later shots; there are no barrage movement inputs.
+Both deal exactly100 damage. All3,700 gameplay frames match158 native columns.
+
+Pinned disassembly `$A7:D374-D39D` steers the vertical swoop toward Samus Y minus
+48 (the fatal swoop uses a different target). At1578, the shorter jump produces
+boss Y77/vertical velocity1088, while the longer jump gives Y76/velocity960.
+Both later cross the right edge and re-enter at frame1817, X254. The short-jump
+boss returns at Y158; the long-jump boss returns at Y177. Samus is X119/Y187 in
+both cases at re-entry. Tests assert this exact19-pixel difference, the first
+steering response, the shared single hit, and the actual edge-crossing event.
+No production change was needed.
+
+```text
+sm.exe --diagnostic-phantoon-return ROM output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-return-position-audit ROM output.csv
+```
+
+Two captures share SHA256
+`2608E48604B294FBFB81AC42C7C297852CD1D219DE02AAC9E06121BF2025EDC2`.
+Numeric-only archive: `movement-release/phantoon-return-400.zip`, alongside its
+matching original-CPU probe and entrypoint patch.
+
+### Remaining spaced-opening setup
+
+The technique reference's two initial opening hits are not reproduced by the
+existing primer pair: with the short jump, the second missile hits the shell;
+with longer jump holds it hits only after the swoop begins. Earlier shot attempts
+are obstructed by the opening flames. A successful initial two-hit opening and
+subsequent spaced groups remain to be captured before claiming this ticket done.
+Do not alter collision or timers to force that setup to succeed.

@@ -7,9 +7,10 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Normal-input barrage search with an optional pinned original-CPU comparison.</summary>
 internal static class PhantoonDopplerAudit
 {
-    public static int Run(string rom, string? nativePath = null, bool expandedSearch = false, bool windowControls = false, bool patternSearch = false, bool movingControls = false)
+    public static int Run(string rom, string? nativePath = null, bool expandedSearch = false, bool windowControls = false, bool patternSearch = false, bool movingControls = false, bool returnPositionControls = false)
     {
-        string expectedHash = movingControls ? "E6CA849236B495FB2B7E1971E4998F118022F7BACE5CB6DCF8C34AB4283519EA"
+        string expectedHash = returnPositionControls ? "2608E48604B294FBFB81AC42C7C297852CD1D219DE02AAC9E06121BF2025EDC2"
+            : movingControls ? "E6CA849236B495FB2B7E1971E4998F118022F7BACE5CB6DCF8C34AB4283519EA"
             : patternSearch ? "70F2F64F7A6D4169D2F4382CB6C617D9A6440DEE3A37983CE9F4D34105BDF928"
             : windowControls ? "15A5E22F7BBCC381D98EE42B648489818A59F5733D002297C4AE40FF0F83DF1A"
             : "609DBAFF42F94CEEBC53B670C8ABDD91C0D97503ADAC6B81876069015BFA0BC5";
@@ -19,7 +20,7 @@ internal static class PhantoonDopplerAudit
             .Select(line => line.Split(',').Select(int.Parse).ToArray()).Where(row => row[3] >= 0)
             .ToDictionary(row => (row[0], row[1], row[2], row[3]));
         int compared = 0;
-        foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls, patternSearch, movingControls))
+        foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls, patternSearch, movingControls, returnPositionControls))
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -41,13 +42,16 @@ internal static class PhantoonDopplerAudit
             var hitY = new List<ushort>();
             var hitX = new List<ushort>();
             int firstClosure = -1;
+            bool leftRightEdge = false;
+            int firstReturn = -1;
             for (int frame = 0; frame < 1850; frame++)
             {
                 ushort input = (ushort)SnesButton.Up;
                 if (frame is >= 1460 and < 1480) input = (ushort)SnesButton.Right;
-                if (frame is >= 1548 and < 1566) input |= runtime.ControllerBindings.Jump;
-                if (frame is 1565 or 1575) input |= runtime.ControllerBindings.Shoot;
-                if (frame >= start)
+                int openingJumpEnd = returnPositionControls ? 1566 + (movement - 21) * 8 : 1566;
+                if (frame >= 1548 && frame < openingJumpEnd) input |= runtime.ControllerBindings.Jump;
+                if (frame == 1565 || !returnPositionControls && frame == 1575) input |= runtime.ControllerBindings.Shoot;
+                if (!returnPositionControls && frame >= start)
                 {
                     input = (ushort)SnesButton.Left;
                     if (movement == 1) input |= runtime.ControllerBindings.Dash;
@@ -55,7 +59,7 @@ internal static class PhantoonDopplerAudit
                     // Short release/repress movements between shots search the
                     // stuttered technique without forcing Samus's coordinates.
                     if (movement is >= 7 and <= 10 && (frame - start) % 10 >= movement - 6) input = 0;
-                    if (movement >= 11 && frame > start && frame - start < 20 + (movement - 11) * 5) input = 0;
+                    if (movement is >= 11 and <= 19 && frame > start && frame - start < 20 + (movement - 11) * 5) input = 0;
                     if ((frame - start) % cadence == 0) input |= runtime.ControllerBindings.Shoot;
                     if (patternSearch)
                     {
@@ -73,9 +77,25 @@ internal static class PhantoonDopplerAudit
                 }
                 ushort health = body.Health, phase = body.VariableF;
                 runtime.StepFrame(input);
+                if (returnPositionControls)
+                {
+                    // The first live swoop steers toward Samus Y minus 48.
+                    // The input-only jump change reverses that acceleration.
+                    if (frame == 1578 && (body.YPosition != (movement == 21 ? 77 : 76) ||
+                        runtime.Enemies.Phantoon.Tentacles!.VariableD != (movement == 21 ? 1088 : 960)))
+                        throw new InvalidDataException("Jump-release control did not change native vertical steering.");
+                    if (body.XPosition is > 255 and <= 448) leftRightEdge = true;
+                    if (leftRightEdge && firstReturn < 0 && body.XPosition <= 255)
+                    {
+                        firstReturn = frame;
+                        if (frame != 1817 || body.XPosition != 254 || body.YPosition != (movement == 21 ? 158 : 177) ||
+                            samus.XPosition != 119 || samus.YPosition != 187)
+                            throw new InvalidDataException("Phantoon return height does not retain the earlier jump influence.");
+                    }
+                }
                 if (nativeRows is not null)
                 {
-                    int[] actual = [start, cadence, patternSearch || movingControls ? movement : aerial ? 1 : 0, frame, input, runtime.TimeIsFrozen ? 1 : 0,
+                    int[] actual = [start, cadence, patternSearch || movingControls || returnPositionControls ? movement : aerial ? 1 : 0, frame, input, runtime.TimeIsFrozen ? 1 : 0,
                         body.Health, body.InvincibilityTimer, body.FlashTimer, body.SpritemapPointer,
                         body.XPosition, body.YPosition, samus.XPosition, samus.YPosition,
                         samus.Pose, samus.SelectedHudItem, samus.Health, body.VariableF,
@@ -87,11 +107,11 @@ internal static class PhantoonDopplerAudit
                         : new int[5])).Concat(new int[] { body.XSubposition, body.YSubposition,
                             runtime.Enemies.Phantoon!.Tentacles!.VariableC,
                             runtime.Enemies.Phantoon.Tentacles.VariableD, runtime.Enemies.Phantoon.Tentacles.VariableE }).ToArray();
-                    if (windowControls || patternSearch || movingControls)
+                    if (windowControls || patternSearch || movingControls || returnPositionControls)
                         actual = actual.Concat(new int[] { body.VariableE, body.CurrentInstruction, body.InstructionTimer,
                             runtime.Enemies.Phantoon.Eye!.CurrentInstruction, runtime.Enemies.Phantoon.Eye.InstructionTimer,
                             runtime.Enemies.Phantoon.Tentacles.VariableB, samus.PreviousDrawNewInput, runtime.BombProjectiles.CooldownTimer }).ToArray();
-                    int[] native = nativeRows[(start, cadence, patternSearch || movingControls ? movement : aerial ? 1 : 0, frame)];
+                    int[] native = nativeRows[(start, cadence, patternSearch || movingControls || returnPositionControls ? movement : aerial ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(native))
                     {
                         int column = Enumerable.Range(0, Math.Min(actual.Length, native.Length))
@@ -128,6 +148,12 @@ internal static class PhantoonDopplerAudit
             }
             if (patternSearch)
                 Console.WriteLine($"pattern start={start}, cadence={cadence}, movement={movement}, hits={string.Join(',', hitFrames)}, closure={firstClosure}, samus={samus.XPosition}/{samus.YPosition}, boss={body.XPosition}/{body.YPosition}");
+            if (returnPositionControls)
+            {
+                if (!hitFrames.SequenceEqual(new[] { 1565 }) || body.Health != 2400 || firstReturn != 1817)
+                    throw new InvalidDataException("Return control requires one identical primer and a completed right-edge return.");
+                Console.WriteLine($"return movement={movement}, hits={string.Join(',', hitFrames)}, samus={samus.XPosition}/{samus.YPosition}, boss={body.XPosition}/{body.YPosition}");
+            }
             if (movingControls)
             {
                 int[] expected = (movement, cadence) switch
@@ -144,15 +170,21 @@ internal static class PhantoonDopplerAudit
                     throw new InvalidDataException("Successful barrage must move left on the ground during its final two hits.");
             }
         }
-        int expectedFrames = patternSearch ? 103600 : windowControls || movingControls ? 7400 : 55500;
+        int expectedFrames = returnPositionControls ? 3700 : patternSearch ? 103600 : windowControls || movingControls ? 7400 : 55500;
         if (nativeRows is not null && (compared != expectedFrames || compared != nativeRows.Count))
             throw new InvalidDataException($"Expected {expectedFrames} native barrage frames, compared {compared}.");
         Console.WriteLine($"Native barrage frames compared: {compared}.");
         return 0;
     }
 
-    private static IEnumerable<(int Start, int Cadence, bool Aerial, int Movement)> Cases(bool expanded, bool windows, bool patterns, bool moving)
+    private static IEnumerable<(int Start, int Cadence, bool Aerial, int Movement)> Cases(bool expanded, bool windows, bool patterns, bool moving, bool returnPosition)
     {
+        if (returnPosition)
+        {
+            foreach (int movement in Enumerable.Range(21, 2))
+                yield return (1680, 10, false, movement);
+            yield break;
+        }
         if (moving)
         {
             foreach (int movement in new[] { 12, 13 })

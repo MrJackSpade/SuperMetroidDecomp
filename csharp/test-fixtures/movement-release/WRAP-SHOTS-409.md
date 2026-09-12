@@ -59,9 +59,44 @@ dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --wrap-s
 
 ## Remaining acceptance
 
-#409 remains open: actual Landing Site/Crocomire/Green Brinstar remote-door
-fixtures, an adjacent insufficient-width miss, and enemy non-aliasing assertions
-are not established by this six-case matrix. This fixes the demonstrated shared
-addressing defect; it does not claim the entire technique ticket is complete.
+#409 remains open: the actual-room integration below complements this native
+matrix, but its precise beam-width boundary still needs independent cartridge
+comparison, and enemy non-aliasing assertions remain. This fixes the demonstrated
+shared addressing defect; it does not claim the entire technique ticket is complete.
 Ceiling byte-misalignment/PLM overload belongs to #410 and is not changed here.
 The evidence is pinned NTSC only; no PAL claim.
+
+## Actual remote-door integration
+
+`VerifyRetailWrapShotDoors` loads each real room through the production loader,
+including its resident PLM population. Terrain and BTS remain unmodified. It
+then isolates ordinary projectile production/processing and PLM execution for
+40 frames; it does not run Samus movement, enemies, room FX, or camera tracking.
+The deterministic stationary launch coordinates are test setup, not a claim of
+a controller-only route to the launch point. Shoot is pressed only on frame 0;
+all following inputs are neutral. Fresh runtime per room/beam variant.
+
+| Room | Launch X/Y | Target block | Beams | Door hit / all four cells clear |
+| --- | --- | --- | --- | --- |
+| Landing Site $91F8 | 2260 / 546, down-right | $1561 | Wave+Plasma | 9 / 27 |
+| Crocomire $A98D | 2004 / 34, down-right | $0301 | Wave+Plasma | 9 / 27 |
+| Green Brinstar shaft $9AD9 | 38 / 1606, down-left | $2981 | Wave+Spazer or Wave | 5 / 23 |
+
+Plain Wave at the first two launch setups does not activate the remote cap;
+plain Power fails in all three rooms. The shaft's plain Wave succeeds, so the
+width requirement must not be generalized from the two right-edge setups.
+Successful cases queue library-three sound 7 and run the actual blue-door
+opening list; negatives neither open the target nor queue that sound. Assertions
+cover activation frame, the four cleared cap cells at the exact completion
+frame, and sound request. These nine managed integration cases pass and run in
+the default suite; they are not additional original-CPU trace comparisons.
+
+```
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --wrap-shot-rooms
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --wrap-shot-room-audit "Super Metroid.smc"
+```
+
+The search prints room cap locations and the first projectile/PLM candidate.
+Its cloned terrain also loads the native room population: omitting that step
+left the shaft's resident red-door trigger without an owner and was rejected as
+an invalid diagnostic fixture, not hidden by a gameplay exception catch.

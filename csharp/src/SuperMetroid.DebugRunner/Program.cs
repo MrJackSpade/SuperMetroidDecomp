@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--wrap-shot-room-audit")
+    return WrapShotRoomAudit.Run(args[1]);
 if (args.Length == 4 && args[0] == "--bomb-traversal-boundary-search")
     return BombTraversalBoundarySearch.Run(args[1], args[2], args[3]);
 if (args.Length == 3 && args[0] == "--diagonal-bomb-traversal-search")

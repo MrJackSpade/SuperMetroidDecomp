@@ -50,6 +50,11 @@ if (args is ["--wrap-shots", var nativeWrapTrace])
     VerifyWrapShotTrace(nativeWrapTrace);
     return 0;
 }
+if (args is ["--wrap-shot-rooms"])
+{
+    VerifyRetailWrapShotDoors();
+    return 0;
+}
 if (args is ["--hero-shots"])
 {
     VerifyHeroShotCameraLifetime();
@@ -793,6 +798,7 @@ VerifySamusPowerBeamProjectiles();
 ProbeProjectileVelocityInheritance();
 VerifyProjectileCooldowns();
 VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv");
+VerifyRetailWrapShotDoors();
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
 VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");

@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shaktool-dig-state", var digRom, var digState])
+    return ShaktoolDigStateAudit.Run(digRom, digState);
 if (args.Length == 2 && args[0] == "--gate-glitch-room-audit")
     return GateGlitchRoomAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--gate-glitch-room-audit")

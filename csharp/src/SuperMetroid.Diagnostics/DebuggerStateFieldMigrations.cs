@@ -27,6 +27,17 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");
             return current.Where(field => field.Name != "paletteFx").ToArray();
         }
+        if (type == typeof(SamusState) && count <= current.Length - 2 &&
+            current.Any(field => field.Name == "_poseCollisionPreviousYPosition") &&
+            current.Any(field => field.Name == "_poseAlignmentPreviousYDelta"))
+        {
+            // 0.2.1 captured neither per-frame pose/camera correction accumulator.
+            // Null/zero preserve the saved camera checkpoint until normal movement
+            // supplies new corrections. Validate every surviving field name below.
+            Console.Error.WriteLine("WARNING: Older Samus state lacks pose/camera correction accumulators; restoring no pending correction.");
+            return SelectSerializedFields(type, current.Where(field => field.Name is not
+                "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta").ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Hardware.VramWriteEntry) && count == 3 && current.Length == 4)
         {
             // Old records only had bus sources. Default None retains their exact

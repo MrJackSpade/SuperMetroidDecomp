@@ -2,11 +2,12 @@
 
 ## Status
 
-In progress. The initial 30-run matrix and grounded/aerial closure-window controls
-now match native execution, but do not establish every technique in this ticket.
-Moving-barrage success now also matches native execution. Remaining acceptance includes spaced barrages and stuttered Dopplers,
-with a successful spaced opening still needed. Samus-position return effects and finisher controls also match native execution. Do not mark awaiting validation
-based only on this first crash correction.
+Ready for player validation. Original-CPU comparisons cover the initial timing
+matrix, grounded/aerial closure windows, moving barrages, successful spaced and
+stuttered barrages, Samus-height influence on return, and finisher boundaries.
+Three earlier production mismatches were corrected and reproduced; the final
+spaced/stuttered controls required no additional gameplay change. Historical
+in-progress sections below document the evidence available at those stages.
 
 ## Reproduced explosion-family crash
 
@@ -251,11 +252,63 @@ Two captures share SHA256
 Numeric-only archive: `movement-release/phantoon-return-400.zip`, alongside its
 matching original-CPU probe and entrypoint patch.
 
-### Remaining spaced-opening setup
+### Earlier incomplete spaced-opening setup
 
 The technique reference's two initial opening hits are not reproduced by the
 existing primer pair: with the short jump, the second missile hits the shell;
 with longer jump holds it hits only after the swoop begins. Earlier shot attempts
-are obstructed by the opening flames. A successful initial two-hit opening and
-subsequent spaced groups remain to be captured before claiming this ticket done.
-Do not alter collision or timers to force that setup to succeed.
+are obstructed by the opening flames. The successful input-only setup below
+supersedes this incomplete setup; collision and timers were not changed to force
+the technique to succeed.
+
+## Successful spaced and stuttered barrages
+
+The same room, equipment, 999 energy, and 100 missiles are used, with no cheats.
+Unlike the earlier probes, the two setup frames are neutral: missiles are not
+selected until after clearing the opening flames. Each 1,950-frame sequence uses:
+
+- Up by default; Right on frames 1460..1479.
+- Uncharged beam taps at multiples of 12 in 1400..1509; Select at 1512.
+- Jump held 1530..1569; missile taps at 1540 and 1550.
+- One Left frame at 1640 to face the returning boss; shots at 1640 and 1650.
+- A repeating missile barrage from 1700, with the movement/cadence controls below.
+
+The first two missiles hit at 1546 and 1550 while the eye is tracking Samus.
+The spaced pair hits at 1645 and 1658 during the swoop. The remaining barrage
+starts after that pair. No positions, phases, health, or projectile slots are
+changed after setup. A stutter cycle holds Left for two frames and releases it
+for eight, starting at 1700; Shoot edges are independent of this movement cycle.
+
+| Movement from 1700 | Shot cadence | Hits after the opening and spaced pairs | Eye fade starts |
+| --- | --- | --- | --- |
+| Stand still | 10 | 1709 | 1718 |
+| Continuous Left | 10 | 1709, 1713, 1720 | 1729 |
+| Two-frame Left stutter | 9 | 1709, 1718 | 1727 |
+| Two-frame Left stutter | 10 | 1709, 1718, 1727, 1735, 1744, 1752, 1760 | 1769 |
+| Two-frame Left stutter | 11 | 1709, 1718, 1726, 1735, 1744 | 1753 |
+
+The ten-frame stutter therefore lands eleven missiles in this opening: two
+initial, two spaced, seven barrage hits. This proves a successful extension,
+not merely an attempted input pattern. The nine-frame cadence and standing
+controls show earlier closure. Exact health, accepted hit frames, opening phase,
+and closure timing are explicit assertions. Every frame additionally compares
+158 native fields, including projectile state, Samus/boss position and subpixels,
+eye instructions, hurt timers, round damage, and cooldown/input carry.
+
+All 9,750 gameplay frames match the pinned NTSC original CPU. Two independent
+captures have SHA256
+`00DC7756E95692D4C969A15D83BF60B2490E80328F05B48CD7F379B4D771EA7C`.
+`movement-release/phantoon-spaced-400.zip` contains numeric CSV only, including
+ten setup rows. The matching probe and headless entrypoint patch are alongside it.
+The fixture uses the same pinned ROM/source revisions as the preceding controls;
+it is not a claim about PAL or optimal world-record damage.
+
+```text
+sm.exe --diagnostic-phantoon-spaced ROM new-output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-spaced-audit ROM new-output.csv
+```
+
+`--phantoon-opening-search ROM` preserves the exploratory flame-clear/jump/shot
+matrix; `--phantoon-spaced-search ROM` searches the neighboring input patterns.
+Their unpinned output is not used as a cartridge oracle. Restore the native
+entrypoint hooks and rebuild the ordinary host after collecting traces.

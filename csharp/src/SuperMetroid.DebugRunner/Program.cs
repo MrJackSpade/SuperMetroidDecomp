@@ -142,6 +142,12 @@ if (args.Length == 3 && args[0] == "--phantoon-enrage-audit")
     return PhantoonEnrageAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--phantoon-finisher-audit")
     return PhantoonEnrageAudit.Run(args[1], args[2], barrageFinisher: true);
+if (args.Length == 2 && args[0] == "--phantoon-opening-search")
+    return PhantoonOpeningSearch.Run(args[1]);
+if (args.Length == 2 && args[0] == "--phantoon-spaced-search")
+    return PhantoonOpeningSearch.Run(args[1], barrage: true);
+if (args.Length == 3 && args[0] == "--phantoon-spaced-audit")
+    return PhantoonOpeningSearch.Run(args[1], barrage: true, nativePath: args[2]);
 if (args.Length is 2 or 3 && args[0] == "--phantoon-doppler-search")
     return PhantoonDopplerAudit.Run(args[1], args.Length == 3 ? args[2] : null);
 if (args.Length == 2 && args[0] == "--phantoon-doppler-expanded-search")

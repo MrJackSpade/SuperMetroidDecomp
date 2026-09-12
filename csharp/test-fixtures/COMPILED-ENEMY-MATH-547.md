@@ -339,6 +339,10 @@ the unused area-7 room. These are tracked by #586 for baseline diagnosis and ful
 repair; they are not claimed passing or attributed to this migration without
 comparison. The full Release suite and Windows build are the verification gates
 for this scoped classification change; remaining fixed tables still keep #547 open.
+The #586 failures were subsequently reproduced on pre-classifier ac700f53 and
+repaired in diagnostics. Both complete audits now pass, with naturally unavailable
+actors reported separately. See RETAIL-COMBAT-AUDITS-586.md for exact counts,
+native lifecycle assertions and the explicitly excluded unused debug room.
 
 Power Bomb literal-no-op classification now uses the bank-qualified
 EnemyPowerBombCallbackDefinitions catalog rather than executable ROM-byte reads.

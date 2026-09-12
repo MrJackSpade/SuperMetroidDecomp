@@ -147,6 +147,7 @@ internal static partial class RetailEnemyExecutionAudit
                     bool expectedCollisionMark =
                         behavior != NormalBombAuditBehavior.PrivateDirectionClear;
                     int killsBefore = loaded.Enemies.EnemiesKilled;
+                    var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, target);
 
                     int hits = loaded.Enemies.ResolveOrdinaryBombHits(
                         loaded.SharedProjectiles,
@@ -155,7 +156,7 @@ internal static partial class RetailEnemyExecutionAudit
                     if (hits != 1 ||
                         ((bomb.Direction & 0x0010) != 0) != expectedCollisionMark ||
                         target.Health != expectedHealth ||
-                        target.Properties.HasAny(EnemyProperties.Deleted) != expectedDeleted ||
+                        (!expectedDeleted && target.Properties.HasAny(EnemyProperties.Deleted)) ||
                         loaded.Enemies.EnemiesKilled !=
                             killsBefore + (expectedDeleted ? 1 : 0))
                     {
@@ -168,6 +169,8 @@ internal static partial class RetailEnemyExecutionAudit
                             $"{killsBefore + (expectedDeleted ? 1 : 0)}, vulnerability=" +
                             $"${vulnerability:X2}.");
                     }
+                    if (expectedDeleted)
+                        EnemyDeathAuditAssertions.Verify(loaded.Enemies, target, beforeDeath, $"Normal bomb ${variant.Definition:X4}");
 
                     bombCallbacks++;
                     reachedDefinitions.Add(variant.Definition);

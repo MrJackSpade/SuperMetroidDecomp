@@ -548,7 +548,14 @@ internal static partial class RetailEnemyExecutionAudit
                 $"Definition ${target.EnemyDefinitionPointer:X4} installed implausible " +
                 $"{frozenFrames}-frame freeze state after a retail weapon callback.");
         }
-        int frameCount = Math.Max(MinimumPostHitFrames, frozenFrames + 2);
+        // Native selects hurt before frozen AI. A literal no-op hurt callback
+        // consumes calls until post-AI flash housekeeping clears bit two below eight.
+        bool ordinaryFrozen = frozenFrames != 0 && target.Definition.FrozenAiPointer == 0x8041 &&
+            target.Definition.HurtAiPointer == 0x804c;
+        int hurtHold = frozenFrames != 0 && target.Definition.HurtAiPointer == 0x804c && (target.AiHandlerBits & 2) != 0
+            ? Math.Max(1, target.FlashTimer - 7) : 0;
+        ushort initialFlash = target.FlashTimer;
+        int frameCount = Math.Max(MinimumPostHitFrames, frozenFrames + hurtHold + 2);
 
         for (int postFrame = 0; postFrame < frameCount; postFrame++)
         {
@@ -575,6 +582,19 @@ internal static partial class RetailEnemyExecutionAudit
                 nmiFrameCounter8: unchecked((byte)(activationFrame + postFrame + 1)),
                 mode7Transform: loaded.Mode7Transform,
                 sharedProjectiles: loaded.SharedProjectiles);
+            if (postFrame < hurtHold)
+            {
+                int expectedFlash = initialFlash - postFrame - 1;
+                if (target.FrozenTimer != frozenFrames || target.FlashTimer != expectedFlash ||
+                    ((target.AiHandlerBits & 2) != 0) != (expectedFlash >= 8))
+                    throw new InvalidDataException("Native hurt hold changed frozen timer or retired at the wrong frame.");
+            }
+            else if (ordinaryFrozen && postFrame < hurtHold + frozenFrames)
+            {
+                int expectedFrozen = frozenFrames - (postFrame - hurtHold + 1);
+                if (target.FrozenTimer != expectedFrozen || (target.AiHandlerBits & 4) == 0)
+                    throw new InvalidDataException($"Native freeze countdown differs at post-hit frame {postFrame}: {target.FrozenTimer}/{expectedFrozen}.");
+            }
             loaded.Enemies.StepEnemyProjectiles(
                 level,
                 loaded.Samus,
@@ -582,7 +602,7 @@ internal static partial class RetailEnemyExecutionAudit
                 cameraY);
         }
 
-        if (frozenFrames != 0 && target.FrozenTimer != 0)
+        if (frozenFrames != 0 && (target.FrozenTimer != 0 || (target.AiHandlerBits & 4) != 0))
         {
             throw new InvalidDataException(
                 $"Definition ${target.EnemyDefinitionPointer:X4} did not leave its " +

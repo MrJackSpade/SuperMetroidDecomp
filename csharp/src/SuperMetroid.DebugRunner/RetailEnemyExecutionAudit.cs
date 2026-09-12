@@ -437,13 +437,18 @@ internal static partial class RetailEnemyExecutionAudit
                 symbolPath);
         }
 
-        return File.ReadLines(symbolPath)
+        RetailRoomState[] named = File.ReadLines(symbolPath)
             .Where(line => line.StartsWith("0x8f", StringComparison.OrdinalIgnoreCase) &&
                 line.Contains(" kRoomState_", StringComparison.Ordinal))
             .Select(ParseRoomState)
             .DistinctBy(state => state.StatePointer)
             .OrderBy(state => state.StatePointer)
             .ToArray();
+        RetailRoomState[] debug = named.Where(state => state.RoomPointer == RetailAuditRoomDefinitions.DebugRoom).ToArray();
+        if (debug.Length != 1 || debug[0].StatePointer != RetailAuditRoomDefinitions.DebugState)
+            throw new InvalidDataException("Pinned unused debug-room inventory changed.");
+        Console.WriteLine("Retail inventory explicitly excludes unused debug room $8F:E82C/$E839 (area seven).");
+        return named.Where(state => state.RoomPointer != RetailAuditRoomDefinitions.DebugRoom).ToArray();
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>

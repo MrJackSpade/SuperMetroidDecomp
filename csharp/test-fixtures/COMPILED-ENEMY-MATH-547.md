@@ -199,6 +199,9 @@ baseline 58b22b6f and this migration; those failures are tracked separately as
 The temporary baseline worktree and binaries were removed after comparison.
 The Shaktool fatal callback was subsequently repaired under #579; its complete
 encounter audit and exact death-clear regressions now pass. See SHAKTOOL-DEATH-579.md.
+Bull's obsolete immediate-knockback and Deleted-flag assertions were subsequently
+repaired under #580 without a runtime change. Its complete audit now passes;
+see BULL-AUDIT-580.md for native ordering and exact replacement assertions.
 
 ### Remaining work
 

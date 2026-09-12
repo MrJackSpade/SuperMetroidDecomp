@@ -168,15 +168,34 @@ internal static class BullAudit
         loaded.Samus.XPosition = loaded.Actor.XPosition;
         loaded.Samus.YPosition = loaded.Actor.YPosition;
         ushort health = loaded.Samus.Health;
+        byte contactPose = loaded.Samus.Pose;
+        ushort contactX = loaded.Samus.XPosition, contactY = loaded.Samus.YPosition;
+        // $A0:A4A1 publishes contact damage/timers. The later $90:DDE9
+        // interruption pass, not this callback, installs knockback movement.
         if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0) ||
-            loaded.Samus.Health != health - 10 || !loaded.Samus.KnockbackActive ||
-            loaded.Samus.InvincibilityTimer != 0x0060)
+            loaded.Samus.Health != health - 10 || loaded.Samus.KnockbackActive ||
+            loaded.Samus.InvincibilityTimer != 0x0060 || loaded.Samus.KnockbackTimer != 5 ||
+            loaded.Samus.KnockbackXDirection != 1 || loaded.Samus.KnockbackDirection != 0 ||
+            loaded.Samus.Pose != contactPose || loaded.Samus.XPosition != contactX ||
+            loaded.Samus.YPosition != contactY)
         {
             throw new InvalidDataException(
                 $"Bull touch failed: health={health}->{loaded.Samus.Health}, " +
                 $"knockback={loaded.Samus.KnockbackActive}, " +
                 $"invincibility={loaded.Samus.InvincibilityTimer}.");
         }
+        var samus = loaded.Samus;
+        if (SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: true) ||
+            samus.KnockbackActive || samus.Pose != contactPose || samus.KnockbackTimer != 5)
+            throw new InvalidDataException("Bull contact was admitted while time was frozen.");
+        if (!SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: false) ||
+            !samus.KnockbackActive || samus.Pose != SamusPoseIds.KnockbackRightPose ||
+            samus.KnockbackDirection != 2 || samus.HurtFlashCounter != 1 ||
+            samus.Kinematics.YSpeed != 5 || samus.Kinematics.YSubspeed != 0 ||
+            samus.Kinematics.YDirection != 1 || samus.Health != health - 10 ||
+            samus.XPosition != contactX || samus.YPosition != contactY ||
+            SamusKnockbackMovement.TryStartPendingHitInterruption(bus, samus, 0, timeIsFrozen: false))
+            throw new InvalidDataException("Bull contact did not admit exactly one native up-right knockback.");
     }
 
     private static void VerifyDamagingShot(
@@ -201,10 +220,13 @@ internal static class BullAudit
         }
 
         // Four further 20-damage missiles prove normal vulnerability death and quota updates.
+        ushort deathX = 0, deathY = 0;
         for (int hit = 0; hit < 4; hit++)
         {
             loaded.Actor.InvincibilityTimer = 0;
             Step(loaded, assets);
+            deathX = loaded.Actor.XPosition;
+            deathY = loaded.Actor.YPosition;
             ArmProjectile(projectiles.Slots[0], loaded.Actor, 0x0100, 2, 20);
             loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
@@ -212,14 +234,7 @@ internal static class BullAudit
                 new SamusBombProjectileSystem(),
                 loaded.Samus);
         }
-        if (!loaded.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
-            loaded.Enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Bull projectile death failed: health={loaded.Actor.Health}, deleted=" +
-                $"{loaded.Actor.Properties.HasAny(EnemyProperties.Deleted)}, " +
-                $"kills={loaded.Enemies.EnemiesKilled}.");
-        }
+        VerifyDeathPublication(loaded, deathX, deathY, "missile", expectedProperties: 0);
     }
 
     private static void VerifyAllImmuneShotDirections(
@@ -347,19 +362,15 @@ internal static class BullAudit
         CartridgeRoomAssets assets)
     {
         LoadedBull loaded = Load(bus, room, assets);
+        ushort deathX = loaded.Actor.XPosition, deathY = loaded.Actor.YPosition;
         int reactions = loaded.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
             loaded.Actor.XPosition,
             loaded.Actor.YPosition,
             explosionRadius: 32);
-        if (reactions != 1 || !loaded.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
-            loaded.Enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Bull power-bomb death failed: reactions={reactions}, deleted=" +
-                $"{loaded.Actor.Properties.HasAny(EnemyProperties.Deleted)}, " +
-                $"kills={loaded.Enemies.EnemiesKilled}.");
-        }
+        if (reactions != 1)
+            throw new InvalidDataException($"Bull power-bomb reaction count was {reactions}.");
+        VerifyDeathPublication(loaded, deathX, deathY, "power bomb", EnemyProperties.ProcessOffScreen);
     }
 
     private static void VerifyGrappleKill(
@@ -374,15 +385,27 @@ internal static class BullAudit
             loaded.Actor.YPosition);
         if (!collision.Collided || collision.Reaction != GrappleEnemyReaction.Kill)
             throw new InvalidDataException($"Bull grapple selected {collision.Reaction}.");
+        ushort deathX = loaded.Actor.XPosition, deathY = loaded.Actor.YPosition;
         Step(loaded, assets);
-        if (!loaded.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
-            loaded.Enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Bull grapple kill failed: deleted=" +
-                $"{loaded.Actor.Properties.HasAny(EnemyProperties.Deleted)}, " +
-                $"kills={loaded.Enemies.EnemiesKilled}.");
-        }
+        VerifyDeathPublication(loaded, deathX, deathY, "grapple", expectedProperties: 0);
+    }
+
+    private static void VerifyDeathPublication(LoadedBull loaded, ushort deathX, ushort deathY,
+        string cause, EnemyProperties expectedProperties)
+    {
+        // $A0:A3AF preserves the drop identity in the effect, then clears the common
+        // enemy record. The Power Bomb caller adds ProcessOffScreen after returning.
+        var actor = loaded.Actor;
+        if (actor.EnemyDefinitionPointer != 0 || actor.Health != 0 ||
+            actor.Properties != (ushort)expectedProperties || actor.XPosition != 0 ||
+            actor.YPosition != 0 || loaded.Enemies.EnemiesKilled != 1)
+            throw new InvalidDataException($"Bull {cause} death record differs: header={actor.EnemyDefinitionPointer:X4}, health={actor.Health}, properties={actor.Properties:X4}, position={actor.XPosition}/{actor.YPosition}, kills={loaded.Enemies.EnemiesKilled}.");
+        var effects = loaded.Enemies.EnemyProjectiles
+            .Where(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion).ToArray();
+        if (effects.Length != 1 || effects[0].EnemyHeaderPointer != BullDefinition ||
+            effects[0].KilledEnemyNativeIndex != actor.NativeIndex || effects[0].XPosition != deathX ||
+            effects[0].YPosition != deathY || effects[0].GraphicsIndex != 0 || effects[0].InstructionTimer != 1)
+            throw new InvalidDataException($"Bull {cause} did not publish one correctly identified and positioned death effect.");
     }
 
     private static LoadedBull Load(

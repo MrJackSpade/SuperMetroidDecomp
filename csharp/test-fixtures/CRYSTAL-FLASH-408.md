@@ -307,6 +307,12 @@ resources/contact and observed 250 body-contributing frames. Their window has
 calls have zero color or perform cleanup). Earlier 253/82 and 245/502 counts above
 describe the reproduced baseline, not the corrected expectations.
 
+Follow-up #604 corrected ordinary Power Bomb allocation: setup runs on the next
+HDMA pass, not inside spawn. This shifts the fixture's activation from152 to153;
+the same global eight-frame refill cadence leaves completion at406. The fixture
+therefore has249 body-contributing frames and still34 window frames. All4088
+original-CPU lifetime frames across both facings/eight NMI offsets still match.
+
 Repeat with the shared entrypoint patch and
 `sm.exe --diagnostic-crystal-window ROM NEW.csv`, then Verification
 `--crystal-window-native ROM NEW.csv`. Accepted private trace

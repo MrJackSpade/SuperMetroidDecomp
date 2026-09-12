@@ -1317,6 +1317,9 @@ static void VerifyPowerBombColorMathWindow()
         spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
 
+    explosion.StepFrame(bus);
+    AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
+        "first HDMA pass initializes the list without generating a window");
     // The first pre-instruction draws radius `$04.00`, then advances the live state to
     // `$34.00`. `$04 * $BF >> 8` gives a two-line vertical extent and `$04 * $FF >> 8`
     // gives a three-pixel center half-width. Testing beyond both extents catches use of

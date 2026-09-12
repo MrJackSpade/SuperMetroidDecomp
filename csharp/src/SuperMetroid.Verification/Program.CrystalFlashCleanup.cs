@@ -137,7 +137,10 @@ internal static partial class Program
         AssertEqual(0, samus.SuperMissiles, "runtime consumes ten supers");
         AssertEqual(0, samus.PowerBombs, "runtime consumes ten remaining Power Bombs");
         Console.WriteLine($"Crystal Flash visual coverage: body={visibleBodyFrames}, window={visibleWindowFrames} frames.");
-        AssertEqual(250, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
+        // Power Bomb allocation consumes its own HDMA setup pass. Activation is one
+        // NMI later than the former eager-setup fixture; refill remains aligned to the
+        // global eight-frame cadence, shortening this particular body's lifetime by one.
+        AssertEqual(249, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
         AssertEqual(34, visibleWindowFrames, "native Crystal Flash color window visibility duration");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame((ushort)SnesButton.Right);
         AssertTrue(samus.XPosition > 512, "normal movement resumes after Crystal Flash");

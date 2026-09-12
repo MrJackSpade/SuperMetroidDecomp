@@ -58,6 +58,9 @@ internal static partial class Program
             PowerBombRuntimeVerificationDefinitions.ScreenCenterX,
             PowerBombRuntimeVerificationDefinitions.ScreenCenterY);
         explosion.StepFrame(bus);
+        AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
+            "HDMA allocation setup does not draw the first flash prematurely");
+        explosion.StepFrame(bus);
 
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         Rgba32[] expected = baseline.ToArray();

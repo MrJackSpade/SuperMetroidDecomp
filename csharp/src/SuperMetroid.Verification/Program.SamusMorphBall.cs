@@ -1185,11 +1185,11 @@ static void VerifySamusMorphBallMovement()
         powerBombFuse = powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
     AssertEqual(0, powerBombs.Slots[0].BombTimer,
         "$FFFF fuse sentinel is consumed by first mode-three collision call");
-    AssertEqual(PowerBombExplosionPhase.PreExplosionWhite,
+    AssertEqual(PowerBombExplosionPhase.PendingPreExplosionSetup,
         powerBombs.PowerBombExplosion.Phase,
-        "fuse expiry executes $88:8B14 setup");
-    AssertEqual(0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius,
-        "pre-explosion begins at retail 4.00-pixel radius");
+        "fuse expiry allocates HDMA list without executing setup");
+    AssertEqual(0, powerBombs.PowerBombExplosion.PreExplosionRadius,
+        "pre-explosion radius is not initialized during allocation");
     AssertEqual(0x8000, powerBombs.PowerBombExplosion.Status,
         "normal explosion publishes active status $8000");
     AssertEqual(0, powerBombFuse.BlockReactions!.Count,
@@ -1204,7 +1204,13 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, detonatedPowerBombOam.NextByteOffset,
         "detonation-frame zero variable suppresses the placed Power Bomb sprite");
 
-    // HDMA executes before the next projectile pass. White pre-flash grows 4.00 by 48.00,
+    powerBombs.StepFrame(bus, floor, powerBombSamus, 0, 0);
+    AssertEqual(0x0400, powerBombs.PowerBombExplosion.PreExplosionRadius,
+        "first HDMA pass initializes the 4.00-pixel radius without expanding it");
+    AssertEqual(PowerBombExplosionPhase.Inactive, powerBombs.PowerBombExplosion.RenderedPhase,
+        "setup pass has not generated an explosion window");
+
+    // The following HDMA pass runs the new pre-instruction. White pre-flash grows 4.00 by 48.00,
     // then the still-zero damaging radius scans the one-block rectangle's four duplicated
     // corners in bank-$94 top/left/bottom/right order.
     BombProjectileFrameResult firstPowerBombRadius = powerBombs.StepFrame(

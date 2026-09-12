@@ -73,11 +73,37 @@ Native source: upstream-sm `578f90b3cc49557bb70060ad033bb90b8cf8ac50`, original
 `362be646929cf8e483f692b73a6561cfc2dc1d0d`. ROM SHA256:
 `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 
-## Remaining timing finding
+## Resolved allocation timing finding
 
 With Right first pressed at123 and held, the port locks but the native run only
 arms its input-wake pre-instruction on that frame, so it needs a later new input.
 Port arms one frame earlier (122). This is not hidden by the successful124/125
-controls. Diagnose the Power Bomb/PLM ordering or probe setup before changing it.
+controls. A native radius trace identified the first discrepancy at fuse expiry:
+both expire at85, but native leaves radius/speed zero, initializes them to1024/12288
+on HDMA pass86, and first expands to13312/12160 on87. The port formerly performed
+setup at85 and expansion at86. A new assertion failed at85 before production edits.
+
+`PendingPreExplosionSetup` now represents the allocated list until its first HDMA
+pass. It installs the normal pre-instruction without running it or drawing a window.
+The enum value is appended, preserving existing debugger-state phase identities.
+No room-specific delay or input suppression was added. The new wake123 control
+matches all700 native frames, including the intentionally unbroken tube after an
+early press stays held; wake124/125 still complete normally. All four controls
+now compare PLM pre-instruction and instruction pointers on every frame as well
+as Samus position, pose, animation, and lock ownership (2800 frames total).
+Native's inert `$84:86D0` RTS is normalized to the managed cleared value zero;
+all active pre-instruction identities and instruction cursors compare directly.
+
+Numeric-only `movement-release/noob-tube-boundary-604.zip` contains the additional
+`noob-tube-native-wake-123.csv`, captured twice identically. SHA256:
+`465EA8AF4BBD130F7DDD4C9751688E86E0A05A8B58D9F46557C4F9586CB4EA2C`.
+The same probe command accepts123; the earlier three captures remain unchanged.
+
+Full bank-$80 verification passes. Its Crystal Flash fixture now activates one
+NMI later: the globally eight-frame-aligned refill produces249 visible body frames
+instead of250, with the same34 window frames. The independent4088-frame original-CPU
+Crystal Flash lifetime comparison still matches both facings and all eight NMI phases.
+Renderer fixtures explicitly check the non-drawing setup pass before the first flash.
+
 The cartridge explicitly waits for new A/X/B/Y/Left/Right input at $84:D4BF;
 removing that control gap outright would not preserve the native sequence.

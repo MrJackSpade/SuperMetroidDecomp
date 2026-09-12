@@ -104,15 +104,15 @@ public sealed class SamusPowerBombExplosionState
         YPosition = yPosition;
         Status = 0x8000;
 
-        // The first object executes CallFar($88:8B14), installs pre-instruction $90DF,
-        // and sleeps. HDMA processing precedes Samus/projectile processing in the native
-        // frame, so the pre-instruction itself does not run until the following frame.
-        PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+        // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
+        // instruction list and installs the radius pre-instruction; that pre-instruction
+        // cannot run until the pass after setup. Executing setup here skips one frame.
+        PreExplosionRadius = 0;
         ExplosionRadius = 0;
-        RadiusSpeed = SamusSpecialSequenceRomData.PowerBomb.InitialPreExplosionSpeed;
+        RadiusSpeed = 0;
         ShapeDefinitionPointer = 0;
         RenderedShapeDefinitionPointer = 0;
-        Phase = PowerBombExplosionPhase.PreExplosionWhite;
+        Phase = PowerBombExplosionPhase.PendingPreExplosionSetup;
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = 0;
         RenderedExplosionRadius = 0;
@@ -170,6 +170,13 @@ public sealed class SamusPowerBombExplosionState
 
         switch (Phase)
         {
+            case PowerBombExplosionPhase.PendingPreExplosionSetup:
+                PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
+                RadiusSpeed = SamusSpecialSequenceRomData.PowerBomb.InitialPreExplosionSpeed;
+                Phase = PowerBombExplosionPhase.PreExplosionWhite;
+                RenderedPhase = PowerBombExplosionPhase.Inactive;
+                return false;
+
             case PowerBombExplosionPhase.PreExplosionWhite:
                 StepPreExplosionWhite(bus);
                 return false;
@@ -469,7 +476,7 @@ public sealed class SamusPowerBombExplosionState
     }
 }
 
-/// <summary>The five sleeping-list phases beginning at ROM $88:8ACE.</summary>
+/// <summary>Allocation and sleeping-list phases beginning at ROM $88:8ACE, plus Crystal Flash.</summary>
 public enum PowerBombExplosionPhase
 {
     Inactive,
@@ -480,4 +487,7 @@ public enum PowerBombExplosionPhase
     Afterglow,
     CrystalFlashExplosion,
     CrystalFlashAfterglow,
+    /// <summary>Allocated $88:8ACE list awaiting its first HDMA pass and $88:8B14 setup.</summary>
+    /// <remarks>Appended to preserve existing debugger-state enum identities.</remarks>
+    PendingPreExplosionSetup,
 }

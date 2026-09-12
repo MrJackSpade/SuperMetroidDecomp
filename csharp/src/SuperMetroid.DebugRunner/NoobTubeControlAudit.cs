@@ -12,9 +12,10 @@ internal static class NoobTubeControlAudit
         string expectedHash = wakeFrame switch
         {
             -1 => "3484FCD892D15B1101F99BCE96D1944FDD1080E34FDC2C316F38AA77D3DD54FF",
+            123 => "465EA8AF4BBD130F7DDD4C9751688E86E0A05A8B58D9F46557C4F9586CB4EA2C",
             124 => "8127F04068E7FA5195B74BB7F5B18901A23CED4C5E92243AEC87FD682D7F4003",
             125 => "D6B4781B589E537567CDF18796052294A068B859F7A4BE5A133B1E0477FB0387",
-            _ => throw new ArgumentOutOfRangeException(nameof(wakeFrame), "Use the pinned no-input/124/125 controls.")
+            _ => throw new ArgumentOutOfRangeException(nameof(wakeFrame), "Use the pinned no-input/123/124/125 controls.")
         };
         if (nativeTrace is not null && Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeTrace))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU trace for this wake input.");
@@ -47,6 +48,12 @@ internal static class NoobTubeControlAudit
                 wake = frame;
             if (wakeFrame >= 0 && frame >= wakeFrame && frame < wakeFrame + 30) input = (ushort)SnesButton.Right;
             runtime.StepFrame(input);
+            // Original CPU capture: fuse expires at 85, allocation is consumed by HDMA
+            // at 86, and the newly installed radius pre-instruction first runs at 87.
+            if (frame == 85 && runtime.BombProjectiles.PowerBombExplosion.PreExplosionRadius != 0)
+                throw new InvalidDataException("Power Bomb initialized its HDMA radius on the fuse-expiration frame; native initializes on frame 86.");
+            if (frame is 86 or 87 && runtime.BombProjectiles.PowerBombExplosion.PreExplosionRadius != (frame == 86 ? 1024 : 13312))
+                throw new InvalidDataException($"Power Bomb setup/first expansion differs at frame {frame}.");
             if (native is not null)
             {
                 int[] actual = [frame, input, samus.XPosition, samus.YPosition, samus.Pose, samus.AnimationFrame, samus.AnimationFrameTimer];
@@ -57,10 +64,14 @@ internal static class NoobTubeControlAudit
                     throw new InvalidDataException($"Tube handler ownership differs at frame {frame}.");
             }
             tube = runtime.Plms.PopulationSlots.FirstOrDefault(p => p.HeaderPointer == RoomPlmHeaders.NoobTube);
+            // The semantic loader represents ClearPreInstruction's inert RTS as zero.
+            int nativePre = native is null ? 0 : native[frame][9] == NoobTubePlmRomData.InactivePreInstruction ? 0 : native[frame][9];
+            if (native is not null && (tube.PreInstruction != nativePre || tube.InstructionPointer != native[frame][10]))
+                throw new InvalidDataException($"Tube PLM scheduling differs at frame {frame}: port={tube.PreInstruction}/{tube.InstructionPointer}, native={native[frame][9]}/{native[frame][10]}.");
             Console.WriteLine($"{frame},{input},{samus.XPosition},{samus.YPosition},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.InputLocked},{runtime.BombProjectiles.PowerBombExplosion.Phase},{tube.PreInstruction},{tube.InstructionPointer},{runtime.System.HasEvent(EventNumber.MaridiaNoobTubeBroken)}");
         }
         if (wake < 0) throw new InvalidDataException("Normal Power Bomb did not reach tube input wake.");
-        bool expectedBroken = wakeFrame >= 0;
+        bool expectedBroken = wakeFrame >= 124;
         if (runtime.System.HasEvent(EventNumber.MaridiaNoobTubeBroken) != expectedBroken || samus.InputLocked ||
             samus.StationaryScriptControlLocked || samus.PowerBombs != 9)
             throw new InvalidDataException("Tube final event/control/ammunition handoff differs.");

@@ -22,10 +22,14 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 4 && args[0] == "--bomb-traversal-boundary-search")
+    return BombTraversalBoundarySearch.Run(args[1], args[2], args[3]);
 if (args.Length == 3 && args[0] == "--bomb-traversal-search")
     return BombTraversalSearch.Run(args[1], args[2]);
 if (args.Length == 4 && args[0] == "--bomb-traversal-comparison")
     return BombTraversalComparison.Run(args[1], args[2], args[3]);
+if (args.Length == 4 && args[0] == "--bomb-traversal-miss-comparison")
+    return BombTraversalComparison.Run(args[1], args[2], args[3], expectTraversal: false);
 if (args.Length == 2 && args[0] == "--diagonal-spark-input-audit")
     return DiagonalSparkInputAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--diagonal-spark-native")

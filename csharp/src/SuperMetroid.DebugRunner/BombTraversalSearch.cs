@@ -8,7 +8,7 @@ internal static class BombTraversalSearch
         Directory.CreateDirectory(outputDirectory);
         int candidates = 0;
         foreach (bool ceiling in new[] { false, true })
-        for (int interval = 24; interval <= 30; interval++)
+        foreach (int interval in Enumerable.Range(24, 7).Concat(Enumerable.Range(48, 11)))
         for (int offset = 1; offset <= 8; offset++)
         {
             var runtime = BombTraversalFixture.Create(rom, ceiling);

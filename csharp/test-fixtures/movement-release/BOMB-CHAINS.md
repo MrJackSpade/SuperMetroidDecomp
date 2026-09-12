@@ -6,7 +6,8 @@
 constructed Landing Site-width runway. Floor is row 16, ceiling row 0 or 12,
 Samus (128,249), grounded right-facing Morph Ball, zero subpixels, Morph Ball and
 Bombs only, no cheats; enemies are cleared as in the earlier synthetic fixtures.
-Bombs are placed at frame 0, frame 52, then every N frames (24 through 30).
+Bombs are placed at frame 0, frame 52, then every N frames (24 through 30;
+the expanded negative search also includes 48 through 58).
 After frame 170 the controller steers toward the next bomb with fuse >=9,
 plus a rightward offset, with a three-pixel neutral band. This is an exploratory
 controller policy, not production behavior or native expected input.
@@ -74,9 +75,43 @@ Rebuild Release/x64 with PlatformToolset=v145; execute
 bounded and output refuses overwrite. All temporary source hooks were removed
 after both captures; normal native startup was not launched.
 
-Remaining #412 acceptance: adjacent failure cases for this ceiling sequence and
-unconstrained horizontal traversal. Do not mark the whole issue ready based only
-on the successful ceiling cases; it remains open without the validation label.
+## Adjacent ceiling steering boundary
+
+`BombTraversalBoundarySearch` varies only the first steering pulse's start and
+duration, retaining all bomb timestamps and later controller input. The selected
+adjacent case removes Right from frame 171: input $0100 becomes $0000, with every
+other one of the 600 rows identical to the successful recording.
+
+Original cartridge replay proves that this one-frame-shorter pulse fails only
+rightward. It produces 11 launches, first returns to the floor on frame 282,
+and has 207 floor-contact frames after frame 170. Final X/Y are $0007.4000 /
+$00DC.3BFF. The mirrored leftward sequence still produces 22 launches without
+floor contact, ending at $0041.5000 / $00DA.1000. C# matches all 1,200 records,
+including the direction-dependent result. Explicit assertions preserve that
+asymmetry rather than requiring a synthetic mirrored failure.
+
+`ceiling-traversal-bomb-miss-412.zip` retains the changed input and native trace.
+Two independent native captures and extracted payload hashes agree. Trace SHA256:
+`8494900A5168D81508B9968AE9B526EDDCC9CAB4F86CE7800FF5B6CCDF53CCC1`.
+Input SHA256:
+`5DA568BB721036313DBF26657F145EB7BE86AA9877A04AA0C878323BAB982A69`.
+Use the same native probe/regeneration procedure as the successful case.
+
+```
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --bomb-traversal-miss-comparison "Super Metroid.smc" EXTRACTED/ceiling-pulse-170-1.csv EXTRACTED/bomb-traversal-412-native-miss.csv
+```
+
+Both archived comparisons pass (2,400 frames combined), with no gameplay change.
+The nine-case local search is reproducible with `--bomb-traversal-boundary-search
+ROM BASELINE_INPUT NEW_DIRECTORY`. A wider exploratory pulse at start 172,
+duration 4 ran beyond this constructed room's left edge and hit the host's
+outside-storage guard; it is not an accepted parity fixture. The retained local
+search stays within the room and does not suppress that exception.
+
+Remaining #412 acceptance: unconstrained horizontal traversal. The expanded
+longer-interval feedback search has not established it. Do not mark the whole
+issue ready based only on ceiling traversal; it remains open without the
+validation label.
 
 The sections below record the earlier short-chain, repeated vertical-ascent,
 three-bomb, ladder and steering matrices and the defects they exposed.

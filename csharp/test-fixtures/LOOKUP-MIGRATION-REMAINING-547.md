@@ -8,7 +8,9 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| X-ray / eye / rainbow beam | $91:C9D4 absolute tangent | SnesGameplayFrameRenderer, EyeBeamWindowBuilder and MotherBrainRainbowBeamHdmaState |
+| Torizo | $AA:D59A horizontal jump velocities | RoomEnemySystem.BombTorizoInstructions |
+| Chozo statue | $AA:E630 projectile velocities | RoomEnemySystem.ChozoStatue |
+| Ceres Ridley | $A6:D712 rotation divisors | RoomEnemySystem.CeresRidley |
 
 These are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
@@ -39,7 +41,8 @@ shot/Power Bomb callback classification, and the Bull, Puyo, Crocomire, Botwoon,
 crawler/Yard base-speed, Polyp, Shaktool, Ceres getaway and Boyon curve slices.
 Their focused comparisons and diagnostic repairs do not close the rows above.
 
-The crawler slope multiplier and Yard kick records were subsequently compiled
-and verified; see the main evidence log. Next implementation grouping: remaining family
-launch records. Keep verified commits scoped and do not close #547 until its
+The earlier listed crawler, family, intro and renderer curves were subsequently
+compiled and verified; see the main evidence log. The new rows are confirmed
+live indirect-definition consumers, not a complete inventory. Next grouping:
+EnemyRomTablePointers mechanics readers. Keep verified commits scoped and do not close #547 until its
 complete caller and integration audit is satisfied.

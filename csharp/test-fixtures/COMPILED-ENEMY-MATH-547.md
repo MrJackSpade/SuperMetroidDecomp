@@ -647,3 +647,24 @@ Windows Release build pass.
 Inspection also identified the shared absolute tangent table still read by X-ray,
 eye windows and Mother Brain's rainbow beam; the remaining inventory now lists
 those consumers explicitly. The inventory is still not exhaustive and #547 stays open.
+
+## Shared absolute tangent
+
+AbsoluteTangentDefinitions compiles all 129 native words at $91:C9D4 from the
+exact quarter-table and its mirror, retaining the $3C00 horizontal substitute
+and inclusive index-128 zero. X-ray rendering, scanner-eye window generation and
+Mother Brain rainbow HDMA now use it. Their distinct angle folding remains at
+the callers; unsupported indices past the native endpoint fail explicitly.
+
+Every native word and each direct reader endpoint compares, including Mother
+Brain's byte wrapping. Tests cover 768 wrapped/cardinal X-ray directions and 520
+actual window builds with tangent-table reads forbidden. Existing eye-window
+pixel tests and Mother Brain's exact apex/split/color/capture checks also pass.
+The latter fixture now selects actual native unit gradients via a 64-angle-wide
+beam instead of injecting artificial table words, retaining its precise indirect
+split assertions. Narrow quadrant tests use their actual native gradients.
+
+Full Release Verification passes; after the fixture refinement, the complete
+focused Mother Brain suite and Windows Release build pass. More indirect
+definition readers remain: the inventory explicitly lists Torizo, Chozo statue
+and Ceres Ridley examples. This does not complete #547 or its shared integration.

@@ -124,8 +124,8 @@ public sealed class MotherBrainRainbowBeamHdmaState
         }
     }
 
-    private static int Tangent(ISnesAddressSpace bus, int angle) => ReadWord(bus,
-        SamusXrayRomData.Window.AbsoluteTangentTable + unchecked((byte)angle) * sizeof(ushort));
+    private static int Tangent(ISnesAddressSpace bus, int angle) =>
+        AbsoluteTangentDefinitions.Sample(unchecked((byte)angle));
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 }

@@ -7,15 +7,14 @@ internal static partial class Program
     static void VerifyMotherBrainBeamWindow()
     {
         var bus = new TestAddressSpace();
-        // Construct dx/dy=1 for every angle to isolate the native index and carry rules.
-        for (int angle = 0; angle < 256; angle++)
-            WriteTestWord(bus, SamusXrayRomData.Window.AbsoluteTangentTable + angle * 2, 256);
+        // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
+        // This retains the indirect-run/carry fixture without replacing engine lookup data.
         WriteTestWord(bus, MotherBrainBeamRomData.ColorTable, 31);
         WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 2, 123);
         WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 4, 992);
         WriteTestWord(bus, MotherBrainBeamRomData.ColorTable + 8, ushort.MaxValue);
         var beam = new MotherBrainRainbowBeamHdmaState();
-        void Step() => beam.Step(bus, true, 100, 95, SnesAngle.QuarterTurn, 512);
+        void Step() => beam.Step(bus, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
         Step();
         AssertEqual(MotherBrainBeamRomData.InitialColor, beam.Color, "beam first frame uses E767 fixed color");
         AssertEqual((ushort)0xff73, beam.Windows[99], "right beam upper apex accumulates before writing");
@@ -50,9 +49,9 @@ internal static partial class Program
             bool up = angle is 96 or 128 or 160;
             ushort expected = angle switch
             {
-                32 or 96 => 0x7373,
-                128 or 0 => 0x7371,
-                _ => 0x7171,
+                32 or 96 => 0x7372,
+                128 or 0 => 0x7271,
+                _ => 0x7170,
             };
             AssertEqual(expected, beam.Windows[up ? 99 : 100], $"native quadrant {angle} apex edge signs");
             AssertEqual(MotherBrainBeamRomData.EmptyWindow, beam.Windows[up ? 100 : 99],
@@ -61,7 +60,7 @@ internal static partial class Program
         ushort[] retained = beam.Windows.ToArray();
         beam.Step(bus, true, 100, 95, SnesAngle.ThreeQuarterTurn, 512);
         AssertTrue(retained.AsSpan().SequenceEqual(beam.Windows), "native left-axis RTS preserves prior HDMA table");
-        beam.Step(bus, true, 356, 95, SnesAngle.QuarterTurn, 512);
+        beam.Step(bus, true, 356, 95, SnesAngle.QuarterTurn, 0x4000);
         AssertEqual((ushort)0xff73, beam.Windows[100], "DE20 uses low X byte, not wrapped enemy-header data");
         Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, color stride/reset and owned capture agree.");
     }

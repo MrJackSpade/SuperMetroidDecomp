@@ -1339,8 +1339,7 @@ public static partial class SnesGameplayFrameRenderer
             return new XrayDirection(-SamusXrayRomData.Window.UnitVector, 0);
 
         int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
-        int tableAddress = SamusXrayRomData.Window.AbsoluteTangentTable + tangentIndex * 2;
-        int tangent = bus.ReadByte(tableAddress) | (bus.ReadByte(tableAddress + 1) << 8);
+        int tangent = AbsoluteTangentDefinitions.Sample(tangentIndex);
         if (wrappedAngle < SnesAngle.QuarterTurn.TableIndex)
             return new XrayDirection(tangent, -SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle < SnesAngle.HalfTurn.TableIndex)

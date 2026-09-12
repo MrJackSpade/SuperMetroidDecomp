@@ -92,8 +92,7 @@ internal static class EyeBeamWindowBuilder
 
     private static int Tangent(ISnesAddressSpace bus, int index)
     {
-        int address = SamusXrayRomData.Window.AbsoluteTangentTable + index * 2;
-        return bus.ReadByte(address) | bus.ReadByte(address + 1) << 8;
+        return AbsoluteTangentDefinitions.Sample(index);
     }
 
     private static int OffsetOrigin(int origin, bool offScreen, bool positive) =>

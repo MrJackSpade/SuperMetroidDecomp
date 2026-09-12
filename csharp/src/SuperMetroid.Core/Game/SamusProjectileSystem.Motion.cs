@@ -162,7 +162,7 @@ public sealed partial class SamusProjectileSystem
                 slot.YPosition,
                 slot.YSubposition,
                 slot.YVelocity);
-            ScanVerticalShotReactions(level, slot, roomPlms);
+            ScanVerticalWaveShotReactions(level, slot, roomPlms);
         }
 
         DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);

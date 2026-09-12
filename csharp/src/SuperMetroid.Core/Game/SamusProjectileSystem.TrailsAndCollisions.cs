@@ -450,7 +450,7 @@ public sealed partial class SamusProjectileSystem
             SamusProjectileDirection.DownFacingLeft or
             SamusProjectileDirection.UpFacingLeft))
         {
-            bool verticalReaction = MoveVertically(level, slot, roomPlms);
+            bool verticalReaction = MoveVertically(level, slot, roomPlms, waveBeam);
             collided = !waveBeam && verticalReaction;
         }
 
@@ -468,13 +468,19 @@ public sealed partial class SamusProjectileSystem
     private static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        bool waveBeam = false)
     {
         (slot.YPosition, slot.YSubposition) = AddVelocity(
             slot.YPosition,
             slot.YSubposition,
             slot.YVelocity);
 
+        if (waveBeam)
+        {
+            ScanVerticalWaveShotReactions(level, slot, roomPlms);
+            return false;
+        }
         return ScanVerticalShotReactions(level, slot, roomPlms);
     }
 

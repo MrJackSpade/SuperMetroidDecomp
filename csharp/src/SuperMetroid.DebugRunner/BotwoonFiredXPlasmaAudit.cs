@@ -49,6 +49,12 @@ internal static partial class BotwoonAudit
                 var shotBefore = tracked is null ? default :
                     (tracked.XPosition, tracked.XSubposition, tracked.YPosition, tracked.YSubposition);
                 runtime.StepFrame(input);
+                // Scope admission happens partway through the frame. Projectile
+                // movement must stop on that admission frame too, even though
+                // enemy AI may already have run before the freeze was requested.
+                if (runtime.TimeIsFrozen && tracked is not null && shotBefore !=
+                    (tracked.XPosition, tracked.XSubposition, tracked.YPosition, tracked.YSubposition))
+                    throw new InvalidDataException($"Projectile moved on a frozen/activation frame {frame}.");
                 if (runtime.Projectiles.LastFiredProjectileSnapshot is { } spawn &&
                     runtime.Projectiles.Slots[spawn.SlotIndex].PackedType.IsChargedBeam)
                 {

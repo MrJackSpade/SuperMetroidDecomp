@@ -380,3 +380,14 @@ focused X-ray controls pass in Release with both binding layouts; all 529
 steel native records and both charged-Plasma / all three Hyper Botwoon cases
 pass. Windows Release builds with zero warnings and errors. The focused bomb
 assertions were added after the full suite started and run separately in Release.
+
+### Botwoon activation-frame regression coverage
+
+The charged-Plasma controller audit now asserts projectile whole/subpixel
+coordinates on the first X-ray activation frame, not just consecutive frozen
+frames. Enemy freeze checks remain consecutive-frame checks because enemy AI
+can run before scope admission. Both release-296 and release-304 traces pass
+in Release: one hit versus five hits at the documented frames, with player
+health unchanged. This strengthens coverage of the already-fixed shared
+activation ordering; it is not a new gameplay fix or a substitute for the
+remaining full native Botwoon trajectory comparison.

@@ -30,7 +30,12 @@ internal static partial class Program
             for (int frame = 0; frame < 180; frame++)
             {
                 uint beforeY = samus.Kinematics.YFixed;
+                uint expectedY = unchecked(beforeY + (uint)((short)runtime.MaridiaElevatube.Velocity << 8));
+                AssertTrue(samus.StationaryScriptControlLocked,
+                    "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);
+                AssertEqual(expectedY, samus.Kinematics.YFixed,
+                    "tube displacement contains only room-main velocity, not ordinary falling");
                 var checkpoint = camera.PreviousSamusPoint!.Value;
                 uint savedY = ((uint)checkpoint.YPosition << 16) | checkpoint.YSubposition;
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");

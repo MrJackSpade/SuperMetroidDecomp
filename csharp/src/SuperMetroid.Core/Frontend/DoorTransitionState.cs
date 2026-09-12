@@ -212,8 +212,11 @@ public sealed class DoorTransitionState
                     runtime.Enemies.ElevatorDoorTransitionActive = false;
                     // Elevator arrival retains command zero's lock until the platform
                     // reaches rest; its actor, not the room fade, restores Samus movement.
+                    // The elevatube door ASM also installs command zero. Native E737
+                    // does not replace that handler: release only our temporary door
+                    // input gate, never a stationary script's movement ownership.
                     if (runtime.Enemies.ElevatorStatus == ElevatorActorStatus.Inactive &&
-                        runtime.Samus is { } arrivingSamus)
+                        runtime.Samus is { StationaryScriptControlLocked: false } arrivingSamus)
                         arrivingSamus.InputLocked = false;
                     Phase = DoorTransitionPhase.Complete;
                 }

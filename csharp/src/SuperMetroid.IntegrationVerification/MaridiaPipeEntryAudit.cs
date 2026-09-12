@@ -40,6 +40,10 @@ internal static class MaridiaPipeEntryAudit
         var pixels = new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
         for (int frame = 0; frame < (incomingDoor ? 620 : 420); frame++)
         {
+            if (incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay &&
+                runtime.ActiveRoom?.Pointer == MaridiaPipeFixtureDefinitions.TubeRoom &&
+                !runtime.Samus!.StationaryScriptControlLocked)
+                throw new InvalidDataException("#391: incoming door fade discarded elevatube command-zero movement ownership.");
             if (frame % 30 == 0)
                 Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={runtime.Samus.Pose:X2}");
             if (fromNorth && !incomingDoor && frame == 120 && runtime.Camera!.YPosition < 800)
@@ -49,7 +53,14 @@ internal static class MaridiaPipeEntryAudit
             // player state through the shaft without inventing position writes.
             ushort input = fromNorth ? (ushort)0 : frame < 30 ? (ushort)SuperMetroid.Core.Input.SnesButton.Right :
                 frame is >= 100 and < 123 ? (ushort)SuperMetroid.Core.Input.SnesButton.Left : (ushort)0;
+            bool checkTubeDisplacement = incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay &&
+                runtime.ActiveRoom?.Pointer == MaridiaPipeFixtureDefinitions.TubeRoom &&
+                runtime.Samus!.YPosition is > 128 and < 2300;
+            uint expectedY = unchecked(runtime.Samus!.Kinematics.YFixed +
+                (uint)((short)runtime.MaridiaElevatube.Velocity << 8));
             var result = game.StepCaptured(input, frame + 1, 1);
+            if (checkTubeDisplacement && runtime.Samus.Kinematics.YFixed != expectedY)
+                throw new InvalidDataException("#391: tube descent includes movement outside the native room-main velocity.");
             audio.RenderFrame(result.Frame.AudioCommands);
             if ((fromNorth || frame % 30 == 0) && result.Snapshot is { } snapshot)
             {

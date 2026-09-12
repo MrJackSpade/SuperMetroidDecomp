@@ -2,6 +2,10 @@
 
 ## Status
 
+The incoming-door movement-lock defect is now reproduced and corrected (see below).
+Residual BG1 tile discrepancies still require diagnosis; this is not a complete
+visual fix and the issue remains open without awaiting-player-validation.
+
 Terrain mismatches are observable on the current code, but the initial direct-load
 capture inherited an unrelated scroll origin and is not sufficient proof of the
 player's defect. A bounded incoming-door control now captures the actual frontend
@@ -100,3 +104,26 @@ Next: compare the incoming handoff and movement/streaming cadence with the pinne
 cartridge, isolate the erroneous displayed rows, and make that specific assertion
 fail before changing production code. In particular, inspect the combined normal
 fall and room-main displacement rather than assuming every mismatch is a PPU bug.
+
+## Verified movement-owner correction
+
+The real frontend capture failed at the first ordinary gameplay frame after the
+incoming fade: command-zero ownership had been discarded. Both native entry
+callbacks `$8F:E26C/$E291` invoke command zero (`$90:F109`), which installs the
+stationary alpha/beta pair. Native `$82:E737` does not unlock it. Our fade completion
+unconditionally unlocked non-elevator actors, allowing ordinary falling to add to
+the room-main displacement. The direct-load test skipped that destructive handoff.
+
+Both entry callbacks now use the existing stationary-script command owner; exit
+callbacks use its paired unlock. The common door fade preserves that ownership
+while still releasing its temporary input lock for ordinary arrivals. This does
+not special-case a room address in the fade or change the native streamer.
+
+The 620-frame frontend regression now asserts ownership after fade and exact
+16.16 displacement from the signed 8.8 tube velocity throughout the interior.
+Both-direction core checks also assert exact displacement for 180 frames each.
+The before/after logs are `391-lock-before.log` and `391-lock-final.log` in local
+test-temp. BG2 discrepancies in ordinary descent are eliminated in this capture;
+BG1 discrepancies remain (for example a full row at frame240). They must still be
+compared to the native tile producer before claiming the reported visual issue is
+resolved. The original direct-load offset caveat also remains applicable.

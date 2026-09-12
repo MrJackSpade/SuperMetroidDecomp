@@ -138,11 +138,14 @@ internal static partial class GoldenTorizoAudit
             projectile);
 
         var responseMaps = new HashSet<ushort>();
+        // Native pickup selection needs Samus's inventory. Keep her out of the effect's
+        // collision area instead of removing the player context from projectile processing.
+        loaded.Samus.XPosition = loaded.Samus.YPosition = 0x1000;
         for (int frame = 0; frame < 256 && projectile.IsActive; frame++)
         {
             loaded.Enemies.StepEnemyProjectiles(
                 assets.LevelData,
-                samus: null,
+                samus: loaded.Samus,
                 cameraX: CameraX,
                 cameraY: CameraY,
                 nmiFrameCounter8: unchecked((byte)(producerFrame + frame + 1)));

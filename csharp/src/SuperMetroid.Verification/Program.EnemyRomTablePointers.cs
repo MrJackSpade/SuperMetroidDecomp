@@ -57,7 +57,7 @@ internal static partial class Program
     [
         (EnemyRomTablePointers.Common.SignedSineCosineWords, 512),
         (EnemyRomTablePointers.Torizo.WakeXPositions, 4),
-        (EnemyRomTablePointers.ChozoStatue.ProjectileVelocityWords, 64),
+        (EnemyRomTablePointers.ChozoStatue.CarryVelocityWords, 64),
         (EnemyRomTablePointers.Ceres.FallingDebrisInstructionPointers, 12),
         (EnemyRomTablePointers.Crocomire.DeathGraphicsSourceWords, 14),
         (EnemyRomTablePointers.DeadSidehopper.HorizontalVelocityWords, 8),

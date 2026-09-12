@@ -394,15 +394,9 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level,
         ushort tableOffset)
     {
-        if ((tableOffset & 1) != 0 || tableOffset > 0x003e)
-        {
-            throw new InvalidDataException(
-                $"Chozo statue movement offset ${tableOffset:X4} is outside $AA:E630's 32-word table.");
-        }
-
+        var motion = ChozoCarryMotionDefinitions.Read(tableOffset);
         state.MovementTableOffset = tableOffset;
-        short signedVelocity = unchecked((short)ReadWord(
-            _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileVelocityWords + tableOffset));
+        short signedVelocity = motion.Velocity;
 
         // Enemy_MoveRight_IgnoreSlopes receives a signed 8.8 word promoted to 16.16 by
         // INT16_SHL8. Enemy_MoveDown receives its absolute magnitude in the same format.
@@ -418,12 +412,8 @@ public sealed partial class RoomEnemySystem
 
         // The two 32-word tables are joint offsets indexed by the exact byte offset above.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
-        samus.XPosition = unchecked((ushort)(
-            statue.XPosition + unchecked((short)ReadWord(
-                _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileXOffsetWords + tableOffset))));
-        samus.YPosition = unchecked((ushort)(
-            statue.YPosition + unchecked((short)ReadWord(
-                _bus!, EnemyRomTablePointers.ChozoStatue.ProjectileYOffsetWords + tableOffset))));
+        samus.XPosition = unchecked((ushort)(statue.XPosition + motion.SamusX));
+        samus.YPosition = unchecked((ushort)(statue.YPosition + motion.SamusY));
     }
 
     private void ProcessChozoStatueFootstep(

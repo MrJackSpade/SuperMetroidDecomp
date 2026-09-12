@@ -668,3 +668,27 @@ Full Release Verification passes; after the fixture refinement, the complete
 focused Mother Brain suite and Windows Release build pass. More indirect
 definition readers remain: the inventory explicitly lists Torizo, Chozo statue
 and Ceres Ridley examples. This does not complete #547 or its shared integration.
+
+## Golden Torizo walking and Chozo carry motion
+
+Pinned-source inspection corrected misleading catalog names: $AA:D59A contains
+twenty walking displacements (not four jump velocities), and $AA:E630/E670/E6B0
+contains statue velocity and carried-Samus joint offsets (not projectiles).
+GoldenTorizoWalkDefinitions and ChozoCarryMotionDefinitions now own these values;
+the reference catalog names/size comments were corrected too.
+
+Tests compare all 39 complete Torizo byte windows, all 96 Chozo words and 52 real
+movement/carry calls in a constructed room without a bus. They assert signed
+movement, fractional preservation, instruction handoff and actual Samus positions.
+Chozo retains its even-offset validation. Torizo windows outside the authored
+range now fail explicitly rather than reading adjacent code.
+
+The full Golden Torizo audit reproduced two stale fixtures: immediate knockback
+and null Samus during projectile-drop selection. Shared assertions now verify
+exact 160-damage pending contact and later admission. The shot-response fixture
+retains Samus's inventory while moving her out of collision range. No production
+contact or drop behavior changed. Its complete encounter passes through attacks,
+weapon reactions, damage phases, death, drops, music and boss-bit handoff.
+
+Full Release Verification, complete Chozo statue audit, repaired complete Golden
+Torizo audit and Windows Release build pass. The broader #547 work remains open.

@@ -32,8 +32,8 @@ internal static class EnemyRomTablePointers
         public const int WakeXRadii = 0xaac96f;
         /// <summary>Two Bomb Torizo wake Y radii at $AA:C973 (4 bytes).</summary>
         public const int WakeYRadii = 0xaac973;
-        /// <summary>Golden Torizo jump horizontal velocities at $AA:D59A (8 bytes).</summary>
-        public const int JumpHorizontalVelocityWords = 0xaad59a;
+        /// <summary>Twenty Golden Torizo walking displacement words at $AA:D59A (40 bytes).</summary>
+        public const int WalkHorizontalVelocityWords = 0xaad59a;
         /// <summary>Bomb Torizo palette-FX color words at $84:8032.</summary>
         public const int BodyPaletteFxColors = 0x848032;
         /// <summary>Bomb Torizo belly palette-FX color words at $84:8132.</summary>
@@ -45,12 +45,12 @@ internal static class EnemyRomTablePointers
     {
         /// <summary>Sixteen statue palette words at $AA:E2DD (32 bytes).</summary>
         public const int PaletteWords = 0xaae2dd;
-        /// <summary>Thirty-two signed projectile velocity words at $AA:E630 (64 bytes).</summary>
-        public const int ProjectileVelocityWords = 0xaae630;
-        /// <summary>Thirty-two signed projectile X offsets at $AA:E670 (64 bytes).</summary>
-        public const int ProjectileXOffsetWords = 0xaae670;
-        /// <summary>Thirty-two signed projectile Y offsets at $AA:E6B0 (64 bytes).</summary>
-        public const int ProjectileYOffsetWords = 0xaae6b0;
+        /// <summary>Thirty-two signed statue movement velocities at $AA:E630 (64 bytes).</summary>
+        public const int CarryVelocityWords = 0xaae630;
+        /// <summary>Thirty-two carried-Samus X offsets at $AA:E670 (64 bytes).</summary>
+        public const int CarriedSamusXOffsetWords = 0xaae670;
+        /// <summary>Thirty-two carried-Samus Y offsets at $AA:E6B0 (64 bytes).</summary>
+        public const int CarriedSamusYOffsetWords = 0xaae6b0;
     }
 
     /// <summary>Ceres Ridley, destruction, and door animation data.</summary>

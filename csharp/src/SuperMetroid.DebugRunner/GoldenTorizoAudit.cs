@@ -180,14 +180,15 @@ internal static partial class GoldenTorizoAudit
         loaded.Samus.Pose = SamusPoseIds.FacingRightNormalPose;
         loaded.Samus.RefreshCollisionRadii(bus);
         loaded.Samus.InitializeAnimation(bus);
-        ushort healthBeforeTouch = loaded.Samus.Health;
-        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, controllerInput: 0) ||
-            loaded.Samus.Health >= healthBeforeTouch || !loaded.Samus.KnockbackActive)
+        var beforeContact = EnemyContactAuditAssertions.Capture(loaded.Samus);
+        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, controllerInput: 0))
         {
             throw new InvalidDataException(
-                $"Golden Torizo contact failed: health {healthBeforeTouch}->{loaded.Samus.Health}, " +
+                $"Golden Torizo contact failed: health {beforeContact.Health}->{loaded.Samus.Health}, " +
                 $"knockback={loaded.Samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(
+            bus, loaded.Samus, beforeContact, 160, 1, "Golden Torizo body contact");
 
         VerifyPowerBombImmunity(bus, loaded);
         VerifyMissileAndSuperReactions(bus, loaded, assets.LevelData);

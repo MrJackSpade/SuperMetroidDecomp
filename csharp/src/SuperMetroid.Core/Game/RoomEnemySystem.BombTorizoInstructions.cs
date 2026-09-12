@@ -575,9 +575,7 @@ public sealed partial class RoomEnemySystem
         ushort cursor,
         ushort tableOffset)
     {
-        state.HorizontalVelocity = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Torizo.JumpHorizontalVelocityWords + tableOffset);
+        state.HorizontalVelocity = GoldenTorizoWalkDefinitions.Velocity(tableOffset);
         int displacement = unchecked((short)state.HorizontalVelocity) << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {

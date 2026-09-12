@@ -8,8 +8,6 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Torizo | $AA:D59A horizontal jump velocities | RoomEnemySystem.BombTorizoInstructions |
-| Chozo statue | $AA:E630 projectile velocities | RoomEnemySystem.ChozoStatue |
 | Ceres Ridley | $A6:D712 rotation divisors | RoomEnemySystem.CeresRidley |
 
 These are live references, not merely obsolete address declarations. Each still

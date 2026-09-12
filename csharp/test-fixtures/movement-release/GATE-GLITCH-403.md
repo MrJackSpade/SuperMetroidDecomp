@@ -44,3 +44,40 @@ rising/spinning/falling input cases, gate animation/state assertions, and blue/
 green weapon and orientation controls. Existing gate-filter tests are not a
 substitute for those technique checks. Source: the Gate_Glitch wiki and pinned
 bank-$84/$94 routines; no wiki claim has yet been promoted to an expected result.
+
+## Original-CPU comparison: ordinary beam discrepancy
+
+`native-gate-origin-probe.h` repeats the same 6,075 setups. The authored level
+is decompressed using the existing asset decoder; room PLM spawning (`$84:846A`),
+two warm-up PLM passes, weapon production (`$90:B80D` / `$90:BE62`), projectile
+processing (`$90:AECE`) and PLM handler are original ROM execution. Cooldown is
+advanced explicitly. No movement, enemy AI or rendering is simulated.
+
+Native results: zero ordinary-beam activations, 119 missile activations and 116
+Super Missile activations. Every missile/super successful origin, hit frame and
+projectile coordinate matches the managed sweep. The port's 50 ordinary-beam
+activations are extra; this is a reproduced mismatch, not merely a wiki claim.
+At (140,360), native firing already creates impact type `$8700`, list `$A007`,
+at (113,329), then projectile processing advances the impact list to `$A00F`.
+The managed beam instead activates the switch on frame zero at (110,326).
+The next diagnosis is the initial ordinary-beam collision path; no production
+fix has yet been made and #403 is not ready for player validation.
+
+`gate-origin-403.csv` stores all 235 native successes. The matrix bounds above
+define every omitted case as a negative. Two independent captures share SHA-256
+`19658956DD961D6624F3B106F98F6BCEF8A344088B50708F534B1BE71378A6C5`.
+An initial probe failed because an unparenthesized address expression expanded
+incorrectly through `RomFixedPtr`; that run produced no usable results and is
+excluded. The committed probe uses a separate address variable.
+
+To reproduce, temporarily include `native-release-probe.h` and this probe after
+`state_recorder` in upstream sm_rtl.c. Add a pre-SDL, console-only entry invoking
+`DiagnosticGateOrigins(rom, output)`, rebuild Release x64, and run:
+
+```
+sm.exe --gate-origin-probe "Super Metroid.smc" NEW_OUTPUT.csv
+```
+
+Remove only those temporary hooks afterward. Execution is instruction-bounded,
+and output creation is exclusive. The probe prints the isolated beam sample to
+stderr for diagnosis. Numeric output contains no ROM or player-state bytes.

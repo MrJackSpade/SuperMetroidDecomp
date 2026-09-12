@@ -7,7 +7,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
 internal static class MaridiaPipeTerrainAudit
 {
-    public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame)
+    public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {
         if (runtime.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.TubeRoom || snapshot.Layers is not { } layers) return;
         var gameplay = layers.Layers.ToArray().OfType<OrdinaryGameplayRenderLayer>().Single();
@@ -48,6 +48,8 @@ internal static class MaridiaPipeTerrainAudit
             }
             if (differences != 0 || frame % 30 == 0)
                 Console.WriteLine($"terrain frame={frame} bg={(background ? 2 : 1)} differences={differences} rows={string.Join(',', rows)} scroll={registerX}/{registerY} offset={offsetX}/{offsetY} {first}");
+            if (requireAuthoredTerrain && differences != 0)
+                throw new InvalidDataException($"#391: displayed BG{(background ? 2 : 1)} terrain differs from authored tube rows at frame {frame}: {first}");
         }
     }
 }

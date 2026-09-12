@@ -19,14 +19,14 @@ internal static class MaridiaPipeIncomingDoorSeed
             break;
         }
         if (entry < 0) throw new InvalidDataException("Plasma Spark has no matching northern elevatube door block.");
-        ushort x = checked((ushort)((entry % level.WidthInBlocks) * 16 + 8));
-        ushort y = checked((ushort)((entry / level.WidthInBlocks) * 16 - 16));
+        ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
+        ushort y = checked((ushort)((entry / level.WidthInBlocks) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
             (ushort)(x & 0xff00), (ushort)(y & 0xff00));
         runtime.Samus!.Kinematics.SetXFixed((uint)x << 16);
         runtime.Samus.Kinematics.SetYFixed((uint)y << 16);
-        runtime.LevelData!.ResolveDoorCollision(bus,
-            runtime.LevelData.GetCollisionBlockByIndex(entry).Behavior, runtime.Samus.Pose, true);
+        // Let gravity reach the authored door block. Publishing a pending door here
+        // skipped the source camera's approach and retained an arbitrary scroll phase.
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");
     }
 }
@@ -39,4 +39,10 @@ internal static class MaridiaPipeFixtureDefinitions
 
     /// <summary>$8F:D408, RoomHeader_Toilet: the tall Maridia elevatube.</summary>
     public const ushort TubeRoom = 0xd408;
+
+    /// <summary>$8F:D48E, RoomHeader_Oasis: the southern tube destination.</summary>
+    public const ushort OasisRoom = 0xd48e;
+
+    /// <summary>$8F:E2B6 pins Samus to the center of the authored tube opening, X=$0080.</summary>
+    public const ushort TubeCenterX = 0x0080;
 }

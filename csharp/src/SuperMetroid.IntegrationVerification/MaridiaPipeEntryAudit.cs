@@ -53,6 +53,10 @@ internal static class MaridiaPipeEntryAudit
             // player state through the shaft without inventing position writes.
             ushort input = fromNorth ? (ushort)0 : frame < 30 ? (ushort)SuperMetroid.Core.Input.SnesButton.Right :
                 frame is >= 100 and < 123 ? (ushort)SuperMetroid.Core.Input.SnesButton.Left : (ushort)0;
+            if (incomingDoor && runtime.ActiveRoom?.Pointer == MaridiaPipeFixtureDefinitions.PlasmaSparkRoom)
+                input = (ushort)((ushort)SuperMetroid.Core.Input.SnesButton.Down |
+                    (frame % 10 == 5 ? runtime.ControllerBindings.Shoot : 0) |
+                    (frame >= 60 && frame % 90 < 30 ? runtime.ControllerBindings.Jump : 0));
             bool checkTubeDisplacement = incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay &&
                 runtime.ActiveRoom?.Pointer == MaridiaPipeFixtureDefinitions.TubeRoom &&
                 runtime.Samus!.YPosition is > 128 and < 2300;
@@ -64,12 +68,16 @@ internal static class MaridiaPipeEntryAudit
             audio.RenderFrame(result.Frame.AudioCommands);
             if ((fromNorth || frame % 30 == 0) && result.Snapshot is { } snapshot)
             {
-                if (fromNorth) MaridiaPipeTerrainAudit.Observe(runtime, snapshot, frame);
+                if (fromNorth) MaridiaPipeTerrainAudit.Observe(runtime, snapshot, frame,
+                    requireAuthoredTerrain: incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay);
                 SoftwareFrameSnapshotRenderer.Render(snapshot, pixels);
                 PngWriter.WriteRgba($"{output}/frame-{frame:D3}.png", snapshot.Width, snapshot.Height, pixels);
             }
         }
-        Console.WriteLine("Captured preserved pipe-entry sequence; image inspection and cartridge comparison are required before claiming a fix.");
+        if (incomingDoor && (game.GameState != SuperMetroidGameState.MainGameplay ||
+            runtime.ActiveRoom?.Pointer != MaridiaPipeFixtureDefinitions.OasisRoom))
+            throw new InvalidDataException("#391: physical door approach did not complete the tube and return to Oasis gameplay.");
+        Console.WriteLine("Captured pipe-entry sequence; incoming-door mode verifies movement, authored tube terrain, and return to Oasis gameplay.");
         return 0;
     }
 }

@@ -2,9 +2,11 @@
 
 ## Status
 
-The incoming-door movement-lock defect is now reproduced and corrected (see below).
-Residual BG1 tile discrepancies still require diagnosis; this is not a complete
-visual fix and the issue remains open without awaiting-player-validation.
+The incoming-door movement-lock defect is reproduced and corrected. The final
+physical approach also verifies both displayed terrain layers throughout ordinary
+tube gameplay and arrival in Oasis. Ready for player validation, not closed.
+Earlier residual BG1 discrepancies below are historical diagnostic findings:
+pre-publishing the door skipped the source camera's physical approach.
 
 Terrain mismatches are observable on the current code, but the initial direct-load
 capture inherited an unrelated scroll origin and is not sufficient proof of the
@@ -75,6 +77,9 @@ alone to justify a production streamer change.
 
 ## Incoming-door control
 
+The following pre-published-door results describe the earlier diagnostic. The
+same command now uses the physical approach documented in the final section.
+
 ```text
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --maridia-pipe-incoming-door
 ```
@@ -127,3 +132,31 @@ test-temp. BG2 discrepancies in ordinary descent are eliminated in this capture;
 BG1 discrepancies remain (for example a full row at frame240). They must still be
 compared to the native tile producer before claiming the reported visual issue is
 resolved. The original direct-load offset caveat also remains applicable.
+
+## Final physical door approach
+
+The setup now places Samus at `(128,656)` in Plasma Spark without publishing a
+pending door. Normal gravity, down input, and fresh mapped shoot presses open
+the authored blue cap; jump input is available after frame60. Inputs stop on
+leaving the source room. This is a bounded constructed room fixture, not a replay
+of the player's exact approach. No coordinates are changed after initial setup.
+
+The camera reaches Y543 before the physical collision. Downward setup increments
+the retained BG1 vertical mirror, yielding destination offset768, rather than the
+artificial offset739 obtained by prematurely queuing the door. Both BG1 and BG2
+then have zero sampled authored-tile mismatches throughout ordinary tube gameplay.
+The only observed transition mismatch is an intentionally partial destination
+tilemap before scrolling starts; transition frames are excluded from that assertion.
+
+The finalized 620-frame regression checks stationary ownership, exact room-main
+displacement, every sampled visible terrain word on both layers during tube
+gameplay, and final ordinary gameplay in Oasis. It fails if the approach never
+enters the tube, preventing a closed-door no-op from being mistaken for success.
+Final log: `csharp/test-temp/391-natural-final.log`. All-frame PNGs stay local in
+the existing incoming-door output directory; frames300 and510 were inspected for
+the tube scenery and Oasis landing respectively. No renderer/streamer patch was
+needed beyond preserving native movement ownership in `3f9fbfb5`.
+
+This proves the tested physical approach and displayed tilemap contents, not
+pixel-for-pixel original-emulator parity for every possible tube entry. Player
+confirmation remains required for the original report.

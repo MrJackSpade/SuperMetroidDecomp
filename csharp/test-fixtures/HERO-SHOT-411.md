@@ -81,7 +81,29 @@ ROM SHA256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 
 ## Still required
 
-- Cover actual camera-following movement and a representative room-local target.
+- Compare a representative retail target and native normal camera movement.
 - #411 remains open, not awaiting player validation; the controlled horizontal/vertical
   controlled-camera comparison does not fulfill the broader integration scope.
 - The separately reproduced and corrected explosion-lifetime defect is #601.
+
+## Runtime movement integration
+
+`--hero-shot-runtime` loads Landing Site and constructs an air corridor with a
+floor at block Y=32 and a solid target column X=54 (world X=864). Existing room
+scroll policies and all production movement/projectile/camera owners are retained.
+Samus starts (512,490), normal right-facing, and the initial camera (400,350)
+settles for 64 neutral frames before firing. The test does not write camera
+position again. Both branches press Shoot on frame zero; subsequent input is
+neutral or Right. Neither branch holds Shoot, Dash, or uses cheats.
+
+The full launch snapshots are identical before walking diverges. Stationary
+Samus remains at X=512, camera X=512, and the shot expires on frame 54. Walking
+Samus reaches X=649, camera X=553, and the shot hits the target on frame 57.
+Assertions check actual target coordinates, explosion state, movement/camera
+advancement, and the stationary camera remaining fixed. Both cases run in the
+default suite and `--samus-projectiles`.
+
+This closes the C# integration gap between camera tracking and projectile
+lifetime; it does not claim native execution of the entire Samus/camera sequence
+or a specific retail enemy/door interaction. The earlier controlled native traces
+remain independent evidence for projectile processing itself.

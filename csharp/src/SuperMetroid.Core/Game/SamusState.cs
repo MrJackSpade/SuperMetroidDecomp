@@ -188,7 +188,15 @@ public sealed partial class SamusState
     /// Mother Brain command five/<c>$18</c> locks input; command one unlocks it after the
     /// rainbow beam has narrowed. Movement type alone cannot represent this independent word.
     /// </summary>
-    public bool InputLocked { get; set; }
+    public bool InputLocked
+    {
+        get;
+        set
+        {
+            field = value;
+            if (!value) StationaryScriptControlLocked = false;
+        }
+    }
 
     /// <summary>
     /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces

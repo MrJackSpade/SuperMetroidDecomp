@@ -150,6 +150,25 @@ internal static partial class Program
 
         StepNoobTube(plms, bus, level, streamer, (ushort)SnesButton.Right);
         AssertTrue(samus.InputLocked, "break sequence locks Samus");
+        AssertTrue(samus.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
+        var fields = typeof(SamusState).GetFields(System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+            .OrderBy(field => field.MetadataToken).ToArray();
+        AssertTrue(fields.Any(field => field.Name == "<InputLocked>k__BackingField"),
+            "existing input-lock serialized identity remains unchanged");
+        var legacy = SuperMetroid.Desktop.DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 1);
+        AssertTrue(legacy.SequenceEqual(fields.Where(field => field.Name != "<StationaryScriptControlLocked>k__BackingField")),
+            "previous Samus layout retains every original field in order");
+        using (var saved = new MemoryStream())
+        {
+            SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, samus);
+            saved.Position = 0;
+            var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
+            AssertTrue(restored.InputLocked && restored.StationaryScriptControlLocked,
+                "mid-script state retains input and animation ownership");
+            restored.InputLocked = false;
+            AssertTrue(!restored.StationaryScriptControlLocked, "generic unlock clears stale stationary ownership");
+        }
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
         AssertEqual(NoobTubePlmRomData.CrackProjectile, projectiles[0].DefinitionPointer,
             "first spawned actor is the n00b-tube crack");
@@ -181,6 +200,7 @@ internal static partial class Program
             StepNoobTube(plms, bus, level, streamer);
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
         AssertTrue(!samus.InputLocked, "n00b-tube completion unlocks Samus");
+        AssertTrue(!samus.StationaryScriptControlLocked, "completion restores normal animation ownership");
         AssertEqual((ushort)RoomFxRomData.LiquidTide.SmallTideOption,
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");

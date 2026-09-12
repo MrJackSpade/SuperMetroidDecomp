@@ -1633,6 +1633,9 @@ public sealed partial class SuperMetroidRuntime
             // match selected for the old pose to the newly installed one.
             BeginAttractSamusInput();
             byte poseAtFrameStart = Samus.Pose;
+            // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
+            // affects the next beta, not the animation already owned this frame.
+            bool stationaryScriptControlAtFrameStart = Samus.StationaryScriptControlLocked;
             SamusMovementType movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
 
             // Direction bits already use the transition table's canonical layout. Input
@@ -2754,7 +2757,7 @@ public sealed partial class SuperMetroidRuntime
                     Cgram,
                     VramWrites);
             }
-            else
+            else if (!stationaryScriptControlAtFrameStart)
             {
                 Samus.AnimateNoFx(
                     _addressSpace,

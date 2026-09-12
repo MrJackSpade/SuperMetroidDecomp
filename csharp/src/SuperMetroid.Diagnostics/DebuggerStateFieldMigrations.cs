@@ -17,6 +17,11 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusState) && current.Any(field => field.Name == "<StationaryScriptControlLocked>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Older Samus state lacks stationary script-handler ownership; retaining its saved input lock, with animation ownership unknown until the next script command.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "<StationaryScriptControlLocked>k__BackingField").ToArray(), count);
+        }
         if (type.FullName == "SuperMetroid.Core.Frontend.CeresDestructionCinematicState" && count == current.Length - 1)
         {
             Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");

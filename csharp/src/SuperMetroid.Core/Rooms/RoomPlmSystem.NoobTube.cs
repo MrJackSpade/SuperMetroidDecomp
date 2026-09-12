@@ -112,12 +112,12 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.LockSamus:
-                RequireNoobTubeSamus().InputLocked = true;
+                RequireNoobTubeSamus().SetStationaryScriptControlLock(true);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 
             case RoomPlmInstructionCodes.UnlockSamus:
-                RequireNoobTubeSamus().InputLocked = false;
+                RequireNoobTubeSamus().SetStationaryScriptControlLock(false);
                 slot.InstructionPointer = unchecked((ushort)(cursor + 2));
                 return true;
 

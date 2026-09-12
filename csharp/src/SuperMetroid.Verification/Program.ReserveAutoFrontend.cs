@@ -103,8 +103,9 @@ internal static partial class Program
                 "completed automatic refill publishes the native empty AUTO indicator");
         }
         var fields = typeof(SamusState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).OrderBy(f => f.MetadataToken).ToArray();
-        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 1);
-        AssertTrue(legacy.SequenceEqual(fields.Where(f => f.Name != "_healthWarning")), "legacy Samus layout omits only warning owner");
+        var legacy = DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusState), fields, fields.Length - 2);
+        AssertTrue(legacy.SequenceEqual(fields.Where(f => f.Name is not "_healthWarning" and not "<StationaryScriptControlLocked>k__BackingField")),
+            "pre-warning Samus layout omits warning and later stationary-command ownership");
         samus.HealthWarning.Update(30, audio);
         using var saved = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(saved, samus); saved.Position = 0;

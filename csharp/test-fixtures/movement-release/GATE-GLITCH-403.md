@@ -163,3 +163,19 @@ closed. All 140 native/managed records match; the default regression now checks
 This is a negative control, not proof that successful spinning gate glitches
 are absent. No production change was made. A successful spinning setup and
 green/orientation controls remain outstanding.
+
+## Spin input ordering and release search
+
+Pinned ROM pose `$1A` transition table `$91:A46E` tests new Shoot first, then
+held shooting/aim combinations, then held Left+Jump before held Aim alone.
+Consequently adding Aim while continuing Left+Jump does not itself cancel spin.
+New Shoot selects the taller ordinary-jump pose; changed-pose collision can
+reject that expansion under this room's ceiling. Do not treat the matching
+spin negative control as a generic missing fire transition.
+
+The optional fifth DebugRunner argument `true` releases Jump at the aim frame.
+This permits the transition but also cancels upward jump speed. A managed search
+of aim/release frames 2..7 and Shoot frames 4..12 (54 cases) found no activation.
+For aim 5 / Shoot 8, pose changes from `$1A` to `$6A` at Y=361 and remains too
+low for the demonstrated window. This is search evidence only, not a new native
+timing claim. It does not exhaust spin setups with other origins or inputs.

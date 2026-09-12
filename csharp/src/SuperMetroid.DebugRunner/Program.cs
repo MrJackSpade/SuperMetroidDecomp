@@ -28,6 +28,8 @@ if (args.Length == 3 && args[0] == "--gate-glitch-jump-audit")
     return GateGlitchRoomAudit.RunJump(args[1], int.Parse(args[2]));
 if (args.Length == 4 && args[0] == "--gate-glitch-jump-audit")
     return GateGlitchRoomAudit.RunJump(args[1], int.Parse(args[2]), int.Parse(args[3]));
+if (args.Length == 5 && args[0] == "--gate-glitch-jump-audit")
+    return GateGlitchRoomAudit.RunJump(args[1], int.Parse(args[2]), int.Parse(args[3]), bool.Parse(args[4]));
 if (args.Length == 2 && args[0] == "--ceiling-wrap-runtime")
     return CeilingWrapRoomAudit.RunRuntime(args[1]);
 if (args.Length == 2 && args[0] == "--ceiling-wrap-room-audit")

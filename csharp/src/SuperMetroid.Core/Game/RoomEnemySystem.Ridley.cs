@@ -659,31 +659,17 @@ public sealed partial class RoomEnemySystem
     /// <summary>
     /// Ports the four ROM-selected velocity tables consumed by $A6:B90F. The signedness
     /// of the previous horizontal velocity chooses direction; magnitudes and both vertical
-    /// accelerations remain cartridge data indexed by Ridley's current health stage.
+    /// accelerations are compiled cartridge definitions indexed by Ridley's health stage.
     /// </summary>
     private void InitializeNorfairRidleyPogoVelocity(RidleyEnemyState state)
     {
-        int randomIndex = _nextRandom!() & 3;
-        ushort horizontalTable = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.PogoHorizontalPathPointers + randomIndex * 2);
-        ushort verticalTable = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.PogoVerticalPathPointers + randomIndex * 2);
-        int healthOffset = (Math.Min(state.HealthStage, (ushort)3) + 2) * 2;
-
-        state.PogoUpwardAcceleration = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + healthOffset);
-        state.PogoDownwardAcceleration = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + healthOffset);
-        state.VerticalVelocity = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(verticalTable + healthOffset)));
-        ushort horizontalMagnitude = ReadWord(
-            _bus!,
-            0xa60000 | unchecked((ushort)(horizontalTable + healthOffset)));
+        // The native routine samples the current word; it does not advance shared RNG.
+        int randomIndex = RequireRandomNumber() & 3;
+        var definition = RidleyPogoDefinitions.Read(randomIndex, Math.Min(state.HealthStage, (ushort)3) + 2);
+        state.PogoUpwardAcceleration = definition.UpwardAcceleration;
+        state.PogoDownwardAcceleration = definition.DownwardAcceleration;
+        state.VerticalVelocity = definition.Y;
+        ushort horizontalMagnitude = definition.X;
         state.HorizontalVelocity = unchecked((short)state.HorizontalVelocity < 0)
             ? unchecked((ushort)-(short)horizontalMagnitude)
             : horizontalMagnitude;

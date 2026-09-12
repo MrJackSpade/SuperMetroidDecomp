@@ -971,3 +971,23 @@ before that full-pool return. Native source: $86:A2A1..A2ED.
 Full Release Verification and Windows Release build pass. Animation instruction
 programs/artwork remain separate presentation work; this migration removes spawn
 definition reads, not the entire gunship presentation dependency. #547 remains open.
+
+## Ridley pogo launch records and RNG correction
+
+Compiled $A6:B94D..B9D4: both six-word acceleration arrays and four six-word rows
+each of horizontal and vertical launch speeds, resolving the intervening native
+pointer tables. All six authored stages are represented; live health selection
+retains the existing stage clamp plus two. NTSC integer 8.8 words, negative Y
+velocities and previous-X-sign negation are unchanged.
+
+The ROM-pointer-based oracle compares every authored record, then checks
+1,572,864 real initializer calls across every RNG word, six health-stage inputs
+and four prior horizontal speed/sign cases. The runtime bus rejects all access.
+Source inspection and a failing assertion also exposed an erroneous RNG advance;
+#595 switches to the native current-word read and verifies exactly one read and
+zero advances per initialization. See RIDLEY-POGO-RNG-595.md for before/after evidence.
+
+Full Release Verification, Windows build and the complete Norfair Ridley audit
+(360 reveal / 4,096 combat / 738 death frames) pass. #595 awaits player validation;
+#547 remains incomplete. Remaining side-target, carry/claw and health-divisor
+readers are explicitly retained in the inventory.

@@ -19,7 +19,6 @@ the consumers rather than classifying them solely by the catalog names.
 
 | Mechanics group | Confirmed live consumer and semantics | Migration requirements |
 | --- | --- | --- |
-| Dead sidehopper | `RunDeadSidehopperMain` post-landing branch: $A9:D951/D959 four vertical/horizontal launch pairs | Preserve jump phase, delay underflow, palette-stage branch, instruction restart, and signed velocities. Trace all phase writers before choosing catalog bounds. |
 | KiHunter | $A8:F180 trigger distance; F182/F184 used as fractional/whole vertical acceleration in falling and hopping; F186 supplies detached-wing orbit radius | Existing AttackYRadius/AttackXRadius/WinglessHopRadius names do not accurately describe these consumers. Validate fixed-point ordering and all three wing-orbit callers, not only initializer values. |
 | Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer, ceiling-rock positions | Preserve byte selectors, countdown boundaries and current-RNG semantics. Keep palette reads in presentation scope. |
 | Kraid hitboxes/projectiles | `KraidCollisions`, `KraidProjectiles`, `KraidNails`: B163/B165 hitbox coordinates, BC65 rock X velocities, BF1D nail offsets | Inspect overlapping record strides, signed coordinates, current random selection and actual collision/placement paths. |
@@ -32,6 +31,9 @@ The falling-spark launch group from the expanded scan is now compiled, including
 the eighth outcome's native instruction-word overread. The reference catalog
 names now identify horizontal whole/fraction velocity rather than initial X/Y.
 Actual spawn and horizontal-motion tests reject reads of the migrated table.
+Dead-sidehopper launch pairs are also compiled. The actual post-landing dispatcher
+is verified for every timer word, all four ordinary phases, and both palette gates
+with a throwing bus; the rest of its corpse/animation system remains separate.
 
 The remaining named-catalog users also include Golden Torizo's reflected Super
 Missile instruction selector, unpowered Work Robot instruction selection, and

@@ -1096,3 +1096,24 @@ Focused/full Release Verification and Windows build pass. The complete Spark
 audit also passes after correcting its independently stale immediate-knockback
 assertion in #597; see SPARK-AUDIT-597.md. This migration remains only one slice
 of #547, whose broader inventory/integration requirements are still open.
+
+## Dead-sidehopper post-landing launches
+
+Compiled the four vertical and four horizontal 8.8 velocity words at
+$A9:D951/D959. The actual post-landing dispatcher no longer reads either ROM
+table. Pinned $A9:D91D decrements the timer, returns on nonnegative result,
+branches to draining when the palette stage is nonzero, or restarts the idle
+instruction list and publishes the selected launch pair. Preserved that ordering.
+
+Compared all eight words with ROM and ran 524,288 actual dispatcher cases with
+a throwing bus: every timer word, all four ordinary jump phases, and zero/nonzero
+palette stage. Assertions cover signed timer expiry/wrap, exact velocities,
+phase handoff, instruction pointer and both instruction timers, and unchanged
+jump phase. Phase is initialized to zero and its only ordinary writer increments
+modulo four upon landing. Non-authored corrupted phase values are not covered
+by this migration's native-parity claim; compiled span indexing rejects them
+rather than interpreting arbitrary adjacent ROM data.
+
+Focused and full Release Verification pass. Windows Desktop builds with zero
+warnings and errors. This does not close #547 or establish full corpse-system
+parity; it verifies the migrated launch data and its real timer/phase consumer.

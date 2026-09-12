@@ -280,11 +280,8 @@ public sealed partial class RoomEnemySystem
 
                 state.Function = DeadSidehopperAiFunction.ActivatedMovement;
                 SetDeadSidehopperInstruction(slot, DeadSidehopperInitialInstruction);
-                int tableIndex = state.JumpPhase * 2;
-                state.VerticalVelocity = ReadWord(
-                    _bus!, EnemyRomTablePointers.DeadSidehopper.VerticalVelocityWords + tableIndex);
-                state.HorizontalVelocity = ReadWord(
-                    _bus!, EnemyRomTablePointers.DeadSidehopper.HorizontalVelocityWords + tableIndex);
+                state.VerticalVelocity = DeadSidehopperLaunchDefinitions.Vertical[state.JumpPhase];
+                state.HorizontalVelocity = DeadSidehopperLaunchDefinitions.Horizontal[state.JumpPhase];
                 return;
 
             case DeadSidehopperAiFunction.TransformPalette:

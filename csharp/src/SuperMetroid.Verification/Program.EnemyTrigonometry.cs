@@ -65,6 +65,7 @@ internal static partial class Program
         VerifyRidleyAttackChoices(rom);
         VerifyRidleyClawOffsets(rom);
         VerifyFallingSparkLaunchDefinitions(rom);
+        VerifyDeadSidehopperLaunchDefinitions(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

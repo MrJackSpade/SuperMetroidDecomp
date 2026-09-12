@@ -591,7 +591,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickCeresRidleyLunge(
+    private static void TickCeresRidleyLunge(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus)
@@ -612,7 +612,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickCeresRidleySwoopMoveToPosition(
+    private static void TickCeresRidleySwoopMoveToPosition(
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
@@ -683,7 +683,7 @@ public sealed partial class RoomEnemySystem
         state.MinimumY = unchecked((ushort)-192);
     }
 
-    private void TickCeresRidleyFakeRetreatMoveToPosition(
+    private static void TickCeresRidleyFakeRetreatMoveToPosition(
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
@@ -694,7 +694,7 @@ public sealed partial class RoomEnemySystem
             state.Function = RidleyAiFunction.CeresFakeRetreatRising;
     }
 
-    private void TickCeresRidleyFakeRetreatRising(
+    private static void TickCeresRidleyFakeRetreatRising(
         RoomEnemySlot slot,
         RidleyEnemyState state)
     {
@@ -711,7 +711,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickCeresRidleyRetrieveBaby(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void TickCeresRidleyRetrieveBaby(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $BE03 flies Ridley's hand toward the falling Baby. The native collision compares
         // two radius-four rectangles centered on the hand and Baby points.
@@ -779,7 +779,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void TickCeresRidleyRetreat(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A971 accelerates toward the off-screen point ($00C0,$FF80). The signed test
         // is performed before the common movement pass, so the 64-frame delay begins on
@@ -792,20 +792,16 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void AccelerateRidleyToward(
+    private static void AccelerateRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         ushort targetX,
         ushort targetY,
         int divisorIndex)
     {
-        // g_byte_A6D712 is the exact acceleration divisor table consumed by Ridley_Func_106.
         // Division truncates like the SNES hardware quotient and a zero quotient is promoted
         // to one, ensuring that even a one-pixel error continues to change velocity.
-        ushort divisor = _bus!.ReadByte(
-            EnemyRomTablePointers.Ceres.RidleyRotationDivisorBytes + divisorIndex);
-        if (divisor == 0)
-            throw new InvalidDataException($"Ridley acceleration divisor {divisorIndex} is zero.");
+        ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.HorizontalVelocity = AccelerateAxis(
             state.HorizontalVelocity,

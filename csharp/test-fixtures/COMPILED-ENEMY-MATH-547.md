@@ -692,3 +692,23 @@ weapon reactions, damage phases, death, drops, music and boss-bit handoff.
 
 Full Release Verification, complete Chozo statue audit, repaired complete Golden
 Torizo audit and Windows Release build pass. The broader #547 work remains open.
+
+## Ridley target-seeking inertia
+
+Both 16-byte inertia tables ($A6:D61F and $A6:D712) now use the shared
+RidleyInertiaDefinitions catalog. The real Ceres and Norfair two-axis helpers
+no longer need a bus. Acceleration, reversal, minimum quotient and clamps are
+unchanged. Verification compares all 32 authored bytes plus the adjacent byte
+used by the existing Norfair death caller, and runs 2,162,688 production calls
+covering every signed distance, wrapped target subtraction and rotating velocity
+and reversal-boost boundary inputs without an address space.
+
+The complete Norfair audit caught the death caller's index 16 before this change
+was committed. Its prior read was the $B9 opcode at $A6:D62F, not an authored
+inertia record. NorfairDivisor explicitly preserves that byte; Ceres still bounds
+its own 16 entries. This migration does not claim that the existing death caller's
+selector is itself cartridge-correct; that needs separate routine-level review.
+
+Full Release Verification, complete Ceres/Norfair Ridley audits (including 896
+Norfair death frames), and Windows Release build pass. Remaining indirect boss
+mechanics groups are listed in LOOKUP-MIGRATION-REMAINING-547.md; #547 stays open.

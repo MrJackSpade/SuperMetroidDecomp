@@ -28,7 +28,7 @@ public sealed partial class RoomEnemySystem
     /// the four-pixel rectangle centered at (128,328). Reaching it immediately tail-calls
     /// the roar setup instead of spending a host-only transition frame.
     /// </summary>
-    private void TickNorfairRidleyMoveToDeathSpot(
+    private static void TickNorfairRidleyMoveToDeathSpot(
         RoomEnemySlot body,
         RidleyEnemyState state)
     {

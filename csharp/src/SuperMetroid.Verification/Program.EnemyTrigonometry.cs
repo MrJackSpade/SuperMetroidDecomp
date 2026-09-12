@@ -45,6 +45,7 @@ internal static partial class Program
         VerifyCompiledPowerBombShape(rom);
         VerifyCompiledAbsoluteTangent(rom);
         VerifyCompiledStatueWalking(rom);
+        VerifyCompiledRidleyInertia(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

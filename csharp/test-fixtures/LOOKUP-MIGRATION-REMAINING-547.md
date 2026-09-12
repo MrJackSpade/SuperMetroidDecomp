@@ -8,9 +8,16 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Ceres Ridley | $A6:D712 rotation divisors | RoomEnemySystem.CeresRidley |
+| Ridley | Carry/release anchors, pogo targets/path pointers, acceleration and health divisor selectors | RoomEnemySystem.Ridley and related partials |
+| Phantoon | Figure-eight motion, flame angles/rain X, spiral angles, hide/eye timers | RoomEnemySystem.Phantoon and related partials |
+| Bomb Torizo | Wake positions, radii, property masks and instruction selectors | RoomEnemySystem.BombTorizo initialization |
+| Ceres debris | X offsets and instruction selectors | Ceres falling-debris spawning |
+| Common movement | Slope height bytes | RoomEnemySystem.CommonMovement |
 
-These are live references, not merely obsolete address declarations. Each still
+These are confirmed indirect `EnemyRomTablePointers` consumer groups, not an
+exhaustive list. Classify instruction selectors separately from artwork payloads.
+The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
+These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
 the actual runtime read. Inspect authored bounds and adjacent-data behavior
 before substituting a catalog; do not assume every table is a smooth formula.

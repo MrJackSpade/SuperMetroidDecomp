@@ -485,7 +485,7 @@ public sealed partial class RoomEnemySystem
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
 
-    private void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void TickNorfairRidleySwoopMoveToStart(RoomEnemySlot slot, RidleyEnemyState state)
     {
         ushort targetX = state.FacingDirection != 0 ? (ushort)64 : (ushort)192;
         MoveNorfairRidleyToward(slot, state, targetX, 128, divisorIndex: 1);
@@ -879,7 +879,7 @@ public sealed partial class RoomEnemySystem
             (RidleySamusMovementFlags[(byte)movement] & 0x80) != 0;
     }
 
-    private void MoveNorfairRidleyToward(
+    private static void MoveNorfairRidleyToward(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         ushort targetX,
@@ -887,10 +887,7 @@ public sealed partial class RoomEnemySystem
         int divisorIndex,
         ushort reversalBoost = 0)
     {
-        ushort divisor = _bus!.ReadByte(
-            EnemyRomTablePointers.Ridley.TailRotationDivisorBytes + divisorIndex);
-        if (divisor == 0)
-            throw new InvalidDataException($"Ridley combat divisor {divisorIndex} is zero.");
+        ushort divisor = RidleyInertiaDefinitions.NorfairDivisor(divisorIndex);
 
         state.HorizontalVelocity = AccelerateNorfairRidleyAxis(
             state.HorizontalVelocity,

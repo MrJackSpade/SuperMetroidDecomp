@@ -75,7 +75,7 @@ To reproduce, temporarily include `native-release-probe.h` and this probe after
 `DiagnosticGateOrigins(rom, output)`, rebuild Release x64, and run:
 
 ```
-sm.exe --gate-origin-probe "Super Metroid.smc" NEW_OUTPUT.csv
+sm.exe --gate-origin-probe "Super Metroid.smc" NEW_OUTPUT.csv 0
 ```
 
 Remove only those temporary hooks afterward. Execution is instruction-bounded,
@@ -179,3 +179,30 @@ of aim/release frames 2..7 and Shoot frames 4..12 (54 cases) found no activation
 For aim 5 / Shoot 8, pose changes from `$1A` to `$6A` at Y=361 and remains too
 low for the demonstrated window. This is search evidence only, not a new native
 timing claim. It does not exhaust spin setups with other origins or inputs.
+
+## Color and orientation matrix
+
+The origin probe now accepts setup arguments 0/2/8/10 for blue-left/right and
+green-left/right. It changes only the shot-block population argument in private
+memory copies; the C# overlay changes the same single read. Neither changes the
+ROM file or setup/trigger code. Each uses original setup tables and Kronic
+terrain/right-side origins: right switches are near-side controls, not mirrored
+wrong-side tests.
+
+All 24,300 origins match the original CPU, including positive frames/positions:
+
+| Argument | Beam | Missile | Super |
+| --- | ---: | ---: | ---: |
+| 0 blue-left | 0 | 119 | 116 |
+| 2 blue-right | 299 | 93 | 91 |
+| 8 green-left | 0 | 0 | 116 |
+| 10 green-right | 0 | 0 | 91 |
+
+Native CSVs for arguments 2,8,10 accompany the original argument-zero fixture.
+`DebugRunner --gate-glitch-room-audit ROM ARGUMENT NATIVE_CSV` reruns all 6,075
+origins and fails if ordered positive records differ. Omitted cases are negative
+within the fixed bounds, so the comparison catches extra activations too.
+All four comparisons pass. The native entry now invokes
+`DiagnosticGateOrigins(rom, output, argument)`. Temporary hooks were removed.
+No production change was needed. A successful spin-based setup remains
+unestablished, so #403 stays open.

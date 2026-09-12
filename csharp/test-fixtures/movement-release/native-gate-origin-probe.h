@@ -21,12 +21,25 @@ static void DiagnosticGateSampleFire(void) {
 }
 
 // #403: original room PLM setup, firing and collision for the managed origin sweep.
-int DiagnosticGateOrigins(const char *rom, const char *output) {
+int DiagnosticGateOrigins(const char *rom, const char *output, int argument) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   const uint8 *state = RomFixedPtr(0x8fae81);
   uint32 level = state[0] | state[1] << 8 | state[2] << 16;
   uint16 population = state[20] | state[21] << 8;
+  if (argument != 0 && argument != 2 && argument != 8 && argument != 10) { fclose(f); return 9; }
+  // Controlled setup variant: change the authored argument, not setup code or tables.
+  // Both native CPU and host decoder views are private in-memory diagnostic copies.
+  uint32 argumentOffset = 0;
+  for (uint16 entry = population; ; entry += 6) {
+    uint32 address = 0x8f0000 | entry;
+    uint16 header = GET_WORD(RomFixedPtr(address));
+    if (!header) { fclose(f); return 8; }
+    if (header == 0xc836) { argumentOffset = 0x78000 | ((entry + 4) & 0x7fff); break; }
+  }
+  uint8 originalArgument = g_rom[argumentOffset];
+  ((uint8 *)g_rom)[argumentOffset] = argument;
+  g_snes->cart->rom[argumentOffset] = argument;
   fprintf(f, "item,x,y,hitFrame,shotX,shotY\n");
   for (int item = 0; item <= 2; item++) for (int x = 128; x <= 152; x++) for (int y = 304; y <= 384; y++) {
     cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -69,5 +82,7 @@ int DiagnosticGateOrigins(const char *rom, const char *output) {
       ProbeRunBounded(0x8485b4); vram_write_queue_tail = 0;
     }
   }
+  ((uint8 *)g_rom)[argumentOffset] = originalArgument;
+  g_snes->cart->rom[argumentOffset] = originalArgument;
   fclose(f); return 0;
 }

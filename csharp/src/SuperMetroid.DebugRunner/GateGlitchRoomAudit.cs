@@ -41,9 +41,11 @@ internal static class GateGlitchRoomAudit
         return 0;
     }
 
-    public static int Run(string rom)
+    public static int Run(string rom, byte? gateArgument = null, string? nativeTrace = null)
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var actualRecords = new List<string>();
+        ISnesAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        if (gateArgument.HasValue) bus = new GateVariantBus(bus, gateArgument.Value);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -86,7 +88,9 @@ internal static class GateGlitchRoomAudit
                     if (hit)
                     {
                         var shot = shots.Slots[0];
-                        Console.WriteLine($"{item},{x},{y},{frame},{shot.XPosition},{shot.YPosition}");
+                        string record = $"{item},{x},{y},{frame},{shot.XPosition},{shot.YPosition}";
+                        actualRecords.Add(record);
+                        Console.WriteLine(record);
                         successes++;
                         break;
                     }
@@ -95,6 +99,40 @@ internal static class GateGlitchRoomAudit
             }
             Console.WriteLine($"Result item={item}: {successes}/2025 stationary origins activate the switch.");
         }
+        if (nativeTrace is not null)
+        {
+            var expected = File.ReadLines(nativeTrace).Skip(1).ToArray();
+            if (!expected.SequenceEqual(actualRecords))
+                throw new InvalidDataException($"Gate variant {gateArgument}: native activation window differs.");
+            Console.WriteLine($"PASS native gate variant {gateArgument}: all 6075 origins, {expected.Length} exact positive records.");
+        }
         return 0;
+    }
+
+    /// <summary>Changes only the authored shot-block argument; all setup tables remain retail.</summary>
+    private sealed class GateVariantBus : ISnesAddressSpace
+    {
+        private readonly ISnesAddressSpace _inner;
+        private readonly int _argumentAddress;
+        private readonly byte _argument;
+
+        public GateVariantBus(ISnesAddressSpace inner, byte argument)
+        {
+            if (argument is not (0 or 2 or 8 or 10))
+                throw new ArgumentOutOfRangeException(nameof(argument), "Use blue/green left/right table offsets 0,2,8,10.");
+            _inner = inner;
+            _argument = argument;
+            // Kronic Boost's pinned room state: population word at state +20.
+            int entry = 0x8f0000 | inner.ReadByte(0x8fae95) | inner.ReadByte(0x8fae96) << 8;
+            while (true)
+            {
+                int header = inner.ReadByte(entry) | inner.ReadByte(entry + 1) << 8;
+                if (header == 0) throw new InvalidDataException("Kronic shot-block actor missing.");
+                if (header == RoomPlmHeaders.DownwardGateShotBlock) { _argumentAddress = entry + 4; break; }
+                entry += 6;
+            }
+        }
+        public byte ReadByte(int address) => address == _argumentAddress ? _argument : _inner.ReadByte(address);
+        public void WriteByte(int address, byte value) => _inner.WriteByte(address, value);
     }
 }

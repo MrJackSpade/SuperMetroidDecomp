@@ -415,3 +415,23 @@ This implements one placement resource, not full #282 or ROM-free menus: other
 artwork, station eligibility and transition definition reads remain in their
 respective extraction/compiled-data work items. Android device validation and
 historical full-session coverage are not claimed by these tests.
+
+## Compiled window motion definitions
+
+World-map window velocities and timers now come from the dedicated
+`FileSelectMapWindowMotions` catalog, not runtime reads of `$81:AA34..AA9F`.
+The six signed 16.16 motion records and pre-underflow timers are application
+definitions; editable label anchors remain presentation content. No serialized
+window fields, fixed-point arithmetic, clamps or return-window behavior changed.
+
+Verification independently reads every cartridge motion word and compares it
+with the compiled records. Installed-content tests forbid reads of both the
+coordinate and motion tables and compare each edge and completion tick with a
+cartridge-fed control. Synthetic fractional-clamp tests explicitly inject their
+constructed motion instead of depending on a production ROM lookup. Invalid
+area IDs are rejected without truncating them to a byte.
+
+Focused map-presentation checks, the full core verification suite and Windows
+Release build pass (`282-window-motion.log`, `282-window-motion-suite.log`,
+`282-window-motion-windows.log` in ignored test-temp). This removes only the
+transition-definition reads identified above; the broader #282 scope remains open.

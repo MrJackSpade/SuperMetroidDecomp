@@ -21,7 +21,7 @@ internal static partial class Program
             AssertEqual(RomDataReader.ReadWordFixedBank(bus, address + 2), original.Labels.Get(area).Y, "stock label Y");
             native.SelectArea(area); installed.SelectArea(area);
             AssertTrue(native.Render(used).AsSpan().SequenceEqual(installed.Render(used)), "stock label pixels with position ROM blocked");
-            var nativeWindow = new FileSelectMapWindow(bus, area);
+            var nativeWindow = new FileSelectMapWindow(bus, area, ReadCartridgeMapWindowMotion(bus, area));
             var installedWindow = new FileSelectMapWindow(guard, area, original.Labels);
             while (!nativeWindow.IsComplete)
             {
@@ -66,9 +66,11 @@ internal static partial class Program
 
     private sealed class WorldLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        public byte ReadByte(int address) => address >= FileSelectMapRomData.LabelPositions &&
-            address < FileSelectMapRomData.LabelPositions + FileSelectMapRomData.AreaCount * 4
-            ? throw new InvalidOperationException("Installed world labels read the cartridge coordinate table.") : source.ReadByte(address);
+        public byte ReadByte(int address) =>
+            (address >= FileSelectMapRomData.LabelPositions && address < FileSelectMapRomData.LabelPositions + FileSelectMapRomData.AreaCount * 4) ||
+            (address >= FileSelectMapRomData.WindowVelocities && address < FileSelectMapRomData.WindowVelocities + FileSelectMapRomData.AreaCount * FileSelectMapRomData.VelocityRecordBytes) ||
+            (address >= FileSelectMapRomData.WindowTimers && address < FileSelectMapRomData.WindowTimers + FileSelectMapRomData.AreaCount * 2)
+            ? throw new InvalidOperationException("Installed world labels/windows read cartridge coordinate or motion tables.") : source.ReadByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -14,6 +14,11 @@ public sealed class FileSelectMapWindow
     private ushort timer;
 
     public FileSelectMapWindow(ISnesAddressSpace bus, int area, SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
+        : this(bus, area, FileSelectMapWindowMotions.Get(area), labels) { }
+
+    /// <summary>Explicit motion injection for bounded arithmetic/render fixtures; production uses the compiled catalog.</summary>
+    internal FileSelectMapWindow(ISnesAddressSpace bus, int area, FileSelectMapWindowMotion motion,
+        SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
@@ -22,15 +27,13 @@ public sealed class FileSelectMapWindow
         ushort y = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4 + 2) : (ushort)labels.Get(area).Y;
         edges[0] = edges[1] = (uint)x << 16;
         edges[2] = edges[3] = (uint)y << 16;
-        timer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.WindowTimers + area * 2);
+        timer = motion.Timer;
         if ((short)timer < 0)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
-        for (int edge = 0; edge < edges.Length; edge++)
-        {
-            int address = FileSelectMapRomData.WindowVelocities + area * FileSelectMapRomData.VelocityRecordBytes + edge * 4;
-            velocities[edge] = RomDataReader.ReadWordFixedBank(bus, address) |
-                ((uint)RomDataReader.ReadWordFixedBank(bus, address + 2) << 16);
-        }
+        velocities[0] = motion.Left;
+        velocities[1] = motion.Right;
+        velocities[2] = motion.Top;
+        velocities[3] = motion.Bottom;
     }
 
     public ushort Left => (ushort)(edges[0] >> 16);

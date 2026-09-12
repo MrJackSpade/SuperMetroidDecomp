@@ -6,6 +6,9 @@ public static class EnemyQuadraticSpeedDefinitions
     /// <summary>$A0:838F, CommonEnemySpeeds_QuadraticallyIncreasing, fraction/whole pairs of both signs.</summary>
     public const int ReferenceAddress = 0xa0838f;
 
+    /// <summary>$A0:CBC7, CommonEnemyProjectileSpeeds_QuadraticallyIncreasing, the identical NTSC projectile copy.</summary>
+    public const int ProjectileReferenceAddress = 0xa0cbc7;
+
     /// <summary>The pinned NTSC table contains records zero through 94.</summary>
     public const int RecordCount = 95;
 

@@ -8,7 +8,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PolypRockInstructionList = 0xbbd5;
     private const ushort PolypRockRisingFunction = 0xbc16;
     private const ushort PolypRockFallingFunction = 0xbc8f;
-    private const int PolypRockQuadraticSpeedTable = 0xa0cbc7;
     private const ushort PolypRockGravityStep = 2;
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 
@@ -41,7 +40,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports pre-instruction $86:BC0F and its rising/falling dispatcher.</summary>
-    private void RunPolypRockPreInstruction(
+    private static void RunPolypRockPreInstruction(
         RoomEnemyProjectileSlot projectile,
         ushort cameraX,
         ushort cameraY)
@@ -62,7 +61,7 @@ public sealed partial class RoomEnemySystem
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, cameraX, cameraY);
     }
 
-    private void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
+    private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.YVelocity = unchecked((ushort)(
             projectile.YVelocity - PolypRockGravityStep));
@@ -86,7 +85,7 @@ public sealed partial class RoomEnemySystem
         MovePolypRockHorizontally(projectile);
     }
 
-    private void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
+    private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.YVelocity = unchecked((ushort)(
             projectile.YVelocity + PolypRockGravityStep));
@@ -106,27 +105,27 @@ public sealed partial class RoomEnemySystem
     /// one is real scratch WRAM: after each sample it contains the whole word because the
     /// assembly overwrites its earlier fractional copy before returning.
     /// </summary>
-    private void AddPolypRockQuadraticStep(
+    private static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
         ushort tableIndex,
         bool negative)
     {
-        if (tableIndex > 0x005e)
+        if (tableIndex >= EnemyQuadraticSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
                 $"Polyp rock quadratic speed index ${tableIndex:X4} exceeds $005E.");
         }
 
-        int record = PolypRockQuadraticSpeedTable + tableIndex * 8 +
+        int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
             (negative ? 4 : 0);
-        ushort fraction = ReadWord(_bus!, record);
+        ushort fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
         projectile.Variable1 = fraction;
         uint fractionalSum = (uint)projectile.YSubposition + fraction;
         projectile.YSubposition = unchecked((ushort)fractionalSum);
         if (fractionalSum > ushort.MaxValue)
             projectile.YPosition = unchecked((ushort)(projectile.YPosition + 1));
 
-        ushort whole = ReadWord(_bus!, record + 2);
+        ushort whole = EnemyQuadraticSpeedDefinitions.ReadWord(record + 2);
         projectile.Variable1 = whole;
         projectile.YPosition = unchecked((ushort)(projectile.YPosition + whole));
     }

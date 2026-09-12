@@ -319,6 +319,16 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+The projectile copy at $A0:CBC7 is also verified identical across all 759
+complete word windows. Polyp's real split-word integration now uses the
+compiled definition; 570 combinations (95 records, both signs, three carry/
+wrap origins) assert exact Y and final Variable1 scratch writes without a bus.
+Invalid indices retain explicit failure. Rising/falling ordering and mutable
+scratch remain unchanged. Full Release Verification and Windows Release build
+passed. Volcano's population and natural Fune/Polyp motion checks pass before
+its immediate-knockback contact assertion fails; the complete audit is not
+claimed passing. That diagnostic follow-up is tracked by #585.
+
 This is not the entire lookup-table migration. Remaining signed-table callers,
 family-specific speed tables, other family tables, callback classification
 reads and indirect/banked caller inventory remain. Mutable WRAM must remain

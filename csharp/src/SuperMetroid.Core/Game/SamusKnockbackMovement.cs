@@ -59,11 +59,6 @@ public static class SamusKnockbackMovement
             level, nmiFrameCounter, plms);
     }
 
-    // The selector routine is `$90:99D6`, but its two three-word data arrays live later in
-    // bank $90 at `$9EE9/$9EEF` (named exactly that way in the disassembly): whole speeds
-    // `{5,2,2}` followed by subspeeds `{0,0,0}`. Do not infer data placement from the C
-    // decompiler's declaration order; `$99CA/$99D0` are executable bytes/data belonging to
-    // the preceding routine and produce enormous bogus hurt velocities when read as tables.
     /// <summary>
     /// Consumes special prospective command one after bank `$90` has admitted either the
     /// normal `$53/$54` hurt-pose branch or the pose-preserving Morph/Spring Ball branch.
@@ -213,15 +208,9 @@ public static class SamusKnockbackMovement
         // not the five-frame `$18AA` knockback timer established above.
         samus.HurtFlashCounter = 1;
 
-        // `$90:99D6` indexes air/water/lava by zero/two/four after the exact bottom-edge
-        // and Gravity-Suit checks. Values remain live ROM reads for regional/modded builds.
-        int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
-        samus.Kinematics.YSpeed = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.KnockbackSpeeds + liquidOffset);
-        samus.Kinematics.YSubspeed = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.KnockbackSubspeeds + liquidOffset);
+        // Hurt launch retains the native bottom-edge and Gravity-Suit selection.
+        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            SamusVerticalMotionDefinitions.Knockback(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = 1;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, samus);
         if (humanoid)
@@ -481,8 +470,6 @@ public static class SamusKnockbackMovement
             plms: plms);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Collision and lifetime result from one `$90:DF38` frame.</summary>

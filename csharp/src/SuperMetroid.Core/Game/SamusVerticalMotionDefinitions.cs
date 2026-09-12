@@ -18,6 +18,20 @@ internal static class SamusVerticalMotionDefinitions
     /// <summary>$90:9EA1/9EA7 YSubAcceleration/YAcceleration, air/water/lava.</summary>
     private static ReadOnlySpan<ushort> GravityFractions => [0x1c00, 0x0800, 0x0900];
 
+    /// <summary>$90:9EE9/9EEF InitialYSpeeds/InitialYSubSpeeds_Knockback, air/water/lava.</summary>
+    private static ReadOnlySpan<ushort> KnockbackWords => [5, 0, 2, 0, 2, 0];
+
+    /// <summary>$90:9EF5/9EFB InitialYSpeeds/InitialYSubSpeeds_BombJump, air/water/lava.</summary>
+    private static ReadOnlySpan<ushort> BombJumpWords => [2, 0xc000, 0, 0x1000, 0, 0x1000];
+
+    /// <summary>Bomb launch does not apply Hi-Jump or extra-run bonuses and does not refresh gravity.</summary>
+    internal static (ushort Whole, ushort Fraction) BombJump(ushort medium) =>
+        (BombJumpWords[medium * 2], BombJumpWords[medium * 2 + 1]);
+
+    /// <summary>Hurt launch has its own magnitude, independent of jump equipment and dash speed.</summary>
+    internal static (ushort Whole, ushort Fraction) Knockback(ushort medium) =>
+        (KnockbackWords[medium * 2], KnockbackWords[medium * 2 + 1]);
+
     /// <summary>Selects the independently stored whole/fraction launch words after native medium selection.</summary>
     internal static (ushort Whole, ushort Fraction) Launch(ushort medium, bool highJump, bool wallJump)
     {

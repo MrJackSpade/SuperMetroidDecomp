@@ -27,13 +27,8 @@ public static class SamusBombJumpMovement
         // `$90:9A2C` uses the same bottom-edge air/water/lava classification as ordinary
         // launch, indexing adjacent table words by zero/two/four. Gravity is refreshed by
         // frame-handler alpha, so this routine replaces only the launch speed/direction.
-        int liquidOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
-        samus.Kinematics.YSpeed = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.BombJumpSpeeds + liquidOffset);
-        samus.Kinematics.YSubspeed = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.BombJumpSubspeeds + liquidOffset);
+        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            SamusVerticalMotionDefinitions.BombJump(samus.LiquidPhysics.DetermineMovementMedium(samus));
         samus.Kinematics.YDirection = 1;
         samus.BombJumpStarting = false;
         samus.BombJumpActive = true;
@@ -181,8 +176,6 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(horizontal, vertical, Started: false, Ended: true);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Observable output of one special bomb-jump handler frame.</summary>

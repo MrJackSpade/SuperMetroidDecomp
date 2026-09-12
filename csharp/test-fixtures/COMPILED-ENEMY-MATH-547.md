@@ -1350,3 +1350,28 @@ full trajectory parity or completion of the remaining Samus definition readers.
 Full Release Verification and Windows Release build pass. Knockback/damage-boost
 and Space Jump fixtures also now expect the native gravity refreshed by their
 shared setup calls rather than their formerly seeded $2800 ROM value.
+
+## Samus bomb-jump and knockback launch definitions
+
+Compiled the distinct bank-$90 launch pairs at $9EE9/$9EEF (knockback) and
+$9EF5/$9EFB (bomb jump) in the existing vertical-mechanics catalog. Cross-checked
+`Samus_SetSpeedForKnockback_Y` and `Samus_InitBombJump` in pinned sm_90.c and
+the corresponding bank_90.asm definitions. No normal-jump substitution, Hi-Jump
+bonus, extra-run bonus or new velocity arithmetic is introduced.
+
+786,432 actual bomb-launch calls cover every surface word for both liquid
+families, both Gravity states and all three bomb directions, with Hi-Jump and
+maximal extra-run speed deliberately enabled. The reference independently
+selects the native medium at occupied bottom pixel 139 and reads native velocity
+words. All production bus reads throw. Tests assert both velocity words, upward
+direction, no position change, retained live gravity and the bomb-mover handoff.
+
+768 actual knockback setups cover standing/ball poses in both directions,
+air/water/lava/disabled-water, all eight equipment combinations, both damage
+source sides and left/right/no input. Only remaining bank-$91 pose/animation
+reads are permitted; bank-$90 physics reads fail. Native velocity and refreshed
+gravity, producer timer, hurt flash, bomb-state cancellation and contact-attack
+cancellation are asserted. This is setup parity, not a claim that all subsequent
+knockback trajectories or all native side effects have been independently audited.
+
+Full Release Verification and Windows Release build pass.

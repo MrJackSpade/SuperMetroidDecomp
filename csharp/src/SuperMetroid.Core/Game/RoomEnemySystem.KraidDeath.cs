@@ -191,17 +191,9 @@ public sealed partial class RoomEnemySystem
 
     private void ProcessKraidSinkTable(RoomEnemySlot body, KraidEnemyState state)
     {
-        for (int offset = 0; offset < 0xa8; offset += 6)
+        if (KraidSinkSchedule.CallbackAt(body.YPosition) is ushort function)
         {
-            ushort y = ReadWord(
-                _bus!, EnemyRomTablePointers.Kraid.DeathExplosionRecords + offset);
-            if ((y & 0x8000) != 0)
-                return;
-            if (y != body.YPosition)
-                continue;
             state.SinkTableEventCount++;
-            ushort function = ReadWord(
-                _bus!, EnemyRomTablePointers.Kraid.DeathExplosionRecords + 4 + offset);
             // Every eight-pixel sinking row invokes its cartridge callback, including the
             // deliberately empty RTS used by rows whose only job is the BG2 strip upload.
             // Do not merge that address with the adjacent $C6A7 crumble routine: they are
@@ -216,7 +208,7 @@ public sealed partial class RoomEnemySystem
                 KraidSinkCallbacks.CrumbleLeftPlatformMiddle => 0x0080,
                 KraidSinkCallbacks.CrumbleRightPlatformRight => 0x0100,
                 _ => throw new InvalidDataException(
-                    $"Kraid sink table Y=${y:X4} names unknown function $A7:{function:X4}."),
+                    $"Kraid sink table Y=${body.YPosition:X4} names unknown function $A7:{function:X4}."),
             };
             if (rockX is ushort xPosition)
                 _ = SpawnKraidCeilingRock(xPosition);

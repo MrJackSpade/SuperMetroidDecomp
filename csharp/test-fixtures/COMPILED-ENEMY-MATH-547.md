@@ -1234,3 +1234,19 @@ runtime dependencies. The independent rising-rock cadence is disabled in
 this focused fixture; the full Kraid battle audit covers the combined sequence.
 
 Full Release Verification, complete Kraid audit and Windows Release build pass.
+
+## Kraid sinking callback schedule
+
+C5E7 contains 28 Y/tilemap-offset/callback records followed by FFFF. The
+mechanical consumer now uses `KraidSinkSchedule` to select six named crumble
+callbacks and the separate empty RTS for the other 22 rows. It preserves
+exact-Y dispatch and event counting, rather than merging no-op and absent rows.
+
+Tests independently read the native schedule and invoke the real dispatcher
+at all 65,536 Y words. They assert event count, projectile count and X position,
+and platform request arguments decoded directly from each native callback's
+inline hardcoded-PLM invocation. The migrated schedule reads throw. Shared
+projectile definition reads remain allowed and tracked separately. This is
+not a claim about the presentation tilemap-offset field or the entire renderer.
+
+Focused and full Release Verification, complete Kraid audit and Windows build pass.

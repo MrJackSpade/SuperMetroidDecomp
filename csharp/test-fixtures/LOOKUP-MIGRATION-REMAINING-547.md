@@ -21,9 +21,12 @@ the consumers rather than classifying them solely by the catalog names.
 | --- | --- | --- |
 | Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer | Preserve byte selectors, countdown boundaries and current-RNG semantics. Ceiling-rock X positions are compiled; keep palette reads in presentation scope. |
 | Kraid hitboxes/projectiles | `KraidCollisions`, `KraidNails`: indirect mouth hitboxes and BF1D nail offsets | Inspect overlapping record strides, signed coordinates and actual collision/placement paths. BC65 spat-rock velocities, B163/B165 body contour and BE3E/BE46 indirect nail launch choices are now compiled. |
-| Kraid death schedule | `KraidDeath`: C5E7 explosion Y/function records | Compile the schedule and typed callbacks; inspect dispatch, entry progression and timing. Do not substitute a cosmetic sprite-only migration. |
 
 ### Mixed instruction selectors and presentation reads
+
+Kraid's C5E7 sinking Y/callback schedule is compiled. All 28 rows, including
+empty RTS callbacks, are covered through actual rock/PLM dispatch. The middle
+tilemap-offset words are presentation data and are not a new mechanics asset.
 
 The falling-spark launch group from the expanded scan is now compiled, including
 the eighth outcome's native instruction-word overread. The reference catalog

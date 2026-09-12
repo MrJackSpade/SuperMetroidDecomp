@@ -38,6 +38,7 @@ if (args is ["--samus-physics"])
 if (args is ["--samus-projectiles"])
 {
     VerifySamusPowerBeamProjectiles();
+    VerifyBeamSpeedRows();
     return 0;
 }
 if (args is ["--botwoon-plm-identity"])

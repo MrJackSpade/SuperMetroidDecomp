@@ -220,8 +220,6 @@ static void VerifySamusPowerBeamProjectiles()
     }
     for (int beamType = 0; beamType < 12; beamType++)
     {
-        WriteTestWord(bus, 0x90c2d1 + beamType * 4, 0x0400);
-        WriteTestWord(bus, 0x90c2d3 + beamType * 4, 0x02ab);
         WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable + beamType * 2,
             (beamType & 1) == 0 ? SamusBeamPreInstructionCodes.NoWave : beamType < 4
                 ? SamusBeamPreInstructionCodes.WaveThreeFrameTrail : SamusBeamPreInstructionCodes.WaveFourFrameTrail);
@@ -320,66 +318,7 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteByte(0x90c4a8, 0xff);
     bus.WriteByte(0x90c4ae, 4);
     bus.WriteByte(0x90c4af, 0xff);
-    for (int direction = 0; direction < 10; direction++)
-    {
-        // These are the retail power-beam accelerations at `$90:C353/$C367`.
-        short xAcceleration = direction switch
-        {
-            1 or 2 or 3 => 0x0010,
-            6 or 7 or 8 => -0x0010,
-            _ => 0,
-        };
-        short yAcceleration = direction switch
-        {
-            0 or 1 or 8 or 9 => -0x0010,
-            3 or 4 or 5 or 6 => 0x0010,
-            _ => 0,
-        };
-        WriteTestWord(bus, 0x90c353 + direction * 2, unchecked((ushort)xAcceleration));
-        WriteTestWord(bus, 0x90c367 + direction * 2, unchecked((ushort)yAcceleration));
-
-        // Missiles do not borrow the beam's tiny per-frame acceleration table. The native
-        // initializer at `$90:B2F6` reads two signed words per direction from `$90:C303`:
-        // cardinal axes use `$0040`, diagonals use `$0036`, and the opposite half-plane is
-        // represented by two's-complement negatives. Keeping the literal ROM arrangement in
-        // this fixture catches both direction-index mistakes and accidental host-vector math.
-        short missileXAcceleration = direction switch
-        {
-            1 or 3 => 0x0036,
-            2 => 0x0040,
-            6 or 8 => -0x0036,
-            7 => -0x0040,
-            _ => 0,
-        };
-        short missileYAcceleration = direction switch
-        {
-            0 or 9 => -0x0040,
-            1 or 8 => -0x0036,
-            3 or 6 => 0x0036,
-            4 or 5 => 0x0040,
-            _ => 0,
-        };
-        WriteTestWord(bus, 0x90c303 + direction * 4, unchecked((ushort)missileXAcceleration));
-        WriteTestWord(bus, 0x90c305 + direction * 4, unchecked((ushort)missileYAcceleration));
-        short superXAcceleration = direction switch
-        {
-            1 or 3 => 0x00b6,
-            2 => 0x0100,
-            6 or 8 => -0x00b6,
-            7 => -0x0100,
-            _ => 0,
-        };
-        short superYAcceleration = direction switch
-        {
-            0 or 9 => -0x0100,
-            1 or 8 => -0x00b6,
-            3 or 6 => 0x00b6,
-            4 or 5 => 0x0100,
-            _ => 0,
-        };
-        WriteTestWord(bus, 0x90c32b + direction * 4, unchecked((ushort)superXAcceleration));
-        WriteTestWord(bus, 0x90c32d + direction * 4, unchecked((ushort)superYAcceleration));
-    }
+    // Motion definitions are compiled independently of the synthetic presentation bus.
 
     const int width = 32;
     const int height = 16;

@@ -30,11 +30,9 @@ internal static partial class Program
         {
             for (int i = 0; i < snapshots[sample].Length; i++)
                 bus.Word(0x0da8 + i * 2, snapshots[sample][i]);
-            // Equal synthetic cardinal/diagonal base speeds isolate inheritance.
-            bus.Word(0x90c2d1, 0x0400);
-            bus.Word(0x90c2d3, 0x0400);
             for (ushort direction = 0; direction < 10; direction++)
             {
+                int baseSpeed = direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400;
                 var slot = new SamusProjectileSlot(0) { Direction = direction };
                 initialize(bus, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
@@ -43,14 +41,14 @@ internal static partial class Program
                 int up = (upWord & 0xff00) == 0 ? 0 : (upWord >> 2) | 0xc000;
                 short expectedX = unchecked((short)(direction switch
                 {
-                    1 or 2 or 3 => 0x0400 + bus.Word(0x0dad),
-                    6 or 7 or 8 => -0x0400 + bus.Word(0x0da9),
+                    1 or 2 or 3 => baseSpeed + bus.Word(0x0dad),
+                    6 or 7 or 8 => -baseSpeed + bus.Word(0x0da9),
                     _ => 0,
                 }));
                 short expectedY = unchecked((short)(direction switch
                 {
-                    0 or 1 or 8 or 9 => -0x0400 + up,
-                    3 or 4 or 5 or 6 => 0x0400 + bus.Word(0x0db5),
+                    0 or 1 or 8 or 9 => -baseSpeed + up,
+                    3 or 4 or 5 or 6 => baseSpeed + bus.Word(0x0db5),
                     _ => 0,
                 }));
                 if (slot.XVelocity == expectedX && slot.YVelocity == expectedY) continue;

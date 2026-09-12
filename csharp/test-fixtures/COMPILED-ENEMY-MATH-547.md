@@ -1713,3 +1713,34 @@ Validation passed: compiled-lookup checks, the dedicated projectile suite, all
 eighteen Samus physics groups, and the full verification suite (terminal success
 record in `projectile-origins-547-full.log`). Windows Desktop Release also builds
 with zero warnings and zero errors.
+
+## Beam speeds and projectile acceleration
+
+`SamusProjectileMotionDefinitions` compiles the 85 words at $90:C2D1..C37A:
+twelve cardinal/diagonal speed pairs, the adjacent missile ignition marker,
+ten missile X/Y pairs, ten Super Missile X/Y pairs, and ten beam X plus ten Y
+accelerations. Values match pinned NTSC bank_90.asm; these are gameplay mechanics,
+not artwork overrides. All physical readers in the shared beam initializer and
+beam/wave/hyper/missile motion paths consume the catalog.
+
+Address identity is resolved before table ownership. Illegal beam combinations
+C..F retain their differing reads into the ignition/acceleration neighbors. The
+catalog does not clamp indices, invent rows or replace unaligned/outside reads.
+Motion arithmetic, collision timing, trails and instruction dispatch are unchanged.
+
+Verification compares all 85 words, a byte-by-byte neighboring address window,
+120 actual beam producers and 160 initializer combination/direction cases. A bus
+guard forbids reads of the entire authored motion range. Twenty missile/Super
+Missile trajectories cover six frames each with exact X/Y fixed-point position
+and velocity assertions, including ignition and later per-frame acceleration.
+The older projectile suite no longer seeds redundant speed/acceleration tables.
+The inheritance probe now uses native cardinal/diagonal speeds rather than its
+former artificial equal-speed rows; its WRAM and runtime assertions remain.
+
+Remaining scope includes cooldowns, mixed projectile programs, damage/radii,
+presentation assets and the broader ROM-free runtime integration. This migration
+does not complete #540 or #547.
+
+Validation passed: focused projectile/motion checks, the #600 inheritance probe,
+full Release Verification, and Windows Desktop Release build with zero warnings
+or errors. Full-run log: `csharp/test-temp/projectile-motion-547-full.log`.

@@ -883,10 +883,8 @@ static void VerifyCeresRidleyRoomEntry()
     for (int color = 0; color < 8; color++)
         WriteWord(bus, 0xa6aa01 + color * 2, unchecked((ushort)(0x6200 + color)));
 
-    // End Mode 7 on its first room-main call, then give each of the two Ceres warning
-    // transfer lists one unmistakable record. ProcessSpriteTilesTransfers is allowed to
-    // fall through between phases, so both records must be queued on the first C04E call.
-    WriteWord(bus, 0xa6ae4d, 0xffff);
+    // Keep warning transfers distinguishable after the full compiled Mode-7 curve.
+    // The later assertions cover the first-list yield and second-list handoff separately.
     WriteWord(bus, 0xa6c4cb, 2);
     WriteWord(bus, 0xa6c4cd, 0x9200);
     bus.WriteByte(0xa6c4cf, 0xb0);
@@ -1182,6 +1180,20 @@ static void VerifyCeresRidleyRoomEntry()
     AssertTrue(enemies.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
         "first Mode-7 getaway entry publishes QueueSfx2_Max6($4E)");
+    ushort expectedX = 0xff80, expectedY = 0x20;
+    for (ushort curveOffset = 0; curveOffset < 224; curveOffset += 2)
+    {
+        if (curveOffset != 0)
+            enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
+        var curve = CeresRidleyGetawayDefinitions.FromByteIndex(curveOffset);
+        expectedX = unchecked((ushort)(expectedX - curve.XVelocity));
+        expectedY = unchecked((ushort)(expectedY + curve.YVelocity));
+        AssertEqual(curve.Zoom, state.Mode7Zoom, "Ceres real getaway zoom publication");
+        AssertEqual(expectedX, state.Mode7HorizontalOffset, "Ceres real getaway horizontal integration");
+        AssertEqual(expectedY, state.Mode7VerticalOffset, "Ceres real getaway vertical integration");
+        AssertTrue(!state.Mode7Finished, "Ceres getaway retains all 112 authored motion frames");
+    }
+    enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
     AssertTrue(state.Mode7Finished, "Ceres Ridley consumes the Mode-7 terminator");
     AssertEqual((ushort)RidleyAiFunction.CeresActivateSelfDestruct, (ushort)state.Function,
         "Ceres Ridley Mode-7 terminator installs shared self-destruct dispatcher");

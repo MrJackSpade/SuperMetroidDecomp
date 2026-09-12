@@ -467,3 +467,18 @@ rotating callers across all seven members and asserting every angle/velocity.
 The complete Shaktool audit passes, including initialization, linked placement,
 movement/reversal, contact, rendering, fatal teardown and unused attack circles.
 Full Release Verification and Windows Release build pass. This does not complete the broader #547 inventory.
+
+## Ceres Ridley getaway curves
+
+`CeresRidleyGetawayDefinitions` compiles the 112 zoom/X/Y records and zoom
+terminator at $A6:AE4D/$A6:AF2F/$A6:B00F. The irregular zoom entries and late
+translation jumps are retained, not smoothed. Runtime palette and animation
+artwork remain separate bus consumers. Serialized byte indexing is retained.
+
+All 337 native words compare exactly. The full-suite Ceres fixture previously
+overwrote the zoom table to terminate on the first call; it now runs all 112
+real motion frames and asserts zoom and integrated offsets before checking
+the terminator and warning handoff. Full Release Verification and Windows
+Release build pass. The standalone `--ceres-ridley-audit` instead stops before
+getaway due to its omitted required area-boss service; #587 tracks repair of
+that diagnostic. It is not claimed passing. #547 remains incomplete.

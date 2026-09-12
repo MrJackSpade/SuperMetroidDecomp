@@ -4,9 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private const int CeresRidleyMode7ZoomTable = 0xa6ae4d;
-    private const int CeresRidleyMode7YVelocityTable = 0xa6af2f;
-    private const int CeresRidleyMode7XVelocityTable = 0xa6b00f;
 
     /// <summary>
     /// Ports $A6:AA54. Every value below is a literal PPU/actor word installed by the retail
@@ -58,8 +55,9 @@ public sealed partial class RoomEnemySystem
         if (tableByteIndex == 0x00d0 && samus is not null)
             samus.CeresRidleyEjection.Request();
 
-        ushort zoom = ReadWord(_bus!, CeresRidleyMode7ZoomTable + tableByteIndex);
-        if (zoom == 0xffff)
+        var frame = CeresRidleyGetawayDefinitions.FromByteIndex(tableByteIndex);
+        ushort zoom = frame.Zoom;
+        if (zoom == CeresRidleyGetawayDefinitions.Finished)
         {
             // $A6:AB2E restores fake BGMODE=$09 and clears all Mode 7/scroll registers.
             // Preserve that clean handoff explicitly so the renderer cannot accidentally
@@ -85,10 +83,10 @@ public sealed partial class RoomEnemySystem
         state.Mode7Zoom = zoom;
         state.Mode7VerticalOffset = unchecked((ushort)(
             state.Mode7VerticalOffset +
-            ReadWord(_bus!, CeresRidleyMode7YVelocityTable + tableByteIndex)));
+            frame.YVelocity));
         state.Mode7HorizontalOffset = unchecked((ushort)(
             state.Mode7HorizontalOffset -
-            ReadWord(_bus!, CeresRidleyMode7XVelocityTable + tableByteIndex)));
+            frame.XVelocity));
 
         UpdateCeresRidleyMode7Palette(zoom);
         state.Mode7Angle = state.Mode7Angle.AddRaw(0x0030);

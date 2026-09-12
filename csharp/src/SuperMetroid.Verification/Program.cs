@@ -65,6 +65,11 @@ if (args is ["--ceiling-wrap-runtime", var nativeFrogTrace])
     VerifyFrogSpeedwayRuntimeTrace(nativeFrogTrace);
     return 0;
 }
+if (args is ["--ceiling-wrap-success", var nativeFrogSuccess, var frogDash])
+{
+    VerifyFrogSpeedwayRuntimeTrace(nativeFrogSuccess, 11, bool.Parse(frogDash));
+    return 0;
+}
 if (args is ["--wrap-shot-rooms"])
 {
     VerifyRetailWrapShotDoors();
@@ -829,6 +834,9 @@ VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv")
 VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv");
 VerifyFrogSpeedwayPoolCollision();
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv");
+VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv", 9);
+VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-run-410.csv", 11);
+VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-walk-410.csv", 11, false);
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
 VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");

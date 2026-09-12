@@ -2,7 +2,7 @@
 
 // #410 room-local original-CPU gameplay trace. Decompression only uses the
 // existing asset decoder; all observed movement/projectile/PLM routines are ROM.
-int DiagnosticFrogRuntime(const char *rom, const char *output) {
+int DiagnosticFrogRuntimeCase(const char *rom, const char *output, uint16 beams, uint16 input) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -21,7 +21,7 @@ int DiagnosticFrogRuntime(const char *rom, const char *output) {
   samus_x_pos = samus_prev_x_pos = 1237; samus_y_pos = samus_prev_y_pos = 139;
   samus_x_radius = 5; samus_y_radius = 21;
   samus_x_speed_table_pointer = 0x9f55; samus_input_handler = 0xe913;
-  samus_anim_frame_timer = 5; samus_health = 99; equipped_beams = 5;
+  samus_anim_frame_timer = 5; samus_health = 99; equipped_beams = beams;
   button_config_shoot_x = 0x40; button_config_run_b = 0x8000; button_config_jump_a = 0x80;
   button_config_up = 0x800; button_config_down = 0x400;
   button_config_left = 0x200; button_config_right = 0x100;
@@ -31,7 +31,7 @@ int DiagnosticFrogRuntime(const char *rom, const char *output) {
   layer1_x_pos = 1109; layer1_y_pos = 0; plm_flag = 0x8000;
   fprintf(f, "frame,x,subx,y,pose,slots,camera\n");
   for (int frame = 0; frame < 900; frame++) {
-    joypad1_lastkeys = 0x8250; joypad1_newkeys = frame ? 0 : 0x8250;
+    joypad1_lastkeys = input; joypad1_newkeys = frame ? 0 : input;
     samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
     samus_momentum_routine_index = samus_special_transgfx_index = samus_hurt_switch_index = 0;
     ProbeRunBounded(0x90ec22); ProbeRunBounded(0x918000); ProbeRunBounded(0x909c5b);
@@ -47,4 +47,8 @@ int DiagnosticFrogRuntime(const char *rom, const char *output) {
     if (samus_x_pos < 800) break;
   }
   fclose(f); return 0;
+}
+
+int DiagnosticFrogRuntime(const char *rom, const char *output) {
+  return DiagnosticFrogRuntimeCase(rom, output, 5, 0x8250);
 }

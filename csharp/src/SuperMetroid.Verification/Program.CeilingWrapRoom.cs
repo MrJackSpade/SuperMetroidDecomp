@@ -6,10 +6,11 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
-    private static void VerifyFrogSpeedwayRuntimeTrace(string path)
+    private static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
     {
         string[] native = File.ReadLines(path).Skip(1).ToArray();
-        AssertEqual(900, native.Length, "Native Speedway unsuccessful-setup trace length");
+        int expectedFrames = beams == 11 ? (dash ? 349 : 412) : 900;
+        AssertEqual(expectedFrames, native.Length, "Native Speedway setup trace length");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -20,21 +21,21 @@ internal static partial class Program
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.XPosition = 1237; samus.YPosition = 139;
-        samus.EquippedBeams = 5; samus.EquippedItems = 0;
+        samus.EquippedBeams = beams; samus.EquippedItems = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.Camera!.SetPosition(1109, 0);
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
         {
-            runtime.StepFrame((ushort)(SnesButton.X | SnesButton.B | SnesButton.Left | SnesButton.R));
+            runtime.StepFrame((ushort)(SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
             string actual = $"{frame},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{samus.Pose:X2},{runtime.Plms.ActiveCount},{runtime.Camera.XPosition}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }
         AssertEqual(0, mismatches, "Original CPU Speedway input, pose, movement, PLM pressure and camera");
-        AssertEqual((ushort)842, samus.XPosition, "Native unsuccessful setup stops at the same speed block");
-        Console.WriteLine("PASS 900 native Speedway input frames, including the unsuccessful crossing endpoint.");
+        AssertEqual((ushort)(beams == 11 ? 799 : 842), samus.XPosition, "Native Speedway success/failure endpoint");
+        Console.WriteLine($"PASS {native.Length} native Speedway frames: beams={beams} dash={dash} endpoint={samus.XPosition}.");
     }
 
     private static void VerifyFrogSpeedwayPoolCollision()

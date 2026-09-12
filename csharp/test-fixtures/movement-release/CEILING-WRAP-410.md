@@ -1,7 +1,8 @@
 # Ceiling wrap-around investigation (#410)
 
-Status: native address generation and synthetic PLM exhaustion reproduced and
-fixed. Frog Speedway's actual traversal remains unverified; #410 is not complete.
+Status: native address generation, PLM exhaustion and actual Frog Speedway
+crossing reproduced and verified. Implementation is ready for player validation.
+The sections below retain the investigation's unsuccessful intermediate setups.
 
 ## Original CPU experiment
 
@@ -170,3 +171,53 @@ The comparison runs in the default suite. This evidence rules out changing
 movement or respawn duration merely to force this setup across: it already
 matches the cartridge's failure. A successful native input/equipment/setup
 sequence is still needed before asserting complete Speedless Speedway parity.
+
+## Successful native crossing and final acceptance
+
+A twelve-case original-CPU matrix held Left+Aim Up+Shoot, with and without Run,
+for Wave, Ice+Wave, Wave+Spazer, Ice+Wave+Spazer, Wave+Plasma and Ice+Wave+Plasma.
+All cases use the same initial (1237,139), pose 6, zero position subpixels and
+velocity, no equipped items, authored room data and controller bindings above.
+No player slot or persistent save is touched; RNG/enemy interaction is not part
+of this room-local traversal. Each case is bounded at 900 frames or X < 800.
+
+| Beams | With Run: final X | Without Run: final X |
+| --- | --- | --- |
+| Wave / Ice+Wave | 1237 | 1237 |
+| Wave+Spazer / Ice+Wave+Spazer | 842 | 997 |
+| Wave+Plasma | 842 | 997 |
+| Ice+Wave+Plasma | 799 at frame 348 | 799 at frame 411 |
+
+Ice+Wave+Plasma succeeds with both input variants. X=799 with the five-pixel
+horizontal radius puts Samus entirely left of the speed-block section beginning
+at tile X=51 (pixel 816); this is an actual crossing, not merely entering its
+first block. C# full production StepFrame matches every recorded field on all
+349 running frames and 412 walking frames. Removing only Ice gives the native
+900-frame failure at X=842, also matched in C#. The Wave+Plasma negative has an
+identical recorded trace to the already committed Wave+Spazer negative, so the
+default suite explicitly compares both equipment choices against that fixture.
+
+No additional gameplay patch was needed after the two reproduced fixes:
+horizontal Wave byte addressing/odd dispatch and exhausted-pool speed-block
+carry. The default suite now compares 2,561 room-runtime frame records across
+these four cases, alongside the 135 native allocation records, real-room pool
+entry test and earlier address/carry boundary evidence. The full suite passes.
+
+Independent original-CPU captures repeat identically:
+
+- `frog-success-run-410.csv`: SHA-256 `D6C1701B042D8B2126D20C9B3BCFFA5A00A094CEA9C5C320E26704B68627F7B1`.
+- `frog-success-walk-410.csv`: SHA-256 `AB3FEBB08B14CF6F8658FDEE961DF64A7EEFDE19BF7627357DBBEFFC308B30F6`.
+
+```
+sm.exe --frog-runtime-case "Super Metroid.smc" NEW_OUTPUT.csv 11 33360
+sm.exe --frog-runtime-case "Super Metroid.smc" NEW_OUTPUT.csv 11 592
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-success csharp/test-fixtures/movement-release/frog-success-run-410.csv true
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-success csharp/test-fixtures/movement-release/frog-success-walk-410.csv false
+```
+
+The parameterized native entry preserves `DiagnosticFrogRuntime` as the original
+5/33360 wrapper. Temporary headless hooks call `DiagnosticFrogRuntimeCase` with
+the last two arguments parsed as beam bits and held controller word. As before,
+rebuild then remove only those hooks. These results establish the pinned NTSC
+mechanical technique, not PAL parity, artwork/audio correctness, every possible
+beam/setup, or a multi-room approach route. #410 remains open for player confirmation.

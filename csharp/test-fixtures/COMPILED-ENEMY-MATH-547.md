@@ -1531,3 +1531,39 @@ swing-body/animation data remain outside this completed group.
 
 Focused compiled-definition checks, all 18 physics fixtures, full Release
 Verification and the Windows Release build pass (zero build warnings/errors).
+
+## Shared HUD weapon-admission mechanics
+
+Compiled all 28 movement-handler words at $90:DD05 and the twelve authored
+posture flags at $90:DDAA into `SamusHudDefinitions`. The flags end at DDB5;
+DDB6 begins executable code, not additional posture records. The pinned
+bank_90.asm and sm_90.c agree on the authored policy. References for the
+previously unnamed Morph Ball and jump/knockback/special handlers now reside
+in the dedicated address catalog.
+
+`SamusGrappleHudInput` no longer reads the movement-pointer table. The beam
+producer uses the same catalog to identify charge-preserving jump, turning
+and posture handlers instead of duplicating movement-type lists. The shared
+posture helper compiles only poses $35..$40, preserves the $DB/$F1 thresholds,
+and retains adjacent-ROM reads for other restored pose/type combinations.
+This does not reclassify those immutable reads as mutable memory or claim
+ROM-free completion for arbitrary state.
+
+Verification forbids reads of DD05..DD3C and DDAA..DDB5 while exercising:
+
+- All 28 words and 12 flag bytes against the pinned ROM.
+- Every pose byte with inactive/active Grapple: 512 shared transition decisions,
+  including earlier/later adjacent-data reads and direct threshold branches.
+- 86,016 actual Grapple-admission calls across all poses and valid movement
+  types, input locks, HUD selection and zero/nonzero turn-handoff words.
+- 392 actual projectile calls after earning charge through the normal producer:
+  every movement handler, seven posture-boundary poses and both turn-handoff
+  states. Assertions distinguish held charge, ordinary increment and the native
+  forced release before held-input processing; partial release without a new
+  Shoot edge does not allocate a projectile.
+
+This is gameplay dispatch ownership, not extraction of HUD graphics, labels,
+Grapple body-placement offsets or animation resources.
+
+Focused compiled-definition checks, full Release Verification, all 18 physics
+fixtures and the Windows Release build pass (zero build warnings/errors).

@@ -12,7 +12,10 @@ internal static class SamusHudInput
             return true;
         if (pose >= SamusHudRomData.NonFiringTransitionStart)
             return false;
-        return bus.ReadByte(SamusHudRomData.TransitionFlags + pose - SamusHudRomData.FirstTransitionPose) == 0 ||
-            grappleActive;
+        // Only twelve poses have authored flags. Other restored pose/type combinations
+        // retain the native adjacent-data read rather than acquiring an invented default.
+        byte flag = SamusHudDefinitions.TryGetPostureFlag(pose, out byte compiled) ? compiled :
+            bus.ReadByte(SamusHudRomData.TransitionFlags + pose - SamusHudRomData.FirstTransitionPose);
+        return flag == 0 || grappleActive;
     }
 }

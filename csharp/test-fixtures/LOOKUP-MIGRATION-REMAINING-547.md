@@ -108,8 +108,11 @@ dependency. The 28 cancellation bytes, 30 connection function/handler pairs,
 eight special-angle/pose/offset/function records and 20 dropped-pose selectors
 are now compiled too. Tests exercise actual dispatch with their source ranges
 forbidden. Non-catalog connection pointers still retain adjacent-ROM reads.
-The separate `SamusGrappleHudInput` reader selects bank-$90 movement-input
-handlers and is still a mechanics dependency. Grapple's swing body offsets,
+The separate bank-$90 HUD movement-handler table and twelve authored posture
+flags are now compiled in `SamusHudDefinitions`, shared by Grapple admission
+and projectile charge-preservation dispatch. All pose bytes retain native
+posture threshold/adjacent-data behavior; out-of-table flags remain explicit
+ROM dependencies. Grapple's swing body offsets,
 flare animation and drawing pointers remain presentation/mixed readers for
 #540/#541; their effect on physical body placement must not be dismissed as art.
 

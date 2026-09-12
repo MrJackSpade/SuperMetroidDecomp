@@ -11,8 +11,7 @@ internal static class SamusGrappleHudInput
             samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem)
             return false;
 
-        int entry = SamusHudRomData.MovementHandlers + 2 * (int)samus.ReadMovementType(bus);
-        ushort handler = (ushort)(bus.ReadByte(entry) | bus.ReadByte(entry + 1) << 8);
+        ushort handler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
         if (handler is SamusHudRomData.StandardHandler or SamusHudRomData.GrappleHandler)
             return true;
         if (handler == SamusHudRomData.DraygonHeldHandler)

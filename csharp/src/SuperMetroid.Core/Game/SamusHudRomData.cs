@@ -9,6 +9,10 @@ internal static class SamusHudRomData
     public const int MovementHandlers = 0x90dd05;
     /// <summary>$90:DD3D standard HUD handler.</summary>
     public const ushort StandardHandler = 0xdd3d;
+    /// <summary>$90:BF9D HUDSelectionHandler_MorphBall: bomb/Power Bomb dispatch for ball movement.</summary>
+    public const ushort MorphBallHandler = 0xbf9d;
+    /// <summary>$90:DDB6 HUDSelectionHandler_SpinWallJump_Knockback_Shinespark_CF_etc: inactive Grapple preserves charge.</summary>
+    public const ushort JumpHandler = 0xddb6;
     /// <summary>$90:DD6F Grapple HUD handler.</summary>
     public const ushort GrappleHandler = 0xdd6f;
     /// <summary>$90:DDD8 Draygon-held HUD handler; all held poses use normal weapons.</summary>

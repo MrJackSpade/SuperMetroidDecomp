@@ -569,3 +569,22 @@ those values are not claimed supported.
 Full Release Verification, both complete Boulder/Boyon retail audits, and the
 Windows Release build pass. This removes mechanics-data dependencies, not a new
 player-visible behavior fix; #547's remaining inventory and integration remain open.
+
+## Zoa horizontal velocities
+
+ZoaSpeedDefinitions replaces the live $A3:B415 whole/fraction reads with the five
+NTSC records. All 17 complete four-byte windows compare to ROM, preserving odd
+byte offsets instead of assuming aligned selectors. The actual shooting routine
+runs 655,360 signed/subpixel integrations without a loaded bus (same animation
+already installed), testing both directions and every fractional starting value.
+Out-of-range/incomplete windows now fail explicitly; arbitrary modified states
+reading adjacent executable data are not supported. Animation assets still use
+their separate ROM pointer table and are outside this velocity migration.
+
+The complete Butterfly Zoa audit reproduced an obsolete immediate-knockback
+assertion after all its movement/rendering checks passed. It now uses the shared
+native contact helper: exact 15 damage, pending timer/side, unchanged pose and
+position, frozen-time rejection and single later movement admission. No contact
+production code changed. The full encounter passes three retail actors, both
+directions, wake/rise/launch/reset, four active speed stages, six maps and OBJ
+drawing. Full Release Verification and Windows Release build also pass.

@@ -8,7 +8,6 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Zoa | $A3:B415 X speeds | Byte-indexed split velocity record |
 | Growing shutter | $A2:EA56 speed records | Four-byte speed-indexed initialization |
 | Intro egg particles | $8B:A9EA/AA02 | Split horizontal/vertical velocity integration |
 | Intro slime drops | $8B:AB35/AB49/AC41 | X and parity-dependent Y records |

@@ -137,12 +137,14 @@ internal static class ZoaAudit
         samus.YPosition = leftLaunchingSlot.YPosition;
         samus.Health = 99;
         samus.InvincibilityTimer = 0;
-        if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 84 ||
-            !samus.KnockbackActive)
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0))
         {
             throw new InvalidDataException(
                 $"Zoa common contact failed: health={samus.Health}, knockback={samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(
+            bus, samus, beforeContact, 15, 1, "Zoa body contact");
 
         Console.WriteLine(
             "Butterfly Zoa audit passed: three retail actors loaded, opposite-facing wake/" +

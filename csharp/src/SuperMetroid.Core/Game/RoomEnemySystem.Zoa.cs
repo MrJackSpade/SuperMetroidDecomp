@@ -61,7 +61,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort ZoaFacingLeftShootingInstructionList = 0xb3c1;
     private const int ZoaInstructionListPointerTable = 0xa3b40d;
-    private const int ZoaXSpeedTable = 0xa3b415;
     private const int ZoaActivationColumnDistance = 0x0080;
     private const int ZoaRisingSubpixelSpeed = 0x00008000;
 
@@ -160,10 +159,7 @@ public sealed partial class RoomEnemySystem
         ushort cameraX,
         ushort cameraY)
     {
-        int tableAddress = ZoaXSpeedTable + state.XSpeedTableIndex;
-        ushort whole = ReadWord(_bus!, tableAddress);
-        ushort fraction = ReadWord(_bus!, tableAddress + 2);
-        int unsignedDisplacement = unchecked((whole << 16) | fraction);
+        int unsignedDisplacement = ZoaSpeedDefinitions.Displacement(state.XSpeedTableIndex);
 
         // Shooting list zero travels left by subtraction; list two travels right by
         // addition. The instruction bytecode changes speed at 64-, 8-, and 48-frame marks.

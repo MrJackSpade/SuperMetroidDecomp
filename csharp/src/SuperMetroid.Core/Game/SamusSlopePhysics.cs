@@ -4,13 +4,13 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// ROM-backed primitives used by Samus's non-square slope collision path in bank $94.
+/// Cartridge-derived primitives used by Samus's non-square slope collision path in bank $94.
 /// </summary>
 /// <remarks>
 /// Super Metroid does not reduce slopes to a line equation. BTS bits select one of 32
 /// sixteen-sample height profiles, while a separate table scales grounded horizontal
-/// displacement. These methods deliberately read those cartridge tables instead of
-/// substituting floating-point geometry that only looks similar.
+/// displacement. Compiled height profiles preserve exact discrete geometry; the separate
+/// horizontal multiplier table remains cartridge-backed.
 /// </remarks>
 public static class SamusSlopePhysics
 {
@@ -97,9 +97,7 @@ public static class SamusSlopePhysics
         ushort sampledX = bts.SlopeFlipsHorizontally
             ? unchecked((ushort)(xPosition ^ 0x000f))
             : xPosition;
-        int tableIndex = 16 * bts.SlopeShape + (sampledX & 0x0f);
-        return unchecked((byte)(
-            bus.ReadByte(SamusMovementRomData.Slopes.AlignmentHeights + tableIndex) & 0x1f));
+        return SlopeHeightDefinitions.Read(bts.SlopeShape, sampledX & 0x0f);
     }
 
     /// <summary>

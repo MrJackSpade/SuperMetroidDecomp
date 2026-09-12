@@ -587,9 +587,7 @@ public sealed partial class SamusProjectileSystem
             if (block.Bts.SlopeFlipsVertically)
                 yInBlock ^= 0x000f;
 
-            int height = bus.ReadByte(
-                SamusProjectileRomData.Collision.NonSquareSlopeDefinitions +
-                    slopeShape * 16 + xInBlock) & 0x1f;
+            int height = SlopeHeightDefinitions.Read(slopeShape, xInBlock);
             return height <= yInBlock;
         }
 

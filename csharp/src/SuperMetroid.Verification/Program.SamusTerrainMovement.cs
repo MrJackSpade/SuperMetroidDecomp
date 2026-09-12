@@ -41,13 +41,10 @@ static void VerifySamusSlopePhysics()
         SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x12, 0x00010000, verticalSpeed: 1),
         "airborne Samus does not receive grounded slope scaling");
 
-    // Seed two explicit samples in shape $12's 16-byte row. BTS bit $40 mirrors X=0 to
-    // sample 15, proving the profile selection comes from ROM rather than a line formula.
-    int shapeTwelveRow = SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12;
-    bus.WriteByte(shapeTwelveRow + 0, 8);
-    bus.WriteByte(shapeTwelveRow + 15, 3);
-    AssertEqual(8, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
-    AssertEqual(3, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x52, 0), "slope mirrored height sample");
+    // Authored shape $12 runs from height 16 to 1. BTS bit $40 mirrors X=0 to
+    // sample 15; use the actual compiled geometry rather than replacing ROM samples.
+    AssertEqual(16, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x12, 0), "slope unmirrored height sample");
+    AssertEqual(1, SamusSlopePhysics.ReadAlignmentHeight(bus, 0x52, 0), "slope mirrored height sample");
 
     // A type-1/BTS-$12 block occupies (0,1). At center Y=21 with radius 5, Samus's bottom
     // is Y=25 (low nibble 9). Height 8 yields correction 8-9-1 = -2, so $94:87F4 moves
@@ -60,7 +57,7 @@ static void VerifySamusSlopePhysics()
     SlopeAlignmentResult aligned = SamusSlopePhysics.AlignYPosition(
         bus,
         level,
-        xPosition: 0,
+        xPosition: 8,
         yPosition: 21,
         yRadius: 5);
     AssertEqual(19, aligned.YPosition, "non-square floor slope whole-pixel Y correction");
@@ -70,7 +67,7 @@ static void VerifySamusSlopePhysics()
     SlopeAlignmentResult disabled = SamusSlopePhysics.AlignYPosition(
         bus,
         level,
-        xPosition: 0,
+        xPosition: 8,
         yPosition: 21,
         yRadius: 5,
         horizontalSlopeCollisionEnabled: false);
@@ -91,7 +88,6 @@ static void VerifySamusBlockCollision()
         bus,
         SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
         0x00c0);
-    bus.WriteByte(SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12, 8);
 
     const int width = 4;
     const int height = 4;
@@ -109,7 +105,7 @@ static void VerifySamusBlockCollision()
     // Horizontal type-1 processing first scales 1.0 to 0.C000, then $94:87F4 raises Y.
     var slopeBody = new SamusKinematicsState
     {
-        XPosition = 16,
+        XPosition = 24,
         YPosition = 21,
         XRadius = 5,
         YRadius = 5,
@@ -120,7 +116,7 @@ static void VerifySamusBlockCollision()
         slopeBody,
         displacement: 0x00010000);
     AssertEqual(0x0000c000, slopeMove.AcceptedDisplacement, "horizontal scan applies BTS $12 multiplier");
-    AssertEqual(16, slopeBody.XPosition, "subpixel slope move preserves whole X");
+    AssertEqual(24, slopeBody.XPosition, "subpixel slope move preserves whole X");
     AssertEqual(0xc000, slopeBody.XSubposition, "subpixel slope move updates X fraction");
     AssertEqual(19, slopeBody.YPosition, "post-horizontal scan aligns non-square floor Y");
     AssertTrue(slopeMove.PositionAdjustedBySlope, "horizontal scan reports slope adjustment");
@@ -129,7 +125,7 @@ static void VerifySamusBlockCollision()
     // targets bottom 24; height 8 yields correction -1 and clips the accepted move to zero.
     var groundedBody = new SamusKinematicsState
     {
-        XPosition = 16,
+        XPosition = 24,
         YPosition = 19,
         XRadius = 5,
         YRadius = 5,
@@ -580,13 +576,12 @@ static void VerifySamusGroundedMovement()
     WriteTestWord(bus, 0x909f6b, 0x8000); // deceleration fraction
 
     // Shape $12 scales grounded horizontal displacement by $00C0/256 = 3/4 and exposes an
-    // eight-pixel surface at X nibble zero. Row one is an uninterrupted two-block floor so
+    // eight-pixel surface at X nibble eight. Row one is an uninterrupted two-block floor so
     // the radius scan can visit either column without introducing another dispatcher type.
     WriteTestWord(
         bus,
         SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
         0x00c0);
-    bus.WriteByte(SamusMovementRomData.Slopes.AlignmentHeights + 16 * 0x12, 8);
     RoomLevelData level = CreateRoom(
         2,
         3,
@@ -594,7 +589,7 @@ static void VerifySamusGroundedMovement()
         [0, 0, 0x12, 0x12, 0, 0]);
 
     var running = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
-    running.Kinematics.XPosition = 16;
+    running.Kinematics.XPosition = 24;
     running.Kinematics.YPosition = 19;
     running.Kinematics.XRadius = 5;
     running.Kinematics.YRadius = 5;
@@ -640,7 +635,7 @@ static void VerifySamusGroundedMovement()
     // Standing executes its zero-base MoveX/grounding calls before clearing momentum. Base
     // speed itself is not included in Move_NoBaseSpeed_X, so the body remains on the same X.
     var standing = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
-    standing.Kinematics.XPosition = 16;
+    standing.Kinematics.XPosition = 24;
     standing.Kinematics.YPosition = 19;
     standing.Kinematics.XRadius = 5;
     standing.Kinematics.YRadius = 5;

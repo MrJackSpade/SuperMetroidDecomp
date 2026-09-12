@@ -742,10 +742,7 @@ public sealed class SamusBombProjectileSystem
         int yWithinBlock = slot.YPosition & 0x000f;
         if (block.Bts.SlopeFlipsVertically)
             yWithinBlock ^= 0x000f;
-        int height = bus.ReadByte(
-            SamusBombSpreadRomData.NonSquareSlopeHeights +
-            block.Bts.SlopeShape * 16 + xWithinBlock) &
-            SamusBombSpreadRomData.NonSquareSlopeHeightMask;
+        int height = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, xWithinBlock);
         return height <= yWithinBlock;
     }
 

@@ -854,3 +854,30 @@ Release build pass. The inspected Phantoon mechanics-table group is migrated;
 palette, eye instruction-list and materialization-audio selectors remain for
 presentation integration. Other enemy families and full #547 acceptance remain
 unfinished, so this does not close the issue.
+
+## Shared slope heights
+
+Compiled all 512 bytes at $94:8B2B..8D2A into SlopeHeightDefinitions. Samus alignment,
+enemy floor/ceiling alignment and collision, missile point collision and bomb-spread
+collision now share the authored profiles without cartridge reads. BTS mirroring,
+five-bit masking, strict versus inclusive collision comparisons and integer Y
+adjustment remain caller-owned and unchanged. Enemy helper instance signatures
+are preserved to avoid disrupting transitive reflection-based diagnostics.
+
+Compared every byte with the pinned cartridge, then exercised 12,288 Samus samples
+and 55,296 non-square point/orientation cases through the actual missile (both
+axes), bomb-spread and enemy-alignment routines with ROM access forbidden. Tests
+assert collision admission, exact whole Y and retained fractional Y. All shapes,
+both mirror bits and every pixel are covered; Samus samples also vary world high
+bits. Native enemy alignment arithmetic was cross-checked against A0:C8AD.
+
+Existing synthetic terrain tests previously injected invented shape-$12 heights.
+They now use the actual height-eight sample at X nibble eight, preserving their
+exact correction, grounded displacement and fractional-movement assertions.
+The redundant projectile test's copy of the native profile was removed.
+
+Full Release Verification, the retail shared-crawler audit (Sciser, Viola, Zeela,
+Sova across four rooms) and Windows Release build pass. A reader scan finds only
+reference declarations for the migrated addresses. Square-slope definition tables,
+Samus horizontal multipliers and broader ROM-free integration remain unfinished;
+#547 remains open.

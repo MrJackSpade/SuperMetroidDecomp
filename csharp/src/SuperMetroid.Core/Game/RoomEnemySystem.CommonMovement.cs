@@ -565,8 +565,8 @@ public sealed partial class RoomEnemySystem
         return true;
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "Keep this table-only migration from changing the reflection-visible instance signatures of its many transitive diagnostic entry points.")]
     private int ReadNonSquareSlopeHeight(RoomBlockBehavior bts, int xWithinBlock) =>
-        _bus!.ReadByte(
-            EnemyRomTablePointers.Common.SlopeHeightBytes +
-                16 * bts.SlopeShape + xWithinBlock) & 0x1f;
+        SlopeHeightDefinitions.Read(bts.SlopeShape, xWithinBlock);
 }

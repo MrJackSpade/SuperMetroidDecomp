@@ -79,13 +79,12 @@ in upstream sources by this change.
 Pinned upstream: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
 ROM SHA256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 
-## Still required
+## Evidence progression
 
-- Compare a representative retail target; native normal camera movement in the
-  constructed corridor is now covered below.
-- #411 remains open, not awaiting player validation; the controlled horizontal/vertical
-  controlled-camera comparison does not fulfill the broader integration scope.
-- The separately reproduced and corrected explosion-lifetime defect is #601.
+The controlled projectile comparison alone was not sufficient. The subsequent
+native controller/movement/camera comparison and supplemental retail-target
+check below complete the mechanical coverage; see the acceptance audit at the end.
+The separately reproduced explosion-lifetime defect is #601.
 
 ## Runtime movement integration
 
@@ -136,8 +135,8 @@ Regeneration follows the build/temporary-entrypoint procedure above with
 `native-hero-runtime-probe.h`, `DiagnosticHeroRuntime`, `--hero-runtime-probe`.
 Compare using `--hero-shot-runtime TRACE.csv`; no-argument runtime mode, default
 suite and projectile batch use the accepted trace. All temporary native hooks
-were removed after collection. The remaining #411 scope is a representative
-retail enemy/door/block interaction, not the already-compared generic corridor.
+were removed after collection. Retail block/PLM integration is covered separately
+below; its controlled camera must not be confused with this controller-driven test.
 
 ## Retail Red Tower block: controlled-camera integration
 
@@ -168,4 +167,29 @@ a shot with Hi-Jump, but does not specify this fixture's starting position.
 This controlled-camera retail check complements the original-cartridge
 projectile/window and full corridor movement comparisons above. It does NOT
 execute the retail Red Tower target path in the original cartridge and does NOT
-prove a controller-only climb. #411 remains open for that remaining evidence.
+prove a controller-only climb. That limitation remains explicit; it is not a
+claim that the original technique requires a full retail route test.
+
+## Acceptance audit
+
+#411 and parent #394 explicitly permit a faithful synthetic, room-local fixture.
+The previously stated requirement for a controller-only *retail Red Tower climb*
+was an additional diagnostic ambition, not part of that completion contract.
+No acceptance criterion is being replaced by the easier controlled-camera test:
+
+| Required property | Authoritative evidence |
+| --- | --- |
+| Pinned cartridge, not wiki-derived expected values | Original unpatched NTSC CPU routines; pinned source/ROM identifiers and regeneration steps above |
+| Identical firing, with/without subsequent scrolling | Corridor frame-zero launch equality; neutral versus Right inputs afterwards; no camera writes after initial setup |
+| Production input, movement, collision and camera | Original CPU routine sequence in `native-hero-runtime-probe.h`; C# `SuperMetroidRuntime.StepFrame` |
+| Lifetime AND target interaction, not just no-crash | All 241 native corridor records compare 15 fields, including exact impact type/list/world position and deletion; target reached only while walking |
+| Vertical and adjacent failure bounds | All 319 records across horizontal/upward shots and centered/exact-edge/one-pixel-outside camera cases |
+| Deterministic setup and no cheats | Fresh address space per branch; explicit pose, position, zero initial subpixels, inputs, scroll policy and equipment in retained probes; no enemy/RNG dependency in native corridor |
+| Retail interaction integration | Red Tower actual block/PLM clears only in the retained-shot branch; exact frame and world-coordinate assertions |
+| Cartridge-equivalent mismatch fixes | #601 post-impact culling and #603 pose-collision camera checkpoint writes were reproduced before correction and are covered by the native comparisons |
+
+Ready for player validation, not closure. This establishes the shared Hero-shot
+mechanic on the pinned NTSC revision. It does not certify every listed enemy,
+door, boss encounter or speedrun route, and makes no PAL parity claim. The retail
+Red Tower check is supplemental C# integration evidence, not a second native
+execution claim. No ROM, player state, screenshots or audio are published.

@@ -45,7 +45,13 @@ internal static partial class Program
         AssertTrue(entry.Snapshot is not null,
             "entry preserves the completed gameplay presentation instead of a blank frame");
         runtime.BombProjectiles.SetSharedCooldown(10);
+        ushort lockedAnimationFrame = samus.AnimationFrame;
+        ushort lockedAnimationTimer = samus.AnimationFrameTimer;
         game.StepCaptured(0, ++hostSequence, 1);
+        AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+            "automatic refill command-zero beta preserves the current Samus animation frame");
+        AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer,
+            "automatic refill command-zero beta does not advance Samus animation timer");
         AssertEqual(1, samus.Health, "automatic refill first frame");
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
         AssertTrue(runtime.TimeIsFrozen && samus.InputLocked, "nonfinal refill keeps native freeze and input lock");
@@ -70,6 +76,8 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         var digitImages = new Dictionary<int, Rgba32[]>();
         recovery.Begin(samus); runtime.GameplayTimeFrozen = true;
+        lockedAnimationFrame = samus.AnimationFrame;
+        lockedAnimationTimer = samus.AnimationFrameTimer;
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.ReserveTanksAuto);
         var positions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
         var queues = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
@@ -79,6 +87,16 @@ internal static partial class Program
             // refill and warning producers still own every request being inspected.
             audio.Reset();
             var capture = game.StepCaptured(0, ++hostSequence, 1);
+            if (frame < 32)
+            {
+                AssertEqual(lockedAnimationFrame, samus.AnimationFrame,
+                    "all nonfinal recovery frames retain Samus animation cursor");
+                AssertEqual(lockedAnimationTimer, samus.AnimationFrameTimer,
+                    "all nonfinal recovery frames retain Samus animation delay");
+            }
+            else
+                AssertTrue(!samus.StationaryScriptControlLocked,
+                    "completion restores the normal animation handler on the same frame");
             AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot!);
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })

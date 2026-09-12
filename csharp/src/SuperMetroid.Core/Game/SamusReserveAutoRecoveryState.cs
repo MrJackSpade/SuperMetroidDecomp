@@ -24,9 +24,9 @@ public sealed class SamusReserveAutoRecoveryState
             throw new InvalidOperationException("Automatic reserve recovery requires enabled reserves.");
 
         // CallSomeSamusCode($1B) conditionally installs the ordinary locked handler pair.
-        // InputLocked is this runtime's typed representation of that pair; scripted demo
-        // handlers already set it and remain locked under the same boolean result.
-        samus.InputLocked = true;
+        // The pair suppresses animation as well as input/movement. A generic input
+        // gate alone leaves AnimateSamus running during the frozen recovery frames.
+        samus.SetStationaryScriptControlLock(true);
         IsActive = true;
     }
 
@@ -72,7 +72,7 @@ public sealed class SamusReserveAutoRecoveryState
         {
             // CallSomeSamusCode($10) restores the ordinary input/movement handlers unless
             // a demo recorder owns them. This host never overlays demo playback here.
-            samus.InputLocked = false;
+            samus.SetStationaryScriptControlLock(false);
             IsActive = false;
         }
 

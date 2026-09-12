@@ -244,3 +244,24 @@ original-CPU trace still matches all 402 transfer/HUD/sound-request frames and 1
 rendered manual-tank frames. Logs: `csharp/test-temp/527-entry.log` and
 `csharp/test-temp/527-native-current.log`. This does not add audible PCM or full
 native gameplay-loop presentation evidence; those claims remain unproven.
+
+## Reproduced automatic Samus animation-clock mismatch
+
+The next presentation check exposed an actual defect: after normal gameplay
+entered recovery, the first frozen frame decremented Samus's animation delay
+from9 to8. Native command `$1B` (`$90:F411`) selects command zero (`$90:F109`)
+outside demo recording, installing the stationary beta rather than AnimateSamus.
+Recovery set only the generic input lock, which suppressed movement but left
+the animation phase running.
+
+Recovery now uses the existing stationary-script owner and releases it through
+the paired command on completion, before that frame's gameplay pass. This does
+not invent a reserve-specific body animation. The frontend regression fails
+before the fix and passes afterward, checking both cursor and timer throughout
+all nonfinal frames of the 33-energy refill and normal ownership on completion.
+Existing displayed HUD and freeze-order assertions remain intact.
+
+Local evidence: `527-animation-before.log`, `527-animation-after.log`,
+`527-animation-suite.log`, and `527-animation-windows.log` under test-temp.
+This corrects a verified animation-clock property; it does not establish audible
+PCM or whole-frame external-emulator parity, so the broader ticket remains open.

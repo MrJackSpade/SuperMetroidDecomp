@@ -29,6 +29,7 @@ internal static partial class ShaktoolAudit
         }
 
         VerifyPopulationAndDefinition(bus);
+        VerifyDeathClearOrdering(bus, room, assets);
         VerifyLiveEncounter(bus, room, assets);
         VerifyFatalNormalBomb(bus, room, assets);
         VerifyUnusedAttackCircleLifecycles(bus, room, assets);

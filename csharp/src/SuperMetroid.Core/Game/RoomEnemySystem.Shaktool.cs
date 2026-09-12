@@ -618,14 +618,23 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>
-    /// Implements Shaktool's fatal-shot tail at <c>$AA:DF34</c>: either vulnerable end dying
-    /// writes literal property $0200 to all seven records, deleting the complete chain.
+    /// Implements Shaktool's fatal-shot tail at <c>$AA:DF34</c>, including its read
+    /// of the owner index after common death has cleared the struck enemy's RAM.
     /// </summary>
     private void ResolveShaktoolShotAfterCommon(RoomEnemySlot struckSegment)
     {
         if (struckSegment.Health != 0)
             return;
-        foreach (RoomEnemySlot segment in GetShaktoolGroup(struckSegment))
-            segment.Properties = (ushort)EnemyProperties.Deleted;
+        // $A0:A3AF clears the entire common slot, including VariableE. $AA:DF40
+        // reads that now-zero owner and writes properties without checking headers.
+        // Do not recover the old group from cached state: native also targets slots
+        // 0..6 when Shaktool was placed later in a constructed population.
+        ushort ownerNativeIndex = struckSegment.VariableE;
+        int ownerSlotIndex = ownerNativeIndex / NativeSlotSize;
+        if (ownerNativeIndex % NativeSlotSize != 0 ||
+            ownerSlotIndex + ShaktoolSegmentCount > _slots.Length)
+            throw new InvalidDataException($"Shaktool post-shot owner ${ownerNativeIndex:X4} is invalid.");
+        for (int index = 0; index < ShaktoolSegmentCount; index++)
+            _slots[ownerSlotIndex + index].Properties = (ushort)EnemyProperties.Deleted;
     }
 }

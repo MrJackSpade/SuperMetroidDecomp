@@ -168,8 +168,6 @@ Crocomire encounter audit pass. The latter includes all nine volley vectors,
 mouth reactions, bridge collapse, both melting passes, skeleton wall break,
 spike debris, item drop and boss completion. No serialized state layout changes.
 
-### Outstanding scope
-
 ### Bull, Yapping Maw and Shaktool family geometry
 
 Bull and Yapping Maw now consume compiled signed 16-bit samples from
@@ -199,6 +197,8 @@ The Bull contact audit and Shaktool lethal-shot audit fail identically on clean
 baseline 58b22b6f and this migration; those failures are tracked separately as
 #580 and #579, respectively, and are not presented as passing evidence.
 The temporary baseline worktree and binaries were removed after comparison.
+The Shaktool fatal callback was subsequently repaired under #579; its complete
+encounter audit and exact death-clear regressions now pass. See SHAKTOOL-DEATH-579.md.
 
 ### Remaining work
 

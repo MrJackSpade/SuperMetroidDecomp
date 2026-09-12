@@ -210,8 +210,8 @@ internal static class EnemyRomTablePointers
         public const int CarryReleaseXWords = 0xa6bc62;
         /// <summary>Tail rotation divisor bytes at $A6:D61F.</summary>
         public const int TailRotationDivisorBytes = 0xa6d61f;
-        /// <summary>Four health-stage tail instruction words at $A6:B439.</summary>
-        public const int TailInstructionWords = 0xa6b439;
+        /// <summary>Four hover/pogo health-stage acceleration-divisor indexes at $A6:B439.</summary>
+        public const int HoverMovementDivisorIndexWords = 0xa6b439;
         /// <summary>Three fourteen-color health-palette records at $A6:E46A (84 bytes).</summary>
         public const int HealthPaletteWords = 0xa6e46a;
     }

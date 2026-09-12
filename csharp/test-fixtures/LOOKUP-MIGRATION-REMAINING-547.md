@@ -8,7 +8,7 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Ridley | Carry/release anchors, pogo side targets, claw offsets and health divisor selectors | RoomEnemySystem.Ridley and related partials |
+| Ridley | Claw offsets and attack-choice pointer tables | RoomEnemySystem.Ridley and related partials |
 
 These are confirmed indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.
@@ -26,8 +26,9 @@ also compiled. Their instruction programs and presentation remain separate work.
 Gunship liftoff dust's six X-offset/list-selection records are compiled as well;
 their reference constants now reside under Gunship rather than the old Ceres label.
 Ridley's four pogo launch-speed rows and both six-stage acceleration arrays are
-compiled, including the native pointer indirection. Side targets and carry/claw
-definitions remain live readers as listed above.
+compiled, including the native pointer indirection. Side targets, carry/release
+anchors and both health-stage divisor tables are also compiled. Claw geometry
+and the separately selected attack-choice pointer tables remain live readers.
 These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
 the actual runtime read. Inspect authored bounds and adjacent-data behavior

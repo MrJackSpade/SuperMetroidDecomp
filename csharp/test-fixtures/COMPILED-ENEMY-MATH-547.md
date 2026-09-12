@@ -991,3 +991,30 @@ Full Release Verification, Windows build and the complete Norfair Ridley audit
 (360 reveal / 4,096 combat / 738 death frames) pass. #595 awaits player validation;
 #547 remains incomplete. Remaining side-target, carry/claw and health-divisor
 readers are explicitly retained in the inventory.
+
+## Ridley arena targets and health-stage movement selectors
+
+Compiled five three-entry facing/side target tables and two distinct four-entry
+health divisor tables (23 words total). Real pogo, ground attack, carry, release,
+hover divisor selection and grab-approach consumers no longer read those tables.
+Preserved the existing facing/health clamps, signed coordinate branches, timers,
+phase handoffs and native inertia calculations. The carry initializer is now
+static; the shared divisor reader retains its diagnostic instance signature.
+
+Compared every word with the pinned ROM. Exercised all 65,536 facing/health words
+through actual carry setup and hover divisor selection, checking targets, exact
+X/Y acceleration, carry timer and phase. Another 192 real side-target movements
+cover both pogo directions, ground approach and release across facing, health
+and coordinate boundaries. All these run with a throwing bus. Another 65,536
+actual grab approaches check their distinct health divisor's exact X/Y effect;
+their forwarding bus rejects the migrated table while allowing still-required
+Samus pose and claw data. Expected acceleration uses an independent specialization
+of the already-verified native zero-velocity inertia, not the production helper.
+
+Full Release Verification, final focused compiled-definition verification, Windows
+build and complete Norfair Ridley audit (360 reveal / 4,096 combat / 738 death
+frames) pass. Corrected the reference name for $A6:B439: these are hover movement
+divisor indexes, not tail instructions. Claw Y has a separate bounds question
+(three authored entries versus the existing host clamp of eight); no speculative
+geometry change was made in this table migration. Attack-choice tables and full
+#547 inventory/integration remain unfinished.

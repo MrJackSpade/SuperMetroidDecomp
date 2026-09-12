@@ -340,10 +340,7 @@ public sealed partial class RoomEnemySystem
                 return;
 
             case RidleyAiFunction.NorfairCarryRelease:
-                ushort releaseX = ReadWord(
-                    _bus!,
-                    EnemyRomTablePointers.Ridley.CarryReleaseXWords +
-                    Math.Min(state.FacingDirection, (ushort)2) * 2);
+                ushort releaseX = RidleyMovementTargets.CarryReleaseX[Math.Min(state.FacingDirection, (ushort)2)];
                 MoveNorfairRidleyToward(slot, state, releaseX, 224, 0);
                 if (TickRidleyFunctionTimer(state))
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
@@ -527,12 +524,9 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         bool descending)
     {
-        int tableAddress = descending
-            ? EnemyRomTablePointers.Ridley.DescendingPogoTargetXWords
-            : EnemyRomTablePointers.Ridley.AscendingPogoTargetXWords;
-        ushort targetX = ReadWord(
-            _bus!,
-            tableAddress + Math.Min(state.FacingDirection, (ushort)2) * 2);
+        ReadOnlySpan<ushort> targets = descending
+            ? RidleyMovementTargets.DescendingPogoX : RidleyMovementTargets.AscendingPogoX;
+        ushort targetX = targets[Math.Min(state.FacingDirection, (ushort)2)];
         ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.YPosition, (ushort)352);
         MoveNorfairRidleyToward(
             slot,
@@ -576,10 +570,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort targetX = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.GroundAttackTargetXWords +
-            Math.Min(state.FacingDirection, (ushort)2) * 2);
+        ushort targetX = RidleyMovementTargets.GroundAttackX[Math.Min(state.FacingDirection, (ushort)2)];
         MoveNorfairRidleyToward(slot, state, targetX, 288, divisorIndex: 0);
     }
 
@@ -711,10 +702,7 @@ public sealed partial class RoomEnemySystem
 
         int sideOffset = state.FacingDirection != 0 ? 16 : -16;
         ushort targetY = unchecked((ushort)(samus.YPosition - 4));
-        int divisorIndex = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords +
-            Math.Min(state.HealthStage, (ushort)3) * 2);
+        int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes[Math.Min(state.HealthStage, (ushort)3)];
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -745,12 +733,9 @@ public sealed partial class RoomEnemySystem
         state.Function = RidleyAiFunction.NorfairCarrySetup;
     }
 
-    private void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
+    private static void BeginNorfairRidleyCarry(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.TargetX = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.CarryAnchorXWords +
-            Math.Min(state.FacingDirection, (ushort)2) * 2);
+        state.TargetX = RidleyMovementTargets.CarryAnchorX[Math.Min(state.FacingDirection, (ushort)2)];
         state.TargetY = unchecked((short)(slot.YPosition - 320)) < 0
             ? (ushort)256
             : unchecked((ushort)(slot.YPosition - 64));
@@ -850,11 +835,10 @@ public sealed partial class RoomEnemySystem
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static",
+        Justification = "Preserve the transitive diagnostic instance entry points during this table-only migration.")]
     private int ReadRidleyHealthMovementDivisorIndex(RidleyEnemyState state) =>
-        ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.TailInstructionWords +
-            Math.Min(state.HealthStage, (ushort)3) * 2);
+        RidleyMovementTargets.HoverDivisorIndexes[Math.Min(state.HealthStage, (ushort)3)];
 
     private bool SamusMovementUsesRidleyGrab(SamusState? samus)
     {

@@ -154,7 +154,7 @@ public sealed partial class SamusProjectileSystem
                 slot.XPosition,
                 slot.XSubposition,
                 slot.XVelocity);
-            ScanHorizontalShotReactions(level, slot, roomPlms);
+            ScanHorizontalWaveShotReactions(level, slot, roomPlms);
         }
         if (direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {

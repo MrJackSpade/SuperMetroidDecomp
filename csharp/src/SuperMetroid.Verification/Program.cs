@@ -50,6 +50,11 @@ if (args is ["--wrap-shots", var nativeWrapTrace])
     VerifyWrapShotTrace(nativeWrapTrace);
     return 0;
 }
+if (args is ["--ceiling-wrap", var nativeCeilingTrace])
+{
+    VerifyCeilingWrapPlmTrace(nativeCeilingTrace);
+    return 0;
+}
 if (args is ["--wrap-shot-rooms"])
 {
     VerifyRetailWrapShotDoors();
@@ -811,6 +816,7 @@ VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv");
 VerifyRetailWrapShotDoors();
 VerifyWrapShotEnemySeparation();
 VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv");
+VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv");
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
 VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");

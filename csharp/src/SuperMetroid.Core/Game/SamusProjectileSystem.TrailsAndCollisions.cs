@@ -388,13 +388,19 @@ public sealed partial class SamusProjectileSystem
     private static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        bool waveBeam = false)
     {
         (slot.XPosition, slot.XSubposition) = AddVelocity(
             slot.XPosition,
             slot.XSubposition,
             slot.XVelocity);
 
+        if (waveBeam)
+        {
+            ScanHorizontalWaveShotReactions(level, slot, roomPlms);
+            return false;
+        }
         return ScanHorizontalShotReactions(level, slot, roomPlms);
     }
 
@@ -427,7 +433,7 @@ public sealed partial class SamusProjectileSystem
             SamusProjectileDirection.Left or
             SamusProjectileDirection.UpLeft)
         {
-            bool horizontalReaction = MoveHorizontally(level, slot, roomPlms);
+            bool horizontalReaction = MoveHorizontally(level, slot, roomPlms, waveBeam);
 
             // The Wave-beam dispatcher deliberately clears carry after publishing a block
             // reaction. Preserve that contract here instead of allowing our shared scanner's

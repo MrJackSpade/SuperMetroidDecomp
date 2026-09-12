@@ -29,3 +29,30 @@ int DiagnosticCeilingWrap(const char *rom, const char *output) {
   }
   fclose(f); return 0;
 }
+
+// Odd reads interpret adjacent tile graphics as type 4 while setup writes the
+// aligned owner. Repeat without PLM stepping to measure allocation, not lifetime.
+int DiagnosticCeilingPlm(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "tilex,call,active,owner,word,nextword\n");
+  for (int tilex = 63; tilex <= 65; tilex++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
+    room_width_in_blocks = 128; room_height_in_blocks = 32;
+    room_width_in_scrolls = 8; room_height_in_scrolls = 2;
+    room_size_in_blocks = 128 * 32 * 2;
+    for (int i = 0; i < 128 * 32; i++) level_data[i] = 0x0040;
+    projectile_x_pos[0] = tilex * 16; projectile_y_pos[0] = 4;
+    projectile_x_radius[0] = 1; projectile_y_radius[0] = 8;
+    projectile_type[0] = 1;
+    for (int call = 0; call < 45; call++) {
+      ProbeRunBounded(0x94a352);
+      int active = 0;
+      for (int i = 0; i < 40; i++) if (plm_header_ptr[i]) active++;
+      fprintf(f, "%d,%d,%d,%04X,%04X,%04X\n", tilex, call, active,
+        plm_block_indices[39], level_data[tilex], level_data[tilex + 1]);
+    }
+  }
+  fclose(f); return 0;
+}

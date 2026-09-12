@@ -531,3 +531,6 @@ Full Release Verification, complete Volcano audit and Windows Release build
 pass. The Alcoon audit passes earlier motion/projectile checks but fails its
 unchanged immediate-contact assertion; #589 tracks that diagnostic repair.
 No full Alcoon encounter success or completion of #547 is claimed.
+
+The Alcoon diagnostic was subsequently repaired under #589 without production
+changes; its complete encounter now passes. See ALCOON-AUDIT-589.md.

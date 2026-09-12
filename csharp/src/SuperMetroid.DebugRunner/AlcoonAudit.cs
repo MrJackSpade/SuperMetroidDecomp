@@ -444,13 +444,14 @@ internal static class AlcoonAudit
         samus.XPosition = touchTarget.XPosition;
         samus.YPosition = touchTarget.YPosition;
         samus.InvincibilityTimer = 0;
-        if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 949 ||
-            !samus.KnockbackActive)
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 949)
         {
             throw new InvalidDataException(
                 $"Alcoon common touch failed: health={samus.Health}, " +
                 $"knockback={samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 50, 1, "Alcoon body contact");
 
         RoomEnemySlot beamTarget = population[1];
         StepCentered(enemies, assets, room, samus, beamTarget);
@@ -471,14 +472,14 @@ internal static class AlcoonAudit
         projectiles = new SamusProjectileSystem();
         shared = new SamusBombProjectileSystem();
         ArmProjectile(projectiles.Slots[0], lethalTarget, projectileType: 0x0200, damage: 1000);
-        if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1 ||
-            lethalTarget.Health != 0 ||
-            !lethalTarget.Properties.HasAny(EnemyProperties.Deleted))
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, lethalTarget);
+        if (enemies.ResolveOrdinaryProjectileHits(bus, projectiles, shared, samus) != 1)
         {
             throw new InvalidDataException(
                 $"Alcoon lethal shot failed: health={lethalTarget.Health}, " +
                 $"properties=${lethalTarget.Properties:X4}.");
         }
+        EnemyDeathAuditAssertions.Verify(enemies, lethalTarget, beforeDeath, "Alcoon lethal shot");
     }
 
     private static void StepCentered(

@@ -51,6 +51,7 @@ internal static partial class Program
         VerifyCompiledPhantoonFlameSpawns(rom);
         VerifyCompiledPhantoonTimers(rom);
         VerifyCompiledPhantoonCasualFlames(rom);
+        VerifyCompiledPhantoonPatterns(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

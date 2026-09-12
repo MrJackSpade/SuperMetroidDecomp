@@ -18,8 +18,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionLists.EyeCentered;
     private const int PhantoonEyeDirectionTable = 0xa7d40d;
     private const int PhantoonFadeOutPalette = 0xa7ca41;
-    private const int PhantoonFlameRainPositionTable = 0xa7cdad;
-    private const int PhantoonFlameRainFirstColumnTable = 0xa7cfc2;
 
     /// <summary>Ports the eye-open vulnerable window at $A7:D60D.</summary>
     private void RunPhantoonEyeTracking(
@@ -218,10 +216,10 @@ public sealed partial class RoomEnemySystem
             return;
 
         ushort pattern = unchecked((ushort)(_nextRandom!() & 7));
-        int entry = PhantoonFlameRainPositionTable + pattern * 8;
-        body.VariableA = ReadWord(_bus!, entry);
-        body.XPosition = ReadWord(_bus!, entry + 2);
-        body.YPosition = ReadWord(_bus!, entry + 4);
+        var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
+        body.VariableA = placement.Cursor;
+        body.XPosition = placement.X;
+        body.YPosition = placement.Y;
         state.Eye!.VariableC = 0;
         body.VariableF = (ushort)PhantoonAiFunction.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
@@ -457,7 +455,7 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnPhantoonFlameRain(RoomEnemySlot body, ushort pattern)
     {
-        byte column = _bus!.ReadByte(PhantoonFlameRainFirstColumnTable + pattern);
+        byte column = PhantoonPatternDefinitions.FirstRainColumns[pattern];
         ushort delay = 0x10;
         for (int flame = 0; flame < 8; flame++)
         {

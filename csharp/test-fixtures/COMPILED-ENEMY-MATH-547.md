@@ -790,3 +790,25 @@ Verification covers every native word, 65,536 real RNG selections and 8,192
 frame-exact timer/count/mouth-animation checks without a bus. Full Verification,
 complete Phantoon encounter and Windows build pass. Placement and random-direction
 readers remain; this does not close the broader migration.
+
+## Phantoon rain placement and shot markers
+
+Compiled the eight rain-placement records ($A7:CDAD: movement cursor, X, Y),
+eight first-column bytes ($A7:CFC2), and eight shot eye-variable-B bytes
+($A7:CDA5). The latter has no known native reader; the catalog deliberately calls
+it a marker rather than assigning unproven direction semantics. Unused zero
+record padding is verified but not carried as mutable state.
+
+Verification checks 32 native record words and 16 bytes. It executes 2,048 actual
+hidden-rain handoffs (all eight patterns across every RNG high byte with low-byte
+mask noise), checking body cursor/X/Y, phase, direction reset, one RNG call, and
+all eight resulting projectile X/Y/delays in order. The forwarding bus rejects
+the migrated ranges while allowing real projectile headers. Another 65,536
+actual shot reactions run with no bus, asserting the exact eye marker, selected
+mouth pattern, window shortening and one RNG call.
+
+Full Release Verification, complete 5,906-frame Phantoon encounter and Windows
+Release build pass. A subsequent direct-reader inspection confirmed the 534-pair
+figure-eight displacement path at $A7:E3D2 remains live; it is now listed in the
+remaining inventory. This migration is not a claim that all Phantoon reads or
+the broader #547 integration are complete.

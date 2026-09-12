@@ -17,6 +17,71 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank) && count == 3 && current.Length == 4)
+        {
+            Console.Error.WriteLine("WARNING: Legacy PCM bank lacks cross-source loop routing; retaining its original self-loop behavior until the next bank upload.");
+            return current.Where(field => field.Name != "loopEntrySources").ToArray();
+        }
+        if (type.FullName == "SuperMetroid.Core.Audio.ManagedSnesDsp+Voice" && count == 22 && current.Length == 23)
+        {
+            Console.Error.WriteLine("WARNING: Legacy DSP voice lacks silent-release BRR fallback; retaining its saved PCM cursor until a native loop handoff.");
+            return current.Where(field => field.Name != "ReleasedBrrCursor").ToArray();
+        }
+        if (type == typeof(SamusSuitPickupState) && count == 9 && current.Length == 10)
+        {
+            Console.Error.WriteLine("WARNING: Legacy suit pickup lacks its entry sound latch; restoring no pending sound.");
+            return current.Where(field => field.Name != "_transformationSoundPending").ToArray();
+        }
+        if (type == typeof(SamusProjectileFrameResult) && count == 5 && current.Length == 6)
+        {
+            return current.Where(field => field.Name != "<AdditionalSoundRequests>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusProjectileSlot) && count == 19 && current.Length == 20)
+        {
+            Console.Error.WriteLine("WARNING: Legacy projectile slot lacks combo auxiliary phase; restoring its initial phase.");
+            return current.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusProjectileSystem) && count == 16 && current.Length == 17)
+        {
+            Console.Error.WriteLine("WARNING: Legacy projectile owner predates charge-combo state; restoring no combo pending.");
+            return current.Where(field => field.Name != "<ComboState>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusKinematicsState) && count == 22 && current.Length == 23)
+        {
+            Console.Error.WriteLine("WARNING: Legacy kinematics lacks prospective-pose contact mode; retaining live owner lookup.");
+            return current.Where(field => field.Name != "<ProbeContactDamageIndex>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusState) && count == current.Length - 9 &&
+            current.Any(field => field.Name == "<BombJumpPoseInputLocked>k__BackingField"))
+        {
+            // The b944f1b5 capture already has PreviousDrawNewInput, but predates
+            // these nine additions. Do not misclassify its independent bomb lock
+            // as the older missing draw-input latch in the generic auto-jump path.
+            Console.Error.WriteLine("WARNING: Pre-bomb-lock Samus layout restores nine later state additions inactive; retaining its saved previous-draw input.");
+            return current.Where(field => field.Name is not "<StationaryScriptControlLocked>k__BackingField"
+                and not "_poseCollisionPreviousYPosition" and not "_poseAlignmentPreviousYDelta"
+                and not "_healthWarning" and not "_poseHistory"
+                and not "<AutoJumpTimer>k__BackingField" and not "<PreviousDrawHeldInput>k__BackingField"
+                and not "<AutoJumpInputPending>k__BackingField" and not "<BombJumpPoseInputLocked>k__BackingField").ToArray();
+        }
+        if (type.FullName == "SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot" && count == 20 && current.Length == 22)
+        {
+            // 571b9a42 implemented Samus Eater capture and added both held-point
+            // words. Earlier builds did not execute that capture; fresh plant
+            // setup supplies the coordinates if the player is subsequently caught.
+            Console.Error.WriteLine("WARNING: Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup.");
+            return current.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not "<PlantHeldY>k__BackingField").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            count == 46 && current.Length == 47 && current.Any(field => field.Name == "pauseFadeCounter"))
+        {
+            // 3a891459 added the native alternating pause-fade counter. Before it,
+            // every fade call changed brightness; zero keeps the first restored
+            // call eligible and subsequent calls establish the native cadence.
+            // The graph reader still checks every remaining saved name and order.
+            Console.Error.WriteLine("WARNING: Legacy frontend lacks pause-fade cadence; restoring the next fade step as immediately eligible.");
+            return current.Where(field => field.Name != "pauseFadeCounter").ToArray();
+        }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "<StationaryScriptControlLocked>k__BackingField"))
         {
             Console.Error.WriteLine("WARNING: Older Samus state lacks stationary script-handler ownership; retaining its saved input lock, with animation ownership unknown until the next script command.");
@@ -158,6 +223,16 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Older debugger state predates the statue sequence; it initializes on room entry.");
             return current.Where(field => field.Name != "_tourianStatues").ToArray();
         }
+        if (type == typeof(RoomEnemySystem) &&
+            (count == current.Length - 1 || count == current.Length - 3) &&
+            current.Any(field => field.Name == "_samusProjectilesForEnemyFrame"))
+        {
+            // 833cc4ee added this dependency for Pseudo Screw contact. EnemyMain
+            // supplies the live owner before running any touch callback; null is
+            // sufficient between frames. Compose with the older statue layout.
+            Console.Error.WriteLine("WARNING: Legacy enemy state lacks its frame projectile context; the next enemy phase supplies the live owner.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != "_samusProjectilesForEnemyFrame").ToArray(), count);
+        }
         if (type == typeof(RoomEnemySystem) && count == current.Length - 2)
         {
             Console.Error.WriteLine("WARNING: Older debugger state has no statue displacement/water surface; initializing to zero.");
@@ -195,6 +270,12 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Constructs an empty owner only for the known legacy layout that omitted it.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SuperMetroid.Core.Audio.ManagedPcmSampleBank && serializedCount == 3)
+        {
+            typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank)
+                .GetField("loopEntrySources", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(instance, new Dictionary<byte, byte>());
+        }
         if (instance is SuperMetroid.Core.Runtime.SuperMetroidRuntime && serializedCount == 106)
         {
             // Constructors are bypassed by graph restoration. No animation existed

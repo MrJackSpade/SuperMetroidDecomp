@@ -119,17 +119,9 @@ public sealed partial class RoomEnemySystem
     private bool KraidBodyContourReflectsNail(RoomEnemySlot nail)
     {
         RoomEnemySlot body = _slots[0];
-        int tableOffset = 0;
-        for (; tableOffset < 0x80; tableOffset += 4)
-        {
-            short yOffset = unchecked((short)KraidNailContour.Words[tableOffset / 2 + 1]);
-            if (unchecked((short)(yOffset + body.YPosition - nail.YPosition)) < 0)
-                break;
-        }
-        if (tableOffset >= 0x80)
-            return false;
         ushort contourX = unchecked((ushort)(
-            body.XPosition + KraidNailContour.Words[tableOffset / 2]));
+            body.XPosition + KraidNailContour.LeftOffset(
+                unchecked((ushort)(nail.YPosition - body.YPosition)))));
         return unchecked((short)(nail.XPosition + nail.XRadius - contourX)) >= 0 &&
             unchecked((short)nail.VariableC) >= 0;
     }

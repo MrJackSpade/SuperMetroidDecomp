@@ -4,20 +4,23 @@ namespace SuperMetroid.Core.Game;
 internal static class KraidNailContour
 {
     /// <summary>
-    /// $A7:BF1D..BF2C: four authored left/top pairs. BF2D..BF9C contains adjacent
-    /// instructions, which the existing bounded reader can consume as more pairs.
-    /// Preserve those results rather than inventing a sentinel or flattening the
-    /// contour. The inherited 32-record host cap is not a native bounds guarantee.
+    /// $A7:BF1D..BF2C: four authored left/top pairs. BF2D..BF34 contains the two
+    /// adjacent instruction pairs that the native walk can also select. Exhaustive
+    /// signed-word analysis proves every relative Y terminates by record five;
+    /// no later instruction words or arbitrary host scan cap are needed.
     /// </summary>
     public static ReadOnlySpan<ushort> Words =>
     [
         0xffc0, 0x0010, 0xffd8, 0xffd8, 0xfff0, 0xffa0, 0x0008, 0xff80,
-        0x0520, 0xadc0, 0x0fd2, 0x37c9, 0x308a, 0xa924, 0x8af0, 0xd28d,
-        0xa90f, 0x0001, 0xd48d, 0xa90f, 0x0001, 0xd48d, 0xa910, 0x87bd,
-        0xd28d, 0xa910, 0xbf5d, 0xe88d, 0xa910, 0x0000, 0xf28d, 0x6b10,
-        0x0520, 0xadc0, 0x0f7a, 0x5cc9, 0x1000, 0xa906, 0x005c, 0x7a8d,
-        0xad0f, 0x10d2, 0x85c9, 0xd088, 0xad34, 0x0f7a, 0x5cc9, 0xf000,
-        0xa90d, 0x0001, 0xd48d, 0xa910, 0x87bd, 0xd28d, 0x6b10, 0xaba9,
-        0x8fbf, 0x7940, 0xa97e, 0xb93f, 0xe88d, 0xa910, 0x0001, 0xf28d,
+        0x0520, 0xadc0, 0x0fd2, 0x37c9,
     ];
+
+    /// <summary>Returns the native selected left offset for a wrapped nail-minus-body Y word.</summary>
+    public static ushort LeftOffset(ushort relativeY)
+    {
+        for (int index = 0; index < Words.Length; index += 2)
+            if (unchecked((short)(Words[index + 1] - relativeY)) < 0)
+                return Words[index];
+        throw new InvalidOperationException("Kraid contour definitions failed their exhaustive signed-word coverage invariant.");
+    }
 }

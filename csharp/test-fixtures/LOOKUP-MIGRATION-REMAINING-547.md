@@ -20,9 +20,10 @@ the consumers rather than classifying them solely by the catalog names.
 The formerly enumerated named-table groups are now compiled, including BF1D's
 fingernail contour and the adjacent words consumed by its inherited bounded
 walk. This does **not** establish completion: the scan excludes uncatalogued
-indirection, mixed instruction streams and mutable-memory reads. In particular,
-the native unbounded contour walk versus the inherited 32-record cap still
-needs separate parity analysis rather than being hidden by this migration.
+indirection, mixed instruction streams and mutable-memory reads. The contour
+limit question is now resolved: exhaustive native-word scanning proves all Y
+inputs select one of six records. The unreachable 32-record cutoff and unused
+trailing words have been removed.
 
 ### Mixed instruction selectors and presentation reads
 

@@ -1305,3 +1305,22 @@ are selected and rejects any production bus access. The table migration does
 not change the horizontal bounce arithmetic corrected separately in #599.
 
 Full Release Verification, complete Kraid audit and Windows Release build pass.
+
+## Kraid contour termination proof
+
+Follow-up to the bounded-window migration: independently scanned the native
+ROM loop without the production span or former 32-record bound for every
+relative-Y word. Every input terminates by record five. Selection counts are
+32768, 56, 56, 32, 20928 and 11696, summing to 65536. Thus the old false-return
+cutoff is unreachable and only the first two adjacent instruction pairs are
+ever consumed. Removed 52 unused words and replaced the arbitrary cutoff with
+the six-record definition's exhaustively verified total selector.
+
+The regression follows native words directly (a separate 256-record diagnostic
+guard detects failure to terminate), checks the exact distribution and selected
+left offset, and retains 983,040 actual signed edge/direction probes. The
+modular relative-Y reduction preserves the native word subtraction for all
+body/nail positions. This resolves the previously documented contour-limit
+uncertainty; it does not complete the other runtime dependency groups.
+
+Full Release Verification, complete Kraid audit and Windows Release build pass.

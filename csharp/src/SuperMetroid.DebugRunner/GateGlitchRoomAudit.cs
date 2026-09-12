@@ -7,7 +7,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Measures stationary launch windows without confusing gate crossing with switch activation.</summary>
 internal static class GateGlitchRoomAudit
 {
-    public static int RunJump(string rom, int shootFrame, int aimFrame = 0, bool releaseJump = false)
+    public static int RunJump(string rom, int shootFrame, int aimFrame = 0, bool releaseJump = false, bool releaseLeft = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
@@ -33,6 +33,7 @@ internal static class GateGlitchRoomAudit
             if (aimFrame > 0 && frame == -1) input = (ushort)SnesButton.Left;
             if (frame >= aimFrame) input |= (ushort)SnesButton.R;
             if (releaseJump && frame >= aimFrame) input &= unchecked((ushort)~(ushort)SnesButton.A);
+            if (releaseLeft && frame >= aimFrame) input &= unchecked((ushort)~(ushort)SnesButton.Left);
             if (frame == shootFrame) input |= (ushort)SnesButton.X;
             runtime.StepFrame(input);
             var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == RoomPlmHeaders.DownwardGate);

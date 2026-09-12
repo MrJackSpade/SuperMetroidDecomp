@@ -140,9 +140,9 @@ The numeric native traces are `gate-jump-403-{7,8,9}.csv`; the default
 verification suite drives `SuperMetroidRuntime.StepFrame` and compares every
 record. `--gate-jump-traces` runs just those comparisons. For recapture, install
 the same temporary headless hooks described above, substituting this header and
-`DiagnosticGateJump(rom, output, shootFrame, aimFrame)`, then invoke
-`sm.exe --gate-jump-probe ROM NEW_OUTPUT.csv SHOOT_FRAME AIM_FRAME` (use aim frame
-zero for the original three traces). Remove hooks afterward.
+`DiagnosticGateJump(rom, output, shootFrame, aimFrame, releaseLeft)`, then invoke
+`sm.exe --gate-jump-probe ROM NEW_OUTPUT.csv SHOOT_FRAME AIM_FRAME RELEASE_LEFT`
+(use aim frame/release-left zero for the original three traces). Remove hooks afterward.
 
 This probe does not run the renderer or ordinary enemy AI. It uses authored
 room terrain/population and the original gate setup/PLM opening sequence.
@@ -206,3 +206,27 @@ All four comparisons pass. The native entry now invokes
 `DiagnosticGateOrigins(rom, output, argument)`. Temporary hooks were removed.
 No production change was needed. A successful spin-based setup remains
 unestablished, so #403 stays open.
+
+## Successful spin exit and completion evidence
+
+The remaining successful setup is now reproduced: establish running on frame
+-1, hold Jump+Left to spin, then release Left and hold AimUp from frame 4 while
+continuing Jump. Shoot frame 5 opens the gate; frames 4 and 6 miss. All 420
+records match the original CPU. Spin pose `$1A` becomes `$6A`; success activates
+at X=133.75,Y=356. Samus stays beside the gate, so its native opening then
+closing sequence is checked independently of Samus crossing. DebugRunner's
+sixth argument selects release-left (`... SHOOT AIM false true`).
+
+An explicit ordinary-jump falling shot on frame 16 also matches all 140 native
+records and does not activate the switch. Default regression coverage now
+compares 1,120 records across ordinary and spin success/adjacent misses,
+held-direction spin rejection, and falling-shot rejection. The prior full
+suite passed with the spin additions; the final expanded trace command passes.
+
+Together with the 24,300 color/orientation origin comparisons and reproduced
+ordinary-beam scan fix, this covers #403's focused technique contract. No new
+production fix was needed after the original scan-termination correction.
+Ready for player validation, not closed. This does not claim every possible
+input trajectory, PAL behavior, or the distinct right-facing/speed/G-mode
+techniques tracked separately. The player's exact original inputs remain
+unspecified; do not claim these are a replay of that session.

@@ -100,12 +100,12 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, nail, horizontal))
         {
             (nail.VariableB, nail.VariableC) =
-                NegateKraidVelocity(nail.VariableB, nail.VariableC);
+                ReflectKraidNailHorizontalVelocity(nail.VariableB, nail.VariableC);
         }
         else if (KraidBodyContourReflectsNail(nail))
         {
             (nail.VariableB, nail.VariableC) =
-                NegateKraidVelocity(nail.VariableB, nail.VariableC);
+                ReflectKraidNailHorizontalVelocity(nail.VariableB, nail.VariableC);
         }
 
         int vertical = CombineKraidVelocity(nail.VariableD, nail.VariableE);
@@ -138,6 +138,14 @@ public sealed partial class RoomEnemySystem
 
     private static int CombineKraidVelocity(ushort low, ushort high) =>
         unchecked((int)(((uint)high << 16) | low));
+
+    /// <summary>
+    /// Native horizontal wall/contour reflections at $A7:BE9E and BEE2 negate
+    /// each word independently. Do not propagate fractional borrow as a normal
+    /// fixed-point negation would; the resulting nonzero-fraction quirk is native.
+    /// </summary>
+    private static (ushort Low, ushort High) ReflectKraidNailHorizontalVelocity(ushort low, ushort high) =>
+        (unchecked((ushort)-low), unchecked((ushort)-high));
 
     private static (ushort Low, ushort High) NegateKraidVelocity(ushort low, ushort high)
     {

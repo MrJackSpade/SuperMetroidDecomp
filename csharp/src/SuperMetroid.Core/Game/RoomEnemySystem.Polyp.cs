@@ -44,9 +44,6 @@ public sealed partial class RoomEnemySystem
     internal const ushort PolypDefinition = 0xd1ff;
 
     private const ushort PolypInstructionList = 0xb51a;
-    private const int PolypCooldownTable = 0xa2b520;
-    private const int PolypInitialYSpeedTable = 0xa2b530;
-    private const int PolypXVelocityTable = 0xa2b550;
     private const ushort PolypProximity = 0x0040;
     private const ushort PolypRandomSeed = 0x0011;
 
@@ -121,16 +118,13 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        int xVelocityOffset = _nextRandom!() & 0x001e;
-        ushort xVelocity = ReadWord(_bus!, PolypXVelocityTable + xVelocityOffset);
+        ushort xVelocity = PolypLaunchDefinitions.XVelocity(_nextRandom!());
 
-        int ySpeedOffset = _nextRandom!() & 0x001e;
-        ushort initialYSpeed = ReadWord(_bus!, PolypInitialYSpeedTable + ySpeedOffset);
+        ushort initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_nextRandom!());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        int cooldownOffset = _nextRandom!() & 0x000e;
-        state.CooldownTimer = ReadWord(_bus!, PolypCooldownTable + cooldownOffset);
+        state.CooldownTimer = PolypLaunchDefinitions.Cooldown(_nextRandom!());
     }
 
     /// <summary>

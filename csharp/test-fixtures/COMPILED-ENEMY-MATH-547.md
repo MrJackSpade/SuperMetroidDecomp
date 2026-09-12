@@ -438,3 +438,18 @@ XOR/increment results. Invalid selectors fail explicitly. The complete shared
 crawler and Aqueduct Yard audits pass, including movement, detachment, contact
 and rendering. Full Release Verification and Windows Release build pass. Remaining family tables and the
 broader #547 inventory are not claimed complete.
+
+## Polyp launch selectors
+
+`PolypLaunchDefinitions` replaces the eight cooldown words at $A2:B520,
+sixteen initial quadratic indices at $A2:B530 and sixteen signed horizontal
+velocities at $A2:B550. Each method accepts the original RNG word and applies
+the native selector mask. The production caller retains three independent RNG
+draws, including the cooldown draw after projectile allocation; no random state
+or projectile behavior is synthesized or reordered.
+
+All 65,536 RNG words are checked against all three native selectors, covering
+every authored word and ignored selector bit. The complete Volcano audit passes
+with the native three-draw launch, trajectory, cooldown underflow, contact and
+rendering checks. Full Release Verification and Windows Release build pass. The remaining family-table
+inventory is still open under #547.

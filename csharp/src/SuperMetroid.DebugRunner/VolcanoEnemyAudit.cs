@@ -347,17 +347,20 @@ internal static class VolcanoEnemyAudit
         if (fireball is null)
             throw new InvalidDataException("Natural Fune cycle produced no damage-test fireball.");
         SamusState target = CreateSamus(bus, fireball.XPosition, fireball.YPosition);
+        var beforeContact = EnemyContactAuditAssertions.Capture(target);
         enemies.StepEnemyProjectiles(
             assets.LevelData,
             target,
             cameraX: cameraX,
             cameraY: cameraY);
-        if (target.Health != 939 || !target.KnockbackActive || fireball.IsActive)
+        if (target.Health != 939 || fireball.IsActive)
         {
             throw new InvalidDataException(
                 $"Fune fireball contact mismatch: health={target.Health}, " +
                 $"knockback={target.KnockbackActive}, live={fireball.IsActive}.");
         }
+
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, target, beforeContact, 60, 1, "Fune fireball");
 
         // Repeat through Polyp's natural proximity/tell/RNG sequence.
         (enemies, _) = LoadRoom(bus, room, assets, out producer);
@@ -374,17 +377,19 @@ internal static class VolcanoEnemyAudit
         RoomEnemyProjectileSlot rock = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.PolypRock);
         target = CreateSamus(bus, rock.XPosition, rock.YPosition);
+        beforeContact = EnemyContactAuditAssertions.Capture(target);
         enemies.StepEnemyProjectiles(
             assets.LevelData,
             target,
             cameraX: cameraX,
             cameraY: cameraY);
-        if (target.Health != 983 || !target.KnockbackActive || rock.IsActive)
+        if (target.Health != 983 || rock.IsActive)
         {
             throw new InvalidDataException(
                 $"Polyp rock contact mismatch: health={target.Health}, " +
                 $"knockback={target.KnockbackActive}, live={rock.IsActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, target, beforeContact, 16, 1, "Polyp rock");
     }
 
     private static void VerifyBodyAndShotReactions(
@@ -402,11 +407,12 @@ internal static class VolcanoEnemyAudit
         samus.YPosition = fune.YPosition;
         samus.Health = 999;
         samus.InvincibilityTimer = 0;
-        if (!enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 989 || !samus.KnockbackActive)
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0))
         {
             throw new InvalidDataException("Fune body contact did not deal header damage ten.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 10, 1, "Fune body");
 
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();

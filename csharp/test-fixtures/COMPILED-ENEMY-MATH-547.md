@@ -328,6 +328,8 @@ scratch remain unchanged. Full Release Verification and Windows Release build
 passed. Volcano's population and natural Fune/Polyp motion checks pass before
 its immediate-knockback contact assertion fails; the complete audit is not
 claimed passing. That diagnostic follow-up is tracked by #585.
+The #585 contact assertions were subsequently repaired without production edits;
+the complete Volcano encounter now passes. See VOLCANO-AUDIT-585.md.
 
 This is not the entire lookup-table migration. Remaining signed-table callers,
 family-specific speed tables, other family tables, callback classification

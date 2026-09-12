@@ -141,10 +141,9 @@ public sealed partial class SamusState
     }
 
     /// <summary>
-    /// Reads signed pose-definition byte four. Grapple firing uses this graphics-origin
-    /// correction before applying the direction-specific hand offset at <c>$9B:C51E</c>.
-    /// Keeping the byte behind a named accessor prevents the grapple port from duplicating
-    /// the bank-$91 pose-table address or silently treating a negative offset as unsigned.
+    /// Reads signed pose-definition byte four for presentation, including Grapple's flare.
+    /// Physical beam/Grapple origins use their separate compiled correction; replacing
+    /// artwork must not shift a projectile's collision position.
     /// </summary>
     public sbyte ReadGraphicsYOffset(ISnesAddressSpace bus)
     {

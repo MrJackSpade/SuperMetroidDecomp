@@ -1634,3 +1634,46 @@ this does not complete Samus artwork extraction or the wider integration contrac
 
 Focused compiled-definition checks, all 18 physics fixtures, full Release
 Verification and the Windows Release build pass (zero build warnings/errors).
+
+## Physical pose correction separated from graphics-Y artwork
+
+`PoseDefinitions` byte four was still moving physical projectiles when presentation
+changed. Compiled the 253 authored physical correction bytes ($00..$FC poses) in
+`SamusPoseProjectileOriginDefinitions`; $FD..$FF retain adjacent-data reads.
+Beam/missile `InitializePosition`, Grapple `BeginFiring`, and Grapple's late
+physical Start update consume the compiled field. Body, cannon and charge/beam
+flare presentation remain on their visual reader and are not converted to
+mechanical data. The moving Draygon-held launch still uses its fixed correction.
+
+Reproduced art/physics coupling before production changes: an art-only Y override
+made real projectile initialization return Y=65527 instead of native Y=65519.
+The new fixture checks 647,680 actual projectile/Grapple launch and late-origin
+updates (253 poses x ten directions x 256 visual offset bytes). It asserts physical
+X/Y, Grapple collision endpoint, recomputed Start, unchanged late endpoint and
+separately shifted visual Flare. All authored catalog reads additionally run with
+a bus that throws on every access; the three adjacent-data cases match the ROM.
+
+The pinned assembly also corrected an earlier host assumption: $90:BA83,
+$9B:C52F and $9B:BF28 all mask the pose byte with $00FF. Physical Grapple must
+zero-extend it, not sign-extend it. A constructed high-byte-offset case reproduced
+the 256-pixel error (expected 7035, actual 7291) before changing that arithmetic.
+The four authored $FC offsets belong to drained poses with no ordinary fireable
+direction; the fixture explicitly supplies a direction to exercise the producer.
+This is not evidence of a naturally reachable firing bug during that cinematic.
+It supersedes earlier evidence describing Grapple physical corrections as signed;
+visual-offset API semantics remain unchanged in this slice.
+
+Updated the existing terrain fixture's source Y to retain an endpoint inside its
+target block after applying the real falling-pose correction. Its native acquisition
+angle, biased rope coordinates and camera-clamp expectations now reflect that
+setup; solid/extension/PLM, swing, wall-grab and release assertions remain intact.
+
+This is shared #547/#540/#541 work. Other pose fields and animation programs,
+direction-specific projectile origin tables, editable resources and the full
+#530/#549 contract remain incomplete.
+
+The existing point-missile slope fixture now positions the body six pixels below
+its requested muzzle coordinate, preserving its exact surface-boundary assertions
+under the native standing-pose correction instead of relying on zeroed metadata.
+Focused compiled-definition checks, all 18 physics fixtures, full Release
+Verification and the Windows Release build pass (zero build warnings/errors).

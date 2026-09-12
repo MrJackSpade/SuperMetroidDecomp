@@ -1548,7 +1548,9 @@ static void VerifySamusPowerBeamProjectiles()
         {
             Pose = rightPose,
             XPosition = 64,
-            YPosition = yPosition,
+            // The helper argument is the desired muzzle Y, not the body center.
+            // Native standing-pose origins subtract six even with synthetic artwork.
+            YPosition = unchecked((ushort)(yPosition + 6)),
             SelectedHudItem = 1,
             Missiles = 1,
         };

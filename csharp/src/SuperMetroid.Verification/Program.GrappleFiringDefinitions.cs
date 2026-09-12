@@ -33,7 +33,7 @@ internal static partial class Program
                 bool running = bus.Movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
-                int correctedY = y - unchecked((sbyte)bus.GraphicsY);
+                int correctedY = y - rom.ReadByte(0x91b629 + samus.Pose * 8 + 4);
                 samus.XPosition = (ushort)raw;
                 samus.YPosition = unchecked((ushort)~raw);
                 grapple.Phase = GrapplePhase.Inactive;
@@ -44,7 +44,7 @@ internal static partial class Program
                 AssertEqual(angle, grapple.Angle.RawValue, "Actual launch angle");
                 AssertEqual(angle, grapple.MirroredAngle.RawValue, "Actual mirrored angle");
                 AssertEqual(x, grapple.OriginXOffset, "Actual physical origin X");
-                AssertEqual(unchecked((short)correctedY), grapple.OriginYOffset, "Signed graphics correction");
+                AssertEqual(unchecked((short)correctedY), grapple.OriginYOffset, "Native physical correction independent of graphics");
                 AssertEqual(unchecked((ushort)(samus.XPosition + x)), grapple.AnchorX, "Launch anchor wraps X");
                 AssertEqual(unchecked((ushort)(samus.YPosition + correctedY)), grapple.AnchorY, "Launch anchor wraps Y");
                 ushort anchorX = grapple.AnchorX, anchorY = grapple.AnchorY;
@@ -86,7 +86,7 @@ internal static partial class Program
                 AssertEqual(dx, grapple.EndpointXOffsetFixed, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointYOffsetFixed, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.AnchorX, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) + (dy >> 16))), grapple.AnchorY, "Native endpoint Y");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - 6 + (dy >> 16))), grapple.AnchorY, "Native endpoint Y with standing physical correction");
             }
         }
         bus.ReplaceFlare = false;

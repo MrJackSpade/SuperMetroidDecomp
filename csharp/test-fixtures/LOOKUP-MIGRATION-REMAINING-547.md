@@ -125,6 +125,14 @@ of adjacent pose data and a low-bank mutable delay address. Non-catalog reads
 remain explicit dependencies; per-pose animation commands and artwork are still
 outside this completed cadence group.
 
+Pose byte four is shared by artwork and projectile origins. Its physical copy
+for all 253 authored poses is now compiled independently for beam/missile setup,
+Grapple launch and the late physical-origin update. Visual body/cannon/flare
+readers remain separate presentation dependencies. The three trailing pose bytes
+$FD..$FF still read adjacent executable data. Facing, movement, fallback pose,
+shot direction, collision radius and per-pose instruction programs remain live
+mechanical readers; compiling this one shared field does not complete metadata.
+
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
 preserves the existing fallback for non-catalog/unaligned/mutable records.

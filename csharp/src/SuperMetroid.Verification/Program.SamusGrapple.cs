@@ -105,7 +105,8 @@ static void VerifySamusGrappleSwingAndRelease()
 
     // Firing source pose $29 is a retail right-facing fall with shot direction two. The
     // compiled mechanics supply +11.F4 X velocity, zero Y velocity, angle $C000,
-    // and (+2,+2) physical origin. Flare presentation is deliberately synthetic.
+    // and (+2,+2) hand origin minus the native eight-pixel pose correction.
+    // Flare presentation is deliberately synthetic.
     WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
     WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
@@ -122,11 +123,11 @@ static void VerifySamusGrappleSwingAndRelease()
     RoomLevelData firingLevel = CreateRoom(
         8, 8, firingBlocks, new byte[firingBlocks.Length]);
 
-    // Samus minus anchor is (-24,-8), which $A0:C0B1 approximates as angle byte $CA.
-    // Native components are X=-248 and Y=-62; only the displayed frame is synthetic.
-    bus.WriteByte(0x9bc1c2 + 0xca, 5);
+    // Samus at Y=56 puts the corrected firing endpoint at Y=50 inside the target.
+    // Samus minus its centered anchor is (-24,0), exactly angle $C0.
+    bus.WriteByte(0x9bc1c2 + 0xc0, 5);
 
-    SamusState firingSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState firingSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
     SamusGrappleMovement.BeginFiring(bus, firingSamus);
     AssertEqual(GrapplePhase.Firing, firingSamus.Grapple.Phase, "grapple firing phase");
@@ -151,14 +152,14 @@ static void VerifySamusGrappleSwingAndRelease()
         "block acquisition installs swinging function");
     AssertEqual(55, firingSamus.Grapple.AnchorX,
         "accepted grapple block centers X then applies negative-rope side bias");
-    AssertEqual(55, firingSamus.Grapple.AnchorY, "accepted grapple block applies negative Y side bias");
-    AssertEqual(0xca00, firingSamus.Grapple.Angle.RawValue,
+    AssertEqual(56, firingSamus.Grapple.AnchorY, "accepted grapple block applies nonnegative Y side bias");
+    AssertEqual(0xc000, firingSamus.Grapple.Angle.RawValue,
         "connection angle uses bank-$A0 integer octant calculation");
     AssertEqual(SamusPoseIds.GrappleSwingRightPose, firingSamus.Pose,
         "right-half airborne shot selects clockwise grapple pose $B2");
-    AssertEqual(32, firingSamus.Grapple.RopeStartX,
+    AssertEqual(31, firingSamus.Grapple.RopeStartX,
         "accepted connection publishes native rope Start X");
-    AssertEqual(50, firingSamus.Grapple.RopeStartY,
+    AssertEqual(56, firingSamus.Grapple.RopeStartY,
         "accepted connection publishes native rope Start Y");
     AssertEqual(firingSamus.Grapple.RopeStartX, firingSamus.Grapple.BeamStartX,
         "swing command copies rope Start X into flare/draw X");
@@ -166,11 +167,11 @@ static void VerifySamusGrappleSwingAndRelease()
         "swing command copies rope Start Y into flare/draw Y");
     AssertEqual(0, firingSamus.Kinematics.YSpeed,
         "connection common tail clears whole Y speed");
-    AssertEqual(2, firingSamus.XPosition, "native frame $19 offsets body thirty pixels left of rope start");
-    AssertEqual(14, connected.CameraPreviousX!.Value,
+    AssertEqual(0, firingSamus.XPosition, "native frame $18 offsets body thirty-one pixels left of rope start");
+    AssertEqual(12, connected.CameraPreviousX!.Value,
         "connection common tail clamps previous X to twelve pixels from native body");
-    AssertEqual(48, connected.CameraPreviousY!.Value,
-        "connection common tail retains in-range camera previous Y");
+    AssertEqual(59, connected.CameraPreviousY!.Value,
+        "connection common tail clamps previous Y to twelve pixels from native body");
 
     // BTS one must use the same accepted-connection path, but setup CFB5 also creates an
     // independent bank-$84 object and clears BTS before returning flags $41. This direct
@@ -182,7 +183,7 @@ static void VerifySamusGrappleSwingAndRelease()
     breakableFiringBts[3 * 8 + 3] = 1;
     RoomLevelData breakableFiringLevel = CreateRoom(
         8, 8, breakableFiringBlocks, breakableFiringBts);
-    SamusState breakableFiringSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState breakableFiringSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     breakableFiringSamus.Kinematics.YSpeed = 1;
     var breakableFiringPlms = new RoomPlmSystem();
     SamusGrappleMovement.BeginFiring(bus, breakableFiringSamus);
@@ -218,7 +219,7 @@ static void VerifySamusGrappleSwingAndRelease()
     horizontalExtensionBlocks[3 * 8 + 4] = 0xe000;
     RoomLevelData horizontalExtensionLevel = CreateRoom(
         8, 8, horizontalExtensionBlocks, horizontalExtensionBts);
-    SamusState horizontalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState horizontalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     horizontalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, horizontalExtensionSamus);
     SamusGrappleMovement.StepFiring(
@@ -241,7 +242,7 @@ static void VerifySamusGrappleSwingAndRelease()
     verticalExtensionBlocks[4 * 8 + 3] = 0xe000;
     RoomLevelData verticalExtensionLevel = CreateRoom(
         8, 8, verticalExtensionBlocks, verticalExtensionBts);
-    SamusState verticalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState verticalExtensionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     verticalExtensionSamus.Kinematics.YSpeed = 1;
     SamusGrappleMovement.BeginFiring(bus, verticalExtensionSamus);
     SamusGrappleMovement.StepFiring(
@@ -250,7 +251,7 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, verticalExtensionLevel, verticalExtensionSamus, (ushort)SnesButton.X);
     AssertTrue(verticalExtensionConnection.Connected,
         "vertical extension BTS dispatches its referenced grapple block");
-    AssertEqual(55, verticalExtensionSamus.Grapple.AnchorY,
+    AssertEqual(56, verticalExtensionSamus.Grapple.AnchorY,
         "vertical extension keeps physical endpoint block Y");
 
     // Ordinary solid-family blocks return carry with overflow clear. That is not a rope
@@ -259,7 +260,7 @@ static void VerifySamusGrappleSwingAndRelease()
     solidBlocks[3 * 8 + 3] = 0x8000;
     RoomLevelData solidLevel = CreateRoom(
         8, 8, solidBlocks, new byte[solidBlocks.Length]);
-    SamusState solidCollisionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState solidCollisionSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     SamusGrappleMovement.BeginFiring(bus, solidCollisionSamus);
     SamusGrappleMovement.StepFiring(
         bus, solidLevel, solidCollisionSamus, (ushort)SnesButton.X);
@@ -284,7 +285,7 @@ static void VerifySamusGrappleSwingAndRelease()
         spikeBlocks[3 * 8 + 3] = 0xa000;
         spikeBts[3 * 8 + 3] = behavior;
         RoomLevelData spikeLevel = CreateRoom(8, 8, spikeBlocks, spikeBts);
-        SamusState spikeSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+        SamusState spikeSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
         spikeSamus.Kinematics.YSpeed = 1;
         SamusGrappleMovement.BeginFiring(bus, spikeSamus);
         SamusGrappleMovement.StepFiring(
@@ -322,7 +323,7 @@ static void VerifySamusGrappleSwingAndRelease()
         endpointBts[3 * 8 + 3] = 0x0c;
         RoomLevelData endpointLevel = CreateRoom(8, 8, endpointBlocks, endpointBts);
         var endpointPlms = new RoomPlmSystem();
-        SamusState endpointSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+        SamusState endpointSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
         SamusGrappleMovement.BeginFiring(bus, endpointSamus);
         SamusGrappleMovement.StepFiring(
             bus, endpointLevel, endpointSamus, (ushort)SnesButton.X, endpointPlms);
@@ -342,7 +343,7 @@ static void VerifySamusGrappleSwingAndRelease()
     var emptyWideBlocks = new ushort[16 * 8];
     RoomLevelData emptyWideLevel = CreateRoom(
         16, 8, emptyWideBlocks, new byte[emptyWideBlocks.Length]);
-    SamusState rangeLimitedSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
+    SamusState rangeLimitedSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 56);
     SamusGrappleMovement.BeginFiring(bus, rangeLimitedSamus);
     for (int firingFrame = 0; firingFrame < 10; firingFrame++)
     {

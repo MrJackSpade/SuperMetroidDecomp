@@ -475,13 +475,14 @@ public static partial class SamusGrappleMovement
             ? SamusGrappleRomData.Firing.RunningFlareY
             : SamusGrappleRomData.Firing.DefaultFlareY;
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
+        byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStartX = unchecked((ushort)(
             samus.XPosition + origin.X));
         grapple.RopeStartY = unchecked((ushort)(
-            samus.YPosition + origin.Y - graphicsYOffset));
+            samus.YPosition + origin.Y - physicalYOffset));
         grapple.BeamStartX = unchecked((ushort)(
             samus.XPosition + (short)ReadWord(bus, flareXTable + tableOffset)));
         grapple.BeamStartY = unchecked((ushort)(

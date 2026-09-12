@@ -319,6 +319,27 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+Shot/bomb IsLiteralNoOpEnemyAi now uses EnemyShotCallbackDefinitions. The
+pinned-source inventory covers 163 headers plus 221 count-prefixed hitbox lists
+(309 hitboxes), yielding 80 distinct callbacks and twelve literal RTL identities.
+Kraid's eight mouth rectangles and separate body geometry table are not callback
+lists and are explicitly excluded. The initial parser wrongly treated the mouth
+rectangles as lists; the runtime address-map check exposed that error before
+verification passed. The corrected inventory asserts exact counts.
+
+All bank/pointer pairs are checked through the production classifier against
+the inventoried no-op set. Canonical multibox shortcuts remain independent:
+Kraid's private RTL does not suppress scanning, unlike the two engine shortcuts.
+No executable-byte classifier remains in OrdinaryCombat. This compiles supported
+callback identities, not arbitrary ROM-patched entry points.
+
+The broader retail projectile and normal-bomb audits exposed 28/44 failing room
+states involving freeze deadlines, deleted-versus-cleared death expectations and
+the unused area-7 room. These are tracked by #586 for baseline diagnosis and full
+repair; they are not claimed passing or attributed to this migration without
+comparison. The full Release suite and Windows build are the verification gates
+for this scoped classification change; remaining fixed tables still keep #547 open.
+
 Power Bomb literal-no-op classification now uses the bank-qualified
 EnemyPowerBombCallbackDefinitions catalog rather than executable ROM-byte reads.
 All 163 named pinned enemy headers are checked against their native first opcode;

@@ -2204,8 +2204,8 @@ public sealed partial class RoomEnemySystem
         return hitCount;
     }
 
-    private bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
-        pointer != 0 && _bus!.ReadByte((bank << 16) | pointer) == 0x6b;
+    private static bool IsLiteralNoOpEnemyAi(byte bank, ushort pointer) =>
+        EnemyShotCallbackDefinitions.IsLiteralNoOp(bank, pointer);
 
     /// <summary>
     /// Tests the two engine-owned no-op callback addresses checked directly by

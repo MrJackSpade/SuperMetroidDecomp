@@ -1929,7 +1929,8 @@ public sealed partial class SuperMetroidRuntime
                         // Locked alpha advances existing shots without dispatching the
                         // HUD weapon producer (including station command six).
                         projectileProducerEnabled: !Samus.InputLocked && !DebugGrappleItemSelected,
-                        roomPlms: Plms);
+                        roomPlms: Plms,
+                        controllerPreviousNewInput: Samus.PreviousDrawNewInput);
 
                     if (!TimeIsFrozen)
                         BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);

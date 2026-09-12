@@ -429,9 +429,10 @@ public sealed partial class SamusProjectileSystem
         const ushort shoot = (ushort)SnesButton.X;
 
         // `$90:BE65-$BE72` accepts either the current new-press word or the previous filtered
-        // drawing word. Ordinary live input normally makes the second word zero; bank-$91
-        // demo playback intentionally republishes its prior edge there. Cooldown still owns
-        // admission, so the delayed copy cannot manufacture desktop auto-fire.
+        // drawing word. Live gameplay retains that edge through the next alpha, allowing
+        // a press one frame before cooldown expires to fire on the following frame.
+        // Bank-$91 demo playback supplies the analogous scripted edge. Cooldown still
+        // owns admission, so the delayed copy cannot manufacture held-button auto-fire.
         if (((controllerNewInput | controllerPreviousNewInput) & shoot) == 0)
             return (null, 0);
 

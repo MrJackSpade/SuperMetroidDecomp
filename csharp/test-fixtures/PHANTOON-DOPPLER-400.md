@@ -2,8 +2,8 @@
 
 ## Status
 
-In progress. The normal-input barrage search is diagnostic, not a completed
-native parity matrix. Remaining acceptance includes spaced barrages, moving and
+In progress. The initial 30-run barrage matrix now matches native execution, but
+does not establish every technique in this ticket. Remaining acceptance includes spaced barrages, moving and
 aerial Dopplers, missile cooldown/closure boundary sweeps, Samus-position effects
 on the returning boss, and finisher controls. Do not mark awaiting validation
 based only on this first crash correction.
@@ -36,3 +36,54 @@ Existing original-CPU comparisons also remain green: #401's 15,300 frames and
 #402's 16,770 Phantoon frames. This correction is verified independently of the
 still-incomplete Doppler parity investigation. No exception handler or native
 emulation rule was loosened.
+
+## Reproduced missing missile input carry
+
+Original-CPU capture of the same 30 input sequences found the first mismatch at
+start1640/cadence9/no-jump/frame1650: native projectile slot zero contains missile
+`$8100`, while the port contains no projectile. The physical Shoot edge was on
+1649. Native `$90:BE65..BE72` accepts either current new input or the saved
+draw-time new input (`$0E00`), allowing a press one frame before cooldown expires
+to fire on the following frame. The missile producer already supported that
+word, but `SuperMetroidRuntime` omitted its argument. Only cinematic playback
+passed it. The runtime now passes `Samus.PreviousDrawNewInput`, already owned by
+the translated `$90:EAB3` draw epilogue. No new input buffer or boss exception
+was introduced. Corrected the misleading comment that this word is ordinarily
+zero during live gameplay.
+
+`DebugRunner --missile-input-carry-audit ROM` is a full-runtime synthetic-room
+regression, with ordinary missile selection and Shoot edges. After firing on
+frame0, second presses at8/9/10/11 yield respectively no second shot, a shot at10,
+a shot at10, and a shot at11. Holding Shoot for24 frames yields only the initial
+shot. Ammo consumption is asserted alongside exact firing frames. Before the
+fix, the frame9 case fails (only shot0); all five controls pass afterward.
+
+The full normal-input Phantoon comparison then matches **55,500 frames** and
+150 numeric columns per frame, covering Samus position/pose/health, boss
+position/phase/hurt clocks, player/enemy projectiles, and swoop velocities/target.
+This matrix does not yet compare the eye instruction timer or prove successful
+spaced/aerial Dopplers. A jump input may be rejected while Samus is already
+airborne or hurt; do not label such a case successful aerial coverage.
+
+### Native reproduction
+
+Use the same pinned ROM/upstream revisions documented in PHANTOON-ENRAGE-401.md.
+The native fixture uses Varia only, no beams, 100 missiles, no Supers/Power Bombs,
+health999 and RNG `$0061`. It runs original game-state-eight code with the real
+room PLM/FX setup. No code, projectile or actor state is replaced after setup.
+
+Apply `movement-release/native-phantoon-doppler-entrypoint.patch` to the pinned
+native checkout, then rebuild Release x64. It dispatches before SDL and reports
+errors/warnings to stderr. After use, remove hooks and rebuild the normal binary.
+
+```text
+sm.exe --diagnostic-phantoon-doppler ROM output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-doppler-search ROM output.csv
+```
+
+The optional CSV comparison pins the accepted fingerprint. Two independent
+captures match SHA256
+`609DBAFF42F94CEEBC53B670C8ABDD91C0D97503ADAC6B81876069015BFA0BC5`.
+`movement-release/phantoon-doppler-400.zip` preserves the numeric-only CSV,
+including60 native setup records. No ROM, save, screenshots, artwork or audio
+is included. Full verification also passes with the production handoff fix.

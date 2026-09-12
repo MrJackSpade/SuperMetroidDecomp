@@ -323,11 +323,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void SpawnGunshipLiftoffDustCloud(ushort parameter, SamusState samus)
     {
-        if (parameter > 0x000a || (parameter & 1) != 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A.");
-        }
+        // Validate before allocation, including when the native projectile pool is full.
+        var definition = GunshipDustDefinitions.ForParameter(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -337,18 +334,12 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphicsIndex: 0);
-        int tableIndex = parameter >> 1;
-        projectile.XPosition = unchecked((ushort)(samus.XPosition +
-            unchecked((short)ReadWord(
-                _bus!,
-                EnemyRomTablePointers.Ceres.FallingDebrisXOffsetWords + tableIndex * 2))));
-        projectile.YPosition = unchecked((ushort)(samus.YPosition + 0x0050));
+        projectile.XPosition = unchecked((ushort)(samus.XPosition + definition.XOffset));
+        projectile.YPosition = unchecked((ushort)(samus.YPosition + GunshipDustDefinitions.YOffset));
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
         projectile.Variable0 = parameter;
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ceres.FallingDebrisInstructionPointers + tableIndex * 2);
+        projectile.InstructionPointer = definition.Instruction;
         projectile.InstructionTimer = 1;
     }
 

@@ -950,3 +950,24 @@ audit pass as well. No gameplay contact behavior was altered to satisfy it.
 Remaining inventory corrected: the supposedly Ceres-debris tables $86:A2D6/A2E2
 actually belong to gunship liftoff dust. They remain live readers and are not
 claimed migrated by this change. Broader #547 acceptance remains incomplete.
+
+## Gunship liftoff dust spawn definitions
+
+Compiled the six signed X offsets and six initial list pointers at $86:A2D6..A2ED,
+plus the native Y-offset immediate from $86:A2C4, into GunshipDustDefinitions.
+The real spawn routine retains validation before allocation, native reverse slot
+allocation, header initialization, zero velocity/fractions and initial timer one.
+Renamed/moved the reference constants from the misleading Ceres/FallingDebris
+group to Gunship.Dust members; the reference-range diagnostic follows that rename.
+
+All twelve record words match the pinned ROM. Exercised 393,216 real spawns:
+six parameters times every 16-bit X/Y origin, including both signs of offset and
+word wrap. Assertions cover actual allocated slot, position, list, timer, retained
+parameter and clearing stale fractions/velocities. A forwarding bus rejects all
+migrated table reads while still providing real projectile headers. Six requests
+against a full pool preserve existing actors, and invalid parameters still fail
+before that full-pool return. Native source: $86:A2A1..A2ED.
+
+Full Release Verification and Windows Release build pass. Animation instruction
+programs/artwork remain separate presentation work; this migration removes spawn
+definition reads, not the entire gunship presentation dependency. #547 remains open.

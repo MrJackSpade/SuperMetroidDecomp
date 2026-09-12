@@ -58,6 +58,7 @@ internal static partial class Program
         VerifyCompiledSlopeSpeeds(rom);
         VerifyCompiledSquareSlopes(rom);
         VerifyCompiledTorizoInitialization(rom);
+        VerifyCompiledGunshipDust(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

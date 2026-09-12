@@ -62,10 +62,6 @@ internal static class EnemyRomTablePointers
         public const int TailTipSpritemapPointers = 0xa6dcba;
         /// <summary>Ridley wing spritemap pointers at $A6:DB02.</summary>
         public const int WingSpritemapPointers = 0xa6db02;
-        /// <summary>Six gunship liftoff dust X-offset words at $86:A2D6 (12 bytes); legacy member grouping is not Ceres ownership.</summary>
-        public const int FallingDebrisXOffsetWords = 0x86a2d6;
-        /// <summary>Six gunship liftoff dust instruction-list pointers at $86:A2E2 (12 bytes); legacy member grouping is not Ceres ownership.</summary>
-        public const int FallingDebrisInstructionPointers = 0x86a2e2;
         /// <summary>Ridley rotation divisors at $A6:D712.</summary>
         public const int RidleyRotationDivisorBytes = 0xa6d712;
         /// <summary>Ceres Ridley fade component steps at $A6:E269.</summary>
@@ -93,6 +89,10 @@ internal static class EnemyRomTablePointers
     /// <summary>Landing Site gunship graphics-transfer tables.</summary>
     public static class Gunship
     {
+        /// <summary>Six signed liftoff dust X-offset words at $86:A2D6 (12 bytes).</summary>
+        public const int DustXOffsetWords = 0x86a2d6;
+        /// <summary>Six liftoff dust instruction-list pointers at $86:A2E2 (12 bytes).</summary>
+        public const int DustInstructionPointers = 0x86a2e2;
         /// <summary>Five graphics source pointers at $A2:AC07 (10 bytes).</summary>
         public const int LiftoffGraphicsSourceWords = 0xa2ac07;
         /// <summary>Five VRAM destination words at $A2:AC11 (10 bytes).</summary>

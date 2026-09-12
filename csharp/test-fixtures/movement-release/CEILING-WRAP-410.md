@@ -141,3 +141,32 @@ a managed reproduction, not a native golden trace or proof of an additional
 defect. The next comparison must include the cartridge's pose/input dispatch,
 projectile production, camera and PLM handler timing. No speculative movement or
 PLM lifetime change was made from this incomplete evidence.
+
+## Native verification of the unsuccessful setup
+
+`native-frog-runtime-probe.h` now reproduces that room-local input sequence on
+the original CPU. It decompresses the authored Frog Speedway level with the
+existing asset decoder, copies its BTS and scrolls, and executes original ROM
+input, pose, cooldown, firing, projectile, movement, camera and PLM routines.
+The room has an empty resident PLM population. No rendered frame, enemy AI or
+audio playback is part of this comparison; the VRAM transfer queue is drained
+between frames. All controller bindings are initialized explicitly. Source
+hooks are temporary and removed after each capture.
+
+The initial experiment omitted `$90:AC1C` cooldown advancement and fired only
+once; that output is invalid for held-fire timing and is not a golden fixture.
+After including cooldown, **all 900 records match the managed full runtime**:
+X/sub-X, Y, pose, active PLM count and camera X. Both implementations fill the
+pool on frame 343, move on frame 344, and stop at X=842. The committed
+`frog-runtime-410.csv` is therefore an unsuccessful native setup, not a desired
+traversal result. Two independent native runs match byte-for-byte.
+
+```
+sm.exe --frog-runtime-probe "Super Metroid.smc" NEW_OUTPUT.csv
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-runtime csharp/test-fixtures/movement-release/frog-runtime-410.csv
+```
+
+The comparison runs in the default suite. This evidence rules out changing
+movement or respawn duration merely to force this setup across: it already
+matches the cartridge's failure. A successful native input/equipment/setup
+sequence is still needed before asserting complete Speedless Speedway parity.

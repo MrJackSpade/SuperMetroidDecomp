@@ -10,7 +10,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("_kraidState", flags)!.SetValue(enemies, state);
         enemies.Slots[0].EnemyDefinitionPointer = RoomEnemySystem.KraidDefinition;
         ushort random = 0;
@@ -33,7 +33,12 @@ internal static partial class Program
             bool diagonal = (random & 1) == 0 || siblingFlag == 1;
             int table = (short)sibling.VariableE < 0 ? 0xa7be3e : 0xa7be46;
             int pointer = 0xa70000 | Word(table + (random & 6));
+            AssertEqual((Word(pointer), Word(pointer + 2), Word(pointer + 4), Word(pointer + 6)),
+                KraidNailLaunchDefinitions.FromSiblingVelocity(sibling.VariableE), "All native indirect launch records match compiled words");
+            nail.VariableB = nail.VariableD = ushort.MaxValue;
             initialize(nail, part);
+            AssertEqual((ushort)0, nail.VariableB, "Launch clears old X fraction");
+            AssertEqual((ushort)0, nail.VariableD, "Launch clears old Y fraction");
             AssertEqual(diagonal ? Word(pointer + 6) : (ushort)0, nail.VariableE, "Nail launch Y velocity comes from sibling sign");
             AssertEqual(diagonal ? Word(pointer + 2) : (ushort)1, nail.VariableC, "Nail launch X velocity and horizontal override");
             AssertEqual((ushort)(diagonal ? 0 : 1), part.AlternateSpawnFlag, "Nail spawn mode consults sibling flag, writes own flag");
@@ -41,6 +46,6 @@ internal static partial class Program
             AssertEqual((ushort)raw, sibling.VariableE, "Sibling velocity remains unchanged");
             AssertEqual((ushort)(diagonal ? KraidAiFunction.FingernailFire : KraidAiFunction.FingernailWaitForLint), nail.VariableA, "Sibling choice selects actual launch phase");
         }
-        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and four sibling flags match native launch handoff.");
+        Console.WriteLine("Kraid nail sibling: both slots, all RNG/sign words and four sibling flags match native launch handoff without ROM access.");
     }
 }

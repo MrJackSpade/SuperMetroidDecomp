@@ -1201,3 +1201,19 @@ coordinates wrap across the full word domain. Any production bus access throws.
 
 Focused and full Release Verification, the complete Kraid audit and Windows
 Release build pass. No new player-visible collision correction is claimed.
+
+## Kraid fingernail indirect launch words
+
+BE3E/BE46 point to eight four-word records at BE4E..BE8D. All four
+RNG-selected records within each sign group are identical. Compiled the two
+distinct fixed-point tuples rather than retaining redundant pointer lookups.
+Current RNG is still read for horizontal/diagonal spawn mode. The sibling-state
+correction from #598 is preserved and not attributed to this migration.
+
+Extended the actual initializer regression to forbid all bus access, compare
+all four compiled words against the pointed-to native records, and explicitly
+assert stale fractional velocities are cleared. Both nail slots, every RNG/sign
+word and four sibling flags cover 524,288 actual initializations. This covers
+launch definitions, not the remaining contour or bounce-arithmetic parity.
+
+Full Release Verification, complete Kraid audit and Windows Release build pass.

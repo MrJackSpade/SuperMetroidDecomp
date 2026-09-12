@@ -62,14 +62,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot sibling = _slots[siblingIndex];
         KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
         ushort random = RequireRandomNumber();
-        int pointerTable = unchecked((short)sibling.VariableE) < 0
-            ? EnemyRomTablePointers.Kraid.NailUpwardVelocityPointers
-            : EnemyRomTablePointers.Kraid.NailDownwardVelocityPointers;
-        ushort velocityPointer = ReadWord(_bus!, pointerTable + ((random & 6) >> 1) * 2);
-        nail.VariableB = ReadWord(_bus!, 0xa70000 | velocityPointer);
-        nail.VariableC = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(velocityPointer + 2)));
-        nail.VariableD = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(velocityPointer + 4)));
-        nail.VariableE = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(velocityPointer + 6)));
+        (nail.VariableB, nail.VariableC, nail.VariableD, nail.VariableE) =
+            KraidNailLaunchDefinitions.FromSiblingVelocity(sibling.VariableE);
         nail.Parameter1 = 1;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);

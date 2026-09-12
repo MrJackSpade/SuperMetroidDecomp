@@ -233,13 +233,13 @@ public sealed partial class SamusProjectileSystem
                 $"Missile slot contains invalid direction ${direction:X2}."),
         };
         if (collided)
-        {
             KillMissile(bus, slot, sharedProjectiles);
-            return true;
-        }
 
+        // The native missile direction handler may create an explosion just
+        // beyond the retention boundary. Its caller still runs the offscreen
+        // check on that same frame, after impact sound/cooldown side effects.
         DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
-        return false;
+        return collided;
     }
 
     private bool RunSuperMissilePreInstruction(

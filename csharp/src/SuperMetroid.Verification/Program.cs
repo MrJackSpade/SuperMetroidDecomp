@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--missile-edge", var missileEdgeTrace])
+{
+    VerifyMissileImpactCameraEdge(missileEdgeTrace);
+    return 0;
+}
 if (args is ["--hero-shots"])
 {
     VerifyHeroShotCameraLifetime();
@@ -51,6 +56,7 @@ if (args is ["--samus-projectiles"])
     VerifyBeamSpeedRows();
     VerifyProjectileCooldowns();
     VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
+    VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
     return 0;
 }
 if (args is ["--botwoon-plm-identity"])
@@ -765,6 +771,7 @@ VerifySamusPowerBeamProjectiles();
 ProbeProjectileVelocityInheritance();
 VerifyProjectileCooldowns();
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
+VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();

@@ -516,3 +516,18 @@ All 32 slope values and 2,097,152 signed velocity/shape products match the ROM
 reference. All 65,536 Yard selector inputs match both native words after the cap.
 The complete shared-crawler and Aqueduct Yard audits, full Release Verification,
 and Windows Release build pass. This is a mechanics-data migration, not a new player-visible fix.
+
+## Alcoon and Fune/Namihe fireball launch records
+
+`EnemyFireballLaunchDefinitions` replaces three Alcoon Y words at $86:9EF9
+and eight left/right pairs at $86:DEB6. The Fune low-byte selector ignores its
+high byte, and left speed remains stored in the projectile's Y-velocity field.
+All 19 native words and 2,048 valid high-byte/selector combinations compare
+exactly. Alcoon's existing selector restriction remains; Fune selectors beyond
+the eight authored entries now fail explicitly instead of reading adjacent code.
+Arbitrary modified populations using those values are not claimed supported.
+
+Full Release Verification, complete Volcano audit and Windows Release build
+pass. The Alcoon audit passes earlier motion/projectile checks but fails its
+unchanged immediate-contact assertion; #589 tracks that diagnostic repair.
+No full Alcoon encounter success or completion of #547 is claimed.

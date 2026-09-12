@@ -9,7 +9,6 @@ public sealed partial class RoomEnemySystem
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_NamiFuneFireball;
     private const ushort NamiFuneFireballMovingLeft = 0xdf40;
     private const ushort NamiFuneFireballMovingRight = 0xdf6a;
-    private const int NamiFuneFireballVelocityTable = 0x86deb6;
 
     /// <summary>
     /// Ports the shared projectile initializer at $86:DED6. The source population's low
@@ -49,10 +48,9 @@ public sealed partial class RoomEnemySystem
         if ((source.Parameter1 & 0x000f) != 0)
             projectile.YPosition = unchecked((ushort)(projectile.YPosition + 4));
 
-        int velocityRecord = NamiFuneFireballVelocityTable +
-            unchecked((byte)source.Parameter2) * 4;
-        projectile.YVelocity = ReadWord(_bus!, velocityRecord);
-        projectile.XVelocity = ReadWord(_bus!, velocityRecord + 2);
+        var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(source.Parameter2);
+        projectile.YVelocity = velocities.Left;
+        projectile.XVelocity = velocities.Right;
     }
 
     /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>

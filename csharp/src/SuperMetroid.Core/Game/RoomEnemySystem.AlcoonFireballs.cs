@@ -12,7 +12,6 @@ public sealed partial class RoomEnemySystem
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
     private const ushort AlcoonFireballTerminalHorizontalSpeed = 0x0200;
     private const ushort AlcoonFireballHorizontalDeceleration = 0x0040;
-    private const int AlcoonFireballYVelocityTable = 0x869ef9;
 
     /// <summary>
     /// Ports <c>InitAI_EnemyProjectile_AlcoonFireball</c> at <c>$86:9EB2</c>. The parameter
@@ -48,9 +47,7 @@ public sealed partial class RoomEnemySystem
         projectile.XVelocity = movingLeft
             ? unchecked((ushort)-AlcoonFireballGraphicsHorizontalSpeed)
             : AlcoonFireballGraphicsHorizontalSpeed;
-        projectile.YVelocity = ReadWord(
-            _bus!,
-            AlcoonFireballYVelocityTable + yVelocityTableByteOffset);
+        projectile.YVelocity = EnemyFireballLaunchDefinitions.AlcoonYVelocity(yVelocityTableByteOffset);
     }
 
     /// <summary>Ports Alcoon fireball pre-instruction <c>$86:9EFF-$9F40</c>.</summary>

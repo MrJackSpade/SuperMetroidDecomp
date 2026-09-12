@@ -15,8 +15,6 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Rio | $A2:BBBB/BBBF | Initial dive velocity |
 | Norfair Rio | $A2:C1C1/C1C5 | Y selection and fixed X velocity |
 | Lower Norfair Rio | $A2:C6CA/C6CE | Initial dive velocity |
-| Alcoon projectile | $86:9EF9 | Y launch selector |
-| Fune/Namihe projectile | $86:DEB6 | Indexed velocity records |
 | Intro egg particles | $8B:A9EA/AA02 | Split horizontal/vertical velocity integration |
 | Intro slime drops | $8B:AB35/AB49/AC41 | X and parity-dependent Y records |
 | Gameplay renderer | $88:A266/A286 | Horizontal/vertical shape samples read from bus |

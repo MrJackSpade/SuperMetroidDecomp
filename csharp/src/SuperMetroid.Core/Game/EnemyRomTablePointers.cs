@@ -124,6 +124,12 @@ internal static class EnemyRomTablePointers
     /// <summary>Kraid palettes, hitboxes, growth, and projectile motion data.</summary>
     public static class Kraid
     {
+        /// <summary>$A7:BE3E, Function_KraidNail_Initialize.upwardsVelocityPointers; selected when the sibling's Y velocity is negative.</summary>
+        public const int NailUpwardVelocityPointers = 0xa7be3e;
+
+        /// <summary>$A7:BE46, Function_KraidNail_Initialize.downwardsVelocityPointers; selected when the sibling's Y velocity is nonnegative.</summary>
+        public const int NailDownwardVelocityPointers = 0xa7be46;
+
         /// <summary>Initial nail spritemap pointer word at $A7:8B0C.</summary>
         public const int InitialNailSpritemapWord = 0xa78b0c;
         /// <summary>Kraid roar/growth initial timer words at $A7:96D2.</summary>

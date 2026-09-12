@@ -56,8 +56,15 @@ public sealed partial class RoomEnemySystem
 
     private void InitializeKraidNailFlight(RoomEnemySlot nail, KraidPartState part)
     {
+        // The pair coordinates its next launch through the other actor's previous
+        // velocity and spawn flag. Read that actor before overwriting this one's state.
+        int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
+        RoomEnemySlot sibling = _slots[siblingIndex];
+        KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
         ushort random = RequireRandomNumber();
-        int pointerTable = unchecked((short)nail.VariableE) < 0 ? 0xa7be3e : 0xa7be46;
+        int pointerTable = unchecked((short)sibling.VariableE) < 0
+            ? EnemyRomTablePointers.Kraid.NailUpwardVelocityPointers
+            : EnemyRomTablePointers.Kraid.NailDownwardVelocityPointers;
         ushort velocityPointer = ReadWord(_bus!, pointerTable + ((random & 6) >> 1) * 2);
         nail.VariableB = ReadWord(_bus!, 0xa70000 | velocityPointer);
         nail.VariableC = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(velocityPointer + 2)));
@@ -70,7 +77,7 @@ public sealed partial class RoomEnemySystem
         nail.CurrentInstruction = KraidNailInstruction;
         nail.VariableA = (ushort)KraidAiFunction.FingernailFire;
 
-        if ((random & 1) == 0 || part.AlternateSpawnFlag == 1)
+        if ((random & 1) == 0 || siblingPart.AlternateSpawnFlag == 1)
         {
             part.AlternateSpawnFlag = 0;
             RoomEnemySlot body = _slots[0];

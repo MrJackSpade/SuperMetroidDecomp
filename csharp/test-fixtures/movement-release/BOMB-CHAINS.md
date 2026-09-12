@@ -1,6 +1,6 @@
 # Ordinary bomb-chain parity (#412)
 
-## New ceiling traversal candidate search (not yet native evidence)
+## Ceiling traversal candidate search
 
 `BombTraversalSearch` uses ordinary `StepFrame` with controller-placed bombs in a
 constructed Landing Site-width runway. Floor is row 16, ceiling row 0 or 12,
@@ -28,15 +28,58 @@ produced byte-identical files. N=24/offset=4 input SHA256:
 `C12496F859EFA52FFDB8DD576958EF449F38FFB3A4A702152746398C948D8026`.
 The retained generator makes these inputs reproducible without a player state.
 
-Next: replay these FIXED inputs against original cartridge routines, comparing
-per-frame motion, input ownership and every bomb slot; add mirrored direction
-and adjacent failures. A search success in C# alone is not parity evidence.
-Unconstrained horizontal traversal also remains outstanding. #412 stays open
-without awaiting-player-validation.
+The N=24/offset=4 fixed sequence now has the native comparison below. Other
+search candidates are still only managed observations.
 
-Status: short-chain, repeated vertical-ascent, three-bomb and ladder matrices pass.
-Sustained horizontal/ceiling traversal coverage still needs work; do not mark the whole issue ready
-based on these cases alone.
+## Fixed-input ceiling traversal: original-cartridge comparison
+
+`native-bomb-traversal-probe.h` reads the preserved 600 inputs rather than running
+the search policy. It executes the pinned unpatched cartridge's input, bomb
+production, full projectile processing, bomb overlap, movement, animation and
+pose-transition routines. The synthetic 144x80-block room has solid ceiling row
+12 and floor row 16. This is the same bounded gameplay slice as the earlier bomb
+chain probes; unrelated room graphics, enemies and camera tracking are omitted.
+Each facing gets fresh CPU/WRAM. The left case swaps only Left/Right controller
+bits and starts in the corresponding grounded-ball pose; it does not mirror
+observed positions or invent a corrected trajectory.
+
+All 1,200 frames match C#, including full 16.16 X/Y and speeds, pose, bomb
+direction/count, input lock, start/main bomb movement ownership, and all five
+slots' type/fuse/position/list/timer/spritemap fields. The actual native handler
+pointers determine the three ownership flags. Both cases produce 22 launches,
+18 ceiling contacts, and no floor contact after frame 170. Endpoints are exactly
+X=$00C0.3000 (right) / $003F.D000 (left), Y=$00DA.1000. Dedicated assertions
+require those traversal properties in addition to every native frame comparison.
+No production change was needed.
+
+`ceiling-traversal-bomb-412.zip` contains only the fixed input and numeric native
+trace. Native capture was independently repeated; both trace hashes and the
+extracted archive payload agree:
+`0EF1E49E4EAC991804D0575F6E79F7FAAC2437060D956049B87CBEF3FA077309`.
+The input hash remains the one above, including after extracting shared setup to
+`BombTraversalFixture`. No player slots, ROM bytes or rendered assets are stored.
+
+After extracting to a new directory:
+
+```
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --bomb-traversal-comparison "Super Metroid.smc" EXTRACTED/bomb-traversal-ceiling-True-interval-24-offset-4.csv EXTRACTED/bomb-traversal-412-native.csv
+```
+
+Regeneration uses the same pinned sources below: temporarily include
+`native-release-probe.h` then `native-bomb-traversal-probe.h` after `state_recorder`
+in upstream `sm_rtl.c`; dispatch `DiagnosticBombTraversal(rom, inputs, newOutput)`
+before SDL startup. Suppress explicit SDL dialogs on that headless branch. Force
+Rebuild Release/x64 with PlatformToolset=v145; execute
+`sm.exe --bomb-traversal-probe ROM INPUTS NEW_OUTPUT`. CPU calls are instruction-
+bounded and output refuses overwrite. All temporary source hooks were removed
+after both captures; normal native startup was not launched.
+
+Remaining #412 acceptance: adjacent failure cases for this ceiling sequence and
+unconstrained horizontal traversal. Do not mark the whole issue ready based only
+on the successful ceiling cases; it remains open without the validation label.
+
+The sections below record the earlier short-chain, repeated vertical-ascent,
+three-bomb, ladder and steering matrices and the defects they exposed.
 
 `native-bomb-chain-probe.h` executes unmodified cartridge instructions. The room
 is 16 by 32 blocks, floor row 16, walls at columns 0/15, and ceiling at row 0 or

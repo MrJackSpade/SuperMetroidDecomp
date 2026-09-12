@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Game;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
 /// <summary>Exploratory input search only; candidates require independent cartridge replay.</summary>
@@ -13,25 +11,8 @@ internal static class BombTraversalSearch
         for (int interval = 24; interval <= 30; interval++)
         for (int offset = 1; offset <= 8; offset++)
         {
-            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-            var runtime = FlatFloorMovementFixture.Create(bus, false, wideRunway: true);
-            foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
-            foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
-            var level = runtime.LevelData!;
-            for (int x = 0; x < level.WidthInBlocks; x++)
-                level.SetForegroundEntry((ceiling ? 12 : 0) * level.WidthInBlocks + x, 0x8000);
+            var runtime = BombTraversalFixture.Create(rom, ceiling);
             var samus = runtime.Samus!;
-            samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
-            samus.XPosition = 128; samus.YPosition = 249;
-            samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
-            samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
-            samus.RefreshCollisionRadii(bus);
-            samus.InitializeAnimation(bus);
-            samus.SetAnimationFrameFromSpecialHandler(0, 1);
-            samus.PoseHistory.PreviousPose = samus.Pose;
-            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(((byte)SamusMovementType.MorphBallGround << 8) | 8);
-            samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
-            runtime.Controller1.Latch(0);
             int targetX = 128 + offset, launches = 0, floorReturns = 0, ceilingHits = 0;
             var inputs = new List<ushort>();
             for (int frame = 0; frame < 600; frame++)

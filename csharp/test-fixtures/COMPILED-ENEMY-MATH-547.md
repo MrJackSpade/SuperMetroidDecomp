@@ -881,3 +881,25 @@ Sova across four rooms) and Windows Release build pass. A reader scan finds only
 reference declarations for the migrated addresses. Square-slope definition tables,
 Samus horizontal multipliers and broader ROM-free integration remain unfinished;
 #547 remains open.
+
+## Samus grounded slope speed multipliers
+
+Compiled the 32 effective multiplier words at $94:8588 + 4*shape into
+SlopeSpeedDefinitions and removed the production read from SamusSlopePhysics.
+The interleaved speed-modifier words are not copied: inspection of $94:84D6..8585
+shows that their add/subtract results are discarded on every path, with no state
+writes. The native C translation likewise retains only the effective multiplier.
+
+Compared every multiplier with the pinned ROM. Exercised the real production
+scaler for all 65,536 middle-word operands in all 32 shapes, with four independent
+high-byte/sign boundaries (8,388,608 cases). Expected results come from explicit
+native byte packing, modular negation and wide unsigned multiplication, not the
+production helper. Another 26,112 cases cover all BTS bytes, sign/truncation
+boundaries and zero/nonzero whole and fractional vertical speeds. A throwing bus
+proves these paths no longer read cartridge data. Existing real collision and
+grounded-movement fixtures now use compiled native data rather than bus seeding.
+
+Full Release Verification and Windows Release build pass. The reference-address
+declaration remains for diagnostic comparison; no runtime multiplier reader
+remains. Separate square-slope tables and the wider #547 inventory/integration
+remain unfinished.

@@ -19,8 +19,8 @@ compiled; its palette, eye instruction-list and materialization-sound selectors
 remain presentation readers requiring their respective integration audit.
 The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
-bomb spread. Separate square-slope tables and Samus horizontal multipliers remain
-cartridge-backed and are not covered by that migration.
+bomb spread. Samus horizontal multipliers are also compiled and exhaustively
+verified. Separate square-slope tables remain cartridge-backed.
 These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
 the actual runtime read. Inspect authored bounds and adjacent-data behavior

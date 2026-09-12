@@ -9,8 +9,8 @@ namespace SuperMetroid.Core.Game;
 /// <remarks>
 /// Super Metroid does not reduce slopes to a line equation. BTS bits select one of 32
 /// sixteen-sample height profiles, while a separate table scales grounded horizontal
-/// displacement. Compiled height profiles preserve exact discrete geometry; the separate
-/// horizontal multiplier table remains cartridge-backed.
+/// displacement. Compiled profiles and multipliers preserve the exact discrete geometry
+/// and integer movement calculations without reading cartridge tables at runtime.
 /// </remarks>
 public static class SamusSlopePhysics
 {
@@ -50,13 +50,7 @@ public static class SamusSlopePhysics
         if (bts.SlopeFlipsVertically || verticalSpeed != 0)
             return displacement;
 
-        int shape = bts.SlopeShape;
-
-        // Each shape owns two words. $94:84D6 chooses the second word at index
-        // 2*shape+1. For Landing Site BTS $12 that word is $00C0 (three quarters).
-        int multiplierAddress =
-            SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * shape + 1) * 2;
-        ushort multiplier = ReadWord(bus, multiplierAddress);
+        ushort multiplier = SlopeSpeedDefinitions.HorizontalMultiplier(bts.SlopeShape);
 
         // The 65816 discards the displacement's lowest eight fractional bits before the
         // unsigned 16×16 multiply. For negative values it negates that truncated 16-bit
@@ -191,8 +185,6 @@ public static class SamusSlopePhysics
         return true;
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Debugger-visible result of bank-$94's post-horizontal slope correction.</summary>

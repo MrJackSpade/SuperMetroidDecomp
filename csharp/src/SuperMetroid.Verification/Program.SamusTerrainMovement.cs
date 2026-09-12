@@ -18,10 +18,6 @@ static void VerifySamusSlopePhysics()
 
     // Shape $12 selects multiplier-table word index 2*$12+1 = $25. Retail ROM stores
     // $00C0 there, causing a grounded 1.0 displacement to become 0.C000.
-    WriteTestWord(
-        bus,
-        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
-        0x00c0);
     AssertEqual(
         0x0000c000,
         SamusSlopePhysics.ScaleGroundedHorizontalDisplacement(bus, 0x12, 0x00010000, verticalSpeed: 0),
@@ -74,7 +70,7 @@ static void VerifySamusSlopePhysics()
     AssertEqual(21, disabled.YPosition, "disabled horizontal slope collision preserves Y");
     AssertTrue(!disabled.Adjusted, "disabled horizontal slope collision preserves adjusted flag");
 
-    Console.WriteLine("  Samus slopes: ROM multiplier, mirrored height samples, and non-square Y alignment agree.");
+    Console.WriteLine("  Samus slopes: compiled native multiplier, mirrored height samples, and non-square Y alignment agree.");
 }
 
 /// <summary>
@@ -84,10 +80,6 @@ static void VerifySamusSlopePhysics()
 static void VerifySamusBlockCollision()
 {
     var bus = new TestAddressSpace();
-    WriteTestWord(
-        bus,
-        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
-        0x00c0);
 
     const int width = 4;
     const int height = 4;
@@ -578,10 +570,6 @@ static void VerifySamusGroundedMovement()
     // Shape $12 scales grounded horizontal displacement by $00C0/256 = 3/4 and exposes an
     // eight-pixel surface at X nibble eight. Row one is an uninterrupted two-block floor so
     // the radius scan can visit either column without introducing another dispatcher type.
-    WriteTestWord(
-        bus,
-        SamusMovementRomData.Slopes.HorizontalMultipliers + (2 * 0x12 + 1) * 2,
-        0x00c0);
     RoomLevelData level = CreateRoom(
         2,
         3,

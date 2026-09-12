@@ -1567,3 +1567,32 @@ Grapple body-placement offsets or animation resources.
 
 Focused compiled-definition checks, full Release Verification, all 18 physics
 fixtures and the Windows Release build pass (zero build warnings/errors).
+
+## Grapple physical body placement versus displayed frame
+
+The native $9B:BD95 path shares the $C1C2 selector between animation and physical
+body offsets at $C2C2/$C302. Compiled both 32-pair signed X/Y tables and the
+nearest-eight-angle selector in `GrappleBodyPlacementDefinitions`, cross-checked
+against pinned bank_9B.asm and all selector/offset results from the pinned ROM.
+The displayed frame still comes from presentation data; changing it no longer
+selects a different physical body correction. Stock placement is unchanged.
+
+Reproduction: run the actual `PositionSamusFromPendulum` with a presentation bus
+that adds eleven to every displayed frame (modulo 32). The former implementation
+fails the physical X assertion: expected 8, got 34. With compiled placement,
+262,144 actual updates pass across both facings, stock/replaced art, all 16-bit
+mirror angles, distinct rope angles, varying rope lengths and wrapping anchors.
+Tests forbid physical-offset ROM reads, compare X/Y to native signed offsets,
+and separately assert the overridden art frame, timer and beam/rope origins.
+Anchor low-bit bias is native geometry, not a body-placement no-mutation promise.
+
+The older synthetic swing fixture previously installed fake body offsets. It now
+keeps editable art but asserts native physical centers and the consequent camera
+clamp values. Real block acquisition, radial collision, exact-angle wall-grab and
+release assertions remain. This is not a new widening of the wall-grab window.
+
+This slice does not implement external artwork loading, missing-resource policy
+or persistence across updates. Those remain in #540/#541 and the shared contract.
+
+Focused compiled-definition checks, all 18 physics fixtures, full Release
+Verification and the Windows Release build pass (zero build warnings/errors).

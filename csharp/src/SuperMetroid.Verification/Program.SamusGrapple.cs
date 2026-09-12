@@ -123,9 +123,8 @@ static void VerifySamusGrappleSwingAndRelease()
         8, 8, firingBlocks, new byte[firingBlocks.Length]);
 
     // Samus minus anchor is (-24,-8), which $A0:C0B1 approximates as angle byte $CA.
-    // Native components are X=-248 and Y=-62; only art offsets are synthetic.
+    // Native components are X=-248 and Y=-62; only the displayed frame is synthetic.
     bus.WriteByte(0x9bc1c2 + 0xca, 5);
-    bus.WriteBytes(0x9bc302 + 5 * 2, [0x00, 0x00]);
 
     SamusState firingSamus = CreateSamus(SamusPoseIds.FallingRightPose, 32, 48);
     firingSamus.Kinematics.YSpeed = 1; // selects moving-vertically connection table $C3EE
@@ -167,8 +166,9 @@ static void VerifySamusGrappleSwingAndRelease()
         "swing command copies rope Start Y into flare/draw Y");
     AssertEqual(0, firingSamus.Kinematics.YSpeed,
         "connection common tail clears whole Y speed");
-    AssertEqual(32, connected.CameraPreviousX!.Value,
-        "connection common tail retains in-range camera previous X");
+    AssertEqual(2, firingSamus.XPosition, "native frame $19 offsets body thirty pixels left of rope start");
+    AssertEqual(14, connected.CameraPreviousX!.Value,
+        "connection common tail clamps previous X to twelve pixels from native body");
     AssertEqual(48, connected.CameraPreviousY!.Value,
         "connection common tail retains in-range camera previous Y");
 
@@ -510,12 +510,10 @@ static void VerifySamusGrappleSwingAndRelease()
     // At length 50 those offsets become (0,50) and (-1,49). Negative X also
     // changes the block-anchor low nibble from eight to seven.
 
-    // Angle bytes $80/$81 select art frames three/four. Right-pose origin corrections are
-    // (+2,+5) and (+4,-3), making the expected body centers easy to audit by inspection.
+    // Override displayed frames independently of the native physical body offsets.
+    // Both angles retain right-facing body offset (0,+46), despite art frames three/four.
     bus.WriteByte(0x9bc1c2 + 0x80, 3);
     bus.WriteByte(0x9bc1c2 + 0x81, 4);
-    bus.WriteBytes(0x9bc302 + 3 * 2, [0x02, 0x05]);
-    bus.WriteBytes(0x9bc302 + 4 * 2, [0x04, 0xfd]);
 
     // The already-connected pendulum fixture uses an intentionally empty 32x16 room. Its
     // six-point sweep must stay in bounds while proving that no invented terrain response
@@ -542,8 +540,8 @@ static void VerifySamusGrappleSwingAndRelease()
         "grapple movement type from pose record");
     AssertEqual(200, samus.Grapple.BeamStartX, "initial grapple beam-start X");
     AssertEqual(154, samus.Grapple.BeamStartY, "initial grapple beam-start Y");
-    AssertEqual(202, samus.XPosition, "initial grapple art-corrected X");
-    AssertEqual(159, samus.YPosition, "initial grapple art-corrected Y");
+    AssertEqual(200, samus.XPosition, "initial grapple native body X");
+    AssertEqual(200, samus.YPosition, "initial grapple native body Y");
     AssertEqual(3, samus.AnimationFrame, "initial grapple angle art frame");
 
     // Left held at exact $8000 first applies the native +$0100 kick, then +12 input.
@@ -559,8 +557,8 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(0x810c, samus.Grapple.Angle.RawValue, "unobstructed angle integration");
     AssertEqual(198, samus.Grapple.BeamStartX, "advanced grapple beam-start X");
     AssertEqual(153, samus.Grapple.BeamStartY, "advanced grapple beam-start Y");
-    AssertEqual(202, samus.XPosition, "advanced grapple art-corrected X");
-    AssertEqual(150, samus.YPosition, "advanced grapple art-corrected Y");
+    AssertEqual(198, samus.XPosition, "advanced grapple native body X");
+    AssertEqual(199, samus.YPosition, "advanced grapple native body Y");
     AssertEqual(4, samus.AnimationFrame, "advanced grapple angle art frame");
 
     // `$90:EB86` remains installed for every noninactive host phase, but its signed native
@@ -718,7 +716,6 @@ static void VerifySamusGrappleSwingAndRelease()
     // Angle $40 is exactly rightward; the next sample $41 is (+255,+6).
     // Keep those native values and place terrain at the actual nearest probe.
     bus.WriteByte(0x9bc1c2 + 0x40, 0);
-    bus.WriteBytes(0x9bc302, [0x00, 0x00]);
 
     // Anchor (128,128) is biased to (136,136). With length 32, candidate angle $41's
     // nearest probe is 40 pixels from the anchor at (175,136), block (10,8). Gravity adds
@@ -939,7 +936,6 @@ static void VerifySamusGrappleSwingAndRelease()
     // Bank $94 must stop at `$6A80`; bank $9B must then consume record four's literal
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
     bus.WriteByte(0x9bc1c2 + 0x6a, 0);
-    bus.WriteBytes(0x9bc302, [0x00, 0x00]);
 
     var specialBlocks = new ushort[16 * 16];
     specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
@@ -975,10 +971,10 @@ static void VerifySamusGrappleSwingAndRelease()
         "wall-grab snap applies anchor-relative +24 X");
     AssertEqual(152, wallGrabSamus.YPosition,
         "wall-grab snap applies anchor-relative +16 Y");
-    AssertEqual(148, wallGrab.CameraPreviousX,
-        "special snap clamps previous camera X to twelve pixels");
-    AssertEqual(142, wallGrab.CameraPreviousY,
-        "special snap preserves previous camera Y within twelve pixels");
+    AssertEqual(156, wallGrab.CameraPreviousX,
+        "special snap retains native pre-snap body X within twelve pixels");
+    AssertEqual(164, wallGrab.CameraPreviousY,
+        "special snap clamps native pre-snap body Y to twelve pixels");
 
     GrappleMovementResult heldWall = SamusGrappleMovement.Step(
         bus, specialLevel, wallGrabSamus, (ushort)SnesButton.X, newlyPressedInput: 0);

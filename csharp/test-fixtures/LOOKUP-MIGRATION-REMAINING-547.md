@@ -112,9 +112,10 @@ The separate bank-$90 HUD movement-handler table and twelve authored posture
 flags are now compiled in `SamusHudDefinitions`, shared by Grapple admission
 and projectile charge-preservation dispatch. All pose bytes retain native
 posture threshold/adjacent-data behavior; out-of-table flags remain explicit
-ROM dependencies. Grapple's swing body offsets,
-flare animation and drawing pointers remain presentation/mixed readers for
-#540/#541; their effect on physical body placement must not be dismissed as art.
+ROM dependencies. Grapple's swing body offsets and their physical angle selector
+are now compiled separately from the displayed art frame. Flare animation and
+drawing pointers remain presentation readers for #540/#541; editable assets and
+their restart/update behavior are not yet implemented by this separation.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition

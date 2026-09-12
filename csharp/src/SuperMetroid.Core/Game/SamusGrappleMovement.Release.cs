@@ -34,20 +34,17 @@ public static partial class SamusGrappleMovement
         grapple.BeamStartX = ropeStart.X;
         grapple.BeamStartY = ropeStart.Y;
 
-        // $9B:BD95 maps all 256 angle bytes onto the authentic swing-art frame, then adds
-        // a frame-specific origin correction so Samus's hand remains attached to the beam.
+        // Native shares a selector between physical body placement and displayed art.
+        // Keep the authored physical mapping compiled so a visual-frame override cannot
+        // move the collision body. Stock art still selects the same native frame.
         byte artFrame = bus.ReadByte(
             SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
-        int offsetAddress = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? SamusGrappleRomData.Rendering.LeftPoseOffsetsByFrame
-            : SamusGrappleRomData.Rendering.RightPoseOffsetsByFrame;
-        int pairAddress = offsetAddress + artFrame * 2;
-        sbyte xOffset = unchecked((sbyte)bus.ReadByte(pairAddress));
-        sbyte yOffset = unchecked((sbyte)bus.ReadByte(pairAddress + 1));
+        var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.TableIndex,
+            SamusState.IsFacingLeft(bus, samus.Pose));
 
         samus.SetGrappleSwingAnimationFrame(artFrame);
-        samus.XPosition = unchecked((ushort)(ropeStart.X + xOffset));
-        samus.YPosition = unchecked((ushort)(ropeStart.Y + yOffset));
+        samus.XPosition = unchecked((ushort)(ropeStart.X + offset.X));
+        samus.YPosition = unchecked((ushort)(ropeStart.Y + offset.Y));
     }
 
     private static void PropelSamusFromSwing(

@@ -1217,3 +1217,20 @@ word and four sibling flags cover 524,288 actual initializations. This covers
 launch definitions, not the remaining contour or bounce-arithmetic parity.
 
 Full Release Verification, complete Kraid audit and Windows Release build pass.
+
+## Kraid ceiling-break rock placement
+
+Compiled A7:ACB3's nine X coordinates. The byte-addressed accessor preserves
+the old reader's eighteen admitted offsets, including the final odd offset
+overlapping ACC5's AD03 callback word. That compatibility is not a claim about
+native execution of malformed odd callback selectors; authored progression is
+even offsets zero through sixteen.
+
+589,824 actual growth updates cover all Y words and nine authored selectors.
+Tests assert movement-before-emission cadence, selector progression, actual
+rock X/Y/vertical speed and paired ceiling PLM requests. The production bus
+rejects migrated placement reads; projectile definition reads remain separate
+runtime dependencies. The independent rising-rock cadence is disabled in
+this focused fixture; the full Kraid battle audit covers the combined sequence.
+
+Full Release Verification, complete Kraid audit and Windows Release build pass.

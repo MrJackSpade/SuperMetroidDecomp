@@ -461,3 +461,29 @@ twelve setup rows in addition to the compared gameplay rows. The shared
 probe still regenerates the charged-Plasma CSV with its previous exact hash.
 The documented headless open-bus exception and visual/hardware-timing limits
 apply unchanged. No production correction was needed for these sequences.
+
+### Draygon normal-firing trajectory and adjacent controls
+
+`--draygon-fired-plasma-audit "Super Metroid.smc"` runs three complete room-local
+input sequences from before Draygon's intro. The retail room/population, cannons,
+damage/knockback, and first swoop run normally. Initial Samus is grounded at
+(256,443), with X-ray/Gravity and Charge/Plasma, 999 energy, zero ammo, and no
+gameplay cheats. ItemSelect then neutral select X-ray; subsequent inputs hold
+Up and hold Shoot for 90 frames before release. The initial uncharged shot
+misses; one charged shot is fired normally. No actors or projectiles are
+repositioned, and Samus takes real cannon damage during the intro.
+
+- Release 1580: no hits (adjacent early failure).
+- Release 1581 with 60-held/4-released Run cycles after the first hit: hits
+  1590/1654/1718/1782, boss HP 6000 -> 4200.
+- Release 1581 without Run: one hit at 1590, boss HP 6000 -> 5550.
+
+All three cases pass in Release. Each accepted hit asserts 450 damage,
+invincibility 16, flash 11, non-frozen admission and retained beam family.
+Frozen frames check the live invincibility countdown, unchanged body position,
+flash and health, and fixed projectile whole/subpixel position even on scope
+admission itself. Each case requires one uncharged and one charged spawn.
+The configurable `--draygon-fired-plasma-search ROM RELEASE SCOPE` command
+retains the exploration path without claiming its arbitrary timings are parity
+assertions. These port trajectories still require original-CPU comparison;
+the earlier constructed Draygon release fixture is not that comparison.

@@ -15,6 +15,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_Botwoon at $8F:D95E; both room states share the grey-door population.</summary>
     public const ushort Botwoon = 0xd95e;
 
+    /// <summary>RoomHeader_Draygon at $8F:DA60; the four-record Maridia boss encounter.</summary>
+    public const ushort Draygon = 0xda60;
+
     /// <summary>RoomHeader_Hellway at $8F:A2F7, Brinstar room $23.</summary>
     public const ushort Hellway = 0xa2f7;
 

@@ -938,7 +938,6 @@ static void VerifyCeresRidleyRoomEntry()
     bus.WriteByte(0x939105, 8);
     WriteWord(bus, 0x939106, 0);
     WriteWord(bus, 0x939108, 0x822f);
-    bus.WriteByte(0x90c254, 1);
     WriteWord(bus, 0x90c28f, 0x000b);
 
     var enemies = new RoomEnemySystem();
@@ -1098,9 +1097,9 @@ static void VerifyCeresRidleyRoomEntry()
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
-        // Zero fixture muzzle offsets place each stationary power beam at the active ROM
-        // component's center, 32 pixels right of Ridley's live origin. Running the public
-        // producer proves slot allocation/type/radii before the extended-hitbox walk.
+        // Place Samus relative to the active component, then retain native muzzle offset
+        // and first-frame motion. The public producer exercises allocation/type/radii
+        // before this focused extended-hitbox/shot-AI test resolves the impact.
         samus.XPosition = unchecked((ushort)(ridley.XPosition + 32));
         samus.YPosition = ridley.YPosition;
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
@@ -1134,6 +1133,16 @@ static void VerifyCeresRidleyRoomEntry()
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
             projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
         }
+
+        // This focused hit-counter test used to patch the cartridge cooldown to one.
+        // Wait through the real shared projectile owner instead; do not bypass admission
+        // or speed up the separately stepped enemy phase/timer fixture.
+        for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
+        {
+            sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
+            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+        }
+        AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 
         enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
     }

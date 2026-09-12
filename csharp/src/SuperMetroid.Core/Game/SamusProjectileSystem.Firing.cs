@@ -282,14 +282,14 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionTimer = 1;
 
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
-        // uses $19 instead, preserving the native distinction even though both read ROM.
+        // uses $19 instead, preserving the native distinction between the compiled rows.
         byte cooldown = charged
-            ? bus.ReadByte(
+            ? SamusProjectileCooldownDefinitions.ReadByte(bus,
                 SamusProjectileRomData.Beams.UnchargedCooldowns +
-                SamusProjectileRomData.Beams.CooldownCancelRowOffset + beamType)
+                SamusProjectileRomData.Beams.ChargedRowOffset + beamType)
             : (controllerNewInput & shoot) != 0
-                ? bus.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
-                : bus.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
+                ? SamusProjectileCooldownDefinitions.ReadByte(bus, SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
+                : SamusProjectileCooldownDefinitions.ReadByte(bus, SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         ushort sound = ReadWord(

@@ -64,10 +64,10 @@ public static class SamusProjectileRomData
         public const ushort FullyChargedCounter = 60;
         /// <summary>Flare-counter clamp at which bank $90 begins testing special beam attacks.</summary>
         public const ushort SpecialAttackCounter = 120;
-        /// <summary>Normal and cooldown-cancel delays indexed by beam combination.</summary>
+        /// <summary>Uncharged and charged delays indexed by beam combination.</summary>
         public const int UnchargedCooldowns = 0x90c254;
-        /// <summary>Offset from normal delays to the cooldown-cancel delay row.</summary>
-        public const int CooldownCancelRowOffset = 0x10;
+        /// <summary>Offset from uncharged delays to the charged-shot delay row.</summary>
+        public const int ChargedRowOffset = 0x10;
         /// <summary>Held-Shot repeat delays indexed by beam combination.</summary>
         public const int AutoFireCooldowns = 0x90c283;
         /// <summary>Uncharged firing sound IDs indexed by beam combination.</summary>

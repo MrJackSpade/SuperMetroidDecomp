@@ -40,7 +40,7 @@ internal static partial class Program
         }
 
         TouchRange(bus, SamusProjectileRomData.Beams.UnchargedCooldowns,
-            SamusProjectileRomData.Beams.CooldownCancelRowOffset +
+            SamusProjectileRomData.Beams.ChargedRowOffset +
                 SamusProjectileRomData.Beams.CombinationCount,
             "uncharged beam cooldown rows");
         TouchRange(bus, SamusProjectileRomData.Beams.AutoFireCooldowns,

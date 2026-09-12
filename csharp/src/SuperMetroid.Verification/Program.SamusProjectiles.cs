@@ -203,18 +203,12 @@ static void VerifySamusPowerBeamProjectiles()
         0x2f, 0x82,
     ]);
 
-    bus.WriteByte(0x90c254, 0x0f);
-    bus.WriteByte(0x90c264, 0x1e);
     WriteTestWord(bus, 0x90c28f, 0x000b);
     WriteTestWord(bus, 0x90c2a7, 0x0017);
     for (int beamType = 1; beamType < 12; beamType++)
     {
-        // Distinct fixture bytes/words make an accidental entry-zero read immediately
-        // observable. Charged cooldown indices begin at `$10`; auto-fire has its own twelve
-        // byte table even though retail happens to store `$19` in every entry.
-        bus.WriteByte(0x90c254 + beamType, unchecked((byte)(10 + beamType)));
-        bus.WriteByte(0x90c264 + beamType, unchecked((byte)(30 + beamType)));
-        bus.WriteByte(0x90c283 + beamType, unchecked((byte)(40 + beamType)));
+        // Distinct presentation sounds expose a wrong family index; firing delays
+        // are compiled mechanics and retain their native Plasma+Ice exception.
         WriteTestWord(bus, 0x90c28f + beamType * 2, unchecked((ushort)(0x0030 + beamType)));
         WriteTestWord(bus, 0x90c2a7 + beamType * 2, unchecked((ushort)(0x0050 + beamType)));
     }
@@ -441,7 +435,7 @@ static void VerifySamusPowerBeamProjectiles()
             $"beam combination {beamType} allocates one ordinary slot");
         AssertEqual(unchecked((ushort)(0x0020 + beamType)), combinedSlot.Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
-        AssertEqual(unchecked((ushort)(10 + beamType)), combinedBombs.CooldownTimer,
+        AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer,
             $"beam combination {beamType} indexes uncharged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(
@@ -900,7 +894,7 @@ static void VerifySamusPowerBeamProjectiles()
             combinedChargeProjectiles.Slots[combinedChargedRelease.FiredSlot!.Value];
         AssertEqual(unchecked((ushort)(0x0100 + beamType)), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
-        AssertEqual(unchecked((ushort)(30 + beamType)), combinedChargeBombs.CooldownTimer,
+        AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(

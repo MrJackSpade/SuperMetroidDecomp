@@ -29,6 +29,7 @@ internal static class SamusProjectileOriginDefinitions
             return Offsets[offset / sizeof(ushort)];
         // Resolve addresses before table ownership: low-nibble directions ten through
         // fifteen cross into adjacent rows, and running Y eventually reaches cooldowns.
-        return unchecked((short)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        return unchecked((short)(SamusProjectileCooldownDefinitions.ReadByte(bus, address) |
+            (SamusProjectileCooldownDefinitions.ReadByte(bus, address + 1) << 8)));
     }
 }

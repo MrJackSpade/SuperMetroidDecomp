@@ -1744,3 +1744,41 @@ does not complete #540 or #547.
 Validation passed: focused projectile/motion checks, the #600 inheritance probe,
 full Release Verification, and Windows Desktop Release build with zero warnings
 or errors. Full-run log: `csharp/test-temp/projectile-motion-547-full.log`.
+
+## Projectile firing cooldowns
+
+Compiled 59 native NTSC bytes at $90:C254..C28E in
+`SamusProjectileCooldownDefinitions`: uncharged and charged rows, literal padding,
+non-beam delays and auto-fire delays. The charged row's old `CooldownCancelRowOffset`
+name was misleading; it is now `ChargedRowOffset`. The native uncharged Plasma+Ice
+exception remains twelve frames rather than fifteen; charged shots use thirty
+and held auto-fire twenty-five. No firing-admission or decrement order changed.
+
+Ordinary beam producers and special beam attacks use the compiled reader. The
+physical origin reader's direction-nibble overreads now resolve through the
+compiled cooldown range too. Exact addresses preserve cross-row access and leave
+out-of-range SFX/presentation reads on the live bus, rather than inventing delays.
+Non-beam producers already use compiled literal delays; no new timing rule is
+introduced by including their adjacent native bytes in this address catalog.
+
+Checks compare every byte and neighboring presentation fallback, then exercise
+48 actual charged/fresh/held producer selections and all four special attacks
+with cooldown-ROM reads forbidden. Two seventy-frame held-input sequences assert
+exact firing frames (0/15/40/65 and 0/12/37/62). The existing full projectile suite
+uses native delays instead of synthetic per-combination overrides. Origin tests
+now forbid both authored origin and cooldown reads while preserving the existing
+343,872 exact position comparisons.
+
+Remaining scope includes damage/radii, mixed instruction programs, presentation
+assets and the broader #530 integration. This is partial #540/#547 implementation,
+not grounds to close either issue.
+
+The older Ceres Ridley shot-counter fixture patched the beam delay to one frame;
+after compilation its second shot correctly failed admission. Removed that patch
+and advanced the real shared projectile cooldown owner between hits. The fixture
+still checks all hundred accepted hits and the existing enemy-phase/health-palette
+assertions; it is not relabeled as a real-time controller-driven battle.
+
+Focused projectile/cadence checks, full Release Verification and Windows Desktop
+Release build pass (zero warnings/errors). Full-run log:
+`csharp/test-temp/projectile-cooldowns-547-final.log`.

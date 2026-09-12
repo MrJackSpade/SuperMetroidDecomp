@@ -136,12 +136,14 @@ mechanical readers; compiling this one shared field does not complete metadata.
 The forty direction-specific beam/missile origin words at $90:C204..C253 are
 now compiled too, with the standing/running and two special Moonwalk pose
 branches preserved. Direction nibbles ten through fifteen still cross adjacent
-rows; running Y eventually reads cooldown bytes outside the catalog. Charge-flare
+rows; running Y eventually reaches the separately compiled cooldown bytes. Charge-flare
 origins remain presentation data. Beam initial speeds, missile/Super Missile and
 beam accelerations are now compiled as 85 native words, including the adjacent
 ignition marker. Exact-address dispatch preserves invalid beam combinations
 reading into missile data and leaves non-catalog/unaligned reads on the bus.
-Cooldowns and damage/animation definitions still need migration. The separate
+The 59 contiguous cooldown bytes (uncharged/charged/padding/non-beam/auto-fire)
+are compiled too; combination indices beyond that range still read adjacent SFX
+presentation bytes. Damage/animation definitions still need migration. The separate
 previous-frame displacement omission discovered during this audit is addressed
 under #600: the initializer now consumes native mutable movement/camera records,
 with runtime producers/reset and saved-state continuation coverage. These WRAM

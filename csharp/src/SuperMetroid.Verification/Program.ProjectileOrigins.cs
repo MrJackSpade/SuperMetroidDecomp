@@ -56,7 +56,7 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
-            if (address is >= 0x90c204 and < 0x90c254)
+            if (address is >= 0x90c204 and < 0x90c28f)
                 throw new InvalidOperationException($"Compiled projectile origin read ROM ${address:X6}.");
             // Deliberately different presentation bytes cannot affect physical origins.
             if (address is >= 0x90c1a8 and < 0x90c204) return 0x5a;

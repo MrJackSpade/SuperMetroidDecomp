@@ -39,6 +39,7 @@ if (args is ["--samus-projectiles"])
 {
     VerifySamusPowerBeamProjectiles();
     VerifyBeamSpeedRows();
+    VerifyProjectileCooldowns();
     return 0;
 }
 if (args is ["--botwoon-plm-identity"])
@@ -751,6 +752,7 @@ VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
 ProbeProjectileVelocityInheritance();
+VerifyProjectileCooldowns();
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();

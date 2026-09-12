@@ -58,7 +58,7 @@ public sealed partial class SamusProjectileSystem
                 InitializeComboData(bus, slot, beam == 2, beam == 4 && i >= 2);
             }
             ProjectileCounter = 4;
-            shared.SetSharedCooldown(bus.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slots[0].Type & 0x3f)));
+            shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(bus, SamusProjectileRomData.Beams.UnchargedCooldowns + (_slots[0].Type & 0x3f)));
             ComboState = beam == 4 ? (ushort)0 : beam == 1 || samus.IsFacingRight(bus) ? (ushort)4 : unchecked((ushort)-4);
             sound = beam switch { 1 => 0x28, 2 => 0x23, 4 => 0x25, _ => 0x27 };
         }

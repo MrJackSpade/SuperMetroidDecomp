@@ -153,10 +153,8 @@ public sealed partial class RoomEnemySystem
     private const int BotwoonMovementInstructionTable = 0xb3946b;
     private const int BotwoonSpitInstructionTable = 0xb3948b;
     private const int BotwoonHoleRectangleTable = 0xb3949b;
-    private const int BotwoonSpeedSpacingTable = 0xb394bb;
     private const int BotwoonPaletteTable = 0xb3971b;
     private const int BotwoonPaletteThresholdTable = 0xb3981b;
-    private const int BotwoonSpitSpeedTable = 0xb39e77;
     private const int BotwoonPathDescriptorTable = 0xb3e150;
     private const int BotwoonSpecialDropCount = 16;
 
@@ -224,8 +222,9 @@ public sealed partial class RoomEnemySystem
         state.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         state.HeadFunction = BotwoonHeadFunction.AnimateFromMovement;
         state.InitialDelayTimer = 256;
-        state.Speed = ReadWord(_bus!, BotwoonSpeedSpacingTable);
-        state.SegmentSpacingBytes = ReadWord(_bus!, BotwoonSpeedSpacingTable + 2);
+        var initialSpeed = BotwoonSpeedDefinitions.ForHealthPhase(0);
+        state.Speed = initialSpeed.MovementSpeed;
+        state.SegmentSpacingBytes = initialSpeed.SegmentSpacingBytes;
         state.InsideHole = true;
         state.PreviousInsideHole = true;
         state.InitialAction = true;
@@ -466,7 +465,7 @@ public sealed partial class RoomEnemySystem
             (_nextRandom!() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
     }
 
-    private void UpdateBotwoonHealthPhase(RoomEnemySlot head, BotwoonEnemyState state)
+    private static void UpdateBotwoonHealthPhase(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.InsideHole)
             return;
@@ -479,9 +478,9 @@ public sealed partial class RoomEnemySystem
                 : (byte)1;
         }
         state.HealthPhase = phase;
-        state.Speed = ReadWord(_bus!, BotwoonSpeedSpacingTable + phase * 4);
-        state.SegmentSpacingBytes = ReadWord(
-            _bus!, BotwoonSpeedSpacingTable + phase * 4 + 2);
+        var speed = BotwoonSpeedDefinitions.ForHealthPhase(phase);
+        state.Speed = speed.MovementSpeed;
+        state.SegmentSpacingBytes = speed.SegmentSpacingBytes;
     }
 
     private void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
@@ -745,7 +744,7 @@ public sealed partial class RoomEnemySystem
         int count,
         int startOffset)
     {
-        ushort speed = ReadWord(_bus!, BotwoonSpitSpeedTable + state.HealthPhase * 2);
+        ushort speed = BotwoonSpeedDefinitions.ForHealthPhase(state.HealthPhase).SpitSpeed;
         byte angle = unchecked((byte)(state.SpitAngle + startOffset));
         for (int projectile = 0; projectile < count; projectile++)
         {

@@ -29,6 +29,7 @@ internal static partial class Program
         VerifyPowerBombCallbackDefinitions(rom);
         VerifyShotCallbackDefinitions(rom);
         VerifyCompiledPuyoHops(rom);
+        VerifyCompiledBotwoonSpeeds(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

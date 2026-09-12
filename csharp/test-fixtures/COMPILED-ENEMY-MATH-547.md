@@ -404,3 +404,19 @@ reads and indirect/banked caller inventory remain. Mutable WRAM must remain
 mutable, not become a compiled substitute. Wider ROM-free room/asset integration
 is tracked by #530/#549. No player-visible fix or complete ROM-free gameplay is
 claimed by this slice, and #547 remains open without a validation label.
+
+## Botwoon health-phase speeds
+
+The three NTSC movement/body-history pairs at $B3:94BB and three spit speeds
+at $B3:9E77 now live in `BotwoonSpeedDefinitions`. Initialization, health-phase
+updates and spit volleys consume named fields rather than reading these tables
+from the cartridge. PAL values are deliberately not substituted for the pinned
+NTSC revision. Path definitions, graphics and mutable body history are unchanged.
+
+Verification compares all nine words with the pinned ROM, then calls the real
+phase updater without a bus for all 3,001 health values from zero through full
+health. It checks both threshold boundaries, the native zero-health phase and
+phase retention while inside a hole. The complete `--botwoon-audit` passes,
+including body traversal, exact spit movement, combat, death and room PLMs.
+Full Release Verification and Windows Release build pass. This remains an implementation migration, not a
+new player-visible behavior claim or completion of #547.

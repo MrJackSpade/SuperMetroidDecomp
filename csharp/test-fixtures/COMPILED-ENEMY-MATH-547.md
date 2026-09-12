@@ -319,6 +319,16 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+Crocomire's $86:9059 volley gradients are compiled, including the known final
+shot's out-of-table read: $86:906B-$906C is $B620, the setup JSR's first bytes.
+Parameters 2,4,...,18 therefore retain the shipped ninth-shot trajectory instead
+of clamping to an authored row. All selectors 0..19 (including ignored low-bit
+aliases) match ROM words; unsupported later selectors fail explicitly. The
+existing exhaustive angle-to-velocity tests remain, and the complete Crocomire
+audit passes its volley setup, fight reactions, bridge collapse, both melting
+passes, skeleton wall break, debris, drop and completion. Full Release Verification
+and Windows build pass.
+
 PuyoHopDefinitions replaces the seven $A2:9A07 records with named height,
 horizontal-speed, vertical-index-delta and airborne-function fields. The live
 serialized byte selector is unchanged; invalid selectors retain explicit errors.

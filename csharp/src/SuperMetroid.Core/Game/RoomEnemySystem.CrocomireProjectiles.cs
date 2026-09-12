@@ -62,11 +62,9 @@ public sealed partial class RoomEnemySystem
             projectile.GeneralTimer + projectile.XVelocity));
 
         // Spawn parameters are 2,4,...,18. The last index reads one word beyond the declared
-        // nine-word gradient table on the cartridge. Reading the ROM address directly keeps
-        // that documented OOB behavior instead of clamping it to a friendly host array.
-        short gradient = unchecked((short)ReadWord(
-            _bus!,
-            CrocomireProjectileRomData.Gradients + (projectile.DirectionParameter >> 1) * 2));
+        // nine-word gradient table. The compiled definition includes those exact setup
+        // instruction bytes; do not clamp the final shot to the last authored gradient.
+        short gradient = CrocomireProjectileRomData.GradientForSpawnParameter(projectile.DirectionParameter);
         byte angle = CalculateCartridgeAngle(-64, gradient);
         // The native angle starts at up, not right: Y uses negative cosine.
         (projectile.XVelocity, projectile.YVelocity) =

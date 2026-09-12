@@ -435,14 +435,11 @@ internal static class SparkAudit
         loaded.Samus.InvincibilityTimer = 0;
         loaded.Samus.XPosition = actor.XPosition;
         loaded.Samus.YPosition = actor.YPosition;
-        ushort health = loaded.Samus.Health;
-        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0) ||
-            loaded.Samus.Health != health - 30 || !loaded.Samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Spark body contact failed: health={health}->{loaded.Samus.Health}, " +
-                $"knockback={loaded.Samus.KnockbackActive}.");
-        }
+        var beforeContact = EnemyContactAuditAssertions.Capture(loaded.Samus);
+        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0))
+            throw new InvalidDataException("Spark body contact was not detected.");
+        EnemyContactAuditAssertions.VerifyStandingAirHit(
+            bus, loaded.Samus, beforeContact, damage: 30, expectedSide: 1, "Spark body contact");
 
         LoadedSparks grappleLoad = Load(
             bus,

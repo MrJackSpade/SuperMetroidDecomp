@@ -130,3 +130,25 @@ This phantom Up could override aim-based diagonal selection, but it is not
 proof of the historical player's cause: their earlier driver reported ten
 buttons/two axes, not this current device. Preserve that distinction. #564's
 physical acquisition-to-completion and native priority controls remain open.
+
+## Native direction-priority controls completed
+
+Added two original-CPU matrices, retaining charge acquisition/storage and all
+0..15 release waits in both facings. Only windup input changes: mode0 holds
+Jump+AimUp+Up+forward and selects vertical; mode1 holds Jump+forward without AimUp
+and selects horizontal. All 3,578 records per mode match the production runtime,
+including short-release failures (7,156 records total). Successful groups also
+assert the selected movement phase explicitly. No gameplay change needed.
+
+`movement-release/spark-direction-564.zip` holds both numeric CSVs. Compare with
+`DebugRunner --spark-direction-native ROM CSV MODE` (0 vertical,1 horizontal).
+Fingerprints are pinned by the comparator:
+
+- Vertical: `891F74968F7697787B286CD07D0145E4AC03CDAC26EFAA449351945D865CBDA6`
+- Horizontal: `108E4C1DB58315D1EA70D969B81CAC8A552CA24BB845582371087315B8CF3A9C`
+
+Native recapture uses the prior headless entrypoint pattern, dispatching
+`DiagnosticSparkDirection(rom, output, mode)`. Temporary hooks were removed.
+These controls end at launch; full post-launch diagonal travel is independently
+covered above. Physical user-facing acquisition-to-completion remains unproven;
+an idle hardware poll or synthetic mapped messages do not satisfy that requirement.

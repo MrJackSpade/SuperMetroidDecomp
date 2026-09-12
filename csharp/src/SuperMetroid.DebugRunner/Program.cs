@@ -66,6 +66,8 @@ if (args.Length == 3 && args[0] == "--diagonal-spark-native")
     return DiagonalSparkInputAudit.CompareNative(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--diagonal-spark-native-complete")
     return DiagonalSparkInputAudit.CompareNative(args[1], args[2], true);
+if (args.Length == 4 && args[0] == "--spark-direction-native")
+    return DiagonalSparkInputAudit.CompareNative(args[1], args[2], false, int.Parse(args[3]));
 if (args.Length == 3 && args[0] == "--suit-acquisition-audit")
     return SuitAcquisitionAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--suit-pickup-audio-audit")

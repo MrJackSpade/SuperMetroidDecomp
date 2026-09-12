@@ -2,7 +2,7 @@
 
 // #564: acquire charge by running, store by crouching, then try adjacent jump
 // timings. No stored-shine or launch pose is injected.
-static int DiagnosticDiagonalInputMode(const char *rom, const char *output, bool complete) {
+static int DiagnosticDiagonalInputMode(const char *rom, const char *output, bool complete, int direction) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   fprintf(f, "left,settle,frame,input,pose,boost,shine,windup,x,y\n");
@@ -33,6 +33,8 @@ static int DiagnosticDiagonalInputMode(const char *rom, const char *output, bool
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
       uint16 input = frame < 90 ? 0x8000 | (left ? 0x200 : 0x100) :
         frame == 90 ? 0x400 : frame <= 90 + settle ? 0 : 0x90;
+      if (direction >= 0 && (samus_pose == 0xc7 || samus_pose == 0xc8))
+        input = direction == 0 ? 0x890 | (left ? 0x200 : 0x100) : 0x80 | (left ? 0x200 : 0x100);
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       ProbeRunBounded(0x90e695);
       ProbeRunBounded(0xa09785); samus_contact_damage_index = 0;
@@ -53,8 +55,12 @@ static int DiagnosticDiagonalInputMode(const char *rom, const char *output, bool
 }
 
 int DiagnosticDiagonalInput(const char *rom, const char *output) {
-  return DiagnosticDiagonalInputMode(rom, output, false);
+  return DiagnosticDiagonalInputMode(rom, output, false, -1);
 }
 int DiagnosticDiagonalInputComplete(const char *rom, const char *output) {
-  return DiagnosticDiagonalInputMode(rom, output, true);
+  return DiagnosticDiagonalInputMode(rom, output, true, -1);
+}
+int DiagnosticSparkDirection(const char *rom, const char *output, int direction) {
+  if (direction < 0 || direction > 1) return 9;
+  return DiagnosticDiagonalInputMode(rom, output, false, direction);
 }

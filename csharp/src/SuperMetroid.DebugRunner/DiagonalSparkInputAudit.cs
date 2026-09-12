@@ -6,9 +6,14 @@ using SuperMetroid.Core.Input;
 /// <summary>Charge acquisition through launch, without seeding stored shine or a launch pose.</summary>
 internal static class DiagonalSparkInputAudit
 {
-    public static int CompareNative(string rom, string path, bool complete = false)
+    public static int CompareNative(string rom, string path, bool complete = false, int direction = -1)
     {
-        string expectedHash = complete
+        if (direction is < -1 or > 1 || (complete && direction != -1))
+            throw new ArgumentOutOfRangeException(nameof(direction));
+        string expectedHash = direction == 0
+            ? "891F74968F7697787B286CD07D0145E4AC03CDAC26EFAA449351945D865CBDA6"
+            : direction == 1 ? "108E4C1DB58315D1EA70D969B81CAC8A552CA24BB845582371087315B8CF3A9C"
+            : complete
             ? "CDA780C3FB58C08A0DF557AB3338608F19E0B5D8AD1A40B5C674409C6B370056"
             : "782C3EAD92A3FD7D20F526FF7BD55A5FE31A522B2466C05135212727711A34CF";
         if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) != expectedHash)
@@ -40,6 +45,12 @@ internal static class DiagonalSparkInputAudit
                 if (actual != string.Join(',', row[4..]))
                     throw new InvalidDataException($"Native diagonal {group.Key}, frame {row[2]}: expected {string.Join(',', row[4..])}; actual {actual}.");
                 compared++;
+            }
+            if (direction >= 0 && int.Parse(group.First()[1]) >= 3)
+            {
+                ShinesparkPhase expected = direction == 0 ? ShinesparkPhase.Vertical : ShinesparkPhase.Horizontal;
+                if (samus.Shinespark.Phase != expected)
+                    throw new InvalidDataException($"Direction control did not launch {expected}.");
             }
         }
         if (compared != (complete ? 6448 : 3578)) throw new InvalidDataException("Incomplete diagonal input matrix.");

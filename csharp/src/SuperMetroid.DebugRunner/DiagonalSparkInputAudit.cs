@@ -6,10 +6,12 @@ using SuperMetroid.Core.Input;
 /// <summary>Charge acquisition through launch, without seeding stored shine or a launch pose.</summary>
 internal static class DiagonalSparkInputAudit
 {
-    public static int CompareNative(string rom, string path)
+    public static int CompareNative(string rom, string path, bool complete = false)
     {
-        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) !=
-            "782C3EAD92A3FD7D20F526FF7BD55A5FE31A522B2466C05135212727711A34CF")
+        string expectedHash = complete
+            ? "CDA780C3FB58C08A0DF557AB3338608F19E0B5D8AD1A40B5C674409C6B370056"
+            : "782C3EAD92A3FD7D20F526FF7BD55A5FE31A522B2466C05135212727711A34CF";
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU diagonal input trace.");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         int compared = 0;
@@ -18,6 +20,9 @@ internal static class DiagonalSparkInputAudit
         {
             bool left = group.First()[0] == "1";
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
+            if (complete)
+                for (int x = 0; x < runtime.LevelData!.WidthInBlocks; x++)
+                    runtime.LevelData.SetForegroundEntry(x, 0x8000);
             var samus = runtime.Samus!;
             samus.XPosition = (ushort)(left ? 1200 : 128);
             samus.YPosition = 235;
@@ -37,7 +42,7 @@ internal static class DiagonalSparkInputAudit
                 compared++;
             }
         }
-        if (compared != 3578) throw new InvalidDataException("Incomplete diagonal input matrix.");
+        if (compared != (complete ? 6448 : 3578)) throw new InvalidDataException("Incomplete diagonal input matrix.");
         Console.WriteLine($"Native charge-to-diagonal: {compared} frame records match.");
         return 0;
     }

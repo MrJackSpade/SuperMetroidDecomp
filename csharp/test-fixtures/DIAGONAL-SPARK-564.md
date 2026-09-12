@@ -64,3 +64,34 @@ the managed fixture uses cleared Landing Site collision geometry. This capture
 ends at directional launch (or the failed-input limit), not crash completion.
 Desktop physical input, direction-priority native controls and post-launch
 per-frame comparisons remain outstanding. No validation label yet.
+
+## Post-launch travel and crash-exit correction
+
+The complete native mode adds a solid ceiling at row zero to both fixtures;
+the old acquisition-only probe had no ceiling and was unsuitable for comparing
+termination. Its first extended, ceiling-free run is discarded for that purpose.
+`DiagnosticDiagonalInputComplete(rom, output)` now captures all 32 cases through
+termination (or 260 frames for non-launches), totaling 6,448 records.
+
+This reproduced a defect: at right-facing settle=3/frame181, native standing Y
+was 33 while C# was 35. All earlier travel/crash records matched. Native
+`$90:D40D` publishes a transitional standing pose, whose `$91:F34E` handler calls
+`$90:EC7E Samus_AlignBottomWithPrevPose`. The port skipped that bottom alignment.
+Crash exit now applies old-radius minus new-radius to current and previous whole
+Y, preserving both fractions. The checkpoint delta is consumed once. Departure
+echo tests now correctly use the aligned current body, matching `$90:D4D2`.
+
+All 6,448 records match after the fix, including both directions. Default
+regressions exercise the real crash-finishing method and independently verify
+the two-pixel center correction, fractional preservation and camera delta.
+
+`movement-release/diagonal-complete-564.zip` contains the numeric CSV only.
+Extract locally, then run DebugRunner `--diagonal-spark-native-complete ROM CSV`.
+The comparator pins its SHA-256:
+`CDA780C3FB58C08A0DF557AB3338608F19E0B5D8AD1A40B5C674409C6B370056`.
+To recapture, use the existing headless entrypoint patch pattern but dispatch
+`DiagnosticDiagonalInputComplete`; remove temporary hooks afterward.
+
+This scoped gameplay fix does not diagnose the reported physical-controller
+launch difficulty. Keyboard/pad path evidence and native direction-priority
+controls remain outstanding; #564 stays open and is not awaiting validation yet.

@@ -380,18 +380,18 @@ static void VerifySamusStoredShineAndShinespark()
     AssertEqual(crashCenterX,
         horizontal.Shinespark.FirstReleasedCrashEcho.XPosition,
         "angle-zero departing echo has zero X component");
-    AssertEqual(unchecked((ushort)(crashCenterY - 8)),
+    AssertEqual(unchecked((ushort)(horizontal.YPosition - 8)),
         horizontal.Shinespark.FirstReleasedCrashEcho.YPosition,
         "angle-zero departing echo uses negative cosine-table Y component");
     AssertEqual(crashCenterX,
         horizontal.Shinespark.SecondReleasedCrashEcho.XPosition,
         "angle-$80 departing echo has zero X component");
-    AssertEqual(unchecked((ushort)(crashCenterY + 8)),
+    AssertEqual(unchecked((ushort)(horizontal.YPosition + 8)),
         horizontal.Shinespark.SecondReleasedCrashEcho.YPosition,
         "angle-$80 departing echo uses positive cosine-table Y component");
 
-    // These are vertical rays, not diagonals. The downward ray reaches row 256 at
-    // radius 96; the upward ray survives row zero at 160 and clears at radius 168.
+    // These are vertical rays, recentered on the aligned standing body rather
+    // than the old crash body. Apply viewport bounds to that current center.
     // Verify each exact admission boundary rather than only eventual disappearance.
     for (int radius = 16; radius <= 168; radius += 8)
     {
@@ -399,10 +399,10 @@ static void VerifySamusStoredShineAndShinespark()
             bus, horizontal,
             layer1X: unchecked((ushort)(crashCenterX - 128)),
             layer1Y: 0);
-        AssertEqual(crashCenterY - radius >= 0,
+        AssertEqual(horizontal.YPosition - radius >= 0,
             horizontal.Shinespark.FirstReleasedCrashEcho.Active,
             "upward echo remains active through row zero");
-        AssertEqual(crashCenterY + radius < 256,
+        AssertEqual(horizontal.YPosition + radius < 256,
             horizontal.Shinespark.SecondReleasedCrashEcho.Active,
             "downward echo clears on reaching row 256");
     }

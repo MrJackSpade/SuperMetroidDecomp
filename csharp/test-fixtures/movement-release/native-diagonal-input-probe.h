@@ -2,7 +2,7 @@
 
 // #564: acquire charge by running, store by crouching, then try adjacent jump
 // timings. No stored-shine or launch pose is injected.
-int DiagnosticDiagonalInput(const char *rom, const char *output) {
+static int DiagnosticDiagonalInputMode(const char *rom, const char *output, bool complete) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   fprintf(f, "left,settle,frame,input,pose,boost,shine,windup,x,y\n");
@@ -13,6 +13,7 @@ int DiagnosticDiagonalInput(const char *rom, const char *output) {
     room_width_in_scrolls = 6; room_height_in_scrolls = 2; room_size_in_blocks = 6144;
     interactive_enemy_indexes[0] = 0xffff;
     for (int x = 0; x < 96; x++) level_data[16 * 96 + x] = 0x8000;
+    if (complete) for (int x = 0; x < 96; x++) level_data[x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = 0x2000; enable_horiz_slope_coll = 3;
     samus_health = samus_max_health = 999;
@@ -27,7 +28,8 @@ int DiagnosticDiagonalInput(const char *rom, const char *output) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < 150; frame++) {
+    bool launched = false;
+    for (int frame = 0; frame < (complete ? 260 : 150); frame++) {
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
       uint16 input = frame < 90 ? 0x8000 | (left ? 0x200 : 0x100) :
         frame == 90 ? 0x400 : frame <= 90 + settle ? 0 : 0x90;
@@ -40,8 +42,19 @@ int DiagnosticDiagonalInput(const char *rom, const char *output) {
       fprintf(f, "%d,%d,%d,%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X%04X\n",
         left, settle, frame, input, samus_pose, speed_boost_counter, samus_shine_timer,
         timer_for_shinesparks_startstop, samus_x_pos, samus_x_subpos, samus_y_pos, samus_y_subpos);
-      if (samus_pose >= 0xc9 && samus_pose <= 0xce) break;
+      if (samus_pose >= 0xc9 && samus_pose <= 0xce) {
+        launched = true;
+        if (!complete) break;
+      }
+      if (complete && launched && samus_movement_handler == 0xa337 && samus_pose < 0xc9) break;
     }
   }
   fclose(f); return 0;
+}
+
+int DiagnosticDiagonalInput(const char *rom, const char *output) {
+  return DiagnosticDiagonalInputMode(rom, output, false);
+}
+int DiagnosticDiagonalInputComplete(const char *rom, const char *output) {
+  return DiagnosticDiagonalInputMode(rom, output, true);
 }

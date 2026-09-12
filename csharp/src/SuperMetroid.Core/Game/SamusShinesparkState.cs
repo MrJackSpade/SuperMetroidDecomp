@@ -572,8 +572,12 @@ public sealed class SamusShinesparkState
         byte standingPose = samus.IsFacingLeft(bus)
             ? SamusPoseIds.FacingLeftNormalPose
             : SamusPoseIds.FacingRightNormalPose;
+        ushort previousRadius = samus.Kinematics.YRadius;
         samus.Pose = standingPose;
         samus.RefreshCollisionRadii(bus);
+        // The native transitional-pose handler restores normal movement and
+        // aligns the standing body's bottom with the old crash body.
+        samus.AlignBottomAfterPoseChange(previousRadius);
         samus.InitializeAnimation(bus, initialFrame: 0);
         Phase = ShinesparkPhase.Inactive;
         return new ShinesparkMovementResult(

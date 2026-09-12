@@ -1939,6 +1939,7 @@ public sealed partial class SuperMetroidRuntime
                     // new-state handler, so a bridge published below survives precisely
                     // until this point in the following gameplay frame.
                     Samus.ClearPoseTransitionShotDirection();
+                    SamusProjectileInheritance.ClearMovement(_addressSpace);
 
                     // `$0CD0` is one shared WRAM word, not independent projectile/movement
                     // state. Samus's spin/wall-jump contact-damage handlers run in beta and
@@ -3877,6 +3878,7 @@ public sealed partial class SuperMetroidRuntime
                         YDirection: Samus.Kinematics.YDirection,
                         UpScroller: roomGeometry.UpScroller,
                         DownScroller: roomGeometry.DownScroller));
+                SamusProjectileInheritance.PublishCameraYSubspeed(_addressSpace, Camera.CameraYSubspeed);
 
                 // MainScrollingRoutine `$90:9563` invokes the mutable global
                 // scrolling-finished hook after both axes have tracked Samus. Live Spore

@@ -474,7 +474,7 @@ public sealed partial class SamusProjectileSystem
         // The producer first calls the generic velocity initializer with base speed zero.
         // Missile_Func1 replaces that zero with `$0100` during this same frame's alpha pass;
         // keeping both calls makes the one-frame ignition transition directly inspectable.
-        InitializeDirectionalVelocity(slot, baseSpeed: 0);
+        InitializeDirectionalVelocity(bus, slot, baseSpeed: 0);
 
         ushort dataPointer = ReadWord(
             bus,
@@ -535,38 +535,17 @@ public sealed partial class SamusProjectileSystem
                 ? SamusProjectileRomData.Beams.DiagonalSpeeds
                 : SamusProjectileRomData.Beams.HorizontalVerticalSpeeds) + rowOffset));
 
-        InitializeDirectionalVelocity(slot, speed);
+        InitializeDirectionalVelocity(bus, slot, speed);
     }
 
     private static void InitializeDirectionalVelocity(
+        ISnesAddressSpace bus,
         SamusProjectileSlot slot,
         short baseSpeed)
     {
-        byte direction = unchecked((byte)(slot.Direction & 0x0f));
-
-        // Known missing behavior (#600): `$90:B1F3` samples overlapping bytes from
-        // the preceding movement pass and CameraYSubSpeed. Native alpha resets the
-        // directional records AFTER processing projectiles; beta then repopulates them.
-        // The port has no shared producer/consumer owner yet. Zero inheritance below
-        // is incomplete, including some standing cases with nonzero camera subspeed.
         slot.XSubposition = 0;
         slot.YSubposition = 0;
-        slot.XVelocity = direction switch
-        {
-            1 or 2 or 3 => baseSpeed,
-            6 or 7 or 8 => unchecked((short)-baseSpeed),
-            0 or 4 or 5 or 9 => 0,
-            _ => throw new InvalidDataException(
-                $"Projectile velocity initialization received invalid direction ${direction:X2}."),
-        };
-        slot.YVelocity = direction switch
-        {
-            0 or 1 or 8 or 9 => unchecked((short)-baseSpeed),
-            3 or 4 or 5 or 6 => baseSpeed,
-            2 or 7 => 0,
-            _ => throw new InvalidDataException(
-                $"Projectile velocity initialization received invalid direction ${direction:X2}."),
-        };
+        (slot.XVelocity, slot.YVelocity) = SamusProjectileInheritance.ReadVelocity(bus, slot.Direction, baseSpeed);
     }
 
 }

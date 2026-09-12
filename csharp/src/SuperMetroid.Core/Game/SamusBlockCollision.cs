@@ -366,6 +366,15 @@ public static partial class SamusBlockCollision
 
         state.SetXFixed(unchecked(state.XFixed + (uint)acceptedDisplacement));
 
+        // Only the live bank-$90 movement wrapper publishes inheritance. Copies used
+        // for prospective poses and wall probes must not replace the preceding move.
+        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+            blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe &&
+            alignToSlopeAfterMovement)
+            SamusProjectileInheritance.Record(bus,
+                displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right,
+                acceptedDisplacement);
+
         // $90:9350/$90:93B1 call $94:87F4 after both collision and non-collision paths.
         // Direct bank-$94 callers (notably the prospective-running-pose probe)
         // omit that wrapper step and must retain the unaligned whole-pixel Y.
@@ -715,6 +724,11 @@ public static partial class SamusBlockCollision
         }
 
         state.SetYFixed(unchecked(state.YFixed + (uint)acceptedDisplacement));
+        if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
+            blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
+            SamusProjectileInheritance.Record(bus,
+                displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down,
+                acceptedDisplacement);
         // $94:9763 publishes sand contact after either signed movement direction.
         // Pose probes instead consume only the block handler's carry result.
         if (publishQuicksandGrounding && sandContact)

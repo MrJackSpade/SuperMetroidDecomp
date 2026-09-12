@@ -207,10 +207,10 @@ public sealed partial class SamusProjectileSystem
         {
             // `$90:C301` is the literal `$0100` ignition increment. Crossing into a nonzero
             // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
-            // crosses on its first alpha pass and therefore begins at exactly one pixel/frame.
+            // crosses on its first alpha pass: one pixel/frame plus native inheritance.
             slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
             if ((slot.Variable & 0xff00) != 0)
-                InitializeDirectionalVelocity(slot, unchecked((short)slot.Variable));
+                InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
         }
         else
         {
@@ -277,7 +277,7 @@ public sealed partial class SamusProjectileSystem
             slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
             if ((slot.Variable & 0xff00) != 0)
             {
-                InitializeDirectionalVelocity(slot, unchecked((short)slot.Variable));
+                InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
                 SpawnSuperMissileLink(bus, samus, slot);
             }
         }

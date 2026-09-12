@@ -749,6 +749,7 @@ VerifyPermanentCollectibles();
 VerifyEnemyDrops();
 VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
+ProbeProjectileVelocityInheritance();
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();

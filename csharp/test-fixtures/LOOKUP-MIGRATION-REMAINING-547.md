@@ -139,9 +139,10 @@ branches preserved. Direction nibbles ten through fifteen still cross adjacent
 rows; running Y eventually reads cooldown bytes outside the catalog. Charge-flare
 origins remain presentation data. Beam initial speeds, missile/beam accelerations,
 cooldowns and damage/animation definitions still need migration. The separate
-`InitializeDirectionalVelocity` helper also explicitly omits previous-frame
-Samus displacement inheritance; table compilation must not certify that existing
-physics limitation as complete native trajectory parity (#540).
+previous-frame displacement omission discovered during this audit is addressed
+under #600: the initializer now consumes native mutable movement/camera records,
+with runtime producers/reset and saved-state continuation coverage. These WRAM
+reads are legitimate live state, not remaining immutable lookup dependencies.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition

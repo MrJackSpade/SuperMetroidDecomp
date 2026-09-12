@@ -19,6 +19,15 @@ internal static class PhantoonAudit
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        // Read the region-specific immediate operands rather than assuming PAL's +/-3.
+        ushort clockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.ClockwiseRageSpeedInstruction);
+        ushort counterclockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.CounterclockwiseRageSpeedInstruction);
+        ushort ReadRageSpeedOperand(int address)
+        {
+            if (bus.ReadByte(address) != 0xa9)
+                throw new InvalidDataException($"Expected rage initializer LDA immediate at ${address:X6}.");
+            return (ushort)(bus.ReadByte(address + 1) | bus.ReadByte(address + 2) << 8);
+        }
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         if (room.WidthInScreens != 1 || room.HeightInScreens != 1 ||
@@ -398,8 +407,8 @@ internal static class PhantoonAudit
                 {
                     continue;
                 }
-                sawClockwiseRageFlame |= projectile.XVelocity == 0x0003;
-                sawCounterclockwiseRageFlame |= projectile.XVelocity == 0xfffd;
+                sawClockwiseRageFlame |= projectile.XVelocity == clockwiseRageSpeed;
+                sawCounterclockwiseRageFlame |= projectile.XVelocity == counterclockwiseRageSpeed;
             }
 
             enemies.StepEnemyProjectiles(

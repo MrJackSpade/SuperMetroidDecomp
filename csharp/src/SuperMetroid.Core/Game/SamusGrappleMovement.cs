@@ -41,7 +41,7 @@ public static partial class SamusGrappleMovement
     // offsets remain presentation data; changing them must not move the physical anchor.
     // HandleConnectingGrapple at $9B:B97C selects one of these three ten-record tables.
     // Every four-byte record is {next grapple-function word, connection-handler word}.
-    // Reading both words from ROM preserves the deliberately surprising crouching entries
+    // Compiled pairs preserve the deliberately surprising crouching entries
     // for horizontal fire, and validating the pair prevents a bad mapping from silently
     // turning a locked body into a pendulum (or vice versa).
 
@@ -847,10 +847,7 @@ public static partial class SamusGrappleMovement
                 : facingLeft ? SamusPoseIds.CrouchingLeftPose : SamusPoseIds.CrouchingRightPose;
         }
 
-        int table = samus.Kinematics.YRadius >= 17
-            ? SamusGrappleRomData.Release.StandingPoseTable
-            : SamusGrappleRomData.Release.CrouchingPoseTable;
-        return bus.ReadByte(table + shotDirection);
+        return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.YRadius < 17);
     }
 
     private static bool TryHandleSpecialAngle(
@@ -861,23 +858,16 @@ public static partial class SamusGrappleMovement
         ushort previousYPosition,
         out GrappleMovementResult result)
     {
-        // Native starts at record seven (`X=$46`) and walks backward by ten. Record order is
-        // semantically irrelevant for unique angles, but preserving it makes duplicate data
-        // in a modified ROM resolve exactly like the cartridge loop.
-        for (int record = 7; record >= 0; record--)
+        // Preserve the native reverse scan and exact angle equality, not a tolerance
+        // around a wall-grab angle. These records govern collision positioning.
+        var records = GrappleConnectionDefinitions.SpecialAngles;
+        for (int record = records.Length - 1; record >= 0; record--)
         {
-            int address = SamusGrappleRomData.Connections.SpecialAngleTable +
-                record * SamusGrappleRomData.Connections.SpecialAngleRecordByteCount;
-            if (ReadWord(bus, address) != grapple.Angle.RawValue)
+            var special = records[record];
+            if (special.Angle != grapple.Angle.RawValue)
                 continue;
 
-            ushort poseWord = ReadWord(bus, address + 2);
-            if ((poseWord & 0xff00) != 0)
-                throw new InvalidDataException($"Grapple special-angle pose word ${poseWord:X4} is not byte-sized.");
-
-            short xOffset = unchecked((short)ReadWord(bus, address + 4));
-            short yOffset = unchecked((short)ReadWord(bus, address + 6));
-            ushort function = ReadWord(bus, address + 8);
+            ushort function = special.Function;
             GrapplePhase phase = function switch
             {
                 SamusGrappleRomData.Connections.LockedInPlaceHandler => GrapplePhase.ConnectedLocked,
@@ -886,9 +876,9 @@ public static partial class SamusGrappleMovement
                     $"Grapple special-angle record {record} names unknown function ${function:X4}."),
             };
 
-            samus.Pose = unchecked((byte)poseWord);
-            samus.XPosition = unchecked((ushort)(grapple.AnchorX + xOffset));
-            samus.YPosition = unchecked((ushort)(grapple.AnchorY + yOffset));
+            samus.Pose = special.Pose;
+            samus.XPosition = unchecked((ushort)(grapple.AnchorX + special.X));
+            samus.YPosition = unchecked((ushort)(grapple.AnchorY + special.Y));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;

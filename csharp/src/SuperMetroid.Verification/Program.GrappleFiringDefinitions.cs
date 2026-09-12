@@ -147,11 +147,12 @@ internal static partial class Program
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
         public byte Movement, GraphicsY, Direction;
+        public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
         public bool ForbidMechanics = true;
         public bool ReplaceFlare;
         public byte ReadByte(int address)
         {
-            int pose = SamusMovementRomData.Poses.Definitions + SamusPoseIds.FacingRightNormalPose * 8;
+            int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
             if (address == pose + 1) return Movement;
             if (address == pose + 3) return Direction;
             if (address == pose + 4) return GraphicsY;

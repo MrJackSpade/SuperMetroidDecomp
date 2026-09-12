@@ -259,12 +259,13 @@ public static partial class SamusGrappleMovement
                 ? SamusGrappleRomData.Connections.CrouchingTable
                 : SamusGrappleRomData.Connections.DefaultTable;
         int recordAddress = connectionTable + grapple.FireDirection * 4;
-        ushort nextFunction = ReadWord(bus, recordAddress);
-        ushort handler = ReadWord(bus, recordAddress + 2);
+        var connection = ReadConnectionRecord(bus, recordAddress);
+        ushort nextFunction = connection.Function;
+        ushort handler = connection.Handler;
 
         // Each tiny native handler installs one prospective type-$16 pose and then jumps
         // to either BA61 (swinging) or BA9B (stuck). Keep the handler addresses visible:
-        // pose alone is insufficient to distinguish malformed table data from retail data.
+        // pose alone is insufficient to distinguish malformed fallback data from native data.
         (byte pose, bool swinging) = handler switch
         {
             SamusGrappleRomData.Connections.SwingClockwiseHandler =>
@@ -499,6 +500,15 @@ public static partial class SamusGrappleMovement
         int yTable = running ? SamusGrappleRomData.Firing.RunningOriginY : SamusGrappleRomData.Firing.DefaultOriginY;
         return (unchecked((short)ReadWord(bus, xTable + direction * 2)),
             unchecked((short)ReadWord(bus, yTable + direction * 2)));
+    }
+
+    private static (ushort Function, ushort Handler) ReadConnectionRecord(ISnesAddressSpace bus, int address)
+    {
+        if (GrappleConnectionDefinitions.TryResolveConnection(address, out var connection))
+            return connection;
+        // Address selection occurs before classification so native cross-table indexes
+        // remain intact. Non-catalog and unaligned records keep their original reader.
+        return (ReadWord(bus, address), ReadWord(bus, address + 2));
     }
 
 }

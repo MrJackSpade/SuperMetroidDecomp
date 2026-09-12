@@ -104,8 +104,14 @@ Grapple's ten launch velocity/angle triples and both ten-direction physical hand
 origin pairs are now compiled, including the locked-connection and late-draw
 consumers. Flare placement remains presentation data for #540. Out-of-domain
 restored origin indexes preserve adjacent-ROM reads and remain an explicit
-dependency. Cancellation flags, connection handlers, special-angle/pose records
-and dropped-pose selectors still require migration.
+dependency. The 28 cancellation bytes, 30 connection function/handler pairs,
+eight special-angle/pose/offset/function records and 20 dropped-pose selectors
+are now compiled too. Tests exercise actual dispatch with their source ranges
+forbidden. Non-catalog connection pointers still retain adjacent-ROM reads.
+The separate `SamusGrappleHudInput` reader selects bank-$90 movement-input
+handlers and is still a mechanics dependency. Grapple's swing body offsets,
+flare animation and drawing pointers remain presentation/mixed readers for
+#540/#541; their effect on physical body placement must not be dismissed as art.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition

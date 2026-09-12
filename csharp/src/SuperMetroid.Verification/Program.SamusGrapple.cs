@@ -111,40 +111,8 @@ static void VerifySamusGrappleSwingAndRelease()
     WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
 
-    // The connection selector reads two literal words per direction. Seed all thirty ROM
-    // records, not just the one used by the first fixture, so exhaustive routing below can
-    // detect direction-order mistakes and the crouching table's intentional `$AB` entries.
-    (ushort Function, ushort Handler)[] defaultConnections =
-    [
-        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc77e, 0xb9ea), (0xc77e, 0xb9f3),
-        (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xba05),
-        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
-    ];
-    (ushort Function, ushort Handler)[] verticalConnections =
-    [
-        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc79d, 0xb9d9),
-        (0xc79d, 0xb9d9), (0xc79d, 0xb9e2), (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
-        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
-    ];
-    (ushort Function, ushort Handler)[] crouchingConnections =
-    [
-        (0xc79d, 0xb9d9), (0xc79d, 0xb9d9), (0xc77e, 0xba0e), (0xc77e, 0xba17),
-        (0xc77e, 0xb9fc), (0xc77e, 0xb9fc), (0xc77e, 0xba20), (0xc77e, 0xba29),
-        (0xc79d, 0xb9e2), (0xc79d, 0xb9e2),
-    ];
-    foreach ((int table, (ushort Function, ushort Handler)[] records) in new[]
-    {
-        (0x9bc3c6, defaultConnections),
-        (0x9bc3ee, verticalConnections),
-        (0x9bc416, crouchingConnections),
-    })
-    {
-        for (int direction = 0; direction < records.Length; direction++)
-        {
-            WriteTestWord(bus, table + direction * 4, records[direction].Function);
-            WriteTestWord(bus, table + direction * 4 + 2, records[direction].Handler);
-        }
-    }
+    // Compiled native connection pairs include the crouching table's intentional
+    // standing `$AB` entries. Routing assertions below still cover all thirty records.
 
     // A type-$E/BTS-$00 block is persistent grapple PLM $D0D8 and returns flags $41.
     // Put it at (3,3): the first frame's four 16.16 substeps end at X=45, then frame two's
@@ -972,12 +940,6 @@ static void VerifySamusGrappleSwingAndRelease()
     // `$B9`, (+24,+16), `$C814` tuple rather than inventing a host-side angle range.
     bus.WriteByte(0x9bc1c2 + 0x6a, 0);
     bus.WriteBytes(0x9bc302, [0x00, 0x00]);
-    int wallGrabRecord = 0x9bc43e + 4 * 10;
-    WriteTestWord(bus, wallGrabRecord, 0x6a80);
-    WriteTestWord(bus, wallGrabRecord + 2, SamusPoseIds.GrappleWallContactRightPose);
-    WriteTestWord(bus, wallGrabRecord + 4, 24);
-    WriteTestWord(bus, wallGrabRecord + 6, 16);
-    WriteTestWord(bus, wallGrabRecord + 8, 0xc814);
 
     var specialBlocks = new ushort[16 * 16];
     specialBlocks[8 * 16 + 8] = 0x8000; // `$B9`'s later 16-pixel left wall probe
@@ -1107,7 +1069,6 @@ static void VerifySamusGrappleSwingAndRelease()
         bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(dropQueued.DropQueued && dropQueued.Phase == GrapplePhase.Dropped,
         "wall-grab grace underflow queues dropped function");
-    bus.WriteByte(0x9bc9c4 + 6, 0x74); // literal compact dropped-pose table entry
     GrappleMovementResult dropped = SamusGrappleMovement.Step(
         bus, specialLevel, expiredWallGrabSamus, controllerInput: 0, newlyPressedInput: 0);
     AssertTrue(dropped.Dropped && expiredWallGrabSamus.Grapple.Phase == GrapplePhase.Inactive,
@@ -1124,12 +1085,6 @@ static void VerifySamusGrappleSwingAndRelease()
     // quadrant gravity. Releasing Shoot queues `$C856`, whose movement-type-$16` fallback
     // byte in the literal `$B6` definition selects stable crouch `$27` one call later.
     bus.WriteByte(0x9bc1c2 + 0xd6, 0);
-    int lockedRecord = 0x9bc43e;
-    WriteTestWord(bus, lockedRecord, 0xd680);
-    WriteTestWord(bus, lockedRecord + 2, SamusPoseIds.GrappleCrouchingDownRightPose);
-    WriteTestWord(bus, lockedRecord + 4, unchecked((ushort)-30));
-    WriteTestWord(bus, lockedRecord + 6, unchecked((ushort)-24));
-    WriteTestWord(bus, lockedRecord + 8, 0xc77e);
     var lockedBlocks = new ushort[16 * 16];
     lockedBlocks[7 * 16 + 7] = 0x8000;
     RoomLevelData lockedLevel = CreateRoom(16, 16, lockedBlocks, new byte[lockedBlocks.Length]);

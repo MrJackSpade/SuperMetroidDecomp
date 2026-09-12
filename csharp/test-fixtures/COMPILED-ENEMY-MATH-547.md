@@ -1493,3 +1493,41 @@ Grapple callback/pose-program migration, or establish full corrupt-state parity.
 
 Focused compiled-definition checks, all 18 physics fixtures, full Release
 Verification and the Windows Release build pass (zero build warnings/errors).
+
+## Grapple connection and cancellation policy
+
+Compiled bank-$9B cancellation bytes at B8B8, all three ten-record connection
+tables at C3C6/C3EE/C416, eight special-angle records at C43E, and standing/
+crouching drop selectors at C9BA/C9C4 into `GrappleConnectionDefinitions`.
+This is 100 words plus 48 bytes. Native function identities remain distinct;
+the crouching down directions intentionally select the standing-down-left
+handler. Special angles retain exact word equality and reverse scan order.
+Definitions are cross-checked against pinned bank_9B.asm and the ROM, including
+the immediate pose operand at each of the native connection handlers.
+
+Tests reject reads of all migrated ranges in real production dispatch:
+
+- 3,072 connection reads: three bases, all 256 direction bytes, four alignment
+  offsets. Sixty index outcomes enter authored rows across table boundaries;
+  the remaining adjacent-ROM/unaligned cases preserve the old reader.
+- 1,680 actual connections: all 28 movement types, ten directions, stationary/
+  whole-speed/fractional-speed vertical selection, and block/enemy anchor owners.
+  Assertions cover exact pose and next phase, Draygon's no-snap bypass, native
+  retraction, owner retention and speed clearing.
+- All 65,536 angle words, proving non-matches do not snap or change phase;
+  524,288 matching-record snaps check every anchor word, signed offset wrapping,
+  pose, phase, wall-jump timer reset and previous-camera-position clamping.
+- 504 cancellation/refire calls across every movement type, same/changed/sentinel
+  direction and timer boundaries, asserting decrement/cancel/restart ordering.
+- 655,360 direction/radius drop selections, plus both facings' non-fireable
+  direction fallbacks and metadata-free swing-pose bypass.
+
+Removed obsolete synthetic connection/special/drop table seeds from the older
+Grapple fixture; its real terrain-to-wall-grab/locked-connection assertions remain.
+No new generic callback interpreter or tolerance around wall-grab angles was added.
+Invalid metadata policy and non-catalog fallbacks are unchanged, not certified as
+complete native corrupt-state parity. HUD input-handler selection and mixed
+swing-body/animation data remain outside this completed group.
+
+Focused compiled-definition checks, all 18 physics fixtures, full Release
+Verification and the Windows Release build pass (zero build warnings/errors).

@@ -12,8 +12,7 @@ public static partial class SamusGrappleMovement
         var grapple = samus.Grapple;
         if (grapple.PoseChangeAutoFireTimer != 0) grapple.PoseChangeAutoFireTimer--;
         byte direction = samus.ReadShotDirection(bus);
-        bool banned = bus.ReadByte(SamusGrappleRomData.Firing.BannedMovementTypes +
-            (int)samus.ReadMovementType(bus)) != 0;
+        bool banned = GrappleConnectionDefinitions.CancelsFiring(samus.ReadMovementType(bus));
         if (!banned && (direction & 0xf0) == 0)
         {
             if (direction == grapple.FireDirection) return null;

@@ -27,7 +27,10 @@ public sealed partial class RoomEnemySystem
 
             case PhantoonInstructionCodes.SetupEyeOpenPhantoonState:
                 BeginPhantoonEyeTracking(state);
-                return true;
+                // A0:808A resumes its local instruction cursor after the callback.
+                // The following Sleep overwrites this eye's callback-installed list;
+                // the body-owned list change still survives on its separate actor.
+                return false;
 
             case PhantoonInstructionCodes.PickNewPhantoonPattern:
                 PickPhantoonSecondRoundPattern(state, nmiFrameCounter8);

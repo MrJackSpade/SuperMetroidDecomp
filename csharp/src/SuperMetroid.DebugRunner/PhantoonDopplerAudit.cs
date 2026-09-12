@@ -7,18 +7,17 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Normal-input barrage search with an optional pinned original-CPU comparison.</summary>
 internal static class PhantoonDopplerAudit
 {
-    public static int Run(string rom, string? nativePath = null)
+    public static int Run(string rom, string? nativePath = null, bool expandedSearch = false, bool windowControls = false)
     {
-        if (nativePath is not null && Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativePath))) !=
-            "609DBAFF42F94CEEBC53B670C8ABDD91C0D97503ADAC6B81876069015BFA0BC5")
+        string expectedHash = windowControls ? "15A5E22F7BBCC381D98EE42B648489818A59F5733D002297C4AE40FF0F83DF1A"
+            : "609DBAFF42F94CEEBC53B670C8ABDD91C0D97503ADAC6B81876069015BFA0BC5";
+        if (nativePath is not null && Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativePath))) != expectedHash)
             throw new InvalidDataException("Use the accepted phantoon-doppler-native-01 capture.");
         var nativeRows = nativePath is null ? null : File.ReadLines(nativePath).Skip(1)
             .Select(line => line.Split(',').Select(int.Parse).ToArray()).Where(row => row[3] >= 0)
             .ToDictionary(row => (row[0], row[1], row[2], row[3]));
         int compared = 0;
-        foreach (int start in new[] { 1640, 1650, 1660 })
-        foreach (int cadence in new[] { 8, 9, 10, 11, 12 })
-        foreach (bool aerial in new[] { false, true })
+        foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls))
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -36,6 +35,9 @@ internal static class PhantoonDopplerAudit
             runtime.StepFrame(runtime.ControllerBindings.ItemSelect);
             runtime.StepFrame(0);
             var body = runtime.Enemies.Phantoon!.Body;
+            var hitFrames = new List<int>();
+            var hitY = new List<ushort>();
+            int firstClosure = -1;
             for (int frame = 0; frame < 1850; frame++)
             {
                 ushort input = (ushort)SnesButton.Up;
@@ -45,6 +47,8 @@ internal static class PhantoonDopplerAudit
                 if (frame >= start)
                 {
                     input = (ushort)SnesButton.Left;
+                    if (movement == 1) input |= runtime.ControllerBindings.Dash;
+                    if (movement == 2 && frame > start) input = 0;
                     if ((frame - start) % cadence == 0) input |= runtime.ControllerBindings.Shoot;
                     if (aerial && frame < start + 20) input |= runtime.ControllerBindings.Jump;
                 }
@@ -64,6 +68,10 @@ internal static class PhantoonDopplerAudit
                         : new int[5])).Concat(new int[] { body.XSubposition, body.YSubposition,
                             runtime.Enemies.Phantoon!.Tentacles!.VariableC,
                             runtime.Enemies.Phantoon.Tentacles.VariableD, runtime.Enemies.Phantoon.Tentacles.VariableE }).ToArray();
+                    if (windowControls)
+                        actual = actual.Concat(new int[] { body.VariableE, body.CurrentInstruction, body.InstructionTimer,
+                            runtime.Enemies.Phantoon.Eye!.CurrentInstruction, runtime.Enemies.Phantoon.Eye.InstructionTimer,
+                            runtime.Enemies.Phantoon.Tentacles.VariableB, samus.PreviousDrawNewInput, runtime.BombProjectiles.CooldownTimer }).ToArray();
                     int[] native = nativeRows[(start, cadence, aerial ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(native))
                     {
@@ -74,12 +82,52 @@ internal static class PhantoonDopplerAudit
                     compared++;
                 }
                 if (body.Health != health)
-                    Console.WriteLine($"start={start}, cadence={cadence}, aerial={aerial}, hit={frame}, damage={health-body.Health}, health={body.Health}, phase={(PhantoonAiFunction)phase}->{(PhantoonAiFunction)body.VariableF}, eyeTimer={body.VariableE}, flash={body.FlashTimer}");
+                {
+                    hitFrames.Add(frame);
+                    hitY.Add(samus.YPosition);
+                    Console.WriteLine($"start={start}, cadence={cadence}, aerial={aerial}, movement={movement}, hit={frame}, damage={health-body.Health}, health={body.Health}, phase={(PhantoonAiFunction)phase}->{(PhantoonAiFunction)body.VariableF}, eyeTimer={body.VariableE}, flash={body.FlashTimer}, samus={samus.XPosition}/{samus.YPosition}");
+                }
+                if (firstClosure < 0 && body.VariableF == (ushort)PhantoonAiFunction.FadeOutWhileSwooping)
+                    firstClosure = frame;
+            }
+            if (windowControls)
+            {
+                int[] expectedHits = (start, cadence) switch
+                {
+                    (1680, 10) => [1565, 1693, 1701, 1711, 1720],
+                    (1680, 11) => [1565, 1693, 1703, 1713],
+                    (1710, 9) => [1565, 1710, 1720, 1747, 1756],
+                    (1710, 10) => [1565, 1710, 1720, 1837],
+                    _ => throw new InvalidDataException("Unknown window control.")
+                };
+                int expectedClosure = expectedHits[^1] + 9;
+                if (!hitFrames.SequenceEqual(expectedHits) || firstClosure != expectedClosure ||
+                    body.Health != 2500 - 100 * expectedHits.Length ||
+                    start == 1710 && cadence == 9 && (hitY[^2] != 106 || hitY[^1] != 122))
+                    throw new InvalidDataException($"Window control failed: hits={string.Join(',', hitFrames)}, closure={firstClosure}, health={body.Health}.");
             }
         }
-        if (nativeRows is not null && (compared != 55500 || compared != nativeRows.Count))
-            throw new InvalidDataException($"Expected 55500 native barrage frames, compared {compared}.");
+        int expectedFrames = windowControls ? 7400 : 55500;
+        if (nativeRows is not null && (compared != expectedFrames || compared != nativeRows.Count))
+            throw new InvalidDataException($"Expected {expectedFrames} native barrage frames, compared {compared}.");
         Console.WriteLine($"Native barrage frames compared: {compared}.");
         return 0;
+    }
+
+    private static IEnumerable<(int Start, int Cadence, bool Aerial, int Movement)> Cases(bool expanded, bool windows)
+    {
+        if (windows)
+        {
+            yield return (1680, 10, false, 2);
+            yield return (1680, 11, false, 2);
+            yield return (1710, 9, true, 2);
+            yield return (1710, 10, true, 2);
+            yield break;
+        }
+        foreach (int start in expanded ? new[] { 1680, 1690, 1700, 1710, 1720, 1730, 1740, 1750, 1760 } : new[] { 1640, 1650, 1660 })
+        foreach (int cadence in new[] { 8, 9, 10, 11, 12 })
+        foreach (bool aerial in new[] { false, true })
+        foreach (int movement in expanded ? new[] { 0, 1, 2 } : new[] { 0 })
+            yield return (start, cadence, aerial, movement);
     }
 }

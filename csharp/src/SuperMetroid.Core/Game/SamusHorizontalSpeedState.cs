@@ -838,6 +838,11 @@ public sealed class SamusHorizontalSpeedState
     public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        if (SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out SpeedTableEntry compiled))
+            return CalculateBaseSpeed(compiled);
+
+        // Preserve non-catalog addresses, including mutable low-bank aliases. This
+        // migration does not invent a valid-address clamp for the native indirect read.
         var entry = new SpeedTableEntry(
             ReadWord(bus, address + 0),
             ReadWord(bus, address + 2),

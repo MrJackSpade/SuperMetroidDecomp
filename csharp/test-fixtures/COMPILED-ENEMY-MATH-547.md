@@ -1397,3 +1397,29 @@ The older morph-ball fixture seeded a non-native $1000 fraction. Updated it and
 its rebound expectation to the pinned $0000 value; no stock NTSC tuning is made.
 
 Full Release Verification and Windows Release build pass.
+
+## Standalone horizontal bomb-jump and Grapple-release records
+
+Compiled $90:9F25's diagonal bomb-jump record and all three Grapple-release
+records ($9F31/$9F3D/$9F49). Pinned native values are acceleration 0.3000,
+maximum 3.0000 and deceleration 0.0800 for bombs; Grapple's three records are
+identically 0.3000, 15.0000 and 0.1000. Source: bank_90.asm physics constants.
+`CalculateBaseSpeedAtAddress` recognizes only these exact entries. Unknown,
+unaligned and mutable low-bank addresses retain the original six-word reader.
+
+The migration regression compares all 24 words with the ROM and performs
+3,145,728 public calculator calls with all bus reads forbidden for compiled
+entries. For each entry it sweeps every whole/fraction word (paired), four
+acceleration modes and three deceleration multipliers. Its comparison invokes
+the unchanged calculator with independently ROM-read records: this proves
+entry substitution and resulting speed/mode writes, not a fresh independent
+proof of the arithmetic implementation. Separate mutable/unaligned cases change
+their source words between calls and prove the fallback observes those changes.
+
+Updated old synthetic fixtures that used deliberately different Grapple-release
+decelerations and a faster bomb record. The bomb first-step assertion now checks
+both unchanged whole X and exact $3000 fractional X. Indexed horizontal tables
+remain a separate runtime dependency; this does not claim all Samus speeds are
+compiled or that arbitrary restored pointers have native parity.
+
+Full Release Verification and Windows Release build pass.

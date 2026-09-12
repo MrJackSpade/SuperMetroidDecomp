@@ -1025,10 +1025,10 @@ static void VerifySamusLiquidPhysics()
     SamusGrappleMovement.RefreshLiquidPhysicsFlag(sample);
     AssertTrue(!sample.Grapple.Submerged, "grapple release function clears liquid flag");
 
-    // Seed three distinguishable standalone `$90:9F31/$9F3D/$9F49` records. Mode two makes
-    // the release handler subtract the selected fractional deceleration from 2.0000.
+    // All three native standalone release records are identical. Mode two subtracts
+    // the pinned fractional deceleration from 2.0000 regardless of the medium.
     int[] grappleReleaseRecords = [0x909f31, 0x909f3d, 0x909f49];
-    ushort[] grappleReleaseDeceleration = [0x1000, 0x2000, 0x3000];
+    ushort[] grappleReleaseDeceleration = [0x1000, 0x1000, 0x1000];
     for (int medium = 0; medium < grappleReleaseRecords.Length; medium++)
     {
         int address = grappleReleaseRecords[medium];

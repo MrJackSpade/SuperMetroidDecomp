@@ -100,6 +100,14 @@ pair, and is now compiled and correctly named. This does not migrate horizontal-
 remaining launch/connection/pose selectors. The source audit explicitly found
 those readers outside the enemy-table catalog scan.
 
+The four standalone horizontal records for diagonal bomb jumps and Grapple
+release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
+preserves the existing fallback for non-catalog/unaligned/mutable records.
+Movement-indexed `ReadEntry` remains live: normal air has 26 authored rows,
+water and lava have 28 each. Do not assume three equal-length authored tables;
+normal-air indexes 26/27 enter the adjacent water records. Higher byte indexes
+and any restored base-address state require explicit classification as well.
+
 - `EnemyRomTablePointers` consumers: boss jumps, projectile launch/angle records,
   death trajectories and other indirect family definitions.
 - Samus movement, bomb-spread, combo and grapple definition readers. Coordinate

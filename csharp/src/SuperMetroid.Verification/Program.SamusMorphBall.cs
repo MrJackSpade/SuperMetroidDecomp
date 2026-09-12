@@ -115,9 +115,9 @@ static void VerifySamusMorphBallMovement()
     // the standalone `$90:9F25` record directly to `$90:9A7E`, while `$90:9A2C`
     // reads the dry-air bomb-jump magnitude from `$90:9EF5/$90:9EFB`.
     bus.WriteBytes(0x909f25, [
-        0x01, 0x00, 0x00, 0x00, // diagonal acceleration 1.0000
-        0x02, 0x00, 0x00, 0x00, // diagonal maximum 2.0000
-        0x00, 0x00, 0x00, 0x80, // post-apex deceleration 0.8000
+        0x00, 0x00, 0x00, 0x30, // native diagonal acceleration 0.3000
+        0x03, 0x00, 0x00, 0x00, // native diagonal maximum 3.0000
+        0x00, 0x00, 0x00, 0x08, // native post-apex deceleration 0.0800
     ]);
     bus.WriteBytes(0x909ef5, [0x02, 0x00]); // Bomb-jump whole speed 2.
     bus.WriteBytes(0x909efb, [0x00, 0xc0]); // Bomb-jump subspeed C000.
@@ -2014,13 +2014,14 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0xc000, bombJump.Kinematics.YSubspeed, "bomb-jump subspeed comes from $90:9EFB");
     AssertEqual(1, bombJump.Kinematics.YDirection, "bomb jump starts upward");
 
-    // The first diagonal handler frame accelerates by exactly the literal 1.0000 record,
-    // moves right one pixel, moves upward by the pre-gravity 2.C000 magnitude, then stores
+    // The first diagonal handler frame accelerates by the native 0.3000 record,
+    // moves right fractionally, moves upward by the pre-gravity 2.C000 magnitude, then stores
     // the reduced 2.8000 magnitude for the following frame.
     BombJumpMovementResult diagonal = SamusBombJumpMovement.Step(
         bus, empty, bombJump, nmiFrameCounter: 0, new RoomPlmSystem());
     AssertTrue(!diagonal.Ended, "unobstructed diagonal bomb jump remains active");
-    AssertEqual((startX + 1), bombJump.XPosition, "right bomb jump uses $90:9F25 displacement");
+    AssertEqual(startX, bombJump.XPosition, "right bomb jump retains whole X on first fractional step");
+    AssertEqual(0x3000, bombJump.Kinematics.XSubposition, "right bomb jump uses native $90:9F25 fractional displacement");
     AssertEqual(2, bombJump.Kinematics.YSpeed, "bomb-jump gravity stores next whole speed");
     AssertEqual(0x8000, bombJump.Kinematics.YSubspeed, "bomb-jump gravity stores next subspeed");
 

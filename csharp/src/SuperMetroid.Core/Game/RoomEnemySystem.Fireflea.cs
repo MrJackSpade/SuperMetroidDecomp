@@ -154,7 +154,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Fireflea</c> at <c>$A3:8DEE</c>.</summary>
-    private void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
+    private static void RunFirefleaMain(RoomEnemySlot slot, FirefleaEnemyState state)
     {
         if (state.UsesCircularMovement)
         {

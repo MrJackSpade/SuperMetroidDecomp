@@ -82,7 +82,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort RipperMovingRightInstruction = 0xe477;
     private const ushort RipperMovingLeftInstruction = 0xe48b;
-    private const int CommonLinearEnemySpeedTable = 0xa28187;
 
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[MaximumEnemyCount];
@@ -129,7 +128,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
-    private void RunGRipperMain(
+    private static void RunGRipperMain(
         RoomEnemySlot slot,
         RipperVariantEnemyState state,
         RoomLevelData? level)
@@ -174,7 +173,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
-    private void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
+    private static void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
         int displacement = unchecked(((short)slot.VariableD << 16) | slot.VariableC);
@@ -188,7 +187,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Ripper_Init</c> at $A2:E49F.</summary>
-    private void InitializeRipper(RoomEnemySlot slot)
+    private static void InitializeRipper(RoomEnemySlot slot)
     {
         // Population parameter two is the initial facing/direction selector. A nonzero word
         // chooses the positive table pair and the right-facing list; zero chooses the
@@ -207,7 +206,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Ripper_Main</c> at $A2:E4DA.</summary>
-    private void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
+    private static void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper");
 
@@ -228,11 +227,11 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
-    private void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
+    private static void LoadRipperVelocity(RoomEnemySlot slot, bool movingRight)
     {
-        int address = CommonLinearEnemySpeedTable + slot.VariableE + (movingRight ? 0 : 4);
-        slot.VariableD = ReadWord(_bus!, address);
-        slot.VariableC = ReadWord(_bus!, address + 2);
+        var velocity = EnemyLinearSpeedDefinitions.Read(slot.VariableE + (movingRight ? 0 : 4));
+        slot.VariableD = unchecked((ushort)velocity.Whole);
+        slot.VariableC = velocity.Fraction;
     }
 
     /// <summary>
@@ -268,7 +267,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void ReverseRipperVariant(
+    private static void ReverseRipperVariant(
         RoomEnemySlot slot,
         ushort positiveInstruction,
         ushort negativeInstruction)

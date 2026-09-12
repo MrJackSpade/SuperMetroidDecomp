@@ -88,9 +88,6 @@ public sealed partial class RoomEnemySystem
     private const ushort OwtchMovingRightInstructionList = 0xa3bd;
     private const int OwtchTravelDistanceTable = 0xa2a3dd;
     private const int OwtchUndergroundTimerTable = 0xa2a3ed;
-    private const int OwtchLinearSpeedTable = 0xa08187;
-    private const int OwtchLinearSpeedRecordSize = 8;
-    private const int OwtchLinearSpeedRecordCount = 0x41;
     private const int OwtchTravelDistanceCount = 8;
     private const int OwtchUndergroundTimerCount = 6;
     private const ushort OwtchMaximumBurialDepth = 16;
@@ -120,7 +117,7 @@ public sealed partial class RoomEnemySystem
                 $"Owtch parameter one ${slot.Parameter1:X4} selects underground timer " +
                 $"index {undergroundTimerIndex}, outside its six-word table.");
         }
-        if (speedIndex >= OwtchLinearSpeedRecordCount)
+        if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
                 $"Owtch parameter two ${slot.Parameter2:X4} selects linear-speed " +
@@ -141,16 +138,18 @@ public sealed partial class RoomEnemySystem
                 ? OwtchMovingLeftInstructionList
                 : OwtchMovingRightInstructionList);
 
-        int speedRecord = OwtchLinearSpeedTable + speedIndex * OwtchLinearSpeedRecordSize;
+        int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
+        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
+        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
         ushort travelDistance = ReadWord(
             _bus!,
             OwtchTravelDistanceTable + distanceIndex * 2);
         var state = new OwtchEnemyState(slot)
         {
-            RightVelocity = ReadWord(_bus!, speedRecord),
-            RightSubvelocity = ReadWord(_bus!, speedRecord + 2),
-            LeftVelocity = ReadWord(_bus!, speedRecord + 4),
-            LeftSubvelocity = ReadWord(_bus!, speedRecord + 6),
+            RightVelocity = unchecked((ushort)right.Whole),
+            RightSubvelocity = right.Fraction,
+            LeftVelocity = unchecked((ushort)left.Whole),
+            LeftSubvelocity = left.Fraction,
             Behavior = (OwtchBehaviorState)initialState,
             SinkYOffset = 0,
             UndergroundTimer = ReadOwtchUndergroundTimer(slot),

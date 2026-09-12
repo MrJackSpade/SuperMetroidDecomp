@@ -117,9 +117,6 @@ public sealed partial class RoomEnemySystem
     private const ushort CacatacUpsideDownIdleInstructionList = 0x9eda;
     private const ushort CacatacUpsideDownAttackInstructionList = 0x9f00;
     private const int CacatacTravelDistanceTable = 0xa29f36;
-    private const int CacatacLinearSpeedTable = 0xa08187;
-    private const int CacatacLinearSpeedRecordSize = 8;
-    private const int CacatacLinearSpeedRecordCount = 0x41;
     private const ushort CacatacSpikeSound = 0x0034;
 
     private readonly CacatacEnemyState?[] _cacatacStates =
@@ -149,7 +146,7 @@ public sealed partial class RoomEnemySystem
                 $"Cacatac parameter two ${slot.Parameter2:X4} selects travel-distance " +
                 $"index {distanceIndex}, outside its six-word table.");
         }
-        if (speedIndex >= CacatacLinearSpeedRecordCount)
+        if (speedIndex >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
                 $"Cacatac parameter two ${slot.Parameter2:X4} selects linear-speed " +
@@ -165,13 +162,15 @@ public sealed partial class RoomEnemySystem
                 : CacatacUpsideDownIdleInstructionList);
 
         ushort distance = ReadWord(_bus!, CacatacTravelDistanceTable + distanceIndex * 2);
-        int speedRecord = CacatacLinearSpeedTable + speedIndex * CacatacLinearSpeedRecordSize;
+        int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
+        var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
+        var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);
         var state = new CacatacEnemyState(slot)
         {
-            RightVelocity = ReadWord(_bus!, speedRecord),
-            RightSubvelocity = ReadWord(_bus!, speedRecord + 2),
-            LeftVelocity = ReadWord(_bus!, speedRecord + 4),
-            LeftSubvelocity = ReadWord(_bus!, speedRecord + 6),
+            RightVelocity = unchecked((ushort)right.Whole),
+            RightSubvelocity = right.Fraction,
+            LeftVelocity = unchecked((ushort)left.Whole),
+            LeftSubvelocity = left.Fraction,
             Direction = (CacatacDirection)rawDirection,
             Function = rawDirection switch
             {

@@ -251,6 +251,36 @@ input lock and dispatcher checks remain. Invalid non-record phases fail explicit
 instead of reading unrelated bank contents. This does not change or claim to fix
 the separately reported elevator camera alignment.
 
+### Shared NTSC linear enemy speeds
+
+`EnemyLinearSpeedDefinitions` replaces the $A0:8187 common table and its $A2
+mirror with exact 16.16 integer definitions: 65 records in $0000.1000 steps,
+stored positive and negative whole/fraction pairs. Native byte-offset callers
+retain unaligned and cross-record byte assembly. Non-record reads fail explicitly;
+the catalog does not reconstruct adjacent ROM code or silently clamp indices.
+
+The common reader and direct Cacatac, Owtch, Stoke and Ripper-family readers no
+longer access these ROM bytes. Removing the bus dependency also makes their
+otherwise stateless movement helpers static. No serialization fields changed.
+Quadratic/family-specific speed tables remain separate work.
+
+Verification compares all 517 complete four-byte windows against independent
+ROM reads and checks the $A2 mirror. Every one of the 65 positive/negative speed
+pairs passes through the four direct production-family initializers/readers with
+no speed table loaded into their address space. Ripper's constructed collision
+fixture now uses native parameter 16 for one pixel/frame, instead of inventing
+one pixel/frame at parameter 1; its movement and collision expectations remain.
+Full Release Verification, DebugRunner and Windows Release builds pass. The
+entire retail Green Brinstar Fireflea audit passes, including both circle
+directions, vertical oscillation, sprite animation and darkness/death behavior.
+
+Six independent encounter audits stop at old immediate-knockback expectations;
+all fail identically on clean baseline 1647ba14 and this migration. Their repair
+is tracked under #581 (Stoke, Cacatac, Owtch, Ripper, Kzan, GRipper/Ripper II).
+PipeBug's formation member-death alias assertion also fails identically on both
+builds and is tracked separately as #582. These audits are not claimed as
+passing. The temporary baseline worktree and all its binaries were removed.
+
 ### Outstanding scope
 
 This is not the entire lookup-table migration. Remaining signed-table callers,

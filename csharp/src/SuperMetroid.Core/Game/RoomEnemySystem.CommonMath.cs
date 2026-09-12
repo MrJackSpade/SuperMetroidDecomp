@@ -8,7 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int LinearEnemySpeedTable = 0xa08187;
     private const int QuadraticEnemySpeedTable = 0xa0838f;
 
     /// <summary>
@@ -97,10 +96,8 @@ public sealed partial class RoomEnemySystem
     /// <paramref name="byteOffset"/> is the native byte index, including the four-byte
     /// positive/negative half selector used by several enemy parameter formats.
     /// </summary>
-    private (short Whole, ushort Fraction) ReadLinearEnemySpeed(ushort byteOffset) =>
-        (
-            unchecked((short)ReadWord(_bus!, LinearEnemySpeedTable + byteOffset)),
-            ReadWord(_bus!, LinearEnemySpeedTable + byteOffset + 2));
+    private static (short Whole, ushort Fraction) ReadLinearEnemySpeed(ushort byteOffset) =>
+        EnemyLinearSpeedDefinitions.Read(byteOffset);
 
     /// <summary>
     /// Reads one signed 16.16 entry from <c>CommonEnemySpeeds_QuadraticallyIncreasing</c>.

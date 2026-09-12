@@ -475,7 +475,7 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void RunNorfairPipeBugRise(
+    private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         SamusState samus)
@@ -494,7 +494,7 @@ public sealed partial class RoomEnemySystem
                 : NorfairPipeBugLeftRiseInstruction);
     }
 
-    private void RunNorfairPipeBugVerticalStagger(
+    private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         short signedOffset)
@@ -731,7 +731,7 @@ public sealed partial class RoomEnemySystem
         AddPipeBugFixedVelocity(slot, horizontal: true, whole, fraction);
     }
 
-    private void AddPipeBugLinearVelocity(
+    private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         bool horizontal,
         int byteOffset)

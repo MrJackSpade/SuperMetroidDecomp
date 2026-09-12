@@ -93,9 +93,6 @@ public sealed partial class RoomEnemySystem
     private const ushort StokeAttackingLeftInstructionList = 0x8948;
     private const ushort StokeMovingRightInstructionList = 0x8958;
     private const ushort StokeAttackingRightInstructionList = 0x896e;
-    private const int CommonEnemySpeedTable = 0xa08187;
-    private const int CommonEnemySpeedEntrySize = 8;
-    private const int MaximumNtscCommonEnemySpeedIndex = 0x40;
     private const int StokeFloorProbeDisplacement = 2 << 16;
 
     private readonly StokeEnemyState?[] _stokeStates =
@@ -107,22 +104,24 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Stoke</c> at <c>$A2:89AD</c>.</summary>
     private void InitializeStoke(RoomEnemySlot slot)
     {
-        if (slot.Parameter2 > MaximumNtscCommonEnemySpeedIndex)
+        if (slot.Parameter2 >= EnemyLinearSpeedDefinitions.RecordCount)
         {
             throw new InvalidDataException(
                 $"Stoke speed parameter ${slot.Parameter2:X4} exceeds the NTSC common " +
-                $"speed table's ${MaximumNtscCommonEnemySpeedIndex:X2} maximum index.");
+                $"speed table's ${EnemyLinearSpeedDefinitions.RecordCount - 1:X2} maximum index.");
         }
 
         // The parameter is an entry number. ASL three times converts it to the byte offset
         // of {positive whole, positive fraction, negative whole, negative fraction}.
-        int speedAddress = CommonEnemySpeedTable + slot.Parameter2 * CommonEnemySpeedEntrySize;
+        int speedOffset = slot.Parameter2 * EnemyLinearSpeedDefinitions.RecordSize;
+        var right = EnemyLinearSpeedDefinitions.Read(speedOffset);
+        var left = EnemyLinearSpeedDefinitions.Read(speedOffset + 4);
         var state = new StokeEnemyState(slot)
         {
-            RightVelocity = ReadWord(_bus!, speedAddress),
-            RightSubvelocity = ReadWord(_bus!, speedAddress + 2),
-            LeftVelocity = ReadWord(_bus!, speedAddress + 4),
-            LeftSubvelocity = ReadWord(_bus!, speedAddress + 6),
+            RightVelocity = unchecked((ushort)right.Whole),
+            RightSubvelocity = right.Fraction,
+            LeftVelocity = unchecked((ushort)left.Whole),
+            LeftSubvelocity = left.Fraction,
             Function = StokeAiFunction.MovingLeft,
             Direction = (StokeDirection)slot.Parameter1,
         };

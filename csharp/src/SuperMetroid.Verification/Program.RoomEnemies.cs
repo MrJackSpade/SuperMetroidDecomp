@@ -288,12 +288,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteWord(bus, header + 50, 0x802d);
     WriteWord(bus, header + 60, vulnerabilityPointer);
 
-    // Logical speed one occupies the second eight-byte common-speed record. The pair is
-    // +1.0000 and -1.0000 in signed 16.16 form, making wall alignment easy to observe.
-    WriteWord(bus, 0xa28187 + 8, 0x0001);
-    WriteWord(bus, 0xa28187 + 10, 0x0000);
-    WriteWord(bus, 0xa28187 + 12, 0xffff);
-    WriteWord(bus, 0xa28187 + 14, 0x0000);
+    // Native speed parameter 16 gives +/-1.0000 pixels per frame. Keep that
+    // movement fixture without inventing replacement values for the common table.
 
     // Literal four-frame Ripper lists. The map words are the cartridge addresses; the test
     // need not render their entry payloads to prove list selection and timing.
@@ -322,7 +318,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     WriteWord(bus, population + 6, 0);
     WriteWord(bus, population + 8, 0x2800);
     WriteWord(bus, population + 10, 0);
-    WriteWord(bus, population + 12, 1);
+    WriteWord(bus, population + 12, 16);
     WriteWord(bus, population + 14, 1);
     WriteWord(bus, population + 16, 0xffff);
     bus.WriteByte(population + 18, 1);

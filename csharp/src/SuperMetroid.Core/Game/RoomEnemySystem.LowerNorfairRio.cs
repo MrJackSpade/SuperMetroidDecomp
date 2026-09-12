@@ -76,8 +76,6 @@ public sealed partial class RoomEnemySystem
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
     private const ushort LowerNorfairRioGravity = 32;
     private const ushort LowerNorfairRioReturnSound = 0x0064;
-    private const int LowerNorfairRioYVelocityAddress = 0xa2c6ca;
-    private const int LowerNorfairRioXVelocityAddress = 0xa2c6ce;
 
     private readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
         new LowerNorfairRioEnemyState?[MaximumEnemyCount];
@@ -155,8 +153,8 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.YVelocity = ReadWord(_bus!, LowerNorfairRioYVelocityAddress);
-                state.XVelocity = ReadWord(_bus!, LowerNorfairRioXVelocityAddress);
+                state.YVelocity = RioLaunchDefinitions.LowerNorfairYVelocity;
+                state.XVelocity = RioLaunchDefinitions.LowerNorfairXVelocity;
                 if (unchecked((short)(samus!.XPosition - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallLowerNorfairRioInstructionList(

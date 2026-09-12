@@ -534,3 +534,16 @@ No full Alcoon encounter success or completion of #547 is claimed.
 
 The Alcoon diagnostic was subsequently repaired under #589 without production
 changes; its complete encounter now passes. See ALCOON-AUDIT-589.md.
+
+## Rio family launch constants
+
+`RioLaunchDefinitions` removes runtime launch reads from ordinary, Norfair and
+lower Norfair Rio. Seven native words compare exactly, including ordinary Rio's
+NTSC-specific Y magnitude. All 65,536 Norfair RNG values retain the native
+single-bit vertical selector; horizontal facing/sign handling remains unchanged.
+
+Full Release Verification, complete ordinary Rio audit and Windows Release
+build pass. Both Norfair audits pass earlier launch checks but fail their direct
+timer-injection freeze fixtures (parent/follower 0/0 rather than 9/9); this is
+tracked separately for diagnostic repair. Neither complete Norfair encounter is
+claimed passing. The wider #547 migration remains open.

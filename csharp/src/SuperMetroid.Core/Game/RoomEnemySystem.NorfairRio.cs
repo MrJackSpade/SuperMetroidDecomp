@@ -75,8 +75,6 @@ public sealed partial class RoomEnemySystem
     private const ushort NorfairRioHorizontalTriggerDistance = 0x00c0;
     private const ushort NorfairRioGravity = 32;
     private const ushort NorfairRioDiveSound = 0x0065;
-    private const int NorfairRioYVelocityTableAddress = 0xa2c1c1;
-    private const int NorfairRioXVelocityAddress = 0xa2c1c5;
 
     private readonly NorfairRioEnemyState?[] _norfairRioStates =
         new NorfairRioEnemyState?[MaximumEnemyCount];
@@ -158,10 +156,8 @@ public sealed partial class RoomEnemySystem
 
                 // (random >> 1) & 2 selects one of two adjacent signed 8.8 Y speeds; that
                 // expression is already the byte offset into the word table.
-                state.YVelocity = ReadWord(
-                    _bus!,
-                    NorfairRioYVelocityTableAddress + ((random >> 1) & 0x0002));
-                state.XVelocity = ReadWord(_bus!, NorfairRioXVelocityAddress);
+                state.YVelocity = RioLaunchDefinitions.NorfairYVelocity(random);
+                state.XVelocity = RioLaunchDefinitions.NorfairXVelocity;
                 if (unchecked((short)(samus!.XPosition - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallNorfairRioInstructionList(

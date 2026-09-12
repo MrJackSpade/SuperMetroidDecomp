@@ -80,8 +80,6 @@ public sealed partial class RoomEnemySystem
 
     // These are live ROM words, not friendly host tuning constants. The retail routine
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
-    private const int RioInitialYVelocityAddress = 0xa2bbbb;
-    private const int RioInitialXVelocityAddress = 0xa2bbbf;
 
     private readonly RioEnemyState?[] _rioStates = new RioEnemyState?[MaximumEnemyCount];
 
@@ -140,8 +138,8 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.YVelocity = ReadWord(_bus!, RioInitialYVelocityAddress);
-                state.XVelocity = ReadWord(_bus!, RioInitialXVelocityAddress);
+                state.YVelocity = RioLaunchDefinitions.RioYVelocity;
+                state.XVelocity = RioLaunchDefinitions.RioXVelocity;
                 if (unchecked((short)(samus.XPosition - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallRioInstructionList(slot, state, RioDiveInstructionList);

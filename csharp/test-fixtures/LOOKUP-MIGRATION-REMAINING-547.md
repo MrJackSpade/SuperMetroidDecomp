@@ -12,9 +12,6 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Boulder | $A6:86F1 bounce speeds | Bounce-index selection |
 | Zoa | $A3:B415 X speeds | Byte-indexed split velocity record |
 | Growing shutter | $A2:EA56 speed records | Four-byte speed-indexed initialization |
-| Rio | $A2:BBBB/BBBF | Initial dive velocity |
-| Norfair Rio | $A2:C1C1/C1C5 | Y selection and fixed X velocity |
-| Lower Norfair Rio | $A2:C6CA/C6CE | Initial dive velocity |
 | Intro egg particles | $8B:A9EA/AA02 | Split horizontal/vertical velocity integration |
 | Intro slime drops | $8B:AB35/AB49/AC41 | X and parity-dependent Y records |
 | Gameplay renderer | $88:A266/A286 | Horizontal/vertical shape samples read from bus |

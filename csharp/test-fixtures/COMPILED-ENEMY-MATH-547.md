@@ -1160,3 +1160,26 @@ Full Release Verification, complete Kraid audit (788 rise frames, repeated
 combat, second phase and 360-frame death/persistence) and Windows build pass.
 The Kraid audit covers all four rock variants and damage-enabled projectile
 contact lifecycles; its printed floor diagnostic is not a visual parity claim.
+
+## Kraid second-phase indirect movement choices
+
+Compiled BA7D's six position/pointer rows and all thirty pointed-to target/timer
+pairs at BA95..BB0C. Native BA2F decrements its thinking word and selects only
+when the result equals zero. Position search defaults to row one; RNG mask 001C
+clamps offsets 10/14/18/1C to 10, giving the fifth choice half the probability.
+Both rules were confirmed against pinned assembly and retained. Production now
+uses a named compiled selector, without any of the former direct/indirect reads.
+
+Tests read native position/pointer records and follow all six pointers to derive
+the independent reference pairs. Every RNG word is checked for every authored
+row. 524,288 actual thinking calls cover every coordinate word and all eight
+masked outcomes, asserting global target, thinking timer, signed walking
+direction, instruction selection and animation restart. All timer words verify
+the exact decrement-to-zero gate, including zero wrapping to FFFF, with no RNG
+read on inactive calls. The production bus throws on every access; the RNG
+advance callback also throws. This verifies selector substitution and handoff,
+not the full physical walking trajectory or all remaining Kraid definitions.
+
+Full Release Verification, the complete Kraid audit and the Windows Release
+build pass. The audit includes second-phase walking and 360-frame death and
+persistence; its floor diagnostic remains distinct from visual parity evidence.

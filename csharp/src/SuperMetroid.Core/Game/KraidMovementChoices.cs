@@ -1,0 +1,25 @@
+namespace SuperMetroid.Core.Game;
+
+/// <summary>Native Kraid second-phase position-dependent target/timer distributions.</summary>
+public static class KraidMovementChoices
+{
+    /// <summary>
+    /// $A7:BA7D position/pointer records and BA95..BB0C target/timer pairs.
+    /// Unlisted positions select the 0160 row. RNG choices four through seven
+    /// all select its final record, preserving the native half-probability choice.
+    /// </summary>
+    public static (ushort TargetX, ushort ThinkTimer) Select(ushort position, ushort random)
+    {
+        ReadOnlySpan<ushort> row = position switch
+        {
+            0x00f0 => [0x180, 0x158, 0x180, 0x158, 0x0d0, 0x02c, 0x170, 0x02c, 0x170, 0x02c],
+            0x0180 => [0x0f0, 0x100, 0x160, 0x158, 0x0d0, 0x02c, 0x140, 0x02c, 0x170, 0x02c],
+            0x00d0 => [0x0f0, 0x100, 0x160, 0x158, 0x180, 0x158, 0x140, 0x02c, 0x170, 0x02c],
+            0x0140 => [0x0f0, 0x100, 0x160, 0x158, 0x180, 0x158, 0x0d0, 0x02c, 0x170, 0x02c],
+            0x0170 => [0x0f0, 0x100, 0x180, 0x158, 0x170, 0x158, 0x0d0, 0x02c, 0x140, 0x02c],
+            _ => [0x0f0, 0x100, 0x180, 0x158, 0x0d0, 0x02c, 0x140, 0x02c, 0x170, 0x02c],
+        };
+        int index = Math.Min((random & 0x1c) >> 2, 4) * 2;
+        return (row[index], row[index + 1]);
+    }
+}

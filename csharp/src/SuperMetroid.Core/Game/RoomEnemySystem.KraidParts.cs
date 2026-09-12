@@ -301,23 +301,7 @@ public sealed partial class RoomEnemySystem
         if (part.NextWord != 0)
             return;
 
-        int recordOffset = 0;
-        for (; recordOffset < 24; recordOffset += 4)
-        {
-            if (body.XPosition == ReadWord(
-                    _bus!, EnemyRomTablePointers.Kraid.SecondPhaseMovementRecords + recordOffset))
-                break;
-        }
-        if (recordOffset >= 24)
-            recordOffset = 4;
-        ushort randomOffset = unchecked((ushort)(ReadKraidRandomNumber() & 0x001c));
-        if (randomOffset >= 16)
-            randomOffset = 16;
-        ushort choiceTable = ReadWord(
-            _bus!, EnemyRomTablePointers.Kraid.SecondPhaseMovementRecords + 2 + recordOffset);
-        ushort targetX = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(choiceTable + randomOffset)));
-        ushort thinkTimer = ReadWord(
-            _bus!, 0xa70000 | unchecked((ushort)(choiceTable + randomOffset + 2)));
+        (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.XPosition, ReadKraidRandomNumber());
         if (unchecked((short)(targetX - body.XPosition)) >= 0)
             SetKraidWalkingRight(foot, part, targetX, thinkTimer);
         else

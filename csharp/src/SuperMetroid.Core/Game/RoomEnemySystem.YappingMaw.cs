@@ -132,7 +132,6 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawRetractedDelayFrames = 64;
     private const ushort YappingMawAttackSound = 0x002f;
     private const int YappingMawQuadraticSpeedTable = 0xa0838f;
-    private const int YappingMawSignedSineTable = 0xa0b1c3;
 
     // $A8:A097. The selector is already an even byte offset, so dividing by two yields the
     // eight 45-degree direction sectors in the exact ROM order.
@@ -313,7 +312,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the one-frame setup function at $A8:A28C.</summary>
-    private void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
+    private static void BeginYappingMawExtension(RoomEnemySlot slot, YappingMawEnemyState state)
     {
         state.ExtensionWhole = 0;
         state.ExtensionFraction = 0;
@@ -658,18 +657,17 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>
-    private ushort CalculateYappingMawX(ushort angle, ushort length) =>
+    private static ushort CalculateYappingMawX(ushort angle, ushort length) =>
         CalculateYappingMawY(unchecked((ushort)(angle - 64)), length);
 
     /// <summary>
     /// Ports $A8:A742 exactly, including the high-byte sine approximation and the unusual
     /// negative-product construction. Only length's low byte reaches WRMPYB.
     /// </summary>
-    private ushort CalculateYappingMawY(ushort angle, ushort length)
+    private static ushort CalculateYappingMawY(ushort angle, ushort length)
     {
-        short signedSample = unchecked((short)ReadWord(
-            _bus!,
-            YappingMawSignedSineTable + unchecked((byte)-angle) * 2));
+        short signedSample = EnemyTrigonometryTables.SignedSixteenBitSine(
+            unchecked((byte)-angle));
         bool negative = signedSample < 0;
         ushort magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
         ushort product = unchecked((ushort)((magnitude >> 8) * unchecked((byte)length)));

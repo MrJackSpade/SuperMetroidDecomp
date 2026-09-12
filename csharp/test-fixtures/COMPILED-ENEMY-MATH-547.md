@@ -170,6 +170,38 @@ spike debris, item drop and boss completion. No serialized state layout changes.
 
 ### Outstanding scope
 
+### Bull, Yapping Maw and Shaktool family geometry
+
+Bull and Yapping Maw now consume compiled signed 16-bit samples from
+$A0:B1C3-$B3C2. These peak at +/-32767, not the shared 8.8 table's +/-256.
+All 256 words match the pinned cartridge when derived by halving the compiled
+unsigned positive half-wave before restoring sign. Existing high-byte multiply
+and unusual negative-fraction behavior remain in the family-specific functions.
+
+Shaktool's segment orbit now uses its own immutable 320-word catalog for
+$AA:E03D-$E2BC. The authored quadrants contain asymmetric rounding (including
+differences between negative-sine and negative-cosine entries), so the catalog
+retains every stored word rather than approximating a scaled common waveform.
+
+The production-path audit checks:
+
+- 33,554,432 Bull moves: every angle/speed, two fractional origins, both axes,
+  word wrap and the zero-fraction negative correction;
+- Yapping Maw X/Y products for every angle word with every length low byte,
+  and every length word with every angle low byte, including poisoned high bytes;
+- 196,608 actual linked Shaktool placements without a loaded bus: every raw
+  angle word and three preceding-segment fixed-point origins. The vector union
+  also compares every one of the 320 authored samples with the ROM.
+
+Full Release Verification, Windows Release build and the Yapping Maw encounter
+audit pass (all six populations, grab/release and multipart death cleanup).
+The Bull contact audit and Shaktool lethal-shot audit fail identically on clean
+baseline 58b22b6f and this migration; those failures are tracked separately as
+#580 and #579, respectively, and are not presented as passing evidence.
+The temporary baseline worktree and binaries were removed after comparison.
+
+### Remaining work
+
 This is not the entire lookup-table migration. Remaining signed-table callers,
 linear/quadratic speed tables, family-specific tables, callback classification
 reads and indirect/banked caller inventory remain. Mutable WRAM must remain

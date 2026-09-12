@@ -144,9 +144,6 @@ public sealed partial class RoomEnemySystem
 
     private const int BullMaxSpeedTable = 0xa8d885;
     private const int BullAccelerationIntervalTable = 0xa8d895;
-    // The label spans four contiguous 64-word quadrants at $B1C3-$B3C2. It is the full
-    // signed 16-bit sine table, not the similarly named sign-extended table at $B443.
-    private const int BullSignedSineTable = 0xa0b1c3;
     private const ushort BullNormalInstruction = 0xd841;
     private const ushort BullShotInstruction = 0xd855;
     private const ushort BullAccelerationDelta = 0x0018;
@@ -206,7 +203,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Bull</c> and all four indirect function targets.</summary>
-    private void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState? samus)
+    private static void RunBullMain(RoomEnemySlot slot, BullEnemyState state, SamusState? samus)
     {
         state.ShotReactionDisableTimer = unchecked((ushort)(
             state.ShotReactionDisableTimer - 1));
@@ -316,7 +313,7 @@ public sealed partial class RoomEnemySystem
         state.AccelerationDelta = BullAccelerationDelta;
     }
 
-    private void MoveBull(RoomEnemySlot slot, BullEnemyState state)
+    private static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
     {
         (slot.XPosition, slot.XSubposition) = AddBullComponent(
             slot.XPosition,
@@ -330,8 +327,8 @@ public sealed partial class RoomEnemySystem
             state.Speed);
     }
 
-    private short ReadBullSignedSine(byte angle) =>
-        unchecked((short)ReadWord(_bus!, BullSignedSineTable + angle * 2));
+    private static short ReadBullSignedSine(byte angle) =>
+        EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
     private static (ushort Position, ushort Subposition) AddBullComponent(
         ushort position,

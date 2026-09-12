@@ -92,8 +92,6 @@ public sealed partial class RoomEnemySystem
     private const int ShaktoolCollisionListTable = 0xaadf13;
     private const int ShaktoolAttackListTable = 0xaadf21;
     private const int ShaktoolOrientationListTable = 0xaadd15;
-    private const int ShaktoolSineTable = 0xaae0bd;
-    private const int ShaktoolNegativeCosineTable = 0xaae03d;
 
     private readonly ShaktoolSegmentState?[] _shaktoolSegments =
         new ShaktoolSegmentState?[MaximumEnemyCount];
@@ -202,11 +200,8 @@ public sealed partial class RoomEnemySystem
                 $"Shaktool slot {slot.SlotIndex} is not preceded by another Shaktool segment.");
         }
 
-        int angle = state.OrbitAngle >> 8;
-        int xDisplacement = unchecked((short)ReadWord(
-            _bus!, ShaktoolSineTable + angle * 2)) << 8;
-        int yDisplacement = unchecked((short)ReadWord(
-            _bus!, ShaktoolNegativeCosineTable + angle * 2)) << 8;
+        (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
+            unchecked((byte)(state.OrbitAngle >> 8)));
         (slot.XPosition, slot.XSubposition) = AddShaktoolFixed(
             previous.XPosition,
             previous.XSubposition,

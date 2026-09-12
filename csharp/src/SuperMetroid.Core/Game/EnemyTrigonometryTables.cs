@@ -4,6 +4,16 @@ namespace SuperMetroid.Core.Game;
 /// These are engine math definitions, not editable presentation assets.</summary>
 public static class EnemyTrigonometryTables
 {
+    /// <summary>$A0:B1C3-$B3C2, SineCosineTables_16bitSine and its three
+    /// quadrant continuations. These signed samples peak at +/-32767, unlike
+    /// the sign-extended 8.8 table. The positive half equals the stored unsigned
+    /// half-wave shifted right once; sign is restored only after that truncation.</summary>
+    public static short SignedSixteenBitSine(byte angle)
+    {
+        int magnitude = UnsignedHalfWave[angle & 127] >> 1;
+        return (short)(angle < 128 ? magnitude : -magnitude);
+    }
+
     /// <summary>$86:C26C/$C27A, CalculateSine/Cosine: multiply unsigned speed by
     /// the $A0:B443 signed sample, keep product bits 8..23, then restore the sign.
     /// Callers add a quarter-turn themselves when selecting cosine.</summary>

@@ -409,9 +409,44 @@ internal static class KiHunterAudit
         }
         ushort wingX = detached.Wings.XPosition;
         ushort wingY = detached.Wings.YPosition;
+        // $A8:F701 copies hurt state on the earlier shots, but its detachment
+        // branch does not clear it. $A0:9128 must retire that no-op hurt handler
+        // before the wing's orbit can run; animation installation is not AI admission.
+        ushort initialFlash = detached.Wings.FlashTimer;
+        ushort initialAngle = wingState.Angle;
+        ushort initialSpeed = wingState.TargetXOrSpeedIndex;
+        if (initialFlash != 12 || detached.Wings.AiHandlerBits != 2)
+            throw new InvalidDataException("Ki-Hunter detachment fixture lost its inherited hurt state.");
+        for (int flash = initialFlash - 1; flash >= 7; flash--)
+        {
+            Step(detached, assets);
+            ushort expectedHandler = flash < 8 ? (ushort)0 : (ushort)2;
+            if (detached.Wings.FlashTimer != flash || detached.Wings.AiHandlerBits != expectedHandler ||
+                detached.Wings.XPosition != wingX || detached.Wings.YPosition != wingY ||
+                wingState.Angle != initialAngle || wingState.TargetXOrSpeedIndex != initialSpeed)
+                throw new InvalidDataException($"Detached Ki-Hunter hurt hold differs at flash {flash}.");
+        }
+        // Independent cartridge-byte reference for the first admitted $A8:F7DB
+        // call: odd quadratic word, high-byte angle, truncated signed sine products.
+        ushort expectedAngle = unchecked((ushort)(initialAngle +
+            ReadWord(bus, 0xa0838f + (initialSpeed >> 8) * 8 + 5)));
+        int radius = bus.ReadByte(0xa8f186);
+        int Sine(int angle)
+        {
+            angle &= 255;
+            int magnitude = bus.ReadByte(0xa0b143 + (angle & 127)) * radius >> 8;
+            return angle < 128 ? magnitude : -magnitude;
+        }
+        ushort expectedX = unchecked((ushort)(wingState.OrbitCenterX +
+            Sine((expectedAngle >> 8) + 64) - wingState.OrbitXOffset));
+        ushort expectedY = unchecked((ushort)(wingState.OrbitCenterY +
+            Sine((expectedAngle >> 8) + 128) - wingState.OrbitYOffset));
         Step(detached, assets);
-        if (detached.Wings.XPosition == wingX && detached.Wings.YPosition == wingY)
-            throw new InvalidDataException("Detached Ki-Hunter wing orbit did not advance.");
+        if (detached.Wings.XPosition != expectedX || detached.Wings.YPosition != expectedY ||
+            wingState.Angle != expectedAngle || wingState.TargetXOrSpeedIndex != initialSpeed - 384 ||
+            detached.Wings.FlashTimer != 6 || wingState.WingFunction != KiHunterWingFunction.Orbit ||
+            (expectedX == wingX && expectedY == wingY))
+            throw new InvalidDataException("Detached Ki-Hunter first admitted orbit differs from native angle/position/speed.");
 
         LoadedPair killed = LoadPair(bus, room, assets, room.State.EnemyPopulationPointer);
         Step(killed, assets);

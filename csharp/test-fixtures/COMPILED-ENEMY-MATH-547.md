@@ -310,6 +310,9 @@ wing-orbit assertion, fail identically on the clean pre-change 5c3ec7a7 baseline
 Those failures are tracked separately by #583 and #584; they are not counted
 as passing encounter coverage or claimed as new regressions. The temporary
 baseline worktree and its binaries were removed after comparison.
+The Ki-Hunter diagnostic was subsequently repaired under #584: it now checks
+the native inherited hurt hold before the first admitted orbit. The complete
+encounter passes; see KI-HUNTER-AUDIT-584.md. No production change was needed.
 
 ### Remaining migration
 

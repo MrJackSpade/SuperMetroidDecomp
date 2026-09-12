@@ -117,7 +117,7 @@ public sealed partial class RoomEnemySystem
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
             body.VariableB = KraidRoarInstruction;
-        body.VariableC = KraidHeadTimers.Roar;
+            body.VariableC = KraidHeadTimers.Roar;
         }
     }
 

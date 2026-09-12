@@ -113,10 +113,18 @@ public sealed partial class RoomEnemySystem
         ushort hitboxPointer,
         SamusProjectileSlot shot)
     {
-        int address = 0xa70000 | hitboxPointer;
-        short left = unchecked((short)ReadWord(_bus!, address));
-        short top = unchecked((short)ReadWord(_bus!, address + 2));
-        short bottom = unchecked((short)ReadWord(_bus!, address + 6));
+        short left, top, bottom;
+        if (KraidMouthHitboxes.IsDefined(hitboxPointer))
+            (left, top, _, bottom) = KraidMouthHitboxes.Resolve(hitboxPointer);
+        else
+        {
+            // Non-catalog pointers can address mutable low-bank memory. Preserve
+            // that address-space behavior rather than coercing them to a fixed box.
+            int address = 0xa70000 | hitboxPointer;
+            left = unchecked((short)ReadWord(_bus!, address));
+            top = unchecked((short)ReadWord(_bus!, address + 2));
+            bottom = unchecked((short)ReadWord(_bus!, address + 6));
+        }
         int leftBoundary = body.XPosition + left;
         int topBoundary = body.YPosition + top;
         int bottomBoundary = body.YPosition + bottom;

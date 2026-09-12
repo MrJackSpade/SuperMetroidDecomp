@@ -19,7 +19,7 @@ the consumers rather than classifying them solely by the catalog names.
 
 | Mechanics group | Confirmed live consumer and semantics | Migration requirements |
 | --- | --- | --- |
-| Kraid hitboxes/projectiles | `KraidCollisions`, `KraidNails`: indirect mouth hitboxes and BF1D nail offsets | Inspect overlapping record strides, signed coordinates and actual collision/placement paths. BC65 spat-rock velocities, B163/B165 body contour and BE3E/BE46 indirect nail launch choices are now compiled. |
+| Kraid hitboxes/projectiles | `KraidNails`: BF1D nail offsets | Inspect overlapping record strides, signed coordinates and actual collision/placement paths. Mouth hitboxes, BC65 spat-rock velocities, B163/B165 body contour and BE3E/BE46 indirect nail launch choices are now compiled. |
 
 ### Mixed instruction selectors and presentation reads
 

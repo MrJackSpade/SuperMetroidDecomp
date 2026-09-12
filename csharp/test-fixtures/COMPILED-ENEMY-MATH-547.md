@@ -1266,3 +1266,26 @@ The now instance-free second-phase body thinker is static; its separate
 three-argument foot-thinking overload remains unchanged.
 
 Focused and full Release Verification, complete Kraid audit and Windows build pass.
+
+## Kraid mouth geometry
+
+Compiled all eight four-word rectangles at 9788..97C7, including unused entry
+four. The actual mouth collision helper bypasses the bus for these fixed
+definitions. Collision still uses left, top and bottom only; retaining
+the right definition word does not invent a new right-side collision limit.
+
+Tests parse the entire native private-head region 96D2..9787 and resolve every
+non-sentinel hitbox reference. All 32 words are independently compared to ROM.
+1,572,864 real mouth collision calls cover every projectile Y and both sides
+of each left boundary, including exact equality. Existing host arithmetic is
+retained; full-word native overflow parity is not claimed by this substitution.
+
+Non-catalog pointers retain existing address-space reads, including mutable
+low-bank memory. The Kraid audit exercises pointer zero, exposing why rejecting
+all non-catalog values would be an incorrect narrowing. Separate regression
+probes cover zero, another low address, the low-bank boundary and an unaligned
+ROM address. Thus this compiles the fixed geometry, not every possible indirect
+read. The wider mixed head-program migration remains outstanding.
+
+Full Release Verification, complete Kraid audit (including pointer-zero
+diagnostic handoff) and Windows Release build pass.

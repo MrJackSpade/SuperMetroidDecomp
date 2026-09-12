@@ -37,7 +37,9 @@ public sealed partial class SamusProjectileSystem
                     // still use floor(byteOffset / 2), including aligned writes.
                     block = block with { LevelWord = unchecked((ushort)((block.LevelWord >> 8) | (next << 8))) };
                 }
-                RunShotReaction(level, slot, block, roomPlms);
+                RunShotReaction(level, slot, block, roomPlms, out bool endSpan);
+                // Wave discards collision carry, but still honors PLM scan termination.
+                if (endSpan) return;
             }
 
             // There is only one CLC before the two ADCs. Do not simplify this
@@ -77,7 +79,10 @@ public sealed partial class SamusProjectileSystem
         {
             int index = byteOffset >> 1;
             if (index < level.WidthInBlocks * level.HeightInBlocks)
-                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms);
+            {
+                RunShotReaction(level, slot, level.GetCollisionBlock(index % level.WidthInBlocks, index / level.WidthInBlocks), roomPlms, out bool endSpan);
+                if (endSpan) return;
+            }
             byteOffset = unchecked((ushort)(byteOffset + 2));
         } while (--remaining >= 0);
     }

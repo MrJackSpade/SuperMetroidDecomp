@@ -81,3 +81,27 @@ sm.exe --gate-origin-probe "Super Metroid.smc" NEW_OUTPUT.csv
 Remove only those temporary hooks afterward. Execution is instruction-bounded,
 and output creation is exclusive. The probe prints the isolated beam sample to
 stderr for diagnosis. Numeric output contains no ROM or player-state bytes.
+
+## Verified scan-termination fix
+
+Instruction tracing of the original sample identifies gate setup `$84:B96C`
+(header `$B974`) writing zero to span scratch `$26` and `$FFFF` to collision
+scratch `$28`. The port incorrectly treated this as empty setup. Its aggregate
+solid/air scan could therefore continue past the gate and reach the switch.
+
+The projectile reaction now propagates successful gate allocation as scan
+termination and forced ordinary-beam collision. Wave retains scan termination
+but still discards collision carry. Exhausted pools do not execute setup and
+therefore do not publish those scratch effects. Terrain remains unchanged.
+
+The focused regression failed before the change (expected native impact X=113,
+got 110), and now matches X=113, Y=329, type `$8700`, instruction `$A00F`, and
+an untouched switch timer. Eight synthetic cases additionally exercise both
+axes, Wave/non-Wave, and available/exhausted allocation pools.
+
+The complete managed 6,075-origin sweep now exactly matches every native
+positive record and negative: beam 0, missile 119, super missile 116, including
+hit frames and projectile positions. The focused regression runs in the default
+verification suite. This is a scoped fix, not completion of #403: moving
+rising/spinning/falling setups and the remaining orientation/weapon controls
+still need their own cartridge comparisons.

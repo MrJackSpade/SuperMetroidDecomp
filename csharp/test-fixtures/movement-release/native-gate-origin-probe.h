@@ -1,5 +1,25 @@
 #include "native-bounded-cpu.h"
 
+static void DiagnosticGateSampleFire(void) {
+  Cpu *cpu = g_snes->cpu;
+  uint16 savedSp = cpu->sp, savedPc = cpu->pc, savedDp = cpu->dp;
+  uint8 savedDb = cpu->db;
+  cpu->db = cpu->k = 0x90; cpu->pc = 0xb80d;
+  cpu->a = cpu->x = cpu->y = 0; cpu->mf = cpu->xf = false;
+  cpu->spBreakpoint = cpu->sp; g_calling_asm_from_c = true;
+  for (int budget = 100000; g_calling_asm_from_c; budget--) {
+    if (!budget) exit(6);
+    uint32 pc = (uint32)cpu->k << 16 | cpu->pc;
+    if (pc == 0x90bd64 || pc == 0x94a2aa || pc == 0x94a339 || pc == 0x94a2ba || pc == 0x94a342)
+      fprintf(stderr, "Gate CPU %06X X=%04X xy=%d,%d radii=%d,%d span=%04X hits=%04X word=%04X\n", pc,
+        cpu->x, projectile_x_pos[0], projectile_y_pos[0], projectile_x_radius[0], projectile_y_radius[0],
+        *(uint16 *)(g_ram + 0x26), *(uint16 *)(g_ram + 0x28), cpu->x < 3072 ? level_data[cpu->x >> 1] : 0);
+    cpu_runOpcode(cpu);
+    while (g_snes->dma->dmaBusy) dma_doDma(g_snes->dma);
+  }
+  cpu->sp = savedSp; cpu->pc = savedPc; cpu->dp = savedDp; cpu->db = savedDb;
+}
+
 // #403: original room PLM setup, firing and collision for the managed origin sweep.
 int DiagnosticGateOrigins(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
@@ -33,7 +53,8 @@ int DiagnosticGateOrigins(const char *rom, const char *output) {
     for (int frame = 0; frame < 24; frame++) {
       joypad1_lastkeys = joypad1_newkeys = frame ? 0 : 0x40;
       ProbeRunBounded(0x90ac1c);
-      ProbeRunBounded(item ? 0x90be62 : 0x90b80d);
+      if (item == 0 && x == 140 && y == 360 && frame == 0) DiagnosticGateSampleFire();
+      else ProbeRunBounded(item ? 0x90be62 : 0x90b80d);
       if (item == 0 && x == 140 && y == 360 && frame < 2)
         fprintf(stderr, "Native fired frame=%d xy=%d,%d type=%04X list=%04X radii=%d,%d\n", frame,
           projectile_x_pos[0], projectile_y_pos[0], projectile_type[0], projectile_bomb_instruction_ptr[0], projectile_x_radius[0], projectile_y_radius[0]);

@@ -516,8 +516,9 @@ public sealed partial class SamusProjectileSystem
         for (int blockY = topBlock; blockY <= bottomBlock; blockY++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            if (!RunShotReaction(level, slot, block, roomPlms))
+            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan))
                 everyBlockSolid = false;
+            if (endSpan) return true;
         }
         return everyBlockSolid;
     }
@@ -545,8 +546,9 @@ public sealed partial class SamusProjectileSystem
         for (int blockX = leftBlock; blockX <= rightBlock; blockX++)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(blockX, blockY);
-            if (!RunShotReaction(level, slot, block, roomPlms))
+            if (!RunShotReaction(level, slot, block, roomPlms, out bool endSpan))
                 everyBlockSolid = false;
+            if (endSpan) return true;
         }
         return everyBlockSolid;
     }
@@ -555,8 +557,10 @@ public sealed partial class SamusProjectileSystem
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
-        RoomPlmSystem? roomPlms)
+        RoomPlmSystem? roomPlms,
+        out bool endSpan)
     {
+        endSpan = false;
         // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
         // dispatch. Door caps deliberately put the shootable origin at one end and type-
         // `$D` extension words across the other three cells. Resolve those signed BTS
@@ -588,6 +592,15 @@ public sealed partial class SamusProjectileSystem
 
         if (block.CollisionType is RoomCollisionType.ShootableAir or RoomCollisionType.ShootableBlock)
         {
+            if (block.Bts.IsShootableCollisionProbe)
+            {
+                // Gate setup ends the caller's span and forces its collision counter.
+                // A full PLM pool skips setup entirely, so it must not end the scan.
+                endSpan = roomPlms?.TrySpawnProjectileShotBlock(
+                    level, block.Index, block.Bts, slot.Type,
+                    block.CollisionType == RoomCollisionType.ShootableBlock) == true;
+                return block.CollisionType == RoomCollisionType.ShootableBlock;
+            }
             TrySpawnShootableReaction(level, slot, block, roomPlms);
             return block.CollisionType == RoomCollisionType.ShootableBlock;
         }

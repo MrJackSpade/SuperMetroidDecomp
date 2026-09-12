@@ -995,10 +995,9 @@ public sealed partial class RoomPlmSystem
 
             if (bts.IsShootableCollisionProbe)
             {
-                // `$94:9EA6[10]` is `$84:B974`: its setup is intentionally empty and its
-                // `$AAE3` instruction list deletes on the next PLM handler pass. The
-                // collision-result sentinel is owned by the calling bank-$94 dispatcher;
-                // the PLM itself performs no terrain mutation.
+                // Setup ends the projectile scan and forces its collision counter;
+                // the caller publishes those scratch effects only after successful
+                // allocation. This actor does not mutate terrain and deletes next pass.
                 slot.InstructionPointer = RoomPlmInstructionLists.Delete;
                 return true;
             }

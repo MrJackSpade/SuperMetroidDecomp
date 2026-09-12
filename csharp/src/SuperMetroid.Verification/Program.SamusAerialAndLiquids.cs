@@ -45,15 +45,8 @@ static void VerifySamusAerialMovement()
     WriteTestWord(bus, 0x909ea1, 0x1c00);
     WriteTestWord(bus, 0x909ea7, 0x0000);
 
-    // Type two reads normal-air base $9F55 + 2*12 = $9F6D. With no direction input the
-    // native handler clears the tentative acceleration again, but seed all six words so
-    // the pointer and arithmetic remain real rather than relying on sparse-bus zeroes.
-    WriteTestWord(bus, 0x909f6d, 0x0000);
-    WriteTestWord(bus, 0x909f6f, 0x1000);
-    WriteTestWord(bus, 0x909f71, 0x0001);
-    WriteTestWord(bus, 0x909f73, 0x0000);
-    WriteTestWord(bus, 0x909f75, 0x0000);
-    WriteTestWord(bus, 0x909f77, 0x1000);
+    // Type two resolves the compiled native $9F6D entry. With no direction input the
+    // movement handler still clears its tentative acceleration after the calculation.
 
     const int width = 8;
     const int height = 8;
@@ -132,7 +125,7 @@ static void VerifySamusAerialMovement()
     aerialSpeed.SelectNormalAirSpeedTable();
     AerialBaseSpeedResult accelerated =
         aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(bus, movementType: SamusMovementType.NormalJumping);
-    AssertEqual(0x00001000u, accelerated.Speed, "aerial mode two accelerates");
+    AssertEqual(0x0000c000u, accelerated.Speed, "aerial mode two uses native normal-jump acceleration");
     AssertTrue(!accelerated.ReachedMaximum, "aerial sub-cap call clears carry");
 
     // Mirror the launch through the left-facing spin-jump route. This checks that mode two
@@ -144,12 +137,6 @@ static void VerifySamusAerialMovement()
     WriteTestWord(bus, 0x91b044, 0xc140);
     bus.WriteBytes(0x91c138, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03]);
     bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
-    WriteTestWord(bus, 0x909f79, 0x0000);
-    WriteTestWord(bus, 0x909f7b, 0x2000);
-    WriteTestWord(bus, 0x909f7d, 0x0001);
-    WriteTestWord(bus, 0x909f7f, 0x6000);
-    WriteTestWord(bus, 0x909f81, 0x0000);
-    WriteTestWord(bus, 0x909f83, 0x1000);
     var spinLeft = new SamusState
     {
         Pose = SamusPoseIds.MovingLeftNormalPose,
@@ -164,10 +151,10 @@ static void VerifySamusAerialMovement()
         spinLeft,
         (ushort)(SnesButton.Left | SnesButton.A),
         nmiFrameCounter: 0);
-    AssertEqual(-0x00012000, spinFrame.Horizontal.AcceptedDisplacement, "left spin jump displacement");
+    AssertEqual(-0x00016000, spinFrame.Horizontal.AcceptedDisplacement, "left spin jump reaches native cap");
     AssertEqual(2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.XPosition, "left spin jump whole X");
-    AssertEqual(0xe000, spinLeft.Kinematics.XSubposition, "left spin jump fractional X");
+    AssertEqual(0xa000, spinLeft.Kinematics.XSubposition, "left spin jump fractional X");
 
     // Turning input handler `$91:8142` uses the ordinary transition table. The reported
     // retail match `$26 -> $19` is therefore a real spin-jump launch, not an unsupported

@@ -1423,3 +1423,34 @@ remain a separate runtime dependency; this does not claim all Samus speeds are
 compiled or that arbitrary restored pointers have native parity.
 
 Full Release Verification and Windows Release build pass.
+
+## Indexed Samus horizontal speed records
+
+Compiled all 82 authored records from $90:9F55 (26 air rows), $90:A08D
+(28 water rows) and $90:A1DD (28 lava rows). Literal maximum-speed arrays and
+the exact shared acceleration/deceleration patterns produce the same six-word
+records; all 492 words are compared against the pinned ROM. Source is the
+three `SamusXSpeedTable` definitions in bank_90.asm, not inferred smooth curves.
+
+Resolution occurs after native address calculation. Air indexes 26/27 therefore
+select water rows 0/1, and other indexes crossing between authored tables retain
+their actual records. The public indexed and standalone calculators now share
+one resolver. Unknown/unaligned addresses still use the original six-word reader:
+this preserves existing behavior but does not remove every out-of-table immutable
+ROM dependency or establish full native parity for corrupted state.
+
+Tests cover all 768 medium/movement-byte pairs (166 resolve into authored records),
+every restored base word's wrapped address, every resulting high-bank address's
+exact record alignment, and changed mutable low-bank data. Authored reads throw
+if production touches the bus; non-catalog reads remain allowed and compared.
+The earlier standalone calculator's ROM-fed arithmetic comparison remains active.
+
+Added `--samus-physics` to run 18 independent physics fixtures, report all failures
+and retain nonzero exit status. Updated six older fixtures whose synthetic ROM
+speed records no longer control compiled mechanics, removing obsolete seeded
+records in the affected routes. Their assertions still check exact direction,
+fractional displacement, caps, momentum retention and pose/state transitions,
+now using independently verified native speeds rather than custom test speeds.
+
+Focused compiled-definition tests, all 18 physics fixtures, full Release
+Verification and Windows Release build pass.

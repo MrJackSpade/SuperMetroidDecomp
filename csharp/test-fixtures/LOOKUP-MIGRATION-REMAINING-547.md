@@ -96,17 +96,21 @@ are now compiled in `SamusVerticalMotionDefinitions`. Their production setup
 calls reject all ROM access in the regression. Bomb-jump and knockback launch
 pairs are now compiled too; knockback still consumes pose/animation records.
 The formerly named falling-transition pair is actually the shared ball-rebound
-pair, and is now compiled and correctly named. This does not migrate horizontal-speed definitions, nor Grapple's
-remaining launch/connection/pose selectors. The source audit explicitly found
+pair, and is now compiled and correctly named. Grapple's remaining
+launch/connection/pose selectors are separate readers. The source audit explicitly found
 those readers outside the enemy-table catalog scan.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
 preserves the existing fallback for non-catalog/unaligned/mutable records.
-Movement-indexed `ReadEntry` remains live: normal air has 26 authored rows,
-water and lava have 28 each. Do not assume three equal-length authored tables;
-normal-air indexes 26/27 enter the adjacent water records. Higher byte indexes
-and any restored base-address state require explicit classification as well.
+Movement-indexed `ReadEntry` now compiles all 82 authored records: normal air has
+26 rows, water and lava have 28 each. Address-based resolution preserves reads
+across those boundaries, including normal-air indexes 26/27 entering water rows
+0/1. Every movement byte and restored base word has been checked for exact
+address/alignment handling. Non-catalog reads remain live rather than being
+clamped; higher byte indexes can still read adjacent executable/data bytes.
+That residual ROM dependency needs explicit treatment under the wider contract,
+not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
 
 - `EnemyRomTablePointers` consumers: boss jumps, projectile launch/angle records,
   death trajectories and other indirect family definitions.

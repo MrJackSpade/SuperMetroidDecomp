@@ -44,7 +44,7 @@ internal static partial class Program
         // Unknown and unaligned records retain the existing indirect address-space path.
         // In particular, low-bank WRAM aliases are not immutable ROM definitions.
         var mutable = new TestAddressSpace();
-        foreach (int address in new[] { 0x900100, 0x909f26, 0x909f55 })
+        foreach (int address in new[] { 0x900100, 0x909f26, 0x90a32d })
         {
             AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out _), "Non-catalog address not silently clamped");
             foreach (ushort acceleration in new ushort[] { 0x1234, 0x4321 })

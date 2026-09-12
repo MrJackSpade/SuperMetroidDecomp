@@ -739,21 +739,8 @@ static void VerifySamusGroundedReversal()
 {
     var bus = new TestAddressSpace();
 
-    // Both ordinary running directions use movement type one's $90:9F61 record. The turn
-    // handler uses movement type $0E and therefore reads $90:9FFD. These fixture words are
-    // shaped like the retail records but deliberately simple enough to audit by inspection.
-    WriteTestWord(bus, 0x909f61, 0x0000);
-    WriteTestWord(bus, 0x909f63, 0x3000);
-    WriteTestWord(bus, 0x909f65, 0x0002);
-    WriteTestWord(bus, 0x909f67, 0xc000);
-    WriteTestWord(bus, 0x909f69, 0x0000);
-    WriteTestWord(bus, 0x909f6b, 0x8000);
-    WriteTestWord(bus, 0x909ffd, 0x0000);
-    WriteTestWord(bus, 0x909fff, 0x3000);
-    WriteTestWord(bus, 0x90a001, 0x0002);
-    WriteTestWord(bus, 0x90a003, 0xc000);
-    WriteTestWord(bus, 0x90a005, 0x0000);
-    WriteTestWord(bus, 0x90a007, 0x4000);
+    // Running and turning resolve their compiled native rows independently. Both have
+    // 0.8000 deceleration, while only running has the 2.C000 maximum.
 
     // A broad row of ordinary type-$8 solids removes slope scaling from this test. Center
     // Y=11 with radius 5 rests exactly on the row-one top edge at physical Y=16.
@@ -832,8 +819,8 @@ static void VerifySamusGroundedReversal()
         level,
         turnTowardLeft,
         nmiFrameCounter: 0);
-    AssertEqual(0xc000, turnTowardLeft.HorizontalSpeed.BaseSubspeed, "left-turn deceleration amount");
-    AssertEqual(0x0000c000, carriedRight.Horizontal.AcceptedDisplacement, "left-turn carries rightward momentum");
+    AssertEqual(0x8000, turnTowardLeft.HorizontalSpeed.BaseSubspeed, "left-turn native deceleration amount");
+    AssertEqual(0x00008000, carriedRight.Horizontal.AcceptedDisplacement, "left-turn carries rightward momentum");
 
     // Pose $26 is the mirror: it displays a right-facing turn but carries old momentum to
     // the left. This is not a host sign choice; it is the other branch of $90:8EA9.
@@ -849,7 +836,7 @@ static void VerifySamusGroundedReversal()
         level,
         turnTowardRight,
         nmiFrameCounter: 1);
-    AssertEqual(-0x0000c000, carriedLeft.Horizontal.AcceptedDisplacement, "right-turn carries leftward momentum");
+    AssertEqual(-0x00008000, carriedLeft.Horizontal.AcceptedDisplacement, "right-turn carries leftward momentum");
 
     // Underflow clears speed and mode inside $90:9A7E before direction dispatch. The last
     // turn frame consequently requests exactly zero rather than crossing into new motion.
@@ -1197,24 +1184,8 @@ static void VerifySamusMoonwalking()
 {
     var bus = new TestAddressSpace();
 
-    // `$90:9F55 + 10h * 0Ch = $90:A015`. Use an unmistakable quarter-pixel acceleration
-    // with a two-pixel cap and eighth-pixel deceleration; all stable moonwalk records must
-    // select this entry instead of borrowing running's type-one record.
-    WriteTestWord(bus, 0x90a015, 0x0000);
-    WriteTestWord(bus, 0x90a017, 0x4000);
-    WriteTestWord(bus, 0x90a019, 0x0002);
-    WriteTestWord(bus, 0x90a01b, 0x0000);
-    WriteTestWord(bus, 0x90a01d, 0x0000);
-    WriteTestWord(bus, 0x90a01f, 0x2000);
-
-    // `$BF-$C4` dispatch through ordinary grounded-turn movement type `$0E`, whose own
-    // deceleration record remains independently visible during their three art frames.
-    WriteTestWord(bus, 0x909ffd, 0x0000);
-    WriteTestWord(bus, 0x909fff, 0x4000);
-    WriteTestWord(bus, 0x90a001, 0x0002);
-    WriteTestWord(bus, 0x90a003, 0x0000);
-    WriteTestWord(bus, 0x90a005, 0x0000);
-    WriteTestWord(bus, 0x90a007, 0x2000);
+    // Moonwalk's native row accelerates at 0.C000 and caps at 0.8000; it must not
+    // borrow running's faster cap. Turn-art poses still dispatch their own native row.
 
     (byte Pose, byte[] Definition, byte Fallback, int Direction)[] stable =
     [
@@ -1364,7 +1335,7 @@ static void VerifySamusMoonwalking()
         walker.Kinematics.YRadius = 5;
         GroundedMovementResult movement = SamusGroundedMovement.StepMoonwalking(
             bus, floor, walker, nmiFrameCounter: 0);
-        AssertEqual(direction * 0x4000, movement.Horizontal.AcceptedDisplacement,
+        AssertEqual(direction * 0x8000, movement.Horizontal.AcceptedDisplacement,
             $"moonwalk ${pose:X2} uses literal reversed direction");
         AssertTrue(movement.Vertical.Collided, $"moonwalk ${pose:X2} probes floor");
     }
@@ -1387,7 +1358,7 @@ static void VerifySamusMoonwalking()
         floor,
         momentumMoonwalk,
         nmiFrameCounter: 0);
-    AssertEqual(0x00014000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement,
+    AssertEqual(0x00018000, momentumMoonwalkFrame.Horizontal.AcceptedDisplacement,
         "moonwalk preserves owned extra run speed");
 
     var unownedMoonwalk = new SamusState
@@ -1404,7 +1375,7 @@ static void VerifySamusMoonwalking()
         floor,
         unownedMoonwalk,
         nmiFrameCounter: 0);
-    AssertEqual(0x00004000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement,
+    AssertEqual(0x00008000, unownedMoonwalkFrame.Horizontal.AcceptedDisplacement,
         "moonwalk clears unowned extra run speed");
     AssertEqual(0, unownedMoonwalk.HorizontalSpeed.ExtraRunSpeed,
         "moonwalk publishes native unowned-speed zero write");

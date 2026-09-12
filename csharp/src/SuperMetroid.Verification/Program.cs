@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--samus-physics"])
+{
+    VerifySamusPhysicsBatch();
+    return 0;
+}
 if (args is ["--botwoon-plm-identity"])
 {
     VerifyBotwoonPlmIdentity();

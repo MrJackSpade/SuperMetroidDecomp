@@ -147,7 +147,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>
     /// Ports <c>Determine_Samus_X_Speed_Table_Entry_Pointer</c>'s environmental selection
     /// at <c>$90:9BD1</c>. The returned table still contains 12-byte records indexed later
-    /// by movement type; no acceleration or cap is copied into host constants.
+    /// by movement type; compiled definitions preserve that native address selection.
     /// </summary>
     public void SelectEnvironmentSpeedTable(ushort liquidMedium)
     {
@@ -805,13 +805,23 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Reads a speed entry directly from cartridge bank $90. Fields remain split into the
+    /// Resolves authored speed entries without ROM access. Fields remain split into the
     /// same high/low words as the original table instead of becoming floating-point values.
     /// </summary>
     public SpeedTableEntry ReadEntry(ISnesAddressSpace bus, SamusMovementType movementType)
     {
         ArgumentNullException.ThrowIfNull(bus);
         int address = ResolveEntryAddress(movementType);
+        return ReadEntryAtAddress(bus, address);
+    }
+
+    private static SpeedTableEntry ReadEntryAtAddress(ISnesAddressSpace bus, int address)
+    {
+        if (SamusHorizontalMotionDefinitions.TryResolveIndexed(address, out SpeedTableEntry compiled) ||
+            SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out compiled))
+            return compiled;
+
+        // Non-catalog addresses may be mutable low-bank aliases or native overreads.
         return new SpeedTableEntry(
             ReadWord(bus, address + 0),
             ReadWord(bus, address + 2),
@@ -838,19 +848,7 @@ public sealed class SamusHorizontalSpeedState
     public uint CalculateBaseSpeedAtAddress(ISnesAddressSpace bus, int address)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out SpeedTableEntry compiled))
-            return CalculateBaseSpeed(compiled);
-
-        // Preserve non-catalog addresses, including mutable low-bank aliases. This
-        // migration does not invent a valid-address clamp for the native indirect read.
-        var entry = new SpeedTableEntry(
-            ReadWord(bus, address + 0),
-            ReadWord(bus, address + 2),
-            ReadWord(bus, address + 4),
-            ReadWord(bus, address + 6),
-            ReadWord(bus, address + 8),
-            ReadWord(bus, address + 10));
-        return CalculateBaseSpeed(entry);
+        return CalculateBaseSpeed(ReadEntryAtAddress(bus, address));
     }
 
     private uint CalculateBaseSpeed(SpeedTableEntry entry)

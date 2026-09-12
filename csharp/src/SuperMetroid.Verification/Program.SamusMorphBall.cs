@@ -92,18 +92,7 @@ static void VerifySamusMorphBallMovement()
     bus.WriteBytes(0x91c460, [0x10, 0xff]);
     bus.WriteBytes(0x91c470, [0x10, 0xff]);
 
-    // Normal-air movement type four receives visible acceleration and deceleration words;
-    // type eight remains zero horizontally for isolated bounce assertions.
-    bus.WriteBytes(0x909f85, [
-        0x00, 0x00, 0x00, 0x80, // acceleration 0.8000
-        0x01, 0x00, 0x00, 0x00, // maximum 1.0000
-        0x00, 0x00, 0x00, 0x40, // deceleration 0.4000
-    ]);
-    bus.WriteBytes(0x909f55 + 0x11 * 12, [
-        0x00, 0x00, 0x00, 0x80, // Spring-ground acceleration 0.8000
-        0x01, 0x00, 0x00, 0x00, // maximum 1.0000
-        0x00, 0x00, 0x00, 0x40, // deceleration 0.4000
-    ]);
+    // Horizontal motion uses compiled native rows; only pose/animation data is synthetic.
     bus.WriteBytes(0x909eb9, [0x04, 0x00]); // Dry-air jump whole speed 4.
     bus.WriteBytes(0x909ebf, [0x00, 0xe0]); // Dry-air jump subspeed E000.
     bus.WriteBytes(0x909ea1, [0x00, 0x28]); // Dry-air gravity subspeed 2800.
@@ -221,18 +210,18 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(SamusPoseIds.MorphBallGroundRightPose, samus.Pose, "morph entry reaches stable ball");
 
     // Changing to the moving record preserves the shared rolling frame/timer. Movement
-    // type four then reads its literal 0.8000 acceleration and remains floor-constrained.
+    // type four uses native 0.C000 acceleration and remains floor-constrained.
     ushort timerBeforeRoll = samus.AnimationFrameTimer;
     samus.ApplyMorphBallPoseChange(bus, SamusPoseIds.MorphBallMovingRightPose);
     AssertEqual(timerBeforeRoll, samus.AnimationFrameTimer, "ball direction change preserves timer");
     MorphBallMovementResult rolling = SamusMorphBallMovement.StepGrounded(
         bus, floor, samus, nmiFrameCounter: 0);
     AssertTrue(rolling.Vertical.Collided, "rolling ball retains floor contact");
-    AssertEqual(0x8000, samus.HorizontalSpeed.BaseSubspeed, "type-four acceleration uses ROM table");
+    AssertEqual(0xc000, samus.HorizontalSpeed.BaseSubspeed, "type-four acceleration uses native definition");
 
     samus.ApplyMorphBallPoseChange(bus, SamusPoseIds.MorphBallMovingLeftPose);
     AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "ball reversal selects momentum mode one");
-    AssertEqual(0x8000, samus.HorizontalSpeed.BaseSubspeed, "ball reversal preserves base magnitude");
+    AssertEqual(0xc000, samus.HorizontalSpeed.BaseSubspeed, "ball reversal preserves base magnitude");
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
@@ -271,8 +260,8 @@ static void VerifySamusMorphBallMovement()
     boostedRoll.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
     SamusMorphBallMovement.StepGrounded(bus, empty, boostedRoll, nmiFrameCounter: 0);
     AssertEqual(34, boostedRoll.XPosition,
-        "grounded moving ball adds inherited 1.8000 extra speed to 0.8000 base");
-    AssertEqual(0, boostedRoll.Kinematics.XSubposition,
+        "grounded moving ball adds inherited 1.8000 extra speed to native 0.C000 base");
+    AssertEqual(0x4000, boostedRoll.Kinematics.XSubposition,
         "grounded moving ball preserves exact fractional carry from total speed");
     AssertEqual(1, boostedRoll.HorizontalSpeed.ExtraRunSpeed,
         "moving ball retains inherited extra-run whole word");
@@ -295,9 +284,9 @@ static void VerifySamusMorphBallMovement()
         boostedFall,
         controllerInput: (ushort)SnesButton.Left,
         nmiFrameCounter: 0);
-    AssertEqual(30, boostedFall.XPosition,
+    AssertEqual(29, boostedFall.XPosition,
         "held-left falling ball subtracts inherited 1.8000 extra speed");
-    AssertEqual(0x8000, boostedFall.Kinematics.XSubposition,
+    AssertEqual(0xc000, boostedFall.Kinematics.XSubposition,
         "falling-left subtraction retains fractional position");
     AssertEqual(1, boostedFall.HorizontalSpeed.ExtraRunSpeed,
         "direction-held falling ball retains extra-run momentum");
@@ -318,9 +307,9 @@ static void VerifySamusMorphBallMovement()
         boostedSpring,
         controllerInput: (ushort)SnesButton.Right,
         nmiFrameCounter: 0);
-    AssertEqual(33, boostedSpring.XPosition,
+    AssertEqual(34, boostedSpring.XPosition,
         "Spring-Ball air handler adds inherited extra-run speed through shared jump movement");
-    AssertEqual(0x8000, boostedSpring.Kinematics.XSubposition,
+    AssertEqual(0x4000, boostedSpring.Kinematics.XSubposition,
         "Spring-Ball air handler retains inherited fractional displacement");
 
     var boostedTransition = new SamusState
@@ -578,7 +567,7 @@ static void VerifySamusMorphBallMovement()
     MorphBallMovementResult springRoll = SamusMorphBallMovement.StepGrounded(
         bus, floor, spring, nmiFrameCounter: 0);
     AssertTrue(springRoll.Vertical.Collided, "Spring Ball roll retains floor contact");
-    AssertEqual(0x8000, spring.HorizontalSpeed.BaseSubspeed,
+    AssertEqual(0xc000, spring.HorizontalSpeed.BaseSubspeed,
         "type-$11 acceleration uses its ROM record");
 
     // `$79 -> $7F` initializes the literal dry-air 4.E000 jump. Releasing Jump on its

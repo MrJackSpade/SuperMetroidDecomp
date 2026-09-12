@@ -142,7 +142,6 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x91b010 + 0x6a * 2, 0xc110);
     bus.WriteBytes(0x91c100, [2, 2, 2, 0xf8, 0x6a]);
     bus.WriteBytes(0x91c110, [3]);
-    WriteSpeedRecord(bus, movementType: SamusMovementType.TurningWhileJumping, accelerationSub: 0, maximumSpeed: 2, decelerationSub: 0x1000);
     WriteTestWord(bus, 0x909ea1, 0x2800);
     WriteTestWord(bus, 0x909ea7, 0);
     var turn = new SamusState { Pose = 0x69, XPosition = 32, YPosition = 48 };
@@ -154,7 +153,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     turn.Kinematics.YSubacceleration = 0x2800;
     AssertTrue(turn.TryApplyAerialTurn(bus, level, 0x2f, 0), "diagonal-up aerial turn installs");
     AerialMovementResult turnFrame = SamusAerialMovement.StepTurningInAir(bus, level, turn, 0);
-    AssertEqual(0x00017000, turnFrame.Horizontal.AcceptedDisplacement, "turn retains old rightward momentum");
+    AssertEqual(0x00010000, turnFrame.Horizontal.AcceptedDisplacement, "turn retains old rightward momentum after native 0.8000 deceleration");
     AssertEqual(33, turn.XPosition, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
         turn.AnimateNoFx(bus);
@@ -225,8 +224,6 @@ static void VerifySamusAerialTurnsAndWallJump()
     WriteTestWord(bus, 0x91b010 + 0x83 * 2, 0xc220);
     bus.WriteBytes(0x91c200, [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0xff]);
     bus.WriteBytes(0x91c220, [4, 4, 0xfb, 2, 2, 2, 2, 2, 2, 2, 2, 0xfe, 8]);
-    WriteSpeedRecord(bus, movementType: SamusMovementType.SpinJumping, accelerationSub: 0x2000, maximumSpeed: 1, decelerationSub: 0x1000);
-    WriteSpeedRecord(bus, movementType: SamusMovementType.WallJumping, accelerationSub: 0x1000, maximumSpeed: 1, decelerationSub: 0x1000);
     WriteTestWord(bus, 0x909ed1, 4);
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
@@ -376,22 +373,6 @@ static void VerifySamusAerialTurnsAndWallJump()
         return samus;
     }
 
-    void WriteSpeedRecord(
-        TestAddressSpace addressSpace,
-        SamusMovementType movementType,
-        ushort accelerationSub,
-        ushort maximumSpeed,
-        ushort decelerationSub)
-    {
-        int address = 0x909f55 + (byte)movementType * 12;
-        WriteTestWord(addressSpace, address + 0, 0);
-        WriteTestWord(addressSpace, address + 2, accelerationSub);
-        WriteTestWord(addressSpace, address + 4, maximumSpeed);
-        WriteTestWord(addressSpace, address + 6, 0);
-        WriteTestWord(addressSpace, address + 8, 0);
-        WriteTestWord(addressSpace, address + 10, decelerationSub);
-    }
-
     Console.WriteLine("  Samus aerial turns/wall jump: selectors, momentum, sounds, contact damage, wall gate, FB, and launch agree.");
 }
 
@@ -477,20 +458,8 @@ static void VerifySamusKnockbackAndDamageBoost()
     WriteTestWord(bus, 0x909ea1, 0x1c00);
     WriteTestWord(bus, 0x909ea7, 0x0000);
 
-    // Knockback's type-$0A normal-air record begins at `$90:9FCD`. A small 0.4000
-    // acceleration makes the first frame's direction and fixed-point displacement exact.
-    WriteTestWord(bus, 0x909fcd, 0x0000);
-    WriteTestWord(bus, 0x909fcf, 0x4000);
-    WriteTestWord(bus, 0x909fd1, 0x0005);
-    WriteTestWord(bus, 0x909fd3, 0x0000);
-    WriteTestWord(bus, 0x909fd5, 0x0000);
-    WriteTestWord(bus, 0x909fd7, 0x1000);
-
-    // Type `$19` really indexes the same generic table rather than using a damage-boost
-    // special case. Its entry may remain zero because no direction is held in the first
-    // translated damage-boost frame below.
-    for (int address = 0x90a081; address < 0x90a08d; address += 2)
-        WriteTestWord(bus, address, 0);
+    // The compiled native hurt row accelerates by 1.8000. Damage boost still indexes
+    // its own row rather than a hurt-specific substitute.
 
     const int width = 16;
     const int height = 16;
@@ -580,7 +549,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
     samus.DecrementHurtTimers();
     AssertEqual(4, samus.KnockbackTimer, "first hurt frame decrements timer");
-    AssertEqual(0x00004000, hurtFrame.Horizontal!.Value.AcceptedDisplacement,
+    AssertEqual(0x00018000, hurtFrame.Horizontal!.Value.AcceptedDisplacement,
         "knockback moves in bank-$A0 X direction");
     AssertEqual(unchecked((int)0xfffb0000), hurtFrame.Vertical!.Value.AcceptedDisplacement,
         "knockback moves by old 5.0000 vertical speed");
@@ -770,16 +739,9 @@ static void VerifySamusKnockbackAndDamageBoost()
         AssertEqual(0x0602, ball.MorphBallBounceState,
             $"morphed pose ${pose:X2} start leaves bounce state until completion");
 
-        // Give every live ball family a distinct speed record. Hurt movement must
-        // index it, not the humanoid record installed above with 0.4000 acceleration.
-        int speedRecord = 0x900000 + SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
-            (byte)ball.ReadMovementType(bus) * SpeedTableEntry.ByteCount;
-        WriteTestWord(bus, speedRecord, 0);
-        WriteTestWord(bus, speedRecord + 2, 0x2000);
-        WriteTestWord(bus, speedRecord + 4, 5);
-        WriteTestWord(bus, speedRecord + 6, 0);
+        // Native ball rows accelerate at 0.C000, not the humanoid hurt row's 1.8000.
         var ballMove = SamusKnockbackMovement.Step(bus, empty, ball, 0);
-        AssertEqual(hitSide == 0 ? -0x2000 : 0x2000,
+        AssertEqual(hitSide == 0 ? -0xc000 : 0xc000,
             ballMove.Horizontal!.Value.AcceptedDisplacement,
             $"hurt movement uses live ball type for pose ${pose:X2}");
     }

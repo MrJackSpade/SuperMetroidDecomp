@@ -24,3 +24,23 @@ Full Release Verification, Windows build and the complete Norfair Ridley audit
 pass: 360 reveal frames, 4,096 combat frames and 738 death frames. #595 remains
 open for player confirmation; no claim is made that all Ridley RNG calls have
 been audited by this routine-specific correction.
+
+## Follow-up: remaining Norfair attack setup calls
+
+Inspected every RNG call in RoomEnemySystem.Ridley.cs against the pinned native
+functions. Two more sites incorrectly advanced RNG: pogo setup $A6:B5C4 and
+fireball timer setup $A6:B6DD. The attack selector $A6:B321 genuinely invokes
+NextRandom and is intentionally unchanged.
+
+Added exact tests of both real setup paths for all 65,536 current RNG words.
+Before each correction its assertion independently failed with expected zero
+advances, observed one. After correction, pogo setup reads once and writes
+(seed & 31) + 32; fireball setup reads twice (launch record and timer) without
+advancing, writes (seed & 63) + 128, and retains its native phase handoff.
+The non-spin pogo fixture isolates the timer write from the later decrement.
+
+All 131,072 setup cases, the existing 1,572,864 launch cases, full Verification,
+Windows build and complete Norfair Ridley audit pass. The encounter now traverses
+ten combat states in its 4,096-frame run, with 360 reveal and 738 death frames.
+This extends #595; it remains awaiting player confirmation. It does not claim
+that other Ridley partials or unrelated enemy RNG ownership have been audited.

@@ -280,7 +280,7 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairPogoSetup:
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = unchecked((ushort)((_nextRandom!() & 0x1f) + 32));
+                state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x1f) + 32));
                 TickNorfairRidleyPogo(slot, state, samus, descending: true);
                 return;
 
@@ -593,7 +593,7 @@ public sealed partial class RoomEnemySystem
 
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = unchecked((ushort)((_nextRandom!() & 0x3f) + 128));
+        state.FunctionTimer = unchecked((ushort)((RequireRandomNumber() & 0x3f) + 128));
     }
 
     private void TickNorfairRidleyGroundAttack(

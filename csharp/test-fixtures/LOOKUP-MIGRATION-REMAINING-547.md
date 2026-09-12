@@ -9,13 +9,15 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
 | Ridley | Carry/release anchors, pogo targets/path pointers, acceleration and health divisor selectors | RoomEnemySystem.Ridley and related partials |
-| Phantoon | Death-explosion position/type/delay records; classify presentation selectors separately | RoomEnemySystem.PhantoonDeath |
 | Bomb Torizo | Wake positions, radii, property masks and instruction selectors | RoomEnemySystem.BombTorizo initialization |
 | Ceres debris | X offsets and instruction selectors | Ceres falling-debris spawning |
 | Common movement | Slope height bytes | RoomEnemySystem.CommonMovement |
 
 These are confirmed indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.
+Phantoon's inspected movement, attack selection and death-schedule data are now
+compiled; its palette, eye instruction-list and materialization-sound selectors
+remain presentation readers requiring their respective integration audit.
 The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
 These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of

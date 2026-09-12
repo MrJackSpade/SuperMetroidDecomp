@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int PhantoonDeathExplosionTable = 0xa7da1d;
     private const int WreckedShipPowerPalette = 0xa7ca61;
     private const ushort PhantoonDeathWaveDelta = 0x0100;
     private const ushort PhantoonDeathWaveMaximum = 0xf000;
@@ -60,11 +59,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         RoomEnemySlot tentacles = state.Tentacles!;
-        int entry = PhantoonDeathExplosionTable + tentacles.VariableF * 4;
-        sbyte xOffset = unchecked((sbyte)_bus!.ReadByte(entry));
-        sbyte yOffset = unchecked((sbyte)_bus.ReadByte(entry + 1));
-        ushort explosionType = _bus.ReadByte(entry + 2);
-        body.VariableE = _bus.ReadByte(entry + 3);
+        var (xOffset, yOffset, explosionType, delay) = PhantoonDeathExplosionDefinitions.Read(tentacles.VariableF);
+        body.VariableE = delay;
         ushort x = unchecked((ushort)(body.XPosition + xOffset));
         ushort y = unchecked((ushort)(body.YPosition + yOffset));
 
@@ -76,12 +72,12 @@ public sealed partial class RoomEnemySystem
         state.LastCombatSoundEffect = explosionType == 0x001d ? (ushort)0x0024 : (ushort)0x002b;
 
         tentacles.VariableF = unchecked((ushort)(tentacles.VariableF + 1));
-        if (tentacles.VariableF < 13)
+        if (tentacles.VariableF < PhantoonDeathExplosionDefinitions.Count)
             return;
 
-        tentacles.VariableF = 5;
+        tentacles.VariableF = PhantoonDeathExplosionDefinitions.RepeatStart;
         body.VariableA = unchecked((ushort)(body.VariableA + 1));
-        if (body.VariableA >= 3)
+        if (body.VariableA >= PhantoonDeathExplosionDefinitions.PassCount)
             body.VariableF = (ushort)PhantoonAiFunction.BeginFinalWavyDeath;
     }
 

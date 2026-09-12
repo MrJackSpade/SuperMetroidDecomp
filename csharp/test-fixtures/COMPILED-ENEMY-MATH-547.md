@@ -833,3 +833,24 @@ Release build pass. A direct-reader scan finds death-explosion position/type/del
 records still live; palette, eye-sprite and sound selectors also remain for their
 respective presentation work. The remaining inventory reflects that distinction;
 neither all Phantoon readers nor the broader #547 integration are claimed done.
+
+## Phantoon death explosion schedule
+
+Compiled the thirteen four-byte records at $A7:DA1D..DA50, including signed offsets,
+explosion animation parameters and delays. The native loop bounds (thirteen
+records, repeat from five, three passes) are named definitions. Runtime request
+ordering, allocator behavior, sound markers and phase handoff remain unchanged.
+
+Verification compares all 52 bytes and runs six complete frame-exact sequences:
+three body origins including word wrap, each with either available or permanently
+full projectile slots. It asserts every timer tick, index/repeat count, request
+and successful-spawn count, exact final phase, selected sound marker, and actual
+projectile X/Y and ROM animation list. All 29 requests still advance under full
+allocation pressure. The forwarding bus forbids migrated schedule reads, while
+real projectile headers and animation definitions remain in use.
+
+Full Release Verification, complete 5,906-frame Phantoon encounter and Windows
+Release build pass. The inspected Phantoon mechanics-table group is migrated;
+palette, eye instruction-list and materialization-audio selectors remain for
+presentation integration. Other enemy families and full #547 acceptance remain
+unfinished, so this does not close the issue.

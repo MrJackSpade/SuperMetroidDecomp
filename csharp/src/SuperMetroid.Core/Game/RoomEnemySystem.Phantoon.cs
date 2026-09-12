@@ -19,7 +19,6 @@ public sealed partial class RoomEnemySystem
         PhantoonInstructionLists.InitialTentacles;
     private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionLists.InitialMouth;
     private const int PhantoonHealthPaletteTable = 0xa7cb41;
-    private const int PhantoonMovementTable = 0xa7e3d2;
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
     private const ushort PhantoonWavyPhaseDelta = 0x0008;
@@ -357,7 +356,7 @@ public sealed partial class RoomEnemySystem
         SpawnPhantoonSpiralFlames(body);
     }
 
-    private void StepPhantoonFigureEight(RoomEnemySlot body, RoomEnemySlot eye)
+    private static void StepPhantoonFigureEight(RoomEnemySlot body, RoomEnemySlot eye)
     {
         if (eye.VariableC != 0)
             AdjustPhantoonReverseFigureEightSpeed(body);
@@ -369,20 +368,18 @@ public sealed partial class RoomEnemySystem
             : body.VariableC;
         for (int step = 0; step < steps; step++)
         {
-            int address = PhantoonMovementTable + body.VariableA * 2;
-            sbyte dx = unchecked((sbyte)_bus!.ReadByte(address));
-            sbyte dy = unchecked((sbyte)_bus.ReadByte(address + 1));
+            var (dx, dy) = PhantoonPathDefinitions.Step(body.VariableA);
             if (eye.VariableC != 0)
             {
                 body.XPosition = unchecked((ushort)(body.XPosition - dx));
                 body.YPosition = unchecked((ushort)(body.YPosition - dy));
-                body.VariableA = body.VariableA == 0 ? (ushort)533 : unchecked((ushort)(body.VariableA - 1));
+                body.VariableA = body.VariableA == 0 ? (ushort)(PhantoonPathDefinitions.Length - 1) : unchecked((ushort)(body.VariableA - 1));
             }
             else
             {
                 body.XPosition = unchecked((ushort)(body.XPosition + dx));
                 body.YPosition = unchecked((ushort)(body.YPosition + dy));
-                body.VariableA = body.VariableA >= 533 ? (ushort)0 : unchecked((ushort)(body.VariableA + 1));
+                body.VariableA = body.VariableA >= PhantoonPathDefinitions.Length - 1 ? (ushort)0 : unchecked((ushort)(body.VariableA + 1));
             }
         }
     }

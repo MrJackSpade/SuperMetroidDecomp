@@ -812,3 +812,24 @@ Release build pass. A subsequent direct-reader inspection confirmed the 534-pair
 figure-eight displacement path at $A7:E3D2 remains live; it is now listed in the
 remaining inventory. This migration is not a claim that all Phantoon reads or
 the broader #547 integration are complete.
+
+## Phantoon discrete movement path
+
+The 534 signed X/Y pairs at $A7:E3D2..E7FD are represented losslessly as numeric
+keypad directions in PhantoonPathDefinitions. This is an authored discrete path,
+not a sine/ellipse approximation; irregular diagonal steps are retained exactly.
+The real figure-eight stepper now runs without a bus and uses the catalog length
+for forward/reverse cursor wrap. Other acceleration and integration ordering is
+unchanged.
+
+Verification compares all 1,068 native bytes and executes 25,632 real movements:
+every starting cursor, both directions, eight whole-speed inputs and three world
+origins including wrap boundaries. Expected X/Y/cursor comes from the original
+ROM bytes; exact whole speed and preserved fractional positions are asserted too.
+Existing exhaustive acceleration tests independently cover speed/phase behavior.
+
+Full Release Verification, the complete 5,906-frame Phantoon encounter and Windows
+Release build pass. A direct-reader scan finds death-explosion position/type/delay
+records still live; palette, eye-sprite and sound selectors also remain for their
+respective presentation work. The remaining inventory reflects that distinction;
+neither all Phantoon readers nor the broader #547 integration are claimed done.

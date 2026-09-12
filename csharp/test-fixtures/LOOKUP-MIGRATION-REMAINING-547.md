@@ -9,7 +9,7 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
 | Ridley | Carry/release anchors, pogo targets/path pointers, acceleration and health divisor selectors | RoomEnemySystem.Ridley and related partials |
-| Phantoon | Figure-eight displacement path ($A7:E3D2, 534 signed byte pairs) | StepPhantoonFigureEight |
+| Phantoon | Death-explosion position/type/delay records; classify presentation selectors separately | RoomEnemySystem.PhantoonDeath |
 | Bomb Torizo | Wake positions, radii, property masks and instruction selectors | RoomEnemySystem.BombTorizo initialization |
 | Ceres debris | X offsets and instruction selectors | Ceres falling-debris spawning |
 | Common movement | Slope height bytes | RoomEnemySystem.CommonMovement |

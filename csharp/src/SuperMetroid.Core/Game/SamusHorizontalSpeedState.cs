@@ -199,13 +199,13 @@ public sealed class SamusHorizontalSpeedState
             ArgumentNullException.ThrowIfNull(bus);
             if (!HasRunningMomentum)
             {
-                // `$90:976C-$9780` initializes the counter's low byte from the live ROM
-                // table. Palette writes themselves remain renderer work, but their native
+                // `$90:976C-$9780` initializes the counter's authored low byte.
+                // Palette writes themselves remain renderer work, but their native
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
                 SpecialPaletteTimer = 1;
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = ReadWord(
+                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadWord(
                     bus,
                     SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
             }
@@ -303,17 +303,17 @@ public sealed class SamusHorizontalSpeedState
         }
 
         byte stage = unchecked((byte)(tableSelection >> 8));
-        ushort nextLowByte = ReadWord(
+        ushort nextLowByte = SamusRunningCadenceDefinitions.ReadWord(
             bus,
             SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes + stage * 2);
         SpeedBoostCounter = unchecked((ushort)((SpeedBoostCounter & 0xff00) | nextLowByte));
 
-        ushort delayList = ReadWord(
+        ushort delayList = SamusRunningCadenceDefinitions.ReadWord(
             bus,
             SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
-            animationFrameBuffer + bus.ReadByte((int)new SnesAddress(0x91, delayList))));
+            animationFrameBuffer + SamusRunningCadenceDefinitions.ReadByte(bus, (int)new SnesAddress(0x91, delayList))));
         PublishBoostContactDamage();
         return true;
     }
@@ -323,12 +323,12 @@ public sealed class SamusHorizontalSpeedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         byte stage = unchecked((byte)(SpeedBoostCounter >> 8));
-        ushort delayList = ReadWord(
+        ushort delayList = SamusRunningCadenceDefinitions.ReadWord(
             bus,
             SamusMovementRomData.HorizontalMotion.SpeedBoostAnimationDelayListPointers + stage * 2);
         int address = SamusMovementRomData.Banks.Pose |
             unchecked((ushort)(delayList + byteIndex));
-        return bus.ReadByte(address);
+        return SamusRunningCadenceDefinitions.ReadByte(bus, address);
     }
 
     /// <summary>
@@ -656,7 +656,7 @@ public sealed class SamusHorizontalSpeedState
             {
                 SpecialPaletteTimer = 0;
                 SpecialPaletteFrame = 0;
-                SpeedBoostCounter = ReadWord(bus, SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
+                SpeedBoostCounter = SamusRunningCadenceDefinitions.ReadWord(bus, SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes);
             }
             return;
         }

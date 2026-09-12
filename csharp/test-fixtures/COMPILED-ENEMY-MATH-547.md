@@ -1596,3 +1596,41 @@ or persistence across updates. Those remain in #540/#541 and the shared contract
 
 Focused compiled-definition checks, all 18 physics fixtures, full Release
 Verification and the Windows Release build pass (zero build warnings/errors).
+
+## Running and Speed Booster gameplay cadence
+
+Compiled the 88 authored bytes at $91:B5D1..B628 as domain definitions: ordinary
+Dash plus five Speed Booster cadence streams, their pointers, and five counter
+reset words. The NTSC alternating stage-one/stage-three cadence differs from PAL;
+the pinned ROM and bank_91.asm establish the selected values. sm_90.c confirms
+the consumers but comments out the sound-queue accumulator bug, so bank_90.asm
+remains authoritative for that branch. No arithmetic or queue behavior was changed.
+
+Production consumers now include initial running momentum, pause equipment
+reconciliation, command-driven stage advancement and normal/boosted frame delays.
+The catalog resolves only its exact authored addresses. Out-of-range stage and
+frame indexes retain their original address arithmetic and live bus fallbacks.
+In particular queue occupancy five reads an adjacent pose word as its reset and
+$0303 as its delay pointer; the low-bank delay remains mutable, not compiled.
+
+Verification forbids all reads of the migrated ROM range while checking:
+
+- All 88 bytes against the pinned cartridge.
+- All 65,536 ordinary frame indexes and 256 x 65,536 boosted stage/frame pairs,
+  including bank wrapping and reads across authored boundaries.
+- 524,288 real stage-command calls: every counter word and all combinations of
+  momentum, running and held Dash. Assertions include counter, frame, timer,
+  synchronous sound-call count and contact-damage publication.
+- All 65,536 returned sound accumulator words, with changing live WRAM contents
+  at $91:0303, proving the selection is neither clamped nor cached as a constant.
+- Initial run and pause reconciliation, including their different palette timers.
+
+Restored frame indexes that reach unimplemented hardware use a constructed
+address-signature bus to verify routing. This is not proof of native I/O-register
+semantics. The old movement fixture's fake cadence was removed; it now asserts
+the actual ten-frame loop, stage countdowns, echo event and contact publication.
+Per-pose animation command streams still remain mixed mechanics/presentation;
+this does not complete Samus artwork extraction or the wider integration contract.
+
+Focused compiled-definition checks, all 18 physics fixtures, full Release
+Verification and the Windows Release build pass (zero build warnings/errors).

@@ -117,6 +117,14 @@ are now compiled separately from the displayed art frame. Flare animation and
 drawing pointers remain presentation readers for #540/#541; editable assets and
 their restart/update behavior are not yet implemented by this separation.
 
+Ordinary-running and Speed Booster cadence is now compiled: six eleven-byte
+streams, six pointer words and five boost-counter reset words at $91:B5D1..B628.
+These timings advance gameplay stages and are not editable cosmetic timing.
+The sound-call accumulator bug remains intact, including stage-five selection
+of adjacent pose data and a low-bank mutable delay address. Non-catalog reads
+remain explicit dependencies; per-pose animation commands and artwork are still
+outside this completed cadence group.
+
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
 preserves the existing fallback for non-catalog/unaligned/mutable records.

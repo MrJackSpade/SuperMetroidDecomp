@@ -456,15 +456,15 @@ public sealed partial class SamusState
 
     /// <summary>
     /// Reads the shared ordinary-Dash delay list selected indirectly through `$91:B5D1`.
-    /// Keeping the pointer lookup live means the ROM, not a duplicated C# byte array,
-    /// remains authoritative for both cadence and command position.
+    /// Cadence and command position are compiled mechanics; displayed artwork is separate.
     /// </summary>
     private static byte ReadDefaultRunningAnimationByte(ISnesAddressSpace bus, ushort byteIndex)
     {
-        ushort listPointer = ReadWord(
+        ushort listPointer = SamusRunningCadenceDefinitions.ReadWord(
             bus,
             SamusMovementRomData.Poses.DefaultRunningAnimationDelayListPointer);
-        return bus.ReadByte((int)new SnesAddress(0x91, listPointer).AddWithinBank(byteIndex));
+        return SamusRunningCadenceDefinitions.ReadByte(bus,
+            (int)new SnesAddress(0x91, listPointer).AddWithinBank(byteIndex));
     }
 
     /// <summary>

@@ -154,14 +154,11 @@ static void VerifySamusHorizontalSpeed()
     speed.HandleExtraRunSpeed(SamusMovementType.SpinJumping, controllerInput: 0, speedBoosterEquipped: false);
     AssertEqual(0, speed.ExtraRunSpeed, "post-cancel airborne handler clears extra speed");
 
-    // The animation side reads its ordinary-Dash cadence through the live pointer at
-    // `$91:B5D1`. The pose-specific stream deliberately uses different delays so these
-    // checks would fail if the implementation merely sped up a host timer by coincidence.
+    // Ordinary Dash uses the native ten-frame, two-tick cadence. The pose-specific
+    // stream deliberately differs, proving the momentum override selects that cadence.
     bus.WriteBytes(0x91b671, [0x08, 0x01, 0xff, 0x02, 0x00, 0x00, 0x15, 0x00]); // pose $09
     WriteTestWord(bus, 0x91b022, 0xc000); // pose $09's normal delay stream
-    WriteTestWord(bus, 0x91b5d1, 0xc100); // shared ordinary-Dash delay stream pointer
-    bus.WriteBytes(0x91c000, [0x09, 0x09, 0xff]);
-    bus.WriteBytes(0x91c100, [0x02, 0x03, 0xff]);
+    bus.WriteBytes(0x91c000, [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0xff]);
     var dashAnimation = new SamusState { Pose = SamusPoseIds.MovingRightNormalPose };
     dashAnimation.InitializeAnimation(bus);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
@@ -171,21 +168,14 @@ static void VerifySamusHorizontalSpeed()
     for (int tick = 0; tick < 9; tick++)
         dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
-    AssertEqual(3, dashAnimation.AnimationFrameTimer, "Dash selects shared frame-one delay");
-    for (int tick = 0; tick < 3; tick++)
+    AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash selects native frame-one delay");
+    for (int tick = 0; tick < 18; tick++)
         dashAnimation.AnimateNoFx(bus, (ushort)SnesButton.B);
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer, "Dash restart uses shared frame-zero delay");
 
-    // `$91:B61F` supplies each stage's command-loop countdown, while `$91:B5DE` supplies
-    // the corresponding animation stream. Distinct synthetic values prove both lookups
-    // remain ROM-backed and that stage four publishes the echo/contact-damage events.
-    for (int stage = 0; stage <= 4; stage++)
-    {
-        WriteTestWord(bus, 0x91b61f + stage * 2, (ushort)(stage == 0 ? 3 : 2));
-        WriteTestWord(bus, 0x91b5de + stage * 2, (ushort)(0xc200 + stage * 0x10));
-        bus.WriteBytes(0x91c200 + stage * 0x10, [(byte)(3 + stage), 0xff]);
-    }
+    // Native stages zero through three last one command loop; stage four lasts two.
+    // Their compiled cadence still publishes the native echo/contact-damage events.
 
     var booster = new SamusHorizontalSpeedState();
     booster.HandleExtraRunSpeed(
@@ -194,7 +184,7 @@ static void VerifySamusHorizontalSpeed()
         speedBoosterEquipped: true,
         bus);
     AssertTrue(booster.HasRunningMomentum, "Speed Booster establishes momentum");
-    AssertEqual(3, booster.SpeedBoostCounter, "Speed Booster seeds stage-zero countdown from ROM");
+    AssertEqual(1, booster.SpeedBoostCounter, "Speed Booster seeds native stage-zero countdown");
     AssertEqual(1, booster.SpecialPaletteTimer, "Speed Booster seeds special-palette timer");
 
     // Hexadecimal `.1000` is one sixteenth, so 112 movement calls reach 7.0000 exactly.
@@ -210,7 +200,7 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual(0, booster.ExtraRunSubspeed, "Speed Booster cap has zero fraction");
 
     ushort boostFrame = 1;
-    for (int command = 0; command < 9; command++)
+    for (int command = 0; command < 4; command++)
     {
         bool intercepted = booster.TryAdvanceSpeedBoosterAnimationStage(
             bus,
@@ -219,11 +209,11 @@ static void VerifySamusHorizontalSpeed()
             animationFrameBuffer: 0,
             ref boostFrame,
             out ushort boostTimer);
-        if (command == 2)
+        if (command == 0)
         {
-            AssertTrue(intercepted, "third stage-zero command advances Speed Booster");
+            AssertTrue(intercepted, "first stage-zero command advances Speed Booster");
             AssertEqual(0, boostFrame, "Speed Booster stage change restarts animation");
-            AssertEqual(4, boostTimer, "stage-one delay comes from ROM-selected stream");
+            AssertEqual(2, boostTimer, "stage-one delay matches native cadence");
         }
     }
     AssertEqual(0x0402, booster.SpeedBoostCounter, "Speed Booster reaches stage four countdown");

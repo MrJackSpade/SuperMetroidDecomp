@@ -13,13 +13,15 @@ internal static partial class Program
     // A completed transition is only fixture setup, not proof the water pixels are correct.
     private static void VerifyMoatFirstEntry()
     {
-        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const string output = "csharp/test-temp/issue-370-moat";
         Directory.CreateDirectory(output);
         var unpausedFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
+        var unpausedTransitionFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
         foreach (bool pauseBeforeEntry in new[] { false, true })
         {
+            // Each history starts with fresh mutable WRAM as well as fresh owners.
+            var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = new SuperMetroidRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug);
             runtime.InitializeStartingCeresRoom();
@@ -72,8 +74,23 @@ internal static partial class Program
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
+            int transitionFrames = 0;
             for (int frame = 0; transition.IsActive && frame < 400; frame++)
+            {
+                var phase = transition.Phase;
                 transition.Step(runtime, audio, 0);
+                // SuperMetroidGame publishes gameplay immediately after this same
+                // transition step. Capture the IRQ scroll and palette fade too,
+                // not just the already-completed destination used by older probes.
+                var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
+                var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
+                if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
+                else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
+                    $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
+                PngWriter.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
+                    256, 224, pixels);
+                transitionFrames++;
+            }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
             AssertEqual((ushort)0x95ff, runtime.ActiveRoom!.Pointer, "first entry reached reported room");
             for (int frame = 0; frame < 4; frame++)
@@ -87,7 +104,7 @@ internal static partial class Program
                 PngWriter.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
                     pixels);
             }
-            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured four visible frames; visual diagnosis remains required.");
+            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }
     }
 }

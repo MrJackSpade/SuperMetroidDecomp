@@ -757,3 +757,23 @@ Full Release Verification, the complete 5,906-frame Phantoon audit and Windows
 Release build pass. The earlier audit region mismatch was separately repaired in
 #592. Remaining timer/placement/schedule/direction consumers are still inventoried;
 this slice does not close #547 or claim the entire projectile path is ROM-free.
+
+## Phantoon timer definitions
+
+Compiled the three eight-word tables at $A7:CD41, $CD53 and $CD63 into
+PhantoonTimerDefinitions. All four live consumers now use them: eye opening,
+second-round selection, first-round NMI selection and completed fade-to-rain.
+The original RNG masks, NMI mask and number of RNG calls remain at their callers.
+The old inline eye/rain timer addresses were removed from functional classes.
+
+Verification compares all 24 native words, then executes each of the three RNG
+consumers for all 65,536 input words (196,608 calls), checking duration, relevant
+phase handoff and exactly one RNG call each. All 256 first-round NMI bytes also
+exercise the actual phase routine and verify its first-four-entry selection and
+direction RNG consumption. No bus is attached to these production-call fixtures.
+The fade fixture starts at completed fade, so it verifies the timer handoff rather
+than claiming independent palette-transition coverage.
+
+Full Release Verification, complete 5,906-frame Phantoon encounter audit and
+Windows Release build pass. Rain placement, random direction and mouth schedules
+remain live readers; broader #547 remains open.

@@ -19,7 +19,6 @@ public sealed partial class RoomEnemySystem
         PhantoonInstructionLists.InitialTentacles;
     private const ushort PhantoonInitialMouthInstruction = PhantoonInstructionLists.InitialMouth;
     private const int PhantoonHealthPaletteTable = 0xa7cb41;
-    private const int PhantoonEyeClosedTimerTable = 0xa7cd53;
     private const int PhantoonMovementTable = 0xa7e3d2;
     private const ushort PhantoonIntroAmplitudeDelta = 0x0040;
     private const ushort PhantoonIntroMaximumAmplitude = 0x0c00;
@@ -322,9 +321,7 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot eye = state.Eye!;
         eye.Parameter1 = 0;
-        eye.VariableA = ReadWord(
-            _bus!,
-            PhantoonEyeClosedTimerTable + ((nmiFrameCounter8 >> 1) & 3) * 2);
+        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[(nmiFrameCounter8 >> 1) & 3];
         body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         body.VariableB = 0;
         body.VariableD = 0;

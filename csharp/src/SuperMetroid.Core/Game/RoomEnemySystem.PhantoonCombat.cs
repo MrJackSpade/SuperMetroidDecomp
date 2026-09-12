@@ -18,7 +18,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PhantoonEyeCenteredInstruction = PhantoonInstructionLists.EyeCentered;
     private const int PhantoonEyeDirectionTable = 0xa7d40d;
     private const int PhantoonFadeOutPalette = 0xa7ca41;
-    private const int PhantoonFlameRainHidingTimerTable = 0xa7cd63;
     private const int PhantoonFlameRainPositionTable = 0xa7cdad;
     private const int PhantoonFlameRainFirstColumnTable = 0xa7cfc2;
 
@@ -208,9 +207,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         body.VariableF = (ushort)PhantoonAiFunction.SpawnFlameRain;
-        body.VariableE = ReadWord(
-            _bus!,
-            PhantoonFlameRainHidingTimerTable + (_nextRandom!() & 7) * 2);
+        body.VariableE = PhantoonTimerDefinitions.RainHiding[_nextRandom!() & 7];
     }
 
     private void RunPhantoonHiddenFlameRain(

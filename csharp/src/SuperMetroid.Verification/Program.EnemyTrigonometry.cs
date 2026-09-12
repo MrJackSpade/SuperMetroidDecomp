@@ -24,6 +24,7 @@ internal static partial class Program
         VerifyCompiledFamilyTrigonometry(rom);
         VerifyPhantoonWaveMath(rom);
         VerifyCompiledLinearEnemySpeeds(rom);
+        VerifyCompiledQuadraticEnemySpeeds(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

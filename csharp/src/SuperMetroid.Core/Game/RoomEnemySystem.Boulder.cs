@@ -190,7 +190,7 @@ public sealed partial class RoomEnemySystem
             : BoulderAiFunction.InitialFall;
     }
 
-    private void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
+    private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: false);
         if (unchecked((short)(slot.YPosition - state.InitialYPosition)) < 0)
@@ -207,7 +207,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSpeedAccumulator = 0x2000;
     }
 
-    private void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
+    private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.VerticalSpeedAccumulator, negative: true);
         state.VerticalSpeedAccumulator = unchecked((ushort)(state.VerticalSpeedAccumulator - 0x0100));
@@ -314,7 +314,7 @@ public sealed partial class RoomEnemySystem
         state.PreviousYSubposition = slot.YSubposition;
     }
 
-    private void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
+    private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
     {
         int displacement = ReadBoulderHorizontalDisplacement(state);
         uint position = ((uint)slot.XPosition << 16) | slot.XSubposition;
@@ -323,12 +323,12 @@ public sealed partial class RoomEnemySystem
         slot.XSubposition = unchecked((ushort)position);
     }
 
-    private int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
+    private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         ReadQuadraticEnemySpeed(
             unchecked((byte)(state.HorizontalSpeedAccumulator >> 8)),
             negative: state.DirectionSelector != 0);
 
-    private void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
+    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
     {
         int displacement = ReadQuadraticEnemySpeed(
             unchecked((byte)(accumulator >> 8)),

@@ -290,8 +290,31 @@ way. See ENEMY-CONTACT-AUDITS-581.md for per-encounter causes and verification.
 
 ### Outstanding scope
 
+### Shared NTSC quadratic speeds
+
+The shared $A0:838F table is now compiled in EnemyQuadraticSpeedDefinitions.
+Its 95 fraction/whole records preserve the native lost fractional carry and
+both signs. Odd-byte and cross-record word reads remain exact; unsupported
+out-of-table reads fail explicitly rather than inventing adjacent data.
+The shared enemy reader and direct Beetom, Hopper, KiHunter, Puyo and
+Yapping Maw readers no longer fetch this table from the cartridge bus.
+
+Verification passed all 759 complete word windows, 757 displacement windows,
+196,608 hop inputs each for Beetom/Hopper, 48,640 KiHunter angle inputs and
+2,271 real Yapping Maw split-word additions. The full Release Verification
+suite and Windows Release build passed. Complete Yapping Maw, Botwoon,
+Bowling Alley Choot, Green Brinstar Beetom and PipeBug audits passed.
+
+Puyo, Blue Hopper and Boulder contact assertions, and the KiHunter detached
+wing-orbit assertion, fail identically on the clean pre-change 5c3ec7a7 baseline.
+Those failures are tracked separately by #583 and #584; they are not counted
+as passing encounter coverage or claimed as new regressions. The temporary
+baseline worktree and its binaries were removed after comparison.
+
+### Remaining migration
+
 This is not the entire lookup-table migration. Remaining signed-table callers,
-linear/quadratic speed tables, family-specific tables, callback classification
+family-specific speed tables, other family tables, callback classification
 reads and indirect/banked caller inventory remain. Mutable WRAM must remain
 mutable, not become a compiled substitute. Wider ROM-free room/asset integration
 is tracked by #530/#549. No player-visible fix or complete ROM-free gameplay is

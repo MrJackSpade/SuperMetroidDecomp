@@ -505,7 +505,7 @@ public sealed partial class RoomEnemySystem
         state.Function = BeetomEnemyFunction.StartDropping;
     }
 
-    private ushort CalculateInitialBeetomYSpeedIndex(ushort targetHeight, ushort tableIndexDelta)
+    private static ushort CalculateInitialBeetomYSpeedIndex(ushort targetHeight, ushort tableIndexDelta)
     {
         ushort tableIndex = 0;
         ushort accumulatedHeight = 0;
@@ -514,9 +514,8 @@ public sealed partial class RoomEnemySystem
             tableIndex = unchecked((ushort)(tableIndex + tableIndexDelta));
             // The ROM reads at table+1, intentionally combining bytes from adjacent fixed-
             // point fields. An aligned host read changes every resulting jump arc.
-            accumulatedHeight = unchecked((ushort)(accumulatedHeight + ReadWord(
-                _bus!,
-                QuadraticEnemySpeedTable + tableIndex * 8 + 1)));
+            accumulatedHeight = unchecked((ushort)(accumulatedHeight +
+                EnemyQuadraticSpeedDefinitions.ReadWord(tableIndex * 8 + 1)));
             if (unchecked((short)(accumulatedHeight - targetHeight)) >= 0)
                 return tableIndex;
         }

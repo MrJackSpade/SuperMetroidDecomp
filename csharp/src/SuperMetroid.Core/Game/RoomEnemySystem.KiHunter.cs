@@ -721,7 +721,7 @@ public sealed partial class RoomEnemySystem
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
-    private void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
+    private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
         state.DetachedSpeedReset = 0;
         state.TargetXOrSpeedIndex = 0;
@@ -731,7 +731,7 @@ public sealed partial class RoomEnemySystem
             ushort index = unchecked((byte)(state.DetachedSpeedReset >> 8));
             state.DetachedSpeedAccumulator = unchecked((ushort)(
                 state.DetachedSpeedAccumulator +
-                ReadWord(_bus!, QuadraticEnemySpeedTable + index * 8 + 1)));
+                EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + 1)));
         }
         while (unchecked((short)(state.DetachedSpeedAccumulator - 0x2000)) < 0);
     }
@@ -758,15 +758,13 @@ public sealed partial class RoomEnemySystem
         state.OrbitCenterY = wings.YPosition;
     }
 
-    private ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
+    private static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
     {
         int index = unchecked((byte)(speedIndex >> 8));
         // These deliberately unaligned reads are literal: F7DB reads at record +5 and
         // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
         // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.
-        return ReadWord(
-            _bus!,
-            QuadraticEnemySpeedTable + index * 8 + (negativeHalf ? 5 : 1));
+        return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
     }
 
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)

@@ -131,7 +131,6 @@ public sealed partial class RoomEnemySystem
     private const ushort YappingMawGrabCooldownFrames = 48;
     private const ushort YappingMawRetractedDelayFrames = 64;
     private const ushort YappingMawAttackSound = 0x002f;
-    private const int YappingMawQuadraticSpeedTable = 0xa0838f;
 
     // $A8:A097. The selector is already an even byte offset, so dividing by two yields the
     // eight 45-degree direction sectors in the exact ROM order.
@@ -433,12 +432,10 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports $A8:A63E's split-word addition and eight-byte table advance.</summary>
-    private void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
+    private static void AddYappingMawQuadraticSpeed(YappingMawEnemyState state)
     {
-        int address = YappingMawQuadraticSpeedTable + state.QuadraticSpeedByteOffset;
         uint position = ((uint)state.ExtensionWhole << 16) | state.ExtensionFraction;
-        uint velocity = ((uint)ReadWord(_bus!, address + 2) << 16) |
-            ReadWord(_bus!, address);
+        uint velocity = unchecked((uint)EnemyQuadraticSpeedDefinitions.ReadDisplacement(state.QuadraticSpeedByteOffset));
         uint next = unchecked(position + velocity);
         state.ExtensionWhole = unchecked((ushort)(next >> 16));
         state.ExtensionFraction = unchecked((ushort)next);

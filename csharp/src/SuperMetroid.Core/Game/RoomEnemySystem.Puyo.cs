@@ -149,7 +149,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PuyoRightFrame4LeftFrame0InstructionList = 0x9a01;
     private const int PuyoHopTableAddress = 0xa29a07;
     private const int PuyoHopRecordSize = 8;
-    private const int QuadraticSpeedTableAddress = 0xa0838f;
     private const int QuadraticSpeedRecordSize = 8;
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
@@ -293,7 +292,7 @@ public sealed partial class RoomEnemySystem
             // that misaligned value produces an 8.8 distance estimate used only to find
             // the initial curve index.
             distanceAccumulator = unchecked((ushort)(distanceAccumulator +
-                ReadWord(_bus!, QuadraticSpeedTableAddress + speedRow + 1)));
+                EnemyQuadraticSpeedDefinitions.ReadWord(speedRow + 1)));
             if (!IsNegative16(unchecked((ushort)(swappedJumpHeight - distanceAccumulator))))
                 continue;
 
@@ -413,8 +412,7 @@ public sealed partial class RoomEnemySystem
 
         int speedRow = (cappedIndex >> 8) * QuadraticSpeedRecordSize;
         int verticalOffset = state.Falling ? 0 : 4;
-        int verticalDisplacement = ReadFixedPointDisplacement(
-            QuadraticSpeedTableAddress + speedRow + verticalOffset);
+        int verticalDisplacement = EnemyQuadraticSpeedDefinitions.ReadDisplacement(speedRow + verticalOffset);
         bool verticalCollision = MoveEnemyVertically(level, slot, verticalDisplacement);
         if (verticalCollision)
         {
@@ -540,13 +538,6 @@ public sealed partial class RoomEnemySystem
         ushort packed = ReadPuyoHopWord(tableIndex, fieldOffset);
         ushort fraction = unchecked((ushort)((packed & 0x00ff) << 8));
         short whole = unchecked((short)(packed >> 8));
-        return (whole << 16) | fraction;
-    }
-
-    private int ReadFixedPointDisplacement(int fractionAddress)
-    {
-        ushort fraction = ReadWord(_bus!, fractionAddress);
-        short whole = unchecked((short)ReadWord(_bus!, fractionAddress + 2));
         return (whole << 16) | fraction;
     }
 

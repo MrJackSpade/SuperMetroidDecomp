@@ -655,7 +655,7 @@ public sealed partial class RoomEnemySystem
             movingLeft ? YellowPipeBugLeftArcInstruction : YellowPipeBugRightArcInstruction);
     }
 
-    private void RunYellowPipeBugArc(
+    private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         ushort cameraX,

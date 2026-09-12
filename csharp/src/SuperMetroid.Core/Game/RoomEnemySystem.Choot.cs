@@ -277,7 +277,7 @@ public sealed partial class RoomEnemySystem
         state.Function = ChootEnemyFunction.Jumping;
     }
 
-    private void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
+    private static void RunChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
         // Only the cursor's high byte reaches the eight-byte quadratic table index. Choot
         // applies the table's separately stored negative pair, including its fractional
@@ -343,7 +343,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>CalculateChootInitialJumpSpeed</c> at <c>$A2:DFE9</c>.</summary>
-    private ushort CalculateInitialChootYSpeedTableIndex(ushort jumpHeight)
+    private static ushort CalculateInitialChootYSpeedTableIndex(ushort jumpHeight)
     {
         ushort encodedIndex = 0;
         uint accumulatedDistance = 0;

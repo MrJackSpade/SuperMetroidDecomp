@@ -8,8 +8,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int QuadraticEnemySpeedTable = 0xa0838f;
-
     /// <summary>
     /// Ports <c>CalculateAngleOf_12_14_Offset</c> at $A0:C0AF. Zero points upward and the
     /// result advances clockwise in 256 units per turn, matching bank-$A0 enemy callers.
@@ -105,16 +103,9 @@ public sealed partial class RoomEnemySystem
     /// negative half uses the separately stored, bug-compatible ROM negation rather than
     /// negating the positive host integer.
     /// </summary>
-    private int ReadQuadraticEnemySpeed(ushort tableIndex, bool negative)
-    {
-        int entryAddress = QuadraticEnemySpeedTable + tableIndex * 8;
-        int componentOffset = negative ? 4 : 0;
-        ushort subvelocity = ReadWord(_bus!, entryAddress + componentOffset);
-        short wholeVelocity = unchecked((short)ReadWord(
-            _bus!,
-            entryAddress + componentOffset + 2));
-        return unchecked((wholeVelocity << 16) | subvelocity);
-    }
+    private static int ReadQuadraticEnemySpeed(ushort tableIndex, bool negative) =>
+        EnemyQuadraticSpeedDefinitions.ReadDisplacement(
+            tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize + (negative ? 4 : 0));
 
     /// <summary>
     /// Ports the integer result of <c>EightBitSineMultiplication</c> at $A0:B0DA. The SNES

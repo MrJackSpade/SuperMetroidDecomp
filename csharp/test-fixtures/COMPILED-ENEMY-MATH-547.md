@@ -738,3 +738,22 @@ The complete Phantoon audit was also run and exposed a separate stale diagnostic
 rage-direction checks expect PAL +/-3 while the pinned ROM uses NTSC +/-2.
 That audit is not claimed passing here; its repair is tracked separately. Attack
 angle/timer tables and broader #547 integration remain unfinished.
+
+## Phantoon flame spawn definitions
+
+Compiled all 33 authored bytes: sixteen rage start angles ($86:98B4), nine rain
+columns ($86:98F7) and eight spiral start angles ($86:9979). The real projectile
+initializer uses the named catalog while retaining header/list loading and the
+native packed rain delay. The catalog rejects out-of-range selectors; inspected
+retail producers use only the authored ranges (rage 0..15, rain 0..8, spiral 0..7).
+
+Verification compares every byte and runs 507 real initializers: every valid rage
+and spiral selector, all sixteen rain delays across all nine columns, and casual
+flames, each at zero, normal and wrapping origins. Assertions check exact angle,
+X/Y placement, direction/delay, radius and fractional positions. A forwarding bus
+rejects reads from all three migrated ranges while allowing real header reads.
+
+Full Release Verification, the complete 5,906-frame Phantoon audit and Windows
+Release build pass. The earlier audit region mismatch was separately repaired in
+#592. Remaining timer/placement/schedule/direction consumers are still inventoried;
+this slice does not close #547 or claim the entire projectile path is ROM-free.

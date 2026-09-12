@@ -9,18 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    // $A0:C435. Bit seven of an entry is the carry result returned by the native square-
-    // slope reactor. The low two bits are unused by this host translation but are retained
-    // literally so a debugger can compare the lookup with the ROM table.
-    private static readonly byte[] SquareSlopeCollisionTable =
-    [
-        0x00, 0x01, 0x82, 0x83,
-        0x00, 0x81, 0x02, 0x83,
-        0x00, 0x01, 0x02, 0x83,
-        0x00, 0x81, 0x82, 0x83,
-        0x80, 0x81, 0x82, 0x83,
-    ];
-
     /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c> at $A0:C6AB.</summary>
     private static bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
@@ -426,17 +414,17 @@ public sealed partial class RoomEnemySystem
         if (remaining == 0)
         {
             if (((slot.YRadius + slot.YPosition - 1) & 8) == 0)
-                return (SquareSlopeCollisionTable[tableIndex] & 0x80) != 0;
+                return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
                  ((slot.YPosition - slot.YRadius) & 8) != 0)
         {
-            return (SquareSlopeCollisionTable[tableIndex ^ 2] & 0x80) != 0;
+            return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 2] & 0x80) != 0;
         }
 
-        if ((SquareSlopeCollisionTable[tableIndex] & 0x80) != 0)
+        if ((SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0)
             return true;
-        return (SquareSlopeCollisionTable[tableIndex ^ 2] & 0x80) != 0;
+        return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 2] & 0x80) != 0;
     }
 
     private static bool SquareVerticalSlopeIsSolid(
@@ -451,17 +439,17 @@ public sealed partial class RoomEnemySystem
         if (remaining == 0)
         {
             if (((slot.XRadius + slot.XPosition - 1) & 8) == 0)
-                return (SquareSlopeCollisionTable[tableIndex] & 0x80) != 0;
+                return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0;
         }
         else if (remaining == spanMinusOne &&
                  ((slot.XPosition - slot.XRadius) & 8) != 0)
         {
-            return (SquareSlopeCollisionTable[tableIndex ^ 1] & 0x80) != 0;
+            return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 1] & 0x80) != 0;
         }
 
-        if ((SquareSlopeCollisionTable[tableIndex] & 0x80) != 0)
+        if ((SquareSlopeDefinitions.EnemyQuadrants[tableIndex] & 0x80) != 0)
             return true;
-        return (SquareSlopeCollisionTable[tableIndex ^ 1] & 0x80) != 0;
+        return (SquareSlopeDefinitions.EnemyQuadrants[tableIndex ^ 1] & 0x80) != 0;
     }
 
     private bool NonSquareVerticalSlopeIsSolid(

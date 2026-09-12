@@ -903,3 +903,24 @@ Full Release Verification and Windows Release build pass. The reference-address
 declaration remains for diagnostic comparison; no runtime multiplier reader
 remains. Separate square-slope tables and the wider #547 inventory/integration
 remain unfinished.
+
+## Square-slope quadrant definitions
+
+Moved the existing embedded Samus and enemy tables into SquareSlopeDefinitions,
+then replaced the remaining missile ROM read with the same catalog. Samus body
+collision and Grapple release retain their quadrant tests and clipping writes;
+enemy collision preserves bit-seven tests and the native low-bit identity encoding.
+No collision selector, movement state or animation ordering was changed.
+
+Verified all 60 bytes across native $94:8E54, $A0:C435 and $86:8729 and confirmed
+the distinct encodings have identical solidity. Exercised 10,240 actual missile
+point cases through both horizontal and vertical paths: every pixel of every
+square shape, all BTS orientations and the unused bit-five aliases. Expected
+solidity comes from geometrically mirrored coordinates and original ROM bytes;
+the production path receives a bus that throws on every access.
+
+Full Release Verification, Windows build and the four-family retail shared-crawler
+audit pass. Existing full-suite square-body fixtures retain their exact accepted
+displacement, fractional clipping and downward support-latch assertions. The
+remaining inventory no longer lists these square tables as ROM readers. This
+does not complete the broader #547 caller inventory or integration contract.

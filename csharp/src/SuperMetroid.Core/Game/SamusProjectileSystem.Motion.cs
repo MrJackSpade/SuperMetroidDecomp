@@ -609,7 +609,7 @@ public sealed partial class SamusProjectileSystem
                 quadrant ^= 1;
         }
 
-        return bus.ReadByte(SamusProjectileRomData.Collision.SquareSlopeDefinitions + quadrant) != 0;
+        return SquareSlopeDefinitions.SamusQuadrants[quadrant] != 0;
     }
 
 }

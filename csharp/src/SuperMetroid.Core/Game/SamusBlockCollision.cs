@@ -14,18 +14,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static partial class SamusBlockCollision
 {
-    // kTab948E54 at $94:8E54 describes the solid/empty 8x8 quadrants of square slope
-    // shapes zero through four. Each shape owns four bytes; BTS bits 6-7 rotate/mirror the
-    // selected quadrant before the leading-boundary half chooses its neighbor.
-    private static ReadOnlySpan<byte> SquareSlopeQuadrantSolidity =>
-    [
-        0x00, 0x00, 0x80, 0x80,
-        0x00, 0x80, 0x00, 0x80,
-        0x00, 0x00, 0x00, 0x80,
-        0x00, 0x80, 0x80, 0x80,
-        0x80, 0x80, 0x80, 0x80,
-    ];
-
     /// <summary>
     /// Ports the block-only observation made by <c>WallJumpBlockCollisionDetection</c> at
     /// <c>$94:967F</c>. The native routine publishes available distance in `$12` but does
@@ -849,7 +837,7 @@ public static partial class SamusBlockCollision
         // half; BTS orientation occupies the same two-bit quadrant coordinate. XOR is
         // literal native indexing, not a geometric simplification.
         int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 3));
-        bool selectedSolid = SquareSlopeQuadrantSolidity[quadrant] != 0;
+        bool selectedSolid = SquareSlopeDefinitions.SamusQuadrants[quadrant] != 0;
         bool collide;
 
         if (remainingRows == 0)
@@ -863,7 +851,7 @@ public static partial class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopeQuadrantSolidity[quadrant ^ 2] != 0;
+            collide = selectedSolid || SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 2] != 0;
         }
         else
         {
@@ -879,7 +867,7 @@ public static partial class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopeQuadrantSolidity[quadrant ^ 2] != 0;
+            collide = SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 2] != 0;
         }
 
         if (!collide)
@@ -915,7 +903,7 @@ public static partial class SamusBlockCollision
         // hence >>2 yields zero or two. The horizontal counter is the native number of
         // physical blocks left: LTR counts span..0 while RTL counts 0..span.
         int quadrant = 4 * shape + (orientation ^ ((leadingBoundary & 8) >> 2));
-        bool selectedSolid = SquareSlopeQuadrantSolidity[quadrant] != 0;
+        bool selectedSolid = SquareSlopeDefinitions.SamusQuadrants[quadrant] != 0;
         bool collide;
 
         // $1A=0 always denotes the physical rightmost block, independent of which of the
@@ -929,7 +917,7 @@ public static partial class SamusBlockCollision
                 return false;
             }
 
-            collide = selectedSolid || SquareSlopeQuadrantSolidity[quadrant ^ 1] != 0;
+            collide = selectedSolid || SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 1] != 0;
         }
         else
         {
@@ -943,7 +931,7 @@ public static partial class SamusBlockCollision
                 }
             }
 
-            collide = SquareSlopeQuadrantSolidity[quadrant ^ 1] != 0;
+            collide = SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 1] != 0;
         }
 
         if (!collide)

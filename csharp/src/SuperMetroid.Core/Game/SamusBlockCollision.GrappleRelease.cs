@@ -54,14 +54,14 @@ public static partial class SamusBlockCollision
             else
             {
                 int quadrant = 4 * block.Bts.SlopeShape + (block.Bts.SlopeOrientation ^ ((boundary & 8) >> 2));
-                bool selected = SquareSlopeQuadrantSolidity[quadrant] != 0;
+                bool selected = SquareSlopeDefinitions.SamusQuadrants[quadrant] != 0;
                 bool collides;
                 if (column == lastColumn)
-                    collides = (right & 8) == 0 ? selected : selected || SquareSlopeQuadrantSolidity[quadrant ^ 1] != 0;
+                    collides = (right & 8) == 0 ? selected : selected || SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 1] != 0;
                 else if (column != firstColumn || (left & 8) == 0)
-                    collides = selected || SquareSlopeQuadrantSolidity[quadrant ^ 1] != 0;
+                    collides = selected || SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 1] != 0;
                 else
-                    collides = SquareSlopeQuadrantSolidity[quadrant ^ 1] != 0;
+                    collides = SquareSlopeDefinitions.SamusQuadrants[quadrant ^ 1] != 0;
                 depth = collides ? (down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
             }
             maximum = Math.Max(maximum, depth + 1);

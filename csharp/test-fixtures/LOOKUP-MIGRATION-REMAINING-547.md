@@ -20,7 +20,9 @@ remain presentation readers requiring their respective integration audit.
 The shared Ceres/Norfair inertia bytes ($A6:D712/$A6:D61F) are now compiled.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
-verified. Separate square-slope tables remain cartridge-backed.
+verified. Square-slope definitions now share a compiled domain catalog across
+Samus collision, Grapple release, enemy collision and missile point reactions;
+the remaining missile table read is removed.
 These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
 the actual runtime read. Inspect authored bounds and adjacent-data behavior

@@ -1531,7 +1531,6 @@ static void VerifySamusPowerBeamProjectiles()
     // Put the muzzle directly inside one synthetic type-one block and compare points above
     // and inside the exact cartridge height. This locks `$94:A58F`'s shape-row indexing and
     // `height <= y` comparison independently of the Landing Site cartridge smoke test.
-    bus.WriteBytes(0x948e54, [0x00, 0x00, 0x80, 0x80]);
 
     RoomLevelData BuildPointSlopeRoom(byte behavior)
     {

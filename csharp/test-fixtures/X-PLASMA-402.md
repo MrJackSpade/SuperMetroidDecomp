@@ -2,11 +2,11 @@
 
 ## Current remaining scope
 
-Full normal-input original-CPU trajectories now match for steel Pirates and
-Botwoon (charged Plasma and Hyper). Phantoon and Draygon have native contact,
-freeze/release, and full-runtime boundary coverage, but still need the complete
-normal-firing/X-ray controller encounter comparisons. Phantoon's primer must
-remain part of that encounter. The chronological sections below retain earlier
+Full normal-input original-CPU trajectories now match for steel Pirates,
+Botwoon (charged Plasma and Hyper), and Draygon (charged Plasma). Phantoon has
+native contact, freeze/release, and full-runtime boundary coverage, but still
+needs the complete normal-firing/X-ray controller encounter comparison,
+including its primer. The chronological sections below retain earlier
 limitations; later evidence supersedes only the explicitly covered cases.
 
 ## Reproduced shared dispatcher defect
@@ -487,3 +487,59 @@ The configurable `--draygon-fired-plasma-search ROM RELEASE SCOPE` command
 retains the exploration path without claiming its arbitrary timings are parity
 assertions. These port trajectories still require original-CPU comparison;
 the earlier constructed Draygon release fixture is not that comparison.
+
+### Native Draygon encounter: shared aiming and missing eye effect
+
+The full original-CPU probe reproduced a real aiming mismatch on frame 765:
+cannon slot 17 had the same origin but flight angle 80 natively versus 139 in
+the port. This eventually caused an extra port hit at frame 996. The shared
+`CalculateCartridgeAngle` helper divided full-width host integers, while native
+$A0:C0AF selects the octant using words and then performs byte writes to
+$4204-$4206. Magnitudes beyond 255 truncate; division by zero returns $FFFF.
+`SnesUnsignedDivision` now preserves those operand widths and zero semantics.
+This is a shared hardware-math correction, not Draygon-specific aim adjustment.
+
+The focused original-CPU matrix covers 225 signed coordinate pairs, including
+zero, +/-255, +/-256, +/-260, +/-512 and signed-word extremes. Before the fix,
+(-32768,-32768) returned 224 instead of native 1. All 225 now match. The matrix
+is committed as `movement-release/enemy-angle-402.csv`, SHA-256
+`D4E724EB36D0C86A47A217F4251FF77CBD06EA0F0C9A68A574AEF0C2BE06210C`.
+Default Verification and `--enemy-angle-division` exercise this real helper.
+
+Correct cannon trajectories change Samus's real intro damage and knockback, so
+the earlier port-only release-1580 miss was not a valid native expectation.
+The expanded controls now match **9,141 gameplay records**:
+
+- Release 1574 with scope requested: no hits.
+- Release 1575, 1580 or 1581 with scope: hits 1585/1649/1713/1777, 450 each.
+- Release 1581 without scope: one hit at 1585.
+
+The adjacent no-hit case exposed a second omission at frame 1790: native
+Draygon emits eye particle $E509 at (292,348), while the port allocated nothing.
+Both eye handlers $A5:C48D/$C513 now invoke the shared room-graphics dust
+initializer with variant $18 every 128 eye-counter calls, before the unchanged-
+angle early return. Positions are eye X +/-24, Y -32. Named definitions live
+in `DraygonEyeEffects`. Default Verification and `--draygon-eye-effects` check
+both facings at counters 127/128/129 with an unchanged target angle.
+
+The native encounter compares input/freeze, boss HP/invincibility/flash/map/XY,
+Samus XY/pose/HUD/health, shot-zero type/XY, and Draygon's phase. It also compares
+all eighteen live enemy-projectile slots: definition, whole/subpixel XY,
+pre-instruction, and turret/goop flight angle. Unused angle scratch for other
+projectile types and inactive-slot payloads are normalized, not asserted as
+meaningful state. The native setup uses the retail room/FX/enemy loaders, actual
+Gravity/X-ray equipment, zero ammo, and 999 energy without gameplay cheats.
+It starts (256,443), camera (160,277), and uses the same ItemSelect/neutral setup.
+NMI is frame+3; an earlier frame+4 probe was rejected as misinitialized.
+
+Regenerate using `native-draygon-fired-entrypoint.patch` and
+`sm.exe --diagnostic-draygon-fired "Super Metroid.smc" NEW.csv`; compare using
+`--draygon-fired-plasma-audit "Super Metroid.smc" NEW.csv`. The same patch
+exposes `--diagnostic-enemy-angle ROM NEW.csv` for the focused matrix.
+Two final encounter captures agree, SHA-256
+`3CB02D937C9CD3F2990485E7DD207E678FD7900908DDD931C70CE1F932D360BF`.
+Numeric evidence (including ten setup rows) is in `draygon-fired-402.zip`.
+No ROM, state, screenshot or audio assets are included. Temporary native hooks
+were removed afterward. Both fixes pass the complete Verification suite and
+Windows Release builds with zero warnings/errors. Phantoon's full input
+encounter remains outstanding; this does not complete #402.

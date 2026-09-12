@@ -138,8 +138,10 @@ if (args.Length == 2 && args[0] == "--draygon-plasma-release")
     return DraygonPlasmaAudit.Run(args[1]);
 if (args.Length == 4 && args[0] == "--draygon-fired-plasma-search")
     return DraygonFiredPlasmaAudit.Run(args[1], int.Parse(args[2]), bool.Parse(args[3]));
-if (args.Length == 2 && args[0] == "--draygon-fired-plasma-audit")
-    return DraygonFiredPlasmaAudit.RunControls(args[1]);
+if (args.Length is 2 or 3 && args[0] == "--draygon-fired-plasma-audit")
+    return DraygonFiredPlasmaAudit.RunControls(args[1], args.Length == 3 ? args[2] : null);
+if (args.Length == 2 && args[0] == "--native-enemy-angle-audit")
+    return EnemyAngleNativeAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--native-phantoon-plasma-audit")
     return PhantoonPlasmaAudit.RunNative(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--wave-phantoon-audit")

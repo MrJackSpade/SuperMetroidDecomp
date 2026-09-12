@@ -30,7 +30,11 @@ public sealed partial class RoomEnemySystem
 
         if (absoluteY < absoluteX)
         {
-            int divided = absoluteX == 0 ? 0 : (absoluteY << 8) / absoluteX;
+            // The routine chooses its octant using words, then writes only bytes
+            // to the hardware divider. Preserve overflow rather than extending
+            // its intended +/-255 range with a more accurate host calculation.
+            int divided = SnesUnsignedDivision.Quotient(
+                unchecked((ushort)(absoluteY << 8)), unchecked((byte)absoluteX));
             return quadrant switch
             {
                 0 => unchecked((byte)((divided >> 3) + SnesAngle.QuarterTurn.TableIndex)),
@@ -40,7 +44,8 @@ public sealed partial class RoomEnemySystem
             };
         }
 
-        int inverseDivided = absoluteY == 0 ? 0 : (absoluteX << 8) / absoluteY;
+        int inverseDivided = SnesUnsignedDivision.Quotient(
+            unchecked((ushort)(absoluteX << 8)), unchecked((byte)absoluteY));
         return quadrant switch
         {
             0 => unchecked((byte)(SnesAngle.HalfTurn.TableIndex - (inverseDivided >> 3))),

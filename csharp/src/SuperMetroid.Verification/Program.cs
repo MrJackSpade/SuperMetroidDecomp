@@ -25,6 +25,16 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--enemy-angle-division"])
+{
+    VerifyEnemyAngleDivision();
+    return 0;
+}
+if (args is ["--draygon-eye-effects"])
+{
+    VerifyDraygonEyeEffects();
+    return 0;
+}
 if (args is ["--spark-crash-alignment"])
 {
     VerifySparkCrashAlignment();
@@ -850,6 +860,8 @@ VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410
 VerifyKronicGateBeamCollision();
 VerifyGateJumpTraces();
 VerifySparkCrashAlignment();
+VerifyEnemyAngleDivision();
+VerifyDraygonEyeEffects();
 VerifyFrogSpeedwayPoolCollision();
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv");
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv", 9);

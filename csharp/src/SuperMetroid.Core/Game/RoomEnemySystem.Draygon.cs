@@ -216,7 +216,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
-    private static void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
+    private void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
         if (part.EnemyDefinitionPointer is DraygonTailDefinition or DraygonArmsDefinition)
             return;
@@ -776,8 +776,16 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
-    private static void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, bool facingRight)
+    private void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, bool facingRight)
     {
+        // Native emission precedes the angle-change early return, so a stationary
+        // target must not suppress the periodic particle. It shares the real pool.
+        if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
+            SpawnRoomGraphicsDustExplosion(
+                unchecked((ushort)(eye.XPosition + (facingRight
+                    ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))),
+                unchecked((ushort)(eye.YPosition + DraygonEyeEffects.VerticalOffset)),
+                DraygonEyeEffects.DustVariant);
         if (samus is null)
             return;
 

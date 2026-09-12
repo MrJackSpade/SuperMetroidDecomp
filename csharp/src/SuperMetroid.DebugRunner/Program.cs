@@ -142,6 +142,8 @@ if (args.Length == 2 && args[0] == "--phantoon-doppler-expanded-search")
     return PhantoonDopplerAudit.Run(args[1], expandedSearch: true);
 if (args.Length is 2 or 3 && args[0] == "--phantoon-doppler-pattern-search")
     return PhantoonDopplerAudit.Run(args[1], args.Length == 3 ? args[2] : null, patternSearch: true);
+if (args.Length == 3 && args[0] == "--phantoon-doppler-moving-audit")
+    return PhantoonDopplerAudit.Run(args[1], args[2], movingControls: true);
 if (args.Length == 3 && args[0] == "--phantoon-doppler-window-audit")
     return PhantoonDopplerAudit.Run(args[1], args[2], windowControls: true);
 if (args.Length == 2 && args[0] == "--missile-input-carry-audit")

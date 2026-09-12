@@ -7,9 +7,10 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Normal-input barrage search with an optional pinned original-CPU comparison.</summary>
 internal static class PhantoonDopplerAudit
 {
-    public static int Run(string rom, string? nativePath = null, bool expandedSearch = false, bool windowControls = false, bool patternSearch = false)
+    public static int Run(string rom, string? nativePath = null, bool expandedSearch = false, bool windowControls = false, bool patternSearch = false, bool movingControls = false)
     {
-        string expectedHash = patternSearch ? "70F2F64F7A6D4169D2F4382CB6C617D9A6440DEE3A37983CE9F4D34105BDF928"
+        string expectedHash = movingControls ? "E6CA849236B495FB2B7E1971E4998F118022F7BACE5CB6DCF8C34AB4283519EA"
+            : patternSearch ? "70F2F64F7A6D4169D2F4382CB6C617D9A6440DEE3A37983CE9F4D34105BDF928"
             : windowControls ? "15A5E22F7BBCC381D98EE42B648489818A59F5733D002297C4AE40FF0F83DF1A"
             : "609DBAFF42F94CEEBC53B670C8ABDD91C0D97503ADAC6B81876069015BFA0BC5";
         if (nativePath is not null && Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativePath))) != expectedHash)
@@ -18,7 +19,7 @@ internal static class PhantoonDopplerAudit
             .Select(line => line.Split(',').Select(int.Parse).ToArray()).Where(row => row[3] >= 0)
             .ToDictionary(row => (row[0], row[1], row[2], row[3]));
         int compared = 0;
-        foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls, patternSearch))
+        foreach (var (start, cadence, aerial, movement) in Cases(expandedSearch, windowControls, patternSearch, movingControls))
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
             runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -38,6 +39,7 @@ internal static class PhantoonDopplerAudit
             var body = runtime.Enemies.Phantoon!.Body;
             var hitFrames = new List<int>();
             var hitY = new List<ushort>();
+            var hitX = new List<ushort>();
             int firstClosure = -1;
             for (int frame = 0; frame < 1850; frame++)
             {
@@ -50,6 +52,10 @@ internal static class PhantoonDopplerAudit
                     input = (ushort)SnesButton.Left;
                     if (movement == 1) input |= runtime.ControllerBindings.Dash;
                     if (movement == 2 && frame > start) input = 0;
+                    // Short release/repress movements between shots search the
+                    // stuttered technique without forcing Samus's coordinates.
+                    if (movement is >= 7 and <= 10 && (frame - start) % 10 >= movement - 6) input = 0;
+                    if (movement >= 11 && frame > start && frame - start < 20 + (movement - 11) * 5) input = 0;
                     if ((frame - start) % cadence == 0) input |= runtime.ControllerBindings.Shoot;
                     if (patternSearch)
                     {
@@ -69,7 +75,7 @@ internal static class PhantoonDopplerAudit
                 runtime.StepFrame(input);
                 if (nativeRows is not null)
                 {
-                    int[] actual = [start, cadence, patternSearch ? movement : aerial ? 1 : 0, frame, input, runtime.TimeIsFrozen ? 1 : 0,
+                    int[] actual = [start, cadence, patternSearch || movingControls ? movement : aerial ? 1 : 0, frame, input, runtime.TimeIsFrozen ? 1 : 0,
                         body.Health, body.InvincibilityTimer, body.FlashTimer, body.SpritemapPointer,
                         body.XPosition, body.YPosition, samus.XPosition, samus.YPosition,
                         samus.Pose, samus.SelectedHudItem, samus.Health, body.VariableF,
@@ -81,11 +87,11 @@ internal static class PhantoonDopplerAudit
                         : new int[5])).Concat(new int[] { body.XSubposition, body.YSubposition,
                             runtime.Enemies.Phantoon!.Tentacles!.VariableC,
                             runtime.Enemies.Phantoon.Tentacles.VariableD, runtime.Enemies.Phantoon.Tentacles.VariableE }).ToArray();
-                    if (windowControls || patternSearch)
+                    if (windowControls || patternSearch || movingControls)
                         actual = actual.Concat(new int[] { body.VariableE, body.CurrentInstruction, body.InstructionTimer,
                             runtime.Enemies.Phantoon.Eye!.CurrentInstruction, runtime.Enemies.Phantoon.Eye.InstructionTimer,
                             runtime.Enemies.Phantoon.Tentacles.VariableB, samus.PreviousDrawNewInput, runtime.BombProjectiles.CooldownTimer }).ToArray();
-                    int[] native = nativeRows[(start, cadence, patternSearch ? movement : aerial ? 1 : 0, frame)];
+                    int[] native = nativeRows[(start, cadence, patternSearch || movingControls ? movement : aerial ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(native))
                     {
                         int column = Enumerable.Range(0, Math.Min(actual.Length, native.Length))
@@ -98,6 +104,7 @@ internal static class PhantoonDopplerAudit
                 {
                     hitFrames.Add(frame);
                     hitY.Add(samus.YPosition);
+                    hitX.Add(samus.XPosition);
                     Console.WriteLine($"start={start}, cadence={cadence}, aerial={aerial}, movement={movement}, hit={frame}, damage={health-body.Health}, health={body.Health}, phase={(PhantoonAiFunction)phase}->{(PhantoonAiFunction)body.VariableF}, eyeTimer={body.VariableE}, flash={body.FlashTimer}, samus={samus.XPosition}/{samus.YPosition}");
                 }
                 if (firstClosure < 0 && body.VariableF == (ushort)PhantoonAiFunction.FadeOutWhileSwooping)
@@ -121,16 +128,38 @@ internal static class PhantoonDopplerAudit
             }
             if (patternSearch)
                 Console.WriteLine($"pattern start={start}, cadence={cadence}, movement={movement}, hits={string.Join(',', hitFrames)}, closure={firstClosure}, samus={samus.XPosition}/{samus.YPosition}, boss={body.XPosition}/{body.YPosition}");
+            if (movingControls)
+            {
+                int[] expected = (movement, cadence) switch
+                {
+                    (12, 10) => [1565, 1693, 1701, 1710],
+                    (12, 11) => [1565, 1693, 1703, 1713],
+                    (13, 10) => [1565, 1693, 1701, 1711, 1720],
+                    (13, 11) => [1565, 1693, 1703, 1713],
+                    _ => throw new InvalidDataException("Unknown moving control.")
+                };
+                if (!hitFrames.SequenceEqual(expected) || firstClosure != expected[^1] + 9 || body.Health != 2500 - 100 * expected.Length)
+                    throw new InvalidDataException("Moving barrage hit/closure boundary differs.");
+                if (movement == 13 && cadence == 10 && (hitX[^2] != 116 || hitX[^1] != 105 || hitY[^1] != 187))
+                    throw new InvalidDataException("Successful barrage must move left on the ground during its final two hits.");
+            }
         }
-        int expectedFrames = patternSearch ? 103600 : windowControls ? 7400 : 55500;
+        int expectedFrames = patternSearch ? 103600 : windowControls || movingControls ? 7400 : 55500;
         if (nativeRows is not null && (compared != expectedFrames || compared != nativeRows.Count))
             throw new InvalidDataException($"Expected {expectedFrames} native barrage frames, compared {compared}.");
         Console.WriteLine($"Native barrage frames compared: {compared}.");
         return 0;
     }
 
-    private static IEnumerable<(int Start, int Cadence, bool Aerial, int Movement)> Cases(bool expanded, bool windows, bool patterns)
+    private static IEnumerable<(int Start, int Cadence, bool Aerial, int Movement)> Cases(bool expanded, bool windows, bool patterns, bool moving)
     {
+        if (moving)
+        {
+            foreach (int movement in new[] { 12, 13 })
+            foreach (int cadence in new[] { 10, 11 })
+                yield return (1680, cadence, false, movement);
+            yield break;
+        }
         if (patterns)
         {
             foreach (int start in new[] { 1640, 1650, 1660, 1670, 1680, 1690, 1700 })
@@ -147,10 +176,14 @@ internal static class PhantoonDopplerAudit
             yield return (1710, 10, true, 2);
             yield break;
         }
+        if (expanded)
+            foreach (int movement in Enumerable.Range(11, 9))
+            foreach (int cadence in new[] { 10, 11 })
+                yield return (1680, cadence, false, movement);
         foreach (int start in expanded ? new[] { 1680, 1690, 1700, 1710, 1720, 1730, 1740, 1750, 1760 } : new[] { 1640, 1650, 1660 })
         foreach (int cadence in new[] { 8, 9, 10, 11, 12 })
         foreach (bool aerial in new[] { false, true })
-        foreach (int movement in expanded ? new[] { 0, 1, 2 } : new[] { 0 })
+        foreach (int movement in expanded ? new[] { 0, 1, 2, 7, 8, 9, 10 } : new[] { 0 })
             yield return (start, cadence, aerial, movement);
     }
 }

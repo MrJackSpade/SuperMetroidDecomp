@@ -4,7 +4,7 @@
 
 In progress. The initial 30-run matrix and grounded/aerial closure-window controls
 now match native execution, but do not establish every technique in this ticket.
-Remaining acceptance includes spaced barrages, moving/stuttered Dopplers,
+Moving-barrage success now also matches native execution. Remaining acceptance includes spaced barrages and stuttered Dopplers,
 Samus-position effects on the returning boss. Finisher controls also match native execution. Do not mark awaiting validation
 based only on this first crash correction.
 
@@ -194,3 +194,34 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoo
 The matching entrypoint patch and probe are under `movement-release`. Omit the
 CSV argument for an exploratory port-only search; that output alone is not parity
 evidence. Restore and rebuild the ordinary native host after capturing.
+
+## Successful moving barrage and neighboring failures
+
+The same initial encounter and start1680 barrage now begins continuous Left at
+1705 or1710, with shot cadence10 or11. Before that, one Left frame at1680 sets
+facing and the remaining inputs are neutral except Shoot. This preserves a real
+moving success rather than placing Samus at a favorable coordinate mid-barrage.
+
+| Left begins / cadence | Hits after primer1565 | First eye fade |
+| --- | --- | --- |
+| 1705 / 10 | 1693,1701,1710 | 1719 |
+| 1705 / 11 | 1693,1703,1713 | 1722 |
+| 1710 / 10 | 1693,1701,1711,1720 | 1729 |
+| 1710 / 11 | 1693,1703,1713 | 1722 |
+
+The successful fourth barrage hit interrupts closure while Samus is moving left:
+X116 at1711, X105 at1720, Y187 at both. Tests require exact accepted hits, final
+health, eye-fade frame, and the successful ground trajectory. All7,400 gameplay
+frames compare158 native columns. No new production correction was necessary.
+Two independent original-CPU captures have SHA256
+`E6CA849236B495FB2B7E1971E4998F118022F7BACE5CB6DCF8C34AB4283519EA`.
+
+```text
+sm.exe --diagnostic-phantoon-moving ROM output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-doppler-moving-audit ROM output.csv
+```
+
+The numeric archive is `movement-release/phantoon-moving-400.zip`, with its
+matching probe and entrypoint patch. The expanded search also includes brief
+one-to-four-frame movements per ten-frame cycle and delayed movement starts;
+those exploratory outputs are not substitutes for the pinned successful controls.

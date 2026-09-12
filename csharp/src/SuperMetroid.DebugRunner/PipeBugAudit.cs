@@ -9,7 +9,7 @@ using SuperMetroid.Core.Rooms;
 /// record, header, instruction, speed, spritemap, palette, and collision reaction is read
 /// again from the user's cartridge on each run.
 /// </summary>
-internal static class PipeBugAudit
+internal static partial class PipeBugAudit
 {
     private const ushort BrinstarDefinition = 0xf193;
     private const ushort StrongBrinstarDefinition = 0xf1d3;
@@ -257,17 +257,19 @@ internal static class PipeBugAudit
                 $"flight={sawHorizontalFlight}, maps={maps.Count}.");
         }
 
-        VerifyNorfairFormationAfterMemberDeath(loaded, assets);
+        foreach (bool respawns in new[] { false, true })
+        foreach (bool facingRight in new[] { false, true })
+        for (int victimIndex = 1; victimIndex < 5; victimIndex++)
+            VerifyNorfairFormationAfterMemberDeath(loaded, assets, victimIndex, respawns, facingRight);
     }
 
     /// <summary>
-    /// Generic death clears an enemy definition on the next processing scan, but the retail
-    /// leader still writes rise instructions/functions through all five physical formation
-    /// records. This is an observable raw-WRAM alias, not a malformed-room case.
+    /// Generic death immediately clears the record, retaining a placeholder when respawning.
+    /// The leader still writes rise instructions/functions through all five physical records.
     /// </summary>
     private static void VerifyNorfairFormationAfterMemberDeath(
         LoadedPipeBugs source,
-        CartridgeRoomAssets assets)
+        CartridgeRoomAssets assets, int victimIndex, bool respawns, bool facingRight)
     {
         LoadedPipeBugs loaded = LoadPrefix(
             source.Bus,
@@ -276,13 +278,16 @@ internal static class PipeBugAudit
             source.PopulationPointer,
             retainedRecordCount: 5);
         RoomEnemySlot leader = loaded.Enemies.Slots[0];
-        RoomEnemySlot victim = loaded.Enemies.Slots[2];
+        RoomEnemySlot victim = loaded.Enemies.Slots[victimIndex];
         ushort cameraX = CenterCameraX(leader);
         ushort cameraY = CenterCameraY(leader);
         // DetermineWhichEnemiesToProcess publishes the live collision-index array at the
         // start of an enemy frame. Keep Samus at the fixture's harmless default while the
         // leader performs its ordinary all-five dormant check.
         Step(loaded, assets, cameraX, cameraY);
+        victim.Properties = respawns ? victim.Properties.With(EnemyProperties.RespawnIfKilled)
+            : victim.Properties.Without(EnemyProperties.RespawnIfKilled);
+        ushort deathX = victim.XPosition, deathY = victim.YPosition;
         ushort[] savedProperties = loaded.Enemies.Slots.Take(5)
             .Select(slot => slot.Properties)
             .ToArray();
@@ -304,25 +309,31 @@ internal static class PipeBugAudit
             new SamusBombProjectileSystem(),
             loaded.Samus);
         for (int slotIndex = 0; slotIndex < 5; slotIndex++)
-            loaded.Enemies.Slots[slotIndex].Properties = savedProperties[slotIndex];
-        // Restore only the victim's native deletion bit after restoring collision isolation.
-        victim.Properties = victim.Properties.With(EnemyProperties.Deleted);
+        {
+            if (slotIndex != victim.SlotIndex)
+                loaded.Enemies.Slots[slotIndex].Properties = savedProperties[slotIndex];
+        }
+        // The retail branch respawns; the constructed no-respawn variant checks
+        // the other native clear path. Never restore the victim's pre-death
+        // properties or invent a Deleted flag over either result.
         if (hits != 1 || victim.Health != 0 || loaded.Enemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException(
                 $"Norfair formation member death setup failed: hits={hits}, " +
                 $"health={victim.Health}, killed={loaded.Enemies.EnemiesKilled}.");
         }
+        VerifyPipeBugDeath(loaded, victim, NorfairDefinition, deathX, deathY, respawns, expectedProperties: 0);
 
-        loaded.Samus.XPosition = leader.XPosition;
+        loaded.Samus.XPosition = unchecked((ushort)(leader.XPosition + (facingRight ? 1 : -1)));
         loaded.Samus.YPosition = unchecked((ushort)(leader.YPosition - 48));
-        Step(loaded, assets, cameraX, cameraY); // clear victim definition; raw-write all five
+        VerifyNorfairFormationTimerOwnership(loaded, leader, victim, respawns);
 
         PipeBugEnemyState victimState = RequireState(loaded.Enemies, victim);
-        if (victim.EnemyDefinitionPointer != 0 ||
+        if (victim.EnemyDefinitionPointer != (respawns ? EnemyLifecycleDefinitions.RespawnPlaceholder : 0) ||
+            victim.AiBank != (respawns ? 0xa3 : 0) || victim.Properties != 0 ||
             victimState.DefinitionAtInitialization != NorfairDefinition ||
             victimState.Function != PipeBugEnemyFunction.NorfairRise ||
-            victim.CurrentInstruction != 0x8b21 ||
+            victim.CurrentInstruction != (facingRight ? 0x8b21 : 0x8ae1) ||
             RequireState(loaded.Enemies, leader).Function != PipeBugEnemyFunction.NorfairRise)
         {
             throw new InvalidDataException(
@@ -435,13 +446,15 @@ internal static class PipeBugAudit
         ActivateBrinstarPipeBug(shot, assets, actor);
         var projectiles = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
+        ushort shotX = actor.XPosition, shotY = actor.YPosition;
+        bool shotRespawns = actor.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         ArmProjectile(projectiles.Slots[0], actor, type: 0, damage: 20);
         int hits = shot.Enemies.ResolveOrdinaryProjectileHits(bus, projectiles, bombs, shot.Samus);
-        if (hits != 1 || actor.Health != 0 ||
-            !actor.Properties.HasAny(EnemyProperties.Deleted) || shot.Enemies.EnemiesKilled != 1)
+        if (hits != 1)
         {
             throw new InvalidDataException("Pipe Bug common beam damage/death failed.");
         }
+        VerifyPipeBugDeath(shot, actor, BrinstarDefinition, shotX, shotY, shotRespawns, expectedProperties: 0);
 
         LoadedPipeBugs frozen = LoadPrefix(bus, room, assets, population, 1);
         actor = frozen.Enemies.Slots[0];
@@ -460,12 +473,15 @@ internal static class PipeBugAudit
         LoadedPipeBugs powerBomb = LoadPrefix(bus, room, assets, population, 1);
         actor = powerBomb.Enemies.Slots[0];
         ActivateBrinstarPipeBug(powerBomb, assets, actor);
+        ushort bombX = actor.XPosition, bombY = actor.YPosition;
+        bool bombRespawns = actor.Properties.HasAny(EnemyProperties.RespawnIfKilled);
         if (powerBomb.Enemies.ResolveOrdinaryPowerBombHits(
-                bus, actor.XPosition, actor.YPosition, explosionRadius: 32) != 1 ||
-            actor.Health != 0 || !actor.Properties.HasAny(EnemyProperties.Deleted))
+                bus, actor.XPosition, actor.YPosition, explosionRadius: 32) != 1)
         {
             throw new InvalidDataException("Pipe Bug common power-bomb damage/death failed.");
         }
+        VerifyPipeBugDeath(powerBomb, actor, BrinstarDefinition, bombX, bombY, bombRespawns,
+            expectedProperties: (ushort)EnemyProperties.ProcessOffScreen);
     }
 
     private static void ActivateBrinstarPipeBug(

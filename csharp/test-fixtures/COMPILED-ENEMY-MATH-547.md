@@ -280,6 +280,9 @@ is tracked under #581 (Stoke, Cacatac, Owtch, Ripper, Kzan, GRipper/Ripper II).
 PipeBug's formation member-death alias assertion also fails identically on both
 builds and is tracked separately as #582. These audits are not claimed as
 passing. The temporary baseline worktree and all its binaries were removed.
+PipeBug was subsequently repaired under #582: the complete audit now passes.
+It exposed a real formation timer-ownership defect alongside stale death-state
+expectations; see PIPE-BUG-LIFECYCLE-582.md for the pre-fix reproduction and checks.
 
 ### Outstanding scope
 

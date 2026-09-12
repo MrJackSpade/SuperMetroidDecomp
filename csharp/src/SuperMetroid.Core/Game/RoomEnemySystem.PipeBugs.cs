@@ -448,13 +448,17 @@ public sealed partial class RoomEnemySystem
         }
 
         leaderState.DelayOrCounter = unchecked((ushort)(leaderState.DelayOrCounter + 1));
+        // $B3:8C19-$8C1F resets only the current (leader) slot. The following
+        // formation stores change every instruction pointer, but leave follower
+        // timers intact, including zero timers in cleared respawn placeholders.
+        leader.InstructionTimer = 1;
+        leader.Timer = 0;
         bool samusIsRight = unchecked((short)(samus.XPosition - leader.XPosition)) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
-            InstallPipeBugInstruction(
-                member,
-                samusIsRight ? NorfairPipeBugRightRiseInstruction : NorfairPipeBugLeftRiseInstruction);
+            member.CurrentInstruction = samusIsRight
+                ? NorfairPipeBugRightRiseInstruction : NorfairPipeBugLeftRiseInstruction;
             RequirePipeBugState(member).Function = PipeBugEnemyFunction.NorfairRise;
         }
 

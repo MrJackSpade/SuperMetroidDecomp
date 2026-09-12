@@ -9,8 +9,7 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
 | Ridley | Carry/release anchors, pogo targets/path pointers, acceleration and health divisor selectors | RoomEnemySystem.Ridley and related partials |
-| Bomb Torizo | Wake positions, radii, property masks and instruction selectors | RoomEnemySystem.BombTorizo initialization |
-| Ceres debris | X offsets and instruction selectors | Ceres falling-debris spawning |
+| Gunship liftoff dust | X offsets and instruction selectors at $86:A2D6/$86:A2E2 | SpawnGunshipLiftoffDustCloud (previously misidentified as Ceres debris) |
 
 These are confirmed indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.
@@ -23,6 +22,8 @@ bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across
 Samus collision, Grapple release, enemy collision and missile point reactions;
 the remaining missile table read is removed.
+Bomb/Golden Torizo's two initial position/radius/property/instruction records are
+also compiled. Their instruction programs and presentation remain separate work.
 These remaining groups are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
 the actual runtime read. Inspect authored bounds and adjacent-data behavior

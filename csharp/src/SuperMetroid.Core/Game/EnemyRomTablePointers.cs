@@ -62,9 +62,9 @@ internal static class EnemyRomTablePointers
         public const int TailTipSpritemapPointers = 0xa6dcba;
         /// <summary>Ridley wing spritemap pointers at $A6:DB02.</summary>
         public const int WingSpritemapPointers = 0xa6db02;
-        /// <summary>Six Ceres debris X-offset words at $86:A2D6 (12 bytes).</summary>
+        /// <summary>Six gunship liftoff dust X-offset words at $86:A2D6 (12 bytes); legacy member grouping is not Ceres ownership.</summary>
         public const int FallingDebrisXOffsetWords = 0x86a2d6;
-        /// <summary>Six Ceres debris instruction-list pointers at $86:A2E2 (12 bytes).</summary>
+        /// <summary>Six gunship liftoff dust instruction-list pointers at $86:A2E2 (12 bytes); legacy member grouping is not Ceres ownership.</summary>
         public const int FallingDebrisInstructionPointers = 0x86a2e2;
         /// <summary>Ridley rotation divisors at $A6:D712.</summary>
         public const int RidleyRotationDivisorBytes = 0xa6d712;

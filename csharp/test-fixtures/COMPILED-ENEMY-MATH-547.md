@@ -924,3 +924,29 @@ audit pass. Existing full-suite square-body fixtures retain their exact accepted
 displacement, fractional clipping and downward support-latch assertions. The
 remaining inventory no longer lists these square tables as ROM readers. This
 does not complete the broader #547 caller inventory or integration contract.
+
+## Bomb/Golden Torizo initialization records
+
+Compiled the twelve native words in six parallel two-entry tables at
+$AA:C95F..C976 into typed TorizoInitializationDefinition records. The real shared
+initializer now selects the record by its existing validated enemy identity.
+Positions, initial instruction pointer, property OR mask and both hitbox radii
+are unchanged; palette setup and instruction execution are not part of this move.
+
+All twelve words match the pinned ROM. The real initializer executes 131,072 times
+with every possible incoming property word for both variants and a bus that
+rejects all access. Assertions cover positions, radii, instruction/timers,
+property/extra-property preservation, unchanged health and fractional position,
+and initial falling velocity. Both defeated early returns preserve placement and
+instruction while marking deletion. Native source cross-check: $AA:C87F..C95E.
+This proves the migrated record behavior, not every branch of the original init
+(for example the native Golden Torizo controller-code branch is outside this test).
+
+Full Release Verification, Windows Release build and Golden Torizo encounter audit
+pass. Bomb Torizo's audit first exposed its stale immediate-knockback expectation;
+the separately tracked #594 diagnostic correction makes that complete encounter
+audit pass as well. No gameplay contact behavior was altered to satisfy it.
+
+Remaining inventory corrected: the supposedly Ceres-debris tables $86:A2D6/A2E2
+actually belong to gunship liftoff dust. They remain live readers and are not
+claimed migrated by this change. Broader #547 acceptance remains incomplete.

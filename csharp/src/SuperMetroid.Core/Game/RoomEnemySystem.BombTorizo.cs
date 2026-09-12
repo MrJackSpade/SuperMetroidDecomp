@@ -236,24 +236,16 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        // Entries zero/one are Bomb/Golden respectively. Every value remains ROM-backed;
-        // only the table index is selected from the already-validated enemy definition.
-        int tableOffset = isGolden ? 2 : 0;
-        torizo.XPosition = ReadWord(
-            _bus!, EnemyRomTablePointers.Torizo.WakeXPositions + tableOffset);
-        torizo.YPosition = ReadWord(
-            _bus!, EnemyRomTablePointers.Torizo.WakeYPositions + tableOffset);
-        torizo.CurrentInstruction = ReadWord(
-            _bus!, EnemyRomTablePointers.Torizo.WakeInstructionLists + tableOffset);
-        torizo.Properties = unchecked((ushort)(
-            torizo.Properties | ReadWord(
-                _bus!, EnemyRomTablePointers.Torizo.WakePropertyMasks + tableOffset)));
+        TorizoInitializationDefinition definition = isGolden
+            ? TorizoInitializationDefinitions.Golden : TorizoInitializationDefinitions.Bomb;
+        torizo.XPosition = definition.X;
+        torizo.YPosition = definition.Y;
+        torizo.CurrentInstruction = definition.Instruction;
+        torizo.Properties = unchecked((ushort)(torizo.Properties | definition.PropertyMask));
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        torizo.XRadius = ReadWord(
-            _bus!, EnemyRomTablePointers.Torizo.WakeXRadii + tableOffset);
-        torizo.YRadius = ReadWord(
-            _bus!, EnemyRomTablePointers.Torizo.WakeYRadii + tableOffset);
+        torizo.XRadius = definition.XRadius;
+        torizo.YRadius = definition.YRadius;
         torizo.InstructionTimer = 1;
         torizo.Timer = 0;
         torizo.PaletteIndex = 0;

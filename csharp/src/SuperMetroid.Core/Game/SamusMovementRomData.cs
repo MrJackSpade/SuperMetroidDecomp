@@ -130,11 +130,11 @@ public static class SamusMovementRomData
         /// <summary>Dry-air, water, and lava/acid whole gravity words.</summary>
         public const int GravityAccelerations = 0x909ea7;
 
-        /// <summary>Initial falling speed used by unmorph and Spring Ball transitions.</summary>
-        public const int FallingTransitionSpeed = 0x909eb5;
+        /// <summary>$90:9EB5 YSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound.</summary>
+        public const int BallBounceSpeed = 0x909eb5;
 
-        /// <summary>Initial falling subspeed used by unmorph and Spring Ball transitions.</summary>
-        public const int FallingTransitionSubspeed = 0x909eb7;
+        /// <summary>$90:9EB7 YSubSpeedWhenBouncingInMorphBall; reference address for the shared ball rebound fraction.</summary>
+        public const int BallBounceSubspeed = 0x909eb7;
 
         /// <summary>Standalone horizontal speed record used by diagonal bomb jumps.</summary>
         public const int DiagonalBombJumpHorizontalSpeed = 0x909f25;

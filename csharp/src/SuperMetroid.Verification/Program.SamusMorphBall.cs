@@ -109,7 +109,7 @@ static void VerifySamusMorphBallMovement()
     bus.WriteBytes(0x909ea1, [0x00, 0x28]); // Dry-air gravity subspeed 2800.
     bus.WriteBytes(0x909ea7, [0x00, 0x00]); // Dry-air gravity whole word.
     bus.WriteBytes(0x909eb5, [0x01, 0x00]); // Whole bounce speed.
-    bus.WriteBytes(0x909eb7, [0x00, 0x10]); // Fractional bounce speed.
+    bus.WriteBytes(0x909eb7, [0x00, 0x00]); // Pinned NTSC fractional bounce speed.
 
     // Bomb jumps do not use the normal movement-type speed table. `$90:8EF4` passes
     // the standalone `$90:9F25` record directly to `$90:9A7E`, while `$90:9A2C`
@@ -430,7 +430,7 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
     AssertEqual(1, samus.MorphBallBounceState, "first rebound state");
     AssertEqual(1, samus.Kinematics.YSpeed, "first rebound whole speed from ROM");
-    AssertEqual(0x1000, samus.Kinematics.YSubspeed, "first rebound subspeed from ROM");
+    AssertEqual(0, samus.Kinematics.YSubspeed, "first rebound subspeed matches pinned NTSC ROM");
     AssertEqual(1, samus.Kinematics.YDirection, "first rebound moves upward");
 
     // Isolate the two later collision handlers at the exact floor boundary. State one

@@ -499,12 +499,8 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 1;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed);
-            Kinematics.YSubspeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
+            Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
+            Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
@@ -512,12 +508,8 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 2;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = unchecked((ushort)(ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed) - 1));
-            Kinematics.YSubspeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
+            Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
+            Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
@@ -566,12 +558,8 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 0x0601;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed);
-            Kinematics.YSubspeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
+            Kinematics.YSpeed = SamusVerticalMotionDefinitions.BallBounceSpeed;
+            Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 
@@ -579,12 +567,8 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 0x0602;
             Kinematics.YDirection = 1;
-            Kinematics.YSpeed = unchecked((ushort)(ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSpeed) - 1));
-            Kinematics.YSubspeed = ReadWord(
-                bus,
-                SamusMovementRomData.VerticalMotion.FallingTransitionSubspeed);
+            Kinematics.YSpeed = unchecked((ushort)(SamusVerticalMotionDefinitions.BallBounceSpeed - 1));
+            Kinematics.YSubspeed = SamusVerticalMotionDefinitions.BallBounceSubspeed;
             return false;
         }
 

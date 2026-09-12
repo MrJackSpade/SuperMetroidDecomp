@@ -1375,3 +1375,25 @@ cancellation are asserted. This is setup parity, not a claim that all subsequent
 knockback trajectories or all native side effects have been independently audited.
 
 Full Release Verification and Windows Release build pass.
+
+## Morph Ball and Spring Ball rebound definitions
+
+The remaining `FallingTransitionSpeed/Subspeed` references were misnamed: all
+four callers use $90:9EB5/$9EB7 for ball-landing rebounds, not unmorph/falling
+entry. Compiled and renamed the pair to `BallBounceSpeed/Subspeed`. Pinned
+NTSC words are 1 and 0. Native $91:F21B/$F234/$F293/$F2AF load the same
+fraction for both rebounds; second rebound decrements only the whole word.
+
+786,432 actual landing-handler calls cover every whole-speed word, three valid
+bounce phases, both facing directions and ordinary/Spring Ball families. Tests
+compare the sign-of-word-subtraction threshold, both velocity words, upward or
+grounded state, family/phase publication, airborne/ground pose, retained center,
+and base momentum. Physics reads are forbidden; remaining bank-$91 pose and
+animation reads are allowed. Invalid indirect bounce indexes are not claimed as
+native parity by this table migration. Held-jump Spring Ball uses the separately
+verified ordinary jump setup and remains covered by the existing full suite.
+
+The older morph-ball fixture seeded a non-native $1000 fraction. Updated it and
+its rebound expectation to the pinned $0000 value; no stock NTSC tuning is made.
+
+Full Release Verification and Windows Release build pass.

@@ -95,7 +95,8 @@ Samus ordinary/Hi-Jump and wall-jump launch pairs plus air/water/lava gravity
 are now compiled in `SamusVerticalMotionDefinitions`. Their production setup
 calls reject all ROM access in the regression. Bomb-jump and knockback launch
 pairs are now compiled too; knockback still consumes pose/animation records.
-This does not migrate falling-transition or horizontal-speed definitions, nor Grapple's
+The formerly named falling-transition pair is actually the shared ball-rebound
+pair, and is now compiled and correctly named. This does not migrate horizontal-speed definitions, nor Grapple's
 remaining launch/connection/pose selectors. The source audit explicitly found
 those readers outside the enemy-table catalog scan.
 

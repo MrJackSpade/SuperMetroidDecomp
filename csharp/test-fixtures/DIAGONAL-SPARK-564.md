@@ -110,3 +110,23 @@ Space+W becomes A|R and Space+Q becomes A|L. The audit passes, alongside its
 existing release/focus-discontinuity checks. This is not a physical keyboard
 test, nor proof that the wrong help caused the player's gamepad failure.
 Hardware polling and native direction-priority controls remain open.
+
+## Live zero-axis driver defect
+
+`DesktopVerification --live-gamepad-probe 2` uses the actual production WinMM
+adapter, without injecting input or opening a player window. Current observation:
+Microsoft PC-joystick driver, joystick0, 32 buttons, **0 axes**, positional layout,
+raw X/Y=0/0, advertised ranges0..65535, no POV, no pressed buttons. Before the
+fix this became normalized -32768/-32768 and SNES `$0A00` (Up+Left).
+
+The adapter normalized absent axes as though their zero-filled values were real
+deflections. It now checks AxisCount before normalizing each axis. The faithful
+zero-axis regression failed before the fix and passes after; real two-axis
+zero values still map to Up+Left. The keyboard audit includes these controls.
+A second live two-second probe returns normalized0/0 and SNES0000 for the same
+device. No physical button press, D-pad or stick actuation was performed.
+
+This phantom Up could override aim-based diagonal selection, but it is not
+proof of the historical player's cause: their earlier driver reported ten
+buttons/two axes, not this current device. Preserve that distinction. #564's
+physical acquisition-to-completion and native priority controls remain open.

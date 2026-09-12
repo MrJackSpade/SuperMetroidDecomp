@@ -12,6 +12,7 @@ public static class HostKeyboardInputSmokeTest
 {
     public static HostKeyboardInputSmokeTestResult Run()
     {
+        LiveGamepadProbe.VerifyMissingAxes();
         var keyboard = new HostKeyboardInputState();
         // These are synthetic Windows key messages, not a physical-keyboard claim.
         // The help must agree with the actual mapper and the default cartridge

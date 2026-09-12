@@ -139,8 +139,12 @@ internal sealed partial class WindowsGamepadInput
                 ? position.PointOfView
                 : WindowsGamepadIdentifiers.CenteredPointOfView;
         return new GenericGamepadSnapshot(
-            HorizontalAxis: NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum),
-            VerticalAxis: NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum),
+            // Drivers can expose buttons without axes while leaving X/Y zero-filled.
+            // Zero is a full negative deflection only for an axis that actually exists.
+            HorizontalAxis: capabilities.AxisCount >= 1
+                ? NormalizeAxis(position.X, capabilities.XMinimum, capabilities.XMaximum) : (short)0,
+            VerticalAxis: capabilities.AxisCount >= 2
+                ? NormalizeAxis(position.Y, capabilities.YMinimum, capabilities.YMaximum) : (short)0,
             PointOfView: pointOfView,
             Buttons: position.Buttons);
     }

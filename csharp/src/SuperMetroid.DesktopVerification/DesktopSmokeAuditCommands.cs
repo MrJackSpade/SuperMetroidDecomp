@@ -5,6 +5,16 @@ internal static class DesktopSmokeAuditCommands
 {
     public static bool TryRun(string[] args)
     {
+        if (args is ["--gamepad-missing-axes-audit"])
+        {
+            LiveGamepadProbe.VerifyMissingAxes();
+            return true;
+        }
+        if (args is ["--live-gamepad-probe", var seconds])
+        {
+            LiveGamepadProbe.Run(int.Parse(seconds));
+            return true;
+        }
         if (args is ["--toolbar-controls-audit", var rom])
         {
             HostToolbarControlsTest.Run(rom);

@@ -63,14 +63,15 @@ public sealed partial class SamusProjectileSystem
         };
 
         if (collided)
-        {
             KillBeam(bus, slot);
-            return true;
-        }
 
+        // $90:AF00 checks the movement window after the direction handler even
+        // when collision changed the beam into an explosion. KillBeam moves its
+        // origin to the contact edge, which can put an otherwise retained shot
+        // outside that window on this very frame.
         DeleteIfOutsideMovementWindow(slot, layer1X, layer1Y);
 
-        return false;
+        return collided;
     }
 
     private void RunWaveBeamPreInstruction(

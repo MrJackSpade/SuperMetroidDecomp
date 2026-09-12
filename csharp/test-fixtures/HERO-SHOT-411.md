@@ -15,12 +15,30 @@ from the repository root with the private retail ROM available.
   exercise Samus movement or the camera tracker.
 - Both branches use the same firing and target data. The distant terrain collision
   must turn the surviving beam into its real explosion family near world X=512.
+- The upward counterpart uses a 16 by 64 block room, solid row Y=16, pose 3,
+  Samus at (128,640), and fixed camera (0,512). Following camera Y is the
+  preceding shot Y minus 128. All other inputs/equipment are identical.
+- Camera modes 2/3 place the next shot exactly at the retained edge (X=319 or
+  Y=-64) or one pixel outside (X=320 or Y=-65). These arithmetic camera controls
+  deliberately include 16-bit wrap and do not claim to model natural tracking.
 
 ## Observed C# results
 
 Zero-based frame 35: stationary-camera projectile deleted, no target impact.
 Zero-based frame 61: camera-followed projectile hits the solid column and enters
-BeamExplosion. No production changes were needed for this diagnostic.
+BeamExplosion. The upward equivalents delete on frame 34 or hit on frame 59.
+Centered-camera controls needed no production change.
+
+## Reproduced defect #601
+
+The edge-retained shots contact terrain at frame 61 (right) / 59 (up). Collision
+moves their explosion origin beyond the retention window. Native `$90:AF00`
+then executes `$90:B16A` and clears the complete slot. C# returned from the
+collision branch before that check, retaining the explosion. The comparison
+failed on both impact frames before the fix. C# now preserves the collision
+result but performs the offscreen check after `KillBeam`, matching native order.
+Both one-pixel-outside controls delete on frame 1, and exact-edge positions are
+asserted on every preceding active frame.
 
 Pinned disassembly `$90:B16A..B196` subtracts layer-1 camera coordinates and
 deletes outside the signed [-64,320) window on either axis. The production
@@ -31,7 +49,7 @@ is not execution of the cartridge and does not establish the entire technique.
 
 `movement-release/native-hero-shot-probe.h` executes original `$90:B80D` fire
 dispatch and `$90:AECE` projectile processing after restoring unpatched retail
-bytes. All 98 frame records match C#: camera X, world X/Y and subpixels, X/Y
+bytes. All 319 frame records across eight cases match C#: camera X/Y, world X/Y and subpixels, X/Y
 velocity, type, and instruction pointer, including deletion and terrain impact.
 Accepted numeric-only trace: `movement-release/hero-shot-411.csv`. No ROM,
 save data, audio, or screenshots are included.
@@ -63,7 +81,7 @@ ROM SHA256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 
 ## Still required
 
-- Cover vertical shots and actual camera-following movement, including adjacent
-  successful/failing boundaries and a representative room-local target.
-- The issue remains open, not awaiting player validation; the horizontal
+- Cover actual camera-following movement and a representative room-local target.
+- #411 remains open, not awaiting player validation; the controlled horizontal/vertical
   controlled-camera comparison does not fulfill the broader integration scope.
+- The separately reproduced and corrected explosion-lifetime defect is #601.

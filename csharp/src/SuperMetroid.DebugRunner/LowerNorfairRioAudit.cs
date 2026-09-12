@@ -51,7 +51,7 @@ internal static class LowerNorfairRioAudit
             "Lower Norfair Rio audit passed: six retail pairs load, idle/takeoff/dive/" +
             "return/landing animations run, movement collides with terrain, the follower " +
             "tracks ROM visibility, mirrored attacks, freeze, contact damage, beam death, " +
-            "paired cleanup, and power-bomb immunity agree.");
+            "paired cleanup, and nonlethal power-bomb damage agree.");
         return 0;
     }
 
@@ -211,6 +211,7 @@ internal static class LowerNorfairRioAudit
         loaded.Samus.XPosition = unchecked((ushort)(parent.XPosition + 32));
         StepUntilTakeoff(loaded, assets.LevelData);
         parent.FrozenTimer = 10;
+        loaded.Samus.EquippedBeams |= (ushort)SamusBeamFlags.Ice;
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
         if (parent.FrozenTimer != 9 || follower.FrozenTimer != 9 ||
             !follower.Properties.HasAny(EnemyProperties.Invisible))
@@ -235,13 +236,17 @@ internal static class LowerNorfairRioAudit
         loaded.Samus.KnockbackActive = false;
         loaded.Samus.XPosition = parent.XPosition;
         loaded.Samus.YPosition = parent.YPosition;
+        var beforeContact = EnemyContactAuditAssertions.Capture(loaded.Samus);
         if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, controllerInput: 0) ||
-            loaded.Samus.Health != 879 || !loaded.Samus.KnockbackActive || parent.Health != 900)
+            parent.Health != 900)
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio contact mismatch: Samus health={loaded.Samus.Health}, " +
                 $"knockback={loaded.Samus.KnockbackActive}, parent health={parent.Health}.");
         }
+
+        EnemyContactAuditAssertions.VerifyStandingAirHit(
+            retailBus, loaded.Samus, beforeContact, 120, 1, "Lower Norfair Rio body contact");
 
         loaded = LoadRoom(retailBus, room, assets);
         parent = GetAuditedParent(loaded.Enemies);
@@ -250,36 +255,41 @@ internal static class LowerNorfairRioAudit
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
         ArmLethalBeam(shots.Slots[0], parent);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, parent);
         int beamHits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             retailBus,
             shots,
             bombs,
             loaded.Samus);
-        if (beamHits != 1 || parent.Health != 0 ||
-            !parent.Properties.HasAny(EnemyProperties.Deleted) ||
-            loaded.Enemies.EnemiesKilled != 1)
+        if (beamHits != 1)
         {
             throw new InvalidDataException(
                 $"Lower Norfair Rio beam death mismatch: hits={beamHits}, health={parent.Health}, " +
                 $"deleted={parent.Properties.HasAny(EnemyProperties.Deleted)}, " +
                 $"kills={loaded.Enemies.EnemiesKilled}.");
         }
+        EnemyDeathAuditAssertions.Verify(loaded.Enemies, parent, beforeDeath, "Lower Norfair Rio lethal beam");
         loaded.Enemies.StepFrame(CameraX, CameraY, false, loaded.Samus, level: assets.LevelData);
         if (!follower.Properties.HasAny(EnemyProperties.Deleted))
             throw new InvalidDataException("Lower Norfair Rio follower survived its dead parent.");
 
         loaded = LoadRoom(retailBus, room, assets);
         parent = GetAuditedParent(loaded.Enemies);
+        // Isolate this parent's common reaction; the paired actor has its own native slot.
+        foreach (RoomEnemySlot other in loaded.Enemies.Slots)
+            if (other != parent) other.XPosition = 0x1000;
         int reactions = loaded.Enemies.ResolveOrdinaryPowerBombHits(
             retailBus,
             parent.XPosition,
             parent.YPosition,
             explosionRadius: 32);
-        if (reactions != 0 || parent.Health != 900 || parent.InvincibilityTimer != 0 ||
-            parent.Properties.HasAny(EnemyProperties.Deleted))
+        if (reactions != 1 || parent.Health != 700 || parent.InvincibilityTimer != 48 ||
+            parent.FlashTimer != 12 || (parent.AiHandlerBits & 2) == 0 ||
+            !parent.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
+            parent.Properties.HasAny(EnemyProperties.Deleted) || loaded.Enemies.EnemiesKilled != 0)
         {
             throw new InvalidDataException(
-                $"Lower Norfair Rio power-bomb immunity mismatch: reactions={reactions}, " +
+                $"Lower Norfair Rio power-bomb damage mismatch: reactions={reactions}, " +
                 $"health={parent.Health}, invincibility={parent.InvincibilityTimer}, " +
                 $"deleted={parent.Properties.HasAny(EnemyProperties.Deleted)}.");
         }

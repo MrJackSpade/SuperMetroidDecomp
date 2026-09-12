@@ -2295,6 +2295,9 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     string ridleyRomPath = string.Join(' ', args[1..]).Trim('"');
     SuperMetroidAddressSpace ridleyBus = SuperMetroidAddressSpace.LoadRetailRom(ridleyRomPath);
     CartridgeRoomHeader ridleyRoom = CartridgeRoomHeader.Load(ridleyBus, 0xe0b5);
+    // Fresh Ceres encounter: retain the same mutable boss flag for door bytecode
+    // reads and any subsequent native setter, rather than omitting the service.
+    bool ridleyAreaBossDefeated = false;
     var ridleyEnemies = new RoomEnemySystem();
     var ridleyVram = new SnesVram();
     var ridleyCgram = new SnesCgram();
@@ -2311,7 +2314,9 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         ridleyCgram,
         // Low nibble zero selects the first literal $A6:A743 fireball route after hover.
         () => 0x1230,
-        readRandomNumber: () => 0x1230);
+        readRandomNumber: () => 0x1230,
+        isAreaBossDefeated: () => ridleyAreaBossDefeated,
+        setAreaBossDefeated: () => ridleyAreaBossDefeated = true);
 
     RoomEnemySlot ridleySlot = ridleyEnemies.Slots[0];
     RidleyEnemyState ridleyState = ridleyEnemies.CeresRidley
@@ -2467,9 +2472,12 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             $"live={string.Join(';', ridleyEnemies.EnemyProjectiles.Where(p => p.IsActive).Select(p => $"{p.Kind}@{p.XPosition},{p.YPosition}"))}.");
     }
 
-    // A projectile hit must enter the shared bank-$90 hurt state, not merely subtract
-    // energy and set invincibility. The old partial translation made the OBJ flicker hide
-    // an unchanged normal pose, which looked like Samus vanished on contact.
+    // Enemy-projectile collision publishes a pending request; bank $90 admits it
+    // later in the player scheduler. This isolated enemy loop must run that boundary.
+    if (auditSamus.KnockbackActive || auditSamus.KnockbackTimer != 5 ||
+        auditSamus.Pose != SamusPoseIds.FacingRightNormalPose ||
+        !SamusKnockbackMovement.TryStartPendingHitInterruption(ridleyBus, auditSamus, 0, timeIsFrozen: false))
+        throw new InvalidDataException("Ceres fireball did not publish a deferred, admissible hurt request.");
     if (!auditSamus.KnockbackActive ||
         auditSamus.Pose is not (SamusPoseIds.KnockbackRightPose or SamusPoseIds.KnockbackLeftPose) ||
         auditSamus.HurtFlashCounter == 0 ||
@@ -2507,14 +2515,15 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     auditSamus.Health = 999;
     auditSamus.XPosition = ridleySlot.XPosition;
     auditSamus.YPosition = ridleySlot.YPosition;
+    var bodyBefore = EnemyContactAuditAssertions.Capture(auditSamus);
     if (!ridleyEnemies.ResolveCeresRidleySamusContact(auditSamus, controllerInput: 0) ||
-        auditSamus.Health != 994 || !auditSamus.KnockbackActive ||
-        auditSamus.Kinematics.YSpeed != 5 || auditSamus.Kinematics.YSubspeed != 0)
+        auditSamus.Health != 994)
     {
         throw new InvalidDataException(
             $"Ceres Ridley extended body contact failed: health={auditSamus.Health}, " +
             $"hurt={auditSamus.KnockbackActive}, pose=${auditSamus.Pose:X2}.");
     }
+    EnemyContactAuditAssertions.VerifyStandingAirHit(ridleyBus, auditSamus, bodyBefore, 5, 1, "Ceres Ridley body");
     ResetRidleyAuditSamusAfterHurt(ridleyBus, auditSamus);
 
     // Ridley_Func_127 at $A6:DFD9 gives the final tail entry its own 14-by-14
@@ -2525,14 +2534,17 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     auditSamus.Health = 999;
     auditSamus.XPosition = tailTip.XPosition;
     auditSamus.YPosition = tailTip.YPosition;
+    var tailBefore = EnemyContactAuditAssertions.Capture(auditSamus);
     if (!ridleyEnemies.ResolveCeresRidleySamusContact(auditSamus, controllerInput: 0) ||
-        auditSamus.Health != 984 || !auditSamus.KnockbackActive)
+        auditSamus.Health != 984)
     {
         throw new InvalidDataException(
             $"Ceres Ridley tail-tip contact failed: health={auditSamus.Health}, " +
             $"hurt={auditSamus.KnockbackActive}, pose=${auditSamus.Pose:X2}, " +
             $"tip=({tailTip.XPosition},{tailTip.YPosition}).");
     }
+    EnemyContactAuditAssertions.VerifyStandingAirHit(ridleyBus, auditSamus, tailBefore, 15,
+        (ushort)(tailTip.XPosition < ridleySlot.XPosition ? 0 : 1), "Ceres Ridley tail");
     ResetRidleyAuditSamusAfterHurt(ridleyBus, auditSamus);
 
     // Repeat body contact through SuperMetroidRuntime itself. The isolated checks above
@@ -2819,11 +2831,18 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
     int mode7Frames = 0;
     while (ridleyState.Mode7Active && mode7Frames < 512)
     {
+        // Room-main requests ejection after the player phase. Admit that request
+        // on the following frame, as the runtime does, without simulating movement here.
+        auditSamus.CeresRidleyEjection.BeginFrame(auditSamus);
         ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus);
         ridleyEnemies.StepEnemyProjectiles(retailRidleyLevel, auditSamus);
         sawRotatedMatrix |= ridleyState.Mode7MatrixB != 0 &&
             ridleyState.Mode7MatrixC != 0;
-        sawSamusPushOwnership |= auditSamus.InputLocked;
+        sawSamusPushOwnership |= auditSamus.CeresRidleyEjection.IsActive;
+        if (mode7Frames == 104 && (!auditSamus.CeresRidleyEjection.IsPending || auditSamus.CeresRidleyEjection.IsActive))
+            throw new InvalidDataException("Ceres ejection did not remain pending on the request frame.");
+        if (mode7Frames == 105 && (auditSamus.CeresRidleyEjection.IsPending || !auditSamus.CeresRidleyEjection.IsActive || auditSamus.InputLocked))
+            throw new InvalidDataException("Ceres ejection admission altered the native next-frame ownership boundary.");
         sawAnimatedMode7Map |= !ridleyVram.Bytes.SequenceEqual(vramBeforeMode7Animation);
         if (!sawVisibleMode7Getaway)
         {
@@ -2861,7 +2880,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         ridleyState.Mode7MatrixA != 0 || ridleyState.Mode7HorizontalOffset != 0 ||
         !sawRotatedMatrix || !sawSamusPushOwnership || !sawAnimatedMode7Map ||
         !sawVisibleMode7Getaway || !sawBothMode7WallsDrawn ||
-        !auditSamus.InputLocked)
+        !auditSamus.CeresRidleyEjection.IsActive || auditSamus.InputLocked)
     {
         throw new InvalidDataException(
             $"Retail Mode-7 getaway failed to restore mode nine after {mode7Frames} frames: " +
@@ -2875,7 +2894,8 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
 
     // The direct enemy audit intentionally does not run bank-$90 Samus movement, so its
     // push handler remains latched here. Continue the actor-owned $A6:C04E sequence with
-    // the same native queue the runtime supplies and prove all fifteen retail DMA records,
+    // the same native queue the runtime supplies and prove all fifteen retail DMA records
+    // plus the separate EMERGENCY tilemap write,
     // the 128-frame English warning hold, and the status-two publication.
     var ceresEscapeWrites = new VramWriteQueue();
     int warningSetupFrames = 0;
@@ -2889,13 +2909,14 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
             vramWriteQueue: ceresEscapeWrites);
         warningSetupFrames++;
     }
-    if (ceresEscapeWrites.Entries.Count != 15 ||
+    if (ceresEscapeWrites.Entries.Count != 16 ||
+        ceresEscapeWrites.Entries[^1] != new VramWriteEntry(0x12, 0xa6c164, 0x50cb) ||
         warningSetupFrames != 14 ||
         ridleyState.FunctionTimer != 6 ||
         ridleyState.CeresEscapeTextDelayTimer != 128)
     {
         throw new InvalidDataException(
-            $"Retail Ceres warning setup queued {ceresEscapeWrites.Entries.Count}/15 records, " +
+            $"Retail Ceres warning setup queued {ceresEscapeWrites.Entries.Count}/16 records, " +
             $"frames={warningSetupFrames}/14, phase=${ridleyState.FunctionTimer:X4}, " +
             $"hold={ridleyState.CeresEscapeTextDelayTimer}/128.");
     }
@@ -2916,6 +2937,14 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         timeIsFrozen: false,
         auditSamus,
         vramWriteQueue: ceresEscapeWrites);
+    if (ridleyEnemies.CeresEscapeStartedThisFrame || ridleyState.FunctionTimer != 10)
+        throw new InvalidDataException("Ceres English warning did not enter typewriter phase after its 128-frame hold.");
+    int typewriterFrames = 0;
+    while (!ridleyEnemies.CeresEscapeStartedThisFrame && typewriterFrames < 2048)
+    {
+        ridleyEnemies.StepFrame(0, 0, timeIsFrozen: false, auditSamus, vramWriteQueue: ceresEscapeWrites);
+        typewriterFrames++;
+    }
     if (!ridleyEnemies.CeresEscapeStartedThisFrame ||
         ridleyEnemies.CeresStatus != 2 ||
         ridleyState.Function != RidleyAiFunction.CeresSelfDestructPaletteOnly)
@@ -2942,7 +2971,7 @@ if (args.Length >= 2 && args[0] == "--ceres-ridley-audit")
         $"{fireballAuditFrames} frames, runtime hurt OAM {liveContactOamCount}/128, " +
         $"one retail normal-bomb plus 99 beam hits and shared power-bomb damage, " +
         $"escape handoff in {retreatFrames} frames, Mode 7 restored in {mode7Frames} frames, " +
-        $"fifteen warning DMAs over {warningSetupFrames} frames and 128-frame self-destruct hold verified.");
+        $"sixteen warning writes over {warningSetupFrames} frames, 128-frame hold and {typewriterFrames}-frame typewriter verified.");
     return 0;
 }
 

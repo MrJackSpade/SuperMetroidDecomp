@@ -482,3 +482,6 @@ the terminator and warning handoff. Full Release Verification and Windows
 Release build pass. The standalone `--ceres-ridley-audit` instead stops before
 getaway due to its omitted required area-boss service; #587 tracks repair of
 that diagnostic. It is not claimed passing. #547 remains incomplete.
+
+The standalone audit was subsequently repaired under #587 without production
+changes and now passes completely; see CERES-RIDLEY-AUDIT-587.md.

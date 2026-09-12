@@ -269,6 +269,8 @@ internal static class CeresRidleyProjectileAudit
             vram,
             cgram,
             nextRandom: () => 0x1230,
+            readRandomNumber: () => 0x1230,
+            isAreaBossDefeated: () => false,
             level: assets.LevelData,
             samus: samus);
         return new LoadedCeresProjectileProbe(enemies, samus);

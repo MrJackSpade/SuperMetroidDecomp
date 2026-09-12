@@ -41,6 +41,7 @@ internal static class CeresRidleyPowerBombAudit
             random.NextRandom,
             random.SetRandomNumber,
             readRandomNumber: () => random.RandomNumber,
+            isAreaBossDefeated: () => false,
             level: assets.LevelData,
             samus: samus);
 

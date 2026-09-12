@@ -777,3 +777,16 @@ than claiming independent palette-transition coverage.
 Full Release Verification, complete 5,906-frame Phantoon encounter audit and
 Windows Release build pass. Rain placement, random direction and mouth schedules
 remain live readers; broader #547 remains open.
+
+## Phantoon indirect mouth schedules and #593
+
+Compiled all four reverse-read casual-flame patterns (30 words behind $A7:CCFD's
+pointer list). Native cross-check caught pre-existing timer/count zero-branch
+mistakes in the port. A failing regression proved the exhausted count mismatch;
+both branches now follow $CFCA..D03E and select the inter-pattern delay correctly.
+See PHANTOON-CASUAL-SCHEDULE-593.md for the corrected interpretation and evidence.
+
+Verification covers every native word, 65,536 real RNG selections and 8,192
+frame-exact timer/count/mouth-animation checks without a bus. Full Verification,
+complete Phantoon encounter and Windows build pass. Placement and random-direction
+readers remain; this does not close the broader migration.

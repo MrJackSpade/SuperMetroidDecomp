@@ -498,28 +498,28 @@ public sealed partial class RoomEnemySystem
     private void StepPhantoonCasualFlameSchedule(RoomEnemySlot body, RoomEnemySlot mouth)
     {
         mouth.VariableB = unchecked((ushort)(mouth.VariableB - 1));
-        if (unchecked((short)mouth.VariableB) >= 0)
+        if (unchecked((short)mouth.VariableB) > 0)
             return;
 
         if (unchecked((short)mouth.VariableC) >= 0)
         {
             mouth.VariableC = unchecked((ushort)(mouth.VariableC - 1));
-            int patternPointer = ReadWord(
-                _bus!, EnemyRomTablePointers.Phantoon.MouthPatternPointerWords + mouth.VariableA * 2);
-            int timerIndex = unchecked((short)mouth.VariableC) < 0 ? 0 : mouth.VariableC + 1;
-            mouth.VariableB = ReadWord(_bus!, 0xa70000 | unchecked((ushort)(patternPointer + timerIndex * 2)));
+            // Native zero and negative counts both terminate the pattern. The
+            // inter-pattern delay is word one; word zero is never a timer.
+            bool exhausted = unchecked((short)mouth.VariableC) <= 0;
+            if (exhausted)
+                mouth.VariableC = 0xffff;
+            int timerIndex = exhausted ? 1 : mouth.VariableC + 1;
+            mouth.VariableB = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA)[timerIndex];
             mouth.InstructionTimer = 1;
             mouth.CurrentInstruction = PhantoonInstructionLists.MouthFollowUp;
             return;
         }
 
         mouth.VariableA = unchecked((ushort)(_nextRandom!() & 3));
-        ushort pointer = ReadWord(
-            _bus!, EnemyRomTablePointers.Phantoon.MouthPatternPointerWords + mouth.VariableA * 2);
-        mouth.VariableC = ReadWord(_bus!, 0xa70000 | pointer);
-        mouth.VariableB = ReadWord(
-            _bus!,
-            0xa70000 | unchecked((ushort)(pointer + (mouth.VariableC + 1) * 2)));
+        ReadOnlySpan<ushort> pattern = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA);
+        mouth.VariableC = pattern[0];
+        mouth.VariableB = pattern[mouth.VariableC + 1];
     }
 
     private void AdvancePhantoonFadeIn(

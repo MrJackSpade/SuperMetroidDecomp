@@ -133,3 +133,36 @@ rejects empty spritemaps at `$A162..A16A`, then compares world X at `$A1A6..A1BC
 and world Y at `$A1BE..A1D6`. These subtract enemy coordinates and compare radii;
 they do not consume a bank-$94 tile index. The full verification suite passes
 with these positive and negative controls enabled.
+
+## Native beam-width boundary
+
+`native-wrap-width-probe.h` executes 27 fresh, deterministic original-CPU setups:
+the three room dimensions and launch coordinates above, Power/Wave/wide-Wave,
+and launch X offsets -1/0/+1. Each runs 40 frames, with Shoot only on frame 0,
+zero initial subpixels and no cheats. The synthetic terrain has a local edge wall
+and a remote blue cap with its three extension blocks. It reproduces the room
+geometry, not the complete retail terrain; the separate real-room tests above
+cover unchanged retail populations and door opening.
+
+All 1,080 records match C# frame-for-frame: X/Y and subpixels, projectile type,
+instruction pointer, both radii, and target block word. Native PLM setup changes
+the cap from `$C40C` to `$840C`; this probe does not step the later opening list.
+Landing Site and Crocomire geometry require Wave+Plasma at these coordinates:
+offsets -1 and 0 hit on frame 9, while +1 misses. Plain Wave and Power miss.
+In the shaft, Wave and Wave+Spazer hit on frame 5 at all three offsets; Power
+misses. Thus the width requirement and the one-pixel neighboring miss are
+cartridge observations, not expectations inferred from the wiki.
+
+Two independent native captures and the committed `wrap-width-409.csv` share
+SHA-256 `F1551CE6B8857B6C6E738ACCE88C948BEE3267DB60E42BEFD5D3AEFF662938B2`.
+
+```
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --wrap-shot-widths csharp/test-fixtures/movement-release/wrap-width-409.csv
+```
+
+The comparison also runs in the default verification suite, which passes.
+Together with the base 240-frame native trace, real-room door tests, and enemy
+positive/negative controls, this covers #409's side-edge acceptance criteria.
+No additional gameplay change was needed for this final boundary test. Evidence
+is limited to the pinned NTSC cartridge; it does not establish PAL parity or a
+controller-driven route to each launch point. Ceiling wrapping remains #410.

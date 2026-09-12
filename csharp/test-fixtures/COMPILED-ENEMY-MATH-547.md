@@ -1139,3 +1139,24 @@ an initial arbitrary-speed sweep exceeded authored quadratic records and was
 corrected rather than relaxing production bounds. Full Release Verification,
 the complete KiHunter audit (38 body/wing records in six populations), and
 Windows build pass. Broader lookup/integration work remains open.
+
+## Kraid spat-rock horizontal launch velocities
+
+Compiled the eight signed 8.8 words at $A7:BC65. Native mouth-open attack code
+selects with the current RNG word masked by 000E; bank-$86 initializer 9CA3
+places the rock at body X+16/Y-96, clears fractions and uses that selected speed.
+The translated spawn retains its existing allocation-before-current-RNG-read
+ordering and never advances RNG. Only the immutable velocity read is removed.
+
+Every RNG word is compared with the pinned ROM and exercised through the real
+allocator/header/spawn path with BC65..BC74 reads forbidden and a throwing RNG
+advance callback. 65,536 cases assert the exact signed velocity word, vertical
+launch, wrapped mouth position, cleared stale fractions and graphics binding.
+Full-pool allocation returns false, preserves the occupied rock and does not
+read RNG. Broader rock collision/movement and other Kraid mechanics are not
+claimed complete by this focused launch migration.
+
+Full Release Verification, complete Kraid audit (788 rise frames, repeated
+combat, second phase and 360-frame death/persistence) and Windows build pass.
+The Kraid audit covers all four rock variants and damage-enabled projectile
+contact lifecycles; its printed floor diagnostic is not a visual parity claim.

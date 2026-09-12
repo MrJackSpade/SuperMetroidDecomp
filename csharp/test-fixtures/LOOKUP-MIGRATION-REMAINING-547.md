@@ -20,7 +20,7 @@ the consumers rather than classifying them solely by the catalog names.
 | Mechanics group | Confirmed live consumer and semantics | Migration requirements |
 | --- | --- | --- |
 | Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer, ceiling-rock positions | Preserve byte selectors, countdown boundaries and current-RNG semantics. Keep palette reads in presentation scope. |
-| Kraid hitboxes/projectiles | `KraidCollisions`, `KraidProjectiles`, `KraidNails`: B163/B165 hitbox coordinates, BC65 rock X velocities, BF1D nail offsets | Inspect overlapping record strides, signed coordinates, current random selection and actual collision/placement paths. |
+| Kraid hitboxes/projectiles | `KraidCollisions`, `KraidNails`: B163/B165 hitbox coordinates, BF1D nail offsets | Inspect overlapping record strides, signed coordinates and actual collision/placement paths. BC65 spat-rock velocities are now compiled. |
 | Kraid second-phase choices | `RunKraidSecondPhaseThinking`: BA7D six position/pointer records, followed by indirect target-X/timer pairs | The live dependency includes the pointed-to tables, not just six pointers. Existing fallback record offset four and random-offset clamp sixteen require explicit parity evidence. Assert actual walking direction/target/timer. |
 | Kraid death schedule | `KraidDeath`: C5E7 explosion Y/function records | Compile the schedule and typed callbacks; inspect dispatch, entry progression and timing. Do not substitute a cosmetic sprite-only migration. |
 

@@ -25,8 +25,7 @@ public sealed partial class RoomEnemySystem
         rock.YPosition = unchecked((ushort)(body.YPosition - 96));
         rock.XSubposition = 0;
         rock.YSubposition = 0;
-        rock.XVelocity = ReadWord(
-            _bus!, EnemyRomTablePointers.Kraid.RockXVelocityWords + (random & 0x000e));
+        rock.XVelocity = KraidRockLaunchDefinitions.FromRandom(random);
         rock.YVelocity = unchecked((ushort)-0x0400);
         rock.GraphicsIndex = 0x0600;
         return true;

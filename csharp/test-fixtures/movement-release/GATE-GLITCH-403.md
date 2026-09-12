@@ -126,3 +126,25 @@ when Jump was pressed and is explicitly rejected as a jump reproduction.
 The corrected setup has been rerun for frames 7,8,9. These results locate a
 deterministic success and adjacent failures for the next original-CPU comparison;
 they are not yet assertions of cartridge timing parity.
+
+## Original-CPU moving comparison
+
+`native-gate-jump-probe.h` now reproduces that setup with original 65816
+input, movement, projectile, collision, pose and PLM handlers. All 140 records
+for each firing frame 7, 8 and 9 match the managed trace exactly (420 records):
+inputs, X/subpixel X, Y, pose, gate timer, and gate instruction. This covers the
+entire jump, ceiling contact, landing, gate opening and subsequent crossing.
+The successful timing is retained; adjacent firing frames do not open the gate.
+
+The numeric native traces are `gate-jump-403-{7,8,9}.csv`; the default
+verification suite drives `SuperMetroidRuntime.StepFrame` and compares every
+record. `--gate-jump-traces` runs just those comparisons. For recapture, install
+the same temporary headless hooks described above, substituting this header and
+`DiagnosticGateJump(rom, output, shootFrame)`, then invoke
+`sm.exe --gate-jump-probe ROM NEW_OUTPUT.csv SHOOT_FRAME`. Remove hooks afterward.
+
+This probe does not run the renderer or ordinary enemy AI. It uses authored
+room terrain/population and the original gate setup/PLM opening sequence.
+It does not establish spinning-shot, green-gate or reversed-orientation parity;
+those parts of #403 remain open. No further production change was needed for
+these three moving sequences.

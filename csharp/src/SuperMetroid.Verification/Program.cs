@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--gate-jump-traces"])
+{
+    VerifyGateJumpTraces();
+    return 0;
+}
 if (args is ["--gate-beam-collision"])
 {
     VerifyKronicGateBeamCollision();
@@ -838,6 +843,7 @@ VerifyWrapShotEnemySeparation();
 VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv");
 VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv");
 VerifyKronicGateBeamCollision();
+VerifyGateJumpTraces();
 VerifyFrogSpeedwayPoolCollision();
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv");
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv", 9);

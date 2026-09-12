@@ -34,17 +34,13 @@ public sealed partial class RoomEnemySystem
         projectile.YSubposition = source.YSubposition;
 
         // `$86:F391` zeros both ordinary velocity words, then calls the shared RNG. The
-        // horizontal table is one word short: index $1C reads the first two instruction
-        // words at $F3F0/$F3F2. Direct bus reads retain that retail overread exactly.
+        // horizontal table is one record short. The compiled definition retains the
+        // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
         Func<ushort> nextRandom = _nextRandom ?? throw new InvalidOperationException(
             "Falling Spark initialization requires the shared cartridge RNG.");
-        int randomTableOffset = nextRandom() & 0x001c;
-        projectile.Variable1 = ReadWord(
-            _bus!, EnemyRomTablePointers.FallingSpark.InitialYWords + randomTableOffset);
-        projectile.Variable0 = ReadWord(
-            _bus!, EnemyRomTablePointers.FallingSpark.InitialXWords + randomTableOffset);
+        (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
 
     }
 

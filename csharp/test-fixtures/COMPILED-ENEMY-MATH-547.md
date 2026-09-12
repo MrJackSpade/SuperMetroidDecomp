@@ -1071,3 +1071,28 @@ the reported domain behavior. #547's broader caller and integration audit remain
 Focused/full Release Verification pass. Windows and DebugRunner builds have
 zero warnings/errors. The complete Norfair Ridley audit passes 360 reveal,
 4,096 combat (ten states), and 738 death frames, including zero-health grabbing.
+
+## Falling-spark launch definitions
+
+Compiled $86:F3D4/F3D6 horizontal whole/fraction pairs into
+FallingSparkLaunchDefinitions. Seven authored records plus the eighth RNG
+outcome's actual $F3F0/F3F2 instruction words (DBBD/301A) are retained. Unlike
+the earlier Ridley host-clamp compatibility window, this overread is directly
+reachable through the native initializer's normal RNG mask. Do not replace it
+with an invented symmetric positive speed. Pinned bank-86 initializer F391
+copies the source positions/fractions, offsets Y by eight, clears the aliased
+vertical velocity words, advances RNG once and chooses these horizontal words.
+
+The real initializer no longer reads either table. All 65,536 RNG values compare
+both compiled fields with ROM, then exercise the actual allocator/header/spawn
+and horizontal-motion paths with a bus rejecting the entire table/overread
+window. Assertions cover copied fractions, Y wrap, cleared stale vertical
+velocity, launch aliases, exactly one RNG advance and resulting 16.16 movement.
+Full-pool allocation preserves the occupied projectile and consumes no RNG.
+Reference names were corrected from InitialY/InitialX to HorizontalWhole/
+HorizontalFraction; those old names confused velocity aliases with positions.
+
+Focused/full Release Verification and Windows build pass. The complete Spark
+audit also passes after correcting its independently stale immediate-knockback
+assertion in #597; see SPARK-AUDIT-597.md. This migration remains only one slice
+of #547, whose broader inventory/integration requirements are still open.

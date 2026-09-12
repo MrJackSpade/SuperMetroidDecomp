@@ -19,7 +19,6 @@ the consumers rather than classifying them solely by the catalog names.
 
 | Mechanics group | Confirmed live consumer and semantics | Migration requirements |
 | --- | --- | --- |
-| Falling spark | `SpawnFallingSpark`: $86:F3D4/F3D6 interleaved horizontal whole/fraction velocity words; the current InitialY/InitialX names are misleading | Eight RNG choices selected by `NextRandom() & 0x1C`; the eighth reads adjacent instruction bytes at F3F0/F3F2. Preserve exact overread, RNG call count, source fractions, and allocation failure behavior. |
 | Dead sidehopper | `RunDeadSidehopperMain` post-landing branch: $A9:D951/D959 four vertical/horizontal launch pairs | Preserve jump phase, delay underflow, palette-stage branch, instruction restart, and signed velocities. Trace all phase writers before choosing catalog bounds. |
 | KiHunter | $A8:F180 trigger distance; F182/F184 used as fractional/whole vertical acceleration in falling and hopping; F186 supplies detached-wing orbit radius | Existing AttackYRadius/AttackXRadius/WinglessHopRadius names do not accurately describe these consumers. Validate fixed-point ordering and all three wing-orbit callers, not only initializer values. |
 | Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer, ceiling-rock positions | Preserve byte selectors, countdown boundaries and current-RNG semantics. Keep palette reads in presentation scope. |
@@ -28,6 +27,11 @@ the consumers rather than classifying them solely by the catalog names.
 | Kraid death schedule | `KraidDeath`: C5E7 explosion Y/function records | Compile the schedule and typed callbacks; inspect dispatch, entry progression and timing. Do not substitute a cosmetic sprite-only migration. |
 
 ### Mixed instruction selectors and presentation reads
+
+The falling-spark launch group from the expanded scan is now compiled, including
+the eighth outcome's native instruction-word overread. The reference catalog
+names now identify horizontal whole/fraction velocity rather than initial X/Y.
+Actual spawn and horizontal-motion tests reject reads of the migrated table.
 
 The remaining named-catalog users also include Golden Torizo's reflected Super
 Missile instruction selector, unpowered Work Robot instruction selection, and

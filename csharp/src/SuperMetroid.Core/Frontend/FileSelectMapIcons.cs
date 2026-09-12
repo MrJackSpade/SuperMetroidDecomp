@@ -7,6 +7,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
 public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState system, AreaId area)
 {
+    [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
+    internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
     // Reuse the saved exploration owner already retained by these icons. Adding
     // another serialized owner to the menu would invalidate older debugger graphs.
     internal Bank80SystemState MapSystem => system;
@@ -53,12 +55,23 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     public void DrawBeforeMarker(OamBuffer oam, ushort scrollX, ushort scrollY)
     {
         DrawBossMarkers(oam, scrollX, scrollY);
-        Simple(FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.Missile);
-        Simple(FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.Energy);
-        Simple(FileSelectMapIconRomData.MapStationLists, FileSelectMapIconRomData.MapStation);
+        Simple(MapStationKind.Missile, FileSelectMapIconRomData.MissileLists, FileSelectMapIconRomData.Missile);
+        Simple(MapStationKind.Energy, FileSelectMapIconRomData.EnergyLists, FileSelectMapIconRomData.Energy);
+        Simple(MapStationKind.Map, FileSelectMapIconRomData.MapStationLists, FileSelectMapIconRomData.MapStation);
 
-        void Simple(int table, ushort id)
+        void Simple(MapStationKind kind, int table, ushort id)
         {
+            if (stations is not null)
+            {
+                foreach (var rule in MapStationDiscoveryRules.Get(area, kind))
+                    if (system.IsMapTileExplored(area, rule.CellX, rule.CellY))
+                    {
+                        var point = stations.Get(rule.Id);
+                        Draw(id, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
+                    }
+                return;
+            }
+            // Cartridge-fed diagnostic control; installed hosts bind presentation above.
             ushort list = Pointer(table);
             if (list == 0) return;
             for (int record = 0; ; record++)

@@ -435,3 +435,36 @@ Focused map-presentation checks, the full core verification suite and Windows
 Release build pass (`282-window-motion.log`, `282-window-motion-suite.log`,
 `282-window-motion-windows.log` in ignored test-temp). This removes only the
 transition-definition reads identified above; the broader #282 scope remains open.
+
+## Station drawing positions (catalog version 8)
+
+The fourteen missile-refill, energy-refill and map-station markers now import as
+`map-station-labels.json`. To edit their positions, copy the complete stock file
+to `overrides/maps/map-station-labels.json`. Keep `version: 1` and all marker IDs;
+each marker has `x` (0..511) and `y` (0..255) in area-map pixels. For example,
+set `markers["Brinstar.Missile.0"].x` to 80 to move that icon right. These are
+map coordinates, not screen coordinates; existing scrolling still applies.
+
+The original records mixed drawing positions with discovery checks. Compiled
+`MapStationDiscoveryRules` now own the original explored cells and marker order.
+Moving a label onto another explored cell does not discover the station, move
+the station in the world, change its refill behavior, or change save data.
+Icon artwork/palette bindings remain unchanged. This file covers the normal
+file-select room-map station icons, not boss, elevator, gunship or selected
+save-point placements, which remain outstanding placement work.
+
+Installed graphics use the selected layout without reading those ROM pointer or
+coordinate lists. An unbound cartridge-fed path remains the diagnostic parity
+control. Host content rebinding updates the nonserialized layout reference on
+the existing icon owner. Invalid overrides fail with file/context information;
+catalog v8 requires verified stock station content even when an override exists.
+
+Tests compare all 55 per-area discovery subsets with cartridge-fed OAM and check
+full-menu stock pixels, visible position edits, rebind restoration, unchanged
+exploration bytes, missing/corrupt stock, invalid overrides and preservation
+through stock replacement. The full installer fixture additionally preserves a
+station edit through cancelled upgrade, successful replacement and no-op restart,
+alongside synthetic INI/save/state/recording files. No player files are used.
+Focused and full core verification plus Windows Release build pass; local logs
+are `282-stations.log`, `282-stations-suite.log`, `282-stations-windows.log` and
+`282-stations-installation.log`. Android device validation is not claimed.

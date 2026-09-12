@@ -19,12 +19,18 @@ internal static partial class Program
         int oldRed = colors["pause"]![0]!["red"]!.GetValue<int>();
         colors["pause"]![0]!["red"] = (oldRed + 1) % 32;
         File.WriteAllText(paletteOverride, colors.ToJsonString());
+        string stationOverride = Path.Combine(installation.MapOverrideDirectory, MapStationLayoutFormat.FileName);
+        var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
+        stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
+        File.WriteAllText(stationOverride, stations.ToJsonString());
         var edited = installation.LoadMaps();
+        AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
         {
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
+            [stationOverride] = File.ReadAllBytes(stationOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),

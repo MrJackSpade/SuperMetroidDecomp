@@ -25,6 +25,7 @@ public sealed partial class FileSelectRoomMapGraphics
         ArgumentNullException.ThrowIfNull(system);
         this.bus = bus;
         icons = new FileSelectMapIcons(bus, system, area);
+        icons.BindStations(mapPresentation?.Stations);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
@@ -51,6 +52,7 @@ public sealed partial class FileSelectRoomMapGraphics
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
+        icons.BindStations(catalog?.Stations);
         if (catalog is not null)
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)

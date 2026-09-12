@@ -1324,3 +1324,29 @@ body/nail positions. This resolves the previously documented contour-limit
 uncertainty; it does not complete the other runtime dependency groups.
 
 Full Release Verification, complete Kraid audit and Windows Release build pass.
+
+## Samus jump, wall-jump and gravity definitions
+
+Compiled bank-$90 normal/Hi-Jump launch words ($9EB9/$9EBF and $9EC5/$9ECB),
+normal/Hi-Jump wall-launch words ($9ED1/$9ED7 and $9EDD/$9EE3), and gravity
+($9EA1/$9EA7). Dedicated mechanics catalog retains separate whole/fraction
+words and the pinned NTSC revision, not floating-point or PAL approximations.
+The native disassembly and pinned sm_90.c confirm NTSC air gravity $1C00.
+
+6,291,456 actual setup calls cover all 16-bit extra-run words, eight equipment
+combinations, dry/water/lava/disabled-water environments and the normal,
+wall-jump and explicit dry-air entry points. Expected values come directly
+from the pinned ROM. Every production bus read throws. Assertions cover both
+velocity words, both acceleration words, upward direction, Gravity Suit's
+medium override and fractional overflow without carry into the whole word.
+
+The full-suite aerial fixture had used PAL-like $2800 air gravity while claiming
+retail definitions. Corrected that fixture and its first-rise/release/fall
+expectations to the independently confirmed NTSC $1C00; this is not a change
+to stock NTSC gameplay. Other synthetic tests that explicitly seed live runtime
+acceleration remain free to do so. This migration does not claim PAL support,
+full trajectory parity or completion of the remaining Samus definition readers.
+
+Full Release Verification and Windows Release build pass. Knockback/damage-boost
+and Space Jump fixtures also now expect the native gravity refreshed by their
+shared setup calls rather than their formerly seeded $2800 ROM value.

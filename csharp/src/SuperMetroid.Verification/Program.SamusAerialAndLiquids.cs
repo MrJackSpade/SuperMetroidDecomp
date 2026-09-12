@@ -39,10 +39,10 @@ static void VerifySamusAerialMovement()
     bus.WriteBytes(0x91c120, [0x04, 0x02, 0xf8, 0x01]);
     bus.WriteBytes(0x91c130, [0x0a]);
 
-    // Dry-air physics constants come from the same bank-$90 words used by production.
+    // Reference words use the pinned NTSC revision; production now compiles these definitions.
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea1, 0x1c00);
     WriteTestWord(bus, 0x909ea7, 0x0000);
 
     // Type two reads normal-air base $9F55 + 2*12 = $9F6D. With no direction input the
@@ -84,24 +84,24 @@ static void VerifySamusAerialMovement()
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "FD installs neutral jump pose");
     AssertEqual(0x4d, samus.Pose, "FD target pose");
 
-    // The first real airborne frame moves by OLD 4.E000, then stores 4.B800 after gravity.
+    // The first real airborne frame moves by OLD 4.E000, then stores 4.C400 after gravity.
     AerialMovementResult firstRise = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 1);
     AssertTrue(firstRise.Vertical is { Collided: false }, "first rise remains in air");
     AssertEqual(72, samus.YPosition, "first rise old-speed whole displacement");
     AssertEqual(0x2000, samus.Kinematics.YSubposition, "first rise old-speed fraction");
     AssertEqual(0x0004, samus.Kinematics.YSpeed, "first rise stored whole speed");
-    AssertEqual(0xb800, samus.Kinematics.YSubspeed, "first rise subtracts gravity afterward");
+    AssertEqual(0xc400, samus.Kinematics.YSubspeed, "first rise subtracts gravity afterward");
 
     // Releasing jump cuts velocity before the common routine copies it. The frame has no
-    // displacement, changes direction to down, and only primes 0.2800 for the next frame.
+    // displacement, changes direction to down, and only primes 0.1C00 for the next frame.
     ushort releaseY = samus.YPosition;
     ushort releaseSubY = samus.Kinematics.YSubposition;
     SamusAerialMovement.StepNormalJump(bus, level, samus, controllerInput: 0, nmiFrameCounter: 2);
     AssertEqual(2, samus.Kinematics.YDirection, "jump release starts falling");
     AssertEqual(releaseY, samus.YPosition, "jump release stationary whole Y frame");
     AssertEqual(releaseSubY, samus.Kinematics.YSubposition, "jump release stationary fractional Y frame");
-    AssertEqual(0x2800, samus.Kinematics.YSubspeed, "jump release primes falling gravity");
+    AssertEqual(0x1c00, samus.Kinematics.YSubspeed, "jump release primes falling gravity");
 
     // Continue the native recurrence until the solid floor clips a downward displacement.
     // This is bounded well above the roughly 50 frames needed by the synthetic room.
@@ -275,7 +275,7 @@ static void VerifySamusAerialMovement()
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
         bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(0, firstFall.Vertical!.Value.AcceptedDisplacement, "walk-off starts with stationary fall frame");
-    AssertEqual(0x2800, fallLeft.Kinematics.YSubspeed, "first fall frame primes gravity");
+    AssertEqual(0x1c00, fallLeft.Kinematics.YSubspeed, "first fall frame primes gravity");
     AerialMovementResult fallResult = default;
     StepUntil(
         () => fallResult.Landed,
@@ -687,7 +687,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     };
 
     // `$0280` is inclusive. A fresh edge restarts at 4.E000, moves upward by that OLD
-    // magnitude, then stores 4.B800 after the shared spin routine subtracts gravity.
+    // magnitude, then stores 4.C400 after jump setup refreshes native NTSC gravity.
     SamusState minimum = CreateFallingSpin(
         SamusPoseIds.SpaceJumpRightPose, 0x0200, speed: 2, subspeed: 0x8000);
     SamusAerialMovement.StepSpinJump(
@@ -699,7 +699,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         controllerNewInput: (ushort)SnesButton.A);
     AssertEqual(1, minimum.Kinematics.YDirection, "Space Jump minimum velocity restarts upward");
     AssertEqual(4, minimum.Kinematics.YSpeed, "Space Jump restart whole speed");
-    AssertEqual(0xb800, minimum.Kinematics.YSubspeed, "Space Jump restart applies gravity after movement");
+    AssertEqual(0xc400, minimum.Kinematics.YSubspeed, "Space Jump restart applies refreshed native gravity after movement");
     AssertEqual(123, minimum.YPosition, "Space Jump restart moves by old 4.E000 magnitude");
 
     SamusState below = CreateFallingSpin(

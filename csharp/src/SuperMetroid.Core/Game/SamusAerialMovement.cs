@@ -18,8 +18,6 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class SamusAerialMovement
 {
-    // `$90:9C21` selects one standalone 12-byte record for the movement handler installed
-    // when Samus releases a grapple swing. These are not movement-type-indexed table bases.
     /// <summary>
     /// Ports the dry-air, no-hi-jump path through
     /// <c>Make_Samus_Jump</c> at <c>$90:98BC</c> and the normal-air branch of
@@ -30,12 +28,8 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        // Table offset zero is the dry-air entry. Reading the user's ROM, rather than
-        // embedding 4.E000 and 0.2800, keeps regional timing and ROM provenance visible.
-        samus.Kinematics.YSpeed = ReadWord(bus, SamusMovementRomData.VerticalMotion.NormalJumpSpeeds);
-        samus.Kinematics.YSubspeed = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.NormalJumpSubspeeds);
+        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            SamusVerticalMotionDefinitions.Launch(SamusLiquidPhysicsState.Air, highJump: false, wallJump: false);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureDryAirGravity(bus, samus);
         samus.Kinematics.YDirection = 1;
@@ -52,19 +46,11 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(samus);
 
         ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        int tableOffset = medium * 2;
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        int wholeTable = hiJumpEquipped
-            ? SamusMovementRomData.VerticalMotion.HiJumpSpeeds
-            : SamusMovementRomData.VerticalMotion.NormalJumpSpeeds;
-        int fractionalTable = hiJumpEquipped
-            ? SamusMovementRomData.VerticalMotion.HiJumpSubspeeds
-            : SamusMovementRomData.VerticalMotion.NormalJumpSubspeeds;
-
-        // The two words are loaded independently from ROM. Speed Booster's fractional
+        // The two words remain independent. Speed Booster's fractional
         // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
-        samus.Kinematics.YSpeed = ReadWord(bus, wholeTable + tableOffset);
-        samus.Kinematics.YSubspeed = ReadWord(bus, fractionalTable + tableOffset);
+        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: false);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(bus, samus);
         samus.Kinematics.YDirection = 1;
@@ -80,17 +66,9 @@ public static class SamusAerialMovement
         ArgumentNullException.ThrowIfNull(samus);
 
         ushort medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
-        int tableOffset = medium * 2;
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
-        int wholeTable = hiJumpEquipped
-            ? SamusMovementRomData.VerticalMotion.HiWallJumpSpeeds
-            : SamusMovementRomData.VerticalMotion.WallJumpSpeeds;
-        int fractionalTable = hiJumpEquipped
-            ? SamusMovementRomData.VerticalMotion.HiWallJumpSubspeeds
-            : SamusMovementRomData.VerticalMotion.WallJumpSubspeeds;
-
-        samus.Kinematics.YSpeed = ReadWord(bus, wholeTable + tableOffset);
-        samus.Kinematics.YSubspeed = ReadWord(bus, fractionalTable + tableOffset);
+        (samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed) =
+            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(bus, samus);
         samus.Kinematics.YDirection = 1;
@@ -123,12 +101,8 @@ public static class SamusAerialMovement
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        samus.Kinematics.YSubacceleration = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.GravitySubaccelerations);
-        samus.Kinematics.YAcceleration = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.GravityAccelerations);
+        (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
+            SamusVerticalMotionDefinitions.Gravity(SamusLiquidPhysicsState.Air);
     }
 
     /// <summary>
@@ -139,13 +113,8 @@ public static class SamusAerialMovement
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        int tableOffset = samus.LiquidPhysics.DetermineMovementMedium(samus) * 2;
-        samus.Kinematics.YSubacceleration = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.GravitySubaccelerations + tableOffset);
-        samus.Kinematics.YAcceleration = ReadWord(
-            bus,
-            SamusMovementRomData.VerticalMotion.GravityAccelerations + tableOffset);
+        (samus.Kinematics.YAcceleration, samus.Kinematics.YSubacceleration) =
+            SamusVerticalMotionDefinitions.Gravity(samus.LiquidPhysics.DetermineMovementMedium(samus));
     }
 
     /// <summary>
@@ -974,9 +943,6 @@ public static class SamusAerialMovement
     }
 
     private static uint Compose(ushort high, ushort low) => ((uint)high << 16) | low;
-
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }
 
 /// <summary>Both collision scans and collision state produced by one aerial frame.</summary>

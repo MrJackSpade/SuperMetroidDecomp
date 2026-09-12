@@ -91,6 +91,13 @@ substituting a catalog; do not assume every table is a smooth formula.
 
 ## Additional inventory still required
 
+Samus ordinary/Hi-Jump and wall-jump launch pairs plus air/water/lava gravity
+are now compiled in `SamusVerticalMotionDefinitions`. Their production setup
+calls reject all ROM access in the regression. This does not migrate bomb-jump,
+knockback, falling-transition or horizontal-speed definitions, nor Grapple's
+remaining launch/connection/pose selectors. The source audit explicitly found
+those readers outside the enemy-table catalog scan.
+
 - `EnemyRomTablePointers` consumers: boss jumps, projectile launch/angle records,
   death trajectories and other indirect family definitions.
 - Samus movement, bomb-spread, combo and grapple definition readers. Coordinate

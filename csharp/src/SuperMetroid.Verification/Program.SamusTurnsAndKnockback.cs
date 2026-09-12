@@ -467,14 +467,14 @@ static void VerifySamusKnockbackAndDamageBoost()
 
     // `$90:99D6` selects dry-air knockback magnitude 5.0000. Normal jump's independent
     // value is 4.E000, but damage boost must preserve the existing hurt velocity.
-    // Both use the same 0.2800 gravity record in this no-water/no-lava fixture.
+    // Both use the compiled NTSC 0.1C00 gravity in this no-water/no-lava fixture.
     // `$90:99D6` is the selector's code address, while the named arrays themselves live at
     // `$90:9EE9/$9EEF`. Their non-adjacent placement is explicit in the symbol map.
     WriteTestWord(bus, 0x909ee9, 0x0005);
     WriteTestWord(bus, 0x909eef, 0x0000);
     WriteTestWord(bus, 0x909eb9, 0x0004);
     WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea1, 0x1c00);
     WriteTestWord(bus, 0x909ea7, 0x0000);
 
     // Knockback's type-$0A normal-air record begins at `$90:9FCD`. A small 0.4000
@@ -586,7 +586,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         "knockback moves by old 5.0000 vertical speed");
     AssertEqual(91, samus.YPosition, "knockback upward whole position");
     AssertEqual(4, samus.Kinematics.YSpeed, "knockback gravity next whole speed");
-    AssertEqual(0xd800, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
+    AssertEqual(0xe400, samus.Kinematics.YSubspeed, "knockback gravity next subspeed");
 
     // Held forward selects down-right direction four. Place the radius-21 body flush with a
     // square floor so `$90:923F`'s no-speed down probe collides immediately. The special
@@ -635,7 +635,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertEqual(2, samus.KnockbackDirection, "damage boost preserves knockback direction");
     AssertEqual(4, samus.KnockbackTimer, "damage boost preserves hurt timer");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost retains whole speed");
-    AssertEqual(0xd800, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
+    AssertEqual(0xe400, samus.Kinematics.YSubspeed, "damage boost retains subspeed");
 
     // A direct initializer only preserves supplied velocity. Expiry priority is tested
     // by the full-runtime/native sweep, not by bypassing that dispatcher here.
@@ -662,10 +662,10 @@ static void VerifySamusKnockbackAndDamageBoost()
         samus,
         (ushort)SnesButton.A,
         nmiFrameCounter: 1);
-    AssertEqual(unchecked((int)0xfffb2800), boostFrame.Vertical!.Value.AcceptedDisplacement,
+    AssertEqual(unchecked((int)0xfffb1c00), boostFrame.Vertical!.Value.AcceptedDisplacement,
         "damage boost reuses ordinary old-speed jumping movement");
     AssertEqual(4, samus.Kinematics.YSpeed, "damage boost gravity next whole speed");
-    AssertEqual(0xb000, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
+    AssertEqual(0xc800, samus.Kinematics.YSubspeed, "damage boost gravity next subspeed");
 
     // Jump alone (`$0080`) exits right-facing `$50` to neutral-jump `$4D`. This is an ordinary pose
     // change inside movement type two, so the already-live 16.16 trajectory must survive.

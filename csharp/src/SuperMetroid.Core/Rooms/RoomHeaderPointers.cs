@@ -18,6 +18,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_Draygon at $8F:DA60; the four-record Maridia boss encounter.</summary>
     public const ushort Draygon = 0xda60;
 
+    /// <summary>RoomHeader_Phantoon at $8F:CD13; the Wrecked Ship boss encounter.</summary>
+    public const ushort Phantoon = 0xcd13;
+
     /// <summary>RoomHeader_Hellway at $8F:A2F7, Brinstar room $23.</summary>
     public const ushort Hellway = 0xa2f7;
 

@@ -132,6 +132,10 @@ if (args.Length == 3 && args[0] == "--wave-patterns-audit")
     return ComboMotionAudit.Run(args[1], args[2], SamusBeamFlags.Wave, wavePatterns: true);
 if (args.Length == 2 && args[0] == "--phantoon-plasma-audit")
     return PhantoonPlasmaAudit.Run(args[1]);
+if (args.Length is 4 or 5 && args[0] == "--phantoon-fired-plasma-search")
+    return PhantoonFiredPlasmaAudit.Run(args[1], int.Parse(args[2]), int.Parse(args[3]), args.Length == 5 ? ushort.Parse(args[4]) : (ushort)128);
+if (args.Length == 2 && args[0] == "--phantoon-fired-plasma-audit")
+    return PhantoonFiredPlasmaAudit.RunControls(args[1]);
 if (args.Length == 2 && args[0] == "--phantoon-plasma-release")
     return PhantoonPlasmaAudit.RunRelease(args[1]);
 if (args.Length == 2 && args[0] == "--draygon-plasma-release")

@@ -9,6 +9,39 @@ needs the complete normal-firing/X-ray controller encounter comparison,
 including its primer. The chronological sections below retain earlier
 limitations; later evidence supersedes only the explicitly covered cases.
 
+## Phantoon normal-input primer and retained shot (managed encounter)
+
+`--phantoon-fired-plasma-audit ROM` now runs two deterministic 1,920-frame
+production-runtime encounters, each preceded by two HUD-selection frames.
+Room `$8F:CD13` is loaded normally, with real flames, damage and knockback.
+Initial equipment is Varia, X-ray, Charge and Plasma, with 999 energy and ten
+missiles. No cheats are enabled. After setup, the fixture writes only controller
+inputs: no boss phase, position, hitbox, projectile, or freeze-state injection.
+
+The fixture walks left on frames 1460–1479 and holds Jump on 1505–1524.
+It fires a missile on 1517, cancels missile selection on 1518, charges on
+1530–1619 and releases on 1620. Item Select on 1621 and 1623 selects X-ray;
+the positive case then holds Run for 60 frames and releases for four repeatedly.
+The control uses the same inputs except for those Run holds.
+
+Both cases assert the 100-damage primer on 1517 and exactly one charged Plasma
+spawn. With X-ray, that shot deals 450 on 1620, 1687 and 1751 (remaining boss
+health 1050). Without X-ray it deals 450 only on 1620 (remaining health 1950).
+Every frozen frame with the retained shot asserts its whole and subpixel
+position, continued existence, and unchanged boss health, including activation.
+
+This is managed encounter evidence, **not** a full native parity result. The
+same sequence still needs original-CPU comparison before completing #402.
+`--phantoon-fired-plasma-search ROM PRIMER RELEASE [START_X]` retains the
+bounded search interface without asserting those fixed expected hit frames.
+
+Earlier unsuccessful primer attempts do not justify a gameplay change: a Jump
+edge on the landing transition was not accepted, and moving the shot earlier
+or later missed the short eye opening. Delaying Item Cancel did not change
+the immediately deleted missile. The successful ordinary-input sequence above
+replaces those unsuccessful setup attempts; no production behavior was patched
+to make it succeed.
+
 ## Reproduced shared dispatcher defect
 
 The focused `--x-plasma-timers` Verification fixture loads an ordinary Ripper

@@ -1192,7 +1192,7 @@ if (args.Length >= 2 && args[0] == "--pipe-bug-audit")
 if (args.Length >= 2 && args[0] == "--botwoon-x-plasma-controls")
     return BotwoonAudit.RunXPlasmaControls(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-x-plasma-fired")
-    return BotwoonAudit.RunFiredXPlasma(string.Join(' ', args[1..]).Trim('"'));
+    return BotwoonAudit.RunFiredXPlasma(args[1], args.Length > 2 ? args[2] : null);
 if (args.Length >= 2 && args[0] == "--botwoon-hyper-audit")
     return BotwoonAudit.RunHyper(string.Join(' ', args[1..]).Trim('"'));
 if (args.Length >= 2 && args[0] == "--botwoon-x-plasma")

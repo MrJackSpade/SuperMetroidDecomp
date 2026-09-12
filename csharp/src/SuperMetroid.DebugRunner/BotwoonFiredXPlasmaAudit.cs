@@ -9,10 +9,14 @@ internal static partial class BotwoonAudit
     /// Fixed room-local normal-input traces: a charged Plasma projectile fired on
     /// release 304 repeats, while release 296 travels beyond the head after one hit.
     /// No projectile, enemy, or freeze state is injected after the initial room setup.
-    /// These port regressions still require matching original-CPU encounter traces.
+    /// Optional native CSV compares the original-CPU encounter at every gameplay frame.
     /// </summary>
-    public static int RunFiredXPlasma(string romPath)
+    public static int RunFiredXPlasma(string romPath, string? nativeTracePath = null)
     {
+        var nativeRows = nativeTracePath is null ? null : File.ReadAllLines(nativeTracePath).Skip(1)
+            .Select(line => line.Split(',').Select(int.Parse).ToArray())
+            .Where(row => row[1] >= 0).ToDictionary(row => (row[0], row[1]));
+        int compared = 0;
         foreach (int shootAt in new[] { 296, 304 })
         {
             var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -35,6 +39,7 @@ internal static partial class BotwoonAudit
             if (samus.SelectedHudItem != SamusXrayRomData.SelectedHudItem)
                 throw new InvalidDataException("The real input sequence did not select X-ray.");
             var head = runtime.Enemies.Slots[0];
+            Console.WriteLine($"Botwoon fixture: liquid={samus.LiquidPhysics.FxType}, surface={samus.LiquidPhysics.FxYPosition}, camera={runtime.Camera!.XPosition},{runtime.Camera.YPosition}.");
             int firstHit = -1, hits = 0;
             int chargedSlot = -1, chargedSpawns = 0;
             var hitFrames = new List<int>();
@@ -49,6 +54,19 @@ internal static partial class BotwoonAudit
                 var shotBefore = tracked is null ? default :
                     (tracked.XPosition, tracked.XSubposition, tracked.YPosition, tracked.YSubposition);
                 runtime.StepFrame(input);
+                if (nativeRows is not null)
+                {
+                    var native = nativeRows[(shootAt, frame)];
+                    var projectile = runtime.Projectiles.Slots[0];
+                    int[] actual = [shootAt, frame, input, runtime.TimeIsFrozen ? 1 : 0,
+                        head.Health, head.InvincibilityTimer, head.FlashTimer, head.SpritemapPointer,
+                        head.XPosition, head.YPosition, samus.XPosition, samus.YPosition,
+                        samus.Pose, samus.SelectedHudItem, projectile.Type,
+                        projectile.XPosition, projectile.YPosition];
+                    if (!actual.SequenceEqual(native))
+                        throw new InvalidDataException($"Native fired Botwoon mismatch: port={string.Join(',', actual)}; native={string.Join(',', native)}.");
+                    compared++;
+                }
                 // Scope admission happens partway through the frame. Projectile
                 // movement must stop on that admission frame too, even though
                 // enemy AI may already have run before the freeze was requested.
@@ -86,6 +104,9 @@ internal static partial class BotwoonAudit
                 throw new InvalidDataException($"Normal firing trace differs: release={shootAt}, spawns={chargedSpawns}, hits=[{string.Join(',', hitFrames)}].");
             Console.WriteLine($"shoot={shootAt}: hits={hits}, playerHealth={samus.Health}");
         }
+        if (nativeRows is not null && compared != nativeRows.Count)
+            throw new InvalidDataException($"Compared {compared} of {nativeRows.Count} Botwoon records.");
+        Console.WriteLine($"Original-CPU Botwoon records compared: {compared}.");
         return 0;
     }
 }

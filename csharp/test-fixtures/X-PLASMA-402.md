@@ -391,3 +391,39 @@ in Release: one hit versus five hits at the documented frames, with player
 health unchanged. This strengthens coverage of the already-fixed shared
 activation ordering; it is not a new gameplay fix or a substitute for the
 remaining full native Botwoon trajectory comparison.
+
+### Full native Botwoon charged-Plasma controller comparison
+
+`native-botwoon-fired-probe.h` runs the original game-state-eight dispatcher,
+HDMA, and frame RNG using the same two charged-shot input sequences. It loads
+the retail Botwoon room, level/scroll/CRE, enemy population, and FX header.
+Initial Samus is (192,187), pose 1, camera (96,21), X-ray and Charge/Plasma,
+999 energy, zero ammo, and no gameplay cheats. Four setup input frames are
+neutral, Left, neutral, ItemSelect. No hit or freeze state is injected.
+
+All **1,200 gameplay records** match: input, freeze, boss HP/invincibility/flash,
+spritemap and XY, Samus XY/pose/HUD selection, and projectile slot-zero type/XY.
+Release 296 hits once at 318; release 304 hits at 318/382/446/510/574. Each hit
+deals 450. These are full controller trajectories, superseding the earlier
+missing native charged-Plasma comparison. Hyper trajectories remain outstanding.
+
+Regenerate using `movement-release/native-botwoon-fired-entrypoint.patch` and
+`sm.exe --diagnostic-botwoon-fired "Super Metroid.smc" NEW.csv`, then compare:
+`SuperMetroid.DebugRunner --botwoon-x-plasma-fired "Super Metroid.smc" NEW.csv`.
+Two final native captures agree, SHA-256
+`A3C781AFF7813230C75C63AFAE4BC68F6238562738288875FDD481503ED028A8`.
+The numeric CSV, including the eight setup rows, is preserved in
+`movement-release/botwoon-fired-402.zip`; no ROM or visual assets are included.
+
+Harness limitations: original $91:CD42 decrements the left-edge block index
+without checking zero, unlike the translated upstream helper. At camera (0,0),
+the original $91:CDD6 BTS read reaches $80:6401/2. The upstream diagnostic mapper
+aborts on this unmapped read. The entrypoint patch allows the emulator's existing
+open-bus return for those two addresses only, only in this headless diagnostic,
+and reports it to stderr. All other invalid reads still fail. This does not
+patch cartridge instructions or port gameplay. X-ray tilemap visuals and exact
+hardware open-bus timing are not asserted by this combat comparison.
+
+Earlier captures used a dry native room or the requested screen Y as world Y;
+they are rejected as evidence. The final probe loads the actual water FX and
+the grounded world position. Temporary upstream hooks were removed afterward.

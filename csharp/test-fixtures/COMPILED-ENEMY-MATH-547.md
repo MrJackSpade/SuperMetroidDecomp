@@ -588,3 +588,20 @@ position, frozen-time rejection and single later movement admission. No contact
 production code changed. The full encounter passes three retail actors, both
 directions, wake/rise/launch/reset, four active speed stages, six maps and OBJ
 drawing. Full Release Verification and Windows Release build also pass.
+
+## Growing-shutter initialization
+
+GrowingShutterDefinitions replaces the four initial function pointers at $A2:EA4E
+and 24 split whole/fraction speed records at $A2:EA56. The speed selector still
+ignores parameter two's high byte. All 52 native words and 24,576 actual
+initializations compare without a bus, including four dispatch selectors,
+every ignored high-byte value and both directions' wrapped section origins.
+The initial direction word is still cleared after origin calculation. Speeds
+outside the 24 authored records now fail explicitly rather than reading adjacent
+code; arbitrary modified populations using those values are not supported.
+
+Full Release Verification, complete shutter audit and Windows Release build pass.
+The encounter audit covers all 33 named retail records, all four constructed
+growing selectors, 40-pixel/four-map growth, vertical and horizontal variants,
+rider carry, triggers, combat callbacks, sound gates and live OBJ. This remains
+partial progress toward #547, not completion of the broader asset integration.

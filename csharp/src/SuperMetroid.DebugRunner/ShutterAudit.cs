@@ -363,8 +363,8 @@ internal static class ShutterAudit
     /// The retail rooms happen to use only the downward proximity selector. Construct one
     /// actor for each of the four legal selector values so the two timer paths and both
     /// growth directions cannot silently regress behind otherwise-complete retail coverage.
-    /// Definition data, function pointers, speeds, instructions, and graphics still come
-    /// directly from the supplied cartridge.
+    /// The compiled dispatch/speed definitions are checked against the supplied cartridge;
+    /// actor headers, instructions and graphics still load through the retail fixture.
     /// </summary>
     private static void VerifyEveryGrowingDispatcherSelector(
         ISnesAddressSpace retailBus,

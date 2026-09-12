@@ -9,8 +9,6 @@ public sealed partial class RoomEnemySystem
     private const ushort GrowingShutterFortyPixelInstruction = 0xe9aa;
     private const ushort GrowingShutterSectionLength = 0x0010;
     private const ushort GrowingShutterIntermediateInset = 0x0007;
-    private const int GrowingShutterInitialFunctionTable = 0xa2ea4e;
-    private const int GrowingShutterSpeedTable = 0xa2ea56;
 
     /// <summary>Ports <c>GrowingShutter_Init</c> at $A2:E9DA.</summary>
     private void InitializeGrowingShutter(RoomEnemySlot slot)
@@ -19,26 +17,10 @@ public sealed partial class RoomEnemySystem
         _growingShutterStates[slot.SlotIndex] = state;
 
         // The initializer consumes init0 and the low extra-property word as a two-bit table
-        // selector before clearing the latter. Read Nintendo's actual function-pointer table:
-        // its ordering is deliberately independent of the origin direction encoded below.
+        // selector before clearing the latter. Keep native dispatch ordering independent
+        // of the origin direction encoded below.
         int initialFunctionIndex = slot.ExtraProperties * 2 + slot.CurrentInstruction;
-        if ((uint)initialFunctionIndex >= 4)
-        {
-            throw new InvalidDataException(
-                $"Growing shutter initial selector {initialFunctionIndex} exceeds its four-entry ROM table.");
-        }
-        state.Function = (GrowingShutterFunction)ReadWord(
-            _bus!,
-            GrowingShutterInitialFunctionTable + initialFunctionIndex * 2);
-        if (state.Function is not GrowingShutterFunction.WaitToGrowUpForTimer and
-            not GrowingShutterFunction.WaitToGrowUpForProximity and
-            not GrowingShutterFunction.WaitToGrowDownForProximity and
-            not GrowingShutterFunction.WaitToGrowDownForTimer)
-        {
-            throw new InvalidDataException(
-                $"Growing shutter selector {initialFunctionIndex} resolved to invalid " +
-                $"bank-$A2 function ${(ushort)state.Function:X4}.");
-        }
+        state.Function = GrowingShutterDefinitions.InitialFunction(initialFunctionIndex);
 
         bool growsUp = slot.ExtraProperties != 0;
         state.GrowthLevel0OriginY = slot.YPosition;
@@ -47,12 +29,7 @@ public sealed partial class RoomEnemySystem
         state.GrowthLevel3OriginY = unchecked((ushort)(slot.YPosition + (growsUp ? -24 : 24)));
         state.GrowthLevel = 0;
 
-        // Parameter 2's low byte indexes four-byte 16.16 records at $A2:EA56. Keeping this
-        // as a cartridge read preserves every table entry and any revision-specific data.
-        ushort speedIndex = unchecked((byte)slot.Parameter2);
-        int speedAddress = GrowingShutterSpeedTable + speedIndex * 4;
-        state.GrowthVelocity = unchecked((short)ReadWord(_bus!, speedAddress));
-        state.GrowthSubvelocity = ReadWord(_bus!, speedAddress + 2);
+        (state.GrowthVelocity, state.GrowthSubvelocity) = GrowingShutterDefinitions.Speed(slot.Parameter2);
 
         slot.ExtraProperties = 0;
         InstallGrowingShutterInstruction(slot, GrowingShutterTenPixelInstruction, yRadius: 8);

@@ -138,3 +138,34 @@ Compare using `--hero-shot-runtime TRACE.csv`; no-argument runtime mode, default
 suite and projectile batch use the accepted trace. All temporary native hooks
 were removed after collection. The remaining #411 scope is a representative
 retail enemy/door/block interaction, not the already-compared generic corridor.
+
+## Retail Red Tower block: controlled-camera integration
+
+`--red-tower-hero` now runs a paired target check, also in the default suite and
+`--samus-projectiles`. Room $8F:A253 is loaded with its original terrain, enemy
+population and PLMs unchanged. Samus starts at (116,587), standing aiming up,
+ordinary uncharged Power Beam, no equipment or host cheats. Both branches run
+120 Up-only frames with camera (0,160) selected before each frame, then 120
+Up-only frames after setting camera (0,450). This deliberately activates upper
+Rippers before settling the launch viewport; it is fixture setup, not a route.
+
+Both branches then press Up+Shoot only on frame zero and hold Up thereafter.
+The control makes no further camera writes and deletes its shot on frame 36,
+leaving block (7,10) intact. The following branch sets camera Y to the previous
+shot Y minus 160 (clamped at zero) before each later frame. It impacts at world
+(118,174) on frame 64 and the actual PLM changes the target from ShootableBlock
+to Air. Assertions cover identical launch snapshots, exact impact coordinates,
+frame, target collision change and unchanged Samus health. No production fix
+was needed for this target interaction.
+
+Early exploratory standing Hi-Jump/controller sequences did not reach the
+target. Several were interrupted by Rippers. Without upper activation, later
+shots also consistently struck an initially offscreen Ripper at Y=317. Those
+attempts do not establish a movement regression or a valid player route.
+The [Red Tower guide](https://wiki.supermetroid.run/Red_Tower) mentions following
+a shot with Hi-Jump, but does not specify this fixture's starting position.
+
+This controlled-camera retail check complements the original-cartridge
+projectile/window and full corridor movement comparisons above. It does NOT
+execute the retail Red Tower target path in the original cartridge and does NOT
+prove a controller-only climb. #411 remains open for that remaining evidence.

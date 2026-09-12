@@ -3,6 +3,9 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named 16-bit room-header pointers within cartridge bank $8F.</summary>
 public static class RoomHeaderPointers
 {
+    /// <summary>RoomHeader_RedTower at $8F:A253, Brinstar room $20.</summary>
+    public const ushort RedTower = 0xa253;
+
     /// <summary>RoomHeader_Botwoon at $8F:D95E; both room states share the grey-door population.</summary>
     public const ushort Botwoon = 0xd95e;
 

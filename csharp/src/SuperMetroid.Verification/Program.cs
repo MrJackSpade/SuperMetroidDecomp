@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--red-tower-hero"])
+{
+    VerifyControlledRedTowerHeroShot();
+    return 0;
+}
 if (args is ["--hero-shot-runtime"])
 {
     VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
@@ -68,6 +73,7 @@ if (args is ["--samus-projectiles"])
     VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
     VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
     VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
+    VerifyControlledRedTowerHeroShot();
     return 0;
 }
 if (args is ["--botwoon-plm-identity"])
@@ -784,6 +790,7 @@ VerifyProjectileCooldowns();
 VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv");
 VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv");
+VerifyControlledRedTowerHeroShot();
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();

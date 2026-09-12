@@ -105,3 +105,24 @@ hit frames and projectile positions. The focused regression runs in the default
 verification suite. This is a scoped fix, not completion of #403: moving
 rising/spinning/falling setups and the remaining orientation/weapon controls
 still need their own cartridge comparisons.
+
+## Moving setup located (managed evidence, not yet native expectation)
+
+`DebugRunner --gate-glitch-jump-audit ROM SHOOT_FRAME` now drives the whole
+production runtime from Kronic Boost X=140, Y=379, no equipped items/beams,
+ten missiles, missile selected. Sixty neutral settling frames establish the
+authored floor and standing-left pose. Frame zero begins held Jump+Left+AimUp
+(`$0290`); Shoot is pressed only on the requested frame. The trace includes
+inputs, position/subpixels, pose, gate timer, and gate instruction pointer.
+
+Sweeping firing frames 0 through 20 finds one activation: frame 8. Frames 7
+and 9 are adjacent failures. At frame 8 Samus is X=133,Y=355, pose `$6A`;
+the gate timer becomes 1 and its instruction changes from `$BC44` to `$BC51`.
+The opening sequence progresses to `$BC5D` at frame 56 and Samus crosses the
+gate afterward. This distinguishes switch activation from physical crossing.
+
+An earlier trial began at Y=363 without enough settling; it was still falling
+when Jump was pressed and is explicitly rejected as a jump reproduction.
+The corrected setup has been rerun for frames 7,8,9. These results locate a
+deterministic success and adjacent failures for the next original-CPU comparison;
+they are not yet assertions of cartridge timing parity.

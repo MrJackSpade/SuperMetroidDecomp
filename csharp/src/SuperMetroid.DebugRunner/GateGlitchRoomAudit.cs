@@ -7,6 +7,37 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Measures stationary launch windows without confusing gate crossing with switch activation.</summary>
 internal static class GateGlitchRoomAudit
 {
+    public static int RunJump(string rom, int shootFrame)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var runtime = new SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
+        var samus = runtime.Samus!;
+        samus.InputLocked = false;
+        samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
+        samus.XPosition = 140;
+        samus.YPosition = 379;
+        samus.EquippedItems = samus.EquippedBeams = 0;
+        samus.SelectedHudItem = 1;
+        samus.Missiles = samus.MaxMissiles = 10;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        runtime.Camera!.SetPosition(0, 224);
+        Console.WriteLine("frame,input,x,subx,y,pose,gateTimer,gateInstruction");
+        for (int frame = -60; frame < 80; frame++)
+        {
+            ushort input = frame < 0 ? (ushort)0 : (ushort)(SnesButton.A | SnesButton.Left | SnesButton.R);
+            if (frame == shootFrame) input |= (ushort)SnesButton.X;
+            runtime.StepFrame(input);
+            var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == RoomPlmHeaders.DownwardGate);
+            Console.WriteLine($"{frame},{input:X4},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}");
+        }
+        return 0;
+    }
+
     public static int Run(string rom)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);

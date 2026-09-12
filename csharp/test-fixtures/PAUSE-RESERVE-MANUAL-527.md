@@ -228,3 +228,19 @@ HUD presentation. No production change was needed for these properties. The
 and manual frontend HUD regression were rerun successfully. Full-game native
 playback and audible output are not established by this added coverage; #527
 remains open, without claiming a missing whole-body refill animation.
+
+## Automatic recovery admission through gameplay
+
+The frontend test now starts in ordinary gameplay at zero health with reserves,
+rather than calling the recovery owner directly. The completed gameplay frame
+must select automatic recovery before Start can admit pause, retain zero health
+and the complete reserve supply until the next frame, publish both recovery locks,
+and retain a gameplay render packet. Subsequent checks still exercise the first
+transfer, frozen intermediate frame, same-frame completion unfreeze, and all 33
+displayed health frames. Capture sequence IDs now advance monotonically.
+
+This additional entry coverage passes without a production change. The existing
+original-CPU trace still matches all 402 transfer/HUD/sound-request frames and 181
+rendered manual-tank frames. Logs: `csharp/test-temp/527-entry.log` and
+`csharp/test-temp/527-native-current.log`. This does not add audible PCM or full
+native gameplay-loop presentation evidence; those claims remain unproven.

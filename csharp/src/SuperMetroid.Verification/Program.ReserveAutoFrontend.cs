@@ -29,18 +29,29 @@ internal static partial class Program
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         var recovery = (SamusReserveAutoRecoveryState)typeof(SuperMetroidGame)
             .GetField("reserveRecovery", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
-        recovery.Begin(samus);
-        runtime.GameplayTimeFrozen = true;
-        runtime.BombProjectiles.SetSharedCooldown(10);
+        // Enter through actual state-eight routing, not by calling recovery.Begin:
+        // the zero-health gameplay frame must publish recovery without consuming
+        // the first reserve point early or letting Start replace it with pause.
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
-            .SetValue(game, SuperMetroidGameState.ReserveTanksAuto);
-        game.StepCaptured(0, 1, 1);
+            .SetValue(game, SuperMetroidGameState.MainGameplay);
+        long hostSequence = 0;
+        var entry = game.StepCaptured((ushort)SnesButton.Start, ++hostSequence, 1);
+        AssertEqual(SuperMetroidGameState.ReserveTanksAuto, game.GameState,
+            "zero-health gameplay routes to automatic reserves before pause admission");
+        AssertEqual(0, samus.Health, "entry frame does not transfer reserve energy early");
+        AssertEqual(2, samus.ReserveEnergy, "entry frame retains the full reserve supply");
+        AssertTrue(runtime.TimeIsFrozen && samus.InputLocked,
+            "entry publishes both recovery locks for the next frame");
+        AssertTrue(entry.Snapshot is not null,
+            "entry preserves the completed gameplay presentation instead of a blank frame");
+        runtime.BombProjectiles.SetSharedCooldown(10);
+        game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(1, samus.Health, "automatic refill first frame");
         AssertTrue(samus.HealthWarning.IsActive, "native external health check starts warning during frozen refill");
         AssertTrue(runtime.TimeIsFrozen && samus.InputLocked, "nonfinal refill keeps native freeze and input lock");
         AssertTrue(runtime.LastGroundedSamusMovement is null, "nonfinal refill does not execute grounded movement");
         AssertEqual(10, runtime.BombProjectiles.CooldownTimer, "nonfinal refill freezes shared projectile clock");
-        game.StepCaptured((ushort)SnesButton.Right, 2, 1);
+        game.StepCaptured((ushort)SnesButton.Right, ++hostSequence, 1);
         AssertEqual(2, samus.Health, "automatic refill completion frame");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "completion restores outer gameplay state");
         AssertTrue(!runtime.TimeIsFrozen && !samus.InputLocked, "completion clears native freeze and input lock");
@@ -67,7 +78,7 @@ internal static partial class Program
             // Drain the unrelated host transport between observations. Production
             // refill and warning producers still own every request being inspected.
             audio.Reset();
-            var capture = game.StepCaptured(0, frame + 3, 1);
+            var capture = game.StepCaptured(0, ++hostSequence, 1);
             AssertTrue(capture.Snapshot is not null, "automatic recovery publishes a gameplay render packet");
             var pixels = SoftwareFrameSnapshotRenderer.Render(capture.Snapshot!);
             foreach ((int index, int digit) in new[] { (70, frame / 10), (71, frame % 10) })
@@ -93,7 +104,7 @@ internal static partial class Program
         foreach (var left in digitImages)
             foreach (var right in digitImages.Where(pair => pair.Key > left.Key))
                 AssertTrue(!left.Value.AsSpan().SequenceEqual(right.Value), "different health digits render differently during recovery");
-        game.StepCaptured(0, 36, 1);
+        game.StepCaptured(0, ++hostSequence, 1);
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "presentation sequence returns to gameplay");
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
         {
@@ -113,13 +124,13 @@ internal static partial class Program
             "Samus debugger graph retains warning latch");
         // Continue in actual state eight: ordinary beta must own the same latch,
         // while a generic locked handler must not acquire that responsibility.
-        samus.Health = 31; audio.Reset(); game.StepCaptured(0, 40, 1);
+        samus.Health = 31; audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(!samus.HealthWarning.IsActive, "ordinary beta stops warning at healthy threshold");
         samus.InputLocked = true; samus.Health = 30;
-        audio.Reset(); game.StepCaptured(0, 41, 1);
+        audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(!samus.HealthWarning.IsActive, "locked handler does not run ordinary health check");
         samus.InputLocked = false;
-        audio.Reset(); game.StepCaptured(0, 42, 1);
+        audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(samus.HealthWarning.IsActive, "ordinary gameplay acquires critical warning after unlock");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "ordinary gameplay publishes actual warning command");
         runtime.InitializePostCeresZebesRoom();
@@ -129,7 +140,7 @@ internal static partial class Program
         ship.VariableA = 100;
         samus.HealthWarning.Update(99, audio);
         samus.Health = 30; samus.InputLocked = true;
-        audio.Reset(); game.StepCaptured(0, 43, 1);
+        audio.Reset(); game.StepCaptured(0, ++hostSequence, 1);
         AssertTrue(runtime.Enemies.HasGunshipHealthHandler && samus.HealthWarning.IsActive,
             "gunship entry handler checks low health despite locked input");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "gunship handler publishes warning audio");

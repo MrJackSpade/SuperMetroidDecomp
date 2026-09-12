@@ -134,6 +134,8 @@ if (args.Length == 2 && args[0] == "--phantoon-plasma-audit")
     return PhantoonPlasmaAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--phantoon-enrage-audit")
     return PhantoonEnrageAudit.Run(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--phantoon-doppler-search")
+    return PhantoonDopplerAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--spark-player-recording-audit")
     return SparkPlayerRecordingAudit.Run(args[1], args[2]);
 if (args.Length is 4 or 5 && args[0] == "--phantoon-fired-plasma-search")

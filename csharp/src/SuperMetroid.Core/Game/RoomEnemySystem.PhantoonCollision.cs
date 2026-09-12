@@ -52,10 +52,10 @@ public sealed partial class RoomEnemySystem
             ushort projectileType = projectile.Type;
             ushort projectileDamage = projectile.Damage;
             SamusProjectileFamily family = projectile.PackedType.Family;
-            if (family is
-                SamusProjectileFamily.PowerBomb or
-                SamusProjectileFamily.Bomb or
-                SamusProjectileFamily.BeamExplosion)
+            // A0:9BE6..9BF6 excludes bombs and every family at/above beam
+            // explosions. Lingering missile explosions must not reach shot AI.
+            if (family is SamusProjectileFamily.PowerBomb or SamusProjectileFamily.Bomb ||
+                family >= SamusProjectileFamily.BeamExplosion)
                 continue;
 
             if (!body.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))

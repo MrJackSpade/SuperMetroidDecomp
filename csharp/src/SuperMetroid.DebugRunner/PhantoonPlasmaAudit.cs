@@ -94,6 +94,18 @@ internal static partial class PhantoonPlasmaAudit
         if (enemies.ResolvePhantoonProjectileHits(bus, shots, shared) != 1 ||
             body.Health != 2400 || shot.Type != 0x8100 || shot.Damage != 100 || shot.Direction != 0x10)
             throw new InvalidDataException($"Phantoon native primer lifecycle: health={body.Health}, type={shot.Type:X4}, damage={shot.Damage}, direction={shot.Direction:X4}.");
+        // A missile that explodes on room geometry can still overlap the moving
+        // boss. A0:9BF3 rejects the entire family range, not just beam explosions.
+        // Keep unknown upper families unnamed while testing their native rejection.
+        for (int family = (ushort)SamusProjectileFamily.BeamExplosion; family <= 0x0f00; family += 0x0100)
+        {
+            shot.Type = (ushort)(0x8000 | family);
+            shot.Direction = 0;
+            ushort health = body.Health;
+            if (enemies.ResolvePhantoonProjectileHits(bus, shots, shared) != 0 ||
+                body.Health != health || shot.Direction != 0)
+                throw new InvalidDataException($"Phantoon accepted excluded explosion family {family:X4}.");
+        }
         return 0;
     }
 }

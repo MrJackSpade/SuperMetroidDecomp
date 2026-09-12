@@ -63,6 +63,8 @@ public sealed partial class FileSelectMapMenuState
         scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
+        navigation.BindLabels(mapPresentation?.Labels);
+        areaGraphics.BindLabels(mapPresentation?.Labels);
         animations = new FileSelectMapAnimations(bus);
         animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(bus, mapPresentation?.Palettes);
@@ -76,6 +78,8 @@ public sealed partial class FileSelectMapMenuState
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         mapPresentation = catalog;
+        navigation.BindLabels(catalog?.Labels);
+        areaGraphics.BindLabels(catalog?.Labels);
         areaGraphics.BindPalettes(catalog?.Palettes);
         entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
@@ -139,7 +143,7 @@ public sealed partial class FileSelectMapMenuState
                 if (++pendingFrames < FileSelectMapRomData.ReturnSetupFrames) break;
                 if (returnWindow is null)
                 {
-                    returnWindow = FileSelectMapWindow.CreateReturn(bus, area);
+                    returnWindow = FileSelectMapWindow.CreateReturn(bus, area, mapPresentation?.Labels);
                     Queue(SoundEffectLibrary1Sounds.MapReturn);
                 }
                 else if (returnWindow.Step())

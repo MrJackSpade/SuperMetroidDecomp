@@ -13,6 +13,8 @@ public sealed class FileSelectMapNavigation
     private readonly ISnesAddressSpace bus;
     private readonly int area;
     private ushort previousInput;
+    [NonSerialized] private SuperMetroid.Core.Assets.WorldMapLabelLayout? labels;
+    internal void BindLabels(SuperMetroid.Core.Assets.WorldMapLabelLayout? content) => labels = content;
 
     public FileSelectMapNavigation(ISnesAddressSpace bus, int area, ushort initialHeldInput = 0)
     {
@@ -51,7 +53,7 @@ public sealed class FileSelectMapNavigation
                 else if (confirm) Phase = FileSelectMapNavigationPhase.PreparingWindow;
                 break;
             case FileSelectMapNavigationPhase.PreparingWindow:
-                Window = new FileSelectMapWindow(bus, area);
+                Window = new FileSelectMapWindow(bus, area, labels);
                 Phase = FileSelectMapNavigationPhase.ExpandingWindow;
                 break;
             case FileSelectMapNavigationPhase.ExpandingWindow:

@@ -13,13 +13,13 @@ public sealed class FileSelectMapWindow
     private readonly uint[] edges = new uint[4];
     private ushort timer;
 
-    public FileSelectMapWindow(ISnesAddressSpace bus, int area)
+    public FileSelectMapWindow(ISnesAddressSpace bus, int area, SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if ((uint)area >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ushort x = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4);
-        ushort y = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4 + 2);
+        ushort x = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4) : (ushort)labels.Get(area).X;
+        ushort y = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelPositions + area * 4 + 2) : (ushort)labels.Get(area).Y;
         edges[0] = edges[1] = (uint)x << 16;
         edges[2] = edges[3] = (uint)y << 16;
         timer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.WindowTimers + area * 2);
@@ -41,9 +41,9 @@ public sealed class FileSelectMapWindow
     public bool IsReturning { get; private set; }
 
     /// <summary>$81:AFF6 begins a shortened, unclamped contraction from the inset room frame.</summary>
-    public static FileSelectMapWindow CreateReturn(ISnesAddressSpace bus, int area)
+    public static FileSelectMapWindow CreateReturn(ISnesAddressSpace bus, int area, SuperMetroid.Core.Assets.WorldMapLabelLayout? labels = null)
     {
-        var window = new FileSelectMapWindow(bus, area);
+        var window = new FileSelectMapWindow(bus, area, labels);
         window.IsReturning = true;
         window.timer = unchecked((ushort)(window.timer - FileSelectMapRomData.ReturnWindowTimerReduction));
         int inset = FileSelectMapRomData.ReturnWindowInset;

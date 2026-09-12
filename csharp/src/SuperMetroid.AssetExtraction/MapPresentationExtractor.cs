@@ -64,6 +64,19 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapStaticPalettesFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(paletteBytes);
         hashes.Add(MapStaticPalettesFormat.FileName, Convert.ToHexString(SHA256.HashData(paletteBytes)));
+        var labelPoints = new Dictionary<string, MapLabelPoint>();
+        for (int area = 0; area < SuperMetroid.Core.Frontend.FileSelectMapRomData.AreaCount; area++)
+        {
+            int address = SuperMetroid.Core.Frontend.FileSelectMapRomData.LabelPositions + area * 4;
+            labelPoints.Add(((AreaId)area).ToString(), new(RomDataReader.ReadWordFixedBank(bus, address),
+                RomDataReader.ReadWordFixedBank(bus, address + 2)));
+        }
+        using var labels = new MemoryStream();
+        WorldMapLabelLayout.Write(labels, new() { Version = WorldMapLabelFormat.Version, Areas = labelPoints });
+        byte[] labelBytes = labels.ToArray();
+        using (var file = new FileStream(Path.Combine(directory, WorldMapLabelFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(labelBytes);
+        hashes.Add(WorldMapLabelFormat.FileName, Convert.ToHexString(SHA256.HashData(labelBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

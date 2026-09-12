@@ -14,6 +14,8 @@ public sealed partial class FileSelectAreaMapGraphics
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
     [NonSerialized] private MapStaticPalettes? palettes;
+    [NonSerialized] private WorldMapLabelLayout? labels;
+    internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null)
     {
@@ -133,8 +135,8 @@ public sealed partial class FileSelectAreaMapGraphics
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1 || (usedStationMasks[area] & (1 << station)) == 0) continue;
                 int label = FileSelectMapRomData.LabelPositions + area * 4;
-                Draw((ushort)(title + area + 1), RomDataReader.ReadWordFixedBank(bus, label),
-                    RomDataReader.ReadWordFixedBank(bus, label + 2), area == SelectedArea ? (ushort)0 : (ushort)0x200);
+                Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(bus, label) : (ushort)labels.Get(area).X,
+                    labels is null ? RomDataReader.ReadWordFixedBank(bus, label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
                 break;
             }
         }

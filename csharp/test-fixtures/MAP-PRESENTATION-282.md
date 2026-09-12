@@ -379,3 +379,39 @@ The cancelled transaction also leaves no staging directories. This completed the
 previously pending normal installer-upgrade/cancellation gate on Windows. Process
 termination recovery, historical full-session compatibility and Android device
 validation remain separate checks.
+# World-map label coordinates (catalog version 7)
+
+The importer now emits `world-map-labels.json`. Copy that stock file to
+`overrides/maps/world-map-labels.json` and edit the named `areas` entries. Each
+of Crateria, Brinstar, Norfair, WreckedShip, Maridia and Tourian has an `x` and
+`y` pixel anchor; retain all six entries and `version: 1`. Coordinates must be
+inside X=1..255, Y=1..223. For example, changing only Crateria's `x` moves its
+world-map label and the origin of its opening window. The title is unchanged.
+
+This is cosmetic layout, not navigation data. Area order, used-station masks,
+selected save destination, window velocities/duration and exploration remain
+application-owned. Large edits can change how the fixed-speed window covers the
+screen during its transition; no automatic retiming is implied. Active windows
+retain their current geometry during content rebinding rather than restarting.
+New windows use current content. Room-map station/boss/elevator placements remain
+separate outstanding work under #282.
+
+The shared catalog verifies stock provenance, chooses strict overrides and includes
+the chosen bytes in its content identity. Catalog version 7 requires this resource;
+older installations are reimported through the existing installer path. Overrides
+stay outside stock and survive replacement. Bad layouts fail with a path/context
+message rather than reverting to stock. Nonserialized host bindings are reapplied
+to menu graphics and navigation after restoration.
+
+Verification (`--map-presentation`) checks all six stock coordinate pairs and
+rendered world-map selections with coordinate-table ROM reads blocked, every stock
+window edge and completion tick, visible edited label pixels, unchanged availability
+with no used stations, actual navigation's edited opening origin, stock rebind,
+override identity/preservation and invalid schema/coordinates. Full core suite and
+Windows Release build are additional gates. Logs stay in test-temp as
+`282-labels.log`, `282-labels-suite.log` and `282-labels-windows.log`.
+
+This implements one placement resource, not full #282 or ROM-free menus: other
+artwork, station eligibility and transition definition reads remain in their
+respective extraction/compiled-data work items. Android device validation and
+historical full-session coverage are not claimed by these tests.

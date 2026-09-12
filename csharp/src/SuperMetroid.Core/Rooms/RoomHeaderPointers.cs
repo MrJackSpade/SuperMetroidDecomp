@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Named 16-bit room-header pointers within cartridge bank $8F.</summary>
 public static class RoomHeaderPointers
 {
+    /// <summary>RoomHeader_KronicBoost at $8F:AE74; Norfair room $22 with the reported blue gate.</summary>
+    public const ushort KronicBoost = 0xae74;
     /// <summary>RoomHeader_FrogSpeedway at $8F:B106; Norfair room $30, eight screens wide.</summary>
     public const ushort FrogSpeedway = 0xb106;
     /// <summary>RoomHeader_Crocomire at $8F:A98D; includes the west Power Bomb route door.</summary>

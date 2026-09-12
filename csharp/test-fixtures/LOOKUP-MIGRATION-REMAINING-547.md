@@ -1,14 +1,47 @@
 # Remaining lookup migration inventory (#547)
 
-Inspected at `73343942`. This is a verified list of remaining callers, **not an
+Initially inspected at `73343942`; expanded at `a86728da`. This is a verified list of remaining callers, **not an
 exhaustive completion certificate**. Multiline reads and intermediate-address
 variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 ## Confirmed remaining runtime mechanics reads
 
 The previously enumerated Ridley claw-offset consumers are now compiled as well.
-This exhausts the rows in this limited inventory, **not** the broader caller
-inventory or #547's acceptance criteria. Continue the additional audit below.
+The expanded scan below found additional live groups; exhausting the old rows
+did not establish completion.
+
+### Expanded named-catalog caller audit
+
+At `a86728da`, `rg 'EnemyRomTablePointers\.' csharp/src/SuperMetroid.Core/Game`
+finds 50 matching source lines. That count includes presentation reads and is
+neither a count of unique tables nor all immutable-ROM dependencies. Inspected
+the consumers rather than classifying them solely by the catalog names.
+
+| Mechanics group | Confirmed live consumer and semantics | Migration requirements |
+| --- | --- | --- |
+| Falling spark | `SpawnFallingSpark`: $86:F3D4/F3D6 interleaved horizontal whole/fraction velocity words; the current InitialY/InitialX names are misleading | Eight RNG choices selected by `NextRandom() & 0x1C`; the eighth reads adjacent instruction bytes at F3F0/F3F2. Preserve exact overread, RNG call count, source fractions, and allocation failure behavior. |
+| Dead sidehopper | `RunDeadSidehopperMain` post-landing branch: $A9:D951/D959 four vertical/horizontal launch pairs | Preserve jump phase, delay underflow, palette-stage branch, instruction restart, and signed velocities. Trace all phase writers before choosing catalog bounds. |
+| KiHunter | $A8:F180 trigger distance; F182/F184 used as fractional/whole vertical acceleration in falling and hopping; F186 supplies detached-wing orbit radius | Existing AttackYRadius/AttackXRadius/WinglessHopRadius names do not accurately describe these consumers. Validate fixed-point ordering and all three wing-orbit callers, not only initializer values. |
+| Kraid growth and combat | `RoomEnemySystem.KraidGrowth/Combat/Death`: initial timer, combat timer, death timer, ceiling-rock positions | Preserve byte selectors, countdown boundaries and current-RNG semantics. Keep palette reads in presentation scope. |
+| Kraid hitboxes/projectiles | `KraidCollisions`, `KraidProjectiles`, `KraidNails`: B163/B165 hitbox coordinates, BC65 rock X velocities, BF1D nail offsets | Inspect overlapping record strides, signed coordinates, current random selection and actual collision/placement paths. |
+| Kraid second-phase choices | `RunKraidSecondPhaseThinking`: BA7D six position/pointer records, followed by indirect target-X/timer pairs | The live dependency includes the pointed-to tables, not just six pointers. Existing fallback record offset four and random-offset clamp sixteen require explicit parity evidence. Assert actual walking direction/target/timer. |
+| Kraid death schedule | `KraidDeath`: C5E7 explosion Y/function records | Compile the schedule and typed callbacks; inspect dispatch, entry progression and timing. Do not substitute a cosmetic sprite-only migration. |
+
+### Mixed instruction selectors and presentation reads
+
+The remaining named-catalog users also include Golden Torizo's reflected Super
+Missile instruction selector, unpowered Work Robot instruction selection, and
+Tourian statue instruction selection. These are **not automatically artwork**:
+the selected programs can contain gameplay behavior. Coordinate their compiled
+program/selector ownership with #538/#539 and presentation bindings with #549.
+Work Robot explicitly accepts parameter three and observes an adjacent code
+word beyond its three authored pointers; preserve that native case when migrating.
+
+Confirmed presentation-oriented groups from this scan include Torizo/Chozo/
+Tourian/Kraid/Ridley palette reads, Ceres door transfer pointers, Ridley wing and
+tail-tip spritemap selectors, Crocomire death graphics transfers, and gunship
+liftoff graphics transfers. They remain runtime dependencies for their associated
+presentation/integration tickets; classifying them separately does not remove them.
 
 These were selected indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.

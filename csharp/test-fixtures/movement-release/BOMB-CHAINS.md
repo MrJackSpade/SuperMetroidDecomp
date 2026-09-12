@@ -1,5 +1,63 @@
 # Ordinary bomb-chain parity (#412)
 
+## Acceptance audit and free diagonal traversal
+
+#412's requested short room-local coverage is now present: the single/double/
+three-bomb, repeated vertical and ladder matrices below, fixed ceiling traversal
+and adjacent miss, and this free three-bomb crossing. An indefinitely sustained
+horizontal hover is not claimed; it is not an additional acceptance gate in
+#412 or parent #394. Earlier negative heuristic searches remain documented as
+negative results, not evidence of a gameplay defect.
+
+The [Sweetnumb image tutorial](https://imgur.com/a/5z5wT), linked by the technique
+wiki, supplies the ordering: move beside bomb one, leave its initial boost alone,
+place bomb three before returning, briefly turn forward and release direction,
+then commit forward after bomb two catches. This is a lead, not the oracle.
+`DiagonalBombTraversalSearch` searches 7,488 nearby controller policies and finds
+165 three-launch crossing candidates. Its selected fixed input places bombs at
+0/54/78, holds Right on 1/2, Left on 79..101, taps Right on 102, remains neutral
+103..106, then holds Right from 107. It runs 180 frames without further state
+mutation. Setup is `BombTraversalFixture` with floor row 16 and distant ceiling
+row 0; all other equipment/pose/subpixel details match the ceiling fixture below.
+
+The native `DiagnosticDiagonalBombTraversal` wrapper uses the same original-CPU
+call sequence as `DiagnosticBombTraversal`, but 180 frames and ceiling row 0.
+Both facings match every one of 360 native records, including all five physical
+bomb slots and movement/input ownership. Outward launches occur on 52/106/130.
+There is no floor or ceiling contact after launch; at frame 179 the exact final
+coordinates are X=$00D7.9800 / $0028.6800, Y=$00C8.97FF. Thus the three blasts
+carry Samus roughly 5.5 tiles sideways without floor or ceiling support.
+
+The adjacent input extends Left through 102 and moves the forward tap to 103;
+all bomb timestamps and later inputs are unchanged. It still catches bomb two,
+but misses bomb three. Both facings launch only on 52/106, reach the floor on
+160 (two floor-contact frames), and end at X=$00D6.1000 / $0029.F000,
+Y=$00F7.FBFF. All 360 records match again. Assertions require exact launch times,
+outward direction, contact properties and endpoints as well as every trace field.
+No production fix was necessary for these crossings.
+
+`diagonal-bomb-traversal-412.zip` contains only the two numeric input files and
+two numeric traces. Independent native recaptures and extracted payloads agree:
+
+- Success trace: `4572C773C91240F135C9EDD73E9884E20B18AFB3930B55B4763F60A7922F82CE`
+- Miss trace: `D312B8C5FB5D2BC918129512E3950A0DB6BD7983BFD749AC9DD26A2239F17DF4`
+- Success input: `B1A66B2F2E4F331193E04B2229219297DE8DA1E373CB686C738B86E8D54885E4`
+- Miss input: `E32A0EE00854F333AF84CE8253C9843511BB26D57E60C135643C59BDA85AF302`
+
+Use the same pinned ROM/source and headless build procedure below, substituting
+`DiagnosticDiagonalBombTraversal` and `--diagonal-bomb-probe`. Temporary upstream
+hooks were removed after capture. Tutorial images remain ignored local diagnostic
+files, not archive content. No player save or ROM bytes are published.
+
+```
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --diagonal-bomb-traversal-comparison "Super Metroid.smc" EXTRACTED/diagonal-tap-2-bombs-54-78-return-23.csv EXTRACTED/bomb-diagonal-412-native.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --diagonal-bomb-traversal-miss-comparison "Super Metroid.smc" EXTRACTED/bomb-diagonal-412-adjacent-input.csv EXTRACTED/bomb-diagonal-412-native-miss.csv
+```
+
+The generator is `--diagonal-bomb-traversal-search ROM NEW_DIRECTORY`; the adjacent
+input generator is `--diagonal-bomb-traversal-adjacent-input INPUT NEW_OUTPUT`.
+This is pinned NTSC mechanical parity, not PAL, rendered-room or full-route proof.
+
 ## Ceiling traversal candidate search
 
 `BombTraversalSearch` uses ordinary `StepFrame` with controller-placed bombs in a

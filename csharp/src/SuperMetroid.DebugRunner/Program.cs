@@ -24,6 +24,14 @@ try
 {
 if (args.Length == 4 && args[0] == "--bomb-traversal-boundary-search")
     return BombTraversalBoundarySearch.Run(args[1], args[2], args[3]);
+if (args.Length == 3 && args[0] == "--diagonal-bomb-traversal-search")
+    return DiagonalBombTraversalSearch.Run(args[1], args[2]);
+if (args.Length == 4 && args[0] == "--diagonal-bomb-traversal-comparison")
+    return BombTraversalComparison.Run(args[1], args[2], args[3], diagonal: true);
+if (args.Length == 3 && args[0] == "--diagonal-bomb-traversal-adjacent-input")
+    return DiagonalBombTraversalSearch.WriteAdjacentMiss(args[1], args[2]);
+if (args.Length == 4 && args[0] == "--diagonal-bomb-traversal-miss-comparison")
+    return BombTraversalComparison.Run(args[1], args[2], args[3], expectTraversal: false, diagonal: true);
 if (args.Length == 3 && args[0] == "--bomb-traversal-search")
     return BombTraversalSearch.Run(args[1], args[2]);
 if (args.Length == 4 && args[0] == "--bomb-traversal-comparison")

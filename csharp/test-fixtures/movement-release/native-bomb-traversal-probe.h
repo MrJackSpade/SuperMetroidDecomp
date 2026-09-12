@@ -1,11 +1,11 @@
 #include "native-bounded-cpu.h"
 
 // Fixed recorded inputs, not the managed search policy. No ROM or state export.
-int DiagnosticBombTraversal(const char *rom, const char *inputsPath, const char *output) {
+static int DiagnosticBombTraversalFrames(const char *rom, const char *inputsPath, const char *output, int frames, int ceilingRow) {
   uint16 inputs[600]; char line[128];
   FILE *in = fopen(inputsPath, "r"); if (!in) return 3;
   if (!fgets(line, sizeof(line), in)) { fclose(in); return 3; }
-  for (int frame = 0; frame < 600; frame++) {
+  for (int frame = 0; frame < frames; frame++) {
     unsigned index, input;
     if (!fgets(line, sizeof(line), in) || sscanf(line, "%u,%x", &index, &input) != 2 || index != frame || input > 0xffff) {
       fclose(in); return 3;
@@ -25,7 +25,7 @@ int DiagnosticBombTraversal(const char *rom, const char *inputsPath, const char 
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144*80*2;
     interactive_enemy_indexes[0] = 0xffff;
-    for (int x = 0; x < 144; x++) level_data[12*144+x] = level_data[16*144+x] = 0x8000;
+    for (int x = 0; x < 144; x++) level_data[ceilingRow*144+x] = level_data[16*144+x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff; equipped_items = 0x1004; samus_health = 99;
     samus_x_pos = samus_prev_x_pos = 128; samus_y_pos = samus_prev_y_pos = 249;
     samus_pose = samus_prev_pose = left ? 0x41 : 0x1d;
@@ -35,7 +35,7 @@ int DiagnosticBombTraversal(const char *rom, const char *inputsPath, const char 
     samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
     button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
     uint16 previous = 0;
-    for (int frame = 0; frame < 600; frame++) {
+    for (int frame = 0; frame < frames; frame++) {
       uint16 input = inputs[frame];
       if (left) input = (input & ~0x300) | ((input & 0x100) << 1) | ((input & 0x200) >> 1);
       samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;
@@ -58,4 +58,10 @@ int DiagnosticBombTraversal(const char *rom, const char *inputsPath, const char 
     }
   }
   fclose(f); return 0;
+}
+int DiagnosticBombTraversal(const char *rom, const char *inputsPath, const char *output) {
+  return DiagnosticBombTraversalFrames(rom, inputsPath, output, 600, 12);
+}
+int DiagnosticDiagonalBombTraversal(const char *rom, const char *inputsPath, const char *output) {
+  return DiagnosticBombTraversalFrames(rom, inputsPath, output, 180, 0);
 }

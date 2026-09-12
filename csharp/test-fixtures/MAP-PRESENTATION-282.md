@@ -468,3 +468,39 @@ alongside synthetic INI/save/state/recording files. No player files are used.
 Focused and full core verification plus Windows Release build pass; local logs
 are `282-stations.log`, `282-stations-suite.log`, `282-stations-windows.log` and
 `282-stations-installation.log`. Android device validation is not claimed.
+
+## Boss, elevator and gunship positions (catalog version 9)
+
+`map-landmarks.json` adds 23 named drawing anchors: five boss markers (including
+the Ceres list entry), seventeen elevator destination labels, and the Crateria
+gunship. Copy the complete stock file to `overrides/maps/map-landmarks.json`.
+Retain `version: 1` and every marker ID, editing only `x` (0..511) and `y`
+(0..255) in area-map pixels. For example, `Boss.Phantoon` at X=160 moves that
+marker eight pixels right. This moves both its living icon and defeated overlay.
+
+`MapLandmarkDefinitions` owns slot order, unused boss entries and elevator
+destination identities. Boss-state consumption, map-download eligibility,
+palette/art bindings and the gunship/arrows/elevator drawing order remain code.
+Moving a boss does not defeat it or reveal an undiscovered living boss. Moving
+an elevator label does not move the elevator or alter its destination. Ceres
+has no elevator map list; its boss entry is supported separately.
+
+The importer checks record counts, unused slots and elevator spritemap identities
+against those definitions. Installed pause/file-select drawing no longer reads
+boss/elevator coordinate or identity tables. Direct icon tests also block the
+gunship coordinate read. Full file-select rendering still reads selected-save
+coordinates, which share the gunship source; selected-save placement is pending.
+The catalog validates stock hashes and strict overrides, with host rebinds using
+current nonserialized content after restoring a debugger graph.
+
+Verification compares 3,584 combinations (seven areas, every raw saved boss byte,
+with/without downloaded map) to cartridge-fed OAM, including overlays and native
+unused-slot behavior. Pixel assertions cover stock and edited file-select output,
+pause boss output, and restoration/rebinding. Tests also check unchanged boss/map
+flags, hidden landmarks staying hidden, invalid content, missing/corrupt stock,
+and preserved overrides. Full installation tests preserve an edited Phantoon
+anchor through cancellation, replacement and restart alongside synthetic player
+files. Logs: `282-landmarks.log`, `282-landmarks-suite.log`,
+`282-landmarks-windows.log`, `282-landmarks-installation.log` in ignored test-temp.
+No Android device or historical full-session validation is claimed. #282 remains
+open for selected-save placement and its other outstanding integration work.

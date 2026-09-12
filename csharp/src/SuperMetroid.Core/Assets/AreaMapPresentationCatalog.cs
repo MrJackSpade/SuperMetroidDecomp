@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
@@ -20,6 +20,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         Palettes = palettes;
         Labels = labels;
         Stations = stations;
+        Landmarks = landmarks;
     }
 
     public string ContentIdentity { get; }
@@ -29,6 +30,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     public MapStaticPalettes Palettes { get; }
     public WorldMapLabelLayout Labels { get; }
     public MapStationLayout Stations { get; }
+    public MapLandmarkLayout Landmarks { get; }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
         ? HudTiles.Transfer : throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}.");
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
@@ -102,7 +104,13 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         try { stations = MapStationLayout.Load(new MemoryStream(stationBytes, writable: false)); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map station labels ({stationOverride ?? stockDirectory}): {error.Message}", error); }
         AppendFramed(stationBytes);
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations);
+        string? landmarkOverride = overrideDirectory is null ? null : Path.Combine(overrideDirectory, MapLandmarkFormat.FileName);
+        byte[] landmarkBytes = landmarkOverride is not null && File.Exists(landmarkOverride) ? File.ReadAllBytes(landmarkOverride) : stock.Landmarks;
+        MapLandmarkLayout landmarks;
+        try { landmarks = MapLandmarkLayout.Load(new MemoryStream(landmarkBytes, writable: false)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map landmarks ({landmarkOverride ?? stockDirectory}): {error.Message}", error); }
+        AppendFramed(landmarkBytes);
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks);
 
         void AppendFramed(byte[] bytes)
         {
@@ -116,7 +124,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -126,8 +134,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 7)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal, both tile atlases, highlight-cycle, static palette, world-label and station-label hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 8)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal, both tile atlases, highlight-cycle, static palette, world-label, station-label and landmark hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -163,7 +171,9 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         _ = WorldMapLabelLayout.Load(new MemoryStream(labels, writable: false));
         byte[] stations = ReadChecked(MapStationLayoutFormat.FileName);
         _ = MapStationLayout.Load(new MemoryStream(stations, writable: false));
-        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations);
+        byte[] landmarks = ReadChecked(MapLandmarkFormat.FileName);
+        _ = MapLandmarkLayout.Load(new MemoryStream(landmarks, writable: false));
+        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks);
 
         byte[] ReadChecked(string file)
         {
@@ -187,7 +197,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 8;
+    public const int Version = 9;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

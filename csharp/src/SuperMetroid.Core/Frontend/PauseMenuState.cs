@@ -358,7 +358,9 @@ internal sealed partial class PauseMenuState
             DrawMapPositionIndicator();
             // Native pause draws the same boss lists and defeated overlays as
             // file select, after the player marker. Use the live progression owner.
-            new FileSelectMapIcons(bus, system, area).DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
+            var icons = new FileSelectMapIcons(bus, system, area);
+            icons.BindLandmarks(mapPresentation?.Landmarks);
+            icons.DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
         }
         else
         {

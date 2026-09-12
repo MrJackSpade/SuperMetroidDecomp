@@ -9,6 +9,8 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
 {
     [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
+    [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
+    internal void BindLandmarks(SuperMetroid.Core.Assets.MapLandmarkLayout? layout) => landmarks = layout;
     // Reuse the saved exploration owner already retained by these icons. Adding
     // another serialized owner to the menu would invalidate older debugger graphs.
     internal Bank80SystemState MapSystem => system;
@@ -17,6 +19,32 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
     public void DrawBossMarkers(OamBuffer oam, ushort scrollX, ushort scrollY)
     {
+        if (landmarks is not null)
+        {
+            int remainingBits = system.GetBossBitsRaw(area);
+            foreach (string? id in MapLandmarkDefinitions.Bosses(area))
+            {
+                if (id is not null)
+                {
+                    var point = landmarks.Get(id);
+                    bool dead = (remainingBits & 1) != 0;
+                    remainingBits >>= 1;
+                    if (dead)
+                    {
+                        Draw(FileSelectMapIconRomData.DefeatedBoss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
+                        Draw(FileSelectMapIconRomData.Boss, (ushort)point.X, (ushort)point.Y, FileSelectMapIconRomData.DefeatedBossPalette);
+                        continue;
+                    }
+                    if (system.HasAreaMap(area))
+                    {
+                        Draw(FileSelectMapIconRomData.Boss, (ushort)point.X, (ushort)point.Y, FileSelectMapRomData.StationMarkerPalette);
+                        continue;
+                    }
+                }
+                remainingBits >>= 1;
+            }
+            return;
+        }
         ushort pointer = Pointer(FileSelectMapIconRomData.BossLists);
         int bits = system.GetBossBitsRaw(area);
         if (pointer != 0)
@@ -92,12 +120,22 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     {
         if (area == AreaId.Crateria)
         {
-            ushort list = Pointer(FileSelectMapRomData.SavePointMapPointers);
-            Add(oam, FileSelectMapIconRomData.Gunship, Read(list, 0), Read(list, 2),
+            var point = landmarks?.Get(MapLandmarkDefinitions.Gunship);
+            ushort list = point is null ? Pointer(FileSelectMapRomData.SavePointMapPointers) : (ushort)0;
+            Add(oam, FileSelectMapIconRomData.Gunship, point is null ? Read(list, 0) : (ushort)point.X, point is null ? Read(list, 2) : (ushort)point.Y,
                 scrollX, scrollY, FileSelectMapRomData.StationMarkerPalette);
         }
         drawArrows?.Invoke();
         if (!system.HasAreaMap(area)) return;
+        if (landmarks is not null)
+        {
+            foreach (var label in MapLandmarkDefinitions.Elevators(area))
+            {
+                var point = landmarks.Get(label.Id);
+                Add(oam, MapLandmarkDefinitions.ElevatorSpritemap(label.Destination), (ushort)point.X, (ushort)point.Y, scrollX, scrollY, 0);
+            }
+            return;
+        }
         ushort pointer = Pointer(FileSelectMapIconRomData.ElevatorLists);
         for (int record = 0; ; record++)
         {

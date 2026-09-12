@@ -141,6 +141,7 @@ internal static partial class Program
         VerifyMapStaticPaletteIntegration(bus, stock, Path.Combine(root, "palette-overrides"), original, rules.Values.ToArray());
         VerifyWorldMapLabels(bus, stock, Path.Combine(root, "label-overrides"), original);
         VerifyMapStationLayout(bus, stock, Path.Combine(root, "station-overrides"), original);
+        VerifyMapLandmarks(bus, stock, Path.Combine(root, "landmark-overrides"), original);
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt override fails instead of selecting stock");

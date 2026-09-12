@@ -23,7 +23,12 @@ internal static partial class Program
         var stations = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStationLayoutFormat.FileName)))!;
         stations["markers"]!["Brinstar.Missile.0"]!["x"] = 80;
         File.WriteAllText(stationOverride, stations.ToJsonString());
+        string landmarkOverride = Path.Combine(installation.MapOverrideDirectory, MapLandmarkFormat.FileName);
+        var landmarks = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapLandmarkFormat.FileName)))!;
+        landmarks["markers"]!["Boss.Phantoon"]!["x"] = 160;
+        File.WriteAllText(landmarkOverride, landmarks.ToJsonString());
         var edited = installation.LoadMaps();
+        AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
@@ -31,6 +36,7 @@ internal static partial class Program
         {
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
+            [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),

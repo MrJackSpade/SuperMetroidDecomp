@@ -8,8 +8,6 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Boyon | $A2:86DF multiplier table | Population initialization; curve itself is compiled |
-| Boulder | $A6:86F1 bounce speeds | Bounce-index selection |
 | Zoa | $A3:B415 X speeds | Byte-indexed split velocity record |
 | Growing shutter | $A2:EA56 speed records | Four-byte speed-indexed initialization |
 | Intro egg particles | $8B:A9EA/AA02 | Split horizontal/vertical velocity integration |

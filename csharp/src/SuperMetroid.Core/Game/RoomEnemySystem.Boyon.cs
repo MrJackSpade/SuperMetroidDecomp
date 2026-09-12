@@ -97,8 +97,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort BoyonIdleInstructionList = 0x86a7;
     private const ushort BoyonBouncingInstructionList = 0x86bf;
-    private const int BoyonSpeedMultiplierTable = 0xa286df;
-    private const int BoyonJumpHeightTable = 0xa286ef;
     private const ushort BoyonBounceSound = 0x000e;
 
     private readonly BoyonEnemyState?[] _boyonStates =
@@ -131,12 +129,8 @@ public sealed partial class RoomEnemySystem
         var state = new BoyonEnemyState(slot)
         {
             BounceMovement = BoyonBounceMovement.Rising,
-            SpeedMultiplier = ReadWord(
-                _bus!,
-                BoyonSpeedMultiplierTable + multiplierIndex * 2),
-            JumpHeight = ReadWord(
-                _bus!,
-                BoyonJumpHeightTable + jumpHeightIndex * 2),
+            SpeedMultiplier = BoyonSpeedDefinitions.InitialMultiplier(multiplierIndex),
+            JumpHeight = BoyonSpeedDefinitions.InitialHeight(jumpHeightIndex),
             DistanceAccumulator = 0,
             SpeedTableIndex = 0,
             Bouncing = false,

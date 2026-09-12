@@ -547,3 +547,25 @@ build pass. Both Norfair audits pass earlier launch checks but fail their direct
 timer-injection freeze fixtures (parent/follower 0/0 rather than 9/9); this is
 tracked separately for diagnostic repair. Neither complete Norfair encounter is
 claimed passing. The wider #547 migration remains open.
+
+Both complete Norfair encounter audits subsequently pass after diagnostic-only
+repairs in #590; see NORFAIR-RIO-AUDITS-590.md.
+
+## Boyon initialization and Boulder bounce indices
+
+BoyonSpeedDefinitions now also owns the eight multipliers and nine jump heights
+at $A2:86DF/$86EF. All 72 valid combinations run through the actual initializer
+without a bus and compare both fields to the ROM. Existing invalid-selector
+rejection remains tested. No bounce timing or byte-width arithmetic changes.
+
+BoulderBounceDefinitions owns all three words at $A6:86EF. Native $88EA indexes
+from table+2, so a zero remaining-bounce count still reads the leading zero word
+before underflowing to $FFFF and entering rolling. Three constructed solid-floor
+collisions exercise the actual falling routine without a bus, checking velocity,
+counter, phase and final Y/subpixel handoff. Unsupported counter values now fail
+explicitly rather than reading adjacent code; arbitrary modified states using
+those values are not claimed supported.
+
+Full Release Verification, both complete Boulder/Boyon retail audits, and the
+Windows Release build pass. This removes mechanics-data dependencies, not a new
+player-visible behavior fix; #547's remaining inventory and integration remain open.

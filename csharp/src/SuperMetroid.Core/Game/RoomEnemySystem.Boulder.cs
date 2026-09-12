@@ -80,7 +80,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort BoulderLeftInstructionList = 0x86a7;
     private const ushort BoulderRightInstructionList = 0x86cb;
-    private const int BoulderBounceSpeedTable = 0xa686f1;
     private const ushort BoulderImpactSound = 0x0042;
     private const ushort BoulderBreakSound = 0x0043;
     private const ushort BoulderDustAnimationIndex = 0x0011;
@@ -246,13 +245,9 @@ public sealed partial class RoomEnemySystem
 
             state.Function = BoulderAiFunction.Rebound;
 
-            // The third collision deliberately indexes one word before the two-word table
-            // when D is zero, then D underflows. Read through ROM so that shipped overread
-            // remains observable instead of “fixing” it with a host array bounds check.
-            short bounceIndex = unchecked((short)(state.BounceCounter - 1));
-            state.VerticalSpeedAccumulator = ReadWord(
-                _bus!,
-                BoulderBounceSpeedTable + bounceIndex * 2);
+            // The third impact still installs the leading zero sample before the counter
+            // underflows. Preserve that write even though this impact enters rolling.
+            state.VerticalSpeedAccumulator = BoulderBounceDefinitions.SpeedIndex(state.BounceCounter);
             state.BounceCounter = unchecked((ushort)(state.BounceCounter - 1));
             if ((state.BounceCounter & 0x8000) != 0)
             {

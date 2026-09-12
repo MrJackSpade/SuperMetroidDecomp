@@ -38,6 +38,7 @@ internal static partial class Program
         VerifyCompiledSurfaceMotion(rom);
         VerifyCompiledEnemyFireballLaunches(rom);
         VerifyCompiledRioLaunches(rom);
+        VerifyCompiledBoulderBounces(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

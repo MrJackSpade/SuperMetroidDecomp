@@ -249,12 +249,13 @@ internal static class StokeAudit
         samus.Health = 100;
         samus.XPosition = unchecked((ushort)(projectile.XPosition - 1));
         samus.YPosition = projectile.YPosition;
+        var beforeHit = EnemyContactAuditAssertions.Capture(samus);
         loaded.Enemies.StepEnemyProjectiles(
             level,
             samus,
             cameraX: CameraX,
             cameraY: CameraY);
-        if (samus.Health != 95 || samus.InvincibilityTimer != 96 || !samus.KnockbackActive ||
+        if (samus.Health != 95 || samus.InvincibilityTimer != 96 ||
             loaded.Enemies.ActiveEnemyProjectileCount != 0)
         {
             throw new InvalidDataException(
@@ -262,6 +263,7 @@ internal static class StokeAudit
                 $"invincibility={samus.InvincibilityTimer}, knockback={samus.KnockbackActive}, " +
                 $"active projectiles={loaded.Enemies.ActiveEnemyProjectileCount}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(retailBus, samus, beforeHit, 5, 1, "Stoke projectile");
     }
 
     private static void VerifyBodyCombat(SuperMetroidAddressSpace retailBus)
@@ -273,13 +275,15 @@ internal static class StokeAudit
         samus.Health = 999;
         samus.XPosition = contactLoad.Actor.XPosition;
         samus.YPosition = contactLoad.Actor.YPosition;
+        var beforeHit = EnemyContactAuditAssertions.Capture(samus);
         if (!contactLoad.Enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 959 || !samus.KnockbackActive)
+            samus.Health != 959)
         {
             throw new InvalidDataException(
                 $"Stoke's 40-point body contact failed: health={samus.Health}, " +
                 $"knockback={samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(retailBus, samus, beforeHit, 40, 1, "Stoke body");
 
         LoadedStoke shotLoad = Load(retailBus, level);
         StepActor(shotLoad);
@@ -310,13 +314,13 @@ internal static class StokeAudit
         LoadedStoke deathLoad = Load(retailBus, level);
         StepActor(deathLoad);
         var lethal = new SamusProjectileSystem();
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(deathLoad.Enemies, deathLoad.Actor);
         ArmProjectile(lethal.Slots[0], deathLoad.Actor, type: 0x0000, damage: 20);
         if (deathLoad.Enemies.ResolveOrdinaryProjectileHits(
                 deathLoad.Bus,
                 lethal,
                 new SamusBombProjectileSystem(),
                 deathLoad.Samus) != 1 || deathLoad.Actor.Health != 0 ||
-            !deathLoad.Actor.Properties.HasAny(EnemyProperties.Deleted) ||
             deathLoad.Enemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException(
@@ -324,6 +328,7 @@ internal static class StokeAudit
                 $"properties=${deathLoad.Actor.Properties:X4}, " +
                 $"killed={deathLoad.Enemies.EnemiesKilled}.");
         }
+        EnemyDeathAuditAssertions.Verify(deathLoad.Enemies, deathLoad.Actor, beforeDeath, "Stoke beam");
     }
 
     private static LoadedStoke Load(SuperMetroidAddressSpace retailBus, RoomLevelData level)

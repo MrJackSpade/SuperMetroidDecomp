@@ -153,12 +153,13 @@ internal static class RipperAudit
         loaded.Samus.XPosition = actor.XPosition;
         loaded.Samus.YPosition = actor.YPosition;
         ushort healthBefore = loaded.Samus.Health;
+        var beforeHit = EnemyContactAuditAssertions.Capture(loaded.Samus);
         bool contacted = loaded.Enemies.ResolveOrdinarySamusContact(
             loaded.Samus,
             controllerInput: 0,
             assets.LevelData);
         if (!contacted || loaded.Samus.Health != healthBefore - 5 ||
-            !loaded.Samus.KnockbackActive || loaded.Samus.InvincibilityTimer != 0x0060)
+            loaded.Samus.InvincibilityTimer != 0x0060)
         {
             throw new InvalidDataException(
                 $"Ripper contact mismatch: contact={contacted}, health=" +
@@ -166,6 +167,7 @@ internal static class RipperAudit
                 $"{loaded.Samus.KnockbackActive}, invincibility=" +
                 $"{loaded.Samus.InvincibilityTimer}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, loaded.Samus, beforeHit, 5, 1, "Ripper body");
     }
 
     private static void VerifyProjectileReaction(
@@ -182,6 +184,8 @@ internal static class RipperAudit
         var sharedProjectiles = new SamusBombProjectileSystem();
         ArmProjectile(projectiles.Slots[0], actor, weapon.Type, weapon.Damage);
         byte vulnerability = ReadVulnerability(bus, actor.Definition, weapon.Type);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, actor);
+        ushort originalHealth = actor.Health;
         int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(
             bus,
             projectiles,
@@ -189,7 +193,7 @@ internal static class RipperAudit
             loaded.Samus);
 
         ushort expectedHealth = ExpectedProjectileHealth(
-            actor.Definition.Health,
+            originalHealth,
             vulnerability,
             weapon.Damage);
         bool expectedFrozen = vulnerability == 0xff;
@@ -197,7 +201,7 @@ internal static class RipperAudit
         if (hits != 1 || actor.Health != expectedHealth ||
             (actor.FrozenTimer != 0) != expectedFrozen ||
             expectedFrozen && (actor.FrozenTimer != 400 || actor.InvincibilityTimer != 10) ||
-            actor.Properties.HasAny(EnemyProperties.Deleted) != expectedDeleted ||
+            (!expectedDeleted && actor.Properties.HasAny(EnemyProperties.Deleted)) ||
             loaded.Enemies.EnemiesKilled != (expectedDeleted ? 1 : 0))
         {
             throw new InvalidDataException(
@@ -208,20 +212,28 @@ internal static class RipperAudit
                 $"kills={loaded.Enemies.EnemiesKilled}.");
         }
 
+        if (expectedDeleted)
+            EnemyDeathAuditAssertions.Verify(loaded.Enemies, actor, beforeDeath, $"Ripper {weapon.Name}");
         if (expectedFrozen)
         {
+            // $A0:957E thaws immediately when Ice is unequipped. A synthetic
+            // Ice shot alone does not equip its owner, so model that prerequisite.
+            loaded.Samus.EquippedBeams |= (ushort)SamusBeamFlags.Ice;
             ushort frozenX = actor.XPosition;
             ushort frozenY = actor.YPosition;
-            StepCentered(loaded, room, assets, actor);
-            if (actor.XPosition != frozenX || actor.YPosition != frozenY ||
-                actor.FrozenTimer != 399)
+            for (int remaining = 399; remaining >= 0; remaining--)
             {
-                throw new InvalidDataException(
-                    $"Frozen Ripper moved or used the wrong timer cadence: " +
-                    $"(${frozenX:X4},${frozenY:X4})->" +
-                    $"(${actor.XPosition:X4},${actor.YPosition:X4}), " +
-                    $"timer={actor.FrozenTimer}.");
+                StepCentered(loaded, room, assets, actor);
+                if (actor.XPosition != frozenX || actor.YPosition != frozenY ||
+                    actor.FrozenTimer != remaining || (actor.AiHandlerBits & 4) == 0)
+                    throw new InvalidDataException($"Frozen Ripper moved or used the wrong timer cadence: expected={remaining}, actual={actor.FrozenTimer}, position=({actor.XPosition:X4},{actor.YPosition:X4}).");
             }
+            // Zero is a complete frozen call; the next invocation clears the
+            // handler without also running ordinary movement in that same call.
+            StepCentered(loaded, room, assets, actor);
+            if ((actor.AiHandlerBits & 4) != 0 || actor.FrozenTimer != 0 ||
+                actor.XPosition != frozenX || actor.YPosition != frozenY)
+                throw new InvalidDataException("Ripper thaw boundary did not preserve its final stationary call.");
         }
     }
 
@@ -234,6 +246,8 @@ internal static class RipperAudit
         LoadedRippers loaded = LoadPair(bus, room, assets, populationPointer);
         RoomEnemySlot actor = loaded.Enemies.Slots[0];
         byte vulnerability = ReadVulnerability(bus, actor.Definition, 0x0300);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, actor);
+        ushort originalHealth = actor.Health;
         int reactions = loaded.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
             actor.XPosition,
@@ -243,12 +257,12 @@ internal static class RipperAudit
 
         bool admitted = (vulnerability & 0x7f) != 0;
         int damage = vulnerability == 0xff ? 0 : 100 * (vulnerability & 0x7f);
-        ushort expectedHealth = damage >= actor.Definition.Health
+        ushort expectedHealth = damage >= originalHealth
             ? (ushort)0
-            : unchecked((ushort)(actor.Definition.Health - damage));
+            : unchecked((ushort)(originalHealth - damage));
         bool expectedDeleted = admitted && expectedHealth == 0;
         if (reactions != (admitted ? 1 : 0) || actor.Health != expectedHealth ||
-            actor.Properties.HasAny(EnemyProperties.Deleted) != expectedDeleted ||
+            (!expectedDeleted && actor.Properties.HasAny(EnemyProperties.Deleted)) ||
             loaded.Enemies.EnemiesKilled != (expectedDeleted ? 1 : 0))
         {
             throw new InvalidDataException(
@@ -258,6 +272,9 @@ internal static class RipperAudit
                 $"{actor.Properties.HasAny(EnemyProperties.Deleted)}/{expectedDeleted}, " +
                 $"kills={loaded.Enemies.EnemiesKilled}.");
         }
+        if (expectedDeleted)
+            EnemyDeathAuditAssertions.Verify(loaded.Enemies, actor, beforeDeath, "Ripper Power Bomb",
+                (ushort)EnemyProperties.ProcessOffScreen);
     }
 
     private static LoadedRippers LoadPair(

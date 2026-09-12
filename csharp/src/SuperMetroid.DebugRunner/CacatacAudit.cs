@@ -225,7 +225,7 @@ internal static class CacatacAudit
         if (oam.LastFinalizedSpriteCount == 0)
             throw new InvalidDataException("Cacatac actor/spike ROM maps emitted no OBJ pieces.");
 
-        VerifySpikeContact(enemies, samus, assets.LevelData);
+        VerifySpikeContact(bus, enemies, samus, assets.LevelData);
         VerifyActorCombat(bus, room, assets, samus);
 
         Console.WriteLine(
@@ -396,6 +396,7 @@ internal static class CacatacAudit
     }
 
     private static void VerifySpikeContact(
+        ISnesAddressSpace bus,
         RoomEnemySystem enemies,
         SamusState samus,
         RoomLevelData level)
@@ -423,15 +424,17 @@ internal static class CacatacAudit
         samus.Health = 100;
         samus.InvincibilityTimer = 0;
         samus.KnockbackActive = false;
+        var beforeHit = EnemyContactAuditAssertions.Capture(samus);
         enemies.StepEnemyProjectiles(level, samus, cameraX: 0, cameraY: 0);
         if (samus.Health != 95 || samus.InvincibilityTimer != 96 ||
-            !samus.KnockbackActive || target.IsActive)
+            target.IsActive)
         {
             throw new InvalidDataException(
                 $"Cacatac spike contact failed: health={samus.Health}, " +
                 $"invincibility={samus.InvincibilityTimer}, " +
                 $"knockback={samus.KnockbackActive}, active={target.IsActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeHit, 5, 1, "Cacatac spike");
     }
 
     private static void VerifyActorCombat(
@@ -469,11 +472,13 @@ internal static class CacatacAudit
         samus.InitializeAnimation(bus);
         samus.XPosition = actors[0].XPosition;
         samus.YPosition = actors[0].YPosition;
+        var beforeHit = EnemyContactAuditAssertions.Capture(samus);
         if (!enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 979 || !samus.KnockbackActive)
+            samus.Health != 979)
         {
             throw new InvalidDataException("Cacatac body contact did not deal header damage 20.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeHit, 20, 1, "Cacatac body");
 
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
@@ -484,14 +489,15 @@ internal static class CacatacAudit
         // Actor zero is the Cacatac admitted to the camera-zero interactive list.
         // Actor one is deliberately farther into Noob Bridge and native collision
         // processing must not let an off-screen slot consume this audit projectile.
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actors[0]);
         ArmProjectile(shots.Slots[0], actors[0], 120);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
             actors[0].Health != 0 ||
-            !actors[0].Properties.HasAny(EnemyProperties.Deleted) ||
             enemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException("Cacatac ordinary beam/death path failed.");
         }
+        EnemyDeathAuditAssertions.Verify(enemies, actors[0], beforeDeath, "Cacatac beam");
 
         foreach (RoomEnemySlot actor in enemies.Slots.Take(enemies.EnemyCount))
         {
@@ -504,12 +510,9 @@ internal static class CacatacAudit
             actors[2].YPosition);
         if (!grapple.Collided || grapple.Reaction != GrappleEnemyReaction.Kill)
             throw new InvalidDataException("Cacatac did not select Grapple-kill AI $800A.");
+        beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actors[2]);
         enemies.StepFrame(0x0480, 0, false, samus, level: assets.LevelData);
-        if (!actors[2].Properties.HasAny(EnemyProperties.Deleted) ||
-            enemies.EnemiesKilled != 2)
-        {
-            throw new InvalidDataException("Cacatac Grapple kill did not delete its target.");
-        }
+        EnemyDeathAuditAssertions.Verify(enemies, actors[2], beforeDeath, "Cacatac grapple");
     }
 
     private static void VerifyDirections(

@@ -320,8 +320,9 @@ internal static class KzanAudit
         loaded.Samus.YPosition = top.YPosition;
         loaded.Samus.InvincibilityTimer = 0;
         ushort health = loaded.Samus.Health;
+        var beforeHit = EnemyContactAuditAssertions.Capture(loaded.Samus);
         if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0) ||
-            loaded.Samus.Health != health - 200 || !loaded.Samus.KnockbackActive ||
+            loaded.Samus.Health != health - 200 ||
             loaded.Samus.InvincibilityTimer != 0x0060)
         {
             throw new InvalidDataException(
@@ -329,6 +330,7 @@ internal static class KzanAudit
                 $"knockback={loaded.Samus.KnockbackActive}, " +
                 $"invincibility={loaded.Samus.InvincibilityTimer}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, loaded.Samus, beforeHit, 200, 1, "Kzan body");
 
         var projectiles = new SamusProjectileSystem();
         SamusProjectileSlot shot = projectiles.Slots[0];
@@ -338,8 +340,10 @@ internal static class KzanAudit
             projectiles,
             new SamusBombProjectileSystem(),
             loaded.Samus);
-        if (shotHits != 0 || top.Health != 500 || !shot.IsActive ||
-            shot.Direction != 2 || shot.InstructionPointer != 0x9000)
+        // Single-box dispatch publishes collision before calling the RTS-only
+        // shot AI. The callback cannot undo the collision bit already set.
+        if (shotHits != 1 || top.Health != 500 || !shot.IsActive ||
+            shot.Direction != 0x12 || shot.InstructionPointer != 0x9000)
         {
             throw new InvalidDataException(
                 $"Kzan no-op shot AI failed: hits={shotHits}, health={top.Health}, " +

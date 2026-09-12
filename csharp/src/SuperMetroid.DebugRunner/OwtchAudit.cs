@@ -240,11 +240,13 @@ internal static class OwtchAudit
         samus.Health = 999;
         samus.InvincibilityTimer = 0;
         samus.KnockbackActive = false;
+        var beforeHit = EnemyContactAuditAssertions.Capture(samus);
         if (!enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 899 || !samus.KnockbackActive)
+            samus.Health != 899)
         {
             throw new InvalidDataException("Owtch body contact did not deal header damage 100.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeHit, 100, 1, "Owtch body");
 
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();
@@ -261,12 +263,14 @@ internal static class OwtchAudit
 
         state.Behavior = OwtchBehaviorState.MovingLeft;
         ArmPlasma(shots.Slots[0], actor);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actor);
         if (enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus) != 1 ||
-            actor.Health != 0 || !actor.Properties.HasAny(EnemyProperties.Deleted) ||
+            actor.Health != 0 ||
             enemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException("Owtch moving-left plasma/death path failed.");
         }
+        EnemyDeathAuditAssertions.Verify(enemies, actor, beforeDeath, "Owtch plasma");
     }
 
     private static void VerifyGrappleCancel(
@@ -361,9 +365,9 @@ internal static class OwtchAudit
                 leftActor.XPosition,
                 leftActor.YPosition,
                 damage: 20);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(leftEnemies, leftActor);
         if (leftEnemies.ResolveOrdinaryBombHits(leftBombs, leftShots, leftSamus) != 1 ||
             (leftBomb.Direction & 0x0010) == 0 || leftActor.Health != 0 ||
-            !leftActor.Properties.HasAny(EnemyProperties.Deleted) ||
             leftEnemies.EnemiesKilled != 1)
         {
             throw new InvalidDataException(
@@ -373,6 +377,7 @@ internal static class OwtchAudit
                 $"{leftEnemies.EnemiesKilled}, direction=${leftBomb.Direction:X4}, " +
                 $"state={leftState.Behavior}.");
         }
+        EnemyDeathAuditAssertions.Verify(leftEnemies, leftActor, beforeDeath, "Owtch diagnostic normal bomb");
     }
 
     private static RoomEnemySystem LoadIsolated(

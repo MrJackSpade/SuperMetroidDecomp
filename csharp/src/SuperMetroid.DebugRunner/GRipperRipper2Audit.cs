@@ -27,7 +27,7 @@ internal static class GRipperRipper2Audit
         Console.WriteLine(
             "GRipper/Ripper II audit passed: four and six retail actors load, packed " +
             "speed selectors, patrol-bound and terrain reversals, three-frame ROM " +
-            "animations, contact/missile/super damage, power-bomb immunity, both frozen " +
+            "animations, contact/missile/super damage, power-bomb death, both frozen " +
             "facing maps, death, and OBJ drawing agree.");
         return 0;
     }
@@ -103,7 +103,7 @@ internal static class GRipperRipper2Audit
                 $"${patrolState.MaximumXPosition:X4}, velocity=${patrolState.XVelocity:X4}.");
         }
 
-        VerifyContactDamage(loaded, assets, room, patrol, expectedDamage: 10);
+        VerifyContactDamage(bus, loaded, assets, room, patrol, expectedDamage: 10);
 
         // GRipper's peculiar vulnerability record rejects all beam families but accepts a
         // normal missile with multiplier two. Common shot AI must therefore remove exactly
@@ -125,17 +125,23 @@ internal static class GRipperRipper2Audit
                 $"frozen={missileTarget.FrozenTimer}.");
         }
 
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, actors[2]);
+        if (actors[2].Definition.PowerBombReactionPointer != 0 ||
+            bus.ReadByte(0xb40000 | (actors[2].Definition.VulnerabilityPointer + 15)) != 2)
+            throw new InvalidDataException("GRipper no longer has native default Power Bomb callback and multiplier two.");
         int powerBombReactions = loaded.Enemies.ResolveOrdinaryPowerBombHits(
             bus,
             actors[2].XPosition,
             actors[2].YPosition,
             explosionRadius: 64);
-        if (powerBombReactions != 0 || actors[2].Health != 200)
+        if (powerBombReactions != 1 || actors[2].Health != 0)
         {
             throw new InvalidDataException(
-                $"GRipper power-bomb immunity mismatch: reactions={powerBombReactions}, " +
+                $"GRipper power-bomb death mismatch: reactions={powerBombReactions}, " +
                 $"health={actors[2].Health}.");
         }
+        EnemyDeathAuditAssertions.Verify(loaded.Enemies, actors[2], beforeDeath, "GRipper Power Bomb",
+            (ushort)EnemyProperties.ProcessOffScreen);
 
         VerifyDrawing(loaded, room, patrol, "GRipper");
     }
@@ -200,7 +206,7 @@ internal static class GRipperRipper2Audit
                 $"${wallState.XVelocity:X4}.");
         }
 
-        VerifyContactDamage(loaded, assets, room, actors[1], expectedDamage: 10);
+        VerifyContactDamage(bus, loaded, assets, room, actors[1], expectedDamage: 10);
         VerifyRipper2FrozenFacing(bus, room, assets, expectPositiveVelocity: false);
         VerifyRipper2FrozenFacing(bus, room, assets, expectPositiveVelocity: true);
 
@@ -213,19 +219,20 @@ internal static class GRipperRipper2Audit
         var projectiles = new SamusProjectileSystem();
         var shared = new SamusBombProjectileSystem();
         ArmProjectile(projectiles.Slots[0], lethal, projectileType: 0x0200, damage: 300);
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(loaded.Enemies, lethal);
         if (loaded.Enemies.ResolveOrdinaryProjectileHits(
                 bus,
                 projectiles,
                 shared,
-                loaded.Samus) != 1 || lethal.Health != 0 ||
-            !lethal.Properties.HasAny(EnemyProperties.Deleted))
+                loaded.Samus) != 1 || lethal.Health != 0)
         {
             throw new InvalidDataException(
                 $"Ripper II super-missile death mismatch: health={lethal.Health}, " +
                 $"properties=${lethal.Properties:X4}.");
         }
+        EnemyDeathAuditAssertions.Verify(loaded.Enemies, lethal, beforeDeath, "Ripper II Super Missile");
 
-        VerifyDrawing(loaded, room, actors[0], "Ripper II");
+        VerifyDrawing(loaded, room, loaded.Enemies.Slots[0], "Ripper II");
     }
 
     private static void VerifyRipper2FrozenFacing(
@@ -268,6 +275,7 @@ internal static class GRipperRipper2Audit
     }
 
     private static void VerifyContactDamage(
+        ISnesAddressSpace bus,
         LoadedRoom loaded,
         CartridgeRoomAssets assets,
         CartridgeRoomHeader room,
@@ -280,14 +288,15 @@ internal static class GRipperRipper2Audit
         loaded.Samus.Health = 999;
         loaded.Samus.InvincibilityTimer = 0;
         loaded.Samus.KnockbackActive = false;
+        var beforeHit = EnemyContactAuditAssertions.Capture(loaded.Samus);
         if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, 0) ||
-            loaded.Samus.Health != 999 - expectedDamage ||
-            !loaded.Samus.KnockbackActive)
+            loaded.Samus.Health != 999 - expectedDamage)
         {
             throw new InvalidDataException(
                 $"Enemy ${actor.EnemyDefinitionPointer:X4} contact mismatch: health=" +
                 $"{loaded.Samus.Health}, knockback={loaded.Samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, loaded.Samus, beforeHit, expectedDamage, 1, "Ripper variant body");
     }
 
     private static LoadedRoom LoadRoom(

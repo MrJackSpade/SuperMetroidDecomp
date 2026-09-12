@@ -283,6 +283,10 @@ passing. The temporary baseline worktree and all its binaries were removed.
 PipeBug was subsequently repaired under #582: the complete audit now passes.
 It exposed a real formation timer-ownership defect alongside stale death-state
 expectations; see PIPE-BUG-LIFECYCLE-582.md for the pre-fix reproduction and checks.
+The six contact audits were subsequently repaired under #581 without changing
+production. All six complete encounter audits now pass, including additional
+native death, Ice-equipment and no-op callback expectations corrected along the
+way. See ENEMY-CONTACT-AUDITS-581.md for per-encounter causes and verification.
 
 ### Outstanding scope
 

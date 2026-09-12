@@ -112,3 +112,32 @@ shoot; it reaches X=977 and blocks at frame 438 with 38 slots. That experiment
 does not model full Samus movement/aim transitions and is not a completed route.
 It establishes sustained authored-room overload and its later loss, not complete
 Speedless Speedway parity. Full traversal and native timing remain open work.
+
+## Full-runtime input reproduction
+
+The fixed 2.75-pixel movement probe was replaced in the debug search by the real
+running-left movement routine, retaining gravity/ground probing and normal dash
+acceleration. Standing overload followed by running reaches X=837, then collides
+at frame 438 when occupancy falls to 38. Wave+Plasma gives the same endpoint in
+this setup. Starting the component probe in a running pose instead does not fill
+the pool within 420 frames (peak 33 at the original launch point). This difference
+means pose transitions cannot be omitted from a cartridge timing comparison.
+
+`--ceiling-wrap-runtime` now runs the complete production `StepFrame` instead.
+It loads the unchanged room, sets Samus to (1237,139), standing up-left aim, Wave+
+Spazer, no equipped items, refreshes collision radii/animation, and sets camera
+(1109,0). It continuously holds Left, Run, Aim Up and Shoot for 900 frames,
+recording position/subpixels, pose, active PLM count and camera. No direct position
+or speed writes occur after initialization. No gameplay cheat is enabled.
+
+```
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --ceiling-wrap-runtime "Super Metroid.smc"
+```
+
+Observed: while blocked the runtime alternates wall-stop pose `$D0` and standing
+aim `$06`; the pool fills on frame 343, movement begins on frame 344 in pose `$10`,
+and Samus ultimately stops at X=842. By frame 899 no PLMs remain active. This is
+a managed reproduction, not a native golden trace or proof of an additional
+defect. The next comparison must include the cartridge's pose/input dispatch,
+projectile production, camera and PLM handler timing. No speculative movement or
+PLM lifetime change was made from this incomplete evidence.

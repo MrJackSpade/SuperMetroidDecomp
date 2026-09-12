@@ -22,8 +22,12 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 2 && args[0] == "--ceiling-wrap-runtime")
+    return CeilingWrapRoomAudit.RunRuntime(args[1]);
 if (args.Length == 2 && args[0] == "--ceiling-wrap-room-audit")
     return CeilingWrapRoomAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--ceiling-wrap-room-audit")
+    return CeilingWrapRoomAudit.Run(args[1], ushort.Parse(args[2]));
 if (args.Length == 2 && args[0] == "--wrap-shot-room-audit")
     return WrapShotRoomAudit.Run(args[1]);
 if (args.Length == 4 && args[0] == "--bomb-traversal-boundary-search")

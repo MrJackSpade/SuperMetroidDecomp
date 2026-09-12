@@ -6,8 +6,13 @@ internal static partial class Program
 {
     // #411: a controlled camera is an independent input to the real projectile
     // owner. This isolates lifetime/collision, not Samus camera-tracking parity.
-    private static void VerifyHeroShotCameraLifetime()
+    private static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
     {
+        var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
+            .Select(line => line.Split(','))
+            .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
+                .Select(value => Convert.ToUInt16(value, 16)).ToArray());
+        int comparedFrames = 0;
         foreach (bool followShot in new[] { false, true })
         {
             var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -26,6 +31,15 @@ internal static partial class Program
                     ? (ushort)Math.Max(0, shot.XPosition - 128) : (ushort)0;
                 shared.StepFrame(bus, room, samus, input, input);
                 var result = projectiles.StepFrame(bus, room, samus, input, input, cameraX, 0, shared);
+                if (native is not null)
+                {
+                    ushort[] actual = [cameraX, shot.XPosition, shot.XSubposition,
+                        shot.YPosition, shot.YSubposition, unchecked((ushort)shot.XVelocity),
+                        unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                    AssertTrue(actual.SequenceEqual(native[(followShot ? 1 : 0, frame)]),
+                        $"Native Hero trace follow={followShot}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
+                    comparedFrames++;
+                }
                 if (frame == 0) AssertEqual((int?)0, result.FiredSlot, "Hero fixture fires through normal input dispatch");
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
@@ -44,5 +58,7 @@ internal static partial class Program
                 "Identical firing without camera movement expires before the target");
             Console.WriteLine($"Hero shot camera follow={followShot}: deletion frame={deletedFrame}, impact frame={impactFrame}.");
         }
+        if (native is not null) AssertEqual(native.Count, comparedFrames,
+            "Every native lifetime frame, including deletion and impact, was compared");
     }
 }

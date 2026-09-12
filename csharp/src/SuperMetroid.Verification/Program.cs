@@ -30,6 +30,11 @@ if (args is ["--hero-shots"])
     VerifyHeroShotCameraLifetime();
     return 0;
 }
+if (args is ["--hero-shots", var nativeHeroTrace])
+{
+    VerifyHeroShotCameraLifetime(nativeHeroTrace);
+    return 0;
+}
 if (args is ["--projectile-inheritance-probe"])
 {
     ProbeProjectileVelocityInheritance();
@@ -45,6 +50,7 @@ if (args is ["--samus-projectiles"])
     VerifySamusPowerBeamProjectiles();
     VerifyBeamSpeedRows();
     VerifyProjectileCooldowns();
+    VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
     return 0;
 }
 if (args is ["--botwoon-plm-identity"])
@@ -758,6 +764,7 @@ VerifySamusPostureMovement();
 VerifySamusPowerBeamProjectiles();
 ProbeProjectileVelocityInheritance();
 VerifyProjectileCooldowns();
+VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv");
 VerifyBeamSpeedRows();
 VerifyBeamCallbackTables();
 VerifySamusMorphBallMovement();

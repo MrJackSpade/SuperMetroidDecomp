@@ -27,11 +27,43 @@ deletes outside the signed [-64,320) window on either axis. The production
 `DeleteIfOutsideMovementWindow` matches those comparisons. This code inspection
 is not execution of the cartridge and does not establish the entire technique.
 
+## Cartridge execution comparison
+
+`movement-release/native-hero-shot-probe.h` executes original `$90:B80D` fire
+dispatch and `$90:AECE` projectile processing after restoring unpatched retail
+bytes. All 98 frame records match C#: camera X, world X/Y and subpixels, X/Y
+velocity, type, and instruction pointer, including deletion and terrain impact.
+Accepted numeric-only trace: `movement-release/hero-shot-411.csv`. No ROM,
+save data, audio, or screenshots are included.
+
+The first native fixture omitted the room's screen dimensions and level-data
+byte count. The zero byte count skipped collision; that invalid capture is not
+accepted. Both are now initialized explicitly in the retained probe.
+
+Compare or rerun the accepted regression:
+
+```
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --hero-shots csharp/test-fixtures/movement-release/hero-shot-411.csv
+```
+
+This paired case also runs in the default suite and `--samus-projectiles`.
+
+To regenerate, temporarily include `native-release-probe.h` followed by
+`native-hero-shot-probe.h` after `state_recorder` in upstream `sm_rtl.c`. Dispatch
+`DiagnosticHeroShot(argv[2], argv[3])` for `--hero-shot-probe` before SDL startup
+in `main.c`, with explicit SDL error/warning dialogs suppressed on that branch.
+Force Rebuild of `upstream-sm/sm.sln`, Release/x64, PlatformToolset=v145: incremental
+builds did not reliably detect the external header changes. Run the native EXE
+with `--hero-shot-probe ROM NEW.csv`; output refuses to overwrite existing files.
+Remove only those temporary hooks afterwards. No temporary hooks are retained
+in upstream sources by this change.
+
+Pinned upstream: `578f90b3cc49557bb70060ad033bb90b8cf8ac50`.
+ROM SHA256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
+
 ## Still required
 
-- Execute the same setup on the pinned cartridge and compare per-frame world
-  position, camera-relative position, deletion and collision timing.
 - Cover vertical shots and actual camera-following movement, including adjacent
   successful/failing boundaries and a representative room-local target.
-- The issue remains open, not awaiting player validation. This diagnostic is
-  intentionally opt-in until it has the native comparison required by #411.
+- The issue remains open, not awaiting player validation; the horizontal
+  controlled-camera comparison does not fulfill the broader integration scope.

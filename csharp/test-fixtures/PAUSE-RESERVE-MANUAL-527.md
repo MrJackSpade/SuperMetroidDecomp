@@ -265,3 +265,24 @@ Local evidence: `527-animation-before.log`, `527-animation-after.log`,
 `527-animation-suite.log`, and `527-animation-windows.log` under test-temp.
 This corrects a verified animation-clock property; it does not establish audible
 PCM or whole-frame external-emulator parity, so the broader ticket remains open.
+
+## Original CPU confirmation of the stationary animation owner
+
+The reserve probe now writes a required `.samus.csv` companion. For all 221
+automatic refill frames (supplies 2/21/99/199), original `$90:F411` selects the
+locked alpha/stationary beta, that beta executes while reserves remain, and
+completion executes original `$90:F2E0`. The native cursor 3 and timer 9 remain
+unchanged through every stationary call. Completion records normal handler
+selection before its gameplay call; it does not execute normal beta in this
+bounded probe.
+
+The comparator matches native handler IDs to actual C# stationary ownership,
+checks the retained native cursor/delay, and requires all 221 rows. All 402 existing
+transfer/HUD/sound rows and 181 manual tank render frames still match. Regenerate
+older traces lacking the companion; do not silently skip the new comparison.
+Current local output is `reserve-native-527/refill-animation.csv` under test-temp;
+comparison log is `527-native-animation-compare.log`.
+
+Temporary probe hooks were removed and the ordinary native executable rebuilt.
+No ROM, trace, OAM capture, screenshot or audio is published. This independently
+confirms the corrected handler behavior, not full-game external playback or PCM.

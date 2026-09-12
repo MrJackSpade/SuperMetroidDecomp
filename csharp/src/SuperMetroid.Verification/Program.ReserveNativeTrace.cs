@@ -12,6 +12,9 @@ internal static partial class Program
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int checkedFrames = 0;
+        var handlers = File.ReadLines(path + ".samus.csv").Skip(1)
+            .Select(line => line.Split(',').Select(int.Parse).ToArray())
+            .ToDictionary(row => (Supply: row[0], Frame: row[1]));
         var sprites = File.ReadLines(path + ".oam.csv").Select(line => line.Split(',').Select(int.Parse).ToArray())
             .ToDictionary(row => (Supply: row[0], Frame: row[1]));
         foreach (var group in File.ReadLines(path).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray())
@@ -56,6 +59,13 @@ internal static partial class Program
                 AssertEqual(row[7], hud.Tiles[71], context + " HUD ones");
                 if (!group.Key.Manual)
                 {
+                    int[] nativeHandler = handlers[(group.Key.Supply, frame)];
+                    AssertEqual(samus.StationaryScriptControlLocked ? ReserveHandlerTraceDefinitions.LockedAlpha : ReserveHandlerTraceDefinitions.NormalAlpha,
+                        nativeHandler[2], context + " native alpha ownership");
+                    AssertEqual(samus.StationaryScriptControlLocked ? ReserveHandlerTraceDefinitions.StationaryBeta : ReserveHandlerTraceDefinitions.NormalBeta,
+                        nativeHandler[3], context + " native beta ownership");
+                    AssertEqual(3, nativeHandler[4], context + " original stationary beta retains seeded animation cursor");
+                    AssertEqual(9, nativeHandler[5], context + " original stationary beta retains seeded animation timer");
                     int[] indices = [8, 9, 40, 41, 72, 73];
                     for (int i = 0; i < indices.Length; i++)
                         AssertEqual(row[8 + i], hud.Tiles[indices[i]], context + " AUTO cell " + i);
@@ -93,6 +103,7 @@ internal static partial class Program
         AssertEqual(8, File.ReadLines(path).Skip(1).Select(line => string.Join(',', line.Split(',').Take(2))).Distinct().Count(), "all eight native refill cases present");
         AssertEqual(402, checkedFrames, "complete native frame coverage");
         AssertEqual(181, sprites.Count, "complete native manual sprite coverage");
+        AssertEqual(221, handlers.Count, "complete native automatic-handler coverage");
         Console.WriteLine($"Original cartridge reserve trace: {checkedFrames} frames of transfer/timer/HUD/refill-sound requests and {sprites.Count} rendered tank frames compared.");
     }
 }

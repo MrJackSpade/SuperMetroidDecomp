@@ -9,6 +9,10 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
   char sprite_path[1024];
   if (snprintf(sprite_path, sizeof(sprite_path), "%s.oam.csv", output) >= sizeof(sprite_path)) { fclose(f); return 5; }
   FILE *sprites = fopen(sprite_path, "wx"); if (!sprites) { fclose(f); return 4; }
+  char handler_path[1024];
+  if (snprintf(handler_path, sizeof(handler_path), "%s.samus.csv", output) >= sizeof(handler_path)) return 5;
+  FILE *handlers = fopen(handler_path, "wx"); if (!handlers) return 4;
+  fprintf(handlers, "supply,frame,alpha,beta,animationFrame,animationTimer\n");
   fprintf(f, "manual,supply,frame,health,reserve,delay,hudTens,hudOnes,auto0,auto1,auto2,auto3,auto4,auto5,refillSound\n");
   const int supplies[] = {2, 21, 99, 199};
   for (int manual = 0; manual <= 1; manual++) for (int s = 0; s < 4; s++) {
@@ -18,10 +22,22 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
     samus_reserve_health = supplies[s]; samus_max_reserve_health = 200;
     reserve_health_mode = manual ? 2 : 1; time_is_frozen_flag = 1;
     pausemenu_equipment_category_item = 0x100;
+    if (!manual) {
+      // Original checked-lock command; seed a nonzero animation cursor so an
+      // accidentally running animation handler is observable, not a zero no-op.
+      samus_anim_frame = 3; samus_anim_frame_timer = 9;
+      ProbeRunBounded(0x90f411);
+    }
     for (int frame = 0; frame < 220; frame++) {
       nmi_frame_counter_word = frame; nmi_frame_counter_byte = frame;
       joypad1_newkeys = frame == 0 ? 0x80 : 0;
       ProbeRunBoundedRegisters(manual ? 0x82af4f : 0x82dc31, 0, 0, 0);
+      if (!manual) {
+        if (samus_reserve_health) ProbeRunBounded(0x900000 | frame_handler_beta);
+        else ProbeRunBounded(0x90f2e0); // Completion restores normal handlers before gameplay.
+        fprintf(handlers, "%d,%d,%d,%d,%d,%d\n", supplies[s], frame,
+          frame_handler_alfa, frame_handler_beta, samus_anim_frame, samus_anim_frame_timer);
+      }
       ProbeRunBoundedRegisters(0x809b44, 0, 0, 0);
       fprintf(f, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
         manual, supplies[s], frame, samus_health, samus_reserve_health,
@@ -42,5 +58,5 @@ int DiagnosticReserveRefill(const char *rom, const char *output) {
       if (!samus_reserve_health) break;
     }
   }
-  fclose(sprites); fclose(f); return DiagnosticHealthWarning(output);
+  fclose(handlers); fclose(sprites); fclose(f); return DiagnosticHealthWarning(output);
 }

@@ -73,7 +73,6 @@ public sealed partial class RoomEnemySystem
     private const int CrawlerUpsideUpInstructionTable = 0xa3e63c;
     private const int CrawlerUpsideRightInstructionTable = 0xa3e648;
     private const int CrawlerUpsideLeftInstructionTable = 0xa3e654;
-    private const int CrawlerSlopeSpeedMultiplierTable = 0xa3e931;
     private const int HZoomerInitialInstructionTable = 0xa3e03b;
     private const ushort HZoomerUpsideRightInstructionList = 0xdfcb;
     private const ushort HZoomerUpsideLeftInstructionList = 0xdfe7;
@@ -504,7 +503,7 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
-    private int GetCrawlerSlopeAdjustedHorizontalDisplacement(
+    private static int GetCrawlerSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         CrawlerEnemyState state,
         RoomLevelData level) =>
@@ -518,7 +517,7 @@ public sealed partial class RoomEnemySystem
     /// Shared geometry from <c>MoveEnemyRightBy_14_12_ProcessSlopes</c>. Both the common
     /// crawlers and Yard multiply their tangent by the cartridge's non-square-slope factor.
     /// </summary>
-    private int GetSurfaceSlopeAdjustedHorizontalDisplacement(
+    private static int GetSurfaceSlopeAdjustedHorizontalDisplacement(
         RoomEnemySlot slot,
         ushort xVelocity,
         ushort yVelocity,
@@ -536,12 +535,7 @@ public sealed partial class RoomEnemySystem
             int slopeShape = block.Bts.SlopeShape;
             if (block.CollisionType == RoomCollisionType.Slope && slopeShape >= 5)
             {
-                ushort multiplier = ReadWord(
-                    _bus!,
-                    CrawlerSlopeSpeedMultiplierTable + slopeShape * 4);
-                int speed = unchecked((short)xVelocity);
-                int product = Math.Abs(speed) * multiplier;
-                return speed < 0 ? -product : product;
+                return CrawlerSlopeDefinitions.Scale(xVelocity, slopeShape);
             }
         }
         return unchecked((short)xVelocity) << 8;

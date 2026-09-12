@@ -91,7 +91,6 @@ public sealed partial class RoomEnemySystem
     private const int YardOppositeDirectionTable = 0xa3cdc2;
     private const int YardMovementFunctionTable = 0xa3cdd2;
     private const int YardAirborneListTable = 0xa3d1ab;
-    private const int YardKickYVelocityTable = 0xa3d517;
     private const ushort YardNothingSpritemap = 0x804d;
 
     private readonly YardEnemyState?[] _yardStates =
@@ -593,13 +592,8 @@ public sealed partial class RoomEnemySystem
         uint samusDistance = samus.AbsoluteMovedLastFrameXFixed;
         state.AirborneXSubvelocity = unchecked((ushort)samusDistance);
         state.AirborneXVelocity = unchecked((ushort)(samusDistance >> 16));
-        int cappedWholeSpeed = Math.Min(state.AirborneXVelocity, (ushort)15);
-        state.AirborneYSubvelocity = ReadWord(
-            _bus!,
-            YardKickYVelocityTable + cappedWholeSpeed * 4);
-        state.AirborneYVelocity = ReadWord(
-            _bus!,
-            YardKickYVelocityTable + cappedWholeSpeed * 4 + 2);
+        (state.AirborneYSubvelocity, state.AirborneYVelocity) =
+            YardKickDefinitions.ForHorizontalSpeed(state.AirborneXVelocity);
 
         if ((samus.ReadPoseXDirection(_bus!) & 4) != 0)
         {

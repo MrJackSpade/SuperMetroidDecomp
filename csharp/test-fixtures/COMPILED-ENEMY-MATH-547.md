@@ -503,3 +503,16 @@ claimed, and this migration does not resolve the deferred player report #524.
 
 The diagnostic was subsequently repaired under #588 without production changes;
 the complete encounter now passes. See BOYON-AUDIT-588.md.
+
+## Crawler slope scaling and Yard kick records
+
+`CrawlerSlopeDefinitions` replaces the 32 adjusted multipliers at $A3:E931;
+unused additive words are deliberately not consumed. Signed 8.8 tangent values
+still produce full signed 16.16 products. `YardKickDefinitions` replaces all
+sixteen fractional/whole pairs at $A3:D517. Only the vertical lookup selector is
+capped at fifteen; horizontal displacement and native sign handling are unchanged.
+
+All 32 slope values and 2,097,152 signed velocity/shape products match the ROM
+reference. All 65,536 Yard selector inputs match both native words after the cap.
+The complete shared-crawler and Aqueduct Yard audits, full Release Verification,
+and Windows Release build pass. This is a mechanics-data migration, not a new player-visible fix.

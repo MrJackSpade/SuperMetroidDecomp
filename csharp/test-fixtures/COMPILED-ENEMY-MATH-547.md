@@ -485,3 +485,18 @@ that diagnostic. It is not claimed passing. #547 remains incomplete.
 
 The standalone audit was subsequently repaired under #587 without production
 changes and now passes completely; see CERES-RIDLEY-AUDIT-587.md.
+
+## Boyon bounce curve
+
+`BoyonSpeedDefinitions` compiles the 23 triangular-number bytes at $A2:8701.
+Native comparisons at $A2:875E/$880F/$885B explicitly saturate later indices to
+$FF; the compiled sampler preserves this for every 16-bit index. Multiplication
+still consumes only the multiplier's low byte. The real shared multiplication
+helper and its initialization/rising/falling callers no longer require a bus.
+
+Tests compare all stored bytes and all 65,536 index cases, then exercise the real
+helper for 16,777,216 effective input pairs with nonzero discarded high bytes.
+Full Release Verification and Windows Release build pass. The room audit passes
+initialization, bounce and OBJ checks but stops at its unchanged immediate-hurt
+assertion; #588 tracks that diagnostic repair. Complete encounter success is not
+claimed, and this migration does not resolve the deferred player report #524.

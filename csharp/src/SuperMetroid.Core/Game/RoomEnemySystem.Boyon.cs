@@ -99,8 +99,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BoyonBouncingInstructionList = 0x86bf;
     private const int BoyonSpeedMultiplierTable = 0xa286df;
     private const int BoyonJumpHeightTable = 0xa286ef;
-    private const int BoyonSpeedCurve = 0xa28701;
-    private const int BoyonSpeedCurveLength = 23;
     private const ushort BoyonBounceSound = 0x000e;
 
     private readonly BoyonEnemyState?[] _boyonStates =
@@ -152,7 +150,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Boyon</c> at <c>$A2:879C</c>.</summary>
-    private void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState? samus)
+    private static void RunBoyonMain(RoomEnemySlot slot, BoyonEnemyState state, SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Boyon proximity AI requires the active Samus actor.");
@@ -212,7 +210,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the one-time loop at <c>$A2:8755</c>.</summary>
-    private void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
+    private static void CalculateInitialBoyonBounceSpeed(BoyonEnemyState state)
     {
         // Every iteration multiplies two low bytes through hardware registers $4202/$4203,
         // adds the 16-bit product with wraparound, then compares via the 65C816 negative
@@ -238,7 +236,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports falling movement at <c>$A2:8801</c>.</summary>
-    private void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
+    private static void MoveBoyonFalling(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.SpeedTableIndex = unchecked((ushort)(state.SpeedTableIndex + 1));
         state.Speed = MultiplyBoyonCurveEntry(state);
@@ -255,7 +253,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports rising movement at <c>$A2:8850</c>.</summary>
-    private void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
+    private static void MoveBoyonRising(RoomEnemySlot slot, BoyonEnemyState state)
     {
         state.Speed = MultiplyBoyonCurveEntry(state);
         slot.YPosition = unchecked((ushort)(slot.YPosition - (state.Speed >> 8)));
@@ -268,13 +266,8 @@ public sealed partial class RoomEnemySystem
     /// Recreates the native 8×8 unsigned multiply for the current curve index. Values after
     /// the stored table use the explicit saturated byte rather than reading adjacent ROM.
     /// </summary>
-    private ushort MultiplyBoyonCurveEntry(BoyonEnemyState state)
-    {
-        byte curveValue = state.SpeedTableIndex < BoyonSpeedCurveLength
-            ? _bus!.ReadByte(BoyonSpeedCurve + state.SpeedTableIndex)
-            : (byte)0xff;
-        return unchecked((ushort)(curveValue * (byte)state.SpeedMultiplier));
-    }
+    private static ushort MultiplyBoyonCurveEntry(BoyonEnemyState state) =>
+        BoyonSpeedDefinitions.Multiply(state.SpeedTableIndex, state.SpeedMultiplier);
 
     /// <summary>Ports <c>IsSamusWithinAPixelColumnsOfEnemy</c> for Boyon's init1 radius.</summary>
     private static bool IsBoyonSamusWithinHorizontalRange(

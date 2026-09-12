@@ -34,6 +34,7 @@ internal static partial class Program
         VerifyCompiledPolypLaunchDefinitions(rom);
         VerifyCompiledShaktoolAngularVelocities(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
+        VerifyCompiledBoyonSpeeds(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

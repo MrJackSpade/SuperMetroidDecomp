@@ -2422,13 +2422,10 @@ public sealed partial class RoomEnemySystem
                 reactionPointer == BotwoonPowerBombAi;
             bool isCrocomire = enemy.EnemyDefinitionPointer == CrocomireDefinition &&
                 reactionPointer == CrocomirePowerBombAi;
-            // Several banks install a one-byte `RTL` callback when an enemy must receive
-            // the native power-bomb collision prelude but deliberately take no damage.
-            // Recognize the executable contract itself instead of maintaining a bespoke
-            // definition list: Etecoon and the growing shutter both use bank-local $804C,
-            // and any future retail header pointing at a literal RTL has identical meaning.
-            bool isLiteralNoOpReaction = reactionPointer != 0 &&
-                bus.ReadByte((enemy.Definition.Bank << 16) | reactionPointer) == 0x6b;
+            // Literal no-ops still receive the native collision prelude. Classify their
+            // compiled bank-qualified identities without fetching executable ROM bytes.
+            bool isLiteralNoOpReaction = EnemyPowerBombCallbackDefinitions.IsLiteralNoOp(
+                enemy.Definition.Bank, reactionPointer);
             bool isVerticalShutterReaction =
                 IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
                 reactionPointer == VerticalShutterPowerBombAi;

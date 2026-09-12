@@ -319,6 +319,17 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+Power Bomb literal-no-op classification now uses the bank-qualified
+EnemyPowerBombCallbackDefinitions catalog rather than executable ROM-byte reads.
+All 163 named pinned enemy headers are checked against their native first opcode;
+ten unique callbacks are literal RTL. All 16,777,216 bank/pointer combinations
+are checked against that inventoried identity set, including zero/common-damage
+and bank-alias distinctions. Private reaction dispatch and collision preludes
+are unchanged. Full Release Verification, Windows build and the room $01/$26
+Power Bomb rendering audit pass. This does not claim complete combat coverage
+for every actor. Shot/hitbox IsLiteralNoOpEnemyAi still reads opcode bytes and
+requires its broader callback inventory before migration.
+
 Bull's $A8:D885 maximum speeds and $A8:D895 interval pairs are compiled in
 BullMovementDefinitions. All 104 authored selector combinations run through
 the real initializer without a bus and match the pinned ROM words, live timer

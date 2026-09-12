@@ -83,6 +83,17 @@ internal static partial class PhantoonPlasmaAudit
         if (enemies.ResolvePhantoonProjectileHits(bus, shots, shared) != 0 || body.Health != 2050)
             throw new InvalidDataException("Phantoon accepted another Plasma contact before invincibility expired.");
         Console.WriteLine("Phantoon Plasma damage sets the cartridge's 16-frame invincibility and rejects immediate repeat contact.");
+        // Independent original-CPU encounter frame 1565: the primer retains its
+        // missile type/damage and receives direction bit $10, rather than becoming
+        // a missile explosion. Its own following pre-instruction deletes it.
+        body.Health = 2500;
+        body.InvincibilityTimer = 0;
+        shot.Type = 0x8100;
+        shot.Damage = 100;
+        shot.Direction = 0;
+        if (enemies.ResolvePhantoonProjectileHits(bus, shots, shared) != 1 ||
+            body.Health != 2400 || shot.Type != 0x8100 || shot.Damage != 100 || shot.Direction != 0x10)
+            throw new InvalidDataException($"Phantoon native primer lifecycle: health={body.Health}, type={shot.Type:X4}, damage={shot.Damage}, direction={shot.Direction:X4}.");
         return 0;
     }
 }

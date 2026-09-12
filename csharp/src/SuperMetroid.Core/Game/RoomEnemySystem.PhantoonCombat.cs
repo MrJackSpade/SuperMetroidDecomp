@@ -366,7 +366,7 @@ public sealed partial class RoomEnemySystem
 
         if (unchecked((short)(targetX - body.XPosition)) < 0)
         {
-            if (unchecked((short)(tentacles.VariableC - 0xf671)) >= 0)
+            if (unchecked((short)(tentacles.VariableC - PhantoonMotionDefinitions.SwoopNegativeXThreshold)) >= 0)
                 tentacles.VariableC = unchecked((ushort)(tentacles.VariableC - 0x20));
         }
         else if (unchecked((short)(tentacles.VariableC - 0x0800)) < 0)
@@ -385,7 +385,7 @@ public sealed partial class RoomEnemySystem
         ushort targetY = fatal ? (ushort)112 : unchecked((ushort)(samus.YPosition - 48));
         if (unchecked((short)(targetY - body.YPosition)) < 0)
         {
-            if (unchecked((short)(tentacles.VariableD - 0xf8d1)) >= 0)
+            if (unchecked((short)(tentacles.VariableD - PhantoonMotionDefinitions.SwoopNegativeYThreshold)) >= 0)
                 tentacles.VariableD = unchecked((ushort)(tentacles.VariableD - 0x40));
         }
         else if (unchecked((short)(tentacles.VariableD - 0x0600)) < 0)

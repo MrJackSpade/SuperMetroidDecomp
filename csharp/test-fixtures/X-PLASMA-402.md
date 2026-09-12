@@ -1,46 +1,100 @@
 # #402 X-Plasma parity
 
-## Current remaining scope
+## Current coverage
 
 Full normal-input original-CPU trajectories now match for steel Pirates,
-Botwoon (charged Plasma and Hyper), and Draygon (charged Plasma). Phantoon has
-native contact, freeze/release, and full-runtime boundary coverage, but still
-needs the complete normal-firing/X-ray controller encounter comparison,
-including its primer. The chronological sections below retain earlier
-limitations; later evidence supersedes only the explicitly covered cases.
+Botwoon (charged Plasma and Hyper), Draygon (charged Plasma), and Phantoon
+(including its ordinary missile primer). Adjacent timing failures and
+nonpenetrating controls are preserved. Player confirmation remains outstanding.
+The chronological sections below retain earlier limitations; later evidence
+supersedes only the explicitly covered cases. This is mechanical parity, not
+a claim of complete audiovisual or PAL parity.
 
-## Phantoon normal-input primer and retained shot (managed encounter)
+The [X-Plasma reference, revision 9211](https://wiki.supermetroid.run/index.php?title=X-Plasma&oldid=9211)
+was reread for the final scope check: named boss targets, Phantoon's preliminary
+non-charged-shot damage, uncharged steel-pirate use, and Hyper penetration are
+covered by the fixtures below. Its informal invulnerability-reset description
+is implemented as the original counter continuing to expire during X-ray, not
+an invented timer reset on activation. Not every chosen fixture is a boss kill:
+Draygon's selected trajectory asserts four hits; Phantoon's successful case and
+Botwoon's Hyper case continue to lethal damage.
 
-`--phantoon-fired-plasma-audit ROM` now runs two deterministic 1,920-frame
-production-runtime encounters, each preceded by two HUD-selection frames.
-Room `$8F:CD13` is loaded normally, with real flames, damage and knockback.
-Initial equipment is Varia, X-ray, Charge and Plasma, with 999 energy and ten
-missiles. No cheats are enabled. After setup, the fixture writes only controller
-inputs: no boss phase, position, hitbox, projectile, or freeze-state injection.
+## Phantoon complete native encounter and four reproduced corrections
 
-The fixture walks left on frames 1460–1479 and holds Jump on 1505–1524.
-It fires a missile on 1517, cancels missile selection on 1518, charges on
-1530–1619 and releases on 1620. Item Select on 1621 and 1623 selects X-ray;
-the positive case then holds Run for 60 frames and releases for four repeatedly.
-The control uses the same inputs except for those Run holds.
+`--phantoon-fired-plasma-audit ROM CSV` compares eight complete room-local
+encounters: **16,770 gameplay frames**, plus sixteen native setup records in
+the archive. Each row compares 150 fields: input, freeze, health/hurt clocks,
+body map/phase/whole and subpixel position, Samus pose/HUD/health/whole and
+subpixel position, all five player projectile slots (type, whole/subpixel
+position, direction, damage), all eighteen enemy projectile positions, and
+the swoop velocities/target. Inactive projectile payloads normalize to zero.
 
-Both cases assert the 100-damage primer on 1517 and exactly one charged Plasma
-spawn. With X-ray, that shot deals 450 on 1620, 1687 and 1751 (remaining boss
-health 1050). Without X-ray it deals 450 only on 1620 (remaining health 1950).
-Every frozen frame with the retained shot asserts its whole and subpixel
-position, continued existence, and unchanged boss health, including activation.
+Four production mismatches were reproduced before correction:
 
-This is managed encounter evidence, **not** a full native parity result. The
-same sequence still needs original-CPU comparison before completing #402.
-`--phantoon-fired-plasma-search ROM PRIMER RELEASE [START_X]` retains the
-bounded search interface without asserting those fixed expected hit frames.
+- Initial flame timer: port 96, original 120. `$A7:CE2B` contains the NTSC
+  120-frame immediate; the port had selected PAL's 96 and mislabeled it.
+  The independent audit now reads that original operand; production uses a
+  named NTSC catalog value. The initial native divergence was flame spawn
+  frame 93 versus 117 after the two setup frames.
+- Figure-eight expiry: port waited for a negative timer. Native
+  `$A7:D5ED-$D5F2` expires on zero **or** negative. A focused runtime test
+  failed at entry timer one, and now checks entries two, one and zero.
+- Missile primer lifecycle: the port converted the hit into type `$8800`
+  explosion/damage 8. Native frame 1565 keeps `$8100`/damage 100, marks direction
+  `$10`, and deletes it on the following projectile update. Phantoon now uses
+  the existing native collision prelude, not immediate impact conversion.
+  A focused collision regression failed before the correction.
+- Negative swoop limits: the port mixed PAL `$F671/$F8D1` thresholds with NTSC
+  acceleration. The pinned `$A7:D31A/$D394` operands are `$F801/$FA01`; production
+  now uses named NTSC definitions. Focused velocity/displacement checks failed
+  before the fix, and the native no-hit trajectory exposed divergence at 1842.
 
-Earlier unsuccessful primer attempts do not justify a gameplay change: a Jump
-edge on the landing transition was not accepted, and moving the shot earlier
-or later missed the short eye opening. Delaying Item Cancel did not change
-the immediately deleted missile. The successful ordinary-input sequence above
-replaces those unsuccessful setup attempts; no production behavior was patched
-to make it succeed.
+Setup: retail room `$8F:CD13`, its authored grey-door PLM, RNG `$0061`, standing
+right pose, Samus `(128,187)` with zero subpixels, camera `(32,21)`, 999 energy,
+ten missiles, Varia/X-ray/Charge/Plasma (nonpenetrating control omits Plasma).
+All cheats are disabled. Select and neutral precede frame zero; NMI is frame+3.
+Thereafter both implementations receive only the same physical controller
+words—no injected hits, boss phases, projectile positions or freeze state.
+
+Inputs: Right 1460–1479, Jump 1548–1587, missile Shoot 1565, Cancel 1566.
+Hold Shoot for 90 frames before the selected release. Select at release+1
+and release+3 selects X-ray. After the first beam hit and selection, hold Run
+for 60/release for four repeatedly. Default input otherwise holds Up.
+
+Every case primes for 100 damage on 1565 and fires one charged shot:
+
+| Release / control | Charged hits | Final health |
+| --- | --- | --- |
+| 1690, 1692 | Miss | 2400 |
+| 1693 | 1712 only | 1950 |
+| 1697 | 1712, 1776, 1840, 1904, 1968 | 150 |
+| 1698, 1700 | Above plus lethal hit 2032 | 0 |
+| 1700, no X-ray | 1712 only | 1950 |
+| 1700, charged Power Beam | 1712 only, 60 damage | 2340 |
+
+Frozen/activation frames separately assert retained shot positions and no
+damage. Native traces capture the invincibility counter on every frame.
+The earlier managed-only sequence in `f6a0d952` is superseded: correcting
+native timing correctly invalidated its attack schedule; it was not retained
+by weakening the timing fixes.
+
+Evidence: `movement-release/phantoon-fired-402.zip` contains only numeric
+`phantoon-fired-native-final.csv`, SHA-256
+`0C5AE86604B962DB056DD034D7A2CA98B25A533C70D1447C067CB59749E2789B`.
+Two independent runs are identical. Apply `native-phantoon-fired-entrypoint.patch`
+to pinned upstream-sm, rebuild, then run
+`sm.exe --diagnostic-phantoon-fired ROM NEW.csv` and compare with the managed
+command above. The header uses bounded **original 65816 instructions**, not
+translated C combat. Original room loaders, grey-door PLM, HDMA, RNG and
+game-state-eight run. The initial probe without the grey door was rejected:
+its flame could cross a wall where the real closed door blocks it.
+
+The headless patch narrowly permits `$80:6401/2` X-ray left-neighbor reads using
+the diagnostic emulator's open bus, as documented for Botwoon below. The ROM
+instructions are untouched. No exact open-bus-dependent X-ray pixels or audio
+waveform claim is made. Temporary native hooks are removed after capture.
+The full Verification suite, focused primer/position tests and existing retail
+Phantoon combat/death audit pass after these corrections.
 
 ## Reproduced shared dispatcher defect
 

@@ -51,7 +51,7 @@ public sealed partial class RoomEnemySystem
         for (int color = 112; color < 128; color++)
             _cgram!.SetColor(color, 0);
 
-        body.VariableE = 0x0060; // Japan/USA regional constant at $A7:CE2B.
+        body.VariableE = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         body.VariableA = 0;
         body.VariableB = 0;
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -346,7 +346,9 @@ public sealed partial class RoomEnemySystem
         StepPhantoonCasualFlameSchedule(body, state.Mouth!);
 
         state.Eye!.VariableA = unchecked((ushort)(state.Eye.VariableA - 1));
-        if (unchecked((short)state.Eye.VariableA) >= 0)
+        // Native DEC/BEQ/BPL admits both zero and negative expiration. Waiting
+        // for underflow adds a movement/flame frame before the eye-opening handoff.
+        if (unchecked((short)state.Eye.VariableA) > 0)
             return;
 
         body.VariableF = (ushort)PhantoonAiFunction.NoOperation;

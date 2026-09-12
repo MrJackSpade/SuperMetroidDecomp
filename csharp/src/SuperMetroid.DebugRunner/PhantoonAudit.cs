@@ -22,6 +22,7 @@ internal static class PhantoonAudit
         // Read the region-specific immediate operands rather than assuming PAL's +/-3.
         ushort clockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.ClockwiseRageSpeedInstruction);
         ushort counterclockwiseRageSpeed = ReadRageSpeedOperand(PhantoonAuditReferenceData.CounterclockwiseRageSpeedInstruction);
+        ushort initialFlameDelay = ReadRageSpeedOperand(PhantoonAuditReferenceData.InitialFlameDelayInstruction);
         ushort ReadRageSpeedOperand(int address)
         {
             if (bus.ReadByte(address) != 0xa9)
@@ -91,7 +92,7 @@ internal static class PhantoonAudit
         if (body.XPosition != 128 || body.YPosition != 96 || body.Health != 2500 ||
             body.CurrentInstruction != 0xcc41 || state.Eye.CurrentInstruction != 0xcc7b ||
             state.Tentacles.CurrentInstruction != 0xccd7 || state.Mouth.CurrentInstruction != 0xccf7 ||
-            body.VariableE != 0x0060 ||
+            body.VariableE != initialFlameDelay ||
             body.VariableF != (ushort)PhantoonAiFunction.SpawnStartingFlames ||
             state.Mouth.VariableC != 0xffff || !state.BackgroundTilemapPrepared ||
             state.Bg2TilemapSize != 0x0360 || vram.ReadWord(0x4800) != 0x0338 ||

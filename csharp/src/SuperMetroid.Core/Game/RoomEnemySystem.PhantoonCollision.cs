@@ -100,11 +100,13 @@ public sealed partial class RoomEnemySystem
                     $"Phantoon hitbox shot AI $A7:{hitboxShotAi:X4} is not translated.");
             }
 
-            // `NormalEnemyShotAI_NoDeathCheck_NoEnemyShotGraphic` still creates the Samus
-            // projectile's own impact. "No enemy shot graphic" suppresses only common
-            // sprite-object $37 on the boss, because Phantoon owns his white palette flash.
-            if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex))
-                continue;
+            // The native extended-hitbox walker marks the projectile before $A7:DD9B.
+            // That callback's damage helper does not convert it into an explosion:
+            // the projectile pre-instruction owns the following-frame deletion, while
+            // penetrating Plasma retains its type, direction, and instruction stream.
+            projectiles.ApplyExtendedEnemyCollisionPrelude(projectile.SlotIndex,
+                body.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                (projectileType & (ushort)SamusBeamFlags.Plasma) == 0);
 
             ushort healthBefore = body.Health;
             // Phantoon calls common normal-shot damage, including its charged-beam
@@ -126,8 +128,8 @@ public sealed partial class RoomEnemySystem
                     ushort hurtTime = body.HurtAiTime == 0 ? (ushort)4 : body.HurtAiTime;
                     body.FlashTimer = unchecked((ushort)(hurtTime + 8));
                     body.AiHandlerBits |= 0x0002;
-                    // Use the captured pre-impact type: collision may replace the
-                    // live projectile with an explosion before common shot effects.
+                    // Plasma alone installs this clock; ordinary missiles retain
+                    // the timer behavior of the shared native damage helper.
                     if ((projectileType & (ushort)SamusBeamFlags.Plasma) != 0)
                         body.InvincibilityTimer = EnemyShotTiming.PlasmaInvincibilityFrames;
                     body.Health = damage >= body.Health

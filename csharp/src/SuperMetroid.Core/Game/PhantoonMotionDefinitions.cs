@@ -1,8 +1,12 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>NTSC figure-eight acceleration and limits; definition data, not mutable enemy speed.</summary>
+/// <summary>NTSC figure-eight and swoop limits; definition data, not mutable enemy speed.</summary>
 public static class PhantoonMotionDefinitions
 {
+    /// <summary>$A7:D31A, MovePhantoonInSwoopingPattern: NTSC signed X threshold stops subtraction at -8 pixels/frame. PAL uses $F671.</summary>
+    public const ushort SwoopNegativeXThreshold = 0xf801;
+    /// <summary>$A7:D394, MovePhantoonInSwoopingPattern: NTSC signed Y threshold stops subtraction at -6 pixels/frame. PAL uses $F8D1.</summary>
+    public const ushort SwoopNegativeYThreshold = 0xfa01;
     /// <summary>$A7:CD73/$CD81: Phantoon_Figure8_SubAcceleration_SlowStage and its reverse clone, fractional 16.16 acceleration.</summary>
     public const ushort SlowFraction = 0x600;
     /// <summary>$A7:CD75/$CD83: slow-stage whole acceleration, zero in both directions.</summary>

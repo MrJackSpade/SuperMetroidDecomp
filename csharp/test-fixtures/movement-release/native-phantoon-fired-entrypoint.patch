@@ -1,0 +1,63 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@ -81,15 +81,16 @@
+ static uint32 g_gamepad_modifiers;
+ static uint16 g_gamepad_last_cmd[kGamepadBtn_Count];
+ extern Snes *g_snes;
++bool phantoon_fired_headless;
+ 
+ void NORETURN Die(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
++  if (!phantoon_fired_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, kWindowTitle, error, NULL);
+   fprintf(stderr, "Error: %s\n", error);
+   exit(1);
+ }
+ 
+ void Warning(const char *error) {
+-  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
++  if (!phantoon_fired_headless) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, kWindowTitle, error, NULL);
+   fprintf(stderr, "Warning: %s\n", error);
+ }
+ 
+@@ -313,6 +314,11 @@
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-phantoon-fired") == 0) {
++    phantoon_fired_headless = true;
++    extern int DiagnosticPhantoonFired(const char *, const char *);
++    return DiagnosticPhantoonFired(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -95,6 +95,8 @@
+ } StateRecorder;
+ 
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-phantoon-fired-probe.h"
+ 
+ void StateRecorder_Init(StateRecorder *sr) {
+   ByteArray_Destroy(&sr->log);
+diff --git a/src/snes/cart.c b/src/snes/cart.c
+--- a/src/snes/cart.c
++++ b/src/snes/cart.c
+@@ -83,6 +83,13 @@
+     // adr 8000-ffff in all banks or all addresses in banks 40-7f and c0-ff
+     return cart->rom[((bank << 15) | (adr & 0x7fff)) & (cart->romSize - 1)];
+   }
++  extern bool phantoon_fired_headless;
++  if (phantoon_fired_headless && bank == 0 && (adr == 0x6401 || adr == 0x6402)) {
++    static bool reported;
++    if (!reported) fprintf(stderr, "Phantoon oracle: X-ray left-neighbor read uses emulator open bus at $80:6401/2.\n");
++    reported = true;
++    return cart->snes->openBus;
++  }
+   printf("While trying to read from 0x%x\n", bank << 16 | adr);
+   DumpCpuHistory();
+   Die("The game crashed in cart_readLorom");

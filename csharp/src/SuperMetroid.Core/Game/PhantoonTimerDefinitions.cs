@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Phantoon's authored timer choices; callers retain their native RNG/frame masks.</summary>
 public static class PhantoonTimerDefinitions
 {
+    /// <summary>$A7:CE2B, InitAI_PhantoonBody: Japan/USA initial flame countdown is 120 frames. PAL uses 96.</summary>
+    public const ushort InitialFlameDelayFrames = 120;
     /// <summary>$A7:CD41, Phantoon_Figure8_VulnerableWindowTimers: eight eye-open duration choices.</summary>
     public static ReadOnlySpan<ushort> VulnerableWindow => [60, 30, 15, 30, 60, 30, 15, 60];
     /// <summary>$A7:CD53, Phantoon_EyeClosedTimers: eight hidden-eye duration choices; first-round NMI selection uses only the first four.</summary>

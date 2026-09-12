@@ -1183,3 +1183,21 @@ not the full physical walking trajectory or all remaining Kraid definitions.
 Full Release Verification, the complete Kraid audit and the Windows Release
 build pass. The audit includes second-phase walking and 360-frame death and
 persistence; its floor diagnostic remains distinct from visual parity evidence.
+
+## Kraid body projectile contour
+
+Compiled the seven overlapping left/top pairs at A7:B163/B165 into
+`KraidBodyContour`. The actual outer-body collision consumer no longer reads
+these words. Mouth hitboxes remain indirect and are not included in this change.
+The native B161 definition confirms the final signed-minimum sentinel; the
+existing host signed-relative-Y and strict X-boundary arithmetic are retained.
+This is not a claim that arbitrary overflow coordinates match every native
+16-bit CMP/ADC/SBC operation; that separate arithmetic audit remains necessary.
+
+Tests derive all seven pairs independently from ROM, compare every signed Y,
+and exercise 1,769,472 actual collision calls at the left boundary and either
+side, with three body translations and three projectile radii. Body/shot Y
+coordinates wrap across the full word domain. Any production bus access throws.
+
+Focused and full Release Verification, the complete Kraid audit and Windows
+Release build pass. No new player-visible collision correction is claimed.

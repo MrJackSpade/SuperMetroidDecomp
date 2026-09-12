@@ -136,22 +136,8 @@ public sealed partial class RoomEnemySystem
             return true;
         }
 
-        // `$B161` is a staircase contour: every record's first word is also the preceding
-        // band's top boundary, followed by its left edge. The final `$8000` sentinel makes
-        // the walk total for any signed Y offset without a host-side bounds guess.
         short relativeY = unchecked((short)(shot.YPosition - body.YPosition));
-        int offset = 0;
-        for (int record = 0; record < 7; record++, offset += 4)
-        {
-            short nextTop = unchecked((short)ReadWord(
-                _bus!, EnemyRomTablePointers.Kraid.HitboxTopWords + offset));
-            if (relativeY < nextTop)
-                continue;
-            short left = unchecked((short)ReadWord(
-                _bus!, EnemyRomTablePointers.Kraid.HitboxLeftWords + offset));
-            return shot.XPosition + shot.XRadius > body.XPosition + left;
-        }
-        return false;
+        return shot.XPosition + shot.XRadius > body.XPosition + KraidBodyContour.LeftEdge(relativeY);
     }
 
     private void BeginKraidDeath(RoomEnemySlot body, KraidEnemyState state)

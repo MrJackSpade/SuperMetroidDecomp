@@ -196,13 +196,15 @@ internal static class BoyonAudit
         samus.YPosition = audited.YPosition;
         samus.Health = 999;
         samus.InvincibilityTimer = 0;
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
         if (!enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 989 || !samus.KnockbackActive)
+            samus.Health != 989)
         {
             throw new InvalidDataException(
                 $"Boyon contact attack failed: health={samus.Health}, " +
                 $"knockback={samus.KnockbackActive}.");
         }
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 10, 1, "Boyon body contact");
 
         // Power Beam's vulnerability byte is zero: collision consumes the shot but causes
         // neither damage nor hurt flash. Super Missiles use multiplier two, which the common
@@ -442,16 +444,21 @@ internal static class BoyonAudit
                 $"({target.XPosition:X4},{target.YPosition:X4}), freeze={target.FrozenTimer}.");
         }
 
-        // Crateria is not the cartridge's shorter Norfair case. A frozen Boyon must remain
-        // solid/paused for exactly 400 enemy frames while Ice stays equipped, reaching one
-        // after 399 steps and thawing only on step 400.
-        for (int frame = 0; frame < 399; frame++)
+        // The native handler tests zero before decrementing. The 400th call reaches
+        // zero but retains the frozen handler; the following call performs thawing.
+        ushort frozenX = target.XPosition, frozenY = target.YPosition;
+        ushort frozenSubX = target.XSubposition, frozenSubY = target.YSubposition;
+        for (int frame = 1; frame <= 400; frame++)
+        {
             enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
-        if (target.FrozenTimer != 1 || (target.AiHandlerBits & 0x0004) == 0)
-            throw new InvalidDataException($"Crateria Super freeze expired early at {target.FrozenTimer} frames.");
+            if (target.FrozenTimer != 400 - frame || (target.AiHandlerBits & 0x0004) == 0 ||
+                target.XPosition != frozenX || target.YPosition != frozenY ||
+                target.XSubposition != frozenSubX || target.YSubposition != frozenSubY)
+                throw new InvalidDataException($"Crateria Super frozen countdown/position diverged on frame {frame}: timer={target.FrozenTimer}.");
+        }
         enemies.StepFrame(cameraX, cameraY, false, samus, level: assets.LevelData);
         if (target.FrozenTimer != 0 || (target.AiHandlerBits & 0x0004) != 0)
-            throw new InvalidDataException($"Crateria Super freeze did not thaw on frame 400: {target.FrozenTimer}.");
+            throw new InvalidDataException($"Crateria Super freeze did not thaw on frame 401: {target.FrozenTimer}.");
     }
 
     private static void VerifyHeader(ISnesAddressSpace bus)

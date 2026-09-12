@@ -500,3 +500,6 @@ Full Release Verification and Windows Release build pass. The room audit passes
 initialization, bounce and OBJ checks but stops at its unchanged immediate-hurt
 assertion; #588 tracks that diagnostic repair. Complete encounter success is not
 claimed, and this migration does not resolve the deferred player report #524.
+
+The diagnostic was subsequently repaired under #588 without production changes;
+the complete encounter now passes. See BOYON-AUDIT-588.md.

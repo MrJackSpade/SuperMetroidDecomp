@@ -337,10 +337,6 @@ static void VerifySamusPowerBeamProjectiles()
         };
         WriteTestWord(bus, 0x90c353 + direction * 2, unchecked((ushort)xAcceleration));
         WriteTestWord(bus, 0x90c367 + direction * 2, unchecked((ushort)yAcceleration));
-        WriteTestWord(bus, 0x90c204 + direction * 2, 0);
-        WriteTestWord(bus, 0x90c218 + direction * 2, 0);
-        WriteTestWord(bus, 0x90c22c + direction * 2, 0);
-        WriteTestWord(bus, 0x90c240 + direction * 2, 0);
 
         // Missiles do not borrow the beam's tiny per-frame acceleration table. The native
         // initializer at `$90:B2F6` reads two signed words per direction from `$90:C303`:
@@ -1245,8 +1241,8 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         0,
         wallBombs);
-    AssertEqual(68, wallProjectiles.Slots[0].XPosition,
-        "right beam first frame moves four whole pixels");
+    AssertEqual(79, wallProjectiles.Slots[0].XPosition,
+        "right beam starts eleven pixels beyond Samus then moves four whole pixels");
     AssertEqual(0x1000, wallProjectiles.Slots[0].XSubposition,
         "right beam first frame retains one-sixteenth pixel");
 
@@ -1433,7 +1429,7 @@ static void VerifySamusPowerBeamProjectiles()
         "first alpha pass crosses `$0100` ignition threshold");
     AssertEqual(0x0100, missile.XVelocity,
         "right missile begins at one pixel per frame after ignition");
-    AssertEqual(65, missile.XPosition,
+    AssertEqual(76, missile.XPosition,
         "right missile moves one whole pixel on its ignition frame");
     AssertEqual(0xa020, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
@@ -1547,10 +1543,10 @@ static void VerifySamusPowerBeamProjectiles()
         var pointSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 64,
-            // The helper argument is the desired muzzle Y, not the body center.
-            // Native standing-pose origins subtract six even with synthetic artwork.
-            YPosition = unchecked((ushort)(yPosition + 6)),
+            // Request muzzle (64,yPosition): default Right adds (11,1), then
+            // standing-pose mechanics subtract six from Y, regardless of artwork.
+            XPosition = 53,
+            YPosition = unchecked((ushort)(yPosition + 5)),
             SelectedHudItem = 1,
             Missiles = 1,
         };
@@ -2029,7 +2025,6 @@ static void VerifySamusPowerBeamProjectiles()
     var contactDoorBombs = new SamusBombProjectileSystem();
     var contactDoorProjectiles = new SamusProjectileSystem();
     var contactDoorPlms = new RoomPlmSystem();
-    WriteTestWord(bus, 0x90c204 + 2 * 2, 0x000b);
     contactDoorBombs.StepFrame(bus, contactDoor, contactDoorSamus, 0, 0);
     SamusProjectileFrameResult contactDoorImpact = contactDoorProjectiles.StepFrame(
         bus,
@@ -2041,7 +2036,6 @@ static void VerifySamusPowerBeamProjectiles()
         0,
         contactDoorBombs,
         roomPlms: contactDoorPlms);
-    WriteTestWord(bus, 0x90c204 + 2 * 2, 0x0000);
     AssertTrue(contactDoorImpact.CollisionStartedExplosion,
         "beam born inside a blue cap collides before first-frame movement");
     AssertEqual(1, contactDoorPlms.ActiveCount,

@@ -133,6 +133,16 @@ $FD..$FF still read adjacent executable data. Facing, movement, fallback pose,
 shot direction, collision radius and per-pose instruction programs remain live
 mechanical readers; compiling this one shared field does not complete metadata.
 
+The forty direction-specific beam/missile origin words at $90:C204..C253 are
+now compiled too, with the standing/running and two special Moonwalk pose
+branches preserved. Direction nibbles ten through fifteen still cross adjacent
+rows; running Y eventually reads cooldown bytes outside the catalog. Charge-flare
+origins remain presentation data. Beam initial speeds, missile/beam accelerations,
+cooldowns and damage/animation definitions still need migration. The separate
+`InitializeDirectionalVelocity` helper also explicitly omits previous-frame
+Samus displacement inheritance; table compilation must not certify that existing
+physics limitation as complete native trajectory parity (#540).
+
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
 preserves the existing fallback for non-catalog/unaligned/mutable records.

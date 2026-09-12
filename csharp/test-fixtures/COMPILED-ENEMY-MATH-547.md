@@ -1677,3 +1677,39 @@ its requested muzzle coordinate, preserving its exact surface-boundary assertion
 under the native standing-pose correction instead of relying on zeroed metadata.
 Focused compiled-definition checks, all 18 physics fixtures, full Release
 Verification and the Windows Release build pass (zero build warnings/errors).
+
+## Direction-specific physical projectile origins
+
+Compiled all forty signed words at $90:C204..C253 in
+`SamusProjectileOriginDefinitions`: default X/Y and running/moonwalk X/Y.
+Pinned bank_90.asm identifies these separately from charge-flare offsets ending
+at C203. The actual shared beam/missile initializer consumes the compiled data;
+the flare renderer still reads presentation offsets. No new trajectory arithmetic
+or direction admission rule was introduced.
+
+Verification compares every word and exercises 343,872 actual position setups:
+all 65,536 direction words in standing, running, ordinary Moonwalk and both
+special Moonwalk poses, plus every authored pose/direction nibble at four
+coordinate boundaries. Assertions cover exact X/Y, signed table offsets,
+unsigned physical pose correction, lifecycle-bit preservation and unchanged
+Samus coordinates. The bus throws on all authored origin reads and supplies
+different charge-flare bytes so physical readers cannot accidentally depend on
+presentation. Extra direction nibbles retain cross-row addressing and the
+running-Y cooldown overread; the latter remains an explicit ROM dependency.
+
+This is a scoped #547/#540 table migration, not proof of full projectile-motion
+parity. Initial velocity inheritance remains a separately identified limitation
+in `InitializeDirectionalVelocity`; speed/acceleration/cooldown/data tables and
+the broader editable-asset integration remain unfinished.
+
+Removed synthetic zero-origin seeds from the older projectile suite. First-frame
+position assertions now include the native eleven-pixel horizontal muzzle offset;
+the point-missile helper compensates the body center to keep its requested exact
+slope contact coordinates. The contact-distance blue-door test uses the native
+offset without a temporary ROM patch. Added `--samus-projectiles` to run this
+existing producer/collision/explosion suite directly without unrelated checks.
+
+Validation passed: compiled-lookup checks, the dedicated projectile suite, all
+eighteen Samus physics groups, and the full verification suite (terminal success
+record in `projectile-origins-547-full.log`). Windows Desktop Release also builds
+with zero warnings and zero errors.

@@ -88,6 +88,7 @@ internal static partial class Program
         VerifyGrappleBodyPlacement(rom);
         VerifyRunningCadence(rom);
         VerifyPoseProjectileOrigin(rom);
+        VerifyProjectileOrigins(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

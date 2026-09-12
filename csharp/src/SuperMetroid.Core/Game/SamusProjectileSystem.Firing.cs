@@ -510,7 +510,6 @@ public sealed partial class SamusProjectileSystem
         SamusState samus,
         SamusProjectileSlot slot)
     {
-        int directionOffset = (slot.Direction & 0x0f) * 2;
         byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
         SamusMovementType movementType = samus.ReadMovementType(bus);
 
@@ -518,17 +517,9 @@ public sealed partial class SamusProjectileSystem
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseIds.MoonwalkAimUpLeftPose or SamusPoseIds.MoonwalkAimUpRightPose;
-        int xTable = runningOrigin
-            ? SamusProjectileRomData.Origins.RunningX
-            : SamusProjectileRomData.Origins.DefaultX;
-        int yTable = runningOrigin
-            ? SamusProjectileRomData.Origins.RunningY
-            : SamusProjectileRomData.Origins.DefaultY;
-
-        short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
-        short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
-        slot.XPosition = unchecked((ushort)(samus.XPosition + xOffset));
-        slot.YPosition = unchecked((ushort)(samus.YPosition + yOffset - poseYOffset));
+        var origin = SamusProjectileOriginDefinitions.Read(bus, runningOrigin, slot.Direction);
+        slot.XPosition = unchecked((ushort)(samus.XPosition + origin.X));
+        slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));
     }
 
     private static void InitializePowerBeamVelocity(

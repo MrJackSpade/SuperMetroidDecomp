@@ -425,36 +425,35 @@ public sealed partial class RoomEnemySystem
         ushort controllerInput,
         RoomLevelData? level)
     {
-        ushort tablePointer;
+        ReadOnlySpan<RidleyAiFunction> choices;
         if (samus?.ReadMovementType(_bus!) == SamusMovementType.SpinJumping)
         {
-            tablePointer = 0xb3cc;
+            choices = RidleyAttackChoices.SpinJumping;
         }
         else if (slot.Health == 0)
         {
-            tablePointer = 0xb3dc;
+            choices = RidleyAttackChoices.ZeroHealth;
             state.ZeroHealthLungeCount = unchecked((ushort)(state.ZeroHealthLungeCount + 1));
         }
         else if (slot.Health < 14400)
         {
-            tablePointer = 0xb38c;
+            choices = RidleyAttackChoices.BelowHalfHealth;
         }
         else if (samus is not null && samus.YPosition >= 352)
         {
-            tablePointer = 0xb3bc;
+            choices = RidleyAttackChoices.PogoZone;
         }
         else if (SamusMovementUsesRidleyGrab(samus))
         {
-            tablePointer = 0xb3ac;
+            choices = RidleyAttackChoices.DamageBoosting;
         }
         else
         {
-            tablePointer = slot.Health < 9000 ? (ushort)0xb39c : (ushort)0xb38c;
+            choices = slot.Health < 9000 ? RidleyAttackChoices.AboveHalfHealth : RidleyAttackChoices.BelowHalfHealth;
         }
 
         int choice = _nextRandom!() & 7;
-        ushort functionPointer = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(tablePointer + choice * 2)));
-        state.Function = (RidleyAiFunction)functionPointer;
+        state.Function = choices[choice];
 
         // The native selector tail-calls the chosen routine. Retain that same-frame setup
         // so timers, instruction changes, and velocity all begin on the selected frame.

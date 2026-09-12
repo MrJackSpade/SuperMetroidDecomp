@@ -1018,3 +1018,31 @@ divisor indexes, not tail instructions. Claw Y has a separate bounds question
 (three authored entries versus the existing host clamp of eight); no speculative
 geometry change was made in this table migration. Attack-choice tables and full
 #547 inventory/integration remain unfinished.
+
+## Ridley attack-choice distributions
+
+Compiled all six eight-entry action distributions at $A6:B38C..B3EA into
+RidleyAttackChoices. The real selector uses typed spans instead of reading
+callback words from the ROM. Preserved branch order, RNG advance, zero-health
+lunge-count wrapping and same-frame tail dispatch. The native callback names
+do not always match existing translated phase names; catalog summaries retain
+the source identity rather than silently substituting a similarly named phase.
+
+All 48 entries match the pinned ROM, including the normally unreachable reversed
+distribution. 655,360 actual selections cover every RNG word across ten explicit
+health/pose/zone cases, with migrated table reads forbidden. A reference dispatch
+starts directly from the native table word and compares the resulting phase,
+timer and exact X/Y velocity. Tests assert one selector RNG advance, identical
+current-word reads during setup, and spin-jump priority over the wrapping
+zero-health lunge counter. This verifies table substitution and dispatch timing,
+not the independent correctness of every chosen attack implementation.
+
+The selector's ordinary-health ordering matches the pinned native source and
+was not reordered. Full-word signed comparisons outside ordinary boss health
+remain a separate parity-audit consideration; this table migration does not
+claim exhaustive selector equivalence for corrupted health values.
+
+Focused and full Release Verification pass. Windows builds with zero warnings
+and errors. The Norfair Ridley audit passes 360 reveal frames, 4,096 combat frames
+across ten states and 738 death frames. #547 remains open for the remaining
+definitions, caller inventory and integration contract.

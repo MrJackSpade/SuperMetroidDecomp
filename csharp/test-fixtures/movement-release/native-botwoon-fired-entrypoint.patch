@@ -20,13 +20,15 @@ diff --git a/src/main.c b/src/main.c
    fprintf(stderr, "Warning: %s\n", error);
  }
  
-@@ -313,6 +314,11 @@
+@@ -313,6 +314,13 @@
  
  #undef main
  int main(int argc, char** argv) {
-+  if (argc == 4 && strcmp(argv[1], "--diagnostic-botwoon-fired") == 0) {
++  if (argc == 4 && (strcmp(argv[1], "--diagnostic-botwoon-fired") == 0 || strcmp(argv[1], "--diagnostic-botwoon-hyper") == 0)) {
 +    botwoon_fired_headless = true;
 +    extern int DiagnosticBotwoonFired(const char *, const char *);
++    extern int DiagnosticBotwoonHyper(const char *, const char *);
++    if (strcmp(argv[1], "--diagnostic-botwoon-hyper") == 0) return DiagnosticBotwoonHyper(argv[2], argv[3]);
 +    return DiagnosticBotwoonFired(argv[2], argv[3]);
 +  }
  #ifdef __SWITCH__

@@ -8,10 +8,14 @@ internal static partial class BotwoonAudit
     /// <summary>
     /// Normal Hyper firing/X-ray inputs in the retail room. Fixed successful,
     /// early-shot and no-scope controls; no projectile or actor edits after setup.
-    /// Exact frame expectations are port regressions, not native trajectory claims.
+    /// Optional CSV compares every gameplay frame against the original CPU.
     /// </summary>
-    public static int RunHyper(string rom)
+    public static int RunHyper(string rom, string? nativeTracePath = null)
     {
+        var nativeRows = nativeTracePath is null ? null : File.ReadAllLines(nativeTracePath).Skip(1)
+            .Select(line => line.Split(',').Select(int.Parse).ToArray())
+            .Where(row => row[2] >= 0).ToDictionary(row => (row[0], row[1], row[2]));
+        int compared = 0;
         foreach (var (fireAt, useScope) in new[] { (296, true), (300, true), (300, false) })
         {
             var runtime = new SuperMetroidRuntime(SuperMetroidAddressSpace.LoadRetailRom(rom));
@@ -48,6 +52,24 @@ internal static partial class BotwoonAudit
                 var shotBefore = tracked is null ? default :
                     (tracked.XPosition, tracked.XSubposition, tracked.YPosition, tracked.YSubposition);
                 runtime.StepFrame(input);
+                if (nativeRows is not null)
+                {
+                    var native = nativeRows[(useScope ? 1 : 0, fireAt, frame)];
+                    var projectile = runtime.Projectiles.Slots[0];
+                    int[] actual = [useScope ? 1 : 0, fireAt, frame, input, runtime.TimeIsFrozen ? 1 : 0,
+                        head.Health, head.InvincibilityTimer, head.FlashTimer, head.SpritemapPointer,
+                        head.XPosition, head.YPosition, samus.XPosition, samus.YPosition,
+                        samus.Pose, samus.SelectedHudItem, projectile.Type,
+                        projectile.XPosition, projectile.YPosition];
+                    if (!actual.SequenceEqual(native))
+                        throw new InvalidDataException($"Native Hyper Botwoon mismatch: port={string.Join(',', actual)}; native={string.Join(',', native)}.");
+                    compared++;
+                }
+                // Admission itself must suppress shot movement, not only the
+                // subsequent frames for which both entry and exit are frozen.
+                if (runtime.TimeIsFrozen && tracked is not null && shotBefore !=
+                    (tracked.XPosition, tracked.XSubposition, tracked.YPosition, tracked.YSubposition))
+                    throw new InvalidDataException($"Hyper moved on frozen/activation frame {frame}.");
                 if (runtime.Projectiles.LastFiredProjectileSnapshot is { } spawn)
                 {
                     shotIndex = spawn.SlotIndex;
@@ -84,6 +106,9 @@ internal static partial class BotwoonAudit
                 throw new InvalidDataException($"Hyper trace differs: fire={fireAt}, scope={useScope}, hits=[{string.Join(',', hits)}].");
             Console.WriteLine($"Hyper fire={fireAt}, scope={useScope}: spawns={spawns}, hits=[{string.Join(',', hits)}], health={head.Health}");
         }
+        if (nativeRows is not null && compared != nativeRows.Count)
+            throw new InvalidDataException($"Compared {compared} of {nativeRows.Count} Hyper records.");
+        Console.WriteLine($"Original-CPU Hyper Botwoon records compared: {compared}.");
         return 0;
     }
 }

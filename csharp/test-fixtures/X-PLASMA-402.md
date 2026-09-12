@@ -1,5 +1,14 @@
 # #402 X-Plasma parity
 
+## Current remaining scope
+
+Full normal-input original-CPU trajectories now match for steel Pirates and
+Botwoon (charged Plasma and Hyper). Phantoon and Draygon have native contact,
+freeze/release, and full-runtime boundary coverage, but still need the complete
+normal-firing/X-ray controller encounter comparisons. Phantoon's primer must
+remain part of that encounter. The chronological sections below retain earlier
+limitations; later evidence supersedes only the explicitly covered cases.
+
 ## Reproduced shared dispatcher defect
 
 The focused `--x-plasma-timers` Verification fixture loads an ordinary Ripper
@@ -253,7 +262,8 @@ room. It never installs a projectile or modifies the boss after setup. Each
 case fires exactly one real `$9018`, 1000-damage Hyper projectile:
 
 - Fire frame 300 with scope: hits 318/382/446, health 3000 -> 0.
-- Fire frame 296 with scope: hits 318/382, health 3000 -> 1000.
+- Fire frame 296 with scope: hits 318/382/446, health 3000 -> 0 (after the
+  shared activation-frame correction documented below).
 - Fire frame 300 without scope: hit 318 only, health 3000 -> 2000.
 
 Assertions cover firing metadata, retained beam family, per-hit damage, normal
@@ -427,3 +437,27 @@ hardware open-bus timing are not asserted by this combat comparison.
 Earlier captures used a dry native room or the requested screen Y as world Y;
 they are rejected as evidence. The final probe loads the actual water FX and
 the grounded world position. Temporary upstream hooks were removed afterward.
+
+### Full native Botwoon Hyper controller comparison
+
+The same native probe now exposes `--diagnostic-botwoon-hyper`. It uses the
+charged fixture's complete retail room/FX setup, equips Charge/Wave/Plasma,
+and sets the actual Hyper flag during initialization. The three normal-input
+cases are Shoot at 296 or 300 with repeated scope cycles, and Shoot at 300
+without scope. Scoped traces stop after the lethal third hit; the control runs
+through frame 519. No actor, projectile, or freeze state is edited after setup.
+
+All **1,414 gameplay records** match through optional CSV input to
+`--botwoon-hyper-audit`: input, freeze, boss HP/invincibility/flash/map/XY,
+Samus XY/pose/HUD, and projectile slot-zero type/XY. Both scoped cases deal
+1,000 damage at frames 318/382/446; the no-scope case hits only at 318. The
+managed fixture also checks unchanged projectile whole/subpixel coordinates
+on X-ray admission itself, normal spawn metadata, and retained beam family.
+
+Two native captures agree, SHA-256
+`E2C523FDBCE44AE94C067EE7585535771EB77A3FD6A0F312B428B0DB07B58E64`.
+Numeric evidence is in `movement-release/botwoon-hyper-402.zip`, including
+twelve setup rows in addition to the compared gameplay rows. The shared
+probe still regenerates the charged-Plasma CSV with its previous exact hash.
+The documented headless open-bus exception and visual/hardware-timing limits
+apply unchanged. No production correction was needed for these sequences.

@@ -420,3 +420,21 @@ phase retention while inside a hole. The complete `--botwoon-audit` passes,
 including body traversal, exact spit movement, combat, death and room PLMs.
 Full Release Verification and Windows Release build pass. This remains an implementation migration, not a
 new player-visible behavior claim or completion of #547.
+
+## Shared crawler and Yard speed/sign definitions
+
+`CrawlerSpeedDefinitions` replaces the identical 32-word NTSC speed copies at
+$A3:E5F0 and $A3:CCA2, preserving their gaps, repeated entries and trailing zero.
+The shared crawler reset, orange Zoomer initializer and Yard velocity setup use
+this catalog. `YardVelocityDefinitions` replaces the eight native sign records
+at $A3:CD82 with equivalent wrapping sixteen-bit negation. Graphics, direction
+instruction lists and live motion state are not replaced.
+
+Tests compare both complete native speed copies, 128 real crawler resets and
+256 real Yard resets without a bus. All 65,536 magnitudes across four property
+orientations verify that the crawler preserve-velocity sentinel still applies
+signs, and all 65,536 magnitudes across eight Yard directions match native
+XOR/increment results. Invalid selectors fail explicitly. The complete shared
+crawler and Aqueduct Yard audits pass, including movement, detachment, contact
+and rendering. Full Release Verification and Windows Release build pass. Remaining family tables and the
+broader #547 inventory are not claimed complete.

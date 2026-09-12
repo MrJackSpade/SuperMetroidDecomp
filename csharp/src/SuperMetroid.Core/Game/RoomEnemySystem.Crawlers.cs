@@ -69,7 +69,6 @@ public sealed partial class RoomEnemySystem
     private const int ZeroInitialInstructionTable = 0xa3992b;
     private const int ViolaInitialInstructionTable = 0xa3b667;
     private const int SharedCrawlerInitialInstructionTable = 0xa3e2cc;
-    private const int CrawlerSpeedTable = 0xa3e5f0;
     private const int CrawlerUpsideDownInstructionTable = 0xa3e630;
     private const int CrawlerUpsideUpInstructionTable = 0xa3e63c;
     private const int CrawlerUpsideRightInstructionTable = 0xa3e648;
@@ -117,17 +116,17 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Shared $A3:E67A velocity reset, also called by Yard after landing.</summary>
-    private void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
+    private static void ResetCrawlerVelocitiesFromProperties(RoomEnemySlot slot)
     {
 
-        if (slot.Parameter1 != 0x00ff)
+        if (slot.Parameter1 != CrawlerSpeedDefinitions.PreserveVelocity)
         {
-            if (slot.Parameter1 >= 32)
+            if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
             {
                 throw new InvalidDataException(
                     $"Crawler speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
             }
-            ushort velocity = ReadWord(_bus!, CrawlerSpeedTable + slot.Parameter1 * 2);
+            ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
             slot.VariableA = velocity;
             slot.VariableB = velocity;
         }
@@ -158,7 +157,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
     private void InitializeHZoomer(RoomEnemySlot slot)
     {
-        if (slot.Parameter1 >= 32)
+        if (slot.Parameter1 >= CrawlerSpeedDefinitions.Count)
         {
             throw new InvalidDataException(
                 $"HZoomer speed parameter ${slot.Parameter1:X4} exceeds $A3:E5F0.");
@@ -175,7 +174,7 @@ public sealed partial class RoomEnemySystem
             HZoomerInitialInstructionTable + orientation * 2);
         slot.SpritemapPointer = 0x804d;
         slot.InstructionTimer = 1;
-        ushort velocity = ReadWord(_bus!, CrawlerSpeedTable + slot.Parameter1 * 2);
+        ushort velocity = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
         state.XVelocity = velocity;
         state.YVelocity = velocity;
         switch (slot.Properties & 3)

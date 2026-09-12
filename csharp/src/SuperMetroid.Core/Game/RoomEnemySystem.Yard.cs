@@ -87,9 +87,7 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort YardDefinition = 0xdbbf;
 
-    private const int YardSpeedTable = 0xa3cca2;
     private const int YardDirectionData = 0xa3cd42;
-    private const int YardVelocitySignTable = 0xa3cd82;
     private const int YardOppositeDirectionTable = 0xa3cdc2;
     private const int YardMovementFunctionTable = 0xa3cdd2;
     private const int YardAirborneListTable = 0xa3d1ab;
@@ -144,20 +142,16 @@ public sealed partial class RoomEnemySystem
     /// Reproduces the sign-pair arithmetic at $A3:CE27. Negative entries are encoded as
     /// <c>$FFFF xor speed, then +1</c>, rather than by a host signed table.
     /// </summary>
-    private void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, ushort direction)
+    private static void SetYardCrawlingVelocities(RoomEnemySlot slot, YardEnemyState state, ushort direction)
     {
         ValidateYardSpeedIndex(slot.Parameter1);
-        ushort speed = ReadWord(_bus!, YardSpeedTable + slot.Parameter1 * 2);
-        int signRecord = YardVelocitySignTable + direction * 8;
-        state.CrawlingXVelocity = unchecked((ushort)(
-            (speed ^ ReadWord(_bus!, signRecord)) + ReadWord(_bus!, signRecord + 2)));
-        state.CrawlingYVelocity = unchecked((ushort)(
-            (speed ^ ReadWord(_bus!, signRecord + 4)) + ReadWord(_bus!, signRecord + 6)));
+        ushort speed = CrawlerSpeedDefinitions.ForParameter(slot.Parameter1);
+        (state.CrawlingXVelocity, state.CrawlingYVelocity) = YardVelocityDefinitions.Apply(speed, direction);
     }
 
     private static void ValidateYardSpeedIndex(ushort index)
     {
-        if (index >= 32)
+        if (index >= CrawlerSpeedDefinitions.Count)
             throw new InvalidDataException($"Yard speed index ${index:X4} exceeds $A3:CCA2.");
     }
 

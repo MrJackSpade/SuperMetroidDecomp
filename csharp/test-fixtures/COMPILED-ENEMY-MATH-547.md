@@ -319,6 +319,17 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+PuyoHopDefinitions replaces the seven $A2:9A07 records with named height,
+horizontal-speed, vertical-index-delta and airborne-function fields. The live
+serialized byte selector is unchanged; invalid selectors retain explicit errors.
+Dropping retains its packed 8.8 constant speed rather than using hop gravity.
+All 28 definition words and six real initial-hop integrations match independent
+ROM references without a loaded production bus, including the half/three-quarter
+animation thresholds. The complete Waterway Puyo audit passes all seven records,
+six indirect functions, eight maps, 245 airborne frames, constant dropping,
+terrain landing, contact and death/Grapple behavior. Full Release Verification
+and Windows Release build pass.
+
 Shot/bomb IsLiteralNoOpEnemyAi now uses EnemyShotCallbackDefinitions. The
 pinned-source inventory covers 163 headers plus 221 count-prefixed hitbox lists
 (309 hitboxes), yielding 80 distinct callbacks and twelve literal RTL identities.

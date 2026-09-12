@@ -147,8 +147,6 @@ public sealed partial class RoomEnemySystem
     private const ushort PuyoFrame2InstructionList = 0x99f5;
     private const ushort PuyoRightFrame3LeftFrame1InstructionList = 0x99fb;
     private const ushort PuyoRightFrame4LeftFrame0InstructionList = 0x9a01;
-    private const int PuyoHopTableAddress = 0xa29a07;
-    private const int PuyoHopRecordSize = 8;
     private const int QuadraticSpeedRecordSize = 8;
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
@@ -269,18 +267,19 @@ public sealed partial class RoomEnemySystem
             state.HopType = (PuyoHopType)hopType;
         }
 
-        state.HopTableIndex = checked((ushort)(hopType * PuyoHopRecordSize));
-        state.AirborneFunction = ReadPuyoHopFunction(state.HopTableIndex);
+        state.HopTableIndex = checked((ushort)(hopType * PuyoHopDefinitions.RecordSize));
+        state.AirborneFunction = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).Function;
         CalculateInitialPuyoHopSpeed(state);
     }
 
     /// <summary>Ports the integration loop at $A2:9B1A without simplifying its odd units.</summary>
-    private void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
+    private static void CalculateInitialPuyoHopSpeed(PuyoEnemyState state)
     {
         ushort timeAccumulator = 0;
         ushort distanceAccumulator = 0;
-        ushort xSpeed = ReadPuyoHopWord(state.HopTableIndex, 2);
-        ushort swappedJumpHeight = SwapBytes(ReadPuyoHopWord(state.HopTableIndex, 0));
+        PuyoHopDefinition hop = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex);
+        ushort xSpeed = hop.XSpeed;
+        ushort swappedJumpHeight = SwapBytes(hop.Height);
 
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
@@ -305,7 +304,7 @@ public sealed partial class RoomEnemySystem
         }
 
         throw new InvalidDataException(
-            $"Puyo hop record {state.HopTableIndex / PuyoHopRecordSize} never reached " +
+            $"Puyo hop record {state.HopTableIndex / PuyoHopDefinitions.RecordSize} never reached " +
             "its ROM jump-height threshold.");
     }
 
@@ -379,7 +378,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the constant-speed collision fall at $A2:9D98.</summary>
     private void RunDroppingPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)
     {
-        int displacement = ReadPuyoFixedPointDisplacement(state.HopTableIndex, 4);
+        ushort packed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
+        int displacement = packed << 8;
         if (!MoveEnemyVertically(level, slot, displacement))
             return;
 
@@ -439,7 +439,7 @@ public sealed partial class RoomEnemySystem
         // squash/stretch thresholds in the ROM rather than interpolating sprite frames.
         SetPuyoAirborneInstructionList(slot, state);
 
-        ushort delta = ReadPuyoHopWord(state.HopTableIndex, 4);
+        ushort delta = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).YIndexDelta;
         state.YSpeedTableIndex = state.Falling
             ? unchecked((ushort)(state.YSpeedTableIndex + delta))
             : unchecked((ushort)(state.YSpeedTableIndex - delta));
@@ -452,7 +452,7 @@ public sealed partial class RoomEnemySystem
         // X speed is stored as 8.8. The NTSC routine negates only the whole word when
         // moving left and leaves the fractional word positive. That makes $0140 mean
         // +1.25 px right but -0.75 px left; preserve the shipped asymmetry literally.
-        ushort xSpeed = ReadPuyoHopWord(state.HopTableIndex, 2);
+        ushort xSpeed = PuyoHopDefinitions.FromByteIndex(state.HopTableIndex).XSpeed;
         ushort fraction = unchecked((ushort)((xSpeed & 0x00ff) << 8));
         short whole = unchecked((short)(xSpeed >> 8));
         if (state.Direction == PuyoDirection.Left)
@@ -517,28 +517,6 @@ public sealed partial class RoomEnemySystem
         }
 
         SetPuyoInstructionList(slot, instructionList);
-    }
-
-    private ushort ReadPuyoHopWord(ushort tableIndex, int fieldOffset)
-    {
-        if (tableIndex % PuyoHopRecordSize != 0 ||
-            tableIndex / PuyoHopRecordSize >= 7)
-        {
-            throw new InvalidDataException(
-                $"Puyo hop-table byte index ${tableIndex:X4} is outside seven ROM records.");
-        }
-        return ReadWord(_bus!, PuyoHopTableAddress + tableIndex + fieldOffset);
-    }
-
-    private PuyoAirborneFunction ReadPuyoHopFunction(ushort tableIndex) =>
-        (PuyoAirborneFunction)ReadPuyoHopWord(tableIndex, 6);
-
-    private int ReadPuyoFixedPointDisplacement(ushort tableIndex, int fieldOffset)
-    {
-        ushort packed = ReadPuyoHopWord(tableIndex, fieldOffset);
-        ushort fraction = unchecked((ushort)((packed & 0x00ff) << 8));
-        short whole = unchecked((short)(packed >> 8));
-        return (whole << 16) | fraction;
     }
 
     private static ushort SwapBytes(ushort value) =>

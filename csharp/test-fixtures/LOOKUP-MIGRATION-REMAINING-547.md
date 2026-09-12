@@ -9,7 +9,7 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
 | Ridley | Carry/release anchors, pogo targets/path pointers, acceleration and health divisor selectors | RoomEnemySystem.Ridley and related partials |
-| Phantoon | Figure-eight motion, flame angles/rain X, spiral angles, hide/eye timers | RoomEnemySystem.Phantoon and related partials |
+| Phantoon | Flame angles/rain X, spiral angles, hide/eye timers | RoomEnemySystem.Phantoon and related partials |
 | Bomb Torizo | Wake positions, radii, property masks and instruction selectors | RoomEnemySystem.BombTorizo initialization |
 | Ceres debris | X offsets and instruction selectors | Ceres falling-debris spawning |
 | Common movement | Slope height bytes | RoomEnemySystem.CommonMovement |

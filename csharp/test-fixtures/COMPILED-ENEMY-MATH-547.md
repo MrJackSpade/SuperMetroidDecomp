@@ -720,3 +720,21 @@ mix-up: $C601 supplies Y=0 and A=$10, not Y=$10. A regression failed before the
 fix. Both death phases now use index zero and reversal boost sixteen; the
 temporary adjacent-byte compatibility entry was removed. See
 RIDLEY-DEATH-ACCELERATION-591.md for reproduction and verification evidence.
+
+## Phantoon figure-eight speed controller
+
+The fourteen words at $A7:CD73..CD8D now have domain-named compiled definitions:
+slow/fast fractional and whole acceleration, plus the three forward/reverse caps.
+Both real adjustment routines are bus-free; their integer add/subtract, signed
+wrapped comparisons, fractional resets and phase transitions remain unchanged.
+
+Verification compares every native word and runs 5,898,240 real updates: both
+directions, all 65,536 whole-speed words, nine fractional boundary values and
+five phase words (including odd aliases and FFFF wrap). It independently computes
+the expected tuple from the ROM records using wide arithmetic. Full Release
+Verification and Windows Release build pass.
+
+The complete Phantoon audit was also run and exposed a separate stale diagnostic:
+rage-direction checks expect PAL +/-3 while the pinned ROM uses NTSC +/-2.
+That audit is not claimed passing here; its repair is tracked separately. Attack
+angle/timer tables and broader #547 integration remain unfinished.

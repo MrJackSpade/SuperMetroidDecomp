@@ -390,19 +390,17 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void AdjustPhantoonForwardFigureEightSpeed(RoomEnemySlot body)
+    private static void AdjustPhantoonForwardFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
         {
             AddPhantoonSpeed(
                 body,
-                low: ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords),
-                high: ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 2));
-            if (unchecked((short)(body.VariableC - ReadWord(
-                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 8))) >= 0)
+                low: PhantoonMotionDefinitions.SlowFraction,
+                high: PhantoonMotionDefinitions.SlowWhole);
+            if (unchecked((short)(body.VariableC - PhantoonMotionDefinitions.ForwardSlowCap)) >= 0)
             {
-                body.VariableC = unchecked((ushort)(ReadWord(
-                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 8) - 1));
+                body.VariableC = unchecked((ushort)(PhantoonMotionDefinitions.ForwardSlowCap - 1));
                 body.VariableB = 0;
                 body.VariableD = 1;
             }
@@ -413,13 +411,11 @@ public sealed partial class RoomEnemySystem
         {
             AddPhantoonSpeed(
                 body,
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 4),
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 6));
-            if (unchecked((short)(body.VariableC - ReadWord(
-                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 10))) >= 0)
+                PhantoonMotionDefinitions.FastFraction,
+                PhantoonMotionDefinitions.FastWhole);
+            if (unchecked((short)(body.VariableC - PhantoonMotionDefinitions.ForwardFastCap)) >= 0)
             {
-                body.VariableC = ReadWord(
-                    _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 10);
+                body.VariableC = PhantoonMotionDefinitions.ForwardFastCap;
                 body.VariableB = 0;
                 body.VariableD++;
             }
@@ -428,10 +424,9 @@ public sealed partial class RoomEnemySystem
 
         SubtractPhantoonSpeed(
             body,
-            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 4),
-            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 6));
-        ushort minimum = ReadWord(
-            _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 12);
+            PhantoonMotionDefinitions.FastFraction,
+            PhantoonMotionDefinitions.FastWhole);
+        ushort minimum = PhantoonMotionDefinitions.ForwardMinimum;
         if (body.VariableC == minimum || unchecked((short)(body.VariableC - minimum)) < 0)
         {
             body.VariableC = unchecked((ushort)(minimum + 1));
@@ -440,16 +435,15 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private void AdjustPhantoonReverseFigureEightSpeed(RoomEnemySlot body)
+    private static void AdjustPhantoonReverseFigureEightSpeed(RoomEnemySlot body)
     {
         if (body.VariableD == 0)
         {
             SubtractPhantoonSpeed(
                 body,
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 14),
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 16));
-            ushort cap = ReadWord(
-                _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 22);
+                PhantoonMotionDefinitions.SlowFraction,
+                PhantoonMotionDefinitions.SlowWhole);
+            ushort cap = PhantoonMotionDefinitions.ReverseSlowCap;
             if (body.VariableC == cap || unchecked((short)(body.VariableC - cap)) < 0)
             {
                 body.VariableC = unchecked((ushort)(cap + 2));
@@ -463,10 +457,9 @@ public sealed partial class RoomEnemySystem
         {
             SubtractPhantoonSpeed(
                 body,
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 18),
-                ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 20));
-            ushort cap = ReadWord(
-                _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 24);
+                PhantoonMotionDefinitions.FastFraction,
+                PhantoonMotionDefinitions.FastWhole);
+            ushort cap = PhantoonMotionDefinitions.ReverseFastCap;
             if (body.VariableC == cap || unchecked((short)(body.VariableC - cap)) < 0)
             {
                 body.VariableC = unchecked((ushort)(cap + 1));
@@ -478,10 +471,9 @@ public sealed partial class RoomEnemySystem
 
         AddPhantoonSpeed(
             body,
-            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 18),
-            ReadWord(_bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 20));
-        ushort maximum = ReadWord(
-            _bus!, EnemyRomTablePointers.Phantoon.FigureEightMotionWords + 26);
+            PhantoonMotionDefinitions.FastFraction,
+            PhantoonMotionDefinitions.FastWhole);
+        ushort maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (unchecked((short)(body.VariableC - maximum)) >= 0)
         {
             body.VariableC = maximum;

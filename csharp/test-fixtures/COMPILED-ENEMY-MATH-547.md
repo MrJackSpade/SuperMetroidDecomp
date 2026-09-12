@@ -1250,3 +1250,19 @@ projectile definition reads remain allowed and tracked separately. This is
 not a claim about the presentation tilemap-offset field or the entire renderer.
 
 Focused and full Release Verification, complete Kraid audit and Windows build pass.
+
+## Kraid private-head entry timers
+
+Compiled roar entry 96D2, glow 974A, death 9764, and four growth-resume timers
+96EC/96F4/96FC/9704. All production fixed-entry readers now use the catalog;
+the general mixed head stream is deliberately not replaced by extracted mechanics.
+
+Tests compare native timer words and invoke both phase thinkers for every timer
+word, then growth setup for every candidate tilemap word. They assert the
+selected resume cursor and timer together. Glow's same-call decrement and
+death's hurt-frame gate/no-decrement entry are exercised through real methods.
+The bus rejects fixed-entry timer reads while retaining unrelated palette data.
+The now instance-free second-phase body thinker is static; its separate
+three-argument foot-thinking overload remains unchanged.
+
+Focused and full Release Verification, complete Kraid audit and Windows build pass.

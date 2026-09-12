@@ -10,7 +10,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort KraidRoarInstruction = KraidInstructionLists.Roar;
-    private const int KraidRoarInitialTimerAddress = 0xa796d2;
     private const ushort KraidOpenMouthTilemap = 0xa0c8;
 
     private void RunKraidCombatFunction(
@@ -25,7 +24,7 @@ public sealed partial class RoomEnemySystem
                 {
                     body.VariableA = (ushort)KraidAiFunction.MainAttackWithMouthOpen;
                     body.VariableB = KraidRoarInstruction;
-                    body.VariableC = ReadWord(_bus!, KraidRoarInitialTimerAddress);
+                    body.VariableC = KraidHeadTimers.Roar;
                 }
                 return;
 
@@ -112,13 +111,13 @@ public sealed partial class RoomEnemySystem
         state.ThinkingTimer = ReadKraidThinkingTimer();
     }
 
-    private void RunKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
+    private static void RunKraidSecondPhaseThinking(RoomEnemySlot body, KraidEnemyState state)
     {
         if (state.ThinkingTimer != 0 && --state.ThinkingTimer == 0)
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
             body.VariableB = KraidRoarInstruction;
-            body.VariableC = ReadWord(_bus!, KraidRoarInitialTimerAddress);
+        body.VariableC = KraidHeadTimers.Roar;
         }
     }
 
@@ -232,7 +231,7 @@ public sealed partial class RoomEnemySystem
     {
         body.VariableA = (ushort)KraidAiFunction.GlowEye;
         body.VariableB = 0x9752;
-        body.VariableC = ReadWord(_bus!, EnemyRomTablePointers.Kraid.CombatTimerWord);
+        body.VariableC = KraidHeadTimers.EyeGlow;
         GlowKraidEye(body, state);
     }
 
@@ -307,7 +306,7 @@ public sealed partial class RoomEnemySystem
         {
             body.VariableA = (ushort)KraidAiFunction.MouthOpenReaction;
             body.VariableB = KraidRoarInstruction;
-            body.VariableC = ReadWord(_bus!, KraidRoarInitialTimerAddress);
+            body.VariableC = KraidHeadTimers.Roar;
         }
     }
 }

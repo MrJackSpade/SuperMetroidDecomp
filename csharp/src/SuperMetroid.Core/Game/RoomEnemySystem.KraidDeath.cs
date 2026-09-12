@@ -136,7 +136,7 @@ public sealed partial class RoomEnemySystem
         _slots[1].InstructionTimer = 1;
         body.VariableA = (ushort)KraidAiFunction.DeathFadeOut;
         body.VariableB = 0x976c;
-        body.VariableC = ReadWord(_bus!, EnemyRomTablePointers.Kraid.DeathInitialTimerWord);
+        body.VariableC = KraidHeadTimers.Death;
         state.RoomBackgroundFadeStep = 0;
         foreach (int slot in new[] { 2, 3, 4, 6, 7 })
         {

@@ -25,8 +25,7 @@ public sealed partial class RoomEnemySystem
             _ => 26,
         };
         body.VariableB = unchecked((ushort)(byteSelector - 0x6926));
-        body.VariableC = ReadWord(
-            _bus!, EnemyRomTablePointers.Kraid.InitialTimerWords + byteSelector);
+        body.VariableC = KraidHeadTimers.GrowthResume(byteSelector);
         EarthquakeType = 4;
         EarthquakeTimer = 340;
 

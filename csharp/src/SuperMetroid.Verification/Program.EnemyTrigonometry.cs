@@ -74,6 +74,7 @@ internal static partial class Program
         VerifyKraidNailBounce(rom);
         VerifyKraidCeilingRockPositions(rom);
         VerifyKraidSinkSchedule(rom);
+        VerifyKraidHeadTimers(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

@@ -200,14 +200,12 @@ internal static partial class BombTorizoAudit
         loaded.Samus.Pose = SamusPoseIds.FacingRightNormalPose;
         loaded.Samus.RefreshCollisionRadii(bus);
         loaded.Samus.InitializeAnimation(bus);
-        ushort healthBeforeTouch = loaded.Samus.Health;
-        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, controllerInput: 0) ||
-            loaded.Samus.Health >= healthBeforeTouch || !loaded.Samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo contact failed: health {healthBeforeTouch}->{loaded.Samus.Health}, " +
-                $"knockback={loaded.Samus.KnockbackActive}.");
-        }
+        EnemyContactAuditAssertions.BeforeHit beforeTouch = EnemyContactAuditAssertions.Capture(loaded.Samus);
+        if (!loaded.Enemies.ResolveOrdinarySamusContact(loaded.Samus, controllerInput: 0))
+            throw new InvalidDataException("Bomb Torizo body contact was not admitted.");
+        // Native touch publishes the hit first; the later movement pass owns knockback.
+        EnemyContactAuditAssertions.VerifyStandingAirHit(
+            bus, loaded.Samus, beforeTouch, damage: 8, expectedSide: 1, "Bomb Torizo body contact");
 
         var shots = new SamusProjectileSystem();
         var bombs = new SamusBombProjectileSystem();

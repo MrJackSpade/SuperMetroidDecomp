@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -16,9 +15,6 @@ namespace SuperMetroid.Core.Runtime;
 /// </remarks>
 public sealed class CeresElevatorShaftRoomMainState
 {
-    /// <summary>First timer/sine/cosine record used by <c>$89:ACC3</c>.</summary>
-    public const int RotationTableAddress = 0x89ad5f;
-
     /// <summary>Initial value written to RoomMainASMVar1 by door ASM <c>$8F:E4E0</c>.</summary>
     public const ushort InitialRotationIndex = 0x0022;
 
@@ -60,7 +56,7 @@ public sealed class CeresElevatorShaftRoomMainState
     }
 
     /// <summary>Executes one call to room main <c>$89:ACC3</c>.</summary>
-    /// <param name="bus">Cartridge address space which owns the rotation records.</param>
+    /// <param name="bus">Pose data used only when admitting Samus to the departure trigger.</param>
     /// <param name="samus">Live Samus state inspected by the elevator trigger.</param>
     /// <param name="ceresStatus">Bank-$A6 Ceres status word at native WRAM <c>$093F</c>.</param>
     /// <param name="allowDeparture">
@@ -114,12 +110,10 @@ public sealed class CeresElevatorShaftRoomMainState
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
         // mapping back into the tail of this very table during the reverse sweep.
-        ushort byteOffset = unchecked((ushort)(6 * RotationIndex));
-        int wordIndex = byteOffset >> 1;
-        int recordAddress = RotationTableAddress + wordIndex * 2;
-        RotationTimer = RomDataReader.ReadWordFixedBank(bus, recordAddress);
-        ushort sine = RomDataReader.ReadWordFixedBank(bus, recordAddress + 2);
-        ushort cosine = RomDataReader.ReadWordFixedBank(bus, recordAddress + 4);
+        var record = CeresShaftRotationDefinitions.Read(RotationIndex);
+        RotationTimer = record.Timer;
+        ushort sine = record.Sine;
+        ushort cosine = record.Cosine;
         Transform = new SamusMode7Transform(
             MatrixA: cosine,
             MatrixB: sine,

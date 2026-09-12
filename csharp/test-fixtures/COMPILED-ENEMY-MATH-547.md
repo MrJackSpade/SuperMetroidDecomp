@@ -233,6 +233,24 @@ Its inputs are the normal even-phase corpus; the wider odd-phase checks above
 are source-literal tests, not an original-CPU recording.
 The complete Release Verification suite and Windows Release build pass.
 
+### Ceres escape shaft rotation
+
+The fixed $89:AD5F-$AEFC timer/sine/cosine records are now supplied by
+`CeresShaftRotationDefinitions`. The 69 records are represented by their exact
+signed sine ramp, authored cosine plateaus and symmetric timer list, not a
+floating-point trigonometric approximation. Room main no longer reads these
+records through the cartridge bus; it still needs pose data for the departure
+trigger. No serialized state fields changed.
+
+The regression compares every raw phase word that aliases an authored record
+against the pinned ROM, including the wrapped $8044 reverse endpoint. It then
+executes 548 matrix publications through the real room-main state using an empty
+address space, comparing every frame's timer/publication/phase and every matrix
+against independently read cartridge records. The existing departure admission,
+input lock and dispatcher checks remain. Invalid non-record phases fail explicitly
+instead of reading unrelated bank contents. This does not change or claim to fix
+the separately reported elevator camera alignment.
+
 ### Outstanding scope
 
 This is not the entire lookup-table migration. Remaining signed-table callers,

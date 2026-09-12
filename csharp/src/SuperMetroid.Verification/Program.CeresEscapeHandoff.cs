@@ -125,18 +125,8 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         SeedPoseOneSamusData(bus);
 
-        // Every table record gets a zero timer so, after the door ASM's initial 60-frame
-        // delay, each subsequent call exposes one phase. Distinct sine/cosine words make
-        // the exact current-record selection observable without copying the retail table.
-        for (int record = 0; record <= 68; record++)
-        {
-            WriteTestWords(
-                bus,
-                CeresElevatorShaftRoomMainState.RotationTableAddress + record * 6,
-                0,
-                unchecked((ushort)(0x0100 + record)),
-                unchecked((ushort)(0x0200 + record)));
-        }
+        // No rotation bytes are installed in this address space. The live matrix
+        // lifecycle consumes application-owned records, not synthetic ROM artwork.
 
         var state = new CeresElevatorShaftRoomMainState();
         state.Reset(active: true);
@@ -156,20 +146,23 @@ internal static partial class Program
             state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true);
         AssertTrue(firstMatrix.MatrixChanged, "61st shaft call underflows and consumes first matrix record");
         AssertEqual(35, state.RotationIndex, "shaft index advances after record 34");
-        AssertEqual(0x0222, state.Transform.MatrixA, "shaft cosine comes from record 34");
-        AssertEqual(0x0122, state.Transform.MatrixB, "shaft sine comes from record 34");
+        AssertEqual(0x0100, state.Transform.MatrixA, "shaft cosine comes from record 34");
+        AssertEqual(0, state.Transform.MatrixB, "shaft sine comes from record 34");
         AssertEqual(
-            unchecked((ushort)-0x0122),
+            0,
             state.Transform.MatrixC,
             "shaft C matrix is native negated sine");
 
         // Consume records 35..67. The final forward phase is encoded as $8044 rather
         // than 68; one more call proves the wrapped multiplication selects record 68.
-        StepFrames(33, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
+        for (int i = 0; i < 33; i++)
+            StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
         AssertEqual(0x8044, state.RotationIndex, "shaft forward sweep enters encoded reverse phase");
-        state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true);
+        StepFrames(state.RotationTimer + 1, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true));
         AssertEqual(0x8043, state.RotationIndex, "shaft encoded reverse phase decrements");
-        AssertEqual(0x0244, state.Transform.MatrixA, "encoded phase maps to record 68");
+        AssertEqual(0x00fe, state.Transform.MatrixA, "encoded phase maps to record 68");
+        AssertEqual(34, state.Transform.MatrixB, "reverse endpoint sine");
+        VerifyCeresShaftCompiledRotation();
 
         // State $20/$21 still run room main but fail its explicit game-state-eight gate.
         var trigger = new CeresElevatorShaftRoomMainState();

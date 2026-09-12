@@ -544,10 +544,11 @@ public sealed partial class SamusProjectileSystem
     {
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
 
-        // Projectile inheritance in `$90:B1F3` samples the PREVIOUS frame's four signed
-        // displacement words. The translated movement owners reset those words at the end
-        // of beta and do not yet expose their byte-overlap garbage. Zero is therefore the
-        // exact initialized/debug-standing value, not a fabricated running multiplier.
+        // Known missing behavior (#600): `$90:B1F3` samples overlapping bytes from
+        // the preceding movement pass and CameraYSubSpeed. Native alpha resets the
+        // directional records AFTER processing projectiles; beta then repopulates them.
+        // The port has no shared producer/consumer owner yet. Zero inheritance below
+        // is incomplete, including some standing cases with nonzero camera subspeed.
         slot.XSubposition = 0;
         slot.YSubposition = 0;
         slot.XVelocity = direction switch

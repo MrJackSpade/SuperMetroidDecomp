@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--projectile-inheritance-probe"])
+{
+    ProbeProjectileVelocityInheritance();
+    return 0;
+}
 if (args is ["--samus-physics"])
 {
     VerifySamusPhysicsBatch();

@@ -97,8 +97,15 @@ calls reject all ROM access in the regression. Bomb-jump and knockback launch
 pairs are now compiled too; knockback still consumes pose/animation records.
 The formerly named falling-transition pair is actually the shared ball-rebound
 pair, and is now compiled and correctly named. Grapple's remaining
-launch/connection/pose selectors are separate readers. The source audit explicitly found
+connection/pose selectors are separate readers. The source audit explicitly found
 those readers outside the enemy-table catalog scan.
+
+Grapple's ten launch velocity/angle triples and both ten-direction physical hand
+origin pairs are now compiled, including the locked-connection and late-draw
+consumers. Flare placement remains presentation data for #540. Out-of-domain
+restored origin indexes preserve adjacent-ROM reads and remain an explicit
+dependency. Cancellation flags, connection handlers, special-angle/pose records
+and dropped-pose selectors still require migration.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition

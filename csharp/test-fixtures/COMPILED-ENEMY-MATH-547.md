@@ -1454,3 +1454,42 @@ now using independently verified native speeds rather than custom test speeds.
 
 Focused compiled-definition tests, all 18 physics fixtures, full Release
 Verification and Windows Release build pass.
+
+## Grapple firing mechanics and physical hand origin
+
+Compiled $9B:C0DB/C0EF extension velocities, $C104 initial angles and the four
+physical origin tables at $C122/C136/C172/C186 into `GrappleFiringDefinitions`.
+These are 70 native words; the two X-origin tables are identical. Source is
+`GrappleBeamFireVelocityTable`, `GrappleBeamFireAngles` and
+`GrappleBeamFireOffsets_*_Origin*` in pinned bank_9B.asm, cross-checked against
+`GrappleBeamFunc_FireGoToCancel` in sm_9b.c and the pinned ROM.
+
+BeginFiring, locked connection positioning and late firing-draw hand refresh
+share these compiled mechanics. Flare offsets remain independent presentation
+reads for #540; no flare asset extraction is claimed here. Restored direction
+bytes outside the ten authored origins retain the original adjacent-ROM reader.
+That is a remaining immutable dependency, not mutable RAM or a new clamp.
+
+`VerifyGrappleFiringDefinitions` compares the native words and forbids production
+reads of their ROM ranges. It exercises:
+
+- 655,360 actual launch/late-refresh cases covering every valid movement type,
+  every signed graphics-Y byte and every X/Y position word. Checks include
+  exact velocity, mirrored angle, signed corrections, wrapped physical origin,
+  independent flare placement and retention of the collision endpoint during draw.
+- 131,072 launches covering every controller word in both moving Draygon-held
+  poses, including the fixed six-pixel correction and Down-over-Up precedence.
+- 200 real extension frames in empty terrain, checking the full fixed-point
+  trajectory in all ten directions with both native and replaced flare placement.
+- 54 actual locked connection snaps across three source movement families and
+  coordinate boundaries; no graphics-Y correction is applied to the raw snap.
+- All 512 direction/run-origin selections, including explicit adjacent-ROM fallback.
+
+The older connection fixture no longer injects invented physical origins or zero
+launch velocities. It retains distinct fake flare positions and checks the actual
+locked body's position against the independently verified native hand offsets.
+This slice does not change the existing invalid-pose/direction policy, complete
+Grapple callback/pose-program migration, or establish full corrupt-state parity.
+
+Focused compiled-definition checks, all 18 physics fixtures, full Release
+Verification and the Windows Release build pass (zero build warnings/errors).

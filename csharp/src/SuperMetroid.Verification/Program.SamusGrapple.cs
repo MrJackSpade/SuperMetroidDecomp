@@ -104,15 +104,10 @@ static void VerifySamusGrappleSwingAndRelease()
     WriteTestWord(bus, 0x909ed7, 0xa000);
 
     // Firing source pose $29 is a retail right-facing fall with shot direction two. The
-    // four bank-$9B table groups below are seeded with their literal direction-two values:
-    // +11.F4 X velocity, zero Y velocity, rightward angle $C000, and (+2,+2) origin.
+    // compiled mechanics supply +11.F4 X velocity, zero Y velocity, angle $C000,
+    // and (+2,+2) physical origin. Flare presentation is deliberately synthetic.
     WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
         [0x08, 0x06, 0xff, 0x02, 0x00, 0x00, 0x05, 0x15]);
-    WriteTestWord(bus, 0x9bc0db + 2 * 2, 0x0bf4);
-    WriteTestWord(bus, 0x9bc0ef + 2 * 2, 0x0000);
-    WriteTestWord(bus, 0x9bc104 + 2 * 2, 0xc000);
-    WriteTestWord(bus, 0x9bc122 + 2 * 2, 0x0002);
-    WriteTestWord(bus, 0x9bc136 + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc14a + 2 * 2, 0x0002);
     WriteTestWord(bus, 0x9bc15e + 2 * 2, 0x0002);
 
@@ -416,8 +411,8 @@ static void VerifySamusGrappleSwingAndRelease()
         "queued firing cancellation clears on following call");
 
     // Exercise all three native connection tables through the public BeginFiring/StepFiring
-    // route. Filling this isolated room with persistent type-$E blocks makes every zero-
-    // velocity endpoint connect on its first substep, while each authored direction still
+    // route. Filling this isolated room with persistent type-$E blocks makes every
+    // endpoint connect on its first substep, while each authored direction still
     // selects its own four-byte {function, handler} record and pose.
     var connectionBlocks = Enumerable.Repeat((ushort)0xe000, 8 * 8).ToArray();
     RoomLevelData connectionLevel = CreateRoom(
@@ -432,17 +427,13 @@ static void VerifySamusGrappleSwingAndRelease()
         [0xb2, 0xb2, 0xb2, 0xb2, 0xb2, 0xb3, 0xb3, 0xb3, 0xb3, 0xb3],
     ];
 
-    // Zero extension velocity means the endpoint is the pose-authored origin. Give the raw
-    // no-run Origin and Flare tables distinct values so locked command 10 cannot pass by
-    // accidentally treating the flare/draw coordinate as the physical rope Start pair.
+    // Native physical origins remain fixed. Give Flare distinct presentation values so
+    // command 10 cannot pass by confusing the visual flare with physical rope Start.
+    short[] nativeOriginX = [2, 10, 2, 10, 3, -4, -10, -2, -10, -2];
+    short[] nativeOriginY = [-16, -12, 2, 0, 6, 6, 0, 2, -12, -16];
     for (int direction = 0; direction < 10; direction++)
     {
         int tableOffset = direction * 2;
-        WriteTestWord(bus, 0x9bc0db + tableOffset, 0);
-        WriteTestWord(bus, 0x9bc0ef + tableOffset, 0);
-        WriteTestWord(bus, 0x9bc104 + tableOffset, unchecked((ushort)(direction << 8)));
-        WriteTestWord(bus, 0x9bc122 + tableOffset, unchecked((ushort)(direction + 1)));
-        WriteTestWord(bus, 0x9bc136 + tableOffset, unchecked((ushort)(direction + 2)));
         WriteTestWord(bus, 0x9bc14a + tableOffset, unchecked((ushort)(direction + 20)));
         WriteTestWord(bus, 0x9bc15e + tableOffset, unchecked((ushort)(direction + 30)));
     }
@@ -512,8 +503,8 @@ static void VerifySamusGrappleSwingAndRelease()
 
             if (expectedLocked)
             {
-                short rawOriginX = unchecked((short)(direction + 1));
-                short rawOriginY = unchecked((short)(direction + 2));
+                short rawOriginX = nativeOriginX[direction];
+                short rawOriginY = nativeOriginY[direction];
                 short rawFlareX = unchecked((short)(direction + 20));
                 short rawFlareY = unchecked((short)(direction + 30));
                 AssertEqual(

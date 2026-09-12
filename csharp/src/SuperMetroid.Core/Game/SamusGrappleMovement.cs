@@ -37,9 +37,8 @@ public static partial class SamusGrappleMovement
     // Eight ten-byte records at $9B:C43E drive close-collision snapping. Keeping the
     // function words named lets us validate the ROM table instead of reducing its final
     // field to a guessed host boolean.
-    // $9B:C0DB-$C1C1 is the complete firing policy table. Values are deliberately read
-    // from ROM instead of copied into host arrays: a debugger can correlate every live
-    // word with the cartridge, and altered/revision ROMs retain their authored behavior.
+    // Firing velocity, angle and physical hand offsets are compiled mechanics. Flare
+    // offsets remain presentation data; changing them must not move the physical anchor.
     // HandleConnectingGrapple at $9B:B97C selects one of these three ten-record tables.
     // Every four-byte record is {next grapple-function word, connection-handler word}.
     // Reading both words from ROM preserves the deliberately surprising crouching entries
@@ -79,27 +78,17 @@ public static partial class SamusGrappleMovement
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = direction;
         grapple.PoseChangeAutoFireTimer = SamusGrappleRomData.Firing.PoseChangeAutoFireFrames;
-        grapple.ExtensionXVelocity = unchecked((short)ReadWord(
-            bus,
-            SamusGrappleRomData.Firing.XVelocities + tableOffset));
-        grapple.ExtensionYVelocity = unchecked((short)ReadWord(
-            bus,
-            SamusGrappleRomData.Firing.YVelocities + tableOffset));
-        grapple.Angle = SnesAngle.FromRaw(ReadWord(
-            bus,
-            SamusGrappleRomData.Firing.Angles + tableOffset));
+        var launch = GrappleFiringDefinitions.Launch(direction);
+        grapple.ExtensionXVelocity = launch.XVelocity;
+        grapple.ExtensionYVelocity = launch.YVelocity;
+        grapple.Angle = SnesAngle.FromRaw(launch.Angle);
         grapple.MirroredAngle = grapple.Angle;
 
         // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is
         // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int originXTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningOriginX
-            : SamusGrappleRomData.Firing.DefaultOriginX;
-        int originYTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningOriginY
-            : SamusGrappleRomData.Firing.DefaultOriginY;
+        var origin = ReadFiringOrigin(bus, direction, useRunOffsets);
         int flareXTable = useRunOffsets
             ? SamusGrappleRomData.Firing.RunningFlareX
             : SamusGrappleRomData.Firing.DefaultFlareX;
@@ -108,9 +97,8 @@ public static partial class SamusGrappleMovement
             : SamusGrappleRomData.Firing.DefaultFlareY;
         sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
 
-        grapple.OriginXOffset = unchecked((short)ReadWord(bus, originXTable + tableOffset));
-        grapple.OriginYOffset = unchecked((short)(
-            (short)ReadWord(bus, originYTable + tableOffset) - graphicsYOffset));
+        grapple.OriginXOffset = origin.X;
+        grapple.OriginYOffset = unchecked((short)(origin.Y - graphicsYOffset));
         grapple.FlareXOffset = unchecked((short)ReadWord(bus, flareXTable + tableOffset));
         grapple.FlareYOffset = unchecked((short)(
             (short)ReadWord(bus, flareYTable + tableOffset) - graphicsYOffset));

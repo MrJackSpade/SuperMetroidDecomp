@@ -82,6 +82,7 @@ internal static partial class Program
         VerifySamusBallBounceDefinitions(rom);
         VerifySamusStandaloneSpeeds(rom);
         VerifySamusIndexedSpeeds(rom);
+        VerifyGrappleFiringDefinitions(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

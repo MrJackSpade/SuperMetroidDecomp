@@ -340,20 +340,15 @@ public static partial class SamusGrappleMovement
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
             int tableOffset = grapple.FireDirection * 2;
-            short originX = unchecked((short)ReadWord(
-                bus,
-                SamusGrappleRomData.Firing.DefaultOriginX + tableOffset));
-            short originY = unchecked((short)ReadWord(
-                bus,
-                SamusGrappleRomData.Firing.DefaultOriginY + tableOffset));
+            var origin = ReadFiringOrigin(bus, grapple.FireDirection, running: false);
             short flareX = unchecked((short)ReadWord(
                 bus,
                 SamusGrappleRomData.Firing.DefaultFlareX + tableOffset));
             short flareY = unchecked((short)ReadWord(
                 bus,
                 SamusGrappleRomData.Firing.DefaultFlareY + tableOffset));
-            samus.XPosition = unchecked((ushort)(grapple.RopeStartX - originX));
-            samus.YPosition = unchecked((ushort)(grapple.RopeStartY - originY));
+            samus.XPosition = unchecked((ushort)(grapple.RopeStartX - origin.X));
+            samus.YPosition = unchecked((ushort)(grapple.RopeStartY - origin.Y));
             grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flareX));
             grapple.BeamStartY = unchecked((ushort)(samus.YPosition + flareY));
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -471,12 +466,7 @@ public static partial class SamusGrappleMovement
     {
         int tableOffset = grapple.FireDirection * 2;
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
-        int originXTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningOriginX
-            : SamusGrappleRomData.Firing.DefaultOriginX;
-        int originYTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningOriginY
-            : SamusGrappleRomData.Firing.DefaultOriginY;
+        var origin = ReadFiringOrigin(bus, grapple.FireDirection, useRunOffsets);
         int flareXTable = useRunOffsets
             ? SamusGrappleRomData.Firing.RunningFlareX
             : SamusGrappleRomData.Firing.DefaultFlareX;
@@ -485,19 +475,30 @@ public static partial class SamusGrappleMovement
             : SamusGrappleRomData.Firing.DefaultFlareY;
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
 
-        // `$9B:BF1B` rereads ROM instead of trusting `$0D0A/$0D0C`, then publishes Start
-        // and previous-frame/Flare as separate coordinate pairs. Retain the same behavior
-        // so a debugger edit to the offset tables is visible immediately in presentation.
+        // Recompute from the final pose/position, not cached launch offsets. Physical
+        // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStartX = unchecked((ushort)(
-            samus.XPosition + (short)ReadWord(bus, originXTable + tableOffset)));
+            samus.XPosition + origin.X));
         grapple.RopeStartY = unchecked((ushort)(
-            samus.YPosition + (short)ReadWord(bus, originYTable + tableOffset) -
-            graphicsYOffset));
+            samus.YPosition + origin.Y - graphicsYOffset));
         grapple.BeamStartX = unchecked((ushort)(
             samus.XPosition + (short)ReadWord(bus, flareXTable + tableOffset)));
         grapple.BeamStartY = unchecked((ushort)(
             samus.YPosition + (short)ReadWord(bus, flareYTable + tableOffset) -
             graphicsYOffset));
+    }
+
+    private static (short X, short Y) ReadFiringOrigin(ISnesAddressSpace bus, byte direction, bool running)
+    {
+        if (GrappleFiringDefinitions.TryGetOrigin(direction, running, out var origin))
+            return origin;
+
+        // A restored out-of-domain direction previously indexed adjacent ROM data.
+        // Preserve that fallback; compiling authored mechanics is not a new clamp.
+        int xTable = running ? SamusGrappleRomData.Firing.RunningOriginX : SamusGrappleRomData.Firing.DefaultOriginX;
+        int yTable = running ? SamusGrappleRomData.Firing.RunningOriginY : SamusGrappleRomData.Firing.DefaultOriginY;
+        return (unchecked((short)ReadWord(bus, xTable + direction * 2)),
+            unchecked((short)ReadWord(bus, yTable + direction * 2)));
     }
 
 }

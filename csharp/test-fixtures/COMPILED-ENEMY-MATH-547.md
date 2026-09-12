@@ -629,3 +629,21 @@ relocated debug actors surviving longer are not claimed supported.
 
 Full Release Verification (including complete intro progression/render captures)
 and Windows Release build pass. The wider #547 dependency audit remains open.
+
+## Power Bomb renderer profile
+
+PowerBombShapeDefinitions replaces the renderer's two fixed 32-byte unscaled
+curves at $88:A266/A286. Both accelerating phases retain unsigned 8x8 truncation,
+inclusive band overlap and the final center fill. Pre-scaled yellow/white shape
+records remain separate presentation reads, not silently replaced here.
+
+All 64 bytes compare to ROM. An independent native-style band-fill reference
+checks 197,120 signed scanline/radius/phase cases against the real renderer helper.
+Forty-five complete color-math frames check every pixel across five radii and nine
+on/off-screen origins, including HUD preservation and clipping. A rejecting bus
+proves the migrated path makes no ROM accesses. Full Release Verification and
+Windows Release build pass.
+
+Inspection also identified the shared absolute tangent table still read by X-ray,
+eye windows and Mother Brain's rainbow beam; the remaining inventory now lists
+those consumers explicitly. The inventory is still not exhaustive and #547 stays open.

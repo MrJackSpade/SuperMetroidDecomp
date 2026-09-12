@@ -792,7 +792,7 @@ public static partial class SnesGameplayFrameRenderer
     /// window is equivalent and keeps the ordinary BG/OBJ compositors independent of this
     /// one effect. Pre-scaled yellow/white phases read the cartridge's actual 192-byte
     /// shape records. The two continuously accelerated phases replay `$88:8D04`
-    /// against the ROM's horizontal and vertical curve bytes at `$88:A266/A286`; this
+    /// against the compiled native horizontal and vertical curve bytes; this
     /// deliberately preserves the SNES routine's 8x8 multiply truncation and its
     /// one-scanline overlap between adjacent curve bands.
     /// </remarks>
@@ -1280,12 +1280,9 @@ public static partial class SnesGameplayFrameRenderer
         // `$88:8CC6/8D04/8D46` all build the same width profile and differ only in how
         // they clip left/right endpoints for an off-screen origin. The desktop renderer
         // performs that clipping after this method, so only the common profile builder
-        // is needed here. `$88:A266` contains 32 increasing horizontal samples, while
-        // `$88:A286` contains their decreasing vertical boundaries.
-        const int HorizontalCurveAddress = 0x88A266;
-        const int VerticalCurveAddress = 0x88A286;
+        // is needed here. Widths increase while vertical boundaries decrease.
         int currentOuterScanline =
-            horizontalRadius * bus.ReadByte(VerticalCurveAddress) >> 8;
+            horizontalRadius * PowerBombShapeDefinitions.TopOffsets[0] >> 8;
         if (scanlineDistance > currentOuterScanline)
             return -1;
 
@@ -1295,8 +1292,8 @@ public static partial class SnesGameplayFrameRenderer
         {
             // The 65816 routine uses the high byte of an unsigned 8x8 product. An
             // ordinary integer multiply followed by `>> 8` is exactly that operation.
-            int innerScanline = horizontalRadius * bus.ReadByte(VerticalCurveAddress + curveIndex) >> 8;
-            int halfWidth = horizontalRadius * bus.ReadByte(HorizontalCurveAddress + curveIndex) >> 8;
+            int innerScanline = horizontalRadius * PowerBombShapeDefinitions.TopOffsets[curveIndex] >> 8;
+            int halfWidth = horizontalRadius * PowerBombShapeDefinitions.Widths[curveIndex] >> 8;
             finalHalfWidth = halfWidth;
 
             // Native code fills both endpoints inclusively, then begins the next band

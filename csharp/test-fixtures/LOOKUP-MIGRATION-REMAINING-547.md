@@ -8,7 +8,7 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 | Owner | Native definition | Remaining consumer |
 | --- | --- | --- |
-| Gameplay renderer | $88:A266/A286 | Horizontal/vertical shape samples read from bus |
+| X-ray / eye / rainbow beam | $91:C9D4 absolute tangent | SnesGameplayFrameRenderer, EyeBeamWindowBuilder and MotherBrainRainbowBeamHdmaState |
 
 These are live references, not merely obsolete address declarations. Each still
 needs reference-value parity, selector/bounds/sign/wrap evidence and removal of

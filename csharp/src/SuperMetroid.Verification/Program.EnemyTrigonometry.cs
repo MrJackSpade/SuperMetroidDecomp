@@ -42,6 +42,7 @@ internal static partial class Program
         VerifyCompiledZoaSpeeds(rom);
         VerifyCompiledGrowingShutters(rom);
         VerifyCompiledIntroEggMotion(rom);
+        VerifyCompiledPowerBombShape(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.Static | BindingFlags.NonPublic)!.CreateDelegate<T>();

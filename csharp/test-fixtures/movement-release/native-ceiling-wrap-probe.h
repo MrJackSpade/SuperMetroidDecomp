@@ -56,3 +56,21 @@ int DiagnosticCeilingPlm(const char *rom, const char *output) {
   }
   fclose(f); return 0;
 }
+
+// Stop after the real special-block allocator, before its carry selects solid
+// collision. One free slot runs rejecting setup; no free slots preserve carry.
+int DiagnosticSpeedPool(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output, "wx"); if (!f) return 4;
+  fprintf(f, "occupied,carry,word\n");
+  for (int occupied = 39; occupied <= 40; occupied++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
+    for (int i = 0; i < occupied; i++) plm_header_ptr[i] = 0xd044;
+    cur_block_index = 0x4cc; BTS[cur_block_index] = 15;
+    level_data[cur_block_index] = 0xb106;
+    if (!ProbeRunBoundedUntil(0x9490cb, 0, 0, 0, 0x9490e1)) { fclose(f); return 7; }
+    fprintf(f, "%d,%d,%04X\n", occupied, g_snes->cpu->c, level_data[cur_block_index]);
+  }
+  fclose(f); return 0;
+}

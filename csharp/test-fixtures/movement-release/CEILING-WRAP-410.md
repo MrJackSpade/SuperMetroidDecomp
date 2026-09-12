@@ -81,3 +81,34 @@ PLM instructions advancing, authored Frog Speedway tile interpretation, or passa
 through its speed blocks. Those remain required before player validation. Odd
 reads crossing the end of the modeled level allocation fail explicitly rather
 than reading host memory; the verified fixtures do not reach that boundary.
+
+## Authored room and exhausted speed-block collision
+
+`VerifyFrogSpeedwayPoolCollision` loads the actual `$8F:B106` room, retaining
+terrain, BTS and resident PLMs. Samus is placed standing at (1237,139), radii
+5/21, just right of the first speed blocks, with Wave+Spazer and no Speed Booster.
+Continuous Shoot in the up-left aiming pose runs real projectiles and PLM
+instructions for 344 frames. The pool first reaches 40 on frame 343. Before
+overload a one-pixel left collision probe is blocked; afterward it enters the
+unchanged speed block at X=1236 without allocating another actor.
+
+The old speed-block method rejected non-boosting Samus before checking whether
+setup could allocate a slot. Original CPU `DiagnosticSpeedPool` enters `$94:90CB`
+and stops at `$94:90E1`, after the real allocator: 39 occupied slots yields carry
+set, 40 yields carry clear, and both retain `$B106`. The full pool preserves the
+carry from BTS indexing because setup never runs. The production method now
+returns passing contact for a resolved speed block when the pool is exhausted,
+without changing its terrain. The real-room test failed before this fix and
+passes after it. `speed-pool-410.csv` preserves the two native boundary records.
+
+```
+dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --ceiling-wrap-room
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --ceiling-wrap-room-audit "Super Metroid.smc"
+```
+
+The debug search runs live PLM timers, not manually filled slots. Its extended
+probe applies 2.75-pixel left collision movement each frame while continuing to
+shoot; it reaches X=977 and blocks at frame 438 with 38 slots. That experiment
+does not model full Samus movement/aim transitions and is not a completed route.
+It establishes sustained authored-room overload and its later loss, not complete
+Speedless Speedway parity. Full traversal and native timing remain open work.

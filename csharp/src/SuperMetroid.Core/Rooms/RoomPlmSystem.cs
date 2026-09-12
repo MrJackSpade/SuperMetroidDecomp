@@ -616,7 +616,7 @@ public sealed partial class RoomPlmSystem
     /// PLM handler draws the first crumble frame. Rejected contact deletes the temporary
     /// slot synchronously and remains solid in the caller.
     /// </remarks>
-    /// <returns>True only when the block was accepted and made non-solid.</returns>
+    /// <returns>True when contact passes: accepted setup, or an exhausted native pool.</returns>
     public bool TrySpawnSamusSpeedBoosterBlock(
         RoomLevelData level,
         int blockIndex,
@@ -632,6 +632,13 @@ public sealed partial class RoomPlmSystem
         {
             return false;
         }
+
+        // Bank $94's special-block dispatcher clears carry while indexing BTS.
+        // Spawn_PLM returns that carry unchanged when every slot is occupied:
+        // setup never runs, so its no-Speed-Booster rejection cannot make this
+        // contact solid. Preserve the block word; this is not a break animation.
+        if (_slots.All(slot => slot.Active))
+            return true;
 
         bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
         bool activeShinespark = samus.Pose is >= SamusPoseIds.ShinesparkHorizontalRightPose

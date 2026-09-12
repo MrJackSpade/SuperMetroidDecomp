@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledEnemyTrigonometry()
     {
+        VerifyRidleyPowerBombNeutralTail();
         var rom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bytes = new byte[128];
         var words = new ushort[128];

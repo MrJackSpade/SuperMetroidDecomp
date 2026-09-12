@@ -24,7 +24,7 @@ public sealed partial class RoomEnemySystem
             // $A6:BD2C interrupts the current action while a live power-bomb field is
             // present. Function $B84D resets both tail control words before the lunge.
             state.TailFunctionIndex = 1;
-            state.FeetDistanceIndex = 1;
+            state.TailAngleDelta = 1;
             state.Function = RidleyAiFunction.NorfairGrabApproach;
         }
     }

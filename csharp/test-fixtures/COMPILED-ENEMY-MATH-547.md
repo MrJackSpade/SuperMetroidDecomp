@@ -1046,3 +1046,28 @@ Focused and full Release Verification pass. Windows builds with zero warnings
 and errors. The Norfair Ridley audit passes 360 reveal frames, 4,096 combat frames
 across ten states and 738 death frames. #547 remains open for the remaining
 definitions, caller inventory and integration contract.
+
+## Ridley claw geometry and carried-Samus placement
+
+Replaced both live claw-offset reads with RidleyClawOffsets. The three authored
+X words and three authored Y words are compared directly with the pinned ROM.
+The old host clamps X to index two and Y to index eight after shifting the foot
+index. Native Y geometry has only three entries; the following six words are
+instructions. These six exact words are explicitly segregated as an existing
+out-of-range compatibility window, not advertised as additional geometry. No
+new native bounds behavior is claimed or introduced. All 65,536 index words
+preserve the pre-migration results. Remaining native out-of-range parity is
+documented rather than hidden by a narrower table or a new exception.
+
+Actual claw getters, collision, grab initialization and carried-Samus placement
+are now static and bus-free. Tests exercise 1,179,648 carry placements spanning
+all coordinate/offset words, three facing values and six foot words (including
+odd-index truncation). Expected positions independently combine native offsets,
+signed four-pixel offset decay and 16-bit coordinate wrapping. Another 228,150
+actual collision probes verify strict hitbox edges across three world positions,
+including wraparound. The tests do not substitute catalog-only assertions for
+the reported domain behavior. #547's broader caller and integration audit remains.
+
+Focused/full Release Verification pass. Windows and DebugRunner builds have
+zero warnings/errors. The complete Norfair Ridley audit passes 360 reveal,
+4,096 combat (ten states), and 738 death frames, including zero-health grabbing.

@@ -6,11 +6,11 @@ variables must be inspected; a search for `ReadWord(...Speed...)` misses them.
 
 ## Confirmed remaining runtime mechanics reads
 
-| Owner | Native definition | Remaining consumer |
-| --- | --- | --- |
-| Ridley | Claw offsets | RoomEnemySystem.Ridley and related partials |
+The previously enumerated Ridley claw-offset consumers are now compiled as well.
+This exhausts the rows in this limited inventory, **not** the broader caller
+inventory or #547's acceptance criteria. Continue the additional audit below.
 
-These are confirmed indirect `EnemyRomTablePointers` consumer groups, not an
+These were selected indirect `EnemyRomTablePointers` consumer groups, not an
 exhaustive list. Classify instruction selectors separately from artwork payloads.
 Phantoon's inspected movement, attack selection and death-schedule data are now
 compiled; its palette, eye instruction-list and materialization-sound selectors
@@ -29,11 +29,12 @@ Ridley's four pogo launch-speed rows and both six-stage acceleration arrays are
 compiled, including the native pointer indirection. Side targets, carry/release
 anchors and both health-stage divisor tables are also compiled. All six attack
 distributions are compiled and their live table read is removed. Claw geometry
-remains a live reader.
-These remaining groups are live references, not merely obsolete address declarations. Each still
-needs reference-value parity, selector/bounds/sign/wrap evidence and removal of
-the actual runtime read. Inspect authored bounds and adjacent-data behavior
-before substituting a catalog; do not assume every table is a smooth formula.
+is compiled, preserving the existing host bounds and explicitly separating the
+three authored Y words from six adjacent instruction words formerly reachable
+through its clamp. Native behavior outside authored indexes still needs a
+separate parity review; a table migration does not establish those host bounds
+as native rules. Inspect authored bounds and adjacent-data behavior before
+substituting a catalog; do not assume every table is a smooth formula.
 
 ## Additional inventory still required
 

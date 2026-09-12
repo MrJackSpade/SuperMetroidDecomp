@@ -713,7 +713,7 @@ public sealed partial class RoomEnemySystem
             BeginNorfairRidleyGrab(slot, state, samus);
     }
 
-    private void BeginNorfairRidleyGrab(
+    private static void BeginNorfairRidleyGrab(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState samus)
@@ -754,7 +754,7 @@ public sealed partial class RoomEnemySystem
         state.IntangibilityTimer = shortRelease ? (ushort)6 : (ushort)10;
     }
 
-    private void UpdateNorfairRidleyGrabbedSamus(
+    private static void UpdateNorfairRidleyGrabbedSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState samus)
@@ -777,7 +777,7 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)offset);
     }
 
-    private bool RidleyClawOverlapsSamus(
+    private static bool RidleyClawOverlapsSamus(
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState samus,
@@ -788,19 +788,11 @@ public sealed partial class RoomEnemySystem
         Math.Abs(unchecked((short)(samus.YPosition - GetNorfairRidleyClawY(slot, state)))) <
             samus.Kinematics.YRadius + radiusY;
 
-    private ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
-        unchecked((ushort)(slot.XPosition + unchecked((short)ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.ClawXOffsetWords +
-            Math.Min(state.FacingDirection, (ushort)2) * 2))));
+    private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
+        unchecked((ushort)(slot.XPosition + RidleyClawOffsets.ReadX(state.FacingDirection)));
 
-    private ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state)
-    {
-        int index = Math.Min(state.FeetDistanceIndex >> 1, (ushort)8);
-        return unchecked((ushort)(slot.YPosition + unchecked((short)ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Ridley.ClawYOffsetWords + index * 2))));
-    }
+    private static ushort GetNorfairRidleyClawY(RoomEnemySlot slot, RidleyEnemyState state) =>
+        unchecked((ushort)(slot.YPosition + RidleyClawOffsets.ReadY(state.FeetDistanceIndex)));
 
     private static bool TickRidleyFunctionTimer(RidleyEnemyState state)
     {

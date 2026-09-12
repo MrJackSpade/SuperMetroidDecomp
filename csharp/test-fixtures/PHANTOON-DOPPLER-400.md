@@ -162,3 +162,35 @@ Two independent captures share SHA256
 `movement-release/phantoon-finisher-400.zip` preserves numeric CSV only, including
 eight setup records. The shared audit's original #401 matrix also still matches
 all 15,300 native gameplay frames.
+
+## Spaced-shot movement search controls (not a completed technique proof)
+
+The pattern search runs 56 sequences: first shot at 1640 through 1700 in ten-frame
+steps, late barrage cadence 10 or 11, and four movement policies. Relative shot
+times are 0, 10, 40, 50, then a repeating barrage from 80. Movement policies are
+continuous Left, Left only from 80, alternating ten frames Left/ten neutral, or
+one frame Left followed by neutral. These are physical input words; initial setup
+matches the earlier barrage matrix and no actor state is subsequently injected.
+
+All 103,600 gameplay frames match the original CPU across 158 columns, including
+position/subpixels, hits, eye instructions/timers, and accumulated damage. Two
+independent captures have SHA256
+`70F2F64F7A6D4169D2F4382CB6C617D9A6440DEE3A37983CE9F4D34105BDF928`.
+Numeric-only evidence is `movement-release/phantoon-pattern-400.zip`.
+
+For example, start1640/cadence10 continuous walking hits at1565,1640,1680,
+whereas stop-start walking also hits1690 and closes at1699. At start1700,
+continuous walking and standing still both hit1565,1702,1710, but end with boss
+Y136 and Y165 respectively. Full native trajectories, not merely these endpoints,
+are compared. None of these controls accepts a fourth hit in the swooping round,
+so they do not yet prove the full spaced/moving Doppler extension. Keep the ticket
+in progress; successful technique and adjacent failure controls remain required.
+
+```text
+sm.exe --diagnostic-phantoon-pattern ROM output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-doppler-pattern-search ROM output.csv
+```
+
+The matching entrypoint patch and probe are under `movement-release`. Omit the
+CSV argument for an exploratory port-only search; that output alone is not parity
+evidence. Restore and rebuild the ordinary native host after capturing.

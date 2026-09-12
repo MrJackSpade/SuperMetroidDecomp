@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args.Length == 3 && args[0] == "--bomb-traversal-search")
+    return BombTraversalSearch.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--diagonal-spark-input-audit")
     return DiagonalSparkInputAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--diagonal-spark-native")

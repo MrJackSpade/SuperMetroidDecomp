@@ -1,5 +1,39 @@
 # Ordinary bomb-chain parity (#412)
 
+## New ceiling traversal candidate search (not yet native evidence)
+
+`BombTraversalSearch` uses ordinary `StepFrame` with controller-placed bombs in a
+constructed Landing Site-width runway. Floor is row 16, ceiling row 0 or 12,
+Samus (128,249), grounded right-facing Morph Ball, zero subpixels, Morph Ball and
+Bombs only, no cheats; enemies are cleared as in the earlier synthetic fixtures.
+Bombs are placed at frame 0, frame 52, then every N frames (24 through 30).
+After frame 170 the controller steers toward the next bomb with fuse >=9,
+plus a rightward offset, with a three-pixel neutral band. This is an exploratory
+controller policy, not production behavior or native expected input.
+
+The low-ceiling N=24, offset=4 candidate runs 600 frames, produces 22 launches,
+ends at (192,218), and has 18 ceiling contacts and no floor contacts after frame
+170. N=24/offset=5 and N=25/offset=4,5 also pass that search filter. High-ceiling
+cases do not. Steering toward the newest bomb and zero-width steering dead bands
+did not sustain the chain. No gameplay changes were made to obtain these results.
+
+Run with a NEW output directory (existing files are never overwritten):
+
+```
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --bomb-traversal-search "Super Metroid.smc" OUTPUT_DIRECTORY
+```
+
+The search emits exact 600-frame input CSVs for candidates. Two independent runs
+produced byte-identical files. N=24/offset=4 input SHA256:
+`C12496F859EFA52FFDB8DD576958EF449F38FFB3A4A702152746398C948D8026`.
+The retained generator makes these inputs reproducible without a player state.
+
+Next: replay these FIXED inputs against original cartridge routines, comparing
+per-frame motion, input ownership and every bomb slot; add mirrored direction
+and adjacent failures. A search success in C# alone is not parity evidence.
+Unconstrained horizontal traversal also remains outstanding. #412 stays open
+without awaiting-player-validation.
+
 Status: short-chain, repeated vertical-ascent, three-bomb and ladder matrices pass.
 Sustained horizontal/ceiling traversal coverage still needs work; do not mark the whole issue ready
 based on these cases alone.

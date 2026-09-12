@@ -581,6 +581,11 @@ public sealed partial class SamusState
             centerAdjustment = enemyAdjustment;
         }
 
+        // Native successful correction branches publish current AND previous Y.
+        // A zero correction in a collision branch still performs that write;
+        // the no-collision branch does not replace the scrolling checkpoint.
+        if (upward.Collided || downward.Collided || enemyUp.Collided || enemyDown.Collided)
+            RecordPoseCollisionCameraY(unchecked((ushort)(Kinematics.YPosition + centerAdjustment)));
         return LargerPoseCollisionOutcome.Allowed;
 
         LargerPoseCollisionOutcome BothSides() => Kinematics.YRadius < 8
@@ -679,6 +684,7 @@ public sealed partial class SamusState
             // move up six pixels when simultaneous initial probes force `$27/$28`.
             Kinematics.YPosition = unchecked((ushort)(
                 Kinematics.YPosition - (Kinematics.YRadius - oldRadius)));
+            RecordPoseCollisionCameraY(Kinematics.YPosition);
         }
         InitializeAnimation(bus, initialFrame: 0);
     }

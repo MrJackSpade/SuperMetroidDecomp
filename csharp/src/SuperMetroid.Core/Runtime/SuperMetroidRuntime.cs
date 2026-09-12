@@ -3845,6 +3845,7 @@ public sealed partial class SuperMetroidRuntime
 
                 ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
 
+                previousCameraPoint = Samus.ApplyPoseCollisionCameraCheckpoint(previousCameraPoint);
                 var currentCameraPoint = new SamusCameraPoint(
                     Samus.XPosition,
                     Samus.Kinematics.XSubposition,

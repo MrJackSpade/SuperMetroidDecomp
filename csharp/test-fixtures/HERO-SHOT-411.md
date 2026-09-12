@@ -81,7 +81,8 @@ ROM SHA256: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`.
 
 ## Still required
 
-- Compare a representative retail target and native normal camera movement.
+- Compare a representative retail target; native normal camera movement in the
+  constructed corridor is now covered below.
 - #411 remains open, not awaiting player validation; the controlled horizontal/vertical
   controlled-camera comparison does not fulfill the broader integration scope.
 - The separately reproduced and corrected explosion-lifetime defect is #601.
@@ -103,7 +104,37 @@ Assertions check actual target coordinates, explosion state, movement/camera
 advancement, and the stationary camera remaining fixed. Both cases run in the
 default suite and `--samus-projectiles`.
 
-This closes the C# integration gap between camera tracking and projectile
-lifetime; it does not claim native execution of the entire Samus/camera sequence
-or a specific retail enemy/door interaction. The earlier controlled native traces
-remain independent evidence for projectile processing itself.
+## Full movement/scrolling comparison and #603
+
+`movement-release/native-hero-runtime-probe.h` executes original input, radius,
+gravity, projectile, movement, animation, pose-transition and camera routines
+for the same corridor. It initializes Landing Site's 9x5 scroll table and header
+offsets, then runs all 64 warm-up frames and both input sequences. Accepted trace:
+`movement-release/hero-runtime-603.csv`, 241 numeric-only records. All records
+compare exact Samus X/Y and subpixels, pose, camera X/Y, projectile X/Y and
+subpixels, velocities, type, and instruction pointer. The native harness omits
+unrelated enemies, graphics, PLM execution and room-main code, rather than claiming
+a complete room emulation.
+
+Initial native setup omitted the per-frame radius refresh; that invalid result
+was corrected before accepting the reference. Adding the room scroller offsets
+did not resolve the remaining two-pixel mismatch. Capturing warm-up exposed its
+first occurrence at frame -56: pose expansion on landing changes center Y from
+493 to 491. Native changed-pose collision also writes previous Y=491; C# left
+the camera checkpoint at 493. Therefore C# camera Y advanced from 355 to 357,
+and stayed two pixels too low throughout both sequences.
+
+The #603 fix records the previous-Y writes from successful terrain/solid-enemy
+pose correction and crouch fallback, then applies them before camera tracking.
+Only the integer Y word changes; X and previous Y fraction remain intact. The
+native 241-frame comparison failed before this fix and passes afterwards. A
+focused landing fixture additionally asserts fraction preservation and one-time
+consumption. This does not claim to fix every other native previous-position
+write outside the changed-pose collision routines.
+
+Regeneration follows the build/temporary-entrypoint procedure above with
+`native-hero-runtime-probe.h`, `DiagnosticHeroRuntime`, `--hero-runtime-probe`.
+Compare using `--hero-shot-runtime TRACE.csv`; no-argument runtime mode, default
+suite and projectile batch use the accepted trace. All temporary native hooks
+were removed after collection. The remaining #411 scope is a representative
+retail enemy/door/block interaction, not the already-compared generic corridor.

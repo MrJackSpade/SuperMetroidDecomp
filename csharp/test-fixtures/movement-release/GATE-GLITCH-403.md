@@ -140,11 +140,26 @@ The numeric native traces are `gate-jump-403-{7,8,9}.csv`; the default
 verification suite drives `SuperMetroidRuntime.StepFrame` and compares every
 record. `--gate-jump-traces` runs just those comparisons. For recapture, install
 the same temporary headless hooks described above, substituting this header and
-`DiagnosticGateJump(rom, output, shootFrame)`, then invoke
-`sm.exe --gate-jump-probe ROM NEW_OUTPUT.csv SHOOT_FRAME`. Remove hooks afterward.
+`DiagnosticGateJump(rom, output, shootFrame, aimFrame)`, then invoke
+`sm.exe --gate-jump-probe ROM NEW_OUTPUT.csv SHOOT_FRAME AIM_FRAME` (use aim frame
+zero for the original three traces). Remove hooks afterward.
 
 This probe does not run the renderer or ordinary enemy AI. It uses authored
 room terrain/population and the original gate setup/PLM opening sequence.
 It does not establish spinning-shot, green-gate or reversed-orientation parity;
 those parts of #403 remain open. No further production change was needed for
 these three moving sequences.
+
+## Spin negative control
+
+An optional fourth DebugRunner argument selects delayed aim. With aim frame
+greater than zero, frame -1 holds Left to establish running before Jump;
+otherwise simultaneous Left+Jump from rest is a normal jump, not a spin test.
+Aim frame 7 / Shoot frame 8 produces spin pose `$1A` in both implementations.
+Aim and Shoot do not end that spin in this input sequence, and the gate remains
+closed. All 140 native/managed records match; the default regression now checks
+560 records including `gate-jump-403-spin-8-7.csv`.
+
+This is a negative control, not proof that successful spinning gate glitches
+are absent. No production change was made. A successful spinning setup and
+green/orientation controls remain outstanding.

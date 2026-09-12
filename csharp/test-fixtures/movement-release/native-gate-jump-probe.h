@@ -1,7 +1,7 @@
 #include "native-bounded-cpu.h"
 
 // Original CPU counterpart of GateGlitchRoomAudit.RunJump, without renderer/UI.
-int DiagnosticGateJump(const char *rom, const char *output, int shootFrame) {
+int DiagnosticGateJump(const char *rom, const char *output, int shootFrame, int aimFrame) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output, "wx"); if (!f) return 4;
   cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
@@ -39,7 +39,9 @@ int DiagnosticGateJump(const char *rom, const char *output, int shootFrame) {
   uint16 previous = 0;
   fprintf(f, "frame,input,x,subx,y,pose,gateTimer,gateInstruction\n");
   for (int frame = -60; frame < 80; frame++) {
-    uint16 input = frame < 0 ? 0 : 0x290;
+    uint16 input = frame < 0 ? 0 : 0x280;
+    if (aimFrame > 0 && frame == -1) input = 0x200;
+    if (frame >= aimFrame) input |= 0x10;
     if (frame == shootFrame) input |= 0x40;
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
     samus_new_pose = samus_new_pose_interrupted = samus_new_pose_transitional = 0xffff;

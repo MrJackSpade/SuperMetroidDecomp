@@ -8,9 +8,10 @@ internal static partial class Program
 {
     private static void VerifyGateJumpTraces()
     {
-        foreach (int shootFrame in new[] { 7, 8, 9 })
+        foreach ((int shootFrame, int aimFrame) in new[] { (7, 0), (8, 0), (9, 0), (8, 7) })
         {
-            var expected = File.ReadLines($"csharp/test-fixtures/movement-release/gate-jump-403-{shootFrame}.csv").Skip(1).ToArray();
+            string suffix = aimFrame == 0 ? shootFrame.ToString() : $"spin-{shootFrame}-{aimFrame}";
+            var expected = File.ReadLines($"csharp/test-fixtures/movement-release/gate-jump-403-{suffix}.csv").Skip(1).ToArray();
             AssertEqual(140, expected.Length, "Complete native gate jump trace");
             var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var runtime = new SuperMetroidRuntime(bus);
@@ -30,15 +31,17 @@ internal static partial class Program
             runtime.Camera!.SetPosition(0, 224);
             for (int frame = -60; frame < 80; frame++)
             {
-                ushort input = frame < 0 ? (ushort)0 : (ushort)(SnesButton.A | SnesButton.Left | SnesButton.R);
+                ushort input = frame < 0 ? (ushort)0 : (ushort)(SnesButton.A | SnesButton.Left);
+                if (aimFrame > 0 && frame == -1) input = (ushort)SnesButton.Left;
+                if (frame >= aimFrame) input |= (ushort)SnesButton.R;
                 if (frame == shootFrame) input |= (ushort)SnesButton.X;
                 runtime.StepFrame(input);
                 var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == RoomPlmHeaders.DownwardGate);
                 string actual = $"{frame},{input:X4},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
-            AssertEqual(shootFrame == 8, samus.XPosition < 112, "Only native successful timing crosses opened gate");
+            AssertEqual(shootFrame == 8 && aimFrame == 0, samus.XPosition < 112, "Only native successful timing crosses opened gate");
         }
-        Console.WriteLine("PASS 420 original-CPU gate jump frames: successful timing and adjacent misses.");
+        Console.WriteLine("PASS 560 original-CPU gate jump frames: successful timing, adjacent misses and spin control.");
     }
 }

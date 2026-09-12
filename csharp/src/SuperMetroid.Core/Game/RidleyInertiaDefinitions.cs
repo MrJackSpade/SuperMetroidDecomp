@@ -3,11 +3,11 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Shared Ceres/Norfair target-seeking acceleration divisors.</summary>
 public static class RidleyInertiaDefinitions
 {
-    /// <summary>$A6:D62F: the LDA absolute,Y opcode following RidleyInertiaTable. The existing Norfair death caller selects byte 16; preserve its prior ROM read.</summary>
-    public const ushort NorfairDeathAdjacentByte = 0xb9;
+    /// <summary>$A6:C60E: MoveRidleyToDeathSpot loads Y=0, selecting the first inertia byte.</summary>
+    public const int DeathDivisorIndex = 0;
 
-    /// <summary>Norfair's authored table plus the adjacent byte selected by the existing death movement path.</summary>
-    public static ushort NorfairDivisor(int index) => index == 16 ? NorfairDeathAdjacentByte : Divisor(index);
+    /// <summary>$A6:C611: MoveRidleyToDeathSpot loads A=$10, adding sixteen to reversal deceleration, independently of Y.</summary>
+    public const ushort DeathReversalBoost = 16;
 
     /// <summary>$A6:D61F (RidleyInertiaTable) and $A6:D712 (CeresRidleyInertiaTable): identical bytes 16 down to 1.</summary>
     public static ushort Divisor(int index) => (uint)index < 16

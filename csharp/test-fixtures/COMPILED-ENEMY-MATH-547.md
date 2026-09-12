@@ -712,3 +712,11 @@ selector is itself cartridge-correct; that needs separate routine-level review.
 Full Release Verification, complete Ceres/Norfair Ridley audits (including 896
 Norfair death frames), and Windows Release build pass. Remaining indirect boss
 mechanics groups are listed in LOOKUP-MIGRATION-REMAINING-547.md; #547 stays open.
+
+### Follow-up: #591 corrects the death caller
+
+The separate routine-level review proved the index-16 read was a port argument
+mix-up: $C601 supplies Y=0 and A=$10, not Y=$10. A regression failed before the
+fix. Both death phases now use index zero and reversal boost sixteen; the
+temporary adjacent-byte compatibility entry was removed. See
+RIDLEY-DEATH-ACCELERATION-591.md for reproduction and verification evidence.

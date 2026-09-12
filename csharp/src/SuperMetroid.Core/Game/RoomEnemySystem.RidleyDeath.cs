@@ -32,7 +32,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        MoveNorfairRidleyToward(body, state, 128, 328, divisorIndex: 16);
+        MoveNorfairRidleyToward(body, state, 128, 328,
+            RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
         if (IsWithinRidleyRectangle(body, 128, 328, 4, 4))
             BeginNorfairRidleyDeathRoar(body, state);
     }
@@ -56,7 +57,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        MoveNorfairRidleyToward(body, state, 128, 328, divisorIndex: 16);
+        MoveNorfairRidleyToward(body, state, 128, 328,
+            RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
         if (!TickRidleyFunctionTimer(state))
             return;
 

@@ -887,7 +887,7 @@ public sealed partial class RoomEnemySystem
         int divisorIndex,
         ushort reversalBoost = 0)
     {
-        ushort divisor = RidleyInertiaDefinitions.NorfairDivisor(divisorIndex);
+        ushort divisor = RidleyInertiaDefinitions.Divisor(divisorIndex);
 
         state.HorizontalVelocity = AccelerateNorfairRidleyAxis(
             state.HorizontalVelocity,

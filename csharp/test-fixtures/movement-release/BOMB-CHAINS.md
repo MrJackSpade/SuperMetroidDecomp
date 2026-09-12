@@ -113,6 +113,30 @@ longer-interval feedback search has not established it. Do not mark the whole
 issue ready based only on ceiling traversal; it remains open without the
 validation label.
 
+### Free-flight search limits
+
+The retained free-flight search now covers 1,440 policies: bomb intervals
+26/27/52/53/54, offsets 1..8, neutral bands 0..5 and steering starts
+170/175/180/185/190/195. It stops a rejected branch on renewed floor support,
+ceiling contact or departure from the safe search corridor. Candidates must
+complete 600 frames, include at least six launches after steering starts, and
+advance more than 32 pixels. These are search filters, not invented cartridge
+rules or proof that every failed policy is impossible in native play.
+
+No free-flight candidate met that filter. The four ceiling candidates and their
+fixed input hashes remain unchanged. Additional exploratory attempts to delay
+steering until bomb movement ended, brake throughout the rise, or predict a
+future vertical interception did not produce a candidate either; those extra
+heuristics are not retained as production physics or accepted parity tests.
+
+Source inspection confirms the normal overlap dispatcher requires fuse 8 after
+projectile processing, rather than an extended catch window. Successful short
+sideways chains followed by a floor return are not counted as sustained flight.
+The next investigation should use a demonstrated horizontal-bomb setup/input
+reference instead of treating further variations of this feedback policy as
+evidence that gameplay needs a change. #412 is still open, not deferred or ready
+for validation.
+
 The sections below record the earlier short-chain, repeated vertical-ascent,
 three-bomb, ladder and steering matrices and the defects they exposed.
 

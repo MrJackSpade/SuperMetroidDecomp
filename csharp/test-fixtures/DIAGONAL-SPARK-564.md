@@ -95,3 +95,18 @@ To recapture, use the existing headless entrypoint patch pattern but dispatch
 This scoped gameplay fix does not diagnose the reported physical-controller
 launch difficulty. Keyboard/pad path evidence and native direction-priority
 controls remain outstanding; #564 stays open and is not awaiting validation yet.
+
+## Desktop shoulder-help correction
+
+The visible footer incorrectly described Q/L as aim-up and W/R as aim-down.
+The actual mapper sends Q to SNES L and W to SNES R; default cartridge bindings
+use L for aim-down and R for aim-up. Corrected the footer, without changing any
+controller mapping. Under defaults the demonstrated diagonal-launch chord is
+Space (or X) + W, not Q. Custom cartridge bindings can change those actions.
+
+`DesktopVerification --keyboard-input-audit` now checks the exact footer
+definition and synthetic Windows messages through `HostKeyboardInputState`:
+Space+W becomes A|R and Space+Q becomes A|L. The audit passes, alongside its
+existing release/focus-discontinuity checks. This is not a physical keyboard
+test, nor proof that the wrong help caused the player's gamepad failure.
+Hardware polling and native direction-priority controls remain open.

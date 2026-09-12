@@ -122,7 +122,7 @@ public sealed partial class PlayableGameControl : UserControl
             Text = "Gamepad: D-pad/stick move; south dash; east jump; west cancel; north fire; shoulders aim\r\n" +
                    "Keyboard: arrows move  |  Space/X jump  |  Z dash  |  " +
                    "S: fire (X)  |  A: item cancel (Y)\r\n" +
-                   "Q: aim up (L)  |  W: aim down (R)  |  Enter: Start  |  Shift: Select",
+                   HostControlHelp.KeyboardShoulders + "  |  Enter: Start  |  Shift: Select",
         };
 
         var layout = new TableLayoutPanel { Dock = DockStyle.Fill, RowCount = 2, ColumnCount = 1 };

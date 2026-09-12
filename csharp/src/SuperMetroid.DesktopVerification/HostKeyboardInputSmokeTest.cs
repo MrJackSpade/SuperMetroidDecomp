@@ -13,6 +13,20 @@ public static class HostKeyboardInputSmokeTest
     public static HostKeyboardInputSmokeTestResult Run()
     {
         var keyboard = new HostKeyboardInputState();
+        // These are synthetic Windows key messages, not a physical-keyboard claim.
+        // The help must agree with the actual mapper and the default cartridge
+        // shoulder bindings used for diagonal Shinespark admission.
+        if (HostControlHelp.KeyboardShoulders != "Q: aim down (L)  |  W: aim up (R)")
+            throw new InvalidDataException("Shoulder help reversed the native default aim bindings.");
+        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Space);
+        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.W);
+        if (keyboard.BuildControllerWord(SnesButton.None) != (ushort)(SnesButton.A | SnesButton.R))
+            throw new InvalidDataException("Space+W must reach gameplay as Jump+AimUp under native defaults.");
+        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyUpMessage, Keys.W);
+        keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Q);
+        if (keyboard.BuildControllerWord(SnesButton.None) != (ushort)(SnesButton.A | SnesButton.L))
+            throw new InvalidDataException("Space+Q must reach gameplay as Jump+AimDown under native defaults.");
+        keyboard.Clear();
         if (!keyboard.ApplyWindowMessage(HostKeyboardInputState.KeyDownMessage, Keys.Enter))
             throw new InvalidDataException("Enter keydown escaped the gameplay key preview.");
 

@@ -142,8 +142,6 @@ public sealed partial class RoomEnemySystem
 {
     internal const ushort BullDefinition = 0xe97f;
 
-    private const int BullMaxSpeedTable = 0xa8d885;
-    private const int BullAccelerationIntervalTable = 0xa8d895;
     private const ushort BullNormalInstruction = 0xd841;
     private const ushort BullShotInstruction = 0xd855;
     private const ushort BullAccelerationDelta = 0x0018;
@@ -190,16 +188,15 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
         slot.CurrentInstruction = BullNormalInstruction;
 
-        // There are thirteen acceleration/deceleration records and eight max speeds. Native
-        // code performs unchecked table reads; using the ROM address directly retains that
-        // behavior for debug-edited parameters instead of imposing host-only validation.
-        int intervalAddress = BullAccelerationIntervalTable + slot.Parameter1 * 4;
-        state.AccelerationIntervalTimerReset = ReadWord(_bus!, intervalAddress);
+        // These are definition selectors, not live timers or editable presentation data.
+        // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
+        var intervals = BullMovementDefinitions.Intervals(slot.Parameter1);
+        state.AccelerationIntervalTimerReset = intervals.Acceleration;
         state.AccelerationIntervalTimer = state.AccelerationIntervalTimerReset;
-        state.DecelerationIntervalTimerReset = ReadWord(_bus!, intervalAddress + 2);
+        state.DecelerationIntervalTimerReset = intervals.Deceleration;
         state.ActivationTimer = BullMovementDelayFrames;
         state.Function = BullEnemyFunction.MovementDelay;
-        state.MaxSpeed = ReadWord(_bus!, BullMaxSpeedTable + slot.Parameter2 * 2);
+        state.MaxSpeed = BullMovementDefinitions.MaximumSpeed(slot.Parameter2);
     }
 
     /// <summary>Ports <c>MainAI_Bull</c> and all four indirect function targets.</summary>

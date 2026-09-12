@@ -319,6 +319,16 @@ expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 
+Bull's $A8:D885 maximum speeds and $A8:D895 interval pairs are compiled in
+BullMovementDefinitions. All 104 authored selector combinations run through
+the real initializer without a bus and match the pinned ROM words, live timer
+copies, delay/function and instruction state. Out-of-range debug-edited
+selectors now fail explicitly: arbitrary adjacent executable-byte reads are
+not supported by this definition API. The retail Sponge Bath actor uses 3/3;
+its complete seek/acceleration/deceleration, animation, contact, shot-reaction,
+death, Power Bomb and Grapple audit passes. Full Release Verification and
+Windows Release build pass. Serialized state and presentation remain unchanged.
+
 The projectile copy at $A0:CBC7 is also verified identical across all 759
 complete word windows. Polyp's real split-word integration now uses the
 compiled definition; 570 combinations (95 records, both signs, three carry/

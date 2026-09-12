@@ -325,14 +325,10 @@ internal static class BoulderAudit
         StepCentered(contact, assets, actor);
         contact.Samus.XPosition = actor.XPosition;
         contact.Samus.YPosition = actor.YPosition;
-        ushort health = contact.Samus.Health;
-        if (!contact.Enemies.ResolveOrdinarySamusContact(contact.Samus, 0) ||
-            contact.Samus.Health != health - 40 || !contact.Samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Boulder contact failed: health={health}->{contact.Samus.Health}, " +
-                $"knockback={contact.Samus.KnockbackActive}.");
-        }
+        var beforeContact = EnemyContactAuditAssertions.Capture(contact.Samus);
+        if (!contact.Enemies.ResolveOrdinarySamusContact(contact.Samus, 0))
+            throw new InvalidDataException("Boulder contact was not admitted.");
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, contact.Samus, beforeContact, 40, 1, "Boulder contact");
 
         LoadedBoulders shot = LoadPrefix(bus, room, assets, BlueBrinstarPopulation, 1);
         actor = shot.Enemies.Slots[0];

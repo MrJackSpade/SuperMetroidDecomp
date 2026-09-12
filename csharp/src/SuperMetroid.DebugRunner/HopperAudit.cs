@@ -172,13 +172,10 @@ internal static class HopperAudit
         samus.YPosition = auditedSlot.YPosition;
         samus.Health = 999;
         samus.InvincibilityTimer = 0;
-        if (!enemies.ResolveOrdinarySamusContact(samus, 0) || samus.Health != 879 ||
-            !samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Tourian hopper common contact failed: health={samus.Health}, " +
-                $"knockback={samus.KnockbackActive}.");
-        }
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0))
+            throw new InvalidDataException("Tourian hopper contact was not admitted.");
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 120, 1, "Tourian hopper contact");
 
         VerifyRoom0102CeilingOrientation(bus, outputDirectory);
         VerifyUpperNorfairSmallDessgeegaCycle(bus, outputDirectory);

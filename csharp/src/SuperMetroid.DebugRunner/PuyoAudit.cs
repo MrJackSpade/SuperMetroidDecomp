@@ -377,12 +377,10 @@ internal static class PuyoAudit
         samus.KnockbackActive = false;
         samus.XPosition = contact.XPosition;
         samus.YPosition = contact.YPosition;
-        if (!enemies.ResolveOrdinarySamusContact(samus, 0) ||
-            samus.Health != 939 || !samus.KnockbackActive)
-        {
-            throw new InvalidDataException(
-                $"Puyo contact failed: health={samus.Health}, knockback={samus.KnockbackActive}.");
-        }
+        var beforeContact = EnemyContactAuditAssertions.Capture(samus);
+        if (!enemies.ResolveOrdinarySamusContact(samus, 0))
+            throw new InvalidDataException("Puyo contact was not admitted.");
+        EnemyContactAuditAssertions.VerifyStandingAirHit(bus, samus, beforeContact, 60, 1, "Puyo contact");
 
         // Default vulnerability gives the basic Power Beam multiplier one. The shared shot
         // handler consumes one 20-damage projectile and leaves the actor alive at 80 HP.
@@ -398,18 +396,13 @@ internal static class PuyoAudit
         }
 
         // A second independently armed shot is lethal and must use the common death path,
-        // including Deleted and the room kill counter, not merely clamp health to zero.
+        // including the cleared slot and independently owned explosion, not merely HP=0.
         var lethal = new SamusProjectileSystem();
+        var beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actors[1]);
         ArmProjectile(lethal.Slots[0], actors[1], damage: 100);
-        if (enemies.ResolveOrdinaryProjectileHits(bus, lethal, bombs, samus) != 1 ||
-            actors[1].Health != 0 ||
-            !actors[1].Properties.HasAny(EnemyProperties.Deleted) ||
-            enemies.EnemiesKilled != 1)
-        {
-            throw new InvalidDataException(
-                $"Puyo death failed: health={actors[1].Health}, " +
-                $"properties=${actors[1].Properties:X4}, kills={enemies.EnemiesKilled}.");
-        }
+        if (enemies.ResolveOrdinaryProjectileHits(bus, lethal, bombs, samus) != 1)
+            throw new InvalidDataException("Puyo lethal shot was not admitted.");
+        EnemyDeathAuditAssertions.Verify(enemies, actors[1], beforeDeath, "Puyo beam death");
 
         // Waterway also contains Skultera and Zero actors whose generous radii can win the
         // first-hit scan near the third Puyo. Isolate the target, then rebuild the native
@@ -428,14 +421,9 @@ internal static class PuyoAudit
         {
             throw new InvalidDataException("Puyo did not select common Grapple-kill AI $800A.");
         }
+        beforeDeath = EnemyDeathAuditAssertions.Capture(enemies, actors[2]);
         enemies.StepFrame(0x0180, 0, false, samus, level: assets.LevelData);
-        if (!actors[2].Properties.HasAny(EnemyProperties.Deleted) ||
-            enemies.EnemiesKilled != 2)
-        {
-            throw new InvalidDataException(
-                $"Puyo Grapple kill did not delete the actor: properties=" +
-                $"${actors[2].Properties:X4}, kills={enemies.EnemiesKilled}.");
-        }
+        EnemyDeathAuditAssertions.Verify(enemies, actors[2], beforeDeath, "Puyo Grapple death");
     }
 
     private static RoomEnemySystem LoadWaterway(

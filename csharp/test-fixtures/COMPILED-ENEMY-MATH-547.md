@@ -313,6 +313,9 @@ baseline worktree and its binaries were removed after comparison.
 The Ki-Hunter diagnostic was subsequently repaired under #584: it now checks
 the native inherited hurt hold before the first admitted orbit. The complete
 encounter passes; see KI-HUNTER-AUDIT-584.md. No production change was needed.
+The other three audits were subsequently repaired under #583: all complete
+encounters pass after correcting deferred-contact and Puyo cleared-slot death
+expectations. See ENEMY-CONTACT-AUDITS-583.md; production is unchanged.
 
 ### Remaining migration
 

@@ -152,3 +152,34 @@ Native recapture uses the prior headless entrypoint pattern, dispatching
 These controls end at launch; full post-launch diagonal travel is independently
 covered above. Physical user-facing acquisition-to-completion remains unproven;
 an idle hardware poll or synthetic mapped messages do not satisfy that requirement.
+
+## Production 0.2.1 recording and explicit input controls
+
+The player supplied `issue-564-release-diagonal-shinespark/` on September 12.
+Its 5,587-frame recording reproduces six launches in room `$8F:91F8`, without
+changing any input: horizontal-left at 1694, vertical-left at 2162, 3017, 3722,
+and 4081, then vertical-right at 4645. Live replay bindings are Jump `$0080`
+and AimUp `$0010` (default A/R). The first launch selects horizontal from
+`$0280`; Up arrives two frames later. Subsequent launches select vertical from
+`$0A80` (Up+Left+Jump). No aim-up shoulder input occurs in these attempts.
+
+`DebugRunner --spark-player-recording-audit RECORDING ROM` pins the recording
+hash `A33F0651FE74F5519EE4507674BF75D5FA3975E4B7AAD4DD5DA1F0650AB685D9`
+and asserts all six original launch frames/directions. Six independent controls
+then replay the exact session up to a selected windup, substituting only
+Jump+AimUp (`$0090`) from frames 1688, 2156, 3013, 3722, 4081, or 4645.
+After diagonal admission they release input. Each launches diagonally, moves
+upward and horizontally in its facing direction, and completes; completion
+frames are 1830, 2289, 3143, 3798, 4220, and 4721 respectively. Earlier attempts
+in each control retain their original inputs; no position, charge, equipment,
+or actor state is injected. These controls all pass.
+
+The input substitutions are **not physical-controller evidence**. This real-room
+recording also does not replace the original-CPU comparisons above: its frontend
+replay uses audio-port acknowledgements, not an SPC waveform comparison. The
+observed launch selection agrees with those native direction-priority controls.
+No new production fix is justified by this recording. The player has been given
+the native chord to try: store charge, release Down and stand, face the desired
+direction, then hold aim-up plus Jump with the D-pad neutral. Physical success
+with that chord remains for player confirmation; controller model and D-pad
+versus stick were not supplied by this recording format.

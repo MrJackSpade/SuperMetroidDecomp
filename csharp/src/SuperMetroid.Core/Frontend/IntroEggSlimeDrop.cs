@@ -1,14 +1,10 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>One of four Baby-Metroid slime drops created by $8B:BA73.</summary>
 internal sealed class IntroEggSlimeDrop
 {
-    private const int XVelocityTable = 0x8bab35;
-    private const int OddYVelocityTable = 0x8bab49;
-    private const int EvenYVelocityTable = 0x8bac41;
     private readonly IntroDiscoverySprite sprite;
     private bool motionEnabled = true;
 
@@ -38,16 +34,12 @@ internal sealed class IntroEggSlimeDrop
 
         if (motionEnabled)
         {
-            int xVelocity = XVelocityTable + (sprite.GeneralTimer & 0x00ff) * 4;
-            AddVelocity(bus, horizontal: true, xVelocity);
+            AddVelocity(horizontal: true, IntroEggMotionDefinitions.SlimeX(sprite.GeneralTimer & 0xff));
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
             // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.
-            int yTable = (sprite.GeneralTimer & 1) != 0
-                ? OddYVelocityTable
-                : EvenYVelocityTable;
-            int yVelocity = yTable + (sprite.GeneralTimer >> 8) * 4;
-            AddVelocity(bus, horizontal: false, yVelocity);
+            AddVelocity(horizontal: false, IntroEggMotionDefinitions.SlimeY(
+                sprite.GeneralTimer >> 8, odd: (sprite.GeneralTimer & 1) != 0));
 
             if (unchecked((short)(sprite.YPosition - 0x00a8)) >= 0)
             {
@@ -67,10 +59,9 @@ internal sealed class IntroEggSlimeDrop
 
     public void Draw(ISnesAddressSpace bus, OamBuffer oam) => sprite.Draw(bus, oam);
 
-    private void AddVelocity(ISnesAddressSpace bus, bool horizontal, int address)
+    private void AddVelocity(bool horizontal, (ushort Whole, ushort Fraction) velocity)
     {
-        ushort wholeVelocity = RomDataReader.ReadWordFixedBank(bus, address);
-        ushort fractionVelocity = RomDataReader.ReadWordFixedBank(bus, address + 2);
+        (ushort wholeVelocity, ushort fractionVelocity) = velocity;
         if (horizontal)
         {
             ushort whole = sprite.XPosition;

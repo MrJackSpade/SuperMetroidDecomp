@@ -605,3 +605,27 @@ The encounter audit covers all 33 named retail records, all four constructed
 growing selectors, 40-pixel/four-map growth, vertical and horizontal variants,
 rider carry, triggers, combat callbacks, sound gates and live OBJ. This remains
 partial progress toward #547, not completion of the broader asset integration.
+
+## Intro egg fragment and slime motion
+
+IntroEggMotionDefinitions replaces five velocity tables in the real fragment/drop
+steppers. The irregular negative prefixes are retained; slime gravity selects by
+actor parity, not animation-frame parity. Initial fragment positions and visual
+instruction/spritemap data remain separate ROM-backed presentation dependencies.
+
+The first full cinematic run reproduced an important table-end assumption failure:
+fragments zero/one survive past the 38 authored Y records and read three adjacent
+instruction-byte pairs at $8B:AA9A-$AAA5. Native integration yields Y=$9E53, $B9D0,
+then $52EB before the signed ground test deletes them. These exact pairs are now
+explicit compiled data; neither clamping nor execution of arbitrary code is used.
+
+All 366 native words compare, including those six overread words. Forty actual
+actor lifetimes (six fragments/four drops at four subpixel starts) verify 2,482
+frames of exact whole/fraction X/Y against independent ROM integration, through
+ground impact and deletion. A bus guard rejects all old velocity reads, including
+the overread range. Slime's post-impact frames retain the same frozen coordinates.
+Unsupported frames beyond the authored/observed ranges fail explicitly; arbitrary
+relocated debug actors surviving longer are not claimed supported.
+
+Full Release Verification (including complete intro progression/render captures)
+and Windows Release build pass. The wider #547 dependency audit remains open.

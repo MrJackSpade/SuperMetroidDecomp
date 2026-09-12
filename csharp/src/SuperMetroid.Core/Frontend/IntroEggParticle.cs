@@ -7,8 +7,6 @@ namespace SuperMetroid.Core.Frontend;
 internal sealed class IntroEggParticle
 {
     private const int InitialPositionTable = 0x8ba97c;
-    private const int XVelocityTable = 0x8ba9ea;
-    private const int YVelocityTable = 0x8baa02;
     private readonly IntroDiscoverySprite sprite;
 
     public IntroEggParticle(ISnesAddressSpace bus, byte index)
@@ -44,11 +42,11 @@ internal sealed class IntroEggParticle
         // $A994 uses the low timer byte as the immutable fragment number and the high byte
         // as a gravity-table index. Each velocity is a signed 16.16 pair stored high-word
         // first in ROM, exactly matching the actor's whole/subposition addition order.
-        int xIndex = (sprite.GeneralTimer & 0x00ff) * 4;
-        AddSixteenSixteenVelocity(bus, sprite, horizontal: true, XVelocityTable + xIndex);
+        int xIndex = sprite.GeneralTimer & 0x00ff;
+        AddSixteenSixteenVelocity(sprite, horizontal: true, IntroEggMotionDefinitions.FragmentX(xIndex));
 
-        int yIndex = (sprite.GeneralTimer >> 8) * 4;
-        AddSixteenSixteenVelocity(bus, sprite, horizontal: false, YVelocityTable + yIndex);
+        int yIndex = sprite.GeneralTimer >> 8;
+        AddSixteenSixteenVelocity(sprite, horizontal: false, IntroEggMotionDefinitions.FragmentY(yIndex));
         if (unchecked((short)(sprite.YPosition - 0x00a8)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler
@@ -66,18 +64,17 @@ internal sealed class IntroEggParticle
     public void Draw(ISnesAddressSpace bus, OamBuffer oam) => sprite.Draw(bus, oam);
 
     private static void AddSixteenSixteenVelocity(
-        ISnesAddressSpace bus,
         IntroDiscoverySprite sprite,
         bool horizontal,
-        int velocityAddress)
+        (ushort Whole, ushort Fraction) velocity)
     {
         ushort whole = horizontal ? sprite.XPosition : sprite.YPosition;
         ushort fraction = horizontal ? sprite.XSubPosition : sprite.YSubPosition;
         IntroCinematicMotion.AddSixteenSixteen(
             ref whole,
             ref fraction,
-            RomDataReader.ReadWordFixedBank(bus, velocityAddress),
-            RomDataReader.ReadWordFixedBank(bus, velocityAddress + 2));
+            velocity.Whole,
+            velocity.Fraction);
         if (horizontal)
         {
             sprite.XPosition = whole;

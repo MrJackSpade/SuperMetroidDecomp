@@ -1,7 +1,34 @@
 # Issue 527: manual reserve input and transfer
 
-Affected player version: **0.1.1**. This is the first implementation slice of the
-reserve-refill presentation investigation, not closure of the entire report.
+Affected player version: **0.1.1**.
+
+## Current disposition: awaiting player validation
+
+The reported refill-presentation work is implemented and verified. Keep the issue
+open for player confirmation. The sections below retain the chronological findings;
+their earlier "remaining work" statements are superseded by this completion audit.
+
+| Original requirement | Evidence |
+| --- | --- |
+| Distinguish manual and automatic refill | Separate native/manual input dispatcher and automatic gameplay-entry tests; eight original-CPU cases. |
+| Intended manual animation and visible effect | Rendered arrow phases, 128 tank-fill cases, and 181 frames using original-CPU OAM as expected tank sprites. |
+| Automatic presentation | 33 actual frontend health-digit frames and empty AUTO cells; exact animation cursor/delay retention; 221 original-CPU handler frames. |
+| Health progression and duration | All 402 original-CPU transfer/timer/HUD/sound-request rows match, including exhaustion and maximum-health depletion. |
+| Controls and gameplay freeze | Real manual navigation/transfer; automatic admission before pause; nonfinal projectile freeze and same-frame completion unfreeze. |
+| Regression verification | Full Verification and Windows Release build pass; focused native comparison passes on the current implementation. |
+
+Confirmed defects included absent manual transfer input, missing arrow and tank
+presentation, stale pause HUD, completion-frame freeze ordering, and automatic
+Samus animation advancing under an incomplete lock. Each was reproduced before
+its fix and has property-specific regression coverage described below.
+
+The original issue requests animation/presentation validation, not audible PCM
+equivalence or a complete external-emulator playthrough. Those were extra gates
+introduced during investigation, not missing evidence for the reported properties.
+Do not claim those broader comparisons were performed. Original 65816 routine
+execution supplies the independent cartridge reference; production frontend/render
+tests cover its integration. This is enough for player validation, not proof of
+every possible reserve interaction (advanced interactions remain under #433).
 
 ## Reproduced missing behavior
 

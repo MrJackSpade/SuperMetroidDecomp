@@ -25,6 +25,11 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--hero-shots"])
+{
+    VerifyHeroShotCameraLifetime();
+    return 0;
+}
 if (args is ["--projectile-inheritance-probe"])
 {
     ProbeProjectileVelocityInheritance();

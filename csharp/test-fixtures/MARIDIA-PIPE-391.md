@@ -2,7 +2,10 @@
 
 ## Status
 
-The residual terrain-band defect is reproduced on the current code, not fixed.
+Terrain mismatches are observable on the current code, but the initial direct-load
+capture inherited an unrelated scroll origin and is not sufficient proof of the
+player's defect. A bounded incoming-door control now captures the actual frontend
+handoff as well. Neither control is a completed cartridge comparison or fix.
 The historical camera correction still carries Samus through the tube and into
 Oasis. Do not mark this issue awaiting validation on the basis of state restoration
 or camera coordinates alone.
@@ -44,7 +47,7 @@ graphs (inactive plus three crash phases, both delta signs), current-format roun
 trips, rejection of an unknown legacy field, and initialization of the old PCM
 self-loop map. The actual saved graph now loads and executes 420 frontend frames.
 
-## Current visual reproduction
+## Initial direct-load capture (setup limitation)
 
 ```text
 dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --maridia-pipe-from-north
@@ -60,8 +63,40 @@ The exit reaches Oasis and returns to ordinary gameplay. Captured descent frames
 frame180 includes retained purple architectural strips in the surrounding sand.
 These frames are local under `csharp/test-temp/issue-391-pipe-north`.
 
-Next: capture each descent frame, compare visible streamed terrain rows with
-their authored source and the pinned cartridge behavior, and make the actual
-band/timing assertion fail before any rendering correction. The camera/exit
-control must remain green. The snapshots alone do not yet identify the faulty
-producer or prove that every architectural row is erroneous.
+The restored slot is in Oasis, not the source room above the tube. The direct load
+retains its BG1 offsets `(60672,861)`. Resetting the initial coordinate origin to
+zero (`--maridia-pipe-fresh-origin`) removes all observed BG1/BG2 tile-word
+mismatches throughout that direct-load descent. Do not use these original bands
+alone to justify a production streamer change.
+
+## Incoming-door control
+
+```text
+dotnet run --project csharp/src/SuperMetroid.IntegrationVerification -c Release -- --maridia-pipe-incoming-door
+```
+
+This constructs a room-local Plasma Spark boundary at authored door block 3014,
+Samus `(104,736)`, then queues door `$83:A5AC` through the actual collision
+dispatcher. After this setup, all 620 calls use the frontend with neutral input;
+there are no further diagnostic position writes. It traverses the tube and its
+south exit, not an extended playthrough. Initial source scroll offsets are zero;
+the production door handoff establishes the destination offsets itself.
+
+The captured destination BG1 Y offset is 739, BG2 Y offset 224. At frame150,
+BG1 has 130 sampled tile-word mismatches; at frame180 it has 606; at frame210
+BG2 has 80 as well. Frame270 reaches the tube bottom; by frame390 the frontend
+is back in ordinary Oasis gameplay. Logs and every-frame PNGs remain local in
+`csharp/test-temp/391-incoming-door.log` and
+`csharp/test-temp/issue-391-pipe-north-fresh-origin-door`.
+
+`MaridiaPipeTerrainAudit` compares immutable captured VRAM words against expanded
+authored room blocks at displayed coordinates, including the PPU's first visible
+scanline. It reports both layers independently. This is an observation, not yet
+an authoritative assertion: transition frames can contain intentionally partial
+tilemaps, PLMs can modify tiles, and architectural changes are authored scenery.
+It does not compare final pixel composition or prove original-cartridge parity.
+
+Next: compare the incoming handoff and movement/streaming cadence with the pinned
+cartridge, isolate the erroneous displayed rows, and make that specific assertion
+fail before changing production code. In particular, inspect the combined normal
+fall and room-main displacement rather than assuming every mismatch is a PPU bug.

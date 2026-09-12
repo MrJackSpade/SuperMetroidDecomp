@@ -12,6 +12,10 @@ try
         return MaridiaPipeEntryAudit.Run();
     if (args is ["--maridia-pipe-from-north"])
         return MaridiaPipeEntryAudit.Run(fromNorth: true);
+    if (args is ["--maridia-pipe-fresh-origin"])
+        return MaridiaPipeEntryAudit.Run(fromNorth: true, freshOrigin: true);
+    if (args is ["--maridia-pipe-incoming-door"])
+        return MaridiaPipeEntryAudit.Run(fromNorth: true, freshOrigin: true, incomingDoor: true);
     if (args is ["--legacy-options-migration"])
         return LegacyOptionsMigrationVerification.Run();
     if (args is ["--export-autonomous-performance-state", var frameText, var autonomousDestination])

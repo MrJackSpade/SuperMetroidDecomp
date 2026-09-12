@@ -75,7 +75,8 @@ public sealed partial class SuperMetroidRuntime
                 ActiveSamusMode7Transform,
                 BombProjectiles,
                 VramWrites,
-                resolveSamusContactBeforeAi: true);
+                resolveSamusContactBeforeAi: true,
+                collisionPlms: Plms);
             if (Enemies.LastElevatorEvent == ElevatorFrameEvent.DepartureStarted)
             {
                 // MakeSamusFaceForward clears all pending pose requests after alpha

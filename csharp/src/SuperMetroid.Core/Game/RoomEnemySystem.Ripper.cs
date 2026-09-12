@@ -128,7 +128,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_GRipper</c> at $A2:E221.</summary>
-    private static void RunGRipperMain(
+    private void RunGRipperMain(
         RoomEnemySlot slot,
         RipperVariantEnemyState state,
         RoomLevelData? level)
@@ -173,7 +173,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Ripper2</c> at $A2:E353.</summary>
-    private static void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunRipper2Main(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper II");
         int displacement = unchecked(((short)slot.VariableD << 16) | slot.VariableC);
@@ -206,7 +206,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>Ripper_Main</c> at $A2:E4DA.</summary>
-    private static void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
+    private void RunRipperMain(RoomEnemySlot slot, RoomLevelData? level)
     {
         RequireRipperTerrain(level, "Ripper");
 

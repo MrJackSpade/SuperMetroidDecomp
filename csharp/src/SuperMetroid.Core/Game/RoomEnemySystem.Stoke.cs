@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>StokeMovement</c> at <c>$A2:8A76</c>.</summary>
-    private static void MoveStokeAndTurnAtTerrain(
+    private void MoveStokeAndTurnAtTerrain(
         RoomEnemySlot slot,
         StokeEnemyState state,
         RoomLevelData level,

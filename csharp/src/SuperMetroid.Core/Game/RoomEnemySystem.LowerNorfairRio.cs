@@ -303,7 +303,7 @@ public sealed partial class RoomEnemySystem
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }
 
-    private static void MoveLowerNorfairRioHorizontally(
+    private void MoveLowerNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)

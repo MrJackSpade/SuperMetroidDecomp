@@ -467,8 +467,10 @@ public sealed partial class RoomEnemySystem
         SamusMode7Transform? mode7Transform = null,
         SamusBombProjectileSystem? sharedProjectiles = null,
         VramWriteQueue? vramWriteQueue = null,
-        bool resolveSamusContactBeforeAi = false)
+        bool resolveSamusContactBeforeAi = false,
+        RoomPlmSystem? collisionPlms = null)
     {
+        using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();
         _samusForEnemyDrops = samus;
         _samusProjectilesForEnemyFrame = samusProjectiles;

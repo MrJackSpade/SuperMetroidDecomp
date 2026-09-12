@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     /// <summary>Ports <c>MoveEnemyRightBy_14_12_IgnoreSlopes</c> at $A0:C6AB.</summary>
-    private static bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
+    private bool MoveEnemyHorizontallyIgnoringNonSquareSlopes(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement) =>
@@ -25,7 +25,7 @@ public sealed partial class RoomEnemySystem
     /// retain their native half-tile geometry; only non-square slopes consume direct-page
     /// flag $4000 and become solid walls.
     /// </summary>
-    private static bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
+    private bool MoveEnemyHorizontallyTreatingSlopesAsWalls(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement) =>
@@ -39,7 +39,7 @@ public sealed partial class RoomEnemySystem
     /// Shared body of the three native horizontal enemy movers. The remaining $8000
     /// process-slopes mode will reuse this seam when its first retail caller is translated.
     /// </summary>
-    private static bool MoveEnemyHorizontally(
+    private bool MoveEnemyHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement,
@@ -266,7 +266,7 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private static bool EnemyHorizontalProbeIsSolid(
+    private bool EnemyHorizontalProbeIsSolid(
         RoomLevelData level,
         RoomEnemySlot slot,
         int blockX,
@@ -299,9 +299,9 @@ public sealed partial class RoomEnemySystem
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension =>
                 false, // A zero-offset extension resolves to air.
+            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, blockIndex, block),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpikeBlock or
             RoomCollisionType.SpecialBlock or
             RoomCollisionType.ShootableBlock or
             RoomCollisionType.GrappleBlock or
@@ -349,9 +349,9 @@ public sealed partial class RoomEnemySystem
                 remaining,
                 spanMinusOne),
             RoomCollisionType.HorizontalExtension or RoomCollisionType.VerticalExtension => false,
+            RoomCollisionType.SpikeBlock => ReactToEnemySpikeBlock(level, blockIndex, block),
             RoomCollisionType.SolidBlock or
             RoomCollisionType.DoorBlock or
-            RoomCollisionType.SpikeBlock or
             RoomCollisionType.SpecialBlock or
             RoomCollisionType.ShootableBlock or
             RoomCollisionType.GrappleBlock or

@@ -41,5 +41,48 @@ spawns PLM `$84:D094` and returns no collision. `$84:B3D4` immediately clears th
 collision nibble; `$84:CD53` queues sound and draws the timed crumble sequence.
 The current shared horizontal/vertical enemy probes instead treat all spike
 blocks as solid. Implement and verify the missing shared reaction, not a
-Shaktool-specific wall bypass. Digging is **not fixed yet**; no player-validation
-label is warranted by successful state loading or moving actors alone.
+Shaktool-specific wall bypass. These observations were captured before the
+production reaction was implemented.
+
+## Verified terrain fix
+
+Both shared horizontal and vertical movers now consult the native spike/BTS
+table. Nonzero entry15 allocates the existing room's PLM synchronously, clears
+collision during setup, and returns no collision even if the native pool is full.
+Zero entries remain solid. The PLM uses the cartridge instruction list for sound,
+draws and deletion. The room owner is supplied only for the synchronous enemy
+frame and is restored on exit/throw; it is not extra serialized emulated state.
+
+The production-state regression failed before this fix. It now runs6000 neutral
+frames, observes first digging at1046, and asserts the first block's full visual
+sequence:0053 for4 frames,0054 for4,0055 for4,00FF thereafter. All216 original sand
+blocks finish as00FF. Local screenshots of the first/last crumble stages were
+inspected. A subsequent bounded Right/Jump input sequence moves Samus through
+the cleared passage toX849, staying in the same room. No mid-replay actor or
+terrain writes are used. The first-dig frame is a regression observation from
+this capture, not a claim of a native full-encounter trajectory comparison.
+
+Independent original-65816 probe: actual room data,32 BTS values (0..15 and
+80..8F), empty/full40-slot pools, plus16 handler frames for each successful
+breakable case. Its96 rows were captured twice with identical SHA256:
+`5A74E32C57E7BEB4B6F2760E8D6F3367B7F6C09E68CB514F3EAD7B5877944FEC`.
+Numeric-only archive: `movement-release/enemy-breakable-605.zip`.
+The managed audit applies these controls through all four directional movement
+paths (384 comparisons): collision result, immediate level word, allocation,
+active cursor/timer, timed draw updates, sound library/ID/queue cap, and deletion.
+Native stale instruction words after deletion are not compared to cleared host
+slots; allocation failure does not pretend setup ran.
+
+```text
+sm.exe --diagnostic-enemy-breakable ROM NEW.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --enemy-breakable-native ROM NEW.csv
+```
+
+Use `movement-release/native-enemy-breakable-entrypoint.patch` with the matching
+probe header, rebuild native Release/x64, and restore/rebuild after capture.
+Native source pin578f90b3cc49557bb70060ad033bb90b8cf8ac50; disassembly pin
+362be646929cf8e483f692b73a6561cfc2dc1d0d; ROM SHA256
+12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72.
+
+Full bank-$80 verification and the pre-existing Shaktool movement/combat/attack
+audit pass. Leave #605 open for player confirmation after the final build check.

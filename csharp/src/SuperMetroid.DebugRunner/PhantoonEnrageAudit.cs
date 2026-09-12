@@ -10,18 +10,19 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal static class PhantoonEnrageAudit
 {
-    public static int Run(string rom, string nativeTrace)
+    public static int Run(string rom, string nativeTrace, bool barrageFinisher = false)
     {
-        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeTrace))) !=
-            "B967BFADBB8515CAEA8DC3B8AB5E61965D0A258E4A537FCADFABA0335C089D12")
-            throw new InvalidDataException("Use the accepted phantoon-enrage-native-01 capture.");
+        string expectedHash = barrageFinisher ? "5281FB368D7040098169DDE7B25E89B4D5359381597F8109E84CD4F222CD32D4"
+            : "B967BFADBB8515CAEA8DC3B8AB5E61965D0A258E4A537FCADFABA0335C089D12";
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(nativeTrace))) != expectedHash)
+            throw new InvalidDataException("Use the accepted native trace for this Phantoon control.");
         var rows = File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(',').Select(int.Parse).ToArray())
             .Where(row => row[3] >= 0)
             .ToDictionary(row => (row[0], row[1], row[3]));
         int compared = 0;
-        foreach (ushort initialHealth in new ushort[] { 500, 700, 2500 })
-        for (int fire = 1576; fire <= 1578; fire++)
+        foreach (ushort initialHealth in barrageFinisher ? new ushort[] { 1000, 1001 } : new ushort[] { 500, 700, 2500 })
+        for (int fire = barrageFinisher ? 1720 : 1576; fire <= (barrageFinisher ? 1721 : 1578); fire++)
         {
             ushort startX = 128;
             int jump = 1548;
@@ -47,13 +48,26 @@ internal static class PhantoonEnrageAudit
             // Super Missile all use real gameplay input with live enemy attacks.
             var body = runtime.Enemies.Phantoon!.Body;
             int damagingHits = 0;
-            for (int frame = 0; frame < 1700; frame++)
+            var hitFrames = new List<int>();
+            for (int frame = 0; frame < (barrageFinisher ? 1850 : 1700); frame++)
             {
                 ushort input = (ushort)SnesButton.Up;
                 if (frame is >= 1460 and < 1480) input = (ushort)SnesButton.Right;
                 if (frame >= jump && frame < release) input |= runtime.ControllerBindings.Jump;
                 if (frame == 1565 || frame == fire) input |= runtime.ControllerBindings.Shoot;
                 if (frame == 1566) input |= runtime.ControllerBindings.ItemSelect;
+                if (barrageFinisher)
+                {
+                    if (frame == 1566) input = (ushort)SnesButton.Up;
+                    if (frame == 1575) input |= runtime.ControllerBindings.Shoot;
+                    if (frame >= 1680)
+                    {
+                        input = frame == 1680 ? (ushort)SnesButton.Left : (ushort)0;
+                        if (frame <= 1710 && (frame - 1680) % 10 == 0 || frame == fire)
+                            input |= runtime.ControllerBindings.Shoot;
+                        if (frame == 1719) input |= runtime.ControllerBindings.ItemSelect;
+                    }
+                }
                 ushort health = body.Health, phase = body.VariableF;
                 runtime.StepFrame(input);
                 int[] actual = [fire, initialHealth, 0, frame, input, runtime.TimeIsFrozen ? 1 : 0,
@@ -84,9 +98,10 @@ internal static class PhantoonEnrageAudit
                 if (body.Health != health)
                 {
                     damagingHits++;
-                    if (frame != 1565 && frame != fire)
+                    hitFrames.Add(frame);
+                    if (!barrageFinisher && frame != 1565 && frame != fire)
                         throw new InvalidDataException($"Unexpected damage frame {frame}.");
-                    if (frame == fire)
+                    if (!barrageFinisher && frame == fire)
                     {
                         PhantoonAiFunction expected = initialHealth <= 700
                             ? fire == 1578 ? PhantoonAiFunction.FinishFatalSwoop : PhantoonAiFunction.DyingFadeInOut
@@ -94,14 +109,28 @@ internal static class PhantoonEnrageAudit
                         if (body.Health != Math.Max(0, initialHealth - 700) || body.VariableF != (ushort)expected)
                             throw new InvalidDataException($"Super impact failed health/phase assertion: {body.Health}/{body.VariableF:X4}.");
                     }
+                    if (barrageFinisher && frame == fire)
+                    {
+                        var expected = initialHealth == 1000 ? PhantoonAiFunction.FinishFatalSwoop : PhantoonAiFunction.FadeOutBeforeRage;
+                        if (fire != 1720 || body.Health != initialHealth - 1000 || body.VariableF != (ushort)expected)
+                            throw new InvalidDataException("Finisher did not preserve native lethal/nonlethal priority.");
+                    }
                     Console.WriteLine($"release={release}, startX={startX}, fire={fire}, hit={frame}, damage={health - body.Health}, phaseBefore={(PhantoonAiFunction)phase}, phaseAfter={(PhantoonAiFunction)body.VariableF}");
                 }
             }
-            if (damagingHits != 2)
+            if (!barrageFinisher && damagingHits != 2)
                 throw new InvalidDataException($"Expected primer and Super impact, got {damagingHits}.");
+            if (barrageFinisher)
+            {
+                int[] expected = fire == 1720 ? [1565, 1693, 1701, 1711, 1720] : [1565, 1693, 1701, 1711];
+                int expectedHealth = initialHealth - (fire == 1720 ? 1000 : 400);
+                if (!hitFrames.SequenceEqual(expected) || body.Health != expectedHealth)
+                    throw new InvalidDataException($"Finisher window hits={string.Join(',', hitFrames)}, health={body.Health}; expected {expectedHealth}.");
+            }
         }
-        if (compared != 15300 || compared != rows.Count)
-            throw new InvalidDataException($"Expected 15300 Phantoon enrage records, compared {compared} of {rows.Count}.");
+        int expectedFrames = barrageFinisher ? 7400 : 15300;
+        if (compared != expectedFrames || compared != rows.Count)
+            throw new InvalidDataException($"Expected {expectedFrames} Phantoon enrage records, compared {compared} of {rows.Count}.");
         Console.WriteLine($"Phantoon enrage: {compared} original-CPU gameplay frames match.");
         return 0;
     }

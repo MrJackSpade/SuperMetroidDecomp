@@ -134,6 +134,8 @@ if (args.Length == 2 && args[0] == "--phantoon-plasma-audit")
     return PhantoonPlasmaAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--phantoon-enrage-audit")
     return PhantoonEnrageAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--phantoon-finisher-audit")
+    return PhantoonEnrageAudit.Run(args[1], args[2], barrageFinisher: true);
 if (args.Length is 2 or 3 && args[0] == "--phantoon-doppler-search")
     return PhantoonDopplerAudit.Run(args[1], args.Length == 3 ? args[2] : null);
 if (args.Length == 2 && args[0] == "--phantoon-doppler-expanded-search")

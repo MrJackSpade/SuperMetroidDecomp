@@ -5,7 +5,7 @@
 In progress. The initial 30-run matrix and grounded/aerial closure-window controls
 now match native execution, but do not establish every technique in this ticket.
 Remaining acceptance includes spaced barrages, moving/stuttered Dopplers,
-Samus-position effects on the returning boss, and finisher controls. Do not mark awaiting validation
+Samus-position effects on the returning boss. Finisher controls also match native execution. Do not mark awaiting validation
 based only on this first crash correction.
 
 ## Reproduced explosion-family crash
@@ -137,3 +137,28 @@ Two independent captures share SHA256
 `15A5E22F7BBCC381D98EE42B648489818A59F5733D002297C4AE40FF0F83DF1A`.
 `movement-release/phantoon-window-400.zip` contains only the numeric CSV,
 including8 setup records; no game assets or save data are included.
+
+## Super Missile finisher controls
+
+Four normal-input sequences compare 7,400 gameplay frames, with all 150 native
+columns checked each frame. Initial boss health is 1000 or 1001; four missiles
+hit at frames 1565, 1693, 1701, and 1711. Item Select at 1719 switches to Supers.
+A Super fired at 1720 hits for 600: remaining health 600 produces the fatal-swoop
+phase, while 601 leaves one health and enters enrage. Firing at 1721 instead
+misses the closed damage window in both controls. Assertions require the exact
+hit frames, health, and lethal/nonlethal phase priority. No production correction
+was necessary for these cases; this does not complete the remaining techniques.
+
+Use `movement-release/native-phantoon-finisher-entrypoint.patch` and its probe
+header with the same bounded original-CPU setup, then restore/rebuild the host:
+
+```text
+sm.exe --diagnostic-phantoon-finisher ROM output.csv
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --phantoon-finisher-audit ROM output.csv
+```
+
+Two independent captures share SHA256
+`5281FB368D7040098169DDE7B25E89B4D5359381597F8109E84CD4F222CD32D4`.
+`movement-release/phantoon-finisher-400.zip` preserves numeric CSV only, including
+eight setup records. The shared audit's original #401 matrix also still matches
+all 15,300 native gameplay frames.

@@ -12,7 +12,8 @@ The diagnostic checks that the control exercises a state change, then fails
 because the wait stage omitted it. After the fix both paths agree. The initial assumption of a112 result was
 incorrect for this actor/setup and is not used as a cartridge expectation.
 This is an owner-invocation fixture, not a natural frozen-pirate technique or
-an independent native CPU trace.
+an independent native CPU trace. The later door-entry sound-disable correction
+below supersedes this fixture's original assumption that fresh requests are admitted.
 
 Pinned `upstream-sm/src/sm_82.c`, DoorTransitionFunction_WaitForSoundsToFinish
 at `$82:E29E`, explicitly runs DetermineWhichEnemiesToProcess, EnemyMain,
@@ -37,6 +38,32 @@ Power Bomb suppression and combined actions remain required by the ticket.
 
 Reference: https://wiki.supermetroid.run/Processing (claims are investigation
 inputs, not asserted timings). No private cartridge assets are published.
+
+## Door-entry DisableSounds correction
+
+Following the complete entry path exposed an omitted guard: `$82:E279` sets
+DisableSounds after the initial stop commands; `$82:E757` clears it only after
+the final destination fade. The isolated queue and wait-entry probes below did
+not execute that entry owner, so they did not test this flag's lifetime.
+
+The live Climb enemy/post-draw frontend fixture reproduced fresh requests being
+admitted during the wait (including an ended spin). Before correction its
+native-guard expectation failed at frame zero, library one: expected zero new
+requests, observed one. The fixture still runs both owners but now expects zero
+admissions throughout 24 wait calls, with and without an active Power Bomb.
+
+CartridgeAudioState now applies the door-owned disable guard after the native
+occupancy check, preserving the accumulator return value. SuperMetroidGame sets
+it after entry stop commands and clears it after the final fade. Each Step
+reconstructs it from the serialized frontend state; the derived field is excluded
+from debugger serialization, so older mid-transition states need no new field.
+Queued sounds keep draining and music is unaffected. This is not host muting.
+
+Tests cover the actual final-fade release, existing-queue drain, native accumulator,
+music admission, re-enable/reset, the full core suite, the Windows build, and an
+unchanged production debugger-state load/replay. This does not complete the broader
+controller/native-SPC action timing matrix. The guard fix follows v0.3.4 on main;
+the published release tag was not moved.
 
 ## Original 65816 queue comparison
 

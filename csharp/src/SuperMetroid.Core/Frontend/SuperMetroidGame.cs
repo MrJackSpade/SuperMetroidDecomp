@@ -244,6 +244,10 @@ public sealed partial class SuperMetroidGame
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
     public FrontendFrame Step(ushort controllerInput)
     {
+        // Derive the door-owned native disable flag before any producer can queue
+        // audio. This also restores its meaning for legacy snapshots without adding
+        // another serialized flag that could disagree with the coroutine phase.
+        audio.DoorTransitionSoundsDisabled = GameState == SuperMetroidGameState.LoadingNextRoomB;
         bool messageWasActive = runtime?.MessageBox.IsActive == true;
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
@@ -881,6 +885,8 @@ public sealed partial class SuperMetroidGame
                     audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
                 }
                 audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
+                // $82:E279 follows both entry cancellation commands, not precedes them.
+                audio.DoorTransitionSoundsDisabled = true;
                 doorTransition.Begin(runtime);
                 // State $09 calls state $0A synchronously for ordinary doors; state $0A
                 // publishes state $0B before returning. Consequently neither intermediate
@@ -894,7 +900,10 @@ public sealed partial class SuperMetroidGame
                     publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(runtime!));
                 PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
+                {
+                    audio.DoorTransitionSoundsDisabled = false;
                     GameState = SuperMetroidGameState.MainGameplay;
+                }
                 break;
 
             case SuperMetroidGameState.SamusEscapesFromZebes:

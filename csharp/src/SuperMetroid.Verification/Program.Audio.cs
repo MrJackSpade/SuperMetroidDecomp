@@ -9,6 +9,7 @@ internal static partial class Program
     /// </summary>
     private static void VerifyCartridgeAudioQueues()
     {
+        VerifyDoorSoundDisableGuard();
         MusicCommand dataLoad = MusicCommand.LoadData(0x21);
         AssertEqual((ushort)0xff21, dataLoad.RawValue, "music data-load word");
         AssertEqual(MusicCommandKind.LoadData, dataLoad.Kind, "music data-load classification");

@@ -106,8 +106,8 @@ internal static class DoorSoundWaitAudit
                 produced++;
                 if (request.SoundSuppressed != powerBombActive)
                     throw new InvalidDataException("Door wait enemy producer lost its live Power Bomb guard.");
-                if (!request.SoundSuppressed)
-                    expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
+                // $82:E279 disables new SFX throughout the door coroutine.
+                // The producer still runs, but its request cannot refill the ring.
             }
             foreach (var request in runtime.Samus!.LiquidPhysics.SoundRequests)
             {
@@ -115,8 +115,6 @@ internal static class DoorSoundWaitAudit
                 movementProduced++;
                 if (request.SoundSuppressed != powerBombActive)
                     throw new InvalidDataException("Door wait movement producer lost its Power Bomb guard.");
-                if (!request.SoundSuppressed)
-                    expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
             }
             for (int queue = 0; queue < 3; queue++)
                 if (((writePositions[queue] - before[queue]) & 15) != expected[queue])
@@ -126,5 +124,18 @@ internal static class DoorSoundWaitAudit
         if (produced == 0) throw new InvalidDataException("Door wait frontend fixture produced no fresh enemy/draw sounds.");
         if (movementProduced == 0) throw new InvalidDataException("Door wait failed to exercise post-draw movement audio.");
         Console.WriteLine($"Frontend wait: PB={powerBombActive}, {produced} fresh enemy/draw requests ({movementProduced} movement), {admitted} admitted over 24 calls.");
+        // Exercise the actual final-fade release, not a manually cleared audio flag.
+        typeof(DoorTransitionState).GetField("paletteTransition", fields)!
+            .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1));
+        typeof(DoorTransitionState).GetProperty(nameof(transition.Phase))!
+            .SetValue(transition, DoorTransitionPhase.FadeInDestinationPalette);
+        for (int frame = 0; frame < 4 && transition.Phase != DoorTransitionPhase.Complete; frame++)
+        {
+            game.Step(0);
+            if (audio.DoorTransitionSoundsDisabled != (transition.Phase != DoorTransitionPhase.Complete))
+                throw new InvalidDataException("Door sound disable flag did not follow the final fade boundary.");
+        }
+        if (game.GameState != SuperMetroidGameState.MainGameplay || audio.DoorTransitionSoundsDisabled)
+            throw new InvalidDataException("Completed door failed to restore sound admission.");
     }
 }

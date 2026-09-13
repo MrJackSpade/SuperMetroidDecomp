@@ -38,6 +38,15 @@ public sealed class CartridgeAudioState
 
     public CartridgeAudioState() => Reset();
 
+    /// <summary>
+    /// Door-owned part of native DisableSounds ($05F5): set after the entry stop
+    /// commands and cleared after the destination fade. The frontend reconstructs
+    /// it from its serialized coroutine state before every frame, including restores.
+    /// It rejects new SFX only; queued sounds and music continue to advance.
+    /// </summary>
+    [field: NonSerialized]
+    internal bool DoorTransitionSoundsDisabled { get; set; }
+
     /// <summary>Music-data set most recently uploaded by a processed queue command.</summary>
     public byte MusicDataIndex { get; private set; }
 
@@ -71,6 +80,7 @@ public sealed class CartridgeAudioState
     /// <summary>Restores the same audio queue state initialized by <c>Vector_RESET</c>.</summary>
     public void Reset()
     {
+        DoorTransitionSoundsDisabled = false;
         Array.Clear(_musicEntries);
         Array.Clear(_musicDelays);
         Array.Clear(_soundQueues);
@@ -214,7 +224,7 @@ public sealed class CartridgeAudioState
             return (ushort)((soundEffect.Value << 8) | occupancy);
 
         ushort accumulator = (ushort)((occupancy << 8) | soundEffect.Value);
-        if (soundSuppressed)
+        if (soundSuppressed || DoorTransitionSoundsDisabled)
             return accumulator;
 
         byte write = _soundWritePositions[queue];

@@ -6,6 +6,7 @@ internal static partial class Program
 {
     private static void VerifyDebuggerVersionCompatibility()
     {
+        VerifyRoomCallbackStateIdentity();
         VerifyLegacyShinesparkGraph();
         MethodInfo expected = typeof(Program).GetMethod(nameof(DebuggerSignatureProbe), BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (bool wrongParameter in new[] { false, true })

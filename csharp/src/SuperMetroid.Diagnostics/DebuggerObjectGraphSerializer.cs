@@ -57,8 +57,7 @@ internal static class DebuggerObjectGraphSerializer
             writer.Write((byte)ObjectMarker.New);
             int referenceId = tracksReference ? nextReferenceId++ : 0;
             writer.Write(referenceId);
-            writer.Write(type.AssemblyQualifiedName ?? throw new InvalidOperationException(
-                $"Type {type.FullName} has no assembly-qualified name."));
+            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(type));
             if (tracksReference)
                 references.Add(value, referenceId);
 
@@ -86,7 +85,7 @@ internal static class DebuggerObjectGraphSerializer
             writer.Write(fields.Length);
             foreach (FieldInfo field in fields)
             {
-                writer.Write(field.DeclaringType!.AssemblyQualifiedName!);
+                writer.Write(DebuggerStateTypeIdentity.GetSerializedName(field.DeclaringType!));
                 writer.Write(field.Name);
                 Write(field.GetValue(value));
             }
@@ -170,8 +169,8 @@ internal static class DebuggerObjectGraphSerializer
             foreach (Delegate call in calls)
             {
                 MethodInfo method = call.Method;
-                writer.Write(method.DeclaringType?.AssemblyQualifiedName ?? throw new InvalidOperationException(
-                    $"Delegate method {method.Name} has no declaring type."));
+                writer.Write(DebuggerStateTypeIdentity.GetSerializedName(method.DeclaringType ??
+                    throw new InvalidOperationException($"Delegate method {method.Name} has no declaring type.")));
                 DebuggerDelegateIdentity.Write(writer, method);
                 Write(call.Target);
             }

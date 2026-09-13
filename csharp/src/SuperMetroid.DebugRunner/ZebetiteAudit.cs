@@ -123,6 +123,7 @@ internal static class ZebetiteAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionAndPopulation(bus, room);
+        VerifyRetailCameraBounds(bus, room, assets);
         VerifyVacatedSlotReuse(bus, room, assets);
         VerifyFrozenOffscreenProcessing(bus, room, assets);
         VerifySurvivingHalfShot(bus, room, assets);
@@ -138,6 +139,26 @@ internal static class ZebetiteAudit
             "and normal-bomb damage, death explosions, embedded respawns, and final event " +
             "state were verified.");
         return 0;
+    }
+
+    private static void VerifyRetailCameraBounds(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        // Mother Brain's untouched header is four screens wide. This checks
+        // only the right-side off-screen bound; it does not simulate reaching
+        // the other side of a live solid barrier or a player camera trajectory.
+        if (room.WidthInScreens != 4 || room.HeightInScreens != 1)
+            throw new InvalidDataException("Unexpected Mother Brain room dimensions.");
+        int maximumCameraX = (room.WidthInScreens - 1) * 256;
+        for (ushort generation = 0; generation < 4; generation++)
+        {
+            var loaded = Load(bus, room, assets, generation);
+            var actor = loaded.Enemies.Slots[0];
+            int firstOffscreenCamera = actor.XPosition + actor.XRadius + 1;
+            if ((firstOffscreenCamera > maximumCameraX) != (generation == 0))
+                throw new InvalidDataException("Retail right-side Zebetite camera exclusion differs.");
+            Console.WriteLine($"Zebetite {generation + 1}: first right-side offscreen camera={firstOffscreenCamera}, room maximum={maximumCameraX}.");
+        }
     }
 
     private static void VerifyCameraGatedRegeneration(SuperMetroidAddressSpace bus,

@@ -121,3 +121,15 @@ exposure leaves 162 HP. This is a complete ten-hit health sequence, but controll
 camera jumps and injected shot callbacks do not prove the player's movement,
 missile flight, legal room camera bounds or first-barrier exclusion. Those
 room-local input requirements remain outstanding for #443.
+
+## Retail right-side camera bounds
+
+The untouched Mother Brain header $8F:DD58 specifies 4x1 screens, with four
+blue scroll cells at $8F:DDC0. The loaded enemy definitions give X radius 8;
+$A6:FC1B positions are 824, 632, 440, 248. Consequently the first camera X
+that excludes each barrier on the screen's left is 833, 641, 449, 257.
+The room's ordinary maximum camera X is 768. The first barrier cannot be
+excluded by scrolling further right, while the others can. The ROM-backed
+audit checks these relationships for every generation. This is a geometric
+restriction, not proof of all reachable player positions or camera timing;
+crossing to the far side of the solid first barrier is outside this check.

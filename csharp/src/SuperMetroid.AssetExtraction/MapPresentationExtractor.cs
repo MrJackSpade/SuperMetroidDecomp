@@ -126,6 +126,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, PauseSelectorDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(selectorBytes);
         hashes.Add(PauseSelectorDefinitions.FileName, Convert.ToHexString(SHA256.HashData(selectorBytes)));
+        byte[] reserveTankBytes = PauseReserveTankExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PauseReserveTankDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(reserveTankBytes);
+        hashes.Add(PauseReserveTankDefinitions.FileName, Convert.ToHexString(SHA256.HashData(reserveTankBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

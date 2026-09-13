@@ -914,8 +914,8 @@ internal sealed partial class PauseMenuState
 
     private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
     {
-        // Only map compositions have been migrated. Equipment-page compositions
-        // remain cartridge-owned until their separate presentation migration.
+        // Map compositions use this shared entry. Extracted equipment selectors
+        // and reserve tanks draw through their semantic presentation owners.
         if (mapPresentation is not null && MapSpriteDefinitions.Contains(id))
         {
             mapPresentation.Sprites.Draw(id, oam, x, y, paletteBits);

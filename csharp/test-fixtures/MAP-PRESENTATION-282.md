@@ -1015,3 +1015,43 @@ placement and broader integration remain outstanding. Moving only the selector
 does not move its equipment label. This partial implementation does not close
 #544/#282/#535 or prove the entire pause menu or game is ROM-free. Android device
 and historical full-session validation remain pending.
+
+## Editable reserve tank strip (#544/#282/#535)
+
+Catalog version 18 adds `pause-reserve-tanks.json`, schema version 1 (twenty
+shared resource hashes). The six ordered screen anchors and ten named sprite
+compositions (`Full`, `EndCap`, `Empty`, `Fill1` through `Fill7`) reference the
+existing `map-objects.png`. Each anchor has final X/Y coordinates; only Y receives
+the native minus-one correction during import. The document palette is inherited
+by parts with a null palette; individual parts may override it. Empty composition
+arrays deliberately hide a visual. Sprite parts share the selector schema and
+strict offset, atlas-region, size, priority, flip and palette validation.
+
+The amount of energy represented by a tank, partial-fill selection, low-fill
+flicker, capacity gating and reserve transfer remain compiled. Import validates
+both native partial-fill tables at $82:B3D9 against the compiled binding: each
+maps to sprites $20..$27. Full tanks use the distinct $1B composition, not the
+seven-sevenths partial composition. The native unused palette timer is not exposed
+as an author-controlled engine script. Drawing uses the already-sampled NMI byte
+and never advances it. No serialized state fields were added. Rebinding restored
+menus immediately uses current artwork/anchors without modifying reserve energy.
+
+Copy stock JSON to `overrides/maps/pause-reserve-tanks.json` to replace it. This
+moves only the tank strip, not supply digits or reserve-mode labels. The six
+positions preserve the native origin table, including trailing-cap support.
+
+Tests compare all ten compositions at six anchors and three OAM capacity levels
+(180 cases), then all supplies from zero through each legal capacity 0/100/200/
+300/400 at both flicker phases (2,010 actual menu frames). Full OAM and pixels
+match the ROM-backed path with native tank positions, fill tables, sprite pointers
+and compositions forbidden. Edited position/art/size/flips/priority/palette and
+hidden cap reach real menu OAM and direct/captured rendering. Current-content
+restore, retained nonzero flicker phase, redraw stability and actual manual reserve
+consumption are checked. Invalid JSON, missing/corrupt stock and invalid regions
+fail explicitly. Installer preservation includes the new override alongside every
+prior presentation resource.
+
+This is partial #544/#282/#535 work. Reserve labels/digits/arrow presentation,
+equipment base/inventory patches, coordinated layout and the remaining broader
+menu/HUD/sprite integration still prevent closing those tickets. Android and
+historical full-session validation are still outstanding.

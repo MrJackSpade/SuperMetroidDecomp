@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Rom;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -25,7 +26,8 @@ internal sealed partial class PauseMenuState
                 tableOffset += sizeof(ushort);
             if (samus.ReserveEnergy >= PauseReserveTankRomData.EnergyPerTank)
                 tableOffset += PauseReserveTankRomData.SecondTableOffset;
-            Draw(RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.PartialMaps + tableOffset), tank++);
+            Draw(mapPresentation is not null ? PauseReserveTankDefinitions.PartialMap(tableOffset / sizeof(ushort)) :
+                RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.PartialMaps + tableOffset), tank++);
         }
         for (; tank < samus.MaxReserveEnergy / PauseReserveTankRomData.EnergyPerTank; tank++)
             Draw(PauseReserveTankRomData.EmptyMap, tank);
@@ -33,6 +35,11 @@ internal sealed partial class PauseMenuState
 
         void Draw(ushort map, int index)
         {
+            if (mapPresentation is not null)
+            {
+                mapPresentation.PauseReserveTanks.Draw(oam, map, index);
+                return;
+            }
             ushort x = RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.XPositions + index * sizeof(ushort));
             ushort y = unchecked((ushort)(RomDataReader.ReadWordFixedBank(bus, PauseReserveTankRomData.YPosition) - 1));
             DrawMenuSpritemap(map, x, y, PauseReserveTankRomData.PaletteBits);

@@ -91,9 +91,7 @@ internal sealed partial class PauseMenuState
         else mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
         if (mapPresentation is null) vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.SamusObjectTiles, 0x2000));
         else mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
-        vram.LoadBytes(
-            PauseMenuLayout.Bg2TilemapWord * 2,
-            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.BackgroundTilemap, 0x0800));
+        LoadPauseBackdrop();
         if (gameplayVram is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
@@ -129,7 +127,8 @@ internal sealed partial class PauseMenuState
         // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
         // like missing HUD. Keep the complete mutable source so every native word index
         // below remains directly comparable with bank $82.
-        pauseButtonTilemap = RomDataReader.ReadFixedBank(bus, PauseMenuRomData.ButtonTilemap, 0x0400);
+        pauseButtonTilemap = mapPresentation?.PauseBackdrops.CreateButtonTilemap() ??
+            RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2);
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
@@ -583,17 +582,24 @@ internal sealed partial class PauseMenuState
 
     private void LoadPauseMapTilemap()
     {
-        int areaIndex = AreaIds.ToIndex(area);
         IAreaMapView map = mapPresentation?.Get(area) ?? (IAreaMapView)AreaMapRomData.Load(bus, area);
         byte[] mapTilemap = AreaMapTilemapBuilder.Build(
             map, system, MapTileWords.PauseBlank, mapRevealMode);
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, mapTilemap);
 
-        // The area name is a 24-byte bank-$82 tilemap fragment copied to VMADD $38AA.
+        // Installed backdrops already contain their authored area lettering; do not
+        // overwrite an edited title when returning from equipment to the map page.
+        if (mapPresentation is not null) return;
+        LoadNativePauseAreaLabel();
+    }
+
+    private void LoadNativePauseAreaLabel()
+    {
         ushort labelPointer = RomDataReader.ReadWordFixedBank(
             bus,
-            PauseMenuRomData.AreaMapLabelPointerTable + areaIndex * 2);
-        vram.LoadBytes(0x38aa * 2, RomDataReader.ReadFixedBank(bus, 0x820000 | labelPointer, 0x18));
+            PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
+        vram.LoadBytes((PauseMenuLayout.Bg2TilemapWord + PauseBackdropDefinitions.LabelCell) * 2,
+            RomDataReader.ReadFixedBank(bus, PauseBackdropDefinitions.LabelBank | labelPointer, PauseBackdropDefinitions.LabelWords * 2));
     }
 
     private void SetupMapScrolling()
@@ -824,10 +830,9 @@ internal sealed partial class PauseMenuState
         // These indexes are words relative to native WRAM $3000. The mutable cartridge
         // template begins at $3400, or word index $200; subtract that origin before
         // indexing the local byte array.
-        const int sourceWordOrigin = 0x0200;
         void SetPalette(int nativeWordIndex, int wordCount, ushort paletteBits)
         {
-            int localWordIndex = nativeWordIndex - sourceWordOrigin;
+            int localWordIndex = nativeWordIndex - PauseMenuLayout.ButtonSourceWordOrigin;
             for (int word = 0; word < wordCount; word++)
             {
                 int byteOffset = (localWordIndex + word) * 2;

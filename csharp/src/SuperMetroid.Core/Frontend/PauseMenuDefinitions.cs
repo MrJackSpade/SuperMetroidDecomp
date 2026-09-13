@@ -19,6 +19,12 @@ internal static class PauseMenuLayout
     public const int ButtonRowsSourceOffset = 0x0240;
     /// <summary>Combined byte length of the two mutable button rows.</summary>
     public const int ButtonRowsByteCount = 0x0080;
+    /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
+    public const int ButtonSourceWordOrigin = 0x0200;
+    /// <summary>MAP, EQUIPMENT and START row spans recolored by $82:A628-$A84C.</summary>
+    private static readonly (int Word, int Count)[] buttonLabelSpans =
+        [(805, 5), (837, 5), (812, 4), (844, 4), (822, 5), (854, 5)];
+    public static ReadOnlySpan<(int Word, int Count)> ButtonLabelSpans => buttonLabelSpans;
     /// <summary>Three-bit BG palette index applied to unavailable equipment labels.</summary>
     public const int DisabledEquipmentPaletteIndex = 3;
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>

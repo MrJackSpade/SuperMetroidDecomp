@@ -874,3 +874,53 @@ and starting already full. The production pause paths reject reads of the
 migrated rule ranges. Existing broader menu/glitch tests remain part of the
 full suite. Visual layout/patch/selector extraction and final integration are
 still outstanding; this is not completion of either parent issue.
+
+## Pause backdrops and button artwork (#544/#282)
+
+Catalog version 15 adds `pause-backdrops.json` (resource schema version 1).
+The manifest now hashes seven area maps and seventeen shared resources. Each
+of the seven named `areas` entries is a complete 32-column, 32-row BG2 backdrop,
+including area lettering. `buttons` is the native 32-column, 16-row mutable
+button template. Cells reference `Map` (`map-tiles.png`) or `Interface`
+(`pause-ui-tiles.png`), with zero-based `tileColumn` 0..31, `tileRow` 0..7,
+`palette` 0..7, `priority`, `flipX` and `flipY`. No addresses, raw tile words,
+navigation commands or inventory rules are part of the document.
+
+Import composes `$B6:E000` with the exact unmasked twelve-word area label
+selected by `$82:965F`, as `$82:93C3` does at BG2 word `$38AA`. The button
+source `$B6:E400` overlaps the second half of that frame transfer, but is a
+distinct mutable visual resource at runtime. Native `$82:8EDA` and `$82:93C3`
+in the pinned C/disassembly were inspected alongside the ROM. All native
+words survive conversion, including unused page cells.
+
+For edits, copy the stock JSON to `overrides/maps/pause-backdrops.json`.
+Change cells in the desired area's grid to move or redraw lettering or the
+frame; the loader no longer overwrites that lettering on return from equipment.
+Button graphics can be replaced in `buttons`. Currently only its rows 9..10
+are uploaded, to screen rows 25..26. Highlighted label spans remain compiled:
+MAP columns 5..9, EQUIPMENT 12..15, START 22..26 on both rows. Their live
+palette overrides authored palette values, preserving native control feedback.
+Moving these interactive highlight regions is **not yet supported**; remaining
+layout work must expose semantic label placement, not editable navigation.
+
+Content rebinding refreshes BG2 and button artwork without changing page,
+selection, scroll, inventory or fade timing. It carries only the live label
+palette fields forward, including when the button mode changes before the page
+changes. It does not reconstruct the equipment tilemap: native same-frame
+Boots-to-Plasma label overruns must survive. No serialized state field was
+added; restored states use their existing live button palette fields.
+
+Verification covers exact 7,168 backdrop words and all 512 button words,
+532 stock/native transition frames with frame/button/label reads forbidden,
+fresh edited sessions versus per-frame rebinding, direct/captured visible
+pixels, map/equipment/Start highlights, state restore, and preservation of
+the real nine-word Plasma/VAR glitch. Invalid schema, dimensions, atlas names,
+coordinates, palettes, missing resources and corrupt stock/overrides fail
+explicitly. Full installer fixtures preserve the new override during cancelled
+upgrade, successful version replacement and restart, alongside other overrides
+and synthetic player files; no actual player data is touched.
+
+Remaining pause dependencies include the equipment base, inventory/wireframe
+patches, selector/reserve presentation, and semantic interactive-label placement.
+This does not complete #544/#282 or prove the pause screen is ROM-free. Broader
+integration, historical full-session coverage and Android validation remain.

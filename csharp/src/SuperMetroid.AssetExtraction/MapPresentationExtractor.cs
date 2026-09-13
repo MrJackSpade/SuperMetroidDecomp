@@ -114,6 +114,10 @@ public static class MapPresentationExtractor
             file.Write(resource.Value);
             hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
         }
+        byte[] backdropBytes = PauseBackdropExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PauseBackdropDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(backdropBytes);
+        hashes.Add(PauseBackdropDefinitions.FileName, Convert.ToHexString(SHA256.HashData(backdropBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

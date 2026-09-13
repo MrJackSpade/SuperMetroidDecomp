@@ -1149,6 +1149,8 @@ if (args.Length == 2 && args[0] == "--zebetite-skip-audit")
     return ZebetiteSkipAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-audit")
     return ZebetiteSparkAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--climb-missile-audio-audit")
+    return ClimbMissileAudioAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-scan-cadence")
     return ZebetiteSparkAudit.ScanCadence(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-scan-held-cadence")

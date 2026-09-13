@@ -257,6 +257,13 @@ public readonly record struct SnesSpritemapXWord(ushort Raw)
 
     public int UnsignedOffset => Raw & OffsetMask;
     public bool IsLarge => (Raw & LargeObjectMask) != 0;
+    /// <summary>Signed nine-bit visual displacement; unrelated upper bits never reach OAM X.</summary>
+    public int SignedOffset => unchecked((short)((Raw & OffsetMask) << 7)) >> 7;
+    public static SnesSpritemapXWord Create(int offset, bool large)
+    {
+        if (offset is < -256 or > 255) throw new ArgumentOutOfRangeException(nameof(offset));
+        return new((ushort)((offset & OffsetMask) | (large ? LargeObjectMask : 0)));
+    }
 
     public static implicit operator SnesSpritemapXWord(ushort raw) => new(raw);
 }

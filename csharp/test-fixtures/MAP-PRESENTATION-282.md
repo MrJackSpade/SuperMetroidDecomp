@@ -744,3 +744,46 @@ Focused map tests, full core verification and Windows Release build pass.
 Local logs: `282-load-anchors.log`, `282-load-anchors-suite.log` and
 `282-load-anchors-windows.log`. Shared sprite/initial-menu presentation,
 HUD/pause dependencies and combined integration gates remain; #282 stays open.
+
+## Map sprite compositions and shared OBJ artwork (catalog version 13)
+
+`map-sprites.json` contains 26 named frames for map arrows, markers, stations,
+elevator labels and world labels. Each ordered visual part specifies signed
+pixel offsets, tile column/row in `map-objects.png`, 8- or 16-pixel size,
+horizontal/vertical flips, priority and an optional palette. A null palette
+inherits the caller's live palette, preserving blinking and defeated markers.
+Explicit palette indexes replace only that visual part's palette. Empty frames
+are valid invisible artwork; missing names, invalid regions and unsupported
+fields fail validation. Navigation, discovery and collision remain compiled.
+
+The indexed PNG is 128 by 128 pixels (16 by 16 character tiles). Its preview
+palette is not the live color source. It is shared menu artwork, so changing
+characters also affects other pause-page sprites using those same characters.
+Only the map compositions are migrated here: equipment-page composition and
+other HUD/menu work remain under #544, and general sprite migration under #535.
+This is not arbitrary-resolution or editable gameplay data support.
+
+Installed file select and pause maps use compiled visual parts through the
+same OAM clipping/packing helper as the cartridge spritemap loader. No synthetic
+ROM bus is constructed at runtime. Current-content rebinding refreshes the OBJ
+sheet and composition references without resetting menu logic. Catalog hashes
+and selected-content identity include both files; importer upgrades preserve
+their independent overrides.
+
+Verification covers all 26 native frames across seven X origins, eight Y
+origins, eight palettes and three OAM occupancy levels (empty, 127 and 128).
+An independent signed-coordinate oracle checks all 65,536 Y origin/offset
+pairs, including native partially-above-screen visibility. All 8,192 character
+bytes round-trip exactly. File-select entry/scroll/restore/return/reentry and
+pause rendering forbid reads of the migrated pointer entries, compositions,
+title binding and OBJ sheet. Independent JSON and PNG edits change actual
+pause/file-select pixels; current-content restoration returns exact stock
+pixels. Authored size, priority, flips, offsets and fixed palette are asserted
+in OAM, with invalid and missing frame/resource checks.
+
+The isolated full installer exercises fresh import, cancellation, catalog
+upgrade and restart while preserving these overrides and synthetic player
+files. Focused map checks, full core verification and Windows Release build
+are the verification gates. Generated artwork and logs remain local only.
+Shared initial BG2, remaining HUD/pause dependencies, combined ROM-read gates,
+historical full-session and Android device verification remain outstanding.

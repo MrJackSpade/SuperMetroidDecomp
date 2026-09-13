@@ -7,6 +7,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
 public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState system, AreaId area)
 {
+    [NonSerialized] private SuperMetroid.Core.Assets.MapSpriteCatalog? sprites;
+    internal void BindSprites(SuperMetroid.Core.Assets.MapSpriteCatalog? catalog) => sprites = catalog;
     [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
     [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
@@ -153,6 +155,11 @@ public sealed class FileSelectMapIcons(ISnesAddressSpace bus, Bank80SystemState 
     }
     private void Add(OamBuffer oam, ushort id, ushort x, ushort y, ushort scrollX, ushort scrollY, ushort palette)
     {
+        if (sprites is not null)
+        {
+            sprites.Draw(id, oam, unchecked((ushort)(x - scrollX)), unchecked((ushort)(y - scrollY)), palette);
+            return;
+        }
         ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
         oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
             unchecked((ushort)(x - scrollX)), unchecked((ushort)(y - scrollY)), palette);

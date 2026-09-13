@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
@@ -25,6 +25,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         Arrows = arrows;
         Screens = screens;
         WorldArtwork = worldArtwork;
+        Sprites = sprites;
     }
 
     public string ContentIdentity { get; }
@@ -39,6 +40,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     public MapArrowPresentation Arrows { get; }
     public MapScreenPresentation Screens { get; }
     public WorldMapArtwork WorldArtwork { get; }
+    public MapSpriteCatalog Sprites { get; }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
         ? HudTiles.Transfer : throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}.");
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
@@ -139,7 +141,11 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map screens ({overrideDirectory ?? stockDirectory}/{MapScreenDefinitions.FileName}): {error.Message}", error); }
         try { artwork = WorldMapArtwork.Load(new MemoryStream(worldFrontBytes, writable: false), new MemoryStream(worldBackBytes, writable: false)); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid world-map PNG artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork);
+        byte[] spriteJson = Select(MapSpriteFormat.JsonFile, stock.SpriteJson), spritePng = Select(MapSpriteFormat.PngFile, stock.SpritePng);
+        MapSpriteCatalog sprites;
+        try { sprites = MapSpriteCatalog.Load(new MemoryStream(spriteJson), new MemoryStream(spritePng)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map sprites in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites);
 
         byte[] Select(string name, byte[] baseline)
         {
@@ -161,7 +167,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack, byte[] SpriteJson, byte[] SpritePng) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -171,8 +177,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 13)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and all thirteen shared presentation resource hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 15)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and all fifteen shared presentation resource hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -218,7 +224,9 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         _ = MapScreenPresentation.Load(new MemoryStream(screens, writable: false));
         byte[] front = ReadChecked(WorldMapArtworkFormat.ForegroundFile), back = ReadChecked(WorldMapArtworkFormat.BackgroundFile);
         _ = WorldMapArtwork.Load(new MemoryStream(front, writable: false), new MemoryStream(back, writable: false));
-        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back);
+        byte[] spriteJson = ReadChecked(MapSpriteFormat.JsonFile), spritePng = ReadChecked(MapSpriteFormat.PngFile);
+        _ = MapSpriteCatalog.Load(new MemoryStream(spriteJson), new MemoryStream(spritePng));
+        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back, spriteJson, spritePng);
 
         byte[] ReadChecked(string file)
         {
@@ -242,7 +250,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 12;
+    public const int Version = 13;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

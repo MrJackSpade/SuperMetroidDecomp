@@ -87,7 +87,9 @@ internal sealed partial class PauseMenuState
             vram.LoadBytes(MapTileAtlasFormat.ByteCount, RomDataReader.ReadFixedBank(bus,
                 PauseMenuRomData.BackgroundTiles + MapTileAtlasFormat.ByteCount, 0x4000 - MapTileAtlasFormat.ByteCount));
         }
-        vram.LoadBytes(0x4000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.ObjectTiles, 0x2000));
+        if (mapPresentation is null)
+            vram.LoadBytes(MapSpriteFormat.PauseDestination, RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
+        else mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
         if (mapPresentation is null) vram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(bus, PauseMenuRomData.SamusObjectTiles, 0x2000));
         else mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
         vram.LoadBytes(
@@ -360,6 +362,7 @@ internal sealed partial class PauseMenuState
             // file select, after the player marker. Use the live progression owner.
             var icons = new FileSelectMapIcons(bus, system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
+            icons.BindSprites(mapPresentation?.Sprites);
             icons.DrawBossMarkers(oam, mapHorizontalScroll, mapVerticalScroll);
         }
         else
@@ -887,6 +890,13 @@ internal sealed partial class PauseMenuState
 
     private void DrawMenuSpritemap(ushort id, ushort x, ushort y, ushort paletteBits)
     {
+        // Only map compositions have been migrated. Equipment-page compositions
+        // remain cartridge-owned until their separate presentation migration.
+        if (mapPresentation is not null && MapSpriteDefinitions.Contains(id))
+        {
+            mapPresentation.Sprites.Draw(id, oam, x, y, paletteBits);
+            return;
+        }
         ushort pointer = RomDataReader.ReadWordFixedBank(
             bus,
             PauseMenuRomData.SpritemapPointerTable + id * 2);

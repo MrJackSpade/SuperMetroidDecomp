@@ -92,42 +92,45 @@ public sealed class OamBuffer
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort sourceAttributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            // The low nine bits form a signed/modular X offset. Bit 15 is simultaneously
-            // the large-sprite flag, and bits 9-14 are zero in valid records. Adding the
-            // complete word looks odd but exactly reproduces the 16-bit ADC in $81:87B8.
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-
-            int calculatedY = (byte)originY + encodedYOffset;
-            bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
-            bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
-            if (!originIsOnScreen)
-                hideForVerticalWrap = !hideForVerticalWrap;
-
-            if (hideForVerticalWrap)
-            {
-                // $81:8907 parks a clipped sprite at X=$180/Y=$E0. X low becomes $80 and
-                // its high-table X bit is set, placing the object safely beyond the screen.
-                calculatedX = 0x0180;
-                calculatedY = 0x00e0;
-            }
-
-            int spriteIndex = NextByteOffset >> 2;
-            int lowOffset = NextByteOffset;
-            _lowTable[lowOffset] = (byte)calculatedX;
-            _lowTable[lowOffset + 1] = (byte)calculatedY;
-
-            // Mask $F1FF preserves tile number, priority, and flips while clearing the
-            // spritemap's palette bits. The caller-provided palette then replaces them.
-            SnesObjAttributeWord finalAttributes =
-                new SnesObjAttributeWord(sourceAttributes).WithPaletteBits(paletteBits);
-            WriteAttributes(lowOffset, finalAttributes);
-            SetHighTablePair(
-                spriteIndex,
-                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-
-            NextByteOffset += 4;
+            AppendGenericSprite(encodedXOffset, encodedYOffset,
+                new SnesObjAttributeWord(sourceAttributes).WithPaletteBits(paletteBits), originX, originY, originIsOnScreen);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
+    }
+
+    /// <summary>Draws a compiled visual part with the same $81:879F clipping/packing as cartridge spritemaps.</summary>
+    public void AddOnScreenSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+        SnesObjAttributeWord attributes, ushort originX, ushort originY)
+        => AppendGenericSprite(xOffset, yOffset, attributes, originX, originY, originIsOnScreen: true);
+
+    private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
+        SnesObjAttributeWord finalAttributes, ushort originX, ushort originY, bool originIsOnScreen)
+    {
+        if (NextByteOffset >= LowTableByteCount) return; // Native stops at the hardware OAM capacity.
+
+        // Only the low nine X bits reach hardware. The independent size flag
+        // survives even when vertical clipping parks the sprite off screen.
+        ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
+        int calculatedY = (byte)originY + encodedYOffset;
+        bool yOffsetIsNegative = (encodedYOffset & 0x80) != 0;
+        bool hideForVerticalWrap = ShouldHideForOnScreenOrigin(calculatedY, yOffsetIsNegative);
+        if (!originIsOnScreen)
+            hideForVerticalWrap = !hideForVerticalWrap;
+
+        if (hideForVerticalWrap)
+        {
+            // $81:8907 parks a clipped sprite beyond the visible screen.
+            calculatedX = 0x0180;
+            calculatedY = 0x00e0;
+        }
+
+        int spriteIndex = NextByteOffset >> 2;
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = (byte)calculatedX;
+        _lowTable[lowOffset + 1] = (byte)calculatedY;
+        WriteAttributes(lowOffset, finalAttributes);
+        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
+        NextByteOffset += 4;
     }
 
     /// <summary>

@@ -71,7 +71,7 @@ public sealed class FileSelectStationMarker
     }
 
     /// <summary>Appends the current marker without advancing time; repainting cannot speed up the animation.</summary>
-    public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort horizontalScroll, ushort verticalScroll)
+    public void Draw(ISnesAddressSpace bus, OamBuffer oam, ushort horizontalScroll, ushort verticalScroll, SuperMetroid.Core.Assets.MapSpriteCatalog? sprites = null)
     {
         ushort x = unchecked((ushort)(MapX - horizontalScroll));
         ushort y = unchecked((ushort)(MapY - verticalScroll));
@@ -80,6 +80,7 @@ public sealed class FileSelectStationMarker
 
         void Add(ushort id)
         {
+            if (sprites is not null) { sprites.Draw(id, oam, x, y, FileSelectMapRomData.StationMarkerPalette); return; }
             ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
                 x, y, FileSelectMapRomData.StationMarkerPalette);

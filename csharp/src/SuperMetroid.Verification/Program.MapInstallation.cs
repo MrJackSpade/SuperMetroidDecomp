@@ -39,9 +39,14 @@ internal static partial class Program
         var screens = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)))!;
         screens["pages"]![MapScreenDefinitions.WorldForeground]![0]!["flipX"] = true;
         File.WriteAllText(screenOverride, screens.ToJsonString());
+        string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
+        var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
+        sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
+        File.WriteAllText(spriteOverride, sprites.ToJsonString());
         var artworkOverrides = new List<string>();
         foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
-            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4) })
+            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4),
+            (MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16) })
         {
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.Item1)))
@@ -66,6 +71,7 @@ internal static partial class Program
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),
             [arrowOverride] = File.ReadAllBytes(arrowOverride),
             [screenOverride] = File.ReadAllBytes(screenOverride),
+            [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),

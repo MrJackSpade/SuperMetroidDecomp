@@ -17,15 +17,17 @@ public sealed partial class FileSelectAreaMapGraphics
     [NonSerialized] private MapStaticPalettes? palettes;
     [NonSerialized] private WorldMapLabelLayout? labels;
     [NonSerialized] private MapScreenPresentation? screens;
+    [NonSerialized] private MapSpriteCatalog? sprites;
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
-        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null)
+        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? mapSprites = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         palettes = mapPalettes;
         screens = mapScreens;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork);
+        sprites = mapSprites;
+        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);
@@ -77,6 +79,7 @@ public sealed partial class FileSelectAreaMapGraphics
         palettes = content;
         if (content is not null) LoadInstalledPalette(SelectedArea);
     }
+    internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(bus, content); }
 
     private void LoadInstalledPalette(int selectedArea)
     {
@@ -146,7 +149,7 @@ public sealed partial class FileSelectAreaMapGraphics
             throw new ArgumentException("Area labels require six used-station masks.", nameof(usedStationMasks));
         var oam = new OamBuffer();
         oam.BeginFrame();
-        ushort title = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase);
+        ushort title = sprites is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.LabelSpritemapBase) : MapSpriteDefinitions.WorldTitle;
         Draw(title, 128, 16, 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
         {
@@ -181,6 +184,7 @@ public sealed partial class FileSelectAreaMapGraphics
 
         void Draw(ushort id, ushort x, ushort y, ushort palette)
         {
+            if (sprites is not null) { sprites.Draw(id, oam, x, y, palette); return; }
             ushort pointer = RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + id * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer, x, y, palette);
         }

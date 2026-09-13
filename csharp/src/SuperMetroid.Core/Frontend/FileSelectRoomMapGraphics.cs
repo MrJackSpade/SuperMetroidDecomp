@@ -14,6 +14,7 @@ public sealed partial class FileSelectRoomMapGraphics
     private readonly ISnesAddressSpace bus;
     private readonly MenuPpuState ppu;
     private readonly FileSelectMapIcons icons;
+    [NonSerialized] private MapSpriteCatalog? sprites;
     public SnesVram Vram => ppu.Vram;
     public SnesCgram Cgram => ppu.Cgram;
     internal Bank80SystemState MapSystem => icons.MapSystem;
@@ -27,10 +28,12 @@ public sealed partial class FileSelectRoomMapGraphics
         icons = new FileSelectMapIcons(bus, system, area);
         icons.BindStations(mapPresentation?.Stations);
         icons.BindLandmarks(mapPresentation?.Landmarks);
+        sprites = mapPresentation?.Sprites;
+        icons.BindSprites(sprites);
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork);
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork, sprites);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
@@ -65,6 +68,9 @@ public sealed partial class FileSelectRoomMapGraphics
     {
         icons.BindStations(catalog?.Stations);
         icons.BindLandmarks(catalog?.Landmarks);
+        sprites = catalog?.Sprites;
+        icons.BindSprites(sprites);
+        ppu.BindMapSprites(bus, sprites);
         if (catalog is not null)
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 if (color < MapAnimationRomData.PaletteDestination || color >= MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)
@@ -110,9 +116,9 @@ public sealed partial class FileSelectRoomMapGraphics
         var oam = new OamBuffer();
         oam.BeginFrame();
         icons.DrawBeforeMarker(oam, horizontalScroll, verticalScroll);
-        marker.Draw(bus, oam, horizontalScroll, verticalScroll);
+        marker.Draw(bus, oam, horizontalScroll, verticalScroll, sprites);
         icons.DrawAfterMarker(oam, horizontalScroll, verticalScroll,
-            animations is null ? null : () => animations.DrawArrows(oam));
+            animations is null ? null : () => animations.DrawArrows(oam, sprites));
         oam.FinalizeFrame();
         return oam;
     }

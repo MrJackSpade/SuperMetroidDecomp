@@ -99,6 +99,12 @@ public static class MapPresentationExtractor
             file.Write(resource.Value);
             hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
         }
+        foreach (var resource in MapSpriteExtractor.Extract(bus))
+        {
+            using var file = new FileStream(Path.Combine(directory, resource.Key), FileMode.CreateNew, FileAccess.Write);
+            file.Write(resource.Value);
+            hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
+        }
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

@@ -95,11 +95,12 @@ public sealed class FileSelectMapAnimations
         }
     }
 
-    public void DrawArrows(OamBuffer oam)
+    public void DrawArrows(OamBuffer oam, MapSpriteCatalog? sprites = null)
     {
         foreach (Arrow arrow in arrows)
         {
             if (!arrow.Visible) continue;
+            if (sprites is not null) { sprites.Draw(arrow.Spritemap, oam, arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits); continue; }
             ushort pointer = Read(MenuPpuState.SpritemapPointerTableAddress + arrow.Spritemap * 2);
             oam.AddOnScreenSpritemap(bus, FileSelectMapRomData.MenuObjectBank | pointer,
                 arrow.X, arrow.Y, SnesObjPalettes.Index3.PaletteBits);

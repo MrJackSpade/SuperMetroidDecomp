@@ -8,6 +8,9 @@ internal sealed partial class PauseMenuState
     {
         mapPresentation = catalog;
         paletteAnimation.Bind(catalog?.HighlightCycle);
+        if (catalog is not null) catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+        else vram.LoadBytes(MapSpriteFormat.PauseDestination,
+            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
         if (catalog is not null)
             for (int color = 0; color < SuperMetroid.Core.Hardware.SnesCgram.ColorCount; color++)
                 // Live highlights and reserve-arrow colors belong to their animation

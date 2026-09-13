@@ -45,6 +45,14 @@ public static class FileSelectMapRomData
     public const int RoomFrame = 0xb6e000;
     /// <summary>$81:B14B, words 1..160 supply BG2 frame words 800..959.</summary>
     public const int RoomFrameFooter = 0x81b14b;
+    /// <summary>$81:A725 copies the first 800 room-frame words before filling the remainder.</summary>
+    public const int RoomFrameHeaderWords = 800;
+    /// <summary>$81:A7CA copies control-footer words 1..160 into frame words 800..959.</summary>
+    public const int RoomFrameFooterWords = 160;
+    /// <summary>$82:9628 writes the selected area name starting at frame word 170.</summary>
+    public const int RoomLabelDestinationWord = 170;
+    /// <summary>$82:9628 copies twelve area-label tile words.</summary>
+    public const int RoomLabelWords = 12;
     /// <summary>$82:965F, twelve-word area label pointers in bank $82.</summary>
     public const int RoomLabelPointers = 0x82965f;
     /// <summary>BG12NBA=$33 selects the map and frame character base.</summary>

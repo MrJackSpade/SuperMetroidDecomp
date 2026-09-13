@@ -93,6 +93,12 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapArrowFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(arrowBytes);
         hashes.Add(MapArrowFormat.FileName, Convert.ToHexString(SHA256.HashData(arrowBytes)));
+        foreach (var resource in MapScreenExtractor.Extract(bus))
+        {
+            using var file = new FileStream(Path.Combine(directory, resource.Key), FileMode.CreateNew, FileAccess.Write);
+            file.Write(resource.Value);
+            hashes.Add(resource.Key, Convert.ToHexString(SHA256.HashData(resource.Value)));
+        }
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

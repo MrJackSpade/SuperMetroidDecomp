@@ -54,7 +54,7 @@ public sealed partial class FileSelectMapMenuState
         var typedArea = (AreaId)area;
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
-        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes);
+        areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.Screens, mapPresentation?.WorldArtwork);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
@@ -81,6 +81,7 @@ public sealed partial class FileSelectMapMenuState
         navigation.BindLabels(catalog?.Labels);
         areaGraphics.BindLabels(catalog?.Labels);
         areaGraphics.BindPalettes(catalog?.Palettes);
+        areaGraphics.BindScreens(catalog?.Screens, catalog?.WorldArtwork);
         entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
         animations.BindPresentation(catalog?.Arrows);

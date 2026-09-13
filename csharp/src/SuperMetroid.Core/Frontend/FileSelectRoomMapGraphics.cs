@@ -30,21 +30,31 @@ public sealed partial class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes);
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,
             AreaMapTilemapBuilder.Build(mapPresentation?.Get(area) ?? AreaMapRomData.Load(bus, area), system, hidden, revealMode));
 
+        LoadFrame(mapPresentation?.Screens, area);
+    }
+
+    private void LoadFrame(MapScreenPresentation? screens, AreaId area)
+    {
+        if (screens is not null)
+        {
+            screens.LoadTo(Vram, MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.RoomFrame(area));
+            return;
+        }
         var frame = new byte[FileSelectMapRomData.TilemapBytes];
-        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrame, 1600).CopyTo(frame, 0);
-        for (int word = 800; word < frame.Length / 2; word++)
+        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrame, FileSelectMapRomData.RoomFrameHeaderWords * 2).CopyTo(frame, 0);
+        for (int word = FileSelectMapRomData.RoomFrameHeaderWords; word < frame.Length / 2; word++)
             BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan(word * 2), FileSelectMapRomData.RoomFrameBlank);
         // Native copies backwards from footer word 160 through word 1, not word 0.
-        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrameFooter + 2, 320).CopyTo(frame, 1600);
-        ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + index * 2);
-        for (int word = 0; word < 12; word++)
-            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((170 + word) * 2),
+        RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.RoomFrameFooter + 2, FileSelectMapRomData.RoomFrameFooterWords * 2).CopyTo(frame, FileSelectMapRomData.RoomFrameHeaderWords * 2);
+        ushort label = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.RoomLabelPointers + (int)area * 2);
+        for (int word = 0; word < FileSelectMapRomData.RoomLabelWords; word++)
+            BinaryPrimitives.WriteUInt16LittleEndian(frame.AsSpan((FileSelectMapRomData.RoomLabelDestinationWord + word) * 2),
                 (ushort)(RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (label + word * 2))
                     & FileSelectMapRomData.RoomLabelMask));
         ppu.Vram.LoadBytes(MenuPpuState.Bg2TilemapWord * 2, frame);
@@ -64,6 +74,8 @@ public sealed partial class FileSelectRoomMapGraphics
             RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
         var system = icons.MapSystem;
         var area = icons.MapArea;
+        ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
+        LoadFrame(catalog?.Screens, area);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,

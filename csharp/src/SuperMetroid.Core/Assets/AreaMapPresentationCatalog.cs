@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
@@ -23,6 +23,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         Landmarks = landmarks;
         SaveMarkers = saveMarkers;
         Arrows = arrows;
+        Screens = screens;
+        WorldArtwork = worldArtwork;
     }
 
     public string ContentIdentity { get; }
@@ -35,6 +37,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     public MapLandmarkLayout Landmarks { get; }
     public MapSaveMarkerLayout SaveMarkers { get; }
     public MapArrowPresentation Arrows { get; }
+    public MapScreenPresentation Screens { get; }
+    public WorldMapArtwork WorldArtwork { get; }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
         ? HudTiles.Transfer : throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}.");
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
@@ -126,7 +130,24 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         try { arrows = MapArrowPresentation.Load(new MemoryStream(arrowBytes, writable: false)); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map arrows ({arrowOverride ?? stockDirectory}): {error.Message}", error); }
         AppendFramed(arrowBytes);
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows);
+        byte[] screenBytes = Select(MapScreenDefinitions.FileName, stock.Screens);
+        byte[] worldFrontBytes = Select(WorldMapArtworkFormat.ForegroundFile, stock.WorldFront);
+        byte[] worldBackBytes = Select(WorldMapArtworkFormat.BackgroundFile, stock.WorldBack);
+        MapScreenPresentation screens;
+        WorldMapArtwork artwork;
+        try { screens = MapScreenPresentation.Load(new MemoryStream(screenBytes, writable: false)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid map screens ({overrideDirectory ?? stockDirectory}/{MapScreenDefinitions.FileName}): {error.Message}", error); }
+        try { artwork = WorldMapArtwork.Load(new MemoryStream(worldFrontBytes, writable: false), new MemoryStream(worldBackBytes, writable: false)); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid world-map PNG artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork);
+
+        byte[] Select(string name, byte[] baseline)
+        {
+            string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
+            byte[] bytes = path is not null && File.Exists(path) ? File.ReadAllBytes(path) : baseline;
+            AppendFramed(bytes);
+            return bytes;
+        }
 
         void AppendFramed(byte[] bytes)
         {
@@ -140,7 +161,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -150,8 +171,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 10)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps, station-reveal, both tile atlases, highlight-cycle, static palette, world-label, station-label, landmark, save-marker and arrow hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 13)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and all thirteen shared presentation resource hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -193,7 +214,11 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         _ = MapSaveMarkerLayout.Load(new MemoryStream(saveMarkers, writable: false));
         byte[] arrows = ReadChecked(MapArrowFormat.FileName);
         _ = MapArrowPresentation.Load(new MemoryStream(arrows, writable: false));
-        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows);
+        byte[] screens = ReadChecked(MapScreenDefinitions.FileName);
+        _ = MapScreenPresentation.Load(new MemoryStream(screens, writable: false));
+        byte[] front = ReadChecked(WorldMapArtworkFormat.ForegroundFile), back = ReadChecked(WorldMapArtworkFormat.BackgroundFile);
+        _ = WorldMapArtwork.Load(new MemoryStream(front, writable: false), new MemoryStream(back, writable: false));
+        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back);
 
         byte[] ReadChecked(string file)
         {
@@ -217,7 +242,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 11;
+    public const int Version = 12;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

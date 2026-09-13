@@ -16,14 +16,17 @@ public sealed partial class FileSelectAreaMapGraphics
     private readonly MenuPpuState ppu;
     [NonSerialized] private MapStaticPalettes? palettes;
     [NonSerialized] private WorldMapLabelLayout? labels;
+    [NonSerialized] private MapScreenPresentation? screens;
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
-    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null)
+    public FileSelectAreaMapGraphics(ISnesAddressSpace bus, int selectedArea, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null,
+        MapScreenPresentation? mapScreens = null, WorldMapArtwork? worldArtwork = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         palettes = mapPalettes;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes);
-        ppu.LoadBg1(RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
+        screens = mapScreens;
+        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork);
+        LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);
         ppu.Cgram.SetColor(30, 0);
@@ -41,11 +44,32 @@ public sealed partial class FileSelectAreaMapGraphics
         if (palettes is not null) LoadInstalledPalette(selectedArea);
         else for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
                 LoadAreaPalette(area, area == selectedArea);
-        ppu.Vram.LoadBytes(FileSelectMapRomData.AreaBackgroundVram * 2,
+        LoadBackground(selectedArea);
+        SelectedArea = selectedArea;
+    }
+
+    private void LoadForeground()
+    {
+        if (screens is null) ppu.LoadBg1(RomDataReader.ReadFixedBank(bus, FileSelectMapRomData.AreaForeground, FileSelectMapRomData.TilemapBytes));
+        else screens.LoadTo(Vram, MenuPpuState.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
+    }
+
+    private void LoadBackground(int selectedArea)
+    {
+        if (screens is not null) screens.LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2, MapScreenDefinitions.WorldBackground((AreaId)selectedArea));
+        else ppu.Vram.LoadBytes(FileSelectMapRomData.AreaBackgroundVram * 2,
             RomDataReader.ReadFixedBank(bus,
                 FileSelectMapRomData.AreaBackgrounds + selectedArea * FileSelectMapRomData.TilemapBytes,
                 FileSelectMapRomData.TilemapBytes));
-        SelectedArea = selectedArea;
+    }
+
+    /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>
+    internal void BindScreens(MapScreenPresentation? content, WorldMapArtwork? artwork)
+    {
+        screens = content;
+        ppu.BindWorldArtwork(bus, artwork);
+        LoadForeground();
+        LoadBackground(SelectedArea);
     }
 
     internal void BindPalettes(MapStaticPalettes? content)

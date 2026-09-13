@@ -632,3 +632,68 @@ Verification:
 This supersedes the arrow-position/program item in the preceding audit, not
 its shared sprite-composition dependency. #282 remains open for the remaining
 map/menu resources, combined ROM-read audit and broader integration work.
+
+## World-map layers, character sheets and resolved room frames
+
+Catalog version 12 adds three editable resources:
+
+| Resource | Authored content |
+| --- | --- |
+| `world-map-foreground.png` | Indexed 128x344 sheet, sixteen 8x8 tiles per row, pixel indexes 0..15 |
+| `world-map-background.png` | Indexed 128x48 sheet, sixteen 8x8 tiles per row, pixel indexes 0..3 |
+| `map-screens.json` | Thirteen named 32x32 tile grids: `World.Foreground`, `World.<area>` and `Room.<area>` for each of the six Zebes areas |
+
+World foreground pages reference the foreground PNG, area backgrounds reference
+the background PNG, and room frames reference the existing `map-tiles.png`.
+Cells use `tileColumn`, `tileRow`, `palette`, `priority`, `flipX`, and `flipY`.
+They do not contain ROM pointers, PPU commands, save indexes or controller rules.
+Copy individual stock files into `overrides/maps/` and edit there. PNG palette
+colors are previews; palette indexes are preserved and live colors still come
+from `map-palettes.json` and the shared highlight cycle. Dimensions and page
+identities are fixed; no arbitrary-resolution artwork is claimed.
+
+Previously, world-map rendering read the foreground page and selected BG3 page
+from ROM, and `MenuPpuState` read their character sheets directly. Room-map BG2
+frames were assembled from native header, fill, footer and area-name sources.
+The importer now resolves those presentation pieces once. Installed world
+selection and room frame construction/rebinding use the immutable catalog.
+Area selection, additive color math, scroll offsets, transition windows,
+palette timing, load selection and map/save semantics remain application-owned.
+Shared file-select/options callers without a catalog still use their original
+diagnostic path; their broader presentation conversion belongs to #544.
+
+Native evidence includes `$81:A725`'s frame prefix/fill and reverse footer
+copy at `$81:A7CA` (words 1..160), and `$82:9628`'s twelve-word area label with
+the native palette-bit mask. Named definitions now describe those counts and
+offsets. The extractor reproduces the final frame without advertising native
+copy instructions as editable content. The two PNG sheets recompile to the
+exact original planar bytes, not an RGBA approximation or hidden ROM dump.
+
+Verified:
+
+- All six world selections and room frames match the complete native VRAM
+  image; world additive output matches with backdrop math both enabled and
+  disabled. Room frame-only transition pixels and four scrolling positions per
+  area match. Reselection continues to use installed background pages.
+- The full file-select entry/scroll/restore/return/reentry fixture retains exact
+  stock pixels while reads of these character sheets, world layouts, frame
+  prefix/footer and area-label source tables are forbidden.
+- Each of thirteen JSON page edits independently changes its composed pixels.
+  Each PNG edit independently changes the world image. Current-content rebinding
+  replaces stale edited artwork; a restored complete menu retains phase, load
+  handoff timing and exact stock fade pixels. Saved map progression is unchanged.
+- Missing/corrupt stock resources, malformed overrides, absent/wrong-size pages,
+  out-of-atlas cells, incorrect PNG dimensions and unsupported pixel indexes
+  fail loudly without overwriting the override.
+- Isolated full installer tests preserve all three new overrides alongside
+  existing overrides and synthetic player files through cancellation, version
+  replacement and restart. Full core verification and Windows Release build
+  pass (zero build warnings/errors). Ignored logs: `282-screens.log`,
+  `282-screens-suite.log`, `282-screens-windows.log`,
+  `282-screens-installation.log`.
+
+Still required: common sprite composition/OBJ artwork, the shared initial menu
+BG2 template, remaining compiled display/load-station metadata, shared HUD/pause
+dependencies and the combined integration/ROM-read audit. These tests do not
+prove a ROM-free whole menu, historical full gameplay session, or Android device
+validation. #282 remains open and is not awaiting player validation.

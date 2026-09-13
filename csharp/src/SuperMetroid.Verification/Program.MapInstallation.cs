@@ -35,6 +35,22 @@ internal static partial class Program
         var arrows = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapArrowFormat.FileName)))!;
         arrows["arrows"]!["Left"]!["x"] = 24;
         File.WriteAllText(arrowOverride, arrows.ToJsonString());
+        string screenOverride = Path.Combine(installation.MapOverrideDirectory, MapScreenDefinitions.FileName);
+        var screens = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)))!;
+        screens["pages"]![MapScreenDefinitions.WorldForeground]![0]!["flipX"] = true;
+        File.WriteAllText(screenOverride, screens.ToJsonString());
+        var artworkOverrides = new List<string>();
+        foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
+            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4) })
+        {
+            IndexedPngImage image;
+            using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.Item1)))
+                image = IndexedPng.Read(input, WorldMapArtworkFormat.Width, atlas.Item2);
+            image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Item3);
+            string path = Path.Combine(installation.MapOverrideDirectory, atlas.Item1);
+            using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+            artworkOverrides.Add(path);
+        }
         var edited = installation.LoadMaps();
         AssertEqual(24, edited.Arrows.Get(SuperMetroid.Core.Frontend.MapScrollDirection.Left).X, "full installation consumes arrow override");
         AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Game.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
@@ -49,12 +65,14 @@ internal static partial class Program
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
             [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),
             [arrowOverride] = File.ReadAllBytes(arrowOverride),
+            [screenOverride] = File.ReadAllBytes(screenOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),
             [Path.Combine(root, "debug-states", "SuperMetroid-debug-slot-0.smstate")] = "synthetic-state-sentinel"u8.ToArray(),
             [Path.Combine(root, "input-recordings", "session.inputs")] = new byte[] { 0, 1, 0, 2 }
         };
+        foreach (string path in artworkOverrides) preserved.Add(path, File.ReadAllBytes(path));
         foreach (var pair in preserved)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(pair.Key)!);

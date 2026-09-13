@@ -146,6 +146,7 @@ internal static partial class Program
         VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original);
         VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original);
         VerifyMapSprites(bus, stock, Path.Combine(root, "sprite-overrides"), original);
+        VerifyPauseTileAtlas(bus, stock, Path.Combine(root, "pause-art-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

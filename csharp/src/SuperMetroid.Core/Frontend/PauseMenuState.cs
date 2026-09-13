@@ -84,8 +84,7 @@ internal sealed partial class PauseMenuState
         else
         {
             mapPresentation.Tiles.LoadTo(vram, 0);
-            vram.LoadBytes(MapTileAtlasFormat.ByteCount, RomDataReader.ReadFixedBank(bus,
-                PauseMenuRomData.BackgroundTiles + MapTileAtlasFormat.ByteCount, 0x4000 - MapTileAtlasFormat.ByteCount));
+            mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         }
         if (mapPresentation is null)
             vram.LoadBytes(MapSpriteFormat.PauseDestination, RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));

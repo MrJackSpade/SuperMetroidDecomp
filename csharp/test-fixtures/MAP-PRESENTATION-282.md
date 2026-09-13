@@ -818,3 +818,32 @@ focused metadata guard, not an archived full-session test.
 This supersedes the earlier outstanding initial-template and combined
 saved-map-read notes. Shared pause/HUD dependencies, historical full sessions,
 Android device coverage and the whole-game ROM-unavailable gate remain open.
+
+## Additional pause interface artwork (#544, catalog version 14)
+
+`pause-ui-tiles.png` exposes the second 256 pause background characters as an
+indexed 256x64 PNG. It complements `map-tiles.png`; neither file overrides the
+other's characters. The importer decodes `$B6:A000-$B6:BFFF`, and the runtime
+loads the compiled 4-bpp result immediately after the shared map atlas. Live
+colors still come from pause palette content; the PNG palette is for preview.
+Keep the dimensions and indexes 0..15, edit this file under `overrides/maps`,
+and restart/rebind content to apply the replacement. Transparency retains
+native index-zero behavior. No arbitrary-resolution support is implied.
+
+The pause constructor and current-content rebind no longer read this character
+range. Tests prohibit those reads and compare all 8,192 native bytes, then
+compare map/equipment transitions in Crateria, Maridia and Tourian. Independent
+PNG edits visibly change equipment rendering immediately, including captured
+rendering, without changing selection or equipped/collected beams. Restoring
+the serialized pause state and rebinding stock returns the original pixels.
+Invalid dimensions, out-of-range indexes, corrupt overrides and missing/corrupt
+stock fail explicitly; an override does not bypass stock provenance checks.
+Full-installer tests preserve the new override through cancellation, upgrade
+and restart alongside synthetic player files. Generated content stays ignored.
+
+This is a partial #544 implementation shared with #282. Remaining pause reads
+include base/button/equipment tilemaps, inventory-dependent visual patches,
+area labels, selector presentation and reserve presentation. Mixed records
+also contain equipment masks, suit-selection rules and reserve-transfer amounts;
+those mechanics must become compiled definitions, not editable artwork tables.
+The pause screen is not yet ROM-free, and Android device validation is pending.

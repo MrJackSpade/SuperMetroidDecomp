@@ -44,13 +44,14 @@ internal static partial class Program
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
         File.WriteAllText(spriteOverride, sprites.ToJsonString());
         var artworkOverrides = new List<string>();
-        foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16),
-            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4),
-            (MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16) })
+        foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
+            (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4, WorldMapArtworkFormat.Width),
+            (MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16, MapSpriteFormat.Width),
+            (PauseTileAtlasFormat.FileName, MapTileAtlasFormat.Height, 16, MapTileAtlasFormat.Width) })
         {
             IndexedPngImage image;
             using (var input = File.OpenRead(Path.Combine(installation.MapDirectory, atlas.Item1)))
-                image = IndexedPng.Read(input, WorldMapArtworkFormat.Width, atlas.Item2);
+                image = IndexedPng.Read(input, atlas.Item4, atlas.Item2);
             image.Pixels[0] = (byte)((image.Pixels[0] + 1) % atlas.Item3);
             string path = Path.Combine(installation.MapOverrideDirectory, atlas.Item1);
             using (var output = File.Create(path)) IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);

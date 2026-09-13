@@ -8,6 +8,9 @@ internal sealed partial class PauseMenuState
     {
         mapPresentation = catalog;
         paletteAnimation.Bind(catalog?.HighlightCycle);
+        if (catalog is not null) catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
+        else vram.LoadBytes(PauseTileAtlasFormat.DestinationByte,
+            SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount));
         if (catalog is not null) catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
         else vram.LoadBytes(MapSpriteFormat.PauseDestination,
             SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));

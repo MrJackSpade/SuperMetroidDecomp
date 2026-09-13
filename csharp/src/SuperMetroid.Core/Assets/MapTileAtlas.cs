@@ -30,3 +30,14 @@ public static class MapTileAtlasFormat
     /// <summary>$B6:8000: first 256 shared map/menu 4-bpp characters, imported once rather than reread at runtime.</summary>
     public const int SourceAddress = MapTileAtlasRomData.CharacterData;
 }
+
+/// <summary>Additional pause-menu characters, separate from the shared map atlas and its overrides.</summary>
+public static class PauseTileAtlasFormat
+{
+    public const string FileName = "pause-ui-tiles.png";
+    /// <summary>$B6:A000, characters 256..511 in GameState_13's background-character transfer.</summary>
+    public const int SourceAddress = MapTileAtlasRomData.PauseInterfaceCharacterData;
+    /// <summary>Byte $2000 immediately follows the shared map characters in pause VRAM.</summary>
+    public const int DestinationByte = MapTileAtlasFormat.ByteCount;
+    public const int ByteCount = MapTileAtlasFormat.ByteCount;
+}

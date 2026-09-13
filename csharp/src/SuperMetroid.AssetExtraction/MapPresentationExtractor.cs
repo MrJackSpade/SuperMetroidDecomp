@@ -47,6 +47,15 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(atlasBytes);
         hashes.Add(MapTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(atlasBytes)));
+        byte[] pausePixels = SnesGraphics.DecodePlanarTiles(
+            RomDataReader.ReadFixedBank(bus, PauseTileAtlasFormat.SourceAddress, PauseTileAtlasFormat.ByteCount),
+            4, MapTileAtlasFormat.TileColumns, out int pauseWidth, out int pauseHeight);
+        using var pauseAtlas = new MemoryStream();
+        IndexedPng.Write(pauseAtlas, pauseWidth, pauseHeight, pausePixels, SnesGraphics.DiagnosticPalette(MapTileAtlasFormat.ColorCount));
+        byte[] pauseBytes = pauseAtlas.ToArray();
+        using (var file = new FileStream(Path.Combine(directory, PauseTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(pauseBytes);
+        hashes.Add(PauseTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(pauseBytes)));
         byte[] hudPixels = SnesGraphics.DecodePlanarTiles(
             RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount),
             2, MapTileAtlasFormat.TileColumns, out int hudWidth, out int hudHeight);

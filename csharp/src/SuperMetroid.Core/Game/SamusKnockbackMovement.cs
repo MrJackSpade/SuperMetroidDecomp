@@ -252,6 +252,11 @@ public static class SamusKnockbackMovement
             samus.Kinematics,
             requestedX,
             plms: plms);
+        // Knockback uses the ordinary left/right wrapper, whose collision branch
+        // cancels X momentum before the vertical pass. Retaining the clipped move's
+        // base speed incorrectly accelerates the next frame away from the obstacle.
+        if (horizontal.Collided)
+            speed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 
         BlockMoveResult vertical = samus.KnockbackDirection is 1 or 2
             ? MoveWithSharedVerticalSpeedCalculation(bus, level, samus, nmiFrameCounter, plms)
@@ -267,7 +272,7 @@ public static class SamusKnockbackMovement
         if (vertical.Collided)
         {
             // `$90:DF6E` is reached only after the vertical helper, so horizontal wall
-            // contact by itself does not perform these writes. Bottom alignment is already
+            // contact alone does not clear these vertical words. Bottom alignment is already
             // represented by bank-$94's accepted displacement against the current radius.
             speed.AccelerationMode = 0;
             speed.BaseSpeed = 0;

@@ -825,6 +825,7 @@ VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
 VerifyZeroDistanceJumpContact();
 VerifyShinesparkEnemyStop();
+VerifyKnockbackHorizontalStop();
 VerifyRetailFallingSpeedRecurrence();
 VerifyCrampedAerialLandingPoseCollision();
 VerifySamusSpaceJumpAndScrewAttack();

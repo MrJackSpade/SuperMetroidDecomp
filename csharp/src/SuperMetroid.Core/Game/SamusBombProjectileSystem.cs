@@ -136,7 +136,8 @@ public sealed class SamusBombProjectileSystem
             {
                 soundRequests.Add(new SamusSoundRequest(
                     SoundEffectLibrary1Sounds.CancelAll,
-                    MaximumQueued: 9));
+                    MaximumQueued: 9,
+                    SoundSuppressed: PowerBombExplosion.IsActive));
             }
         }
 
@@ -155,6 +156,9 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             bool wasNormalBomb = slot.PackedType.Family == SamusProjectileFamily.Bomb;
+            // Spawn queues its startup cue before setting the active bit. Preserve
+            // that earlier guard separately from sounds produced after the pre-instruction.
+            bool soundSuppressedBeforePreInstruction = PowerBombExplosion.IsActive;
             bool slotExplosionStarted = RunBombPreInstruction(
                 bus,
                 level,
@@ -171,7 +175,8 @@ public sealed class SamusBombProjectileSystem
                 // bombs can expire during one Samus projectile pass.
                 soundRequests.Add(new SamusSoundRequest(
                     SoundEffectLibrary2Sounds.BombExplosion,
-                    MaximumQueued: 6));
+                    MaximumQueued: 6,
+                    SoundSuppressed: PowerBombExplosion.IsActive));
             }
             else if (slotExplosionStarted)
             {
@@ -181,7 +186,8 @@ public sealed class SamusBombProjectileSystem
                 // Spawn installs the semantic bank-$88 owner.
                 soundRequests.Add(new SamusSoundRequest(
                     SoundEffectLibrary1Sounds.PowerBombExplosion,
-                    MaximumQueued: 15));
+                    MaximumQueued: 15,
+                    SoundSuppressed: soundSuppressedBeforePreInstruction));
             }
 
             // The native loop still calls $93:81E9 after a pre-instruction clears a slot.

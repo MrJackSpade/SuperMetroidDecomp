@@ -103,3 +103,22 @@ does not retroactively change admission when explosion state changes. This is a
 scoped correction for item selection, not certification of all sound producers:
 the Power Bomb startup cue, earlier producers, and cleanup ordering still need
 their own coverage before the broader suppression work is complete.
+
+### Bomb-owned requests and activation ordering
+
+The same audit now also plants a normal bomb through the production placement
+helper, shortens its fuse to one, and expires it through the frontend. Before
+the bomb-producer fix, both the inactive and active Power Bomb cases emitted
+the normal explosion sound. Afterward only the inactive case emits it.
+`SamusSoundRequest` carries the producer-time guard for bomb-owned requests;
+publication uses the existing native queue implementation. Charge cancellation
+and ordinary explosion requests sample current status, while the Power Bomb
+startup cue samples status before its pre-instruction activates the explosion.
+
+Two real allocated slots, with constructed simultaneous fuse expiration, cover
+both descending-slot orders through the frontend: normal slot 0 / Power Bomb
+slot 1 suppresses the normal sound, whereas normal slot 1 / Power Bomb slot 0
+admits it. Both emit the Power Bomb startup cue. A singly planted Power Bomb
+also emits its startup cue. These assertions cover actual APU port commands,
+not just request-list contents. This does not yet certify all other producers,
+cleanup timing, full native gameplay execution, or the complete #422 matrix.

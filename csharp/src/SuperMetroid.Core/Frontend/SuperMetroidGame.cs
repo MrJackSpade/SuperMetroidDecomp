@@ -1084,9 +1084,10 @@ public sealed partial class SuperMetroidGame
         foreach (SamusSoundRequest request in
             runtime.BombProjectiles.LastFrameResult.SoundRequests ?? [])
         {
-            audio.QueueSound(
+            audio.QueueSoundAndGetAccumulator(
                 request.SoundEffect,
-                request.MaximumQueued);
+                request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         }
 
         foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)

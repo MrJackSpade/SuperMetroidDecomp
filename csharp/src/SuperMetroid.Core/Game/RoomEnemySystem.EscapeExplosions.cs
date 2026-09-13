@@ -16,7 +16,7 @@ public sealed partial class RoomEnemySystem
             inheritedX = (ushort)choice;
             byte sound = _bus!.ReadByte(ZebesEscapeRomData.SoundTable + choice);
             if (sound != 0)
-                _soundRequests.Add(new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, sound), 6));
+                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, sound), 6);
         }
         var kind = (RoomSpriteObjectKind)_bus!.ReadByte(ZebesEscapeRomData.SpriteTable + (inheritedX & 7));
         SpawnRoomSpriteObject(x, y, kind, 0);

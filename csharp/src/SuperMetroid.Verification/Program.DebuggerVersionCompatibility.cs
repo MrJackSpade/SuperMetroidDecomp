@@ -82,6 +82,7 @@ internal static partial class Program
         foreach (var (type, addedField) in new[] {
             (typeof(SamusProjectileFrameResult), "<QueuedSoundSuppressed>k__BackingField"),
             (typeof(SamusSoundRequest), "<SoundSuppressed>k__BackingField"),
+            (typeof(EnemySoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(HudState), "<SelectionSoundSuppressedThisFrame>k__BackingField"),
             (typeof(SamusBombProjectileSystem), "<SoundSuppressedBeforeProjectileHandling>k__BackingField") })
         {

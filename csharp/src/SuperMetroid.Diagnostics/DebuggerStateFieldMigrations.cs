@@ -22,6 +22,7 @@ internal static class DebuggerStateFieldMigrations
         // previously unsuppressed admission and let the next producer replace it.
         string? suppressionField = type == typeof(SamusProjectileFrameResult) ? "<QueuedSoundSuppressed>k__BackingField" :
             type == typeof(SamusSoundRequest) ? "<SoundSuppressed>k__BackingField" :
+            type == typeof(EnemySoundRequest) ? "<SoundSuppressed>k__BackingField" :
             type == typeof(HudState) ? "<SelectionSoundSuppressedThisFrame>k__BackingField" :
             type == typeof(SamusBombProjectileSystem) ? "<SoundSuppressedBeforeProjectileHandling>k__BackingField" : null;
         if (suppressionField is not null && current.Any(field => field.Name == suppressionField) &&

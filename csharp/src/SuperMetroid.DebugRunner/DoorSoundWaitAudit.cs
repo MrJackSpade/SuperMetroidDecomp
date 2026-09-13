@@ -50,17 +50,24 @@ internal static class DoorSoundWaitAudit
             throw new InvalidDataException("Control enemy did not exercise the expected frozen AI clock.");
         if (waitTimer != enemy.FrozenTimer)
             throw new InvalidDataException($"Door sound wait skipped EnemyMain: frozen timer={waitTimer}, direct enemy owner={enemy.FrozenTimer} after eight calls.");
-        VerifyFrontendPublication(bus, runtime);
+        VerifyFrontendPublication(bus, runtime, powerBombActive: false);
+        VerifyFrontendPublication(bus, runtime, powerBombActive: true);
         return 0;
     }
 
-    private static void VerifyFrontendPublication(SuperMetroidAddressSpace bus, SuperMetroidRuntime runtime)
+    private static void VerifyFrontendPublication(SuperMetroidAddressSpace bus, SuperMetroidRuntime runtime, bool powerBombActive)
     {
+        runtime.BombProjectiles.PowerBombExplosion.Reset();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.Climb, 256, 128);
         runtime.Samus!.XPosition = 368;
         runtime.Samus.YPosition = 224;
         runtime.Samus.InputLocked = true;
         runtime.Enemies.ElevatorDoorTransitionActive = true;
+        if (powerBombActive)
+        {
+            runtime.BombProjectiles.PowerBombExplosion.Arm();
+            runtime.BombProjectiles.PowerBombExplosion.Spawn(runtime.Samus.XPosition, runtime.Samus.YPosition);
+        }
         var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
         const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
@@ -76,7 +83,7 @@ internal static class DoorSoundWaitAudit
         audio.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, 6);
         audio.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, 6);
         var writePositions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", fields)!.GetValue(audio)!;
-        int produced = 0;
+        int produced = 0, admitted = 0;
         for (int frame = 0; frame < 24; frame++)
         {
             // No acknowledgement keeps a second entry unread; this measures owner
@@ -85,15 +92,24 @@ internal static class DoorSoundWaitAudit
             game.Step(0);
             int[] expected = new int[3];
             foreach (var request in runtime.Enemies.SoundRequests)
-                expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
+            {
+                produced++;
+                if (request.SoundSuppressed != powerBombActive)
+                    throw new InvalidDataException("Door wait enemy producer lost its live Power Bomb guard.");
+                if (!request.SoundSuppressed)
+                    expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
+            }
             foreach (var request in runtime.Samus!.LiquidPhysics.SoundRequests)
+            {
+                produced++;
                 expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
+            }
             for (int queue = 0; queue < 3; queue++)
                 if (((writePositions[queue] - before[queue]) & 15) != expected[queue])
                     throw new InvalidDataException($"Door wait audio duplicated or lost a fresh request at frame {frame}, library {queue + 1}.");
-            produced += expected.Sum();
+            admitted += expected.Sum();
         }
         if (produced == 0) throw new InvalidDataException("Door wait frontend fixture produced no fresh enemy/draw sounds.");
-        Console.WriteLine($"Frontend wait: {produced} fresh enemy/draw requests published once over 24 calls.");
+        Console.WriteLine($"Frontend wait: PB={powerBombActive}, {produced} fresh enemy/draw requests, {admitted} admitted over 24 calls.");
     }
 }

@@ -7,9 +7,11 @@ namespace SuperMetroid.Core.Game;
 /// <param name="MaximumQueued">
 /// The exact queue-cap variant selected by that caller (for example Max3 or Max6).
 /// </param>
+/// <param name="SoundSuppressed">Native queue guard captured at the request, not deferred publication.</param>
 public readonly record struct EnemySoundRequest(
     SoundEffectId SoundEffect,
-    byte MaximumQueued);
+    byte MaximumQueued,
+    bool SoundSuppressed = false);
 
 /// <summary>One native enemy-owned <c>QueueMusic_Delayed*</c> publication.</summary>
 /// <param name="Command">The lossless bank-$80 command published by the original caller.</param>
@@ -25,6 +27,9 @@ public sealed partial class RoomEnemySystem
     // use the same append-only-per-frame shape already proven by Samus and PLM audio.
     private readonly List<EnemySoundRequest> _soundRequests = [];
     private readonly List<EnemyMusicRequest> _musicRequests = [];
+    // Runtime frame bindings are not duplicate serialized cartridge owners. EnemyMain
+    // refreshes this before AI; later draw and room-main requests sample the same owner.
+    [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
 
     /// <summary>
     /// Exact bank-$A0/$A6/$A9 sound-queue calls published by the current enemy frame.
@@ -70,7 +75,8 @@ public sealed partial class RoomEnemySystem
         if (maximumQueued == 0)
             throw new ArgumentOutOfRangeException(nameof(maximumQueued), maximumQueued, "Queue capacity must be nonzero.");
 
-        _soundRequests.Add(new EnemySoundRequest(soundEffect, maximumQueued));
+        _soundRequests.Add(new EnemySoundRequest(soundEffect, maximumQueued,
+            SoundSuppressed: _audioPowerBomb?.IsActive == true));
     }
 
     /// <summary>

@@ -474,6 +474,7 @@ public sealed partial class RoomEnemySystem
         EnsureLoaded();
         _samusForEnemyDrops = samus;
         _samusProjectilesForEnemyFrame = samusProjectiles;
+        _audioPowerBomb = sharedProjectiles?.PowerBombExplosion;
         // Standalone audits do not own the runtime NMI clock. In that case the enemy-frame
         // counter begins at zero and advances at the same end-of-frame point, which gives
         // Mama Turtle's even-frame shell jitter the same initial phase as retail room load.

@@ -164,3 +164,23 @@ while cinematic impacts still generate no request. Those seam checks do not driv
 an enemy AI/overlap calculation. The cartridge source is `$93:80F8-$8100`, which
 checks cinematic state before the ordinary library-two queue call. The complete
 Power Bomb audit and core suite pass; other owners and full #422 timing remain open.
+
+### Enemy audio and door sound waits
+
+`PowerBombEnemySoundAudit` uses the real awakened Climb population and missile
+producer. Before the fix its lethal hurt cry was delivered both with and without
+an active Power Bomb. Both cases still kill the pirate afterward, but only the
+inactive case delivers the cry. Echoed acknowledgements isolate CPU sound-queue
+delivery; this is not a new SPC/PCM comparison. EnemyMain binds the live shared
+explosion owner, and the common request helper captures suppression. Escape
+explosions now use that same helper instead of bypassing it.
+
+The separate door-wait audit runs both inactive and active cases. Each produces
+one fresh enemy request in 24 sound-wait calls; the inactive case admits one,
+the active case admits zero. It verifies actual queue-write positions, not merely
+the request flag. An intentionally unacknowledged second request keeps this
+fixture in the wait phase; no native full-transition duration is claimed.
+Both frontend publication routes honor the captured guard. An explicit legacy
+EnemySoundRequest migration and field-order regression preserve old captures.
+The full core suite passes. Initialization-only producers, other owner families,
+and the complete processing-technique matrix remain outside this result.

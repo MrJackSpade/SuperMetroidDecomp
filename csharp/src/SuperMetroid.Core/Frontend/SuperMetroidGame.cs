@@ -1101,7 +1101,8 @@ public sealed partial class SuperMetroidGame
             audio.QueuePermanentItemFanfare();
 
         foreach (EnemySoundRequest request in runtime.Enemies.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         foreach (EnemyMusicRequest request in runtime.Enemies.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
     }
@@ -1111,7 +1112,8 @@ public sealed partial class SuperMetroidGame
         // This coroutine completes no ordinary gameplay publication. Only the
         // owners run by its enemy/draw pass may refill the rings before the test.
         foreach (EnemySoundRequest request in source.Enemies.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         foreach (EnemyMusicRequest request in source.Enemies.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
         if (source.Samus is { } samus)

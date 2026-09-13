@@ -1456,13 +1456,15 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (isZebetite || family == SamusProjectileFamily.Beam)
+                if (isZebetite || family is SamusProjectileFamily.Beam or
+                    SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
                 {
                     // The bank-$A0 collision walker marks the direction word, not a
-                    // terrain impact. Ordinary beam pre-instructions consume that marker
+                    // terrain impact. Projectile pre-instructions consume that marker
                     // on the next alpha pass; normal shot AI owns its separate hit graphic.
-                    // Zebetites also retain this lifecycle for missiles. Converting a beam
-                    // here invents a moving/lingering explosion and occupies its slot.
+                    // Super Missiles must retain their handler so it also clears their
+                    // collision links. Terrain conversion strands a live link that can
+                    // damage the enemy again after its flash timer expires.
                     if (projectile.PackedDirection.HasLowByteLifecycleState)
                         continue;
                     projectiles.ApplyEnemyCollisionPrelude(

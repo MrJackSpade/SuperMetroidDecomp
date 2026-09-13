@@ -185,3 +185,32 @@ Torizo encounter audit and Windows Release build pass. Rising-lava sound tests
 now compare every frame with an independent timer reference instead of a total
 captured under the old RNG sequence. That reference retains the existing visual
 owner's random-sampling seam; it does not claim complete native audio/HDMA timing.
+
+## Shared missile enemy-collision lifecycle correction
+
+The expanded original-CPU trace `movement-release/golden-encounter-detailed-617.csv`
+adds boss guard/invulnerability/spritemap and five projectile slots (type, position,
+subposition, direction, damage). Run `--golden-encounter-details ROM CSV` to compare
+all 60 fields on each of 3,000 frames. Recapture with
+`DiagnosticGoldenEncounterDetailed` in the same native probe. Zero-type slots are
+normalized to zero on both sides; this Super-only input sequence does not produce
+ordinary uncharged power-beam slots with a zero type word.
+
+Before correction the first mismatch was frame 2480, slot 0: native type $8200,
+direction $17 and damage 300, versus port type $8800, direction $07 and damage 8.
+Both were at (172,393). Native clears both Super slots on frame 2481; the port
+retains an explosion and a live Super link. That link causes an extra 600 damage
+at frame 2496 when the flash timer expires.
+
+The generic bank-$A0 enemy collision walker marks direction bit $10 before shot
+AI; normal shot AI does not call terrain missile conversion. The port instead
+called `TryStartEnemyImpact` for ordinary missile families, replacing their next
+pre-instruction and preventing linked-Super cleanup. The common collision path
+now uses the same direction-marking prelude for beams, Missiles and Supers.
+Terrain collision conversion is unchanged. No boss-specific damage exception or
+difficulty tuning was added.
+
+After correction all 180,000 captured values match, including the frame-2496 HP
+and all subsequent frames. Full core verification and Windows Release build pass.
+This bounded sequence is not proof of every attack branch or of the unlocated
+player-reported safe spot; the broader #617 audit remains open.

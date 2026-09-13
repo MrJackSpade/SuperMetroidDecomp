@@ -1,4 +1,5 @@
 #include "native-bounded-cpu.h"
+static bool goldenEncounterDetailed;
 
 // Original game-state-eight execution, with only initial state and physical
 // controller words supplied. No boss decisions or projectile outcomes injected.
@@ -30,7 +31,12 @@ int DiagnosticGoldenEncounter(const char *rom, const char *output) {
   hdma_objects_enable_flag=0x8000;
   ProbeRunBounded(0x868000); ProbeRunBounded(0x89ab82);
   random_number=0x1234;
-  fprintf(f,"frame,input,x,y,subX,subY,health,flash,list,timer,function,pre,vx,vy,gravity,turn,flags,random,samusX,samusY,samusHealth,pose\n");
+  fprintf(f,"frame,input,x,y,subX,subY,health,flash,list,timer,function,pre,vx,vy,gravity,turn,flags,random,samusX,samusY,samusHealth,pose");
+  if(goldenEncounterDetailed) {
+    fprintf(f,",guard,invulnerability,map");
+    for(int p=0;p<5;p++) fprintf(f,",s%d_type,s%d_x,s%d_y,s%d_subX,s%d_subY,s%d_direction,s%d_damage",p,p,p,p,p,p,p);
+  }
+  fprintf(f,"\n");
   uint16 previous=0;
   for(int frame=0;frame<3000;frame++) {
     nmi_frame_counter_word=nmi_frame_counter_byte=frame+1;
@@ -39,11 +45,24 @@ int DiagnosticGoldenEncounter(const char *rom, const char *output) {
     oam_next_ptr=vram_write_queue_tail=vram_read_queue_tail=0;
     ProbeRunBounded(0x8884b9); ProbeRunBounded(0x808111); ProbeRunBounded(0x828b44);
     Enemy_Torizo *e=Get_Torizo(0);
-    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",
+    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u",
       frame,input,e->base.x_pos,e->base.y_pos,e->base.x_subpos,e->base.y_subpos,
       e->base.health,e->base.flash_timer,e->base.current_instruction,e->base.instruction_timer,
       e->toriz_var_E,e->toriz_var_F,e->toriz_var_A,e->toriz_var_B,e->toriz_var_C,e->toriz_var_03,
       e->toriz_parameter_2,random_number,samus_x_pos,samus_y_pos,samus_health,samus_pose);
+    if(goldenEncounterDetailed) {
+      fprintf(f,",%u,%u,%u",e->toriz_var_04,e->base.invincibility_timer,e->base.spritemap_pointer);
+      for(int p=0;p<5;p++) {
+        if(!projectile_type[p]) fprintf(f,",0,0,0,0,0,0,0");
+        else fprintf(f,",%u,%u,%u,%u,%u,%u,%u",projectile_type[p],projectile_x_pos[p],projectile_y_pos[p],
+          projectile_bomb_x_subpos[p],projectile_bomb_y_subpos[p],projectile_dir[p],projectile_damage[p]);
+      }
+    }
+    fprintf(f,"\n");
   }
   fclose(f); return 0;
+}
+int DiagnosticGoldenEncounterDetailed(const char *rom,const char *output) {
+  goldenEncounterDetailed=true;
+  return DiagnosticGoldenEncounter(rom,output);
 }

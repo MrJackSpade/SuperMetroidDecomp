@@ -194,6 +194,23 @@ publication. The turn/freeze search still finds no successful earned skip; this
 fix does not complete the alignment or shinespark portions of #442.
 # Controller-earned neutral-jump follow-up
 
+## Room-local shinespark exploration
+
+`--zebetite-spark-audit ROM` separately explores the Speed Booster technique.
+It constructs a stored shine at X=837.0000/Y=195.FFFF facing left in the intact
+room, using the production store initializer rather than earning the charge in
+the preceding room. Equipment is Speed Booster, Gravity, and Morph; health is
+399 and host cheats are disabled. Holding angle-up plus jump selects diagonal
+left launch, followed by down and alternating jump, then left to escape.
+
+Twenty-five left-escape start frames (78..102) completed. The initial trace enters
+diagonal motion on frame 2, crash on 6, crash echo circle on 46, finish on 76,
+and inactive on 77. The Zebetite retains 1000 health. None of these timings
+finishes beyond the barrier. These are exploratory observations, not expected
+cartridge values: native launch/crash comparison and a successful passage with
+subsequent control are still required. Stored-charge acquisition is explicitly
+outside this room-local fixture, not claimed as validated by it.
+
 ## Extended original-CPU comparison
 
 `--zebetite-skip-export-long-approach ROM PRIVATE_DIRECTORY` exports frames

@@ -4,11 +4,28 @@
 
 # Super Metroid — C# port
 
-<p align="center">
-  <img src="docs/images/title-screen.png" alt="Super Metroid title screen" width="31%">
-  <img src="docs/images/gameplay.png" alt="Samus at the landing site" width="31%">
-  <img src="docs/images/endgame.png" alt="The Baby Metroid in the endgame sequence" width="31%">
-</p>
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/title-screen.png" alt="Super Metroid title screen"><br><sub>Title screen</sub></td>
+    <td align="center"><img src="docs/images/opening-cinematic.png" alt="Opening cinematic"><br><sub>Opening cinematic</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/ceres-arrival.png" alt="Samus arriving at Ceres Station"><br><sub>Ceres Station</sub></td>
+    <td align="center"><img src="docs/images/ceres-ridley.png" alt="Ridley battle at Ceres Station"><br><sub>Ridley battle</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/ceres-escape.png" alt="Ceres escape sequence"><br><sub>Ceres escape</sub></td>
+    <td align="center"><img src="docs/images/draygon-grapple-kill.png" alt="Defeating Draygon through the electrified Grapple Beam conduit"><br><sub>Draygon Grapple Beam kill</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/maridia-aquatic-corridor.png" alt="Aquatic corridor in Maridia"><br><sub>Maridia</sub></td>
+    <td align="center"><img src="docs/images/maridia-water-shaft.png" alt="Underwater shaft in Maridia"><br><sub>Exploring underwater</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/norfair-cavern.png" alt="Cavern in Norfair"><br><sub>Norfair</sub></td>
+    <td align="center"><img src="docs/images/lower-norfair-lava.png" alt="Lava chamber in Lower Norfair"><br><sub>Lower Norfair</sub></td>
+  </tr>
+</table>
 
 The recomp is fully playable from beginning to end. Only minor known glitches remain.
 

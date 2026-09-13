@@ -31,6 +31,7 @@ internal static class ZebetiteAudit
 
         VerifyDefinitionAndPopulation(bus, room);
         VerifyVacatedSlotReuse(bus, room, assets);
+        VerifySurvivingHalfShot(bus, room, assets);
         VerifyEveryGenerationInitialization(bus, room, assets);
         VerifyLinkedShotAndContact(bus, room, assets);
         VerifyFourGenerationProgression(bus, room, assets);
@@ -42,6 +43,29 @@ internal static class ZebetiteAudit
             "and normal-bomb damage, death explosions, embedded respawns, and final event " +
             "state were verified.");
         return 0;
+    }
+
+    private static void VerifySurvivingHalfShot(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        var loaded = Load(bus, room, assets, generation: 1);
+        Activate(loaded, assets);
+        var primary = loaded.Enemies.Slots[0];
+        var secondary = loaded.Enemies.Slots[1];
+        primary.Health = secondary.Health = 0;
+        // Isolate the original main-call boundary: the dead linked half has
+        // not run its own death AI yet. This is not a complete camera sequence.
+        var main = typeof(RoomEnemySystem).GetMethod("RunZebetiteMain",
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        main.Invoke(loaded.Enemies, [primary, RequireState(loaded.Enemies, primary)]);
+        if (primary.Health != 1000 || RequireState(loaded.Enemies, primary).Generation != 2 || secondary.Health != 0)
+            throw new InvalidDataException("Zebetite linked-half native respawn boundary differs.");
+        var shots = new SamusProjectileSystem();
+        ArmProjectile(shots.Slots[0], secondary, type: 0, damage: 20);
+        int hits = loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
+            new SamusBombProjectileSystem(), loaded.Samus);
+        if (hits != 1 || primary.Health != 0 || secondary.Health != 0 || primary.FlashTimer != 0 || secondary.FlashTimer != 0)
+            throw new InvalidDataException($"Native linked-half follow-up killed respawn; C# hits={hits}, health={primary.Health}/{secondary.Health}, flash={primary.FlashTimer}/{secondary.FlashTimer}.");
     }
 
     private static void VerifyVacatedSlotReuse(SuperMetroidAddressSpace bus,

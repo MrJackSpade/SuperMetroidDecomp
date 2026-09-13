@@ -26,3 +26,22 @@ This is not completion of #443: surviving linked-half follow-up shots, exact
 double-kill timing, camera-gated ten-missile kills, and adjacent failing controls
 still require original CPU comparisons. Do not infer those outcomes from the
 allocator test alone.
+
+## Linked-half follow-up boundary
+
+The extended original CPU probe initializes generation one (event bit three),
+spawns its linked half, sets both health words to zero (the lethal-shot result),
+and executes only the primary main callback. The primary slot now contains
+generation two at 1000 HP; the old secondary remains at zero HP, linked to slot
+zero. Execute the secondary's original shot callback with an ordinary beam,
+damage 20. Both health words become zero, and both flash timers remain zero.
+
+The C# audit reproduces that same callback boundary, then uses the public
+production projectile-hit resolver to deliver the follow-up beam. It matches
+the cartridge's 1000-to-zero health transfer and unchanged flash timers. The
+preceding slot-reuse correction suffices; no further production change needed.
+
+This confirms the follow-up mechanism but not its player-accessible timing.
+The probe deliberately withholds the secondary main callback, and does not
+derive that scheduling from camera visibility. Full camera-gated timing and
+adjacent failing input sequences remain required before closing #443.

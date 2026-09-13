@@ -924,3 +924,44 @@ Remaining pause dependencies include the equipment base, inventory/wireframe
 patches, selector/reserve presentation, and semantic interactive-label placement.
 This does not complete #544/#282 or prove the pause screen is ROM-free. Broader
 integration, historical full-session coverage and Android validation remain.
+
+## Editable equipment wireframes (#544/#282)
+
+Catalog version 16 adds `pause-wireframes.json` (resource schema version 1),
+bringing the shared-resource hash count to eighteen. Existing backdrop/PNG/JSON
+override schemas are unchanged. The four named frames are `PowerSuit`,
+`PowerSuitHiJump`, `VariaSuit` and `VariaSuitHiJump`. Each contains 136 cells in
+eight-column, seventeen-row order, referencing the same `Map`/`Interface` PNG
+atlases and visual attributes as pause backdrops. Copy the stock file to
+`overrides/maps/pause-wireframes.json` and change the desired named frame;
+individual variants can be reskinned independently.
+
+Import resolves `$82:B25F` and the four native artwork patches. Runtime selection
+continues to use the compiled Varia/Hi-Jump rule, with Gravity intentionally
+ignored. The `$82:B20C` patch footprint remains compiled: eight words per row,
+seventeen rows, starting at equipment tile (12,7), with a 32-tile row stride.
+This step exposes the artwork, not arbitrary wireframe placement or gameplay
+selection. Native disassembly confirms the mask, pointer order, loop dimensions,
+start offset and stride; all 544 source words are compared independently.
+
+Content rebind reapplies only the selected wireframe rectangle to the mutable
+equipment page. It uploads that page only when equipment currently occupies
+BG1; editing while viewing the map cannot overwrite map tiles. Surrounding
+inventory labels are not reconstructed. Existing simultaneous-input Plasma/VAR
+overrun tests still pass, including the wireframe's native overwrite of the
+ninth overrun word. No serialized state fields were added.
+
+Verification compares each patch against native source words with sentinels
+outside its rectangle; 576 actual map/equipment transition frames cover all four
+variants with/without Gravity and forbid wireframe pointer/art reads. Independent
+JSON edits alter only the named variant and reach actual direct/captured pixels.
+Real menu navigation and A toggles exercise all four variants. State restore
+rebinds current artwork while preserving inventory identity, cursor and animation
+phase. Invalid schemas, missing frames, wrong dimensions, atlas/palette errors,
+invalid patch destinations, missing stock and corrupt overrides fail explicitly.
+Installer tests preserve this override alongside previous schemas across fresh
+installation, cancelled upgrade, replacement and restart.
+
+This remains partial #544/#282 work. Equipment base/label patches, semantic
+placement, selector/reserve presentation and broader integration remain; the
+pause screen is not yet ROM-free, and Android validation remains outstanding.

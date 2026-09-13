@@ -559,24 +559,28 @@ internal sealed partial class PauseMenuState
     private void WriteSamusWireframe()
     {
         int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
-        // The selected artwork remains a visual dependency. Only the inventory
-        // discriminator is compiled here, so replacing art cannot change its rule.
+        if (mapPresentation is not null)
+        {
+            mapPresentation.PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
+            return;
+        }
+        // Unbound diagnostic path retains the native source for parity comparisons.
         ushort sourcePointer = RomDataReader.ReadWordFixedBank(bus,
             PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
         if (sourcePointer == 0) throw new InvalidDataException($"Pause wireframe variant {variant} has no artwork.");
 
         int sourceAddress = 0x820000 | sourcePointer;
-        int destinationOffset = 472;
-        for (int row = 0; row < 17; row++)
+        int destinationOffset = PauseWireframeDefinitions.DestinationByte;
+        for (int row = 0; row < PauseWireframeDefinitions.Rows; row++)
         {
-            for (int column = 0; column < 8; column++)
+            for (int column = 0; column < PauseWireframeDefinitions.Columns; column++)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(bus, sourceAddress);
                 equipmentTilemap[destinationOffset + column * 2] = unchecked((byte)word);
                 equipmentTilemap[destinationOffset + column * 2 + 1] = unchecked((byte)(word >> 8));
                 sourceAddress = 0x820000 | ((sourceAddress + 2) & 0xffff);
             }
-            destinationOffset += 64;
+            destinationOffset += PauseWireframeDefinitions.DestinationStride;
         }
     }
 

@@ -31,8 +31,12 @@ internal sealed partial class PauseMenuState
             SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
-        // Rebind replaces only the static backdrop. The serialized live button
-        // palette rows still own their overlay, including a Start/fade highlight.
+        // Reapply only the wireframe patch, in its native footprint. The surrounding
+        // mutable labels include intentional cartridge overruns and must not be rebuilt.
+        WriteSamusWireframe();
+        if (ScreenMode != 0) UploadEquipmentTilemap();
+        // The serialized live button palette rows still own their overlay on
+        // the refreshed backdrop, including a Start/fade highlight.
         // Do not rerun controls or rebuild equipment: that would erase native
         // same-frame label overruns and change the state being restored.
         vram.LoadBytes(PauseMenuLayout.ButtonRowsDestinationWord * 2,

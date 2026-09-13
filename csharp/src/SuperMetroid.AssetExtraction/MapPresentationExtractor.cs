@@ -118,6 +118,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, PauseBackdropDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(backdropBytes);
         hashes.Add(PauseBackdropDefinitions.FileName, Convert.ToHexString(SHA256.HashData(backdropBytes)));
+        byte[] wireframeBytes = PauseWireframeExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PauseWireframeDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(wireframeBytes);
+        hashes.Add(PauseWireframeDefinitions.FileName, Convert.ToHexString(SHA256.HashData(wireframeBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

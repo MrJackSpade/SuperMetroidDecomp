@@ -581,3 +581,54 @@ The remaining map-runtime dependencies are not all the same kind:
   tests is not evidence that the entire menu or game is ROM-free.
 
 This audit directs the remaining work; it does not defer it or close #282.
+
+## Extracted map-arrow anchors and phase timing
+
+The installed file-select path now consumes `map-arrows.json` from catalog
+version 11. Copy the stock file into `overrides/maps/map-arrows.json` to edit
+the `Left`, `Right`, `Up`, and `Down` screen anchors and `durationTicks` arrays.
+X accepts 0..255, Y 0..223 (the actual draw origin, after the native Y-minus-one
+adjustment); each direction requires 1..255 phases of 1..254 menu ticks.
+Controller bindings, scroll boundaries and input precedence remain compiled.
+
+Extraction follows `$81:AF32` and the programs selected through `$82:C0E8`.
+Cross-check: pinned native `DrawPauseScreenSpriteAnim` at `$82:A881` consumes
+the duration and final shape-offset byte of each three-byte record, not its
+middle byte. Retail arrows have one fixed shape each and every shape offset is
+zero. The importer verifies this; the middle-byte sequence is deliberately not
+invented into extra visual frames. The shared highlight palette supplies the
+visible glow. Changing phase durations alone changes counters, not arrow art.
+Sprite composition/OBJ characters still use the shared cartridge sprite path;
+this slice does not claim editable arrow PNG artwork or a ROM-free entire menu.
+
+The catalog validates stock hashes even when overrides exist and includes the
+selected arrow bytes in its content identity. Existing override schemas are
+unchanged. The nonserialized arrow presentation is rebound after debugger
+restoration. Existing serialized arrow fields remain intact; position metadata
+is replaced without resetting phase, visibility or remaining delay. A shorter
+replacement cycle normalizes the phase modulo its length while retaining the
+pending delay. Unbound diagnostic callers continue using the cartridge tables.
+
+Verification:
+
+- 600 ticks compare all four emitted arrow OAM streams and exact phase, timer
+  and visibility values against the independent cartridge-fed path, including
+  hidden-arrow pauses and repeated loop boundaries.
+- Complete menu entry, scrolling, restore, return and reentry preserve exact
+  stock pixels while a guard forbids arrow records, program pointers, base
+  variants and phase-program ROM reads. Shared sprite-art reads remain allowed.
+- A position override changes composed room-map pixels; a two-phase duration
+  override obeys the native initial increment and wrap timing. Restore/rebind
+  preserves counters and stock OAM; shortened cycles and diagnostic unbinding
+  are covered separately.
+- Invalid durations, missing directions, corrupt overrides and stock hash
+  failures fail loudly. Isolated installer tests preserve the arrow override and
+  synthetic player files through cancellation, upgrade and no-op restart.
+- Focused map checks, full core verification and Windows Release build pass
+  (zero build warnings/errors). Local logs: `282-arrows.log`,
+  `282-arrows-suite.log`, `282-arrows-windows.log`,
+  `282-arrows-installation.log` in ignored test-temp.
+
+This supersedes the arrow-position/program item in the preceding audit, not
+its shared sprite-composition dependency. #282 remains open for the remaining
+map/menu resources, combined ROM-read audit and broader integration work.

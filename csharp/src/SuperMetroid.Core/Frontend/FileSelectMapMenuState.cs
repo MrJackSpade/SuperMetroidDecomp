@@ -65,7 +65,7 @@ public sealed partial class FileSelectMapMenuState
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
         areaGraphics.BindLabels(mapPresentation?.Labels);
-        animations = new FileSelectMapAnimations(bus);
+        animations = new FileSelectMapAnimations(bus, mapPresentation?.Arrows);
         animations.BindPalette(mapPresentation?.HighlightCycle);
         entry = new FileSelectMapEntry(bus, mapPresentation?.Palettes);
     }
@@ -83,6 +83,7 @@ public sealed partial class FileSelectMapMenuState
         areaGraphics.BindPalettes(catalog?.Palettes);
         entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
+        animations.BindPresentation(catalog?.Arrows);
         roomGraphics.BindMapPresentation(catalog);
         marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
     }

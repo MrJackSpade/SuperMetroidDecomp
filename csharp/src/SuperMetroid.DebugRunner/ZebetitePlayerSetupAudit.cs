@@ -34,8 +34,19 @@ internal static class ZebetitePlayerSetupAudit
         return 0;
     }
 
+    public static int Export(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        foreach (int x in new[] { 724, 728, 732 })
+            RunCase(romPath, true, x, 641, 99, verbose: false,
+                exportPrefix: Path.Combine(directory, $"candidate-{x}"));
+        Console.WriteLine("Exported three local candidate seeds/traces. Seeds contain room data; do not publish. Native import/parity remains unfinished.");
+        return 0;
+    }
+
     private static bool RunCase(string romPath, bool initializeOnscreen,
-        int startX = 696, int startCamera = 641, int rightEnd = 87, bool verbose = true)
+        int startX = 696, int startCamera = 641, int rightEnd = 87, bool verbose = true,
+        string? exportPrefix = null)
     {
         if (verbose) Console.WriteLine($"CASE initialized={initializeOnscreen}");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -69,8 +80,30 @@ internal static class ZebetitePlayerSetupAudit
             Console.WriteLine();
         }
         bool hitBarrier = false;
+        using var trace = exportPrefix is null ? null : new StreamWriter(exportPrefix + ".jsonl");
         for (int frame = 0; frame < 120; frame++)
         {
+            if (frame == 60 && exportPrefix is not null)
+            {
+                RoomMovementSeedExporter.Write(runtime, exportPrefix + ".movement-seed");
+                // Metadata supplements, but does not pretend to extend, MOV1's
+                // collision-only native consumer. A dedicated importer is required.
+                File.WriteAllText(exportPrefix + ".metadata.json", System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    Format = "zebetite-candidate-v1", StartFrame = frame,
+                    NativeParityEstablished = false,
+                    samus.Health, samus.MaxHealth, samus.Missiles, samus.SelectedHudItem,
+                    samus.PoseHistory.PreviousPose, samus.PoseHistory.PreviousDirectionAndMovement,
+                    samus.PoseHistory.LastDifferentPose, samus.PoseHistory.LastDifferentDirectionAndMovement,
+                    CameraX = runtime.Camera.XPosition, CameraY = runtime.Camera.YPosition,
+                    Enemies = runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0).Select(slot => new
+                    {
+                        slot.NativeIndex, slot.EnemyDefinitionPointer, slot.XPosition, slot.YPosition,
+                        slot.Health, slot.FlashTimer, slot.AiHandlerBits, slot.Parameter1, slot.Parameter2,
+                        slot.VariableA, slot.VariableB, slot.VariableC, slot.VariableD, slot.VariableE, slot.VariableF,
+                    }).ToArray(),
+                }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+            }
             SnesButton input = frame switch
             {
                 60 or 61 => SnesButton.Down,
@@ -81,6 +114,24 @@ internal static class ZebetitePlayerSetupAudit
                 _ => 0,
             };
             runtime.StepFrame((ushort)input);
+            if (frame >= 60 && trace is not null)
+                trace.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    Frame = frame, Input = (ushort)input,
+                    samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
+                    samus.AnimationFrame, samus.AnimationFrameTimer,
+                    CameraX = runtime.Camera.XPosition, CameraY = runtime.Camera.YPosition,
+                    CameraXSub = runtime.Camera.XSubposition, CameraYSub = runtime.Camera.YSubposition,
+                    samus.Missiles,
+                    Shots = runtime.Projectiles.Slots.Select(shot => new
+                    {
+                        shot.Type, shot.Damage, shot.XPosition, shot.YPosition, shot.XSubposition, shot.YSubposition,
+                        shot.XVelocity, shot.YVelocity, shot.Direction, shot.InstructionPointer, shot.InstructionTimer,
+                        shot.Variable,
+                    }).ToArray(),
+                    Barriers = runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == 0xe27f)
+                        .Select(slot => new { slot.NativeIndex, slot.Health, slot.FlashTimer, slot.AiHandlerBits }).ToArray(),
+                }));
             hitBarrier |= runtime.Enemies.Slots.Any(slot => slot.EnemyDefinitionPointer == 0xe27f && slot.Health < 1000);
             if (verbose && (frame % 10 == 0 || frame is >= 60 and < 90))
                 Console.WriteLine($"SETUP frame={frame} input={(ushort)input:X4} x={samus.XPosition} y={samus.YPosition} pose={samus.Pose:X2} camera={runtime.Camera.XPosition},{runtime.Camera.YPosition} health={samus.Health} missiles={samus.Missiles} barrier={string.Join('/', runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == 0xe27f).Select(slot => slot.Health))}");

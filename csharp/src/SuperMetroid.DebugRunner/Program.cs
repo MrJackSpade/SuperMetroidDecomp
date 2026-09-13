@@ -1141,6 +1141,8 @@ if (args.Length == 2 && args[0] == "--zebetite-player-setup-audit")
     return ZebetitePlayerSetupAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-player-search")
     return ZebetitePlayerSetupAudit.Search(args[1]);
+if (args.Length == 3 && args[0] == "--zebetite-player-export")
+    return ZebetitePlayerSetupAudit.Export(args[1], args[2]);
 if (args.Length >= 2 && args[0] == "--zebetite-audit")
 {
     string zebetiteRomPath = string.Join(' ', args[1..]).Trim('"');

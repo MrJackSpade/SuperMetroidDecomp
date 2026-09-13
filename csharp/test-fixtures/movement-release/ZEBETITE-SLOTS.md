@@ -182,3 +182,17 @@ are C# candidate-stability assertions, NOT cartridge parity or the full ten-hit
 technique. Initial camera history remains seeded and repeated cycles are not
 implemented. The next comparison should preserve the candidate's exact inputs
 and subpixels, not replace it with the earlier stepped-camera dispatcher tests.
+
+### Private comparison export
+
+`--zebetite-player-export ROM OUTPUT-DIRECTORY` exports X724/728/732 with
+camera641/release99. Each has a pre-input frame-60 MOV1 movement seed, a metadata
+JSON describing pose history, camera and live enemy words, and 60 JSONL rows
+with exact inputs, Samus fixed-point position, animation, camera/subpixels,
+projectile positions/subpixels/velocities/instruction state, and barrier health.
+
+These generated files remain local: the MOV1 seed contains decoded cartridge
+room data. The existing MOV1 consumer is collision-only and does NOT import
+this metadata or execute the full enemy/FX/PLM state. A dedicated consumer and
+an explicit audit of omitted state are still necessary; the export is not a
+native save state or a completed parity result.

@@ -14,6 +14,7 @@ internal static class ZebetitePlayerTrace
             samus.AnimationFrame, samus.AnimationFrameTimer,
             CameraX = runtime.Camera!.XPosition, CameraY = runtime.Camera.YPosition,
             samus.Missiles, samus.Health,
+            runtime.System.RandomNumber,
             GenerationEventBits = (runtime.System.HasEvent(EventNumber.ZebetiteDestroyedBit0) ? 8 : 0) |
                 (runtime.System.HasEvent(EventNumber.ZebetiteDestroyedBit1) ? 16 : 0) |
                 (runtime.System.HasEvent(EventNumber.ZebetiteDestroyedBit2) ? 32 : 0),

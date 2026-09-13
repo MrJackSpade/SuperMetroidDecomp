@@ -80,7 +80,10 @@ internal static class ZebetiteTenHitSearch
         for (int frame = 0; frame < cycles[^1].JumpBase + 120; frame++)
         {
             if (frame == 60)
+            {
                 foreach (var enemy in runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0xe27f)) enemy.Clear();
+                if (outputPrefix is not null) ZebetiteProjectileSeed.Write(runtime, outputPrefix + ".epj1");
+            }
             var input = ZebetiteSecondHitAudit.GetInput(frame);
             foreach (var cycle in cycles) input |= cycle.InputAt(frame);
             ushort samusHealthBefore = runtime.Samus!.Health;

@@ -1,7 +1,7 @@
 // #443: first native consumer for the narrowly specified isolated candidate.
 // Uses MOV1 room/movement seed plus the documented fixed candidate metadata.
 // Live FX/PLM equivalence and full state import remain to be audited.
-static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay, const uint8 *inputs, int frame_count) {
+static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay, const uint8 *inputs, int frame_count, const char *projectile_seed) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size != 3200) { free(seed); return 4; }
@@ -60,8 +60,29 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
     Get_Zebetites(index)->zebet_parameter_2 = part ? 128 : 384;
     Get_Zebetites(index)->zebet_var_A = 0xfc67;
   }
+  if (projectile_seed) {
+    size_t epj_size = 0; uint8 *epj = ReadWholeFile(projectile_seed, &epj_size);
+    if (!epj || epj_size != 656 || memcmp(epj, "EPJ1", 4) || epj[6] != 18 || epj[7]) { free(epj); return 10; }
+    int turret_count = 0;
+    for (int slot = 0; slot < 18; slot++) {
+      int offset = 8 + slot * 36;
+      uint16 id = epj[offset] | epj[offset + 1] << 8;
+      if (id == 0xc17e) turret_count++;
+      else if (id) { free(epj); return 11; }
+    }
+    if (turret_count != 12) { free(epj); return 12; }
+    random_number = epj[4] | epj[5] << 8;
+    // Transpose slot-major snapshot words into the eighteen contiguous WRAM arrays.
+    for (int slot = 0; slot < 18; slot++)
+      for (int field = 0; field < 18; field++) {
+        int src = 8 + (slot * 18 + field) * 2;
+        int dst = 0x1997 + field * 36 + slot * 2;
+        g_ram[dst] = epj[src]; g_ram[dst + 1] = epj[src + 1];
+      }
+    free(epj); eproj_enable_flag = 0x8000;
+  }
   FILE *f = fopen(output, "w"); if (!f) return 6;
-  fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower,health,upperFlash,lowerFlash,upperAi,lowerAi\n");
+  fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower,health,upperFlash,lowerFlash,upperAi,lowerAi,random,upperId,lowerId,generation\n");
   uint16 previous = 0;
   for (int frame = 60; frame < 60 + frame_count; frame++) {
     uint16 input = frame == 60 || frame == 61 ? 0x400 : frame == 66 ? 0x200 : frame == 78 ? 0x40 : frame == 80 ? 0x280 : frame >= 81 && frame < 99 ? 0x180 : 0;
@@ -84,32 +105,40 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
     nmi_frame_counter_word = frame + 2;
     nmi_frame_counter_byte = (uint8)(frame + 2);
     memset(enemy_drawing_queue_sizes, 0, 16);
+    if (projectile_seed) RunAsmCode(0x808111, 0, 0, 0, 0);
     RunAsmCode(0xa08eb6, 0, 0, 0, 0);
     RunAsmCode(0x90e695, 0, 0, 0, 0); RunAsmCode(0xa09785, 0, 0, 0, 0);
     RunAsmCode(0xa08fd4, 0, 0, 0, 0);
     samus_contact_damage_index = 0;
     RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
-    uint32 stages[] = {0x908000,0x90dde9,0x91e8b6,0x91eb88,0x90eab3,0x90e9ce,0x9094ec,0xa09169};
-    for(int i=0;i<8;i++) RunAsmCode(stages[i],0,0,0,0);
-    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,
+    uint32 stages[] = {0x908000,0x90dde9,0x91e8b6,0x91eb88,0x90eab3,0x90e9ce};
+    for(int i=0;i<6;i++) RunAsmCode(stages[i],0,0,0,0);
+    if (projectile_seed) {
+      RunAsmCode(0x868104, 0, 0, 0, 0);
+      RunAsmCode(0xa09894, 0, 0, 0, 0);
+      RunAsmCode(0xa0996c, 0, 0, 0, 0);
+    }
+    RunAsmCode(0x9094ec,0,0,0,0); RunAsmCode(0xa09169,0,0,0,0);
+    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,
       ((uint32)samus_x_pos<<16)|samus_x_subpos,((uint32)samus_y_pos<<16)|samus_y_subpos,
       samus_pose,samus_anim_frame,samus_anim_frame_timer,layer1_x_pos,layer1_y_pos,samus_missiles,
       projectile_type[0],projectile_x_pos[0],projectile_y_pos[0],gEnemyData(128)->health,gEnemyData(384)->health,
-      samus_health,gEnemyData(128)->flash_timer,gEnemyData(384)->flash_timer,gEnemyData(128)->ai_handler_bits,gEnemyData(384)->ai_handler_bits);
+      samus_health,gEnemyData(128)->flash_timer,gEnemyData(384)->flash_timer,gEnemyData(128)->ai_handler_bits,gEnemyData(384)->ai_handler_bits,random_number,
+      gEnemyData(128)->enemy_ptr,gEnemyData(384)->enemy_ptr,events_that_happened[0] & 0x38);
   }
   fclose(f); return 0;
 }
 
 int DiagnosticZebetitePlayer(const char *rom, const char *seed, const char *output) {
-  return DiagnosticZebetitePlayerRun(rom, seed, output, 0, NULL, 60);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, 0, NULL, 60, NULL);
 }
 
 int DiagnosticZebetitePlayerSecondHit(const char *rom, const char *seed, const char *output, int jump_delay) {
   if (jump_delay != 3 && jump_delay != 4) return 7;
-  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay, NULL, 360);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay, NULL, 360, NULL);
 }
 
-int DiagnosticZebetitePlayerInputs(const char *rom, const char *seed, const char *output, const char *input_path) {
+int DiagnosticZebetitePlayerInputsWithProjectiles(const char *rom, const char *seed, const char *output, const char *input_path, const char *projectile_seed) {
   size_t size = 0;
   uint8 *data = ReadWholeFile(input_path, &size);
   if (!data || size < 12 || memcmp(data, "ZBI1", 4)) { free(data); return 8; }
@@ -117,7 +146,11 @@ int DiagnosticZebetitePlayerInputs(const char *rom, const char *seed, const char
   if (header[1] != 60 || header[2] == 0 || header[2] > 10000 || size != 12 + header[2] * 2) {
     free(data); return 9;
   }
-  int result = DiagnosticZebetitePlayerRun(rom, seed, output, 0, data + 12, header[2]);
+  int result = DiagnosticZebetitePlayerRun(rom, seed, output, 0, data + 12, header[2], projectile_seed);
   free(data);
   return result;
+}
+
+int DiagnosticZebetitePlayerInputs(const char *rom, const char *seed, const char *output, const char *input_path) {
+  return DiagnosticZebetitePlayerInputsWithProjectiles(rom, seed, output, input_path, NULL);
 }

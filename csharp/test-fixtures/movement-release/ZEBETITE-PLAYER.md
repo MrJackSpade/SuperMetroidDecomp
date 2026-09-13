@@ -266,3 +266,32 @@ long replay is not an equivalent room simulation. This evidence does not justify
 changing production damage or copying health into the native run. Extend the
 fixture's original-CPU room/projectile initialization and processing before
 claiming full ten-hit parity. No production gameplay change was made here.
+
+### Ten-hit original-CPU replay with room turrets
+
+The audit now exports a private `.epj1` sidecar at frame 60, alongside JSONL and
+ZBI1. EPJ1 is 656 bytes: ASCII magic, uint16 RNG, uint16 slot count (18), then
+18 slot-major records of 18 uint16 words corresponding to WRAM arrays
+$1997..$1BFB. The importer transposes these into the native pool. Both sides
+require twelve turret actors and six empty slots at this boundary; this is not
+a general-purpose emulator save-state importer. Keep the seed local.
+
+Use `DiagnosticZebetitePlayerInputsWithProjectiles(rom, movementSeed, outputCsv,
+inputRecording, projectileSeed)` in the temporary headless entry point.
+The original CPU advances RNG once per accepted frame at $80:8111, runs
+$86:8104 after the Samus movement/pose stages, then $A0:9894/$A0:996C for Samus
+and shot collisions before camera processing. No damage values or random
+outcomes are injected after initialization. Legacy consumers retain their
+previous no-projectile mode.
+
+All 2,760 frames (60..2819) now match, including Samus energy, movement,
+camera, animation, missile slot, both physical barrier health/flash/AI words,
+both header identities, RNG and generation event bits. The lethal missile
+hits at frame 2713; generation advances from 8 to 16 at frame 2714. The final
+state has zero missiles, energy 939 and lower health zero. CPU CSV SHA-256:
+`9B83FB06D7673995EE8D2EB6794A26C4DCDF06B8B50468F88AC26852D4DD8BC2`.
+
+This establishes the ten-hit controller candidate against original CPU logic,
+including the previously omitted turret damage. It does not establish the
+final beam/double-kill continuation, other omitted room actors/PLMs, or rendered
+and audio parity. #443 remains open for that remaining technique coverage.

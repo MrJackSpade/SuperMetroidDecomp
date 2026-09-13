@@ -29,6 +29,12 @@ for ($i = 0; $i -lt $FrameCount; $i++) {
         $values.upperAi = $m.Barriers[0].AiHandlerBits
         $values.lowerAi = $m.Barriers[1].AiHandlerBits
     }
+    if ($FrameCount -eq 2760) {
+        $values.random = $m.RandomNumber
+        $values.upperId = $m.Barriers[0].EnemyDefinitionPointer
+        $values.lowerId = $m.Barriers[1].EnemyDefinitionPointer
+        $values.generation = $m.GenerationEventBits
+    }
     foreach ($field in $values.Keys) {
         if ($null -eq $values[$field] -or $null -eq $n.$field) { throw "Missing comparison field $field at frame $($m.Frame)." }
         if ([long]$values[$field] -ne [long]$n.$field) {
@@ -39,3 +45,4 @@ for ($i = 0; $i -lt $FrameCount; $i++) {
 }
 if ($mismatches) { throw "$mismatches field mismatches; native parity is NOT established." }
 Write-Output "All $FrameCount frames match for the exported movement, camera, ammunition, projectile, and barrier-health fields."
+if ($FrameCount -eq 2760) { Write-Output 'Random state, both physical barrier identities, and generation event bits also match on every frame.' }

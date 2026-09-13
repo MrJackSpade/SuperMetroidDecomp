@@ -33,6 +33,9 @@ public sealed class RoomLayer3FxState
     private short waterSurfaceScreenY;
     private ushort lavaAcidBg2WaveTimer;
     private int lavaAcidBg2WavePhase;
+    // The spawned BG3 HDMA object's first pass installs its pre-instruction;
+    // subsequent passes execute it before the main-loop RNG call.
+    private bool lavaAcidBg3PreInstructionInstalled;
     private LiquidRisePhase liquidRisePhase;
     private readonly List<RoomFxSoundRequest> soundRequests = [];
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
@@ -220,6 +223,29 @@ public sealed class RoomLayer3FxState
             // producing byte offsets 0/2/4/6 into a word table. Expressed as a C#
             // element index that is bits two and three of the original random word.
             horizontalVelocity = velocities[(randomNumber >> 2) & 3];
+        }
+    }
+
+    /// <summary>
+    /// Runs the shared-state portion of $88:B3B0 before main-loop RNG generation.
+    /// $88:C3E9 installs the callback on the first HDMA pass; $88:B44A-B44E swaps
+    /// the shared RNG bytes on subsequent unfrozen passes, even off screen.
+    /// Visual/VRAM updates remain in <see cref="Step"/> at their existing owner seam.
+    /// </summary>
+    public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
+    {
+        ArgumentNullException.ThrowIfNull(system);
+        if (Type is not (RoomFxType.Lava or RoomFxType.Acid))
+            return;
+        if (!lavaAcidBg3PreInstructionInstalled)
+        {
+            lavaAcidBg3PreInstructionInstalled = true;
+            return;
+        }
+        if (!timeIsFrozen)
+        {
+            ushort random = system.RandomNumber;
+            system.SetRandomNumber(unchecked((ushort)((random << 8) | (random >> 8))));
         }
     }
 
@@ -681,6 +707,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WaveTimer = 0;
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
+        lavaAcidBg3PreInstructionInstalled = false;
         soundRequests.Clear();
         EarthquakeRequest = null;
         earthquakeSoundTimer = 0;

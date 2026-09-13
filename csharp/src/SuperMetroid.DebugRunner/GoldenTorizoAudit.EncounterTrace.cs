@@ -4,8 +4,10 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class GoldenTorizoAudit
 {
-    public static int TraceEncounter(string rom, string? nativeTrace = null)
+    public static int TraceEncounter(string rom, string? nativeTrace = null, int frameCount = 3000)
     {
+        if (frameCount is < 1 or > 3000)
+            throw new ArgumentOutOfRangeException(nameof(frameCount));
         string[][]? native = nativeTrace is null ? null : File.ReadAllLines(nativeTrace)
             .Skip(1).Select(line => line.Split(',')).ToArray();
         if (native is not null && native.Length != 3000)
@@ -27,7 +29,7 @@ internal static partial class GoldenTorizoAudit
         runtime.System.SetRandomNumber(0x1234);
         Console.Error.WriteLine($"Initial Samus={samus.XPosition},{samus.YPosition}, camera={runtime.Camera!.XPosition},{runtime.Camera.YPosition}, NMI={runtime.NmiFrameCounter}.");
         Console.WriteLine("frame,input,x,y,subX,subY,health,flash,list,timer,function,pre,vx,vy,gravity,turn,flags,random,samusX,samusY,samusHealth,pose");
-        for (int frame = 0; frame < 3000; frame++)
+        for (int frame = 0; frame < frameCount; frame++)
         {
             // A bounded, single-room input sequence: turn left once, then fire
             // regularly without walking through a door or repositioning the boss.
@@ -54,6 +56,7 @@ internal static partial class GoldenTorizoAudit
                 }
             }
         }
+        Console.Error.WriteLine($"Golden encounter: completed {frameCount} frames; nativeCompared={native is not null}.");
         return 0;
     }
 }

@@ -160,6 +160,7 @@ internal static partial class Program
             (byte)layerBlend);
 
         state.Load(bus, vram, cgram, record, doorPointer: 0, randomNumber: 0);
+        VerifyRoomFxSharedRandomState(bus, vram, cgram, state, record, type);
         AssertEqual(RoomFxRomData.Layer3.ClearTilemapWord,
             vram.ReadWord(RoomFxRomData.Layer3.ClearDestinationWord),
             $"{type} room load clears the first gameplay BG3 FX word");

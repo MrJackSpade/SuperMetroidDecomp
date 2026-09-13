@@ -1401,6 +1401,11 @@ public sealed partial class SuperMetroidRuntime
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
 
+        // HDMA owns shared RNG mutations before the main loop advances it. A
+        // message-box NMI wait does not execute that outer-loop HDMA pass.
+        if (Camera is not null && !MessageBox.IsActive)
+            RoomLayer3Fx.AdvanceHdmaSharedState(System, TimeIsFrozen);
+
         // The bank-$82 main loop calls GenerateRandomNumber at $82:894F on every accepted
         // main-loop pass, immediately after the bank-$88 HDMA-object handler and before it
         // dispatches the current game state. Several room/enemy routines deliberately only

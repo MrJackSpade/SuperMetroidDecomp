@@ -163,3 +163,25 @@ The first RNG mismatch is before any such interaction. Recapture through
 headless entrypoint pattern above. Temporary hooks were removed and the normal
 native binary rebuilt. The new comparator builds and reproduces the stated
 frame-1 failure; no production correction is included in this diagnostic change.
+
+## Shared lava/acid RNG correction
+
+`RoomLayer3FxState.AdvanceHdmaSharedState` now preserves the initial HDMA pass
+that installs the BG3 pre-instruction, then applies $88:B44A-B44E on unfrozen
+passes before main-loop RNG generation. It applies to lava and acid even when
+off screen, not to a specific room or boss. Reloading resets the callback phase;
+message-box NMI waits do not run this owner. Existing visual/VRAM FX processing
+remains at its prior seam; this is not a complete HDMA scheduling rewrite.
+
+The full native comparison now reaches frame 2496 before failing on boss health
+(port 12300, native 12900). All 22 recorded fields agree on frames 0..2495,
+including attack lists, movement, RNG, Samus position and damage. An explicit
+fourth argument of `2496` to `--golden-encounter-trace ROM CSV 2496` verifies that
+prefix; omitting the limit still reports the remaining failure. The next audit
+must inspect projectile/hitbox timing rather than masking that extra accepted hit.
+
+Startup/freeze/reload/non-liquid controls, full core verification, existing Golden
+Torizo encounter audit and Windows Release build pass. Rising-lava sound tests
+now compare every frame with an independent timer reference instead of a total
+captured under the old RNG sequence. That reference retains the existing visual
+owner's random-sampling seam; it does not claim complete native audio/HDMA timing.

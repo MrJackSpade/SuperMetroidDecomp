@@ -604,14 +604,37 @@ internal static partial class Program
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
         runtime.Samus.InputLocked = true;
 
-        runtime.StepFrame(0);
+        int referenceSoundTimer = 0, referenceSoundIndex = 0, referenceSoundCount = 0;
+        void StepAndVerifySound(int frame)
+        {
+            // Verify the authored timer on every frame rather than freezing a
+            // total from the old global RNG sequence. The FX presentation owner
+            // currently samples after the main-loop RNG advance; this checks its
+            // cadence, not a claim that all HDMA/presentation ordering is audited.
+            ushort seed = runtime.System.RandomNumber;
+            if (frame != 0) seed = unchecked((ushort)((seed << 8) | (seed >> 8)));
+            ushort sampledRandom = ReferenceNextRandom(seed);
+            int expectedRequests = 0;
+            if (frame >= 1 && frame <= RetailRoomFxDefinitions.Room28TargetFrame && --referenceSoundTimer < 0)
+            {
+                int[] nativeBaseTimers = [1, 3, 2, 1, 1, 2, 2, 1]; // $88:B256 interleaved timer words.
+                referenceSoundTimer = nativeBaseTimers[referenceSoundIndex++ % 8] + (sampledRandom & 3);
+                expectedRequests = 1;
+                referenceSoundCount++;
+            }
+            runtime.StepFrame(0);
+            AssertEqual(expectedRequests, runtime.RoomLayer3Fx.SoundRequests.Count,
+                $"room $02/$28 earthquake sound cadence frame {frame}");
+        }
+
+        StepAndVerifySound(0);
         RoomShakeFrameResult dormantShake = runtime.Enemies.LastRoomShake;
         AssertTrue(!dormantShake.Applied,
             "room $02/$28 dormant rise initializer does not shake one frame early");
         AssertEqual(0, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 dormant rise initializer does not sound one frame early");
 
-        runtime.StepFrame(0);
+        StepAndVerifySound(1);
         RoomShakeFrameResult firstActiveShake = runtime.Enemies.LastRoomShake;
         AssertEqual(1, runtime.RoomLayer3Fx.SoundRequests.Count,
             "room $02/$28 first wait frame emits one earthquake sound");
@@ -637,7 +660,7 @@ internal static partial class Program
         AssertEqual(unchecked((short)RomDataReader.ReadWordFixedBank(bus, table + 6)),
             firstActiveShake.Bg2Y, "room $02/$28 first shake BG2 Y");
 
-        runtime.StepFrame(0);
+        StepAndVerifySound(2);
         RoomShakeFrameResult secondActiveShake = runtime.Enemies.LastRoomShake;
         AssertEqual(unchecked((short)-firstActiveShake.Bg1X), secondActiveShake.Bg1X,
             "room $02/$28 alternating shake BG1 X");
@@ -656,7 +679,7 @@ internal static partial class Program
         ushort initialY = runtime.RoomLayer3Fx.BaseYPosition;
         for (int frame = 3; frame < RetailRoomFxDefinitions.MaximumRiseAuditFrames; frame++)
         {
-            runtime.StepFrame(0);
+            StepAndVerifySound(frame);
             if (runtime.Enemies.LastRoomShake.Applied)
             {
                 appliedFrames++;
@@ -679,7 +702,7 @@ internal static partial class Program
             "room $02/$28 final shake frame");
         AssertEqual(RetailRoomFxDefinitions.Room28ShakeFrameCount, appliedFrames,
             "room $02/$28 total shake frames");
-        AssertEqual(RetailRoomFxDefinitions.Room28SoundCount, emittedSounds,
+        AssertEqual(referenceSoundCount, emittedSounds,
             "room $02/$28 deterministic earthquake sound count");
     }
 
@@ -896,12 +919,6 @@ internal static partial class Program
 
         /// <summary>Applied shake frames from frame one through frame 672 inclusive.</summary>
         public const int Room28ShakeFrameCount = 672;
-
-        /// <summary>
-        /// Library-two <c>$46</c> requests produced by room $28 using the deterministic
-        /// power-on RNG sequence across its wait and movement interval.
-        /// </summary>
-        public const int Room28SoundCount = 154;
 
         /// <summary>Business Center, whose default record exposes lava at world Y $01B1.</summary>
         public static RoomIdentity VisibleLavaRoom { get; } = new(AreaId.Norfair, 0x01);

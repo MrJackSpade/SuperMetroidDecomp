@@ -1435,6 +1435,9 @@ if (args.Length == 3 && args[0] == "--mother-brain-beam-recording-audit")
 if (args.Length == 3 && args[0] == "--mother-brain-death-recording-audit")
     return MotherBrainRecordingAudit.Run(args[1], args[2], verifyDeath: true);
 
+if (args.Length == 2 && args[0] == "--baby-healing-audio-audit")
+    return BabyHealingAudioAudit.Run(args[1]);
+
 if (args.Length >= 2 && args[0] == "--mother-brain-audit")
 {
     string motherBrainRomPath = string.Join(' ', args[1..]).Trim('"');

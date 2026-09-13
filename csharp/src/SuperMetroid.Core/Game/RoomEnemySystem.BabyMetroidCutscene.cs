@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -136,6 +138,12 @@ public sealed partial class RoomEnemySystem
             enemyFrameCounter: slot.FrameCounter,
             randomNumber: RequireRandomNumber());
         state.LastBabyMetroidStep = step;
+        // Both outcomes of the native heal helper call the sound helper after the
+        // energy write. Use the phase that ran, including its final full-health call.
+        if (step.PhaseBefore == BabyMetroidCutscenePhase.HealSamusToFullHealth &&
+            unchecked((short)(target.Health - MotherBrainHealthSounds.MinimumEnergy)) >= 0 &&
+            (_randomEnemyCounter & MotherBrainHealthSounds.EnemyClockMask) == 0)
+            QueueEnemySound(MotherBrainHealthSounds.IncrementalEnergy, maximumQueued: 3);
 
         // `$A9:C879` writes the body enemy's instruction words from this later Baby slot.
         // The reusable sequence retains the requested list, but the physical body already

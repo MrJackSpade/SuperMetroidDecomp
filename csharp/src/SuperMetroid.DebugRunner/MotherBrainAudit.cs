@@ -2480,6 +2480,8 @@ internal static class MotherBrainAudit
             frame++;
             ushort healthBefore = samus.Health;
             BabyMetroidCutscenePhase babyPhaseBefore = baby.Phase;
+            ushort soundClock = (ushort)typeof(RoomEnemySystem).GetField("_randomEnemyCounter",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(enemies)!;
             enemies.StepFrame(
                 cameraX: 0,
                 cameraY: 0,
@@ -2545,6 +2547,13 @@ internal static class MotherBrainAudit
             {
                 healingCalls++;
                 observedHealing = true;
+                // $A9:C546 tests post-heal health and the enemy-main clock, not NMI.
+                int expectedTicks = samus.Health >= 81 && (soundClock & 7) == 0 ? 1 : 0;
+                var ticks = enemies.SoundRequests.Where(request =>
+                    request.SoundEffect.Library == SuperMetroid.Core.Audio.SoundEffectLibrary.Library3 &&
+                    request.SoundEffect.Value == 0x2d).ToArray();
+                if (ticks.Length != expectedTicks || ticks.Any(request => request.MaximumQueued != 3))
+                    throw new InvalidDataException($"Baby healing audio: health={samus.Health}, enemy clock={soundClock}, expected {expectedTicks} max-three ticks, got {ticks.Length}.");
                 ushort expectedHealth = Math.Min(
                     samus.MaxHealth,
                     unchecked((ushort)(healthBefore + 1)));

@@ -146,3 +146,21 @@ Debugger layout migrations explicitly cover old sound-request, HUD, bomb-owner
 and projectile-result field sets (including the older five-field result). Older
 captures cannot supply a missing producer-time guard: migration warns and retains
 their historical unsuppressed publication behavior until the next producer runs.
+
+### Missile impact producer
+
+`PowerBombImpactSoundAudit` also runs under the same command. A real missile fired
+into a constructed solid column reproduced the missing guard: its impact emitted
+library2/$07 during an active Power Bomb. The common impact conversion now takes
+the guard from its already-supplied shared bomb owner and stores it on the sound
+request. Frontend publication passes that captured guard to the native queue.
+No additional runtime binding or serialized field is needed.
+
+Four frontend cases cover missile/super missile impacts with and without an active
+explosion; all still collide, but only the inactive cases emit the sound. Eight
+additional checks fire a real projectile, invoke the enemy-impact conversion seam,
+and reverse Power Bomb status after impact. Requests retain their original guard,
+while cinematic impacts still generate no request. Those seam checks do not drive
+an enemy AI/overlap calculation. The cartridge source is `$93:80F8-$8100`, which
+checks cinematic state before the ordinary library-two queue call. The complete
+Power Bomb audit and core suite pass; other owners and full #422 timing remain open.

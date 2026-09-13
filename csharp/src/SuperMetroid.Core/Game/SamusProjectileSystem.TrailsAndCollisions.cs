@@ -787,7 +787,7 @@ public sealed partial class SamusProjectileSystem
 
         // Impact audio is separate from launch audio and can also originate in enemy
         // collision before the projectile movement owner executes.
-        RequestMissileImpactSound();
+        RequestMissileImpactSound(sharedProjectiles.PowerBombExplosion);
         bool wasSuperMissile = slot.PackedType.IsFamily(SamusProjectileFamily.SuperMissile);
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
         slot.InstructionPointer = ReadWord(

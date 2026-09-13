@@ -203,3 +203,23 @@ the already-published gameplay marker that normal door entry carries. The fixtur
 now supplies that marker; no production change was made for that mismatch.
 Focused audits and full core verification pass. This still does not cover the
 remaining room-FX/palette/PLM owners or certify the complete #422 technique matrix.
+
+### Room FX and palette-effect requests
+
+`PowerBombRoomEffectSoundAudit` reproduces two further omissions through the
+frontend: room $02/$28's real rising-lava entry and retail beacon definition
+$8D:F781 both admitted sound during an active Power Bomb. The corrected room-FX
+and palette request records capture the live guard; the prefix publisher uses
+the native queue guard. Legacy record layouts have explicit migration coverage.
+
+Four frontend cases verify the rising-lava request on frame 1 and beacon request
+on frame 60, with sound delivered only without the active explosion. The lava
+case also asserts its quake remains applied. Queue acknowledgements are echoed;
+32 audio-only ticks after the request let earlier queue entries finish without
+advancing FX/AI. This prevents a busy port from being misidentified as suppression.
+Two standalone retail heat-definition cases both generate three sound requests
+and accumulate seven whole damage points across 32 calls; only the active case
+marks those requests suppressed. Heat damage is not disabled by the sound fix.
+Focused audits and full core verification pass. PLM/one-off publishers, any
+remaining initialization or ordering gaps, and full technique timing still need
+coverage before #422 can be considered ready for validation.

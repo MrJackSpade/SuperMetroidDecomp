@@ -35,6 +35,7 @@ public sealed class RoomLayer3FxState
     private int lavaAcidBg2WavePhase;
     private LiquidRisePhase liquidRisePhase;
     private readonly List<RoomFxSoundRequest> soundRequests = [];
+    [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     private ushort earthquakeSoundTimer;
     private int earthquakeSoundSequenceIndex;
 
@@ -230,10 +231,12 @@ public sealed class RoomLayer3FxState
         ushort cameraY,
         bool timeIsFrozen,
         ushort randomNumber = 0,
-        ushort firefleaDarknessLevel = 0)
+        ushort firefleaDarknessLevel = 0,
+        SamusPowerBombExplosionState? powerBomb = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(vram);
+        audioPowerBomb = powerBomb;
         soundRequests.Clear();
         EarthquakeRequest = null;
         if (Type == RoomFxType.Fireflea)
@@ -551,7 +554,8 @@ public sealed class RoomLayer3FxState
 
         soundRequests.Add(new RoomFxSoundRequest(
             SoundEffectLibrary2Sounds.Earthquake,
-            MaximumQueued: 6));
+            MaximumQueued: 6,
+            SoundSuppressed: audioPowerBomb?.IsActive == true));
         earthquakeSoundTimer = unchecked((ushort)(
             baseTimers[earthquakeSoundSequenceIndex] + (randomNumber & 3)));
         earthquakeSoundSequenceIndex++;
@@ -700,7 +704,8 @@ public sealed class RoomLayer3FxState
 /// <summary>One bank-$88 room-FX request for the global cartridge sound queue.</summary>
 public readonly record struct RoomFxSoundRequest(
     SoundEffectId SoundEffect,
-    byte MaximumQueued);
+    byte MaximumQueued,
+    bool SoundSuppressed = false);
 
 /// <summary>One bank-$88 request for the global room-shake type and timer bits.</summary>
 public readonly record struct RoomFxEarthquakeRequest(

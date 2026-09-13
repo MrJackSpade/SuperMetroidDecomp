@@ -24,13 +24,15 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (roomSounds < room.Count)
         {
             var request = room[roomSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         }
         var palette = runtime.RoomPaletteFx.SoundRequests;
         while (paletteSounds < palette.Count)
         {
             var request = palette[paletteSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         }
         var music = runtime.RoomPaletteFx.MusicRequests;
         while (paletteMusic < music.Count)

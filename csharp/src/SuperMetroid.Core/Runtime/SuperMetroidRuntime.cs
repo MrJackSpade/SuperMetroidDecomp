@@ -1537,7 +1537,8 @@ public sealed partial class SuperMetroidRuntime
                 Camera.YPosition,
                 TimeIsFrozen,
                 System.RandomNumber,
-                Enemies.FirefleaDarknessLevel);
+                Enemies.FirefleaDarknessLevel,
+                powerBomb: BombProjectiles.PowerBombExplosion);
             TourianStatues.StepDescent(this);
             if (RoomLayer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
@@ -1583,7 +1584,8 @@ public sealed partial class SuperMetroidRuntime
             areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
                 System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss),
             samus: Samus,
-            nmiFrameCounter: NmiFrameCounter);
+            nmiFrameCounter: NmiFrameCounter,
+            powerBomb: BombProjectiles.PowerBombExplosion);
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
             Cgram);

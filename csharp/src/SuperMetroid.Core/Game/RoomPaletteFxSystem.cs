@@ -22,6 +22,7 @@ public sealed class RoomPaletteFxSystem
         .Select(_ => new PaletteFxSlot())
         .ToArray();
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
     private ushort samusInHeatPaletteIndex;
     private ushort previousSamusInHeatPaletteIndex;
@@ -131,10 +132,12 @@ public sealed class RoomPaletteFxSystem
         bool enemyZeroIsDead,
         bool areaMiniBossDefeated,
         SamusState? samus = null,
-        ushort nmiFrameCounter = 0)
+        ushort nmiFrameCounter = 0,
+        SamusPowerBombExplosionState? powerBomb = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
+        audioPowerBomb = powerBomb;
 
         // PaletteFXObject_Handler owns a new publication window on every game frame.
         // Requests are momentary calls into bank $80, not persistent object state.
@@ -322,7 +325,8 @@ public sealed class RoomPaletteFxSystem
             {
                 soundRequests.Add(new PaletteFxSoundRequest(
                     SoundEffectLibrary3Sounds.EnvironmentalDamage,
-                    PaletteFxHeatData.DamageSoundMaximumQueued));
+                    PaletteFxHeatData.DamageSoundMaximumQueued,
+                    SoundSuppressed: audioPowerBomb?.IsActive == true));
             }
         }
 
@@ -424,7 +428,8 @@ public sealed class RoomPaletteFxSystem
                         SoundEffectId.FromCartridge(
                             library,
                             ReadBank8dByte(bus, unchecked((ushort)(cursor + 2)))),
-                        PaletteFxAudioQueueLimits.SoundEffects));
+                        PaletteFxAudioQueueLimits.SoundEffects,
+                        SoundSuppressed: audioPowerBomb?.IsActive == true));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;
 

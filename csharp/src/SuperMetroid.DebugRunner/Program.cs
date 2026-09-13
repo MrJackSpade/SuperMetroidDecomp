@@ -1149,6 +1149,10 @@ if (args.Length == 2 && args[0] == "--zebetite-skip-audit")
     return ZebetiteSkipAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-audit")
     return ZebetiteSparkAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--zebetite-spark-scan-cadence")
+    return ZebetiteSparkAudit.ScanCadence(args[1]);
+if (args.Length == 2 && args[0] == "--zebetite-spark-scan-held-cadence")
+    return ZebetiteSparkAudit.ScanHeldCadence(args[1]);
 if (args.Length == 3 && args[0] == "--zebetite-spark-export")
     return ZebetiteSparkAudit.Export(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--zebetite-spark-export-recovery")

@@ -196,6 +196,19 @@ fix does not complete the alignment or shinespark portions of #442.
 
 ## Room-local shinespark exploration
 
+### Post-fix input cadence search
+
+After the knockback fix, `--zebetite-spark-scan-cadence ROM` completed 1,155
+one-frame jump-pulse cases (period2..8, every phase, escape78..110), with zero
+candidate passages below X800. `--zebetite-spark-scan-held-cadence ROM` completed
+660 longer-hold cases (period4/6, hold2/3, every phase, same escape range), also
+with zero candidates. Only controller inputs change after the common constructed
+stored-shine setup. These scans are not native comparisons or proof the technique
+is impossible. The default 179-frame export still matches the preserved original
+CPU trace after the cadence parameterization. Investigate setup/subpixel alignment
+against a successful native attempt rather than inferring another production fix
+from these unsuccessful variants.
+
 ### Recovery interval and compact-pose radius
 
 Follow-up: frame85's X divergence came from knockback omitting the ordinary

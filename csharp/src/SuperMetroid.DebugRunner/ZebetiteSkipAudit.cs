@@ -51,6 +51,18 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ExportApproach(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        string prefix = Path.Combine(directory, "approach");
+        RunCase(romPath, 20, prefix + "-full", groundLeftLead: 1, jumpRelease: 1, exportEnd: 220);
+        RunCase(romPath, 20, prefix + "-isolated", isolate: true, groundLeftLead: 1, jumpRelease: 1, exportEnd: 220);
+        if (!File.ReadAllBytes(prefix + "-full.csv").SequenceEqual(File.ReadAllBytes(prefix + "-isolated.csv")))
+            throw new InvalidDataException("Actor omission changes the longer controller-earned approach.");
+        Console.WriteLine("Controller-earned approach exported; omission matches, native comparison pending.");
+        return 0;
+    }
+
     public static int ScanJumpTiming(string romPath)
     {
         // Controller-only search after the same real projectile freeze setup. Crossing
@@ -88,8 +100,42 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ScanTurnBeforeJump(string romPath)
+    {
+        int candidates = 0;
+        foreach (int offset in Enumerable.Range(1, 16).Select(value => value * 2))
+        foreach (int lead in Enumerable.Range(1, 16))
+        foreach (int hold in new[] { 4, 8, 16, 24 })
+        {
+            int minimumX = RunCase(romPath, offset, quiet: true, jumpHold: hold,
+                jumpRelease: 1, groundLeftLead: lead);
+            Console.WriteLine($"TURN offset={offset} lead={lead} hold={hold} minX={minimumX}");
+            if (minimumX < 800)
+            {
+                candidates++;
+                RunCase(romPath, offset, jumpHold: hold, jumpRelease: 1, groundLeftLead: lead);
+            }
+        }
+        Console.WriteLine($"Turn-before-jump candidate crossings={candidates}; not native certification.");
+        foreach (int freezeEnd in Enumerable.Range(0, 25).Select(value => 108 + value * 4))
+        foreach (int offset in new[] { 0, 4, 8, 12, 16, 20, 24, 28 })
+        foreach (int hold in new[] { 4, 8, 16, 24 })
+        {
+            int minimumX = RunCase(romPath, offset, quiet: true, jumpHold: hold,
+                jumpRelease: 1, groundLeftLead: 4, freezeEnd: freezeEnd);
+            Console.WriteLine($"FREEZE end={freezeEnd} offset={offset} hold={hold} minX={minimumX}");
+            if (minimumX < 800)
+            {
+                candidates++;
+                RunCase(romPath, offset, jumpHold: hold, jumpRelease: 1, groundLeftLead: 4, freezeEnd: freezeEnd);
+            }
+        }
+        Console.WriteLine($"Including freeze wait: candidate crossings={candidates}; not native certification.");
+        return 0;
+    }
+
     private static int RunCase(string romPath, int stepBackFrames, string? exportPrefix = null, bool isolate = false, bool repeatStepBack = false,
-        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null)
+        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null, int groundLeftLead = 0, int freezeEnd = 120, int exportEnd = 160)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -111,11 +157,12 @@ internal static class ZebetiteSkipAudit
         runtime.Camera!.SetPosition(768, 0);
         bool frozeSpawn = false;
         int minimumX = samus.XPosition;
-        int jumpStart = 120 + stepBackFrames;
-        if (!quiet) Console.WriteLine($"CASE stepBackFrames={stepBackFrames} repeatStepBack={repeatStepBack} hold={jumpHold} release={jumpRelease} delay={initialLeftDelay}");
+        bool reportedCrouchAlignment = false;
+        int jumpStart = freezeEnd + stepBackFrames + groundLeftLead;
+        if (!quiet) Console.WriteLine($"CASE stepBackFrames={stepBackFrames} repeatStepBack={repeatStepBack} hold={jumpHold} release={jumpRelease} delay={initialLeftDelay} lead={groundLeftLead} freezeEnd={freezeEnd}");
         using var trace = exportPrefix is null ? null : new StreamWriter(exportPrefix + ".csv");
         trace?.WriteLine("frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen");
-        for (int frame = 0; frame < (exportPrefix is null ? 360 : 160); frame++)
+        for (int frame = 0; frame < (exportPrefix is null ? 360 : exportEnd); frame++)
         {
             if (frame == 120 && exportPrefix is not null)
             {
@@ -142,8 +189,9 @@ internal static class ZebetiteSkipAudit
                 ZebetiteSkipSeed.Write(runtime, exportPrefix + ".actors");
             }
             ushort input = frame < 60 ? (ushort)SnesButton.Left :
-                frame < 120 ? (ushort)(SnesButton.Up | SnesButton.X) :
-                frame < jumpStart ? (ushort)SnesButton.Right :
+                frame < freezeEnd ? (ushort)(SnesButton.Up | SnesButton.X) :
+                frame < freezeEnd + stepBackFrames ? (ushort)SnesButton.Right :
+                frame < jumpStart ? (ushort)SnesButton.Left :
                 (ushort)(SnesButton.Left | ((frame - jumpStart) % (jumpHold + jumpRelease) < jumpHold ? SnesButton.A : 0));
             if (repeatStepBack && frame >= 120)
             {
@@ -174,6 +222,12 @@ internal static class ZebetiteSkipAudit
                 }
             }
             minimumX = Math.Min(minimumX, samus.XPosition);
+            if (!reportedCrouchAlignment && frame >= jumpStart && samus.XPosition == 836 &&
+                samus.Pose == SamusPoseIds.CrouchingLeftPose && samus.YPosition < 160)
+            {
+                reportedCrouchAlignment = true;
+                Console.WriteLine($"ALIGNMENT offset={stepBackFrames} lead={groundLeftLead} hold={jumpHold} release={jumpRelease} freezeEnd={freezeEnd} frame={frame} xSub={samus.Kinematics.XSubposition:X4} y={samus.YPosition}.{samus.Kinematics.YSubposition:X4} inv={samus.InvincibilityTimer}");
+            }
             if (frame >= 120) trace?.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{runtime.Enemies.Slots[3].FrozenTimer}");
             frozeSpawn |= runtime.Enemies.Slots.Any(slot => slot.EnemyDefinitionPointer == 0xd23f &&
                 slot.XPosition == 823 && slot.YPosition == 166 && slot.FrozenTimer != 0);

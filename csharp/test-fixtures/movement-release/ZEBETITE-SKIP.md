@@ -142,3 +142,37 @@ This proves escape from the constructed alignment, including movement after
 leaving the barrier, and a one-pixel neighboring failure. It does **not** prove
 how to reach that alignment from the preceding controller sequence. That setup
 and the separate shinespark method remain required before #442 is ready.
+
+## Controller-earned approach: longer native mismatch
+
+`--zebetite-skip-scan-turns ROM` adds 1,024 sequences with a leftward turn before
+jumping (even step-backs 2..32, Left lead 1..16, holds 4/8/16/24, one-frame
+releases), plus 800 sequences varying the end of the freeze wait (108..204 every
+four frames, offsets 0/4/8/12/16/20/24/28, Left lead four, the same four holds).
+All 1,824 valid setups froze the lower Rinka, but none crossed. An earlier wait
+ending at frame 80 failed the freeze assertion and is not counted as a skip attempt.
+The search logs the first crouched X=836/Y<160 alignment for each case, including
+subpixels and invulnerability. Several reach Y=144.FFFF without invulnerability
+on that particular frame, rather than the constructed Y=142 precondition.
+
+`--zebetite-skip-export-approach ROM PRIVATE_DIRECTORY` preserves one such actual
+controller sequence: the existing freeze setup through 119, Right 120..139,
+Left at 140, then Left plus 24-on/1-off Jump from 141. No alignment or health word
+is edited. It exports frames 120..219. Complete-room and two-actor CSVs match.
+Run the native consumer with offset argument -1 for this hundred-frame schedule;
+compare using `--zebetite-skip-compare MANAGED_CSV NATIVE_CSV 100`.
+
+The native comparison fails in four fields, deliberately not masked:
+
+| Frame | Field | C# | Original CPU |
+| --- | --- | --- | --- |
+| 197 | live Y radius | 21 | 16 |
+| 217 | Y fixed | 9175039 | 9109504 |
+| 218 | Y fixed | 8855551 | 8790016 |
+| 219 | Y fixed | 8535040 | 8469504 |
+
+Both versions enter left knockback at 197 with unchanged health, then recover and
+start the next jump at 216. The remaining vertical difference begins on 217,
+not at the initial alignment. Trace the knockback radius publication and neutral
+jump collision/probe order before making production changes. Invulnerability is
+not a CSV field here; matching knockback/health does not certify its exact timer.

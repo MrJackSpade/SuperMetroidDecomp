@@ -3160,7 +3160,11 @@ internal static class MotherBrainAudit
         byte cartridgeAngle;
         if (absoluteY < absoluteX)
         {
-            divided = absoluteX == 0 ? 0 : (absoluteY << 8) / absoluteX;
+            // $A0:C0F2 selects byte accumulator width before writing the divider.
+            // The fixture deliberately moves Samus beyond 255 pixels after one hit;
+            // retaining full host operands would change the fourth ring's aim.
+            divided = (byte)absoluteX == 0 ? ushort.MaxValue :
+                unchecked((ushort)(absoluteY << 8)) / (byte)absoluteX;
             cartridgeAngle = quadrant switch
             {
                 0 => unchecked((byte)((divided >> 3) + 64)),
@@ -3171,7 +3175,8 @@ internal static class MotherBrainAudit
         }
         else
         {
-            divided = absoluteY == 0 ? 0 : (absoluteX << 8) / absoluteY;
+            divided = (byte)absoluteY == 0 ? ushort.MaxValue :
+                unchecked((ushort)(absoluteX << 8)) / (byte)absoluteY;
             cartridgeAngle = quadrant switch
             {
                 0 => unchecked((byte)(128 - (divided >> 3))),

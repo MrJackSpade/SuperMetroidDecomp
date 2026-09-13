@@ -1471,6 +1471,9 @@ if (args.Length == 3 && args[0] == "--golden-projectile-native-compare")
 if (args.Length == 3 && args[0] == "--golden-super-native-compare")
     return GoldenTorizoAudit.CompareNativeSuperAim(args[1], args[2]);
 
+if (args.Length is 2 or 3 && args[0] == "--golden-encounter-trace")
+    return GoldenTorizoAudit.TraceEncounter(args[1], args.Length == 3 ? args[2] : null);
+
 if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
 {
     string goldenTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

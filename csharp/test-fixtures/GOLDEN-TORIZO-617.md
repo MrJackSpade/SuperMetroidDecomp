@@ -132,3 +132,34 @@ and aiming; they do not establish full-fight cadence or confirm the reported saf
 After correction all 2,560 initialization rows and 50 aim rows match. The existing
 Golden Torizo encounter audit, full core verification and Windows Release build
 also pass. No other projectile initializer required a gameplay change.
+
+## Failing integrated room comparison: shared lava RNG
+
+`movement-release/golden-encounter-617.csv` records 3,000 original CPU game-state-
+eight frames in the Golden Torizo room. Initial Samus is (384,395), camera
+(256,229), Varia equipped, health 9999, 100 Missiles and 99 Supers with Supers
+selected. RNG is $1234. Input turns left on frame 60, then fires every 20 frames
+from 500. No boss state or projectile outcomes are forced during the sequence.
+High initial health keeps the comparison running without suppressing damage.
+
+`--golden-encounter-trace ROM [NATIVE_CSV]` runs the matching production runtime.
+Without the CSV it emits a complete diagnostic trace; with the CSV it fails at
+the first differing field. This is deliberately a failing reproduction, not a
+passing regression or evidence that the entire encounter agrees.
+
+Current result: frame 0 agrees in every recorded field. Frame 1 RNG is native
+27613 versus port 52602. The cartridge lava/acid BG3 HDMA pre-instruction swaps
+the bytes of the shared RNG word before main-loop random generation. The port's
+room FX owner omits that mutation. All other recorded fields agree through frame
+683; frame 684 differs in list, timer, function and horizontal velocity. Correct
+the shared owner/order and startup timing, not Golden Torizo's RNG in isolation.
+
+The native fixture loads room data and enemy initialization through $82:DE6F,
+$82:DEF2, $82:EA73, $A0:8A1E and $A0:8A9E, then calls the real HDMA handler,
+main-loop RNG and $82:8B44 each frame. It does not initialize the entire room PLM
+population, so later door/item interactions are not proven by this fixture.
+The first RNG mismatch is before any such interaction. Recapture through
+`DiagnosticGoldenEncounter` in `native-golden-encounter-probe.h` using the same
+headless entrypoint pattern above. Temporary hooks were removed and the normal
+native binary rebuilt. The new comparator builds and reproduces the stated
+frame-1 failure; no production correction is included in this diagnostic change.

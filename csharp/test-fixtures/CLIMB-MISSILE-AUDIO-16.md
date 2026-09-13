@@ -24,4 +24,13 @@ Do not invent higher health to represent the reported encounter. Next compare
 the emitted requests through queue arbitration and playback alongside missile
 impact/music; standalone sound playback alone does not settle audibility.
 
+The fixture now enters the real frontend MainGameplay path and records its NMI
+APU writes. It echoes port acknowledgements on the following frame; this is a
+CPU queue diagnostic, not an emulated SPC or an audible-output assertion. The
+five requests produce three port-two/$24 deliveries, on frames40,47,55. These
+exact deliveries are guarded alongside the unchanged enemy/death schedule.
+Room music is queued on frontend attachment; this artificial startup must not
+be mistaken for the player's already-playing music state. A playback comparison
+must preserve real SPC acknowledgements and include a warmed-up encounter.
+
 No ROM, audio samples, SRAM, or captures are published with this diagnostic.

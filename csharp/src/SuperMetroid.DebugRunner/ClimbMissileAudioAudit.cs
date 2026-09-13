@@ -1,3 +1,6 @@
+using System.Reflection;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -35,11 +38,27 @@ internal static class ClimbMissileAudioAudit
         samus.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         runtime.Camera!.SetPosition(256, 128);
+        // Enter the actual frontend collection/NMI path without replaying the title.
+        // Echoed acknowledgements isolate CPU queue delivery, not SPC audibility.
+        var game = new SuperMetroidGame(bus, gameOptions: null, renderGameplayFrames: false);
+        typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
+        typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
+        byte[] acknowledgements = new byte[4];
+        var deliveredDeathFrames = new List<int>();
         int? deathFrame = null;
         var deathSoundFrames = new List<int>();
         for (int frame = 0; frame < 120; frame++)
         {
-            runtime.StepFrame(frame == 2 ? (ushort)SnesButton.X : (ushort)0);
+            game.SetAudioAcknowledgements(new(acknowledgements[0], acknowledgements[1], acknowledgements[2], acknowledgements[3]));
+            var result = game.Step(frame == 2 ? (ushort)SnesButton.X : (ushort)0);
+            foreach (var command in result.AudioCommands)
+            {
+                if (command.Kind != CartridgeAudioCommandKind.WritePort) continue;
+                acknowledgements[command.Port] = command.Value;
+                Console.WriteLine($"APU-WRITE frame={frame} port={command.Port} value={command.Value:X2}");
+                if (command.Port == 2 && command.Value == 0x24)
+                    deliveredDeathFrames.Add(frame);
+            }
             if (deathFrame is null && target.EnemyDefinitionPointer != originalHeader)
             {
                 deathFrame = frame;
@@ -57,6 +76,9 @@ internal static class ClimbMissileAudioAudit
         // Observed production schedule, not an assertion of original-SPC audible parity.
         if (deathFrame != 14 || !deathSoundFrames.SequenceEqual(new[] { 23, 31, 39, 47, 55 }))
             throw new InvalidDataException("Climb missile/death publication schedule changed.");
+        if (!deliveredDeathFrames.SequenceEqual(new[] { 40, 47, 55 }))
+            throw new InvalidDataException("Frontend Climb death delivery schedule changed with echoed acknowledgements.");
+        Console.WriteLine($"Frontend death deliveries with echoed acknowledgements: {string.Join(',', deliveredDeathFrames)}.");
         Console.WriteLine("Missile/death request capture complete; mixed audible/native encounter parity remains unverified.");
         return 0;
     }

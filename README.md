@@ -4,6 +4,14 @@
 
 # Super Metroid — C# port
 
+<p align="center">
+  <img src="docs/images/title-screen.png" alt="Super Metroid title screen" width="31%">
+  <img src="docs/images/gameplay.png" alt="Samus at the landing site" width="31%">
+  <img src="docs/images/endgame.png" alt="The Baby Metroid in the endgame sequence" width="31%">
+</p>
+
+The recomp is fully playable from beginning to end. Only minor known glitches remain.
+
 ## How to set up and play
 
 You need your own **Super Metroid Japan/USA NTSC v1.0 ROM** (`.smc` or `.sfc`).
@@ -74,11 +82,10 @@ a Direct3D11 renderer with a software fallback; Android uses the software render
 Music and sound effects run through a managed C# audio engine, with resources extracted
 from the player's ROM during setup.
 
-**This is a playable work in progress.** Movement, combat, enemies, bosses, rooms, menus,
-saving, rendering, and audio have substantial implementations, but bugs and differences
-from the original game remain. Focused subsystem tests and controller-driven regression
-tests help check behavior; they do not establish that every route or interaction is correct.
-Playtesting reports are welcome.
+**The recomp is fully playable end to end, from the opening through the ending.** Movement,
+combat, enemies, bosses, rooms, menus, saving, rendering, and audio are all implemented.
+Minor known glitches and differences from the original game remain, so playtesting reports
+are welcome.
 
 ### Development and references
 

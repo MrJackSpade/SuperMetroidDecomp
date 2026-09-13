@@ -262,3 +262,24 @@ source-derived assertions, not new original-CPU captures. The existing natural
 shot-response tests separately follow contact-enabled phases and terminal lists.
 No gameplay correction was needed; complete cross-frame contact/lifecycle parity
 is not established by these isolated pass controls.
+
+## Original-CPU animation and damage-enable lifecycles
+
+`movement-release/golden-lifecycle-617.csv` captures the original generic spawn
+and entire bank-$86 projectile handler, using real definition radii/properties and
+room geometry. Four projectile kinds, two facings and two RNG seeds give 16
+samples. The boss remains at (256,384); Samus is outside the collision area.
+`--golden-lifecycle-native-compare ROM CSV` compares production projectile stepping
+against every captured frame, including animation map/list/timer, position,
+velocity, identity/deletion and damage-enable state.
+
+All 3,736 frames match. Orbs delete after 164/165 frames with 39 damaging frames;
+sonic booms delete after 109 with 48 damaging frames; eggs delete after 144..153
+with 65..74 damaging frames. Eye beams remain harmless in their authored waiting
+phase for the full 512-frame bound on both sides. The stationary boss does not
+release them, so this sample does not prove the later eye-beam release branch.
+Thrown Supers and cross-frame player contact are also outside this capture.
+
+Recapture with `DiagnosticGoldenLifecycle` using the headless original-CPU setup.
+Temporary hooks were removed and the ordinary native executable rebuilt. No
+production discrepancy was found in these samples; only diagnostic coverage changed.

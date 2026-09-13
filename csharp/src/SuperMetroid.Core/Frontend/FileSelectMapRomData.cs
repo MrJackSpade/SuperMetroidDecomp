@@ -3,6 +3,8 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Bank-$81 definition tables shared by the saved-game area and room maps.</summary>
 public static class FileSelectMapRomData
 {
+    /// <summary>$8E:DC00, the shared BG2 template copied by $81:8DDB LoadInitialMenuTiles. Saved-map views replace or do not draw this page.</summary>
+    public const int InitialMenuBackground = 0x8edc00;
     /// <summary>Menu OBSEL=$03 selects the shared menu OBJ character base and size pair.</summary>
     public const byte ObjectSelection = 3;
     /// <summary>Room-select BG2 vertical scroll, aligning the fixed frame to the visible map viewport.</summary>

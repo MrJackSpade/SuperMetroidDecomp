@@ -27,7 +27,7 @@ public sealed partial class FileSelectAreaMapGraphics
         palettes = mapPalettes;
         screens = mapScreens;
         sprites = mapSprites;
-        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites);
+        ppu = new MenuPpuState(bus, mapTiles, mapPalettes, worldArtwork, mapSprites, loadInitialBackground: mapScreens is null);
         LoadForeground();
         // State one completes its first-two-palette fade with these entries black.
         ppu.Cgram.SetColor(14, 0);

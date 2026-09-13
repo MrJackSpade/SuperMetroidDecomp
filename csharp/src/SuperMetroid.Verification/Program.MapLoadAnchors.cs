@@ -12,7 +12,7 @@ internal static partial class Program
 {
     private static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
-        var guard = new MapLoadMetadataReadGuard(bus);
+        var guard = new ForbiddenMapBus();
         int anchors = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
@@ -66,7 +66,7 @@ internal static partial class Program
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
             var native = new FileSelectAreaMapGraphics(bus, area);
-            var compiled = new FileSelectAreaMapGraphics(guard, area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork);
+            var compiled = new FileSelectAreaMapGraphics(guard, area, catalog.Tiles, catalog.Palettes, catalog.Screens, catalog.WorldArtwork, catalog.Sprites);
             compiled.BindLabels(catalog.Labels);
             for (int mask = 0; mask < 64; mask++)
             {
@@ -75,7 +75,7 @@ internal static partial class Program
                 AssertTrue(native.Render(stations).AsSpan().SequenceEqual(compiled.Render(stations)), "compiled area order retains label layering and visibility for every area combination");
             }
         }
-        Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry, restored transitions and 384 display-order frames pass with source reads blocked.");
+        Console.WriteLine("Map load metadata: all 34 native anchors, four visibility patterns/scroll trajectories, each saved-menu entry and 384 display-order frames pass with every bus access forbidden; legacy metadata rebind also passes.");
 
         FileSelectMapAnchor ReadNativeAnchor(AreaId area, int station)
         {

@@ -4,11 +4,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 
 internal static partial class Program
 {
     private static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
-        AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited)
+        AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroidSaveRam(bus);
         var snapshot = new SuperMetroidSaveSnapshot { Area = (ushort)AreaId.Maridia, SaveStation = 0, Health = 99, MaxHealth = 99 };
@@ -24,7 +25,16 @@ internal static partial class Program
             control.Step(input);
             installed.Step(input);
             AssertEqual(control.Phase, installed.Phase, "installed map navigation phase matches cartridge path");
+            AssertEqual(control.LoadRequested, installed.LoadRequested, "installed map load handoff timing");
+            AssertEqual(control.OptionsRequested, installed.OptionsRequested, "installed map options handoff timing");
             AssertTrue(control.Render().AsSpan().SequenceEqual(installed.Render()), "installed map navigation renders exact stock frame");
+            if (verifyCapturedRendering)
+            {
+                var nativePixels = SoftwareLayeredSnapshotRenderer.Render(control.CaptureRenderSnapshot());
+                var installedPixels = SoftwareLayeredSnapshotRenderer.Render(installed.CaptureRenderSnapshot());
+                AssertTrue(nativePixels.AsSpan().SequenceEqual(installedPixels), "installed map render captures retain native pixels through every transition");
+                AssertTrue(installed.Render().AsSpan().SequenceEqual(installedPixels), "captured and direct map rendering agree");
+            }
         }
         for (int i = 0; i < 48; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Area, installed.Phase, "installed menu finishes entry");
@@ -56,6 +66,20 @@ internal static partial class Program
         StepBoth((ushort)SnesButton.Start);
         for (int i = 0; i < 54; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Room, installed.Phase, "restored menu reenters room without map ROM access");
+        if (verifyCapturedRendering)
+        {
+            StepBoth((ushort)SnesButton.Start);
+            for (int tick = 0; tick < 128 && !installed.LoadRequested; tick++) StepBoth(0);
+            AssertTrue(installed.LoadRequested, "ROM-free map reaches gameplay-load handoff after full fade");
+            // Exercise the other exit from a fresh area view as well. The test
+            // ends at the handoff; gameplay/options retain separate dependencies.
+            control = new FileSelectMapMenuState(bus, new CartridgeAudioState(), slot, 0);
+            installed = new FileSelectMapMenuState(guard, new CartridgeAudioState(), slot, 0, original);
+            for (int tick = 0; tick < 48; tick++) StepBoth(0);
+            StepBoth((ushort)SnesButton.B);
+            for (int tick = 0; tick < 32 && !installed.OptionsRequested; tick++) StepBoth(0);
+            AssertTrue(installed.OptionsRequested, "ROM-free map reaches options handoff after full fade");
+        }
         Console.WriteLine("Installed file-select: stock frame parity through entry, scroll, debugger restore, return and reentry with map ROM reads forbidden.");
     }
 }

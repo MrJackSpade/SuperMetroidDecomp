@@ -19,7 +19,11 @@ internal static partial class Program
         {
             var native = new FileSelectAreaMapGraphics(bus, index);
             var installed = World(guard, original, index);
-            AssertTrue(native.Vram.Bytes.SequenceEqual(installed.Vram.Bytes), "stock world PNGs and tile grids reproduce entire native menu VRAM");
+            byte[] usedNativeVram = native.Vram.Bytes.ToArray();
+            // The world view never references the initial BG2 page. Installed
+            // maps intentionally omit it; every other byte must remain exact.
+            usedNativeVram.AsSpan(MenuPpuState.Bg2TilemapWord * 2, MapScreenDefinitions.PageBytes).Clear();
+            AssertTrue(usedNativeVram.AsSpan().SequenceEqual(installed.Vram.Bytes), "stock world resources reproduce native VRAM except the unused initial BG2 template");
             foreach (bool backdropMath in new[] { false, true })
                 AssertTrue(native.RenderBackgrounds(backdropMath).AsSpan().SequenceEqual(installed.RenderBackgrounds(backdropMath)), "all six world layers preserve native additive pixels");
             installed.SelectArea((index + 1) % MapScreenDefinitions.ZebesAreas);
@@ -33,7 +37,7 @@ internal static partial class Program
             foreach (ushort scroll in new ushort[] { 0, 8, 127, 255 })
                 AssertTrue(nativeRoom.RenderBackgrounds(scroll, scroll).AsSpan().SequenceEqual(installedRoom.RenderBackgrounds(scroll, scroll)), "fixed room frame remains exact while map scrolls");
         }
-        VerifyInstalledFileSelectMenu(bus, guard, original, original);
+        VerifyInstalledFileSelectMenu(bus, guard, original, original, verifyCapturedRendering: true);
         Directory.CreateDirectory(overrides);
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -169,6 +173,7 @@ internal static partial class Program
         public MapScreenReadGuard(ISnesAddressSpace source)
         {
             this.source = source;
+            Add(FileSelectMapRomData.InitialMenuBackground, MapScreenDefinitions.PageBytes);
             Add(FileSelectMapRomData.AreaForeground, MapScreenDefinitions.PageBytes);
             Add(FileSelectMapRomData.AreaBackgrounds, MapScreenDefinitions.PageBytes * MapScreenDefinitions.ZebesAreas);
             Add(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);

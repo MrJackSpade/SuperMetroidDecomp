@@ -787,3 +787,34 @@ files. Focused map checks, full core verification and Windows Release build
 are the verification gates. Generated artwork and logs remain local only.
 Shared initial BG2, remaining HUD/pause dependencies, combined ROM-read gates,
 historical full-session and Android device verification remain outstanding.
+
+## Saved-map lifecycle without any cartridge bus access
+
+The shared `$8E:DC00` initial BG2 template was the last initialization read in
+the installed saved-map lifecycle. It is not a rendered saved-map resource:
+world-map captures/direct rendering exclude BG2, and room select installs its
+complete area-specific BG2 frame before drawing. Installed maps now omit this
+unused transfer instead of importing dead memory as an editable visual.
+Other menus and unbound cartridge diagnostics retain their existing template
+load. The world owner's unused BG2 page is consequently zero, not a copy of
+native unused bytes; all other world VRAM and the complete room VRAM remain
+exact. No asset schema or override change is required.
+
+A pre-change test failed at the template read. After removal, an address space
+that rejects **every read and write** permits installed saved-map construction,
+entry, area/room expansion, scrolling, debugger restore/rebind, return, reentry,
+and both load/options fade handoffs. Each frame is compared to the cartridge
+path, including captured-layer rendering used by presentation backends as well
+as direct rendering. The test stops at the handoffs; it does not claim the
+options screen, game-room loader or SPC execution is independent of the ROM.
+
+All 34 valid saved-station entries, four visibility patterns and subsequent
+scroll trajectories now run under the all-access prohibition. All 384 world
+label selection/visibility renders do too. Native records are read only by the
+separate verification oracle before production comparisons; no ROM bytes are
+forwarded by the installed test bus. The older legacy-closure test remains a
+focused metadata guard, not an archived full-session test.
+
+This supersedes the earlier outstanding initial-template and combined
+saved-map-read notes. Shared pause/HUD dependencies, historical full sessions,
+Android device coverage and the whole-game ROM-unavailable gate remain open.

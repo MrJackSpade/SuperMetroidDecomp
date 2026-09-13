@@ -19,7 +19,8 @@ internal sealed class MenuPpuState
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
     public const int SpritemapPointerTableAddress = 0x82c569;
 
-    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null)
+    public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
+        bool loadInitialBackground = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         BindWorldArtwork(bus, worldArtwork);
@@ -28,7 +29,12 @@ internal sealed class MenuPpuState
         BindMapSprites(bus, sprites);
         if (mapPalettes is null) Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
         else for (int color = 0; color < SnesCgram.ColorCount; color++) Cgram.SetColor(color, mapPalettes.FileSelect[color]);
-        Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus, 0x8edc00, 0x0800));
+        // Saved-map views do not consume this template: the world view excludes
+        // BG2 from its layers, and room select installs its own complete frame.
+        // Other menus still require the shared native initialization.
+        if (loadInitialBackground)
+            Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus,
+                FileSelectMapRomData.InitialMenuBackground, FileSelectMapRomData.TilemapBytes));
     }
 
     /// <summary>Refreshes the two world character regions only; retains tilemaps and ongoing palette state.</summary>

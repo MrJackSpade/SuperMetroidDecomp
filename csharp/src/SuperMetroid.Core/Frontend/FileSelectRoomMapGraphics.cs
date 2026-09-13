@@ -33,7 +33,8 @@ public sealed partial class FileSelectRoomMapGraphics
         int index = AreaIds.ToIndex(area);
         if (index >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork, sprites);
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.WorldArtwork, sprites,
+            loadInitialBackground: mapPresentation is null);
         MapTileWord hidden = system.HasAreaMap(area)
             ? MapTileWords.PauseBlank : MapTileWords.FileSelectUndownloadedBlank;
         ppu.Vram.LoadBytes(MenuPpuState.Bg1TilemapWord * 2,

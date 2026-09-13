@@ -3,8 +3,8 @@ internal static class ZebetiteSkipComparison
 {
     public static int Run(string managedPath, string nativePath, int frameCount = 40)
     {
-        if (frameCount is not (40 or 100))
-            throw new ArgumentOutOfRangeException(nameof(frameCount), "Supported #442 intervals are forty or one hundred frames.");
+        if (frameCount is not (40 or 100 or 240))
+            throw new ArgumentOutOfRangeException(nameof(frameCount), "Supported #442 intervals are 40, 100, or 240 frames.");
         string[] managed = File.ReadAllLines(managedPath), native = File.ReadAllLines(nativePath);
         if (managed.Length != frameCount + 1 || native.Length != frameCount + 1 || managed[0] != native[0])
             throw new InvalidDataException($"Expected matching #442 CSV headers and {frameCount} complete frames.");

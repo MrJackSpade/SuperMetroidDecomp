@@ -194,6 +194,19 @@ publication. The turn/freeze search still finds no successful earned skip; this
 fix does not complete the alignment or shinespark portions of #442.
 # Controller-earned neutral-jump follow-up
 
+## Extended original-CPU comparison
+
+`--zebetite-skip-export-long-approach ROM PRIVATE_DIRECTORY` exports frames
+120..359 of the unchanged twenty-right/one-left/repeated-jump approach. Native
+probe offset `-2` executes the same sequence; the strict comparator accepts 240
+frames for this interval. Full-room and isolated C# traces were identical, and
+all 240 isolated frames matched the original CPU in every recorded field after
+842e0a9f. Both remain blocked, so this failed input sequence is not evidence of
+a managed movement defect. This does not certify the adaptive step-back recovery
+search, which uses different inputs, nor successful Ice or shinespark passage.
+Temporary native entrypoints were removed and the ordinary native build restored
+after capturing the trace. Generated seeds and CSVs remain private.
+
 `--zebetite-skip-scan-recovery ROM` additionally tests a fresh step-back and
 spinjump after the first hit's knockback ends: four waits, twelve step-back
 durations, and three jump holds (144 cases). On this build, 96 cases activated

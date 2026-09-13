@@ -51,12 +51,12 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
-    public static int ExportApproach(string romPath, string directory)
+    public static int ExportApproach(string romPath, string directory, int exportEnd = 220)
     {
         Directory.CreateDirectory(directory);
         string prefix = Path.Combine(directory, "approach");
-        RunCase(romPath, 20, prefix + "-full", groundLeftLead: 1, jumpRelease: 1, exportEnd: 220);
-        RunCase(romPath, 20, prefix + "-isolated", isolate: true, groundLeftLead: 1, jumpRelease: 1, exportEnd: 220);
+        RunCase(romPath, 20, prefix + "-full", groundLeftLead: 1, jumpRelease: 1, exportEnd: exportEnd);
+        RunCase(romPath, 20, prefix + "-isolated", isolate: true, groundLeftLead: 1, jumpRelease: 1, exportEnd: exportEnd);
         if (!File.ReadAllBytes(prefix + "-full.csv").SequenceEqual(File.ReadAllBytes(prefix + "-isolated.csv")))
             throw new InvalidDataException("Actor omission changes the longer controller-earned approach.");
         Console.WriteLine("Controller-earned approach exported; omission matches, native comparison pending.");

@@ -3,7 +3,8 @@
 int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *actors, const char *output, int offset) {
   // -1 selects the longer controller-earned approach: twenty frames right,
   // one frame left, then twenty-four Jump frames separated by one release.
-  bool approach = offset == -1;
+  // -2 retains that input sequence through frame 359 for recovery comparison.
+  bool approach = offset == -1 || offset == -2;
   if (!approach && offset != 0 && offset != 8 && offset != 20) return 4;
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(movement, &size);
@@ -45,7 +46,7 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   first_free_enemy_index = 256; enemy_index_to_shake = 0xffff;
   FILE *f = fopen(output, "w"); if (!f) return 9;
   fprintf(f,"frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = 0x840;
-  for (int frame = 120; frame < (approach ? 220 : 160); frame++) {
+  for (int frame = 120; frame < (offset == -2 ? 360 : approach ? 220 : 160); frame++) {
     uint16 input = approach
       ? (frame < 140 ? 0x100 : frame == 140 ? 0x200 : 0x200 | ((frame-141)%25 < 24 ? 0x80 : 0))
       : (frame < 120 + offset ? 0x100 : 0x200 | ((frame - 120 - offset)%36 < 24 ? 0x80 : 0));

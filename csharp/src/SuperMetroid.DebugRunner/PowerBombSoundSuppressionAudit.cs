@@ -10,6 +10,7 @@ internal static class PowerBombSoundSuppressionAudit
 {
     public static int Run(string rom)
     {
+        PowerBombProjectileSoundAudit.Run(rom);
         VerifyBombExplosionPublication(rom);
         VerifySameFrameBombOrdering(rom);
         foreach (bool exploding in new[] { false, true })

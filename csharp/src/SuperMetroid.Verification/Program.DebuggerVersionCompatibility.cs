@@ -76,8 +76,21 @@ internal static partial class Program
         var projectileResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileFrameResult)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileFrameResult), projectileResultFields, 5)
-            .SequenceEqual(projectileResultFields.Where(field => field.Name != "<AdditionalSoundRequests>k__BackingField")),
+            .SequenceEqual(projectileResultFields.Where(field => field.Name is not "<AdditionalSoundRequests>k__BackingField"
+                and not "<QueuedSoundSuppressed>k__BackingField")),
             "legacy projectile result retains its saved sound and collision results");
+        foreach (var (type, addedField) in new[] {
+            (typeof(SamusProjectileFrameResult), "<QueuedSoundSuppressed>k__BackingField"),
+            (typeof(SamusSoundRequest), "<SoundSuppressed>k__BackingField"),
+            (typeof(HudState), "<SelectionSoundSuppressedThisFrame>k__BackingField"),
+            (typeof(SamusBombProjectileSystem), "<SoundSuppressedBeforeProjectileHandling>k__BackingField") })
+        {
+            var suppressionFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+                BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [type])!;
+            AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(type, suppressionFields, suppressionFields.Length - 1)
+                .SequenceEqual(suppressionFields.Where(field => field.Name != addedField)),
+                $"legacy {type.Name} preserves every existing field before suppression metadata");
+        }
         var projectileSlotFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileSlot)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)

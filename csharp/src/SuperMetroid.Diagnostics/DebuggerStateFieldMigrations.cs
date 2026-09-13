@@ -17,6 +17,19 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        // These values describe a pending host publication, not a new cartridge word.
+        // Historical captures cannot recover producer-time suppression. Preserve their
+        // previously unsuppressed admission and let the next producer replace it.
+        string? suppressionField = type == typeof(SamusProjectileFrameResult) ? "<QueuedSoundSuppressed>k__BackingField" :
+            type == typeof(SamusSoundRequest) ? "<SoundSuppressed>k__BackingField" :
+            type == typeof(HudState) ? "<SelectionSoundSuppressedThisFrame>k__BackingField" :
+            type == typeof(SamusBombProjectileSystem) ? "<SoundSuppressedBeforeProjectileHandling>k__BackingField" : null;
+        if (suppressionField is not null && current.Any(field => field.Name == suppressionField) &&
+            (count == current.Length - 1 || type == typeof(SamusProjectileFrameResult) && count == 5 && current.Length == 7))
+        {
+            Console.Error.WriteLine($"WARNING: Legacy {type.Name} lacks producer-time sound suppression; retaining its previous unsuppressed publication behavior.");
+            return SelectSerializedFields(type, current.Where(field => field.Name != suppressionField).ToArray(), count);
+        }
         if (type == typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank) && count == 3 && current.Length == 4)
         {
             Console.Error.WriteLine("WARNING: Legacy PCM bank lacks cross-source loop routing; retaining its original self-loop behavior until the next bank upload.");

@@ -147,7 +147,8 @@ public readonly record struct SamusProjectileFrameResult(
     byte QueuedSoundMaximum,
     bool CollisionStartedExplosion,
     bool ProjectileDeleted,
-    IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null);
+    IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null,
+    bool QueuedSoundSuppressed = false);
 
 /// <summary>
 /// Immutable producer-phase evidence captured before the new projectile's first movement.

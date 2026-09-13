@@ -65,6 +65,13 @@ public sealed class SamusBombProjectileSystem
     public BombProjectileFrameResult LastFrameResult { get; private set; }
 
     /// <summary>
+    /// Sound guard after the HDMA update but before bomb pre-instructions. Native
+    /// humanoid weapon production precedes those instructions; the split projectile
+    /// owners must retain this earlier value when a bomb activates later in alpha.
+    /// </summary>
+    public bool SoundSuppressedBeforeProjectileHandling { get; private set; }
+
+    /// <summary>
     /// Runs the bomb-owned portion of Samus frame-handler alpha, followed by the bank-$A0
     /// overlap pass that the main gameplay loop invokes before movement-handler beta.
     /// </summary>
@@ -104,6 +111,8 @@ public sealed class SamusBombProjectileSystem
             if (!crystalFlashStarted)
                 PowerBombExplosion.ReleaseFlag();
         }
+
+        SoundSuppressedBeforeProjectileHandling = PowerBombExplosion.IsActive;
 
         // $90:AC1C runs before the movement-type-specific HUD handler. A value of one
         // therefore reaches zero in time for a new Shoot edge during this same frame.

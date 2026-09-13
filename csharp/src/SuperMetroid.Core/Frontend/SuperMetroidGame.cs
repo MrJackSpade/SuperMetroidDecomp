@@ -1067,15 +1067,17 @@ public sealed partial class SuperMetroidGame
 
         if (runtime.Projectiles.LastFrameResult.QueuedSoundEffect is { } projectileSound)
         {
-            audio.QueueSound(
+            audio.QueueSoundAndGetAccumulator(
                 projectileSound,
-                runtime.Projectiles.LastFrameResult.QueuedSoundMaximum);
+                runtime.Projectiles.LastFrameResult.QueuedSoundMaximum,
+                soundSuppressed: runtime.Projectiles.LastFrameResult.QueuedSoundSuppressed);
         }
 
         foreach (SamusSoundRequest request in
             runtime.Projectiles.LastFrameResult.AdditionalSoundRequests ?? [])
         {
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         }
 
         foreach (SamusSoundRequest request in runtime.Projectiles.ImpactSoundRequests)

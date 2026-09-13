@@ -367,7 +367,8 @@ public sealed partial class SamusProjectileSystem
         SamusBombProjectileSystem sharedProjectiles,
         bool projectileProducerEnabled = true,
         RoomPlmSystem? roomPlms = null,
-        ushort controllerPreviousNewInput = 0)
+        ushort controllerPreviousNewInput = 0,
+        bool? producerSoundSuppressed = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -377,6 +378,7 @@ public sealed partial class SamusProjectileSystem
         int? firedSlot = null;
         ushort queuedSound = 0;
         byte queuedSoundMaximum = 0;
+        bool soundSuppressedAtProduction = producerSoundSuppressed ?? sharedProjectiles.PowerBombExplosion.IsActive;
 
         // Humanoid projectile dispatch is selected by the live HUD item. Indices zero/three
         // share `$90:B80D`; index one reaches `$90:BE62`'s missile producer. Ball poses still
@@ -486,7 +488,8 @@ public sealed partial class SamusProjectileSystem
                 projectileDeleted |= !slot.IsActive;
                 if (comboSound != 0)
                     (comboSounds ??= []).Add(new SamusSoundRequest(
-                        SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, comboSound), 6));
+                        SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, comboSound), 6,
+                        SoundSuppressed: sharedProjectiles.PowerBombExplosion.IsActive));
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.NoWaveBeam)
             {
@@ -550,7 +553,8 @@ public sealed partial class SamusProjectileSystem
             queuedSoundMaximum,
             collisionStartedExplosion,
             projectileDeleted,
-            comboSounds?.ToArray());
+            comboSounds?.ToArray(),
+            soundSuppressedAtProduction);
         return LastFrameResult;
     }
 

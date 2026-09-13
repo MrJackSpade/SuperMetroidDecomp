@@ -122,3 +122,27 @@ admits it. Both emit the Power Bomb startup cue. A singly planted Power Bomb
 also emits its startup cue. These assertions cover actual APU port commands,
 not just request-list contents. This does not yet certify all other producers,
 cleanup timing, full native gameplay execution, or the complete #422 matrix.
+
+### Weapon production and cleanup boundary
+
+`PowerBombProjectileSoundAudit` is run by the same command. The original active
+Power Bomb beam-fire case failed with an emitted shot sound. Weapon production
+now retains the sound guard from after the HDMA update and before bomb handling:
+the cartridge dispatches the HUD weapon producer before descending projectile
+pre-instructions (`$90:DCF9-$DD00`). Combo pre-instruction requests separately
+capture their later status. The frontend passes both through the native guard.
+
+Fifteen frontend checks cover power beam, missile and super missile across five
+states: inactive, active, starting this frame, last active frame, and cleanup
+this frame. Every case actually fires a shot and checks its APU command. Starting
+this frame preserves the earlier shot sound even though final status is active;
+the last active frame suppresses it; cleanup immediately admits it. Cleanup
+fixtures advance the real HDMA owner until its last two afterglow steps rather
+than injecting phase/counter values. The tests are source-checked constructed
+boundaries, not full original-CPU controller traces. Missile impact audio, other
+owners, and the broader technique matrix remain unverified.
+
+Debugger layout migrations explicitly cover old sound-request, HUD, bomb-owner
+and projectile-result field sets (including the older five-field result). Older
+captures cannot supply a missing producer-time guard: migration warns and retains
+their historical unsuppressed publication behavior until the next producer runs.

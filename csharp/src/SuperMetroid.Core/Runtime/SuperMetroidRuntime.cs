@@ -1939,7 +1939,8 @@ public sealed partial class SuperMetroidRuntime
                         // HUD weapon producer (including station command six).
                         projectileProducerEnabled: !Samus.InputLocked && !DebugGrappleItemSelected,
                         roomPlms: Plms,
-                        controllerPreviousNewInput: Samus.PreviousDrawNewInput);
+                        controllerPreviousNewInput: Samus.PreviousDrawNewInput,
+                        producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
 
                     if (!TimeIsFrozen)
                         BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);

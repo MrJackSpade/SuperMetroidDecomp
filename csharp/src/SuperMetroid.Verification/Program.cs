@@ -742,6 +742,7 @@ if (args.Length == 1)
 }
 
 VerifyRandomNumberGeneratorExhaustively();
+SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"));
         VerifySandAnimatedTiles();
         VerifyQuicksand();
         VerifyTreadmillPhysics();

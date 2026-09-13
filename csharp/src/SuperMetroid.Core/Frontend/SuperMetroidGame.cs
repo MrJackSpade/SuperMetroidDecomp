@@ -247,6 +247,7 @@ public sealed partial class SuperMetroidGame
         bool messageWasActive = runtime?.MessageBox.IsActive == true;
         var gameplayAudio = new GameplayAudioFramePublication(audio);
         FrameNumber++;
+        AdvanceMenuRandom();
         switch (GameState)
         {
             case SuperMetroidGameState.Reset:
@@ -619,7 +620,7 @@ public sealed partial class SuperMetroidGame
                     {
                         // Menu construction consumes only save/map data. A dead runtime
                         // must not keep publishing gameplay audio during map selection.
-                        runtime = null;
+                        ReleaseRuntimePreservingRandom();
                         fileSelectMap = new FileSelectMapMenuState(bus, audio, mapSlot, controllerInput, mapPresentation);
                     }
                     else fileSelectMap.Step(controllerInput);
@@ -1224,12 +1225,16 @@ public sealed partial class SuperMetroidGame
 
     private bool SetupSelectedGame()
     {
+        ushort incomingRandom = FrontendRandomOwner.RandomNumber;
         runtime = new SuperMetroidRuntime(
             bus,
             playerInvincibilityEnabled: gameOptions.Invincibility,
             infiniteAmmoEnabled: gameOptions.InfiniteAmmo,
             mapRevealMode: gameOptions.MapReveal,
             preventEscapeTimeout: gameOptions.PreventEscapeTimeout);
+        // Runtime allocation is a managed ownership change, not Vector_RESET.
+        // Publish before room initialization so random-consuming enemies see it too.
+        runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;

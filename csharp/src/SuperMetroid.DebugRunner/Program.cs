@@ -1129,6 +1129,8 @@ if (args.Length == 3 && args[0] == "--metroid-power-bomb-farming-capture")
     return MetroidAudit.CapturePowerBombFarming(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--metroid-farming-compare")
     return MetroidFarmingComparison.Run(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--save-load-rng-audit")
+    return SaveLoadRandomAudit.Run(args[1]);
 if (args.Length >= 2 && args[0] == "--metroid-audit")
 {
     string metroidRomPath = string.Join(' ', args[1..]).Trim('"');

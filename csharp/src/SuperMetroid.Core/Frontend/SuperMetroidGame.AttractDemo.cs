@@ -28,7 +28,9 @@ public sealed partial class SuperMetroidGame
                         ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
+                    ushort incomingRandom = FrontendRandomOwner.RandomNumber;
                     runtime = new SuperMetroidRuntime(bus);
+                    runtime.System.SetRandomNumber(incomingRandom);
                     runtime.MapPresentation = mapPresentation;
                     runtime.InitializeAttractDemo(scene);
                     demoFramesRemaining = scene.Duration;
@@ -92,7 +94,7 @@ public sealed partial class SuperMetroidGame
                         demoScene = 0;
                     }
                 }
-                runtime = null;
+                ReleaseRuntimePreservingRandom();
                 PublishBlack();
                 GameState = SuperMetroidGameState.TransitionFromDemoB;
                 break;

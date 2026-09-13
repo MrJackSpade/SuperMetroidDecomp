@@ -103,7 +103,11 @@ internal static partial class Program
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");
         var gameFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [gameType])!;
-        FieldInfo[] oldGameFields = gameFields.Where(field => field.Name != "pauseFadeCounter").ToArray();
+        FieldInfo[] preRandomGameFields = gameFields.Where(field => field.Name != "menuRandom").ToArray();
+        AssertEqual(47, preRandomGameFields.Length, "preserved pre-menu-RNG frontend field count");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 47).SequenceEqual(preRandomGameFields),
+            "pre-menu-RNG frontend preserves every saved field in order");
+        FieldInfo[] oldGameFields = gameFields.Where(field => field.Name is not "pauseFadeCounter" and not "menuRandom").ToArray();
         AssertEqual(46, oldGameFields.Length, "preserved #391 frontend field count");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 46).SequenceEqual(oldGameFields),
             "pre-pause-cadence frontend preserves every saved field in order");

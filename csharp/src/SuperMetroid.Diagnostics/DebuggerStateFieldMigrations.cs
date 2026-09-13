@@ -73,14 +73,20 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not "<PlantHeldY>k__BackingField").ToArray();
         }
         if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
-            count == 46 && current.Length == 47 && current.Any(field => field.Name == "pauseFadeCounter"))
+            count == 47 && current.Length == 48 && current.Any(field => field.Name == "menuRandom"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy frontend lacks pre-game RNG history; preserving any loaded runtime RNG, otherwise starting the menu generator at the reset seed.");
+            return current.Where(field => field.Name != "menuRandom").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            count == 46 && current.Length == 48 && current.Any(field => field.Name == "pauseFadeCounter"))
         {
             // 3a891459 added the native alternating pause-fade counter. Before it,
             // every fade call changed brightness; zero keeps the first restored
             // call eligible and subsequent calls establish the native cadence.
             // The graph reader still checks every remaining saved name and order.
-            Console.Error.WriteLine("WARNING: Legacy frontend lacks pause-fade cadence; restoring the next fade step as immediately eligible.");
-            return current.Where(field => field.Name != "pauseFadeCounter").ToArray();
+            Console.Error.WriteLine("WARNING: Legacy frontend lacks pause-fade cadence and pre-game RNG history; restoring the next fade step as immediately eligible and preserving any loaded runtime RNG.");
+            return current.Where(field => field.Name is not "pauseFadeCounter" and not "menuRandom").ToArray();
         }
         if (type == typeof(SamusState) && current.Any(field => field.Name == "<StationaryScriptControlLocked>k__BackingField"))
         {

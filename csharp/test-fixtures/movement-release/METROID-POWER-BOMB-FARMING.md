@@ -1,8 +1,9 @@
 # Metroid Power Bomb farming comparison (#441)
 
 The connected damage/drop/collection sequence matches **8,400 original-CPU
-frames** on the pinned NTSC ROM. Actual save/reload variation remains unfinished;
-this does not complete #441's whole acceptance scope.
+frames** on the pinned NTSC ROM. Separate save-load checks now cover menu waiting,
+the live RNG handoff, and continued saves. See the limits below: this is not a
+claim of cycle-exact startup timing or a native full-boot replay.
 
 Run DebugRunner with:
 
@@ -57,8 +58,48 @@ alpha refreshes it at the cartridge's next-frame boundary. A focused radius-spee
 regression and the direct unmorph test cover these ownership rules. The full
 connected capture checks collection frame and ammunition rather than no-crash.
 
-Remaining #441 work: test actual save/reload timing variation. Merely
-seeding four RNG values does not prove save/reload behavior. Existing tests that
-set the Metroid to one HP do not establish this encounter. The old conditional
+Existing tests that set the Metroid to one HP do not establish this encounter. The old conditional
 immunity commentary is not evidence of retail immunity: the pinned Metroid's
 Power Bomb vulnerability entry is one, so the ordinary damage path is admitted.
+
+## Save-load RNG handoff
+
+`--save-load-rng-audit ROM` uses real in-memory SRAM and the production title,
+file-select, options, file-map and room loader. No player save is opened or changed.
+It is also part of the core verification suite. The fixture selects Tourian save
+station zero with 399 energy, five Power Bombs, Morph and Gravity, and cheats off.
+It inserts zero, one or two neutral file-map frames before continuing the same
+input schedule. Before the fix, all three loads reset RNG to 97.
+
+The menu clock now advances the live word, carries it across runtime disposal and
+allocation, and leaves gameplay's existing advance in charge of gameplay frames.
+Only a true reset reseeds. State zero also receives its main-loop advance after
+that seed store. The test checks the first gameplay advance (no duplicate), then
+isolates a continue/file-map reload with the existing runtime and verifies every
+RNG step across disposal and replacement. One case serializes/restores the full
+menu graph before loading; another assertion checks true reset. Old debugger
+graphs retain their loaded runtime RNG; missing pre-game history is explicitly
+warned about rather than presented as exact recovered state.
+
+Include `native-release-probe.h` then `native-save-load-random-probe.h` in the
+pinned native harness and dispatch `--save-load-rng ROM` to
+`DiagnosticSaveLoadRandom` before SDL starts. The probe constructs a save with the
+original CPU's `$81:8000`, advances `$80:8111` for the fixture's accepted pass
+counts, and executes `$81:8085`. All SRAM stays in emulated memory; it never calls
+the translated host's disk-save function. Remove the temporary hooks and rebuild
+the normal executable afterward.
+
+| Accepted passes | Before/after native SRAM load | Next advance |
+| --- | --- | --- |
+| 426 | 51088 | 59105 |
+| 427 | 59105 | 33654 |
+| 428 | 33654 | 37471 |
+
+These native words agree with the C# fixture. Native load restores 399 energy and
+five Power Bombs without changing RNG. The disassembly places the main-loop call
+at `$82:894F`, reset seed at `$80:8537`, and state-zero dispatch at `$82:8AE4`.
+The native probe executes individual cartridge routines with matched accepted
+pass counts, **not the complete native menu/boot sequence**. Damage/drop parity
+and save-load handoff are separate bounded fixtures, not a controller-driven
+save-to-farming route. Other dispatcher coroutines and their total NMI counts
+are not certified by this test.

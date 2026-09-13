@@ -1151,6 +1151,10 @@ if (args.Length == 3 && args[0] == "--zebetite-skip-export")
     return ZebetiteSkipAudit.Export(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--zebetite-skip-repeat-jumps")
     return ZebetiteSkipAudit.ExploreRepeatedJumps(args[1]);
+if (args.Length == 2 && args[0] == "--zebetite-skip-scan-jumps")
+    return ZebetiteSkipAudit.ScanJumpTiming(args[1]);
+if (args.Length == 4 && args[0] == "--zebetite-skip-trace-jump")
+    return ZebetiteSkipAudit.TraceJumpTiming(args[1], int.Parse(args[2]), int.Parse(args[3]));
 if (args.Length == 3 && args[0] == "--zebetite-skip-compare")
     return ZebetiteSkipComparison.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--zebetite-ten-audit")

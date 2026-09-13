@@ -92,3 +92,22 @@ seven offsets. This remains exploratory: no successful passage assertion or
 native comparison for that longer sequence exists yet. The next required work is
 the successful alignment/escape setup and
 the separate diagonal-shinespark method. #442 remains active.
+
+## Bounded controller timing search
+
+`--zebetite-skip-scan-jumps ROM` runs 633 room-local controller sequences with
+the same initial fixture and real lower-Rinka freeze. The first 408 vary the
+step-back duration (0..32, every two frames), Jump hold (1/2/4/8/12/24), and
+release (1/2/6/12). Another 225 use offsets 0/4/8/12/16/20/24/28/32 and delay
+Left for 0..24 frames after the first jump, with subsequent 24-on/1-off Jump.
+Every case runs 360 frames, asserts the real freeze, and records minimum X.
+No case crossed the candidate threshold X < 800. This is a failed setup search,
+not evidence that the native skip fails or that the port's later collision is exact.
+
+`--zebetite-skip-trace-jump ROM OFFSET DELAY` prints the delayed-steering case,
+including health/invulnerability and live Rinka/Zebetite positions. The offset-32,
+delay-24 trace shows retained rightward jump momentum before the Left input;
+delaying steering is not equivalent to a stationary vertical hop. The documented
+invulnerability/alignment step and subpixel normalization need a deliberate setup,
+with an extended original-CPU comparison beyond the existing forty-frame interval.
+No production behavior was changed based on these unsuccessful attempts.

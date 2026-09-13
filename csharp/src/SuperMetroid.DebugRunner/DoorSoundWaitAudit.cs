@@ -52,7 +52,68 @@ internal static class DoorSoundWaitAudit
             throw new InvalidDataException($"Door sound wait skipped EnemyMain: frozen timer={waitTimer}, direct enemy owner={enemy.FrozenTimer} after eight calls.");
         VerifyFrontendPublication(bus, runtime, powerBombActive: false);
         VerifyFrontendPublication(bus, runtime, powerBombActive: true);
+        VerifyFinalFadeSound(bus);
         return 0;
+    }
+
+    private static void VerifyFinalFadeSound(SuperMetroidAddressSpace bus)
+    {
+        // Expected commands come from $90:F41E, including both wall-jump boundaries.
+        (byte Pose, ushort Frame, byte Sound)[] cases =
+        [
+            (SamusPoseIds.SpinJumpRightPose, 0, 0x31),
+            (SamusPoseIds.SpinJumpLeftPose, 0, 0x31),
+            (SamusPoseIds.SpaceJumpRightPose, 0, 0x3e),
+            (SamusPoseIds.SpaceJumpLeftPose, 0, 0x3e),
+            (SamusPoseIds.ScrewAttackRightPose, 0, 0x33),
+            (SamusPoseIds.ScrewAttackLeftPose, 0, 0x33),
+            (SamusPoseIds.WallJumpRightPose, 12, 0x31),
+            (SamusPoseIds.WallJumpRightPose, 13, 0x3e),
+            (SamusPoseIds.WallJumpLeftPose, 22, 0x3e),
+            (SamusPoseIds.WallJumpLeftPose, 23, 0x33),
+            (SamusPoseIds.FacingRightNormalPose, 0, 0),
+        ];
+        const BindingFlags fields = BindingFlags.Instance | BindingFlags.NonPublic;
+        foreach (var test in cases)
+        foreach (bool powerBombActive in new[] { false, true })
+        {
+            var runtime = FlatFloorMovementFixture.Create(bus, false);
+            if (powerBombActive)
+            {
+                runtime.BombProjectiles.PowerBombExplosion.Arm();
+                runtime.BombProjectiles.PowerBombExplosion.Spawn(runtime.Samus!.XPosition, runtime.Samus.YPosition);
+            }
+            runtime.Samus!.Pose = test.Pose;
+            runtime.Samus.SetAnimationFrameFromSpecialHandler(test.Frame, 10);
+            var game = new SuperMetroidGame(bus, null, renderGameplayFrames: false);
+            typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
+            typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!
+                .SetValue(game, (ushort?)runtime.ActiveRoom!.State.Pointer);
+            typeof(SuperMetroidGame).GetField("lastAudioRuntimeGameplayPublication", fields)!
+                .SetValue(game, (ulong?)runtime.CompletedGameplayAudioPublication);
+            typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!
+                .SetValue(game, SuperMetroidGameState.LoadingNextRoomB);
+            var transition = (DoorTransitionState)typeof(SuperMetroidGame).GetField("doorTransition", fields)!.GetValue(game)!;
+            typeof(DoorTransitionState).GetField("paletteTransition", fields)!
+                .SetValue(transition, new CartridgePaletteTransition(runtime.Cgram.Colors, 1));
+            typeof(DoorTransitionState).GetProperty(nameof(transition.Phase))!
+                .SetValue(transition, DoorTransitionPhase.FadeInDestinationPalette);
+            var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", fields)!.GetValue(game)!;
+            audio.AdvanceFrame(bus, default);
+            var writes = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", fields)!.GetValue(audio)!;
+            var queue = (byte[,])typeof(CartridgeAudioState).GetField("_soundQueues", fields)!.GetValue(audio)!;
+            for (int frame = 0; frame < 4; frame++)
+            {
+                game.Step(0);
+                bool complete = transition.Phase == DoorTransitionPhase.Complete;
+                int expected = complete && test.Sound != 0 && !powerBombActive ? 1 : 0;
+                if (writes[0] != expected || (expected != 0 && queue[0, 0] != test.Sound))
+                    throw new InvalidDataException($"Final door fade pose={test.Pose:X2} animation={test.Frame} frame={frame}: expected {expected} command {test.Sound:X2}, got {writes[0]} command {queue[0, 0]:X2}.");
+            }
+            if (game.GameState != SuperMetroidGameState.MainGameplay)
+                throw new InvalidDataException("Final-fade fixture never resumed gameplay.");
+        }
+        Console.WriteLine($"Final-fade sound restart: {cases.Length * 2} pose/animation/Power Bomb cases passed.");
     }
 
     private static void VerifyFrontendPublication(SuperMetroidAddressSpace bus, SuperMetroidRuntime runtime, bool powerBombActive)

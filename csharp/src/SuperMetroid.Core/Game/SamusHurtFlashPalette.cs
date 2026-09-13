@@ -148,25 +148,14 @@ public static class SamusHurtFlashPalette
     {
         if (samus.Grapple.Phase == GrapplePhase.Inactive)
         {
-            SamusMovementType movementType = samus.ReadMovementType(bus);
-            if (movementType is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+            if (SamusSpinSoundCommand.Select(bus, samus) is { } sound)
             {
-                // Command `$1C` chooses from current pose for a normal spin, but from
-                // animation-frame ranges for wall jumping. Those are literal `$90:F41E`
-                // thresholds, including frame 23 as the first Screw Attack frame.
-                byte sound = movementType == SamusMovementType.WallJumping
-                    ? samus.AnimationFrame >= 23 ? (byte)0x33 :
-                      samus.AnimationFrame >= 13 ? (byte)0x3e : (byte)0x31
-                    : samus.Pose is SamusPoseIds.ScrewAttackRightPose or SamusPoseIds.ScrewAttackLeftPose
-                        ? (byte)0x33
-                        : SamusState.IsSpaceJumpPose(samus.Pose) ? (byte)0x3e : (byte)0x31;
-                samus.LiquidPhysics.QueueMovementSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, sound), maximumQueued: 9);
-                return sound switch
-                {
-                    0x33 => SamusHurtFlashRecoveryAction.ScrewAttackSound,
-                    0x3e => SamusHurtFlashRecoveryAction.SpaceJumpSound,
-                    _ => SamusHurtFlashRecoveryAction.SpinJumpSound,
-                };
+                samus.LiquidPhysics.QueueMovementSound(sound, maximumQueued: 9);
+                return sound == SoundEffectLibrary1Sounds.ScrewAttack
+                    ? SamusHurtFlashRecoveryAction.ScrewAttackSound
+                    : sound == SoundEffectLibrary1Sounds.SpaceJump
+                        ? SamusHurtFlashRecoveryAction.SpaceJumpSound
+                        : SamusHurtFlashRecoveryAction.SpinJumpSound;
             }
 
             if (samus.ProjectileFlareCounter >= 0x10 &&

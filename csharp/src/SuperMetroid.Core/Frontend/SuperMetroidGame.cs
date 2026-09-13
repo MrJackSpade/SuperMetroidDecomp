@@ -902,6 +902,11 @@ public sealed partial class SuperMetroidGame
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                 {
                     audio.DoorTransitionSoundsDisabled = false;
+                    // The cartridge resumes spin audio only after sound admission is
+                    // restored at the final fade boundary, not on each fade frame.
+                    if (SamusSpinSoundCommand.Select(bus, runtime!.Samus!) is { } spinSound)
+                        audio.QueueSoundAndGetAccumulator(spinSound, maximumQueued: 9,
+                            soundSuppressed: runtime.IsAttractDemo || (short)runtime.PowerBombExplosionStatus < 0);
                     GameState = SuperMetroidGameState.MainGameplay;
                 }
                 break;

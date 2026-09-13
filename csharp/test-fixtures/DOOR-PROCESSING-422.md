@@ -358,3 +358,23 @@ native controller timing reproduction. Existing nine- and ten-field debugger
 layouts have explicit migrations, preserving phase and any captured entry latch.
 The production slot-1 recovery still deserializes and advances past its saved
 boundary. The complete sound-suppression audit and Windows build pass.
+
+## Final-fade spin sound restart
+
+Pinned bank $82:E757 clears DisableSounds, then $82:E75A invokes the spin
+restart wrapper. Command $1C at $90:F41E chooses ordinary spin, Space Jump,
+or Screw Attack from movement/pose; wall jumping uses animation boundaries
+13 and 23. It does not restart charging sounds for a non-spinning pose.
+
+The frontend omitted this call. DoorSoundWaitAudit reproduced zero queued
+commands on the final fade where ordinary spin requires library-one $31.
+The frontend now calls the shared SamusSpinSoundCommand selector after clearing
+door suppression. Hurt-flash recovery uses the same selector instead of a
+duplicate implementation. Power Bomb and demo suppression still apply.
+
+The audit checks all four fade calls for both-facing spin variants, both
+wall-jump boundaries, and a non-spin negative, each with/without an active
+Power Bomb (22 cases). Only the completed fade admits exactly one expected
+command, and active Power Bombs admit none. This is a focused frontend
+reproduction checked against pinned assembly, not a new native controller
+trace; the broader #422 processing matrix remains unfinished.

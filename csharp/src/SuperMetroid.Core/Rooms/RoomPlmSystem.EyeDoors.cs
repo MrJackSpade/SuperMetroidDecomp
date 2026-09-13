@@ -137,7 +137,7 @@ public sealed partial class RoomPlmSystem
                 }
                 else if (family != SamusProjectileFamily.Missile)
                 {
-                    _soundRequests.Add(new PlmSoundRequest(
+                    _soundRequests.Add(CreateSoundRequest(
                         SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,
                             EyeDoorPlmRomData.RejectedShotSound),
@@ -239,7 +239,7 @@ public sealed partial class RoomPlmSystem
                     slot,
                     EyeDoorEnemyProjectileRomData.ProjectileDefinition,
                     hasParameter: true);
-                _soundRequests.Add(new PlmSoundRequest(
+                _soundRequests.Add(CreateSoundRequest(
                     SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
                         EyeDoorPlmRomData.ProjectileSound),

@@ -25,6 +25,7 @@ internal static class DebuggerStateFieldMigrations
             type == typeof(EnemySoundRequest) ? "<SoundSuppressed>k__BackingField" :
             type == typeof(RoomFxSoundRequest) ? "<SoundSuppressed>k__BackingField" :
             type == typeof(PaletteFxSoundRequest) ? "<SoundSuppressed>k__BackingField" :
+            type == typeof(SuperMetroid.Core.Rooms.PlmSoundRequest) ? "<SoundSuppressed>k__BackingField" :
             type == typeof(HudState) ? "<SelectionSoundSuppressedThisFrame>k__BackingField" :
             type == typeof(SamusBombProjectileSystem) ? "<SoundSuppressedBeforeProjectileHandling>k__BackingField" : null;
         if (suppressionField is not null && current.Any(field => field.Name == suppressionField) &&

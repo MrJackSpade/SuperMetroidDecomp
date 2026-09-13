@@ -114,7 +114,7 @@ public sealed partial class RoomPlmSystem
             if (trigger is not DownwardGateTriggerBehavior.BlueLeft and
                 not DownwardGateTriggerBehavior.BlueRight)
             {
-                _pendingDownwardGateSounds.Add(new PlmSoundRequest(
+                _pendingDownwardGateSounds.Add(CreateSoundRequest(
                     SoundEffectId.FromCartridge(
                         SoundEffectLibrary.Library2,
                         DownwardGatePlmRomData.RejectedShotSound),

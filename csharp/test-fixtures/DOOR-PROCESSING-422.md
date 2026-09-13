@@ -223,3 +223,19 @@ marks those requests suppressed. Heat damage is not disabled by the sound fix.
 Focused audits and full core verification pass. PLM/one-off publishers, any
 remaining initialization or ordering gaps, and full technique timing still need
 coverage before #422 can be considered ready for validation.
+
+## PLM producer-time suppression
+
+The retail collision-bomb instruction list reproduced another missing guard:
+its block entered the break animation with and without a Power Bomb, but library
+two sound $06 was delivered in both cases. PLM sound requests now capture the live
+explosion guard when created. The frontend retains that decision, including gate
+rejection requests deferred from collision setup into the PLM handler. Queue caps,
+PLM execution, music and fanfare requests are unchanged. Older request records
+receive an explicit compatibility migration rather than invalidating snapshots.
+
+`PowerBombPlmSoundAudit` verifies both frontend cases against the real break
+animation word, plus two rejected green-gate cases with opposite explosion states
+before binding and after request creation. The latter verify producer-time capture,
+not frame-start or publication-time filtering. This does not establish every
+room-initialization path or the remaining full #422 technique matrix.

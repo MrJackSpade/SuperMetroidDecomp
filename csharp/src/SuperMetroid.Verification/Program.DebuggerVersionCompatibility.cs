@@ -85,6 +85,7 @@ internal static partial class Program
             (typeof(EnemySoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(RoomFxSoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(PaletteFxSoundRequest), "<SoundSuppressed>k__BackingField"),
+            (typeof(SuperMetroid.Core.Rooms.PlmSoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(HudState), "<SelectionSoundSuppressedThisFrame>k__BackingField"),
             (typeof(SamusBombProjectileSystem), "<SoundSuppressedBeforeProjectileHandling>k__BackingField") })
         {

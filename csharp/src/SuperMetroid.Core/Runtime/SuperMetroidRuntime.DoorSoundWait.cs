@@ -7,6 +7,7 @@ public sealed partial class SuperMetroidRuntime
     /// <summary>Enemy and draw owners of the door sound-drain coroutine, without Samus movement.</summary>
     public void RunDoorSoundWaitFrame(ushort controllerInput)
     {
+        Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         RunNmi(controllerInput, mainLoopRequestedNmi: true);
         Oam.BeginFrame();
         LastSamusBodyDrawn = false;

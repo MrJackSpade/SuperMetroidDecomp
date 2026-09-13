@@ -1094,7 +1094,8 @@ public sealed partial class SuperMetroidGame
         }
 
         foreach (PlmSoundRequest request in runtime.Plms.SoundRequests)
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         foreach (PlmMusicRequest request in runtime.Plms.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
         if (runtime.Plms.ConsumeCollectibleFanfareRequest())

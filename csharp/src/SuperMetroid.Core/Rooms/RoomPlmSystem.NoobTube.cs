@@ -54,7 +54,7 @@ public sealed partial class RoomPlmSystem
                 }
                 else if (slot.LoopTimer != 0)
                 {
-                    _soundRequests.Add(new PlmSoundRequest(
+                    _soundRequests.Add(CreateSoundRequest(
                         SoundEffectId.FromCartridge(
                             SoundEffectLibrary.Library2,
                             NoobTubePlmRomData.IneffectiveShotSound),

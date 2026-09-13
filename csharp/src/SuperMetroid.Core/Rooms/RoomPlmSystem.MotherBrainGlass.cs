@@ -176,7 +176,7 @@ public sealed partial class RoomPlmSystem
                 return true;
 
             case RoomPlmInstructionCodes.SpawnFourMotherBrainGlassShards:
-                _soundRequests.Add(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x2e), MaximumQueued: 15));
+                _soundRequests.Add(CreateSoundRequest(RoomPlmSounds.MotherBrainGlassShattering, MaximumQueued: 15));
                 byte blockX = checked((byte)(slot.BlockIndex % _motherBrainGlassRoomWidth));
                 byte blockY = checked((byte)(slot.BlockIndex / _motherBrainGlassRoomWidth));
                 for (int shard = 0; shard < 4; shard++)

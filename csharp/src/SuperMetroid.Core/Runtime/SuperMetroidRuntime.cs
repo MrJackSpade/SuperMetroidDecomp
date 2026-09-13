@@ -1394,6 +1394,7 @@ public sealed partial class SuperMetroidRuntime
         // Routing references are deliberately not serialized as duplicate native state.
         // Reattach before any producer executes, including after loading an older snapshot.
         Projectiles.BindRoomEarthquakeOwner(Enemies);
+        Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         ApplyPendingChozoStatuePlms();
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);

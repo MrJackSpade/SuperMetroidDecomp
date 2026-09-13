@@ -190,7 +190,7 @@ public sealed partial class RoomPlmSystem
         {
             // Each native pre-instruction queues library-two sound $57 for a rejected
             // projectile. A flash already in progress is not interrupted by that dud.
-            _soundRequests.Add(new PlmSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: 6));
+            _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary2Sounds.DoorOpening, MaximumQueued: 6));
             return door.Phase == ColoredDoorPhase.Waiting;
         }
 

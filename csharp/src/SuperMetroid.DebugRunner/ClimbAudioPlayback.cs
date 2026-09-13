@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Audio;
 
-/// <summary>Mixed playback and a death-request-muted counterfactual for #16.</summary>
-internal sealed class ClimbAudioPlayback(string directory, ClimbNativeAudioReference? native = null)
+/// <summary>Mixed playback and a selected-cue-muted counterfactual for #16.</summary>
+internal sealed class ClimbAudioPlayback(string directory, ClimbNativeAudioReference? native = null, byte suppressedCue = 0x24)
 {
     private readonly ExtractedAudioAssetCatalog assets = ExtractedAudioAssetCatalog.Load(directory);
     private readonly ManagedSpcPlayer actual = new();
@@ -29,8 +29,8 @@ internal sealed class ClimbAudioPlayback(string directory, ClimbNativeAudioRefer
             {
                 actual.WritePort(command.Port, command.Value);
                 // Preserve every other command, including impact, music and port clears.
-                // Only remove the reported death cue, not its entire sound library.
-                if (command.Port != 2 || command.Value != 0x24)
+                // Only remove the selected cue, not its entire sound library.
+                if (command.Port != 2 || command.Value != suppressedCue)
                     control.WritePort(command.Port, command.Value);
             }
         }

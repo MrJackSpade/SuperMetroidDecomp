@@ -2,6 +2,28 @@
 
 Affected report: 0.2.0, room $00/$1C. Status: unresolved audible-output report.
 
+## Reproduced missing hurt cry
+
+The pinned disassembly's `$A0:A832-A843` checks the frozen timer, reads the
+enemy header cry, and calls library2 Max3 before subtracting health. Grey wall
+Pirate `$A0:F353` has cry `$21`. Its `$B2:8779` shot handler uses common shot AI.
+Our common handler omitted this call entirely despite decoding the header field.
+The real Climb missile fixture failed an assertion requiring the frame14 cry
+before the production change. Restoring that common call passes the assertion.
+It applies to damaging, non-frozen hits, including lethal hits; it does not
+invent a pirate-only sound or replace the later death-explosion instructions.
+
+With the fix, the warmed-up frontend emits the cry on frame18 (after the
+frame14 missile impact), followed by the five unchanged death sounds. The
+playback control now suppresses only the header cry: 51 PCM frames change,
+maximum sample difference11777. All720 PCM/acknowledgement frames still match
+the translated native reference. Startup/echoed-port death deliveries change
+to frames47,55 because the previously absent cry now occupies the queue.
+The focused Ripper regression also checks header low-byte Max3 publication on
+both surviving and lethal common-shot hits. Original endpoint listening and
+player confirmation remain outstanding. Earlier measurements below describe
+the pre-fix diagnostic and are retained as investigation history.
+
 `--climb-missile-audio-audit ROM` loads the awakened Climb via the ordinary
 runtime room loader. All eleven live actors are retail $F353 wall Pirates with
 20 HP. It positions Samus 64 pixels right and eight below the first actor, shows

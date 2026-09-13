@@ -26,6 +26,7 @@ internal static class ClimbMissileAudioAudit
             Console.WriteLine($"POP slot={enemy.NativeIndex} header={enemy.EnemyDefinitionPointer:X4} hp={enemy.Health} xy={enemy.XPosition},{enemy.YPosition}");
         var target = runtime.Enemies.Slots[0];
         ushort originalHeader = target.EnemyDefinitionPointer;
+        ushort hurtCry = target.Definition.HurtSoundEffect;
         if (originalHeader == 0) throw new InvalidDataException("Climb target missing.");
         var samus = runtime.Samus!;
         samus.Pose = SamusPoseIds.FacingLeftNormalPose;
@@ -45,7 +46,7 @@ internal static class ClimbMissileAudioAudit
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         byte[] acknowledgements = new byte[4];
         using var native = nativeDll is null ? null : new ClimbNativeAudioReference(nativeDll);
-        ClimbAudioPlayback? playback = audioDirectory is null ? null : new(audioDirectory, native);
+        ClimbAudioPlayback? playback = audioDirectory is null ? null : new(audioDirectory, native, checked((byte)hurtCry));
         if (playback is not null)
         {
             var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
@@ -59,6 +60,7 @@ internal static class ClimbMissileAudioAudit
         var deliveredDeathFrames = new List<int>();
         int? deathFrame = null;
         var deathSoundFrames = new List<int>();
+        var hurtSoundFrames = new List<int>();
         for (int frame = 0; frame < 120; frame++)
         {
             game.SetAudioAcknowledgements(playback?.Acknowledgements ?? new(acknowledgements[0], acknowledgements[1], acknowledgements[2], acknowledgements[3]));
@@ -79,6 +81,9 @@ internal static class ClimbMissileAudioAudit
             }
             foreach (var request in runtime.Enemies.SoundRequests)
             {
+                if (request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
+                    request.SoundEffect.Value == hurtCry && request.MaximumQueued == 3)
+                    hurtSoundFrames.Add(frame);
                 Console.WriteLine($"ENEMY-SOUND frame={frame} library={request.SoundEffect.Library} id={request.SoundEffect.Value:X2} max={request.MaximumQueued}");
                 if (request.SoundEffect.Library == SoundEffectLibrary.Library2 && request.SoundEffect.Value == 0x24 && request.MaximumQueued == 1)
                     deathSoundFrames.Add(frame);
@@ -86,10 +91,12 @@ internal static class ClimbMissileAudioAudit
         }
         if (deathFrame is null || samus.Missiles != 4)
             throw new InvalidDataException($"One ordinary missile did not kill the real Climb target: hp={target.Health}, missiles={samus.Missiles}, Samus={samus.XPosition},{samus.YPosition}.");
+        if (!hurtSoundFrames.Contains(14))
+            throw new InvalidDataException("Climb lethal missile omitted the native header-defined hurt cry on frame 14.");
         // Observed production schedule, not an assertion of original-SPC audible parity.
         if (deathFrame != 14 || !deathSoundFrames.SequenceEqual(new[] { 23, 31, 39, 47, 55 }))
             throw new InvalidDataException("Climb missile/death publication schedule changed.");
-        if (playback is null && !deliveredDeathFrames.SequenceEqual(new[] { 40, 47, 55 }))
+        if (playback is null && !deliveredDeathFrames.SequenceEqual(new[] { 47, 55 }))
             throw new InvalidDataException("Frontend Climb death delivery schedule changed with echoed acknowledgements.");
         Console.WriteLine($"Frontend death deliveries ({(playback is null ? "echoed ports" : "live SPC, 600-frame music warmup")}): {string.Join(',', deliveredDeathFrames)}.");
         if (playback is not null)
@@ -97,8 +104,8 @@ internal static class ClimbMissileAudioAudit
             if (!deliveredDeathFrames.SequenceEqual(deathSoundFrames))
                 throw new InvalidDataException("Warmed-up playback delayed or dropped an enemy death request.");
             if (playback.ChangedFrames == 0)
-                throw new InvalidDataException("Death requests did not change mixed PCM against the death-muted control.");
-            Console.WriteLine($"Death cue changes {playback.ChangedFrames} PCM frames; maximum sample difference={playback.MaximumDifference}.");
+                throw new InvalidDataException("Hurt cry did not change mixed PCM against the cry-muted control.");
+            Console.WriteLine($"Hurt cry changes {playback.ChangedFrames} PCM frames; maximum sample difference={playback.MaximumDifference}.");
         }
         Console.WriteLine("Missile/death diagnostic complete; original-cartridge encounter parity and host audibility remain unverified.");
         if (native is not null) Console.WriteLine($"Native translated SPC/DSP: {native.Frames} complete PCM and acknowledgement frames matched.");

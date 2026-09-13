@@ -1568,6 +1568,13 @@ public sealed partial class RoomEnemySystem
                     ushort hurtTime = enemy.HurtAiTime == 0 ? (ushort)4 : enemy.HurtAiTime;
                     enemy.FlashTimer = unchecked((ushort)(hurtTime + 8));
                     enemy.AiHandlerBits = unchecked((ushort)(enemy.AiHandlerBits | 0x0002));
+                    // Common shot AI queues the header cry before subtracting health,
+                    // including lethal hits. Frozen targets suppress this cry; death
+                    // explosion instructions retain their separate, later sound owner.
+                    // QueueSfx stores the low byte, even for a constructed wide header.
+                    if (enemy.FrozenTimer == 0 && enemy.Definition.HurtSoundEffect != 0)
+                        QueueEnemySound(SoundEffectId.FromCartridge(
+                            SoundEffectLibrary.Library2, unchecked((byte)enemy.Definition.HurtSoundEffect)), 3);
                     // `$A0:A79E` gives every plasma-family hit sixteen invincibility frames.
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.

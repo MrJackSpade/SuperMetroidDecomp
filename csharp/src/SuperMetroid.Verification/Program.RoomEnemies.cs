@@ -507,11 +507,19 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     ripper.FrozenTimer = 0;
     ripper.InvincibilityTimer = 0;
     ripper.AiHandlerBits = 0;
+    byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
+    int criesBefore = enemies.SoundRequests.Count(request =>
+        request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
+        request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3);
     for (int hit = 0; hit < 2; hit++)
     {
         ArmProjectile(shot, ripper, type: 0x0100, damage: 100);
         AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
             $"Ripper missile hit {hit + 1}");
+        AssertEqual(criesBefore + hit + 1, enemies.SoundRequests.Count(request =>
+            request.SoundEffect.Library == SoundEffectLibrary.Library2 &&
+            request.SoundEffect.Value == expectedHurtCry && request.MaximumQueued == 3),
+            "common shot queues header low-byte cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper missile vulnerability reaches zero health");
     AssertEqual((ushort)0, ripper.EnemyDefinitionPointer,

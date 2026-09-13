@@ -1,5 +1,23 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
+int DiagnosticGoldenAmmoDecisions(const char *rom, const char *output) {
+  int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
+  FILE *f=fopen(output,"wx"); if(!f) return 4;
+  const uint16 ammo[]={0,31,32,33};
+  const uint16 positions[]={0,1,2,15,16,255,256,511};
+  fprintf(f,"ammo,x,frame,cursor,link,random\n");
+  for(int a=0;a<4;a++) for(int x=0;x<8;x++) for(int frame=0;frame<32;frame++) {
+    cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
+    g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
+    Enemy_Torizo *enemy=Get_Torizo(0);
+    enemy->toriz_var_00=0x1234; random_number=0x5678;
+    samus_missiles=ammo[a]; samus_x_pos=positions[x]; nmi_frame_counter_word=frame;
+    ProbeRunBoundedRegisters(0xaad526,0,0,0xd000);
+    fprintf(f,"%u,%u,%d,%u,%u,%u\n",ammo[a],positions[x],frame,
+      g_snes->cpu->y,enemy->toriz_var_00,random_number);
+  }
+  fclose(f); return 0;
+}
 int DiagnosticGoldenSuperAim(const char *rom, const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;

@@ -214,3 +214,18 @@ After correction all 180,000 captured values match, including the frame-2496 HP
 and all subsequent frames. Full core verification and Windows Release build pass.
 This bounded sequence is not proof of every attack branch or of the unlocated
 player-reported safe spot; the broader #617 audit remains open.
+
+## Original-CPU ammo/position/frame attack selection
+
+`movement-release/golden-ammo-decisions-617.csv` covers $AA:D526 with Missile
+counts 0/31/32/33, eight horizontal positions (including odd/even and page
+boundaries), and all 32 consecutive frame phases. All 1,024 cases agree on branch
+target, saved return cursor and unchanged RNG. This confirms that the existing
+32-Missile threshold and position-adjusted frame-bit selection match the cartridge;
+no production change was needed.
+
+Command: `--golden-ammo-native-compare ROM CSV`. Recapture through
+`DiagnosticGoldenAmmoDecisions` using the original-CPU headless setup above.
+The operand cursor is $D000, initial link $1234 and RNG $5678. Temporary native
+hooks were removed after capture. This matrix covers the conditional selector,
+not every subsequent animation or projectile trajectory.

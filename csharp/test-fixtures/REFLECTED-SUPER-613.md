@@ -1,0 +1,30 @@
+# Reflected Super Missile trail crash (#613)
+
+Affected version: player reported `0.3.1 (? latest)` production release.
+
+The private production recording `SuperMetroid-input-20260913-132933-922.smrec`
+reproduced the exact $9B:21DB exception at zero-based frame 30450 in room
+$8F:B62B. The recording and generated images remain local, not published.
+
+Reflection installs instruction list $93:9F27 with timer one while preserving
+the trail timer. Retail $93:81D1 reads the preceding word ($9F1B), which makes
+the trail offset access reach reserved B-bus addresses. Bank $9B's native
+absolute-indexed word loads see CPU open bus there. Independent strict byte
+reads in the port instead threw. The fix models operand-driven MDR and word
+read ordering only for the proven reserved $2184-$21FF window; other missing
+hardware accesses remain strict. Projectile reflection and animation timing
+are unchanged. The upstream C timer-one lookahead is not in the pinned ROM.
+
+References: pinned disassembly bank $90:BE00, $93:81D1/$9F27 and
+$9B:A44A/$A464/$A47E/$A497; https://snes.nesdev.org/wiki/Open_bus.
+
+Verification:
+- Original recording failed at frame 30450 before the fix and completes all
+  30451 calls afterward.
+- DebugRunner `--reflected-super-trail-audit ROM` checks production reflection,
+  exact trail coordinates, animation progression, and strict unrelated reads.
+- Core verification covers mirrored/unmirrored banks, operand MDR, and mixed
+  mapped/open-bus word accesses. Full core verification passes.
+- Windows Release build passes with zero warnings/errors.
+
+Awaiting player confirmation; reproduction success does not close the issue.

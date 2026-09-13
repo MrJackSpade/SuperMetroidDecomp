@@ -26,6 +26,7 @@ if (OperatingSystem.IsWindows())
 try
 {
 VerifyDebuggerVersionCompatibility();
+VerifyCpuOperandOpenBus();
 if (args is ["--enemy-angle-division"])
 {
     VerifyEnemyAngleDivision();

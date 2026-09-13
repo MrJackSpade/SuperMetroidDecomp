@@ -287,12 +287,21 @@ public sealed partial class SamusProjectileSystem
         int offsets = SamusProjectileRomData.Banks.PaletteAndTrailData |
             unchecked((ushort)(offsetList + animationFrame * 4));
 
-        // All four bytes are signed offsets. The final minus four converts a beam-centered
-        // point to the upper-left origin of the raw 8x8 trail OBJ, exactly as `$9B:A3CC`.
-        trail.Left.XPosition = AddSignedOffset(projectile.XPosition, bus.ReadByte(offsets), -4);
-        trail.Left.YPosition = AddSignedOffset(projectile.YPosition, bus.ReadByte(offsets + 1), -4);
-        trail.Right.XPosition = AddSignedOffset(projectile.XPosition, bus.ReadByte(offsets + 2), -4);
-        trail.Right.YPosition = AddSignedOffset(projectile.YPosition, bus.ReadByte(offsets + 3), -4);
+        // Native performs WORD reads and consumes their high bytes after XBA.
+        // Reflection can expose the word preceding a freshly installed animation
+        // list, sending this lookup into reserved B-bus space. Preserve the actual
+        // operand-driven open bus there instead of changing trail timing or hiding
+        // every unsupported hardware read behind a zero fallback.
+        ushort y = (ushort)offsets;
+        byte bank = (byte)(SamusProjectileRomData.Banks.PaletteAndTrailData >> 16);
+        byte leftY = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, y) >> 8);
+        byte leftX = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, unchecked((ushort)(y - 1))) >> 8);
+        byte rightY = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 2, y) >> 8);
+        byte rightX = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 1, y) >> 8);
+        trail.Left.XPosition = AddSignedOffset(projectile.XPosition, leftX, -4);
+        trail.Left.YPosition = AddSignedOffset(projectile.YPosition, leftY, -4);
+        trail.Right.XPosition = AddSignedOffset(projectile.XPosition, rightX, -4);
+        trail.Right.YPosition = AddSignedOffset(projectile.YPosition, rightY, -4);
     }
 
     private static ushort GetTrailAnimationFrame(

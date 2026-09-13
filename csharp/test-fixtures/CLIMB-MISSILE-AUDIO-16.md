@@ -34,3 +34,21 @@ be mistaken for the player's already-playing music state. A playback comparison
 must preserve real SPC acknowledgements and include a warmed-up encounter.
 
 No ROM, audio samples, SRAM, or captures are published with this diagnostic.
+
+## Warmed-up managed playback
+
+`--climb-missile-playback-audit ROM AUDIO_DIRECTORY` uses the same encounter,
+but advances its actual frontend audio queue and managed SPC for 600 music-only
+frames first. Gameplay actors are not advanced during that audio warmup. It
+then feeds actual SPC port acknowledgements back to the frontend on every frame.
+All five death requests reach port two on frames23,31,39,47,55; the diagnostic
+asserts that no request was delayed or lost in this warmed-up run.
+
+A second player receives identical uploads, music, missile-impact requests,
+other enemy sounds, and port clears, suppressing only library2/$24 writes.
+The full mix differs from that control on 51 frames, with maximum sample delta
+19335. The diagnostic asserts a nonzero contribution, not a particular PCM
+golden hash. Thus the current implementation contributes this cue to the mix;
+this does not establish perceptual prominence, Windows endpoint audibility,
+or original-cartridge command/mixing parity. The control intentionally does
+not feed its differing acknowledgements back into the production sequence.

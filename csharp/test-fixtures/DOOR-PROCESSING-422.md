@@ -37,3 +37,41 @@ Power Bomb suppression and combined actions remain required by the ticket.
 
 Reference: https://wiki.supermetroid.run/Processing (claims are investigation
 inputs, not asserted timings). No private cartridge assets are published.
+
+## Original 65816 queue comparison
+
+`native-door-sound-probe.h` executes the original, unpatched `$80:9035`,
+`$80:90B7`, `$80:9139` Max3 queue routines and `$82:89EF` sound dispatcher.
+Do not substitute the native C sound dispatcher: its acknowledgement handlers
+are explicitly modified and use a different clear delay.
+
+The72 cases cover all three libraries,0..3 requests, starting ring positions0
+and14, and acknowledgement lags0..2. Each emits32 frames. All2304 rows match
+the production C# queue exactly: read/write indexes, state, current request,
+clear delay, sparse APU write and unread-ring predicate. With two requests,
+the ring first empties at frames4/6/8 for the three lags; with three it empties
+at8/12/16. The final sound is still in state1 at that point. These are fixture
+dispatcher frames, not measured full-door delays or wiki maximums.
+
+### Reproduce privately
+
+Include `native-release-probe.h` and then `native-door-sound-probe.h` at the
+end of `upstream-sm/src/sm_rtl.c`. Before SDL initialization in `main`, route
+`--door-sound-probe ROM NEW_CSV` to `DiagnosticDoorSounds(argv[2], argv[3])`.
+At the APU-read branch of `snes_readBBus`, before its unsupported-read assertion,
+temporarily add:
+
+```c
+extern bool g_diagnostic_door_sound_ports;
+if (g_diagnostic_door_sound_ports) return snes->apu->outPorts[adr & 3];
+```
+
+This switch applies only to the explicit diagnostic, supplies constructed
+acknowledgements and does not run the SPC. The cartridge's CPU instructions
+and queue state remain original. Build Release/x64 with the documented v145
+native toolchain, run the headless command, then compare using
+`--door-sound-queue-compare ROM NEW_CSV`. The probe refuses to overwrite a CSV.
+Remove all three temporary hooks and rebuild the ordinary executable afterward.
+That cleanup was completed after this comparison. No emulated controller
+action, full door coroutine, music downtime, Power Bomb cancellation or
+simultaneous-library arbitration is certified by these cases.

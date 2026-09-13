@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -10,7 +9,7 @@ public enum MapScrollDirection { None, Left, Right, Up, Down }
 /// <summary>Initial room-select positioning and $81:AECA/$82:925D scroll ownership.</summary>
 public sealed class FileSelectMapScroll
 {
-    private readonly ushort[] buttons = new ushort[4];
+    private readonly ushort[] buttons = new ushort[MapScrollControls.DirectionCount];
     private int tick;
     public ushort Horizontal { get; private set; }
     public ushort Vertical { get; private set; }
@@ -22,10 +21,17 @@ public sealed class FileSelectMapScroll
 
     public FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
         Bank80SystemState system, ushort playerMapX, ushort playerMapY)
+        : this(bus, map, system, playerMapX, playerMapY, MapScrollControls.Buttons) { }
+
+    /// <summary>Independent cartridge-control injection for verification; production uses compiled input definitions.</summary>
+    internal FileSelectMapScroll(ISnesAddressSpace bus, IAreaMapView map,
+        Bank80SystemState system, ushort playerMapX, ushort playerMapY, ReadOnlySpan<ushort> controlButtons)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(system);
+        if (controlButtons.Length != buttons.Length) throw new ArgumentException("Map scrolling requires four ordered bindings.", nameof(controlButtons));
+        controlButtons.CopyTo(buttons);
         // Native selects one plane, not the union: a downloaded map uses its station
         // mask even if an explored secret cell lies outside that mask.
         bool Visible(int x, int y) => system.HasAreaMap(map.Area)
@@ -62,14 +68,6 @@ public sealed class FileSelectMapScroll
         }
         // $81:AD17 adjusts the upper arrow boundary only after positioning.
         MinimumY = Wrap(nativeMinimumY + 24);
-        for (int index = 0; index < buttons.Length; index++)
-        {
-            int record = FileSelectMapRomData.ScrollArrows + index * 10;
-            buttons[index] = RomDataReader.ReadWordFixedBank(bus, record + 6);
-            ushort direction = RomDataReader.ReadWordFixedBank(bus, record + 8);
-            if (direction != index + 1)
-                throw new InvalidDataException("File-select map arrow direction table is inconsistent.");
-        }
     }
 
     public bool CanScroll(MapScrollDirection direction) => direction switch

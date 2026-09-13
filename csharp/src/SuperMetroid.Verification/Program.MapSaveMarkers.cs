@@ -108,7 +108,7 @@ internal static partial class Program
         AssertThrows<FileNotFoundException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "missing stock save markers rejected");
         File.WriteAllText(rebuiltPath, "bad stock");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(rebuilt, null), "corrupt stock save markers rejected");
-        Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices, ROM-free menu transitions, edited pixels and restored load timing pass.");
+        Console.WriteLine($"Save markers: {valid} coordinates/128-tick animations, unused indices, transitions with save-coordinate ROM reads blocked, edited pixels and restored load timing pass.");
 
         byte[] Draw(FileSelectStationMarker marker)
         {

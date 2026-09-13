@@ -543,3 +543,41 @@ Focused/full core verification and Windows Release build pass. Local logs:
 This completes the selected-save placement portion, not all #282 requirements.
 Remaining room/load metadata and other scoped ROM reads still need auditing;
 historical full-session and Android device validation are not claimed here.
+
+## Compiled scroll controls and remaining dependency audit
+
+The controller masks/direction order embedded in the four `$81:AF32` arrow
+records now belong to `MapScrollControls`. `FileSelectMapScroll` copies those
+compiled bindings into its existing serialized field, leaving step timing,
+boundary inequalities, precedence and sound requests unchanged. The visual
+position/animation portions of the records still require presentation extraction.
+
+Verification independently reads the four cartridge masks and direction IDs,
+compares sixteen combinations through sustained movement, boundary stopping and
+release, checks unrelated controller bits, and runs the complete existing menu
+sequence with the control-word ROM reads forbidden. The injected cartridge
+control and compiled path must agree on every scroll position, direction and
+sound tick. Focused/full core suite and Windows Release build pass; logs are
+`282-scroll-controls.log`, `282-scroll-controls-suite.log` and
+`282-scroll-controls-windows.log` in ignored test-temp.
+
+The remaining map-runtime dependencies are not all the same kind:
+
+- `FileSelectMapAnimations`: arrow positions, animation IDs/frames and sprite
+  composition remain presentation dependencies; palette-cycle content is bound.
+- `FileSelectAreaMapGraphics`: world foreground/background tilemaps and menu
+  sprite composition remain presentation reads. Display ordering is a compiled
+  definition candidate. Its palette-ROM branch is only the unbound diagnostic
+  path; installed palettes, label anchors and eligibility are already supplied.
+- `FileSelectRoomMapGraphics`: fixed frame/footer and area-name tile composition
+  remain presentation reads, distinct from the extracted room-map cell grid.
+- `FileSelectMapMenuState`: load-station/room metadata still computes the initial
+  player-map scroll anchor. That is application behavior, not an editable marker
+  coordinate. Its old closure remains for historical graph/diagnostic use.
+- `FileSelectMapIcons` and `FileSelectStationMarker`: installed position and
+  eligibility paths are bound; their common sprite-composition tables remain.
+- Gameplay HUD/pause shared dependencies and final combined guards still need
+  the broader #282/#544/#549 integration audit. Passing individual blocked-range
+  tests is not evidence that the entire menu or game is ROM-free.
+
+This audit directs the remaining work; it does not defer it or close #282.

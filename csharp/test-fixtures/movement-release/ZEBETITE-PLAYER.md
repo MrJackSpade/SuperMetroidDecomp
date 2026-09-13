@@ -190,6 +190,31 @@ Right+Jump 608–625; neutral through 719. This ends at 700 lower HP, seven miss
 frames; only delay 5 works with fourteen. Focused adjacent cases fail.
 
 The two-hit input schedule is now shared by both fixtures. Re-exporting it still
-matches both original 360-frame CPU captures. The three-hit continuation itself
-is managed-side evidence only and still requires native comparison before any
-parity claim. Later hits and the complete death/double-kill sequence remain open.
+matches both original 360-frame CPU captures. Later hits and the complete
+death/double-kill sequence remain open.
+
+## Recorded-input original-CPU consumer
+
+`--zebetite-player-third-hit-export ROM DIRECTORY` exports all ten focused cases
+as JSONL observations plus `.zbi` input recordings. ZBI1 consists of the four
+ASCII magic bytes, little-endian uint32 first frame (60), uint32 frame count,
+then that many little-endian uint16 controller words. The native reader rejects
+invalid headers, incorrect lengths, zero counts and counts above 10,000 before
+using the input payload.
+
+Temporarily dispatch to
+`DiagnosticZebetitePlayerInputs(rom, seed, outputCsv, inputRecording)` using the
+same MOV1 `isolated-728.movement-seed`. This consumer reads the exported controller
+words directly; no independent hard-coded third-shot schedule is maintained in C.
+Its frame loop and initial-state limitations remain those documented above.
+
+All ten three-hit recordings match the original CPU for every exported field
+over frames 60–719 (6,600 frames total), using the comparer with `-FrameCount 660`.
+This confirms the four focused successes and six neighboring failures, including
+the successful 700-HP third hit with Samus health 999. Comparisons include the
+return hops, camera movement, first-projectile lifetime, ammunition, both health
+values, both hurt timers and both AI-handler words, not merely final health.
+The temporary hook was removed and the ordinary native executable rebuilt.
+
+This still does not establish ten hits, the final death/double-kill handoff, or
+the audiovisual/other-actor equivalence intentionally omitted from this fixture.

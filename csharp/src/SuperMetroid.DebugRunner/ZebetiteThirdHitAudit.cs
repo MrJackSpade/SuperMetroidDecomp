@@ -3,8 +3,9 @@ using SuperMetroid.Core.Input;
 /// <summary>Searches a third hit after the CPU-matched two-hit prefix, without resets.</summary>
 internal static class ZebetiteThirdHitAudit
 {
-    public static int Search(string romPath, bool focused = false)
+    public static int Search(string romPath, bool focused = false, string? exportDirectory = null)
     {
+        if (exportDirectory is not null) Directory.CreateDirectory(exportDirectory);
         int cases = 0, successes = 0;
         ushort best = 1000;
         for (int returnStart = focused ? 460 : 420; returnStart <= (focused ? 460 : 480); returnStart += 10)
@@ -13,6 +14,16 @@ internal static class ZebetiteThirdHitAudit
         for (int jumpDelay = focused ? 3 : 0; jumpDelay <= (focused ? 7 : 15); jumpDelay++)
         {
             var runtime = ZebetitePlayerSetupAudit.CreateSetup(romPath, true, 728, 641);
+            string? prefix = exportDirectory is null ? null : Path.Combine(exportDirectory,
+                $"third-{returnStart}-{returnLeftFrames}-{jumpDelay}-{leftFrames}");
+            using var trace = prefix is null ? null : new StreamWriter(prefix + ".jsonl");
+            using var inputs = prefix is null ? null : new BinaryWriter(File.Create(prefix + ".zbi"));
+            if (inputs is not null)
+            {
+                inputs.Write("ZBI1"u8);
+                inputs.Write(60);
+                inputs.Write(660);
+            }
             ushort previousHealth = 1000;
             bool regenerated = false;
             for (int frame = 0; frame < 720; frame++)
@@ -31,6 +42,11 @@ internal static class ZebetiteThirdHitAudit
                 if (frame >= jump && frame < jump + leftFrames) input |= SnesButton.Left | SnesButton.A;
                 else if (frame >= jump + leftFrames && frame < jump + leftFrames + 18) input |= SnesButton.Right | SnesButton.A;
                 runtime.StepFrame((ushort)input);
+                if (frame >= 60 && trace is not null)
+                {
+                    ZebetitePlayerTrace.Write(trace, runtime, frame, (ushort)input);
+                    inputs!.Write((ushort)input);
+                }
                 var lower = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xe27f && slot.Parameter1 != 0);
                 if (lower.Health > previousHealth) regenerated = true;
                 previousHealth = lower.Health;
@@ -49,7 +65,7 @@ internal static class ZebetiteThirdHitAudit
             }
             if (focused)
             {
-                // This preserves managed candidate evidence, not a CPU oracle.
+                // This window was subsequently confirmed by recorded-input CPU replay.
                 bool expected = returnLeftFrames == 13 ? jumpDelay is >= 4 and <= 6 : jumpDelay == 5;
                 if (success != expected || success && samus.Health != 999)
                     throw new InvalidDataException($"Third-hit candidate changed at return-left {returnLeftFrames}, jump delay {jumpDelay}.");

@@ -25,20 +25,7 @@ internal static class ZebetiteSecondHitAudit
                 SnesButton input = GetInput(frame, shotDelay, jumpDelay, leftFrames);
                 runtime.StepFrame((ushort)input);
                 if (frame >= 60 && trace is not null)
-                {
-                    var samus = runtime.Samus!;
-                    trace.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
-                    {
-                        Frame = frame, Input = (ushort)input,
-                        samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
-                        samus.AnimationFrame, samus.AnimationFrameTimer,
-                        CameraX = runtime.Camera!.XPosition, CameraY = runtime.Camera.YPosition,
-                        samus.Missiles, samus.Health,
-                        Shots = runtime.Projectiles.Slots.Select(shot => new { shot.Type, shot.XPosition, shot.YPosition }).ToArray(),
-                        Barriers = runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == 0xe27f)
-                            .Select(slot => new { slot.Health, slot.FlashTimer, slot.AiHandlerBits }).ToArray(),
-                    }));
-                }
+                    ZebetitePlayerTrace.Write(trace, runtime, frame, (ushort)input);
                 var lower = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xe27f && slot.Parameter1 != 0);
                 if (lower.Health > previousHealth) regenerated = true;
                 previousHealth = lower.Health;

@@ -1,7 +1,7 @@
 // #443: first native consumer for the narrowly specified isolated candidate.
 // Uses MOV1 room/movement seed plus the documented fixed candidate metadata.
 // Live FX/PLM equivalence and full state import remain to be audited.
-static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay) {
+static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay, const uint8 *inputs, int frame_count) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size != 3200) { free(seed); return 4; }
@@ -63,7 +63,7 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
   FILE *f = fopen(output, "w"); if (!f) return 6;
   fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower,health,upperFlash,lowerFlash,upperAi,lowerAi\n");
   uint16 previous = 0;
-  for (int frame = 60; frame < (second_jump_delay ? 420 : 120); frame++) {
+  for (int frame = 60; frame < 60 + frame_count; frame++) {
     uint16 input = frame == 60 || frame == 61 ? 0x400 : frame == 66 ? 0x200 : frame == 78 ? 0x40 : frame == 80 ? 0x280 : frame >= 81 && frame < 99 ? 0x180 : 0;
     if (second_jump_delay) {
       input = frame == 60 || frame == 61 || frame == 280 || frame == 281 ? 0x400 :
@@ -74,6 +74,10 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
       int jump = 300 + second_jump_delay;
       if (frame >= jump && frame < jump + 3) input |= 0x280;
       else if (frame >= jump + 3 && frame < jump + 21) input |= 0x180;
+    }
+    if (inputs) {
+      int offset = (frame - 60) * 2;
+      input = inputs[offset] | inputs[offset + 1] << 8;
     }
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
     // Keep the word counter independent of the wrapping byte after frame 253.
@@ -97,10 +101,23 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
 }
 
 int DiagnosticZebetitePlayer(const char *rom, const char *seed, const char *output) {
-  return DiagnosticZebetitePlayerRun(rom, seed, output, 0);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, 0, NULL, 60);
 }
 
 int DiagnosticZebetitePlayerSecondHit(const char *rom, const char *seed, const char *output, int jump_delay) {
   if (jump_delay != 3 && jump_delay != 4) return 7;
-  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay, NULL, 360);
+}
+
+int DiagnosticZebetitePlayerInputs(const char *rom, const char *seed, const char *output, const char *input_path) {
+  size_t size = 0;
+  uint8 *data = ReadWholeFile(input_path, &size);
+  if (!data || size < 12 || memcmp(data, "ZBI1", 4)) { free(data); return 8; }
+  uint32 *header = (uint32 *)data;
+  if (header[1] != 60 || header[2] == 0 || header[2] > 10000 || size != 12 + header[2] * 2) {
+    free(data); return 9;
+  }
+  int result = DiagnosticZebetitePlayerRun(rom, seed, output, 0, data + 12, header[2]);
+  free(data);
+  return result;
 }

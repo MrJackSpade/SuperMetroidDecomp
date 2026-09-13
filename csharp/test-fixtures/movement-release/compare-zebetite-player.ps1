@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string] $ManagedTrace,
     [Parameter(Mandatory)][string] $NativeTrace,
-    [ValidateSet(60,360)][int] $FrameCount = 60
+    [ValidateSet(60,360,660)][int] $FrameCount = 60
 )
 
 # Compare the deliberately limited observables exported by the CPU consumer.
@@ -22,7 +22,7 @@ for ($i = 0; $i -lt $FrameCount; $i++) {
         shotType = $m.Shots[0].Type; shotX = $m.Shots[0].XPosition; shotY = $m.Shots[0].YPosition
         upper = $m.Barriers[0].Health; lower = $m.Barriers[1].Health
     }
-    if ($FrameCount -eq 360) {
+    if ($FrameCount -gt 60) {
         $values.health = $m.Health
         $values.upperFlash = $m.Barriers[0].FlashTimer
         $values.lowerFlash = $m.Barriers[1].FlashTimer

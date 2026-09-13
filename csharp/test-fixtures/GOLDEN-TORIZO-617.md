@@ -26,6 +26,16 @@ case fails; after correction all eight and the existing encounter audit pass.
 
 ## Coverage limits / remaining audit
 
+### Super capture facing/leg matrix
+
+Eight additional cases check graphical bits 0000/2000/8000/A000 with Samus
+in front and behind. Independent $AA:D71D-D741 expectations select CDE1,
+CE43, CEA5, CEFF respectively. Front hits retain health and set the catch
+latch/list/timer; rear hits apply damage without capture. All cases passed
+before cleanup. Two old catalog names incorrectly described the facing
+direction; the names now spell out both facing and leading leg, with no
+address or behavior change. This confirms selection, not full animation timing.
+
 The existing audit exercises retail loading, animation/movement, five projectile
 families, shot reactions, contact damage, death and boss completion. Some branches
 are entered explicitly; successful execution does not establish native cadence.

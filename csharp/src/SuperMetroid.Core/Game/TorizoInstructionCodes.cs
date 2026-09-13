@@ -215,14 +215,14 @@ internal static class TorizoInstructionLists
     public const ushort AirborneFacingRight = 0xc0f2;
     /// <summary>Bomb Torizo alternate landing list facing left at $AA:C188.</summary>
     public const ushort AlternateLandingFacingLeft = 0xc188;
-    /// <summary>Golden Torizo caught-super reaction facing left at $AA:CDE1.</summary>
-    public const ushort CaughtSuperFacingLeft = 0xcde1;
-    /// <summary>Golden Torizo caught-super reaction facing right at $AA:CE43.</summary>
-    public const ushort CaughtSuperFacingRight = 0xce43;
-    /// <summary>Golden Torizo alternate caught-super reaction facing left at $AA:CEA5.</summary>
-    public const ushort AlternateCaughtSuperFacingLeft = 0xcea5;
-    /// <summary>Golden Torizo alternate caught-super reaction facing right at $AA:CEFF.</summary>
-    public const ushort AlternateCaughtSuperFacingRight = 0xceff;
+    /// <summary>InstList_GoldenTorizo_CaughtSuper_FacingLeft_LeftLegFwd at $AA:CDE1.</summary>
+    public const ushort CaughtSuperFacingLeftLeftLegForward = 0xcde1;
+    /// <summary>InstList_GoldenTorizo_CaughtSuper_FacingLeft_RightLegFwd at $AA:CE43.</summary>
+    public const ushort CaughtSuperFacingLeftRightLegForward = 0xce43;
+    /// <summary>InstList_GoldenTorizo_CaughtSuper_FacingRight_RightLegFwd at $AA:CEA5.</summary>
+    public const ushort CaughtSuperFacingRightRightLegForward = 0xcea5;
+    /// <summary>InstList_GoldenTorizo_CaughtSuper_FacingRight_LeftLegFwd at $AA:CEFF.</summary>
+    public const ushort CaughtSuperFacingRightLeftLegForward = 0xceff;
     /// <summary>Golden Torizo caught-missile reaction facing left at $AA:D1F1.</summary>
     public const ushort CaughtMissileFacingLeft = 0xd1f1;
     /// <summary>Golden Torizo caught-missile reaction facing right at $AA:D2AD.</summary>

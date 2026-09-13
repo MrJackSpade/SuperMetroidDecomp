@@ -1438,11 +1438,11 @@ public sealed partial class RoomEnemySystem
                                 enemy.InstructionTimer = 1;
                                 enemy.CurrentInstruction = (enemy.Parameter1 & 0x2000) != 0
                                     ? (enemy.Parameter1 & 0x8000) != 0
-                                        ? TorizoInstructionLists.AlternateCaughtSuperFacingRight
-                                        : TorizoInstructionLists.CaughtSuperFacingRight
+                                        ? TorizoInstructionLists.CaughtSuperFacingRightLeftLegForward
+                                        : TorizoInstructionLists.CaughtSuperFacingLeftRightLegForward
                                     : (enemy.Parameter1 & 0x8000) != 0
-                                        ? TorizoInstructionLists.AlternateCaughtSuperFacingLeft
-                                        : TorizoInstructionLists.CaughtSuperFacingLeft;
+                                        ? TorizoInstructionLists.CaughtSuperFacingRightRightLegForward
+                                        : TorizoInstructionLists.CaughtSuperFacingLeftLeftLegForward;
                                 hitCount++;
                                 break;
                             }

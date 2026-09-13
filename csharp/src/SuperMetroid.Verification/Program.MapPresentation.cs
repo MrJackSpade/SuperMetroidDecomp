@@ -150,6 +150,7 @@ internal static partial class Program
         VerifyCompiledPauseEquipmentRules(bus, original);
         VerifyPauseBackdrops(bus, stock, Path.Combine(root, "pause-backdrop-overrides"), original);
         VerifyPauseWireframes(bus, stock, Path.Combine(root, "pause-wireframe-overrides"), original);
+        VerifyPauseSelectors(bus, stock, Path.Combine(root, "pause-selector-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

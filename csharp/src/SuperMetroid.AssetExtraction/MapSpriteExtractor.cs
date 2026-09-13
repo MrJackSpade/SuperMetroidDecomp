@@ -15,24 +15,7 @@ public static class MapSpriteExtractor
             throw new InvalidDataException("Unexpected native world-title sprite binding.");
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in MapSpriteDefinitions.Frames)
-        {
-            int address = FileSelectMapRomData.MenuObjectBank | RomDataReader.ReadWordFixedBank(bus, MenuPpuState.SpritemapPointerTableAddress + definition.NativeId * 2);
-            int count = RomDataReader.ReadWordFixedBank(bus, address);
-            if (count > MapSpriteFormat.MaximumParts) throw new InvalidDataException($"Map sprite {definition.Name} exceeds OAM capacity.");
-            var parts = new SpriteVisualPart[count];
-            for (int index = 0; index < count; index++)
-            {
-                int part = address + 2 + index * 5;
-                var x = new SnesSpritemapXWord(RomDataReader.ReadWordFixedBank(bus, part));
-                var attributes = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(bus, part + 3));
-                parts[index] = new() { OffsetX = x.SignedOffset, OffsetY = unchecked((sbyte)bus.ReadByte(part + 2)),
-                    TileColumn = attributes.TileNumber % MapSpriteFormat.TileColumns, TileRow = attributes.TileNumber / MapSpriteFormat.TileColumns,
-                    Size = x.IsLarge ? 16 : 8, Priority = attributes.Priority, FlipX = attributes.FlipHorizontally, FlipY = attributes.FlipVertically,
-                    // $81:879F replaces source palette bits with its caller's live palette.
-                    Palette = null };
-            }
-            frames.Add(definition.Name, parts);
-        }
+            frames.Add(definition.Name, MenuSpriteExtractor.Read(bus, definition.NativeId));
         byte[] pixels = SnesGraphics.DecodePlanarTiles(RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount),
             4, MapSpriteFormat.TileColumns, out int width, out int height);
         using var png = new MemoryStream();

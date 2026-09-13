@@ -965,3 +965,53 @@ installation, cancelled upgrade, replacement and restart.
 This remains partial #544/#282 work. Equipment base/label patches, semantic
 placement, selector/reserve presentation and broader integration remain; the
 pause screen is not yet ROM-free, and Android validation remains outstanding.
+
+## Editable equipment selectors (#544/#282/#535)
+
+Catalog version 17 adds `pause-selectors.json`, schema version 1 (nineteen
+shared resource hashes). It uses the existing `map-objects.png` character sheet.
+The native three sprite shapes, sixteen anchors, palette and fourteen-phase
+timing loop are resolved at import. The otherwise-unused middle byte of native
+timing entries is not an editable engine instruction. All native sprite offsets
+are zero; the importer validates that binding instead of publishing ROM indexes.
+
+`anchors` contains `Reserve.Mode`, `Reserve.Transfer`, `Beam.Charge`, `Beam.Ice`,
+`Beam.Wave`, `Beam.Spazer`, `Beam.Plasma`, `Equipment.Varia`, `Equipment.Gravity`,
+`Equipment.MorphBall`, `Equipment.Bombs`, `Equipment.SpringBall`,
+`Equipment.ScrewAttack`, `Boots.HiJump`, `Boots.SpaceJump`, `Boots.SpeedBooster`.
+Coordinates are final screen origins (X 0..255, Y 0..223); import already applies
+the native minus-one correction to both axes. `frames` contains named arrays of
+the shared sprite-part schema: offsets, indexed tile region, 8/16 size, priority,
+flips and optional palette. Null part palette inherits the document's `palette`.
+Empty arrays explicitly author a hidden frame. Unknown frame references fail.
+
+`animation` is an ordered array of 1..255 phases, each with `durationTicks`
+(1..254) and named `reserve`, `beam`, `equipment` frame references. Suits and
+Boots share the equipment visual group, exactly as native. `initialDurationTicks`
+is separate from the looping first-phase duration. The shipped shapes do not
+change over their fourteen timing phases, but replacements may animate visually.
+Changing selector palette does not change the pause-map marker's caller palette.
+
+Copy stock JSON to `overrides/maps/pause-selectors.json` to edit. Navigation,
+inventory eligibility, same-frame category dispatch, input bindings and empty-
+inventory gating remain compiled. Sprite parts and anchors cannot change those
+rules. Rebind preserves serialized timer and phase; drawing a shorter replacement
+cycle projects the saved phase modulo its new length, and the next timer expiry
+advances in that cycle. The diagnostic spritemap ID reports the original category
+binding, not an author-supplied address. No serialized state fields were added.
+
+Verification independently checks native anchors, initial and looping delays,
+palette, 672 OAM cases (all anchors/phases with empty/nearly-full/full OAM), and
+1,600 real equipment-menu frames with selector ROM reads forbidden. Those frames
+compare native timing and pixels and restore a serialized menu midway through.
+Custom two-phase hidden/visible artwork verifies exact timing, moved origins,
+parts, large size, flips, priority, explicit/inherited palettes, direct/captured
+rendering, actual equipment toggling and current-content restore. Shortened-cycle
+and empty-inventory controls pass. Strict invalid/missing/corrupt resources and
+installer preservation cover the new file; prior override schemas remain intact.
+
+Equipment base/label patches, reserve presentation, coordinated semantic layout
+placement and broader integration remain outstanding. Moving only the selector
+does not move its equipment label. This partial implementation does not close
+#544/#282/#535 or prove the entire pause menu or game is ROM-free. Android device
+and historical full-session validation remain pending.

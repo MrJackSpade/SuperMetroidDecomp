@@ -48,6 +48,10 @@ internal static partial class Program
         var wireframes = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseWireframeDefinitions.FileName)))!;
         wireframes["frames"]!["PowerSuit"]![0]!["flipX"] = true;
         File.WriteAllText(wireframeOverride, wireframes.ToJsonString());
+        string selectorOverride = Path.Combine(installation.MapOverrideDirectory, PauseSelectorDefinitions.FileName);
+        var selectors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseSelectorDefinitions.FileName)))!;
+        selectors["anchors"]!["Beam.Charge"]!["x"] = 48;
+        File.WriteAllText(selectorOverride, selectors.ToJsonString());
         string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
         var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
@@ -83,6 +87,7 @@ internal static partial class Program
             [screenOverride] = File.ReadAllBytes(screenOverride),
             [backdropOverride] = File.ReadAllBytes(backdropOverride),
             [wireframeOverride] = File.ReadAllBytes(wireframeOverride),
+            [selectorOverride] = File.ReadAllBytes(selectorOverride),
             [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),

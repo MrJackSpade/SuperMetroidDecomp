@@ -149,6 +149,8 @@ internal sealed partial class PauseMenuState
 
     /// <summary>High byte of the native category/item selector word.</summary>
     public int SelectedItem => selectedItem;
+    /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
+    internal (int Frame, int Timer) ItemSelectorAnimationState => (itemSelectorAnimationFrame, itemSelectorAnimationTimer);
 
     /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
     public int LastRenderedSpriteCount => oam.LastFinalizedSpriteCount;
@@ -737,7 +739,7 @@ internal sealed partial class PauseMenuState
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
-        itemSelectorAnimationTimer = bus.ReadByte(PauseMenuRomData.ItemSelectorAnimationTimer);
+        itemSelectorAnimationTimer = mapPresentation?.PauseSelectors.InitialDurationTicks ?? bus.ReadByte(PauseMenuRomData.ItemSelectorAnimationTimer);
     }
 
     private void StepItemSelectorAnimation()
@@ -750,6 +752,13 @@ internal sealed partial class PauseMenuState
         itemSelectorAnimationTimer--;
         if (itemSelectorAnimationTimer > 0)
             return;
+
+        if (mapPresentation is not null)
+        {
+            itemSelectorAnimationFrame = mapPresentation.PauseSelectors.NormalizePhase(itemSelectorAnimationFrame + 1);
+            itemSelectorAnimationTimer = mapPresentation.PauseSelectors.Duration(itemSelectorAnimationFrame);
+            return;
+        }
 
         ushort animationPointer = RomDataReader.ReadWordFixedBank(
             bus,
@@ -769,6 +778,19 @@ internal sealed partial class PauseMenuState
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
             return;
+
+        if (mapPresentation is not null)
+        {
+            var selector = mapPresentation.PauseSelectors;
+            var point = selector.Anchor(selectedCategory, selectedItem);
+            lastIndicatorOriginX = (ushort)point.X;
+            lastIndicatorOriginY = (ushort)point.Y;
+            // Diagnostic identity denotes the native category binding, not an
+            // author-supplied ROM index. Custom phases may use different artwork.
+            lastIndicatorSpritemapId = PauseSelectorDefinitions.NativeSpriteId(selectedCategory);
+            selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
+            return;
+        }
 
         ushort positionListPointer = RomDataReader.ReadWordFixedBank(
             bus,
@@ -823,7 +845,8 @@ internal sealed partial class PauseMenuState
     }
 
     private ushort ReadPauseSpritePaletteBits() =>
-        RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.SelectedItemSpritemapPointer);
+        mapPresentation is not null ? PauseMenuLayout.MapMarkerPaletteBits :
+            RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.SelectedItemSpritemapPointer);
 
     /// <summary>
     /// Ports the three SetPauseScreenButtonLabelPalettes variants at $82:A628-$A84C and

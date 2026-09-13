@@ -75,3 +75,22 @@ Remove all three temporary hooks and rebuild the ordinary executable afterward.
 That cleanup was completed after this comparison. No emulated controller
 action, full door coroutine, music downtime, Power Bomb cancellation or
 simultaneous-library arbitration is certified by these cases.
+
+## Reproduced active Power Bomb publication gap
+
+`--power-bomb-sound-suppression-audit ROM` currently fails intentionally.
+It uses the real frontend Select input with five missiles and no selected item.
+The baseline selects missiles and emits library1/$39. A paired fixture arms and
+spawns the production Power Bomb owner before the same input; its status is
+$8000 and selection still emits$39, violating the native queue guard. No fake
+sound list or invalid explosion phase is injected. Explosion entry is constructed,
+not earned by waiting through a planted projectile fuse.
+
+The queue implementation already exposes the native suppression argument, used
+by echo/low-health calls; general deferred sound publication omits it. Do not
+filter all requests by final frame status: `$88:8AA4` queues its own library1
+sound before setting the active bit, and earlier producers may also precede
+that change. The correction needs producer-time suppression semantics, retaining
+the Power Bomb cue and legitimately earlier sounds. Other suppressed producers
+and start/cleanup boundaries require coverage. No production fix accompanies
+this failing diagnostic yet.

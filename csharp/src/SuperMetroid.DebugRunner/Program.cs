@@ -1155,6 +1155,8 @@ if (args.Length == 2 && args[0] == "--door-sound-wait-audit")
     return DoorSoundWaitAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--door-sound-queue-compare")
     return DoorSoundQueueComparison.Run(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--power-bomb-sound-suppression-audit")
+    return PowerBombSoundSuppressionAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--climb-missile-playback-audit")
     return ClimbMissileAudioAudit.Run(args[1], args[2]);
 if (args.Length == 4 && args[0] == "--climb-missile-native-audio-audit")

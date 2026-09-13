@@ -52,7 +52,7 @@ the experiment. Generated seeds contain cartridge data and must remain private.
 
 The original CPU reproduces the wedged trajectory: all 120 frames agree on
 positions/subpixels, pose, animation frame/timer, X radius, health and Rinka freeze
-timer. **Y radius differs on five pose-change frames:**
+timer. The initial comparison found five Y-radius publication differences:
 
 | Step-back frames | Frame | Managed Y radius | Native Y radius |
 | --- | --- | --- | --- |
@@ -63,12 +63,25 @@ timer. **Y radius differs on five pose-change frames:**
 | 20 | 140 | 12 | 21 |
 
 `--zebetite-skip-compare MANAGED_CSV NATIVE_CSV` checks every field and exits with
-an error for these differences; they are not silently excluded from a parity pass.
+an error for any differences; they are not silently excluded from a parity pass.
 Their effect on a successful skip remains unproven. Do not infer a collision fix
 from wedging that the cartridge itself reproduces.
+
+The collision-forced crouch path now matches `$91:FFA7`: read the target radius
+for center correction without publishing it as the live radius. This corrects
+offset 0/frame 125 and offset 8/frame 134. The same MOV1/ZSK1 seeds are byte-identical,
+and comparing all 120 frames now leaves only the three jump-entry differences
+listed above. Focused spin-to-crouch and compact-to-crouch tests check retained
+radius, immediate center correction, and next-alpha publication separately.
+
+An experimental delay of ordinary jump-entry radius publication eliminated the
+remaining differences, but failed the intro-history integration test (the scene
+did not complete its terminal/discovery handoff). That change was backed out.
+Inspect the cinematic caller's alpha/update ownership before changing this shared
+initializer; a matching gameplay interval is not sufficient regression coverage.
 
 `--zebetite-skip-repeat-jumps ROM` explores repeated step-back/jump cycles with
 seven offsets. This remains exploratory: no successful passage assertion or
 native comparison for that longer sequence exists yet. The next required work is
-the successful alignment/escape setup, the radius-publication discrepancy, and
+the successful alignment/escape setup, the jump-radius publication discrepancy, and
 the separate diagonal-shinespark method. #442 remains active.

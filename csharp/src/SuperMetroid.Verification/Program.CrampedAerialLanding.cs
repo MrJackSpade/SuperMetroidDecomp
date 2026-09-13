@@ -75,6 +75,9 @@ internal static partial class Program
             "two-sided non-Morph landing collision selects native crouch fallback");
         AssertEqual(0x0030, samus.YPosition,
             "crouch fallback preserves the captured floor boundary");
+        AssertEqual(12, samus.Kinematics.YRadius,
+            "collision-selected crouch retains the live spin radius until next alpha");
+        samus.RefreshCollisionRadii(bus);
         AssertEqual(16, samus.Kinematics.YRadius,
             "crouch fallback fits the 32-pixel retail barrier opening");
         AssertEqual(0x0020, samus.YPosition - samus.Kinematics.YRadius,

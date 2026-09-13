@@ -468,8 +468,11 @@ static void VerifySamusAimedAerialMovement()
             bus, boxedLevel, SamusPoseIds.NormalJumpAimDiagonalDownRightPose, nmiFrameCounter: 0),
         "boxed compact expansion is rejected");
     AssertEqual(0x27, boxedCompact.Pose, "boxed compact expansion selects crouch");
-    AssertEqual(16, boxedCompact.Kinematics.YRadius, "boxed compact fallback radius");
+    AssertEqual(10, boxedCompact.Kinematics.YRadius, "boxed compact fallback retains live radius until alpha");
     AssertEqual(170, boxedCompact.YPosition, "boxed compact fallback applies FFD4 offset");
+    boxedCompact.RefreshCollisionRadii(bus);
+    AssertEqual(16, boxedCompact.Kinematics.YRadius, "next alpha publishes compact fallback crouch radius");
+    AssertEqual(170, boxedCompact.YPosition, "radius publication does not repeat center correction");
 
     // PSP_Falling chooses ordinary falling from the physics-facing byte. Aim is
     // reconsidered on the next input pass, rather than being preserved by the walk-off.

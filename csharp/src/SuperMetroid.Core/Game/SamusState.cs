@@ -684,14 +684,19 @@ public sealed partial class SamusState
             return;
 
         Pose = fallbackPose;
-        RefreshCollisionRadii(bus);
-        if (oldRadius < Kinematics.YRadius)
+        int fallbackDefinition = AddWithinBank(
+            SamusMovementRomData.Poses.Definitions,
+            fallbackPose * SamusMovementRomData.Poses.DefinitionByteCount);
+        ushort fallbackRadius = bus.ReadByte(AddWithinBank(fallbackDefinition, 6));
+        // The collision fallback reads the prospective radius for center correction,
+        // but leaves the live radius untouched until the next ordinary alpha phase.
+        if (oldRadius < fallbackRadius)
         {
             // `$91:FFD4-$91:FFE9` subtracts the extra crouch radius from center Y. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
             // move up six pixels when simultaneous initial probes force `$27/$28`.
             Kinematics.YPosition = unchecked((ushort)(
-                Kinematics.YPosition - (Kinematics.YRadius - oldRadius)));
+                Kinematics.YPosition - (fallbackRadius - oldRadius)));
             RecordPoseCollisionCameraY(Kinematics.YPosition);
         }
         InitializeAnimation(bus, initialFrame: 0);

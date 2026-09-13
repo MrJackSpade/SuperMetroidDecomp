@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -36,7 +35,7 @@ internal sealed partial class PauseMenuState
             PauseReserveTransferRomData.SoundCadenceMask)
             audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
 
-        ushort amount = RomDataReader.ReadWordFixedBank(bus, PauseReserveTransferRomData.TransferAmount);
+        ushort amount = PauseEquipmentRules.ReserveEnergyPerFrame;
         samus.Health = unchecked((ushort)(samus.Health + amount));
         if (unchecked((short)(samus.Health - samus.MaxHealth)) >= 0)
             samus.Health = samus.MaxHealth;

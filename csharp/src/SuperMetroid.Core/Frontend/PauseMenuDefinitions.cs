@@ -46,6 +46,7 @@ internal static class PauseMapIndicatorAnimation
 
 /// <summary>One bank-$82 equipment-category table record used by the pause screen.</summary>
 internal readonly record struct PauseEquipmentCategoryDefinition(
+    int Category,
     int OffsetTableAddress,
     int TilemapPointerTableAddress,
     int BitmaskTableAddress,
@@ -75,9 +76,9 @@ internal static class PauseEquipmentCategories
     [
         // Category zero is reserve tanks. Its special controls are unavailable until Samus
         // owns reserve capacity, so the native equipment tables are intentionally null.
-        new(0, 0, 0, 0, 0),
-        new(0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
-        new(0x82c076, 0x82c096, 0x82c056, 6, 9),
-        new(0x82c082, 0x82c0a2, 0x82c062, 3, 9),
+        new(Reserves, 0, 0, 0, 0, 0),
+        new(Beams, 0x82c06c, 0x82c08c, 0x82c04c, 5, 5),
+        new(Suits, 0x82c076, 0x82c096, 0x82c056, 6, 9),
+        new(Boots, 0x82c082, 0x82c0a2, 0x82c062, 3, 9),
     ];
 }

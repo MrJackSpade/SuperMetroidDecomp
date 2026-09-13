@@ -847,3 +847,30 @@ area labels, selector presentation and reserve presentation. Mixed records
 also contain equipment masks, suit-selection rules and reserve-transfer amounts;
 those mechanics must become compiled definitions, not editable artwork tables.
 The pause screen is not yet ROM-free, and Android device validation is pending.
+
+## Compiled pause equipment rules (#544/#282)
+
+`PauseEquipmentRules` separates three application-owned inputs from visual
+resources: the fourteen ordered equipment masks at `$82:C04C-$82:C067`, the
+four wireframe discriminators at `$82:B257`, and the manual reserve-transfer
+amount at `$82:BF04`. The pinned ROM, upstream C and bank-$82 disassembly agree
+on their values. Definitions use existing proven equipment/beam flags, not
+new inferred flags. No presentation file or schema is added for these rules.
+
+Wireframe selection tests only Varia and Hi-Jump; Gravity is intentionally
+ignored, matching the cartridge. Selection maps to the existing visual patch
+pointer, which remains a separate presentation dependency. Manual transfer
+still moves one energy per selected dispatcher tick and discards remaining
+reserves when full health is reached; this migration does not rebalance that
+behavior or change transfer ordering. Category control flow and the existing
+same-frame category/copy-length quirks remain untouched.
+
+Verification compares all fourteen native masks across every 16-bit inventory
+word, all 104 per-category ownership subsets, actual A toggles for every single
+upgrade, every 16-bit wireframe selection, and the resulting native wireframe
+patch words for all variants with/without Gravity. Manual-transfer fixtures
+assert each health/reserve frame for ordinary exhaustion, reaching full health,
+and starting already full. The production pause paths reject reads of the
+migrated rule ranges. Existing broader menu/glitch tests remain part of the
+full suite. Visual layout/patch/selector extraction and final integration are
+still outstanding; this is not completion of either parent issue.

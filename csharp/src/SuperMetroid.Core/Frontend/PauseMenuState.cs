@@ -559,19 +559,12 @@ internal sealed partial class PauseMenuState
 
     private void WriteSamusWireframe()
     {
-        ushort desired = (ushort)(samus.EquippedItems & 0x0101);
-        ushort sourcePointer = 0;
-        for (int index = 0; index < 4; index++)
-        {
-            if (RomDataReader.ReadWordFixedBank(bus, PauseMenuRomData.EquipmentSetTable + index * 2) != desired)
-                continue;
-            sourcePointer = RomDataReader.ReadWordFixedBank(
-                bus,
-                PauseMenuRomData.EquipmentTilemapPatchPointerTable + index * 2);
-            break;
-        }
-        if (sourcePointer == 0)
-            throw new InvalidDataException($"Pause wireframe table has no entry for items ${desired:X4}.");
+        int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
+        // The selected artwork remains a visual dependency. Only the inventory
+        // discriminator is compiled here, so replacing art cannot change its rule.
+        ushort sourcePointer = RomDataReader.ReadWordFixedBank(bus,
+            PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
+        if (sourcePointer == 0) throw new InvalidDataException($"Pause wireframe variant {variant} has no artwork.");
 
         int sourceAddress = 0x820000 | sourcePointer;
         int destinationOffset = 472;
@@ -905,8 +898,8 @@ internal sealed partial class PauseMenuState
     private void UploadEquipmentTilemap() =>
         vram.LoadBytes(PauseMenuLayout.Bg1TilemapWord * 2, equipmentTilemap);
 
-    private ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
-        RomDataReader.ReadWordFixedBank(bus, category.BitmaskTableAddress + item * 2);
+    private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
+        PauseEquipmentRules.Mask(category.Category, item);
 
     private void CopyBank82Words(ushort sourcePointer, Span<byte> destination)
     {

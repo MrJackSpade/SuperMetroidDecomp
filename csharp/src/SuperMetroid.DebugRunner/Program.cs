@@ -442,6 +442,10 @@ if (args.Length == 2 && args[0] == "--door-charge-audit")
     return DoorChargeAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--missile-crawler-detach-audit")
     return MissileCrawlerDetachmentAudit.Run(args[1]);
+if (args.Length == 2 && args[0] == "--frozen-crawler-climb-search")
+    return FrozenCrawlerClimbAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--frozen-crawler-climb-audit")
+    return FrozenCrawlerClimbAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--crawler-quake-native-audit")
     return CrawlerQuakeNativeAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--yard-quake-native-audit")

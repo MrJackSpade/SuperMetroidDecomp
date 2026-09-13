@@ -68,3 +68,19 @@ executes actual instructions, not native C translations. Input Y=$D000 addresses
 a fixed ROM operand; C# uses opcode cursor $CFFE to read that same operand.
 Initial link=$1234 and counter=9 make non-writes observable. Temporary hooks were
 removed and the ordinary native executable rebuilt after capture.
+
+## Original-CPU distance/facing comparison
+
+`movement-release/golden-distance-decisions-617.csv` captures 1,024 calls to
+$AA:D3EA (morphed behind) and $AA:D445 (medium-range random call). It covers
+distances 3/4/31/32/39/40/95/96 on either side, both facings, standing/morph/
+spring-ball poses and four RNG seeds. Production cursor, RNG, link and counter
+match every row using `--golden-distance-native-compare ROM CSV`. Taken/untaken
+counts are 96/416 and 32/480 respectively. The preceding 240 health cases still
+pass after sharing the comparison harness. No gameplay changes were needed.
+
+Recapture through DiagnosticGoldenDistanceDecisions using the same headless
+setup above. Native enemy X is 256, input Y is $D000, link is $1234 and counter
+is 9. The temporary hooks were removed and the ordinary executable rebuilt.
+These are decision-boundary tests, not evidence that a particular room position
+is safe or that full-fight attack cadence matches.

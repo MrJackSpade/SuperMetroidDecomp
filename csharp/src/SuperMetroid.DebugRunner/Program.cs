@@ -1141,6 +1141,8 @@ if (args.Length == 2 && args[0] == "--zebetite-player-repeat-audit")
     return ZebetiteRepeatedPlayerAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-player-second-search")
     return ZebetiteRepeatedPlayerAudit.SearchSecondShot(args[1]);
+if (args.Length == 2 && args[0] == "--zebetite-player-return-search")
+    return ZebetiteReturnHopAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-player-setup-audit")
     return ZebetitePlayerSetupAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-player-search")

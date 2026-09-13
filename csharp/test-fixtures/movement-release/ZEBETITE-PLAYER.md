@@ -85,7 +85,32 @@ all live state between shots: 0–12 rightward reposition frames beginning at fr
 trial runs to frame 339. None finishes with lower health at or below 800 and eight
 missiles remaining. These are failed candidate schedules, not cartridge failures.
 
-Next investigate a shot into the upper half and assert both halves' health.
-The existing lower-half success predicate only measures one-hit suppression on
-that half, not the health continuity needed for the complete ten-missile kill.
-Original-CPU comparison of a successful repeated sequence remains outstanding.
+This initially suggested investigating an upper-half shot, but the linked callback
+copies the struck half's health to its partner on every accepted hit. Upper health
+901 does not by itself disqualify continued shots into the lower half. The real
+remaining requirement is continuity of the struck half through subsequent hits,
+plus the linked death handoff. Original-CPU comparison of a successful repeated
+sequence remains outstanding.
+
+## Documented return-hop exploration
+
+The [technique reference](https://wiki.supermetroid.run/10_Missile_Zebetite_Kill)
+includes a separate jump/turn sequence between shots. The earlier simple repeat
+did not implement that step. `--zebetite-player-return-search ROM` explores it
+without editing state after the initial setup (except the documented actor
+omission at frame 60).
+
+The 2,340 candidates vary the first right+jump release (99/102/105), return-hop
+left input length (1–30), and final right tap (frames 200–250, step two). The return
+jump starts at 150, Left is added from 151, and Jump is held through 209. Each
+candidate runs through frame 279. A candidate must retain lower health exactly
+900 on every frame from 119 onward, retain Samus energy 999, finish grounded and
+facing right, and move left of its post-first-hop landing position.
+
+33 candidates satisfy those conditions. For example, first release 105, eleven
+left frames and a right tap at 202 end at X=742.5, Y=139, camera X=642, nine
+missiles. This is not the initial X=728 state, so it is not yet a closed repeating
+sequence. Wrong-facing endings are excluded rather than counted as successes.
+The focused one-hit/lifetime regression still passes. The next shot and native
+comparison of these longer trajectories remain required; no gameplay change is
+established by this search.

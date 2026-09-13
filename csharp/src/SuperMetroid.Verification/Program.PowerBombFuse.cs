@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -32,6 +33,31 @@ internal static partial class Program
             AssertEqual(frame == 59, result.SpawnExplosion, "native fuse expiration frame");
         }
         AssertEqual(1, spawns, "one expiration across complete fuse");
+        VerifyPowerBombRetainedRadiusSpeed();
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
+    }
+
+    private static void VerifyPowerBombRetainedRadiusSpeed()
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var explosion = new SamusPowerBombExplosionState();
+        explosion.Arm();
+        explosion.Spawn(128, 128);
+        ushort retainedSpeed = 0;
+        bool completed = false;
+        for (int frame = 0; frame < 400; frame++)
+        {
+            retainedSpeed = explosion.RadiusSpeed;
+            if (!explosion.StepFrame(bus)) continue;
+            completed = true;
+            break;
+        }
+        AssertTrue(completed, "Power Bomb cleanup was reached");
+        AssertTrue(retainedSpeed != 0, "native explosion accumulated a nonzero radius speed");
+        // Original-CPU #441 replay: $88:8B4E clears both radii/status, but does not
+        // write $0CF0. Allocation at $88:8AA4 also leaves that word alone.
+        AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");
+        explosion.Spawn(128, 128);
+        AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 }

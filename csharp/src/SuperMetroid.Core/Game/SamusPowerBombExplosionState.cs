@@ -15,10 +15,10 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
-    /// <summary>WRAM $0CEA. Negative means an armed/executing power bomb.</summary>
+    /// <summary>WRAM $0CEE. Negative means an armed/executing power bomb.</summary>
     public ushort Flag { get; private set; }
 
-    /// <summary>WRAM $0CE2. $8000 is the normal active explosion state.</summary>
+    /// <summary>The HDMA explosion status. $8000 is the normal active state.</summary>
     public ushort Status { get; private set; }
 
     /// <summary>World X copied from the projectile when its fuse reaches zero.</summary>
@@ -30,7 +30,7 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>WRAM $0CEC, the pre-explosion flash's unsigned 8.8 radius.</summary>
     public ushort PreExplosionRadius { get; private set; }
 
-    /// <summary>WRAM $0CEE, the damaging explosion's unsigned 8.8 radius.</summary>
+    /// <summary>WRAM $0CEA, the damaging explosion's unsigned 8.8 radius.</summary>
     public ushort ExplosionRadius { get; private set; }
 
     /// <summary>
@@ -109,7 +109,8 @@ public sealed class SamusPowerBombExplosionState
         // cannot run until the pass after setup. Executing setup here skips one frame.
         PreExplosionRadius = 0;
         ExplosionRadius = 0;
-        RadiusSpeed = 0;
+        // $88:8AA4 allocates the objects without clearing $0CF0. The next HDMA
+        // setup owns its replacement, even when the previous explosion has ended.
         ShapeDefinitionPointer = 0;
         RenderedShapeDefinitionPointer = 0;
         Phase = PowerBombExplosionPhase.PendingPreExplosionSetup;
@@ -375,7 +376,8 @@ public sealed class SamusPowerBombExplosionState
             Status = 0;
             PreExplosionRadius = 0;
             ExplosionRadius = 0;
-            RadiusSpeed = 0;
+            // $88:8B4E does not clear the shared radius-speed word. Retain it
+            // until the next pre-explosion setup, as on the cartridge.
             ShapeDefinitionPointer = 0;
             RenderedShapeDefinitionPointer = 0;
             Phase = PowerBombExplosionPhase.Inactive;

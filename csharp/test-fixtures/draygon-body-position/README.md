@@ -63,3 +63,31 @@ does not publish new extended tilemap commands, so these are repeated checks of
 retained command destinations, not 4,800 distinct tiles or a fresh-room DMA
 reconstruction. Previously written destinations outside the selected commands
 remain outside this assertion's scope.
+
+### Fresh-room producer reconstruction
+
+`SuperMetroid.Verification --draygon-tilemap-production` closes that specific
+retained-destination coverage gap. It loads the untouched retail Draygon room
+and enemy population from initialization, then advances 4,096 enemy frames.
+Samus remains at a fixed safe position; no boss function, instruction pointer,
+timer or coordinate is overwritten. This is an isolated room producer test,
+not a controller-driven battle or independent native-CPU AI replay.
+
+For actors actually queued for drawing, a separate decoder follows native
+extended-map components, the new-instruction gate, and literal command streams.
+It maintains an independent 2,048-word staging image initialized to the native
+blank word. It models $A0:9726's transfer of only `enemy_bg2_tilemap_size` bytes
+when a stream publishes, rather than assuming that arbitrary direct VRAM writes
+are equivalent. Every BG2 word is compared after the production draw pass,
+including retained destinations and untouched space outside the transfer prefix.
+
+Result: 5,112 commands, 2,377 transfer frames, 14 distinct streams, 240 distinct
+destination words, 14 encountered AI functions and 8,388,608 complete-map word
+comparisons agree. The test is part of the full core suite. Thus this fresh slice
+does not reproduce a wrong tilemap word or priority bit.
+
+Scope limits remain explicit: the test observes the port's actual draw queues
+and AI-selected maps. It does not independently establish which actors the CPU
+would queue, the complete native room/terrain production, or the player's exact
+scatter overlap. #385 remains open, with no production priority change and no
+claim of player validation.

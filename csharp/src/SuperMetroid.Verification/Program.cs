@@ -317,6 +317,11 @@ if (args is ["--pause-reserve-tanks"])
     VerifyPauseReserveTanks();
     return 0;
 }
+if (args is ["--draygon-tilemap-production"])
+{
+    VerifyDraygonTilemapProduction();
+    return 0;
+}
 if (args is ["--projectile-runtime-phase"])
 {
     VerifyProjectileRuntimePhase();
@@ -863,6 +868,7 @@ VerifyGateJumpTraces();
 VerifySparkCrashAlignment();
 VerifyEnemyAngleDivision();
 VerifyDraygonEyeEffects();
+VerifyDraygonTilemapProduction();
 VerifyFrogSpeedwayPoolCollision();
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv");
 VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv", 9);

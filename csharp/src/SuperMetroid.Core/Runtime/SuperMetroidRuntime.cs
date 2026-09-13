@@ -1395,6 +1395,7 @@ public sealed partial class SuperMetroidRuntime
         // Reattach before any producer executes, including after loading an older snapshot.
         Projectiles.BindRoomEarthquakeOwner(Enemies);
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
+        Samus?.Shinespark.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         ApplyPendingChozoStatuePlms();
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);

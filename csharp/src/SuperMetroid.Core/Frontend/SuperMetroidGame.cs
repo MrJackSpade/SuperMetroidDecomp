@@ -1047,13 +1047,17 @@ public sealed partial class SuperMetroidGame
             if (samus.HorizontalSpeed.ConsumeEchoSoundRequest())
                 audio.QueueSound(SoundEffectLibrary3Sounds.SpeedBoosterEcho, maximumQueued: 6);
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0c), maximumQueued: 9);
+                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.StoredWarning, 9,
+                    soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x0f), maximumQueued: 9);
+                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.Launch, 9,
+                    soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);
             if (samus.Shinespark.ConsumeCrashSoundRequest())
             {
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x35), maximumQueued: 6);
-                audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x10), maximumQueued: 6);
+                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.CrashImpact, 6,
+                    soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
+                audio.QueueSoundAndGetAccumulator(ShinesparkSounds.CrashEcho, 6,
+                    soundSuppressed: samus.Shinespark.CrashSoundSuppressed);
             }
             if (samus.CrystalFlash.ConsumeActivationSoundRequest())
                 audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);

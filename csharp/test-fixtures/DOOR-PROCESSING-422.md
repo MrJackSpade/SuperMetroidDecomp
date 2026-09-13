@@ -239,3 +239,26 @@ animation word, plus two rejected green-gate cases with opposite explosion state
 before binding and after request creation. The latter verify producer-time capture,
 not frame-start or publication-time filtering. This does not establish every
 room-initialization path or the remaining full #422 technique matrix.
+
+## Stored-shine and shinespark sound guards
+
+The real frontend reproduced a stored-shine warning at timer 170 with and without
+an active Power Bomb; both emitted library-three $0C before correction. Native
+$91:DAC7 calls QueueSfx3_Max9, whose $80:9155 guard rejects active Power Bombs.
+Directional launch ($91:F80F) and crash ($90:D2BA) similarly call the guarded
+queues. Their legacy one-shot publishers omitted producer-time suppression.
+
+The three request sites now retain that guard; deferred publication uses the
+existing queue routine without changing caps, sound identities, shine timers,
+or movement. Routing references are nonserialized and rebound at gameplay entry.
+New suppression fields have an explicit legacy migration; the older nineteen-field
+crash-alias migration remains covered as well.
+
+PowerBombShinesparkSoundAudit covers the paired frontend warning reproduction
+(both reach timer 169), plus warning/launch/crash production with opposite guard
+states before binding and after production. All six boundary cases verify actual
+frontend port commands, including both crash libraries. Launch and low-energy
+crash use the real state-machine entry points, not an input-earned shinespark.
+The complete Power Bomb audit, old player-state load/resource test, full core
+suite, and Windows build pass. Other one-off publishers and the complete native
+door-processing timing matrix remain open; this is not full #422 completion.

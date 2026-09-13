@@ -316,9 +316,10 @@ internal static class DebuggerObjectGraphSerializer
                 Register(referenceId, instance);
             FieldInfo[] expected = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
-            if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && expected.Length == 17)
+            if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && expected.Length == 20)
             {
-                DebuggerLegacyShinesparkReader.Restore(legacySpark, expected, reader, ResolveAllowedType, Read);
+                var preSuppressionFields = DebuggerStateFieldMigrations.SelectSerializedFields(type, expected, 17);
+                DebuggerLegacyShinesparkReader.Restore(legacySpark, preSuppressionFields, reader, ResolveAllowedType, Read);
                 return instance;
             }
             expected = DebuggerStateFieldMigrations.SelectSerializedFields(type, expected, count);

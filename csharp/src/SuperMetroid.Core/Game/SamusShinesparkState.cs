@@ -14,6 +14,17 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusShinesparkState
 {
+    [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+
+    /// <summary>Rebinds the live sound guard before movement/palette production, including restored states.</summary>
+    internal void BindPowerBombAudio(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
+
+    /// <summary>Native queue guard captured at the stored-shine warning call, not at publication.</summary>
+    public bool StoredShineWarningSoundSuppressed { get; private set; }
+    /// <summary>Native queue guard captured at directional launch.</summary>
+    public bool LaunchSoundSuppressed { get; private set; }
+    /// <summary>Native queue guard shared by the two adjacent crash-entry sound calls.</summary>
+    public bool CrashSoundSuppressed { get; private set; }
     /// <summary>WRAM <c>$0A68</c>: zero, stored-shine handler one, or spark handler six.</summary>
     public ushort PaletteType { get; private set; }
 
@@ -249,6 +260,7 @@ public sealed class SamusShinesparkState
         samus.InitializeAnimation(bus, initialFrame: 0);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
         LaunchSoundRequested = true;
+        LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
@@ -358,7 +370,10 @@ public sealed class SamusShinesparkState
             return false;
 
         if (PaletteType == 1 && ShineTimer == 170)
+        {
             StoredShineWarningSoundRequested = true;
+            StoredShineWarningSoundSuppressed = _audioPowerBomb?.IsActive == true;
+        }
 
         NativeWordCounterStep timer = NativeWordCounter.Decrement(ShineTimer);
         ShineTimer = timer.Value;
@@ -423,6 +438,7 @@ public sealed class SamusShinesparkState
             samus.YPosition);
         Phase = ShinesparkPhase.Crash;
         CrashSoundRequested = true;
+        CrashSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
     /// <summary>

@@ -17,6 +17,12 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusShinesparkState) && count == current.Length - 3)
+        {
+            Console.Error.WriteLine("WARNING: Legacy shinespark requests lack producer-time suppression; retaining historical unsuppressed admission.");
+            return current.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
+                and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField").ToArray();
+        }
         // These values describe a pending host publication, not a new cartridge word.
         // Historical captures cannot recover producer-time suppression. Preserve their
         // previously unsuppressed admission and let the next producer replace it.

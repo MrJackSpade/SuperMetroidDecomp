@@ -98,6 +98,12 @@ internal static partial class Program
         }
         var projectileSlotFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileSlot)])!;
+        var shineFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusShinesparkState)])!;
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusShinesparkState), shineFields, shineFields.Length - 3)
+            .SequenceEqual(shineFields.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
+                and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField")),
+            "legacy shinespark retains native timers and pending sounds before suppression metadata");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)
             .SequenceEqual(projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField")),
             "legacy projectile slot retains the actual projectile type and trajectory");

@@ -22,7 +22,7 @@ internal static partial class Program
             roundTrip.Position = 0;
             var current = DebuggerObjectGraphSerializer.Deserialize<SamusShinesparkState>(roundTrip);
             AssertEqual(restored.FirstReleasedCrashEcho, current.FirstReleasedCrashEcho,
-                "migrated aliases survive the current seventeen-field format");
+                "migrated aliases survive the current format");
         }
         using var malformed = BuildLegacyShinesparkGraph(ShinesparkPhase.Inactive, 4, invalidField: true);
         bool rejected = false;
@@ -42,11 +42,29 @@ internal static partial class Program
         using var original = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(original, state);
         byte[] bytes = original.ToArray();
+        // Strip only the three later boolean publication fields. Primitive values
+        // do not consume graph reference IDs, so legacy object identities stay exact.
+        foreach (string field in new[] { "StoredShineWarningSoundSuppressed", "LaunchSoundSuppressed", "CrashSoundSuppressed" })
+        {
+            using var encoded = new MemoryStream();
+            using (var writer = new BinaryWriter(encoded, System.Text.Encoding.UTF8, leaveOpen: true))
+            {
+                writer.Write(typeof(SamusShinesparkState).AssemblyQualifiedName!);
+                writer.Write($"<{field}>k__BackingField");
+                DebuggerObjectGraphSerializer.Serialize(encoded, false);
+            }
+            byte[] omitted = encoded.ToArray();
+            int start = bytes.AsSpan().IndexOf(omitted);
+            AssertTrue(start >= 0, "new suppression field exists in current graph");
+            bytes = [..bytes.AsSpan(0, start), ..bytes.AsSpan(start + omitted.Length)];
+        }
+        original.SetLength(0);
+        original.Write(bytes);
         original.Position = 0;
         using var reader = new BinaryReader(original);
         reader.ReadByte(); reader.ReadInt32(); reader.ReadString(); reader.ReadByte();
         int countOffset = checked((int)original.Position);
-        AssertEqual(17, reader.ReadInt32(), "current spark fixture field count");
+        AssertEqual(20, reader.ReadInt32(), "current spark fixture field count before stripping new metadata");
 
         using var identity = new MemoryStream();
         using (var writer = new BinaryWriter(identity, System.Text.Encoding.UTF8, leaveOpen: true))

@@ -29,6 +29,26 @@ Verification:
 
 Awaiting player confirmation; reproduction success does not close the issue.
 
+## v0.3.2 recurrence: $9B:226B
+
+The installed production DLL identifies itself as 0.3.2.0, commit 2719b558.
+The original correction covered reserved B-bus space but omitted the adjacent
+unpopulated A-bus expansion window. The original direction-one regression was
+insufficient. Before the second production change, the expanded real projectile
+test reproduced $226B for direction 4/5 and also failed on directions 2, 3, 6,
+7, 8 at $220B/$223B/$229B/$22CB/$22FB. Directions 0, 1, 9 already passed.
+
+The fix models $2200-$3FFF as undriven for this game's unenhanced LoROM mapping,
+not for arbitrary enhancement-chip cartridges. Operand MDR and low-to-high data
+ordering are unchanged. All ten direction entries now assert trail coordinates,
+list advancement, and trail cadence. Memory tests cover nonzero MDR, the
+$21FF/$2200 boundary, the $3FFF/$4000 boundary, and unmirrored banks.
+CPU/APU register accesses remain strict. Mapping reference (Anomie's hardware
+document): https://wiki.superfamicom.org/memory-mapping.
+
+This repeat is reproduced with the production projectile fixture; it is not
+claimed as a replay of the new short recording, which has no debugger-state seed.
+
 ## Local progress recovery
 
 DebugRunner `--recover-recording-state RECORDING ROM AUDIO_DIR NEW_DIRECTORY LAST_FRAME`

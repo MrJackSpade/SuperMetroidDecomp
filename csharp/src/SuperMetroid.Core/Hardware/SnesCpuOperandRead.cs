@@ -20,10 +20,13 @@ public static class SnesCpuOperandRead
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
         int bank = address >> 16, offset = address & 0xffff;
-        // No SNES device drives the reserved end of the B-bus register window.
+        // Neither the console nor this game's unenhanced LoROM cartridge drives
+        // these reserved B-bus and expansion A-bus windows. This is not a generic
+        // mapping for enhancement-chip cartridges, which can decode expansion I/O.
         // ROM/WRAM banks with the same low offset must not be treated as open bus.
-        if ((bank & 0x40) == 0 && offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
-            offset <= SnesCpuOpenBusWindows.ReservedBBusEnd)
+        if ((bank & 0x40) == 0 &&
+            ((offset >= SnesCpuOpenBusWindows.ReservedBBusStart && offset <= SnesCpuOpenBusWindows.ReservedBBusEnd) ||
+             (offset >= SnesCpuOpenBusWindows.UnpopulatedExpansionStart && offset <= SnesCpuOpenBusWindows.UnpopulatedExpansionEnd)))
             return memoryDataRegister;
         return bus.ReadByte(address);
     }
@@ -36,4 +39,8 @@ public static class SnesCpuOpenBusWindows
     public const int ReservedBBusStart = 0x2184;
     /// <summary>$21FF: final address in the mirrored B-bus register window.</summary>
     public const int ReservedBBusEnd = 0x21ff;
+    /// <summary>$2200: first A-bus expansion address; no device responds on Super Metroid's cartridge.</summary>
+    public const int UnpopulatedExpansionStart = 0x2200;
+    /// <summary>$3FFF: final expansion address before the CPU controller-register window.</summary>
+    public const int UnpopulatedExpansionEnd = 0x3fff;
 }

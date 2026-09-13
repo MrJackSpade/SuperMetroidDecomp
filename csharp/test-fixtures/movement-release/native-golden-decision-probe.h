@@ -1,5 +1,39 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
+int DiagnosticGoldenSuperAim(const char *rom, const char *output) {
+  int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
+  FILE *f=fopen(output,"wx"); if(!f) return 4;
+  const int offsets[]={-300,-64,0,64,300};
+  fprintf(f,"routine,samusX,samusY,vx,vy\n");
+  for(int left=0;left<2;left++) for(int x=0;x<5;x++) for(int y=0;y<5;y++) {
+    cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
+    g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
+    eproj_x_pos[0]=512; eproj_y_pos[0]=512;
+    samus_x_pos=512+offsets[x]; samus_y_pos=512+offsets[y];
+    uint32 routine=left?0x86b272:0x86b269;
+    ProbeRunBoundedRegisters(routine,0,0,0);
+    fprintf(f,"%04X,%u,%u,%u,%u\n",routine&0xffff,samus_x_pos,samus_y_pos,eproj_x_vel[0],eproj_y_vel[0]);
+  }
+  fclose(f); return 0;
+}
+int DiagnosticGoldenProjectileInitializers(const char *rom, const char *output) {
+  int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
+  FILE *f=fopen(output,"wx"); if(!f) return 4;
+  const uint32 routines[]={0x86ac7c,0x86ae15,0x86b001,0x86b1ce,0x86b328};
+  fprintf(f,"routine,facing,seed,x,y,vx,vy,list,random\n");
+  for(int r=0;r<5;r++) for(int facing=0;facing<2;facing++) for(int seed=0;seed<256;seed++) {
+    cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
+    g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
+    Enemy_Torizo *enemy=Get_Torizo(0);
+    enemy->base.x_pos=256; enemy->base.y_pos=384;
+    enemy->toriz_parameter_1=facing?0x8000:0; random_number=seed;
+    ProbeRunBoundedRegisters(routines[r],0,0,0);
+    fprintf(f,"%04X,%u,%u,%u,%u,%u,%u,%u,%u\n",routines[r]&0xffff,
+      enemy->toriz_parameter_1,seed,eproj_x_pos[0],eproj_y_pos[0],
+      eproj_x_vel[0],eproj_y_vel[0],eproj_instr_list_ptr[0],random_number);
+  }
+  fclose(f); return 0;
+}
 int DiagnosticGoldenJumpDecisions(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output,"wx"); if (!f) return 4;

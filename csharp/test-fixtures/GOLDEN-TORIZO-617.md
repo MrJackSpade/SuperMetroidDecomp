@@ -100,3 +100,35 @@ The native probe runs actual decision and jump-initialization instructions, not
 a handwritten reference equation. No gameplay changes were necessary. This
 verifies jump selection/initialization; airborne trajectories, landings and the
 frequency of decision calls during a complete encounter remain separate work.
+
+## Projectile table-origin regression
+
+Original-CPU `golden-projectile-inits-617.csv` covers five projectile initializers
+in both facings with RNG seeds 0..255 (2,560 rows). Spawn X/Y, velocity X/Y,
+instruction list and resulting RNG are compared by
+`--golden-projectile-native-compare ROM CSV`. Orb, sonic boom, egg and held-Super
+initialization matched before the correction. Eye beams did not: left-facing,
+seed zero produced native velocity (-1408,+1480), but the port used
+(-1480,-1408). Both had position (236,354), list $B410 and RNG 8463.
+
+`golden-super-aim-617.csv` separately executes $86:B269/$B272 for a projectile
+at (512,512), with Samus offsets -300/-64/0/64/300 on each axis. The 50-row
+`--golden-super-native-compare ROM CSV` comparison also failed before correction:
+rightward aim at (212,212) expected (+724,+724), but produced (-724,+724).
+The out-of-byte-range inputs intentionally retain the cartridge divider behavior.
+
+Both defects came from treating $A0:B443 as the start of the combined negative-
+cosine/sine table, which actually starts at $A0:B3C3. Reuse the existing compiled
+`EnemyTrigonometryTables.SignedNegativeCosineWord` table to preserve sine for X
+and negative cosine for Y, without changing angle calculation or direction masks.
+Pinned disassembly $86:B361/B36B and $86:B27E/B287 independently show those bases.
+
+Recapture through `DiagnosticGoldenProjectileInitializers` and
+`DiagnosticGoldenSuperAim` in the headless probe, using the same original-ROM
+restoration and bounded CPU setup above. Temporary hooks were removed and the
+ordinary native executable rebuilt. These traces verify projectile initialization
+and aiming; they do not establish full-fight cadence or confirm the reported safe spot.
+
+After correction all 2,560 initialization rows and 50 aim rows match. The existing
+Golden Torizo encounter audit, full core verification and Windows Release build
+also pass. No other projectile initializer required a gameplay change.

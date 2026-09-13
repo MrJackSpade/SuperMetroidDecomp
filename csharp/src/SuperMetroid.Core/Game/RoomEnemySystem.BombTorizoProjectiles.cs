@@ -283,12 +283,12 @@ public sealed partial class RoomEnemySystem
 
         int angle = ((_nextRandom!() & 0x001e) - 16 + 192 + (facingRight ? 0 : 128)) & 0x01ff;
         int sineIndex = angle >> 1;
-        projectile.XVelocity = unchecked((ushort)(short)(8 * unchecked((short)ReadWord(
-            _bus!,
-            0xa0b443 + (((sineIndex + 64) & 0xff) * 2)))));
-        projectile.YVelocity = unchecked((ushort)(short)(8 * unchecked((short)ReadWord(
-            _bus!,
-            0xa0b443 + ((sineIndex & 0xff) * 2)))));
+        // The native combined table starts at negative cosine, not sine. Its
+        // quarter-turn offset selects sine for X; the unshifted sample gives Y.
+        projectile.XVelocity = unchecked((ushort)(8 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex + 64)));
+        projectile.YVelocity = unchecked((ushort)(8 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(sineIndex)));
     }
 
     private void InitializeTorizoRandomizedProjectileTuple(
@@ -553,7 +553,7 @@ public sealed partial class RoomEnemySystem
             projectile.Clear();
     }
 
-    private void SetGoldenTorizoSuperMissileVelocity(
+    private static void SetGoldenTorizoSuperMissileVelocity(
         RoomEnemyProjectileSlot projectile,
         SamusState samus,
         bool awayFromSamus)
@@ -565,13 +565,12 @@ public sealed partial class RoomEnemySystem
             ? unchecked((byte)(angle | 0x80))
             : unchecked((byte)(angle & 0x7f));
 
-        // $86:B279 uses the signed 16-bit sine table with a fixed magnitude of four.
-        projectile.XVelocity = unchecked((ushort)(short)(4 * unchecked((short)ReadWord(
-            _bus!,
-            0xa0b443 + (((angle + 64) & 0xff) * 2)))));
-        projectile.YVelocity = unchecked((ushort)(short)(4 * unchecked((short)ReadWord(
-            _bus!,
-            0xa0b443 + ((angle & 0xff) * 2)))));
+        // Preserve the native up-zero angle convention: X is sine, Y is
+        // negative cosine. Starting both reads at sine rotates the shot.
+        projectile.XVelocity = unchecked((ushort)(4 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64)));
+        projectile.YVelocity = unchecked((ushort)(4 *
+            EnemyTrigonometryTables.SignedNegativeCosineWord(angle)));
     }
 
     private void RunGoldenTorizoEyeBeamPreInstruction(

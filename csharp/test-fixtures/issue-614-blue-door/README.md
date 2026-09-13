@@ -19,3 +19,21 @@ State SHA-256:
 
 The state graph includes private game data and belongs only in this private
 repository. Player confirmation will be required before closing the issue.
+
+## Reproduced cause and verification
+
+The unchanged state places Samus at (37,395), firing left at the four-cell cap
+at column 1, rows 22–25. Before the fix, the Wave projectile travels through the
+cap and out of the room; the cap remains solid after 150 frontend frames.
+
+`$94:A3BA` executes XBA then BMI. XBA sets N/Z from its resulting low byte even
+when M=0. The translation tested the original low byte instead of its high byte,
+disabling horizontal Wave reactions for pixel offsets 128–255 in every screen.
+The pinned disassembly and native CPU's `case 0xeb` confirm the flag semantics.
+
+`--blue-door-state ROM slot-0.smstate` in DebugRunner restores a disposable copy,
+runs the saved frontend/audio path, and asserts that all four cap cells become
+air. It fails before the correction and passes after it. Verification's
+`--gate-beam-collision` additionally checks 24 left/right pixel-half, screen,
+outside-room, and negative-coordinate boundary cases. Full core verification and
+the Windows Release build also pass. No live player save was modified.

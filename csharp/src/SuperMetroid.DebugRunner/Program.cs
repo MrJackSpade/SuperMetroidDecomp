@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--blue-door-state", var blueRom, var blueState])
+    return BlueDoorStateAudit.Run(blueRom, blueState);
 if (args is ["--door-sound-combined-compare", var combinedRom, var combinedCsv])
     return DoorSoundQueueComparison.RunCombined(combinedRom, combinedCsv);
 if (args is ["--recover-recording-state", var recoveryRecording, var recoveryRom, var recoveryAudio, var recoveryDirectory, var recoveryFrame])

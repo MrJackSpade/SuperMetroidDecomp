@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyKronicGateBeamCollision()
     {
         VerifyGateScanTermination();
+        VerifyHorizontalWaveDoorBands();
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);

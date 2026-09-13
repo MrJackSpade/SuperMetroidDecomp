@@ -13,9 +13,11 @@ public sealed partial class SamusProjectileSystem
         int remaining = unchecked((ushort)(bottom - (top & 0xfff0))) >> 4;
         ushort targetX = unchecked((ushort)(slot.XVelocity < 0
             ? slot.XPosition - slot.XRadius : slot.XPosition + slot.XRadius - 1));
-        // The native XBA/BMI tests the original low byte's sign, before masking
-        // the exchanged word down to the center's screen coordinate.
-        if (remaining >= 16 || (slot.YPosition & 0x80) != 0 ||
+        // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
+        // BMI therefore tests the original coordinate's high-byte sign, not bit 7
+        // of its pixel offset. Testing the latter disables Wave reactions throughout
+        // the lower half of every screen, including ordinary blue-door caps.
+        if (remaining >= 16 || unchecked((short)slot.YPosition) < 0 ||
             (slot.YPosition >> 8) >= (level.HeightInBlocks + 15) / 16 ||
             (targetX >> 8) >= (level.WidthInBlocks + 15) / 16)
             return;

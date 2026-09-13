@@ -83,7 +83,14 @@ internal static class ZebetiteTenHitSearch
                 foreach (var enemy in runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0xe27f)) enemy.Clear();
             var input = ZebetiteSecondHitAudit.GetInput(frame);
             foreach (var cycle in cycles) input |= cycle.InputAt(frame);
+            ushort samusHealthBefore = runtime.Samus!.Health;
+            string? damageContext = outputPrefix is null ? null : System.Text.Json.JsonSerializer.Serialize(
+                runtime.Enemies.EnemyProjectiles.Where(projectile => projectile.IsActive && projectile.CanDamageSamus)
+                    .Select(projectile => new { projectile.SlotIndex, projectile.Kind, projectile.XPosition,
+                        projectile.YPosition, projectile.XRadius, projectile.YRadius, projectile.Damage }));
             runtime.StepFrame((ushort)input);
+            if (damageContext is not null && runtime.Samus.Health != samusHealthBefore)
+                Console.WriteLine($"TEN damage frame={frame} before={samusHealthBefore} after={runtime.Samus.Health} projectilesBefore={damageContext}");
             if (frame >= 60 && trace is not null)
             {
                 ZebetitePlayerTrace.Write(trace, runtime, frame, (ushort)input);

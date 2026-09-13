@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string] $ManagedTrace,
     [Parameter(Mandatory)][string] $NativeTrace,
-    [ValidateSet(60,360,660)][int] $FrameCount = 60
+    [ValidateSet(60,360,660,2760)][int] $FrameCount = 60
 )
 
 # Compare the deliberately limited observables exported by the CPU consumer.

@@ -249,3 +249,20 @@ cycle/trace refactoring (6,600 frames).
 This is a complete managed ten-hit candidate, not completed #443 parity. The
 longer native comparison must include the observed damage, slot/death lifecycle,
 and generation handoff. The final beam/double-kill continuation remains required.
+
+### Full-recording comparison: omitted turret projectiles
+
+The 2,760-frame native replay completes, but comparison first fails at frame
+1417: managed Samus energy becomes 979 while the native harness remains at 999.
+Pose diverges on frame 1418, followed by movement. The comparator now accepts
+`-FrameCount 2760`; this recording must not be counted as passing parity.
+
+The managed audit logs pre-frame damaging projectile metadata on health changes.
+At frames 1417, 1547 and 2265, active MotherBrainRoomTurretBullet ($C18C)
+projectiles carry 20 damage near Samus. These coincide with all three 20-energy
+losses. Clearing non-Zebetite enemy slots at frame 60 does not remove the room's
+projectile systems. The native harness omits enemy-projectile processing, so its
+long replay is not an equivalent room simulation. This evidence does not justify
+changing production damage or copying health into the native run. Extend the
+fixture's original-CPU room/projectile initialization and processing before
+claiming full ten-hit parity. No production gameplay change was made here.

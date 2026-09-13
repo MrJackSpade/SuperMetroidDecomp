@@ -1448,12 +1448,13 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (isZebetite)
+                if (isZebetite || family == SamusProjectileFamily.Beam)
                 {
-                    // The Zebetite callback calls normal damage without its shot graphic.
-                    // Preserve the collision walker's marker: the next projectile alpha
-                    // pass owns deletion. Terrain-style impact conversion here invents an
-                    // explosion and keeps the projectile slot occupied for extra frames.
+                    // The bank-$A0 collision walker marks the direction word, not a
+                    // terrain impact. Ordinary beam pre-instructions consume that marker
+                    // on the next alpha pass; normal shot AI owns its separate hit graphic.
+                    // Zebetites also retain this lifecycle for missiles. Converting a beam
+                    // here invents a moving/lingering explosion and occupies its slot.
                     if (projectile.PackedDirection.HasLowByteLifecycleState)
                         continue;
                     projectiles.ApplyEnemyCollisionPrelude(

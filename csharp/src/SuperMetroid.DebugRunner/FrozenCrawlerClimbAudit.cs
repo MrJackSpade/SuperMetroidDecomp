@@ -49,12 +49,14 @@ internal static class FrozenCrawlerClimbAudit
                     Format = "frozen-crawler-climb-v1", NativeParityEstablished = false,
                     samus.Health, samus.EquippedBeams, samus.SelectedHudItem, samus.SuperMissiles,
                     Enemy = enemy, Crawler = state,
+                    Scrolls = runtime.Camera!.Scrolls.Storage.ToArray(),
                 }));
             }
             int fallFrame = -1, freezeFrame = -1;
             ushort freezeY = 0, freezeTimer = 0;
             uint frozenPosition = 0;
             int supportFrames = 0, thawFrame = -1;
+            int freezingBeamSlot = -1;
             for (int frame = 0; frame < 500; frame++)
             {
                 SnesButton input = frame == 0 ? SnesButton.X : 0;
@@ -63,12 +65,16 @@ internal static class FrozenCrawlerClimbAudit
                 if (frame >= shoot && frame < shoot + 4) input |= SnesButton.X;
                 if (frame >= 60 && frame < 110) input |= SnesButton.Left | SnesButton.A;
                 runtime.StepFrame((ushort)input);
+                if (freezingBeamSlot >= 0 && frame == freezeFrame + 1 &&
+                    runtime.Projectiles.Slots[freezingBeamSlot].IsActive)
+                    throw new InvalidDataException("Enemy-hit Ice beam survived its next projectile pass.");
                 trace?.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
                 {
                     Frame = frame, Input = (ushort)input,
                     samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
                     samus.AnimationFrame, samus.AnimationFrameTimer, samus.Health, samus.SuperMissiles,
                     CameraX = runtime.Camera!.XPosition, CameraY = runtime.Camera.YPosition,
+                    Scrolls = runtime.Camera.Scrolls.Storage.ToArray(),
                     Enemy = new { enemy.XPosition, enemy.XSubposition, enemy.YPosition, enemy.YSubposition,
                         enemy.Health, enemy.FrozenTimer, enemy.FlashTimer, enemy.AiHandlerBits,
                         enemy.CurrentInstruction, enemy.InstructionTimer, enemy.SpritemapPointer },
@@ -81,6 +87,13 @@ internal static class FrozenCrawlerClimbAudit
                 {
                     freezeFrame = frame; freezeY = enemy.YPosition; freezeTimer = enemy.FrozenTimer;
                     frozenPosition = ((uint)enemy.YPosition << 16) | enemy.YSubposition;
+                    // Original-CPU comparison: enemy collision marks the live beam;
+                    // it does not convert it into a terrain-style explosion this frame.
+                    freezingBeamSlot = runtime.Projectiles.Slots.ToList().FindIndex(p =>
+                        p.PackedType.Family == SamusProjectileFamily.Beam &&
+                        p.PackedDirection.HasLowByteLifecycleState);
+                    if (freezingBeamSlot < 0)
+                        throw new InvalidDataException("Freezing hit lost the beam's native collision marker.");
                 }
                 if (freezeFrame >= 0 && enemy.FrozenTimer != 0 &&
                     (((uint)enemy.YPosition << 16) | enemy.YSubposition) != frozenPosition)

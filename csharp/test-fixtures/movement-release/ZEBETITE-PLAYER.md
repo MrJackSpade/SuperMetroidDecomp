@@ -1,6 +1,6 @@
 # Zebetite player candidate: original CPU consumer (#443)
 
-This is an incomplete parity diagnostic, not a passing ten-missile technique test.
+This is a passing narrow parity diagnostic, not a completed ten-missile technique test.
 The native consumer executes the pinned cartridge through `RunAsmCode`; it does
 not use translated C behavior as its oracle. It depends on the ROM-loading helper
 in `native-release-probe.h` and the existing private MOV1 export.
@@ -29,22 +29,31 @@ pwsh -File compare-zebetite-player.ps1 -ManagedTrace PATH.jsonl -NativeTrace PAT
 The comparator fails on any exported field mismatch. It does not accept an
 animation mismatch as a successful parity baseline.
 
-## Observed result
+## Reproduced mismatch and correction
 
-All three 60-frame captures match movement, animation pose/timer, camera integer
-positions, ammunition and both barrier health values. Start X=732 also matches
-the exported first-projectile type/position for all frames. X=724 and X=728 fail:
+Before the correction, all three 60-frame captures matched movement, animation
+pose/timer, camera integer positions, ammunition and both barrier health values.
+Start X=732 also matched the exported first-projectile type/position. X=724 and X=728 failed:
 at frame 96 managed code has already converted the missile into an explosion;
 the CPU still has a missile. On frame 97 the CPU clears it while the managed
-explosion remains. No production correction is included here.
+explosion remained.
 
-Source inspection narrows the next investigation: `$A0:A143` marks enemy-hit
+Source inspection confirmed the handoff: `$A0:A143` marks enemy-hit
 projectiles through the direction high nibble; the missile pre-instruction then
 clears such a projectile. The managed ordinary-enemy resolver uses
-`TryStartEnemyImpact`. Check the Zebetite-specific handoff before changing this
-shared resolver. `$93:8254` and `$93:834D` draw projectiles but do not advance their
+`TryStartEnemyImpact`. The Zebetite callback at `$A6:FDAC` instead calls the native
+no-death-check/no-shot-graphic damage routine. The corrected resolver applies the
+existing collision prelude for this callback and leaves the projectile's own next
+update responsible for deletion. Terrain and unrelated enemy paths are unchanged.
+`$93:8254` and `$93:834D` draw projectiles but do not advance their
 instruction streams, so the consumer's omitted draw stage does not itself explain
 this particular type/lifetime discrepancy.
+
+After correction, all exported fields match across all 180 frames. The focused
+`--zebetite-player-setup-audit ROM` also asserts the marked missile's exact impact
+position at frame 96 and its cleared state throughout frames 97–119 in both
+affected candidates. The existing candidate and adjacent failure controls still
+pass. The general `--zebetite-audit ROM` remains passing as well.
 
 ## Limits
 

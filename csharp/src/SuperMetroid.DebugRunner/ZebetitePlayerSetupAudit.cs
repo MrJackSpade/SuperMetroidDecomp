@@ -128,6 +128,8 @@ internal static class ZebetitePlayerSetupAudit
                 _ => 0,
             };
             runtime.StepFrame((ushort)input);
+            if (initializeOnscreen && startX is 724 or 728 && startCamera == 641 && rightEnd == 99)
+                VerifyNativeMissileLifetime(runtime, frame, startX);
             if (frame >= 60 && trace is not null)
                 trace.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
                 {
@@ -159,5 +161,20 @@ internal static class ZebetitePlayerSetupAudit
         bool success = hitBarrier && samus.Missiles == 9 && lower?.Health == 900 && runtime.Camera.XPosition > 640;
         if (success) Console.WriteLine($"CANDIDATE x={startX} camera={startCamera} rightEnd={rightEnd} finalX={samus.XPosition} finalCamera={runtime.Camera.XPosition} lowerHealth={lower!.Health}");
         return success;
+    }
+
+    private static void VerifyNativeMissileLifetime(SuperMetroidRuntime runtime, int frame, int startX)
+    {
+        // Original-CPU captures for these exact controller/room candidates retain
+        // the missile on hit frame 96 and clear it in the next alpha pass. Check
+        // the whole remaining interval, not merely the eventual free slot.
+        var shot = runtime.Projectiles.Slots[0];
+        if (frame == 96 &&
+            (shot.PackedType.Family != SamusProjectileFamily.Missile ||
+             !shot.PackedDirection.HasLowByteLifecycleState ||
+             shot.XPosition != startX - 87 || shot.YPosition != 145))
+            throw new InvalidDataException("Native Zebetite hit frame must retain the marked missile at its collision position, not start an explosion.");
+        if (frame >= 97 && (shot.IsActive || shot.Type != 0 || shot.XPosition != 0 || shot.YPosition != 0))
+            throw new InvalidDataException("Native Zebetite missile must be cleared in the first post-hit alpha pass and remain absent.");
     }
 }

@@ -1448,7 +1448,20 @@ public sealed partial class RoomEnemySystem
                     }
                 }
 
-                if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
+                if (isZebetite)
+                {
+                    // The Zebetite callback calls normal damage without its shot graphic.
+                    // Preserve the collision walker's marker: the next projectile alpha
+                    // pass owns deletion. Terrain-style impact conversion here invents an
+                    // explosion and keeps the projectile slot occupied for extra frames.
+                    if (projectile.PackedDirection.HasLowByteLifecycleState)
+                        continue;
+                    projectiles.ApplyEnemyCollisionPrelude(
+                        projectile.SlotIndex,
+                        enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam) ||
+                            (projectile.PackedType.BeamCombinationIndex & (int)SamusBeamFlags.Plasma) == 0);
+                }
+                else if (!projectiles.TryStartEnemyImpact(bus, sharedProjectiles, projectile.SlotIndex,
                     enemy.Properties.HasAny(EnemyProperties.BlocksPlasmaBeam)))
                     continue;
 

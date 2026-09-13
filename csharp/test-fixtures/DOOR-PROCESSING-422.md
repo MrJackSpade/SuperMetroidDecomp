@@ -98,6 +98,34 @@ These are controlled acknowledgements, not real SPC timing or the complete
 controller-to-door transition matrix. Action alignment, music downtime and
 combined gameplay producers still require their own original-CPU comparisons.
 
+### Actual wait-to-fade handoff
+
+`DiagnosticDoorWaitHandoff` runs original `$82:E29E` (including EnemyMain and
+the complete draw pass), then `$82:89EF`, once per fixture frame. It covers each
+library independently with 0..3 queued requests and acknowledgement lags 0..2.
+All 225 rows across 36 cases match `DoorWaitNativeComparison`: coroutine phase,
+read/write positions, sound state, sparse APU write, and fixed Samus X/Y.
+An empty ring advances on frame zero; one request advances on frame one even
+when its acknowledgement is still pending. This verifies the production wait
+branch's ordering before audio advancement, not just its unread-ring predicate.
+
+The empty native population still requires LoadEnemies' default post-draw hook
+`$A0:804C`, installed by `$A0:8A31-$8A3A`. The initial diagnostic omitted it and
+jumped through zero after drawing; the CPU trace identified this fixture error.
+Restoring the actual initialization value allowed the full draw path to execute
+without bypassing its owners. No production behavior was changed for this audit.
+
+Trace: `movement-release/door-wait-handoff-422.csv`. Verify with DebugRunner
+`--door-wait-native-compare ROM TRACE`. Regenerate using the same temporary
+headless/native-APU hooks, dispatching `DiagnosticDoorWaitHandoff` with a new CSV
+path. The native program's error/warning dialogs must be disabled for this
+explicit headless command only. Remove the hooks and rebuild after capture.
+
+These cases seed queues and have no live enemy population or new sound producers.
+They do not establish full controller-driven door durations, real SPC timing,
+music downtime, interrupted charging, landing, or combined gameplay actions.
+Those broader #422 requirements remain open.
+
 ## Reproduced active Power Bomb publication gap
 
 `--power-bomb-sound-suppression-audit ROM` originally failed before the HUD fix.

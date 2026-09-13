@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
+    return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])
     return BlueDoorStateAudit.Run(blueRom, blueState);
 if (args is ["--door-sound-combined-compare", var combinedRom, var combinedCsv])

@@ -61,7 +61,7 @@ public sealed partial class FileSelectMapMenuState
             (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
         this.mapPresentation = mapPresentation;
         scroll = CreateScrollForCurrentContent();
-        marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation);
+        marker = new FileSelectStationMarker(bus, typedArea, slot.SaveStation, mapPresentation?.SaveMarkers);
         navigation = new FileSelectMapNavigation(bus, area, initialHeldInput);
         navigation.BindLabels(mapPresentation?.Labels);
         areaGraphics.BindLabels(mapPresentation?.Labels);
@@ -84,6 +84,7 @@ public sealed partial class FileSelectMapMenuState
         entry.BindPalettes(catalog?.Palettes);
         animations.BindPalette(catalog?.HighlightCycle);
         roomGraphics.BindMapPresentation(catalog);
+        marker.BindPosition(bus, (AreaId)area, stationIndex, catalog?.SaveMarkers);
     }
 
     private FileSelectMapScroll CreateScrollForCurrentContent()
@@ -131,7 +132,7 @@ public sealed partial class FileSelectMapMenuState
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
                 scroll = CreateScrollForCurrentContent();
-                marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex);
+                marker = new FileSelectStationMarker(bus, (AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetPalette();
             }

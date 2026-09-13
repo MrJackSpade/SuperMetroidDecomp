@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 
@@ -128,20 +129,30 @@ public sealed partial class FileSelectAreaMapGraphics
             ushort area = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.DisplayAreaIndices + displayArea * 2);
             if (area >= FileSelectMapRomData.AreaCount)
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
+            if (labels is not null)
+            {
+                if (MapSaveMarkerDefinitions.HasUsedMarker((AreaId)area, usedStationMasks[area])) DrawArea(area);
+                continue;
+            }
             ushort pointer = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.SavePointMapPointers + area * 2);
             for (int station = 0; station < 16; station++)
             {
                 ushort x = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.MenuObjectBank | (ushort)(pointer + station * 4));
                 if (x == ushort.MaxValue) break;
                 if (x == ushort.MaxValue - 1 || (usedStationMasks[area] & (1 << station)) == 0) continue;
-                int label = FileSelectMapRomData.LabelPositions + area * 4;
-                Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(bus, label) : (ushort)labels.Get(area).X,
-                    labels is null ? RomDataReader.ReadWordFixedBank(bus, label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
+                DrawArea(area);
                 break;
             }
         }
         oam.FinalizeFrame();
         return oam;
+
+        void DrawArea(ushort area)
+        {
+            int label = FileSelectMapRomData.LabelPositions + area * 4;
+            Draw((ushort)(title + area + 1), labels is null ? RomDataReader.ReadWordFixedBank(bus, label) : (ushort)labels.Get(area).X,
+                labels is null ? RomDataReader.ReadWordFixedBank(bus, label + 2) : (ushort)labels.Get(area).Y, area == SelectedArea ? (ushort)0 : (ushort)0x200);
+        }
 
         void Draw(ushort id, ushort x, ushort y, ushort palette)
         {

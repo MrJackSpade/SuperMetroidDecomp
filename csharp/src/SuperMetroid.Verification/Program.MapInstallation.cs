@@ -27,7 +27,12 @@ internal static partial class Program
         var landmarks = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapLandmarkFormat.FileName)))!;
         landmarks["markers"]!["Boss.Phantoon"]!["x"] = 160;
         File.WriteAllText(landmarkOverride, landmarks.ToJsonString());
+        string saveMarkerOverride = Path.Combine(installation.MapOverrideDirectory, MapSaveMarkerFormat.FileName);
+        var saveMarkers = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSaveMarkerFormat.FileName)))!;
+        saveMarkers["markers"]!["Maridia.Save.0"]!["x"] = 104;
+        File.WriteAllText(saveMarkerOverride, saveMarkers.ToJsonString());
         var edited = installation.LoadMaps();
+        AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Game.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
@@ -37,6 +42,7 @@ internal static partial class Program
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
+            [saveMarkerOverride] = File.ReadAllBytes(saveMarkerOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.srm")] = "synthetic-legacy-sram-sentinel"u8.ToArray(),

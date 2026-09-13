@@ -504,3 +504,42 @@ files. Logs: `282-landmarks.log`, `282-landmarks-suite.log`,
 `282-landmarks-windows.log`, `282-landmarks-installation.log` in ignored test-temp.
 No Android device or historical full-session validation is claimed. #282 remains
 open for selected-save placement and its other outstanding integration work.
+
+## Selected-save positions and area-label eligibility (catalog version 10)
+
+The 34 usable selected-save/elevator marker anchors now import as
+`map-save-markers.json`. Copy the complete file into `overrides/maps/` and edit
+the `x`/`y` values of named entries such as `Maridia.Save.0` (X=0..511,
+Y=0..255, area-map pixels). Retain `version: 1` and all known IDs. These are
+the animated selected-save indicator positions, not actual station locations.
+Unused native indices are not editable entries and remain invalid selections.
+
+The original coordinate table also determines whether a world-map area label
+has a valid used save station. `MapSaveMarkerDefinitions` now owns the native
+index validity and that eligibility check. Neither authored drawing coordinates
+nor replacement map tiles change the used-station masks or selected load index.
+Initial map scrolling still derives from the load station and room metadata,
+not the edited marker anchor; those remaining metadata reads are separate work.
+
+`FileSelectStationMarker` retains the same serialized coordinate and animation
+fields. Content rebinding replaces only its coordinates, using area/index from
+the existing menu owner, and does not reset frame/timer/backing phase. Ordinary
+construction, return/reentry and debugger restore all use current content.
+Catalog version 10 adds a new resource without changing older override schemas.
+
+Verification compares every valid coordinate and 128 animation ticks per marker
+against the cartridge-fed path, rejects all unused/out-of-range indices, and
+checks all 393,216 area/used-mask combinations against native-table eligibility.
+The complete existing menu entry/scroll/restore/return/reentry sequence runs with
+save-coordinate reads forbidden and exact stock frame parity. An edited marker
+changes room-map pixels; restoring and rebinding it preserves animation, scroll,
+load selection and load-handoff timing. Invalid/missing/corrupt resources and
+override preservation are covered. Full installer tests preserve the new override
+alongside other edits and synthetic player files across cancellation/upgrade/restart.
+Focused/full core verification and Windows Release build pass. Local logs:
+`282-save-markers.log`, `282-save-markers-suite.log`,
+`282-save-markers-windows.log`, `282-save-markers-installation.log`.
+
+This completes the selected-save placement portion, not all #282 requirements.
+Remaining room/load metadata and other scoped ROM reads still need auditing;
+historical full-session and Android device validation are not claimed here.

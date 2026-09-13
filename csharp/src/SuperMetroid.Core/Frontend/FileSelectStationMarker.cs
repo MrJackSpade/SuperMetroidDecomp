@@ -11,14 +11,26 @@ public sealed class FileSelectStationMarker
     private int timer;
     private ushort loops;
 
-    public FileSelectStationMarker(ISnesAddressSpace bus, AreaId area, int stationIndex)
+    public FileSelectStationMarker(ISnesAddressSpace bus, AreaId area, int stationIndex,
+        SuperMetroid.Core.Assets.MapSaveMarkerLayout? layout = null)
+        => BindPosition(bus, area, stationIndex, layout);
+
+    /// <summary>Rebinds drawing position without changing the existing marker animation or selected load index.</summary>
+    internal void BindPosition(ISnesAddressSpace bus, AreaId area, int stationIndex, SuperMetroid.Core.Assets.MapSaveMarkerLayout? layout)
     {
         ArgumentNullException.ThrowIfNull(bus);
         int areaIndex = AreaIds.ToIndex(area);
         if ((uint)areaIndex >= FileSelectMapRomData.AreaCount)
             throw new ArgumentOutOfRangeException(nameof(area));
-        if ((uint)stationIndex >= 16)
+        if ((uint)stationIndex >= MapSaveMarkerDefinitions.SlotsPerArea)
             throw new ArgumentOutOfRangeException(nameof(stationIndex));
+        if (layout is not null)
+        {
+            var point = layout.Get(area, stationIndex);
+            MapX = (ushort)point.X;
+            MapY = (ushort)point.Y;
+            return;
+        }
         ushort list = RomDataReader.ReadWordFixedBank(bus,
             FileSelectMapRomData.SavePointMapPointers + areaIndex * 2);
         // Do not walk through the end sentinel into the next area's list when a bad
@@ -37,8 +49,8 @@ public sealed class FileSelectStationMarker
         }
     }
 
-    public ushort MapX { get; }
-    public ushort MapY { get; }
+    public ushort MapX { get; private set; }
+    public ushort MapY { get; private set; }
     public ushort SpritemapId => PauseMapIndicatorAnimation.SpritemapIds[frame];
     public bool ShowBacking => (loops & 1) == 0;
 

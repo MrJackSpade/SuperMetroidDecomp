@@ -85,6 +85,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, MapLandmarkFormat.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(landmarkBytes);
         hashes.Add(MapLandmarkFormat.FileName, Convert.ToHexString(SHA256.HashData(landmarkBytes)));
+        byte[] saveMarkerBytes = MapSaveMarkerExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, MapSaveMarkerFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(saveMarkerBytes);
+        hashes.Add(MapSaveMarkerFormat.FileName, Convert.ToHexString(SHA256.HashData(saveMarkerBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

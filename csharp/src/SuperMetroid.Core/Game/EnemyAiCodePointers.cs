@@ -978,6 +978,10 @@ internal static class EnemyAiCodePointers
     /// <summary>Bank-$B2 Space Pirate interaction callbacks.</summary>
     public static class BankB2
     {
+        /// <summary>CommonB2_NormalEnemyShotAI at $B2:802D; calls common damage directly, without the gold Ninja's private death tail.</summary>
+        public const ushort CommonShot = 0x802d;
+        /// <summary>ExtendedSpritemap_CommonB2_Nothing at $B2:804F; one point hitbox selecting the common touch/shot callbacks.</summary>
+        public const ushort EmptyExtendedSpritemap = 0x804f;
         /// <summary>Space Pirate Power Bomb callback at $B2:8767.</summary>
         public const ushort PowerBomb = 0x8767;
         /// <summary>Space Pirate touch callback at $B2:876C.</summary>

@@ -1620,7 +1620,7 @@ public sealed partial class RoomEnemySystem
                         }
                         if (isFireflea)
                             AdvanceFirefleaDarknessLevel();
-                        if (isOrdinarySpacePirate)
+                        if (isOrdinarySpacePirate && hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot)
                         {
                             // The shared Pirate shot tail clears native variable B before
                             // requesting death animation variant four. Wall AI uses B only as
@@ -1644,7 +1644,7 @@ public sealed partial class RoomEnemySystem
                                 : SelectNormalShotDeathAnimation(
                                     enemy,
                                     projectileType,
-                                    forcePirateBigExplosion: isOrdinarySpacePirate));
+                                    forcePirateBigExplosion: isOrdinarySpacePirate && hitboxShotAi != EnemyAiCodePointers.BankB2.CommonShot));
                     }
                 }
 
@@ -1876,7 +1876,7 @@ public sealed partial class RoomEnemySystem
                     }
                 }
                 else if (enemy.EnemyDefinitionPointer == GoldNinjaSpacePirateDefinition &&
-                    usesExtendedHitboxes)
+                    usesExtendedHitboxes && selectedShotAi != EnemyAiCodePointers.BankB2.CommonShot)
                 {
                     PirateHitboxShotAction pirateAction =
                         SelectPirateNormalBombHitboxShotAction(enemy, selectedShotAi);
@@ -2853,7 +2853,7 @@ public sealed partial class RoomEnemySystem
             DraygonBodyDefinition);
 
     /// <summary>
-    /// Dispatches the three shot callbacks stored in Space Pirate hitbox records. Only the
+    /// Dispatches the common and Pirate-specific shot callbacks in hitbox records. Only the
     /// gold Ninja gives `$87C8/$883E` special meaning; every other Pirate deliberately falls
     /// through to normal shot AI even when it displays one of the shared Ninja maps.
     /// </summary>
@@ -2863,7 +2863,9 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSlot projectile,
         ushort hitboxShotAi)
     {
-        if (hitboxShotAi == SpacePirateShotAi)
+        // The empty extended map still has a real point hitbox. Its common callback
+        // bypasses the Ninja-specific armor tests; it must not be rejected as unknown.
+        if (hitboxShotAi is SpacePirateShotAi or EnemyAiCodePointers.BankB2.CommonShot)
             return PirateHitboxShotAction.Normal;
         if (hitboxShotAi is not (
                 GoldNinjaVulnerableHitboxShotAi or GoldNinjaInvincibleHitboxShotAi))

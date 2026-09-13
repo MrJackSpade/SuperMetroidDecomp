@@ -25,6 +25,7 @@ internal static partial class NinjaSpacePirateAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionsAndBytecode(bus);
+        VerifyCommonHitboxShot(bus, room, assets);
         VerifyUntouchedPopulation(bus, room, assets);
         VerifyIdleLoopReactivatesBothPirates(bus, room, assets);
         MotionResult leftToRight = VerifyMotionFamily(bus, room, assets, actorIndex: 0);

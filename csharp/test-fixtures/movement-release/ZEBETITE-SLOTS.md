@@ -150,3 +150,19 @@ the next search must account for the barrier's initialization history as well
 as missile flight through the actual terrain opening. The seeded camera
 position itself has not yet been reached through controller input. All earlier
 dispatcher-level evidence remains separate from this unsuccessful candidate.
+
+### Revised single-hit candidate
+
+The diagnostic now runs both with/without two preliminary on-screen enemy
+frames. It waits for crouch completion before tapping Left once, waits for
+the turn, then fires without holding Left (which would stand and run). The
+missile travels left at Y145 through the real opening and damages the lower
+half in both variants. Holding Left through the turn instead produced a Y131
+shot that exploded against the pillar at X638. Pressing Left before crouch
+completion left Samus facing right and fired away from the barrier.
+
+Both current variants consume one missile and assert an actual barrier health
+decrease. At frame 110 the halves are 919/915 HP: the camera remains on screen,
+so this is not regeneration suppression or native parity. The initial camera
+seed and the short exposure window around impact still need work. Projectile
+positions/types/directions are now logged to make further candidates diagnosable.

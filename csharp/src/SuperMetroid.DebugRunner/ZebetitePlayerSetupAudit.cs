@@ -8,6 +8,14 @@ internal static class ZebetitePlayerSetupAudit
 {
     public static int Run(string romPath)
     {
+        RunCase(romPath, initializeOnscreen: false);
+        RunCase(romPath, initializeOnscreen: true);
+        return 0;
+    }
+
+    private static void RunCase(string romPath, bool initializeOnscreen)
+    {
+        Console.WriteLine($"CASE initialized={initializeOnscreen}");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -23,6 +31,12 @@ internal static class ZebetitePlayerSetupAudit
         samus.Health = samus.MaxHealth = 999;
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SelectedHudItem = 1;
+        if (initializeOnscreen)
+        {
+            runtime.Camera!.SetPosition(600, 0);
+            runtime.StepFrame(0);
+            runtime.StepFrame(0);
+        }
         runtime.Camera!.SetPosition(641, 0);
         var level = runtime.LevelData!;
         for (int y = 0; y < 16; y++)
@@ -32,22 +46,27 @@ internal static class ZebetitePlayerSetupAudit
                 Console.Write($"{level.ForegroundEntries.Span[y * level.WidthInBlocks + x] >> 12:X} ");
             Console.WriteLine();
         }
+        bool hitBarrier = false;
         for (int frame = 0; frame < 120; frame++)
         {
             SnesButton input = frame switch
             {
                 60 or 61 => SnesButton.Down,
-                >= 62 and < 71 => SnesButton.Left,
-                71 => SnesButton.Left | SnesButton.X,
-                72 => SnesButton.Left,
-                73 => SnesButton.Left | SnesButton.A,
-                >= 74 and < 80 => SnesButton.Right | SnesButton.A,
+                66 => SnesButton.Left,
+                78 => SnesButton.X,
+                80 => SnesButton.Left | SnesButton.A,
+                >= 81 and < 87 => SnesButton.Right | SnesButton.A,
                 _ => 0,
             };
             runtime.StepFrame((ushort)input);
+            hitBarrier |= runtime.Enemies.Slots.Any(slot => slot.EnemyDefinitionPointer == 0xe27f && slot.Health < 1000);
             if (frame % 10 == 0 || frame is >= 60 and < 90)
                 Console.WriteLine($"SETUP frame={frame} input={(ushort)input:X4} x={samus.XPosition} y={samus.YPosition} pose={samus.Pose:X2} camera={runtime.Camera.XPosition},{runtime.Camera.YPosition} health={samus.Health} missiles={samus.Missiles} barrier={string.Join('/', runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == 0xe27f).Select(slot => slot.Health))}");
+            if (frame is >= 70 and < 90)
+                foreach (var shot in runtime.Projectiles.Slots.Where(shot => shot.Type != 0))
+                    Console.WriteLine($"SHOT frame={frame} type={shot.Type:X4} x={shot.XPosition} y={shot.YPosition} direction={shot.Direction:X4}");
         }
-        return 0;
+        if (!hitBarrier || samus.Missiles != 9)
+            throw new InvalidDataException("Exploratory room setup no longer delivers its single missile hit.");
     }
 }

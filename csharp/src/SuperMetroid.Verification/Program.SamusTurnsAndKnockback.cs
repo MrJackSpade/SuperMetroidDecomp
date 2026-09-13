@@ -544,6 +544,7 @@ static void VerifySamusKnockbackAndDamageBoost()
     AssertTrue(pendingTerrainHit.KnockbackActive,
         "terrain hit interruption installs special movement handler");
 
+    samus.RefreshCollisionRadii(bus); // Next alpha publishes the hurt body's radius before movement.
     KnockbackMovementResult hurtFrame = SamusKnockbackMovement.Step(bus, empty, samus, 0);
     // Movement consumes the current timer; gameplay state eight then calls `$A0:9169`
     // after drawing/room work. Keep that distinct owner visible in this direct subsystem test.
@@ -674,6 +675,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         YPosition = 96,
     };
     SamusKnockbackMovement.Start(bus, expires, 0, knockbackXDirection: 1);
+    expires.RefreshCollisionRadii(bus);
     for (int frame = 0; frame < 5; frame++)
     {
         AssertTrue(!SamusKnockbackMovement.Step(bus, empty, expires, (ushort)frame).Ended,

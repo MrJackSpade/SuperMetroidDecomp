@@ -176,3 +176,19 @@ start the next jump at 216. The remaining vertical difference begins on 217,
 not at the initial alignment. Trace the knockback radius publication and neutral
 jump collision/probe order before making production changes. Invulnerability is
 not a CSV field here; matching knockback/health does not certify its exact timer.
+
+The four differences above are now corrected. Humanoid knockback commits its pose
+without publishing the new radius before alpha. For the neutral jump, native
+`Samus_Move_NoBaseSpeed_X` still calls the solid-enemy probe with a zero magnitude.
+The managed mover previously skipped that probe whenever displacement was zero,
+losing its tangency write to Samus's fractional Y. The horizontal mover now accepts
+an explicit direction for a zero-distance dispatch, and neutral jump movement
+supplies its facing. This does not infer a direction for other no-movement callers.
+
+All 100 original-CPU approach frames match afterward; the constructed aligned
+80-frame pair remains matched. Focused tests exercise the actual neutral-jump
+entrypoint in both directions, solid and frozen enemies, and a one-pixel miss.
+They assert unchanged X/whole Y, the exact fractional-Y write, contact reporting,
+and absence of vertical movement. A crouch-to-hurt test asserts delayed radius
+publication. The turn/freeze search still finds no successful earned skip; this
+fix does not complete the alignment or shinespark portions of #442.

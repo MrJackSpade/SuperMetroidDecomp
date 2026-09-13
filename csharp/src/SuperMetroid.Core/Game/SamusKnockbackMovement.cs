@@ -153,7 +153,8 @@ public static class SamusKnockbackMovement
                     bus, level, targetPose, nmiFrameCounter, plms))
                 return false;
             samus.Pose = targetPose;
-            samus.RefreshCollisionRadii(bus);
+            // The interrupted pose commits after movement. Alpha publishes its radius
+            // next frame; keep the collision resolver's old live radius through this one.
         }
         else if (unusedMovementSeven)
         {

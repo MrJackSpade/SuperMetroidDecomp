@@ -823,6 +823,7 @@ VerifyMotherBrainEscapeDoorParticles();
 VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
+VerifyZeroDistanceJumpContact();
 VerifyRetailFallingSpeedRecurrence();
 VerifyCrampedAerialLandingPoseCollision();
 VerifySamusSpaceJumpAndScrewAttack();

@@ -160,7 +160,9 @@ public static class SamusAerialMovement
                 level,
                 samus.Kinematics,
                 requested,
-                plms: plms);
+                plms: plms,
+                zeroDisplacementDirection: samus.ReadFacingDirection(bus) == SamusFacingDirection.Left
+                    ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
             if (horizontal.Collided)
                 samus.HorizontalSpeed.ClearHorizontalMomentum(samus.ReadFacingDirection(bus));
 

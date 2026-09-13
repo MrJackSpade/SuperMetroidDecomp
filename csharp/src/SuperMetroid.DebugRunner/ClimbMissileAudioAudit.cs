@@ -10,7 +10,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>#16: actual missile producer and room enemy death requests, not audible-output certification.</summary>
 internal static class ClimbMissileAudioAudit
 {
-    public static int Run(string romPath, string? audioDirectory = null)
+    public static int Run(string romPath, string? audioDirectory = null, string? nativeDll = null)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -44,7 +44,8 @@ internal static class ClimbMissileAudioAudit
         typeof(SuperMetroidGame).GetField("runtime", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
         byte[] acknowledgements = new byte[4];
-        ClimbAudioPlayback? playback = audioDirectory is null ? null : new(audioDirectory);
+        using var native = nativeDll is null ? null : new ClimbNativeAudioReference(nativeDll);
+        ClimbAudioPlayback? playback = audioDirectory is null ? null : new(audioDirectory, native);
         if (playback is not null)
         {
             var audio = (CartridgeAudioState)typeof(SuperMetroidGame).GetField("audio", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(game)!;
@@ -100,6 +101,7 @@ internal static class ClimbMissileAudioAudit
             Console.WriteLine($"Death cue changes {playback.ChangedFrames} PCM frames; maximum sample difference={playback.MaximumDifference}.");
         }
         Console.WriteLine("Missile/death diagnostic complete; original-cartridge encounter parity and host audibility remain unverified.");
+        if (native is not null) Console.WriteLine($"Native translated SPC/DSP: {native.Frames} complete PCM and acknowledgement frames matched.");
         return 0;
     }
 }

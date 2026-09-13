@@ -1153,6 +1153,8 @@ if (args.Length == 2 && args[0] == "--climb-missile-audio-audit")
     return ClimbMissileAudioAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--climb-missile-playback-audit")
     return ClimbMissileAudioAudit.Run(args[1], args[2]);
+if (args.Length == 4 && args[0] == "--climb-missile-native-audio-audit")
+    return ClimbMissileAudioAudit.Run(args[1], args[2], args[3]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-scan-cadence")
     return ZebetiteSparkAudit.ScanCadence(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-spark-scan-held-cadence")

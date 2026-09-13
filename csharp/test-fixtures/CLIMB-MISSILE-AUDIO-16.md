@@ -52,3 +52,18 @@ golden hash. Thus the current implementation contributes this cue to the mix;
 this does not establish perceptual prominence, Windows endpoint audibility,
 or original-cartridge command/mixing parity. The control intentionally does
 not feed its differing acknowledgements back into the production sequence.
+
+## Native translated playback comparison
+
+`--climb-missile-native-audio-audit ROM AUDIO_DIRECTORY NATIVE_DLL` runs that
+same sequence through the explicitly supplied diagnostic native SPC/DSP bridge.
+All 720 frames (600 warmup plus 120 gameplay) match every stereo PCM sample and
+all four acknowledgement ports. Both players receive the same frontend commands;
+the native samples use the existing linear host resampler, not the DLL's legacy
+nearest-neighbor conversion. Any differing sample or port fails the command.
+
+This reference is the pinned translated sequencer and DSP, not an original-SPC
+CPU execution. It establishes managed playback parity for this command stream,
+not independent cartridge gameplay sound selection or the player's exact input
+history. Original gameplay queue timing and perceptual endpoint checks remain
+outside this result. The diagnostic DLL is not loaded by normal gameplay.

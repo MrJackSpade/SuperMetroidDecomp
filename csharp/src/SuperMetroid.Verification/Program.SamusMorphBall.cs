@@ -442,14 +442,17 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(0, samus.MorphBallBounceState, "grounding clears bounce state");
 
     // Unmorphing against only the floor succeeds and moves center up nine, preserving the
-    // bottom boundary. A ceiling in row two makes both initial expansion probes collide;
+    // target body's bottom boundary. The live radius changes in the next alpha pass.
+    // A ceiling in row two makes both initial expansion probes collide;
     // radius-seven `$91:FFA7` must retain the ball instead of selecting crouch.
     AssertTrue(
         samus.TryApplyMorphTransition(
             bus, floor, SamusPoseIds.UnmorphingTransitionLeftPose, nmiFrameCounter: 0),
         "floor-constrained unmorph succeeds");
-    AssertEqual(16, samus.Kinematics.YRadius, "unmorph transition radius");
+    AssertEqual(7, samus.Kinematics.YRadius, "unmorph retains old live radius through beta");
     AssertEqual(48, samus.YPosition, "unmorph expansion keeps bottom boundary");
+    samus.RefreshCollisionRadii(bus);
+    AssertEqual(16, samus.Kinematics.YRadius, "following alpha publishes unmorph radius");
 
     var tunnelBlocks = (ushort[])floorBlocks.Clone();
     for (int x = 0; x < width; x++)

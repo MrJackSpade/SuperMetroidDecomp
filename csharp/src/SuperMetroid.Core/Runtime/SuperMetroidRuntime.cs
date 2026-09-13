@@ -1633,6 +1633,12 @@ public sealed partial class SuperMetroidRuntime
             // match selected for the old pose to the newly installed one.
             BeginAttractSamusInput();
             byte poseAtFrameStart = Samus.Pose;
+            // Ordinary alpha publishes the current pose's live radius before input
+            // and collision. Prospective transitions later in beta can retain the
+            // previous radius until this point in the following frame.
+            if (GroundedSamusMovementEnabled && !TimeIsFrozen &&
+                !Samus.DeathSequence.IsActive && !Enemies.ElevatorDoorTransitionActive)
+                Samus.RefreshCollisionRadii(_addressSpace);
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
             bool stationaryScriptControlAtFrameStart = Samus.StationaryScriptControlLocked;

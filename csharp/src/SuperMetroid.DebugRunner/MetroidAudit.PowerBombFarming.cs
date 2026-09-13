@@ -54,15 +54,28 @@ internal static partial class MetroidAudit
         using var output = new StreamWriter(prefix + ".jsonl");
         ushort previousHealth = enemy.Health;
         int damageEvents = 0;
+        int pickupFrame = -1;
+        EnemyPickupKind? collected = null;
         for (int frame = 0; frame < 1050; frame++)
         {
             ushort input = frame >= 5 && frame < 5 + shots * 345 && (frame - 5) % 345 == 0
                 ? (ushort)SnesButton.X : (ushort)0;
+            // Reach the actual drop above the floor with ordinary posture/jump input.
+            // The same input runs in the surviving-enemy control; no pickup is injected.
+            if (frame == 850) input |= (ushort)SnesButton.Up;
+            if (frame >= 855 && frame < 885) input |= (ushort)SnesButton.A;
             runtime.StepFrame(input);
+            if (runtime.Enemies.LastCollectedEnemyPickup is { } pickup)
+            {
+                if (pickupFrame >= 0) throw new InvalidDataException("A single Metroid produced multiple collected drops.");
+                pickupFrame = frame;
+                collected = pickup;
+            }
             output.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
             {
                 Frame = frame, Input = input, samus.Health, samus.PowerBombs,
                 samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
+                SamusRadiusX = samus.Kinematics.XRadius, SamusRadiusY = samus.Kinematics.YRadius,
                 EnemyHealth = enemy.Health, enemy.EnemyDefinitionPointer,
                 enemy.XPosition, enemy.YPosition, enemy.InvincibilityTimer,
                 PowerBomb = runtime.BombProjectiles.PowerBombExplosion,
@@ -74,6 +87,7 @@ internal static partial class MetroidAudit
                     p.Kind, p.XPosition, p.YPosition, p.InstructionPointer,
                     p.InstructionTimer, p.PreInstruction, p.DirectionParameter,
                     p.Variable0, p.EnemyHeaderPointer,
+                    p.XRadius, p.YRadius,
                 }),
             }));
             if (enemy.Health != previousHealth)
@@ -86,6 +100,16 @@ internal static partial class MetroidAudit
         if (samus.Health == 0 || damageEvents != (shots == 2 ? 4 : 5) ||
             runtime.Enemies.EnemiesKilled != (shots == 2 ? 0 : 1))
             throw new InvalidDataException("Power Bomb farming candidate changed its damage/death boundary.");
-        Console.WriteLine($"PB FARM candidate seed={seed} shots={shots}: damage events={damageEvents}, killed={runtime.Enemies.EnemiesKilled}, ammo={samus.PowerBombs}. Native parity and drop/RNG assertions pending.");
+        EnemyPickupKind? expectedPickup = shots == 2 ? null : seed switch
+        {
+            1 => EnemyPickupKind.PowerBomb,
+            2 or 3 => EnemyPickupKind.BigEnergy,
+            4 => EnemyPickupKind.SmallEnergy,
+            _ => throw new InvalidDataException("Uncatalogued farming seed."),
+        };
+        if (collected != expectedPickup || pickupFrame != (shots == 2 ? -1 : 851) ||
+            samus.PowerBombs != (shots == 2 || seed == 1 ? 3 : 2))
+            throw new InvalidDataException("Native farming pickup kind, collection frame or ammunition differed.");
+        Console.WriteLine($"PB FARM seed={seed} shots={shots}: damage events={damageEvents}, killed={runtime.Enemies.EnemiesKilled}, pickup={collected} at {pickupFrame}, ammo={samus.PowerBombs}. Managed regression passed; use the trace comparator for native parity.");
     }
 }

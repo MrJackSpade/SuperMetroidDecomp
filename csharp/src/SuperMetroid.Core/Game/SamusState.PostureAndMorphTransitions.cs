@@ -333,10 +333,12 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
+        // The prospective collision probes used the target radius, but the live
+        // word remains unchanged until alpha's Samus_SetRadius next frame. This
+        // matters to the later enemy-projectile pickup overlap tests.
         CancelBounceForPostureTransition();
         InitializeAnimation(bus, initialFrame: 0);
         return true;

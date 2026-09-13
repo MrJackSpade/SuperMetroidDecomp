@@ -28,3 +28,17 @@ Verification:
 - Windows Release build passes with zero warnings/errors.
 
 Awaiting player confirmation; reproduction success does not close the issue.
+
+## Local progress recovery
+
+DebugRunner `--recover-recording-state RECORDING ROM AUDIO_DIR NEW_DIRECTORY LAST_FRAME`
+replays the recorded SRAM/options/inputs with actual managed audio acknowledgements
+and captured gameplay rendering. It exports slot 1 after the inclusive input index,
+then reloads it and verifies the remaining recorded inputs. An existing destination
+is refused. `--verify-recovered-state` separately checks an existing export.
+
+For this report, index 30449 restores the frame immediately before the failure in
+$8F:B62B. Recovery was tested using the downloaded v0.3.2 Windows Core/Diagnostics
+assemblies, including the next formerly failing input and retained gameplay scene.
+The final state is generated with those production assemblies to avoid build-ID
+warnings. No live slot is overwritten and no private recovery data is published.

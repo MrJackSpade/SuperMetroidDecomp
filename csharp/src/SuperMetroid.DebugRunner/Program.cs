@@ -22,6 +22,10 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--recover-recording-state", var recoveryRecording, var recoveryRom, var recoveryAudio, var recoveryDirectory, var recoveryFrame])
+    return RecordingRecoveryState.Export(recoveryRecording, recoveryRom, recoveryAudio, recoveryDirectory, int.Parse(recoveryFrame));
+if (args is ["--verify-recovered-state", var recoveredRecording, var recoveredRom, var recoveredAudio, var recoveredDirectory, var recoveredFrame])
+    return RecordingRecoveryState.Verify(recoveredRecording, recoveredRom, recoveredAudio, recoveredDirectory, int.Parse(recoveredFrame));
 if (args is ["--shaktool-reentry-audit", var reentryRom])
     return ShaktoolReentryAudit.Run(reentryRom);
 if (args is ["--enemy-breakable-native", var breakRom, var breakTrace])

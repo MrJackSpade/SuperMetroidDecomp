@@ -6,7 +6,7 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   size_t size = 0; uint8 *seed = ReadWholeFile(movement, &size);
   if (!seed || size != 3200) { free(seed); return 5; }
   uint32 *w = (uint32 *)seed;
-  if (w[0] != 0x31564f4d || w[1] != 0xdd58 || w[2] != 64 || w[3] != 16 || w[6] != 4 || w[16] != 2) { free(seed); return 6; }
+  if (w[0] != 0x31564f4d || w[1] != 0xdd58 || w[2] != 64 || w[3] != 16 || (w[6] != 4 && w[6] != 0x28) || w[16] != 2) { free(seed); return 6; }
   cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
   g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
   room_ptr = w[1]; room_width_in_blocks = w[2]; room_height_in_blocks = w[3]; room_size_in_blocks = w[2] * w[3] * 2;
@@ -29,7 +29,9 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   uint16 first_nmi = a[0]; random_number = a[1];
   samus_prev_pose = a[2]; samus_prev_pose_x_dir = a[3]; samus_prev_movement_type = a[3]>>8;
   samus_last_different_pose = a[4]; samus_last_different_pose_x_dir = a[5]; samus_prev_movement_type2 = a[5]>>8;
-  samus_pose_x_dir = 4; samus_movement_type = 0; samus_health = samus_max_health = a[6]; samus_invincibility_timer = a[7];
+  samus_pose_x_dir = RomFixedPtr(0x91b629 + 8 * samus_pose)[0];
+  samus_movement_type = RomFixedPtr(0x91b629 + 8 * samus_pose)[1];
+  samus_health = samus_max_health = a[6]; samus_invincibility_timer = a[7];
   layer1_x_pos = ideal_layer1_xpos = a[8]; layer1_y_pos = ideal_layer1_ypos = a[9];
   memcpy(gEnemyData(128), supplement + 24, 64); memcpy(gEnemyData(192), supplement + 88, 64); free(supplement);
   if (gEnemyData(128)->enemy_ptr != 0xe27f || gEnemyData(192)->enemy_ptr != 0xd23f || !gEnemyData(192)->frozen_timer) return 8;

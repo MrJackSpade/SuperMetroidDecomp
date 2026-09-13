@@ -484,6 +484,7 @@ static void VerifySamusAimedAerialMovement()
     AssertEqual(SamusPoseIds.FallingRightPose, samus.SelectFallingPoseForCurrentAim(bus), "up-right walk-off target");
     samus.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingRightPose);
     AssertEqual(2, samus.Kinematics.YDirection, "aimed walk-off starts downward");
+    samus.RefreshCollisionRadii(bus); // Next alpha precedes the airborne input/aim transition.
     samus.ApplyAerialAimTransition(bus, SamusPoseIds.FallingAimDiagonalUpRightPose);
 
     // `$90:8324-$8345` leaves both the command index and zero timer untouched when `$F0`

@@ -111,3 +111,34 @@ delaying steering is not equivalent to a stationary vertical hop. The documented
 invulnerability/alignment step and subpixel normalization need a deliberate setup,
 with an extended original-CPU comparison beyond the existing forty-frame interval.
 No production behavior was changed based on these unsuccessful attempts.
+
+## Constructed aligned escape and one-pixel neighbor
+
+`--zebetite-skip-export-aligned ROM PRIVATE_DIRECTORY` first runs the same real
+freeze setup. At frame 120 it deliberately constructs a crouched precondition:
+X=836 or 837, Y=142, both subpositions zero, crouching left, invulnerability=120,
+with animation/pose history initialized. This is **not** controller-earned alignment
+or invulnerability. Other movement fields are retained from the stationary setup.
+It exports the same private MOV1/ZSK1 pair and forty-frame CSV, with the existing
+Left/Jump schedule (native probe offset argument 0).
+
+The original CPU escapes from X=836 and remains blocked from X=837. At frame 159:
+
+| Initial X | Final X fixed | Final Y fixed | Pose | Zebetite health |
+| --- | --- | --- | --- | --- |
+| 836 | 52060160 | 8226815 | falling left | 1000 |
+| 837 | 54853632 | 8469504 | forward jump left | 1000 |
+
+The complete and two-actor room intervals match each other in both cases. The
+initial native comparison found five early Y-radius publications: crouch jump
+at frame 120 in both cases, landing at 142/131 respectively, and walk-off at 146
+in the successful case. Those three production transition paths now retain the
+live radius until alpha. All 80 native frames agree on every CSV field afterward.
+The export asserts these timing landmarks, exact endpoints, and intact barrier;
+focused core tests distinguish immediate center correction from later radius
+publication. The existing 120-frame native interval remains unchanged.
+
+This proves escape from the constructed alignment, including movement after
+leaving the barrier, and a one-pixel neighboring failure. It does **not** prove
+how to reach that alignment from the preceding controller sequence. That setup
+and the separate shinespark method remain required before #442 is ready.

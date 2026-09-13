@@ -107,9 +107,10 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
 
+        // Alpha owns the new radius next frame; collision correction and jump setup
+        // below must not publish it during this frame's pose-commit stage.
         // HandleJumpTransition_NormalJumping at $91:FC7D performs this after pose
         // initialization/collision but before Make_Samus_Jump. It writes only current Y;
         // the desktop state has no separately exposed PreviousYPosition word to mirror.
@@ -672,7 +673,8 @@ public sealed partial class SamusState
         Kinematics.YDirection = 2;
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // Alpha publishes the falling radius next frame; pose commit retains the
+        // radius used by this frame's grounded movement and collision probes.
         // SamusFunc_F433 dispatches the new falling movement type through $91:F60D
         // before command five initializes the downward state. That initializer derives
         // the mode from extra dash speed; it must not retain the grounded release mode.
@@ -758,7 +760,8 @@ public sealed partial class SamusState
         if (collision == LargerPoseCollisionOutcome.Allowed)
         {
             Pose = targetPose;
-            RefreshCollisionRadii(bus);
+            // Correct the center now, but retain the movement frame's live radius
+            // until alpha, including when landing on a frozen enemy.
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
             InitializeAnimation(bus, initialFrame: 0);
         }

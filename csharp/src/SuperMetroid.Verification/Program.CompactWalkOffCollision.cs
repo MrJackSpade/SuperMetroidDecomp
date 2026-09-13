@@ -29,6 +29,10 @@ internal static partial class Program
             samus.ApplyWalkedOffFloorTransition(bus, level, target);
             AssertEqual(0x00edffffu, samus.Kinematics.YFixed, "compact walk-off uses native floor center/subpixel correction");
             AssertEqual(target, samus.Pose, "compact walk-off selects ordinary falling art");
+            AssertEqual(16, samus.Kinematics.YRadius, "compact walk-off retains live crouch radius until alpha");
+            samus.RefreshCollisionRadii(bus);
+            AssertEqual(19, samus.Kinematics.YRadius, "compact walk-off next alpha publishes falling radius");
+            AssertEqual(0x00edffffu, samus.Kinematics.YFixed, "radius publication does not repeat compact correction");
             AssertEqual(0, samus.Kinematics.YSpeed, "accepted falling command clears whole vertical speed");
             AssertEqual(0, samus.Kinematics.YSubspeed, "accepted falling command clears fractional vertical speed");
             AssertEqual(2, samus.Kinematics.YDirection, "accepted falling command starts downward motion");

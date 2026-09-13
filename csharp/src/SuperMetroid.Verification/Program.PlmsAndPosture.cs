@@ -626,8 +626,11 @@ static void VerifySamusPostureMovement()
             bus, level, SamusPoseIds.NeutralJumpTransitionRightPose, nmiFrameCounter: 0),
         "ordinary crouch jump applies");
     AssertEqual(0x4b, crouchJump.Pose, "ordinary crouch jump transition pose");
-    AssertEqual(19, crouchJump.Kinematics.YRadius, "ordinary crouch jump radius");
+    AssertEqual(16, crouchJump.Kinematics.YRadius, "crouch jump commit retains live crouch radius");
     AssertEqual(35, crouchJump.YPosition, "ordinary crouch jump collision plus FC8A offset");
+    crouchJump.RefreshCollisionRadii(bus);
+    AssertEqual(19, crouchJump.Kinematics.YRadius, "next alpha publishes crouch jump radius");
+    AssertEqual(35, crouchJump.YPosition, "alpha does not repeat crouch jump center correction");
     AssertEqual(4, crouchJump.Kinematics.YSpeed, "ordinary crouch jump Y speed");
     AssertEqual(0xe000, crouchJump.Kinematics.YSubspeed, "ordinary crouch jump Y subspeed");
     AssertEqual(1, crouchJump.Kinematics.YDirection, "ordinary crouch jump rises");

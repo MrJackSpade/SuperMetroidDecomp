@@ -130,6 +130,10 @@ internal static partial class Program
         AssertTrue(samus.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Constructed landing reaches actual larger-pose collision correction");
         AssertEqual((ushort)475, samus.YPosition, "Landing correction preserves the old bottom boundary");
+        AssertEqual(19, samus.Kinematics.YRadius, "landing commit retains falling radius");
+        samus.RefreshCollisionRadii(bus);
+        AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes landing radius");
+        AssertEqual(475, samus.YPosition, "alpha does not repeat landing correction");
         var previous = new SamusCameraPoint(120, 0x1234, 477, 0xabcd);
         AssertEqual(previous with { YPosition = 475 }, samus.ApplyPoseCollisionCameraCheckpoint(previous),
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");

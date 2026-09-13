@@ -36,6 +36,21 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ExportAligned(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        foreach (int x in new[] { 836, 837 })
+        {
+            string prefix = Path.Combine(directory, $"aligned-{x}");
+            RunCase(romPath, 0, prefix + "-full", alignedX: x);
+            RunCase(romPath, 0, prefix + "-isolated", isolate: true, alignedX: x);
+            if (!File.ReadAllBytes(prefix + "-full.csv").SequenceEqual(File.ReadAllBytes(prefix + "-isolated.csv")))
+                throw new InvalidDataException($"Actor omission changes constructed alignment {x}.");
+        }
+        Console.WriteLine("Constructed alignment intervals exported; this does not establish controller-earned alignment.");
+        return 0;
+    }
+
     public static int ScanJumpTiming(string romPath)
     {
         // Controller-only search after the same real projectile freeze setup. Crossing
@@ -74,7 +89,7 @@ internal static class ZebetiteSkipAudit
     }
 
     private static int RunCase(string romPath, int stepBackFrames, string? exportPrefix = null, bool isolate = false, bool repeatStepBack = false,
-        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0)
+        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -104,6 +119,19 @@ internal static class ZebetiteSkipAudit
         {
             if (frame == 120 && exportPrefix is not null)
             {
+                if (alignedX is { } x)
+                {
+                    // Deliberately constructed precondition, NOT a claimed earned skip:
+                    // crouching on the frozen Rinka with native invulnerability active.
+                    samus.XPosition = checked((ushort)x);
+                    samus.YPosition = 142;
+                    samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+                    samus.Pose = SamusPoseIds.CrouchingLeftPose;
+                    samus.InvincibilityTimer = 120;
+                    samus.RefreshCollisionRadii(bus);
+                    samus.InitializeAnimation(bus);
+                    samus.CommitPoseHistory(bus);
+                }
                 if (isolate)
                 {
                     foreach (var slot in runtime.Enemies.Slots.Where(slot => slot.NativeIndex is not 128 and not 192)) slot.Clear();
@@ -126,6 +154,25 @@ internal static class ZebetiteSkipAudit
             if (frame >= jumpStart && frame < jumpStart + initialLeftDelay)
                 input = (ushort)SnesButton.A;
             runtime.StepFrame(input);
+            if (alignedX is { } alignment)
+            {
+                // Original-CPU observations for this constructed precondition. Keep
+                // these assertions separate from the still-unproven earned setup.
+                if (frame == 120 && samus.Kinematics.YRadius != 16 ||
+                    frame == 121 && samus.Kinematics.YRadius != 19 ||
+                    frame == (alignment == 836 ? 142 : 131) && samus.Kinematics.YRadius != 19 ||
+                    alignment == 836 && frame == 146 && samus.Kinematics.YRadius != 21)
+                    throw new InvalidDataException($"Aligned {alignment} radius publication differs at frame {frame}.");
+                if (frame >= 120 && runtime.Enemies.Slots[2].Health != 1000)
+                    throw new InvalidDataException("Constructed passage must not destroy or damage the Zebetite.");
+                if (frame == 159)
+                {
+                    uint expectedX = alignment == 836 ? 52060160u : 54853632u;
+                    uint expectedY = alignment == 836 ? 8226815u : 8469504u;
+                    if (unchecked((uint)samus.Kinematics.XFixed) != expectedX || unchecked((uint)samus.Kinematics.YFixed) != expectedY)
+                        throw new InvalidDataException($"Aligned {alignment} endpoint differs from original CPU.");
+                }
+            }
             minimumX = Math.Min(minimumX, samus.XPosition);
             if (frame >= 120) trace?.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{runtime.Enemies.Slots[3].FrozenTimer}");
             frozeSpawn |= runtime.Enemies.Slots.Any(slot => slot.EnemyDefinitionPointer == 0xd23f &&

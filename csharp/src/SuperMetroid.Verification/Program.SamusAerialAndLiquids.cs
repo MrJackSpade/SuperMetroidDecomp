@@ -261,8 +261,12 @@ static void VerifySamusAerialMovement()
         XPosition = 48,
         YPosition = 77,
     };
+    fallLeft.RefreshCollisionRadii(bus);
     fallLeft.ApplyWalkedOffFloorTransition(bus, level, SamusPoseIds.FallingLeftPose);
     AssertEqual(0x2a, fallLeft.Pose, "walk-off chooses left falling pose");
+    AssertEqual(21, fallLeft.Kinematics.YRadius, "walk-off commit retains standing radius");
+    fallLeft.RefreshCollisionRadii(bus);
+    AssertEqual(19, fallLeft.Kinematics.YRadius, "next alpha publishes falling radius");
     AerialMovementResult firstFall = SamusAerialMovement.StepFalling(
         bus, level, fallLeft, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(0, firstFall.Vertical!.Value.AcceptedDisplacement, "walk-off starts with stationary fall frame");

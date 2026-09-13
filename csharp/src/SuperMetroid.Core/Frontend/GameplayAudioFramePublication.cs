@@ -50,7 +50,8 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
         while (liquidSounds < liquid.Count)
         {
             var request = liquid[liquidSounds++];
-            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+            audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                soundSuppressed: request.SoundSuppressed);
         }
     }
 

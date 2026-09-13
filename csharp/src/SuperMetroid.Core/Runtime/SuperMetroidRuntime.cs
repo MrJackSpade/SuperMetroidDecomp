@@ -1656,7 +1656,7 @@ public sealed partial class SuperMetroidRuntime
             // Sound queues are global persistent engines on hardware, but this typed host
             // publication is scoped to one Samus handler. Begin before movement because
             // `$91:F046` queues landing sounds during collision, before AnimateSamus.
-            Samus.LiquidPhysics.BeginFrameSoundRequests();
+            Samus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
             bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
             bool xrayActivatedThisFrame = false;
             if (xrayOwnsPoseInput)

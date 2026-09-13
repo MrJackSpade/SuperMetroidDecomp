@@ -16,7 +16,7 @@ public sealed partial class SuperMetroidRuntime
         LastGrappleFlareDrawn = false;
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
-        Samus?.LiquidPhysics.BeginFrameSoundRequests();
+        Samus?.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
         RunEnemyMainPhase();
         DrawGameplayActors(deathOwnsSamus: false, advanceSamusPalette: false);
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared

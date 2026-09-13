@@ -1118,7 +1118,8 @@ public sealed partial class SuperMetroidGame
             audio.QueueMusicDelayed(request.Command, request.Delay);
         if (source.Samus is { } samus)
             foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
-                audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+                audio.QueueSoundAndGetAccumulator(request.SoundEffect, request.MaximumQueued,
+                    soundSuppressed: request.SoundSuppressed);
     }
 
     private string PhaseName => GameState switch

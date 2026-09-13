@@ -73,6 +73,11 @@ internal static class DoorSoundWaitAudit
         typeof(SuperMetroidGame).GetField("runtime", fields)!.SetValue(game, runtime);
         typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", fields)!
             .SetValue(game, (ushort?)runtime.ActiveRoom!.State.Pointer);
+        // Normal door entry follows an already-published gameplay frame. Without
+        // this marker the injected frontend also consumes its fictitious initial
+        // gameplay publication, duplicating the first post-draw request.
+        typeof(SuperMetroidGame).GetField("lastAudioRuntimeGameplayPublication", fields)!
+            .SetValue(game, (ulong?)runtime.CompletedGameplayAudioPublication);
         typeof(SuperMetroidGame).GetProperty(nameof(game.GameState))!
             .SetValue(game, SuperMetroidGameState.LoadingNextRoomB);
         var transition = (DoorTransitionState)typeof(SuperMetroidGame).GetField("doorTransition", fields)!.GetValue(game)!;
@@ -84,8 +89,13 @@ internal static class DoorSoundWaitAudit
         audio.QueueSound(SoundEffectLibrary2Sounds.DoorOpening, 6);
         var writePositions = (byte[])typeof(CartridgeAudioState).GetField("_soundWritePositions", fields)!.GetValue(audio)!;
         int produced = 0, admitted = 0;
+        int movementProduced = 0;
         for (int frame = 0; frame < 24; frame++)
         {
+            // End one spin on the first draw; subsequent draws use the current pose.
+            // This forces the real post-draw publisher as well as the enemy publisher.
+            typeof(SuperMetroidRuntime).GetProperty(nameof(runtime.PreviousMovementTypeForXray))!
+                .SetValue(runtime, frame == 0 ? SamusMovementType.SpinJumping : runtime.Samus!.ReadMovementType(bus));
             // No acknowledgement keeps a second entry unread; this measures owner
             // publication, not real-SPC drain timing. Counts stay below ring capacity.
             byte[] before = (byte[])writePositions.Clone();
@@ -102,14 +112,19 @@ internal static class DoorSoundWaitAudit
             foreach (var request in runtime.Samus!.LiquidPhysics.SoundRequests)
             {
                 produced++;
-                expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
+                movementProduced++;
+                if (request.SoundSuppressed != powerBombActive)
+                    throw new InvalidDataException("Door wait movement producer lost its Power Bomb guard.");
+                if (!request.SoundSuppressed)
+                    expected[SoundEffectLibraries.ToQueueIndex(request.SoundEffect.Library)]++;
             }
             for (int queue = 0; queue < 3; queue++)
                 if (((writePositions[queue] - before[queue]) & 15) != expected[queue])
-                    throw new InvalidDataException($"Door wait audio duplicated or lost a fresh request at frame {frame}, library {queue + 1}.");
+                    throw new InvalidDataException($"Door wait audio duplicated or lost a fresh request at frame {frame}, library {queue + 1}: expected {expected[queue]}, actual {(writePositions[queue] - before[queue]) & 15}, PB={powerBombActive}.");
             admitted += expected.Sum();
         }
         if (produced == 0) throw new InvalidDataException("Door wait frontend fixture produced no fresh enemy/draw sounds.");
-        Console.WriteLine($"Frontend wait: PB={powerBombActive}, {produced} fresh enemy/draw requests, {admitted} admitted over 24 calls.");
+        if (movementProduced == 0) throw new InvalidDataException("Door wait failed to exercise post-draw movement audio.");
+        Console.WriteLine($"Frontend wait: PB={powerBombActive}, {produced} fresh enemy/draw requests ({movementProduced} movement), {admitted} admitted over 24 calls.");
     }
 }

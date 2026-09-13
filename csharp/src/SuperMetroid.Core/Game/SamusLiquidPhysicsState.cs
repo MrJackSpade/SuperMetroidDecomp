@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusLiquidPhysicsState
 {
     private readonly List<SamusSoundRequest> _soundRequests = [];
+    [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
     private readonly Bank80SystemState _standaloneRandom = new();
 
     /// <summary>No liquid physics are active at the sampled Samus boundary.</summary>
@@ -71,7 +72,13 @@ public sealed partial class SamusLiquidPhysicsState
     /// <c>AnimateSamus</c>. Standalone animation calls retain their convenient default of
     /// beginning a window themselves.
     /// </summary>
-    public void BeginFrameSoundRequests() => _soundRequests.Clear();
+    public void BeginFrameSoundRequests(SamusPowerBombExplosionState? powerBomb = null)
+    {
+        _soundRequests.Clear();
+        // One live owner spans movement, animation and post-draw calls. Capture its
+        // value on each request because a bomb may activate between those stages.
+        _audioPowerBomb = powerBomb;
+    }
 
     /// <summary>
     /// Publishes a sound selected by a movement routine into the same per-frame Samus queue
@@ -781,7 +788,8 @@ public sealed partial class SamusLiquidPhysicsState
     }
 
     private void QueueSound(SoundEffectId soundEffect, byte maximumQueued) =>
-        _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued));
+        _soundRequests.Add(new SamusSoundRequest(soundEffect, maximumQueued,
+            SoundSuppressed: _audioPowerBomb?.IsActive == true));
 
     private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));

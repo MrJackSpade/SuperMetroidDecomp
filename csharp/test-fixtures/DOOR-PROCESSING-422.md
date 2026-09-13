@@ -184,3 +184,22 @@ Both frontend publication routes honor the captured guard. An explicit legacy
 EnemySoundRequest migration and field-order regression preserve old captures.
 The full core suite passes. Initialization-only producers, other owner families,
 and the complete processing-technique matrix remain outside this result.
+
+### Samus liquid, movement and post-draw audio
+
+`PowerBombLiquidSoundAudit` reproduces the frontend water-entry gap: both cases
+entered water, but the active Power Bomb incorrectly emitted the splash sound.
+The shared liquid/movement helper now captures the live explosion guard on each
+request. Runtime binds the owner for ordinary movement and door-wait drawing;
+both publication paths honor the captured value. Two post-draw spin-stop checks
+reverse status before and after the real draw-audio routine, proving it samples
+neither a stale frame-start value nor the later publication-time value.
+
+The door-wait fixture now also supplies a previous spin movement snapshot for its
+first draw. Both cases produce two requests (one enemy, one post-draw movement)
+over 24 calls. The inactive case admits both; the active case admits neither.
+An initially observed duplicate was a fixture error: injected door entry lacked
+the already-published gameplay marker that normal door entry carries. The fixture
+now supplies that marker; no production change was made for that mismatch.
+Focused audits and full core verification pass. This still does not cover the
+remaining room-FX/palette/PLM owners or certify the complete #422 technique matrix.

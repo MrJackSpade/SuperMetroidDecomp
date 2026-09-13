@@ -196,3 +196,15 @@ room data. The existing MOV1 consumer is collision-only and does NOT import
 this metadata or execute the full enemy/FX/PLM state. A dedicated consumer and
 an explicit audit of omitted state are still necessary; the export is not a
 native save state or a completed parity result.
+
+### Non-Zebetite actor omission control
+
+Export now also runs each candidate with all other enemy slots cleared at the
+frame-60 boundary, after the identical initial room history. All 180 JSONL
+rows across the three original/isolated pairs match byte-for-byte: inputs,
+Samus fixed-point/animation state, camera, missile trajectory and barrier
+health/flash/handler bits. This proves those actors do not change the selected
+observables during this interval. It does not prove audiovisual equivalence,
+later-room behavior, or that live FX/PLM state can also be omitted. The metadata
+explicitly identifies isolated exports. Native actor import may preserve the
+two Zebetites at physical slots 128/384; it must not renumber linked slots.

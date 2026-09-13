@@ -38,15 +38,22 @@ internal static class ZebetitePlayerSetupAudit
     {
         Directory.CreateDirectory(directory);
         foreach (int x in new[] { 724, 728, 732 })
+        {
             RunCase(romPath, true, x, 641, 99, verbose: false,
                 exportPrefix: Path.Combine(directory, $"candidate-{x}"));
-        Console.WriteLine("Exported three local candidate seeds/traces. Seeds contain room data; do not publish. Native import/parity remains unfinished.");
+            RunCase(romPath, true, x, 641, 99, verbose: false,
+                exportPrefix: Path.Combine(directory, $"isolated-{x}"), isolateEnemies: true);
+            if (!File.ReadAllBytes(Path.Combine(directory, $"candidate-{x}.jsonl")).SequenceEqual(
+                    File.ReadAllBytes(Path.Combine(directory, $"isolated-{x}.jsonl"))))
+                throw new InvalidDataException($"Non-Zebetite enemy omission changes candidate {x}; native import must preserve those actors.");
+        }
+        Console.WriteLine("Exported three local candidate/control pairs; non-Zebetite omission preserves all traced fields. Seeds contain room data; do not publish. Native import/parity remains unfinished.");
         return 0;
     }
 
     private static bool RunCase(string romPath, bool initializeOnscreen,
         int startX = 696, int startCamera = 641, int rightEnd = 87, bool verbose = true,
-        string? exportPrefix = null)
+        string? exportPrefix = null, bool isolateEnemies = false)
     {
         if (verbose) Console.WriteLine($"CASE initialized={initializeOnscreen}");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
@@ -85,6 +92,12 @@ internal static class ZebetitePlayerSetupAudit
         {
             if (frame == 60 && exportPrefix is not null)
             {
+                // Counterfactual control for native importer scope. Equality of
+                // traced movement/projectile/barrier state is checked by Export;
+                // this says nothing about omitted artwork, sound or later frames.
+                if (isolateEnemies)
+                    foreach (var slot in runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0xe27f))
+                        slot.Clear();
                 RoomMovementSeedExporter.Write(runtime, exportPrefix + ".movement-seed");
                 // Metadata supplements, but does not pretend to extend, MOV1's
                 // collision-only native consumer. A dedicated importer is required.
@@ -92,6 +105,7 @@ internal static class ZebetitePlayerSetupAudit
                 {
                     Format = "zebetite-candidate-v1", StartFrame = frame,
                     NativeParityEstablished = false,
+                    NonZebetiteEnemiesOmitted = isolateEnemies,
                     samus.Health, samus.MaxHealth, samus.Missiles, samus.SelectedHudItem,
                     samus.PoseHistory.PreviousPose, samus.PoseHistory.PreviousDirectionAndMovement,
                     samus.PoseHistory.LastDifferentPose, samus.PoseHistory.LastDifferentDirectionAndMovement,

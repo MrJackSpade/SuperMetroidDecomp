@@ -133,3 +133,20 @@ excluded by scrolling further right, while the others can. The ROM-backed
 audit checks these relationships for every generation. This is a geometric
 restriction, not proof of all reachable player positions or camera timing;
 crossing to the far side of the solid first barrier is outside this check.
+
+## Room-local input search (not an accepted reproduction)
+
+`--zebetite-player-setup-audit ROM` loads the real room and its complete population,
+sets generation one, seeds Samus at (696,100) with camera (641,0), then steps
+ordinary inputs only. No per-frame camera writes or enemy health edits occur.
+The 120-frame probe prints nearby collision types, position, pose, camera,
+missiles and barrier health. The standing position settles at Y=139; crouching
+reaches Y=144. Its current left/shot/jump/right candidate consumes one missile
+but does not damage a barrier. It is exploratory, not a parity pass.
+
+The second half initially does not exist because the primary is off screen.
+It appears when input-driven camera motion reveals the primary. This is why
+the next search must account for the barrier's initialization history as well
+as missile flight through the actual terrain opening. The seeded camera
+position itself has not yet been reached through controller input. All earlier
+dispatcher-level evidence remains separate from this unsuccessful candidate.

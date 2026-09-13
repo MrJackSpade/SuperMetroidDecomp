@@ -30,6 +30,7 @@ internal static class ZebetiteAudit
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
 
         VerifyDefinitionAndPopulation(bus, room);
+        VerifyVacatedSlotReuse(bus, room, assets);
         VerifyEveryGenerationInitialization(bus, room, assets);
         VerifyLinkedShotAndContact(bus, room, assets);
         VerifyFourGenerationProgression(bus, room, assets);
@@ -41,6 +42,30 @@ internal static class ZebetiteAudit
             "and normal-bomb damage, death explosions, embedded respawns, and final event " +
             "state were verified.");
         return 0;
+    }
+
+    private static void VerifyVacatedSlotReuse(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        // Original CPU A6:FCD9 selects each hole 0..3, not the population's
+        // allocation high-water mark. See native-zebetite-slot-probe.h.
+        for (int hole = 0; hole < 4; hole++)
+        {
+            var loaded = Load(bus, room, assets, generation: 0);
+            for (int i = 0; i < 4; i++)
+            {
+                loaded.Enemies.Slots[i].Clear();
+                if (i != hole) loaded.Enemies.Slots[i].EnemyDefinitionPointer = 0xd47f;
+            }
+            var spawn = typeof(RoomEnemySystem).GetMethod("SpawnZebetiteFromRecord",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            var actor = (RoomEnemySlot)spawn.Invoke(loaded.Enemies, [(ushort)0xfce1])!;
+            if (actor.SlotIndex != hole || actor.Health != 1000 || actor.XPosition != 824 || actor.YPosition != 111)
+                throw new InvalidDataException($"Native Zebetite spawn chose hole {hole}; C# chose {actor.SlotIndex}.");
+            for (int i = 0; i < 4; i++)
+                if (i != hole && loaded.Enemies.Slots[i].EnemyDefinitionPointer != 0xd47f)
+                    throw new InvalidDataException("Zebetite spawn overwrote an occupied native slot.");
+        }
     }
 
     private static void VerifyDefinitionAndPopulation(
@@ -275,7 +300,6 @@ internal static class ZebetiteAudit
     {
         LoadedZebetites loaded = Load(bus, room, assets, generation: 0);
         int expectedDeaths = 0;
-        int expectedAllocatedSlots = 1;
 
         for (ushort generation = 0; generation < 4; generation++)
         {
@@ -297,7 +321,6 @@ internal static class ZebetiteAudit
             RoomEnemySlot? linked = hasLinkedHalf
                 ? loaded.Enemies.Slots[state.LinkedNativeIndex / RoomEnemySystem.NativeSlotSize]
                 : null;
-            expectedAllocatedSlots += hasLinkedHalf ? 1 : 0;
 
             // A lethal private shot would set both linked health words to zero. Assign that
             // post-callback state directly here so every generation can be advanced even if
@@ -331,8 +354,7 @@ internal static class ZebetiteAudit
 
             if (next < 4)
             {
-                expectedAllocatedSlots++;
-                RoomEnemySlot spawned = loaded.Enemies.Slots[expectedAllocatedSlots - 1];
+                RoomEnemySlot spawned = loaded.Enemies.Slots[primary.SlotIndex];
                 ZebetiteEnemyState spawnedState = RequireState(loaded.Enemies, spawned);
                 if (spawned.EnemyDefinitionPointer != ZebetiteDefinition ||
                     spawnedState.Generation != next || spawnedState.IsSecondaryHalf)

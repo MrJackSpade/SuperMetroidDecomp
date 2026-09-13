@@ -260,8 +260,11 @@ public sealed partial class RoomEnemySystem
 
     private RoomEnemySlot SpawnZebetiteFromRecord(ushort recordPointer)
     {
-        int slotIndex = FirstFreeEnemyIndex / NativeSlotSize;
-        if ((uint)slotIndex >= MaximumEnemyCount)
+        // A0:9275 scans physical slots from zero. In particular, a primary's
+        // death vacates its slot before spawning the next generation; surviving
+        // linked halves retain pointers to that reused physical slot.
+        int slotIndex = Array.FindIndex(_slots, candidate => candidate.EnemyDefinitionPointer == 0);
+        if (slotIndex < 0)
             throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
 
         int record = 0xa60000 | recordPointer;
@@ -286,7 +289,7 @@ public sealed partial class RoomEnemySystem
         InitializeSlotFromDefinition(spawned, population, definition);
         RunInitializationAi(spawned);
         EnemyCount = unchecked((ushort)Math.Max(EnemyCount, slotIndex + 1));
-        FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
+        FirstFreeEnemyIndex = unchecked((ushort)Math.Max(FirstFreeEnemyIndex, (slotIndex + 1) * NativeSlotSize));
         return spawned;
     }
 

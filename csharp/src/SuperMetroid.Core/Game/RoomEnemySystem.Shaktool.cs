@@ -192,11 +192,10 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Shaktool's anchor has no preceding segment.");
 
         RoomEnemySlot previous = _slots[slot.SlotIndex - 1];
-        if (previous.EnemyDefinitionPointer != ShaktoolDefinition)
-        {
-            throw new InvalidDataException(
-                $"Shaktool slot {slot.SlotIndex} is not preceded by another Shaktool segment.");
-        }
+        // $AA:DC42/$DC4A/$DC60/$DC68 read the preceding physical record, without
+        // testing its header. A lethal shot clears the head and marks the group
+        // deleted, but EnemyMain still visits later entries in this frame's
+        // prebuilt active list. Their final orbit uses the cleared coordinates.
 
         (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
             unchecked((byte)(state.OrbitAngle >> 8)));
@@ -459,8 +458,10 @@ public sealed partial class RoomEnemySystem
         for (int index = 0; index < group.Length; index++)
         {
             RoomEnemySlot segment = _slots[ownerSlotIndex + index];
-            if (segment.EnemyDefinitionPointer != ShaktoolDefinition ||
-                _shaktoolSegments[segment.SlotIndex] is null)
+            // Group helpers also run during the remainder of the lethal frame.
+            // The initialized view survives common-slot clearing and continues to
+            // expose its native words; a cleared header is not a missing record.
+            if (_shaktoolSegments[segment.SlotIndex] is null)
             {
                 throw new InvalidDataException(
                     $"Shaktool group rooted at slot {ownerSlotIndex} is missing segment {index}.");
@@ -472,8 +473,7 @@ public sealed partial class RoomEnemySystem
 
     private RoomEnemySlot GetNextShaktoolSegment(RoomEnemySlot slot)
     {
-        if (slot.SlotIndex + 1 >= _slots.Length ||
-            _slots[slot.SlotIndex + 1].EnemyDefinitionPointer != ShaktoolDefinition)
+        if (slot.SlotIndex + 1 >= _slots.Length)
         {
             throw new InvalidDataException(
                 $"Shaktool center slot {slot.SlotIndex} has no following segment.");
@@ -482,7 +482,6 @@ public sealed partial class RoomEnemySystem
     }
 
     private ShaktoolSegmentState RequireShaktoolState(RoomEnemySlot slot) =>
-        slot.EnemyDefinitionPointer == ShaktoolDefinition &&
         _shaktoolSegments[slot.SlotIndex] is { } state
             ? state
             : throw new InvalidOperationException(

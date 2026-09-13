@@ -8,6 +8,7 @@ internal static partial class ShaktoolAudit
     private static void VerifyDeathClearOrdering(SuperMetroidAddressSpace bus,
         CartridgeRoomHeader room, CartridgeRoomAssets assets)
     {
+        VerifyScheduledDeath(bus, room, assets);
         foreach (int endpoint in new[] { 0, 6 })
         foreach (bool useBomb in new[] { false, true })
         {
@@ -74,5 +75,35 @@ internal static partial class ShaktoolAudit
         if (shifted.EnemiesKilled != 1 || displacedVictim.VariableE != 0)
             throw new InvalidDataException("Shaktool post-clear tail changed common death publication.");
         Console.WriteLine("Shaktool death ordering: both endpoints by beam/bomb retain one death effect and delete seven slots; nonzero-root cartridge quirk preserved.");
+    }
+
+    private static void VerifyScheduledDeath(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        var enemies = CreateEncounter(bus, room, assets, out var samus);
+        enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
+        var group = GetGroup(enemies);
+        ushort[] before = group.Select(s => s.FrameCounter).ToArray();
+        var shots = new SamusProjectileSystem();
+        var bombs = new SamusBombProjectileSystem();
+        var shot = shots.Slots[0];
+        shot.Type = 0;
+        shot.Damage = 1000;
+        shot.XPosition = group[0].XPosition;
+        shot.YPosition = group[0].YPosition;
+        shot.InstructionPointer = 0x9000;
+        shot.InstructionTimer = 1;
+        shot.XRadius = shot.YRadius = 6;
+        enemies.StepFrame(0, 0, false, samus, level: assets.LevelData,
+            samusProjectiles: shots, sharedProjectiles: bombs, resolveSamusContactBeforeAi: true);
+        if (enemies.EnemiesKilled != 1 || group[0].EnemyDefinitionPointer != 0 ||
+            group.Any(s => s.Properties != (ushort)EnemyProperties.Deleted) ||
+            group.Skip(1).Any(s => s.FrameCounter != before[s.SlotIndex] + 1))
+            throw new InvalidDataException("Scheduled Shaktool death lost same-frame companion AI or group deletion.");
+        ushort[] clocks = group.Select(s => s.FrameCounter).ToArray();
+        enemies.StepFrame(0, 0, false, samus, level: assets.LevelData,
+            samusProjectiles: shots, sharedProjectiles: bombs, resolveSamusContactBeforeAi: true);
+        if (!clocks.SequenceEqual(group.Select(s => s.FrameCounter)))
+            throw new InvalidDataException("Deleted Shaktool companions remained active on the following frame.");
     }
 }

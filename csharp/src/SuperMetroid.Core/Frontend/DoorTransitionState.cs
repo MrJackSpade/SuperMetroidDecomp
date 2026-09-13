@@ -57,7 +57,8 @@ public sealed class DoorTransitionState
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
         ushort controllerInput,
-        Func<ushort>? queueEchoSound = null)
+        Func<ushort>? queueEchoSound = null,
+        Action? publishSoundWaitAudio = null)
     {
         ArgumentNullException.ThrowIfNull(runtime);
         ArgumentNullException.ThrowIfNull(audio);
@@ -70,7 +71,8 @@ public sealed class DoorTransitionState
         switch (Phase)
         {
             case DoorTransitionPhase.WaitForSoundQueues:
-                runtime.RunNmi(controllerInput, mainLoopRequestedNmi: true);
+                runtime.RunDoorSoundWaitFrame(controllerInput);
+                publishSoundWaitAudio?.Invoke();
                 if (!audio.HasQueuedSounds)
                     Phase = DoorTransitionPhase.FadeOutSourcePalette;
                 break;

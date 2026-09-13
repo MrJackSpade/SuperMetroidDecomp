@@ -890,7 +890,8 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.LoadingNextRoomB:
                 doorTransition.Step(runtime!, audio, controllerInput,
-                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime!));
+                    queueEchoSound: () => gameplayAudio.QueueEcho(runtime!),
+                    publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(runtime!));
                 PublishGameplay(runtime!);
                 if (doorTransition.Phase == DoorTransitionPhase.Complete)
                     GameState = SuperMetroidGameState.MainGameplay;
@@ -1099,6 +1100,19 @@ public sealed partial class SuperMetroidGame
             audio.QueueSound(request.SoundEffect, request.MaximumQueued);
         foreach (EnemyMusicRequest request in runtime.Enemies.MusicRequests)
             audio.QueueMusicDelayed(request.Command, request.Delay);
+    }
+
+    private void CollectDoorSoundWaitAudioRequests(SuperMetroidRuntime source)
+    {
+        // This coroutine completes no ordinary gameplay publication. Only the
+        // owners run by its enemy/draw pass may refill the rings before the test.
+        foreach (EnemySoundRequest request in source.Enemies.SoundRequests)
+            audio.QueueSound(request.SoundEffect, request.MaximumQueued);
+        foreach (EnemyMusicRequest request in source.Enemies.MusicRequests)
+            audio.QueueMusicDelayed(request.Command, request.Delay);
+        if (source.Samus is { } samus)
+            foreach (SamusSoundRequest request in samus.LiquidPhysics.SoundRequests)
+                audio.QueueSound(request.SoundEffect, request.MaximumQueued);
     }
 
     private string PhaseName => GameState switch

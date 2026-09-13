@@ -86,3 +86,32 @@ Native source pin578f90b3cc49557bb70060ad033bb90b8cf8ac50; disassembly pin
 
 Full bank-$80 verification and the pre-existing Shaktool movement/combat/attack
 audit pass. Leave #605 open for player confirmation after the final build check.
+
+## 0.3.1 re-entry regression
+
+The follow-up report concerns persistence, not the already repaired digging.
+`--shaktool-reentry-audit ROM` reproduced a fresh default-room load, crossing the
+native completion boundary, loading Spring Ball's room, and returning through its
+actual door header. Before the fix: event false, state D8D7, sand 216 -> 216.
+
+Room setup $8F:C8D3 must spawn PLM $84:B8EB at (0,0). This setup was missing.
+Its $B8DC setup writes scrolls [blue, red, red, red]. Its actual $B8D6 instruction
+list installs $B8B0 and sleeps. That callback makes all four scrolls blue when the
+Power Bomb status word is nonzero, then marks event $0D only when Samus X is
+strictly greater than $0348 and deletes its ID. Native room selection subsequently
+uses state D8F1's already-cleared level; terrain changes are not stored individually.
+
+The room loader now spawns this controller after door setup and before the door
+closer. The existing PLM instruction handler executes the authored list. The
+gameplay frame supplies its live Power Bomb status, and the controller uses the
+existing Samus/event owners. No new serialized state or callback captures are added.
+
+The faithful fixture checks the exact X boundary, status values 0/1/4000/8000/FFFF,
+setup scrolls, full-pool failure without scroll mutation, the actual gameplay event
+publication, and fresh door-load state/terrain. Afterward: event true, state D8F1,
+sand 216 -> 0; the cleared state does not respawn the controller. Full core checks
+pass. This fixture intentionally constructs the boundary position rather than
+driving a multi-room controller route.
+
+Older snapshots retain their originally missing controller. Exit and re-enter
+the room to execute the repaired setup before testing persistence again.

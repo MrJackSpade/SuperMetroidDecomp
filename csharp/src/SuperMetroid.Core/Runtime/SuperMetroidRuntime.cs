@@ -3710,7 +3710,8 @@ public sealed partial class SuperMetroidRuntime
                     Enemies.EnemiesKilled,
                     Enemies.DeathQuota,
                     Controller1.NewlyPressed,
-                    Samus.CollectedItems);
+                    Samus.CollectedItems,
+                    powerBombExplosionStatus: BombProjectiles.PowerBombExplosion.Status);
                 foreach (PlmTilemapUpdate update in plmUpdates)
                     update.ExecuteTo(Vram);
                 ApplyPendingDownwardGateProjectileRequests();

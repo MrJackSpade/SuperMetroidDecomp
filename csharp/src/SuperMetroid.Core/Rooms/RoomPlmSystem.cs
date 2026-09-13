@@ -1209,7 +1209,8 @@ public sealed partial class RoomPlmSystem
         ushort enemyDeaths,
         byte enemyDeathQuota,
         ushort controllerNewInput,
-        ushort collectedItems = 0)
+        ushort collectedItems = 0,
+        ushort powerBombExplosionStatus = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -1285,6 +1286,7 @@ public sealed partial class RoomPlmSystem
             }
 
             RunMetroidsClearedPreInstruction(slot, enemyDeaths, enemyDeathQuota);
+            RunShaktoolRoomPreInstruction(slot, scrolls, powerBombExplosionStatus);
             RunSamusEaterPreInstruction(slot);
             RunSpeedBoosterEscapePreInstruction(bus, slot);
             RunWreckedShipAtticPreInstruction(slot);

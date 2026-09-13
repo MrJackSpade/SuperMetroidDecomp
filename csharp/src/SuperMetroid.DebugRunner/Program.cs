@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--shaktool-reentry-audit", var reentryRom])
+    return ShaktoolReentryAudit.Run(reentryRom);
 if (args is ["--enemy-breakable-native", var breakRom, var breakTrace])
     return EnemyBreakableTerrainAudit.Run(breakRom, breakTrace);
 if (args is ["--shaktool-dig-state", var digRom, var digState])

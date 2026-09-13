@@ -876,6 +876,8 @@ public sealed partial class SuperMetroidRuntime
         // first gameplay frame would already have streamed a viewport with wrong camera
         // limits.
         RunDoorSetupCode(door);
+        if (room.State.SetupCodePointer == RoomSetupCodePointers.SetupShaktoolRoomPlm)
+            Plms.TrySpawnShaktoolRoomController(Camera.Scrolls);
         if (room.State.SetupCodePointer == RoomSetupCodePointers.TurnWallIntoShotBlocksDuringEscape)
             Plms.SetupCrittersEscapeBlock(LevelData,
                 LevelData.GetBlockIndex(EscapeAnimalPlmRomData.WallX, EscapeAnimalPlmRomData.WallY));

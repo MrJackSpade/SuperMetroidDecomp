@@ -3,8 +3,9 @@ using SuperMetroid.Core.Input;
 /// <summary>Continues a return-hop candidate into an unreset second shot.</summary>
 internal static class ZebetiteSecondHitAudit
 {
-    public static int Search(string romPath, bool focused = false)
+    public static int Search(string romPath, bool focused = false, string? exportDirectory = null)
     {
+        if (exportDirectory is not null) Directory.CreateDirectory(exportDirectory);
         int cases = 0, successes = 0;
         ushort bestHealth = 1000;
         for (int shotDelay = focused ? 6 : 0; shotDelay <= (focused ? 6 : 10); shotDelay += 2)
@@ -12,6 +13,8 @@ internal static class ZebetiteSecondHitAudit
         for (int leftFrames = focused ? 3 : 1; leftFrames <= (focused ? 4 : 20); leftFrames++)
         {
             var runtime = ZebetitePlayerSetupAudit.CreateSetup(romPath, true, 728, 641);
+            using var trace = exportDirectory is null ? null : new StreamWriter(
+                Path.Combine(exportDirectory, $"second-{shotDelay}-{jumpDelay}-{leftFrames}.jsonl"));
             ushort previousHealth = 1000;
             bool regenerated = false;
             for (int frame = 0; frame < 420; frame++)
@@ -38,6 +41,21 @@ internal static class ZebetiteSecondHitAudit
                 else if (frame >= jumpFrame + leftFrames && frame < jumpFrame + leftFrames + 18)
                     input |= SnesButton.Right | SnesButton.A;
                 runtime.StepFrame((ushort)input);
+                if (frame >= 60 && trace is not null)
+                {
+                    var samus = runtime.Samus!;
+                    trace.WriteLine(System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        Frame = frame, Input = (ushort)input,
+                        samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
+                        samus.AnimationFrame, samus.AnimationFrameTimer,
+                        CameraX = runtime.Camera!.XPosition, CameraY = runtime.Camera.YPosition,
+                        samus.Missiles, samus.Health,
+                        Shots = runtime.Projectiles.Slots.Select(shot => new { shot.Type, shot.XPosition, shot.YPosition }).ToArray(),
+                        Barriers = runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer == 0xe27f)
+                            .Select(slot => new { slot.Health, slot.FlashTimer, slot.AiHandlerBits }).ToArray(),
+                    }));
+                }
                 var lower = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == 0xe27f && slot.Parameter1 != 0);
                 if (lower.Health > previousHealth) regenerated = true;
                 previousHealth = lower.Health;

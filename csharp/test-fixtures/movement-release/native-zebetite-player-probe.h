@@ -1,7 +1,7 @@
 // #443: first native consumer for the narrowly specified isolated candidate.
 // Uses MOV1 room/movement seed plus the documented fixed candidate metadata.
 // Live FX/PLM equivalence and full state import remain to be audited.
-int DiagnosticZebetitePlayer(const char *rom, const char *seed_path, const char *output) {
+static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size != 3200) { free(seed); return 4; }
@@ -61,12 +61,24 @@ int DiagnosticZebetitePlayer(const char *rom, const char *seed_path, const char 
     Get_Zebetites(index)->zebet_var_A = 0xfc67;
   }
   FILE *f = fopen(output, "w"); if (!f) return 6;
-  fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower\n");
+  fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower,health,upperFlash,lowerFlash,upperAi,lowerAi\n");
   uint16 previous = 0;
-  for (int frame = 60; frame < 120; frame++) {
+  for (int frame = 60; frame < (second_jump_delay ? 420 : 120); frame++) {
     uint16 input = frame == 60 || frame == 61 ? 0x400 : frame == 66 ? 0x200 : frame == 78 ? 0x40 : frame == 80 ? 0x280 : frame >= 81 && frame < 99 ? 0x180 : 0;
+    if (second_jump_delay) {
+      input = frame == 60 || frame == 61 || frame == 280 || frame == 281 ? 0x400 :
+        frame == 66 || frame == 286 ? 0x200 : frame == 78 || frame == 292 ? 0x40 :
+        frame == 80 ? 0x280 : frame >= 81 && frame < 105 ? 0x180 :
+        frame >= 150 && frame < 210 ? 0x80 : frame == 250 ? 0x100 : 0;
+      if (frame >= 151 && frame < 162) input |= 0x200;
+      int jump = 300 + second_jump_delay;
+      if (frame >= jump && frame < jump + 3) input |= 0x280;
+      else if (frame >= jump + 3 && frame < jump + 21) input |= 0x180;
+    }
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-    nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
+    // Keep the word counter independent of the wrapping byte after frame 253.
+    nmi_frame_counter_word = frame + 2;
+    nmi_frame_counter_byte = (uint8)(frame + 2);
     memset(enemy_drawing_queue_sizes, 0, 16);
     RunAsmCode(0xa08eb6, 0, 0, 0, 0);
     RunAsmCode(0x90e695, 0, 0, 0, 0); RunAsmCode(0xa09785, 0, 0, 0, 0);
@@ -75,11 +87,20 @@ int DiagnosticZebetitePlayer(const char *rom, const char *seed_path, const char 
     RunAsmCode(0x900000 | samus_movement_handler, 0, 0, 0, 0);
     uint32 stages[] = {0x908000,0x90dde9,0x91e8b6,0x91eb88,0x90eab3,0x90e9ce,0x9094ec,0xa09169};
     for(int i=0;i<8;i++) RunAsmCode(stages[i],0,0,0,0);
-    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,
+    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,
       ((uint32)samus_x_pos<<16)|samus_x_subpos,((uint32)samus_y_pos<<16)|samus_y_subpos,
       samus_pose,samus_anim_frame,samus_anim_frame_timer,layer1_x_pos,layer1_y_pos,samus_missiles,
-      projectile_type[0],projectile_x_pos[0],projectile_y_pos[0],gEnemyData(128)->health,gEnemyData(384)->health);
+      projectile_type[0],projectile_x_pos[0],projectile_y_pos[0],gEnemyData(128)->health,gEnemyData(384)->health,
+      samus_health,gEnemyData(128)->flash_timer,gEnemyData(384)->flash_timer,gEnemyData(128)->ai_handler_bits,gEnemyData(384)->ai_handler_bits);
   }
   fclose(f); return 0;
 }
 
+int DiagnosticZebetitePlayer(const char *rom, const char *seed, const char *output) {
+  return DiagnosticZebetitePlayerRun(rom, seed, output, 0);
+}
+
+int DiagnosticZebetitePlayerSecondHit(const char *rom, const char *seed, const char *output, int jump_delay) {
+  if (jump_delay != 3 && jump_delay != 4) return 7;
+  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay);
+}

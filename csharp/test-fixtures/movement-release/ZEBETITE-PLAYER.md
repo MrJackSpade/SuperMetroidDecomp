@@ -137,5 +137,33 @@ with four left frames and jump 305 with three left frames also succeed. The
 other focused neighbors fail. The focused diagnostic asserts this candidate
 window but is explicitly not an original-CPU oracle.
 
-No live state is reset between the hits. A native continuation comparison,
-subsequent shots, and the actual ten-hit death/double-kill handoff remain required.
+No live state is reset between the hits. Subsequent shots and the actual ten-hit
+death/double-kill handoff remain required.
+
+## Original-CPU two-hit comparison
+
+`--zebetite-player-second-hit-export ROM DIRECTORY` writes the eight focused
+managed traces. The native header also exposes
+`DiagnosticZebetitePlayerSecondHit(rom, seed, output, jumpDelay)`; supported delays
+are 3 (adjacent failure) and 4 (success), with three left-input frames. Use the
+original `isolated-728.movement-seed`: its frame-60 state is unchanged. Wire the
+function into a temporary headless native entry point as for the first consumer,
+then remove the hook and rebuild the ordinary executable afterward.
+
+Compare native output to `second-6-3-3.jsonl` / `second-6-4-3.jsonl` using
+`compare-zebetite-player.ps1 -FrameCount 360`. Both comparisons pass all frames
+60–419, including the return hop, second missile, landing, and remaining idle
+interval. Delay 3 ends at 801 lower HP; delay 4 ends at 800. Both retain Samus
+health 999. In addition to the original movement/camera/projectile/ammunition
+fields, this mode requires Samus health, both barrier flash timers and both AI
+handler words. Missing fields are errors, not implicit zeroes.
+
+The longer harness writes its NMI byte and word counters separately so byte wrap
+does not truncate the word after frame 253. Both cases were recaptured after that
+correction and still match. Native output SHA-256 (CSV, Windows line endings):
+
+- Delay 3: `983B48E31CE2CD8C7D2D9FFA7844C7B2B49CC8FE60B1386EF712A6A520327852`
+- Delay 4: `B1E0E9F7863684739BF43E4A14D08EF3F318734C1BD3B6C22DC3D70AE2D868CB`
+
+This proves the exported two-hit timing properties for the isolated setup, not
+full room/audio/render equivalence, ten shots, or the final double-kill sequence.

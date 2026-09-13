@@ -22,24 +22,7 @@ internal static class ZebetiteSecondHitAudit
                 if (frame == 60)
                     foreach (var enemy in runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0xe27f))
                         enemy.Clear();
-                SnesButton input = frame switch
-                {
-                    60 or 61 or 280 or 281 => SnesButton.Down,
-                    66 or 286 => SnesButton.Left,
-                    78 => SnesButton.X,
-                    80 => SnesButton.Left | SnesButton.A,
-                    >= 81 and < 105 => SnesButton.Right | SnesButton.A,
-                    >= 150 and < 210 => SnesButton.A,
-                    250 => SnesButton.Right,
-                    _ => 0,
-                };
-                if (frame is >= 151 and < 162) input |= SnesButton.Left;
-                if (frame == 286 + shotDelay) input |= SnesButton.X;
-                int jumpFrame = 300 + jumpDelay;
-                if (frame >= jumpFrame && frame < jumpFrame + leftFrames)
-                    input |= SnesButton.Left | SnesButton.A;
-                else if (frame >= jumpFrame + leftFrames && frame < jumpFrame + leftFrames + 18)
-                    input |= SnesButton.Right | SnesButton.A;
+                SnesButton input = GetInput(frame, shotDelay, jumpDelay, leftFrames);
                 runtime.StepFrame((ushort)input);
                 if (frame >= 60 && trace is not null)
                 {
@@ -83,5 +66,28 @@ internal static class ZebetiteSecondHitAudit
         }
         Console.WriteLine($"SECOND-HIT complete cases={cases} candidates={successes}; native continuation comparison still required.");
         return 0;
+    }
+
+    internal static SnesButton GetInput(int frame, int shotDelay = 6, int jumpDelay = 4, int leftFrames = 3)
+    {
+        SnesButton input = frame switch
+        {
+            60 or 61 or 280 or 281 => SnesButton.Down,
+            66 or 286 => SnesButton.Left,
+            78 => SnesButton.X,
+            80 => SnesButton.Left | SnesButton.A,
+            >= 81 and < 105 => SnesButton.Right | SnesButton.A,
+            >= 150 and < 210 => SnesButton.A,
+            250 => SnesButton.Right,
+            _ => 0,
+        };
+        if (frame is >= 151 and < 162) input |= SnesButton.Left;
+        if (frame == 286 + shotDelay) input |= SnesButton.X;
+        int jumpFrame = 300 + jumpDelay;
+        if (frame >= jumpFrame && frame < jumpFrame + leftFrames)
+            input |= SnesButton.Left | SnesButton.A;
+        else if (frame >= jumpFrame + leftFrames && frame < jumpFrame + leftFrames + 18)
+            input |= SnesButton.Right | SnesButton.A;
+        return input;
     }
 }

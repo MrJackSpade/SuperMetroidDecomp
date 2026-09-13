@@ -167,3 +167,29 @@ correction and still match. Native output SHA-256 (CSV, Windows line endings):
 
 This proves the exported two-hit timing properties for the isolated setup, not
 full room/audio/render equivalence, ten shots, or the final double-kill sequence.
+
+## Three-hit continuation candidate
+
+`--zebetite-player-third-hit-search ROM` extends the CPU-matched two-hit prefix
+through frame 719. It varies the next return-hop start (420–480, step ten), its
+left-input duration (10–25), the third jump delay (0–15 after frame 600), and that
+jump's left-input duration (three/four frames). No controller-independent state
+reset occurs between hits; actor omission remains at frame 60 only.
+
+Of 3,584 schedules, 43 finish with seven missiles and lower health exactly 700
+without any intervening health increase. Twelve also keep Samus energy 999.
+The initial return start of 450 produced damage during the hop and no exact
+700-HP continuation in the first timing grids; delaying/advancing the return is
+part of the setup, not grounds to change game collision or damage behavior.
+
+The ten-case `--zebetite-player-third-hit-audit ROM` preserves an undamaged timing
+window: return Jump from 460 through 519; Left from 461 for thirteen frames;
+Right tap 550; Down 580/581; Left 586; Shoot 592; Left+Jump 604–607;
+Right+Jump 608–625; neutral through 719. This ends at 700 lower HP, seven missiles,
+999 energy, X=759, camera X=663. Jump delays 4/5/6 work with thirteen return-left
+frames; only delay 5 works with fourteen. Focused adjacent cases fail.
+
+The two-hit input schedule is now shared by both fixtures. Re-exporting it still
+matches both original 360-frame CPU captures. The three-hit continuation itself
+is managed-side evidence only and still requires native comparison before any
+parity claim. Later hits and the complete death/double-kill sequence remain open.

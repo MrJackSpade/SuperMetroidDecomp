@@ -196,6 +196,24 @@ fix does not complete the alignment or shinespark portions of #442.
 
 ## Room-local shinespark exploration
 
+### Recovery interval and compact-pose radius
+
+`--zebetite-spark-export-recovery ROM PRIVATE_DIRECTORY` exports frames0..178
+for the escape-frame90 setup. Native probe offset `-4` runs that sequence and
+the comparator accepts 179 frames. A preliminary 180-frame export found the
+first full/isolated actor difference at frame179 (health/hurt state), so the
+two versions are required to match through178 before using the isolated probe.
+The native comparison initially differed at frame81: entering compact aerial
+pose24 published radius10 immediately, while native retained19 until alpha.
+The compact transition now retains the live radius, with direct tests asserting
+both shrink and expansion timing and explicitly advancing alpha afterward.
+
+The corrected comparison matches through frame84. Horizontal position still
+diverges starting85 during knockback; do not claim the whole recovery interval
+matched or infer that the radius fix solves this separate displacement issue.
+The post-crash 25-case escape scan still did not finish passage after the prior
+crash fixes. Complete technique certification remains open.
+
 ### Native launch/crash comparison and solid-enemy stop fix
 
 Follow-up: the native spark probe now executes `$91:D6F7` after pose transitions,

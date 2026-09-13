@@ -13,14 +13,14 @@ internal static class ZebetiteSparkAudit
         return 0;
     }
 
-    public static int Export(string romPath, string directory)
+    public static int Export(string romPath, string directory, int frameCount = 80)
     {
         Directory.CreateDirectory(directory);
-        RunCase(romPath, 90, Path.Combine(directory, "full"), false, 80);
-        RunCase(romPath, 90, Path.Combine(directory, "isolated"), true, 80);
+        RunCase(romPath, 90, Path.Combine(directory, "full"), false, frameCount);
+        RunCase(romPath, 90, Path.Combine(directory, "isolated"), true, frameCount);
         if (!File.ReadAllBytes(Path.Combine(directory, "full.csv")).SequenceEqual(File.ReadAllBytes(Path.Combine(directory, "isolated.csv"))))
             throw new InvalidDataException("Omitting other actors changes the spark comparison interval.");
-        Console.WriteLine("Spark actor omission matches for 80 frames; native comparison remains outstanding.");
+        Console.WriteLine($"Spark actor omission matches for {frameCount} frames; native comparison remains outstanding.");
         return 0;
     }
 

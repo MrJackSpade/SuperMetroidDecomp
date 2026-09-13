@@ -5,7 +5,7 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   // one frame left, then twenty-four Jump frames separated by one release.
   // -2 retains that input sequence through frame 359 for recovery comparison.
   bool approach = offset == -1 || offset == -2;
-  bool spark = offset == -3;
+  bool spark = offset == -3 || offset == -4;
   if (!approach && !spark && offset != 0 && offset != 8 && offset != 20) return 4;
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(movement, &size);
@@ -50,8 +50,8 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   first_free_enemy_index = 256; enemy_index_to_shake = 0xffff;
   FILE *f = fopen(output, "w"); if (!f) return 9;
   fprintf(f, spark ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,zebHealth\n" : "frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = spark ? 0 : 0x840;
-  for (int frame = spark ? 0 : 120; frame < (spark ? 80 : offset == -2 ? 360 : approach ? 220 : 160); frame++) {
-    uint16 input = spark ? (frame < 60 ? 0x90 : 0x400 | (frame % 2 == 0 ? 0x80 : 0)) : approach
+  for (int frame = spark ? 0 : 120; frame < (offset == -4 ? 179 : spark ? 80 : offset == -2 ? 360 : approach ? 220 : 160); frame++) {
+    uint16 input = spark ? (frame < 60 ? 0x90 : frame < 90 ? 0x400 | (frame % 2 == 0 ? 0x80 : 0) : 0x200) : approach
       ? (frame < 140 ? 0x100 : frame == 140 ? 0x200 : 0x200 | ((frame-141)%25 < 24 ? 0x80 : 0))
       : (frame < 120 + offset ? 0x100 : 0x200 | ((frame - 120 - offset)%36 < 24 ? 0x80 : 0));
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;

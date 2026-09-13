@@ -297,6 +297,8 @@ static void VerifySamusAimedAerialMovement()
             bus, level, SamusPoseIds.NormalJumpAimDownRightPose, nmiFrameCounter: 4),
         "jump enters compact down-right pose");
     AssertEqual(0x17, samus.Pose, "compact jump pose");
+    AssertEqual(19, samus.Kinematics.YRadius, "compact jump commit retains old live radius");
+    samus.RefreshCollisionRadii(bus); // Next alpha publishes compact geometry.
     AssertEqual(10, samus.Kinematics.YRadius, "compact jump radius");
     AssertEqual(compactCenterY, samus.YPosition, "shrinking compact jump preserves center");
     AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact entry preserves 16.16 velocity");
@@ -305,6 +307,8 @@ static void VerifySamusAimedAerialMovement()
         samus.TryApplyCompactAerialTransition(
             bus, level, SamusPoseIds.NormalJumpAimDiagonalDownRightPose, nmiFrameCounter: 5),
         "jump exits compact down-right pose");
+    AssertEqual(10, samus.Kinematics.YRadius, "compact expansion commit retains old live radius");
+    samus.RefreshCollisionRadii(bus); // Next alpha publishes expanded geometry.
     AssertEqual(19, samus.Kinematics.YRadius, "compact jump exit radius");
     AssertEqual(compactCenterY, samus.YPosition, "open-air compact expansion preserves center");
     AssertEqual(compactVelocity, samus.Kinematics.VerticalSpeedFixed, "compact exit preserves 16.16 velocity");
@@ -413,6 +417,8 @@ static void VerifySamusAimedAerialMovement()
             bus, level, SamusPoseIds.NormalJumpAimDiagonalDownLeftPose, nmiFrameCounter: 1),
         "mirrored compact jump expands");
     AssertEqual(0x6c, compactLeft.Pose, "mirrored compact jump target");
+    AssertEqual(10, compactLeft.Kinematics.YRadius, "mirrored expansion retains old radius until alpha");
+    compactLeft.RefreshCollisionRadii(bus);
     AssertEqual(19, compactLeft.Kinematics.YRadius, "mirrored compact jump radius");
 
     var compactLeftLanding = new SamusState

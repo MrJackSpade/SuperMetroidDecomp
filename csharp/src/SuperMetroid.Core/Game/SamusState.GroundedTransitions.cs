@@ -115,10 +115,11 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         if (sourcePose != Pose)
         {
+            // Pose collision uses prospective geometry; the live radius belongs to
+            // the current frame's alpha and changes only at the next alpha.
             // Successful expansion still runs the normal-jump initializer. A stored
             // shine may replace the requested aim pose; collision rejection above must
             // not consume the charge or apply the windup's one-pixel adjustment.

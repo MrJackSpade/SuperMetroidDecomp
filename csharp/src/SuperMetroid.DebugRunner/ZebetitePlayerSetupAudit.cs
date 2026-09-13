@@ -56,6 +56,15 @@ internal static class ZebetitePlayerSetupAudit
         string? exportPrefix = null, bool isolateEnemies = false)
     {
         if (verbose) Console.WriteLine($"CASE initialized={initializeOnscreen}");
+        var runtime = CreateSetup(romPath, initializeOnscreen, startX, startCamera);
+        var samus = runtime.Samus!;
+        var level = runtime.LevelData!;
+        return RunPreparedCase(runtime, samus, level, initializeOnscreen, startX, startCamera,
+            rightEnd, verbose, exportPrefix, isolateEnemies);
+    }
+
+    internal static SuperMetroidRuntime CreateSetup(string romPath, bool initializeOnscreen, int startX, int startCamera)
+    {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -78,7 +87,14 @@ internal static class ZebetitePlayerSetupAudit
             runtime.StepFrame(0);
         }
         runtime.Camera!.SetPosition(startCamera, 0);
-        var level = runtime.LevelData!;
+        return runtime;
+    }
+
+    private static bool RunPreparedCase(SuperMetroidRuntime runtime, SamusState samus,
+        SuperMetroid.Core.Rooms.RoomLevelData level, bool initializeOnscreen,
+        int startX, int startCamera, int rightEnd, bool verbose, string? exportPrefix, bool isolateEnemies)
+    {
+        ArgumentNullException.ThrowIfNull(runtime.Camera);
         for (int y = 0; verbose && y < 16; y++)
         {
             Console.Write($"row {y,2}: ");

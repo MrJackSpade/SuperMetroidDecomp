@@ -63,3 +63,29 @@ every game subsystem. Camera subpixels, all projectile internal fields, and full
 state restoration are not compared by this first consumer. It does not establish
 the repeated ten-shot controller sequence, native rendered parity, or full-room
 equivalence. Keep #443 open.
+
+## Repeated-input continuation (managed exploration only)
+
+`--zebetite-player-repeat-audit ROM` repeats the original input schedule every
+180 frames for 1,800 frames, once with the full population and once omitting
+non-Zebetite actors at frame 60. It never resets camera, Samus, health, ammunition,
+or the linked halves between shots. Output includes energy so hostile-room
+interference cannot be mistaken for a movement discrepancy.
+
+The first isolated landing preserves camera 642 and lower health 900, but upper
+health is 901. A blind repeat moves the next landing farther right, exposes the
+barrier before the next hit, and fails. Full-population trajectories also diverge
+after the previously verified 60-frame interval because other actors interfere;
+the short actor-isolation result must not be extrapolated to the full sequence.
+
+`--zebetite-player-second-search ROM` explores 1,300 two-shot schedules, preserving
+all live state between shots: 0–12 rightward reposition frames beginning at frame
+120, 1–20 left+jump frames beginning at frame 260, and second-shot leads of
+0/2/4/6/8 frames relative to frame 258. Right+jump follows until frame 299; each
+trial runs to frame 339. None finishes with lower health at or below 800 and eight
+missiles remaining. These are failed candidate schedules, not cartridge failures.
+
+Next investigate a shot into the upper half and assert both halves' health.
+The existing lower-half success predicate only measures one-hit suppression on
+that half, not the health continuity needed for the complete ten-missile kill.
+Original-CPU comparison of a successful repeated sequence remains outstanding.

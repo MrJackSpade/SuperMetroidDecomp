@@ -31,6 +31,7 @@ internal static class ZebetiteAudit
 
         VerifyDefinitionAndPopulation(bus, room);
         VerifyVacatedSlotReuse(bus, room, assets);
+        VerifyFrozenOffscreenProcessing(bus, room, assets);
         VerifySurvivingHalfShot(bus, room, assets);
         VerifyEveryGenerationInitialization(bus, room, assets);
         VerifyLinkedShotAndContact(bus, room, assets);
@@ -43,6 +44,24 @@ internal static class ZebetiteAudit
             "and normal-bomb damage, death explosions, embedded respawns, and final event " +
             "state were verified.");
         return 0;
+    }
+
+    private static void VerifyFrozenOffscreenProcessing(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        for (int frozen = 0; frozen < 2; frozen++)
+        {
+            var loaded = Load(bus, room, assets, generation: 0);
+            var actor = loaded.Enemies.Slots[0];
+            actor.XPosition = 1024; actor.YPosition = 128;
+            actor.AiHandlerBits = (ushort)(frozen == 0 ? 0 : 4);
+            var determine = typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+            determine.Invoke(loaded.Enemies, [(ushort)0, (ushort)0]);
+            if (loaded.Enemies.ActiveEnemyIndexes.Contains((ushort)0) != (frozen != 0) ||
+                loaded.Enemies.InteractiveEnemyIndexes.Contains((ushort)0) != (frozen != 0))
+                throw new InvalidDataException($"Native off-screen frozen processing differs: frozen={frozen}.");
+        }
     }
 
     private static void VerifySurvivingHalfShot(SuperMetroidAddressSpace bus,

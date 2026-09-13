@@ -3531,6 +3531,7 @@ public sealed partial class RoomEnemySystem
 
             bool active = _processAllEnemies ||
                 slot.Properties.HasAny(EnemyProperties.ProcessOffScreen) ||
+                (slot.AiHandlerBits & EnemyAiHandlerMasks.Frozen) != 0 ||
                 EnemyIsWithinProcessingWindow(slot, cameraX, cameraY);
             if (!active)
                 continue;

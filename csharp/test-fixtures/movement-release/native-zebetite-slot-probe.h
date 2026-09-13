@@ -24,5 +24,14 @@ int DiagnosticZebetiteSlots(const char *rom) {
   projectile_type[0] = 0; projectile_damage[0] = 20;
   cur_enemy_index = 64; RunAsmCode(0xa6fdac, 0, 64, 0, 0);
   printf("LINK shot health=%u secondary=%u flash=%u/%u\n", gEnemyData(0)->health, gEnemyData(64)->health, gEnemyData(0)->flash_timer, gEnemyData(64)->flash_timer);
+  for (int frozen = 0; frozen < 2; frozen++) {
+    cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
+    g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0;
+    gEnemyData(0)->enemy_ptr = 0xe27f;
+    gEnemyData(0)->x_pos = 1024; gEnemyData(0)->y_pos = 128;
+    gEnemyData(0)->ai_handler_bits = frozen ? 4 : 0;
+    RunAsmCode(0xa08eb6, 0, 0, 0, 0);
+    printf("FROZEN active=%04X interactive=%04X frozen=%d\n", active_enemy_indexes[0], interactive_enemy_indexes[0], frozen);
+  }
   return 0;
 }

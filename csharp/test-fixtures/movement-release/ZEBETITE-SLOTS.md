@@ -45,3 +45,13 @@ This confirms the follow-up mechanism but not its player-accessible timing.
 The probe deliberately withholds the secondary main callback, and does not
 derive that scheduling from camera visibility. Full camera-gated timing and
 adjacent failing input sequences remain required before closing #443.
+
+## Off-screen frozen processing — related #444
+
+The same CPU probe also executes $A0:8EB6 with a single enemy at X=1024/Y=128,
+camera zero and no forced-processing property. With AI-handler word zero the
+active/interactive lists both begin FFFF; with bit 0004 they both begin 0000.
+The C# assertion failed on the frozen control because its visibility predicate
+omitted the native frozen-handler exception. Both controls pass after restoring
+that exception. This covers processing membership, not crawler dislodging,
+freeze duration, or Samus support across a complete stepping-stone sequence.

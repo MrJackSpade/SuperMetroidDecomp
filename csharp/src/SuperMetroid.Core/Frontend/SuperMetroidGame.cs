@@ -1020,7 +1020,8 @@ public sealed partial class SuperMetroidGame
         // Suit setup resumes from the message close boundary, outside normal gameplay
         // publication generations. Consume once so HDMA-only frames cannot repeat it.
         if (runtime?.SuitPickup.ConsumeTransformationSoundRequest() == true)
-            audio.QueueSound(SoundEffectLibrary2Sounds.SuitTransformation, maximumQueued: 6);
+            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary2Sounds.SuitTransformation, maximumQueued: 6,
+                soundSuppressed: runtime.SuitPickup.TransformationSoundSuppressed);
 
         // Frontend states sometimes accept NMIs without running the state-eight owner list.
         // In particular, the door coroutine waits for all unread sound-ring entries to

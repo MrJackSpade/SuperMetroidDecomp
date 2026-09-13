@@ -50,10 +50,11 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy DSP voice lacks silent-release BRR fallback; retaining its saved PCM cursor until a native loop handoff.");
             return current.Where(field => field.Name != "ReleasedBrrCursor").ToArray();
         }
-        if (type == typeof(SamusSuitPickupState) && count == 9 && current.Length == 10)
+        if (type == typeof(SamusSuitPickupState) && count is 9 or 10 && current.Length == 11)
         {
-            Console.Error.WriteLine("WARNING: Legacy suit pickup lacks its entry sound latch; restoring no pending sound.");
-            return current.Where(field => field.Name != "_transformationSoundPending").ToArray();
+            Console.Error.WriteLine("WARNING: Legacy suit pickup lacks producer-time sound suppression; retaining historical admission and any saved entry latch.");
+            return current.Where(field => field.Name != "<TransformationSoundSuppressed>k__BackingField" &&
+                (count != 9 || field.Name != "_transformationSoundPending")).ToArray();
         }
         if (type == typeof(SamusProjectileFrameResult) && count == 5 && current.Length == 6)
         {

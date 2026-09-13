@@ -1516,7 +1516,8 @@ public sealed partial class SuperMetroidRuntime
                     Samus,
                     Camera.XPosition,
                     Camera.YPosition,
-                    pendingSuit);
+                    pendingSuit,
+                    soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
                 _pendingSuitPickup = null;
             }
         }

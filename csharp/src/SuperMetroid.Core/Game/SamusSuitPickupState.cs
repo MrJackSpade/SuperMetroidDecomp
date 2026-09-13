@@ -23,6 +23,8 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusSuitPickupState
 {
     private bool _transformationSoundPending;
+    /// <summary>Native queue guard captured at suit setup, before deferred host publication.</summary>
+    public bool TransformationSoundSuppressed { get; private set; }
 
     /// <summary>Consumes the one-shot Max6 transformation request emitted by native suit setup.</summary>
     public bool ConsumeTransformationSoundRequest()
@@ -72,7 +74,8 @@ public sealed class SamusSuitPickupState
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
-        SamusSuitPickupKind kind)
+        SamusSuitPickupKind kind,
+        bool soundSuppressed = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -126,6 +129,7 @@ public sealed class SamusSuitPickupState
         samus.XPosition = unchecked((ushort)(layer1X + 120));
         samus.YPosition = unchecked((ushort)(layer1Y + 136));
         IsActive = true;
+        TransformationSoundSuppressed = soundSuppressed;
         _transformationSoundPending = true;
     }
 

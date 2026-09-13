@@ -262,3 +262,22 @@ crash use the real state-machine entry points, not an input-earned shinespark.
 The complete Power Bomb audit, old player-state load/resource test, full core
 suite, and Windows build pass. Other one-off publishers and the complete native
 door-processing timing matrix remain open; this is not full #422 completion.
+
+## Suit transformation sound admission
+
+The real Varia setup and frontend publisher reproduced another missing guard:
+library-two $56 played with an active Power Bomb. Native $91:D66B (Gravity) and
+the corresponding Varia setup call QueueSound_Lib2_Max6, retaining bank $80's
+Power Bomb suppression. Suit setup now records that admission decision and the
+runtime supplies the live explosion status; the frontend consumes it once even
+on frames without a new gameplay publication. Animation and item behavior are
+unchanged.
+
+PowerBombSuitSoundAudit covers both suit kinds, active/inactive explosion status
+at setup, and unchanged/reversed status at publication (eight cases). Both real
+setup owners remain active and actual frontend port commands match admission.
+This invokes post-message setup directly; it is not a natural PLM pickup or full
+native controller timing reproduction. Existing nine- and ten-field debugger
+layouts have explicit migrations, preserving phase and any captured entry latch.
+The production slot-1 recovery still deserializes and advances past its saved
+boundary. The complete sound-suppression audit and Windows build pass.

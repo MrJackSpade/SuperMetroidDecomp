@@ -72,8 +72,11 @@ internal static partial class Program
         var suitFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusSuitPickupState)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 9)
-            .SequenceEqual(suitFields.Where(field => field.Name != "_transformationSoundPending")),
+            .SequenceEqual(suitFields.Where(field => field.Name is not "_transformationSoundPending" and not "<TransformationSoundSuppressed>k__BackingField")),
             "legacy suit pickup retains its saved transformation phase");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusSuitPickupState), suitFields, 10)
+            .SequenceEqual(suitFields.Where(field => field.Name != "<TransformationSoundSuppressed>k__BackingField")),
+            "pre-guard suit pickup retains its pending sound and transformation phase");
         var projectileResultFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileFrameResult)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileFrameResult), projectileResultFields, 5)

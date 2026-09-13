@@ -245,3 +245,20 @@ orb bounce damping therefore agree for these trajectories; no production change
 was necessary. This is not full lifecycle/contact timing evidence. Recapture with
 `DiagnosticGoldenFlight` using the same original-CPU hook pattern; temporary
 hooks were removed and the ordinary native executable rebuilt after capture.
+
+## Natural-phase contact guards and suit damage
+
+`VerifyProjectileContactGuards`, included in `--golden-torizo-audit ROM`, adds
+120 cases: five naturally reached damaging phases, four suit combinations,
+invulnerability timers 0/1/96, and contact-damage immunity clear/set. It calls the
+production collision pass directly after positioning Samus on the selected actor;
+sibling collisions are disabled to isolate the hit. Expectations come from
+$A0:9894/$A0:9923 and SuitDamageDivision, not the production reduction helper.
+
+All cases pass: literal/half/quarter damage with Gravity precedence, pass-entry
+immunity, 96-frame invulnerability, five-frame pending knockback, contact deletion
+or persistence, and unchanged animation cursor/timer on blocked hits. These are
+source-derived assertions, not new original-CPU captures. The existing natural
+shot-response tests separately follow contact-enabled phases and terminal lists.
+No gameplay correction was needed; complete cross-frame contact/lifecycle parity
+is not established by these isolated pass controls.

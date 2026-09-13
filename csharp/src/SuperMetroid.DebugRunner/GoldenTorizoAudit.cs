@@ -30,6 +30,7 @@ internal static partial class GoldenTorizoAudit
         VerifySuperCatchFacingAndLeg(bus, room, assets);
         VerifyEncounter(bus, room, assets);
         VerifyNaturalProjectileInteractions(bus, room, assets);
+        VerifyProjectileContactGuards(bus, room, assets);
         VerifyNormalBombReaction(bus, room, assets);
         VerifyAlreadyDefeatedLoad(bus, room, assets);
 

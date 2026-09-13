@@ -12,13 +12,18 @@ internal sealed class DebuggerSaveStateStore
 
     private readonly string directory;
     private readonly byte[] romDigest;
+    private readonly SuperMetroidGameOptions? hostOptions;
 
     public DebuggerSaveStateStore(
         string romPath,
         ReadOnlySpan<byte> cartridgeRom,
-        string? directoryOverride = null)
+        string? directoryOverride = null,
+        SuperMetroidGameOptions? hostOptions = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(romPath);
+        // Null preserves the captured policy for exact replay. Interactive hosts
+        // explicitly supply their active INI options instead of trusting old state.
+        this.hostOptions = hostOptions;
         directory = directoryOverride is null
             ? Path.Combine(
                 Path.GetDirectoryName(Path.GetFullPath(romPath))
@@ -152,6 +157,9 @@ internal sealed class DebuggerSaveStateStore
             throw new InvalidDataException(
                 "Debugger state payload does not agree with its frame/room metadata header.");
         }
+
+        if (hostOptions is not null)
+            root.Game.ApplyHostOptions(hostOptions);
 
         return new DebuggerSaveStateLoadResult(
             root.AddressSpace,

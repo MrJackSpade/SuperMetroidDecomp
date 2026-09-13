@@ -21,9 +21,10 @@ internal static class DebuggerStateTypeIdentity
         if (name == RoomLoadCallbacksIdentity ||
             identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
             identity[0] is "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0" or
-                "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass461_0")
+                "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass461_0" or
+                "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass463_0")
         {
-            // #391 and #606 captures retain the same room/runtime fields and named
+            // #391, #606, and v0.3.1 #609 captures retain the same room/runtime fields and named
             // callback signatures. Their serialized fields/signatures are still checked
             // individually by the reader. Do not alias unknown legacy closures.
             var matches = typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)

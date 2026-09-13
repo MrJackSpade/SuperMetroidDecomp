@@ -69,7 +69,7 @@ public sealed partial class SuperMetroidRuntime
     /// therefore retain their ordinary damage, collision, and animation side effects. Only
     /// a lethal zero-energy result is raised to one before the frontend can enter death.
     /// </remarks>
-    public bool PlayerInvincibilityEnabled { get; }
+    public bool PlayerInvincibilityEnabled { get; private set; }
 
     /// <summary>
     /// Host testing switch that keeps every unlocked consumable ammo type above zero.
@@ -79,13 +79,13 @@ public sealed partial class SuperMetroidRuntime
     /// HUD, and sound side effects. The frame-exit guard only raises a zero count to one when
     /// the corresponding maximum is nonzero, so it cannot unlock an unavailable item.
     /// </remarks>
-    public bool InfiniteAmmoEnabled { get; }
+    public bool InfiniteAmmoEnabled { get; private set; }
 
     /// <summary>Host testing option: both escape countdowns stop at one second, without changing their earlier timing.</summary>
-    public bool PreventEscapeTimeout { get; }
+    public bool PreventEscapeTimeout { get; private set; }
 
     /// <summary>Nonpersistent host map visibility used by gameplay HUD updates.</summary>
-    public MapRevealMode MapRevealMode { get; }
+    public MapRevealMode MapRevealMode { get; private set; }
 
     /// <summary>Bank-$80 shared random/event/input-filter state.</summary>
     public Bank80SystemState System { get; } = new();

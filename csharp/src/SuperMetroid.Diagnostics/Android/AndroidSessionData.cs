@@ -41,7 +41,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.SaveRamChanged += PersistSave;
         assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));
         Audio = new CartridgeAudioRenderer(assets);
-        states = new DebuggerSaveStateStore(romPath, Bus.Rom, Path.Combine(root, "debug-states"));
+        states = new DebuggerSaveStateStore(romPath, Bus.Rom, Path.Combine(root, "debug-states"), Options);
         recorder = StartRecorder();
         WriteRecordingMetadata(seedFile: null);
     }

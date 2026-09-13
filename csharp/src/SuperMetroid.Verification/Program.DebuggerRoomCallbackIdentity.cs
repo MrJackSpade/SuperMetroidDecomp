@@ -29,7 +29,8 @@ internal static partial class Program
         foreach (string identity in new[] {
             DebuggerStateTypeIdentity.RoomLoadCallbacksIdentity,
             "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass443_0, SuperMetroid.Core, Version=0.2.1.0, Culture=neutral, PublicKeyToken=null",
-            "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass461_0, SuperMetroid.Core, Version=0.2.1.0, Culture=neutral, PublicKeyToken=null" })
+            "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass461_0, SuperMetroid.Core, Version=0.2.1.0, Culture=neutral, PublicKeyToken=null",
+            "SuperMetroid.Core.Runtime.SuperMetroidRuntime+<>c__DisplayClass463_0, SuperMetroid.Core, Version=0.3.1.0, Culture=neutral, PublicKeyToken=null" })
         {
             byte[] graph = ReplaceEncodedIdentity(current, DebuggerStateTypeIdentity.RoomLoadCallbacksIdentity, identity);
             using var source = new MemoryStream(graph);

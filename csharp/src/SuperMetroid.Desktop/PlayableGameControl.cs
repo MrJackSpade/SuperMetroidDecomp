@@ -193,7 +193,7 @@ public sealed partial class PlayableGameControl : UserControl
         // exact options with which the debugger-visible session was constructed.
         addressSpace = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         stateStore = new DebuggerSaveStateStore(romPath, addressSpace.Rom,
-            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"));
+            playerDataDirectory is null ? null : Path.Combine(playerDataDirectory, "debug-states"), gameOptions);
         if (gameOptions.AudioEnabled)
         {
             audioEngine = new SpcAudioEngine(installedAudioDirectory);

@@ -32,15 +32,7 @@ internal static class ZebetiteThirdHitAudit
                     foreach (var enemy in runtime.Enemies.Slots.Where(slot => slot.EnemyDefinitionPointer != 0xe27f))
                         enemy.Clear();
                 var input = ZebetiteSecondHitAudit.GetInput(frame);
-                if (frame >= returnStart && frame < returnStart + 60) input |= SnesButton.A;
-                if (frame >= returnStart + 1 && frame < returnStart + 1 + returnLeftFrames) input |= SnesButton.Left;
-                if (frame == 550) input |= SnesButton.Right;
-                if (frame is 580 or 581) input |= SnesButton.Down;
-                if (frame == 586) input |= SnesButton.Left;
-                if (frame == 592) input |= SnesButton.X;
-                int jump = 600 + jumpDelay;
-                if (frame >= jump && frame < jump + leftFrames) input |= SnesButton.Left | SnesButton.A;
-                else if (frame >= jump + leftFrames && frame < jump + leftFrames + 18) input |= SnesButton.Right | SnesButton.A;
+                input |= new ZebetiteControllerCycle(600, returnStart, returnLeftFrames, jumpDelay, leftFrames).InputAt(frame);
                 runtime.StepFrame((ushort)input);
                 if (frame >= 60 && trace is not null)
                 {

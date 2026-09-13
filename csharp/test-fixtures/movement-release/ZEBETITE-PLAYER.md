@@ -218,3 +218,34 @@ The temporary hook was removed and the ordinary native executable rebuilt.
 
 This still does not establish ten hits, the final death/double-kill handoff, or
 the audiovisual/other-actor equivalence intentionally omitted from this fixture.
+
+## Complete ten-missile managed controller candidate
+
+The reusable `ZebetiteControllerCycle` describes a return hop and shot entirely as
+controller input. `--zebetite-player-ten-search ROM DIRECTORY` extends the verified
+three-hit prefix greedily, replaying the entire prior sequence for each trial.
+It never edits live state between hits. The selected eight cycles for hits 3–10
+are preserved in `zebetite-ten-controller-plan.json`; hits 1–2 retain their existing
+shared schedule. The plan contains generated timing data, not ROM assets.
+
+Replay and export:
+
+```text
+--zebetite-player-ten-audit ROM zebetite-ten-controller-plan.json OUTPUT_PREFIX
+```
+
+The audit validates the plan shape, runs frames 0–2819, and exports frames 60–2819
+as JSONL/ZBI1. The selected sequence ends with zero missiles, lower health zero,
+no intervening lower-health increase, Samus energy 939 and the next generation's
+event bits set. Damage is recorded rather than hidden by invincibility. The
+search found continuations for hits 4–10 after 244/68/69/8/30/3/3 trials.
+
+The trace now follows physical native slots 128/384 even after death, rather than
+changing targets by filtering only live Zebetite headers. It also exports their
+header identities and generation event bits for the forthcoming death comparison.
+All ten prior three-hit traces still match their original-CPU captures after the
+cycle/trace refactoring (6,600 frames).
+
+This is a complete managed ten-hit candidate, not completed #443 parity. The
+longer native comparison must include the observed damage, slot/death lifecycle,
+and generation handoff. The final beam/double-kill continuation remains required.

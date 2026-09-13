@@ -1155,6 +1155,10 @@ if (args.Length == 2 && args[0] == "--zebetite-player-third-hit-audit")
     return ZebetiteThirdHitAudit.Search(args[1], focused: true);
 if (args.Length == 3 && args[0] == "--zebetite-player-third-hit-export")
     return ZebetiteThirdHitAudit.Search(args[1], focused: true, exportDirectory: args[2]);
+if (args.Length == 3 && args[0] == "--zebetite-player-ten-search")
+    return ZebetiteTenHitSearch.Run(args[1], args[2]);
+if (args.Length == 4 && args[0] == "--zebetite-player-ten-audit")
+    return ZebetiteTenHitSearch.Verify(args[1], args[2], args[3]);
 if (args.Length == 2 && args[0] == "--zebetite-player-setup-audit")
     return ZebetitePlayerSetupAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-player-search")

@@ -1,0 +1,10 @@
+[
+  { "JumpBase": 600, "ReturnStart": 460, "ReturnLeftFrames": 13, "JumpDelay": 4, "LeftFrames": 4 },
+  { "JumpBase": 900, "ReturnStart": 770, "ReturnLeftFrames": 16, "JumpDelay": 4, "LeftFrames": 4 },
+  { "JumpBase": 1200, "ReturnStart": 1060, "ReturnLeftFrames": 17, "JumpDelay": 7, "LeftFrames": 3 },
+  { "JumpBase": 1500, "ReturnStart": 1360, "ReturnLeftFrames": 17, "JumpDelay": 7, "LeftFrames": 5 },
+  { "JumpBase": 1800, "ReturnStart": 1660, "ReturnLeftFrames": 16, "JumpDelay": 6, "LeftFrames": 3 },
+  { "JumpBase": 2100, "ReturnStart": 1960, "ReturnLeftFrames": 15, "JumpDelay": 4, "LeftFrames": 5 },
+  { "JumpBase": 2400, "ReturnStart": 2260, "ReturnLeftFrames": 16, "JumpDelay": 4, "LeftFrames": 5 },
+  { "JumpBase": 2700, "ReturnStart": 2560, "ReturnLeftFrames": 16, "JumpDelay": 4, "LeftFrames": 5 }
+]

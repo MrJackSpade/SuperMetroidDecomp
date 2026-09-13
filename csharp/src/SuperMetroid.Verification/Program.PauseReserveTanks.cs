@@ -9,6 +9,26 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    private static void VerifyPauseReserveNativePixels()
+    {
+        string prefix = "csharp/test-temp/pause-reserve-tanks-527/fill-199";
+        var actual = SoftwareFrameSnapshotRenderer.Render(RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(prefix + ".smframe")));
+        byte[] bytes = File.ReadAllBytes(prefix + ".native.bgra");
+        AssertEqual(256 * 224 * 4, bytes.Length, "independent native raster size");
+        var expected = new Rgba32[256 * 224];
+        for (int i = 0; i < expected.Length; i++) expected[i] = new(bytes[i * 4 + 2], bytes[i * 4 + 1], bytes[i * 4]);
+        PngWriter.WriteRgba(prefix + ".native.png", 256, 224, expected);
+        int differences = 0;
+        for (int y = 88; y < 120; y++)
+        for (int x = 16; x < 72; x++)
+            if (expected[y * 256 + x] != actual[y * 256 + x]) differences++;
+        Console.WriteLine($"Reserve region native-PPU differences: {differences}");
+        AssertEqual(0, differences, "reserve strip and surrounding background align with native raster");
+        int fullFrameDifferences = actual.Zip(expected).Count(pair => pair.First != pair.Second);
+        Console.WriteLine($"Equipment full-frame native-PPU differences: {fullFrameDifferences}");
+        AssertEqual(0, fullFrameDifferences, "equipment background correction preserves complete native composition");
+    }
+
     private static void VerifyPauseReserveTanks()
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,6 +83,8 @@ internal static partial class Program
                 {
                     Directory.CreateDirectory("csharp/test-temp/pause-reserve-tanks-527");
                     PngWriter.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", 256, 224, actual);
+                    File.WriteAllBytes("csharp/test-temp/pause-reserve-tanks-527/fill-199.smframe",
+                        RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 1), capture)));
                 }
                 cases++;
 

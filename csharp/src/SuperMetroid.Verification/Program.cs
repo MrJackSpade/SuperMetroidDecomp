@@ -313,6 +313,11 @@ if (args is ["--pause-reserve-arrow"])
     VerifyPauseReserveArrow();
     return 0;
 }
+if (args is ["--pause-reserve-native"])
+{
+    VerifyPauseReserveNativePixels();
+    return 0;
+}
 if (args is ["--pause-reserve-tanks"])
 {
     VerifyPauseReserveTanks();

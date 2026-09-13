@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
   if (!f) return 3;
   unsigned char signature[8]; unsigned short version; unsigned int fades;
   if (fread(signature, 1, 8, f) != 8 || memcmp(signature, "SMFRAME\0", 8)) return 4;
-  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 24) return 5;
+  if (fread(&version, 2, 1, f) != 1 || version < 22 || version > 26) return 5;
   fseek(f, 18, SEEK_CUR);
   if (fread(&fades, 4, 1, f) != 1 || fades != 0 || fgetc(f) != 3) return 6;
   Snes snes = {0};
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     if (!strcmp(argv[3], "offset-check")) {
       ppu_write(ppu, 0x0e, 0xff); ppu_write(ppu, 0x0e, 0xff);
       ppu_write(ppu, 0x10, 0xff); ppu_write(ppu, 0x10, 0xff);
-    } else if (strcmp(argv[3], "burst")) return 10;
+    } else if (strcmp(argv[3], "burst") && strcmp(argv[3], "pause")) return 10;
   }
   ppu_write(ppu, 0x2c, 3); ppu_write(ppu, 0x2d, 0x12);
   ppu_write(ppu, 0x30, 2); ppu_write(ppu, 0x31, 0x33);
@@ -42,6 +42,15 @@ int main(int argc, char **argv) {
     ppu_write(ppu, 0x31, 0x11);
   }
   unsigned char *pixels = calloc(256 * 224, 4);
+  if (argc == 4 && !strcmp(argv[3], "pause")) {
+    // Pause equipment: $82:9142 zeros BG1 scroll; $82:A0F7 zeros BG2/3.
+    // Keep physical scanline sampling in the independent PPU, not C# layers.
+    ppu_write(ppu, 0x05, 9);
+    ppu_write(ppu, 0x07, 0x31); ppu_write(ppu, 0x08, 0x38); ppu_write(ppu, 0x09, 0x58);
+    ppu_write(ppu, 0x0b, 0); ppu_write(ppu, 0x0c, 4);
+    ppu_write(ppu, 0x2c, 0x17); ppu_write(ppu, 0x2d, 0);
+    ppu_write(ppu, 0x30, 0); ppu_write(ppu, 0x31, 0);
+  }
   PpuBeginDrawing(ppu, pixels, 256 * 4, 0);
   for (int line = 0; line <= 224; line++) ppu_runLine(ppu, line);
   f = fopen(argv[2], "wb"); if (!f) return 8;

@@ -335,12 +335,14 @@ internal sealed partial class PauseMenuState
     {
         PrepareRenderOam();
         ushort mapX = ScreenMode == 0 ? mapHorizontalScroll : (ushort)0;
-        ushort mapY = ScreenMode == 0 ? mapVerticalScroll : (ushort)0;
+        // BG fetches start on physical scanline one; OBJ coordinates already use
+        // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
+        ushort mapY = unchecked((ushort)((ScreenMode == 0 ? mapVerticalScroll : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, mapX, mapY, 64, 32, false);
-        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, 0, 0, 32, 32, false);
-        var bg3 = new Bg2BppRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
+        var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, 0, SnesPpuLayout.FirstVisibleBackgroundScanline, 32, 32, false);
+        var bg3 = new Bg2BppViewportRenderLayer(SnesPpuLayout.GameplayHudTilemapWord,
             SnesPpuLayout.GameplayHudCharacterBaseWord,
-            SnesPpuLayout.ScreenHeightPixels / SnesPpuLayout.BackgroundTileSizePixels, false);
+            SnesPpuLayout.FirstVisibleBackgroundScanline, true, false);
         RenderLayer[] layers =
         [
             new ObjPriorityRenderLayer(0), bg3,
@@ -387,7 +389,7 @@ internal sealed partial class PauseMenuState
             tilemapBaseWord,
             characterBaseWord: 0,
             horizontalScroll: isMapLayer && ScreenMode == 0 ? mapHorizontalScroll : (ushort)0,
-            verticalScroll: isMapLayer && ScreenMode == 0 ? mapVerticalScroll : (ushort)0,
+            verticalScroll: unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapVerticalScroll : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline)),
             width: 256,
             height: 224,
             tilemapWidthInTiles: tilemapWidthInTiles,
@@ -402,10 +404,12 @@ internal sealed partial class PauseMenuState
             cgram,
             tilemapBaseWord: 0x5800,
             characterBaseWord: 0x4000,
-            rowCount: 28,
+            rowCount: 32,
             transparentColorZero: true,
             priority: priority);
-        SnesLayerCompositor.Composite(output, plane);
+        SnesLayerCompositor.Composite(output, plane.AsSpan(
+            SnesPpuLayout.FirstVisibleBackgroundScanline * SnesPpuLayout.ScreenWidthPixels,
+            output.Length));
     }
 
     private static void CompositeResolvedObjPriority(

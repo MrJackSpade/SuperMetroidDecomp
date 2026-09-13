@@ -26,3 +26,49 @@ Next: reproduce the relevant alignment/trajectory using original CPU routines,
 find a successful setup and adjacent failure, then compare passage and subsequent
 control. The shinespark half remains untested. No player save is loaded or changed;
 keep generated logs and any future ROM/state exports private.
+
+## Original-CPU collision interval
+
+`--zebetite-skip-export ROM PRIVATE_DIRECTORY` captures frames 120..159 for each
+case, after the lower Rinka has frozen. It runs both the complete room and a
+counterfactual omitting enemies other than native slots 128 (Zebetite) and 192
+(frozen Rinka), and clearing projectiles. The exported movement/pose/animation/
+radii/health/freeze CSVs must remain byte-identical. All three omission checks pass.
+This establishes the omission only for these fields and forty frames, not later
+damage, respawn, artwork, audio, or successful passage.
+
+The native consumer uses MOV1 room/movement plus ZSK1 supplemental data containing
+NMI/RNG, pose history, health, camera, and the two exact 64-byte enemy records.
+Include `native-release-probe.h` followed by `native-zebetite-skip-probe.h` in
+`sm_rtl.c` and temporarily dispatch before SDL:
+
+```text
+--zebetite-skip ROM MOV1 ACTORS OUTPUT_CSV STEP_BACK_FRAMES
+```
+
+Pass those five arguments to `DiagnosticZebetiteSkip`; use offsets 0, 8 and 20.
+Remove the temporary entrypoint/includes and rebuild the normal executable after
+the experiment. Generated seeds contain cartridge data and must remain private.
+
+The original CPU reproduces the wedged trajectory: all 120 frames agree on
+positions/subpixels, pose, animation frame/timer, X radius, health and Rinka freeze
+timer. **Y radius differs on five pose-change frames:**
+
+| Step-back frames | Frame | Managed Y radius | Native Y radius |
+| --- | --- | --- | --- |
+| 0 | 120 | 19 | 21 |
+| 0 | 125 | 16 | 19 |
+| 8 | 128 | 12 | 21 |
+| 8 | 134 | 16 | 12 |
+| 20 | 140 | 12 | 21 |
+
+`--zebetite-skip-compare MANAGED_CSV NATIVE_CSV` checks every field and exits with
+an error for these differences; they are not silently excluded from a parity pass.
+Their effect on a successful skip remains unproven. Do not infer a collision fix
+from wedging that the cartridge itself reproduces.
+
+`--zebetite-skip-repeat-jumps ROM` explores repeated step-back/jump cycles with
+seven offsets. This remains exploratory: no successful passage assertion or
+native comparison for that longer sequence exists yet. The next required work is
+the successful alignment/escape setup, the radius-publication discrepancy, and
+the separate diagonal-shinespark method. #442 remains active.

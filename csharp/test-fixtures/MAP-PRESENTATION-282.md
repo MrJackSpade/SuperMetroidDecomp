@@ -697,3 +697,50 @@ BG2 template, remaining compiled display/load-station metadata, shared HUD/pause
 dependencies and the combined integration/ROM-read audit. These tests do not
 prove a ROM-free whole menu, historical full gameplay session, or Android device
 validation. #282 remains open and is not awaiting player validation.
+
+## Compiled saved-station scroll anchors and area display order
+
+`FileSelectMapLoadAnchors` now supplies the 34 usable station/elevator map
+anchors. These are the native player-map positions used to clip the initial
+viewport, not the editable marker coordinates. Source derivation follows
+`$80:C437`'s load-station arithmetic, `$81:AD17`'s room map origin and
+`$82:9028`'s projection: room X plus Samus's high X byte, and room Y plus
+Samus's high Y byte plus one, both scaled by eight. The six-area display
+sequence from `$81:AAA0` is compiled separately in `FileSelectMapAreaOrder`.
+No asset schema or installer version changes are needed for these mechanics.
+
+Installed map construction and reentry no longer read load-station records or
+room headers/state selectors to obtain the scroll anchor. They retain area
+and station identity from the save and use the current catalog's map view.
+Unused indices still fail explicitly. Editable save-marker placement does not
+move the initial viewport or change the selected gameplay load location.
+
+The legacy `createScroll` delegate shape remains solely for debugger graph
+compatibility. Newly installed menus do not populate its native room/station
+baseline and never invoke it. Explicit unbound diagnostics resolve current ROM
+metadata in a separate path; switching an installed menu back to diagnostics
+does not dereference empty historical captures. Retaining this compatibility
+shape does not create an installed runtime ROM fallback.
+
+Verification independently decodes native fourteen-byte records and room
+coordinate bytes for every valid index, including matching the room area.
+All 34 anchors match. Empty, sparse, fully explored and downloaded map states
+retain native initial limits/clipping and subsequent directional trajectories
+and sound ticks. Every saved station enters its room-map view with exact pixels,
+phase timing and unchanged full SRAM bytes while bank-$8F room reads and the
+bank-$80 load-record range are forbidden. The fixture respects each area's
+actual expanding-window endpoint instead of assuming one shared duration.
+
+Additional checks cover all six selected areas with every combination of
+visible area labels (384 rendered comparisons), ordinary installed
+entry/scroll/restore/return/reentry, and a legacy-style graph that actually
+contains native room/station captures at nonzero Maridia station three.
+After restoration and rebinding, that graph returns/reenters with exact frames
+while the metadata gate is closed. Unbinding a newly installed graph is also
+covered. This is focused compatibility evidence, not an archived historical
+full-gameplay-session validation.
+
+Focused map tests, full core verification and Windows Release build pass.
+Local logs: `282-load-anchors.log`, `282-load-anchors-suite.log` and
+`282-load-anchors-windows.log`. Shared sprite/initial-menu presentation,
+HUD/pause dependencies and combined integration gates remain; #282 stays open.

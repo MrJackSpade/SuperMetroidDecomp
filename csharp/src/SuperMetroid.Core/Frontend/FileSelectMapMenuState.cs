@@ -52,8 +52,15 @@ public sealed partial class FileSelectMapMenuState
         for (int index = 0; index < usedStations.Length; index++)
             usedStations[index] = BinaryPrimitives.ReadUInt16LittleEndian(slot.UsedSaveStationBytes.AsSpan(index * 2));
         var typedArea = (AreaId)area;
-        LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
-        CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        // Keep the legacy closure's captured field names/types available to old
+        // debugger graphs. Installed menus no longer populate that native baseline.
+        LoadStationEntry station = null!;
+        CartridgeRoomHeader room = null!;
+        if (mapPresentation is null)
+        {
+            station = LoadStationEntry.Load(bus, typedArea, checked((byte)slot.SaveStation));
+            room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
+        }
         areaGraphics = new FileSelectAreaMapGraphics(bus, area, mapPresentation?.Tiles, mapPresentation?.Palettes, mapPresentation?.Screens, mapPresentation?.WorldArtwork);
         roomGraphics = new FileSelectRoomMapGraphics(bus, system, typedArea, mapPresentation: mapPresentation);
         createScroll = () => new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), system,
@@ -91,13 +98,18 @@ public sealed partial class FileSelectMapMenuState
 
     private FileSelectMapScroll CreateScrollForCurrentContent()
     {
-        // Keep the old closure untouched for historical debugger graphs and explicit
-        // cartridge diagnostics. Installed sessions never invoke its ROM map loader.
-        if (mapPresentation is null) return createScroll();
         var typedArea = (AreaId)area;
+        if (mapPresentation is not null)
+        {
+            var anchor = FileSelectMapLoadAnchors.Get(typedArea, stationIndex);
+            return new FileSelectMapScroll(bus, mapPresentation.Get(typedArea), roomGraphics.MapSystem, anchor.X, anchor.Y);
+        }
+        // Unbound diagnostics resolve current native metadata explicitly. Do not
+        // invoke the retained legacy closure: a newly installed/restored menu may
+        // intentionally have no room or load-station objects captured in it.
         LoadStationEntry station = LoadStationEntry.Load(bus, typedArea, checked((byte)stationIndex));
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, station.RoomPointer);
-        return new FileSelectMapScroll(bus, mapPresentation.Get(typedArea), roomGraphics.MapSystem,
+        return new FileSelectMapScroll(bus, AreaMapRomData.Load(bus, typedArea), roomGraphics.MapSystem,
             (ushort)(8 * (room.MapX + (station.SamusX >> 8))),
             (ushort)(8 * (room.MapY + (station.SamusY >> 8) + 1)));
     }

@@ -145,6 +145,7 @@ internal static partial class Program
         VerifyMapSaveMarkers(bus, stock, Path.Combine(root, "save-marker-overrides"), original);
         VerifyMapArrows(bus, stock, Path.Combine(root, "arrow-overrides"), original);
         VerifyMapScreens(bus, stock, Path.Combine(root, "screen-overrides"), original);
+        VerifyMapLoadAnchors(bus, original);
         VerifyCompiledMapScrollControls(bus, original);
         AssertThrows<IOException>(() => SuperMetroid.AssetExtraction.MapPresentationExtractor.Extract(bus, stock, "test-provenance"), "stock importer refuses overwrite");
         File.WriteAllText(replacement, "{ broken JSON");

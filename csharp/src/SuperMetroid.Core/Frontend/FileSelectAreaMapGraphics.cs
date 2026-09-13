@@ -150,7 +150,8 @@ public sealed partial class FileSelectAreaMapGraphics
         Draw(title, 128, 16, 0);
         for (int displayArea = 0; displayArea < FileSelectMapRomData.AreaCount; displayArea++)
         {
-            ushort area = RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.DisplayAreaIndices + displayArea * 2);
+            ushort area = labels is null ? RomDataReader.ReadWordFixedBank(bus, FileSelectMapRomData.DisplayAreaIndices + displayArea * 2)
+                : (ushort)FileSelectMapAreaOrder.Get(displayArea);
             if (area >= FileSelectMapRomData.AreaCount)
                 throw new InvalidDataException("File-select map display table contains an invalid area.");
             if (labels is not null)

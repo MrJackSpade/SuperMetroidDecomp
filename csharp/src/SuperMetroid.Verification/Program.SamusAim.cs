@@ -262,7 +262,9 @@ static void VerifySamusAimedAerialMovement()
     samus.InitializeAnimation(bus);
     samus.ApplyOrdinaryJumpTransition(
         bus, SamusPoseIds.NormalJumpTransitionAimDiagonalUpRightPose);
-    AssertEqual(19, samus.Kinematics.YRadius, "aimed jump transition radius");
+    AssertEqual(21, samus.Kinematics.YRadius, "aimed jump commit retains standing radius");
+    samus.RefreshCollisionRadii(bus);
+    AssertEqual(19, samus.Kinematics.YRadius, "next alpha publishes aimed jump radius");
     ushort launchY = samus.YPosition;
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
@@ -804,22 +806,30 @@ static void VerifySamusGunExtendedMovement()
     // the real initializer so this verifies radius, animation, and vertical launch state in
     // addition to the family predicate used by the runtime switch.
     var firingLandingJumpRight = new SamusState { Pose = SamusPoseIds.FiringLandingRightPose };
+    firingLandingJumpRight.RefreshCollisionRadii(bus);
     firingLandingJumpRight.ApplyOrdinaryJumpTransition(
         bus, SamusPoseIds.NeutralJumpTransitionRightPose);
     AssertEqual(SamusPoseIds.NeutralJumpTransitionRightPose, firingLandingJumpRight.Pose,
         "right firing landing installs neutral jump $4B");
+    AssertEqual(21, firingLandingJumpRight.Kinematics.YRadius,
+        "right firing-landing jump retains landing radius");
+    firingLandingJumpRight.RefreshCollisionRadii(bus);
     AssertEqual(19, firingLandingJumpRight.Kinematics.YRadius,
-        "right firing-landing jump installs normal-jump radius");
+        "right firing-landing next alpha installs normal-jump radius");
     AssertEqual(1, firingLandingJumpRight.Kinematics.YDirection,
         "right firing-landing jump launches upward");
 
     var firingLandingJumpLeft = new SamusState { Pose = SamusPoseIds.FiringLandingLeftPose };
+    firingLandingJumpLeft.RefreshCollisionRadii(bus);
     firingLandingJumpLeft.ApplyOrdinaryJumpTransition(
         bus, SamusPoseIds.NeutralJumpTransitionLeftPose);
     AssertEqual(SamusPoseIds.NeutralJumpTransitionLeftPose, firingLandingJumpLeft.Pose,
         "left firing landing installs neutral jump $4C");
+    AssertEqual(21, firingLandingJumpLeft.Kinematics.YRadius,
+        "left firing-landing jump retains landing radius");
+    firingLandingJumpLeft.RefreshCollisionRadii(bus);
     AssertEqual(19, firingLandingJumpLeft.Kinematics.YRadius,
-        "left firing-landing jump installs normal-jump radius");
+        "left firing-landing next alpha installs normal-jump radius");
     AssertEqual(1, firingLandingJumpLeft.Kinematics.YDirection,
         "left firing-landing jump launches upward");
 

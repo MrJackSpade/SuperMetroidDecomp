@@ -62,12 +62,16 @@ static void VerifySamusAerialMovement()
         XPosition = 48,
         YPosition = 77, // radius 19 will place jump-pose feet at floor Y=96
     };
+    samus.RefreshCollisionRadii(bus);
     samus.ApplyOrdinaryJumpTransition(bus, SamusPoseIds.NeutralJumpTransitionRightPose);
+    AssertEqual(21, samus.Kinematics.YRadius, "jump pose commit retains standing radius until alpha");
     AssertEqual(0x0004, samus.Kinematics.YSpeed, "jump reads initial whole Y speed");
     AssertEqual(0xe000, samus.Kinematics.YSubspeed, "jump reads initial fractional Y speed");
     AssertEqual(1, samus.Kinematics.YDirection, "jump begins upward");
 
     // The $4B transition movement deliberately does not consume the initialized 4.E000.
+    samus.RefreshCollisionRadii(bus);
+    AssertEqual(19, samus.Kinematics.YRadius, "next alpha publishes neutral jump radius");
     AerialMovementResult transitionFrame = SamusAerialMovement.StepNormalJump(
         bus, level, samus, (ushort)SnesButton.A, nmiFrameCounter: 0);
     AssertTrue(transitionFrame.Vertical is null, "neutral-jump transition skips vertical movement");

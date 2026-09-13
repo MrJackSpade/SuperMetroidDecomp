@@ -72,6 +72,9 @@ internal sealed class IntroBabyDiscoveryState
             preInstruction: (_, pointer) => RunDemoPreInstruction(pointer, introCrossfadeTimer),
             specialInstruction: HandleDemoInstruction);
 
+        // The native intro-demo alpha publishes the current pose's collision radius
+        // before input/movement, rather than requiring pose setters to publish early.
+        Samus.RefreshCollisionRadii(bus);
         IntroSamusDemoMovement.StepGroundedLeft(
             bus,
             Level,

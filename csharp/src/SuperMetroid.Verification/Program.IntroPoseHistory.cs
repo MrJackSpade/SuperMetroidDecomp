@@ -52,6 +52,7 @@ internal static partial class Program
         var failures = new List<string>();
         int transitions = 0;
         bool setup = false, terminal = false, handoff = false;
+        bool jumpRadiusRetained = false, jumpRadiusPublished = false;
         for (int tick = 0; tick < 20000 && !handoff; tick++)
         {
             SamusState? before = ReadOwner<SamusState>("flashbackSamus");
@@ -85,6 +86,16 @@ internal static partial class Program
             else if (after is not null && hurtExpiry)
                 context = "same-pose hurt expiry command";
             if (after is null) continue;
+            if (oldPose == SamusPoseIds.MovingLeftNormalPose && after.Pose == SamusPoseIds.SpinJumpLeftPose)
+            {
+                AssertEqual(21, after.Kinematics.YRadius, "intro jump commit retains running collision radius");
+                jumpRadiusRetained = true;
+            }
+            else if (jumpRadiusRetained && !jumpRadiusPublished && oldPose == SamusPoseIds.SpinJumpLeftPose)
+            {
+                AssertEqual(12, after.Kinematics.YRadius, "intro next alpha publishes spin collision radius");
+                jumpRadiusPublished = true;
+            }
             if (context is null)
             {
                 var unchanged = after.PoseHistory;
@@ -100,6 +111,7 @@ internal static partial class Program
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");
         }
         AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; transitions={transitions}");
+        AssertTrue(jumpRadiusRetained && jumpRadiusPublished, "intro fixture covers jump radius publication across alpha/beta");
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
     }
 }

@@ -74,14 +74,21 @@ and comparing all 120 frames now leaves only the three jump-entry differences
 listed above. Focused spin-to-crouch and compact-to-crouch tests check retained
 radius, immediate center correction, and next-alpha publication separately.
 
-An experimental delay of ordinary jump-entry radius publication eliminated the
-remaining differences, but failed the intro-history integration test (the scene
-did not complete its terminal/discovery handoff). That change was backed out.
-Inspect the cinematic caller's alpha/update ownership before changing this shared
-initializer; a matching gameplay interval is not sufficient regression coverage.
+Delaying ordinary jump-entry radius publication initially failed the intro-history
+integration test: the scene did not complete its terminal/discovery handoff. The
+intro was missing the per-frame radius refresh performed by the cartridge's
+intro-demo alpha handler. Both cinematic owners now publish the radius before
+movement, and the shared jump initializer leaves it unchanged at pose commit.
+The intro test explicitly checks the running-to-spin commit radius, next-alpha
+spin radius, and subsequent terminal/discovery handoff. Grounded, aimed, and
+firing-landing jump tests distinguish commit from next-alpha publication as well.
+
+With both fixes, all fields in all 120 original-CPU collision frames match. The
+MOV1/ZSK1 seeds remain byte-identical to the original comparison. This certifies
+only this collision interval, not successful skip execution or all jump routes.
 
 `--zebetite-skip-repeat-jumps ROM` explores repeated step-back/jump cycles with
 seven offsets. This remains exploratory: no successful passage assertion or
 native comparison for that longer sequence exists yet. The next required work is
-the successful alignment/escape setup, the jump-radius publication discrepancy, and
+the successful alignment/escape setup and
 the separate diagonal-shinespark method. #442 remains active.

@@ -446,6 +446,10 @@ public sealed partial class IntroCinematicState
             }
         }
 
+        // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
+        // Pose commits at the end of the previous frame deliberately leave it unchanged.
+        flashbackSamus?.RefreshCollisionRadii(bus);
+
         // DemoInputObjectHandler runs before game state $25. A demo loaded by the cinematic
         // function therefore starts on the next frame, never on the accepting input frame.
         if (demoWasLoadedBeforeThisFrame && flashbackDemoInput is not null)

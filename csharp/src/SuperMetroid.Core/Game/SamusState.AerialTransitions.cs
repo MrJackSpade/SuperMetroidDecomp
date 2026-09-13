@@ -656,7 +656,8 @@ public sealed partial class SamusState
         Pose = targetPose is SamusPoseIds.SpinJumpRightPose or SamusPoseIds.SpinJumpLeftPose
             ? SelectEquippedSpinPose(targetPose)
             : targetPose;
-        RefreshCollisionRadii(bus);
+        // Pose dispatch happens after movement. The next alpha phase, including
+        // the intro-demo alpha handler, owns publication of the new live radius.
         InitializeAnimation(bus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(bus, this);
 

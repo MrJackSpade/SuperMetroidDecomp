@@ -166,3 +166,19 @@ decrease. At frame 110 the halves are 919/915 HP: the camera remains on screen,
 so this is not regeneration suppression or native parity. The initial camera
 seed and the short exposure window around impact still need work. Projectile
 positions/types/directions are now logged to make further candidates diagnosable.
+
+### Single-hit suppression search
+
+`--zebetite-player-search ROM` sweeps X=696..736 by four, initial camera
+641..655 by two, and Right release frames 87..105 by three: 616 cases.
+All use the initialized-history branch and real room movement/projectile
+stepping. Twenty-four finish with one missile consumed, lower-half HP exactly
+900 and camera beyond X640: X728, every tested camera seed, and release frames
+99/102/105. All other sampled cases fail that combined condition.
+
+The ordinary setup diagnostic now also asserts X728/camera641/release99 as a
+positive control, X724/X732 and release96 as adjacent negative controls. These
+are C# candidate-stability assertions, NOT cartridge parity or the full ten-hit
+technique. Initial camera history remains seeded and repeated cycles are not
+implemented. The next comparison should preserve the candidate's exact inputs
+and subpixels, not replace it with the earlier stepped-camera dispatcher tests.

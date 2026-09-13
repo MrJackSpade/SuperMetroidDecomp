@@ -1135,6 +1135,8 @@ if (args.Length >= 2 && args[0] == "--boulder-audit")
 
 if (args.Length == 3 && args[0] == "--zebetite-double-audit")
     return ZebetiteAudit.RunDoubleTrace(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--zebetite-ten-audit")
+    return ZebetiteAudit.RunTenTrace(args[1], args[2]);
 if (args.Length >= 2 && args[0] == "--zebetite-audit")
 {
     string zebetiteRomPath = string.Join(' ', args[1..]).Trim('"');

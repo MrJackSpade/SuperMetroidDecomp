@@ -68,6 +68,54 @@ internal static class ZebetiteAudit
         return 0;
     }
 
+    public static int RunTenTrace(string romPath, string tracePath)
+    {
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(tracePath))) !=
+            "35963B1F6E0D69B2CC2FC647AE969BEE27D2551A00D3B278E41AEAEF00E44C0E")
+            throw new InvalidDataException("Use the accepted original-CPU ten-missile trace.");
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var room = CartridgeRoomHeader.Load(bus, MotherBrainRoom);
+        var assets = CartridgeRoomAssets.Load(bus, room);
+        var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
+        if (rows.Length != 2968 || rows.Any(row => row.Length != 7))
+            throw new InvalidDataException("Incomplete ten-missile CPU trace.");
+        int rowIndex = 0;
+        foreach (ushort generation in new ushort[] { 1, 3 })
+        foreach (int exposure in new[] { 1, 2, 3, 4, 5, 6, 20 })
+        {
+            var loaded = Load(bus, room, assets, generation);
+            Activate(loaded, assets);
+            loaded.Samus.XPosition = loaded.Samus.YPosition = 3000;
+            var primary = loaded.Enemies.Slots[0];
+            ushort camera = (ushort)(primary.XPosition - 128);
+            ushort offCamera = (ushort)(primary.XPosition + primary.XRadius + 1);
+            for (int frame = 0; frame < 212; frame++)
+            {
+                if (frame < 200 && frame % 20 == 0)
+                {
+                    // Refresh the processing list at the hit location, just as
+                    // the native probe dispatches a shot against this live actor.
+                    var determine = typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+                    determine.Invoke(loaded.Enemies, [camera, (ushort)0]);
+                    var shots = new SamusProjectileSystem();
+                    ArmProjectile(shots.Slots[0], primary, type: 0x100, damage: 100);
+                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+                }
+                loaded.Enemies.StepFrame(frame >= 200 || frame % 20 < exposure ? camera : offCamera,
+                    0, false, loaded.Samus, level: assets.LevelData);
+                int events = (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit0) ? 8 : 0) |
+                    (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit1) ? 16 : 0) |
+                    (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit2) ? 32 : 0);
+                int[] actual = [generation, exposure, frame, primary.EnemyDefinitionPointer, primary.Health, primary.FlashTimer, events];
+                if (!actual.SequenceEqual(rows[rowIndex++]))
+                    throw new InvalidDataException($"Ten-missile CPU mismatch: {string.Join(',', actual)} != {string.Join(',', rows[rowIndex - 1])}");
+            }
+        }
+        Console.WriteLine("Zebetite ten missiles: 14 cases / 2968 full enemy frames match original CPU.");
+        return 0;
+    }
+
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);

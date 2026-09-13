@@ -100,3 +100,24 @@ and progression events. C# delivers the shots through public projectile-hit
 resolution; the CPU probe invokes the original shot callback, not projectile
 flight. This verifies scheduling and success/failure windows, not the player's
 aiming trajectory or ten-missile setup. No additional production change needed.
+
+## Ten-missile dispatcher matrix
+
+Run `SuperMetroid.DebugRunner --zebetite-ten-audit ROM zebetite-ten-native.csv`.
+The numeric trace SHA-256 is
+`35963B1F6E0D69B2CC2FC647AE969BEE27D2551A00D3B278E41AEAEF00E44C0E`.
+Recapture source: `native-zebetite-ten-probe.h`.
+
+Initialize second/fourth barriers at the native full 1000 HP. Deliver exactly ten
+100-damage missiles, twenty frames apart. Each cycle keeps the actor visible
+for 1, 2, 3, 4, 5, 6 or 20 frames. The remaining cycle uses camera X just beyond
+the actor's right processing bound; camera zero is NOT off-screen for the fourth
+barrier. After 200 frames, remain visible for twelve more frames to finish death
+processing. All 14 cases / 2,968 enemy frames match C# health, flash, header and
+progression events without further gameplay changes.
+
+Exposure 1..5 kills both barriers in ten missiles; six leaves 22 HP and constant
+exposure leaves 162 HP. This is a complete ten-hit health sequence, but controlled
+camera jumps and injected shot callbacks do not prove the player's movement,
+missile flight, legal room camera bounds or first-barrier exclusion. Those
+room-local input requirements remain outstanding for #443.

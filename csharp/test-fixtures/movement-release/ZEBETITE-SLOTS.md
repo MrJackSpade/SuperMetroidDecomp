@@ -75,3 +75,28 @@ these native-verified formulas and passes without a production change.
 This confirms the five processed-frame regeneration delay and off-screen timer
 freeze. Repeated ten-shot kills and player-accessible camera trajectories,
 including the first-barrier exclusion, remain unverified.
+
+## Full enemy-frame double-kill window
+
+Run `SuperMetroid.DebugRunner --zebetite-double-audit ROM zebetite-double-native.csv`.
+The accepted numeric trace SHA-256 is
+`E6EC8D2C87120784ACAF6EF2AF5C7F1B30663D26507E833D31C8E0CD731ED99F`.
+Recapture with `native-zebetite-double-probe.h` and the original CPU loader.
+
+Generation one starts with both halves at 100 HP (the pre-final-missile seed).
+A lethal 100-damage missile strikes the lower half. Unlike the earlier isolated
+callback test, original EnemyMain runs both halves normally on every active
+frame. Sweep a follow-up beam over delays 0..8. At frame eight approach the
+replacement primary with the camera, then continue to frame eleven.
+
+Delays 1..5 destroy generation two as well and reach generation three, event
+byte 24. Delay zero and delays 6..8 leave generation two alive, event byte 16.
+The lower half's hurt dispatch holds its death for five frames while the upper
+half respawns immediately. The replacement lies off screen until approached;
+zero health copied into it persists until its main routine can execute.
+
+All 108 full enemy frames match C# IDs, health, generation, secondary flash,
+and progression events. C# delivers the shots through public projectile-hit
+resolution; the CPU probe invokes the original shot callback, not projectile
+flight. This verifies scheduling and success/failure windows, not the player's
+aiming trajectory or ten-missile setup. No additional production change needed.

@@ -23,6 +23,51 @@ internal static class ZebetiteAudit
     private const ushort UpperHealthInstructionTable = 0xfd4a;
     private const ushort LowerHealthInstructionTable = 0xfd54;
 
+    public static int RunDoubleTrace(string romPath, string tracePath)
+    {
+        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(tracePath))) !=
+            "E6EC8D2C87120784ACAF6EF2AF5C7F1B30663D26507E833D31C8E0CD731ED99F")
+            throw new InvalidDataException("Use the accepted original-CPU double-kill trace.");
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
+        var room = CartridgeRoomHeader.Load(bus, MotherBrainRoom);
+        var assets = CartridgeRoomAssets.Load(bus, room);
+        var rows = File.ReadLines(tracePath).Skip(1).Select(line => line.Split(',').Select(int.Parse).ToArray()).ToArray();
+        if (rows.Length != 108 || rows.Any(row => row.Length != 9))
+            throw new InvalidDataException("Incomplete double-kill CPU trace.");
+        for (int delay = 0; delay <= 8; delay++)
+        {
+            var loaded = Load(bus, room, assets, generation: 1);
+            Activate(loaded, assets);
+            loaded.Samus.XPosition = loaded.Samus.YPosition = 3000;
+            var primary = loaded.Enemies.Slots[0]; var secondary = loaded.Enemies.Slots[1];
+            ushort camera = (ushort)(primary.XPosition - 128);
+            primary.Health = secondary.Health = 100;
+            var shots = new SamusProjectileSystem();
+            ArmProjectile(shots.Slots[0], secondary, type: 0x100, damage: 100);
+            loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+            for (int frame = 0; frame < 12; frame++)
+            {
+                if (frame == 8) camera = (ushort)(primary.XPosition - 128);
+                if (frame == delay && secondary.EnemyDefinitionPointer == ZebetiteDefinition)
+                {
+                    shots = new SamusProjectileSystem();
+                    ArmProjectile(shots.Slots[0], secondary, type: 0, damage: 20);
+                    loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), loaded.Samus);
+                }
+                loaded.Enemies.StepFrame(camera, 0, false, loaded.Samus, level: assets.LevelData);
+                int events = (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit0) ? 8 : 0) |
+                    (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit1) ? 16 : 0) |
+                    (loaded.System.HasEvent(EventNumber.ZebetiteDestroyedBit2) ? 32 : 0);
+                int[] actual = [delay, frame, primary.EnemyDefinitionPointer, primary.Health, primary.VariableD,
+                    secondary.EnemyDefinitionPointer, secondary.Health, secondary.FlashTimer, events];
+                if (!actual.SequenceEqual(rows[delay * 12 + frame]))
+                    throw new InvalidDataException($"Double-kill CPU mismatch: {string.Join(',', actual)} != {string.Join(',', rows[delay * 12 + frame])}");
+            }
+        }
+        Console.WriteLine("Zebetite double-kill: 9 delays / 108 full enemy frames match original CPU.");
+        return 0;
+    }
+
     public static int Run(string romPath)
     {
         SuperMetroidAddressSpace bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);

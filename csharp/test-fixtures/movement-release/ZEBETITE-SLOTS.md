@@ -55,3 +55,23 @@ The C# assertion failed on the frozen control because its visibility predicate
 omitted the native frozen-handler exception. Both controls pass after restoring
 that exception. This covers processing membership, not crawler dislodging,
 freeze duration, or Samus support across a complete stepping-stone sequence.
+
+## Camera-gated regeneration dispatch
+
+`native-zebetite-regen-probe.h` executes original $A0:8EB6 and $A0:8FD4
+after one 100-damage missile shot callback against generation one. Twenty
+independent cases keep both halves visible for 1..20 frames, then place the
+camera at X=0 for the remainder of twenty frames. Samus is outside contact
+range; there are no cheats or substituted enemy AI functions. This is controlled
+camera input to the dispatcher, not a controller-driven camera trajectory.
+
+All 400 native rows follow these exact formulas, with T = min(frame+1, exposure):
+primary health = 900 + max(T-5,0); secondary health = 900 + T; both flash timers
+= max(12-T,0); primary handler = 2 for T<5, otherwise zero. The linked shot tail
+copies health/flash but does not set the secondary hurt-handler bit. Its main
+AI therefore regenerates immediately. The C# audit compares every frame to
+these native-verified formulas and passes without a production change.
+
+This confirms the five processed-frame regeneration delay and off-screen timer
+freeze. Repeated ten-shot kills and player-accessible camera trajectories,
+including the first-barrier exclusion, remain unverified.

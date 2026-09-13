@@ -33,6 +33,7 @@ internal static class ZebetiteAudit
         VerifyVacatedSlotReuse(bus, room, assets);
         VerifyFrozenOffscreenProcessing(bus, room, assets);
         VerifySurvivingHalfShot(bus, room, assets);
+        VerifyCameraGatedRegeneration(bus, room, assets);
         VerifyEveryGenerationInitialization(bus, room, assets);
         VerifyLinkedShotAndContact(bus, room, assets);
         VerifyFourGenerationProgression(bus, room, assets);
@@ -44,6 +45,36 @@ internal static class ZebetiteAudit
             "and normal-bomb damage, death explosions, embedded respawns, and final event " +
             "state were verified.");
         return 0;
+    }
+
+    private static void VerifyCameraGatedRegeneration(SuperMetroidAddressSpace bus,
+        CartridgeRoomHeader room, CartridgeRoomAssets assets)
+    {
+        // Original CPU matrix: expose both halves for 1..20 frames after a
+        // missile callback, then move them off screen. Compare every frame.
+        for (int visible = 1; visible <= 20; visible++)
+        {
+            var loaded = Load(bus, room, assets, generation: 1);
+            Activate(loaded, assets);
+            loaded.Samus.XPosition = loaded.Samus.YPosition = 3000;
+            var primary = loaded.Enemies.Slots[0];
+            var secondary = loaded.Enemies.Slots[1];
+            var shots = new SamusProjectileSystem();
+            ArmProjectile(shots.Slots[0], primary, type: 0x100, damage: 100);
+            loaded.Enemies.ResolveOrdinaryProjectileHits(bus, shots,
+                new SamusBombProjectileSystem(), loaded.Samus);
+            for (int frame = 0; frame < 20; frame++)
+            {
+                loaded.Enemies.StepFrame(frame < visible ? (ushort)(primary.XPosition - 128) : (ushort)0,
+                    0, false, loaded.Samus, level: assets.LevelData);
+                int ticks = Math.Min(frame + 1, visible);
+                int flash = Math.Max(12 - ticks, 0);
+                if (primary.Health != 900 + Math.Max(ticks - 5, 0) ||
+                    secondary.Health != 900 + ticks || primary.FlashTimer != flash ||
+                    secondary.FlashTimer != flash || primary.AiHandlerBits != (ticks < 5 ? 2 : 0))
+                    throw new InvalidDataException($"Native camera-gated regeneration differs: exposure={visible}, frame={frame}, health={primary.Health}/{secondary.Health}, flash={primary.FlashTimer}/{secondary.FlashTimer}, handler={primary.AiHandlerBits}.");
+            }
+        }
     }
 
     private static void VerifyFrozenOffscreenProcessing(SuperMetroidAddressSpace bus,

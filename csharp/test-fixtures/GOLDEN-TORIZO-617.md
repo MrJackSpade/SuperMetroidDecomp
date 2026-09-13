@@ -45,3 +45,26 @@ Still required for #617: independent native comparisons of state selection,
 attack cadence and movement under sustained firing, full shot/contact damage and
 invulnerability timing, projectile trajectories, and any relevant conditional
 AI inputs. Do not label the entire audit awaiting validation based on this fix.
+
+## Original-CPU health decision comparison
+
+`movement-release/golden-health-decisions-617.csv` captures 240 calls to the
+original $AA:D474 and $AA:D49B routines. Six health values straddle 1928 and
+10800, with the stun bit clear/set and ten RNG seeds. Each row records the
+returned operand cursor, resulting RNG, saved link and decision counter.
+Both taken and untaken paths occur. All fields match production dispatch via
+`--golden-health-native-compare ROM CSV`; no gameplay correction was needed.
+
+The native comparison establishes inclusive low-health admission (<=1928),
+strict high-health admission (>10800 with stun), conditional random consumption,
+and exact preserved/reset counter/link behavior. This covers these two decision
+callbacks, not complete encounter cadence or sustained controller input.
+
+To recapture, include native-release-probe.h then native-golden-decision-probe.h
+from sm_rtl.c and dispatch DiagnosticGoldenDecisions(ROM, NEW_CSV) before SDL
+initialization. Suppress SDL error dialogs for that headless entrypoint. The
+loader restores original ROM bytes after SnesInit, and the bounded CPU helper
+executes actual instructions, not native C translations. Input Y=$D000 addresses
+a fixed ROM operand; C# uses opcode cursor $CFFE to read that same operand.
+Initial link=$1234 and counter=9 make non-writes observable. Temporary hooks were
+removed and the ordinary native executable rebuilt after capture.

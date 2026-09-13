@@ -1456,6 +1456,9 @@ if (args.Length >= 2 && args[0] == "--bomb-torizo-audit")
     return BombTorizoAudit.Run(bombTorizoRomPath);
 }
 
+if (args.Length == 3 && args[0] == "--golden-health-native-compare")
+    return GoldenTorizoAudit.CompareNativeHealthDecisions(args[1], args[2]);
+
 if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
 {
     string goldenTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

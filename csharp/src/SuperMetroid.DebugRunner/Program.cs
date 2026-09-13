@@ -232,6 +232,8 @@ if (args.Length == 3 && args[0] == "--soft-unmorph-charge-comparison-audit")
     return SoftUnmorphChargeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--continuous-walljump-comparison-audit")
     return ContinuousWalljumpComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--ceiling-walljump-comparison-audit")
+    return CeilingWalljumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--xray-charge-comparison-audit")
     return XrayChargeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--charge-equipment-comparison-audit")

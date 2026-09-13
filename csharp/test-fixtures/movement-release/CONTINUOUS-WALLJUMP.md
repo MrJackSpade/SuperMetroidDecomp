@@ -8,8 +8,9 @@ ordinary walljump already covered by CHARGED-WALLJUMP.md. No production change
 was necessary for the captured sequence. It completes the continuous-walljump
 branch of #471. Native pause timing is covered separately by [PAUSE-CHARGE.md](PAUSE-CHARGE.md). The soft-unmorph X-ray branch
 now has a separate [capture](SOFT-UNMORPH-CHARGE.md).
-It is only partial coverage of #445: ceiling-bonk, retail Moat setup and regional
-differences still require investigation. Do not mark either entire issue ready
+It is only partial coverage of #445: the ceiling-bonk branch now has a separate
+[native capture](CEILING-WALLJUMP.md); retail Moat setup and regional differences
+still require investigation. Do not mark either entire issue ready
 on this capture alone.
 
 ## Run and provenance

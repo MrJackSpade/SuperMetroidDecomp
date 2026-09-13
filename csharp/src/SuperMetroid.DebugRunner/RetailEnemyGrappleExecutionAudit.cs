@@ -140,6 +140,8 @@ internal static partial class RetailEnemyExecutionAudit
                     target.ShakeTimer = 7;
                     target.FlashTimer = 0;
                     ushort killedBefore = loaded.Enemies.EnemiesKilled;
+                    ushort healthBefore = target.Health;
+                    bool respawns = target.Properties.HasAny(EnemyProperties.RespawnIfKilled);
                     loaded.Enemies.StepFrame(
                         cameraX,
                         cameraY,
@@ -153,6 +155,9 @@ internal static partial class RetailEnemyExecutionAudit
                     VerifyGrappleReaction(
                         target,
                         expectedReaction,
+                        variant.Definition,
+                        healthBefore,
+                        respawns,
                         killedBefore,
                         loaded.Enemies.EnemiesKilled);
 
@@ -274,6 +279,9 @@ internal static partial class RetailEnemyExecutionAudit
     private static void VerifyGrappleReaction(
         RoomEnemySlot target,
         GrappleEnemyReaction reaction,
+        ushort definitionBefore,
+        ushort healthBefore,
+        bool respawns,
         ushort killedBefore,
         ushort killedAfter)
     {
@@ -290,7 +298,10 @@ internal static partial class RetailEnemyExecutionAudit
             GrappleEnemyReaction.Attach =>
                 target.AiHandlerBits == 0 && target.FlashTimer == visibleFlashTime,
             GrappleEnemyReaction.Kill =>
-                target.Health == 0 && target.Properties.HasAny(EnemyProperties.Deleted) &&
+                // Native EnemyDeathAnimation clears the record, then optionally
+                // installs the respawn placeholder; it does not retain Deleted.
+                target.Health == 0 && target.EnemyDefinitionPointer ==
+                    (respawns ? EnemyLifecycleDefinitions.RespawnPlaceholder : 0) &&
                 killedAfter == unchecked((ushort)(killedBefore + 1)),
             GrappleEnemyReaction.Cancel or GrappleEnemyReaction.HurtSamus =>
                 target.AiHandlerBits == 4,
@@ -301,12 +312,18 @@ internal static partial class RetailEnemyExecutionAudit
                 (target.ExtraProperties & 1) != 0,
             _ => false,
         };
+        if (reaction != GrappleEnemyReaction.Kill)
+        {
+            valid &= target.Health == healthBefore &&
+                target.EnemyDefinitionPointer == definitionBefore &&
+                !target.Properties.HasAny(EnemyProperties.Deleted);
+        }
         if (!valid)
         {
             throw new InvalidDataException(
-                $"Definition ${target.EnemyDefinitionPointer:X4} Grapple {reaction} " +
+                $"Definition ${definitionBefore:X4}->${target.EnemyDefinitionPointer:X4} Grapple {reaction} " +
                 $"post-frame state diverged: handler=${target.AiHandlerBits:X4}, health=" +
-                $"{target.Health}, properties=${target.Properties:X4}, flash=" +
+                $"{healthBefore}->{target.Health}, properties=${target.Properties:X4}, flash=" +
                 $"{target.FlashTimer}/{visibleFlashTime}, invinc={target.InvincibilityTimer}, " +
                 $"frozen={target.FrozenTimer}, shake={target.ShakeTimer}, extra=" +
                 $"${target.ExtraProperties:X4}, killed={killedBefore}->{killedAfter}.");

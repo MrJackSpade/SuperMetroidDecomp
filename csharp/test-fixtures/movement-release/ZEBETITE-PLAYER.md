@@ -114,3 +114,28 @@ sequence. Wrong-facing endings are excluded rather than counted as successes.
 The focused one-hit/lifetime regression still passes. The next shot and native
 comparison of these longer trajectories remain required; no gameplay change is
 established by this search.
+
+## Two-hit continuation
+
+`--zebetite-player-second-hit-search ROM` now continues the release-105,
+eleven-left-frame, right-tap-250 return-hop candidate into a second shot. It runs
+420 uninterrupted frames per trial; only the previously documented actor omission
+at frame 60 changes non-controller state after initialization. Lower health is
+checked every frame for any increase, not just compared at the endpoint.
+
+Of 1,920 schedules, nine end with eight missiles and exactly 800 lower health
+without regeneration. Three also retain Samus energy 999. The remaining six take
+damage later and are not equivalent full-state fixtures. The shortened follow-through
+uses eighteen right+jump frames; the earlier forty-total-frame follow-through
+caused additional hostile/terrain interference and must not be substituted.
+
+The focused `--zebetite-player-second-hit-audit ROM` runs eight adjacent cases.
+After the initial hit and return hop, Down is pressed at 280/281 and Left at 286.
+Shoot at 292, Left+Jump at 304–306, then Right+Jump at 307–324 produces the
+undamaged 800-HP result. Starting that jump at 303 instead gives 801 HP. Jump 304
+with four left frames and jump 305 with three left frames also succeed. The
+other focused neighbors fail. The focused diagnostic asserts this candidate
+window but is explicitly not an original-CPU oracle.
+
+No live state is reset between the hits. A native continuation comparison,
+subsequent shots, and the actual ten-hit death/double-kill handoff remain required.

@@ -1,5 +1,31 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
+int DiagnosticGoldenJumpDecisions(const char *rom, const char *output) {
+  int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
+  FILE *f = fopen(output,"wx"); if (!f) return 4;
+  const uint16 distances[]={31,32,111,112}, frames[]={359,360,361}, seeds[]={0,0x31};
+  const uint32 routines[]={0xaad4ba,0xaad4fd};
+  fprintf(f,"routine,samusX,facing,frames,counter,input,seed,cursor,random,afterCounter,vx,vy,gravity,timer\n");
+  for(int r=0;r<2;r++) for(int d=0;d<4;d++) for(int side=0;side<2;side++)
+  for(int facing=0;facing<2;facing++) for(int t=0;t<3;t++) for(int counter=7;counter<=8;counter++)
+  for(int input=0;input<2;input++) for(int s=0;s<2;s++) {
+    cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
+    g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
+    Enemy_Torizo *enemy=Get_Torizo(0);
+    enemy->base.x_pos=256; enemy->toriz_parameter_1=facing?0x8000:0;
+    enemy->toriz_var_07=frames[t]; enemy->toriz_var_09=counter;
+    enemy->toriz_var_A=17; enemy->toriz_var_B=19; enemy->toriz_var_C=23;
+    enemy->base.instruction_timer=29;
+    samus_x_pos=256+(side?distances[d]:-distances[d]);
+    joypad1_lastkeys=input?0x100:0; random_number=seeds[s];
+    ProbeRunBoundedRegisters(routines[r],0,0,0xd000);
+    fprintf(f,"%04X,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",routines[r]&0xffff,
+      samus_x_pos,enemy->toriz_parameter_1,frames[t],counter,joypad1_lastkeys,seeds[s],g_snes->cpu->y,
+      random_number,enemy->toriz_var_09,enemy->toriz_var_A,enemy->toriz_var_B,enemy->toriz_var_C,
+      enemy->base.instruction_timer);
+  }
+  fclose(f); return 0;
+}
 int DiagnosticGoldenDistanceDecisions(const char *rom, const char *output) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   FILE *f = fopen(output,"wx"); if (!f) return 4;

@@ -84,3 +84,19 @@ setup above. Native enemy X is 256, input Y is $D000, link is $1234 and counter
 is 9. The temporary hooks were removed and the ordinary executable rebuilt.
 These are decision-boundary tests, not evidence that a particular room position
 is safe or that full-fight attack cadence matches.
+
+## Original-CPU jump decisions
+
+`movement-release/golden-jump-decisions-617.csv` contains 768 calls to $AA:D4BA
+and $AA:D4FD. Distances 31/32/111/112 on both sides/facings, Space Jump counts
+359/360/361, decision counts 7/8, no direction/right held and two RNG seeds
+exercise jump and no-jump branches. `--golden-jump-native-compare ROM CSV`
+matches every returned cursor, RNG, decision counter, horizontal/vertical
+velocity, acceleration and instruction timer. Nonzero initial sentinels prove
+that rejected jumps do not overwrite motion or timer state.
+
+Recapture with DiagnosticGoldenJumpDecisions through the same headless setup.
+The native probe runs actual decision and jump-initialization instructions, not
+a handwritten reference equation. No gameplay changes were necessary. This
+verifies jump selection/initialization; airborne trajectories, landings and the
+frequency of decision calls during a complete encounter remain separate work.

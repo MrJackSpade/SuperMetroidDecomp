@@ -1462,6 +1462,9 @@ if (args.Length == 3 && args[0] == "--golden-health-native-compare")
 if (args.Length == 3 && args[0] == "--golden-distance-native-compare")
     return GoldenTorizoAudit.CompareNativeDistanceDecisions(args[1], args[2]);
 
+if (args.Length == 3 && args[0] == "--golden-jump-native-compare")
+    return GoldenTorizoAudit.CompareNativeJumpDecisions(args[1], args[2]);
+
 if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
 {
     string goldenTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

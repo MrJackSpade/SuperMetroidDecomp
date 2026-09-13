@@ -26,6 +26,7 @@ internal static partial class GoldenTorizoAudit
         CartridgeRoomHeader room = CartridgeRoomHeader.Load(bus, RoomPointer);
         CartridgeRoomAssets assets = CartridgeRoomAssets.Load(bus, room);
         VerifyRetailStructures(bus, room);
+        VerifyCaughtSuperCounterattack(bus, room, assets);
         VerifyEncounter(bus, room, assets);
         VerifyNaturalProjectileInteractions(bus, room, assets);
         VerifyNormalBombReaction(bus, room, assets);

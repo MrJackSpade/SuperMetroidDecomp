@@ -1394,6 +1394,14 @@ public sealed partial class RoomEnemySystem
                         break;
                     }
 
+                    // A caught Super bypasses family selection, but still reaches the
+                    // native stun write before common damage. Animation lock and the
+                    // transitional hitbox callback bypass that write instead.
+                    if (hitboxShotAi == BombTorizoShotAi && isGoldenTorizo &&
+                        torizoState.ShotGuard == 0 &&
+                        (enemy.Parameter2 & TorizoBehaviorBits.CaughtSuperMissile) != 0)
+                        enemy.Parameter2 |= TorizoBehaviorBits.Counterattack;
+
                     if (hitboxShotAi == BombTorizoShotAi &&
                         isGoldenTorizo && torizoState.ShotGuard == 0 &&
                         (enemy.Parameter2 & 0x1000) == 0)

@@ -198,6 +198,20 @@ fix does not complete the alignment or shinespark portions of #442.
 
 ### Native launch/crash comparison and solid-enemy stop fix
 
+Follow-up: the native spark probe now executes `$91:D6F7` after pose transitions,
+matching beta's palette stage. That stage expires the one-frame shine timer at
+crash finish; omitting it falsely allowed a second native spark at frame79.
+With the harness corrected, the only remaining differences were frame77 timer
+and radius. Production crash finish had committed standing before AnimateSamus
+and published its radius early. It now queues completion through its movement
+result, commits standing at the post-animation transition seam, and uses the
+prospective radius only to align the bottom/checkpoint. Next alpha publishes the
+live standing radius. All 80 recorded frames now match the corrected native trace.
+The exporter asserts the exact standing timer10/live radius19 at frame77, and
+direct state fixtures explicitly execute the post-animation pose commit while
+retaining their feet and camera-checkpoint assertions. Complete passage remains
+unproven; this comparison covers launch and crash handoff, not the escape route.
+
 `--zebetite-spark-export ROM PRIVATE_DIRECTORY` exports the first 80 frames of
 the escape-frame-90 setup, with and without actors other than the first Zebetite.
 Those managed traces match. Native probe offset `-3` loads the isolated movement
@@ -212,10 +226,10 @@ calls the terrain mover when clear. Focused solid/frozen tests assert exact Y,
 zero accepted movement, crash initiation, and unobstructed upward movement.
 The full core suite passes. Frames 0..76 now match every recorded field.
 
-Four differences remain in this provisional probe: frame77 animation timer and
-live Y radius, then frame79 Y and pose. Do not hide them or call the full interval
-matched. Audit the native probe's palette/shine-timer stages as well as the port's
-crash-finish ordering before treating all later differences as production defects.
+At that intermediate stage, four differences remained in the provisional probe:
+frame77 animation timer and live Y radius, then frame79 Y and pose. The follow-up
+above separates the missing harness palette stage from the production crash-finish
+ordering defect and resolves those differences without hiding them.
 Temporary native hooks were removed and the ordinary executable rebuilt.
 
 `--zebetite-spark-audit ROM` separately explores the Speed Booster technique.

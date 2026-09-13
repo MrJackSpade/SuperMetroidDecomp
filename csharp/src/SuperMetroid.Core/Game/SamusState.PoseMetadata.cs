@@ -17,12 +17,14 @@ public sealed partial class SamusState
     public void RefreshCollisionRadii(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        int poseDefinition = AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            Pose * SamusMovementRomData.Poses.DefinitionByteCount);
         Kinematics.XRadius = 5;
-        Kinematics.YRadius = bus.ReadByte(AddWithinBank(poseDefinition, 6));
+        Kinematics.YRadius = ReadPoseYRadius(bus, Pose);
     }
+
+    /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
+    public static ushort ReadPoseYRadius(ISnesAddressSpace bus, byte pose) =>
+        bus.ReadByte(AddWithinBank(SamusMovementRomData.Poses.Definitions,
+            pose * SamusMovementRomData.Poses.DefinitionByteCount + 6));
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
     public byte ReadPoseXDirection(ISnesAddressSpace bus)

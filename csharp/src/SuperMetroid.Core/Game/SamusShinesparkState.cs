@@ -569,20 +569,25 @@ public sealed class SamusShinesparkState
         ShineTimer = 1;
         VerticalAccelerationSpeed = 0;
         VerticalAccelerationSubspeed = 0;
+        Phase = ShinesparkPhase.Inactive;
+        return new ShinesparkMovementResult(
+            phaseAtStart, null, null, false, false, false, false,
+            CrashSequenceFinished: true);
+    }
+
+    /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
+    public static void ApplyCrashFinishPose(ISnesAddressSpace bus, SamusState samus)
+    {
         byte standingPose = samus.IsFacingLeft(bus)
             ? SamusPoseIds.FacingLeftNormalPose
             : SamusPoseIds.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.YRadius;
         samus.Pose = standingPose;
-        samus.RefreshCollisionRadii(bus);
         // The native transitional-pose handler restores normal movement and
-        // aligns the standing body's bottom with the old crash body.
-        samus.AlignBottomAfterPoseChange(previousRadius);
+        // aligns the standing body's bottom with the old crash body. Alpha alone
+        // publishes the new live radius on the following frame.
+        samus.AlignBottomAfterPoseChange(previousRadius, SamusState.ReadPoseYRadius(bus, standingPose));
         samus.InitializeAnimation(bus, initialFrame: 0);
-        Phase = ShinesparkPhase.Inactive;
-        return new ShinesparkMovementResult(
-            phaseAtStart, null, null, false, false, false, false,
-            CrashSequenceFinished: true);
     }
 
     /// <summary>

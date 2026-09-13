@@ -69,6 +69,9 @@ internal static class ZebetiteSparkAudit
                 frame < escapeFrame ? (ushort)(SnesButton.Down | (frame % 2 == 0 ? SnesButton.A : 0)) :
                 (ushort)SnesButton.Left;
             runtime.StepFrame(input);
+            if (prefix is not null && frame == 77 &&
+                (samus.Pose != SamusPoseIds.FacingLeftNormalPose || samus.AnimationFrameTimer != 10 || samus.Kinematics.YRadius != 19))
+                throw new InvalidDataException("Spark finish must preserve native post-animation standing timer and old live radius.");
             trace?.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{samus.InvincibilityTimer},{runtime.Enemies.Slots[2].Health}");
             Console.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.Shinespark.Phase},{samus.Health},{samus.InvincibilityTimer},{runtime.Enemies.Slots[2].Health}");
         }

@@ -10,9 +10,9 @@ public sealed partial class SamusState
     /// preserve the feet and shift the previous whole-Y checkpoint by the same delta.
     /// Neither fractional word changes.
     /// </summary>
-    internal void AlignBottomAfterPoseChange(ushort previousRadius)
+    internal void AlignBottomAfterPoseChange(ushort previousRadius, ushort targetRadius)
     {
-        int delta = previousRadius - Kinematics.YRadius;
+        int delta = previousRadius - targetRadius;
         YPosition = unchecked((ushort)(YPosition + delta));
         _poseAlignmentPreviousYDelta += delta;
     }

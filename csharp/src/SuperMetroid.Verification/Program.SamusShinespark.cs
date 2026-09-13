@@ -352,6 +352,10 @@ static void VerifySamusStoredShineAndShinespark()
     ShinesparkMovementResult finished = horizontal.Shinespark.Step(
         bus, empty, horizontal, nmiFrameCounter: 76);
     AssertTrue(finished.CrashSequenceFinished, "finish handler publishes completion");
+    AssertEqual(SamusPoseIds.ShinesparkHorizontalRightPose, horizontal.Pose,
+        "crash finish retains old pose until the post-animation transition");
+    SamusShinesparkState.ApplyCrashFinishPose(bus, horizontal);
+    AssertEqual(19, horizontal.Kinematics.YRadius, "crash standing commit retains old live radius until alpha");
     AssertEqual(ShinesparkPhase.Inactive, horizontal.Shinespark.Phase,
         "finish restores ordinary movement handler");
     AssertEqual(SamusPoseIds.FacingRightNormalPose, horizontal.Pose,

@@ -2792,6 +2792,18 @@ public sealed partial class SuperMetroidRuntime
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 
+                // Crash movement queues a transitional pose; it must not replace the
+                // body seen by AnimateSamus earlier in this frame. Command-three
+                // animation transitions retain their higher cartridge priority.
+                if (!animationTransitionApplied && LastShinesparkMovement is { CrashSequenceFinished: true })
+                {
+                    SamusShinesparkState.ApplyCrashFinishPose(_addressSpace, Samus);
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // Expiry still permits this frame's movement and animation. Its
                 // transitional slot wins over the ordinary input selected in alpha,
                 // even when a damage boost has already restored normal movement.

@@ -61,7 +61,12 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
     RunAsmCode(0xa09785,0,0,0,0); RunAsmCode(0xa08fd4,0,0,0,0);
     samus_contact_damage_index = 0; RunAsmCode(0x900000|samus_movement_handler,0,0,0,0);
     uint32 stages[] = {0x908000,0x90dde9,0x91e8b6,0x91eb88,0x90eab3,0x90e9ce,0x9094ec,0xa09169,0xa08687};
-    for (int i=0;i<9;i++) RunAsmCode(stages[i],0,0,0,0);
+    for (int i=0;i<9;i++) {
+      RunAsmCode(stages[i],0,0,0,0);
+      // Palette handling also expires the stored/spark timer. Omitting it lets
+      // the post-crash jump incorrectly start another native shinespark.
+      if (spark && stages[i] == 0x91eb88) RunAsmCode(0x91d6f7,0,0,0,0);
+    }
     if (spark) fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
       ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,samus_invincibility_timer,gEnemyData(128)->health);
     else fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,

@@ -3,8 +3,8 @@ internal static class ZebetiteSkipComparison
 {
     public static int Run(string managedPath, string nativePath, int frameCount = 40)
     {
-        if (frameCount is not (40 or 100 or 240))
-            throw new ArgumentOutOfRangeException(nameof(frameCount), "Supported #442 intervals are 40, 100, or 240 frames.");
+        if (frameCount is not (40 or 80 or 100 or 240))
+            throw new ArgumentOutOfRangeException(nameof(frameCount), "Supported #442 intervals are 40, 80 (spark), 100, or 240 frames.");
         string[] managed = File.ReadAllLines(managedPath), native = File.ReadAllLines(nativePath);
         if (managed.Length != frameCount + 1 || native.Length != frameCount + 1 || managed[0] != native[0])
             throw new InvalidDataException($"Expected matching #442 CSV headers and {frameCount} complete frames.");
@@ -14,7 +14,7 @@ internal static class ZebetiteSkipComparison
         {
             string[] actual = managed[row].Split(','), expected = native[row].Split(',');
             if (actual.Length != fields.Length || expected.Length != fields.Length ||
-                int.Parse(actual[0]) != 119 + row || int.Parse(expected[0]) != 119 + row)
+                int.Parse(actual[0]) != (frameCount == 80 ? -1 : 119) + row || int.Parse(expected[0]) != (frameCount == 80 ? -1 : 119) + row)
                 throw new InvalidDataException($"Malformed or noncontiguous #442 trace row {row}.");
             for (int field = 0; field < fields.Length; field++)
                 if (uint.Parse(actual[field]) != uint.Parse(expected[field]))

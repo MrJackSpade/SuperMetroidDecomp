@@ -773,6 +773,16 @@ public sealed class SamusShinesparkState
                 (15u << 16) | (ushort)collisionMagnitude));
             upwardDisplacement = unchecked(-collisionMagnitude);
         }
+        // Shinespark's native solid-enemy branch sets collision and returns without
+        // adding the clipped distance to Y. The ordinary upward mover instead advances
+        // to the enemy boundary; using it here shifts the entire crash/recovery anchor.
+        SolidEnemyCollisionResult enemy = SamusSolidEnemyCollision.Probe(
+            samus.Kinematics, samus.Kinematics.InteractiveEnemies, SamusCollisionDirection.Up,
+            unchecked((ushort)(collisionMagnitude >> 16)), unchecked((ushort)collisionMagnitude));
+        samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Up, enemy.EnemyIndex);
+        if (enemy.Collided)
+            return new BlockMoveResult(0, true, null, false, null, null, EnemyCollision: enemy);
+
         return SamusBlockCollision.MoveVertical(
             bus,
             level,
@@ -780,6 +790,7 @@ public sealed class SamusShinesparkState
             upwardDisplacement,
             scanLeftToRight: (nmiFrameCounter & 1) == 0,
             canBreakBombBlocks: true,
+            includeSolidEnemies: false,
             plms: plms);
     }
 

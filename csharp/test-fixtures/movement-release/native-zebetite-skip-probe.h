@@ -5,12 +5,14 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   // one frame left, then twenty-four Jump frames separated by one release.
   // -2 retains that input sequence through frame 359 for recovery comparison.
   bool approach = offset == -1 || offset == -2;
-  if (!approach && offset != 0 && offset != 8 && offset != 20) return 4;
+  bool spark = offset == -3;
+  if (!approach && !spark && offset != 0 && offset != 8 && offset != 20) return 4;
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(movement, &size);
   if (!seed || size != 3200) { free(seed); return 5; }
   uint32 *w = (uint32 *)seed;
-  if (w[0] != 0x31564f4d || w[1] != 0xdd58 || w[2] != 64 || w[3] != 16 || (w[6] != 4 && w[6] != 0x28) || w[16] != 2) { free(seed); return 6; }
+  if (w[0] != 0x31564f4d || w[1] != 0xdd58 || w[2] != 64 || w[3] != 16 ||
+      (spark ? (w[6] != 2 || w[16] != 0) : ((w[6] != 4 && w[6] != 0x28) || w[16] != 2))) { free(seed); return 6; }
   cpu_reset(g_snes->cpu); memset(g_ram, 0, sizeof(g_ram));
   g_snes->cpu->e = false; g_snes->cpu->sp = 0x1ff0; g_snes->cpu->dp = 0;
   room_ptr = w[1]; room_width_in_blocks = w[2]; room_height_in_blocks = w[3]; room_size_in_blocks = w[2] * w[3] * 2;
@@ -38,27 +40,31 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   samus_health = samus_max_health = a[6]; samus_invincibility_timer = a[7];
   layer1_x_pos = ideal_layer1_xpos = a[8]; layer1_y_pos = ideal_layer1_ypos = a[9];
   memcpy(gEnemyData(128), supplement + 24, 64); memcpy(gEnemyData(192), supplement + 88, 64); free(supplement);
-  if (gEnemyData(128)->enemy_ptr != 0xe27f || gEnemyData(192)->enemy_ptr != 0xd23f || !gEnemyData(192)->frozen_timer) return 8;
+  if (gEnemyData(128)->enemy_ptr != 0xe27f ||
+      (spark ? gEnemyData(192)->enemy_ptr != 0 : (gEnemyData(192)->enemy_ptr != 0xd23f || !gEnemyData(192)->frozen_timer))) return 8;
+  if (spark) { samus_shine_timer = 180; timer_for_shine_timer = 1; special_samus_palette_frame = 0; }
   samus_prev_x_pos = samus_x_pos; samus_prev_y_pos = samus_y_pos;
   samus_x_speed_table_pointer = 0x9f55; samus_input_handler = 0xe913; samus_movement_handler = 0xa337; grapple_beam_function = 0xc4f0;
   button_config_run_b = 0x8000; button_config_jump_a = 0x80; button_config_shoot_x = 0x40;
   button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20; button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
   first_free_enemy_index = 256; enemy_index_to_shake = 0xffff;
   FILE *f = fopen(output, "w"); if (!f) return 9;
-  fprintf(f,"frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = 0x840;
-  for (int frame = 120; frame < (offset == -2 ? 360 : approach ? 220 : 160); frame++) {
-    uint16 input = approach
+  fprintf(f, spark ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,zebHealth\n" : "frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = spark ? 0 : 0x840;
+  for (int frame = spark ? 0 : 120; frame < (spark ? 80 : offset == -2 ? 360 : approach ? 220 : 160); frame++) {
+    uint16 input = spark ? (frame < 60 ? 0x90 : 0x400 | (frame % 2 == 0 ? 0x80 : 0)) : approach
       ? (frame < 140 ? 0x100 : frame == 140 ? 0x200 : 0x200 | ((frame-141)%25 < 24 ? 0x80 : 0))
       : (frame < 120 + offset ? 0x100 : 0x200 | ((frame - 120 - offset)%36 < 24 ? 0x80 : 0));
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-    nmi_frame_counter_word = first_nmi + frame - 119; nmi_frame_counter_byte = (uint8)nmi_frame_counter_word;
+    nmi_frame_counter_word = first_nmi + frame + (spark ? 1 : -119); nmi_frame_counter_byte = (uint8)nmi_frame_counter_word;
     memset(enemy_drawing_queue_sizes,0,16);
     RunAsmCode(0x808111,0,0,0,0); RunAsmCode(0xa08eb6,0,0,0,0); RunAsmCode(0x90e695,0,0,0,0);
     RunAsmCode(0xa09785,0,0,0,0); RunAsmCode(0xa08fd4,0,0,0,0);
     samus_contact_damage_index = 0; RunAsmCode(0x900000|samus_movement_handler,0,0,0,0);
     uint32 stages[] = {0x908000,0x90dde9,0x91e8b6,0x91eb88,0x90eab3,0x90e9ce,0x9094ec,0xa09169,0xa08687};
     for (int i=0;i<9;i++) RunAsmCode(stages[i],0,0,0,0);
-    fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
+    if (spark) fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
+      ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,samus_invincibility_timer,gEnemyData(128)->health);
+    else fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
       ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,gEnemyData(192)->frozen_timer);
   }
   fclose(f); return 0;

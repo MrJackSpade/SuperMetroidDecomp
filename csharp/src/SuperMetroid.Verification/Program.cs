@@ -824,6 +824,7 @@ VerifyBabyMetroidCutsceneEntrance();
 VerifySamusSolidEnemyCollision();
 VerifySamusAerialMovement();
 VerifyZeroDistanceJumpContact();
+VerifyShinesparkEnemyStop();
 VerifyRetailFallingSpeedRecurrence();
 VerifyCrampedAerialLandingPoseCollision();
 VerifySamusSpaceJumpAndScrewAttack();

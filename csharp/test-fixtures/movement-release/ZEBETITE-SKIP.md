@@ -196,6 +196,28 @@ fix does not complete the alignment or shinespark portions of #442.
 
 ## Room-local shinespark exploration
 
+### Native launch/crash comparison and solid-enemy stop fix
+
+`--zebetite-spark-export ROM PRIVATE_DIRECTORY` exports the first 80 frames of
+the escape-frame-90 setup, with and without actors other than the first Zebetite.
+Those managed traces match. Native probe offset `-3` loads the isolated movement
+and actor seeds, supplies the same stored-shine words, and executes original CPU
+routines. Compare using `--zebetite-skip-compare MANAGED NATIVE 80` (frames 0..79).
+
+The first mismatch was frame 6: managed Y=10151935 versus native Y=10414079.
+Native `$90:D1FF` returns on solid-enemy contact without adding the clipped
+distance; the shared ordinary vertical mover advanced four pixels to the enemy
+boundary. The shinespark path now performs that enemy probe explicitly and only
+calls the terrain mover when clear. Focused solid/frozen tests assert exact Y,
+zero accepted movement, crash initiation, and unobstructed upward movement.
+The full core suite passes. Frames 0..76 now match every recorded field.
+
+Four differences remain in this provisional probe: frame77 animation timer and
+live Y radius, then frame79 Y and pose. Do not hide them or call the full interval
+matched. Audit the native probe's palette/shine-timer stages as well as the port's
+crash-finish ordering before treating all later differences as production defects.
+Temporary native hooks were removed and the ordinary executable rebuilt.
+
 `--zebetite-spark-audit ROM` separately explores the Speed Booster technique.
 It constructs a stored shine at X=837.0000/Y=195.FFFF facing left in the intact
 room, using the production store initializer rather than earning the charge in

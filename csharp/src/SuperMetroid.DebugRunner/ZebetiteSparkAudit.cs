@@ -13,7 +13,18 @@ internal static class ZebetiteSparkAudit
         return 0;
     }
 
-    private static void RunCase(string romPath, int escapeFrame)
+    public static int Export(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        RunCase(romPath, 90, Path.Combine(directory, "full"), false, 80);
+        RunCase(romPath, 90, Path.Combine(directory, "isolated"), true, 80);
+        if (!File.ReadAllBytes(Path.Combine(directory, "full.csv")).SequenceEqual(File.ReadAllBytes(Path.Combine(directory, "isolated.csv"))))
+            throw new InvalidDataException("Omitting other actors changes the spark comparison interval.");
+        Console.WriteLine("Spark actor omission matches for 80 frames; native comparison remains outstanding.");
+        return 0;
+    }
+
+    private static void RunCase(string romPath, int escapeFrame, string? prefix = null, bool isolate = false, int frameCount = 180)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -38,14 +49,27 @@ internal static class ZebetiteSparkAudit
         // No invincibility cheat or fabricated collision bypass is enabled.
         if (!samus.Shinespark.TryStoreFromSpeedBooster(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter))
             throw new InvalidDataException("Constructed stored-shine setup rejected.");
+        if (isolate)
+        {
+            foreach (var slot in runtime.Enemies.Slots.Where(slot => slot.NativeIndex != 128)) slot.Clear();
+            foreach (var projectile in runtime.Enemies.EnemyProjectiles) projectile.Clear();
+        }
+        if (prefix is not null)
+        {
+            RoomMovementSeedExporter.Write(runtime, prefix + ".movement-seed");
+            ZebetiteSkipSeed.Write(runtime, prefix + ".actors");
+        }
+        using var trace = prefix is null ? null : new StreamWriter(prefix + ".csv");
+        trace?.WriteLine("frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,zebHealth");
         Console.WriteLine($"CASE escapeFrame={escapeFrame}");
         Console.WriteLine("frame,input,x,y,pose,phase,health,inv,zebHealth");
-        for (int frame = 0; frame < 180; frame++)
+        for (int frame = 0; frame < frameCount; frame++)
         {
             ushort input = frame < 60 ? (ushort)(SnesButton.A | SnesButton.R) :
                 frame < escapeFrame ? (ushort)(SnesButton.Down | (frame % 2 == 0 ? SnesButton.A : 0)) :
                 (ushort)SnesButton.Left;
             runtime.StepFrame(input);
+            trace?.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{samus.InvincibilityTimer},{runtime.Enemies.Slots[2].Health}");
             Console.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.Shinespark.Phase},{samus.Health},{samus.InvincibilityTimer},{runtime.Enemies.Slots[2].Health}");
         }
         Console.WriteLine("Exploration only: no successful or native passage claim.");

@@ -42,7 +42,8 @@ internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
             return;
         if (!selectionPublished && runtime.Hud.SelectionSoundRequestedThisFrame)
         {
-            audio.QueueSound(SoundEffectLibrary1Sounds.HudWeaponSelect, 6);
+            audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.HudWeaponSelect, 6,
+                soundSuppressed: runtime.Hud.SelectionSoundSuppressedThisFrame);
             selectionPublished = true;
         }
         var liquid = samus.LiquidPhysics.SoundRequests;

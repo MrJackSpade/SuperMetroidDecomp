@@ -35,6 +35,26 @@ internal static class PowerBombSoundSuppressionAudit
             if (played == exploding)
                 throw new InvalidDataException("Frontend item selection violated the native active-Power-Bomb sound suppression guard.");
         }
+        foreach (bool suppressedAtRequest in new[] { false, true })
+        foreach (bool explodingAtPublication in new[] { false, true })
+        {
+            var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+            var runtime = FlatFloorMovementFixture.Create(bus, false);
+            runtime.Samus!.MaxMissiles = runtime.Samus.Missiles = 5;
+            runtime.Samus.SelectedHudItem = 1;
+            runtime.Hud.UpdateGameplayCounters(bus, runtime.Samus,
+                soundSuppressed: suppressedAtRequest);
+            if (explodingAtPublication)
+            {
+                runtime.BombProjectiles.PowerBombExplosion.Arm();
+                runtime.BombProjectiles.PowerBombExplosion.Spawn(runtime.Samus.XPosition, runtime.Samus.YPosition);
+            }
+            var audio = new CartridgeAudioState();
+            new GameplayAudioFramePublication(audio).PublishPrefix(runtime);
+            if (audio.HasQueuedSounds == suppressedAtRequest)
+                throw new InvalidDataException("Deferred HUD publication used final explosion status instead of producer-time suppression.");
+            Console.WriteLine($"HUD request suppressed={suppressedAtRequest}, publication explosion={explodingAtPublication}: queue admission correct");
+        }
         return 0;
     }
 }

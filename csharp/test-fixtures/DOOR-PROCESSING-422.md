@@ -78,7 +78,7 @@ simultaneous-library arbitration is certified by these cases.
 
 ## Reproduced active Power Bomb publication gap
 
-`--power-bomb-sound-suppression-audit ROM` currently fails intentionally.
+`--power-bomb-sound-suppression-audit ROM` originally failed before the HUD fix.
 It uses the real frontend Select input with five missiles and no selected item.
 The baseline selects missiles and emits library1/$39. A paired fixture arms and
 spawns the production Power Bomb owner before the same input; its status is
@@ -93,4 +93,13 @@ sound before setting the active bit, and earlier producers may also precede
 that change. The correction needs producer-time suppression semantics, retaining
 the Power Bomb cue and legitimately earlier sounds. Other suppressed producers
 and start/cleanup boundaries require coverage. No production fix accompanies
-this failing diagnostic yet.
+the original failing diagnostic.
+
+The HUD producer now captures suppression at its update and the frontend passes
+that captured value to the existing native queue guard. The paired real Select
+fixture now emits $39 only without an active explosion; both still select missiles.
+Four additional producer/publication combinations verify that deferred publication
+does not retroactively change admission when explosion state changes. This is a
+scoped correction for item selection, not certification of all sound producers:
+the Power Bomb startup cue, earlier producers, and cleanup ordering still need
+their own coverage before the broader suppression work is complete.

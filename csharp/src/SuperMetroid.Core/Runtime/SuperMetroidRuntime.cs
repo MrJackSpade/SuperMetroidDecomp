@@ -3973,7 +3973,8 @@ public sealed partial class SuperMetroidRuntime
             // Initialization alone is insufficient: Ridley contact and fireballs mutate
             // Samus during this frame, and those values must enter the next accepted NMI.
             if (Samus is not null)
-                Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen);
+                Hud.UpdateGameplayCounters(_addressSpace, Samus, TimeIsFrozen,
+                    soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             Hud.QueueUpload(_addressSpace, VramWrites);
         }
 

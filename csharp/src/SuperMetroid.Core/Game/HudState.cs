@@ -48,6 +48,13 @@ public sealed class HudState
     /// </summary>
     public bool SelectionSoundRequestedThisFrame { get; private set; }
 
+    /// <summary>
+    /// Native queue suppression captured when the HUD requests its sound, rather than
+    /// when the frontend eventually publishes it. Later explosion state changes must
+    /// not retroactively admit or reject an earlier request.
+    /// </summary>
+    public bool SelectionSoundSuppressedThisFrame { get; private set; }
+
     /// <summary>Absolute 0-63 area-map X tile selected by the latest minimap update.</summary>
     public byte MinimapCenterX { get; private set; }
 
@@ -105,7 +112,8 @@ public sealed class HudState
     public void UpdateGameplayCounters(
         ISnesAddressSpace bus,
         SamusState samus,
-        bool timeIsFrozen = false)
+        bool timeIsFrozen = false,
+        bool soundSuppressed = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -113,6 +121,8 @@ public sealed class HudState
             throw new InvalidOperationException("Initialize the HUD before updating gameplay counters.");
 
         SelectionSoundRequestedThisFrame = false;
+
+        SelectionSoundSuppressedThisFrame = soundSuppressed;
 
         // Permanent pickups can introduce an inventory family after HUD initialization.
         // The cartridge's item routines patch those blank icon cells immediately; replay

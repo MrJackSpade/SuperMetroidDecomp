@@ -1,5 +1,31 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
+int DiagnosticGoldenFlight(const char *rom, const char *output) {
+  int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
+  FILE *f=fopen(output,"wx"); if(!f) return 4;
+  const uint16 seeds[]={0,31,256,4660};
+  fprintf(f,"kind,facing,seed,frame,x,y,subX,subY,vx,vy,list,timer\n");
+  for(int kind=0;kind<2;kind++) for(int facing=0;facing<2;facing++) for(int s=0;s<4;s++) {
+    cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
+    g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
+    room_ptr=0xb283;
+    ProbeRunBounded(0x82de6f); ProbeRunBounded(0x82def2); ProbeRunBounded(0x82ea73);
+    Enemy_Torizo *enemy=Get_Torizo(0);
+    enemy->base.x_pos=256; enemy->base.y_pos=384;
+    enemy->toriz_parameter_1=facing?0x8000:0; random_number=seeds[s];
+    eproj_radius[0]=0x0404; eproj_instr_timers[0]=1;
+    ProbeRunBoundedRegisters(kind?0x86b328:0x86ac7c,0,0,0);
+    uint16 initial=eproj_instr_list_ptr[0];
+    for(int frame=0;frame<120;frame++) {
+      ProbeRunBoundedRegisters(kind?0x86b38a:0x86acfa,0,0,0);
+      fprintf(f,"%d,%u,%u,%d,%u,%u,%u,%u,%u,%u,%u,%u\n",kind,enemy->toriz_parameter_1,seeds[s],frame,
+        eproj_x_pos[0],eproj_y_pos[0],eproj_x_subpos[0],eproj_y_subpos[0],
+        eproj_x_vel[0],eproj_y_vel[0],eproj_instr_list_ptr[0],eproj_instr_timers[0]);
+      if(eproj_instr_list_ptr[0]!=initial) break;
+    }
+  }
+  fclose(f); return 0;
+}
 int DiagnosticGoldenAmmoDecisions(const char *rom, const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;

@@ -229,3 +229,19 @@ Command: `--golden-ammo-native-compare ROM CSV`. Recapture through
 The operand cursor is $D000, initial link $1234 and RNG $5678. Temporary native
 hooks were removed after capture. This matrix covers the conditional selector,
 not every subsequent animation or projectile trajectory.
+
+## Original-CPU orb/eye-beam movement through terrain
+
+`movement-release/golden-flight-617.csv` contains 1,048 steps across 16
+trajectories: orb/eye beam, both facings, and four RNG seeds. Both implementations
+use Golden Torizo's retail room geometry, initial position (256,384), and controlled
+4-pixel projectile radii. Each calls the initializer, then only its movement
+pre-instruction until the instruction-list handoff or 120 steps. Animation and
+Samus contact are deliberately excluded to isolate movement and terrain reactions.
+
+`--golden-flight-native-compare ROM CSV` matches every position, subposition,
+velocity, instruction pointer and instruction timer. Wall/floor reactions and
+orb bounce damping therefore agree for these trajectories; no production change
+was necessary. This is not full lifecycle/contact timing evidence. Recapture with
+`DiagnosticGoldenFlight` using the same original-CPU hook pattern; temporary
+hooks were removed and the ordinary native executable rebuilt after capture.

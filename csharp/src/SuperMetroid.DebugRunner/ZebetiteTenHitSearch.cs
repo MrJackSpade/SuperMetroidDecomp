@@ -50,6 +50,16 @@ internal static class ZebetiteTenHitSearch
 
     public static int Verify(string romPath, string planPath, string outputPrefix)
     {
+        var cycles = ReadPlan(planPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outputPrefix))!);
+        if (!Replay(romPath, cycles, 10, outputPrefix))
+            throw new InvalidDataException("Ten-hit controller candidate failed its continuous health/ammo/progression checks.");
+        Console.WriteLine("Ten-hit managed candidate verified; compare the exported recording with the original CPU.");
+        return 0;
+    }
+
+    internal static ZebetiteControllerCycle[] ReadPlan(string planPath)
+    {
         var cycles = System.Text.Json.JsonSerializer.Deserialize<ZebetiteControllerCycle[]>(File.ReadAllText(planPath),
             new System.Text.Json.JsonSerializerOptions { UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow })
             ?? throw new InvalidDataException("Missing controller cycle plan.");
@@ -57,11 +67,7 @@ internal static class ZebetiteTenHitSearch
             cycle.ReturnStart < cycle.JumpBase - 200 || cycle.ReturnStart > cycle.JumpBase - 100 ||
             cycle.ReturnLeftFrames is < 1 or > 30 || cycle.JumpDelay is < 0 or > 20 || cycle.LeftFrames is < 1 or > 10).Any())
             throw new InvalidDataException("Invalid ten-hit controller plan.");
-        Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outputPrefix))!);
-        if (!Replay(romPath, cycles, 10, outputPrefix))
-            throw new InvalidDataException("Ten-hit controller candidate failed its continuous health/ammo/progression checks.");
-        Console.WriteLine("Ten-hit managed candidate verified; original-CPU and double-kill checks remain required.");
-        return 0;
+        return cycles;
     }
 
     private static bool Replay(string romPath, IReadOnlyList<ZebetiteControllerCycle> cycles, int targetHits, string? outputPrefix = null)

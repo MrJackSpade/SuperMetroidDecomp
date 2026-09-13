@@ -1,6 +1,7 @@
 # Zebetite player candidate: original CPU consumer (#443)
 
-This is a passing narrow parity diagnostic, not a completed ten-missile technique test.
+This records the ten-missile and double-kill controller comparisons for #443.
+Earlier sections preserve the narrower tests and the failures that expanded them.
 The native consumer executes the pinned cartridge through `RunAsmCode`; it does
 not use translated C behavior as its oracle. It depends on the ROM-loading helper
 in `native-release-probe.h` and the existing private MOV1 export.
@@ -295,3 +296,52 @@ This establishes the ten-hit controller candidate against original CPU logic,
 including the previously omitted turret damage. It does not establish the
 final beam/double-kill continuation, other omitted room actors/PLMs, or rendered
 and audio parity. #443 remains open for that remaining technique coverage.
+
+## Double-kill controller continuation
+
+Run `--zebetite-player-double-audit ROM zebetite-ten-controller-plan.json DIRECTORY`.
+The final focused cases use the same ten-hit input prefix, with Morph Ball equipped
+and collected at initialization (no other equipment or gameplay cheats). At frame
+60, native respawn placeholders reserve slots 0/64 instead of freeing the two
+Mother Brain slots. They do not run AI. This preserves the allocation prerequisite:
+the next primary must reuse index 128 so the dying lower half's stored link still
+points to it. Other boss/Rinka AI remains intentionally excluded. Free-prefix
+tests establish ten-hit behavior, but cannot establish this linked-slot exploit.
+
+The eleventh cycle is `(3000, 2860, 16, delay, 7)` in
+`ZebetiteControllerCycle` fields. Hold Shoot on frames 2992..2995 through the
+crouched turn; a one-frame missile-style press does not emit the required beam.
+After the hop, Down on 3120 and 3126 morphs Samus; Left from 3140 moves through
+the room's one-tile openings. The controller/camera must reach the zero-health
+replacement before it can publish its death. The turret pool and RNG stay live.
+No position, camera, health, linked-slot or projectile injection occurs after
+the frame-60 fixture boundary.
+
+Native entry point: `DiagnosticZebetiteDoubleInputs(rom, movementSeed, outputCsv,
+inputRecording, projectileSeed)`. Use each case's own MOV1/EPJ1 sidecars. Compare
+with `-FrameCount 3330` (frames 60..3389). Both cases match every exported field,
+including RNG, physical header identities, resource/health state, flash timers,
+movement/animation, camera, projectile and generation flags: **6,660 frames**.
+
+- Delay 7: the beam reaches the dying half and zeroes the third barrier at frame
+  3014. Its activation advances event bits to 24 at frame 3385, selecting the
+  fourth barrier. Energy ends at 919; exactly ten missiles were consumed.
+- Delay 8: the one-frame-later jump misses the beam exposure window. The third
+  barrier retains 1000 HP and event bits stay 16. Energy also ends at 919.
+
+Both timing properties are asserted in C#, not just the final event. CPU CSV
+SHA-256 values (success then failing control):
+`3441979E2C5B209C174B999C8DF449AA5A301230707A10D7652357872BC8B1D9`
+`3A63642F4C19BDB34877783138EA811827157751BB70B6E03D416D4033BDB052`.
+
+An exploratory longer delay-3 recording also matched until frame 3408, after
+its generation change at 3396, when continued movement entered damaging liquid
+and exposed an omitted room-FX comparison path. That longer recording is not a
+passing baseline. The final cases end after the required generation handoff,
+before unrelated liquid traversal; they make no claim about that FX path.
+
+Together with the on-screen regeneration controls, first-barrier geometry,
+fourth-generation damage matrix and slot/lifetime regressions recorded in #443,
+this covers #443's requested mechanics on the pinned NTSC ROM. PAL timing,
+whole-room boss AI and audiovisual parity are not claimed. Leave the issue open
+with `awaiting-player-validation` until player confirmation.

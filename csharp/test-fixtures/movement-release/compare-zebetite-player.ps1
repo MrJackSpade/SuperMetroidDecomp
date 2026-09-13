@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string] $ManagedTrace,
     [Parameter(Mandatory)][string] $NativeTrace,
-    [ValidateSet(60,360,660,2760)][int] $FrameCount = 60
+    [ValidateSet(60,360,660,2760,3330,3360)][int] $FrameCount = 60
 )
 
 # Compare the deliberately limited observables exported by the CPU consumer.
@@ -29,7 +29,7 @@ for ($i = 0; $i -lt $FrameCount; $i++) {
         $values.upperAi = $m.Barriers[0].AiHandlerBits
         $values.lowerAi = $m.Barriers[1].AiHandlerBits
     }
-    if ($FrameCount -eq 2760) {
+    if ($FrameCount -ge 2760) {
         $values.random = $m.RandomNumber
         $values.upperId = $m.Barriers[0].EnemyDefinitionPointer
         $values.lowerId = $m.Barriers[1].EnemyDefinitionPointer
@@ -45,4 +45,4 @@ for ($i = 0; $i -lt $FrameCount; $i++) {
 }
 if ($mismatches) { throw "$mismatches field mismatches; native parity is NOT established." }
 Write-Output "All $FrameCount frames match for the exported movement, camera, ammunition, projectile, and barrier-health fields."
-if ($FrameCount -eq 2760) { Write-Output 'Random state, both physical barrier identities, and generation event bits also match on every frame.' }
+if ($FrameCount -ge 2760) { Write-Output 'Random state, both physical barrier identities, and generation event bits also match on every frame.' }

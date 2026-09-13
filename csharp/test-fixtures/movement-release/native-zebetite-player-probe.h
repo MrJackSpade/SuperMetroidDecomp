@@ -1,7 +1,7 @@
 // #443: first native consumer for the narrowly specified isolated candidate.
 // Uses MOV1 room/movement seed plus the documented fixed candidate metadata.
 // Live FX/PLM equivalence and full state import remain to be audited.
-static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay, const uint8 *inputs, int frame_count, const char *projectile_seed) {
+static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, const char *output, int second_jump_delay, const uint8 *inputs, int frame_count, const char *projectile_seed, bool reserve_prefix) {
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(seed_path, &size);
   if (!seed || size != 3200) { free(seed); return 4; }
@@ -82,6 +82,9 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
     free(epj); eproj_enable_flag = 0x8000;
   }
   FILE *f = fopen(output, "w"); if (!f) return 6;
+  // Non-processing native placeholder keeps the two retail prefix slots occupied.
+  // Their AI is intentionally omitted, but freeing their slots changes double-kill links.
+  if (reserve_prefix) gEnemyData(0)->enemy_ptr = gEnemyData(64)->enemy_ptr = 0xdaff;
   fprintf(f, "frame,input,x,y,pose,anim,timer,cameraX,cameraY,missiles,shotType,shotX,shotY,upper,lower,health,upperFlash,lowerFlash,upperAi,lowerAi,random,upperId,lowerId,generation\n");
   uint16 previous = 0;
   for (int frame = 60; frame < 60 + frame_count; frame++) {
@@ -130,15 +133,15 @@ static int DiagnosticZebetitePlayerRun(const char *rom, const char *seed_path, c
 }
 
 int DiagnosticZebetitePlayer(const char *rom, const char *seed, const char *output) {
-  return DiagnosticZebetitePlayerRun(rom, seed, output, 0, NULL, 60, NULL);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, 0, NULL, 60, NULL, false);
 }
 
 int DiagnosticZebetitePlayerSecondHit(const char *rom, const char *seed, const char *output, int jump_delay) {
   if (jump_delay != 3 && jump_delay != 4) return 7;
-  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay, NULL, 360, NULL);
+  return DiagnosticZebetitePlayerRun(rom, seed, output, jump_delay, NULL, 360, NULL, false);
 }
 
-int DiagnosticZebetitePlayerInputsWithProjectiles(const char *rom, const char *seed, const char *output, const char *input_path, const char *projectile_seed) {
+static int DiagnosticZebetiteRecordedInputs(const char *rom, const char *seed, const char *output, const char *input_path, const char *projectile_seed, bool reserve_prefix) {
   size_t size = 0;
   uint8 *data = ReadWholeFile(input_path, &size);
   if (!data || size < 12 || memcmp(data, "ZBI1", 4)) { free(data); return 8; }
@@ -146,9 +149,17 @@ int DiagnosticZebetitePlayerInputsWithProjectiles(const char *rom, const char *s
   if (header[1] != 60 || header[2] == 0 || header[2] > 10000 || size != 12 + header[2] * 2) {
     free(data); return 9;
   }
-  int result = DiagnosticZebetitePlayerRun(rom, seed, output, 0, data + 12, header[2], projectile_seed);
+  int result = DiagnosticZebetitePlayerRun(rom, seed, output, 0, data + 12, header[2], projectile_seed, reserve_prefix);
   free(data);
   return result;
+}
+
+int DiagnosticZebetitePlayerInputsWithProjectiles(const char *rom, const char *seed, const char *output, const char *input_path, const char *projectile_seed) {
+  return DiagnosticZebetiteRecordedInputs(rom, seed, output, input_path, projectile_seed, false);
+}
+
+int DiagnosticZebetiteDoubleInputs(const char *rom, const char *seed, const char *output, const char *input_path, const char *projectile_seed) {
+  return DiagnosticZebetiteRecordedInputs(rom, seed, output, input_path, projectile_seed, true);
 }
 
 int DiagnosticZebetitePlayerInputs(const char *rom, const char *seed, const char *output, const char *input_path) {

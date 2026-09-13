@@ -134,8 +134,30 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ScanAlignedNeutralJump(string romPath)
+    {
+        int candidates = 0;
+        foreach (int offset in new[] { 4, 8, 12, 16, 20, 24, 28, 32 })
+        foreach (int lead in new[] { 1, 4, 8, 12 })
+        foreach (int hold in new[] { 4, 8, 16, 24 })
+        {
+            int minimumX = RunCase(romPath, offset, quiet: true, jumpHold: hold,
+                jumpRelease: 1, groundLeftLead: lead, neutralJumpOnAlignment: true);
+            Console.WriteLine($"NEUTRAL offset={offset} lead={lead} hold={hold} minX={minimumX}");
+            if (minimumX < 800)
+            {
+                candidates++;
+                RunCase(romPath, offset, jumpHold: hold, jumpRelease: 1,
+                    groundLeftLead: lead, neutralJumpOnAlignment: true);
+            }
+        }
+        Console.WriteLine($"Neutral-jump candidate crossings={candidates}; native certification remains outstanding.");
+        return 0;
+    }
+
     private static int RunCase(string romPath, int stepBackFrames, string? exportPrefix = null, bool isolate = false, bool repeatStepBack = false,
-        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null, int groundLeftLead = 0, int freezeEnd = 120, int exportEnd = 160)
+        bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null, int groundLeftLead = 0, int freezeEnd = 120, int exportEnd = 160,
+        bool neutralJumpOnAlignment = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -158,6 +180,7 @@ internal static class ZebetiteSkipAudit
         bool frozeSpawn = false;
         int minimumX = samus.XPosition;
         bool reportedCrouchAlignment = false;
+        int? neutralJumpStart = null;
         int jumpStart = freezeEnd + stepBackFrames + groundLeftLead;
         if (!quiet) Console.WriteLine($"CASE stepBackFrames={stepBackFrames} repeatStepBack={repeatStepBack} hold={jumpHold} release={jumpRelease} delay={initialLeftDelay} lead={groundLeftLead} freezeEnd={freezeEnd}");
         using var trace = exportPrefix is null ? null : new StreamWriter(exportPrefix + ".csv");
@@ -201,6 +224,18 @@ internal static class ZebetiteSkipAudit
             }
             if (frame >= jumpStart && frame < jumpStart + initialLeftDelay)
                 input = (ushort)SnesButton.A;
+            // Controller-only recovery: release jump/direction, initiate a neutral
+            // jump, then steer left. Never manufacture alignment or invulnerability.
+            if (neutralJumpOnAlignment && neutralJumpStart is null && frame >= jumpStart &&
+                samus.Pose == SamusPoseIds.CrouchingLeftPose && samus.XPosition == 836 &&
+                samus.YPosition < 160 && samus.InvincibilityTimer != 0)
+            {
+                neutralJumpStart = frame;
+                Console.WriteLine($"NEUTRAL-SETUP frame={frame} xSub={samus.Kinematics.XSubposition:X4} y={samus.YPosition}.{samus.Kinematics.YSubposition:X4} inv={samus.InvincibilityTimer}");
+            }
+            if (neutralJumpStart is { } start)
+                input = frame == start ? (ushort)0 : frame == start + 1 ? (ushort)SnesButton.A :
+                    (ushort)(SnesButton.Left | SnesButton.A);
             runtime.StepFrame(input);
             if (alignedX is { } alignment)
             {

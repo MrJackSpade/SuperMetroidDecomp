@@ -192,3 +192,16 @@ They assert unchanged X/whole Y, the exact fractional-Y write, contact reporting
 and absence of vertical movement. A crouch-to-hurt test asserts delayed radius
 publication. The turn/freeze search still finds no successful earned skip; this
 fix does not complete the alignment or shinespark portions of #442.
+# Controller-earned neutral-jump follow-up
+
+`--zebetite-skip-scan-neutral ROM` explores 128 controller-only combinations
+(eight step-back offsets, four left-turn leads, four jump holds). If Samus reaches
+the crouched X=836 alignment above Y=160 while invulnerable, it releases all input
+for a frame, presses neutral jump, and then steers left. It never changes position,
+pose, or invulnerability to produce that precondition.
+
+On the post-842e0a9f build, all 128 cases completed, with zero crossings and zero
+qualifying neutral-jump activations. Thus this experiment does not test successful
+final-jump parity: the remaining obstacle is controller-earned alignment with
+invulnerability, not a demonstrated failure of the neutral-jump sequence itself.
+The earlier constructed successful alignment remains a separate, weaker claim.

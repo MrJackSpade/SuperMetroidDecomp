@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+if (args is ["--door-sound-combined-compare", var combinedRom, var combinedCsv])
+    return DoorSoundQueueComparison.RunCombined(combinedRom, combinedCsv);
 if (args is ["--recover-recording-state", var recoveryRecording, var recoveryRom, var recoveryAudio, var recoveryDirectory, var recoveryFrame])
     return RecordingRecoveryState.Export(recoveryRecording, recoveryRom, recoveryAudio, recoveryDirectory, int.Parse(recoveryFrame));
 if (args is ["--verify-recovered-state", var recoveredRecording, var recoveredRom, var recoveredAudio, var recoveredDirectory, var recoveredFrame])

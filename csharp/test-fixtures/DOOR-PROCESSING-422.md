@@ -76,6 +76,28 @@ That cleanup was completed after this comparison. No emulated controller
 action, full door coroutine, music downtime, Power Bomb cancellation or
 simultaneous-library arbitration is certified by these cases.
 
+### Simultaneous-library comparison
+
+`DiagnosticCombinedDoorSounds` extends the original-CPU probe to all 64
+combinations of 0..3 requests across the three libraries, ring starts 0/14,
+and acknowledgement lag assignments (0,1,2)/(2,1,0). All 256 cases run 32
+dispatcher frames and publish each library plus the shared unread predicate.
+The resulting 24,576 rows match C# exactly, including sparse writes, current
+sound, ring positions, state, and clear delay. This closes the prior isolated-
+library evidence gap without changing production code.
+
+Committed trace `movement-release/combined-sound-422.csv` contains only constructed
+queue state, no ROM/SRAM or player recording. Verify with DebugRunner
+`--door-sound-combined-compare ROM TRACE`. To regenerate, use the temporary hooks
+described above, dispatch `DiagnosticCombinedDoorSounds`, and include its header
+after `g_apu_write` is declared in sm_rtl.c (the release-probe helper must precede
+it). Pass a new output path: the probe refuses overwrite. Temporary SDL-free
+dispatch/APU hooks were removed and the ordinary executable rebuilt afterward.
+
+These are controlled acknowledgements, not real SPC timing or the complete
+controller-to-door transition matrix. Action alignment, music downtime and
+combined gameplay producers still require their own original-CPU comparisons.
+
 ## Reproduced active Power Bomb publication gap
 
 `--power-bomb-sound-suppression-audit ROM` originally failed before the HUD fix.

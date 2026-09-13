@@ -6,6 +6,53 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Original-CPU sound-ring and handshake comparison for #422.</summary>
 internal static class DoorSoundQueueComparison
 {
+    public static int RunCombined(string rom, string nativeCsv)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        var lines = File.ReadAllLines(nativeCsv);
+        if (lines.Length != 24577 || lines[0] != "counts,start,reverse,frame,library,read,write,state,current,delay,port,queued")
+            throw new InvalidDataException("Unexpected combined original-CPU trace shape.");
+        int row = 1;
+        for (int counts = 0; counts < 64; counts++)
+        foreach (int start in new[] { 0, 14 })
+        for (int reverse = 0; reverse < 2; reverse++)
+        {
+            var audio = new CartridgeAudioState(); audio.AdvanceFrame(bus, default);
+            byte[] Field(string name) => (byte[])typeof(CartridgeAudioState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(audio)!;
+            var read = Field("_soundReadPositions"); var write = Field("_soundWritePositions");
+            var state = Field("_soundStates"); var current = Field("_currentSounds"); var delay = Field("_soundClearDelays");
+            for (int library = 0; library < 3; library++)
+            {
+                read[library] = write[library] = (byte)start;
+                for (int i = 0; i < ((counts >> (library * 2)) & 3); i++)
+                    audio.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibraries.FromCartridge((byte)(library + 1), "combined queue audit"), (byte)(i + 1)), 3);
+            }
+            var history = new byte[3, 32];
+            for (int frame = 0; frame < 32; frame++)
+            {
+                var ack = new byte[4];
+                for (int library = 0; library < 3; library++)
+                {
+                    int lag = reverse != 0 ? 2 - library : library;
+                    ack[library + 1] = frame > lag ? history[library, frame - lag - 1] : (byte)0;
+                }
+                var commands = audio.AdvanceFrame(bus, new(ack[0], ack[1], ack[2], ack[3]));
+                for (int library = 0; library < 3; library++)
+                {
+                    var writes = commands.Where(c => c.Kind == CartridgeAudioCommandKind.WritePort && c.Port == library + 1).ToArray();
+                    if (writes.Length > 1) throw new InvalidDataException("Multiple writes for one library.");
+                    byte port = writes.Length == 0 ? byte.MaxValue : writes[0].Value;
+                    history[library, frame] = port != byte.MaxValue ? port : frame != 0 ? history[library, frame - 1] : (byte)0;
+                    string actual = $"{counts},{start},{reverse},{frame},{library},{read[library]},{write[library]},{state[library]},{current[library]},{delay[library]},{port},{(audio.HasQueuedSounds ? 1 : 0)}";
+                    if (actual != lines[row]) throw new InvalidDataException($"Combined sound mismatch row {row}: managed={actual}; original={lines[row]}");
+                    row++;
+                }
+            }
+        }
+        Console.WriteLine("Original CPU combined queues: all 24576 rows match across 256 cases, independent acknowledgements and ring wrap.");
+        return 0;
+    }
+
     public static int Run(string rom, string nativeCsv)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);

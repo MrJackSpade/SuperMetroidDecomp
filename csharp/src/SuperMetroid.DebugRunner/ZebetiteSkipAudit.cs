@@ -155,9 +155,31 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ScanInvulnerableReapproach(string romPath)
+    {
+        int candidates = 0;
+        foreach (int wait in new[] { 0, 2, 4, 8 })
+        foreach (int back in Enumerable.Range(1, 12))
+        foreach (int hold in new[] { 4, 12, 24 })
+        {
+            int minimumX = RunCase(romPath, 20, quiet: true, jumpHold: hold,
+                jumpRelease: 1, groundLeftLead: 1, neutralJumpOnAlignment: true,
+                recoveryBackFrames: back, recoveryWaitFrames: wait);
+            Console.WriteLine($"RECOVER wait={wait} back={back} hold={hold} minX={minimumX}");
+            if (minimumX < 800)
+            {
+                candidates++;
+                RunCase(romPath, 20, jumpHold: hold, jumpRelease: 1, groundLeftLead: 1,
+                    neutralJumpOnAlignment: true, recoveryBackFrames: back, recoveryWaitFrames: wait);
+            }
+        }
+        Console.WriteLine($"Invulnerable reapproach candidate crossings={candidates}; native certification remains outstanding.");
+        return 0;
+    }
+
     private static int RunCase(string romPath, int stepBackFrames, string? exportPrefix = null, bool isolate = false, bool repeatStepBack = false,
         bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null, int groundLeftLead = 0, int freezeEnd = 120, int exportEnd = 160,
-        bool neutralJumpOnAlignment = false)
+        bool neutralJumpOnAlignment = false, int recoveryBackFrames = 0, int recoveryWaitFrames = 0)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -181,6 +203,7 @@ internal static class ZebetiteSkipAudit
         int minimumX = samus.XPosition;
         bool reportedCrouchAlignment = false;
         int? neutralJumpStart = null;
+        int? recoveryStart = null;
         int jumpStart = freezeEnd + stepBackFrames + groundLeftLead;
         if (!quiet) Console.WriteLine($"CASE stepBackFrames={stepBackFrames} repeatStepBack={repeatStepBack} hold={jumpHold} release={jumpRelease} delay={initialLeftDelay} lead={groundLeftLead} freezeEnd={freezeEnd}");
         using var trace = exportPrefix is null ? null : new StreamWriter(exportPrefix + ".csv");
@@ -224,6 +247,21 @@ internal static class ZebetiteSkipAudit
             }
             if (frame >= jumpStart && frame < jumpStart + initialLeftDelay)
                 input = (ushort)SnesButton.A;
+            // A second short spinjump must be earned while the first hit's immunity
+            // is still active. The ordinary repeated-jump search never steps back here.
+            if (recoveryBackFrames != 0 && recoveryStart is null &&
+                samus.InvincibilityTimer != 0 && !samus.KnockbackActive)
+            {
+                recoveryStart = frame;
+                Console.WriteLine($"RECOVERY-SETUP frame={frame} x={samus.XPosition}.{samus.Kinematics.XSubposition:X4} y={samus.YPosition}.{samus.Kinematics.YSubposition:X4} inv={samus.InvincibilityTimer}");
+            }
+            if (recoveryStart is { } recovery)
+            {
+                int phase = frame - recovery - recoveryWaitFrames;
+                input = phase < 0 ? (ushort)0 : phase < recoveryBackFrames ? (ushort)SnesButton.Right :
+                    phase == recoveryBackFrames ? (ushort)SnesButton.Left :
+                    (ushort)(SnesButton.Left | ((phase - recoveryBackFrames - 1) % (jumpHold + jumpRelease) < jumpHold ? SnesButton.A : 0));
+            }
             // Controller-only recovery: release jump/direction, initiate a neutral
             // jump, then steer left. Never manufacture alignment or invulnerability.
             if (neutralJumpOnAlignment && neutralJumpStart is null && frame >= jumpStart &&

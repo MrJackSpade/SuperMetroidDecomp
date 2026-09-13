@@ -194,6 +194,16 @@ publication. The turn/freeze search still finds no successful earned skip; this
 fix does not complete the alignment or shinespark portions of #442.
 # Controller-earned neutral-jump follow-up
 
+`--zebetite-skip-scan-recovery ROM` additionally tests a fresh step-back and
+spinjump after the first hit's knockback ends: four waits, twelve step-back
+durations, and three jump holds (144 cases). On this build, 96 cases activated
+post-hit recovery while invulnerable; none subsequently activated the neutral
+alignment follow-up or crossed. This is not native certification of recovery.
+The saved approach trace also shows the lower Rinka already at (823,166) before
+becoming tangible, so the frozen whole-pixel position is not evidence that it
+drifted away from its spawn. Extend the native recovery interval next; do not
+infer a production fix from these unsuccessful input searches.
+
 `--zebetite-skip-scan-neutral ROM` explores 128 controller-only combinations
 (eight step-back offsets, four left-turn leads, four jump holds). If Samus reaches
 the crouched X=836 alignment above Y=160 while invulnerable, it releases all input

@@ -1161,6 +1161,8 @@ if (args.Length == 2 && args[0] == "--zebetite-skip-scan-turns")
     return ZebetiteSkipAudit.ScanTurnBeforeJump(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-skip-scan-neutral")
     return ZebetiteSkipAudit.ScanAlignedNeutralJump(args[1]);
+if (args.Length == 2 && args[0] == "--zebetite-skip-scan-recovery")
+    return ZebetiteSkipAudit.ScanInvulnerableReapproach(args[1]);
 if (args.Length == 4 && args[0] == "--zebetite-skip-trace-jump")
     return ZebetiteSkipAudit.TraceJumpTiming(args[1], int.Parse(args[2]), int.Parse(args[3]));
 if (args.Length == 3 && args[0] == "--zebetite-skip-compare")

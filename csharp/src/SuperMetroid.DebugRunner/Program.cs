@@ -1483,6 +1483,9 @@ if (args.Length == 3 && args[0] == "--golden-lifecycle-native-compare")
 if (args.Length == 3 && args[0] == "--golden-eye-release-native-compare")
     return GoldenTorizoAudit.CompareNativeLifecycle(args[1], args[2], releaseEyeBeams: true);
 
+if (args.Length == 3 && args[0] == "--golden-super-lifecycle-native-compare")
+    return GoldenTorizoAudit.CompareNativeLifecycle(args[1], args[2], superMissiles: true);
+
 if (args.Length is >= 2 and <= 4 && args[0] == "--golden-encounter-trace")
     return GoldenTorizoAudit.TraceEncounter(args[1], args.Length >= 3 ? args[2] : null,
         args.Length == 4 ? int.Parse(args[3], System.Globalization.CultureInfo.InvariantCulture) : 3000);

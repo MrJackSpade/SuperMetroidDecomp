@@ -1,12 +1,13 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
 static bool goldenReleaseEyeBeams;
+static bool goldenSuperLifecycle;
 int DiagnosticGoldenLifecycle(const char *rom, const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;
-  const uint16 kinds[]={0xad7a,0xaeb6,0xb1c0,0xb428};
+  const uint16 kinds[]={0xad7a,0xaeb6,0xb1c0,0xb428,0xb31a};
   fprintf(f,"kind,facing,seed,frame,id,x,y,vx,vy,list,timer,map,damageEnabled\n");
-  for(int k=goldenReleaseEyeBeams?3:0;k<4;k++) for(int facing=0;facing<2;facing++) for(int seed=0;seed<2;seed++) {
+  for(int k=goldenSuperLifecycle?4:goldenReleaseEyeBeams?3:0;k<(goldenSuperLifecycle?5:4);k++) for(int facing=0;facing<2;facing++) for(int seed=0;seed<2;seed++) {
     cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
     g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
     room_ptr=0xb283;
@@ -32,6 +33,10 @@ int DiagnosticGoldenLifecycle(const char *rom, const char *output) {
 }
 int DiagnosticGoldenEyeRelease(const char *rom, const char *output) {
   goldenReleaseEyeBeams=true;
+  return DiagnosticGoldenLifecycle(rom,output);
+}
+int DiagnosticGoldenSuperLifecycle(const char *rom, const char *output) {
+  goldenSuperLifecycle=true;
   return DiagnosticGoldenLifecycle(rom,output);
 }
 int DiagnosticGoldenFlight(const char *rom, const char *output) {

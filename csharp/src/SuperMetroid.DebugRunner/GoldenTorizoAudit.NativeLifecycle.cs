@@ -6,7 +6,8 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class GoldenTorizoAudit
 {
-    public static int CompareNativeLifecycle(string rom, string trace, bool releaseEyeBeams = false)
+    public static int CompareNativeLifecycle(string rom, string trace, bool releaseEyeBeams = false,
+        bool superMissiles = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var room = CartridgeRoomHeader.Load(bus, RoomPointer);
@@ -35,6 +36,7 @@ internal static partial class GoldenTorizoAudit
                     RoomEnemyProjectileKind.GoldenTorizoSonicBoom => "SpawnGoldenTorizoSonicBoom",
                     RoomEnemyProjectileKind.GoldenTorizoEgg => "SpawnGoldenTorizoEgg",
                     RoomEnemyProjectileKind.GoldenTorizoEyeBeam => "SpawnGoldenTorizoEyeBeam",
+                    RoomEnemyProjectileKind.GoldenTorizoSuperMissile => "SpawnGoldenTorizoSuperMissile",
                     _ => throw new InvalidDataException("Unexpected lifecycle kind.")
                 };
                 object?[] args = kind is RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
@@ -65,7 +67,7 @@ internal static partial class GoldenTorizoAudit
                 throw new InvalidDataException($"Golden lifecycle differs: {line}; actual={string.Join(',', actual)}.");
             rows++;
         }
-        if (samples != (releaseEyeBeams ? 4 : 16) || rows < samples)
+        if (samples != (releaseEyeBeams || superMissiles ? 4 : 16) || rows < samples)
             throw new InvalidDataException("Incomplete lifecycle matrix.");
         Console.WriteLine($"Golden lifecycle: {rows} original-CPU frames across {samples} samples match.");
         return 0;

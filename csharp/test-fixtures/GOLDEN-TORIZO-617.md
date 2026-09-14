@@ -299,3 +299,18 @@ represents natural whole-boss attack cadence. No gameplay change was necessary.
 Recapture with `DiagnosticGoldenEyeRelease`; temporary hooks were removed and
 the ordinary native executable rebuilt. Thrown-Super and cross-frame contact
 comparisons remain separate audit work.
+
+## Original-CPU held/thrown Super Missile lifecycle
+
+`movement-release/golden-super-lifecycle-617.csv` follows the actual spawn and
+instruction list from the held projectile through aiming, flight, terrain impact,
+explosion and deletion. Both facings and two seeds provide four samples with the
+same stationary-boss/out-of-range-player setup as the other lifecycle captures.
+`--golden-super-lifecycle-native-compare ROM CSV` matches all 654 frames.
+
+The left-facing samples last 221 frames and right-facing samples 106; each has
+exactly 30 damaging frames before deletion. No production correction was needed.
+This complements the earlier 50 angle/aim comparisons; it does not replace the
+encounter-level capture of the boss deciding to catch a player Super. Recapture
+with `DiagnosticGoldenSuperLifecycle`; temporary hooks removed and ordinary
+native executable rebuilt. Cross-frame player-contact timing remains to review.

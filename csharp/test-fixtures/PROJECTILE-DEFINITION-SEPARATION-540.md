@@ -114,6 +114,26 @@ Direction-specific list selection is still presentation/program data, not damage
 
 ## Important cartridge boundaries
 
+### Projectile-specific authored-part rendering prerequisite
+
+The menu composition emitter cannot be reused unchanged for projectiles: its
+vertical-wrap parking and capacity stop differ from $81:8A4B/$81:8A2B. The existing
+packed projectile reader now delegates each decoded part to the public
+`OamBuffer.AddProjectileSpritePart`, which retains source attributes, byte Y wrap,
+X/size high-table packing and nine-bit OAM write-position wrap. This provides a
+ROM-independent emission path for future authored projectile compositions without
+changing the current draw caller's whole-projectile admission checks.
+
+`VerifyProjectileVisualParts` tests 393,216 emissions: every encoded X/size word
+and attribute word, all Y-offset bytes, six boundary origins and repeated OAM
+wraparound. Independent arithmetic assertions cover each hardware field, and
+complete low/high OAM tables agree with the packed-ROM reader after each part.
+This is not a loaded asset catalog or rendered-PNG override claim; extraction,
+validation, runtime binding and restore/capture integration are still required.
+The pinned ROM's 805 timed records reference 417 distinct spritemaps, with at most
+24 parts and maximum OBJ tile index 194. This inventory excludes separately
+selected flare/trail artwork and is not a complete weapon asset inventory.
+
 - The data headers start at $93:8431. Twenty-four beam headers contain damage plus
   ten direction pointers. Charged ordering is not identical to uncharged ordering;
   compile by native identity, not by an assumed physical record index.

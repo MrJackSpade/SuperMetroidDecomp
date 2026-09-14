@@ -234,22 +234,30 @@ public sealed class OamBuffer
             byte encodedYOffset = bus.ReadByte(AddWithinBank(entryAddress, 2));
             ushort attributes = ReadWordInFixedBank(bus, AddWithinBank(entryAddress, 3));
 
-            ushort calculatedX = unchecked((ushort)(originX + encodedXOffset.Raw));
-            byte calculatedY = unchecked((byte)(originY + encodedYOffset));
-
-            int spriteIndex = NextByteOffset >> 2;
-            int lowOffset = NextByteOffset;
-            _lowTable[lowOffset] = (byte)calculatedX;
-            _lowTable[lowOffset + 1] = calculatedY;
-            WriteAttributes(lowOffset, new SnesObjAttributeWord(attributes));
-            SetHighTablePair(
-                spriteIndex,
-                SnesOamHighTablePair.FromSprite(calculatedX, encodedXOffset.IsLarge));
-
-            // $81:8A2B masks the byte-address stack to nine bits after each entry.
-            NextByteOffset = (NextByteOffset + 4) & 0x01ff;
+            AddProjectileSpritePart(encodedXOffset, encodedYOffset,
+                new SnesObjAttributeWord(attributes), originX, originY);
             entryAddress = AddWithinBank(entryAddress, 5);
         }
+    }
+
+    /// <summary>
+    /// Emits an authored projectile visual part using the $81:8A4B/$81:8A2B tail:
+    /// preserve source attributes, wrap Y and wrap the write position after 128 OBJs.
+    /// Unlike menu parts, it neither parks vertically wrapped parts nor stops at capacity.
+    /// The caller owns whole-projectile viewport admission.
+    /// </summary>
+    public void AddProjectileSpritePart(SnesSpritemapXWord xOffset, byte yOffset,
+        SnesObjAttributeWord attributes, ushort originX, ushort originY)
+    {
+        ushort x = unchecked((ushort)(originX + xOffset.Raw));
+        byte y = unchecked((byte)(originY + yOffset));
+        int spriteIndex = NextByteOffset >> 2;
+        int lowOffset = NextByteOffset;
+        _lowTable[lowOffset] = (byte)x;
+        _lowTable[lowOffset + 1] = y;
+        WriteAttributes(lowOffset, attributes);
+        SetHighTablePair(spriteIndex, SnesOamHighTablePair.FromSprite(x, xOffset.IsLarge));
+        NextByteOffset = (NextByteOffset + 4) & 0x01ff;
     }
 
     /// <summary>

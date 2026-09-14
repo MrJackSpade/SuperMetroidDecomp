@@ -17,102 +17,32 @@ static void VerifySamusPowerBeamProjectiles()
     VerifyPlasmaEnemyPenetration();
     var bus = new TestAddressSpace();
 
-    // Construct the literal ROM records consumed by `$90:B887`, `$93:8000`, and
-    // `$93:81E9`. Every direction points at one deliberately shared animation record; the
-    // direction-table lookup itself is still exercised because all ten pointer cells must
-    // be populated for the loop below to succeed.
-    WriteTestWord(bus, 0x9383c1, 0x8431);
-    WriteTestWord(bus, 0x938431, 0x0014);
-    for (int direction = 0; direction < 10; direction++)
-        WriteTestWord(bus, 0x938433 + direction * 2, 0x9000);
-    WriteTestWord(bus, 0x939000, 0x000f);
-    WriteTestWord(bus, 0x939002, 0xa000);
-    bus.WriteByte(0x939004, 8);
-    bus.WriteByte(0x939005, 4);
-    WriteTestWord(bus, 0x939006, 0);
-    WriteTestWord(bus, 0x939008, 0x8239);
-    WriteTestWord(bus, 0x93900a, 0x9000);
+    // Artwork is synthetic; native program selectors are seeded below.
 
-    // Missile family one selects `$93:8641`; the non-beam table is indexed by type high
-    // nibble before its ten direction records are selected.
-    WriteTestWord(bus, 0x9383f3, 0x8641);
-    WriteTestWord(bus, 0x938641, 0x0064);
-    for (int direction = 0; direction < 10; direction++)
-        WriteTestWord(bus, 0x938643 + direction * 2, 0x9200);
-    bus.WriteBytes(0x939200, [
-        0x0f, 0x00, 0x20, 0xa0, 0x04, 0x04, 0x00, 0x00,
-        0x39, 0x82, 0x00, 0x92,
-    ]);
-
-    // Super Missiles use the adjacent non-beam family plus an invisible `$93:866D` link.
-    // The link's empty spritemap is intentional: it exists for collision continuity and
-    // shared-slot accounting, not as a second visible rocket.
-    WriteTestWord(bus, 0x9383f5, 0x8657);
-    WriteTestWord(bus, 0x938657, 0x012c);
-    for (int direction = 0; direction < 10; direction++)
-        WriteTestWord(bus, 0x938659 + direction * 2, 0x9240);
-    bus.WriteBytes(0x939240, [
-        0x0f, 0x00, 0x30, 0xa0, 0x08, 0x08, 0x00, 0x00,
-        0x39, 0x82, 0x40, 0x92,
-    ]);
-    WriteTestWord(bus, 0x93842f, 0x866d);
-    WriteTestWord(bus, 0x93866d, 0x012c);
-    WriteTestWord(bus, 0x93866f, 0x9280);
-    bus.WriteBytes(0x939280, [
-        0x0f, 0x00, 0x40, 0xa0, 0x08, 0x08, 0x00, 0x00,
-        0x39, 0x82, 0x80, 0x92,
-    ]);
-
-    // The animation record's `$A000` pointer is a bank-$93 spritemap, not merely an opaque
+    // The substituted `$F700` pointer is a bank-$93 spritemap, not merely an opaque
     // animation token. One literal entry makes the draw path observable independently of
     // the separate flare spritemap family seeded below.
-    WriteTestWord(bus, 0x93a000, 1);
-    WriteTestWord(bus, 0x93a002, 0);
-    bus.WriteByte(0x93a004, 0);
-    WriteTestWord(bus, 0x93a005, 0x2c20);
-    // Both compact explosion programs below intentionally share `$A010`; give that pointer
+    WriteTestWord(bus, 0x93f700, 1);
+    WriteTestWord(bus, 0x93f702, 0);
+    bus.WriteByte(0x93f704, 0);
+    WriteTestWord(bus, 0x93f705, 0x2c20);
+    // Native explosion programs intentionally share synthetic `$F710`; give that pointer
     // its own visible one-OBJ map so the early explosion draw pass is tested, not inferred
     // from a nonzero animation pointer.
-    WriteTestWord(bus, 0x93a010, 1);
-    WriteTestWord(bus, 0x93a012, 0);
-    bus.WriteByte(0x93a014, 0);
-    WriteTestWord(bus, 0x93a015, 0x2c30);
-    WriteTestWord(bus, 0x93a020, 1);
-    WriteTestWord(bus, 0x93a022, 0);
-    bus.WriteByte(0x93a024, 0);
-    WriteTestWord(bus, 0x93a025, 0x2a44);
-    WriteTestWord(bus, 0x93a030, 1);
-    WriteTestWord(bus, 0x93a032, 0);
-    bus.WriteByte(0x93a034, 0);
-    WriteTestWord(bus, 0x93a035, 0x2a45);
-    WriteTestWord(bus, 0x93a040, 0);
+    WriteTestWord(bus, 0x93f710, 1);
+    WriteTestWord(bus, 0x93f712, 0);
+    bus.WriteByte(0x93f714, 0);
+    WriteTestWord(bus, 0x93f715, 0x2c30);
+    WriteTestWord(bus, 0x93f720, 1);
+    WriteTestWord(bus, 0x93f722, 0);
+    bus.WriteByte(0x93f724, 0);
+    WriteTestWord(bus, 0x93f725, 0x2a44);
+    WriteTestWord(bus, 0x93f730, 1);
+    WriteTestWord(bus, 0x93f732, 0);
+    bus.WriteByte(0x93f734, 0);
+    WriteTestWord(bus, 0x93f735, 0x2a45);
+    WriteTestWord(bus, 0x93f740, 0);
 
-    // Charge-only power beam uses the parallel `$93:83D9` pointer family. Keep its
-    // direction records shared but give it unmistakable damage so release cannot pass by
-    // accidentally reusing the uncharged table.
-    WriteTestWord(bus, 0x9383d9, 0x8460);
-    WriteTestWord(bus, 0x938460, 0x0064);
-    for (int direction = 0; direction < 10; direction++)
-        WriteTestWord(bus, 0x938462 + direction * 2, 0x9000);
-
-    // Fill the remaining eleven entries of both bank-$93 beam-data pointer tables with
-    // distinct damage words. All directions deliberately share the already valid `$9000`
-    // animation stream: these fixtures isolate the low-nibble table index without replacing
-    // the production instruction interpreter or inventing host-side projectile art.
-    for (int beamType = 1; beamType < 12; beamType++)
-    {
-        ushort unchargedData = unchecked((ushort)(0x8800 + beamType * 0x20));
-        ushort chargedData = unchecked((ushort)(0x8a00 + beamType * 0x20));
-        WriteTestWord(bus, 0x9383c1 + beamType * 2, unchargedData);
-        WriteTestWord(bus, 0x9383d9 + beamType * 2, chargedData);
-        WriteTestWord(bus, 0x930000 | unchargedData, unchecked((ushort)(0x0020 + beamType)));
-        WriteTestWord(bus, 0x930000 | chargedData, unchecked((ushort)(0x0100 + beamType)));
-        for (int direction = 0; direction < 10; direction++)
-        {
-            WriteTestWord(bus, 0x930000 | unchecked((ushort)(unchargedData + 2 + direction * 2)), 0x9000);
-            WriteTestWord(bus, 0x930000 | unchecked((ushort)(chargedData + 2 + direction * 2)), 0x9000);
-        }
-    }
 
     // `$90:B5BB/$B609` select two independent trail instruction streams from the beam's
     // low six type bits. Ordinary power selects two empty lists; charged power selects the
@@ -172,36 +102,6 @@ static void VerifySamusPowerBeamProjectiles()
     bus.WriteBytes(0x9ba56f, new byte[32]);
     bus.WriteBytes(0x9baa07, new byte[32]);
 
-    // `$93:83FF` does NOT point directly at animation bytecode. It selects the two-word
-    // non-beam data record at `$93:8679`: ignored damage eight followed by the actual
-    // instruction-list pointer at `$93:867B`. Mirroring both indirections is important.
-    // A regression that reads `$83FF` as the list will interpret `$8679`'s data tables as
-    // animation records, publish garbage spritemaps, and never reach the delete opcode.
-    WriteTestWord(bus, 0x9383ff, 0x8679);
-    WriteTestWord(bus, 0x938679, 0x0008);
-    WriteTestWord(bus, 0x93867b, 0x9100);
-
-    // Collision swaps to this two-frame explosion record. Its following delete opcode
-    // proves that damage remains occupied during the explosion and decrements the separate
-    // projectile counter only when `$93:822F` finally clears the slot.
-    WriteTestWord(bus, 0x939100, 0x0002);
-    WriteTestWord(bus, 0x939102, 0xa010);
-    bus.WriteByte(0x939104, 8);
-    bus.WriteByte(0x939105, 8);
-    WriteTestWord(bus, 0x939106, 0);
-    WriteTestWord(bus, 0x939108, 0x822f);
-
-    // `$93:867F` is the missile-explosion instruction pointer consumed by `$93:80CF`.
-    WriteTestWord(bus, 0x93867f, 0x9300);
-    bus.WriteBytes(0x939300, [
-        0x02, 0x00, 0x10, 0xa0, 0x08, 0x08, 0x00, 0x00,
-        0x2f, 0x82,
-    ]);
-    WriteTestWord(bus, 0x938693, 0x9340);
-    bus.WriteBytes(0x939340, [
-        0x02, 0x00, 0x10, 0xa0, 0x08, 0x08, 0x00, 0x00,
-        0x2f, 0x82,
-    ]);
 
     WriteTestWord(bus, 0x90c28f, 0x000b);
     WriteTestWord(bus, 0x90c2a7, 0x0017);
@@ -316,6 +216,9 @@ static void VerifySamusPowerBeamProjectiles()
 
     const int width = 32;
     const int height = 16;
+    var nativeProjectileRom = SeedNativeProjectileFixture(bus);
+    ushort NativeWord(int a) => (ushort)(nativeProjectileRom.ReadByte(a) | nativeProjectileRom.ReadByte(a + 1) << 8);
+    ushort NativeDamage(int table, int beam) => NativeWord(0x930000 | NativeWord(table + beam * 2));
     RoomLevelData air = new(
         width,
         height,
@@ -387,11 +290,11 @@ static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} survives initialization");
         AssertEqual(0x0014, projectiles.Slots[0].Damage,
             $"power beam direction {direction} loads damage");
-        AssertEqual(0xa000, projectiles.Slots[0].SpritemapPointer,
+        AssertEqual(0xf700, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual(8, projectiles.Slots[0].XRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].XRadius,
             $"power beam direction {direction} loads X radius");
-        AssertEqual(4, projectiles.Slots[0].YRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].YRadius,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -433,7 +336,7 @@ static void VerifySamusPowerBeamProjectiles()
         SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
         AssertEqual((int?)0, combinedResult.FiredSlot,
             $"beam combination {beamType} allocates one ordinary slot");
-        AssertEqual(unchecked((ushort)(0x0020 + beamType)), combinedSlot.Damage,
+        AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
         AssertEqual(beamType == 10 ? (ushort)12 : (ushort)15, combinedBombs.CooldownTimer,
             $"beam combination {beamType} indexes uncharged cooldown");
@@ -745,7 +648,7 @@ static void VerifySamusPowerBeamProjectiles()
         bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
     AssertTrue(chargedRelease.FiredSlot is not null, "charged release allocates projectile");
     SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedRelease.FiredSlot!.Value];
-    AssertEqual(0x0064, chargedSlot.Damage, "charged release uses charged data pointer");
+    AssertEqual(60, chargedSlot.Damage, "charged release uses charged data pointer");
     AssertEqual(0x0010, unchecked((ushort)(chargedSlot.Type & 0x0010)),
         "charged release sets charged type bit");
     AssertEqual(
@@ -892,7 +795,7 @@ static void VerifySamusPowerBeamProjectiles()
             $"charged beam combination {beamType} allocates on release");
         SamusProjectileSlot combinedChargedSlot =
             combinedChargeProjectiles.Slots[combinedChargedRelease.FiredSlot!.Value];
-        AssertEqual(unchecked((ushort)(0x0100 + beamType)), combinedChargedSlot.Damage,
+        AssertEqual(NativeDamage(0x9383d9, beamType), combinedChargedSlot.Damage,
             $"charged beam combination {beamType} indexes charged data pointer");
         AssertEqual((ushort)30, combinedChargeBombs.CooldownTimer,
             $"charged beam combination {beamType} indexes charged cooldown");
@@ -1192,10 +1095,10 @@ static void VerifySamusPowerBeamProjectiles()
         "wall collision installs beam-explosion family");
     AssertEqual(1, wallProjectiles.ProjectileCounter,
         "beam explosion retains ordinary slot count");
-    AssertEqual(0xa010, wallProjectiles.Slots[0].SpritemapPointer,
+    AssertEqual(0xf710, wallProjectiles.Slots[0].SpritemapPointer,
         "collision frame selects first explosion art");
 
-    for (int frame = 0; frame < 2; frame++)
+    for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867b); frame++)
     {
         wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
         wallProjectiles.StepFrame(bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
@@ -1364,7 +1267,7 @@ static void VerifySamusPowerBeamProjectiles()
         "right missile begins at one pixel per frame after ignition");
     AssertEqual(76, missile.XPosition,
         "right missile moves one whole pixel on its ignition frame");
-    AssertEqual(0xa020, missile.SpritemapPointer,
+    AssertEqual(0xf720, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
     var missileOam = new OamBuffer();
@@ -1410,14 +1313,14 @@ static void VerifySamusPowerBeamProjectiles()
         "missile collision installs missile-explosion family `$0800`");
     AssertEqual(1, missileProjectiles.ProjectileCounter,
         "missile explosion retains its shared ordinary slot count");
-    AssertEqual(0xa010, missile.SpritemapPointer,
+    AssertEqual(0xf710, missile.SpritemapPointer,
         "missile collision frame selects first explosion art");
     missileOam.BeginFrame();
     missileProjectiles.DrawExplosions(bus, missileOam, 0, 0);
     AssertEqual(4, missileOam.NextByteOffset,
         "missile explosion participates in the early explosion draw pass");
 
-    for (int frame = 0; frame < 2; frame++)
+    for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867f); frame++)
     {
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
         missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
@@ -2109,8 +2012,8 @@ static void VerifySamusPowerBeamProjectiles()
         "accelerating super reaches the type-eight wall");
     AssertEqual(0x8800, super.Type,
         "super impact preserves active bit and selects family `$0800`");
-    AssertEqual(0x9348, super.InstructionPointer,
-        "super collision consumes first record of `$93:9340` explosion fixture");
+    AssertEqual((ushort)(NativeWord(0x938693) + 8), super.InstructionPointer,
+        "super collision consumes the first native explosion record");
     AssertEqual(20, superProjectiles.EarthquakeType,
         "super impact publishes quake type `$14`");
     AssertEqual(30, superProjectiles.EarthquakeTimer,
@@ -2143,10 +2046,7 @@ static void VerifySamusPowerBeamProjectiles()
     pillarOwner.XSubposition = 0;
     pillarLink.XPosition = 0x128;
     pillarLink.XRadius = 8;
-    // Keep the constructed animation alive long enough to observe the second collision.
-    ushort oldExplosionDuration = (ushort)(bus.ReadByte(0x939340) |
-        bus.ReadByte(0x939341) << 8);
-    WriteTestWord(bus, 0x939340, 20);
+    // Native explosion timing remains live long enough for this three-frame sequence.
     pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
     AssertEqual(0x139, pillarLink.XPosition,
         "native missile helper impact does not apply the beam leading-edge radius");
@@ -2162,7 +2062,6 @@ static void VerifySamusPowerBeamProjectiles()
         "native second collision deletes the explosion instead of restarting it");
     AssertEqual(1, pillarProjectiles.ProjectileCounter,
         "second helper collision decrements its counted slot exactly once");
-    WriteTestWord(bus, 0x939340, oldExplosionDuration);
 
     // Drive a second real Super Missile into type-$C/BTS-A rather than calling the PLM
     // owner directly. `$90:B00E`'s invisible linked point probe and the visible owner both

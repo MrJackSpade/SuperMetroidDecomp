@@ -261,13 +261,13 @@ public sealed partial class SamusProjectileSystem
 
         // `$93:8000` indexes a data-table pointer by beam type, stores damage, chooses the
         // direction-specific list, samples its initial radii, and arms a one-frame timer.
-        ushort dataPointer = ReadWord(
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             (charged
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
                 : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = ReadWord(
+        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + direction * 2)));
@@ -372,11 +372,11 @@ public sealed partial class SamusProjectileSystem
         // with 1000 before the first instruction record executes.
         slot.Type = 0x9018;
         const int hyperBeamType = 8;
-        ushort dataPointer = ReadWord(
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = ReadWord(
+        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
@@ -477,11 +477,11 @@ public sealed partial class SamusProjectileSystem
         // keeping both calls makes the one-frame ignition transition directly inspectable.
         InitializeDirectionalVelocity(bus, slot, baseSpeed: 0);
 
-        ushort dataPointer = ReadWord(
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
-        slot.InstructionPointer = ReadWord(
+        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));

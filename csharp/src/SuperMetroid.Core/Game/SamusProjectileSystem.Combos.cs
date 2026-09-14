@@ -72,10 +72,10 @@ public sealed partial class SamusProjectileSystem
         int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :
             echo ? SamusComboRomData.EchoDataPointers : SamusComboRomData.DataPointers;
         int index = echo ? (byte)slot.Type - 34 : slot.Type & 15;
-        int data = SamusProjectileRomData.Banks.Projectile | ReadWord(bus, table + index * 2);
+        int data = SamusProjectileRomData.Banks.Projectile | SamusProjectileSelectionDefinitions.ReadWord(bus, table + index * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(bus, data);
         if ((slot.Damage & 0x8000) != 0) throw new InvalidDataException("Negative native combo projectile damage.");
-        slot.InstructionPointer = ReadWord(bus, data + 2 + (ordinary || echo ? (slot.Direction & 15) * 2 : 0));
+        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(bus, data + 2 + (ordinary || echo ? (slot.Direction & 15) * 2 : 0));
         slot.InstructionTimer = 1;
         if (ordinary)
         {

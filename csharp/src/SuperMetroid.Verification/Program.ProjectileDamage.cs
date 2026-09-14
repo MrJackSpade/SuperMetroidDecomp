@@ -16,8 +16,13 @@ internal static partial class Program
         var bus = new ProjectileDamageReadGuard(rom, headers);
         foreach (int address in headers)
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(bus, address), "Compiled native damage header");
+        for (int address = 0x9383c1; address < 0x9386db; address += 2)
+            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(bus, address), "All 357 selectors and 40 adjacent damage headers avoid ROM reads");
         for (int address = 0x938000; address <= 0x93ffff; address++)
+        {
             AssertEqual(Word(address), SamusProjectileDamageDefinitions.Read(rom, address), "Exact header selection preserves adjacent/unaligned/bank-wrapped reads");
+            AssertEqual(Word(address), SamusProjectileSelectionDefinitions.ReadWord(rom, address), "Selection preserves adjacent/unaligned/bank-wrapped reads");
+        }
 
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
         MethodInfo Method(string name) => typeof(SamusProjectileSystem).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -87,14 +92,14 @@ internal static partial class Program
             rejectedMarker = true;
         }
         AssertTrue(rejectedMarker, "Compiled unused negative marker still reaches the existing loud rejection");
-        Console.WriteLine("Projectile damage: 40 headers, complete high-bank address scan and all seven initializer paths pass with damage reads forbidden.");
+        Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, complete high-bank address scan and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
     private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source, int[] headers) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
         {
-            if (headers.Contains(address) || headers.Contains(address - 1))
+            if (address is >= 0x9383c1 and < 0x9386db || headers.Contains(address) || headers.Contains(address - 1))
                 throw new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}.");
             return source.ReadByte(address);
         }

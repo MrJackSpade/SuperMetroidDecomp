@@ -511,7 +511,7 @@ public sealed class SamusBombProjectileSystem
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
         int projectileTypeIndex = (slot.Type >> 8) & 0x000f;
-        ushort dataPointer = ReadWord(
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
@@ -520,7 +520,7 @@ public sealed class SamusBombProjectileSystem
         if ((slot.Damage & 0x8000) != 0)
             throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
 
-        slot.InstructionPointer = ReadWord(bus, AddWithinBank(dataAddress, 2));
+        slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(bus, AddWithinBank(dataAddress, 2));
         slot.InstructionTimer = 1;
     }
 
@@ -583,7 +583,7 @@ public sealed class SamusBombProjectileSystem
             {
                 // $93:814E reads the pointer word embedded in the bomb-explosion data
                 // record at $93:8683 and resets the instruction timer to one.
-                slot.InstructionPointer = ReadWord(
+                slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
                     bus,
                     SamusProjectileRomData.NonBeam.BombExplosionInstructionPointer);
                 slot.InstructionTimer = 1;

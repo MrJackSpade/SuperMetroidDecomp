@@ -365,11 +365,11 @@ public sealed partial class SamusProjectileSystem
         // the owner's coordinates. At ignition both positions are equivalent; retaining the
         // call matters for moving/transition poses whose cartridge origin tables can change.
         InitializePosition(bus, samus, link);
-        ushort dataPointer = ReadWord(
+        ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
         link.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
-        link.InstructionPointer = ReadWord(
+        link.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2)));

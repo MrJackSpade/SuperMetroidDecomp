@@ -1102,6 +1102,8 @@ static void VerifyCeresRidleyRoomEntry()
 
     bool observedNormalRidleyPalette = false;
     bool observedFlashRidleyPalette = false;
+    int nativeExplosionFrames = NativeProjectileLifetime(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
     WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
     for (int hit = 0; hit < 100; hit++)
     {
@@ -1134,9 +1136,9 @@ static void VerifyCeresRidleyRoomEntry()
             AssertEqual(0x7200, cgram.Colors[0xf1],
                 "Ceres Ridley 70-hit missing-branch palette quirk");
 
-        // Two bank-$93 calls consume the one-frame explosion record and its delete opcode,
-        // returning the same slot to the next shot without debugger-only state mutation.
-        for (int explosionFrame = 0; explosionFrame < 2; explosionFrame++)
+        // The hit publishes an unconsumed first frame. Run its full native lifetime
+        // plus initialization, returning the same slot without shortening the program.
+        for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
             projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);

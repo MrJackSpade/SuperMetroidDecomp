@@ -61,9 +61,40 @@ values directly from ROM. All 56,800 frames per owner agree on deletion, timer,
 next pointer, sprite, radii and projectile trail state while compiled mechanics
 reads are forbidden. The prior art-reference substitution tests also still pass.
 
-This does not compile initial definition-selection pointer tables, extract sprite
-references or artwork, or remove arbitrary out-of-table bus reads. Those remain
-unfinished rather than being hidden behind this instruction subset.
+That instruction slice did not compile initial definition-selection pointer
+tables. The selection slice below supersedes that status. Sprite-reference and
+artwork extraction and arbitrary out-of-table bus reads remain unfinished.
+
+### Implemented initial-selection slice
+
+`SamusProjectileSelectionDefinitions` compiles the 357 definition/program-pointer
+words at $93:83C1..86DA, excluding the forty damage headers already owned by the
+damage catalog. It preserves null/unused entries and routes selectors that reach
+adjacent damage headers through that catalog, then retains exact-address fallback.
+These references select instruction programs, not editable spritemaps.
+
+All seven initializer paths now use it, as do explosion-list selectors in beam,
+missile and bomb impact handling. The initialization verifier blocks every byte
+of the entire selection/damage region and exercises actual beam, Hyper, missile,
+reflection, link, combo and bomb initialization. It checks all 397 region words
+and every high-bank word address, preserving odd/adjacent/bank-wrapped reads.
+List/radius/damage/timer and special-case assertions remain active.
+
+The older synthetic beam fixture replaced definition selectors with invented
+damage headers and a two-tick explosion. That no longer reaches the intended
+artwork once selectors are compiled. It now seeds only sprite references on the
+actual native-selected programs, keeps the constructed terrain and visible OBJ
+assertions, compares native damage/radii, and derives exact finite explosion
+lifetimes from ROM. Obsolete fake header/program writes were removed; the linked
+Super Missile second-collision test retains its three-frame native sequence.
+The focused Ceres Ridley 100-hit fixture also waited only two frames for a fake
+one-tick explosion. It now derives the native lifetime plus the initial unconsumed
+frame before reusing slot zero; no enemy hit count or production combat is changed.
+
+Remaining scope is not just a missing table: editable sprite references and
+artwork must be bound into runtime rendering/capture/restore with actual visible
+override tests. Non-catalog/glitch reads, flare/trail presentation, combo costs
+and origin-angle definitions also still need explicit audit and integration.
 
 | Production path | Definition selection | Coupled fields |
 | --- | --- | --- |

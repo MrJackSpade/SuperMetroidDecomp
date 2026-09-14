@@ -340,18 +340,12 @@ public static partial class SamusGrappleMovement
             // Special pose command 10 runs $9B:BEEB. The locked body is positioned from
             // Start minus the raw NO-RUN origin table, then Flare is independently rebuilt
             // from the raw no-run flare table. Graphics-Y correction does not participate.
-            int tableOffset = grapple.FireDirection * 2;
             var origin = ReadFiringOrigin(bus, grapple.FireDirection, running: false);
-            short flareX = unchecked((short)ReadWord(
-                bus,
-                SamusGrappleRomData.Firing.DefaultFlareX + tableOffset));
-            short flareY = unchecked((short)ReadWord(
-                bus,
-                SamusGrappleRomData.Firing.DefaultFlareY + tableOffset));
+            var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, running: false);
             samus.XPosition = unchecked((ushort)(grapple.RopeStartX - origin.X));
             samus.YPosition = unchecked((ushort)(grapple.RopeStartY - origin.Y));
-            grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flareX));
-            grapple.BeamStartY = unchecked((ushort)(samus.YPosition + flareY));
+            grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flare.X));
+            grapple.BeamStartY = unchecked((ushort)(samus.YPosition + flare.Y));
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
@@ -465,15 +459,9 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple)
     {
-        int tableOffset = grapple.FireDirection * 2;
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
         var origin = ReadFiringOrigin(bus, grapple.FireDirection, useRunOffsets);
-        int flareXTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningFlareX
-            : SamusGrappleRomData.Firing.DefaultFlareX;
-        int flareYTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningFlareY
-            : SamusGrappleRomData.Firing.DefaultFlareY;
+        var flare = ReadFlareOrigin(bus, grapple, grapple.FireDirection, useRunOffsets);
         sbyte graphicsYOffset = samus.ReadGraphicsYOffset(bus);
         byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
 
@@ -484,10 +472,24 @@ public static partial class SamusGrappleMovement
         grapple.RopeStartY = unchecked((ushort)(
             samus.YPosition + origin.Y - physicalYOffset));
         grapple.BeamStartX = unchecked((ushort)(
-            samus.XPosition + (short)ReadWord(bus, flareXTable + tableOffset)));
+            samus.XPosition + flare.X));
         grapple.BeamStartY = unchecked((ushort)(
-            samus.YPosition + (short)ReadWord(bus, flareYTable + tableOffset) -
+            samus.YPosition + flare.Y -
             graphicsYOffset));
+    }
+
+    private static (short X, short Y) ReadFlareOrigin(ISnesAddressSpace bus, SamusGrappleState grapple, byte direction, bool running)
+    {
+        if (grapple.FlarePlacement is not null && direction < Assets.ChargeFlarePlacementDefinitions.DirectionCount)
+        {
+            var offset = grapple.FlarePlacement.Resolve(running, direction);
+            return (offset.X, offset.Y);
+        }
+        // Preserve the native adjacent-data behavior of out-of-domain restored
+        // directions. This compatibility reader must not become an aiming clamp.
+        int x = running ? SamusGrappleRomData.Firing.RunningFlareX : SamusGrappleRomData.Firing.DefaultFlareX;
+        int y = running ? SamusGrappleRomData.Firing.RunningFlareY : SamusGrappleRomData.Firing.DefaultFlareY;
+        return (unchecked((short)ReadWord(bus, x + direction * 2)), unchecked((short)ReadWord(bus, y + direction * 2)));
     }
 
     private static (short X, short Y) ReadFiringOrigin(ISnesAddressSpace bus, byte direction, bool running)

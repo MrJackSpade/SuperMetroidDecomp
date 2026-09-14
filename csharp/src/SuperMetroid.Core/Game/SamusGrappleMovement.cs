@@ -74,7 +74,6 @@ public static partial class SamusGrappleMovement
                 $"Pose ${samus.Pose:X2} has no fireable grapple direction (${direction:X2}).");
         }
 
-        int tableOffset = direction * 2;
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = direction;
         grapple.PoseChangeAutoFireTimer = SamusGrappleRomData.Firing.PoseChangeAutoFireFrames;
@@ -89,21 +88,15 @@ public static partial class SamusGrappleMovement
         // no-run origin and flare tables without a pose-number exception.
         bool useRunOffsets = samus.ReadMovementKind(bus) == SamusMovementType.Running;
         var origin = ReadFiringOrigin(bus, direction, useRunOffsets);
-        int flareXTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningFlareX
-            : SamusGrappleRomData.Firing.DefaultFlareX;
-        int flareYTable = useRunOffsets
-            ? SamusGrappleRomData.Firing.RunningFlareY
-            : SamusGrappleRomData.Firing.DefaultFlareY;
+        var flare = ReadFlareOrigin(bus, grapple, direction, useRunOffsets);
         sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.ReadGraphicsYOffset(bus);
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(bus, samus.Pose);
 
         grapple.OriginXOffset = origin.X;
         grapple.OriginYOffset = unchecked((short)(origin.Y - physicalYOffset));
-        grapple.FlareXOffset = unchecked((short)ReadWord(bus, flareXTable + tableOffset));
-        grapple.FlareYOffset = unchecked((short)(
-            (short)ReadWord(bus, flareYTable + tableOffset) - graphicsYOffset));
+        grapple.FlareXOffset = flare.X;
+        grapple.FlareYOffset = unchecked((short)(flare.Y - graphicsYOffset));
 
         // The endpoint-offset pair is a signed 16.16 displacement from Samus plus the
         // origin table. $9B:C51E clears all four words, not merely their whole halves.

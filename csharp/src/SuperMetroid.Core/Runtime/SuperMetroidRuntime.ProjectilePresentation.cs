@@ -17,7 +17,11 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     public GrappleTileAtlas? GrappleArtwork
     {
         get => grappleArtwork;
-        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); }
+        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); BindGrappleVisualOrigins(); }
+    }
+    private void BindGrappleVisualOrigins()
+    {
+        if (Samus is not null) Samus.Grapple.FlarePlacement = grappleArtwork?.FlarePlacement;
     }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;

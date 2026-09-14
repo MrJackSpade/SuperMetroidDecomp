@@ -357,6 +357,23 @@ internal static partial class Program
         AssertEqual(styleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple style override");
         File.WriteAllText(grappleStyleOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple style never falls back");
+        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
+        string grappleFlareStock = Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName);
+        string grappleFlareOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName);
+        var grappleFlare = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(grappleFlareStock))!;
+        grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
+        var grappleFlareEdited = installation.LoadProjectiles();
+        AssertTrue(grappleFlareEdited.SelectedSha256 != styleEdited.SelectedSha256, "Grapple flare-only edit changes content identity");
+        AssertEqual((short)17, grappleFlareEdited.GrappleTiles.FlarePlacement!.Resolve(false, 0).X, "Installer selects Grapple flare offset");
+        File.WriteAllText(grappleFlareStock, "broken stock");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple flare override cannot hide corrupt stock");
+        File.Move(grappleFlareStock, grappleFlareStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple flare override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(grappleFlareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple flare override");
+        File.WriteAllText(grappleFlareOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple flare never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

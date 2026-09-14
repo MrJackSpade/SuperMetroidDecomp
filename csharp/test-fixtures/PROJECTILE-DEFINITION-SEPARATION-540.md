@@ -522,3 +522,27 @@ origin and locked connection) and the 256-entry displayed swing-frame selector a
 compiled. These visual reads need extraction and binding without changing physical
 anchors/body placement. Non-catalog origin/connection fallback reads and shared
 pose metadata also remain; they must not be silently clamped away during removal.
+
+Version-ten installs add `grapple-flare-placement.json`, using the same signed
+standing/running offset schema as charge-flare placement but extracting Grapple's
+own bank-$9B tables. Its 32 pairs retain the native adjacent-row results for nibble
+directions; normal firing still admits only its ten original directions. Copy the
+file to `overrides/projectiles` and restart to change visual muzzle placement.
+Launch, late firing draw-origin refresh and ordinary locked-connection setup use
+the selected offsets. Physical origins/body placement remain independent compiled
+definitions. Out-of-domain restored directions retain their existing bus fallback.
+
+The current catalog is excluded from saved Samus state and rebound by artwork
+binding, the gameplay-frame prologue and independent actor drawing. This does not
+rewrite already captured flare coordinate words: a restored locked beam retains
+them until a native origin publisher runs again. Immediate restyling of such cached
+coordinates would require a separate state/presentation policy; no synthetic
+movement or phase-dependent coordinate repair was added here.
+
+Verification compares all 32 extracted pairs, 20 stock/edited launch and late-origin
+paths, 200 extension frames and 12 locked connections with visual-origin ROM reads
+forbidden. The complete Samus graph is identical after excluding exactly the four
+visual coordinate words. Actual frame/draw rebinding and nonserialized identity,
+strict stock/override validation, installer repair/upgrade persistence and host
+restart/old-state binding are covered. Displayed swing-frame extraction, broader
+audio/ROM dependencies and the cached-coordinate override boundary remain open.

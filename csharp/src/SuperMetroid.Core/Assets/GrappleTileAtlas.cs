@@ -7,11 +7,13 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
 {
     private readonly byte[] tiles;
     public GrappleSpriteCatalog? Sprites { get; }
-    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites) { this.tiles = tiles; Sprites = sprites; }
-    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null)
+    public ChargeFlarePlacementCatalog? FlarePlacement { get; }
+    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement)
+    { this.tiles = tiles; Sprites = sprites; FlarePlacement = flarePlacement; }
+    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null)
     {
         var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites);
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites, flarePlacement);
     }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {

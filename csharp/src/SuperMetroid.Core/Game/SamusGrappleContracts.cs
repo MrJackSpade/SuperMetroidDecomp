@@ -50,6 +50,9 @@ public readonly record struct GrappleEnemyCollision(
 /// </summary>
 public sealed class SamusGrappleState
 {
+    /// <summary>Current host visual origins, rebound after state load; never changes physical hand offsets.</summary>
+    [field: NonSerialized]
+    public Assets.ChargeFlarePlacementCatalog? FlarePlacement { get; set; }
     public GrapplePhase Phase { get; set; }
     public ushort AnchorX { get; set; }
     public ushort AnchorY { get; set; }

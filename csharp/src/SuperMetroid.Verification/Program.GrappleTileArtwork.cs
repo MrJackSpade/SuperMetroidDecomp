@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         VerifyGrappleSpriteArtwork(bus);
+        VerifyGrappleFlarePlacement(bus);
         byte[] png = GrappleTileExtractor.Extract(bus);
         var stock = GrappleTileAtlas.Load(new MemoryStream(png));
         var image = IndexedPng.Read(new MemoryStream(png), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);

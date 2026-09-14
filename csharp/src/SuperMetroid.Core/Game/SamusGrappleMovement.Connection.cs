@@ -446,7 +446,7 @@ public static partial class SamusGrappleMovement
         grapple.FlareCounter = 1;
         grapple.FlareAnimationFrame = 0;
         grapple.FlareAnimationTimer = 0;
-        grapple.PointAnimationTimer = 5;
+        grapple.PointAnimationTimer = GrapplePointAnimationDefinitions.Delay;
         grapple.PointAnimationFrame = 0;
         // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
         // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on

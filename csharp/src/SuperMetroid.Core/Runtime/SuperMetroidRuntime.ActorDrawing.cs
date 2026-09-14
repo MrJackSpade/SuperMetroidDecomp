@@ -313,7 +313,8 @@ public sealed partial class SuperMetroidRuntime
                         Oam,
                         VramWrites,
                         Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.YPosition,
+                        GrappleArtwork);
                 }
                 else
                 {

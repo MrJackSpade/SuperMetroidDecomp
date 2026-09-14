@@ -17,14 +17,17 @@ internal static class ProjectileHostBindingVerification
         var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var flareField = typeof(SuperMetroidGame).GetField("chargeFlarePlacement", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var flareCompositionField = typeof(SuperMetroidGame).GetField("chargeFlareCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var grappleField = typeof(SuperMetroidGame).GetField("grappleArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
             session.SaveSlot(0);
+            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
+            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
@@ -62,11 +65,18 @@ internal static class ProjectileHostBindingVerification
         var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
         flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName), flareComposition.ToJsonString());
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
+            image = IndexedPng.Read(input, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+        image.Pixels[0] ^= 1;
+        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName)))
+            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
+            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
+            CheckGrapple((GrappleTileAtlas)grappleField.GetValue(session.Game)!, installation.LoadProjectiles().GrappleTiles);
             CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, field.GetValue(session.Game)))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
@@ -128,6 +138,14 @@ internal static class ProjectileHostBindingVerification
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable) || a.NextByteOffset != b.NextByteOffset)
                 throw new InvalidDataException("Host restored stale flare composition content.");
         }
+    }
+
+    private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
+    {
+        if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
+        foreach (var transfer in GrappleTileDefinitions.Transfers)
+            if (!actual.Resolve(transfer.Asset).Span.SequenceEqual(expected.Resolve(transfer.Asset).Span))
+                throw new InvalidDataException("Host restored stale Grapple PNG content.");
     }
 
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)

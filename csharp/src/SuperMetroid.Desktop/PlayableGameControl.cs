@@ -218,6 +218,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindTrailArtwork(projectilePresentation?.Trails);
         game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
         game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);
+        game.BindGrappleArtwork(projectilePresentation?.GrappleTiles);
         if (projectilePresentation is not null)
             Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         if (replay is null)
@@ -302,6 +303,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindTrailArtwork(projectilePresentation?.Trails);
         game.BindChargeFlarePlacement(projectilePresentation?.FlarePlacement);
         game.BindChargeFlareCompositions(projectilePresentation?.FlareCompositions);
+        game.BindGrappleArtwork(projectilePresentation?.GrappleTiles);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;

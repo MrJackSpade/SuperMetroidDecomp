@@ -9,6 +9,14 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private ChargeFlarePlacementCatalog? chargeFlarePlacement;
     [NonSerialized] private ChargeFlareSpriteCatalog? chargeFlareCompositions;
+    [NonSerialized] private GrappleTileAtlas? grappleArtwork;
+
+    /// <summary>Supplies current endpoint/rope PNG content to live and future runtimes.</summary>
+    public void BindGrappleArtwork(GrappleTileAtlas? atlas)
+    {
+        grappleArtwork = atlas;
+        if (runtime is not null) runtime.GrappleArtwork = atlas;
+    }
 
     /// <summary>Rebinds current flare parts without replacing saved animation state.</summary>
     public void BindChargeFlareCompositions(ChargeFlareSpriteCatalog? catalog)

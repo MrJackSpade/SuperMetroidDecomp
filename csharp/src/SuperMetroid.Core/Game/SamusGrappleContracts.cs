@@ -149,6 +149,7 @@ public sealed class SamusGrappleState
     public ushort FlareAnimationTimer { get; set; }
 
     public ushort PointAnimationTimer { get; set; }
+    /// <summary>Ordinal of the native $200-byte-strided endpoint source, normally zero through three.</summary>
     public byte PointAnimationFrame { get; set; }
     /// <summary>
     /// Sixteen timers at WRAM $7E:0D42. A connected rope draws slots 15 downward; retaining

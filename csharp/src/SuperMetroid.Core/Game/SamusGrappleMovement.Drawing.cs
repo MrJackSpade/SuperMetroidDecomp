@@ -19,7 +19,8 @@ public static partial class SamusGrappleMovement
         OamBuffer oam,
         VramWriteQueue vramWrites,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        Assets.GrappleTileAtlas? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(grapple);
@@ -28,26 +29,17 @@ public static partial class SamusGrappleMovement
         if (!UsesBeamSpecificDrawingPath(grapple.Phase))
             return;
 
-        // $9B:BFBD alternates the 32-byte grapple-point tile every six calls (timer five
-        // decrements through zero and wraps). The two pointers live in bank $9B but name
-        // graphics in bank $9A, exactly as the seven-byte VRAM queue record does.
-        if (grapple.PointAnimationTimer == 0)
-        {
-            grapple.PointAnimationTimer = 5;
-            grapple.PointAnimationFrame ^= 1;
-        }
+        // The native pair is a begin/end range, not two animation frames. Each
+        // six-call interval advances the source by $200 through four endpoint tiles.
+        GrapplePointAnimationDefinitions.Advance(grapple);
+        if (artwork is not null && grapple.PointAnimationFrame < GrapplePointAnimationDefinitions.FrameCount)
+            artwork.QueuePoint(vramWrites, grapple.PointAnimationFrame);
         else
         {
-            grapple.PointAnimationTimer--;
+            vramWrites.Enqueue(SamusGrappleRomData.Rendering.PointTileByteCount,
+                GrapplePointAnimationDefinitions.SourceAddress(grapple.PointAnimationFrame),
+                SamusGrappleRomData.Rendering.PointTileVramDestination);
         }
-        ushort pointPointer = ReadWord(
-            bus,
-            SamusGrappleRomData.Rendering.PointTilePointers +
-                grapple.PointAnimationFrame * 2);
-        vramWrites.Enqueue(
-            SamusGrappleRomData.Rendering.PointTileByteCount,
-            SamusGrappleRomData.Banks.CharacterData | pointPointer,
-            SamusGrappleRomData.Rendering.PointTileVramDestination);
 
         // The 128-byte rope body source is selected by the same folded angle byte used in
         // $9B:BFFD. Horizontal, diagonal, and vertical source blocks therefore remain ROM
@@ -56,14 +48,16 @@ public static partial class SamusGrappleMovement
         // The result is already an even byte offset into the word table. Multiplying that
         // value by two again selects unrelated data for half the angles (notably firing
         // right at $C000), producing a correctly positioned but visually blank rope.
-        int foldedAngleOffset = (grapple.Angle.RawValue >> 9) & 0xfe;
-        ushort segmentPointer = ReadWord(
-            bus,
-            SamusGrappleRomData.Rendering.SegmentTilePointers + foldedAngleOffset);
-        vramWrites.Enqueue(
-            SamusGrappleRomData.Rendering.SegmentTileByteCount,
-            SamusGrappleRomData.Banks.CharacterData | segmentPointer,
-            SamusGrappleRomData.Rendering.SegmentTileVramDestination);
+        if (artwork is not null)
+            artwork.QueueSegments(vramWrites, grapple.Angle.RawValue);
+        else
+        {
+            int foldedAngleOffset = (grapple.Angle.RawValue >> 9) & 0xfe;
+            ushort segmentPointer = ReadWord(bus, SamusGrappleRomData.Rendering.SegmentTilePointers + foldedAngleOffset);
+            vramWrites.Enqueue(SamusGrappleRomData.Rendering.SegmentTileByteCount,
+                SamusGrappleRomData.Banks.CharacterData | segmentPointer,
+                SamusGrappleRomData.Rendering.SegmentTileVramDestination);
+        }
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating
         // at 120 by a signed comparison. It happens even at zero rope length; only the OAM

@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class ProjectilePresentationFiles
 {
     public const string ManifestFileName = "projectile-manifest.json";
-    public const int Version = 7;
+    public const int Version = 8;
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -30,6 +30,8 @@ public static class ProjectilePresentationFiles
         byte[] trailTiles = ProjectileTrailAtlasExtractor.Extract(validatedBus);
         byte[] flarePlacement = ChargeFlarePlacementExtractor.Extract(validatedBus);
         byte[] flareCompositions = ChargeFlareSpriteExtractor.Extract(validatedBus);
+        byte[] grappleTiles = GrappleTileExtractor.Extract(validatedBus);
+        File.WriteAllBytes(Path.Combine(directory, GrappleTileDefinitions.FileName), grappleTiles);
         File.WriteAllBytes(Path.Combine(directory, ChargeFlareSpriteDefinitions.FileName), flareCompositions);
         File.WriteAllBytes(Path.Combine(directory, ChargeFlarePlacementDefinitions.FileName), flarePlacement);
         File.WriteAllBytes(Path.Combine(directory, ProjectileTrailAtlasDefinitions.FileName), trailTiles);
@@ -38,7 +40,7 @@ public static class ProjectilePresentationFiles
         foreach (var file in beams) File.WriteAllBytes(Path.Combine(directory, file.Key), file.Value);
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
             new Manifest(Version, SupportedCartridge.Sha256, Hash(bytes),
-                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(trails), Hash(trailTiles), Hash(flarePlacement), Hash(flareCompositions)), Options));
+                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(trails), Hash(trailTiles), Hash(flarePlacement), Hash(flareCompositions), Hash(grappleTiles)), Options));
         _ = Load(directory, null);
     }
 
@@ -93,6 +95,10 @@ public static class ProjectilePresentationFiles
         if (Hash(stockFlareCompositions) != manifest.FlareCompositionsSha256)
             throw new InvalidDataException("Charge-flare compositions stock hash mismatch.");
         _ = ChargeFlareSpriteCatalog.Load(new MemoryStream(stockFlareCompositions));
+        byte[] stockGrappleTiles = File.ReadAllBytes(Path.Combine(stockDirectory, GrappleTileDefinitions.FileName));
+        if (Hash(stockGrappleTiles) != manifest.GrappleTilesSha256)
+            throw new InvalidDataException("Grapple PNG stock hash mismatch.");
+        _ = GrappleTileAtlas.Load(new MemoryStream(stockGrappleTiles));
         // Finish stock validation before opening any optional replacement.
         byte[] Select(string name, byte[] baseline)
         {
@@ -106,22 +112,24 @@ public static class ProjectilePresentationFiles
         byte[] selectedTrailTiles = Select(ProjectileTrailAtlasDefinitions.FileName, stockTrailTiles);
         byte[] selectedFlarePlacement = Select(ChargeFlarePlacementDefinitions.FileName, stockFlarePlacement);
         byte[] selectedFlareCompositions = Select(ChargeFlareSpriteDefinitions.FileName, stockFlareCompositions);
+        byte[] selectedGrappleTiles = Select(GrappleTileDefinitions.FileName, stockGrappleTiles);
         return new(ProjectileSpriteCatalog.Load(new MemoryStream(selected, writable: false)),
-            Identity(stock, stockBeams, stockPalettes, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions), Identity(selected, selectedBeams, selectedPalettes, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions),
+            Identity(stock, stockBeams, stockPalettes, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles), Identity(selected, selectedBeams, selectedPalettes, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles),
             BeamTileCatalog.Load(selectedBeams, BeamPaletteCatalog.Load(new MemoryStream(selectedPalettes))),
             ProjectileTrailCatalog.Load(new MemoryStream(selectedTrails), ProjectileTrailAtlas.Load(new MemoryStream(selectedTrailTiles))),
             ChargeFlarePlacementCatalog.Load(new MemoryStream(selectedFlarePlacement)),
-            ChargeFlareSpriteCatalog.Load(new MemoryStream(selectedFlareCompositions)));
+            ChargeFlareSpriteCatalog.Load(new MemoryStream(selectedFlareCompositions)),
+            GrappleTileAtlas.Load(new MemoryStream(selectedGrappleTiles)));
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams, byte[] palettes, byte[] trails, byte[] trailTiles, byte[] flarePlacement, byte[] flareCompositions)
+    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams, byte[] palettes, byte[] trails, byte[] trailTiles, byte[] flarePlacement, byte[] flareCompositions, byte[] grappleTiles)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
         string hashes = Hash(composition);
         for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
             hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)]);
-        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes) + Hash(trails) + Hash(trailTiles) + Hash(flarePlacement) + Hash(flareCompositions)));
+        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes) + Hash(trails) + Hash(trailTiles) + Hash(flarePlacement) + Hash(flareCompositions) + Hash(grappleTiles)));
     }
     private static void ValidateObject(JsonElement element)
     {
@@ -134,8 +142,8 @@ public static class ProjectilePresentationFiles
             if (property.Value.ValueKind == JsonValueKind.Object) ValidateObject(property.Value);
         }
     }
-    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256);
+    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256);
 }
 
 /// <summary>Loaded content and separate original/selected byte identities for diagnostics.</summary>
-public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails, ChargeFlarePlacementCatalog FlarePlacement, ChargeFlareSpriteCatalog FlareCompositions);
+public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails, ChargeFlarePlacementCatalog FlarePlacement, ChargeFlareSpriteCatalog FlareCompositions, GrappleTileAtlas GrappleTiles);

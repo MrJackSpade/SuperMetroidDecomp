@@ -40,5 +40,19 @@ public enum VramAssetId
     /// <summary>The eight ice/wave projectile-trail characters.</summary>
     ProjectileIceWaveTrailTiles,
     /// <summary>The four missile/Super Missile trail characters.</summary>
-    ProjectileMissileTrailTiles
+    ProjectileMissileTrailTiles,
+    /// <summary>First Grapple endpoint frame from $9A:8200.</summary>
+    GrapplePointFirstTiles,
+    /// <summary>Second Grapple endpoint frame from $9A:8400.</summary>
+    GrapplePointSecondTiles,
+    /// <summary>Third Grapple endpoint frame from $9A:8600.</summary>
+    GrapplePointThirdTiles,
+    /// <summary>Fourth Grapple endpoint frame from $9A:8800.</summary>
+    GrapplePointFourthTiles,
+    /// <summary>Four horizontal Grapple segment frames from $9A:8220.</summary>
+    GrappleHorizontalSegmentTiles,
+    /// <summary>Four diagonal Grapple segment frames from $9A:8A20.</summary>
+    GrappleDiagonalSegmentTiles,
+    /// <summary>Four vertical Grapple segment frames from $9A:9220.</summary>
+    GrappleVerticalSegmentTiles
 }

@@ -36,6 +36,7 @@ public sealed partial class SuperMetroidGame
                     runtime.TrailArtwork = trailArtwork;
                     runtime.ChargeFlarePlacement = chargeFlarePlacement;
                     runtime.ChargeFlareCompositions = chargeFlareCompositions;
+                    runtime.GrappleArtwork = grappleArtwork;
                     runtime.BeamArtwork = beamArtwork;
                     runtime.InitializeAttractDemo(scene);
                     demoFramesRemaining = scene.Duration;

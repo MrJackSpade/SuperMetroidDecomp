@@ -320,6 +320,26 @@ internal static partial class Program
         AssertEqual(compositionEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves flare composition override");
         File.WriteAllText(compositionOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare composition override never falls back");
+        File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
+        string grappleStock = Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName);
+        string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
+        var grappleImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(grappleStock)), GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+        grappleImage.Pixels[0] ^= 1;
+        using var grapplePng = new MemoryStream();
+        IndexedPng.Write(grapplePng, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
+        File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
+        var grappleEdited = installation.LoadProjectiles();
+        AssertTrue(grappleEdited.SelectedSha256 != compositionEdited.SelectedSha256, "Grapple PNG-only edit changes content identity");
+        AssertEqual((byte)(compositionEdited.GrappleTiles.Resolve(VramAssetId.GrapplePointFirstTiles).Span[0] ^ 128),
+            grappleEdited.GrappleTiles.Resolve(VramAssetId.GrapplePointFirstTiles).Span[0], "Installed Grapple PNG selects edited endpoint pixel");
+        File.WriteAllText(grappleStock, "broken PNG");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple override cannot conceal corrupt stock");
+        File.Move(grappleStock, grappleStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple override cannot conceal missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(grappleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves Grapple PNG override");
+        File.WriteAllText(grappleOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple PNG override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

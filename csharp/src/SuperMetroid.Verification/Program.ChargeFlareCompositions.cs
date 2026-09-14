@@ -17,6 +17,8 @@ internal static partial class Program
             part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
         VerifyChargeFlareProduction(bus, stock, Load(allEdited));
         VerifyGrappleFlarePresentation(bus, stock, Load(allEdited));
+        VerifyGrapplePointAnimation(bus);
+        VerifyGrappleTileArtwork(bus);
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {

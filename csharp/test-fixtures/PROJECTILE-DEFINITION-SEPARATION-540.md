@@ -439,5 +439,32 @@ test and physical/visual hand-origin update order are unchanged. Tests exercise
 2,049 phase/pose/coordinate/counter/boundary cases and compare full native OAM,
 independently read native timing and complete serialized Samus/Grapple state with
 composition, cadence and selector ROM reads forbidden. Actual gameplay actor
-drawing and saved-state rebind also emit the edited parts. This does not yet
-extract Grapple's endpoint/rope PNGs, segment animation or sound bindings.
+drawing and saved-state rebind also emit the edited parts. Editable rope-segment
+composition/animation and sound bindings remain incomplete.
+
+Grapple endpoint and rope characters are now installed as `grapple-tiles.png`
+under version-eight projectile manifests. The 128x8 indexed PNG contains sixteen
+8x8 tiles: four endpoint frames, then four horizontal, four diagonal and four
+vertical rope frames. The 64-sector angle mapping remains compiled and matches
+every 16-bit native angle. Queue order, byte counts and VRAM destinations are
+unchanged; queued identities resolve current host pixels at NMI. Known legacy
+native transfers are rebound in place, and PNG data is excluded from saved graphs.
+Desktop/Android hosts and normal/attract runtime creation carry the current atlas.
+
+This inspection also found and reproduced an endpoint animation defect. The two
+words at `$9B:C342/C344` are the animation's inclusive begin/exclusive end, not
+two frames. The old producer selected `$9A:8A00` on its sixth call where native
+selects `$9A:8400`. The corrected compiled cycle advances `$8200/$8400/$8600/$8800`
+by `$200`, retaining DEC/BPL timing and pointer-wrap arithmetic. A two-cycle
+upload regression and 1,536 frame/timer boundary cases cover the correction.
+Tests additionally check all 65,536 angle selections and 1,024 real producer/NMI
+transfers against stock bytes with tile/pointer ROM reads forbidden. Editing the
+first pixel of all sixteen tiles changes only the five selected VRAM bits per
+upload, with identical rope OAM and complete Grapple state. Actor, lag-frame,
+legacy/typed pending-state, installer upgrade and host restart checks cover binding.
+
+To replace this art, copy `game/projectiles/grapple-tiles.png` to
+`overrides/projectiles/grapple-tiles.png` and restart. Keep its dimensions and
+four-bit palette indices. Endpoint frames occupy pixel columns 0..31; horizontal,
+diagonal and vertical frames occupy 32..63, 64..95 and 96..127 respectively.
+Palette selection, rope geometry, attachment behavior and damage are not PNG data.

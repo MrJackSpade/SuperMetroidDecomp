@@ -12,6 +12,13 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; set; }
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
+    [NonSerialized] private GrappleTileAtlas? grappleArtwork;
+    /// <summary>Current Grapple PNG. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
+    public GrappleTileAtlas? GrappleArtwork
+    {
+        get => grappleArtwork;
+        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); }
+    }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
     public ProjectileTrailCatalog? TrailArtwork
@@ -30,7 +37,11 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     }
 
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) =>
-        asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
+        asset is VramAssetId.GrapplePointFirstTiles or VramAssetId.GrapplePointSecondTiles or
+            VramAssetId.GrapplePointThirdTiles or VramAssetId.GrapplePointFourthTiles or
+            VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles or VramAssetId.GrappleVerticalSegmentTiles
+            ? (grappleArtwork ?? throw new InvalidOperationException("Grapple artwork is not bound.")).Resolve(asset)
+            : asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
             ? (trailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
             : asset == VramAssetId.StandardHudTiles
             ? (MapPresentation ?? throw new InvalidOperationException("HUD artwork is not bound.")).Resolve(asset)

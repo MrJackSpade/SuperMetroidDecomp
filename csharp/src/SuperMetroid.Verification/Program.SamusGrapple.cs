@@ -605,11 +605,8 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(2, grappleFlare.Palette, "grapple flare retains ROM palette bits");
     AssertEqual(3, grappleFlare.Priority, "grapple flare retains ROM priority bits");
 
-    // UpdateGrappleBeamTiles reads one 32-byte endpoint source and one angle-selected
-    // 128-byte segment source from bank-$9B pointer tables, but queues bank $9A as the DMA
-    // source. Give this angle unique pointers so a hard-coded host tile cannot pass.
-    WriteTestWord(bus, 0x9bc342, 0x1234);
-    WriteTestWord(bus, 0x9bc344, 0x1434);
+    // The endpoint cycle is compiled from the native begin/end range. Keep this
+    // fixture's independently patched angle source until segment art is supplied.
     int foldedAngleOffset = (samus.Grapple.Angle.RawValue >> 9) & 0xfe;
     WriteTestWord(bus, 0x9bc346 + foldedAngleOffset, 0x5678);
 
@@ -628,7 +625,7 @@ static void VerifySamusGrappleSwingAndRelease()
         layer1Y: 50);
 
     AssertEqual(2, grappleVramWrites.Entries.Count, "grapple queues endpoint and segment tiles");
-    AssertEqual(new VramWriteEntry(0x20, 0x9a1234, 0x6200), grappleVramWrites.Entries[0],
+    AssertEqual(new VramWriteEntry(0x20, 0x9a8200, 0x6200), grappleVramWrites.Entries[0],
         "grapple endpoint tile DMA record");
     AssertEqual(new VramWriteEntry(0x80, 0x9a5678, 0x6210), grappleVramWrites.Entries[1],
         "grapple angle-selected segment DMA record");

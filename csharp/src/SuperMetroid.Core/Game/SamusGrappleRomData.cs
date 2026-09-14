@@ -102,7 +102,7 @@ public static class SamusGrappleRomData
         public const int LeftPoseOffsetsByFrame = 0x9bc2c2;
         /// <summary>Right-facing body offsets indexed by swing frame.</summary>
         public const int RightPoseOffsetsByFrame = 0x9bc302;
-        /// <summary>Pointer to the Grapple point's character data.</summary>
+        /// <summary>$9B:C342/C344: inclusive begin and exclusive end of the Grapple endpoint's strided character range.</summary>
         public const int PointTilePointers = 0x9bc342;
         /// <summary>Pointers to folded-angle rope-segment character data.</summary>
         public const int SegmentTilePointers = 0x9bc346;

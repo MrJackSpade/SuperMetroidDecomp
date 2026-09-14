@@ -54,6 +54,14 @@ internal static partial class Program
         var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
         flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
         File.WriteAllText(flareCompositionOverride, flareComposition.ToJsonString());
+        string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
+        {
+            var grappleImage = IndexedPng.Read(input, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
+            grappleImage.Pixels[0] ^= 1;
+            using var output = File.Create(grappleOverride);
+            IndexedPng.Write(output, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
+        }
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
@@ -133,6 +141,7 @@ internal static partial class Program
             [trailPngOverride] = File.ReadAllBytes(trailPngOverride),
             [flareOverride] = File.ReadAllBytes(flareOverride),
             [flareCompositionOverride] = File.ReadAllBytes(flareCompositionOverride),
+            [grappleOverride] = File.ReadAllBytes(grappleOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),

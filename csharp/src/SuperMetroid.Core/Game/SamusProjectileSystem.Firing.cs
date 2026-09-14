@@ -238,7 +238,7 @@ public sealed partial class SamusProjectileSystem
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
-            : ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+            : samus.ReadShotDirection(bus);
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
@@ -355,7 +355,7 @@ public sealed partial class SamusProjectileSystem
 
         SamusProjectileSlot slot = _slots[slotIndex];
         slot.ClearFields();
-        slot.Direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        slot.Direction = samus.ReadShotDirection(bus);
         if (!slot.PackedDirection.IsValidInitialDirection)
         {
             ProjectileCounter = unchecked((ushort)(ProjectileCounter - 1));
@@ -457,7 +457,7 @@ public sealed partial class SamusProjectileSystem
 
         SamusProjectileSlot slot = _slots[slotIndex];
         slot.ClearFields();
-        slot.Direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        slot.Direction = samus.ReadShotDirection(bus);
         if (!slot.PackedDirection.IsValidInitialDirection)
             return (null, 0);
 

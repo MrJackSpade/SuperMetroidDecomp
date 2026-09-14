@@ -8,6 +8,8 @@ internal static partial class Program
     private static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        byte AimPose(byte direction) => (byte)Enumerable.Range(0, 253).First(pose =>
+            retail.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction);
         var room = new RoomLevelData(16, 16, new ushort[256], new byte[256],
             new ushort[256], new byte[8]);
         for (ushort combination = 0; combination < 12; combination++)
@@ -15,8 +17,7 @@ internal static partial class Program
         {
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
-            bus.WriteByte(SamusMovementRomData.Poses.Definitions + 8 + 3, direction);
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
                 EquippedBeams = combination };
             var projectiles = new SamusProjectileSystem();
             var result = projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
@@ -58,8 +59,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            bus.WriteByte(SamusMovementRomData.Poses.Definitions + 8 + 3, direction);
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
                 SelectedHudItem = weapon, Missiles = 10, SuperMissiles = 10 };
             var projectiles = new SamusProjectileSystem();
             var bombs = new SamusBombProjectileSystem();

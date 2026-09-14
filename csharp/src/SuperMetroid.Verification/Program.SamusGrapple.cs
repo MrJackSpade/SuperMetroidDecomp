@@ -412,7 +412,9 @@ static void VerifySamusGrappleSwingAndRelease()
         for (byte direction = 0; direction < 10; direction++)
         {
             byte sourceMovementType = family == 1 ? (byte)5 : (byte)6;
-            byte sourcePose = family == 1 ? SamusPoseIds.CrouchingRightPose : SamusPoseIds.FallingRightPose;
+            // Exercise the whole connection-table cross-product through an explicit
+            // non-authored pose. Authored pose aim/movement cannot be rewritten as art.
+            byte sourcePose = 0xfd;
             WritePoseDefinition(bus, sourcePose,
                 [0x08, sourceMovementType, 0xff, direction, 0x00, 0x00, 0x05, 0x15]);
 

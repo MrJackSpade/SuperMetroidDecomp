@@ -251,8 +251,9 @@ static void VerifySamusPowerBeamProjectiles()
     // animation selection, cooldown, sound, and live-slot counter in isolation.
     for (byte direction = 0; direction < 10; direction++)
     {
-        // Vary the still-ROM-backed shot direction, not a compiled movement family.
-        byte pose = SamusPoseIds.FacingRightNormalPose;
+        // A non-authored synthetic record isolates all ten producer directions
+        // without pretending that replaceable artwork can rewrite authored aim.
+        byte pose = 0xfd;
         WritePoseDefinition(
             bus,
             pose,

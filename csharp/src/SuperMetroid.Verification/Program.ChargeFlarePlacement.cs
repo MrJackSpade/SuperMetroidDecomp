@@ -28,7 +28,9 @@ internal static partial class Program
         foreach (SamusMode7Transform? transform in new SamusMode7Transform?[] { null, new(240, 16, 65520, 128, 112) })
         for (int component = 0; component < 3; component++)
         {
-            var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+            // Non-authored metadata makes the deliberate overread directions testable
+            // without rewriting an authored pose's immutable aiming rules.
+            var samus = new SamusState { Pose = 0xfd, XPosition = coordinate, YPosition = coordinate };
             var native = new OamBuffer(); var actual = new OamBuffer();
             draw(new FlarePlacementGuard(bus, pose, direction, false), native, samus, 0, 0, component, transform, null, null);
             draw(new FlarePlacementGuard(bus, pose, direction, true), actual, samus, 0, 0, component, transform, stock, null);
@@ -90,6 +92,9 @@ internal static partial class Program
     {
         public byte ReadByte(int address)
         {
+            int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
+            if ((uint)syntheticOffset < 8)
+                return syntheticOffset == 3 ? direction : source.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + syntheticOffset);
             if (address == SamusMovementRomData.Poses.Definitions + pose * 8 + 3) return direction;
             if (forbid && address is >= 0x90c1a8 and < 0x90c210)
                 throw new InvalidDataException("Flare placement still reads origin ROM.");

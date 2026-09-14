@@ -1877,3 +1877,28 @@ integration dependencies. The broad issues remain open.
 Verification passed: 16,580,608 production lookup comparisons, zero allocations
 over 65,536 warmed-up lookups, full Release Verification, Windows Release build,
 and all 262 unchanged native checkpoints from the player's Moat CWJ movie.
+
+# Authored pose aim and firing restrictions (#541 / #547)
+
+`SamusPoseAimDefinitions` owns all 253 authored direction bytes from `$91:B62C`
+(byte three of each eight-byte pose record). Samus transition, projectile producer,
+charge-flare and Grapple readers consume that catalog. The full `$FA/$FB/$FC/$FF`
+restriction bytes remain intact; they are not masked into ordinary directions.
+Non-authored `$FD..$FF` indexes retain their adjacent-ROM behavior.
+
+The pose verifier compares every authored byte against the pinned ROM through
+live and prospective production readers with all bus reads forbidden. Existing
+artwork-isolation tests still replace all graphics-Y bytes independently. They
+now assert cancellation for native non-fireable poses instead of granting those
+poses synthetic aim. Numeric cross-product/overread tests use explicit `$FD`
+metadata where no authored pose represents the tested combination. Other tests
+select real aiming poses. Landing-to-turn checks retain each landing pose's
+actual up/diagonal aim rather than overwriting every source with horizontal aim.
+
+This removes the authored aim dependency only. Animation programs, visual pose
+offsets and the broader ROM-free integration remain separate open work.
+
+Verification: full Release Verification passed, including 655,360 Grapple
+launch/late-origin cases, 131,072 held launches and 1,536 flare OAM comparisons.
+The player's CWJ movie still matches all 262 native checkpoints exactly. Windows
+Release builds with zero warnings and errors.

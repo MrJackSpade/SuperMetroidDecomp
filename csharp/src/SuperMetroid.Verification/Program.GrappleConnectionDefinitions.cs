@@ -143,7 +143,9 @@ internal static partial class Program
             .CreateDelegate<Func<ISnesAddressSpace, RoomLevelData, SamusState, ushort, GrappleMovementResult?>>();
         var drop = typeof(SamusGrappleMovement).GetMethod("SelectDroppedPose", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<ISnesAddressSpace, SamusState, byte>>();
-        var metadata = new GrappleFiringReadGuard(rom);
+        // Cancellation/drop include deliberately impossible movement/aim combinations.
+        // Supply them through non-authored metadata rather than mutating retail poses.
+        var metadata = new GrappleFiringReadGuard(rom) { SyntheticAim = true };
         var guard = new GrappleConnectionReadGuard(metadata);
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 512, YPosition = 512 };
@@ -156,7 +158,8 @@ internal static partial class Program
             int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
             if (sourcePose < 0) continue; // The cancellation-table entry is checked above.
-            metadata.SourcePose = samus.Pose = (byte)sourcePose;
+            metadata.SourcePose = (byte)sourcePose;
+            samus.Pose = 0xfd;
             metadata.Direction = direction;
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
             samus.Grapple.PoseChangeAutoFireTimer = timer;
@@ -170,6 +173,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         for (int radius = 0; radius <= ushort.MaxValue; radius++)
         {
+            samus.Pose = 0xfd;
             metadata.Direction = direction; samus.Kinematics.YRadius = (ushort)radius;
             AssertEqual(rom.ReadByte((radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
@@ -177,7 +181,8 @@ internal static partial class Program
         for (int direction = 10; direction <= byte.MaxValue; direction++)
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
-            metadata.SourcePose = samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            metadata.SourcePose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = 0xfd;
             metadata.Direction = (byte)direction; samus.Kinematics.YRadius = radius;
             int expected = radius < 17 ? (left ? 0x28 : 0x27) : (left ? 2 : 1);
             AssertEqual(expected, drop(guard, samus), "Non-fireable drop direction retains facing fallback");

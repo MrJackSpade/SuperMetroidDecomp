@@ -25,7 +25,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         for (int art = 0; art <= byte.MaxValue; art++)
         {
-            bus.Pose = samus.Pose = (byte)pose; bus.Direction = direction; bus.ArtY = (byte)art;
+            bus.Pose = samus.Pose = (byte)pose; bus.ArtY = (byte)art;
             samus.XPosition = unchecked((ushort)(pose * 251 + art));
             samus.YPosition = unchecked((ushort)~samus.XPosition);
             byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);
@@ -42,7 +42,12 @@ internal static partial class Program
             samus.LiquidPhysics.BeginFrameSoundRequests();
             SamusGrappleMovement.BeginFiring(bus, samus);
             bool held = pose is SamusPoseIds.DraygonGrabbedMovingLeftPose or SamusPoseIds.DraygonGrabbedMovingRightPose;
-            int firingDirection = held ? (pose == SamusPoseIds.DraygonGrabbedMovingLeftPose ? 7 : 2) : direction;
+            int firingDirection = held ? (pose == SamusPoseIds.DraygonGrabbedMovingLeftPose ? 7 : 2) : rom.ReadByte(0x91b629 + pose * 8 + 3);
+            if ((firingDirection & 0xf0) != 0)
+            {
+                AssertEqual(GrapplePhase.CancelPending, g.Phase, "Artwork cannot enable Grapple in a restricted authored pose");
+                continue;
+            }
             int physicalCorrection = held ? 6 : physicalY;
             int visualCorrection = held ? 6 : unchecked((sbyte)art);
             short originY = Word((running ? 0x9bc186 : 0x9bc136) + firingDirection * 2);
@@ -56,15 +61,15 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(samus.YPosition + flareY - unchecked((sbyte)art))), g.BeamStartY, "Late Grapple flare uses current artwork");
             AssertEqual(endpoint, g.AnchorY, "Late draw does not move collision endpoint");
         }
-        Console.WriteLine("Pose projectile origins: 647680 actual beam and Grapple launch/late-draw cases preserve physics while replacing every graphics-Y byte.");
+        Console.WriteLine("Pose projectile origins: 647680 beam-origin cases and authored Grapple launch/cancellation checks preserve physics while replacing every graphics-Y byte.");
     }
 
     private sealed class PoseOriginPresentationBus(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        public byte Pose, Direction, ArtY;
+        public byte Pose, ArtY;
         public byte ReadByte(int address)
         {
-            if (address == 0x91b629 + Pose * 8 + 3) return Direction;
+            if (address == 0x91b629 + Pose * 8 + 3) throw new InvalidOperationException("Compiled pose aim read artwork metadata.");
             if (address == 0x91b629 + Pose * 8 + 4) return ArtY;
             return source.ReadByte(address);
         }

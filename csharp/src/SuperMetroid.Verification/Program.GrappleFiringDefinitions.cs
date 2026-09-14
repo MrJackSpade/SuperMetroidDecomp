@@ -24,15 +24,19 @@ internal static partial class Program
             .OrderBy(group => group.Key).Select(group => (byte)group.First()).ToArray();
         for (byte direction = 0; direction < 10; direction++)
         {
+            byte[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                pose is not (SamusPoseIds.DraygonGrabbedMovingLeftPose or SamusPoseIds.DraygonGrabbedMovingRightPose))
+                .Select(pose => (byte)pose).ToArray();
             int offset = direction * 2;
             short vx = Word(0x9bc0db + offset), vy = Word(0x9bc0ef + offset);
             ushort angle = unchecked((ushort)Word(0x9bc104 + offset));
             AssertEqual((vx, vy, angle), GrappleFiringDefinitions.Launch(direction), "Native Grapple launch words");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                // Covers every authored movement family and signed graphics-Y byte, and every X/Y
-                // position word. Only native type one selects running hand offsets.
-                samus.Pose = bus.SourcePose = movementPoses[(raw >> 8) % movementPoses.Length];
+                // Use actual authored aim/movement combinations while sweeping every
+                // signed graphics-Y byte and X/Y position word.
+                samus.Pose = bus.SourcePose = aimingPoses[(raw >> 8) % aimingPoses.Length];
                 byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 1);
                 bus.GraphicsY = (byte)raw;
                 bus.Direction = direction;
@@ -77,7 +81,9 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             bus.ReplaceFlare = replaceFlare;
-            samus.Pose = bus.SourcePose = SamusPoseIds.FacingRightNormalPose;
+            samus.Pose = bus.SourcePose = (byte)Enumerable.Range(0, 253).First(pose =>
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != 1);
             bus.GraphicsY = 0; bus.Direction = direction;
             samus.XPosition = samus.YPosition = 512;
             grapple.Phase = GrapplePhase.Inactive;
@@ -93,7 +99,7 @@ internal static partial class Program
                 AssertEqual(dx, grapple.EndpointXOffsetFixed, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointYOffsetFixed, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.AnchorX, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - 6 + (dy >> 16))), grapple.AnchorY, "Native endpoint Y with standing physical correction");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 4) + (dy >> 16))), grapple.AnchorY, "Native endpoint Y with authored physical correction");
             }
         }
         bus.ReplaceFlare = false;
@@ -157,9 +163,13 @@ internal static partial class Program
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
         public bool ForbidMechanics = true;
         public bool ReplaceFlare;
+        public bool SyntheticAim;
         public byte ReadByte(int address)
         {
             int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
+            int syntheticOffset = address - (SamusMovementRomData.Poses.Definitions + 0xfd * 8);
+            if (SyntheticAim && (uint)syntheticOffset < 8)
+                return syntheticOffset == 3 ? Direction : source.ReadByte(pose + syntheticOffset);
             if (address == pose + 1) throw new InvalidOperationException("Compiled pose movement read ROM.");
             if (address == pose + 3) return Direction;
             if (address == pose + 4) return GraphicsY;

@@ -1265,7 +1265,14 @@ static void VerifySamusMoonwalking()
             bus,
             SamusPoseIds.MoonwalkFacingRightPose,
             moonwalkEnabled: false);
-        AssertEqual(SamusPoseIds.TurningRightToLeftPose, landingMoonwalk.Pose,
+        byte expectedTurn = landingPose switch
+        {
+            SamusPoseIds.LandingAimUpRightPose => SamusPoseIds.TurningRightToLeftAimUpPose,
+            SamusPoseIds.LandingAimDiagonalUpRightPose => SamusPoseIds.TurningRightToLeftAimDiagonalUpPose,
+            SamusPoseIds.LandingAimDiagonalDownRightPose => SamusPoseIds.TurningRightToLeftAimDiagonalDownPose,
+            _ => SamusPoseIds.TurningRightToLeftPose,
+        };
+        AssertEqual(expectedTurn, landingMoonwalk.Pose,
             $"right landing ${landingPose:X2} honors disabled Moonwalk substitution");
     }
 
@@ -1287,7 +1294,14 @@ static void VerifySamusMoonwalking()
             bus,
             SamusPoseIds.MoonwalkFacingLeftPose,
             moonwalkEnabled: false);
-        AssertEqual(SamusPoseIds.TurningLeftToRightPose, landingMoonwalk.Pose,
+        byte expectedTurn = landingPose switch
+        {
+            SamusPoseIds.LandingAimUpLeftPose => SamusPoseIds.TurningLeftToRightAimUpPose,
+            SamusPoseIds.LandingAimDiagonalUpLeftPose => SamusPoseIds.TurningLeftToRightAimDiagonalUpPose,
+            SamusPoseIds.LandingAimDiagonalDownLeftPose => SamusPoseIds.TurningLeftToRightAimDiagonalDownPose,
+            _ => SamusPoseIds.TurningLeftToRightPose,
+        };
+        AssertEqual(expectedTurn, landingMoonwalk.Pose,
             $"left landing ${landingPose:X2} honors disabled Moonwalk substitution");
     }
 
@@ -1504,10 +1518,11 @@ static void VerifySamusRanIntoWall()
     ];
     for (byte direction = 0; direction < selectedByShotDirection.Length; direction++)
     {
-        WritePoseDefinitionByte(bus, SamusPoseIds.MovingRightNormalPose, 3, direction);
+        // Include downward aim entries that have no authored running pose.
+        WritePoseDefinition(bus, 0xfd, [0x08, 0x01, 0x01, direction, 0x06, 0x00, 0x15, 0x00]);
         AssertEqual(
             selectedByShotDirection[direction],
-            SamusState.SelectRanIntoWallPose(bus, SamusPoseIds.MovingRightNormalPose),
+            SamusState.SelectRanIntoWallPose(bus, 0xfd),
             $"ran-into-wall shot selector {direction}");
     }
     WritePoseDefinitionByte(bus, SamusPoseIds.MovingRightNormalPose, 3, 2);

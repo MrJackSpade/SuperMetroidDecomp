@@ -130,9 +130,7 @@ public sealed partial class SamusState
     public static byte ReadShotDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + 3));
+        return SamusPoseAimDefinitions.Read(bus, pose);
     }
 
     /// <summary>

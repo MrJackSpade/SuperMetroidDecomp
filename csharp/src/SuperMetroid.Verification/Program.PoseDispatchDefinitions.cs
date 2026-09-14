@@ -16,6 +16,9 @@ internal static partial class Program
             byte facing = rom.ReadByte(address), movement = rom.ReadByte(address + 1), fallback = rom.ReadByte(address + 2);
             ISnesAddressSpace source = pose <= 0xfc ? forbidden : rom;
             samus.Pose = (byte)pose;
+            byte aim = rom.ReadByte(address + 3);
+            AssertEqual(aim, samus.ReadShotDirection(source), "Live aim and restrictions retain the full native byte without authored ROM reads");
+            AssertEqual(aim, SamusState.ReadShotDirection(source, (byte)pose), "Prospective aim retains native byte and adjacent indexes");
             AssertEqual(facing, samus.ReadPoseXDirection(source), "Live pose facing retains native value");
             AssertEqual(facing, SamusState.ReadPoseXDirection(source, (byte)pose), "Prospective pose facing retains native value");
             AssertEqual(fallback, samus.ReadNoInputFallbackPose(source), "No-input fallback retains native pose or sentinel");
@@ -30,6 +33,6 @@ internal static partial class Program
             else
                 AssertThrows<InvalidDataException>(() => samus.ReadMovementType(source), "Adjacent invalid movement remains a loud error");
         }
-        Console.WriteLine("Pose dispatch: all 253 authored facing/movement/fallback records match native with all ROM reads forbidden; trailing indexes retain adjacent-data behavior.");
+        Console.WriteLine("Pose dispatch: all 253 authored facing/movement/fallback/aim records match native with all ROM reads forbidden; trailing indexes retain adjacent-data behavior.");
     }
 }

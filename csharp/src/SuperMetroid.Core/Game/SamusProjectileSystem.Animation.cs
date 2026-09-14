@@ -153,7 +153,7 @@ public sealed partial class SamusProjectileSystem
         Assets.ChargeFlarePlacementCatalog? placement,
         Assets.ChargeFlareSpriteCatalog? compositions)
     {
-        byte direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
+        byte direction = samus.ReadShotDirection(bus);
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
             return;
 

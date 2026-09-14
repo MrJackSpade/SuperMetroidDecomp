@@ -108,10 +108,10 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = ReadWord(
             bus,
             AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
-        slot.XRadius = bus.ReadByte(
+        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(slot.InstructionPointer + 4)));
-        slot.YRadius = bus.ReadByte(
+        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(slot.InstructionPointer + 5)));
         slot.InstructionTimer = 1;

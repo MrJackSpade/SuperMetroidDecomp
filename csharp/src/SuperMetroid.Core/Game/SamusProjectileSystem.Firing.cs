@@ -271,11 +271,11 @@ public sealed partial class SamusProjectileSystem
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + direction * 2)));
-        slot.XRadius = bus.ReadByte(
+        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = bus.ReadByte(
+        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5))));
@@ -380,11 +380,11 @@ public sealed partial class SamusProjectileSystem
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = bus.ReadByte(
+        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = bus.ReadByte(
+        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5))));
@@ -485,11 +485,11 @@ public sealed partial class SamusProjectileSystem
             bus,
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = bus.ReadByte(
+        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = bus.ReadByte(
+        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
                 unchecked((ushort)(slot.InstructionPointer + 5))));

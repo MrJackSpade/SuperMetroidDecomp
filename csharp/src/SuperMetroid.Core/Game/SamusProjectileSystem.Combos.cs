@@ -79,8 +79,8 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionTimer = 1;
         if (ordinary)
         {
-            slot.XRadius = bus.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4));
-            slot.YRadius = bus.ReadByte(SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5));
+            slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(bus, SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 4));
+            slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(bus, SamusProjectileRomData.Banks.Projectile | (slot.InstructionPointer + 5));
         }
     }
 }

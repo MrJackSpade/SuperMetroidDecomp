@@ -8,8 +8,9 @@ This is an implementation inventory, not a completed migration or gameplay fix.
 `SamusProjectileDamageDefinitions` now compiles all forty damage headers, including
 the unused negative marker and zero-damage record. All seven consumers below
 use it. Exact-address selection preserves unaligned/adjacent reads on the bus.
-Pointer-table reads, instruction streams and physical radii remain ROM-backed;
-this is not a ROM-free projectile initializer or editable-art integration claim.
+At that slice, pointer-table reads, instruction streams and physical radii remained
+ROM-backed; the later radius slice below supersedes the radius status only.
+This is not a ROM-free projectile initializer or editable-art integration claim.
 
 `VerifyProjectileDamage` compares every header with reads forbidden, then every
 high-bank address (including odd addresses and bank-end wrapping) against ROM.
@@ -21,6 +22,28 @@ Existing full-suite tests retain trajectory and combat coverage. Presentation
 override tests and the rest of the integration gates below remain outstanding.
 
 ## Shared initializer consumers
+
+### Implemented collision-radius slice
+
+`SamusProjectileRadiusDefinitions` compiles the 805 authored byte pairs in
+bank-$93 timed instruction records, including unused lists. Every radius reader
+in ordinary/Hyper/missile firing, reflection, combo initialization and both
+projectile instruction handlers now uses this catalog. Sparse exact byte keys
+leave timers, opcodes, spritemap references and trail values on their existing
+paths; unknown addresses retain the bus fallback.
+
+`VerifyProjectileRadii` independently inventories the field addresses and compares
+all 1,610 physical bytes with ROM reads forbidden, plus every high-bank byte for
+adjacent-read preservation. It runs 1,610 actual projectile and 1,610 bomb timed
+frames, half with a substituted spritemap reference, asserting unchanged physical
+radii, durations and next pointers (and projectile trail values). The substituted
+reference is intentionally a field-level stimulus, not a rendered asset: this
+does not claim sprite rendering, editable resource loading or complete ROM-free
+instruction execution. Full production initializers remain covered by the damage
+slice's list/radius assertions and the existing verification suite.
+
+Pointer tables, duration/control/trail words and artwork extraction remain to be
+separated. The earlier checklist remains an integration gate, not completed work.
 
 | Production path | Definition selection | Coupled fields |
 | --- | --- | --- |

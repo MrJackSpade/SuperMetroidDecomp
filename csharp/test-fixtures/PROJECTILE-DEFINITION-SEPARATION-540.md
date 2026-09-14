@@ -409,6 +409,23 @@ are compiled from the pinned bank-$93 table; cadence and placement are not expos
 in the composition document. Verification compares all selectors against native
 OAM at coordinate boundaries and near sprite-buffer wrap (7,938 cases), and checks
 visible edits plus rejection of missing frames, invalid palettes, mechanics fields,
-duplicate properties and unknown selectors. This is an extractor/catalog API only:
-installation and live host binding of this composition file remain pending. No
-gameplay call site has been switched to this bounded selector API yet.
+duplicate properties and unknown selectors.
+
+Version-seven projectile manifests install and hash this composition file. Both
+hosts bind it at startup and after state reload; ordinary and attract runtimes
+inherit current content. The normal-charge and Hyper draw paths use these parts
+without changing timing, placement, visibility or simulation state. Non-catalog
+animation selectors retain native adjacent-table behavior rather than being
+clamped or newly rejected. Grapple's separate flare caller is not yet migrated.
+Tests compare 676 complete producer ticks with composition ROM reads forbidden,
+stock and edited runtime actor output, byte-identical simulation graphs, current
+content after graph restoration, all 54 host-bound selectors after restart/load,
+strict stock/override failures and preservation through real installer upgrade.
+The host integration test runs Android session code on Windows, not a deployed APK.
+
+To replace flare composition, copy `game/projectiles/charge-flare-compositions.json`
+to `overrides/projectiles/charge-flare-compositions.json` in the installation root
+and restart after editing. Retain all frame identities and change visual part
+offsets, tile row/column, size, palette, priority or flips. The file does not expose
+cadence, charge thresholds, damage or physical muzzle origins. Placement has its
+own file above; editing part offsets also leaves projectile launch geometry alone.

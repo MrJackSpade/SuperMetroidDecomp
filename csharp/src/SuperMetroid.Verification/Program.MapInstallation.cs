@@ -50,6 +50,10 @@ internal static partial class Program
         var flareDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
         flareDocument["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
+        string flareCompositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
+        var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
+        flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
+        File.WriteAllText(flareCompositionOverride, flareComposition.ToJsonString());
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
@@ -128,6 +132,7 @@ internal static partial class Program
             [trailOverride] = File.ReadAllBytes(trailOverride),
             [trailPngOverride] = File.ReadAllBytes(trailPngOverride),
             [flareOverride] = File.ReadAllBytes(flareOverride),
+            [flareCompositionOverride] = File.ReadAllBytes(flareCompositionOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),

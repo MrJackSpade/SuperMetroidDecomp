@@ -300,6 +300,26 @@ internal static partial class Program
         AssertEqual(flareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves flare override");
         File.WriteAllText(flareOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare override never falls back");
+        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
+        string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName);
+        string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
+        var compositionDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(compositionStock))!;
+        string firstFlare = ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0]);
+        compositionDocument["frames"]![firstFlare]![0]!["offsetX"] = 17;
+        File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
+        var compositionEdited = installation.LoadProjectiles();
+        AssertTrue(compositionEdited.SelectedSha256 != flareEdited.SelectedSha256, "Composition-only flare edit changes content identity");
+        var flareOam = new OamBuffer();
+        compositionEdited.FlareCompositions.Draw(0, flareOam, 100, 100);
+        AssertEqual(117, flareOam.GetEntry(0).X, "Installed flare composition emits selected part offset");
+        File.WriteAllText(compositionStock, "broken stock");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal corrupt stock");
+        File.Move(compositionStock, compositionStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Flare composition override cannot conceal missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(compositionEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves flare composition override");
+        File.WriteAllText(compositionOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare composition override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

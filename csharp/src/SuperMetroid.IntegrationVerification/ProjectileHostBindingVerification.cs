@@ -16,13 +16,16 @@ internal static class ProjectileHostBindingVerification
         var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var flareField = typeof(SuperMetroidGame).GetField("chargeFlarePlacement", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var flareCompositionField = typeof(SuperMetroidGame).GetField("chargeFlareCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
             session.SaveSlot(0);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
             CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
@@ -56,10 +59,15 @@ internal static class ProjectileHostBindingVerification
         var flare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
         flare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
+        var flareComposition = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)))!;
+        flareComposition["frames"]![ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])]![0]!["offsetX"] = 17;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName), flareComposition.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
+            CheckFlareCompositions((ChargeFlareSpriteCatalog)flareCompositionField.GetValue(session.Game)!, installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, field.GetValue(session.Game)))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
@@ -108,6 +116,18 @@ internal static class ProjectileHostBindingVerification
         for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
             if (actual.Resolve(running, direction) != expected.Resolve(running, direction))
                 throw new InvalidDataException("Host restored stale flare placement.");
+    }
+
+    private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
+    {
+        if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
+        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
+        {
+            var a = new OamBuffer(); var b = new OamBuffer();
+            actual.Draw(selector, a, 100, 100); expected.Draw(selector, b, 100, 100);
+            if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable) || a.NextByteOffset != b.NextByteOffset)
+                throw new InvalidDataException("Host restored stale flare composition content.");
+        }
     }
 
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)

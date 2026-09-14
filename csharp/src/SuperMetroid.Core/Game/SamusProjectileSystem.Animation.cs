@@ -150,7 +150,8 @@ public sealed partial class SamusProjectileSystem
         ushort layer1Y,
         int component,
         SamusMode7Transform? mode7Transform,
-        Assets.ChargeFlarePlacementCatalog? placement)
+        Assets.ChargeFlarePlacementCatalog? placement,
+        Assets.ChargeFlareSpriteCatalog? compositions)
     {
         byte direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
@@ -190,7 +191,12 @@ public sealed partial class SamusProjectileSystem
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
         ushort tableIndex = unchecked((ushort)(indexOffset + _flareFrames[component]));
-        oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+        // Retain native adjacent-table behavior for non-catalog animation states.
+        // Authored charge/Hyper selectors use only immutable host compositions.
+        if (compositions is not null && tableIndex < Assets.ChargeFlareSpriteDefinitions.Selectors.Length)
+            compositions.Draw(tableIndex, oam, screenX, screenY);
+        else
+            oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
     }
 
     private void ClearFlareAnimationState()

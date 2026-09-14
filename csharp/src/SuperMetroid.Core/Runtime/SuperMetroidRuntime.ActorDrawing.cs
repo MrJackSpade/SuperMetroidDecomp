@@ -252,7 +252,8 @@ public sealed partial class SuperMetroidRuntime
                         Camera.XPosition,
                         Camera.YPosition,
                         ActiveSamusMode7Transform,
-                        ChargeFlarePlacement);
+                        ChargeFlarePlacement,
+                        ChargeFlareCompositions);
                 }
 
                 // `$90:EB55` begins here for all three routes: ordinary, active grapple,

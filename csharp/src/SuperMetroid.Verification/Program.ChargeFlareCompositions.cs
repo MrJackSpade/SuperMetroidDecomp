@@ -11,6 +11,11 @@ internal static partial class Program
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
         var stock = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
+        var allEdited = JsonNode.Parse(json)!;
+        foreach (var frame in allEdited["frames"]!.AsObject())
+        foreach (var part in frame.Value!.AsArray())
+            part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
+        VerifyChargeFlareProduction(bus, stock, Load(allEdited));
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {

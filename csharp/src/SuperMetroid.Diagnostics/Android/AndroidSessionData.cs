@@ -44,6 +44,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.BindTrailArtwork(projectiles?.Trails);
         Game.BindChargeFlarePlacement(projectiles?.FlarePlacement);
+        Game.BindChargeFlareCompositions(projectiles?.FlareCompositions);
         if (projectiles is not null)
             Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
@@ -91,6 +92,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.BindTrailArtwork(projectiles?.Trails);
         Game.BindChargeFlarePlacement(projectiles?.FlarePlacement);
+        Game.BindChargeFlareCompositions(projectiles?.FlareCompositions);
         Game.SaveRamChanged += PersistSave;
         Audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
         Generation++;

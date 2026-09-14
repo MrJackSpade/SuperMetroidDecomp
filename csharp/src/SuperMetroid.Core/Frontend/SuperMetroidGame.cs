@@ -1284,6 +1284,7 @@ public sealed partial class SuperMetroidGame
         runtime.ProjectileCompositions = projectileCompositions;
         runtime.TrailArtwork = trailArtwork;
         runtime.ChargeFlarePlacement = chargeFlarePlacement;
+        runtime.ChargeFlareCompositions = chargeFlareCompositions;
         runtime.BeamArtwork = beamArtwork;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;

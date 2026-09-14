@@ -10,6 +10,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
     [field: NonSerialized]
     public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; set; }
+    [field: NonSerialized]
+    public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
     public ProjectileTrailCatalog? TrailArtwork

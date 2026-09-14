@@ -20,7 +20,7 @@ internal static partial class Program
         VerifyRuntimeFlarePlacement(bus, stock, edited);
         var system = new SamusProjectileSystem();
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?>>(system);
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         int cases = 0;
         foreach (byte pose in new byte[] { 1, 2, 9, 10 })
         for (byte direction = 0; direction < 16; direction++)
@@ -30,8 +30,8 @@ internal static partial class Program
         {
             var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
             var native = new OamBuffer(); var actual = new OamBuffer();
-            draw(new FlarePlacementGuard(bus, pose, direction, false), native, samus, 0, 0, component, transform, null);
-            draw(new FlarePlacementGuard(bus, pose, direction, true), actual, samus, 0, 0, component, transform, stock);
+            draw(new FlarePlacementGuard(bus, pose, direction, false), native, samus, 0, 0, component, transform, null, null);
+            draw(new FlarePlacementGuard(bus, pose, direction, true), actual, samus, 0, 0, component, transform, stock, null);
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
@@ -39,8 +39,8 @@ internal static partial class Program
         var subject = new SamusState { Pose = 1, XPosition = 100, YPosition = 100 };
         byte[] beforeSamus = Save(subject), beforeSystem = Save(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
-        draw(bus, original, subject, 0, 0, 0, null, stock);
-        draw(bus, changed, subject, 0, 0, 0, null, edited);
+        draw(bus, original, subject, 0, 0, 0, null, stock, null);
+        draw(bus, changed, subject, 0, 0, 0, null, edited, null);
         AssertTrue(original.NextByteOffset > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Visual shift retains sprite count");
         for (int i = 0; i < original.NextByteOffset / 4; i++)

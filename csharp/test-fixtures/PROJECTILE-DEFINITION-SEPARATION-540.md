@@ -374,3 +374,17 @@ all upper-bank byte/word reads, 3,072 sequential loop ticks and 3,855 seeded bou
 advances with timing ROM reads forbidden. Cached state, frame wrap and neighboring
 reads retain the native result. This does not extract flare artwork or change PAL
 timing; the project remains pinned to its supported NTSC ROM revision.
+
+Charge-flare muzzle offsets are visual presentation rather than physical launch
+origins. `ChargeFlarePlacementExtractor` exports standing/running X/Y offsets for
+all sixteen retained direction values to `charge-flare-placement.json`, including
+the native adjacent-row results of unnamed selectors. The immutable strict catalog
+is accepted by the shared charge/Hyper-flare draw path without changing physics,
+timing, pose corrections, Mode7 ordering or OAM admission. Tests compare 1,536
+actual draw cases with placement ROM reads forbidden, demonstrate a seven-pixel
+edited OBJ displacement, and compare complete serialized Samus/projectile state
+before/after drawing. Missing fields, out-of-range values, duplicate properties
+and injected mechanics fields fail. Public normal-charge and Hyper-flare paths
+also emit the selected displacement with identical complete post-tick state.
+Installation and host binding of this JSON
+remain pending; this is the extractor/catalog/draw integration layer only.

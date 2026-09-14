@@ -149,7 +149,8 @@ public sealed partial class SamusProjectileSystem
         ushort layer1X,
         ushort layer1Y,
         int component,
-        SamusMode7Transform? mode7Transform)
+        SamusMode7Transform? mode7Transform,
+        Assets.ChargeFlarePlacementCatalog? placement)
     {
         byte direction = ReadPoseByte(bus, samus.Pose, PoseDirectionOffset);
         if (direction is 0xff or 0x10 || (direction & 0xf0) != 0)
@@ -163,8 +164,9 @@ public sealed partial class SamusProjectileSystem
         int yTable = running
             ? SamusProjectileRomData.Origins.FlareRunningY
             : SamusProjectileRomData.Origins.FlareDefaultY;
-        short xOffset = unchecked((short)ReadWord(bus, xTable + directionOffset));
-        short yOffset = unchecked((short)ReadWord(bus, yTable + directionOffset));
+        var visualOffset = placement?.Resolve(running, direction & 0x0f);
+        short xOffset = visualOffset?.X ?? unchecked((short)ReadWord(bus, xTable + directionOffset));
+        short yOffset = visualOffset?.Y ?? unchecked((short)ReadWord(bus, yTable + directionOffset));
         byte poseYOffset = ReadPoseByte(bus, samus.Pose, PoseYOffsetOffset);
 
         // `$90:BBE1` calls `$8B:8A52` under the same Ceres-status high bit used by the

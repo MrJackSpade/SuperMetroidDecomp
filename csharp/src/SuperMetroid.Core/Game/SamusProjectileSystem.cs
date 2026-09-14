@@ -583,7 +583,8 @@ public sealed partial class SamusProjectileSystem
         SamusState samus,
         ushort layer1X,
         ushort layer1Y,
-        SamusMode7Transform? mode7Transform = null)
+        SamusMode7Transform? mode7Transform = null,
+        Assets.ChargeFlarePlacementCatalog? placement = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -618,7 +619,7 @@ public sealed partial class SamusProjectileSystem
                 }
 
                 DrawFlareComponent(
-                    bus, oam, samus, layer1X, layer1Y, component, mode7Transform);
+                    bus, oam, samus, layer1X, layer1Y, component, mode7Transform, placement);
             }
             return;
         }
@@ -640,7 +641,7 @@ public sealed partial class SamusProjectileSystem
         {
             AdvanceFlareComponent(bus, component);
             DrawFlareComponent(
-                bus, oam, samus, layer1X, layer1Y, component, mode7Transform);
+                bus, oam, samus, layer1X, layer1Y, component, mode7Transform, placement);
         }
     }
 

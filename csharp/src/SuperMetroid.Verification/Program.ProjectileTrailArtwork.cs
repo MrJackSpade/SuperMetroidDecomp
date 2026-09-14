@@ -1,0 +1,99 @@
+using System.Text;
+using System.Text.Json.Nodes;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
+
+internal static partial class Program
+{
+    private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
+    {
+        byte[] json = ProjectileTrailExtractor.Extract(bus);
+        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
+        var encountered = new HashSet<ushort>();
+        foreach (ushort start in new[] { ProjectileTrailDefinitions.LeftIce, ProjectileTrailDefinitions.RightIce, ProjectileTrailDefinitions.Wave, ProjectileTrailDefinitions.Missile })
+        {
+            ushort cursor = start;
+            while (true)
+            {
+                ushort word = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | cursor);
+                if (word == 0) break;
+                if (word < 0x8000) { encountered.Add(cursor); cursor += 4; }
+                else { cursor += 2; }
+            }
+            var nativeSystem = new SamusProjectileSystem(); var authoredSystem = new SamusProjectileSystem();
+            foreach (var system in new[] { nativeSystem, authoredSystem })
+            {
+                var pair = system.TrailSlots[0];
+                foreach (var side in new[] { pair.Left, pair.Right })
+                { side.InstructionPointer = start; side.InstructionTimer = 1; side.XPosition = 100; side.YPosition = 100; }
+            }
+            for (int frame = 0; frame < 80; frame++)
+            {
+                var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
+                bool frozenFrame = frame % 5 == 0;
+                nativeSystem.HandleTrailsAndDraw(bus, nativeOam, 0, 0, frozenFrame);
+                authoredSystem.HandleTrailsAndDraw(bus, authoredOam, 0, 0, frozenFrame, catalog);
+                AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
+                foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
+                {
+                    AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
+                    AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
+                    AssertEqual(sides.Item1.YPosition, sides.Item2.YPosition, "Trail artwork cannot change sibling-targeted movement");
+                }
+            }
+        }
+        AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.ToArray()), "Independent native stream walk finds exactly the catalog's appearance records");
+        int draws = 0;
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+        foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })
+        foreach (int preceding in new[] { 0, 127, 128 })
+        {
+            ushort attributes = RomDataReader.ReadWordFixedBank(bus, SamusProjectileRomData.Banks.Movement | (frame + 2));
+            var system = new SamusProjectileSystem();
+            var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
+            side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 3;
+            side.XPosition = coordinate; side.YPosition = coordinate; side.TileNumberAttributes = attributes;
+            var native = new OamBuffer(); var authored = new OamBuffer();
+            for (int i = 0; i < preceding; i++)
+            { native.AddProjectileTrailSprite(0, 0, 0); authored.AddProjectileTrailSprite(0, 0, 0); }
+            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, 0, 0, true);
+            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, 0, 0, true, catalog);
+            AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
+            AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
+            AssertEqual(3, side.InstructionTimer, "Frozen draw cannot advance trail animation");
+            AssertEqual(attributes, side.TileNumberAttributes, "Artwork selection does not mutate stored trail attributes");
+            draws++;
+        }
+        var document = JsonNode.Parse(json)!;
+        ushort first = ProjectileTrailVisualDefinitions.Frames[0];
+        var part = document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!;
+        part["flipX"] = !part["flipX"]!.GetValue<bool>();
+        var edited = Load(document);
+        AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
+        var animation = new SamusProjectileSystem();
+        var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
+        trail.InstructionPointer = first; trail.InstructionTimer = 1; trail.XPosition = 100; trail.YPosition = 100;
+        var frozen = new OamBuffer();
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), frozen, 0, 0, true, edited);
+        AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
+        animation.HandleTrailsAndDraw(bus, new OamBuffer(), 0, 0, false);
+        var original = new OamBuffer(); var changed = new OamBuffer();
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), original, 0, 0, true, catalog);
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), changed, 0, 0, true, edited);
+        AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
+        AssertEqual(1, trail.InstructionTimer, "Rebound art retains current timer");
+        document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["duration"] = 0;
+        AssertThrows<InvalidDataException>(() => Load(document), "Trail art cannot change duration");
+        document = JsonNode.Parse(json)!;
+        document["frames"]!.AsObject().Remove(ProjectileTrailVisualDefinitions.Name(first));
+        AssertThrows<InvalidDataException>(() => Load(document), "Missing trail art rejected");
+        document = JsonNode.Parse(json)!;
+        document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["palette"] = 8;
+        AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
+        Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
+        static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
+    }
+}

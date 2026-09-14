@@ -289,3 +289,17 @@ exercise the real spawn method for all 64 low-six-bit selections with authored
 selector reads forbidden. Allocation timer and fixed-origin assertions accompany
 the selected pointers. Trail animation, coordinate tables and artwork are still
 ROM-backed and remain unfinished presentation work.
+
+### Trail appearance catalog (host installation pending)
+
+`ProjectileTrailExtractor` exports the 42 appearance-bearing records from the
+four native trail lists. Strict JSON exposes tile position, palette, priority and
+flips only; it cannot change durations or movement commands. The production trail
+draw API can select immutable appearance without changing serialized trail state.
+A newly allocated frozen trail keeps its existing attributes until its first
+record runs; artwork binding does not advance it. Tests independently walk native
+streams to verify complete frame coverage, compare 630 full-OAM boundary/capacity
+cases and 320 live/frozen animation frames, and assert timers, cursors and sibling
+movement remain identical. An edited flip reaches OAM without a draw-time bus read.
+Installation, host binding, trail PNGs and remaining program ROM reads are not
+completed by this catalog/API slice.

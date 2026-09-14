@@ -324,7 +324,8 @@ public sealed partial class SamusProjectileSystem
         ushort layer1X,
         ushort layer1Y,
         bool timeIsFrozen,
-        bool isLeft)
+        bool isLeft,
+        Assets.ProjectileTrailCatalog? artwork)
     {
         SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
         if (side.InstructionTimer == 0)
@@ -391,7 +392,7 @@ public sealed partial class SamusProjectileSystem
         oam.AddProjectileTrailSprite(
             unchecked((byte)screenX),
             unchecked((byte)screenY),
-            side.TileNumberAttributes);
+            artwork is null ? side.TileNumberAttributes : artwork.ResolveCurrent(side.InstructionPointer, side.TileNumberAttributes));
     }
 
     private static bool MoveHorizontally(

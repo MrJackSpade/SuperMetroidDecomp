@@ -702,7 +702,8 @@ public sealed partial class SamusProjectileSystem
         OamBuffer oam,
         ushort layer1X,
         ushort layer1Y,
-        bool timeIsFrozen)
+        bool timeIsFrozen,
+        Assets.ProjectileTrailCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -712,8 +713,8 @@ public sealed partial class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = _trailSlots[slotIndex];
-            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: true);
-            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: false);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: true, artwork);
+            HandleTrailSideAndDraw(bus, oam, slot, layer1X, layer1Y, timeIsFrozen, isLeft: false, artwork);
         }
     }
 

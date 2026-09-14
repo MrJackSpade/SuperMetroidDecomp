@@ -117,7 +117,8 @@ public sealed partial class SuperMetroidRuntime
                 Samus.CrystalFlash.UpdatePalette(
                     _addressSpace,
                     Cgram,
-                    Samus);
+                    Samus,
+                    BeamArtwork?.Palettes);
             }
             // Handler eight changes only visor color four while active; `$FFFF` teardown
             // restores the complete ROM-selected Power/Varia/Gravity suit palette once.

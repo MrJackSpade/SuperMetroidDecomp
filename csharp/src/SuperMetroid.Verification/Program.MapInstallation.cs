@@ -29,6 +29,10 @@ internal static partial class Program
         beamImage.Pixels[0] ^= 1;
         using (var output = File.Create(beamOverride))
             IndexedPng.Write(output, beamImage.Width, beamImage.Height, beamImage.Pixels, beamImage.Palette);
+        string beamPaletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
+        var beamColors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
+        beamColors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
+        File.WriteAllText(beamPaletteOverride, beamColors.ToJsonString());
         var projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
@@ -103,6 +107,7 @@ internal static partial class Program
         {
             [projectileOverride] = File.ReadAllBytes(projectileOverride),
             [beamOverride] = File.ReadAllBytes(beamOverride),
+            [beamPaletteOverride] = File.ReadAllBytes(beamPaletteOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),

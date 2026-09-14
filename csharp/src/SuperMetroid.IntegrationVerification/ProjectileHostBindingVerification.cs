@@ -38,6 +38,9 @@ internal static class ProjectileHostBindingVerification
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
             IndexedPng.Write(output, 64, 8, image.Pixels, image.Palette);
+        var colors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
+        colors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -73,7 +76,15 @@ internal static class ProjectileHostBindingVerification
     {
         if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");
         for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+        {
             if (!actual.Resolve(BeamTileCatalog.AssetFor(selection)).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(selection)).Span))
                 throw new InvalidDataException("Host restored stale beam artwork instead of current PNG selection.");
+            var boundColors = new SuperMetroid.Core.Hardware.SnesCgram();
+            var diskColors = new SuperMetroid.Core.Hardware.SnesCgram();
+            (actual.Palettes ?? throw new InvalidDataException("Host palette catalog is absent.")).LoadTo(boundColors, selection);
+            expected.Palettes!.LoadTo(diskColors, selection);
+            if (!boundColors.Colors.SequenceEqual(diskColors.Colors))
+                throw new InvalidDataException("Host restored stale palette colors instead of current selection.");
+        }
     }
 }

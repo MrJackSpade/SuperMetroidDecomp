@@ -305,7 +305,8 @@ public sealed class SamusCrystalFlashState
     public bool UpdatePalette(
         ISnesAddressSpace bus,
         SnesCgram cgram,
-        SamusState samus)
+        SamusState samus,
+        Assets.BeamPaletteCatalog? palettes = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(cgram);
@@ -320,15 +321,20 @@ public sealed class SamusCrystalFlashState
             int beamType = new SamusBeamLoadoutWord(samus.EquippedBeams).NativeConfigurationIndex;
             if ((uint)beamType >= SamusPaletteRomData.CrystalFlash.BeamPaletteCount)
                 throw new ArgumentOutOfRangeException(nameof(samus), "Equipped beam combination is outside the retail table.");
-            ushort beamPalette = ReadWord(
-                bus,
-                SamusPaletteRomData.CrystalFlash.BeamPalettePointers +
-                    beamType * sizeof(ushort));
-            cgram.LoadFromBus(
-                bus,
-                SamusPaletteRomData.CrystalFlash.BeamPaletteBank | beamPalette,
-                colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
-                destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
+            if (palettes is not null)
+                palettes.LoadTo(cgram, beamType);
+            else
+            {
+                ushort beamPalette = ReadWord(
+                    bus,
+                    SamusPaletteRomData.CrystalFlash.BeamPalettePointers +
+                        beamType * sizeof(ushort));
+                cgram.LoadFromBus(
+                    bus,
+                    SamusPaletteRomData.CrystalFlash.BeamPaletteBank | beamPalette,
+                    colorCount: SamusPaletteRomData.Common.ColorsPerObjPalette,
+                    destinationIndex: SamusPaletteRomData.CrystalFlash.BodyCgramStart);
+            }
 
             SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;

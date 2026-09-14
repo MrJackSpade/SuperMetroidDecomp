@@ -233,6 +233,20 @@ internal static partial class Program
         File.Move(beamStock, beamStock + ".invalid");
         AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "PNG override cannot conceal missing stock");
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        string paletteStock = Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName);
+        string paletteOverride = Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName);
+        var paletteDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(paletteStock))!;
+        var red = paletteDocument["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!;
+        red["red"] = red["red"]!.GetValue<int>() ^ 1;
+        File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
+        var paletteEdited = installation.LoadProjectiles();
+        AssertTrue(paletteEdited.SelectedSha256 != beamEdited.SelectedSha256, "Palette-only override changes content identity");
+        File.WriteAllText(paletteStock, "broken stock palette");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Palette override cannot conceal stock corruption");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(paletteEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves selected palette");
+        File.WriteAllText(paletteOverride, "broken palette override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed palette override does not fall back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

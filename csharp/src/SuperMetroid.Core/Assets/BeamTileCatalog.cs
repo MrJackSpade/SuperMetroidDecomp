@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Assets;
 public sealed class BeamTileCatalog : IVramAssetProvider
 {
     private readonly BeamTileAtlas[] sheets;
-    private BeamTileCatalog(BeamTileAtlas[] sheets) => this.sheets = sheets;
-    public static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files)
+    public BeamPaletteCatalog? Palettes { get; }
+    private BeamTileCatalog(BeamTileAtlas[] sheets, BeamPaletteCatalog? palettes)
+    { this.sheets = sheets; Palettes = palettes; }
+    public static BeamTileCatalog Load(IReadOnlyDictionary<string, byte[]> files, BeamPaletteCatalog? palettes = null)
     {
         var sheets = new BeamTileAtlas[BeamTileAtlasDefinitions.SelectionCount];
         for (int i = 0; i < sheets.Length; i++)
@@ -17,7 +19,7 @@ public sealed class BeamTileCatalog : IVramAssetProvider
                 throw new InvalidDataException($"Missing beam artwork {name}.");
             sheets[i] = BeamTileAtlas.Load(new MemoryStream(png, writable: false));
         }
-        return new(sheets);
+        return new(sheets, palettes);
     }
 
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)

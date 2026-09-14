@@ -178,6 +178,7 @@ public sealed partial class SamusProjectileSystem
                 encodedVramDestination: 0x6300);
         }
 
+        palettes ??= artwork?.Palettes;
         if (palettes is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
         {
             palettes.LoadTo(cgram, beamType);

@@ -260,7 +260,7 @@ edited-pixel upload, restart/state rebinding (Android session on Windows), and f
 installer upgrade from composition-only manifests while preserving external edits.
 No Android device deployment or full replacement of other weapon artwork is claimed.
 
-### Ordinary beam palette catalog (installation pending)
+### Installed ordinary beam palette catalog
 
 `BeamPaletteExtractor` reads the twelve $90:C3C9 selections and exposes sixteen
 RGB5 colors per selection in validated JSON. `BeamPaletteCatalog` compiles those
@@ -269,6 +269,11 @@ of PNG artwork. Tests compare every CGRAM entry with the original $90:ACCD path,
 including untouched neighbors, then edit one channel bit and require exact
 isolation. The combined tile/palette catalog queue forbids every bus read.
 Missing selections/colors, duplicate metadata, unknown fields and invalid RGB
-values fail loudly. The normal installed hosts do not load this JSON yet.
+values fail loudly. Version-three manifests include the palette JSON and its hash;
+the installed beam catalog carries selected colors through both hosts. Upgrade
+and restart tests preserve edits and verify all twelve host-bound color sets.
+Normal colors refresh at accepted NMI after state rebind, while active Crystal
+Flash/Hyper colors are retained. The Crystal Flash completion path restores the
+selected catalog without ROM reads and still clears its palette-handler state.
 Charge/Hyper palette animation and invalid beam-index adjacent reads are unchanged;
 this catalog is not a claim that all weapon palette ROM dependencies are removed.

@@ -97,8 +97,15 @@ covered by this composition file.
 Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
 `game/projectiles`. Copy any sheet to `overrides/projectiles` to replace that beam
 combination's artwork. Keep its 64x8 indexed format and pixel indices 0 through 15.
-PNG palette colors are diagnostic: gameplay still selects the native beam palette.
+PNG palette colors are diagnostic: gameplay uses the separately selected beam palette.
 These sheets do not replace missile, bomb, trail, flare or Grapple artwork.
+
+Copy `game/projectiles/beam-palettes.json` to `overrides/projectiles/beam-palettes.json`
+to edit ordinary beam colors. Keep all twelve selections and sixteen colors per
+selection; RGB components range from 0 to 31. Charge/Hyper animation colors are
+not controlled by this file. Loading a state refreshes ordinary colors at the
+next accepted display update, but preserves an active Crystal Flash or Hyper
+palette. Crystal Flash completion restores the selected override normally.
 
 Restart to load edits. Loading a debugger state retains the current session's
 selected composition and beam catalogs rather than restoring old artwork from the state.

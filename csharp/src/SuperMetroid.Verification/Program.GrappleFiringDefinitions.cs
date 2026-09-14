@@ -17,6 +17,11 @@ internal static partial class Program
         var bus = new GrappleFiringReadGuard(rom);
         var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose };
         var grapple = samus.Grapple;
+        // Exercise each compiled movement family with a real pose instead of rewriting
+        // the immutable movement byte of standing pose $01.
+        byte[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
+            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1))
+            .OrderBy(group => group.Key).Select(group => (byte)group.First()).ToArray();
         for (byte direction = 0; direction < 10; direction++)
         {
             int offset = direction * 2;
@@ -25,12 +30,13 @@ internal static partial class Program
             AssertEqual((vx, vy, angle), GrappleFiringDefinitions.Launch(direction), "Native Grapple launch words");
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
-                // Covers every valid movement type and signed graphics-Y byte, and every X/Y
+                // Covers every authored movement family and signed graphics-Y byte, and every X/Y
                 // position word. Only native type one selects running hand offsets.
-                bus.Movement = (byte)((raw >> 8) % 28);
+                samus.Pose = bus.SourcePose = movementPoses[(raw >> 8) % movementPoses.Length];
+                byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + samus.Pose * 8 + 1);
                 bus.GraphicsY = (byte)raw;
                 bus.Direction = direction;
-                bool running = bus.Movement == 1;
+                bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
                 int correctedY = y - rom.ReadByte(0x91b629 + samus.Pose * 8 + 4);
@@ -71,7 +77,8 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             bus.ReplaceFlare = replaceFlare;
-            bus.Movement = 0; bus.GraphicsY = 0; bus.Direction = direction;
+            samus.Pose = bus.SourcePose = SamusPoseIds.FacingRightNormalPose;
+            bus.GraphicsY = 0; bus.Direction = direction;
             samus.XPosition = samus.YPosition = 512;
             grapple.Phase = GrapplePhase.Inactive;
             samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -117,8 +124,8 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         foreach (ushort coordinate in new ushort[] { 0, 512, ushort.MaxValue })
         {
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
-            bus.Movement = movement; bus.Direction = direction; bus.GraphicsY = 127;
+            samus.Pose = bus.SourcePose = movementPoses[movement];
+            bus.Direction = direction; bus.GraphicsY = 127;
             samus.XPosition = coordinate; samus.YPosition = coordinate;
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             grapple.FireDirection = direction;
@@ -146,14 +153,14 @@ internal static partial class Program
 
     private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
     {
-        public byte Movement, GraphicsY, Direction;
+        public byte GraphicsY, Direction;
         public byte SourcePose = SamusPoseIds.FacingRightNormalPose;
         public bool ForbidMechanics = true;
         public bool ReplaceFlare;
         public byte ReadByte(int address)
         {
             int pose = SamusMovementRomData.Poses.Definitions + SourcePose * 8;
-            if (address == pose + 1) return Movement;
+            if (address == pose + 1) throw new InvalidOperationException("Compiled pose movement read ROM.");
             if (address == pose + 3) return Direction;
             if (address == pose + 4) return GraphicsY;
             if (ReplaceFlare && (address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2))

@@ -37,7 +37,8 @@ internal static partial class Program
         foreach (byte movement in new byte[] { 0, 1 })
         for (byte direction = 0; direction < 10; direction++)
         {
-            var nativeBus = new GrappleFiringReadGuard(rom) { Movement = movement, Direction = direction };
+            byte pose = movement == 1 ? SamusPoseIds.MovingRightNormalPose : SamusPoseIds.FacingRightNormalPose;
+            var nativeBus = new GrappleFiringReadGuard(rom) { SourcePose = pose, Direction = direction };
             var guarded = new GrappleFlareReadGuard(nativeBus);
             var native = Seed(null); var selected = Seed(stock); var changed = Seed(edited);
             SamusGrappleMovement.BeginFiring(nativeBus, native);
@@ -63,7 +64,7 @@ internal static partial class Program
 
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {
-                var samus = new SamusState { Pose = SamusPoseIds.FacingRightNormalPose, XPosition = 512, YPosition = 512 };
+                var samus = new SamusState { Pose = pose, XPosition = 512, YPosition = 512 };
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
             }

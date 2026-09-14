@@ -1824,3 +1824,30 @@ trajectory observations, self-overlap checks, and 48 admission cases.
 The current trace is `grounded-spread-414-admission48.csv`; the older overlap
 trace predates the expanded 48-case admission schema and is not compatible with
 the current verifier. No native expected data was changed for this migration.
+
+# Pose dispatch definitions (#547 / #541)
+
+`SamusPoseDispatchDefinitions` compiles the facing, movement discriminator and
+no-input fallback bytes of all 253 authored `$91:B629` records. The shared live
+and prospective readers use this catalog; rendering, camera-facing, transition
+history, HUD admission and fallback selection inherit the same values. Values
+zero/one/two in facing and the `$FF` fallback sentinel are retained literally.
+The three final pose indexes still read adjacent data and keep movement-domain
+validation. Shot direction, artwork offsets and pose instruction programs are
+separate remaining dependencies. No editable gameplay metadata is installed.
+
+`--pose-dispatch-definitions` independently compares all 759 authored bytes to
+the pinned Japan/USA ROM, with every ROM read forbidden through actual Samus
+readers and history publication. It also checks adjacent indexes, 3,036 native
+pose/admission combinations and 506 real charge-preservation cases. The unused
+movement `$0C` has a dispatcher entry but no authored pose: direct classification
+coverage remains, while production-path fixtures use actual pose families.
+
+Older Grapple, typed-word, rendering and atmospheric fixtures that rewrote an
+authored movement/facing byte now choose native poses. The rendering fixture
+retains its top/bottom boundary assertions, and uses non-authored `$FD` for
+explicit unused/invalid metadata. This is fixture migration, not a production
+drawing, movement or dust behavior fix. The player's Moat CWJ movie still matches
+all 262 native checkpoints, and all 18 Samus physics groups pass.
+The focused projectile suite, full Release Verification and Windows Release build
+also pass. This is partial progress on #541/#547, not complete pose/ROM separation.

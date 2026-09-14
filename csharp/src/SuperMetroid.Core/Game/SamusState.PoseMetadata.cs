@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// ROM-backed pose metadata, pose-family queries, and compact-body transition setup.
+/// Pose metadata, pose-family queries, and compact-body transition setup.
 /// </summary>
 public sealed partial class SamusState
 {
@@ -40,9 +40,7 @@ public sealed partial class SamusState
     public static byte ReadPoseXDirection(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            pose * SamusMovementRomData.Poses.DefinitionByteCount));
+        return SamusPoseDispatchDefinitions.ReadFacing(bus, pose);
     }
 
     /// <summary>
@@ -93,9 +91,7 @@ public sealed partial class SamusState
     public static SamusMovementType ReadMovementType(ISnesAddressSpace bus, byte pose)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        byte rawMovementType = bus.ReadByte(AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + 1));
+        byte rawMovementType = SamusPoseDispatchDefinitions.ReadMovement(bus, pose);
         if (rawMovementType > (byte)SamusMovementType.Special)
         {
             throw new InvalidDataException(
@@ -117,9 +113,7 @@ public sealed partial class SamusState
     public byte ReadNoInputFallbackPose(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        return bus.ReadByte(AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            Pose * SamusMovementRomData.Poses.DefinitionByteCount + 2));
+        return SamusPoseDispatchDefinitions.ReadNoInputPose(bus, Pose);
     }
 
     /// <summary>

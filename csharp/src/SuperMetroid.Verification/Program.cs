@@ -153,6 +153,13 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--pose-dispatch-definitions"])
+{
+    var poseRom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+    VerifyPoseDispatchDefinitions(poseRom);
+    VerifySamusHudDefinitions(poseRom);
+    return 0;
+}
 if (args is ["--grapple-rope-geometry"])
 {
     VerifyGrappleRopeGeometry(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

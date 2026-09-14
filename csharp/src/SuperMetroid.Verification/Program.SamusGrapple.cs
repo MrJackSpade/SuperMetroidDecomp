@@ -412,12 +412,13 @@ static void VerifySamusGrappleSwingAndRelease()
         for (byte direction = 0; direction < 10; direction++)
         {
             byte sourceMovementType = family == 1 ? (byte)5 : (byte)6;
-            WritePoseDefinition(bus, SamusPoseIds.FallingRightPose,
+            byte sourcePose = family == 1 ? SamusPoseIds.CrouchingRightPose : SamusPoseIds.FallingRightPose;
+            WritePoseDefinition(bus, sourcePose,
                 [0x08, sourceMovementType, 0xff, direction, 0x00, 0x00, 0x05, 0x15]);
 
             var connectionSamus = new SamusState
             {
-                Pose = SamusPoseIds.FallingRightPose,
+                Pose = sourcePose,
                 XPosition = 40,
                 YPosition = 40,
             };

@@ -270,8 +270,8 @@ static void VerifySamusRenderingSlice()
     ]);
 
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
-    // bottom-half matrix. The named cases cover every comparison boundary in the native
-    // code rather than checking only the common morph pose that first exposed the gap.
+    // bottom-half matrix using authored pose/movement pairs. The non-authored $FD
+    // index still permits explicit adjacent-data tests for unused/invalid movement.
     samus.InvincibilityTimer = 0;
     samus.KnockbackTimer = 0;
     foreach ((byte pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
@@ -285,18 +285,20 @@ static void VerifySamusRenderingSlice()
         ((byte)0xdb, (byte)0x0f, (ushort)0, 2, "$DB frame-zero split"),
         ((byte)0xdc, (byte)0x0f, (ushort)1, 1, "$DC nonzero frame top-only"),
         ((byte)0xdd, (byte)0x0f, (ushort)1, 1, "$DD pre-frame-two top-only"),
-        ((byte)0xf0, (byte)0x0f, (ushort)2, 2, "$F0 frame-two split"),
+        ((byte)0xdd, (byte)0x0f, (ushort)2, 2, "$DD frame-two transition split"),
+        ((byte)0xf0, (byte)0x1a, (ushort)2, 2, "$F0 held body split"),
         ((byte)0xf1, (byte)0x0f, (ushort)0, 2, "$F1 aimed transition always split"),
-        ((byte)0x60, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
-        ((byte)0x61, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
-        ((byte)0x62, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
-        ((byte)0x63, (byte)0x0c, (ushort)0, 2, "unused type-C split"),
+        ((byte)0x20, (byte)0x07, (ushort)0, 1, "unused type-seven top-only"),
+        ((byte)0x33, (byte)0x09, (ushort)0, 1, "unused type-nine top-only"),
+        ((byte)0x5d, (byte)0x0b, (ushort)0, 2, "unused type-B split"),
+        ((byte)0xfd, (byte)0x0c, (ushort)0, 2, "adjacent-data type-C split"),
         ((byte)0x65, (byte)0x0d, (ushort)0, 2, "unused type-D pose $65 frame-zero split"),
         ((byte)0x66, (byte)0x0d, (ushort)1, 1, "unused type-D pose $66 later top-only"),
-        ((byte)0x67, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
+        ((byte)0x63, (byte)0x0d, (ushort)1, 2, "other unused type-D pose remains split"),
     })
     {
         WritePoseDefinition(bus, pose, [8, movementType, 0xff, 0xff, 0, 0, 16, 0]);
+        AssertEqual(movementType, (byte)SamusState.ReadMovementType(bus, pose), "Rendering fixture uses native movement identity");
         WriteTestWord(bus, 0x929263 + pose * 2, 0);
         WriteTestWord(bus, 0x92945d + pose * 2, 0);
         samus.Pose = pose;
@@ -310,8 +312,8 @@ static void VerifySamusRenderingSlice()
     // `$90:864E` contains exactly 28 bottom-half handlers, and the complete retail
     // `$91:B629-$BD0F` pose table never stores a movement byte above `$1B`. A synthetic
     // larger value is malformed metadata, not an untranslated draw selector.
-    WritePoseDefinition(bus, 0x64, [8, 0x1c, 0xff, 0xff, 0, 0, 16, 0]);
-    samus.Pose = 0x64;
+    WritePoseDefinition(bus, 0xfd, [8, 0x1c, 0xff, 0xff, 0, 0, 16, 0]);
+    samus.Pose = 0xfd;
     samus.AnimationFrame = 0;
     AssertThrows<InvalidDataException>(
         () => samus.ReadMovementType(bus),

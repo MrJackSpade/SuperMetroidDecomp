@@ -50,8 +50,11 @@ internal static partial class Program
         for (int vertical = 0; vertical < 3; vertical++)
         foreach (bool enemy in new[] { false, true })
         {
-            metadata.Movement = movement; metadata.Direction = direction;
-            samus.Pose = SamusPoseIds.FacingRightNormalPose;
+            int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
+            if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
+            metadata.SourcePose = samus.Pose = (byte)sourcePose;
+            metadata.Direction = direction;
             samus.XPosition = samus.YPosition = 512;
             samus.Kinematics.YSpeed = vertical == 1 ? (ushort)1 : (ushort)0;
             samus.Kinematics.YSubspeed = vertical == 2 ? (ushort)1 : (ushort)0;
@@ -65,7 +68,7 @@ internal static partial class Program
             if (movement == 26)
             {
                 AssertEqual(GrapplePhase.ConnectedLocked, g.Phase, "Draygon bypass phase");
-                AssertEqual(SamusPoseIds.FacingRightNormalPose, samus.Pose, "Draygon retains held body pose");
+                AssertEqual(metadata.SourcePose, samus.Pose, "Draygon retains held body pose");
                 AssertEqual(512, samus.XPosition, "Draygon retains body position");
                 continue;
             }
@@ -150,7 +153,11 @@ internal static partial class Program
         {
             bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;
             AssertEqual(banned, GrappleConnectionDefinitions.CancelsFiring((SamusMovementType)movement), "Native cancellation byte");
-            metadata.Movement = movement; metadata.Direction = direction;
+            int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
+                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
+            if (sourcePose < 0) continue; // The cancellation-table entry is checked above.
+            metadata.SourcePose = samus.Pose = (byte)sourcePose;
+            metadata.Direction = direction;
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
             samus.Grapple.PoseChangeAutoFireTimer = timer;
             samus.LiquidPhysics.BeginFrameSoundRequests();

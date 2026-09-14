@@ -1159,12 +1159,12 @@ static void VerifySamusAtmosphericEffects()
 {
     var bus = new TestAddressSpace();
 
-    // Pose `$01` is sufficient to expose the literal movement type and X direction used by
-    // all producer branches. Its delay metadata also lets the footstep fixture land exactly
+    // Use native running pose `$09` for the movement type and X direction used by
+    // the producer branches. Its delay metadata also lets the footstep fixture land exactly
     // on running frame two with timer one, matching `$90:A3EE-$A401`.
-    WritePoseDefinition(bus, SamusPoseIds.FacingRightNormalPose,
+    WritePoseDefinition(bus, SamusPoseIds.MovingRightNormalPose,
         [8, 1, 0xff, 0, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + SamusPoseIds.FacingRightNormalPose * 2, 0xc000);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.MovingRightNormalPose * 2, 0xc000);
     bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
 
     // Seed only the bank-$90 table records exercised below. Distinct attributes and timers
@@ -1179,12 +1179,12 @@ static void VerifySamusAtmosphericEffects()
 
     var samus = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseIds.MovingRightNormalPose,
         XPosition = 100,
         YPosition = 100,
         // This atmosphere fixture deliberately uses a twelve-pixel test body.
         // Authored collision radii are compiled now; do not fake a ROM override
-        // for standing pose $01, whose actual native radius is twenty-one.
+        // for running pose $09, whose actual native radius is twenty-one.
         Kinematics = { XRadius = 5, YRadius = 12 },
     };
     samus.InitializeAnimation(bus);
@@ -1280,7 +1280,7 @@ static void VerifySamusAtmosphericEffects()
     // is delayed and the second immediate, exactly like `$90:EE64-$EEE3`.
     var runner = new SamusState
     {
-        Pose = SamusPoseIds.FacingRightNormalPose,
+        Pose = SamusPoseIds.MovingRightNormalPose,
         XPosition = 100,
         YPosition = 100,
     };

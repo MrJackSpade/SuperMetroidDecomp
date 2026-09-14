@@ -80,3 +80,31 @@ used the naive left mirror and a coarse morph sweep, so it is not accepted.
 V2 uses the successful left position and one-frame morph sweep. V3 adds the
 held-Forward control; only v3 is accepted. All experimental outputs remain
 non-authoritative; the committed accepted capture is hash-checked by the audit.
+
+## Retail Moat setup discovery (#445, incomplete)
+
+`native-moat-cwj-probe.h` loads room $95FF through the original room data and
+level decompression routines. The actual room is 32x32 blocks; its central pillar
+is at column 14 with its top at row 10. The left launch ledge is sloped, so a
+flat-floor center height cannot be assumed.
+
+`DiagnosticMoatCwjSearch` is a discovery tool, not a passing regression. The
+current original-CPU search covers X=32..64, Y=139..160, second Jump=30..60, with
+initial running base speed 2.C000 and extra speed 2.0000. It uses real room
+collision data, 5x21 Samus radii, no upgrades/cheats, and continuously held Right
+with Jump released for one frame before the second press. All 22,506 candidates
+completed without producing a walljump. Do not interpret this as a port defect
+or as evidence that the technique is impossible. These manually seeded launch
+states are not yet demonstrated to reproduce the incoming door's carried state.
+Liquid surfaces are disabled in this launch-discovery fixture, so failed attempts
+falling into the water are not valid underwater trajectory comparisons either.
+
+An earlier seed at X=60,Y=139 immediately fell rather than jumped; its trace
+identified invalid grounding. The expanded search still lacks a successful
+native trajectory. Next, establish the actual incoming door/run state instead
+of treating a hand-seeded speed as equivalent, then preserve successful and
+adjacent failing traces for comparison with C#. No production change was made.
+
+The wiki distinguishes an NTSC door-run setup from PAL's different launch and
+timing; this project probe uses the pinned Japan/USA ROM. PAL is not validated
+by these NTSC searches. Temporary headless hooks were removed after discovery.

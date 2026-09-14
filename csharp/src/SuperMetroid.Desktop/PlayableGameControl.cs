@@ -215,6 +215,7 @@ public sealed partial class PlayableGameControl : UserControl
             new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadProjectiles();
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        game.BindTrailArtwork(projectilePresentation?.Trails);
         if (projectilePresentation is not null)
             Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         if (replay is null)
@@ -296,6 +297,7 @@ public sealed partial class PlayableGameControl : UserControl
         game.BindMapPresentation(mapPresentation);
         game.BindProjectileCompositions(projectilePresentation?.Catalog);
         game.BindBeamArtwork(projectilePresentation?.BeamTiles);
+        game.BindTrailArtwork(projectilePresentation?.Trails);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;

@@ -290,7 +290,7 @@ selector reads forbidden. Allocation timer and fixed-origin assertions accompany
 the selected pointers. Trail animation, coordinate tables and artwork are still
 ROM-backed and remain unfinished presentation work.
 
-### Trail appearance catalog (host installation pending)
+### Installed gameplay trail appearance catalog
 
 `ProjectileTrailExtractor` exports the 42 appearance-bearing records from the
 four native trail lists. Strict JSON exposes tile position, palette, priority and
@@ -301,5 +301,11 @@ record runs; artwork binding does not advance it. Tests independently walk nativ
 streams to verify complete frame coverage, compare 630 full-OAM boundary/capacity
 cases and 320 live/frozen animation frames, and assert timers, cursors and sibling
 movement remain identical. An edited flip reaches OAM without a draw-time bus read.
-Installation, host binding, trail PNGs and remaining program ROM reads are not
-completed by this catalog/API slice.
+Version-four manifests install/hash the catalog, with external overrides retained
+across repair/upgrade. Desktop and Android sessions bind it at startup and after
+state load; normal and attract-demo runtime creation carries the same catalog.
+Tests verify the actual actor pass emits edited OAM, frontend/runtime serialization
+excludes content, old-state rebind preserves trail timers, all 42 host selections
+match disk after restart, and corrupt/missing files fail without fallback.
+Trail PNGs, cinematic flashback binding and remaining program ROM reads are not
+completed by this slice. Android session tests run on Windows, not an APK deployment.

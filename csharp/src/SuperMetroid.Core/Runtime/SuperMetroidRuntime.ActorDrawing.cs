@@ -348,7 +348,7 @@ public sealed partial class SuperMetroidRuntime
                 Oam,
                 Camera.XPosition,
                 Camera.YPosition,
-                TimeIsFrozen);
+                TimeIsFrozen, TrailArtwork);
 
             // The native post-draw input snapshot survives the next alpha pass. In
             // particular, Fire can first cancel a spin and then start Grapple without

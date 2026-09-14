@@ -1278,6 +1278,7 @@ public sealed partial class SuperMetroidGame
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
         runtime.ProjectileCompositions = projectileCompositions;
+        runtime.TrailArtwork = trailArtwork;
         runtime.BeamArtwork = beamArtwork;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;

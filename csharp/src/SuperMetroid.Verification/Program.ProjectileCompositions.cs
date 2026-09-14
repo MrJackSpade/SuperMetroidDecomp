@@ -247,6 +247,22 @@ internal static partial class Program
         AssertEqual(paletteEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves selected palette");
         File.WriteAllText(paletteOverride, "broken palette override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed palette override does not fall back");
+        File.WriteAllText(paletteOverride, paletteDocument.ToJsonString());
+        string trailStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName);
+        string trailOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName);
+        var trailDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(trailStock))!;
+        trailDocument["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
+        File.WriteAllText(trailOverride, trailDocument.ToJsonString());
+        var trailEdited = installation.LoadProjectiles();
+        AssertTrue(trailEdited.SelectedSha256 != paletteEdited.SelectedSha256, "Trail-only edit changes content identity");
+        File.WriteAllText(trailStock, "broken stock trail");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail override cannot conceal stock corruption");
+        File.Move(trailStock, trailStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Trail override cannot conceal missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(trailEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves trail override");
+        File.WriteAllText(trailOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid trail override does not fall back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

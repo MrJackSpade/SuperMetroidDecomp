@@ -14,6 +14,7 @@ internal static class ProjectileHostBindingVerification
         var installation = GameAssetInstaller.Install(romPath, root);
         var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -23,6 +24,7 @@ internal static class ProjectileHostBindingVerification
             session.LoadSlot(0);
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
@@ -41,6 +43,9 @@ internal static class ProjectileHostBindingVerification
         var colors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, BeamPaletteDefinitions.FileName)))!;
         colors["palettes"]![BeamPaletteDefinitions.Key(0)]![0]!["red"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, BeamPaletteDefinitions.FileName), colors.ToJsonString());
+        var trails = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)))!;
+        trails["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName), trails.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -49,6 +54,7 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
+            CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
         }
         File.WriteAllText(path, "invalid override");
         try
@@ -70,6 +76,14 @@ internal static class ProjectileHostBindingVerification
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable))
                 throw new InvalidDataException("Host bound different composition content than the installed selection.");
         }
+    }
+
+    private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
+    {
+        if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
+        foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
+            if (actual.Resolve(frame) != expected.Resolve(frame))
+                throw new InvalidDataException("Host bound stale trail appearance.");
     }
 
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)

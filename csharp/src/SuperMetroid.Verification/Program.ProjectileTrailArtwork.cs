@@ -72,6 +72,7 @@ internal static partial class Program
         var part = document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!;
         part["flipX"] = !part["flipX"]!.GetValue<bool>();
         var edited = Load(document);
+        VerifyRuntimeTrailBinding(bus, catalog, edited);
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
@@ -95,5 +96,46 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => Load(document), "Invalid trail palette rejected");
         Console.WriteLine($"Trail artwork: {draws} native OAM comparisons, frozen-start preservation, live edit isolation and strict metadata rejection pass.");
         static ProjectileTrailCatalog Load(JsonNode document) => ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
+    }
+
+    private static void VerifyRuntimeTrailBinding(ISnesAddressSpace bus, ProjectileTrailCatalog stock, ProjectileTrailCatalog edited)
+    {
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        runtime.GameplayTimeFrozen = true;
+        var side = runtime.Projectiles.TrailSlots[0].Left;
+        side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
+        side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
+        side.XPosition = (ushort)(runtime.Camera!.XPosition + 100); side.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var runtimeField = game.GetType().GetField("runtime", flags)!;
+        runtimeField.SetValue(game, runtime);
+        byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
+        {
+            target.Oam.BeginFrame();
+            target.GetType().GetMethod("DrawGameplayActors", flags)!.Invoke(target, new object?[] { false, null, null, false });
+            return target.Oam.LowTable.ToArray();
+        }
+        byte[] native = Draw(runtime);
+        game.BindTrailArtwork(stock);
+        AssertTrue(native.SequenceEqual(Draw(runtime)), "Runtime trail stock binding preserves native OAM");
+        game.BindTrailArtwork(edited);
+        AssertTrue(!native.SequenceEqual(Draw(runtime)), "Runtime actor pass consumes edited trail appearance");
+        game.BindTrailArtwork(null);
+        using var without = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
+        game.BindTrailArtwork(stock);
+        using var with = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
+        AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Trail catalogs are excluded from both frontend and runtime snapshots");
+        with.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        AssertTrue(restoredRuntime.TrailArtwork is null, "Restored trail catalog requires host rebind");
+        restored.BindTrailArtwork(edited); game.BindTrailArtwork(edited);
+        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
+        AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
     }
 }

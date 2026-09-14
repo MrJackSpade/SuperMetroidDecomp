@@ -8,8 +8,13 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
-    [field: NonSerialized]
-    public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+    [NonSerialized] private bool trailArtworkRefreshPending;
+    public ProjectileTrailCatalog? TrailArtwork
+    {
+        get => trailArtwork;
+        set { trailArtwork = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+    }
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private bool beamArtworkRefreshPending;
 
@@ -21,9 +26,20 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     }
 
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) =>
-        asset == VramAssetId.StandardHudTiles
+        asset is VramAssetId.ProjectileIceWaveTrailTiles or VramAssetId.ProjectileMissileTrailTiles
+            ? (trailArtwork?.Tiles ?? throw new InvalidOperationException("Trail artwork is not bound.")).Resolve(asset)
+            : asset == VramAssetId.StandardHudTiles
             ? (MapPresentation ?? throw new InvalidOperationException("HUD artwork is not bound.")).Resolve(asset)
             : (beamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
+
+    private void PublishReboundTrailArtwork()
+    {
+        if (!trailArtworkRefreshPending) return;
+        // A restored legacy queue can still contain the standard OBJ upload. Publish
+        // current host art only after that queue drains, and only on accepted NMIs.
+        trailArtwork!.Tiles!.LoadTo(Vram);
+        trailArtworkRefreshPending = false;
+    }
 
     private void PublishReboundBeamArtwork()
     {

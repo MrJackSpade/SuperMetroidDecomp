@@ -9,6 +9,7 @@ internal static partial class Program
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));
+        VerifyTrailAtlasBinding(bus, png);
         var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
@@ -44,5 +45,45 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(invalidIndex), "Trail PNG indices exceeding four bits rejected");
         AssertThrows<InvalidDataException>(() => ProjectileTrailAtlas.Load(new MemoryStream(new byte[12])), "Malformed trail PNG rejected");
         Console.WriteLine("Trail PNG: native room/NMI parity and twelve edited pixels preserve every other VRAM byte, including the interleaved graphics gap.");
+    }
+
+    private static void VerifyTrailAtlasBinding(ISnesAddressSpace bus, byte[] png)
+    {
+        var image = IndexedPng.Read(new MemoryStream(png), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        image.Pixels[0] ^= 1;
+        image.Pixels[64] ^= 1;
+        using var stream = new MemoryStream();
+        IndexedPng.Write(stream, image.Width, image.Height, image.Pixels, image.Palette);
+        stream.Position = 0;
+        var atlas = ProjectileTrailAtlas.Load(stream);
+        var catalog = ProjectileTrailCatalog.Load(new MemoryStream(ProjectileTrailExtractor.Extract(bus)), atlas);
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
+        byte[] before = runtime.Vram.Bytes.ToArray();
+        runtime.TrailArtwork = catalog;
+        runtime.RunNmi(0, false);
+        AssertTrue(before.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Trail rebind does not change retained lag-frame VRAM");
+        runtime.RunNmi(0, true);
+        Check(runtime);
+        // Room initialization queues a new standard OBJ upload even after the first
+        // host rebind is consumed. Its typed replacements must survive that upload.
+        runtime.InitializeStartingCeresRoom();
+        runtime.RunNmi(0, true);
+        Check(runtime);
+        runtime.InitializeStartingCeresRoom();
+        using var saved = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
+        saved.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
+        AssertTrue(restored.TrailArtwork is null, "State does not embed selected trail PNGs");
+        restored.TrailArtwork = catalog;
+        restored.RunNmi(0, true);
+        Check(restored);
+        void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
+        {
+            AssertTrue(target.Vram.Bytes.Slice(ProjectileTrailAtlasDefinitions.IceWaveDestinationWord * 2, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "Accepted NMI installs current ice/wave trail PNG");
+            AssertTrue(target.Vram.Bytes.Slice(ProjectileTrailAtlasDefinitions.MissileDestinationWord * 2, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "Accepted NMI installs current missile trail PNG");
+        }
     }
 }

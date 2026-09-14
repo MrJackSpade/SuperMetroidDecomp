@@ -46,6 +46,11 @@ internal static class ProjectileHostBindingVerification
         var trails = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)))!;
         trails["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailVisualDefinitions.FileName), trails.ToJsonString());
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
+            image = IndexedPng.Read(input, ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        image.Pixels[0] ^= 1;
+        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
+            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -81,6 +86,10 @@ internal static class ProjectileHostBindingVerification
     private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
+        if (actual.Tiles is null || expected.Tiles is null ||
+            !actual.Tiles.IceAndWave.Span.SequenceEqual(expected.Tiles.IceAndWave.Span) ||
+            !actual.Tiles.Missile.Span.SequenceEqual(expected.Tiles.Missile.Span))
+            throw new InvalidDataException("Host bound stale or missing trail PNGs.");
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
             if (actual.Resolve(frame) != expected.Resolve(frame))
                 throw new InvalidDataException("Host bound stale trail appearance.");

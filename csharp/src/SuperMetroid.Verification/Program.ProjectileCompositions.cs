@@ -264,6 +264,25 @@ internal static partial class Program
         AssertEqual(trailEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves trail override");
         File.WriteAllText(trailOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid trail override does not fall back");
+        File.WriteAllText(trailOverride, trailDocument.ToJsonString());
+        string trailPngStock = Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName);
+        string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
+        var trailImage = IndexedPng.Read(new MemoryStream(File.ReadAllBytes(trailPngStock)), ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+        trailImage.Pixels[0] ^= 1;
+        using var trailPng = new MemoryStream();
+        IndexedPng.Write(trailPng, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
+        File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
+        var pngEdited = installation.LoadProjectiles();
+        AssertTrue(pngEdited.SelectedSha256 != trailEdited.SelectedSha256, "Trail PNG-only edit changes identity");
+        AssertTrue(!pngEdited.Trails.Tiles!.IceAndWave.Span.SequenceEqual(trailEdited.Trails.Tiles!.IceAndWave.Span), "Installed trail PNG edit reaches selected catalog");
+        File.WriteAllText(trailPngStock, "broken PNG");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide broken stock");
+        File.Move(trailPngStock, trailPngStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Trail PNG override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(pngEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves trail PNG override");
+        File.WriteAllText(trailPngOverride, "invalid override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed trail PNG override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

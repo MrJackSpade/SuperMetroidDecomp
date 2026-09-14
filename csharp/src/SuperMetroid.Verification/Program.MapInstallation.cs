@@ -37,6 +37,14 @@ internal static partial class Program
         var trailDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileTrailVisualDefinitions.FileName)))!;
         trailDocument["frames"]![ProjectileTrailVisualDefinitions.Name(ProjectileTrailVisualDefinitions.Frames[0])]!["flipX"] = true;
         File.WriteAllText(trailOverride, trailDocument.ToJsonString());
+        string trailPngOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName);
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, ProjectileTrailAtlasDefinitions.FileName)))
+        {
+            var trailImage = IndexedPng.Read(input, ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height);
+            trailImage.Pixels[0] ^= 1;
+            using var output = File.Create(trailPngOverride);
+            IndexedPng.Write(output, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
+        }
         var projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
@@ -113,6 +121,7 @@ internal static partial class Program
             [beamOverride] = File.ReadAllBytes(beamOverride),
             [beamPaletteOverride] = File.ReadAllBytes(beamPaletteOverride),
             [trailOverride] = File.ReadAllBytes(trailOverride),
+            [trailPngOverride] = File.ReadAllBytes(trailPngOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),

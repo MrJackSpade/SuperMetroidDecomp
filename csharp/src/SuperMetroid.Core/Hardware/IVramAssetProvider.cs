@@ -36,5 +36,9 @@ public enum VramAssetId
     /// <summary>$90:C3B1 selection 10: Plasma/Ice artwork.</summary>
     BeamPlasmaIceTiles,
     /// <summary>$90:C3B1 selection 11: Plasma/Ice/Wave artwork.</summary>
-    BeamPlasmaIceWaveTiles
+    BeamPlasmaIceWaveTiles,
+    /// <summary>The eight ice/wave projectile-trail characters.</summary>
+    ProjectileIceWaveTrailTiles,
+    /// <summary>The four missile/Super Missile trail characters.</summary>
+    ProjectileMissileTrailTiles
 }

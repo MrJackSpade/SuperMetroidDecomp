@@ -331,5 +331,13 @@ and missile transfers, preserving the unrelated OBJ tiles between those regions.
 Verification compares the complete VRAM image after real room setup and NMI,
 then edits one pixel in each tile and checks every VRAM byte for exact isolation.
 Malformed PNGs, incorrect dimensions and indices above 15 are rejected.
-This is the codec/extraction layer only: installation, override selection and
-queued upload/rebinding of trail PNGs are still pending.
+Version-five projectile manifests now install and hash this PNG, validate stock
+before selecting an override, and include the selected PNG in content identity.
+The shared host trail catalog carries immutable tiles across startup/state rebind.
+Gameplay room loading queues two typed transfers after standard OBJ graphics;
+rebound art publishes after legacy queued transfers on accepted NMIs only. Tests
+cover edited pixels after room initialization, lag retention, repeated room load,
+serialized pending queues and current-content rebind, as well as installation
+repair and host restart with an old save state. Android session tests run on Windows.
+Cinematic trail PNG upload ownership is still pending; this change does not replace
+the intro's compressed sprite sheets.

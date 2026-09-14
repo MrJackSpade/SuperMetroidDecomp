@@ -762,6 +762,7 @@ public sealed partial class SuperMetroidRuntime
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;
         // fixed projectile tiles such as bomb $14C-$14F remain in the untouched portion.
         VramWrites.Enqueue(sizeInBytes: 0x2e00, sourceAddress: 0x9ad200, encodedVramDestination: 0x6000);
+        TrailArtwork?.Tiles?.QueueTo(VramWrites);
 
         // LoadEnemyTileData's transfers follow the overlapping standard OBJ upload. The
         // room enemy loader has already populated the modeled VRAM for immediate watches;
@@ -4129,6 +4130,7 @@ public sealed partial class SuperMetroidRuntime
             // A rebound snapshot may retain old VRAM and legacy queued transfers.
             // Apply current content only at this accepted NMI, after those writes.
             PublishReboundBeamArtwork();
+            PublishReboundTrailArtwork();
             TransferXrayBg1Read();
             // Menu code consumes raw physical buttons before a runtime exists. Once room
             // gameplay owns the controller, all bank-$90/$91 action checks use the seven

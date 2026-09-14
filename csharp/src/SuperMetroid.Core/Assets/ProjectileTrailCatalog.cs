@@ -8,7 +8,9 @@ namespace SuperMetroid.Core.Assets;
 public sealed class ProjectileTrailCatalog
 {
     private readonly Dictionary<ushort, ushort> attributes;
-    private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes) => this.attributes = attributes;
+    public ProjectileTrailAtlas? Tiles { get; }
+    private ProjectileTrailCatalog(Dictionary<ushort, ushort> attributes, ProjectileTrailAtlas? tiles)
+    { this.attributes = attributes; Tiles = tiles; }
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -28,7 +30,7 @@ public sealed class ProjectileTrailCatalog
         return Resolve(unchecked((ushort)(nextInstruction - 4)));
     }
 
-    public static ProjectileTrailCatalog Load(Stream json)
+    public static ProjectileTrailCatalog Load(Stream json, ProjectileTrailAtlas? tiles = null)
     {
         ProjectileTrailDocument document;
         try
@@ -52,7 +54,7 @@ public sealed class ProjectileTrailCatalog
             attributes.Add(frame, SnesObjAttributeWord.Create(p.TileRow * ProjectileSpriteDefinitions.TileColumns + p.TileColumn,
                 p.Palette, p.Priority, (p.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (p.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw);
         }
-        return new(attributes);
+        return new(attributes, tiles);
     }
     public static byte[] Write(ProjectileTrailDocument document)
     {

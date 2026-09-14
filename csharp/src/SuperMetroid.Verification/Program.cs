@@ -160,6 +160,11 @@ if (args is ["--pose-dispatch-definitions"])
     VerifySamusHudDefinitions(poseRom);
     return 0;
 }
+if (args is ["--pose-input-definitions"])
+{
+    VerifyPoseInputDefinitions(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--grapple-rope-geometry"])
 {
     VerifyGrappleRopeGeometry(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));

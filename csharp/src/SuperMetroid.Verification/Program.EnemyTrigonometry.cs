@@ -90,6 +90,7 @@ internal static partial class Program
         VerifyPoseProjectileOrigin(rom);
         VerifyPoseCollisionDefinitions(rom);
         VerifyPoseDispatchDefinitions(rom);
+        VerifyPoseInputDefinitions(rom);
         VerifyBombSpreadLaunchDefinitions(rom);
         VerifyProjectileDamage(rom);
         VerifyProjectileRadii(rom);

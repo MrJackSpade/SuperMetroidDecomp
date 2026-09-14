@@ -133,6 +133,11 @@ $FD..$FF still read adjacent executable data. Facing, movement type and no-input
 fallback pose are now compiled for all 253 authored poses in
 `SamusPoseDispatchDefinitions`. Shot direction and per-pose instruction programs
 remain live mechanical readers; these completed fields do not complete metadata.
+The authored input graph is now compiled separately in `SamusPoseInputDefinitions`:
+253 pose mappings, 86 list identities and 598 ordered conditions. The production
+matcher consumes those typed conditions directly, preserving empty/self-match
+fallback semantics and native diagnostic entry addresses. The three trailing pose
+indexes still use the explicit pointer/record reader; animation programs are separate.
 Collision radii are now separately compiled for all 253 authored poses, including
 the prospective larger-pose and crouch-fallback consumers. The three trailing
 pose indexes still retain explicit adjacent-data reads. This physical catalog

@@ -1851,3 +1851,29 @@ drawing, movement or dust behavior fix. The player's Moat CWJ movie still matche
 all 262 native checkpoints, and all 18 Samus physics groups pass.
 The focused projectile suite, full Release Verification and Windows Release build
 also pass. This is partial progress on #541/#547, not complete pose/ROM separation.
+
+# Authored pose-input graph (#541 / #547)
+
+`SamusPoseInputDefinitions` compiles the 253 pointer selections and 86 distinct
+ordered condition lists (598 conditions) at `$91:9EE2..B00F`. Rules contain only
+required held/new inputs and target poses, not executable script bytes. Native
+list identities are retained for debugger entry addresses. The early/late data
+catalogs own private arrays constructed once; lookup does not allocate a new list.
+
+`SamusPoseTransitionTable.Lookup` consumes these conditions through its existing
+matcher. Raw zero input, empty-list direct return, exhaustion fallback, first-match
+priority and self-match suppression remain distinct. Non-authored `$FD..$FF`
+indexes retain the old fixed-bank pointer/record path. A synthetic priority test
+now uses `$FD` explicitly instead of replacing the authored standing input graph.
+
+The independent verifier reads all reference conditions from the pinned ROM and
+compares the complete held/new-input condition space, including independent
+ignored-bit variants, against the production lookup with every bus read forbidden.
+It also checks all mapping/list identities, condition order and targets, and a
+warmed-up 65,536-call allocation probe. This removes the authored input-graph
+dependency, not shot-direction, animation-program, artwork or general ROM-free
+integration dependencies. The broad issues remain open.
+
+Verification passed: 16,580,608 production lookup comparisons, zero allocations
+over 65,536 warmed-up lookups, full Release Verification, Windows Release build,
+and all 262 unchanged native checkpoints from the player's Moat CWJ movie.

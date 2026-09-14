@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 /// <remarks>
 /// This matcher deliberately stops before applying a prospective pose. The runtime owns the
-/// much larger transition contract and currently applies only the independently verified
-/// standing/right-running route. The returned record remains valuable debugger state: it
+/// transition side effects. Authored conditions are compiled; trailing pose indexes retain
+/// explicit adjacent-ROM behavior. The returned record remains valuable debugger state: it
 /// proves which cartridge entry won for a precise held/newly-pressed input chord.
 /// </remarks>
 public static class SamusPoseTransitionTable
@@ -65,9 +65,10 @@ public static class SamusPoseTransitionTable
         ushort held = (ushort)(canonicalHeldInput & ~StartAndSelectMask);
         ushort newlyPressed = (ushort)(canonicalNewInput & ~StartAndSelectMask);
 
-        ushort tablePointer = ReadWord(
-            bus,
-            AddWithinBank(SamusMovementRomData.Poses.TransitionListPointers, currentPose * 2));
+        bool compiled = SamusPoseInputDefinitions.TryGet(currentPose, out ushort tablePointer, out var rules);
+        if (!compiled)
+            tablePointer = ReadWord(bus,
+                AddWithinBank(SamusMovementRomData.Poses.TransitionListPointers, currentPose * 2));
         int entryAddress = SamusMovementRomData.Banks.Pose | tablePointer;
 
         // A valid table ends with a single $FFFF word. The retail bank cannot contain more
@@ -75,7 +76,9 @@ public static class SamusPoseTransitionTable
         // retaining fixed-bank wrapping in every actual address calculation.
         for (int entryIndex = 0; entryIndex < 10_923; entryIndex++)
         {
-            ushort requiredNew = ReadWord(bus, entryAddress);
+            ushort requiredNew = compiled
+                ? entryIndex == rules.Length ? ushort.MaxValue : rules[entryIndex].RequiredNewInput
+                : ReadWord(bus, entryAddress);
             if (requiredNew == 0xffff)
             {
                 return new SamusPoseTransitionLookup(
@@ -83,8 +86,8 @@ public static class SamusPoseTransitionTable
                     UsesPoseDefinitionFallback: entryIndex != 0);
             }
 
-            ushort requiredHeld = ReadWord(bus, AddWithinBank(entryAddress, 2));
-            ushort prospectivePose = ReadWord(bus, AddWithinBank(entryAddress, 4));
+            ushort requiredHeld = compiled ? rules[entryIndex].RequiredHeldInput : ReadWord(bus, AddWithinBank(entryAddress, 2));
+            ushort prospectivePose = compiled ? rules[entryIndex].TargetPose : ReadWord(bus, AddWithinBank(entryAddress, 4));
 
             // Assembly complements the actual inputs and rejects an entry if any required
             // bit is absent. Expressing that as (required & actual)==required is equivalent

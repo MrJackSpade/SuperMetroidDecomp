@@ -190,3 +190,20 @@ remain open requirements. No ROM-derived JSON or screenshots are published.
    explicitly listed as unfinished ROM dependencies.
 
 No raw ROM, player state, movie or screenshots are included in this audit.
+
+## Production drawing composition seam
+
+`DrawLiveProjectiles`, `DrawExplosions`, and the bomb owner's `Draw` now accept an
+optional immutable `ProjectileSpriteCatalog`. Their existing admission, flicker,
+slot ordering and power-bomb detonation suppression run before composition emission.
+When supplied, the catalog is authoritative: a missing sprite throws instead of
+falling back to the ROM. The legacy no-catalog path remains during migration.
+
+The owner regression compares 120,096 stock OAM results across all 417 identities,
+eight projectile families, four NMI phases and nine viewport-boundary positions.
+The extracted path forbids every bus read/write and preserves damage and radii.
+Zero-timer power bombs are separately required to emit nothing.
+
+This is not host installation or automatic asset binding. Runtime/host content
+selection, provenance, restore-time rebinding, PNG artwork, trails and flares remain
+unfinished. The catalog is passed per draw and adds no serialized owner state.

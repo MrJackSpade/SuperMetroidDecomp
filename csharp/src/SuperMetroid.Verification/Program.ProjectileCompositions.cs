@@ -2,6 +2,7 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Game;
 
 internal static partial class Program
 {
@@ -9,6 +10,7 @@ internal static partial class Program
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        VerifyProjectileCompositionOwners(rom, content);
         int draws = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort origin in new ushort[] { 0, 1, 127, 255, 256, 0x7fff, 0xffff })
@@ -57,5 +59,57 @@ internal static partial class Program
         }
         AssertThrows<InvalidDataException>(() => content.Draw(0, new OamBuffer(), 0, 0), "Unknown sprite is loud");
         Console.WriteLine($"Projectile compositions: 417 extracted sprites/{draws} native OAM comparisons, observable edits, immutable load and invalid-field rejection pass without a draw-time ROM.");
+    }
+
+    private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
+    {
+        var forbidden = new ProjectileCompositionForbiddenBus();
+        int comparisons = 0;
+        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
+        foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })
+        foreach (ushort type in new ushort[] { 0, 0x10, 0x100, 0x200, 0x300, 0x500, 0x700, 0x800 })
+        {
+            var shots = new SamusProjectileSystem();
+            var bombs = new SamusBombProjectileSystem();
+            var shot = shots.Slots[0];
+            shot.InstructionPointer = 1; shot.SpritemapPointer = id;
+            shot.Type = type; shot.XPosition = coordinate; shot.YPosition = coordinate;
+            shot.Damage = 123; shot.XRadius = 7; shot.YRadius = 9;
+            var bomb = bombs.Slots[0];
+            bomb.InstructionPointer = 1; bomb.SpritemapPointer = id;
+            bomb.Type = type; bomb.XPosition = coordinate; bomb.YPosition = coordinate;
+            bomb.BombTimer = 1;
+            foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
+            {
+                var native = new OamBuffer(); var extracted = new OamBuffer();
+                shots.DrawLiveProjectiles(rom, native, 0, 0, parity);
+                shots.DrawExplosions(rom, native, 0, 0);
+                bombs.Draw(rom, native, 0, 0);
+                shots.DrawLiveProjectiles(forbidden, extracted, 0, 0, parity, content);
+                shots.DrawExplosions(forbidden, extracted, 0, 0, content);
+                bombs.Draw(forbidden, extracted, 0, 0, content);
+                AssertTrue(native.LowTable.SequenceEqual(extracted.LowTable) && native.HighTable.SequenceEqual(extracted.HighTable),
+                    "Production projectile composition preserves admission, flicker and OAM");
+                AssertEqual(native.NextByteOffset, extracted.NextByteOffset, "Composition owner preserves OAM cursor");
+                AssertEqual((ushort)123, shot.Damage, "Composition does not mutate damage");
+                AssertEqual((ushort)7, shot.XRadius, "Composition does not mutate X radius");
+                AssertEqual((ushort)9, shot.YRadius, "Composition does not mutate Y radius");
+                comparisons++;
+            }
+            if (type == 0x300)
+            {
+                bomb.BombTimer = 0;
+                var hidden = new OamBuffer();
+                bombs.Draw(forbidden, hidden, 0, 0, content);
+                AssertEqual(0, hidden.NextByteOffset, "Detonated power bomb remains hidden with extracted art");
+            }
+        }
+        Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
+    }
+
+    private sealed class ProjectileCompositionForbiddenBus : ISnesAddressSpace
+    {
+        public byte ReadByte(int address) => throw new InvalidOperationException($"Composition draw read ROM {address:X6}.");
+        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Composition draw mutated the bus.");
     }
 }

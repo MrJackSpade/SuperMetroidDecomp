@@ -77,13 +77,20 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         ushort layer1X,
         ushort layer1Y,
-        int? horizontalMargin)
+        int? horizontalMargin,
+        Assets.ProjectileSpriteCatalog? compositions)
     {
         short screenX = unchecked((short)(slot.XPosition - layer1X));
         ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
             (screenY & 0xff00) != 0)
         {
+            return;
+        }
+
+        if (compositions is not null)
+        {
+            compositions.Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
             return;
         }
 

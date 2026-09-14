@@ -247,7 +247,8 @@ public sealed class SamusBombProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        Assets.ProjectileSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -278,6 +279,12 @@ public sealed class SamusBombProjectileSystem
             ushort screenY = unchecked((ushort)(slot.YPosition - layer1Y));
             if (screenX < -48 || screenX >= 304 || (screenY & 0xff00) != 0)
                 continue;
+
+            if (compositions is not null)
+            {
+                compositions.Draw(slot.SpritemapPointer, oam, unchecked((ushort)screenX), screenY);
+                continue;
+            }
 
             oam.AddProjectileSpritemap(
                 bus,

@@ -634,7 +634,8 @@ public sealed partial class SamusProjectileSystem
         OamBuffer oam,
         ushort layer1X,
         ushort layer1Y,
-        ushort nmiFrameCounter)
+        ushort nmiFrameCounter,
+        Assets.ProjectileSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -668,7 +669,7 @@ public sealed partial class SamusProjectileSystem
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
             if ((slot.SpritemapPointer & 0x8000) != 0)
-                DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: null);
+                DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: null, compositions);
         }
     }
 
@@ -707,7 +708,8 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        Assets.ProjectileSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(oam);
@@ -721,7 +723,7 @@ public sealed partial class SamusProjectileSystem
                     SamusProjectileFamily.MissileExplosion))
                 continue;
 
-            DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 48);
+            DrawSlot(bus, oam, slot, layer1X, layer1Y, horizontalMargin: 48, compositions);
         }
     }
 

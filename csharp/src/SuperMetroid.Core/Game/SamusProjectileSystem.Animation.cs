@@ -111,28 +111,28 @@ public sealed partial class SamusProjectileSystem
             return;
 
         ushort frame = unchecked((ushort)(_flareFrames[component] + 1));
-        ushort delayList = ReadWord(
+        ushort delayList = ChargeFlareAnimationDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Beams.ChargeFlareDelayListPointers + component * 2);
-        byte delay = bus.ReadByte(
+        byte delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.MovementNumber,
                 unchecked((ushort)(delayList + frame))));
-        if (delay == 0xff)
+        if (delay == ChargeFlareAnimationDefinitions.Restart)
         {
             frame = 0;
-            delay = bus.ReadByte((int)new SnesAddress(
+            delay = ChargeFlareAnimationDefinitions.ReadByte(bus, (int)new SnesAddress(
                 SamusProjectileRomData.Banks.MovementNumber,
                 delayList));
         }
-        else if (delay == 0xfe)
+        else if (delay == ChargeFlareAnimationDefinitions.Rewind)
         {
-            byte rewind = bus.ReadByte(
+            byte rewind = ChargeFlareAnimationDefinitions.ReadByte(bus,
                 (int)new SnesAddress(
                     SamusProjectileRomData.Banks.MovementNumber,
                     unchecked((ushort)(delayList + frame + 1))));
             frame = unchecked((ushort)(frame - rewind));
-            delay = bus.ReadByte(
+            delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
                 (int)new SnesAddress(
                     SamusProjectileRomData.Banks.MovementNumber,
                     unchecked((ushort)(delayList + frame))));

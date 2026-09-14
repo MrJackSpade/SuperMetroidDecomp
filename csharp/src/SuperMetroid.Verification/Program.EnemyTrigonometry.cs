@@ -93,6 +93,7 @@ internal static partial class Program
         VerifyProjectileDamage(rom);
         VerifyProjectileRadii(rom);
         VerifyProjectileInstructions(rom);
+        VerifyChargeFlareDefinitions(rom);
         VerifyProjectileVisualParts();
         VerifyProjectileCompositions(rom);
         VerifyProjectileOrigins(rom);

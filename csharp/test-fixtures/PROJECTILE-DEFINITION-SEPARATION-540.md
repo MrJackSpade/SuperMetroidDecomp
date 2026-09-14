@@ -365,3 +365,12 @@ Verification checks all 3,828 authored bytes, 32,768 fixed-bank word reads and
 Another 6,600 actual SpawnTrail calls compare all four positions against independent
 cartridge lookups across beam/charged/SBA/missile types, directions, animation
 frames and coordinate wrap boundaries. This compiles placement, not editable art.
+
+`ChargeFlareAnimationDefinitions` compiles the supported NTSC revision's three
+delay selectors and 46 stream bytes at $90:C481..C4B4. The main flare's rewind
+and the sparks' restart retain their native commands; advancement still happens
+only after the timer's signed decrement becomes negative. Verification compares
+all upper-bank byte/word reads, 3,072 sequential loop ticks and 3,855 seeded boundary
+advances with timing ROM reads forbidden. Cached state, frame wrap and neighboring
+reads retain the native result. This does not extract flare artwork or change PAL
+timing; the project remains pinned to its supported NTSC ROM revision.

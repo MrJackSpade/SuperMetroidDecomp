@@ -1,7 +1,7 @@
 /* #429: earn temporary Blue Suit through native controller processing. */
 #include "../Common/CartridgeCpuFixture.h"
 #include "../Common/MovementEntryPoints.h"
-enum { SamusPalettePhase = 0x91d6f7 };
+enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60 };
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -49,15 +49,16 @@ int main(int argc, char **argv) {
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
   bool cancel = argc == 3 && strcmp(argv[2], "cancel") == 0;
-  if (argc == 3 && !carry && !bounce && !cancel) return 2;
+  bool sand = argc == 3 && strcmp(argv[2], "sand") == 0;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir\n");
+  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel ? 140 : 60; stop <= (carry || bounce || cancel ? 140 : 180); stop += 40)
-  for (int aim = 0; aim < (carry ? 40 : bounce || cancel ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand ? 140 : 60; stop <= (carry || bounce || cancel || sand ? 140 : 180); stop += 40)
+  for (int aim = 0; aim < (carry ? 40 : bounce || cancel || sand ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -78,7 +79,7 @@ int main(int argc, char **argv) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < (carry ? 620 : bounce ? 800 : cancel ? 460 : 400); frame++) {
+    for (int frame = 0; frame < (carry ? 620 : bounce ? 800 : cancel ? 460 : sand ? 401 : 400); frame++) {
       if (cancel && frame == 400 && aim >= 3 && aim <= 6) equipped_items &= ~0x2000;
       if (cancel && frame == 410 && aim == 6) equipped_items |= 0x2000;
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
@@ -87,17 +88,37 @@ int main(int argc, char **argv) {
       if (carry) input = carry_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
+      if (sand) input = cancel_input(frame, left, 0);
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
+      if (sand && frame == 400) {
+        /* Isolated alpha body sampler after the preceding controller-earned state.
+           Keep geometry/area changes out of the run-up and do not execute beta. */
+        area_index = 4;
+        int row = (aim == 2 ? samus_y_pos - samus_y_radius : samus_y_pos + samus_y_radius - 1) >> 4;
+        int block = row * room_width_in_blocks + (samus_x_pos >> 4);
+        if (aim != 0) {
+          level_data[block] = aim == 7 ? 0x8000 : 0x3000;
+          BTS[block] = aim >= 3 && aim <= 5 ? 0x80 + aim : 0x82;
+          if (aim == 6) {
+            level_data[block + 1] = 0x3000; BTS[block + 1] = 0x82;
+            level_data[block] = 0x5000; BTS[block] = 1;
+          }
+        }
+        run(InsideBlockPhase);
+      } else {
       run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
       run(0x900000 | samus_movement_handler);
       unsigned stages[] = {AnimationPhase,TransitionPhase,CollisionPosePhase,ApplyPosePhase,
         PoseHistoryPhase,HurtPhase,CollisionPhase,SamusPalettePhase};
       for (int i = 0; i < 8; i++) run(stages[i]);
-      printf("%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X\n",
+      }
+      printf("%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X",
         left,stop,aim,frame,input,samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,
         samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_base_speed,samus_x_base_subspeed,
         samus_x_extra_run_speed,samus_x_extra_run_subspeed,speed_boost_counter,samus_contact_damage_index,
         samus_shine_timer,timer_for_shine_timer,samus_y_speed,samus_y_subspeed,samus_y_dir);
+      if (sand) printf(",%04X%04X,%04X%04X", extra_samus_x_displacement,extra_samus_x_subdisplacement,extra_samus_y_displacement,extra_samus_y_subdisplacement);
+      printf("\n");
     }
   }
   return 0;

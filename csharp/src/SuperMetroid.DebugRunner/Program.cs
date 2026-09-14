@@ -30,6 +30,8 @@ if (args is ["--temporary-blue-bounce-audit", var blueBounceRom, var blueBounceT
     return TemporaryBlueSuitComparisonAudit.Run(blueBounceRom, blueBounceTrace, TemporaryBlueAuditKind.Bounce);
 if (args is ["--temporary-blue-cancel-audit", var blueCancelRom, var blueCancelTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueCancelRom, blueCancelTrace, TemporaryBlueAuditKind.Cancellation);
+if (args is ["--temporary-blue-sand-audit", var blueSandRom, var blueSandTrace])
+    return TemporaryBlueSuitComparisonAudit.Run(blueSandRom, blueSandTrace, TemporaryBlueAuditKind.Sand);
 if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
     return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])

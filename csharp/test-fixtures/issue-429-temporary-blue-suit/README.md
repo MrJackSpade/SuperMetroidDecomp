@@ -12,6 +12,8 @@ Subsequent fixtures add [soft-unmorph carry](CARRY.md) and
 additional reproduced fixes and the remaining issue scope.
 The [Dash/equipment matrix](CANCELLATION.md) records native cancellation and
 non-cancellation conditions after the charge has expired.
+The [sand sampler matrix](SAND.md) distinguishes surface cancellation from
+submerging sand and sandfalls, including an extension-tile path.
 
 ## Reference and execution
 

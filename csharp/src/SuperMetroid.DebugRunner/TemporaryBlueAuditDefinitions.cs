@@ -1,5 +1,5 @@
 /// <summary>Distinct controller-earned native temporary-boost comparison matrices.</summary>
-internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation }
+internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation, Sand }
 
 /// <summary>Accepted original-CPU trace identities and complete matrix dimensions.</summary>
 internal static class TemporaryBlueAuditDefinitions
@@ -10,6 +10,7 @@ internal static class TemporaryBlueAuditDefinitions
         TemporaryBlueAuditKind.Carry => (80, 620, "C7486E42C4A0247665E4ABC1FD076A9E1D4D6305056E72C181136B6F5BB2B414"),
         TemporaryBlueAuditKind.Bounce => (16, 800, "1A930ABCDBD78434CC0CA6220F512E2DAC139AEB939C3A82BC0F38472A446296"),
         TemporaryBlueAuditKind.Cancellation => (16, 460, "E8AD5317A45B4692FFACA07F660D38250F7A5707BD2D2DFE7427C718FAD43B7E"),
+        TemporaryBlueAuditKind.Sand => (16, 401, "C9BDA4C0D7117C1B019129096EC184D3D182F0392CF37F1CBD562D45133F7DB6"),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 }

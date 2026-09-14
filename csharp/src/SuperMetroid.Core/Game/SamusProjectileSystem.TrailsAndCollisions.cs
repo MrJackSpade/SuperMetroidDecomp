@@ -104,7 +104,7 @@ public sealed partial class SamusProjectileSystem
 
         ushort dataPointer = ReadWord(bus, dataPointerTable + dataPointerIndex * 2);
         int data = SamusProjectileRomData.Banks.Projectile | dataPointer;
-        slot.Damage = ReadWord(bus, data);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, data);
         slot.InstructionPointer = ReadWord(
             bus,
             AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));

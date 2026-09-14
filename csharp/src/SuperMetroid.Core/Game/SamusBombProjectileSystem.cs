@@ -516,7 +516,7 @@ public sealed class SamusBombProjectileSystem
             AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
 
-        slot.Damage = ReadWord(bus, dataAddress);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, dataAddress);
         if ((slot.Damage & 0x8000) != 0)
             throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
 

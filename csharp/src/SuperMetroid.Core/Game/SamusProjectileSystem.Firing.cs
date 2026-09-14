@@ -266,7 +266,7 @@ public sealed partial class SamusProjectileSystem
             (charged
                 ? SamusProjectileRomData.Beams.ChargedDataPointers
                 : SamusProjectileRomData.Beams.UnchargedDataPointers) + beamType * 2);
-        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
@@ -375,7 +375,7 @@ public sealed partial class SamusProjectileSystem
         ushort dataPointer = ReadWord(
             bus,
             SamusProjectileRomData.Beams.ChargedDataPointers + hyperBeamType * 2);
-        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |
@@ -480,7 +480,7 @@ public sealed partial class SamusProjectileSystem
         ushort dataPointer = ReadWord(
             bus,
             SamusProjectileRomData.NonBeam.DataPointers + samus.SelectedHudItem * 2);
-        slot.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        slot.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         slot.InstructionPointer = ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |

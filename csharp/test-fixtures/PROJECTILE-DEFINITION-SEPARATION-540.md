@@ -3,6 +3,23 @@
 Audited against production at 1035f8c3 and pinned `upstream-disassembly/src/bank_93.asm`.
 This is an implementation inventory, not a completed migration or gameplay fix.
 
+## Implemented damage-header slice
+
+`SamusProjectileDamageDefinitions` now compiles all forty damage headers, including
+the unused negative marker and zero-damage record. All seven consumers below
+use it. Exact-address selection preserves unaligned/adjacent reads on the bus.
+Pointer-table reads, instruction streams and physical radii remain ROM-backed;
+this is not a ROM-free projectile initializer or editable-art integration claim.
+
+`VerifyProjectileDamage` compares every header with reads forbidden, then every
+high-bank address (including odd addresses and bank-end wrapping) against ROM.
+Actual firing/reflection covers twelve beam combinations, charged and uncharged;
+both missiles, Hyper, the invisible Super Missile link, all four SBAs and three
+bomb types also run through the guard. Assertions cover damage, directional list,
+initial radii/timer, link allocation, Hyper override and negative-marker rejection.
+Existing full-suite tests retain trajectory and combat coverage. Presentation
+override tests and the rest of the integration gates below remain outstanding.
+
 ## Shared initializer consumers
 
 | Production path | Definition selection | Coupled fields |

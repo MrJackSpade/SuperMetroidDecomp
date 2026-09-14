@@ -368,7 +368,7 @@ public sealed partial class SamusProjectileSystem
         ushort dataPointer = ReadWord(
             bus,
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
-        link.Damage = ReadWord(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
+        link.Damage = SamusProjectileDamageDefinitions.Read(bus, SamusProjectileRomData.Banks.Projectile | dataPointer);
         link.InstructionPointer = ReadWord(
             bus,
             SamusProjectileRomData.Banks.Projectile |

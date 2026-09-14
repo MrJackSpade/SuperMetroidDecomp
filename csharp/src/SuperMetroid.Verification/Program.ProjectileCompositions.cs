@@ -9,6 +9,7 @@ internal static partial class Program
     private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom)
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
+        VerifyBeamTileArtwork(rom);
         var content = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         VerifyProjectileCompositionOwners(rom, content);
         int draws = 0;

@@ -228,3 +228,17 @@ Startup logs original and selected content hashes. The installed Android session
 test (run on Windows, not the device) verifies all 417 selected compositions at
 startup and after restart/old-state rebind, plus invalid-override rejection.
 PNG artwork, trails, flares and the wider weapon presentation scope remain open.
+
+### Beam PNG codec (not installed yet)
+
+`BeamTileExtractor` emits twelve 64x8 indexed sheets, one per legal beam selection
+at $90:C3B1. Shared stock graphics may be edited independently per combination.
+`BeamTileAtlas` compiles indices into the exact 256-byte 4-bpp upload at VRAM word
+$6300. Palette colors in the PNG are diagnostic; the indices address the game's
+separately selected beam palette. This codec is not wired to installed content or
+the queued NMI upload yet, and must not be advertised as an active PNG override.
+
+Tests compare all twelve decoded PNGs with the complete VRAM result of production
+`LoadBeamTilesAndPalette`. Changing the first pixel's low bit changes exactly bit
+7 of the first destination byte, leaving every other VRAM byte unchanged. Invalid
+dimensions, malformed PNGs and indices above fifteen are rejected.

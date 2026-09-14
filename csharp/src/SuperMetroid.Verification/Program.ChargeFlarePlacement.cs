@@ -10,6 +10,7 @@ internal static partial class Program
 {
     private static void VerifyChargeFlarePlacement(SuperMetroidAddressSpace bus)
     {
+        VerifyChargeFlareCompositions(bus);
         byte[] json = ChargeFlarePlacementExtractor.Extract(bus);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
         var document = JsonNode.Parse(json)!;

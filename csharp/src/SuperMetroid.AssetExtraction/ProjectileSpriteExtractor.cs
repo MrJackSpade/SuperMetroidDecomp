@@ -10,8 +10,15 @@ public static class ProjectileSpriteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)
     {
+        byte[] json = ExtractFrames(bus, ProjectileSpriteDefinitions.NativePointers);
+        _ = ProjectileSpriteCatalog.Load(new MemoryStream(json));
+        return json;
+    }
+
+    internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers)
+    {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
+        foreach (ushort id in requiredPointers)
         {
             int address = 0x930000 | id;
             int count = RomDataReader.ReadWordFixedBank(bus, address);
@@ -30,7 +37,6 @@ public static class ProjectileSpriteExtractor
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
-        _ = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         return json;
     }
 }

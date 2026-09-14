@@ -400,3 +400,15 @@ To replace placement, copy `game/projectiles/charge-flare-placement.json` into
 edit the signed `x`/`y` values, and restart. Keep every `standing-00`..`standing-15`
 and `running-00`..`running-15` entry. These adjust visual flares only, after the
 Samus-center transform; they do not move projectile launch points or change damage.
+
+Charge-flare composition groundwork now extracts the 28 unique visual frames used
+by the 54 native charge/Hyper/spark selectors into a separate
+`charge-flare-compositions.json`. It shares the strict projectile-part compiler
+without changing the existing 417-frame projectile schema. The selector identities
+are compiled from the pinned bank-$93 table; cadence and placement are not exposed
+in the composition document. Verification compares all selectors against native
+OAM at coordinate boundaries and near sprite-buffer wrap (7,938 cases), and checks
+visible edits plus rejection of missing frames, invalid palettes, mechanics fields,
+duplicate properties and unknown selectors. This is an extractor/catalog API only:
+installation and live host binding of this composition file remain pending. No
+gameplay call site has been switched to this bounded selector API yet.

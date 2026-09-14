@@ -17,6 +17,11 @@ public sealed class ProjectileSpriteCatalog
     }
 
     public static ProjectileSpriteCatalog Load(Stream json)
+        => LoadFrames(json, ProjectileSpriteDefinitions.NativePointers);
+
+    // Charge flares use the same native part format but have a separate required
+    // identity set, so existing projectile overrides remain compatible.
+    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers)
     {
         ProjectileSpriteDocument document;
         try
@@ -30,10 +35,10 @@ public sealed class ProjectileSpriteCatalog
             }) ?? throw new InvalidDataException("Projectile composition document is null.");
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
-        if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != ProjectileSpriteDefinitions.NativePointers.Length)
-            throw new InvalidDataException("Projectile compositions require version 1 and every timed-projectile sprite.");
+        if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredPointers.Length)
+            throw new InvalidDataException("Projectile compositions require version 1 and every required sprite identity.");
         var frames = new Dictionary<ushort, CompiledSpritePart[]>();
-        foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
+        foreach (ushort id in requiredPointers)
         {
             string name = ProjectileSpriteDefinitions.Name(id);
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > ProjectileSpriteDefinitions.MaximumParts)

@@ -345,3 +345,11 @@ now publishes rebound trail PNGs before either direct rendering or detached capt
 Tests compare every VRAM byte for stock parity and two edited pixels, including an
 old frontend state rebound to current artwork. Binding alone retains the prior
 display; no compressed cinematic sheet is replaced.
+
+The trail-spawn owner's previous-record lookup now uses the compiled projectile
+instruction catalog too. A guarded-bus regression first failed at its direct ROM
+read, then passed with the shared resolver. It checks all 1,816 catalogued words
+under four timer states with a deliberately unrelated cached animation frame,
+and all 32,768 upper-bank byte addresses for native odd/gap/wrap behavior. This
+does not change the cart's unconditional `(instructionPointer - 2)` selection
+or compile the remaining bank-$9B coordinate tables.

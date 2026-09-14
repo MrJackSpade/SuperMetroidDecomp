@@ -96,6 +96,26 @@ internal static partial class Program
         }
         AssertEqual(1816, words.Count, "All authored duration/trail/control words inventoried");
         var guard = new ProjectileInstructionReadGuard(rom, words);
+        var trailFrame = typeof(SamusProjectileSystem).GetMethod("GetTrailAnimationFrame", BindingFlags.Static | BindingFlags.NonPublic)!
+            .CreateDelegate<Func<ISnesAddressSpace, SamusProjectileSlot, ushort>>();
+        var trailSlot = new SamusProjectileSlot(0);
+        foreach (int address in words)
+        {
+            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
+            foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
+            {
+                trailSlot.InstructionTimer = timer;
+                trailSlot.AnimationFrame = 0xbeef;
+                AssertEqual(Word(address), trailFrame(guard, trailSlot), "Trail owner consumes compiled previous-record word regardless of timer or cached frame");
+                AssertEqual(timer, trailSlot.InstructionTimer, "Trail frame lookup leaves timer unchanged");
+                AssertEqual((ushort)0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
+            }
+        }
+        for (int address = 0x938000; address <= 0x93ffff; address++)
+        {
+            trailSlot.InstructionPointer = unchecked((ushort)(address + 2));
+            AssertEqual(Word(address), trailFrame(rom, trailSlot), "Trail owner preserves odd addresses, uncatalogued reads and bank wrapping");
+        }
         foreach (int a in words)
             AssertEqual(Word(a), SamusProjectileInstructionDefinitions.ReadWord(guard, a), "Compiled instruction word matches cartridge");
         for (int a = 0x938000; a <= 0x93ffff; a++)

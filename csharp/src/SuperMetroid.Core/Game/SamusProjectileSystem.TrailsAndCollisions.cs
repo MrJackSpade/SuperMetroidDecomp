@@ -311,7 +311,7 @@ public sealed partial class SamusProjectileSystem
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
         // The upstream C port's timer-one lookahead is absent from the pinned ROM.
         ushort frameAddress = unchecked((ushort)(projectile.InstructionPointer - 2));
-        return ReadWord(bus, SamusProjectileRomData.Banks.Projectile | frameAddress);
+        return SamusProjectileInstructionDefinitions.ReadWord(bus, SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>

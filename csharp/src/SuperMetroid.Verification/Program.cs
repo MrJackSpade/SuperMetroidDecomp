@@ -434,6 +434,11 @@ if (args is ["--moat-first-entry"])
     VerifyMoatFirstEntry();
     return 0;
 }
+if (args is ["--pillar-first-entry"])
+{
+    VerifyPillarFirstEntry();
+    return 0;
+}
 if (args is ["--ridley-acid"])
 {
     VerifyRidleyAcid();

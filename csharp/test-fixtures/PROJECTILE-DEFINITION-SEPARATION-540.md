@@ -468,3 +468,14 @@ To replace this art, copy `game/projectiles/grapple-tiles.png` to
 four-bit palette indices. Endpoint frames occupy pixel columns 0..31; horizontal,
 diagonal and vertical frames occupy 32..63, 64..95 and 96..127 respectively.
 Palette selection, rope geometry, attachment behavior and damage are not PNG data.
+
+The rope-geometry audit reproduced a separate native-parity defect before changing
+production code: diagonal displacements were truncated separately for every OBJ,
+putting the second segment one pixel too low in the focused up/right example.
+Drawing now retains the cartridge's signed 16.16 accumulator, stops after ticking
+the first off-screen slot, and preserves signed-length rejection and the native
+do-while behavior when the masked segment quotient is zero. The focused
+`--grapple-rope-geometry` check compares exact OAM positions and visited animation
+timers in 42 cases against cartridge sine samples. Grapple endpoint pose-specific
+clipping remains a separate audit item; this change does not alter attachment,
+collision, movement, or claim completion of editable segment compositions.

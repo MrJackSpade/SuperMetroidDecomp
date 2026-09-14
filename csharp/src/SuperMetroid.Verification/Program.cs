@@ -153,6 +153,11 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--grapple-rope-geometry"])
+{
+    VerifyGrappleRopeGeometry(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--stock-attract-scenes"])
 {
     VerifyStockAttractScenes();

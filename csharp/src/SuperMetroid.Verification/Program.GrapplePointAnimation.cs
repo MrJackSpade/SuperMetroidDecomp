@@ -6,6 +6,7 @@ internal static partial class Program
 {
     private static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
+        VerifyGrappleRopeGeometry(bus);
         ushort begin = RomDataReader.ReadWordFixedBank(bus, SamusGrappleRomData.Rendering.PointTilePointers);
         ushort end = RomDataReader.ReadWordFixedBank(bus, SamusGrappleRomData.Rendering.PointTilePointers + 2);
         var grapple = new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = 5 };

@@ -114,6 +114,24 @@ public static class SamusGrappleRomData
         public const ushort SegmentTileByteCount = 0x80;
         /// <summary>Encoded VRAM destination for Grapple segment characters.</summary>
         public const ushort SegmentTileVramDestination = 0x6210;
+        /// <summary>$94:B036, DrawGrappleBeam: distance between consecutive rope objects in pixels.</summary>
+        public const int SegmentSpacing = 8;
+        /// <summary>$94:AFD9-AFE4: convert a signed 8.8 sample into an eight-pixel 16.16 displacement.</summary>
+        public const int SegmentSampleToFixedPoint = SegmentSpacing * 256;
+        /// <summary>$94:B048, DrawGrappleBeam: mask applied to the hardware length quotient.</summary>
+        public const int SegmentCountMask = 15;
+        /// <summary>$94:B051, DrawGrappleBeam: first animation slot, traversed downward.</summary>
+        public const int FirstSegmentSlot = 15;
+        /// <summary>$94:B016/B025, DrawGrappleBeam: center an eight-pixel character on its beam coordinate.</summary>
+        public const int CharacterCenterOffset = 4;
+        /// <summary>$94:B07A, DrawGrappleBeam: reject a segment if either coordinate has any high-byte bits.</summary>
+        public const int SegmentOutsideViewportMask = 0xff00;
+        /// <summary>$94:B18B-B197: each rope animation record lasts five visits to its slot.</summary>
+        public const ushort SegmentAnimationDelay = 5;
+        /// <summary>$94:B18B-B197: four successive rope animation records before the goto.</summary>
+        public const int SegmentAnimationFrameCount = 4;
+        /// <summary>$94:B18D: first rope character with palette five and priority three.</summary>
+        public const ushort FirstSegmentAttributes = 0x3a21;
     }
 
     /// <summary>Special connection-angle records and their native handler identities.</summary>

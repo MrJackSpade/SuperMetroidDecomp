@@ -65,7 +65,7 @@ public static partial class SamusGrappleMovement
         // its muzzle flare before its first eight-pixel body segment exists.
         if (unchecked((short)(grapple.FlareCounter - 120)) < 0)
             grapple.FlareCounter = unchecked((ushort)(grapple.FlareCounter + 1));
-        if (grapple.RopeLength == 0)
+        if (unchecked((short)grapple.RopeLength) <= 0)
             return;
 
         // $94:AFCF recalculates the draw vector from endpoint-minus-flare geometry. This
@@ -74,10 +74,12 @@ public static partial class SamusGrappleMovement
         int beamDeltaX = unchecked((short)(grapple.AnchorX - grapple.BeamStartX));
         int beamDeltaY = unchecked((short)(grapple.AnchorY - grapple.BeamStartY));
         SnesAngle drawAngle = CalculateAngleFromXY(beamDeltaX, beamDeltaY);
-        int stepX = ScaleCoordinate(
-            ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex),
-            8);
-        int stepY = ScaleCoordinate(ReadSignedSine(drawAngle.TableIndex), 8);
+        // Preserve the fractional word across segments. Rounding each individual
+        // displacement shortens diagonals and rounds negative steps incorrectly.
+        int stepX = ReadSignedSine(drawAngle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex)
+            * SamusGrappleRomData.Rendering.SegmentSampleToFixedPoint;
+        int stepY = ReadSignedSine(drawAngle.TableIndex)
+            * SamusGrappleRomData.Rendering.SegmentSampleToFixedPoint;
 
         // $94:AFDE derives X/Y flip bits from the grapple angle while retaining the packed
         // palette-five/priority-three instruction word. Tile $20 is the connected endpoint.
@@ -85,24 +87,27 @@ public static partial class SamusGrappleMovement
         int flipBits = (angleHigh & 0x80) >> 1;
         flipBits |= 2 * ((((angleHigh ^ flipBits) & 0x40) ^ 0x40));
         ushort flipAttributes = unchecked((ushort)(flipBits << 8));
-        int screenX = unchecked((short)(grapple.BeamStartX - layer1X)) - 4;
-        int screenY = unchecked((short)(grapple.BeamStartY - layer1Y)) - 4;
-        int segmentCount = (grapple.RopeLength / 8) & 0x0f;
+        int screenXFixed = unchecked((grapple.BeamStartX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        int screenYFixed = unchecked((grapple.BeamStartY - layer1Y - SamusGrappleRomData.Rendering.CharacterCenterOffset) << 16);
+        // Native enters the loop before decrementing quotient-minus-one: even a
+        // positive length whose masked quotient is zero visits one segment.
+        int segmentCount = Math.Max(1, (grapple.RopeLength / SamusGrappleRomData.Rendering.SegmentSpacing)
+            & SamusGrappleRomData.Rendering.SegmentCountMask);
         for (int segment = 0; segment < segmentCount; segment++)
         {
             // $94:AFBA walks instruction slots from 15 downward regardless of rope length.
             // The first timer expiry reads the already-selected initial record; later
             // expiries advance through $21,$22,$23,$24 and $94:B0F4's goto back to $21.
-            // Keeping the one-time first expiry explicit preserves the native six-draw
+            // Keeping the one-time first expiry explicit preserves the native five-draw
             // interval without pretending that all rope pieces share one animation frame.
-            int instructionSlot = 15 - segment;
+            int instructionSlot = SamusGrappleRomData.Rendering.FirstSegmentSlot - segment;
             if (grapple.SegmentAnimationTimers[instructionSlot]-- == 1)
             {
-                grapple.SegmentAnimationTimers[instructionSlot] = 5;
+                grapple.SegmentAnimationTimers[instructionSlot] = SamusGrappleRomData.Rendering.SegmentAnimationDelay;
                 if (grapple.SegmentAnimationStarted[instructionSlot])
                 {
                     grapple.SegmentAnimationFrames[instructionSlot] = unchecked((byte)(
-                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) & 3));
+                        (grapple.SegmentAnimationFrames[instructionSlot] + 1) % SamusGrappleRomData.Rendering.SegmentAnimationFrameCount));
                 }
                 else
                 {
@@ -110,14 +115,20 @@ public static partial class SamusGrappleMovement
                 }
             }
 
+            ushort screenX = unchecked((ushort)(screenXFixed >> 16));
+            ushort screenY = unchecked((ushort)(screenYFixed >> 16));
+            // Native ticks this slot before the visibility check, then abandons
+            // the remaining rope slots entirely at the first off-screen segment.
+            if (((screenX | screenY) & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
+                break;
             ushort segmentAttributes = unchecked((ushort)(
-                0x3a21 + grapple.SegmentAnimationFrames[instructionSlot] | flipAttributes));
+                SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot] | flipAttributes));
             oam.AddRawSmallSprite(
                 unchecked((ushort)screenX),
                 unchecked((ushort)screenY),
                 segmentAttributes);
-            screenX += stepX;
-            screenY += stepY;
+            screenXFixed = unchecked(screenXFixed + stepX);
+            screenYFixed = unchecked(screenYFixed + stepY);
         }
 
         oam.AddRawSmallSprite(

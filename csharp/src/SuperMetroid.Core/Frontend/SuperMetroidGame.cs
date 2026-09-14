@@ -353,7 +353,11 @@ public sealed partial class SuperMetroidGame
                     }
                     else
                     {
-                        intro = new IntroCinematicState(bus, audio);
+                        intro = new IntroCinematicState(bus, audio)
+                        {
+                            ProjectileCompositions = projectileCompositions,
+                            TrailArtwork = trailArtwork,
+                        };
                         GameState = SuperMetroidGameState.IntroCinematic;
                         PublishIntro(intro);
                     }

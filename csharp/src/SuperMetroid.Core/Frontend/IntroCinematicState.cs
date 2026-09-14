@@ -19,6 +19,12 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed partial class IntroCinematicState
 {
+    /// <summary>Current host appearance; snapshots retain simulation state, not external overrides.</summary>
+    [field: NonSerialized]
+    public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    /// <summary>Current timed-projectile composition selected by the host.</summary>
+    [field: NonSerialized]
+    public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
@@ -1073,9 +1079,9 @@ public sealed partial class IntroCinematicState
             // suppresses Samus and both projectile passes together; it is not merely a
             // Mother Brain visibility bit.
             flashbackSamus!.Draw(bus, oam, layer1X: 0, layer1Y: 0, nmiFrameCounter);
-            flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter);
-            flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false);
-            flashbackProjectiles.DrawExplosions(bus, oam, 0, 0);
+            flashbackProjectiles.DrawLiveProjectiles(bus, oam, 0, 0, nmiFrameCounter, ProjectileCompositions);
+            flashbackProjectiles.HandleTrailsAndDraw(bus, oam, 0, 0, timeIsFrozen: false, TrailArtwork);
+            flashbackProjectiles.DrawExplosions(bus, oam, 0, 0, ProjectileCompositions);
             flashbackRinkas?.Draw(bus, oam);
         }
         flashbackMotherBrainExplosions?.Draw(bus, oam);

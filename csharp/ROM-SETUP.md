@@ -94,11 +94,12 @@ of graphics. Damage, collision radii and
 timing are not editable here. Trails, charge flares and Grapple visuals are not
 covered by this composition file.
 
-Gameplay trail appearance uses `projectile-trails.json` in the same stock/override
+Trail appearance uses `projectile-trails.json` in the same stock/override
 directories. Copy the complete file before editing tile row/column, palette,
 priority or flips. Timing and trail movement are intentionally not editable.
-This selects existing trail graphics; separate trail PNG replacement and cinematic
-flashback trail overrides are not yet supported.
+This selects existing trail graphics; separate trail PNG replacement is not yet
+supported. The Mother Brain intro flashback shares the selected projectile,
+explosion and trail compositions, including after loading a debugger state.
 
 Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
 `game/projectiles`. Copy any sheet to `overrides/projectiles` to replace that beam

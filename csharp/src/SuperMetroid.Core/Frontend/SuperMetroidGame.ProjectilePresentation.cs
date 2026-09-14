@@ -13,6 +13,7 @@ public sealed partial class SuperMetroidGame
     {
         trailArtwork = catalog;
         if (runtime is not null) runtime.TrailArtwork = catalog;
+        if (intro is not null) intro.TrailArtwork = catalog;
     }
 
     /// <summary>Supplies current beam PNG content across runtime creation and state restoration.</summary>
@@ -27,5 +28,6 @@ public sealed partial class SuperMetroidGame
     {
         projectileCompositions = catalog;
         if (runtime is not null) runtime.ProjectileCompositions = catalog;
+        if (intro is not null) intro.ProjectileCompositions = catalog;
     }
 }

@@ -40,6 +40,7 @@ internal static partial class Program
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
         VerifyProjectileFiles(rom, editedJson);
         VerifyRuntimeProjectileCompositions(rom, content, edited, editedId);
+        VerifyIntroProjectileArtwork(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
         content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");

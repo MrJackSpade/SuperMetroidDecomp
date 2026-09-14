@@ -307,5 +307,12 @@ state load; normal and attract-demo runtime creation carries the same catalog.
 Tests verify the actual actor pass emits edited OAM, frontend/runtime serialization
 excludes content, old-state rebind preserves trail timers, all 42 host selections
 match disk after restart, and corrupt/missing files fail without fallback.
-Trail PNGs, cinematic flashback binding and remaining program ROM reads are not
+Trail PNGs and remaining program ROM reads are not
 completed by this slice. Android session tests run on Windows, not an APK deployment.
+
+The Mother Brain intro flashback now binds both projectile compositions and trail
+appearance at creation and host rebind. Its live-projectile, explosion and trail
+passes use the shared catalogs. Tests call the actual cinematic OAM preparation
+after native page/flashback setup, compare stock and edited emissions, require
+one trail timer decrement per preparation, and serialize/restore the frontend to
+verify current content is rebound without embedding it in the saved graph.

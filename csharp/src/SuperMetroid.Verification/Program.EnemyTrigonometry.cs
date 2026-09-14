@@ -92,6 +92,7 @@ internal static partial class Program
         VerifyBombSpreadLaunchDefinitions(rom);
         VerifyProjectileDamage(rom);
         VerifyProjectileRadii(rom);
+        VerifyProjectileInstructions(rom);
         VerifyProjectileOrigins(rom);
 
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)

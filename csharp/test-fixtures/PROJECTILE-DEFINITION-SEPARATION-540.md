@@ -42,8 +42,28 @@ does not claim sprite rendering, editable resource loading or complete ROM-free
 instruction execution. Full production initializers remain covered by the damage
 slice's list/radius assertions and the existing verification suite.
 
-Pointer tables, duration/control/trail words and artwork extraction remain to be
-separated. The earlier checklist remains an integration gate, not completed work.
+At the radius slice, pointer tables, duration/control/trail words and artwork
+extraction remained to be separated. The instruction slice below supersedes
+duration/control/trail status; the wider integration checklist is not complete.
+
+### Implemented instruction-mechanics slice
+
+`SamusProjectileInstructionDefinitions` compiles 1,816 words: duration/trail words
+from all 805 timed records and 206 words from 105 Delete/Goto commands and their
+operands. Both instruction handlers use the catalog for these mechanics while
+continuing to read sprite references separately. Radius bytes use their existing
+compiled catalog. Sparse exact word lookup preserves non-catalog/unaligned reads.
+
+`VerifyProjectileInstructions` compares every compiled word and every high-bank
+word address against ROM, then runs both actual handlers from all 910 frame/control
+entry points for up to 64 ticks each. An independent interpreter reads expected
+values directly from ROM. All 56,800 frames per owner agree on deletion, timer,
+next pointer, sprite, radii and projectile trail state while compiled mechanics
+reads are forbidden. The prior art-reference substitution tests also still pass.
+
+This does not compile initial definition-selection pointer tables, extract sprite
+references or artwork, or remove arbitrary out-of-table bus reads. Those remain
+unfinished rather than being hidden behind this instruction subset.
 
 | Production path | Definition selection | Coupled fields |
 | --- | --- | --- |

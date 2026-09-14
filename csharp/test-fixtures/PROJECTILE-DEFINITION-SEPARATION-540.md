@@ -211,6 +211,16 @@ byte-identical graphs with/without content and draws the newly bound override af
 restoration. Runtime OAM assertions cover stock parity and observable edits for live
 shots, explosions and bombs.
 
-Host installation, automatic disk loading, provenance and host invocation of the
-restore-time binding API remain unfinished, as do PNG artwork, trails and flares.
-The runtime integration alone does not enable overrides in an installed host.
+The installer now stages `game/projectiles/projectile-compositions.json` plus a
+versioned `projectile-manifest.json`, validates revision/content hashes and repairs
+missing/outdated stock through its existing transaction. `GameInstallation.LoadProjectiles`
+validates stock before selecting `overrides/projectiles/projectile-compositions.json`.
+It reports separate original/selected hashes. Corrupt overrides fail instead of
+falling back; reinstall and stock repair preserve the external override directory.
+Focused tests cover missing/corrupt stock, bad overrides and manifest identities;
+the full installer test covers replacement/cancellation/restart with an edited
+projectile override alongside existing player-data preservation checks.
+
+Desktop/Android automatic loading and invocation of the binding API remain
+unfinished, as do PNG artwork, trails and flares. Installation alone does not
+enable overrides in gameplay yet.

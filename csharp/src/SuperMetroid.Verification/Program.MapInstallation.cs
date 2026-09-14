@@ -13,6 +13,16 @@ internal static partial class Program
         Console.WriteLine($"Full installation fixture: {root}");
         var installation = GameAssetInstaller.Install(sourceRom, root, progress: new ImmediateInstallProgress());
         var stock = installation.LoadMaps();
+        var projectileStock = installation.LoadProjectiles();
+        Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
+        string projectileOverride = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
+        var projectileDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName)))!;
+        var part = projectileDocument["frames"]!.AsObject().First(pair => pair.Value!.AsArray().Count > 0).Value![0]!;
+        int offset = part["offsetX"]!.GetValue<int>();
+        part["offsetX"] = offset == 255 ? 254 : offset + 1;
+        File.WriteAllText(projectileOverride, projectileDocument.ToJsonString());
+        var projectileEdited = installation.LoadProjectiles();
+        AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
         string paletteOverride = Path.Combine(installation.MapOverrideDirectory, MapStaticPalettesFormat.FileName);
         var colors = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapStaticPalettesFormat.FileName)))!;
@@ -83,6 +93,7 @@ internal static partial class Program
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
         {
+            [projectileOverride] = File.ReadAllBytes(projectileOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
@@ -127,6 +138,7 @@ internal static partial class Program
         var repaired = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress())
             ?? throw new InvalidOperationException("Installation vanished during map upgrade.");
         AssertEqual(edited.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade retains selected override identity");
+        AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
         AssertEqual(AreaMapCatalogFormat.Version, JsonNode.Parse(File.ReadAllText(manifestPath))!["version"]!.GetValue<int>(), "upgrade publishes current catalog version");
         CheckPreserved();
         var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>

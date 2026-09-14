@@ -74,6 +74,7 @@ public static class GameAssetInstaller
             // This verifies hashes and opens every generated stream and waveform, not just the receipt.
             ExtractedAudioAssetCatalog.Load(installation.AudioDirectory);
             AreaMapPresentationCatalog.ValidateStock(installation.MapDirectory);
+            _ = ProjectilePresentationFiles.Load(installation.ProjectileDirectory, null);
             return true;
         }
         catch (IOException) { return false; }
@@ -102,6 +103,10 @@ public static class GameAssetInstaller
             MapPresentationExtractor.Extract(new SuperMetroidAddressSpace(rom), maps,
                 SupportedCartridge.Sha256, cancellationToken);
             AreaMapPresentationCatalog.ValidateStock(maps);
+            progress?.Report("Extracting projectile compositions...");
+            cancellationToken.ThrowIfCancellationRequested();
+            ProjectilePresentationFiles.Extract(new SuperMetroidAddressSpace(rom),
+                Path.Combine(staging, GameInstallationLayout.ProjectileDirectoryName));
             File.WriteAllText(Path.Combine(staging, GameInstallationLayout.ReceiptFileName),
                 JsonSerializer.Serialize(new InstallationReceipt(GameInstallationLayout.FormatVersion, SupportedCartridge.Sha256)));
             progress?.Report("Finishing setup…");

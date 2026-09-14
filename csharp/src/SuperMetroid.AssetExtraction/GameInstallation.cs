@@ -9,6 +9,9 @@ public sealed record GameInstallation(string Root)
     public string RomPath => Path.Combine(ContentDirectory, GameInstallationLayout.RomFileName);
     public string AudioDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.AudioDirectoryName);
     public string MapDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.MapDirectoryName);
+    public string ProjectileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.ProjectileDirectoryName);
+    public string ProjectileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.ProjectileDirectoryName);
+    public InstalledProjectilePresentation LoadProjectiles() => ProjectilePresentationFiles.Load(ProjectileDirectory, ProjectileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
 
@@ -23,6 +26,7 @@ public static class GameInstallationLayout
     public const string RomFileName = "SuperMetroid.smc";
     public const string AudioDirectoryName = "audio";
     public const string MapDirectoryName = "maps";
+    public const string ProjectileDirectoryName = "projectiles";
     public const string ReceiptFileName = "installation.json";
     public const int FormatVersion = 1;
     internal const string PreviousDirectoryName = ".game.previous";

@@ -37,6 +37,7 @@ internal static partial class Program
         document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
+        VerifyProjectileFiles(rom, editedJson);
         VerifyRuntimeProjectileCompositions(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
         content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
@@ -173,5 +174,40 @@ internal static partial class Program
         game.BindProjectileCompositions(edited);
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws current edited content after rebind");
         Console.WriteLine("Projectile runtime binding: three actor draw passes, stock parity, visual edits and nonserialized restore/rebind pass.");
+    }
+
+    private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
+    {
+        string root = Path.GetFullPath(Path.Combine("csharp/test-temp", "projectile-install-" + Guid.NewGuid().ToString("N")));
+        var installation = new GameInstallation(root);
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        var stock = installation.LoadProjectiles();
+        AssertEqual(stock.StockSha256, stock.SelectedSha256, "Unmodified projectile identity");
+        Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
+        string replacement = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
+        File.WriteAllBytes(replacement, editedJson);
+        var edited = installation.LoadProjectiles();
+        AssertTrue(edited.SelectedSha256 != stock.SelectedSha256, "Selected projectile identity reflects override");
+        AssertEqual(stock.StockSha256, edited.StockSha256, "Override preserves stock provenance");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertTrue(File.ReadAllBytes(replacement).SequenceEqual(editedJson), "Re-extraction preserves external projectile override");
+        AssertEqual(edited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Re-extraction preserves selected content");
+        File.WriteAllText(replacement, "broken");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Corrupt override never falls back");
+        File.WriteAllBytes(replacement, editedJson);
+        string stockPath = Path.Combine(installation.ProjectileDirectory, ProjectileSpriteDefinitions.FileName);
+        File.WriteAllText(stockPath, "broken");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Override cannot hide corrupt stock");
+        File.Move(stockPath, stockPath + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        string manifestPath = Path.Combine(installation.ProjectileDirectory, ProjectilePresentationFiles.ManifestFileName);
+        string manifest = File.ReadAllText(manifestPath);
+        File.WriteAllText(manifestPath, manifest.Replace(SupportedCartridge.Sha256, new string('0', 64)));
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Wrong cartridge provenance rejected");
+        File.WriteAllText(manifestPath, manifest.Insert(1, "\"version\":1,"));
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Duplicate manifest identity rejected");
+        File.WriteAllText(manifestPath, manifest);
+        Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

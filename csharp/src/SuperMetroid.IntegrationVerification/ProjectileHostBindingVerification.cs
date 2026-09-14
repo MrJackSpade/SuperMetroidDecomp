@@ -70,6 +70,10 @@ internal static class ProjectileHostBindingVerification
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName)))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        var grappleStyles = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)))!;
+        grappleStyles["endpoint"]!["palette"] = 4;
+        foreach (var style in grappleStyles["segments"]!.AsArray()) style!["palette"] = 4;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName), grappleStyles.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -143,6 +147,11 @@ internal static class ProjectileHostBindingVerification
     private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
+        if (actual.Sprites is null || expected.Sprites is null || actual.Sprites.Endpoint != expected.Sprites.Endpoint)
+            throw new InvalidDataException("Host restored stale or missing Grapple endpoint style.");
+        for (int frame = 0; frame < 4; frame++)
+            if (actual.Sprites.Segment(frame) != expected.Sprites.Segment(frame))
+                throw new InvalidDataException("Host restored stale Grapple segment style.");
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             if (!actual.Resolve(transfer.Asset).Span.SequenceEqual(expected.Resolve(transfer.Asset).Span))
                 throw new InvalidDataException("Host restored stale Grapple PNG content.");

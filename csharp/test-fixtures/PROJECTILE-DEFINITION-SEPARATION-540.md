@@ -486,3 +486,24 @@ bypass that check and retain the camera subtraction borrow in their centering
 subtraction. A 360-case test checks clipping, low coordinates, high-X and attributes
 across camera/world wrapping boundaries; actual gameplay actor tests verify the
 pose reaches the renderer. This is presentation-only and introduces no saved state.
+
+Version-nine projectile installs also include `grapple-sprites.json`. Copy it from
+`game/projectiles` to `overrides/projectiles` and restart to edit the endpoint and
+four `segments` appearances. Each style has `tileColumn` (0..15), `tileRow` (0..31),
+`palette` (0..7), `priority` (0..3), `flipX` and `flipY`. Coordinates select the SNES
+OBJ tile sheet, not a pixel column of the extracted PNG. Native angle-derived
+segment flip bits are ORed with the authored flips just as with stock attributes.
+Each remains one eight-pixel sprite. Timing, origins, spacing, clipping, collision,
+damage and attachment are deliberately not fields in this document.
+
+Stock attributes are extracted from the endpoint immediate and four timed-record
+attribute words, without extracting adjacent delays or goto instructions. The
+installer validates stock before overrides and includes both identities in its
+manifest/hash. Invalid or missing stock and invalid overrides fail explicitly.
+The existing nonserialized Grapple artwork binding carries the selected styles
+through Desktop/Android startup and state restoration, so saved games do not
+freeze an old appearance. A 1,600-frame producer test checks exact native stock
+OAM and isolated tile/palette edits with identical positions, full Grapple state,
+animation cadence and uploads. Strict-schema and install/restart/upgrade tests
+cover presentation selection. Remaining weapon/Grapple audio and other runtime
+ROM dependencies still prevent closing the overall issue.

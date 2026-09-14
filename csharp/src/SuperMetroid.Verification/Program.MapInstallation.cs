@@ -62,6 +62,10 @@ internal static partial class Program
             using var output = File.Create(grappleOverride);
             IndexedPng.Write(output, grappleImage.Width, grappleImage.Height, grappleImage.Pixels, grappleImage.Palette);
         }
+        string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
+        var grappleStyle = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName)))!;
+        grappleStyle["endpoint"]!["palette"] = 4;
+        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);

@@ -340,6 +340,23 @@ internal static partial class Program
         AssertEqual(grappleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Stock repair preserves Grapple PNG override");
         File.WriteAllText(grappleOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple PNG override never falls back");
+        File.WriteAllBytes(grappleOverride, grapplePng.ToArray());
+        string grappleStyleStock = Path.Combine(installation.ProjectileDirectory, GrappleSpriteDefinitions.FileName);
+        string grappleStyleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSpriteDefinitions.FileName);
+        var grappleStyle = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(grappleStyleStock))!;
+        grappleStyle["endpoint"]!["palette"] = 4;
+        File.WriteAllText(grappleStyleOverride, grappleStyle.ToJsonString());
+        var styleEdited = installation.LoadProjectiles();
+        AssertTrue(styleEdited.SelectedSha256 != grappleEdited.SelectedSha256, "Grapple style-only edit changes content identity");
+        AssertEqual((ushort)(grappleEdited.GrappleTiles.Sprites!.Endpoint ^ 512), styleEdited.GrappleTiles.Sprites!.Endpoint, "Installed Grapple style selects edited palette");
+        File.WriteAllText(grappleStyleStock, "broken stock");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide corrupt stock");
+        File.Move(grappleStyleStock, grappleStyleStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Grapple style override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(styleEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple style override");
+        File.WriteAllText(grappleStyleOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple style never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

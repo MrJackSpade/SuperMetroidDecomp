@@ -158,6 +158,11 @@ if (args is ["--grapple-rope-geometry"])
     VerifyGrappleRopeGeometry(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--grapple-sprite-artwork"])
+{
+    VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--stock-attract-scenes"])
 {
     VerifyStockAttractScenes();

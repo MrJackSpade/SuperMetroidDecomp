@@ -122,8 +122,9 @@ public static partial class SamusGrappleMovement
             // the remaining rope slots entirely at the first off-screen segment.
             if (((screenX | screenY) & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
                 break;
-            ushort segmentAttributes = unchecked((ushort)(
-                SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot] | flipAttributes));
+            ushort appearance = artwork?.Sprites?.Segment(grapple.SegmentAnimationFrames[instructionSlot])
+                ?? unchecked((ushort)(SamusGrappleRomData.Rendering.FirstSegmentAttributes + grapple.SegmentAnimationFrames[instructionSlot]));
+            ushort segmentAttributes = unchecked((ushort)(appearance | flipAttributes));
             oam.AddRawSmallSprite(
                 unchecked((ushort)screenX),
                 unchecked((ushort)screenY),
@@ -132,12 +133,13 @@ public static partial class SamusGrappleMovement
             screenYFixed = unchecked(screenYFixed + stepY);
         }
 
-        DrawBeamEndpoint(grapple, oam, layer1X, layer1Y, samusPose);
+        DrawBeamEndpoint(grapple, oam, layer1X, layer1Y, samusPose,
+            artwork?.Sprites?.Endpoint ?? SamusGrappleRomData.Rendering.EndpointAttributes);
     }
 
     /// <summary>Preserves the pose-selected endpoint routines at $94:B0F9/B14B.</summary>
     private static void DrawBeamEndpoint(SamusGrappleState grapple, OamBuffer oam,
-        ushort layer1X, ushort layer1Y, byte samusPose)
+        ushort layer1X, ushort layer1Y, byte samusPose, ushort attributes)
     {
         bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
         ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1Y));
@@ -154,7 +156,7 @@ public static partial class SamusGrappleMovement
         oam.AddRawSmallSprite(
             unchecked((ushort)(grapple.AnchorX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
             unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
-            SamusGrappleRomData.Rendering.EndpointAttributes);
+            attributes);
     }
 
     /// <summary>

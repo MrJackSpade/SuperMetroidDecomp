@@ -6,11 +6,12 @@ namespace SuperMetroid.Core.Assets;
 public sealed class GrappleTileAtlas : IVramAssetProvider
 {
     private readonly byte[] tiles;
-    private GrappleTileAtlas(byte[] tiles) => this.tiles = tiles;
-    public static GrappleTileAtlas Load(Stream png)
+    public GrappleSpriteCatalog? Sprites { get; }
+    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites) { this.tiles = tiles; Sprites = sprites; }
+    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null)
     {
         var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4));
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites);
     }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {

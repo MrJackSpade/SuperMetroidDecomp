@@ -69,6 +69,9 @@ internal static partial class Program
         var grappleFlare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)))!;
         grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
+        var grappleSwing = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)))!;
+        grappleSwing["frames"]![0] = 17;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);

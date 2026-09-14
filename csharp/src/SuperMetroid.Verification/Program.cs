@@ -173,6 +173,11 @@ if (args is ["--grapple-flare-placement"])
     VerifyGrappleFlarePlacement(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--grapple-swing-frames"])
+{
+    VerifyGrappleBodyPlacement(SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--stock-attract-scenes"])
 {
     VerifyStockAttractScenes();

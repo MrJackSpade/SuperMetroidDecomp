@@ -13,15 +13,19 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     [field: NonSerialized]
     public ChargeFlareSpriteCatalog? ChargeFlareCompositions { get; set; }
     [NonSerialized] private GrappleTileAtlas? grappleArtwork;
-    /// <summary>Current Grapple PNG. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
+    /// <summary>Current Grapple artwork and visual definitions. Rebinding legacy pending transfers preserves their NMI order and destination.</summary>
     public GrappleTileAtlas? GrappleArtwork
     {
         get => grappleArtwork;
-        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); BindGrappleVisualOrigins(); }
+        set { grappleArtwork = value; value?.RebindPendingWrites(VramWrites); BindGrapplePresentation(); }
     }
-    private void BindGrappleVisualOrigins()
+    private void BindGrapplePresentation()
     {
-        if (Samus is not null) Samus.Grapple.FlarePlacement = grappleArtwork?.FlarePlacement;
+        if (Samus is not null)
+        {
+            Samus.Grapple.FlarePlacement = grappleArtwork?.FlarePlacement;
+            Samus.Grapple.SwingFrames = grappleArtwork?.SwingFrames;
+        }
     }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;

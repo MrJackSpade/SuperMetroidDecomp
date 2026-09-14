@@ -8,12 +8,13 @@ public sealed class GrappleTileAtlas : IVramAssetProvider
     private readonly byte[] tiles;
     public GrappleSpriteCatalog? Sprites { get; }
     public ChargeFlarePlacementCatalog? FlarePlacement { get; }
-    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement)
-    { this.tiles = tiles; Sprites = sprites; FlarePlacement = flarePlacement; }
-    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null)
+    public GrappleSwingFrameCatalog? SwingFrames { get; }
+    private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
+    { this.tiles = tiles; Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames; }
+    public static GrappleTileAtlas Load(Stream png, GrappleSpriteCatalog? sprites = null, ChargeFlarePlacementCatalog? flarePlacement = null, GrappleSwingFrameCatalog? swingFrames = null)
     {
         var image = IndexedPng.Read(png, GrappleTileDefinitions.Width, GrappleTileDefinitions.Height);
-        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites, flarePlacement);
+        return new(SnesPlanarTileEncoder.Encode(image.Pixels, image.Width, image.Height, 4), sprites, flarePlacement, swingFrames);
     }
     public ReadOnlyMemory<byte> Resolve(VramAssetId asset)
     {

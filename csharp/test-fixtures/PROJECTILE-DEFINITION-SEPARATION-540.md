@@ -546,3 +546,20 @@ visual coordinate words. Actual frame/draw rebinding and nonserialized identity,
 strict stock/override validation, installer repair/upgrade persistence and host
 restart/old-state binding are covered. Displayed swing-frame extraction, broader
 audio/ROM dependencies and the cached-coordinate override boundary remain open.
+
+Version-eleven installs add `grapple-swing-frames.json`. Its `frames` array contains
+256 displayed animation-frame indices (0..31), indexed by the mirrored angle's high
+byte. Copy it to `overrides/projectiles` and restart to change displayed swing
+orientation. It deliberately contains no body offsets, velocity or timing fields.
+The existing style/placement JSON schemas are unchanged, preserving earlier overrides.
+
+The pendulum updater now selects art from this bound catalog while continuing to
+place the collision body from the separate compiled native mapping. Stock/edited
+installed and legacy paths cover 524,288 angle/facing/wrapped-anchor updates; all
+physical positions and the fifteen-tick animation timer retain their native values.
+Another 256 actual pumped-swing frames compare the entire Samus graph with only the
+displayed frame normalized. Installed runs forbid native selector/body-table reads.
+Strict parsing, stock/override integrity, installer upgrade preservation, host
+restart/old-state rebinding and actual frame/draw binding checks cover installation.
+This removes the installed displayed-frame selector ROM read, not all Samus sprite
+art or the remaining shared/audio ROM dependencies. The overall issues stay open.

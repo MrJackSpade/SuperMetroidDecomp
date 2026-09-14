@@ -12,7 +12,7 @@ public sealed partial class SuperMetroidRuntime
         bool advanceSamusPalette = true)
     {
         if (Samus is null || Camera is null) return;
-        BindGrappleVisualOrigins();
+        BindGrapplePresentation();
         // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)

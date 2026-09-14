@@ -77,6 +77,9 @@ internal static class ProjectileHostBindingVerification
         var grappleFlare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleFlarePlacementDefinitions.FileName)))!;
         grappleFlare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleFlarePlacementDefinitions.FileName), grappleFlare.ToJsonString());
+        var grappleSwing = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName)))!;
+        grappleSwing["frames"]![0] = 17;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName), grappleSwing.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -151,6 +154,10 @@ internal static class ProjectileHostBindingVerification
     {
         if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
         CheckFlare(actual.FlarePlacement!, expected.FlarePlacement!);
+        if (actual.SwingFrames is null || expected.SwingFrames is null) throw new InvalidDataException("Host did not bind Grapple swing frames.");
+        for (int angle = 0; angle < 256; angle++)
+            if (actual.SwingFrames.Resolve((byte)angle) != expected.SwingFrames.Resolve((byte)angle))
+                throw new InvalidDataException("Host restored stale Grapple swing frames.");
         if (actual.Sprites is null || expected.Sprites is null || actual.Sprites.Endpoint != expected.Sprites.Endpoint)
             throw new InvalidDataException("Host restored stale or missing Grapple endpoint style.");
         for (int frame = 0; frame < 4; frame++)

@@ -88,16 +88,22 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         byte[] beforeBinding = SaveGrappleFixture(runtime.Samus!);
-        runtime.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited);
+        var swingFrames = GrappleSwingFrameCatalog.Load(new MemoryStream(GrappleSwingFrameExtractor.Extract(rom)));
+        runtime.GrappleArtwork = GrappleTileAtlas.Load(new MemoryStream(GrappleTileExtractor.Extract(rom)), flarePlacement: edited, swingFrames: swingFrames);
         AssertTrue(ReferenceEquals(edited, runtime.Samus!.Grapple.FlarePlacement), "Artwork rebinding reaches current Samus immediately");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Artwork rebinding reaches current swing-frame selection");
         AssertTrue(beforeBinding.SequenceEqual(SaveGrappleFixture(runtime.Samus)), "Presentation binding is excluded from Samus saved graph");
         runtime.Samus.Grapple.FlarePlacement = null;
+        runtime.Samus.Grapple.SwingFrames = null;
         runtime.StepFrame(0);
         AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Real gameplay frame rebinds missing/restored visual origins before producers");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
         runtime.Samus.Grapple.FlarePlacement = null;
+        runtime.Samus.Grapple.SwingFrames = null;
         typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(runtime, new object?[] { false, null, null, false });
         AssertTrue(ReferenceEquals(edited, runtime.Samus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
+        AssertTrue(ReferenceEquals(swingFrames, runtime.Samus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, 20 launch/late paths, 200 trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");
     }
     private sealed class GrappleFlareReadGuard(ISnesAddressSpace bus) : ISnesAddressSpace

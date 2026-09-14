@@ -374,6 +374,23 @@ internal static partial class Program
         AssertEqual(grappleFlareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves Grapple flare override");
         File.WriteAllText(grappleFlareOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid Grapple flare never falls back");
+        File.WriteAllText(grappleFlareOverride, grappleFlare.ToJsonString());
+        string swingStock = Path.Combine(installation.ProjectileDirectory, GrappleSwingFrameDefinitions.FileName);
+        string swingOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleSwingFrameDefinitions.FileName);
+        var swing = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(swingStock))!;
+        swing["frames"]![0] = 17;
+        File.WriteAllText(swingOverride, swing.ToJsonString());
+        var swingEdited = installation.LoadProjectiles();
+        AssertTrue(swingEdited.SelectedSha256 != grappleFlareEdited.SelectedSha256, "Swing-only edit changes content identity");
+        AssertEqual((byte)17, swingEdited.GrappleTiles.SwingFrames!.Resolve(0), "Installer selects edited swing frame");
+        File.WriteAllText(swingStock, "broken stock");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Swing override cannot hide corrupt stock");
+        File.Move(swingStock, swingStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Swing override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(swingEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves swing override");
+        File.WriteAllText(swingOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid swing override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

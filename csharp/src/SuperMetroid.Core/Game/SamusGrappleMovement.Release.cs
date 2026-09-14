@@ -37,8 +37,8 @@ public static partial class SamusGrappleMovement
         // Native shares a selector between physical body placement and displayed art.
         // Keep the authored physical mapping compiled so a visual-frame override cannot
         // move the collision body. Stock art still selects the same native frame.
-        byte artFrame = bus.ReadByte(
-            SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
+        byte artFrame = grapple.SwingFrames?.Resolve(grapple.MirroredAngle.TableIndex)
+            ?? bus.ReadByte(SamusGrappleRomData.Rendering.SwingFrameByAngle + grapple.MirroredAngle.TableIndex);
         var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.TableIndex,
             SamusState.IsFacingLeft(bus, samus.Pose));
 

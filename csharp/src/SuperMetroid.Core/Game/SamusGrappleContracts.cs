@@ -53,6 +53,9 @@ public sealed class SamusGrappleState
     /// <summary>Current host visual origins, rebound after state load; never changes physical hand offsets.</summary>
     [field: NonSerialized]
     public Assets.ChargeFlarePlacementCatalog? FlarePlacement { get; set; }
+    /// <summary>Current displayed orientation mapping, never a collision/body offset source.</summary>
+    [field: NonSerialized]
+    public Assets.GrappleSwingFrameCatalog? SwingFrames { get; set; }
     public GrapplePhase Phase { get; set; }
     public ushort AnchorX { get; set; }
     public ushort AnchorY { get; set; }

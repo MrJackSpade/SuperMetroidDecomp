@@ -259,3 +259,16 @@ composition and every PNG in fixed order. Tests cover corruption, missing sheets
 edited-pixel upload, restart/state rebinding (Android session on Windows), and full
 installer upgrade from composition-only manifests while preserving external edits.
 No Android device deployment or full replacement of other weapon artwork is claimed.
+
+### Ordinary beam palette catalog (installation pending)
+
+`BeamPaletteExtractor` reads the twelve $90:C3C9 selections and exposes sixteen
+RGB5 colors per selection in validated JSON. `BeamPaletteCatalog` compiles those
+colors immutably and the production queued beam upload accepts it independently
+of PNG artwork. Tests compare every CGRAM entry with the original $90:ACCD path,
+including untouched neighbors, then edit one channel bit and require exact
+isolation. The combined tile/palette catalog queue forbids every bus read.
+Missing selections/colors, duplicate metadata, unknown fields and invalid RGB
+values fail loudly. The normal installed hosts do not load this JSON yet.
+Charge/Hyper palette animation and invalid beam-index adjacent reads are unchanged;
+this catalog is not a claim that all weapon palette ROM dependencies are removed.

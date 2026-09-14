@@ -155,7 +155,8 @@ public sealed partial class SamusProjectileSystem
         VramWriteQueue writes,
         SnesCgram cgram,
         ushort equippedBeams,
-        Assets.BeamTileCatalog? artwork = null)
+        Assets.BeamTileCatalog? artwork = null,
+        Assets.BeamPaletteCatalog? palettes = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(writes);
@@ -177,6 +178,11 @@ public sealed partial class SamusProjectileSystem
                 encodedVramDestination: 0x6300);
         }
 
+        if (palettes is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
+        {
+            palettes.LoadTo(cgram, beamType);
+            return;
+        }
         ushort palettePointer = ReadWord(
             bus,
             SamusProjectileRomData.Beams.PalettePointers + beamType * 2);

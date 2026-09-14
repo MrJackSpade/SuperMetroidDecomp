@@ -9,6 +9,7 @@ internal static partial class Program
     {
         var files = BeamTileExtractor.Extract(bus);
         var catalog = BeamTileCatalog.Load(files);
+        VerifyBeamPaletteArtwork(bus, catalog);
         VerifyRuntimeBeamArtwork(bus, files, catalog);
         AssertEqual(12, files.Count, "Every legal beam combination has editable artwork");
         for (ushort selection = 0; selection < 12; selection++)

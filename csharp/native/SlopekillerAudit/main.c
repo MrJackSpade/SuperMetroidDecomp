@@ -1,63 +1,6 @@
-/* #425: original, unpatched 65816 movement on a constructed descending slope.
- * No SDL, window, save file, or translated gameplay is used by this runner. */
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
-#include "../../../upstream-sm/src/snes/cpu.h"
-#include "../../../upstream-sm/src/snes/snes.h"
-#include "../../../upstream-sm/src/variables.h"
-#include "fixture.h"
-
-uint8 g_ram[0x20000];
-static uint8 rom[0x300000];
-static bool returned;
-static unsigned multiplicand, dividend, quotient, remainder;
-void Die(const char *message) { fprintf(stderr, "%s\n", message); exit(2); }
-int CpuOpcodeHook(uint32 address) { fprintf(stderr, "Unexpected hook %06X\n", address); exit(2); }
-bool HookedFunctionRts(int is_long) { (void)is_long; returned = true; return true; }
-uint8 snes_cpuRead(Snes *snes, uint32 address) {
-  (void)snes;
-  unsigned bank = address >> 16, offset = address & 0xffff;
-  if (bank == 0x7e || bank == 0x7f) return g_ram[address - 0x7e0000];
-  if ((bank & 0x7f) < 0x40) {
-    if (offset < 0x2000) return g_ram[offset];
-    if (offset == 0x4214) return quotient;
-    if (offset == 0x4215) return quotient >> 8;
-    if (offset == 0x4216) return remainder;
-    if (offset == 0x4217) return remainder >> 8;
-  }
-  unsigned index = ((bank & 0x7f) << 15) | (offset & 0x7fff);
-  if (offset >= 0x8000 && index < sizeof(rom)) return rom[index];
-  fprintf(stderr, "Unmapped read %06X\n", address); exit(2);
-}
-void snes_cpuWrite(Snes *snes, uint32 address, uint8 value) {
-  (void)snes;
-  unsigned bank = address >> 16, offset = address & 0xffff;
-  if (bank == 0x7e || bank == 0x7f) { g_ram[address - 0x7e0000] = value; return; }
-  if ((bank & 0x7f) < 0x40) {
-    if (offset < 0x2000) { g_ram[offset] = value; return; }
-    if (offset == 0x4202) { multiplicand = value; return; }
-    if (offset == 0x4203) { remainder = multiplicand * value; return; }
-    if (offset == 0x4204) { dividend = (dividend & 0xff00) | value; return; }
-    if (offset == 0x4205) { dividend = (dividend & 0xff) | value << 8; return; }
-    if (offset == 0x4206) {
-      quotient = value ? dividend / value : 0xffff;
-      remainder = value ? dividend % value : dividend; return;
-    }
-  }
-  fprintf(stderr, "Unmapped write %06X\n", address); exit(2);
-}
-static void run(unsigned address) {
-  Cpu *cpu = cpu_init(NULL, 0);
-  cpu->pc = address; cpu->k = cpu->db = address >> 16;
-  cpu->sp = cpu->spBreakpoint = 0x1ff0;
-  returned = false;
-  for (int n = 0; n < 1000000 && !returned; n++) cpu_runOpcode(cpu);
-  cpu_free(cpu);
-  if (!returned) Die("Movement exceeded instruction budget");
-}
+/* #425: controller-earned Slopekiller on original cartridge instructions. */
+#include "../Common/CartridgeCpuFixture.h"
+#include "../Common/MovementEntryPoints.h"
 int main(int argc, char **argv) {
   if (argc != 2) { fprintf(stderr, "Usage: audit unheadered-retail-ROM > trace.csv\n"); return 2; }
   FILE *file = fopen(argv[1], "rb");

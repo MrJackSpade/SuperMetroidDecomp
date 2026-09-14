@@ -1,5 +1,5 @@
 /* Original unpatched Japan/USA routine identities used by the movement sequence. */
-enum SlopekillerNativeEntry {
+enum NativeMovementEntry {
   /* $90:EC22: refresh pose-specific collision radii. */
   RefreshRadius = 0x90ec22,
   /* Native alpha input and enemy/projectile interaction before beta movement. */

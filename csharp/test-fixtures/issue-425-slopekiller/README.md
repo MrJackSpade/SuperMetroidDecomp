@@ -64,7 +64,7 @@ intermediate-hardware-latency test. Each frame executes native input, interactio
 movement, animation, transition, pose/collision and bookkeeping entry points.
 The managed side uses `SuperMetroidRuntime.StepFrame` with the same room/setup.
 
-The native entry identities are in `csharp/native/SlopekillerAudit/fixture.h`.
+The native entry identities are in `csharp/native/Common/MovementEntryPoints.h`.
 The collision multiplier/early-return path is `$94:84D6`; the pinned disassembly
 and `upstream-sm/src/sm_94.c` agree that either nonzero Y-speed word bypasses it.
 The base-sub-speed modifier arithmetic nearby stores no result; it is not an

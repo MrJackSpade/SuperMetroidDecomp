@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
+        VerifyProjectileTrailDefinitions(bus);
         var files = BeamTileExtractor.Extract(bus);
         var catalog = BeamTileCatalog.Load(files);
         VerifyBeamPaletteArtwork(bus, catalog);

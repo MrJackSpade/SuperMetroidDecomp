@@ -277,3 +277,15 @@ Flash/Hyper colors are retained. The Crystal Flash completion path restores the
 selected catalog without ROM reads and still clears its palette-handler state.
 Charge/Hyper palette animation and invalid beam-index adjacent reads are unchanged;
 this catalog is not a claim that all weapon palette ROM dependencies are removed.
+
+### Compiled trail selection (#540/#547)
+
+`ProjectileTrailDefinitions` replaces the 78 fixed selector words at $90:B5BB
+and $90:B609 with named instruction-list identities. Resolution uses the physical
+address so left-table overflow still selects right-table entries; reads outside
+the authored words and unaligned accesses retain the bus path. Tests compare all
+words, byte-aligned overlaps and adjacent boundaries against the pinned ROM, then
+exercise the real spawn method for all 64 low-six-bit selections with authored
+selector reads forbidden. Allocation timer and fixed-origin assertions accompany
+the selected pointers. Trail animation, coordinate tables and artwork are still
+ROM-backed and remain unfinished presentation work.

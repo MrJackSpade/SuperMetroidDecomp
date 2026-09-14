@@ -324,3 +324,12 @@ run the catalog-backed owner with every bus access forbidden, while checking
 native output, timing, cursors and sibling movement. On record advancement,
 appearance attributes come from the selected catalog; the animation scheduler
 is never supplied by editable JSON. Spawn coordinate lookups remain ROM-backed.
+
+`ProjectileTrailAtlasExtractor` now produces a 96x8 indexed PNG containing the
+twelve trail-owned tiles. `ProjectileTrailAtlas` compiles it into separate ice/wave
+and missile transfers, preserving the unrelated OBJ tiles between those regions.
+Verification compares the complete VRAM image after real room setup and NMI,
+then edits one pixel in each tile and checks every VRAM byte for exact isolation.
+Malformed PNGs, incorrect dimensions and indices above 15 are rejected.
+This is the codec/extraction layer only: installation, override selection and
+queued upload/rebinding of trail PNGs are still pending.

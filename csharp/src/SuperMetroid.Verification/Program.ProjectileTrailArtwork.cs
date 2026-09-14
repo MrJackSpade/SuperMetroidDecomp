@@ -10,6 +10,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
+        VerifyProjectileTrailAtlas(bus);
         byte[] json = ProjectileTrailExtractor.Extract(bus);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
         var encountered = new HashSet<ushort>();

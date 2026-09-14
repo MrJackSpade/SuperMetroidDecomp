@@ -25,7 +25,9 @@ try
 if (args is ["--temporary-blue-suit-audit", var blueSuitRom, var blueSuitTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueSuitRom, blueSuitTrace);
 if (args is ["--temporary-blue-carry-audit", var blueCarryRom, var blueCarryTrace])
-    return TemporaryBlueSuitComparisonAudit.Run(blueCarryRom, blueCarryTrace, carry: true);
+    return TemporaryBlueSuitComparisonAudit.Run(blueCarryRom, blueCarryTrace, TemporaryBlueAuditKind.Carry);
+if (args is ["--temporary-blue-bounce-audit", var blueBounceRom, var blueBounceTrace])
+    return TemporaryBlueSuitComparisonAudit.Run(blueBounceRom, blueBounceTrace, TemporaryBlueAuditKind.Bounce);
 if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
     return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])

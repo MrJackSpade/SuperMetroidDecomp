@@ -548,10 +548,9 @@ public sealed partial class SamusState
         {
             MorphBallBounceState = 0;
             SamusAerialMovement.InitializeJump(bus, this);
-            byte jumpPose = IsFacingLeft(bus)
-                ? SamusPoseIds.SpringBallJumpLeftPose
-                : SamusPoseIds.SpringBallJumpRightPose;
-            ApplyMorphBallPoseChange(bus, jumpPose);
+            // Native landing relaunch only initializes velocity. It retains the
+            // current airborne pose/animation, unlike a fresh grounded Jump input.
+            // Changing pose here also selects a different next-frame movement path.
             return false;
         }
 
@@ -583,6 +582,11 @@ public sealed partial class SamusState
             ? SamusPoseIds.SpringBallGroundLeftPose
             : SamusPoseIds.SpringBallGroundRightPose;
         ApplyMorphBallPoseChange(bus, groundPose);
+        // The common landing caller clears base speed when the bounce routine
+        // returns carry clear. Spring Ball shares this with ordinary ball landing.
+        HorizontalSpeed.AccelerationMode = 0;
+        HorizontalSpeed.BaseSpeed = 0;
+        HorizontalSpeed.BaseSubspeed = 0;
         return true;
     }
 

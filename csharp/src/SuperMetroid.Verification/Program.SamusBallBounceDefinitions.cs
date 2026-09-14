@@ -48,8 +48,10 @@ internal static partial class Program
                 AssertEqual(rebound ? (ushort)((first ? 1 : 2) | (spring ? 0x0600 : 0)) : (ushort)0,
                     samus.MorphBallBounceState, "Native ball family/phase publication");
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
-                AssertEqual(rebound || spring ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseFixed,
-                    "Ordinary final landing alone clears horizontal base momentum");
+                AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseFixed,
+                    "Both ball families clear horizontal base momentum on final landing");
+                AssertEqual(rebound ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode,
+                    "Both ball families clear horizontal acceleration on final landing");
                 AssertEqual((ushort)128, samus.YPosition, "Landing handler does not move the collision-resolved center");
                 cases++;
             }

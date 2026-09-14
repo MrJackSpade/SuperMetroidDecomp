@@ -592,10 +592,13 @@ static void VerifySamusMorphBallMovement()
     AssertTrue(!spring.ApplySpringBallLanding(bus, controllerInput: 0),
         "Spring Ball hard impact rebounds");
     AssertEqual(0x0601, spring.MorphBallBounceState, "Spring Ball first bounce state");
+    var springLandingAnimation = (spring.AnimationFrame, spring.AnimationFrameTimer);
     AssertTrue(!spring.ApplySpringBallLanding(bus, (ushort)SnesButton.A),
         "held Jump immediately relaunches Spring Ball");
     AssertEqual(0, spring.MorphBallBounceState, "held-Jump relaunch clears bounce state");
-    AssertEqual(SamusPoseIds.SpringBallJumpRightPose, spring.Pose, "held-Jump relaunch pose");
+    AssertEqual(SamusPoseIds.SpringBallFallingRightPose, spring.Pose, "held-Jump landing retains its existing airborne pose");
+    AssertEqual(springLandingAnimation, (spring.AnimationFrame, spring.AnimationFrameTimer),
+        "held-Jump landing does not restart the rolling animation");
 
     // F1FC/F25E branch on the sign of the wrapping word subtraction speed-3.
     // Include negative Moonfall speed and the subtraction's signed-wrap boundary,
@@ -613,12 +616,19 @@ static void VerifySamusMorphBallMovement()
         impact.RefreshCollisionRadii(bus);
         impact.InitializeAnimation(bus);
         impact.Kinematics.YSpeed = impactSpeed;
+        impact.HorizontalSpeed.BaseSpeed = 1;
+        impact.HorizontalSpeed.BaseSubspeed = 0x8000;
+        impact.HorizontalSpeed.AccelerationMode = 2;
         bool grounded = springEquipped
             ? impact.ApplySpringBallLanding(bus, controllerInput: 0)
             : impact.ApplyMorphBallLanding(bus);
         AssertEqual(!rebounds, grounded, $"ball landing signed threshold {impactSpeed:X4}, spring={springEquipped}");
         AssertEqual(rebounds ? (springEquipped ? 0x0601 : 1) : 0, impact.MorphBallBounceState,
             "signed threshold preserves the selected bounce family");
+        AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseFixed,
+            "Only settled ball landing clears both base-speed words");
+        AssertEqual(rebounds ? 2 : 0, impact.HorizontalSpeed.AccelerationMode,
+            "Both ball families share settled-landing acceleration cleanup");
     }
 
     // Bank-$93 projectile fixtures copied byte-for-byte from the normal-bomb pointer/data

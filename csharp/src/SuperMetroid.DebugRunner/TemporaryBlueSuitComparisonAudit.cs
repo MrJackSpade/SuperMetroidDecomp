@@ -8,18 +8,17 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Room-local, controller-earned temporary boost retention compared with original CPU execution.</summary>
 internal static class TemporaryBlueSuitComparisonAudit
 {
-    public static int Run(string rom, string trace, bool carry = false)
+    public static int Run(string rom, string trace, TemporaryBlueAuditKind kind = TemporaryBlueAuditKind.Retention)
     {
+        bool carry = kind == TemporaryBlueAuditKind.Carry, bounce = kind == TemporaryBlueAuditKind.Bounce;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
             throw new InvalidDataException("Temporary Blue Suit audit requires the pinned Japan/USA ROM.");
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
-        string expectedHash = carry ? "C7486E42C4A0247665E4ABC1FD076A9E1D4D6305056E72C181136B6F5BB2B414" :
-            "017B7A761CA8CBDA8BA14CAF7886F5FFC4760B869C9FD6BFA8C37C91AE6A8E39";
+        var (expectedCases, expectedFrames, expectedHash) = TemporaryBlueAuditDefinitions.Describe(kind);
         if (Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU temporary Blue Suit trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        int expectedCases = carry ? 80 : 32, expectedFrames = carry ? 620 : 400;
         if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != 18))
             throw new InvalidDataException("Incomplete native temporary boost matrix.");
         int cases = 0, mismatches = 0;
@@ -28,7 +27,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1";
             int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
-            if (seed[0] is not ("0" or "1") || (carry ? stop != 140 || aim is < 0 or > 39 : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
+            if (seed[0] is not ("0" or "1") || (carry || bounce ? stop != 140 || aim < 0 || aim >= (carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
                 throw new InvalidDataException("Invalid temporary boost seed.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData ?? throw new InvalidDataException("Missing fixture level.");
@@ -43,6 +42,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
             var samus = runtime.Samus ?? throw new InvalidDataException("Missing fixture Samus.");
             samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall);
+            if (bounce && aim >= 4) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.EquippedBeams = samus.CollectedBeams = 0;
             samus.Health = samus.MaxHealth = 99;
             samus.XPosition = (ushort)(left ? 2100 : 200); samus.YPosition = 491;
@@ -63,6 +63,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 int expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
                 if (frame == stop) expectedInput |= 0x400;
                 if (carry) expectedInput = TemporaryBlueCarryInputs.At(frame, left, aim);
+                if (bounce) expectedInput = TemporaryBlueBounceInputs.At(frame, left, aim);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
                     throw new InvalidDataException("Changed controller sequence or reordered trace.");
                 var publication = new GameplayAudioFramePublication(audio);
@@ -72,11 +73,12 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && frame == 399 &&
+                if (!carry && !bounce && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
                 if (carry) TemporaryBlueCarryInputs.Verify(samus, frame, aim);
+                if (bounce) TemporaryBlueBounceInputs.Verify(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
                     throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
                 if (stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)

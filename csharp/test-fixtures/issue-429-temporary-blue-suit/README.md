@@ -7,6 +7,10 @@ existing [speedball-unmorph evidence](../movement-release/TEMPORARY-BLUE.md) fro
 equipment, X-Ray or persistent-Blue-Suit comparisons. Keep the issue open without a validation
 label until those branches are covered.
 
+Subsequent fixtures add [soft-unmorph carry](CARRY.md) and
+[ordinary/Spring Ball bounce retention](BOUNCE.md). Those documents record the
+additional reproduced fixes and the remaining issue scope.
+
 ## Reference and execution
 
 - [Technique setup](https://wiki.supermetroid.run/Blue_Suit_Glitch#Temporary).

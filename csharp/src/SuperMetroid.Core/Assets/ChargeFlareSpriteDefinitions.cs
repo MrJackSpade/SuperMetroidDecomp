@@ -6,6 +6,8 @@ public static class ChargeFlareSpriteDefinitions
     public const string FileName = "charge-flare-compositions.json";
     /// <summary>$93:A1A1, FlareSpritemapPointers: the first 54 selectors are charge-flare components.</summary>
     public const int SelectorTable = 0x93A1A1;
+    /// <summary>$93:A225/A22B, FlareSpritemapTable_IndexOffsets: both facing rows select the main flare at offset zero.</summary>
+    public const ushort MainFlareSelectorOffset = 0;
     /// <summary>$93:AB6C, ProjectileFlareSpritemaps_Flare_Charge_Hyper_Grapple_0.</summary>
     public const ushort ProjectileFlareSpritemaps_Flare_Charge_Hyper_Grapple_0 = 0xAB6C;
     /// <summary>$93:AB73, ProjectileFlareSpritemaps_Flare_Charge_Hyper_Grapple_1.</summary>
@@ -153,4 +155,3 @@ public static class ChargeFlareSpriteDefinitions
         ProjectileFlareSpritemaps_FlareFastSparks_FacingLeft_5,
     ];
 }
-

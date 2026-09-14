@@ -416,7 +416,8 @@ hosts bind it at startup and after state reload; ordinary and attract runtimes
 inherit current content. The normal-charge and Hyper draw paths use these parts
 without changing timing, placement, visibility or simulation state. Non-catalog
 animation selectors retain native adjacent-table behavior rather than being
-clamped or newly rejected. Grapple's separate flare caller is not yet migrated.
+clamped or newly rejected. Grapple's separate flare caller now consumes the same
+composition catalog through its native actor-order entry point.
 Tests compare 676 complete producer ticks with composition ROM reads forbidden,
 stock and edited runtime actor output, byte-identical simulation graphs, current
 content after graph restoration, all 54 host-bound selectors after restart/load,
@@ -429,3 +430,14 @@ and restart after editing. Retain all frame identities and change visual part
 offsets, tile row/column, size, palette, priority or flips. The file does not expose
 cadence, charge thresholds, damage or physical muzzle origins. Placement has its
 own file above; editing part offsets also leaves projectile launch geometry alone.
+
+Grapple retains its independent flare timer and firing-only post-movement origin
+refresh. Its main-flare cadence now uses the shared compiled delay definitions;
+the equal first entries of both facing-selector rows are compiled as a named
+identity. The counter-one frame/timer seed, signed decrement, rewind, visibility
+test and physical/visual hand-origin update order are unchanged. Tests exercise
+2,049 phase/pose/coordinate/counter/boundary cases and compare full native OAM,
+independently read native timing and complete serialized Samus/Grapple state with
+composition, cadence and selector ROM reads forbidden. Actual gameplay actor
+drawing and saved-state rebind also emit the edited parts. This does not yet
+extract Grapple's endpoint/rope PNGs, segment animation or sound bindings.

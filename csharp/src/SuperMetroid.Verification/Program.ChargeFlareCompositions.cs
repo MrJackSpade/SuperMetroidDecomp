@@ -16,6 +16,7 @@ internal static partial class Program
         foreach (var part in frame.Value!.AsArray())
             part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
         VerifyChargeFlareProduction(bus, stock, Load(allEdited));
+        VerifyGrappleFlarePresentation(bus, stock, Load(allEdited));
         int cases = 0;
         for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
         {

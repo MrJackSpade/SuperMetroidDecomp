@@ -238,7 +238,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Oam,
                         Camera.XPosition,
-                        Camera.YPosition);
+                        Camera.YPosition,
+                        ChargeFlareCompositions);
                 }
                 else if (!grappleHandlerInstalled)
                 {

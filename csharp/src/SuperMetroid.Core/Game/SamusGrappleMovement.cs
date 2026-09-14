@@ -169,7 +169,8 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         OamBuffer oam,
         ushort layer1X,
-        ushort layer1Y)
+        ushort layer1Y,
+        Assets.ChargeFlareSpriteCatalog? compositions = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -191,28 +192,28 @@ public static partial class SamusGrappleMovement
         // performs the usual 16-bit DEC/BMI. The first visible frame therefore stores two.
         if (grapple.FlareCounter == 1)
         {
-            grapple.FlareAnimationFrame = 16;
-            grapple.FlareAnimationTimer = 3;
+            grapple.FlareAnimationFrame = ChargeFlareAnimationDefinitions.GrappleInitialFrame;
+            grapple.FlareAnimationTimer = ChargeFlareAnimationDefinitions.GrappleInitialDelay;
         }
 
         grapple.FlareAnimationTimer = unchecked((ushort)(grapple.FlareAnimationTimer - 1));
         if (unchecked((short)grapple.FlareAnimationTimer) < 0)
         {
             grapple.FlareAnimationFrame = unchecked((ushort)(grapple.FlareAnimationFrame + 1));
-            byte delay = bus.ReadByte(
+            byte delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
                 SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     grapple.FlareAnimationFrame);
-            if (delay == 0xfe)
+            if (delay == ChargeFlareAnimationDefinitions.Rewind)
             {
                 // `$FE,n` is the compact loop command in the shared delay bytecode. The
                 // subtraction applies to the already-incremented frame word and wraps like
                 // 16-bit ADC/SBC; malformed ROM data remains visible instead of clamped.
-                byte rewind = bus.ReadByte(
+                byte rewind = ChargeFlareAnimationDefinitions.ReadByte(bus,
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                     unchecked((ushort)(grapple.FlareAnimationFrame + 1)));
                 grapple.FlareAnimationFrame = unchecked((ushort)(
                     grapple.FlareAnimationFrame - rewind));
-                delay = bus.ReadByte(
+                delay = ChargeFlareAnimationDefinitions.ReadByte(bus,
                     SamusGrappleRomData.Firing.MainFlareAnimationDelays +
                         grapple.FlareAnimationFrame);
             }
@@ -227,12 +228,14 @@ public static partial class SamusGrappleMovement
         if ((screenY & 0xff00) != 0)
             return false;
 
-        int orientationTable = SamusState.IsFacingLeft(bus, samus.Pose)
-            ? SamusGrappleRomData.Firing.LeftFlareSpritemapOffsets
-            : SamusGrappleRomData.Firing.RightFlareSpritemapOffsets;
+        // The first word of both native facing rows is zero. Grapple uses the
+        // shared main flare only; charge-spark direction offsets do not apply.
         ushort tableIndex = unchecked((ushort)(
-            grapple.FlareAnimationFrame + ReadWord(bus, orientationTable)));
-        oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
+            grapple.FlareAnimationFrame + Assets.ChargeFlareSpriteDefinitions.MainFlareSelectorOffset));
+        if (compositions is not null && tableIndex < Assets.ChargeFlareSpriteDefinitions.Selectors.Length)
+            compositions.Draw(tableIndex, oam, screenX, screenY);
+        else
+            oam.AddFlareSpritemap(bus, tableIndex, screenX, screenY);
         return true;
     }
 

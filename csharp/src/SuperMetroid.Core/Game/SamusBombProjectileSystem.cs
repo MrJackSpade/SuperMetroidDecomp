@@ -449,20 +449,12 @@ public sealed class SamusBombProjectileSystem
             slot.YPosition = samus.YPosition;
             InitializeBombFromRom(bus, slot);
 
-            int tableOffset = index * 2;
-            slot.BombTimer = ReadWord(
-                bus,
-                SamusBombSpreadRomData.FuseTimers + tableOffset);
-            slot.BombSpreadXVelocity = ReadWord(
-                bus,
-                SamusBombSpreadRomData.XVelocities + tableOffset);
-            slot.BombSpreadInitialYSubvelocity = ReadWord(
-                bus,
-                SamusBombSpreadRomData.YSubspeeds + tableOffset);
+            BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
+            slot.BombTimer = launch.FuseTimer;
+            slot.BombSpreadXVelocity = launch.XVelocity;
+            slot.BombSpreadInitialYSubvelocity = launch.YSubspeed;
             slot.BombSpreadYSubvelocity = slot.BombSpreadInitialYSubvelocity;
-            ushort wholeYSpeed = unchecked((ushort)(ReadWord(
-                bus,
-                SamusBombSpreadRomData.YSpeeds + tableOffset) + verticalModifier));
+            ushort wholeYSpeed = unchecked((ushort)(launch.YSpeed + verticalModifier));
             slot.BombSpreadYVelocity = unchecked((ushort)(0 - wholeYSpeed));
             slot.BombSpreadBounceYVelocity = slot.BombSpreadYVelocity;
         }

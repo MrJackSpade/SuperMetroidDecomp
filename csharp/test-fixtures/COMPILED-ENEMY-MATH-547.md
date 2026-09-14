@@ -1807,3 +1807,20 @@ Verification passed: compiled-definition checks, all 18 Samus physics groups,
 full Release Verification, Windows Release build (zero warnings/errors), and
 all 262 checkpoints from the player's native Moat CWJ movie. The radius change
 does not alter that recorded trajectory, poses, animation, or momentum.
+# Bomb Spread launch definitions
+
+The twenty words at $90:D8CF..D8F6 are now compiled into
+`SamusBombSpreadLaunchDefinitions`: five fuse, X direction/magnitude, whole-Y,
+and fractional-Y records. The real producer retains native allocation order,
+hold-counter vertical modifier, bounce velocity, and charge consumption.
+This removes launch-table reads, not the shared ROM damage/animation initializer.
+
+`--compiled-enemy-sine` checks all twenty words against the pinned cartridge,
+then executes the actual producer for every 16-bit hold counter (327,680 slot
+initializations) with reads of the migrated table forbidden. Assertions include
+fuse, both Y velocities, fractional velocity, encoded X, location, count and
+charge reset. The existing native grounded-spread trace also passes all 23,080
+trajectory observations, self-overlap checks, and 48 admission cases.
+The current trace is `grounded-spread-414-admission48.csv`; the older overlap
+trace predates the expanded 48-case admission schema and is not compatible with
+the current verifier. No native expected data was changed for this migration.

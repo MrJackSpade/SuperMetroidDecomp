@@ -167,7 +167,10 @@ not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
 
 - `EnemyRomTablePointers` consumers: boss jumps, projectile launch/angle records,
   death trajectories and other indirect family definitions.
-- Samus movement, bomb-spread, combo and grapple definition readers. Coordinate
+- Samus movement, combo and grapple definition readers. Bomb Spread's twenty
+  launch words are now compiled and checked through the actual five-slot producer;
+  its shared damage/animation initializer still reads ROM and is not covered by
+  that migration. Coordinate
   ownership with the companion gameplay-definition tickets; shared scope does
   not mean the runtime dependency is already removed.
 - Bank/indirect reads and definitions whose names do not contain speed, curve,

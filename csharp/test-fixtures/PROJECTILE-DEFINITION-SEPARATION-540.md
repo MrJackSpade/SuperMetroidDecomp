@@ -339,5 +339,9 @@ rebound art publishes after legacy queued transfers on accepted NMIs only. Tests
 cover edited pixels after room initialization, lag retention, repeated room load,
 serialized pending queues and current-content rebind, as well as installation
 repair and host restart with an old save state. Android session tests run on Windows.
-Cinematic trail PNG upload ownership is still pending; this change does not replace
-the intro's compressed sprite sheets.
+The intro's $8B:A505 standard OBJ transfer uses the same trail regions; the later
+compressed cinematic sprites begin at VRAM word $6E00. Flashback display preparation
+now publishes rebound trail PNGs before either direct rendering or detached capture.
+Tests compare every VRAM byte for stock parity and two edited pixels, including an
+old frontend state rebound to current artwork. Binding alone retains the prior
+display; no compressed cinematic sheet is replaced.

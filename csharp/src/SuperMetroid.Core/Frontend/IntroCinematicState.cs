@@ -20,8 +20,13 @@ namespace SuperMetroid.Core.Frontend;
 public sealed partial class IntroCinematicState
 {
     /// <summary>Current host appearance; snapshots retain simulation state, not external overrides.</summary>
-    [field: NonSerialized]
-    public ProjectileTrailCatalog? TrailArtwork { get; set; }
+    [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+    [NonSerialized] private bool trailArtworkRefreshPending;
+    public ProjectileTrailCatalog? TrailArtwork
+    {
+        get => trailArtwork;
+        set { trailArtwork = value; trailArtworkRefreshPending = value?.Tiles is not null; }
+    }
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
@@ -1071,6 +1076,14 @@ public sealed partial class IntroCinematicState
     // trail state, so a consumer must never call it to redraw an already captured frame.
     private OamBuffer PrepareMotherBrainOam()
     {
+        // Both direct rendering and detached capture enter here once per display.
+        // The intro's standard OBJ upload owns these same trail regions; its separate
+        // compressed cinematic sheet starts later and must not be replaced.
+        if (trailArtworkRefreshPending)
+        {
+            trailArtwork!.Tiles!.LoadTo(vram);
+            trailArtworkRefreshPending = false;
+        }
         var oam = new OamBuffer();
         oam.BeginFrame();
         if (flashbackMotherBrain!.IsVisible)

@@ -378,3 +378,19 @@ Power Bomb (22 cases). Only the completed fade admits exactly one expected
 command, and active Power Bombs admit none. This is a focused frontend
 reproduction checked against pinned assembly, not a new native controller
 trace; the broader #422 processing matrix remains unfinished.
+
+## X-ray admission versus deferred sound suppression
+
+`PowerBombXrayAdmissionAudit` exercises the actual selected-HUD-item/Dash path
+and frontend audio publication, in both facings and with an inactive, armed,
+or exploding Power Bomb. All six cases pass: inactive and merely armed bombs
+allow X-ray and its library-one activation command; an active explosion admits
+neither. The first fixture expectation incorrectly treated Arm as explosion
+status. Inspection of `$91:E16D` and the separate native words corrected that
+expectation without changing production code. Arm owns `power_bomb_flag`;
+X-ray admission tests `power_bomb_explosion_status`.
+
+This rules out a missing active-explosion guard at the ordinary X-ray activation
+publisher. It does not cover forced/glitched state transitions, X-ray release,
+or a natural controller-to-door timing matrix. The complete Power Bomb sound
+suppression audit passes with these added cases. #422 remains incomplete.

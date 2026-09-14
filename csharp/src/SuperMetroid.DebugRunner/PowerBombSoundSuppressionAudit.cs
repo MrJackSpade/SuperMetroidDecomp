@@ -10,6 +10,7 @@ internal static class PowerBombSoundSuppressionAudit
 {
     public static int Run(string rom)
     {
+        PowerBombXrayAdmissionAudit.Run(rom);
         PowerBombSuitSoundAudit.Run(rom);
         PowerBombShinesparkSoundAudit.Run(rom);
         PowerBombPlmSoundAudit.Run(rom);

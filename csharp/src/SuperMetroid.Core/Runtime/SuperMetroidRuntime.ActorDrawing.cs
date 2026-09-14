@@ -16,8 +16,8 @@ public sealed partial class SuperMetroidRuntime
         // phase that calls DrawSamusAndProjectiles. Preserve that OAM ordering.
         if (!deathOwnsSamus)
         {
-            BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
-            Projectiles.DrawExplosions(_addressSpace, Oam, Camera.XPosition, Camera.YPosition);
+            BombProjectiles.Draw(_addressSpace, Oam, Camera.XPosition, Camera.YPosition, ProjectileCompositions);
+            Projectiles.DrawExplosions(_addressSpace, Oam, Camera.XPosition, Camera.YPosition, ProjectileCompositions);
         }
 
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
@@ -338,7 +338,7 @@ public sealed partial class SuperMetroidRuntime
                 Oam,
                 Camera.XPosition,
                 Camera.YPosition,
-                NmiFrameCounter);
+                NmiFrameCounter, ProjectileCompositions);
             // `$93:82F7` immediately follows the ordinary projectile draw with bank
             // `$90:B6A9`. Trails are detached world-space objects, so they must keep
             // animating after their source beam has collided or left the viewport.

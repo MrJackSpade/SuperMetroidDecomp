@@ -37,6 +37,7 @@ internal static partial class Program
         document.Frames[name][0] = original with { OffsetX = original.OffsetX == 255 ? 254 : original.OffsetX + 1 };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
+        VerifyRuntimeProjectileCompositions(rom, content, edited, editedId);
         var baselineOam = new OamBuffer(); var editedOam = new OamBuffer();
         content.Draw(editedId, baselineOam, 100, 100); edited.Draw(editedId, editedOam, 100, 100);
         AssertEqual(unchecked((byte)(baselineOam.LowTable[0] + (original.OffsetX == 255 ? -1 : 1))), editedOam.LowTable[0], "Edited offset reaches emitted OAM");
@@ -111,5 +112,66 @@ internal static partial class Program
     {
         public byte ReadByte(int address) => throw new InvalidOperationException($"Composition draw read ROM {address:X6}.");
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Composition draw mutated the bus.");
+    }
+
+    private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
+        ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
+    {
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(bus);
+        const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var runtimeField = typeof(SuperMetroid.Core.Frontend.SuperMetroidGame).GetField("runtime", flags)!;
+        runtimeField.SetValue(game, runtime);
+        var draw = runtime.GetType().GetMethod("DrawGameplayActors", flags)!;
+        byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
+        {
+            target.Oam.BeginFrame();
+            draw.Invoke(target, new object?[] { false, null, null, false });
+            return target.Oam.LowTable.ToArray().Concat(target.Oam.HighTable.ToArray()).ToArray();
+        }
+        // Seed only a visible timed composition. The shared production actor draw, not
+        // a duplicate test emitter, must bind all three owner passes to host content.
+        foreach (ushort family in new ushort[] { 0x10, 0x700, 0x500 })
+        {
+            runtime.Projectiles.Reset(); runtime.BombProjectiles.Reset();
+            if (family == 0x500)
+            {
+                var slot = runtime.BombProjectiles.Slots[0];
+                slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
+                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
+                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+            }
+            else
+            {
+                var slot = runtime.Projectiles.Slots[0];
+                slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
+                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
+                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+            }
+            game.BindProjectileCompositions(null);
+            byte[] native = Draw(runtime);
+            game.BindProjectileCompositions(stock);
+            AssertTrue(native.SequenceEqual(Draw(runtime)), "Runtime stock composition OAM matches native");
+            game.BindProjectileCompositions(edited);
+            AssertTrue(!native.SequenceEqual(Draw(runtime)), "Edited composition reaches runtime actor drawing");
+        }
+        game.BindProjectileCompositions(null);
+        using var without = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(without, game);
+        game.BindProjectileCompositions(stock);
+        using var with = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(with, game);
+        AssertTrue(without.ToArray().SequenceEqual(with.ToArray()), "Projectile content excluded from frontend and runtime state graph");
+        with.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Frontend.SuperMetroidGame>(with);
+        var restoredRuntime = (SuperMetroid.Core.Runtime.SuperMetroidRuntime)runtimeField.GetValue(restored)!;
+        AssertTrue(restoredRuntime.ProjectileCompositions is null, "Restored runtime requires external composition rebind");
+        restored.BindProjectileCompositions(edited);
+        game.BindProjectileCompositions(edited);
+        AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Restored graph draws current edited content after rebind");
+        Console.WriteLine("Projectile runtime binding: three actor draw passes, stock parity, visual edits and nonserialized restore/rebind pass.");
     }
 }

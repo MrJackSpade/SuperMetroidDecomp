@@ -32,6 +32,7 @@ public sealed partial class SuperMetroidGame
                     runtime = new SuperMetroidRuntime(bus);
                     runtime.System.SetRandomNumber(incomingRandom);
                     runtime.MapPresentation = mapPresentation;
+                    runtime.ProjectileCompositions = projectileCompositions;
                     runtime.InitializeAttractDemo(scene);
                     demoFramesRemaining = scene.Duration;
                     demoScene++;

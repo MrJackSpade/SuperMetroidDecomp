@@ -204,6 +204,13 @@ eight projectile families, four NMI phases and nine viewport-boundary positions.
 The extracted path forbids every bus read/write and preserves damage and radii.
 Zero-timer power bombs are separately required to emit nothing.
 
-This is not host installation or automatic asset binding. Runtime/host content
-selection, provenance, restore-time rebinding, PNG artwork, trails and flares remain
-unfinished. The catalog is passed per draw and adds no serialized owner state.
+The frontend now binds the catalog to existing and newly created gameplay/demo
+runtimes, and runtime actor drawing forwards it to all three timed-projectile passes.
+Both frontend and runtime fields are nonserialized. The debugger regression proves
+byte-identical graphs with/without content and draws the newly bound override after
+restoration. Runtime OAM assertions cover stock parity and observable edits for live
+shots, explosions and bombs.
+
+Host installation, automatic disk loading, provenance and host invocation of the
+restore-time binding API remain unfinished, as do PNG artwork, trails and flares.
+The runtime integration alone does not enable overrides in an installed host.

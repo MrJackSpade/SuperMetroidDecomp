@@ -1277,6 +1277,7 @@ public sealed partial class SuperMetroidGame
         // Publish before room initialization so random-consuming enemies see it too.
         runtime.System.SetRandomNumber(incomingRandom);
         runtime.MapPresentation = mapPresentation;
+        runtime.ProjectileCompositions = projectileCompositions;
         runtime.JapaneseText = options?.JapaneseText ?? false;
         runtime.ControllerBindings = options?.ControllerBindings ?? ControllerBindings.Default;
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;

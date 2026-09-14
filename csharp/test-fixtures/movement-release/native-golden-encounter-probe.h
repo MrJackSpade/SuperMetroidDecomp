@@ -1,5 +1,6 @@
 #include "native-bounded-cpu.h"
 static bool goldenEncounterDetailed;
+static bool goldenEncounterContact;
 
 // Original game-state-eight execution, with only initial state and physical
 // controller words supplied. No boss decisions or projectile outcomes injected.
@@ -36,6 +37,7 @@ int DiagnosticGoldenEncounter(const char *rom, const char *output) {
     fprintf(f,",guard,invulnerability,map");
     for(int p=0;p<5;p++) fprintf(f,",s%d_type,s%d_x,s%d_y,s%d_subX,s%d_subY,s%d_direction,s%d_damage",p,p,p,p,p,p,p);
   }
+  if(goldenEncounterContact) fprintf(f,",samusInvincibility,samusKnockback,knockbackX");
   fprintf(f,"\n");
   uint16 previous=0;
   for(int frame=0;frame<3000;frame++) {
@@ -58,11 +60,17 @@ int DiagnosticGoldenEncounter(const char *rom, const char *output) {
           projectile_bomb_x_subpos[p],projectile_bomb_y_subpos[p],projectile_dir[p],projectile_damage[p]);
       }
     }
+    if(goldenEncounterContact) fprintf(f,",%u,%u,%u",samus_invincibility_timer,samus_knockback_timer,knockback_x_dir);
     fprintf(f,"\n");
   }
   fclose(f); return 0;
 }
 int DiagnosticGoldenEncounterDetailed(const char *rom,const char *output) {
   goldenEncounterDetailed=true;
+  return DiagnosticGoldenEncounter(rom,output);
+}
+int DiagnosticGoldenEncounterContact(const char *rom,const char *output) {
+  goldenEncounterDetailed=true;
+  goldenEncounterContact=true;
   return DiagnosticGoldenEncounter(rom,output);
 }

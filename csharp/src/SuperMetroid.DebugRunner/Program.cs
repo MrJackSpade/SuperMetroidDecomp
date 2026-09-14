@@ -1493,6 +1493,9 @@ if (args.Length is >= 2 and <= 4 && args[0] == "--golden-encounter-trace")
 if (args.Length is 2 or 3 && args[0] == "--golden-encounter-details")
     return GoldenTorizoAudit.TraceEncounter(args[1], args.Length == 3 ? args[2] : null, detailed: true);
 
+if (args.Length is 2 or 3 && args[0] == "--golden-encounter-contact")
+    return GoldenTorizoAudit.TraceEncounter(args[1], args.Length == 3 ? args[2] : null, detailed: true, contact: true);
+
 if (args.Length >= 2 && args[0] == "--golden-torizo-audit")
 {
     string goldenTorizoRomPath = string.Join(' ', args[1..]).Trim('"');

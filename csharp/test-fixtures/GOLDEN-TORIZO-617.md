@@ -314,3 +314,39 @@ This complements the earlier 50 angle/aim comparisons; it does not replace the
 encounter-level capture of the boss deciding to catch a player Super. Recapture
 with `DiagnosticGoldenSuperLifecycle`; temporary hooks removed and ordinary
 native executable rebuilt. Cross-frame player-contact timing remains to review.
+
+## Cross-frame contact comparison and audit handoff
+
+`movement-release/golden-encounter-contact-617.csv` extends the same 3,000-frame
+original-CPU encounter with Samus invulnerability, knockback timer and horizontal
+knockback direction. `--golden-encounter-contact ROM CSV` matches all 63 fields on
+every frame, including 15 damage events and complete intervening timer countdowns.
+No hits or timer resets are injected. This closes the cross-frame timing check
+for this bounded encounter; it is not an exhaustive search of player trajectories.
+
+The audit is ready for player validation. Evidence by requested area:
+
+- AI selection/conditional inputs: health/stun, distance/facing/pose, jump and
+  ammo/frame matrices execute original CPU routines across their boundaries.
+- Attack cadence/movement: 3,000 integrated frames agree on list, timer, function,
+  pre-instruction, position, velocity, flags and shared RNG.
+- Projectile behavior: initializer/aim matrices, terrain trajectories, all five
+  family lifecycle samples and the explicit eye-beam release comparison.
+- Missile/Super reactions and damage: retail hitbox/guard/flash/capture controls,
+  integrated slot lifetimes/HP, and the existing bomb/Power Bomb/death audit.
+- Contact/invulnerability: 120 natural-phase suit/immunity controls and the
+  original-CPU integrated timers, player health, pose and positioning above.
+- Difficulty-dependent inputs: cartridge health thresholds, Missile stock,
+  position, pose, facing and RNG selectors are preserved; no difficulty tuning.
+
+Concrete fixes remain the caught-Super counterattack latch, eye-beam/thrown-Super
+quarter-turn aiming error, shared lava/acid RNG byte swap, and generic missile
+enemy-hit cleanup which had allowed an extra linked-Super hit. Later comparisons
+found no additional discrepancy. The existing Golden audit passes after the final
+capture; production changes previously passed full core verification and Windows
+Release builds. Temporary native hooks are removed and the normal binary rebuilt.
+
+Limits remain explicit: the integrated fixture omits full room PLM population,
+conditional focused tests do not prove every natural route to their setup, and
+the player-reported safe spot remains unlocated. These are limits of the audit,
+not grounds to alter cartridge behavior or claim the entire game is validated.

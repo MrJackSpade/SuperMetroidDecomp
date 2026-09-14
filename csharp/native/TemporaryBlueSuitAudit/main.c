@@ -36,19 +36,28 @@ static uint16 bounce_input(int frame, int left, int mode) {
   if ((mode & 3) == 3 && frame < 500) input &= ~0x80;
   return input;
 }
+static uint16 cancel_input(int frame, int left, int mode) {
+  if (frame < 400) return carry_input(frame, left, 4);
+  uint16 input = 0x10;
+  if (mode == 1 || mode == 2 || mode == 4 || mode == 5)
+    input |= left ? 0x200 : 0x100;
+  if (mode == 2 || mode == 5 || mode == 7) input |= 0x8000;
+  return input;
+}
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
-  if (argc == 3 && !carry && !bounce) return 2;
+  bool cancel = argc == 3 && strcmp(argv[2], "cancel") == 0;
+  if (argc == 3 && !carry && !bounce && !cancel) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir\n");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce ? 140 : 60; stop <= (carry || bounce ? 140 : 180); stop += 40)
-  for (int aim = 0; aim < (carry ? 40 : bounce ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel ? 140 : 60; stop <= (carry || bounce || cancel ? 140 : 180); stop += 40)
+  for (int aim = 0; aim < (carry ? 40 : bounce || cancel ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -69,12 +78,15 @@ int main(int argc, char **argv) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < (carry ? 620 : bounce ? 800 : 400); frame++) {
+    for (int frame = 0; frame < (carry ? 620 : bounce ? 800 : cancel ? 460 : 400); frame++) {
+      if (cancel && frame == 400 && aim >= 3 && aim <= 6) equipped_items &= ~0x2000;
+      if (cancel && frame == 410 && aim == 6) equipped_items |= 0x2000;
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
       uint16 input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
       if (frame == stop) input |= 0x400;
       if (carry) input = carry_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
+      if (cancel) input = cancel_input(frame, left, aim);
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
       run(0x900000 | samus_movement_handler);

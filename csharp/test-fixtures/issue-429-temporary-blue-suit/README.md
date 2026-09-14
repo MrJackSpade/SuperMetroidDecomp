@@ -10,6 +10,8 @@ label until those branches are covered.
 Subsequent fixtures add [soft-unmorph carry](CARRY.md) and
 [ordinary/Spring Ball bounce retention](BOUNCE.md). Those documents record the
 additional reproduced fixes and the remaining issue scope.
+The [Dash/equipment matrix](CANCELLATION.md) records native cancellation and
+non-cancellation conditions after the charge has expired.
 
 ## Reference and execution
 

@@ -287,15 +287,14 @@ the authored words and unaligned accesses retain the bus path. Tests compare all
 words, byte-aligned overlaps and adjacent boundaries against the pinned ROM, then
 exercise the real spawn method for all 64 low-six-bit selections with authored
 selector reads forbidden. Allocation timer and fixed-origin assertions accompany
-the selected pointers. Trail animation, coordinate tables and artwork are still
-ROM-backed and remain unfinished presentation work.
+the selected pointers. Coordinate tables and trail PNG artwork remain unfinished.
 
 ### Installed gameplay trail appearance catalog
 
 `ProjectileTrailExtractor` exports the 42 appearance-bearing records from the
 four native trail lists. Strict JSON exposes tile position, palette, priority and
 flips only; it cannot change durations or movement commands. The production trail
-draw API can select immutable appearance without changing serialized trail state.
+draw API can select immutable appearance without changing trail timing or positions.
 A newly allocated frozen trail keeps its existing attributes until its first
 record runs; artwork binding does not advance it. Tests independently walk native
 streams to verify complete frame coverage, compare 630 full-OAM boundary/capacity
@@ -307,8 +306,8 @@ state load; normal and attract-demo runtime creation carries the same catalog.
 Tests verify the actual actor pass emits edited OAM, frontend/runtime serialization
 excludes content, old-state rebind preserves trail timers, all 42 host selections
 match disk after restart, and corrupt/missing files fail without fallback.
-Trail PNGs and remaining program ROM reads are not
-completed by this slice. Android session tests run on Windows, not an APK deployment.
+Trail PNGs are not completed by this slice. Android session tests run on Windows,
+not an APK deployment.
 
 The Mother Brain intro flashback now binds both projectile compositions and trail
 appearance at creation and host rebind. Its live-projectile, explosion and trail
@@ -316,3 +315,12 @@ passes use the shared catalogs. Tests call the actual cinematic OAM preparation
 after native page/flashback setup, compare stock and edited emissions, require
 one trail timer decrement per preparation, and serialize/restore the frontend to
 verify current content is rebound without embedding it in the saved graph.
+
+`ProjectileTrailProgramDefinitions` now compiles 42 durations, 20 inline movement
+commands and five terminators. It excludes appearance words and instruction-body
+bytes; odd/gap/non-catalog reads retain the bus path. All 67 words and intervening
+reads match the pinned ROM. The existing 320 live/frozen animation comparisons now
+run the catalog-backed owner with every bus access forbidden, while checking
+native output, timing, cursors and sibling movement. On record advancement,
+appearance attributes come from the selected catalog; the animation scheduler
+is never supplied by editable JSON. Spawn coordinate lookups remain ROM-backed.

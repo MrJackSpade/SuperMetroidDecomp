@@ -65,9 +65,9 @@ static void VerifySamusPowerBeamProjectiles()
         0x00, 0x00,
     ]);
 
-    // Retain enough of retail `$90:B4CB` to prove repeated one-frame tiles and the embedded
-    // `$B525` position command. The production interpreter remains ROM-driven and continues
-    // through the full list when the real cartridge data is mounted.
+    // This fixture supplies the appearance prefix needed for repeated one-frame tiles
+    // and the first embedded position command. Timing/commands now come from compiled
+    // retail definitions; the complete native program is checked by the trail-art suite.
     ushort chargedTrailInstruction = 0xb4cb;
     void WriteChargedTrailWord(ushort value)
     {

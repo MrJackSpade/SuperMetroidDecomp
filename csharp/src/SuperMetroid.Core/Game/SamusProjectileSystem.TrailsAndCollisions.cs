@@ -339,7 +339,7 @@ public sealed partial class SamusProjectileSystem
                 ushort pointer = side.InstructionPointer;
                 while (true)
                 {
-                    ushort instructionOrTimer = ReadWord(
+                    ushort instructionOrTimer = ProjectileTrailProgramDefinitions.Read(
                         bus,
                         SamusProjectileRomData.Banks.Movement | pointer);
                     if ((instructionOrTimer & 0x8000) == 0)
@@ -348,7 +348,7 @@ public sealed partial class SamusProjectileSystem
                         if (instructionOrTimer == 0)
                             return;
 
-                        side.TileNumberAttributes = ReadWord(
+                        side.TileNumberAttributes = artwork is not null ? artwork.Resolve(pointer) : ReadWord(
                             bus,
                             SamusProjectileRomData.Banks.Movement |
                                 unchecked((ushort)(pointer + 2)));

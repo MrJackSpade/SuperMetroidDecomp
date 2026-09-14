@@ -35,7 +35,7 @@ internal static partial class Program
                 var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
                 nativeSystem.HandleTrailsAndDraw(bus, nativeOam, 0, 0, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(bus, authoredOam, 0, 0, frozenFrame, catalog);
+                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, 0, 0, frozenFrame, catalog);
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
@@ -46,6 +46,13 @@ internal static partial class Program
             }
         }
         AssertTrue(encountered.SetEquals(ProjectileTrailVisualDefinitions.Frames.ToArray()), "Independent native stream walk finds exactly the catalog's appearance records");
+        int programWords = 0;
+        for (int address = 0x90b4c8; address <= 0x90b5b3; address++)
+        {
+            AssertEqual(RomDataReader.ReadWordFixedBank(bus, address), ProjectileTrailProgramDefinitions.Read(bus, address), "Compiled trail program preserves native words, appearance gaps and odd reads");
+            if (ProjectileTrailProgramDefinitions.TryRead(address, out _)) programWords++;
+        }
+        AssertEqual(67, programWords, "All 42 durations, 20 movement commands and five terminators are compiled");
         int draws = 0;
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
         foreach (ushort coordinate in new ushort[] { 0, 1, 255, 256, 65535 })

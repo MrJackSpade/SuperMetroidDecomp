@@ -445,6 +445,13 @@ public static class SamusAerialMovement
             throw new InvalidOperationException($"Aerial-turn movement requires type $17/$18 pose, not ${samus.Pose:X2}.");
 
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
+        // The native turning wrapper enters the shared X mover, including its
+        // extra-run-speed epilogue, before canceling boost later in this frame.
+        // Turning cannot actively dash, but retained boost still publishes contact
+        // damage for this final frame. Clearing the counter is not retroactive.
+        speed.HandleExtraRunSpeed(movementType, controllerInput: 0,
+            speedBoosterEquipped: samus.EquippedItems.HasAny(SamusEquipmentFlags.SpeedBooster), bus,
+            liquidImpeded: samus.LiquidPhysics.DetermineMovementMedium(samus) != SamusLiquidPhysicsState.Air);
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         uint baseSpeed = speed.CalculateBaseSpeed(bus, movementType);
         int requested = CalculateDirectedDisplacement(bus, samus, baseSpeed);

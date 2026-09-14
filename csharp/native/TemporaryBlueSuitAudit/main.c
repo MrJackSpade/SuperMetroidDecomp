@@ -2,16 +2,44 @@
 #include "../Common/CartridgeCpuFixture.h"
 #include "../Common/MovementEntryPoints.h"
 enum { SamusPalettePhase = 0x91d6f7 };
+/* Carry cases keep the earned, expired charge until frame400. Modes0..3
+   contrast held forward, no input, reversal and ordinary landing. Remaining
+   modes sweep a soft unmorph after two distinct Down edges, then jump again. */
+static uint16 carry_input(int frame, int left, int mode) {
+  uint16 forward = left ? 0x200 : 0x100;
+  if (frame < 140) return 0x8000 | forward;
+  if (frame == 140) return 0x410;
+  if (frame < 400) return 0x10;
+  if (mode < 4) {
+    if (frame < 415) return 0x80 | forward;
+    if (mode == 0) return 0x80 | forward;
+    if (mode == 1) return 0;
+    if (mode == 2) return 0x80 | (left ? 0x100 : 0x200);
+    return 0x80;
+  }
+  int unmorph = 466 + mode;
+  if (frame <= 410) return 0x80 | forward;
+  if (frame < 420) return 0x80;
+  if (frame == 420 || frame == 422) return 0x480;
+  if (frame == 421) return 0x80;
+  if (frame < unmorph) return 0x80 | forward;
+  if (frame == unmorph) return 0x890 | forward;
+  if (frame < 510) return 0x90;
+  if (frame < 520) return 0x10;
+  return 0x80 | forward;
+}
 int main(int argc, char **argv) {
-  if (argc != 2) return 2;
+  if (argc != 2 && argc != 3) return 2;
+  bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
+  if (argc == 3 && !carry) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir\n");
   for (int left = 0; left < 2; left++)
-  for (int stop = 60; stop <= 180; stop += 40)
-  for (int aim = 0; aim < 4; aim++) {
+  for (int stop = carry ? 140 : 60; stop <= (carry ? 140 : 180); stop += 40)
+  for (int aim = 0; aim < (carry ? 40 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -31,10 +59,11 @@ int main(int argc, char **argv) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < 400; frame++) {
+    for (int frame = 0; frame < (carry ? 620 : 400); frame++) {
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
       uint16 input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
       if (frame == stop) input |= 0x400;
+      if (carry) input = carry_input(frame, left, aim);
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
       run(0x900000 | samus_movement_handler);

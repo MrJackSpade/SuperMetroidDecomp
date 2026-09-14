@@ -24,6 +24,8 @@ try
 {
 if (args is ["--temporary-blue-suit-audit", var blueSuitRom, var blueSuitTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueSuitRom, blueSuitTrace);
+if (args is ["--temporary-blue-carry-audit", var blueCarryRom, var blueCarryTrace])
+    return TemporaryBlueSuitComparisonAudit.Run(blueCarryRom, blueCarryTrace, carry: true);
 if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
     return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])

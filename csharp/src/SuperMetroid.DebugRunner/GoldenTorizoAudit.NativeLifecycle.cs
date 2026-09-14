@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class GoldenTorizoAudit
 {
-    public static int CompareNativeLifecycle(string rom, string trace)
+    public static int CompareNativeLifecycle(string rom, string trace, bool releaseEyeBeams = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var room = CartridgeRoomHeader.Load(bus, RoomPointer);
@@ -44,6 +44,17 @@ internal static partial class GoldenTorizoAudit
                 samples++;
             }
             if (target is null) throw new InvalidDataException("Missing lifecycle initializer.");
+            if (releaseEyeBeams && v[3] == 200)
+            {
+                // Exercise the real boss instruction which publishes the release latch,
+                // rather than setting projectile damage or animation state in the test.
+                object?[] release = [loaded.Head, loaded.Samus, assets.LevelData,
+                    TorizoInstructionCodes.Instruction_GoldenTorizo_EnableEyeBeamExplosions,
+                    (ushort)0, (ushort)0, (byte)200, false];
+                if (!(bool)typeof(RoomEnemySystem).GetMethod("TryProcessBombTorizoInstruction", hidden)!
+                    .Invoke(loaded.Enemies, release)!)
+                    throw new InvalidDataException("Eye-beam release instruction was not handled.");
+            }
             loaded.Enemies.StepEnemyProjectiles(assets.LevelData, loaded.Samus,
                 cameraX: CameraX, cameraY: CameraY, nmiFrameCounter8: unchecked((byte)v[3]));
             int[] actual = !target.IsActive ? new int[9] : [(ushort)target.Kind,
@@ -54,7 +65,8 @@ internal static partial class GoldenTorizoAudit
                 throw new InvalidDataException($"Golden lifecycle differs: {line}; actual={string.Join(',', actual)}.");
             rows++;
         }
-        if (samples != 16 || rows < 16) throw new InvalidDataException("Incomplete lifecycle matrix.");
+        if (samples != (releaseEyeBeams ? 4 : 16) || rows < samples)
+            throw new InvalidDataException("Incomplete lifecycle matrix.");
         Console.WriteLine($"Golden lifecycle: {rows} original-CPU frames across {samples} samples match.");
         return 0;
     }

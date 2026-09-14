@@ -1,11 +1,12 @@
 // #617: original-CPU health/stun decisions, including RNG consumption and link writes.
 #include "native-bounded-cpu.h"
+static bool goldenReleaseEyeBeams;
 int DiagnosticGoldenLifecycle(const char *rom, const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;
   const uint16 kinds[]={0xad7a,0xaeb6,0xb1c0,0xb428};
   fprintf(f,"kind,facing,seed,frame,id,x,y,vx,vy,list,timer,map,damageEnabled\n");
-  for(int k=0;k<4;k++) for(int facing=0;facing<2;facing++) for(int seed=0;seed<2;seed++) {
+  for(int k=goldenReleaseEyeBeams?3:0;k<4;k++) for(int facing=0;facing<2;facing++) for(int seed=0;seed<2;seed++) {
     cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
     g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
     room_ptr=0xb283;
@@ -17,6 +18,7 @@ int DiagnosticGoldenLifecycle(const char *rom, const char *output) {
     eproj_enable_flag=0x8000;
     ProbeRunBoundedRegisters(0x868097,0,0,kinds[k]);
     for(int frame=0;frame<512;frame++) {
+      if(goldenReleaseEyeBeams && frame==200) ProbeRunBoundedRegisters(0xaad187,0,0,0);
       ProbeRunBounded(0x868104);
       fprintf(f,"%u,%u,%u,%d",kinds[k],enemy->toriz_parameter_1,seed?4660:0,frame);
       if(!eproj_id[17]) fprintf(f,",0,0,0,0,0,0,0,0,0\n");
@@ -27,6 +29,10 @@ int DiagnosticGoldenLifecycle(const char *rom, const char *output) {
     }
   }
   fclose(f); return 0;
+}
+int DiagnosticGoldenEyeRelease(const char *rom, const char *output) {
+  goldenReleaseEyeBeams=true;
+  return DiagnosticGoldenLifecycle(rom,output);
 }
 int DiagnosticGoldenFlight(const char *rom, const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;

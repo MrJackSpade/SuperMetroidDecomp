@@ -283,3 +283,19 @@ Thrown Supers and cross-frame player contact are also outside this capture.
 Recapture with `DiagnosticGoldenLifecycle` using the headless original-CPU setup.
 Temporary hooks were removed and the ordinary native executable rebuilt. No
 production discrepancy was found in these samples; only diagnostic coverage changed.
+
+## Original-CPU eye-beam release
+
+`movement-release/golden-eye-release-617.csv` extends the waiting-state capture:
+at frame 200 both implementations execute the actual $AA:D187 instruction which
+enables eye-beam explosions. The test does not overwrite projectile animation or
+damage fields. `--golden-eye-release-native-compare ROM CSV` compares both facings
+and two seeds, 968 frames total, through deletion.
+
+All fields match. Every sample first enables damage on frame 211, remains damaging
+for 30 frames, and deletes on frame 241. This verifies the release latch and its
+projectile animation delay without asserting that an arbitrary frame-200 release
+represents natural whole-boss attack cadence. No gameplay change was necessary.
+Recapture with `DiagnosticGoldenEyeRelease`; temporary hooks were removed and
+the ordinary native executable rebuilt. Thrown-Super and cross-frame contact
+comparisons remain separate audit work.

@@ -242,6 +242,8 @@ if (args.Length == 3 && args[0] == "--pause-fade-comparison-audit")
     return PauseFadeComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--soft-unmorph-charge-comparison-audit")
     return SoftUnmorphChargeComparisonAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--slopekiller-comparison-audit")
+    return SlopekillerComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--continuous-walljump-comparison-audit")
     return ContinuousWalljumpComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--ceiling-walljump-comparison-audit")

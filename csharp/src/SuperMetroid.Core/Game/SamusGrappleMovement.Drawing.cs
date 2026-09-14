@@ -42,22 +42,17 @@ public static partial class SamusGrappleMovement
                 SamusGrappleRomData.Rendering.PointTileVramDestination);
         }
 
-        // The 128-byte rope body source is selected by the same folded angle byte used in
-        // $9B:BFFD. Horizontal, diagonal, and vertical source blocks therefore remain ROM
-        // policy rather than a host renderer choosing a plausible rotated sprite.
-        // $9B:C005 takes the high angle byte, shifts it right once, then clears bit zero.
-        // The result is already an even byte offset into the word table. Multiplying that
-        // value by two again selects unrelated data for half the angles (notably firing
-        // right at $C000), producing a correctly positioned but visually blank rope.
+        // Both installed artwork and legacy bus-backed pixels use the same compiled
+        // native sector selection. Keeping a second ROM table reader here would make
+        // default/debug drawing depend on data that installed drawing no longer needs.
         if (artwork is not null)
             artwork.QueueSegments(vramWrites, grapple.Angle.RawValue);
         else
         {
-            int foldedAngleOffset = (grapple.Angle.RawValue >> 9) & 0xfe;
-            ushort segmentPointer = ReadWord(bus, SamusGrappleRomData.Rendering.SegmentTilePointers + foldedAngleOffset);
-            vramWrites.Enqueue(SamusGrappleRomData.Rendering.SegmentTileByteCount,
-                SamusGrappleRomData.Banks.CharacterData | segmentPointer,
-                SamusGrappleRomData.Rendering.SegmentTileVramDestination);
+            var transfer = Assets.GrappleTileDefinitions.TransferFor(
+                Assets.GrappleTileDefinitions.SegmentAssetFor(grapple.Angle.RawValue));
+            vramWrites.Enqueue(transfer.ByteCount, transfer.SourceAddress,
+                Assets.GrappleTileDefinitions.SegmentDestination);
         }
 
         // `$9B:BFA5` increments the shared flare counter after both tile records, saturating

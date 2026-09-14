@@ -18,13 +18,20 @@ internal static partial class Program
         var edited = GrappleTileAtlas.Load(new MemoryStream(changedPng.ToArray()));
         foreach (var transfer in GrappleTileDefinitions.Transfers)
             AssertTrue(stock.Resolve(transfer.Asset).Span.SequenceEqual(RomDataReader.ReadFixedBank(bus, transfer.SourceAddress, transfer.ByteCount)), "Every extracted Grapple transfer matches pinned native planar bytes");
+        var guard = new GrappleTileReadGuard(bus);
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
         {
             ushort expected = RomDataReader.ReadWordFixedBank(bus, SamusGrappleRomData.Rendering.SegmentTilePointers + ((angle >> 9) & 254));
             int actual = GrappleTileDefinitions.TransferFor(GrappleTileDefinitions.SegmentAssetFor((ushort)angle)).SourceAddress;
             AssertEqual(0x9a0000 | expected, actual, "Compiled Grapple sector selection matches all 65536 native angles");
+            var queue = new VramWriteQueue();
+            SamusGrappleMovement.DrawConnectedBeam(guard,
+                new SamusGrappleState { Phase = GrapplePhase.Firing, Angle = SnesAngle.FromRaw((ushort)angle), PointAnimationTimer = 5 },
+                new OamBuffer(), queue, 0, 0);
+            AssertEqual(0x9a0000 | expected, queue.Entries[1].SourceAddress, "No-artwork producer uses native sector mapping without pointer ROM");
+            AssertEqual((ushort)128, queue.Entries[1].SizeInBytes, "No-artwork producer preserves segment transfer size");
+            AssertEqual((ushort)0x6210, queue.Entries[1].EncodedVramDestination, "No-artwork producer preserves segment transfer destination");
         }
-        var guard = new GrappleTileReadGuard(bus);
         byte[] poison = new byte[65536]; Array.Fill(poison, (byte)0xa5);
         int cases = 0;
         for (int sector = 0; sector < 64; sector++)

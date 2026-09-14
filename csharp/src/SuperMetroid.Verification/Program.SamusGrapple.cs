@@ -605,10 +605,10 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(2, grappleFlare.Palette, "grapple flare retains ROM palette bits");
     AssertEqual(3, grappleFlare.Priority, "grapple flare retains ROM priority bits");
 
-    // The endpoint cycle is compiled from the native begin/end range. Keep this
-    // fixture's independently patched angle source until segment art is supplied.
-    int foldedAngleOffset = (samus.Grapple.Angle.RawValue >> 9) & 0xfe;
-    WriteTestWord(bus, 0x9bc346 + foldedAngleOffset, 0x5678);
+    // Selector provenance is now compiled even without installed artwork. The
+    // independent all-angle cartridge comparison covers its exact sector boundaries.
+    int segmentSource = SuperMetroid.Core.Assets.GrappleTileDefinitions.TransferFor(
+        SuperMetroid.Core.Assets.GrappleTileDefinitions.SegmentAssetFor(samus.Grapple.Angle.RawValue)).SourceAddress;
 
     // $94:AFBA recalculates the angle from endpoint minus flare (1,-49).
     // Coarse octant division selects angle zero, giving a (0,-8) segment step.
@@ -627,7 +627,7 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(2, grappleVramWrites.Entries.Count, "grapple queues endpoint and segment tiles");
     AssertEqual(new VramWriteEntry(0x20, 0x9a8200, 0x6200), grappleVramWrites.Entries[0],
         "grapple endpoint tile DMA record");
-    AssertEqual(new VramWriteEntry(0x80, 0x9a5678, 0x6210), grappleVramWrites.Entries[1],
+    AssertEqual(new VramWriteEntry(0x80, segmentSource, 0x6210), grappleVramWrites.Entries[1],
         "grapple angle-selected segment DMA record");
     AssertEqual(2, samus.Grapple.FlareCounter,
         "post-Samus grapple tile pass increments flare counter");

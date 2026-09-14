@@ -507,3 +507,18 @@ OAM and isolated tile/palette edits with identical positions, full Grapple state
 animation cadence and uploads. Strict-schema and install/restart/upgrade tests
 cover presentation selection. Remaining weapon/Grapple audio and other runtime
 ROM dependencies still prevent closing the overall issue.
+
+The no-artwork Grapple producer now shares the installed path's compiled angle
+mapping instead of reading `$9B:C346..C3C4`. A guard reproduced that leftover read
+before removal. All 65,536 angles now execute the actual no-artwork producer with
+the pointer region forbidden, asserting native source, byte count and destination.
+Legacy pixel transfers themselves still read cartridge pixels when drained without
+installed artwork; this is not a claim of a ROM-free legacy/debug renderer.
+
+Remaining Grapple presentation reads identified by the follow-up audit include
+the standing/running flare origins at `$9B:C14A/C15E/C19A/C1AE` (launch, late draw
+origin and locked connection) and the 256-entry displayed swing-frame selector at
+`$9B:C1C2`. Physical hand origins and swing-body offsets are already independently
+compiled. These visual reads need extraction and binding without changing physical
+anchors/body placement. Non-catalog origin/connection fallback reads and shared
+pose metadata also remain; they must not be silently clamped away during removal.

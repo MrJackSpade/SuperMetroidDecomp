@@ -81,7 +81,7 @@ V2 uses the successful left position and one-frame morph sweep. V3 adds the
 held-Forward control; only v3 is accepted. All experimental outputs remain
 non-authoritative; the committed accepted capture is hash-checked by the audit.
 
-## Retail Moat setup discovery (#445, incomplete)
+## Retail Moat setup discovery (#445, historical failed search)
 
 `native-moat-cwj-probe.h` loads room $95FF through the original room data and
 level decompression routines. The actual room is 32x32 blocks; its central pillar
@@ -89,7 +89,7 @@ is at column 14 with its top at row 10. The left launch ledge is sloped, so a
 flat-floor center height cannot be assumed.
 
 `DiagnosticMoatCwjSearch` is a discovery tool, not a passing regression. The
-current original-CPU search covers X=32..64, Y=139..160, second Jump=30..60, with
+initial original-CPU search covered X=32..64, Y=139..160, second Jump=30..60, with
 initial running base speed 2.C000 and extra speed 2.0000. It uses real room
 collision data, 5x21 Samus radii, no upgrades/cheats, and continuously held Right
 with Jump released for one frame before the second press. All 22,506 candidates
@@ -108,3 +108,16 @@ adjacent failing traces for comparison with C#. No production change was made.
 The wiki distinguishes an NTSC door-run setup from PAL's different launch and
 timing; this project probe uses the pinned Japan/USA ROM. PAL is not validated
 by these NTSC searches. Temporary headless hooks were removed after discovery.
+
+### Subsequent discovery and player movie
+
+The next probe opened the incoming doorway's four cap blocks and installed the
+running pose together with its speed. Standing reset the seeded speed, while a
+closed cap obstructed the run. With X=24/Y=139, first Jump=1, second Jump=66,
+the original CPU reached a walljump at X=252/Y=154.2C00, retaining speed 2.0.
+The updated search header preserves this discovery; it remains an artificial
+launch seed, not proof of the actual door handoff.
+
+The player then supplied a successful native movie. Its authoritative room-local
+comparison is documented in `../issue-445-player-cwj/README.md`; it supersedes
+the manual launch search and preserves the real equipment, inputs and momentum.

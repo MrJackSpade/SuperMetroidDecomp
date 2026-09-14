@@ -3,16 +3,19 @@
 int DiagnosticMoatCwjSearch(const char *rom,const char *output) {
   int status=ProbeLoadRetailMovementRom(rom); if(status) return status;
   FILE *f=fopen(output,"wx"); if(!f) return 4;
-  fprintf(f,"startX,startY,jump,frame,x,y,extra,movement\n");
-  for(int start=32;start<=64;start++) for(int startY=139;startY<=160;startY++) for(int jump=30;jump<=60;jump++) {
+  fprintf(f,"firstJump,jump,frame,x,y,extra,movement\n");
+  for(int firstJump=0;firstJump<=20;firstJump++) for(int jump=30;jump<=70;jump++) {
     cpu_reset(g_snes->cpu); memset(g_ram,0,sizeof(g_ram));
     g_snes->cpu->e=false; g_snes->cpu->sp=0x1ff0; g_snes->cpu->dp=0;
     room_ptr=0x95ff;
     ProbeRunBounded(0x82de6f); ProbeRunBounded(0x82def2); ProbeRunBounded(0x82ea73);
+    // Incoming left doorway is open after transition. The bare decompressed room
+    // still contains its four cap blocks; leaving them closed traps the seed.
+    for(int y=6;y<=9;y++) level_data[y*room_width_in_blocks+1]=0;
     interactive_enemy_indexes[0]=0xffff;
     fx_y_pos=lava_acid_y_pos=0xffff;
     samus_health=samus_max_health=99;
-    samus_x_pos=samus_prev_x_pos=start; samus_y_pos=samus_prev_y_pos=startY;
+    samus_x_pos=samus_prev_x_pos=24; samus_y_pos=samus_prev_y_pos=139;
     samus_x_radius=5; samus_y_radius=21;
     samus_pose=samus_prev_pose=9; samus_pose_x_dir=samus_prev_pose_x_dir=8;
     samus_movement_type=samus_prev_movement_type=1;
@@ -25,7 +28,7 @@ int DiagnosticMoatCwjSearch(const char *rom,const char *output) {
     uint16 previous=0;
     for(int frame=0;frame<=jump+8;frame++) {
       nmi_frame_counter_word=nmi_frame_counter_byte=frame+2;
-      uint16 input=0x100 | (frame==jump-1?0:0x80);
+      uint16 input=0x8100 | (frame>=firstJump && frame!=jump-1?0x80:0);
       joypad1_lastkeys=input; joypad1_newkeys=input&~previous; previous=input;
       ProbeRunBounded(0x90e695); ProbeRunBounded(0xa09785);
       samus_contact_damage_index=0;
@@ -34,7 +37,7 @@ int DiagnosticMoatCwjSearch(const char *rom,const char *output) {
       ProbeRunBounded(0x91e8b6); ProbeRunBounded(0x91eb88);
       ProbeRunBounded(0x90eab3); ProbeRunBounded(0x90e9ce); ProbeRunBounded(0xa09169);
       if(samus_movement_type==20) {
-        fprintf(f,"%d,%d,%d,%d,%04X%04X,%04X%04X,%04X%04X,%u\n",start,startY,jump,frame,
+        fprintf(f,"%d,%d,%d,%04X%04X,%04X%04X,%04X%04X,%u\n",firstJump,jump,frame,
           samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,
           samus_x_extra_run_speed,samus_x_extra_run_subspeed,samus_movement_type);
         if(samus_movement_type==20) break;

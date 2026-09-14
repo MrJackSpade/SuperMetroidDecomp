@@ -44,6 +44,11 @@ static uint16 cancel_input(int frame, int left, int mode) {
   if (mode == 2 || mode == 5 || mode == 7) input |= 0x8000;
   return input;
 }
+static uint16 chain_input(int frame, int left, int mode) {
+  static const int carry_modes[] = {18,19,20,26,27,28,38,39};
+  int cycle_frame = frame < 400 ? frame : 400 + (frame - 400) % 120;
+  return carry_input(cycle_frame, left, carry_modes[mode]);
+}
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
@@ -51,15 +56,16 @@ int main(int argc, char **argv) {
   bool cancel = argc == 3 && strcmp(argv[2], "cancel") == 0;
   bool sand = argc == 3 && strcmp(argv[2], "sand") == 0;
   bool terrain = argc == 3 && strcmp(argv[2], "terrain") == 0;
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain) return 2;
+  bool chain = argc == 3 && strcmp(argv[2], "chain") == 0;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (carry ? 40 : bounce || cancel || sand || terrain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain ? 140 : 180); stop += terrain ? 80 : 40)
+  for (int aim = 0; aim < (carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -80,13 +86,14 @@ int main(int argc, char **argv) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < (carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
       if (cancel && frame == 400 && aim >= 3 && aim <= 6) equipped_items &= ~0x2000;
       if (cancel && frame == 410 && aim == 6) equipped_items |= 0x2000;
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
       uint16 input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
       if (frame == stop) input |= 0x400;
       if (carry) input = carry_input(frame, left, aim);
+      if (chain) input = chain_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);

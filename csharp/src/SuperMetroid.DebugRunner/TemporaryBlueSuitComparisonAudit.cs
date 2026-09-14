@@ -14,6 +14,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool cancel = kind == TemporaryBlueAuditKind.Cancellation;
         bool sand = kind == TemporaryBlueAuditKind.Sand;
         bool terrain = kind == TemporaryBlueAuditKind.Terrain;
+        bool chain = kind == TemporaryBlueAuditKind.Chain;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
             throw new InvalidDataException("Temporary Blue Suit audit requires the pinned Japan/USA ROM.");
@@ -30,7 +31,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1";
             int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
-            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand ? stop != 140 || aim < 0 || aim >= (carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
+            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain ? stop != 140 || aim < 0 || aim >= (carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
                 throw new InvalidDataException("Invalid temporary boost seed.");
             var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData ?? throw new InvalidDataException("Missing fixture level.");
@@ -66,6 +67,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 int expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
                 if (frame == stop) expectedInput |= 0x400;
                 if (carry) expectedInput = TemporaryBlueCarryInputs.At(frame, left, aim);
+                if (chain) expectedInput = TemporaryBlueChainInputs.At(frame, left, aim);
                 if (bounce) expectedInput = TemporaryBlueBounceInputs.At(frame, left, aim);
                 if (cancel) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, aim);
                 if (sand) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, 0);
@@ -88,11 +90,12 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && !bounce && !cancel && !sand && !terrain && frame == 399 &&
+                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
                 if (carry) TemporaryBlueCarryInputs.Verify(samus, frame, aim);
+                if (chain) TemporaryBlueChainInputs.Verify(samus, frame, aim);
                 if (bounce) TemporaryBlueBounceInputs.Verify(samus, frame, aim);
                 if (cancel) TemporaryBlueCancellationInputs.Verify(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)

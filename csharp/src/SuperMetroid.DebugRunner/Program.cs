@@ -34,6 +34,8 @@ if (args is ["--temporary-blue-sand-audit", var blueSandRom, var blueSandTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueSandRom, blueSandTrace, TemporaryBlueAuditKind.Sand);
 if (args is ["--temporary-blue-terrain-audit", var blueTerrainRom, var blueTerrainTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueTerrainRom, blueTerrainTrace, TemporaryBlueAuditKind.Terrain);
+if (args is ["--temporary-blue-chain-audit", var blueChainRom, var blueChainTrace])
+    return TemporaryBlueSuitComparisonAudit.Run(blueChainRom, blueChainTrace, TemporaryBlueAuditKind.Chain);
 if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
     return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])

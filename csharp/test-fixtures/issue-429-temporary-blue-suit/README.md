@@ -16,6 +16,8 @@ The [sand sampler matrix](SAND.md) distinguishes surface cancellation from
 submerging sand and sandfalls, including an extension-tile path.
 The [terrain collision matrix](TERRAIN.md) checks actual speed/bomb tile breaking
 and movement admission using full and partial controller-earned counters.
+The [five-cycle chain matrix](CHAIN.md) repeats complete soft-unmorph carries
+without resetting Samus and includes adjacent failure timings.
 
 ## Reference and execution
 

@@ -15,6 +15,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool sand = kind == TemporaryBlueAuditKind.Sand;
         bool terrain = kind == TemporaryBlueAuditKind.Terrain;
         bool chain = kind == TemporaryBlueAuditKind.Chain;
+        bool menu = kind == TemporaryBlueAuditKind.Menu;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
             throw new InvalidDataException("Temporary Blue Suit audit requires the pinned Japan/USA ROM.");
@@ -23,7 +24,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU temporary Blue Suit trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (sand ? 20 : terrain ? 22 : 18)))
+        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (sand ? 20 : terrain ? 22 : menu ? 19 : 18)))
             throw new InvalidDataException("Incomplete native temporary boost matrix.");
         int cases = 0, mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -31,9 +32,10 @@ internal static class TemporaryBlueSuitComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1";
             int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
-            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain ? stop != 140 || aim < 0 || aim >= (carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
+            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain || menu ? stop != 140 || aim < 0 || aim >= (menu ? 6 : carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
                 throw new InvalidDataException("Invalid temporary boost seed.");
-            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
+            var game = menu ? PauseChargeCarryAudit.CreateFixture(rom, out _) : null;
+            var runtime = game?.RuntimeForVerification ?? FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
             var level = runtime.LevelData ?? throw new InvalidDataException("Missing fixture level.");
             for (int y = 0; y < level.HeightInBlocks; y++)
             for (int x = 0; x < level.WidthInBlocks; x++)
@@ -61,6 +63,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             int frame = 0;
             bool reported = false;
             var audio = new CartridgeAudioState();
+            var menuController = game is null ? null : new TemporaryBlueMenuController(game, samus);
             foreach (var row in group)
             {
                 ushort input = ushort.Parse(row[4], NumberStyles.HexNumber);
@@ -68,6 +71,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (frame == stop) expectedInput |= 0x400;
                 if (carry) expectedInput = TemporaryBlueCarryInputs.At(frame, left, aim);
                 if (chain) expectedInput = TemporaryBlueChainInputs.At(frame, left, aim);
+                if (menu) expectedInput = TemporaryBlueMenuController.At(frame, left, aim);
                 if (bounce) expectedInput = TemporaryBlueBounceInputs.At(frame, left, aim);
                 if (cancel) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, aim);
                 if (sand) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, 0);
@@ -77,7 +81,9 @@ internal static class TemporaryBlueSuitComparisonAudit
                 var publication = new GameplayAudioFramePublication(audio);
                 if (cancel) TemporaryBlueCancellationInputs.BeforeFrame(samus, frame, aim);
                 string terrainResult = "0000,0000,0000,0000";
-                if (terrain && frame == 400)
+                if (menuController is not null && frame >= 400)
+                    menuController.Step(frame, aim, input);
+                else if (terrain && frame == 400)
                     terrainResult = TemporaryBlueTerrainProbe.Run(bus, level, samus, aim, stop == 140);
                 else if (sand && frame == 400)
                     TemporaryBlueSandProbe.Run(bus, level, samus, aim);
@@ -90,7 +96,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && frame == 399 &&
+                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
@@ -108,6 +114,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                     $"{samus.Shinespark.ShineTimer:X4},{samus.Shinespark.PaletteType:X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
                 if (sand) actual += $",{samus.Kinematics.ExtraXFixed:X8},{samus.Kinematics.ExtraYFixed:X8}";
                 if (terrain) actual += $",{terrainResult}";
+                if (menu) actual += $",{samus.EquippedItems:X4}";
                 string expected = string.Join(',', row[5..]);
                 if (actual != expected)
                 {

@@ -18,6 +18,8 @@ The [terrain collision matrix](TERRAIN.md) checks actual speed/bomb tile breakin
 and movement admission using full and partial controller-earned counters.
 The [five-cycle chain matrix](CHAIN.md) repeats complete soft-unmorph carries
 without resetting Samus and includes adjacent failure timings.
+The [equipment-menu matrix](MENU.md) drives real menu input and native teardown,
+distinguishing disabled-on-unpause cancellation from an isolated equipment write.
 
 ## Reference and execution
 

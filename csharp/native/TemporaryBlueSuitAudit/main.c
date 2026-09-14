@@ -1,7 +1,8 @@
 /* #429: earn temporary Blue Suit through native controller processing. */
 #include "../Common/CartridgeCpuFixture.h"
 #include "../Common/MovementEntryPoints.h"
-enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763 };
+#include "../GravityJumpAudit/fixture.h"
+enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150 };
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -49,6 +50,14 @@ static uint16 chain_input(int frame, int left, int mode) {
   int cycle_frame = frame < 400 ? frame : 400 + (frame - 400) % 120;
   return carry_input(cycle_frame, left, carry_modes[mode]);
 }
+static uint16 menu_input(int frame, int left, int mode) {
+  if (frame < 400) return cancel_input(frame, left, 0);
+  if (frame == 400) return 0x1010;
+  if (frame <= 430) return 0x10;
+  if (mode == 3 || mode == 4) return 0x80 | (left ? 0x200 : 0x100);
+  if (mode == 5) return 0x8010 | (left ? 0x200 : 0x100);
+  return 0x10;
+}
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
@@ -57,15 +66,16 @@ int main(int argc, char **argv) {
   bool sand = argc == 3 && strcmp(argv[2], "sand") == 0;
   bool terrain = argc == 3 && strcmp(argv[2], "terrain") == 0;
   bool chain = argc == 3 && strcmp(argv[2], "chain") == 0;
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain) return 2;
+  bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : "");
+  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand || chain ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain || menu ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu ? 140 : 180); stop += terrain ? 80 : 40)
+  for (int aim = 0; aim < (menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -86,7 +96,20 @@ int main(int argc, char **argv) {
     button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
-    for (int frame = 0; frame < (chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    if (menu) reg_INIDISP = 15;
+    for (int frame = 0; frame < (menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+      if (menu && frame == 431) {
+        if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
+        run(SelectInitialEquipment);
+        if (pausemenu_equipment_category_item != 0x202) Die("Expected initial Morph selection");
+        joypad1_newkeys = 0x400; run(SuitEquipmentInput);
+        if (pausemenu_equipment_category_item != 0x203) Die("Expected Speed Booster selection");
+        joypad1_newkeys = aim == 1 || aim == 2 || aim == 3 || aim == 5 ? 0x80 : 0;
+        run(BootsEquipmentInput);
+        if (aim == 2) { joypad1_newkeys = 0; run(BootsEquipmentInput); joypad1_newkeys = 0x80; run(BootsEquipmentInput); }
+        run(ReconcileSamusEquipment);
+        game_state = 0x12; previous = 0x10;
+      }
       if (cancel && frame == 400 && aim >= 3 && aim <= 6) equipped_items &= ~0x2000;
       if (cancel && frame == 410 && aim == 6) equipped_items |= 0x2000;
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
@@ -94,6 +117,7 @@ int main(int argc, char **argv) {
       if (frame == stop) input |= 0x400;
       if (carry) input = carry_input(frame, left, aim);
       if (chain) input = chain_input(frame, left, aim);
+      if (menu) input = menu_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -145,6 +169,11 @@ int main(int argc, char **argv) {
         int count = 0;
         for (int p = 0; p < 40; p++) if (plm_header_ptr[p]) count++;
         printf(",%04X,%04X,%04X,%04X", frame == 400 ? samus_collision_flag : 0, level_data[tileleft], level_data[tileright],count);
+      }
+      if (menu) {
+        if (frame == 400) { run(PauseAdmission); if (game_state != 12) Die("Pause admission failed"); }
+        else if (frame > 400 && frame <= 430) run(FadeOut);
+        printf(",%04X", equipped_items);
       }
       printf("\n");
     }

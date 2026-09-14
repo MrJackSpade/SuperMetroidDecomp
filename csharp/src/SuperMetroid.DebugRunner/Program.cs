@@ -36,6 +36,8 @@ if (args is ["--temporary-blue-terrain-audit", var blueTerrainRom, var blueTerra
     return TemporaryBlueSuitComparisonAudit.Run(blueTerrainRom, blueTerrainTrace, TemporaryBlueAuditKind.Terrain);
 if (args is ["--temporary-blue-chain-audit", var blueChainRom, var blueChainTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueChainRom, blueChainTrace, TemporaryBlueAuditKind.Chain);
+if (args is ["--temporary-blue-menu-audit", var blueMenuRom, var blueMenuTrace])
+    return TemporaryBlueSuitComparisonAudit.Run(blueMenuRom, blueMenuTrace, TemporaryBlueAuditKind.Menu);
 if (args is ["--door-wait-native-compare", var waitRom, var waitCsv])
     return DoorWaitNativeComparison.Run(waitRom, waitCsv);
 if (args is ["--blue-door-state", var blueRom, var blueState])

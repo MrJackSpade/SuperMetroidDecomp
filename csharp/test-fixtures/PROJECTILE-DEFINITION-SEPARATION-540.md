@@ -352,4 +352,16 @@ read, then passed with the shared resolver. It checks all 1,816 catalogued words
 under four timer states with a deliberately unrelated cached animation frame,
 and all 32,768 upper-bank byte addresses for native odd/gap/wrap behavior. This
 does not change the cart's unconditional `(instructionPointer - 2)` selection
-or compile the remaining bank-$9B coordinate tables.
+or change bank-$9B coordinate semantics.
+
+`ProjectileTrailCoordinateDefinitions` now compiles the complete $9B:A4B3..B3A6
+region as 174 pointer words and 870 signed left-X/Y, right-X/Y records. Named
+native table identities are retained, including the unused SBA selections.
+Both pointer selection and coordinate reads use these definitions; normal reads
+allocate nothing. Partial boundary reads retain the native CPU operand/MDR model,
+and unknown hardware still fails through the strict bus rather than being clamped.
+Verification checks all 3,828 authored bytes, 32,768 fixed-bank word reads and
+196,608 absolute-indexed operands with the compiled region forbidden on the bus.
+Another 6,600 actual SpawnTrail calls compare all four positions against independent
+cartridge lookups across beam/charged/SBA/missile types, directions, animation
+frames and coordinate wrap boundaries. This compiles placement, not editable art.

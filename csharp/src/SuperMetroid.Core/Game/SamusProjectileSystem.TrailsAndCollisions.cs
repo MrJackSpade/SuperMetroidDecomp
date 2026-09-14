@@ -277,10 +277,10 @@ public sealed partial class SamusProjectileSystem
             : projectile.PackedType.IsChargedBeam
                 ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
                 : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
-        ushort directionTable = ReadWord(
+        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadWord(
             bus,
             familyTable + projectile.PackedType.BeamCombinationIndex * 2);
-        ushort offsetList = ReadWord(
+        ushort offsetList = ProjectileTrailCoordinateDefinitions.ReadWord(
             bus,
             SamusProjectileRomData.Banks.PaletteAndTrailData |
                 unchecked((ushort)(directionTable + direction * 2)));
@@ -293,11 +293,10 @@ public sealed partial class SamusProjectileSystem
         // operand-driven open bus there instead of changing trail timing or hiding
         // every unsupported hardware read behind a zero fallback.
         ushort y = (ushort)offsets;
-        byte bank = (byte)(SamusProjectileRomData.Banks.PaletteAndTrailData >> 16);
-        byte leftY = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, y) >> 8);
-        byte leftX = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 0, unchecked((ushort)(y - 1))) >> 8);
-        byte rightY = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 2, y) >> 8);
-        byte rightX = (byte)(SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, bank, 1, y) >> 8);
+        byte leftY = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, y) >> 8);
+        byte leftX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, unchecked((ushort)(y - 1))) >> 8);
+        byte rightY = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 2, y) >> 8);
+        byte rightX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 1, y) >> 8);
         trail.Left.XPosition = AddSignedOffset(projectile.XPosition, leftX, -4);
         trail.Left.YPosition = AddSignedOffset(projectile.YPosition, leftY, -4);
         trail.Right.XPosition = AddSignedOffset(projectile.XPosition, rightX, -4);

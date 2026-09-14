@@ -7,6 +7,7 @@ internal static partial class Program
 {
     private static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
+        VerifyProjectileTrailCoordinates(bus);
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
         int end = SamusProjectileRomData.Trails.RightInstructionPointers + SamusProjectileRomData.Trails.InstructionPointerCount * 2;
         for (int address = start - 2; address <= end + 2; address++)

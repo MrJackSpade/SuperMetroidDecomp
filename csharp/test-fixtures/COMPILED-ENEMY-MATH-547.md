@@ -1782,3 +1782,28 @@ assertions; it is not relabeled as a real-time controller-driven battle.
 Focused projectile/cadence checks, full Release Verification and Windows Desktop
 Release build pass (zero warnings/errors). Full-run log:
 `csharp/test-temp/projectile-cooldowns-547-final.log`.
+# Pose collision radii
+
+`SamusPoseCollisionDefinitions` compiles all 253 authored vertical-radius bytes
+from $91:B629 pose byte six. The pinned disassembly labels this field Y radius,
+separately from GFX/projectile origin byte four. Current-radius refresh,
+prospective-radius queries, larger-pose collision, and crouch fallback now use
+the physical catalog. Unknown indexes $FD..$FF preserve their existing adjacent
+ROM reads rather than inventing a safe/clamped body.
+
+Verification compares every authored byte with all reads forbidden, plus all
+three adjacent-index results against the ROM. It asserts the live X radius
+remains five and Y receives the native value. Older synthetic jump fixtures
+had used 24 or 21 where the native normal-jump radius is 19; their expected
+expansion and foot-alignment checks now use the actual radius. The atmospheric
+fixture retains its deliberately constructed twelve-pixel body by setting live
+kinematics explicitly, not by claiming to override standing pose's native radius.
+
+This is a partial #547/#541 dependency removal, not full pose metadata or
+ROM-free runtime completion. Facing, movement, fallback, shot direction, pose
+programs, and the wider integration contract remain open.
+
+Verification passed: compiled-definition checks, all 18 Samus physics groups,
+full Release Verification, Windows Release build (zero warnings/errors), and
+all 262 checkpoints from the player's native Moat CWJ movie. The radius change
+does not alter that recorded trajectory, poses, animation, or momentum.

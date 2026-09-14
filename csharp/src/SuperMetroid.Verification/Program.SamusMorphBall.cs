@@ -41,8 +41,8 @@ static void VerifySamusMorphBallMovement()
     WritePose(SamusPoseIds.SpringBallFallingLeftPose, [0x04, 0x13, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusPoseIds.SpringBallJumpRightPose, [0x08, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
     WritePose(SamusPoseIds.SpringBallJumpLeftPose, [0x04, 0x12, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]);
-    WritePose(SamusPoseIds.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x15, 0x00]);
-    WritePose(SamusPoseIds.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x15, 0x00]);
+    WritePose(SamusPoseIds.NormalJumpForwardRightPose, [0x08, 0x02, 0x4d, 0x02, 0x00, 0x00, 0x13, 0x00]);
+    WritePose(SamusPoseIds.NormalJumpForwardLeftPose, [0x04, 0x02, 0x4e, 0x07, 0x00, 0x00, 0x13, 0x00]);
     WritePose(SamusPoseIds.FallingAimUpRightPose, [0x08, 0x06, 0x29, 0x00, 0x00, 0x00, 0x13, 0x00]);
     WritePose(SamusPoseIds.FallingAimUpLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x00, 0x00, 0x13, 0x00]);
     WritePose(SamusPoseIds.FallingAimDownLeftPose, [0x04, 0x06, 0x2a, 0x05, 0x08, 0x00, 0x0a, 0x00]);
@@ -373,9 +373,9 @@ static void VerifySamusMorphBallMovement()
         "unfrozen crouch follows humanoid bomb-jump setup");
     AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, crouchBombJump.Pose,
         "literal left pose direction selects bomb-jump body $52");
-    AssertEqual(21, crouchBombJump.Kinematics.YRadius,
+    AssertEqual(19, crouchBombJump.Kinematics.YRadius,
         "crouch bomb jump installs forward-jump radius from ROM");
-    AssertEqual(43, crouchBombJump.YPosition,
+    AssertEqual(45, crouchBombJump.YPosition,
         "crouch bomb jump aligns feet without the ordinary jump-transition lift");
     AssertEqual(0x0801, crouchBombJump.BombJumpDirection,
         "humanoid setup executes command three after pose initialization");

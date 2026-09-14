@@ -418,7 +418,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     WritePoseDefinition(bus, SamusPoseIds.SpinLandingLeftPose,
         [4, 0, 0xff, 7, 0, 0, 21, 0]);
     WritePoseDefinition(bus, SamusPoseIds.NormalJumpGunExtendedRightPose,
-        [8, 2, 0xff, 2, 0, 0, 24, 0]);
+        [8, 2, 0xff, 2, 0, 0, 19, 0]);
     WritePoseDefinition(bus, SamusPoseIds.WallJumpRightPose,
         [8, 0x14, SamusPoseIds.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
     WritePoseDefinition(bus, SamusPoseIds.NormalJumpAimDownLeftPose,
@@ -546,7 +546,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     AssertEqual(0, screwLaunch.LiquidPhysics.SoundRequests.Count,
         "Screw Attack reversal does not restart its sound");
 
-    // Fire from a spin uses `$19/$1B/$81 -> $13`, expanding radius 12 -> 24 through
+    // Fire from a spin uses `$19/$1B/$81 -> $13`, expanding radius 12 -> 19 through
     // changed-pose collision but preserving the live jump arc. `$91:F543` also selects
     // mode two from residual extra-run speed and publishes the target's shot direction.
     var spinFire = new SamusState
@@ -574,7 +574,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire body expansion fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, spinFire.Pose,
         "spin Fire selects gun-extended normal jump");
-    AssertEqual(24, spinFire.Kinematics.YRadius,
+    AssertEqual(19, spinFire.Kinematics.YRadius,
         "spin Fire expands to normal-jump radius");
     AssertEqual(3, spinFire.Kinematics.YSpeed,
         "spin Fire preserves whole vertical speed");
@@ -615,7 +615,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         "wall-jump Shot body expansion fits empty room");
     AssertEqual(SamusPoseIds.NormalJumpGunExtendedRightPose, wallFire.Pose,
         "wall-jump Shot selects cartridge target $13");
-    AssertEqual(24, wallFire.Kinematics.YRadius,
+    AssertEqual(19, wallFire.Kinematics.YRadius,
         "wall-jump Shot expands to normal-jump radius");
     AssertEqual(4, wallFire.Kinematics.YSpeed,
         "wall-jump Shot preserves whole vertical speed");
@@ -1182,8 +1182,11 @@ static void VerifySamusAtmosphericEffects()
         Pose = SamusPoseIds.FacingRightNormalPose,
         XPosition = 100,
         YPosition = 100,
+        // This atmosphere fixture deliberately uses a twelve-pixel test body.
+        // Authored collision radii are compiled now; do not fake a ROM override
+        // for standing pose $01, whose actual native radius is twenty-one.
+        Kinematics = { XRadius = 5, YRadius = 12 },
     };
-    samus.RefreshCollisionRadii(bus);
     samus.InitializeAnimation(bus);
 
     // Movement type one is a diving splash according to the real `$81A4` table. Keep NMI

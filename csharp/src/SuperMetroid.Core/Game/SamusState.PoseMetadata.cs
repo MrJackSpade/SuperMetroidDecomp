@@ -23,8 +23,7 @@ public sealed partial class SamusState
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
     public static ushort ReadPoseYRadius(ISnesAddressSpace bus, byte pose) =>
-        bus.ReadByte(AddWithinBank(SamusMovementRomData.Poses.Definitions,
-            pose * SamusMovementRomData.Poses.DefinitionByteCount + 6));
+        SamusPoseCollisionDefinitions.ReadVerticalRadius(bus, pose);
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
     public byte ReadPoseXDirection(ISnesAddressSpace bus)

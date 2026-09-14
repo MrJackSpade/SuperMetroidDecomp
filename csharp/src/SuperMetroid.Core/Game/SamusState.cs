@@ -483,10 +483,7 @@ public sealed partial class SamusState
         RoomPlmSystem? plms,
         out int centerAdjustment)
     {
-        int targetDefinition = AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            targetPose * SamusMovementRomData.Poses.DefinitionByteCount);
-        ushort targetRadius = bus.ReadByte(AddWithinBank(targetDefinition, 6));
+        ushort targetRadius = ReadPoseYRadius(bus, targetPose);
         if (targetRadius <= Kinematics.YRadius)
         {
             centerAdjustment = 0;
@@ -684,10 +681,7 @@ public sealed partial class SamusState
             return;
 
         Pose = fallbackPose;
-        int fallbackDefinition = AddWithinBank(
-            SamusMovementRomData.Poses.Definitions,
-            fallbackPose * SamusMovementRomData.Poses.DefinitionByteCount);
-        ushort fallbackRadius = bus.ReadByte(AddWithinBank(fallbackDefinition, 6));
+        ushort fallbackRadius = ReadPoseYRadius(bus, fallbackPose);
         // The collision fallback reads the prospective radius for center correction,
         // but leaves the live radius untouched until the next ordinary alpha phase.
         if (oldRadius < fallbackRadius)

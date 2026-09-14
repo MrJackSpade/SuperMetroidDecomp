@@ -80,7 +80,7 @@ save preservation, and booting the production Android session from the installed
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
 
-## Projectile composition overrides
+## Projectile composition and beam PNG overrides
 
 Installed hosts extract `game/projectiles/projectile-compositions.json` under the
 player-data root. To edit it, copy the complete file to
@@ -90,12 +90,18 @@ is repaired during setup. External overrides survive stock repair/reinstallation
 
 Each `sprite_XXXX` entry exposes part offsets, tile row/column, size, flips, palette
 index and priority. Keep every entry and the version field. These are compositions
-of existing graphics, not replacement PNG artwork yet. Damage, collision radii and
+of graphics. Damage, collision radii and
 timing are not editable here. Trails, charge flares and Grapple visuals are not
 covered by this composition file.
 
+Beam sheets `beam-00-tiles.png` through `beam-0B-tiles.png` are also installed in
+`game/projectiles`. Copy any sheet to `overrides/projectiles` to replace that beam
+combination's artwork. Keep its 64x8 indexed format and pixel indices 0 through 15.
+PNG palette colors are diagnostic: gameplay still selects the native beam palette.
+These sheets do not replace missile, bomb, trail, flare or Grapple artwork.
+
 Restart to load edits. Loading a debugger state retains the current session's
-selected composition catalog rather than restoring old artwork from the state.
+selected composition and beam catalogs rather than restoring old artwork from the state.
 Startup logs stock and selected hashes. Invalid overrides fail loudly; removing
 the override restores stock on restart. Explicit developer-ROM sessions outside
 the installed-content workflow retain ROM-backed rendering.

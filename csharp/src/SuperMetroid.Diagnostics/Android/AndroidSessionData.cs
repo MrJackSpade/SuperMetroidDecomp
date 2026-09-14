@@ -41,6 +41,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game.BindMapPresentation(maps);
         projectiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
         Game.BindProjectileCompositions(projectiles?.Catalog);
+        Game.BindBeamArtwork(projectiles?.BeamTiles);
         if (projectiles is not null)
             Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
@@ -85,6 +86,7 @@ internal sealed class AndroidSessionData : IDisposable
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
         Game.BindProjectileCompositions(projectiles?.Catalog);
+        Game.BindBeamArtwork(projectiles?.BeamTiles);
         Game.SaveRamChanged += PersistSave;
         Audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
         Generation++;

@@ -13,6 +13,7 @@ internal static class ProjectileHostBindingVerification
         string root = Path.GetFullPath(Path.Combine("csharp/test-temp", "projectile-host-" + Guid.NewGuid().ToString("N")));
         var installation = GameAssetInstaller.Install(romPath, root);
         var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -21,6 +22,7 @@ internal static class ProjectileHostBindingVerification
             session.SaveSlot(0);
             session.LoadSlot(0);
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
+            CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
@@ -29,6 +31,13 @@ internal static class ProjectileHostBindingVerification
         int x = part["offsetX"]!.GetValue<int>();
         part["offsetX"] = x == 255 ? 254 : x + 1;
         File.WriteAllText(path, document.ToJsonString());
+        string beamName = BeamTileAtlasDefinitions.FileName(0);
+        IndexedPngImage image;
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, beamName)))
+            image = IndexedPng.Read(input, 64, 8);
+        image.Pixels[0] ^= 1;
+        using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, beamName)))
+            IndexedPng.Write(output, 64, 8, image.Pixels, image.Palette);
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -36,6 +45,7 @@ internal static class ProjectileHostBindingVerification
             if (content is null || !ReferenceEquals(content, field.GetValue(session.Game)))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
+            CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
         }
         File.WriteAllText(path, "invalid override");
         try
@@ -57,5 +67,13 @@ internal static class ProjectileHostBindingVerification
             if (!a.LowTable.SequenceEqual(b.LowTable) || !a.HighTable.SequenceEqual(b.HighTable))
                 throw new InvalidDataException("Host bound different composition content than the installed selection.");
         }
+    }
+
+    private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)
+    {
+        if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");
+        for (int selection = 0; selection < BeamTileAtlasDefinitions.SelectionCount; selection++)
+            if (!actual.Resolve(BeamTileCatalog.AssetFor(selection)).Span.SequenceEqual(expected.Resolve(BeamTileCatalog.AssetFor(selection)).Span))
+                throw new InvalidDataException("Host restored stale beam artwork instead of current PNG selection.");
     }
 }

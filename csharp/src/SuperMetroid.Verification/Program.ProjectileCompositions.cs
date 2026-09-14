@@ -209,6 +209,30 @@ internal static partial class Program
         File.WriteAllText(manifestPath, manifest.Insert(1, "\"version\":1,"));
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Duplicate manifest identity rejected");
         File.WriteAllText(manifestPath, manifest);
+        string beamName = BeamTileAtlasDefinitions.FileName(0);
+        string beamStock = Path.Combine(installation.ProjectileDirectory, beamName);
+        string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
+        IndexedPngImage beamImage;
+        using (var input = File.OpenRead(beamStock)) beamImage = IndexedPng.Read(input, 64, 8);
+        beamImage.Pixels[0] ^= 1;
+        using (var output = File.Create(beamOverride))
+            IndexedPng.Write(output, 64, 8, beamImage.Pixels, beamImage.Palette);
+        var beamEdited = installation.LoadProjectiles();
+        AssertTrue(beamEdited.SelectedSha256 != edited.SelectedSha256, "PNG-only change updates aggregate content identity");
+        AssertEqual((byte)(stock.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0] ^ 0x80),
+            beamEdited.BeamTiles.Resolve(BeamTileCatalog.AssetFor(0)).Span[0], "Installed beam PNG edit reaches compiled tile byte");
+        byte[] savedPng = File.ReadAllBytes(beamOverride);
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertTrue(savedPng.SequenceEqual(File.ReadAllBytes(beamOverride)), "Re-extraction preserves PNG override bytes");
+        AssertEqual(beamEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Re-extraction preserves PNG selection identity");
+        File.WriteAllText(beamOverride, "broken png");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Corrupt beam PNG override rejected");
+        File.WriteAllBytes(beamOverride, savedPng);
+        File.WriteAllText(beamStock, "broken stock png");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "PNG override cannot conceal stock corruption");
+        File.Move(beamStock, beamStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "PNG override cannot conceal missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

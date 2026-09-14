@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class ProjectilePresentationFiles
 {
     public const string ManifestFileName = "projectile-manifest.json";
-    public const int Version = 1;
+    public const int Version = 2;
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -24,8 +24,11 @@ public static class ProjectilePresentationFiles
         byte[] bytes = ProjectileSpriteExtractor.Extract(validatedBus);
         Directory.CreateDirectory(directory);
         File.WriteAllBytes(Path.Combine(directory, ProjectileSpriteDefinitions.FileName), bytes);
+        var beams = BeamTileExtractor.Extract(validatedBus);
+        foreach (var file in beams) File.WriteAllBytes(Path.Combine(directory, file.Key), file.Value);
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
-            new Manifest(Version, SupportedCartridge.Sha256, Convert.ToHexString(SHA256.HashData(bytes))), Options));
+            new Manifest(Version, SupportedCartridge.Sha256, Hash(bytes),
+                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value))), Options));
         _ = Load(directory, null);
     }
 
@@ -36,10 +39,7 @@ public static class ProjectilePresentationFiles
         try
         {
             using var document = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(stockDirectory, ManifestFileName)));
-            if (document.RootElement.ValueKind != JsonValueKind.Object ||
-                document.RootElement.EnumerateObject().Select(p => p.Name).Distinct(StringComparer.Ordinal).Count() !=
-                document.RootElement.EnumerateObject().Count())
-                throw new InvalidDataException("Invalid projectile manifest object or duplicate property.");
+            ValidateObject(document.RootElement);
             manifest = document.RootElement.Deserialize<Manifest>(Options)
                 ?? throw new InvalidDataException("Missing projectile manifest.");
         }
@@ -50,17 +50,53 @@ public static class ProjectilePresentationFiles
         string stockHash = Convert.ToHexString(SHA256.HashData(stock));
         if (!string.Equals(stockHash, manifest.ContentSha256, StringComparison.Ordinal))
             throw new InvalidDataException("Projectile stock composition hash mismatch.");
-        var catalog = ProjectileSpriteCatalog.Load(new MemoryStream(stock, writable: false));
-        string? replacement = overrideDirectory is null ? null : Path.Combine(overrideDirectory, ProjectileSpriteDefinitions.FileName);
-        if (replacement is null || !File.Exists(replacement))
-            return new(catalog, stockHash, stockHash);
-        byte[] selected = File.ReadAllBytes(replacement);
+        _ = ProjectileSpriteCatalog.Load(new MemoryStream(stock, writable: false));
+        if (manifest.BeamHashes is null || manifest.BeamHashes.Count != BeamTileAtlasDefinitions.SelectionCount)
+            throw new InvalidDataException("Projectile manifest must identify every beam PNG.");
+        var stockBeams = new Dictionary<string, byte[]>();
+        for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
+        {
+            string name = BeamTileAtlasDefinitions.FileName(i);
+            byte[] bytes = File.ReadAllBytes(Path.Combine(stockDirectory, name));
+            if (!manifest.BeamHashes.TryGetValue(name, out string? expected) || Hash(bytes) != expected)
+                throw new InvalidDataException($"Beam PNG stock hash mismatch: {name}.");
+            stockBeams.Add(name, bytes);
+        }
+        _ = BeamTileCatalog.Load(stockBeams);
+        // Finish stock validation before opening any optional replacement.
+        byte[] Select(string name, byte[] baseline)
+        {
+            string? path = overrideDirectory is null ? null : Path.Combine(overrideDirectory, name);
+            return path is not null && File.Exists(path) ? File.ReadAllBytes(path) : baseline;
+        }
+        byte[] selected = Select(ProjectileSpriteDefinitions.FileName, stock);
+        var selectedBeams = stockBeams.ToDictionary(pair => pair.Key, pair => Select(pair.Key, pair.Value));
         return new(ProjectileSpriteCatalog.Load(new MemoryStream(selected, writable: false)),
-            stockHash, Convert.ToHexString(SHA256.HashData(selected)));
+            Identity(stock, stockBeams), Identity(selected, selectedBeams), BeamTileCatalog.Load(selectedBeams));
     }
 
-    private sealed record Manifest(int Version, string RomSha256, string ContentSha256);
+    private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams)
+    {
+        // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
+        string hashes = Hash(composition);
+        for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
+            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)]);
+        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes));
+    }
+    private static void ValidateObject(JsonElement element)
+    {
+        if (element.ValueKind != JsonValueKind.Object)
+            throw new InvalidDataException("Projectile manifest requires an object.");
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var property in element.EnumerateObject())
+        {
+            if (!names.Add(property.Name)) throw new InvalidDataException("Duplicate projectile manifest property.");
+            if (property.Value.ValueKind == JsonValueKind.Object) ValidateObject(property.Value);
+        }
+    }
+    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes);
 }
 
 /// <summary>Loaded content and separate original/selected byte identities for diagnostics.</summary>
-public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256);
+public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles);

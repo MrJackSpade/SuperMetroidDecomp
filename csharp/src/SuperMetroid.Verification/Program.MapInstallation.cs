@@ -21,6 +21,14 @@ internal static partial class Program
         int offset = part["offsetX"]!.GetValue<int>();
         part["offsetX"] = offset == 255 ? 254 : offset + 1;
         File.WriteAllText(projectileOverride, projectileDocument.ToJsonString());
+        string beamName = BeamTileAtlasDefinitions.FileName(0);
+        string beamOverride = Path.Combine(installation.ProjectileOverrideDirectory, beamName);
+        IndexedPngImage beamImage;
+        using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, beamName)))
+            beamImage = IndexedPng.Read(input, BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height);
+        beamImage.Pixels[0] ^= 1;
+        using (var output = File.Create(beamOverride))
+            IndexedPng.Write(output, beamImage.Width, beamImage.Height, beamImage.Pixels, beamImage.Palette);
         var projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
@@ -94,6 +102,7 @@ internal static partial class Program
         var preserved = new Dictionary<string, byte[]>
         {
             [projectileOverride] = File.ReadAllBytes(projectileOverride),
+            [beamOverride] = File.ReadAllBytes(beamOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),
@@ -140,6 +149,16 @@ internal static partial class Program
         AssertEqual(edited.ContentIdentity, repaired.LoadMaps().ContentIdentity, "full installer upgrade retains selected override identity");
         AssertEqual(projectileEdited.SelectedSha256, repaired.LoadProjectiles().SelectedSha256, "full installer replacement preserves projectile override");
         AssertEqual(AreaMapCatalogFormat.Version, JsonNode.Parse(File.ReadAllText(manifestPath))!["version"]!.GetValue<int>(), "upgrade publishes current catalog version");
+        CheckPreserved();
+        // A composition-only installation must upgrade even if its map manifest is current.
+        string projectileManifestPath = Path.Combine(installation.ProjectileDirectory, ProjectilePresentationFiles.ManifestFileName);
+        var oldProjectileManifest = JsonNode.Parse(File.ReadAllText(projectileManifestPath))!;
+        oldProjectileManifest["version"] = 1;
+        oldProjectileManifest.AsObject().Remove("beamHashes");
+        File.WriteAllText(projectileManifestPath, oldProjectileManifest.ToJsonString());
+        var beamUpgrade = GameAssetInstaller.EnsureInstalled(root)
+            ?? throw new InvalidOperationException("Installation vanished during beam upgrade.");
+        AssertEqual(projectileEdited.SelectedSha256, beamUpgrade.LoadProjectiles().SelectedSha256, "composition-only upgrade retains beam and composition overrides");
         CheckPreserved();
         var unchanged = GameAssetInstaller.EnsureInstalled(root, progress: new ImmediateInstallProgress(_ =>
             throw new InvalidOperationException("Complete installation unexpectedly extracted again.")));

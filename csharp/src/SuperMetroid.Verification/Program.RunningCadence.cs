@@ -60,7 +60,7 @@ internal static partial class Program
             AssertEqual(expectedTimer, timer, "Selected first-frame delay and wrapping frame buffer");
             AssertEqual(sound ? 1 : 0, calls, "Echo call only on bit-two stage entry");
             AssertTrue(!speed.EchoSoundRequested, "Synchronous queue path does not also defer sound");
-            AssertEqual(intercept && (next & 0xff00) == 0x0400 ? 1 : 0, speed.ContactDamageIndex, "Post-reset active-stage contact publication");
+            AssertEqual(0, speed.ContactDamageIndex, "Animation cannot publish movement-owned boost contact damage");
         }
 
         // The queue's returned accumulator, not a clamped boost stage, owns both reads.

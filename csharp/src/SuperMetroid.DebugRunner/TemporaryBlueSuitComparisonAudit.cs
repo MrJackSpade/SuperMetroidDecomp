@@ -1,0 +1,100 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+
+/// <summary>Room-local, controller-earned temporary boost retention compared with original CPU execution.</summary>
+internal static class TemporaryBlueSuitComparisonAudit
+{
+    public static int Run(string rom, string trace)
+    {
+        var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
+        if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
+            throw new InvalidDataException("Temporary Blue Suit audit requires the pinned Japan/USA ROM.");
+        string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
+        if (Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) !=
+            "017B7A761CA8CBDA8BA14CAF7886F5FFC4760B869C9FD6BFA8C37C91AE6A8E39")
+            throw new InvalidDataException("Use the accepted original-CPU temporary Blue Suit trace.");
+        var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
+        if (rows.Length != 12800 || rows.Any(row => row.Length != 18))
+            throw new InvalidDataException("Expected 32 complete 400-frame native cases.");
+        int cases = 0, mismatches = 0;
+        foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
+        {
+            var seed = group.First();
+            bool left = seed[0] == "1";
+            int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
+            if (seed[0] is not ("0" or "1") || stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3)
+                throw new InvalidDataException("Invalid temporary boost seed.");
+            var runtime = FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
+            var level = runtime.LevelData ?? throw new InvalidDataException("Missing fixture level.");
+            for (int y = 0; y < level.HeightInBlocks; y++)
+            for (int x = 0; x < level.WidthInBlocks; x++)
+            {
+                int index = y * level.WidthInBlocks + x;
+                level.SetForegroundEntry(index, y == 32 ? (ushort)0x8000 : (ushort)0);
+                level.SetBehavior(index, 0);
+            }
+            foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
+            foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
+            var samus = runtime.Samus ?? throw new InvalidDataException("Missing fixture Samus.");
+            samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall);
+            samus.EquippedBeams = samus.CollectedBeams = 0;
+            samus.Health = samus.MaxHealth = 99;
+            samus.XPosition = (ushort)(left ? 2100 : 200); samus.YPosition = 491;
+            samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+            samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
+            samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+            samus.SetAnimationFrameFromSpecialHandler(0, 1);
+            samus.PoseHistory.PreviousPose = samus.Pose;
+            samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(left ? 4 : 8);
+            samus.PoseHistory.LastDifferentPose = samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
+            runtime.Controller1.Latch(0);
+            int frame = 0;
+            bool reported = false;
+            var audio = new CartridgeAudioState();
+            foreach (var row in group)
+            {
+                ushort input = ushort.Parse(row[4], NumberStyles.HexNumber);
+                int expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
+                if (frame == stop) expectedInput |= 0x400;
+                if (int.Parse(row[3]) != frame || input != expectedInput)
+                    throw new InvalidDataException("Changed controller sequence or reordered trace.");
+                var publication = new GameplayAudioFramePublication(audio);
+                runtime.StepFrame(input, queueEchoSound: () => publication.QueueEcho(runtime));
+                publication.PublishPrefix(runtime);
+                var speed = samus.HorizontalSpeed;
+                if (stop >= 100 && frame is 89 or 90 &&
+                    (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
+                    throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
+                if (frame == 399 &&
+                    (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
+                     speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
+                    throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
+                if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
+                    throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
+                if (stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)
+                    throw new InvalidDataException("Stored charge must expire on its native frame.");
+                string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2}," +
+                    $"{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4},{speed.BaseFixed:X8}," +
+                    $"{speed.ExtraRunSpeed:X4}{speed.ExtraRunSubspeed:X4},{speed.SpeedBoostCounter:X4},{speed.ContactDamageIndex:X4}," +
+                    $"{samus.Shinespark.ShineTimer:X4},{samus.Shinespark.PaletteType:X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
+                string expected = string.Join(',', row[5..]);
+                if (actual != expected)
+                {
+                    mismatches++;
+                    if (!reported) Console.WriteLine($"TEMP-BLUE {group.Key} frame {frame}: {actual} != {expected}");
+                    reported = true;
+                }
+                frame++;
+            }
+            if (frame != 400) throw new InvalidDataException("Incomplete temporary boost sequence.");
+            cases++;
+        }
+        if (cases != 32) throw new InvalidDataException("Incomplete temporary boost matrix.");
+        Console.WriteLine($"Temporary Blue Suit: {cases} cases, {rows.Length} frames, {mismatches} mismatches.");
+        return mismatches == 0 ? 0 : 1;
+    }
+}

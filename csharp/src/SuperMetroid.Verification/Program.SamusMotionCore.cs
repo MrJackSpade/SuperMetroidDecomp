@@ -223,7 +223,7 @@ static void VerifySamusHorizontalSpeed()
         "frontend can consume the speed-echo publication exactly once");
     AssertTrue(!booster.ConsumeEchoSoundRequest(),
         "consumed speed-echo publication cannot replay on a later frame");
-    AssertEqual(1, booster.ContactDamageIndex, "stage four enables contact damage");
+    AssertEqual(0, booster.ContactDamageIndex, "stage four animation waits for movement to publish contact damage");
 
     // $90:9813 is a common epilogue, including the released/airborne/liquid
     // branches. Beta clears contact damage each frame; retained blue speed

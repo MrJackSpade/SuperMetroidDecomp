@@ -314,7 +314,9 @@ public sealed class SamusHorizontalSpeedState
         animationFrame = 0;
         animationFrameTimer = unchecked((ushort)(
             animationFrameBuffer + SamusRunningCadenceDefinitions.ReadByte(bus, (int)new SnesAddress(0x91, delayList))));
-        PublishBoostContactDamage();
+        // Animation runs after movement. Native stage advancement changes cadence
+        // and sound, not contact damage; the next movement epilogue publishes that.
+        // Publishing here enables boost damage one frame before the cartridge.
         return true;
     }
 

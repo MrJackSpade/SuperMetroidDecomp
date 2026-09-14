@@ -154,7 +154,8 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         VramWriteQueue writes,
         SnesCgram cgram,
-        ushort equippedBeams)
+        ushort equippedBeams,
+        Assets.BeamTileCatalog? artwork = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(writes);
@@ -162,11 +163,19 @@ public sealed partial class SamusProjectileSystem
 
         int beamType = equippedBeams & 0x0fff;
 
-        ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
-        writes.Enqueue(
-            sizeInBytes: 0x0100,
-            sourceAddress: SamusProjectileRomData.Banks.CharacterData | tilePointer,
-            encodedVramDestination: 0x6300);
+        // Preserve the native queue position and seven-byte tail increment. Unsupported
+        // beam combinations retain physical adjacent-table reads used by glitch paths.
+        if (artwork is not null && beamType < Assets.BeamTileAtlasDefinitions.SelectionCount)
+            writes.EnqueueAsset(Assets.BeamTileCatalog.AssetFor(beamType),
+                Assets.BeamTileAtlasDefinitions.ByteCount, Assets.BeamTileAtlasDefinitions.DestinationWord);
+        else
+        {
+            ushort tilePointer = ReadWord(bus, SamusProjectileRomData.Beams.TilePointers + beamType * 2);
+            writes.Enqueue(
+                sizeInBytes: 0x0100,
+                sourceAddress: SamusProjectileRomData.Banks.CharacterData | tilePointer,
+                encodedVramDestination: 0x6300);
+        }
 
         ushort palettePointer = ReadWord(
             bus,

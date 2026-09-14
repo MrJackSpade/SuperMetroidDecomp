@@ -242,3 +242,11 @@ Tests compare all twelve decoded PNGs with the complete VRAM result of productio
 `LoadBeamTilesAndPalette`. Changing the first pixel's low bit changes exactly bit
 7 of the first destination byte, leaving every other VRAM byte unchanged. Invalid
 dimensions, malformed PNGs and indices above fifteen are rejected.
+
+`BeamTileCatalog` now resolves typed queued uploads for the twelve legal selections.
+`QueueBeamTilesAndLoadPalette` can publish these IDs with the original destination,
+byte count, queue order and palette behavior. Invalid combination indexes retain
+the legacy adjacent-ROM path. Tests forbid graphics/selection reads during enqueue
+and all bus access during drain, and restore a pending queue against edited content.
+Runtime provider composition and installed beam-PNG selection remain unfinished;
+the new optional queue path is not activated by the host yet.

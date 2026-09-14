@@ -134,6 +134,25 @@ The pinned ROM's 805 timed records reference 417 distinct spritemaps, with at mo
 24 parts and maximum OBJ tile index 194. This inventory excludes separately
 selected flare/trail artwork and is not a complete weapon asset inventory.
 
+### Extracted timed-projectile compositions
+
+`ProjectileSpriteExtractor.Extract` produces version-one
+`projectile-compositions.json` for the 417 stable identities in
+`ProjectileSpriteDefinitions`. `ProjectileSpriteCatalog.Load` compiles immutable
+parts and draws through the projectile-specific OAM emitter with no address space.
+Only offsets, tile column/row, size, palette, priority and flips are editable;
+damage, collision and instruction fields are not part of this document. The
+loader requires every known identity and rejects bad fields, unknown properties
+and duplicate properties rather than silently selecting the last value.
+
+`VerifyProjectileCompositions` compares all 417 maps at seven boundary origins
+and empty/near-full OAM (5,838 full low/high-table comparisons). It also proves
+an offset edit reaches OAM, compiled content is immutable, and invalid content
+fails. This is composition extraction/loading, not PNG sheet extraction or a
+complete runtime binding: installation/provenance, gameplay draw selection,
+capture/restore rebind, actual rendered-frame overrides and flare/trail assets
+remain open requirements. No ROM-derived JSON or screenshots are published.
+
 - The data headers start at $93:8431. Twenty-four beam headers contain damage plus
   ten direction pointers. Charged ordering is not identical to uncharged ordering;
   compile by native identity, not by an assumed physical record index.

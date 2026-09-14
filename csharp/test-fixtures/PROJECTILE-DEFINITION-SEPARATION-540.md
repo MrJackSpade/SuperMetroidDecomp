@@ -476,6 +476,13 @@ Drawing now retains the cartridge's signed 16.16 accumulator, stops after tickin
 the first off-screen slot, and preserves signed-length rejection and the native
 do-while behavior when the masked segment quotient is zero. The focused
 `--grapple-rope-geometry` check compares exact OAM positions and visited animation
-timers in 42 cases against cartridge sine samples. Grapple endpoint pose-specific
-clipping remains a separate audit item; this change does not alter attachment,
-collision, movement, or claim completion of editable segment compositions.
+timers in 42 cases against cartridge sine samples. This change does not alter
+attachment, collision, movement, or claim completion of editable segment compositions.
+
+A subsequent endpoint audit reproduced ordinary off-screen endpoints incorrectly
+emitting OAM. Drawing now selects the native endpoint routine from Samus's pose:
+ordinary poses check the uncentered relative Y high byte, while swinging poses
+bypass that check and retain the camera subtraction borrow in their centering
+subtraction. A 360-case test checks clipping, low coordinates, high-X and attributes
+across camera/world wrapping boundaries; actual gameplay actor tests verify the
+pose reaches the renderer. This is presentation-only and introduces no saved state.

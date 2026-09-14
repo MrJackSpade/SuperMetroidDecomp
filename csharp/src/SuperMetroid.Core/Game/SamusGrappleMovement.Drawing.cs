@@ -20,7 +20,8 @@ public static partial class SamusGrappleMovement
         VramWriteQueue vramWrites,
         ushort layer1X,
         ushort layer1Y,
-        Assets.GrappleTileAtlas? artwork = null)
+        Assets.GrappleTileAtlas? artwork = null,
+        byte samusPose = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(grapple);
@@ -131,10 +132,29 @@ public static partial class SamusGrappleMovement
             screenYFixed = unchecked(screenYFixed + stepY);
         }
 
+        DrawBeamEndpoint(grapple, oam, layer1X, layer1Y, samusPose);
+    }
+
+    /// <summary>Preserves the pose-selected endpoint routines at $94:B0F9/B14B.</summary>
+    private static void DrawBeamEndpoint(SamusGrappleState grapple, OamBuffer oam,
+        ushort layer1X, ushort layer1Y, byte samusPose)
+    {
+        bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
+        ushort relativeY = unchecked((ushort)(grapple.AnchorY - layer1Y));
+        // The ordinary endpoint tests its center before subtracting the sprite
+        // half-width. Swinging deliberately bypasses this vertical rejection.
+        if (!swinging && (relativeY & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
+            return;
+
+        // Only the swinging routine omits SEC between its two SBC operations.
+        // Consequently unsigned camera subtraction can carry a borrow into the
+        // half-character offset, even when wrapped coordinates look adjacent.
+        int borrowX = swinging && grapple.AnchorX < layer1X ? 1 : 0;
+        int borrowY = swinging && grapple.AnchorY < layer1Y ? 1 : 0;
         oam.AddRawSmallSprite(
-            unchecked((ushort)(grapple.AnchorX - layer1X - 4)),
-            unchecked((ushort)(grapple.AnchorY - layer1Y - 4)),
-            0x3a20);
+            unchecked((ushort)(grapple.AnchorX - layer1X - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowX)),
+            unchecked((ushort)(relativeY - SamusGrappleRomData.Rendering.CharacterCenterOffset - borrowY)),
+            SamusGrappleRomData.Rendering.EndpointAttributes);
     }
 
     /// <summary>

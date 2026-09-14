@@ -6,6 +6,7 @@ internal static partial class Program
 {
     private static void VerifyGrappleRopeGeometry(ISnesAddressSpace bus)
     {
+        VerifyGrappleEndpointGeometry(bus);
         // Exercise the actual drawing entry point, with valid initial instruction
         // timers. Expected positions emulate $94:AFD5-B091's overlapping-word
         // accumulator, using cartridge samples independently of compiled tables.

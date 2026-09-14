@@ -314,7 +314,8 @@ public sealed partial class SuperMetroidRuntime
                         VramWrites,
                         Camera.XPosition,
                         Camera.YPosition,
-                        GrappleArtwork);
+                        GrappleArtwork,
+                        Samus.Pose);
                 }
                 else
                 {

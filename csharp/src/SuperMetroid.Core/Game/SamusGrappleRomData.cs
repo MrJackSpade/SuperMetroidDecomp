@@ -132,6 +132,8 @@ public static class SamusGrappleRomData
         public const int SegmentAnimationFrameCount = 4;
         /// <summary>$94:B18D: first rope character with palette five and priority three.</summary>
         public const ushort FirstSegmentAttributes = 0x3a21;
+        /// <summary>$94:B13C/B17C, DrawGrappleBeamEnd: endpoint tile with palette five and priority three.</summary>
+        public const ushort EndpointAttributes = 0x3a20;
     }
 
     /// <summary>Special connection-angle records and their native handler identities.</summary>

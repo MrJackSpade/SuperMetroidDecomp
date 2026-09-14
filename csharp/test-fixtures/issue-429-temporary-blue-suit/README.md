@@ -14,6 +14,8 @@ The [Dash/equipment matrix](CANCELLATION.md) records native cancellation and
 non-cancellation conditions after the charge has expired.
 The [sand sampler matrix](SAND.md) distinguishes surface cancellation from
 submerging sand and sandfalls, including an extension-tile path.
+The [terrain collision matrix](TERRAIN.md) checks actual speed/bomb tile breaking
+and movement admission using full and partial controller-earned counters.
 
 ## Reference and execution
 

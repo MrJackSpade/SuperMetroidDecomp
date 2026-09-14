@@ -689,7 +689,7 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             VramWrites,
             Cgram,
-            Samus?.EquippedBeams ?? 0);
+            Samus?.EquippedBeams ?? 0, BeamArtwork);
 
         // The queued HUD graphics begin at VRAM word $4000 and span through byte $9FFF,
         // overlapping both scrolling-sky pages at words $4800-$4FFF. The door-selected
@@ -730,7 +730,7 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             VramWrites,
             Cgram,
-            equippedBeams);
+            equippedBeams, BeamArtwork);
 
     /// <summary>
     /// Loads standard 2-bpp BG3 graphics and initializes the HUD tilemap using the exact
@@ -3753,7 +3753,7 @@ public sealed partial class SuperMetroidRuntime
                             _addressSpace,
                             VramWrites,
                             Cgram,
-                            Samus.EquippedBeams);
+                            Samus.EquippedBeams, BeamArtwork);
                     }
                     else if (pickup.Kind is
                              InWorldCollectibleKind.VariaSuit or
@@ -4125,7 +4125,10 @@ public sealed partial class SuperMetroidRuntime
             DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
             Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
             PublishReboundHudArtwork();
-            VramWrites.DrainTo(Vram, _addressSpace, MapPresentation);
+            VramWrites.DrainTo(Vram, _addressSpace, this);
+            // A rebound snapshot may retain old VRAM and legacy queued transfers.
+            // Apply current content only at this accepted NMI, after those writes.
+            PublishReboundBeamArtwork();
             TransferXrayBg1Read();
             // Menu code consumes raw physical buttons before a runtime exists. Once room
             // gameplay owns the controller, all bank-$90/$91 action checks use the seven

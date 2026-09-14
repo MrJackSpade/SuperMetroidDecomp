@@ -248,5 +248,10 @@ dimensions, malformed PNGs and indices above fifteen are rejected.
 byte count, queue order and palette behavior. Invalid combination indexes retain
 the legacy adjacent-ROM path. Tests forbid graphics/selection reads during enqueue
 and all bus access during drain, and restore a pending queue against edited content.
-Runtime provider composition and installed beam-PNG selection remain unfinished;
-the new optional queue path is not activated by the host yet.
+The runtime now routes typed HUD/beam assets through its NMI provider and supplies
+beam content at room initialization, pause teardown and beam pickup. Frontend
+binding carries content into normal/demo runtimes. Rebound beam VRAM is refreshed
+only at accepted NMI after legacy queued writes, not in the retained display or a
+lag NMI. Tests cover those boundaries and a restored typed equipment upload.
+Installed beam-PNG selection and host calls to the binding API remain unfinished;
+the runtime path is not activated by the installed host yet.

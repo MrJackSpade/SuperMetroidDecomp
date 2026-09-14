@@ -9,6 +9,7 @@ internal static partial class Program
     {
         var files = BeamTileExtractor.Extract(bus);
         var catalog = BeamTileCatalog.Load(files);
+        VerifyRuntimeBeamArtwork(bus, files, catalog);
         AssertEqual(12, files.Count, "Every legal beam combination has editable artwork");
         for (ushort selection = 0; selection < 12; selection++)
         {
@@ -76,5 +77,44 @@ internal static partial class Program
             return source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => throw new InvalidOperationException("Artwork queue wrote the bus.");
+    }
+
+    private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
+    {
+        var image = IndexedPng.Read(new MemoryStream(files[BeamTileAtlasDefinitions.FileName(0)]), 64, 8);
+        image.Pixels[0] ^= 1;
+        using var png = new MemoryStream();
+        IndexedPng.Write(png, 64, 8, image.Pixels, image.Palette);
+        var changed = new Dictionary<string, byte[]>(files) { [BeamTileAtlasDefinitions.FileName(0)] = png.ToArray() };
+        var edited = BeamTileCatalog.Load(changed);
+        var runtime = new SuperMetroid.Core.Runtime.SuperMetroidRuntime(bus);
+        runtime.InitializeHud(HudSnapshot.CeresDebug);
+        runtime.InitializeStartingCeresRoom();
+        runtime.InitializeCeresStartSamus();
+        runtime.RunNmi(0, true);
+        byte[] previous = runtime.Vram.Bytes.ToArray();
+        // Simulate an old snapshot with a queued ROM beam upload before host rebind.
+        runtime.QueueGameplayBeamTilesAndLoadPalette(0);
+        runtime.BeamArtwork = edited;
+        AssertTrue(previous.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Binding beam PNG leaves retained VRAM unchanged");
+        runtime.RunNmi(0, false);
+        AssertTrue(previous.AsSpan().SequenceEqual(runtime.Vram.Bytes), "Lag NMI does not publish rebound artwork");
+        runtime.RunNmi(0, true);
+        int start = BeamTileAtlasDefinitions.DestinationWord * 2;
+        AssertTrue(runtime.Vram.Bytes.Slice(start, 256).SequenceEqual(edited.Resolve(BeamTileCatalog.AssetFor(0)).Span),
+            "Accepted NMI uses current PNG after legacy queued writes");
+        runtime.QueueGameplayBeamTilesAndLoadPalette(1);
+        AssertEqual(BeamTileCatalog.AssetFor(1), runtime.VramWrites.Entries[0].AssetId, "Runtime equipment upload uses typed beam selection");
+        using var saved = new MemoryStream();
+        SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(saved, runtime);
+        saved.Position = 0;
+        var restored = SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SuperMetroid.Core.Runtime.SuperMetroidRuntime>(saved);
+        AssertTrue(restored.BeamArtwork is null, "Beam artwork is not embedded in runtime state");
+        restored.Samus!.EquippedBeams = 1;
+        restored.BeamArtwork = stock;
+        restored.RunNmi(0, true);
+        AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(1)).Span),
+            "Restored runtime resolves queued beam selection through its bound provider");
+        Console.WriteLine("Runtime beam PNG: retained/lag display stability, accepted-NMI refresh after legacy writes, equipment queue and restored provider pass.");
     }
 }

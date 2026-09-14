@@ -959,7 +959,7 @@ public sealed partial class SuperMetroidRuntime
             _addressSpace,
             VramWrites,
             Cgram,
-            Samus?.EquippedBeams ?? 0);
+            Samus?.EquippedBeams ?? 0, BeamArtwork);
 
         if (viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor)
         {

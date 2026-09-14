@@ -211,6 +211,11 @@ public sealed partial class PlayableGameControl : UserControl
         mapPresentation = playerDataDirectory is null ? null :
             new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadMaps();
         game.BindMapPresentation(mapPresentation);
+        projectilePresentation = playerDataDirectory is null ? null :
+            new SuperMetroid.AssetExtraction.GameInstallation(playerDataDirectory).LoadProjectiles();
+        game.BindProjectileCompositions(projectilePresentation?.Catalog);
+        if (projectilePresentation is not null)
+            Console.WriteLine($"Projectile compositions: stock={projectilePresentation.StockSha256}, selected={projectilePresentation.SelectedSha256} ({playerDataDirectory}).");
         if (replay is null)
         {
             game.SaveRamChanged += PersistSaveRamToDisk;
@@ -288,6 +293,7 @@ public sealed partial class PlayableGameControl : UserControl
         addressSpace = loaded.AddressSpace;
         game = loaded.Game;
         game.BindMapPresentation(mapPresentation);
+        game.BindProjectileCompositions(projectilePresentation?.Catalog);
         pendingDisplay = game.GetRetainedDisplay(++displaySequence, displayGeneration);
         game.SaveRamChanged += PersistSaveRamToDisk;
         displayedRoomPointer = null;

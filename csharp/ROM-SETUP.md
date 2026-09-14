@@ -80,6 +80,26 @@ save preservation, and booting the production Android session from the installed
 Legacy raw-data/PNG/map extraction commands remain developer tools; normal setup does not
 require their input directories. Keep all ROMs and generated game resources out of Git.
 
+## Projectile composition overrides
+
+Installed hosts extract `game/projectiles/projectile-compositions.json` under the
+player-data root. To edit it, copy the complete file to
+`overrides/projectiles/projectile-compositions.json` under that same root. Do not
+edit the stock file or its manifest: stock hashes are checked and damaged stock
+is repaired during setup. External overrides survive stock repair/reinstallation.
+
+Each `sprite_XXXX` entry exposes part offsets, tile row/column, size, flips, palette
+index and priority. Keep every entry and the version field. These are compositions
+of existing graphics, not replacement PNG artwork yet. Damage, collision radii and
+timing are not editable here. Trails, charge flares and Grapple visuals are not
+covered by this composition file.
+
+Restart to load edits. Loading a debugger state retains the current session's
+selected composition catalog rather than restoring old artwork from the state.
+Startup logs stock and selected hashes. Invalid overrides fail loudly; removing
+the override restores stock on restart. Explicit developer-ROM sessions outside
+the installed-content workflow retain ROM-backed rendering.
+
 ## Verified build
 
 On September 10, 2026, the Release AOT APK was installed as the isolated package

@@ -18,6 +18,7 @@ internal sealed class AndroidSessionData : IDisposable
     private readonly string savePath;
     private readonly ExtractedAudioAssetCatalog assets;
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog? maps;
+    private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation? projectiles;
     private readonly DebuggerSaveStateStore states;
     private ControllerInputRecorder recorder;
 
@@ -38,6 +39,10 @@ internal sealed class AndroidSessionData : IDisposable
         // ordinary installed Android sessions require the installed map catalog.
         maps = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadMaps() : null;
         Game.BindMapPresentation(maps);
+        projectiles = cartridgePath is null ? new SuperMetroid.AssetExtraction.GameInstallation(root).LoadProjectiles() : null;
+        Game.BindProjectileCompositions(projectiles?.Catalog);
+        if (projectiles is not null)
+            Console.WriteLine($"Projectile compositions: stock={projectiles.StockSha256}, selected={projectiles.SelectedSha256} ({root}).");
         Game.SaveRamChanged += PersistSave;
         assets = ExtractedAudioAssetCatalog.Load(audioDirectory ?? Path.Combine(gameRoot, "audio"));
         Audio = new CartridgeAudioRenderer(assets);
@@ -79,6 +84,7 @@ internal sealed class AndroidSessionData : IDisposable
         Bus = loaded.AddressSpace;
         Game = loaded.Game;
         Game.BindMapPresentation(maps);
+        Game.BindProjectileCompositions(projectiles?.Catalog);
         Game.SaveRamChanged += PersistSave;
         Audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer);
         Generation++;

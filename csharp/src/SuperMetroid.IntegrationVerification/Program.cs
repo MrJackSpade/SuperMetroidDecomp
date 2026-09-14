@@ -4,6 +4,8 @@ using SuperMetroid.Core.Rendering;
 
 try
 {
+    if (args is ["--projectile-host-binding", var projectileRom])
+        return ProjectileHostBindingVerification.Run(projectileRom);
     if (args is ["--state-host-options", var statePath, var iniPath])
         return StateHostOptionsVerification.Run(statePath, iniPath);
     if (args.Length > 0 && args[0] == "--asset-import")

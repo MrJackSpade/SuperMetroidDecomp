@@ -221,6 +221,10 @@ Focused tests cover missing/corrupt stock, bad overrides and manifest identities
 the full installer test covers replacement/cancellation/restart with an edited
 projectile override alongside existing player-data preservation checks.
 
-Desktop/Android automatic loading and invocation of the binding API remain
-unfinished, as do PNG artwork, trails and flares. Installation alone does not
-enable overrides in gameplay yet.
+Installed Desktop and Android sessions now load and bind compositions at startup
+and rebind the host's current catalog after debugger-state load. Restart reloads
+disk selection; explicit diagnostic cartridge paths retain the legacy ROM path.
+Startup logs original and selected content hashes. The installed Android session
+test (run on Windows, not the device) verifies all 417 selected compositions at
+startup and after restart/old-state rebind, plus invalid-override rejection.
+PNG artwork, trails, flares and the wider weapon presentation scope remain open.

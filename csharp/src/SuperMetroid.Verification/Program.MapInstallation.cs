@@ -46,6 +46,11 @@ internal static partial class Program
             IndexedPng.Write(output, trailImage.Width, trailImage.Height, trailImage.Pixels, trailImage.Palette);
         }
         var projectileEdited = installation.LoadProjectiles();
+        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
+        var flareDocument = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
+        flareDocument["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
+        projectileEdited = installation.LoadProjectiles();
         AssertTrue(projectileStock.SelectedSha256 != projectileEdited.SelectedSha256, "installed projectile override selected");
         Directory.CreateDirectory(installation.MapOverrideDirectory);
         string paletteOverride = Path.Combine(installation.MapOverrideDirectory, MapStaticPalettesFormat.FileName);
@@ -122,6 +127,7 @@ internal static partial class Program
             [beamPaletteOverride] = File.ReadAllBytes(beamPaletteOverride),
             [trailOverride] = File.ReadAllBytes(trailOverride),
             [trailPngOverride] = File.ReadAllBytes(trailPngOverride),
+            [flareOverride] = File.ReadAllBytes(flareOverride),
             [paletteOverride] = File.ReadAllBytes(paletteOverride),
             [stationOverride] = File.ReadAllBytes(stationOverride),
             [landmarkOverride] = File.ReadAllBytes(landmarkOverride),

@@ -386,5 +386,17 @@ edited OBJ displacement, and compare complete serialized Samus/projectile state
 before/after drawing. Missing fields, out-of-range values, duplicate properties
 and injected mechanics fields fail. Public normal-charge and Hyper-flare paths
 also emit the selected displacement with identical complete post-tick state.
-Installation and host binding of this JSON
-remain pending; this is the extractor/catalog/draw integration layer only.
+Version-six projectile manifests now install/hash the placement JSON and include
+the selected override in content identity. Desktop and Android hosts bind it at
+startup and state reload; normal and attract runtimes inherit the current catalog.
+The gameplay actor pass forwards it into charge-flare drawing. Tests verify stock
+actor OAM, edited actor OAM, nonserialized frontend/runtime content, restored-state
+output, all 32 host selections, strict stock/override failures, and preservation
+through the complete installer upgrade transaction. Android session verification
+runs on Windows, not on a deployed APK.
+
+To replace placement, copy `game/projectiles/charge-flare-placement.json` into
+`overrides/projectiles/charge-flare-placement.json` within the installation root,
+edit the signed `x`/`y` values, and restart. Keep every `standing-00`..`standing-15`
+and `running-00`..`running-15` entry. These adjust visual flares only, after the
+Samus-center transform; they do not move projectile launch points or change damage.

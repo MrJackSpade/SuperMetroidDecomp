@@ -8,6 +8,8 @@ public sealed partial class SuperMetroidRuntime : IVramAssetProvider
     // Host content is rebound after restoring a graph; saved state must not freeze
     // an old user override into the simulation. Only composition emission uses this.
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
+    [field: NonSerialized]
+    public ChargeFlarePlacementCatalog? ChargeFlarePlacement { get; set; }
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
     [NonSerialized] private bool trailArtworkRefreshPending;
     public ProjectileTrailCatalog? TrailArtwork

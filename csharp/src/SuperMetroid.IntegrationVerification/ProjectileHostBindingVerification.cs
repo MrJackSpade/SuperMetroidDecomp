@@ -15,6 +15,7 @@ internal static class ProjectileHostBindingVerification
         var field = typeof(SuperMetroidGame).GetField("projectileCompositions", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var beamField = typeof(SuperMetroidGame).GetField("beamArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var trailField = typeof(SuperMetroidGame).GetField("trailArtwork", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var flareField = typeof(SuperMetroidGame).GetField("chargeFlarePlacement", BindingFlags.Instance | BindingFlags.NonPublic)!;
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -25,6 +26,7 @@ internal static class ProjectileHostBindingVerification
             if (!ReferenceEquals(content, field.GetValue(session.Game))) throw new InvalidDataException("State load lost current host projectile content.");
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
             CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)flareField.GetValue(session.Game)!, installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
@@ -51,6 +53,9 @@ internal static class ProjectileHostBindingVerification
         image.Pixels[0] ^= 1;
         using (var output = File.Create(Path.Combine(installation.ProjectileOverrideDirectory, ProjectileTrailAtlasDefinitions.FileName)))
             IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        var flare = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName)))!;
+        flare["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
         using (var session = new AndroidSessionData(root))
         {
             var content = field.GetValue(session.Game);
@@ -60,6 +65,7 @@ internal static class ProjectileHostBindingVerification
             CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
             CheckBeams((BeamTileCatalog)beamField.GetValue(session.Game)!, installation.LoadProjectiles().BeamTiles);
             CheckTrails((ProjectileTrailCatalog)trailField.GetValue(session.Game)!, installation.LoadProjectiles().Trails);
+            CheckFlare((ChargeFlarePlacementCatalog)flareField.GetValue(session.Game)!, installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
         try
@@ -93,6 +99,15 @@ internal static class ProjectileHostBindingVerification
         foreach (ushort frame in ProjectileTrailVisualDefinitions.Frames)
             if (actual.Resolve(frame) != expected.Resolve(frame))
                 throw new InvalidDataException("Host bound stale trail appearance.");
+    }
+
+    private static void CheckFlare(ChargeFlarePlacementCatalog actual, ChargeFlarePlacementCatalog expected)
+    {
+        if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
+        foreach (bool running in new[] { false, true })
+        for (int direction = 0; direction < ChargeFlarePlacementDefinitions.DirectionCount; direction++)
+            if (actual.Resolve(running, direction) != expected.Resolve(running, direction))
+                throw new InvalidDataException("Host restored stale flare placement.");
     }
 
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)

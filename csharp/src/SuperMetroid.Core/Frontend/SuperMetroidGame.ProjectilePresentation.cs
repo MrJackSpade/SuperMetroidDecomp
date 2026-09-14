@@ -7,6 +7,14 @@ public sealed partial class SuperMetroidGame
     [NonSerialized] private ProjectileSpriteCatalog? projectileCompositions;
     [NonSerialized] private BeamTileCatalog? beamArtwork;
     [NonSerialized] private ProjectileTrailCatalog? trailArtwork;
+    [NonSerialized] private ChargeFlarePlacementCatalog? chargeFlarePlacement;
+
+    /// <summary>Current visual flare offsets survive runtime replacement but are not embedded in saves.</summary>
+    public void BindChargeFlarePlacement(ChargeFlarePlacementCatalog? catalog)
+    {
+        chargeFlarePlacement = catalog;
+        if (runtime is not null) runtime.ChargeFlarePlacement = catalog;
+    }
 
     /// <summary>Rebinds current trail appearance without changing live animation state.</summary>
     public void BindTrailArtwork(ProjectileTrailCatalog? catalog)

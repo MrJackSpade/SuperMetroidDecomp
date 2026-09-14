@@ -10,7 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 public static class ProjectilePresentationFiles
 {
     public const string ManifestFileName = "projectile-manifest.json";
-    public const int Version = 5;
+    public const int Version = 6;
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -28,13 +28,15 @@ public static class ProjectilePresentationFiles
         byte[] palettes = BeamPaletteExtractor.Extract(validatedBus);
         byte[] trails = ProjectileTrailExtractor.Extract(validatedBus);
         byte[] trailTiles = ProjectileTrailAtlasExtractor.Extract(validatedBus);
+        byte[] flarePlacement = ChargeFlarePlacementExtractor.Extract(validatedBus);
+        File.WriteAllBytes(Path.Combine(directory, ChargeFlarePlacementDefinitions.FileName), flarePlacement);
         File.WriteAllBytes(Path.Combine(directory, ProjectileTrailAtlasDefinitions.FileName), trailTiles);
         File.WriteAllBytes(Path.Combine(directory, ProjectileTrailVisualDefinitions.FileName), trails);
         File.WriteAllBytes(Path.Combine(directory, BeamPaletteDefinitions.FileName), palettes);
         foreach (var file in beams) File.WriteAllBytes(Path.Combine(directory, file.Key), file.Value);
         File.WriteAllText(Path.Combine(directory, ManifestFileName), JsonSerializer.Serialize(
             new Manifest(Version, SupportedCartridge.Sha256, Hash(bytes),
-                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(trails), Hash(trailTiles)), Options));
+                beams.ToDictionary(pair => pair.Key, pair => Hash(pair.Value)), Hash(palettes), Hash(trails), Hash(trailTiles), Hash(flarePlacement)), Options));
         _ = Load(directory, null);
     }
 
@@ -81,6 +83,10 @@ public static class ProjectilePresentationFiles
         if (Hash(stockTrailTiles) != manifest.TrailTilesSha256)
             throw new InvalidDataException("Projectile trail PNG stock hash mismatch.");
         _ = ProjectileTrailAtlas.Load(new MemoryStream(stockTrailTiles));
+        byte[] stockFlarePlacement = File.ReadAllBytes(Path.Combine(stockDirectory, ChargeFlarePlacementDefinitions.FileName));
+        if (Hash(stockFlarePlacement) != manifest.FlarePlacementSha256)
+            throw new InvalidDataException("Charge-flare placement stock hash mismatch.");
+        _ = ChargeFlarePlacementCatalog.Load(new MemoryStream(stockFlarePlacement));
         // Finish stock validation before opening any optional replacement.
         byte[] Select(string name, byte[] baseline)
         {
@@ -92,20 +98,22 @@ public static class ProjectilePresentationFiles
         byte[] selectedPalettes = Select(BeamPaletteDefinitions.FileName, stockPalettes);
         byte[] selectedTrails = Select(ProjectileTrailVisualDefinitions.FileName, stockTrails);
         byte[] selectedTrailTiles = Select(ProjectileTrailAtlasDefinitions.FileName, stockTrailTiles);
+        byte[] selectedFlarePlacement = Select(ChargeFlarePlacementDefinitions.FileName, stockFlarePlacement);
         return new(ProjectileSpriteCatalog.Load(new MemoryStream(selected, writable: false)),
-            Identity(stock, stockBeams, stockPalettes, stockTrails, stockTrailTiles), Identity(selected, selectedBeams, selectedPalettes, selectedTrails, selectedTrailTiles),
+            Identity(stock, stockBeams, stockPalettes, stockTrails, stockTrailTiles, stockFlarePlacement), Identity(selected, selectedBeams, selectedPalettes, selectedTrails, selectedTrailTiles, selectedFlarePlacement),
             BeamTileCatalog.Load(selectedBeams, BeamPaletteCatalog.Load(new MemoryStream(selectedPalettes))),
-            ProjectileTrailCatalog.Load(new MemoryStream(selectedTrails), ProjectileTrailAtlas.Load(new MemoryStream(selectedTrailTiles))));
+            ProjectileTrailCatalog.Load(new MemoryStream(selectedTrails), ProjectileTrailAtlas.Load(new MemoryStream(selectedTrailTiles))),
+            ChargeFlarePlacementCatalog.Load(new MemoryStream(selectedFlarePlacement)));
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams, byte[] palettes, byte[] trails, byte[] trailTiles)
+    private static string Identity(byte[] composition, Dictionary<string, byte[]> beams, byte[] palettes, byte[] trails, byte[] trailTiles, byte[] flarePlacement)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
         string hashes = Hash(composition);
         for (int i = 0; i < BeamTileAtlasDefinitions.SelectionCount; i++)
             hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(i)]);
-        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes) + Hash(trails) + Hash(trailTiles)));
+        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes) + Hash(trails) + Hash(trailTiles) + Hash(flarePlacement)));
     }
     private static void ValidateObject(JsonElement element)
     {
@@ -118,8 +126,8 @@ public static class ProjectilePresentationFiles
             if (property.Value.ValueKind == JsonValueKind.Object) ValidateObject(property.Value);
         }
     }
-    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string TrailSha256, string TrailTilesSha256);
+    private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256);
 }
 
 /// <summary>Loaded content and separate original/selected byte identities for diagnostics.</summary>
-public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails);
+public sealed record InstalledProjectilePresentation(ProjectileSpriteCatalog Catalog, string StockSha256, string SelectedSha256, BeamTileCatalog BeamTiles, ProjectileTrailCatalog Trails, ChargeFlarePlacementCatalog FlarePlacement);

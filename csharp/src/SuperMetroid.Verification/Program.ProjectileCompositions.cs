@@ -283,6 +283,23 @@ internal static partial class Program
         AssertEqual(pngEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves trail PNG override");
         File.WriteAllText(trailPngOverride, "invalid override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Malformed trail PNG override never falls back");
+        File.WriteAllBytes(trailPngOverride, trailPng.ToArray());
+        string flareStock = Path.Combine(installation.ProjectileDirectory, ChargeFlarePlacementDefinitions.FileName);
+        string flareOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName);
+        var flareDocument = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(flareStock))!;
+        flareDocument["offsets"]![ChargeFlarePlacementDefinitions.Key(false, 0)]!["x"] = 17;
+        File.WriteAllText(flareOverride, flareDocument.ToJsonString());
+        var flareEdited = installation.LoadProjectiles();
+        AssertTrue(flareEdited.SelectedSha256 != pngEdited.SelectedSha256, "Flare-only edit changes content identity");
+        AssertEqual(17, flareEdited.FlarePlacement.Resolve(false, 0).X, "Installer selects edited flare offset");
+        File.WriteAllText(flareStock, "broken stock");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Flare override cannot hide stock corruption");
+        File.Move(flareStock, flareStock + ".invalid");
+        AssertThrows<FileNotFoundException>(() => installation.LoadProjectiles(), "Flare override cannot hide missing stock");
+        ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);
+        AssertEqual(flareEdited.SelectedSha256, installation.LoadProjectiles().SelectedSha256, "Repair preserves flare override");
+        File.WriteAllText(flareOverride, "broken override");
+        AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid flare override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
     }
 }

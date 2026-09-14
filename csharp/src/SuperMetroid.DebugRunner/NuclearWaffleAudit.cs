@@ -4,7 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
 /// <summary>
-/// End-to-end ROM audit for the two Nuclear Waffle/Puromi actors in room $8F:B457. The
+/// Enemy-system ROM audit for the two Nuclear Waffle/Puromi actors in room $8F:B457. The
 /// population is used untouched so the test covers the actual parameter packing, both
 /// shared child pools, cartridge animations, the complete articulated sweep, and damage.
 /// </summary>
@@ -287,12 +287,21 @@ internal static class NuclearWaffleAudit
         headLoad.Samus.InvincibilityTimer = 0;
         ushort health = headLoad.Samus.Health;
         if (!headLoad.Enemies.ResolveOrdinarySamusContact(headLoad.Samus, 0) ||
-            headLoad.Samus.Health != health - 50 || !headLoad.Samus.KnockbackActive)
+            headLoad.Samus.Health != health - 50 || headLoad.Samus.KnockbackActive ||
+            headLoad.Samus.KnockbackTimer != 5 || headLoad.Samus.InvincibilityTimer != 96 ||
+            headLoad.Samus.KnockbackXDirection != 1)
         {
             throw new InvalidDataException(
                 $"Nuclear Waffle head contact failed: health={health}->" +
                 $"{headLoad.Samus.Health}, knockback={headLoad.Samus.KnockbackActive}.");
         }
+
+        // EnemyMain publishes the native damage request; the later Samus interruption
+        // consumes it. Assert both boundaries rather than demanding an early hurt pose.
+        if (!SamusKnockbackMovement.TryStartPendingHitInterruption(
+                bus, headLoad.Samus, 0, timeIsFrozen: false, level: assets.LevelData) ||
+            !headLoad.Samus.KnockbackActive)
+            throw new InvalidDataException("Nuclear Waffle head hit request was not admitted by Samus.");
 
         LoadedWaffles bodyLoad = Load(bus, room, assets);
         NuclearWaffleEnemyState bodyState = RequireState(
@@ -305,7 +314,9 @@ internal static class NuclearWaffleAudit
         bodyLoad.Samus.InvincibilityTimer = 0;
         health = bodyLoad.Samus.Health;
         bodyLoad.Enemies.StepEnemyProjectiles(assets.LevelData, bodyLoad.Samus);
-        if (bodyLoad.Samus.Health != health - (4 * 64) || !bodyLoad.Samus.KnockbackActive ||
+        if (bodyLoad.Samus.Health != health - (4 * 64) || bodyLoad.Samus.KnockbackActive ||
+            bodyLoad.Samus.KnockbackTimer != 5 || bodyLoad.Samus.InvincibilityTimer != 96 ||
+            bodyLoad.Samus.KnockbackXDirection != 1 ||
             !body.IsActive)
         {
             throw new InvalidDataException(
@@ -313,6 +324,11 @@ internal static class NuclearWaffleAudit
                 $"{bodyLoad.Samus.Health}, knockback={bodyLoad.Samus.KnockbackActive}, " +
                 $"body active={body.IsActive}.");
         }
+
+        if (!SamusKnockbackMovement.TryStartPendingHitInterruption(
+                bus, bodyLoad.Samus, 0, timeIsFrozen: false, level: assets.LevelData) ||
+            !bodyLoad.Samus.KnockbackActive)
+            throw new InvalidDataException("Nuclear Waffle body hit request was not admitted by Samus.");
 
         LoadedWaffles shotLoad = Load(bus, room, assets);
         RoomEnemySlot shotHead = shotLoad.Enemies.Slots[0];
@@ -351,7 +367,11 @@ internal static class NuclearWaffleAudit
             bus,
             projectiles,
             sharedProjectiles);
-        if (bodyHits != 1 || !shotBody.IsActive ||
+        // All four links still share this cell. The native dispatcher marks the beam
+        // for its next producer pass rather than consuming it during the first overlap.
+        if (bodyHits != 4 || shotState.ProjectileSegments.Any(link => link is null || !link.IsActive) ||
+            projectiles.Slots[0].Direction != 0x0012 ||
+            projectiles.Slots[0].InstructionPointer != 0x9000 ||
             shotLoad.Enemies.LastEnemyProjectileDudSoundEffect != 0x003d)
         {
             throw new InvalidDataException(

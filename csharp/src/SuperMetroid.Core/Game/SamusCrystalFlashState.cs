@@ -148,6 +148,11 @@ public sealed class SamusCrystalFlashState
         // palette words so handler seven is the sole cartridge owner.
         samus.Xray.RelinquishPaletteHandler();
         samus.DraygonGrabbed.RelinquishMovementHandler();
+        // Flash admission can occur after the Super Metroid has already installed drained
+        // crouching art. `$90:D5A2` then replaces that pose/movement owner; if the host kept
+        // its synthetic Drained phase alive, it would re-lock Samus after Flash completed
+        // instead of reproducing the documented adjacent timing that frees the stun.
+        samus.Drained.RelinquishMovementHandler();
         samus.CrystalFlashPoseInputLocked = true;
         RaiseTimer = 9;
         AmmoDecrementIndex = 0;

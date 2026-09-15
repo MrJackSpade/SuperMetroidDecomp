@@ -345,6 +345,11 @@ if (args is ["--reserve-mode", var reserveModeTrace])
     VerifyReserveMode(reserveModeTrace);
     return 0;
 }
+if (args is ["--cinematic-flash", var cinematicFlashTrace])
+{
+    VerifyCinematicCrystalFlash(cinematicFlashTrace);
+    return 0;
+}
 if (args is ["--pause-reserve-manual"])
 {
     VerifyPauseReserveManual();
@@ -586,6 +591,7 @@ VerifyProjectileRuntimePhase();
 VerifyMorphedSpikeRelease();
 VerifySpikeShinesparkSuit();
 VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv");
+VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv");
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

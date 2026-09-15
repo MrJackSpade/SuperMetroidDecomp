@@ -2214,27 +2214,15 @@ public sealed partial class SuperMetroidRuntime
                             NmiFrameCounter,
                             Plms);
                 }
-                // Drained controller functions install movement-type-$1B poses whose normal
-                // beta dispatcher is RTS. Only animation command `$F7` replaces the handler
-                // with `$90:94CB`; the other phases stay motionless while enemy AI controls
-                // pose/timing. All active drain phases retain the locked-input contract.
-                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive)
-                {
-                    ProspectiveSamusPose = null;
-                    ProspectiveSamusFallbackPose = null;
-                    if (Samus.Drained.Phase == DrainedSamusPhase.Falling)
-                    {
-                        LastDrainedSamusMovement = Samus.Drained.StepFalling(
-                            _addressSpace,
-                            LevelData,
-                            Samus,
-                            NmiFrameCounter);
-                    }
-                }
                 // `$90:D5A2` installs one of three Crystal Flash movement pointers and an
-                // RTS pose-input handler. Clear the transition sampled at the top of this
-                // host frame: normal input is not allowed to interrupt `$D3/$D4` art.
-                else if (Samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive)
+                // RTS pose-input handler. Mother Brain's rainbow command keeps those words,
+                // but temporarily replaces frame-handler beta with `$E8D9`, which calls no
+                // movement at all. Once command one restores `$E725`, Flash resumes under
+                // the drained pose. The Super Metroid never installs that beta lock, so its
+                // interruption continues Flash immediately. Model the physical beta owner,
+                // not merely the fact that a cinematic pose exists.
+                else if (Samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
+                    !(Samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && Samus.InputLocked))
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -2252,6 +2240,24 @@ public sealed partial class SuperMetroidRuntime
                         BombProjectiles.PowerBombExplosion.BeginCrystalFlash(
                             Samus.XPosition,
                             Samus.YPosition);
+                    }
+                }
+                // Drained controller functions install movement-type-$1B poses whose normal
+                // beta dispatcher is RTS. Only animation command `$F7` replaces the handler
+                // with `$90:94CB`; the other phases stay motionless while enemy AI controls
+                // pose/timing. This branch is reached only when no independently retained
+                // Crystal Flash pointer still owns the physical movement-handler word.
+                else if (Samus.Drained.Phase != DrainedSamusPhase.Inactive)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    if (Samus.Drained.Phase == DrainedSamusPhase.Falling)
+                    {
+                        LastDrainedSamusMovement = Samus.Drained.StepFalling(
+                            _addressSpace,
+                            LevelData,
+                            Samus,
+                            NmiFrameCounter);
                     }
                 }
                 // `$90:CFFA` replaces the normal movement-handler pointer. Windup, active

@@ -197,8 +197,12 @@ public sealed class SamusXrayState
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
-        // $91:EEA6 replaces the shared movement/palette handlers and clears
-        // $0A68 even when an interrupted Flash, not a normal charge, owns it.
+        // `$91:EEA6` installs both X-Ray handler pointers, so an interrupted Flash's RTS
+        // pose-input pointer is gone as well as its movement pointer. Keeping the host lock
+        // would make Samus immobile again when X-Ray teardown restores ordinary input.
+        samus.CrystalFlashPoseInputLocked = false;
+        // The same routine replaces the shared movement/palette handlers and clears
+        // `$0A68` even when an interrupted Flash, not a normal charge, owns it.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
         SpecialPaletteFrame = 0;

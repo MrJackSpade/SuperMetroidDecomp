@@ -205,6 +205,21 @@ internal static class ShitroidAudit
             throw new InvalidDataException($"Shitroid latch selected {shitroid.Function}.");
 
         ushort preDrainHealth = loaded.Samus.Health;
+        StepAndRecord(
+            bus,
+            assets.LevelData,
+            loaded,
+            frameCounter++,
+            visitedShitroidStates,
+            ref sawCloseWall,
+            ref sawOpenWall,
+            ref sawEntranceMusic);
+        if (preDrainHealth - loaded.Samus.Health != 4)
+        {
+            throw new InvalidDataException(
+                $"Unsuited Shitroid first drain tick must subtract four energy: " +
+                $"{preDrainHealth}->{loaded.Samus.Health}.");
+        }
         while (shitroid.Function is not ShitroidAiFunction.BeginPostDrainPause and
                not ShitroidAiFunction.PostDrainPause && frameCounter < 6000)
         {

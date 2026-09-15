@@ -615,7 +615,11 @@ public sealed partial class RoomEnemySystem
         slot.XPosition = unchecked((ushort)(samus.XPosition + ShitroidShakeX[shakeIndex]));
         slot.YPosition = unchecked((ushort)(samus.YPosition + ShitroidShakeY[shakeIndex] - 20));
 
-        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 3;
+        // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
+        // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing
+        // those branches to three/two loses one point on both paths and materially shifts
+        // the frame on which the Super Metroid forces Samus into drained crouching art.
+        int damage = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 4;
         samus.Health = damage >= samus.Health
             ? (ushort)1
             : unchecked((ushort)(samus.Health - damage));

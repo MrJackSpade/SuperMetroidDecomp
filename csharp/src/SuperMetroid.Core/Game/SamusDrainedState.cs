@@ -59,6 +59,13 @@ public sealed class SamusDrainedState
     public DrainedGetUpHandler GetUpHandler { get; private set; }
 
     /// <summary>
+    /// Another owner replaced the physical movement pointer and pose before drained art
+    /// installed its falling callback. The actor may continue its own AI, but this Samus
+    /// handler marker must not shadow the replacement after that owner completes.
+    /// </summary>
+    internal void RelinquishMovementHandler() => Phase = DrainedSamusPhase.Inactive;
+
+    /// <summary>
     /// Ports Samus command five at <c>$90:F38E</c>: install the able-to-stand timer handler,
     /// then enter the shared rainbow-beam setup at <c>$90:F394</c>.
     /// </summary>
@@ -274,6 +281,10 @@ public sealed class SamusDrainedState
                 $"Drained falling command requires pose $E8/$E9, not ${samus.Pose:X2}.");
         }
 
+        // Command `$F7` writes `$90:94CB` into the same movement-handler word used by
+        // Crystal Flash. When a cinematic changed to drained art during Flash, this is the
+        // exact instruction that strands its palette/input state as a shinespark suit.
+        samus.CrystalFlash.RelinquishMovementHandler();
         Phase = DrainedSamusPhase.Falling;
     }
 

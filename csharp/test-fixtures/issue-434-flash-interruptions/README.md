@@ -36,5 +36,6 @@ comparison are documented in [SUIT-BOMB.md](SUIT-BOMB.md).
 The elevator command-seven ownership fix and its 32 ordering/admission cases
 are documented in [ELEVATOR-ENTRY.md](ELEVATOR-ENTRY.md).
 
-#434 remains in progress: actual pickup/fuse timing cases and the complete
-downward-elevator interruption through restored controls remain unproven.
+#434 remains in progress: actual pickup/fuse timing and power-bomb cleanup
+ordering cases. The retail elevator handoff/control and spark-use extension
+passes, with its exact native-versus-integration boundary documented above.

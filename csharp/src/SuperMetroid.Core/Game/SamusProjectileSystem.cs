@@ -564,6 +564,18 @@ public sealed partial class SamusProjectileSystem
                     roomPlms);
                 projectileDeleted |= !slot.IsActive;
             }
+            else if (slot.PreInstruction ==
+                SamusProjectilePreInstruction.ChargedChainsawLowWramExecution)
+            {
+                // Charged combination thirteen does not point at ROM code. Its table
+                // overrun stores $0A0A, so native JSR enters the low-WRAM mirror and begins
+                // decoding the cached previous-Super-Missile word as opcodes. This semantic
+                // port cannot execute arbitrary mutable data as 65C816 code; fail at the
+                // same callback-dispatch seam instead of silently substituting Wave motion.
+                throw new NotSupportedException(
+                    "Charged Chainsaw callback $90:0A0A enters mutable low WRAM at " +
+                    "$7E:0A0A; arbitrary data-as-65C816 execution is not translated.");
+            }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.

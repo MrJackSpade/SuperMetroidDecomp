@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -15,12 +16,28 @@ internal static partial class Program
             new ushort[256], new byte[8]);
         var samus = new SamusState
         {
-            Pose = 1,
-            XPosition = 128,
-            YPosition = 128,
-            EquippedBeams = 0x000d,
-            SelectedHudItem = 0,
+            CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
+            EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
         };
+        var pause = new PauseMenuState(
+            bus,
+            samus,
+            new Bank80SystemState(),
+            AreaId.Crateria,
+            0,
+            0);
+        samus.CollectedBeams = 0x100f;
+        samus.EquippedBeams = (ushort)(SamusBeamFlags.Wave | SamusBeamFlags.Spazer);
+        pause.Step((ushort)SnesButton.R, (ushort)SnesButton.R);
+        for (int frame = 0; frame < 32; frame++)
+            pause.Step(0, 0);
+        pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));
+        AssertEqual((ushort)0x000d, samus.EquippedBeams,
+            "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
+        samus.Pose = 1;
+        samus.XPosition = 128;
+        samus.YPosition = 128;
+        samus.SelectedHudItem = 0;
         var shared = new SamusBombProjectileSystem();
         var projectiles = new SamusProjectileSystem();
         var result = projectiles.StepFrame(bus, level, samus,
@@ -325,7 +342,56 @@ internal static partial class Program
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
             "Power Bomb terrain completes its visible break after Chainsaw callback");
 
-        Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback store and Power-Bomb-gated lifetime agree.");
+        // The charged table has only twelve authored entries. Combination thirteen reads
+        // word $0A0A from FireChargedBeam's following instruction bytes, installs it, and
+        // reaches that callback in the same descending projectile pass. On hardware the
+        // bank-$90 JSR maps to mutable WRAM $7E:0A0A; the exact opcode stream depends on the
+        // cached previous-Super-Missile word. The semantic port must preserve this unstable
+        // destination and fail loudly rather than silently choosing ordinary Wave motion.
+        var chargedSamus = new SamusState
+        {
+            Pose = 1,
+            XPosition = 128,
+            YPosition = 128,
+            EquippedBeams = 0x100d,
+        };
+        var chargedShared = new SamusBombProjectileSystem();
+        var chargedProjectiles = new SamusProjectileSystem();
+        for (int frame = 0; frame < 60; frame++)
+        {
+            chargedShared.StepFrame(bus, level, chargedSamus, 0, 0);
+            chargedProjectiles.StepFrame(
+                bus,
+                level,
+                chargedSamus,
+                (ushort)SnesButton.X,
+                frame == 0 ? (ushort)SnesButton.X : (ushort)0,
+                0,
+                0,
+                chargedShared);
+        }
+        chargedShared.StepFrame(bus, level, chargedSamus, 0, 0);
+        NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
+            () => chargedProjectiles.StepFrame(
+                bus,
+                level,
+                chargedSamus,
+                0,
+                0,
+                0,
+                0,
+                chargedShared),
+            "charged Chainsaw reaches mutable low-WRAM execution");
+        AssertTrue(chargedFault.Message.Contains("$90:0A0A", StringComparison.Ordinal) &&
+            chargedFault.Message.Contains("$7E:0A0A", StringComparison.Ordinal),
+            "charged Chainsaw diagnostic identifies dispatcher and WRAM mirror");
+        AssertEqual(SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
+            chargedProjectiles.Slots[0].PreInstruction,
+            "charged Chainsaw retains its native unstable callback identity");
+        AssertEqual((ushort)0x901d, chargedProjectiles.Slots[0].Type,
+            "charged Chainsaw is fully allocated before unstable callback execution");
+
+        Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");
 
         static void WriteDoorDrawList(
             TestAddressSpace targetBus,

@@ -322,6 +322,8 @@ public sealed partial class SamusProjectileSystem
                 SamusBeamPreInstructionCodes.WaveFourFrameTrail => SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
                 SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb =>
                     SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb,
+                SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution =>
+                    SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
                 _ => throw new NotSupportedException($"Beam callback $90:{callback:X4} is not translated."),
             };
             InitializePowerBeamVelocity(bus, slot);

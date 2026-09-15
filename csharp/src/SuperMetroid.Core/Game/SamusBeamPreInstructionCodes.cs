@@ -20,4 +20,11 @@ public static class SamusBeamPreInstructionCodes
     /// falls through to the Power Bomb pre-instruction at $90:B0AE.
     /// </summary>
     public const ushort ChainsawWindowStoreThenPowerBomb = 0xb0ac;
+    /// <summary>
+    /// Charged combination thirteen overruns <see cref="ChargedTable"/> at $90:BA58 and
+    /// reads callback <c>$0A0A</c>. JSR therefore enters the bank-$90 low-WRAM mirror at
+    /// $7E:0A0A, whose word is Samus's cached previous Super-Missile count. Native
+    /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
+    /// </summary>
+    public const ushort ChargedChainsawLowWramExecution = 0x0a0a;
 }

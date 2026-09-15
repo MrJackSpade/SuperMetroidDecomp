@@ -672,9 +672,16 @@ public sealed partial class SamusState
             return;
         }
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-        Kinematics.YSpeed = 0;
-        Kinematics.YSubspeed = 0;
-        Kinematics.YDirection = 2;
+        // Command five's no-floor branch ($91:EFEF) preserves an ascending
+        // velocity, even if a special handler left it on a standing pose. Crystal
+        // Flash can do exactly that; unconditional reset shortens its return arc.
+        if (Kinematics.YDirection != 1)
+        {
+            MorphBallBounceState = 0;
+            Kinematics.YSpeed = 0;
+            Kinematics.YSubspeed = 0;
+            Kinematics.YDirection = 2;
+        }
         SamusAerialMovement.ConfigureEnvironmentGravity(bus, this);
         Pose = targetPose;
         // Alpha publishes the falling radius next frame; pose commit retains the

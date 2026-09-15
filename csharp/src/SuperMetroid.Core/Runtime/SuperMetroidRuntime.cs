@@ -2255,7 +2255,8 @@ public sealed partial class SuperMetroidRuntime
                         Plms,
                         playerInvincibilityEnabled: PlayerInvincibilityEnabled,
                         projectiles: Projectiles,
-                        gameTimeFrames: GameTime.Frames);
+                        gameTimeFrames: GameTime.Frames,
+                        deferTimeoutPoseChange: true);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That
@@ -2885,6 +2886,19 @@ public sealed partial class SuperMetroidRuntime
                         NmiFrameCounter,
                         Plms))
                 {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
+                // Windup expiry installs vertical movement immediately, but publishes
+                // an interrupted pose for this later phase. AnimateSamus must still see
+                // the windup body; otherwise the launch animation loses its first tick.
+                if (!animationTransitionApplied &&
+                    LastShinesparkMovement is { PendingLaunchPose: byte launchPose })
+                {
+                    SamusShinesparkState.ApplyDirectionalLaunchPose(_addressSpace, Samus, launchPose);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;

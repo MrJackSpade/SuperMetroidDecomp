@@ -19,6 +19,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool midair = kind == TemporaryBlueAuditKind.DraygonMidair;
         bool xray = kind == TemporaryBlueAuditKind.Xray;
         bool obstacle = kind == TemporaryBlueAuditKind.Obstacle;
+        bool crystal = kind == TemporaryBlueAuditKind.CrystalSpark;
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
@@ -30,7 +31,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU temporary Blue Suit trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (echoes ? 26 : sand ? 20 : terrain ? 22 : menu ? 19 : 18)))
+        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (crystal ? 22 : echoes ? 26 : sand ? 20 : terrain ? 22 : menu ? 19 : 18)))
             throw new InvalidDataException("Incomplete native temporary boost matrix.");
         int cases = 0, mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -38,7 +39,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1";
             int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
-            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain || menu || draygon || grab ? stop != 140 || aim < 0 || aim >= (draygon ? 12 : menu ? 6 : carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
+            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain || menu || draygon || grab || crystal ? stop != 140 || aim < 0 || aim >= (draygon ? 12 : menu ? 6 : carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
                 throw new InvalidDataException("Invalid temporary boost seed.");
             var game = menu ? PauseChargeCarryAudit.CreateFixture(rom, out _) : null;
             var runtime = game?.RuntimeForVerification ?? FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
@@ -59,6 +60,13 @@ internal static class TemporaryBlueSuitComparisonAudit
             if (bounce && aim >= 4) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.EquippedBeams = samus.CollectedBeams = 0;
             samus.Health = samus.MaxHealth = 99;
+            if (crystal)
+            {
+                samus.Health = aim == 5 ? (ushort)51 : (ushort)49;
+                samus.Missiles = aim == 6 ? (ushort)9 : (ushort)10;
+                samus.SuperMissiles = samus.PowerBombs = 10;
+                samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 10;
+            }
             samus.XPosition = (ushort)(left ? 2100 : 200); samus.YPosition = 491;
             samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
             samus.Pose = left ? SamusPoseIds.FacingLeftNormalPose : SamusPoseIds.FacingRightNormalPose;
@@ -90,12 +98,14 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (terrain) expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
                 if (xray) expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
                 if (obstacle) expectedInput = frame < 400 ? TemporaryBlueCancellationInputs.At(frame, left, 0) : 0x80 | (left ? 0x200 : 0x100);
+                if (crystal) expectedInput = CrystalSparkProbe.InputAt(frame, left, aim);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
                     throw new InvalidDataException("Changed controller sequence or reordered trace.");
                 var publication = new GameplayAudioFramePublication(audio);
                 if (cancel) TemporaryBlueCancellationInputs.BeforeFrame(samus, frame, aim);
                 grabProbe?.BeforeFrame(frame);
                 if (obstacle && frame == 400) TemporaryBlueObstacleProbe.Install(level, samus, left, aim);
+                if (crystal && frame == 152) CrystalSparkProbe.PrepareCleanup(bus, samus, runtime.BombProjectiles.PowerBombExplosion, aim);
                 string terrainResult = "0000,0000,0000,0000";
                 if (xray && frame == 200)
                 {
@@ -124,7 +134,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && !obstacle && frame == 399 &&
+                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && !obstacle && !crystal && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
@@ -135,14 +145,19 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (draygon && !midair) DraygonBlueSuitProbe.Verify(samus, frame, aim);
                 if (midair) DraygonMidairInputs.Verify(samus, frame, aim);
                 if (obstacle) TemporaryBlueObstacleProbe.Verify(samus, frame, aim);
+                if (crystal) CrystalSparkProbe.Verify(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
                     throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
                 if (stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)
                     throw new InvalidDataException("Stored charge must expire on its native frame.");
+                bool crystalPalette = samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash;
+                ushort shineWord = crystalPalette ? samus.CrystalFlash.SpecialPaletteTimer : samus.Shinespark.ShineTimer;
+                ushort paletteWord = crystalPalette ? samus.CrystalFlash.SpecialPaletteType : samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : samus.Shinespark.PaletteType;
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2}," +
                     $"{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4},{speed.BaseFixed:X8}," +
                     $"{speed.ExtraRunSpeed:X4}{speed.ExtraRunSubspeed:X4},{speed.SpeedBoostCounter:X4},{speed.ContactDamageIndex:X4}," +
-                    $"{samus.Shinespark.ShineTimer:X4},{(samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : samus.Shinespark.PaletteType):X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
+                    $"{shineWord:X4},{paletteWord:X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
+                if (crystal) actual += $",{samus.Health:X4},{samus.Missiles:X4},{samus.SuperMissiles:X4},{samus.PowerBombs:X4}";
                 if (sand) actual += $",{samus.Kinematics.ExtraXFixed:X8},{samus.Kinematics.ExtraYFixed:X8}";
                 if (terrain) actual += $",{terrainResult}";
                 if (menu) actual += $",{samus.EquippedItems:X4}";

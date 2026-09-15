@@ -1,4 +1,5 @@
 /* #429: earn temporary Blue Suit through native controller processing. */
+#define CAPTURE_DMA_CHANNEL_REGISTERS
 #include "../Common/CartridgeCpuFixture.h"
 #include "../../../upstream-sm/src/ida_types.h"
 #include "../../../upstream-sm/src/enemy_types.h"
@@ -10,6 +11,7 @@ enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockM
 #include "MidairFixture.h"
 #include "XrayFixture.h"
 #include "ObstacleFixture.h"
+#include "CrystalSparkFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -70,6 +72,7 @@ int main(int argc, char **argv) {
   bool midair = argc == 3 && strcmp(argv[2], "draygon-midair") == 0;
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
   bool obstacle = argc == 3 && strcmp(argv[2], "obstacle") == 0;
+  bool crystal = argc == 3 && strcmp(argv[2], "crystal-spark") == 0;
   bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
@@ -80,16 +83,17 @@ int main(int argc, char **argv) {
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
   bool grab = argc == 3 && strcmp(argv[2], "draygon-grab") == 0;
   bool draygon = echoes || grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !xray && !obstacle) return 2;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !xray && !obstacle && !crystal) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
+  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", crystal ? ",health,missiles,supers,powerbombs" : echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle ? 140 : 180); stop += terrain || xray ? 80 : 40)
-  for (int aim = 0; aim < (xray ? 1 : grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle || crystal ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle || crystal ? 140 : 180); stop += terrain || xray ? 80 : 40)
+  for (int aim = 0; aim < (xray ? 1 : crystal || grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
+    memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
     interactive_enemy_indexes[0] = 0xffff;
@@ -99,6 +103,12 @@ int main(int argc, char **argv) {
     if (xray) equipped_items = collected_items = 0xa004;
     if (bounce && aim >= 4) equipped_items = collected_items = 0x2006;
     samus_health = samus_max_health = 99;
+    if (crystal) {
+      samus_health = aim == 5 ? 51 : 49;
+      samus_missiles = aim == 6 ? 9 : 10;
+      samus_super_missiles = samus_power_bombs = 10;
+      samus_max_missiles = samus_max_super_missiles = samus_max_power_bombs = 10;
+    }
     samus_x_pos = samus_prev_x_pos = left ? 2100 : 200;
     samus_y_pos = samus_prev_y_pos = 491;
     samus_pose = samus_prev_pose = left ? 2 : 1;
@@ -111,7 +121,7 @@ int main(int argc, char **argv) {
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
     if (menu) reg_INIDISP = 15;
-    for (int frame = 0; frame < (obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (crystal || obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
       if (menu && frame == 431) {
         if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
         run(SelectInitialEquipment);
@@ -140,6 +150,7 @@ int main(int argc, char **argv) {
       if (draygon && aim >= 8 && frame >= 360) input = frame == 360 ? 0x410 : frame < 370 ? 0x10 : frame == 370 ? 0x80 : 0x880;
       if (grab) input = draygon_grab_input(frame, left, aim);
       if (midair) input = midair_input(frame, left, aim);
+      if (crystal) input = crystal_spark_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -150,6 +161,7 @@ int main(int argc, char **argv) {
         if (frame == 400) install_blue_obstacle(left, aim);
       }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
+      if (crystal && frame == 152) crystal_spark_cleanup(aim);
       if (grab && frame > draygon_grab_frame(aim) && frame < 220) {
         Get_Draygon(0)->base.y_pos = 400;
         if (frame_handler_gamma == DraygonGrabGamma)
@@ -223,6 +235,7 @@ int main(int argc, char **argv) {
         samus_shine_timer,timer_for_shine_timer,samus_y_speed,samus_y_subspeed,samus_y_dir);
       if (sand) printf(",%04X%04X,%04X%04X", extra_samus_x_displacement,extra_samus_x_subdisplacement,extra_samus_y_displacement,extra_samus_y_subdisplacement);
       if (echoes) print_echo_probe(frame);
+      if (crystal) printf(",%04X,%04X,%04X,%04X",samus_health,samus_missiles,samus_super_missiles,samus_power_bombs);
       if (terrain) {
         int count = 0;
         for (int p = 0; p < 40; p++) if (plm_header_ptr[p]) count++;

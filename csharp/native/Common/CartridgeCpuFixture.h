@@ -13,6 +13,12 @@ uint8 g_ram[0x20000];
 static uint8 rom[0x300000];
 static bool returned;
 static unsigned multiplicand, dividend, quotient, remainder;
+#ifdef CAPTURE_DMA_CHANNEL_REGISTERS
+/* Some movement handlers allocate HDMA objects. Store their channel registers
+   faithfully without claiming to execute DMA or render the resulting window. */
+enum { DmaChannelRegistersStart = 0x4300, DmaChannelRegistersEnd = 0x4380 };
+static uint8 dma_channel_registers[DmaChannelRegistersEnd - DmaChannelRegistersStart];
+#endif
 void Die(const char *message) { fprintf(stderr, "%s\n", message); exit(2); }
 int CpuOpcodeHook(uint32 address) { fprintf(stderr, "Unexpected hook %06X\n", address); exit(2); }
 bool HookedFunctionRts(int is_long) { (void)is_long; returned = true; return true; }
@@ -22,6 +28,10 @@ uint8 snes_cpuRead(Snes *snes, uint32 address) {
   if (bank == 0x7e || bank == 0x7f) return g_ram[address - 0x7e0000];
   if ((bank & 0x7f) < 0x40) {
     if (offset < 0x2000) return g_ram[offset];
+#ifdef CAPTURE_DMA_CHANNEL_REGISTERS
+    if (offset >= DmaChannelRegistersStart && offset < DmaChannelRegistersEnd)
+      return dma_channel_registers[offset - DmaChannelRegistersStart];
+#endif
     if (offset == 0x4214) return quotient;
     if (offset == 0x4215) return quotient >> 8;
     if (offset == 0x4216) return remainder;
@@ -37,6 +47,11 @@ void snes_cpuWrite(Snes *snes, uint32 address, uint8 value) {
   if (bank == 0x7e || bank == 0x7f) { g_ram[address - 0x7e0000] = value; return; }
   if ((bank & 0x7f) < 0x40) {
     if (offset < 0x2000) { g_ram[offset] = value; return; }
+#ifdef CAPTURE_DMA_CHANNEL_REGISTERS
+    if (offset >= DmaChannelRegistersStart && offset < DmaChannelRegistersEnd) {
+      dma_channel_registers[offset - DmaChannelRegistersStart] = value; return;
+    }
+#endif
     if (offset == 0x4202) { multiplicand = value; return; }
     if (offset == 0x4203) { remainder = multiplicand * value; return; }
     if (offset == 0x4204) { dividend = (dividend & 0xff00) | value; return; }

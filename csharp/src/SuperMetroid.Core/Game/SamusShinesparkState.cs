@@ -56,6 +56,19 @@ public sealed class SamusShinesparkState
     /// </summary>
     internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
 
+    /// <summary>
+    /// CrystalFlash ($90:D5A2) replaces both the movement pointer and shared special
+    /// palette words. The new owner holds those words; do not resume this old owner
+    /// after Flash finishes. Extra run speed and the boost counter are not cleared.
+    /// </summary>
+    internal void RelinquishToCrystalFlash()
+    {
+        Phase = ShinesparkPhase.Inactive;
+        ShineTimer = 0;
+        PaletteType = 0;
+        PaletteFrameOffset = 0;
+    }
+
     /// <summary>Set at stored timer 170, matching SFX queue three `$0C`.</summary>
     public bool StoredShineWarningSoundRequested { get; set; }
 
@@ -240,7 +253,8 @@ public sealed class SamusShinesparkState
     /// Installs the handler selected by <c>SamusFunc_F468_Shinespark</c> at
     /// <c>$91:F80F</c> for poses `$C9-$CE`.
     /// </summary>
-    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    public void BeginDirectionalLaunch(ISnesAddressSpace bus, SamusState samus, byte targetPose,
+        bool deferPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -262,18 +276,26 @@ public sealed class SamusShinesparkState
                 $"Pose ${targetPose:X2} is not one of the six directional shinespark poses."),
         };
 
-        samus.Pose = targetPose;
         samus.ShinesparkPoseInputLocked = true;
         samus.AutoJumpInputPending = false;
-        samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        if (!deferPoseChange)
+            ApplyDirectionalLaunchPose(bus, samus, targetPose);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
         LaunchSoundRequested = true;
         LaunchSoundSuppressed = _audioPowerBomb?.IsActive == true;
     }
 
+    /// <summary>Commits the interrupted launch pose after the current frame's animation.</summary>
+    internal static void ApplyDirectionalLaunchPose(ISnesAddressSpace bus, SamusState samus, byte pose)
+    {
+        samus.Pose = pose;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, initialFrame: 0);
+    }
+
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
     /// <param name="gameTimeFrames">Native gameplay-clock word used by echo sampling, independent of NMI collision parity.</param>
+    /// <param name="deferTimeoutPoseChange">The runtime commits interrupted poses after animation; standalone movement callers may commit immediately.</param>
     public ShinesparkMovementResult Step(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -283,7 +305,8 @@ public sealed class SamusShinesparkState
         RoomPlmSystem? plms = null,
         bool playerInvincibilityEnabled = false,
         SamusProjectileSystem? projectiles = null,
-        ushort gameTimeFrames = 0)
+        ushort gameTimeFrames = 0,
+        bool deferTimeoutPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -296,16 +319,20 @@ public sealed class SamusShinesparkState
             NativeWordCounterStep timer = NativeWordCounter.Decrement(StartStopTimer);
             StartStopTimer = timer.Value;
             bool timedOut = timer.IsZeroOrNegative;
+            byte? pendingLaunchPose = null;
             if (timedOut)
             {
                 byte verticalPose = samus.IsFacingLeft(bus)
                     ? SamusPoseIds.ShinesparkVerticalLeftPose
                     : SamusPoseIds.ShinesparkVerticalRightPose;
-                BeginDirectionalLaunch(bus, samus, verticalPose);
+                BeginDirectionalLaunch(bus, samus, verticalPose, deferTimeoutPoseChange);
+                if (deferTimeoutPoseChange)
+                    pendingLaunchPose = verticalPose;
             }
 
             return new ShinesparkMovementResult(
-                phaseAtStart, null, null, timedOut, false, false, false);
+                phaseAtStart, null, null, timedOut, false, false, false,
+                PendingLaunchPose: pendingLaunchPose);
         }
 
         if (Phase is not (ShinesparkPhase.Horizontal or
@@ -430,7 +457,8 @@ public sealed class SamusShinesparkState
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0;
         samus.HorizontalSpeed.SpeedBoostCounter = 0;
-        samus.HorizontalSpeed.ContactDamageIndex = 0;
+        // EndSuperJump retains this frame's contact damage. The shared frame
+        // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
         bool facingLeft = samus.IsFacingLeft(bus);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
@@ -912,7 +940,8 @@ public readonly record struct ShinesparkMovementResult(
     bool EndedByCollision,
     bool EndedByLowEnergy,
     bool EnergyDrained,
-    bool CrashSequenceFinished = false);
+    bool CrashSequenceFinished = false,
+    byte? PendingLaunchPose = null);
 
 /// <summary>Immutable debugger view of one departing crash-echo projectile.</summary>
 public readonly record struct ShinesparkReleasedEcho(

@@ -129,6 +129,7 @@ public sealed class SamusCrystalFlashState
 
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
+        samus.Shinespark.RelinquishToCrystalFlash();
         RaiseTimer = 9;
         AmmoDecrementIndex = 0;
         AmmoDecrementTimer = 10;
@@ -285,6 +286,7 @@ public sealed class SamusCrystalFlashState
             return;
 
         SpecialPaletteTimer = 0xffff;
+        samus.ShinesparkPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the native return path.
         samus.InvincibilityTimer = 0;
         samus.KnockbackTimer = 0;

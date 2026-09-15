@@ -19,7 +19,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool midair = kind == TemporaryBlueAuditKind.DraygonMidair;
         bool xray = kind == TemporaryBlueAuditKind.Xray;
         bool obstacle = kind == TemporaryBlueAuditKind.Obstacle;
-        bool crystal = kind == TemporaryBlueAuditKind.CrystalSpark;
+        bool crystalHeights = kind == TemporaryBlueAuditKind.CrystalHeights;
+        bool crystal = crystalHeights || kind == TemporaryBlueAuditKind.CrystalSpark;
         bool suitRelease = kind == TemporaryBlueAuditKind.SuitRelease;
         bool suit = suitRelease || kind == TemporaryBlueAuditKind.SuitSpark;
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
@@ -41,7 +42,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var seed = group.First();
             bool left = seed[0] == "1";
             int stop = int.Parse(seed[1]), aim = int.Parse(seed[2]);
-            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain || menu || draygon || grab || crystal || suit ? stop != 140 || aim < 0 || aim >= (draygon ? 12 : menu ? 6 : carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
+            if (seed[0] is not ("0" or "1") || (terrain ? stop is not (60 or 140) || aim is < 0 or > 7 : carry || bounce || cancel || sand || chain || menu || draygon || grab || crystal || suit ? stop != 140 || aim < 0 || aim >= (crystalHeights ? 24 : draygon ? 12 : menu ? 6 : carry ? 40 : 8) : stop is not (60 or 100 or 140 or 180) || aim is < 0 or > 3))
                 throw new InvalidDataException("Invalid temporary boost seed.");
             var game = menu ? PauseChargeCarryAudit.CreateFixture(rom, out _) : null;
             var runtime = game?.RuntimeForVerification ?? FlatFloorMovementFixture.Create(bus, water: false, wideRunway: true);
@@ -64,8 +65,8 @@ internal static class TemporaryBlueSuitComparisonAudit
             samus.Health = samus.MaxHealth = 99;
             if (crystal)
             {
-                samus.Health = aim == 5 ? (ushort)51 : (ushort)49;
-                samus.Missiles = aim == 6 ? (ushort)9 : (ushort)10;
+                samus.Health = (aim & 7) == 5 ? (ushort)51 : (ushort)49;
+                samus.Missiles = (aim & 7) == 6 ? (ushort)9 : (ushort)10;
                 samus.SuperMissiles = samus.PowerBombs = 10;
                 samus.MaxMissiles = samus.MaxSuperMissiles = samus.MaxPowerBombs = 10;
             }
@@ -101,6 +102,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (xray) expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
                 if (obstacle) expectedInput = frame < 400 ? TemporaryBlueCancellationInputs.At(frame, left, 0) : 0x80 | (left ? 0x200 : 0x100);
                 if (crystal) expectedInput = CrystalSparkProbe.InputAt(frame, left, aim);
+                if (crystalHeights) expectedInput = CrystalSparkProbe.HeightInputAt(frame, left, aim);
                 if (suit) expectedInput = SuitSparkProbe.InputAt(frame, left, aim);
                 if (suitRelease) expectedInput = SuitSparkProbe.ReleaseInputAt(frame, left, aim);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
@@ -109,7 +111,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (cancel) TemporaryBlueCancellationInputs.BeforeFrame(samus, frame, aim);
                 grabProbe?.BeforeFrame(frame);
                 if (obstacle && frame == 400) TemporaryBlueObstacleProbe.Install(level, samus, left, aim);
-                if (crystal && frame == 152) CrystalSparkProbe.PrepareCleanup(bus, samus, runtime.BombProjectiles.PowerBombExplosion, aim);
+                if (crystal && frame == 152) CrystalSparkProbe.PrepareCleanup(bus, samus, runtime.BombProjectiles.PowerBombExplosion, aim & 7);
                 if (suitRelease && frame == 330) SuitSparkProbe.PrepareRelease(bus, samus);
                 string terrainResult = "0000,0000,0000,0000";
                 if (xray && frame == 200)
@@ -153,7 +155,8 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (draygon && !midair) DraygonBlueSuitProbe.Verify(samus, frame, aim);
                 if (midair) DraygonMidairInputs.Verify(samus, frame, aim);
                 if (obstacle) TemporaryBlueObstacleProbe.Verify(samus, frame, aim);
-                if (crystal) CrystalSparkProbe.Verify(samus, frame, aim);
+                if (crystal) CrystalSparkProbe.Verify(samus, frame, aim & 7);
+                if (crystalHeights) CrystalSparkProbe.VerifyHeight(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
                     throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
                 if (!suit && stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)

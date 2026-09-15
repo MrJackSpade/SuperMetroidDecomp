@@ -2,8 +2,9 @@
 
 This native-CPU fixture covers the complete Varia/Gravity transformation while
 shinespark windup is suspended, its release, and subsequent X-Ray admission.
-It is partial coverage of #427: bomb-jump alternatives and the other Crystal
-Spark heights remain to be tested. The release matrix below additionally checks
+It is partial coverage of #427: bomb-jump alternatives remain to be tested.
+Crystal Spark heights are covered in `../issue-427-crystal-spark`.
+The release matrix below additionally checks
 X-Ray teardown and reuse of the retained boost.
 
 ## Regeneration

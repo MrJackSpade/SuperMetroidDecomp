@@ -4,6 +4,27 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Constructs only the aged Power Bomb; Samus earns windup through controller input.</summary>
 internal static class CrystalSparkProbe
 {
+    public static ushort HeightInputAt(int frame, bool left, int mode)
+    {
+        int posture = mode / 8;
+        if (posture == 1 && frame >= 148 && frame <= 150)
+            return frame == 150 ? (ushort)0x90 : (ushort)0x10;
+        if (posture == 2 && frame >= 145 && frame < 150) return 0x800;
+        return InputAt(frame, left, mode & 7);
+    }
+
+    public static void VerifyHeight(SamusState samus, int frame, int mode)
+    {
+        if (frame != 151) return;
+        // Native controller sequences produce these three windup centers, not
+        // injected poses/coordinates: plain crouch, aimed crouch, standing.
+        ushort expectedY = (mode / 8) switch { 0 => 482, 1 => 492, 2 => 490,
+            _ => throw new InvalidDataException("Unknown Crystal Spark posture.") };
+        if (samus.YPosition != expectedY || samus.Kinematics.YSubposition != 0xffff ||
+            samus.Shinespark.Phase != ShinesparkPhase.Windup)
+            throw new InvalidDataException("Crystal Spark pre-cleanup height does not match native posture.");
+    }
+
     public static ushort InputAt(int frame, bool left, int mode)
     {
         if (frame < 140) return (ushort)(0x8000 | (left ? 0x200 : 0x100));

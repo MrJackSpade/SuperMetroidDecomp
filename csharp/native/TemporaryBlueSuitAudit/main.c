@@ -73,7 +73,8 @@ int main(int argc, char **argv) {
   bool midair = argc == 3 && strcmp(argv[2], "draygon-midair") == 0;
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
   bool obstacle = argc == 3 && strcmp(argv[2], "obstacle") == 0;
-  bool crystal = argc == 3 && strcmp(argv[2], "crystal-spark") == 0;
+  bool crystalHeights = argc == 3 && strcmp(argv[2], "crystal-heights") == 0;
+  bool crystal = crystalHeights || (argc == 3 && strcmp(argv[2], "crystal-spark") == 0);
   bool suitRelease = argc == 3 && strcmp(argv[2], "suit-release") == 0;
   bool suit = suitRelease || (argc == 3 && strcmp(argv[2], "suit-spark") == 0);
   bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
@@ -94,7 +95,7 @@ int main(int argc, char **argv) {
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", suit ? suit_spark_columns : crystal ? ",health,missiles,supers,powerbombs" : echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
   for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle || crystal || suit ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle || crystal || suit ? 140 : 180); stop += terrain || xray ? 80 : 40)
-  for (int aim = 0; aim < (xray ? 1 : suit || crystal || grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int aim = 0; aim < (crystalHeights ? 24 : xray ? 1 : suit || crystal || grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     if (suitRelease && (aim & 3) != 1 && (aim & 3) != 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
@@ -110,8 +111,8 @@ int main(int argc, char **argv) {
     if (bounce && aim >= 4) equipped_items = collected_items = 0x2006;
     samus_health = samus_max_health = 99;
     if (crystal) {
-      samus_health = aim == 5 ? 51 : 49;
-      samus_missiles = aim == 6 ? 9 : 10;
+      samus_health = (aim & 7) == 5 ? 51 : 49;
+      samus_missiles = (aim & 7) == 6 ? 9 : 10;
       samus_super_missiles = samus_power_bombs = 10;
       samus_max_missiles = samus_max_super_missiles = samus_max_power_bombs = 10;
     }
@@ -158,6 +159,7 @@ int main(int argc, char **argv) {
       if (grab) input = draygon_grab_input(frame, left, aim);
       if (midair) input = midair_input(frame, left, aim);
       if (crystal) input = crystal_spark_input(frame, left, aim);
+      if (crystalHeights) input = crystal_height_input(frame, left, aim);
       if (suit) input = suit_spark_input(frame, left, aim);
       if (suitRelease) input = suit_release_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
@@ -171,7 +173,7 @@ int main(int argc, char **argv) {
       }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       if (suitRelease) step_suit_xray_release(frame);
-      if (crystal && frame == 152) crystal_spark_cleanup(aim);
+      if (crystal && frame == 152) crystal_spark_cleanup(aim & 7);
       if (grab && frame > draygon_grab_frame(aim) && frame < 220) {
         Get_Draygon(0)->base.y_pos = 400;
         if (frame_handler_gamma == DraygonGrabGamma)
@@ -225,6 +227,7 @@ int main(int argc, char **argv) {
       if (suit && frame == 151) begin_suit_spark(aim);
       if (suit) verify_suit_spark(frame, aim);
       if (suitRelease) verify_suit_xray_release(frame);
+      if (crystalHeights) verify_crystal_height(frame, aim);
       if (echoes) draw_echo_probe();
       if (grab && frame == draygon_grab_frame(aim)) {
         cur_enemy_index = 0;

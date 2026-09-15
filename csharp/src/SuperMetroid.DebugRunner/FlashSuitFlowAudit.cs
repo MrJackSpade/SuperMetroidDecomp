@@ -6,15 +6,17 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Runtime suit release with suspended Flash and timer-eight bomb overlap controls.</summary>
 internal static class FlashSuitFlowAudit
 {
-    public static int Run(string rom, string trace)
+    public static int Run(string rom, string trace, bool fuse = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != "BB58506A1B95B58BF991D87C8653AC77F3C8F2FA34E81E7DD74151FBF4F3E217")
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (fuse
+                ? "9A8A9FECE1CA70060CAD0A12C18ADB7B4BACD1EBB3BFF68B013D71501FF01A2B"
+                : "BB58506A1B95B58BF991D87C8653AC77F3C8F2FA34E81E7DD74151FBF4F3E217"))
             throw new InvalidDataException("Use the pinned ROM and native suit-flow trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != 5280 || rows.Any(row => row.Length != 20)) throw new InvalidDataException("Incomplete suit flow.");
+        if (rows.Length != (fuse ? 8800 : 5280) || rows.Any(row => row.Length != 20)) throw new InvalidDataException("Incomplete suit flow.");
         int mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
         {
@@ -42,9 +44,24 @@ internal static class FlashSuitFlowAudit
             samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
             samus.PoseHistory.PreviousPose = samus.Pose;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(first[0] == "1" ? 8 : 4);
+            if (fuse)
+            {
+                samus.XPosition = 120;
+                samus.Pose = first[0] == "1" ? (byte)0x1d : (byte)0x41;
+                samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
+                samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
+                runtime.BombProjectiles.StepFrame(bus, level, samus, 0x40, 0x40, runtime.Plms, deferSamusOverlap: true);
+                var placed = runtime.BombProjectiles.Slots[0];
+                int target = 7 + int.Parse(first[2]);
+                if (placed.Damage == 0) throw new InvalidDataException("Actual bomb placement failed.");
+                while (placed.BombTimer > target)
+                    runtime.BombProjectiles.StepFrame(bus, level, samus, 0, 0, runtime.Plms, deferSamusOverlap: true);
+                if (placed.BombTimer != target) throw new InvalidDataException("Bomb fuse missed the requested adjacent timing.");
+            }
             if (!samus.CrystalFlash.TryBegin(bus, samus, 0x470, 0x40)) throw new InvalidDataException("Flash rejected.");
             bool gravity = first[1] == "1";
-            samus.EquippedItems = samus.CollectedItems = (ushort)(gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit);
+            samus.EquippedItems = samus.CollectedItems = (ushort)((gravity ? SamusEquipmentFlags.GravitySuit : SamusEquipmentFlags.VariaSuit) |
+                (fuse ? SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs : 0));
             runtime.SuitPickup.Begin(bus, samus, 0, 355, gravity ? SamusSuitPickupKind.Gravity : SamusSuitPickupKind.Varia);
             int frame = 0;
             bool reported = false;
@@ -52,8 +69,8 @@ internal static class FlashSuitFlowAudit
             {
                 if (int.Parse(row[3]) != frame++) throw new InvalidDataException("Reordered suit flow.");
                 var bomb = runtime.BombProjectiles.Slots[0];
-                bomb.ClearFields();
-                if (runtime.SuitPickup.IsActive && runtime.SuitPickup.Substate == 6 && first[2] != "0")
+                if (!fuse) bomb.ClearFields();
+                if (!fuse && runtime.SuitPickup.IsActive && runtime.SuitPickup.Substate == 6 && first[2] != "0")
                 {
                     bomb.Type = (ushort)SamusProjectileFamily.Bomb; bomb.Damage = 30; bomb.BombTimer = 8;
                     bomb.XPosition = (ushort)(samus.XPosition + (first[2] == "2" ? 13 : 0));
@@ -61,12 +78,13 @@ internal static class FlashSuitFlowAudit
                 }
                 int currentFrame = frame - 1;
                 runtime.StepFrame((ushort)(currentFrame < 400 ? 0 : currentFrame == 400 ? 0x80 : 0x880));
+                bool hit = fuse ? int.Parse(first[2]) >= 2 : first[2] == "1";
                 if (currentFrame == 399 && (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive ||
                     samus.BombJumpActive || samus.BombJumpStarting ||
-                    (first[2] == "1" ? samus.SharedShineTimer == 0 || samus.CrystalFlash.SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash
+                    (hit ? samus.SharedShineTimer == 0 || samus.CrystalFlash.SpecialPaletteKind != SamusSpecialPaletteType.CrystalFlash
                                      : samus.SharedShineTimer != 0 || samus.CrystalFlash.SpecialPaletteKind != SamusSpecialPaletteType.None)))
                     throw new InvalidDataException("Bomb hit/control did not restore the native movement and retention state.");
-                if (currentFrame == 403 && first[2] == "1" && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
+                if (currentFrame == 403 && hit && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
                     samus.HorizontalSpeed.ContactDamageIndex != 2 || samus.Health != 48))
                     throw new InvalidDataException("Suit/Flash bomb retention cannot launch the native damaging spark.");
                 bool flashPalette = samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash;

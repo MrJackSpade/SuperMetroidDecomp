@@ -36,7 +36,10 @@ comparison are documented in [SUIT-BOMB.md](SUIT-BOMB.md).
 The elevator command-seven ownership fix and its 32 ordering/admission cases
 are documented in [ELEVATOR-ENTRY.md](ELEVATOR-ENTRY.md).
 
-#434 remains in progress for actual suit pickup/fuse timing. The elevator
+Actual bomb placement/fuse timing now matches 8,800 native frames, including
+adjacent failures; see [SUIT-FUSE.md](SUIT-FUSE.md).
+
+#434 remains in progress for collectible PLM/message sequencing. The elevator
 extension now uses real bomb placement/cleanup, early/late input-edge controls,
 and the retail handoff through restored control and spark use. Its exact
 native-versus-integration boundary is documented above.

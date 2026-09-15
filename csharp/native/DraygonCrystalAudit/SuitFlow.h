@@ -1,10 +1,10 @@
 /* #434: suspended Flash through suit release, with a real timer-eight bomb overlap. */
-enum { FlashSuitAlpha = 0x90e713 };
-static void suit_flow_matrix(void) {
+enum { FlashSuitAlpha = 0x90e713, FlashBombPlacement = 0x90bf9d };
+static void suit_flow_matrix(bool fuse) {
   printf("right,gravity,bomb,frame,pose,x,y,ysub,yspeed,ysubspeed,ydir,handler,shine,palette,counter,health,missiles,supers,pbs,suit\n");
   for (int right = 0; right < 2; right++)
   for (int gravity = 0; gravity < 2; gravity++)
-  for (int bomb = 0; bomb < 3; bomb++) {
+  for (int bomb = 0; bomb < (fuse ? 5 : 3); bomb++) {
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
@@ -23,10 +23,21 @@ static void suit_flow_matrix(void) {
     button_config_shoot_x = 0x40; button_config_jump_a = 0x80;
     button_config_run_b = 0x8000; button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
-    joypad1_lastkeys = 0x470; game_state = 8;
+    game_state = 8;
+    if (fuse) {
+      samus_x_pos = samus_prev_x_pos = 120;
+      samus_pose = right ? 0x1d : 0x41;
+      equipped_items = collected_items = 0x1004;
+      joypad1_lastkeys = joypad1_newkeys = 0x40;
+      run(RefreshRadius); run(FlashBombPlacement); run(ProjectilePhase);
+      if (bomb_counter != 1) Die("Actual bomb placement failed");
+      while (projectile_variables[5] > 7 + bomb) run(ProjectilePhase);
+      if (projectile_variables[5] != 7 + bomb) Die("Bomb fuse did not reach requested adjacent timing");
+    }
+    joypad1_lastkeys = 0x470;
     run(RefreshRadius); run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flow must start from actual Flash admission");
-    equipped_items = collected_items = gravity ? 0x20 : 1;
+    equipped_items = collected_items = (gravity ? 0x20 : 1) | (fuse ? 0x1004 : 0);
     layer1_y_pos = 355;
     run(gravity ? FlashGravitySetup : FlashVariaSetup);
     bool active = true;
@@ -34,8 +45,8 @@ static void suit_flow_matrix(void) {
       bool released = active && substate == 6;
       if (active) run(gravity ? FlashGravityHdma : FlashVariaHdma);
       if (released) active = false;
-      bomb_counter = 0; projectile_damage[5] = 0;
-      if (released && bomb) {
+      if (!fuse) { bomb_counter = 0; projectile_damage[5] = 0; }
+      if (!fuse && released && bomb) {
         bomb_counter = 1; projectile_type[5] = 0x500; projectile_damage[5] = 30;
         projectile_x_pos[5] = samus_x_pos + (bomb == 2 ? 13 : 0);
         projectile_y_pos[5] = samus_y_pos;
@@ -47,15 +58,16 @@ static void suit_flow_matrix(void) {
       nmi_frame_counter_word = frame + 2;
       if (active) { run(FlashSuitAlpha); run(InteractionPhase); }
       else {
-        run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
+        run(InputPhase); if (fuse) run(ProjectilePhase); run(InteractionPhase); samus_contact_damage_index = 0;
         run(0x900000 | samus_movement_handler);
         unsigned stages[] = {AnimationPhase,TransitionPhase,CollisionPosePhase,ApplyPosePhase,PoseHistoryPhase,HurtPhase,CollisionPhase,Palette};
         for (int i = 0; i < 8; i++) run(stages[i]);
       }
+      bool hit = fuse ? bomb >= 2 : bomb == 1;
       if (frame == 399 && (samus_movement_handler != 0xa337 ||
-          (bomb == 1 ? !samus_shine_timer || timer_for_shine_timer != 7 : samus_shine_timer || timer_for_shine_timer)))
+          (hit ? !samus_shine_timer || timer_for_shine_timer != 7 : samus_shine_timer || timer_for_shine_timer)))
         Die("Only the bomb hit may retain Flash after returning to normal movement");
-      if (frame == 403 && bomb == 1 && (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != 48))
+      if (frame == 403 && hit && (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != 48))
         Die("Suit/Flash bomb retention must launch a damaging, energy-consuming spark");
       printf("%d,%d,%d,%d,%02X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%d\n",
         right,gravity,bomb,frame,samus_pose,samus_x_pos,samus_y_pos,samus_y_subpos,samus_y_speed,samus_y_subspeed,samus_y_dir,

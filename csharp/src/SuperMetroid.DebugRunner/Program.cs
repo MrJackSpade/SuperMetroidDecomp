@@ -584,6 +584,8 @@ if (args.Length == 3 && args[0] == "--flash-beam-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2], beam: true);
 if (args.Length == 3 && args[0] == "--flash-save-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2], save: true);
+if (args.Length == 3 && args[0] == "--flash-suit-scratch-audit")
+    return FlashSuitScratchAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--draygon-crystal-runtime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")

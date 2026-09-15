@@ -92,7 +92,7 @@ public sealed class SamusSuitPickupState
             : SamusPaletteRomData.SuitPickup.GravityBlue;
         Substate = 0;
         LightBeamPosition = 0;
-        samus.Shinespark.ApplySuitPickupScratch(Substate, LightBeamPosition);
+        PublishSharedScratch(samus);
         LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
         Array.Fill(_windowTable, SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints);
 
@@ -169,7 +169,18 @@ public sealed class SamusSuitPickupState
             default:
                 throw new InvalidDataException($"Unknown suit-pickup substate {Substate}.");
         }
+        PublishSharedScratch(samus);
+    }
+
+    /// <summary>Publishes suit writes to the other owners of native $0DEC/$0DEE.</summary>
+    private void PublishSharedScratch(SamusState samus)
+    {
         samus.Shinespark.ApplySuitPickupScratch(Substate, LightBeamPosition);
+        // Suit setup and each HDMA phase write the same word Flash later reads as
+        // its ammo-decrement counter. Suspending Flash's movement does not give it
+        // a private copy of that word; Draygon's escape counter aliases it too.
+        samus.CrystalFlash.SetSharedAmmoCounter(Substate);
+        samus.DraygonGrabbed.SetSharedEscapeCounter(Substate);
     }
 
     private void StepLightBeamAppears()

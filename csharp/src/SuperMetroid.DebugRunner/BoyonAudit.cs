@@ -14,6 +14,21 @@ internal static class BoyonAuditDefinitions
 
     /// <summary>Boyon enemy definition at <c>$A0:CEBF</c>.</summary>
     public const ushort BoyonEnemyDefinition = 0xcebf;
+
+    /// <summary>Native enemy slot of the nearer left-hand Boyon in Alpha Power Bomb Room.</summary>
+    public const ushort ForegroundBoyonNativeIndex = 0x0080;
+
+    /// <summary>Native enemy slot of the reported second left-hand Boyon in Alpha Power Bomb Room.</summary>
+    public const ushort ReportedBoyonNativeIndex = 0x00c0;
+
+    /// <summary>Captured world X coordinate of the nearer left-hand Boyon.</summary>
+    public const ushort ForegroundBoyonX = 0x01f8;
+
+    /// <summary>Captured world X coordinate of the reported second left-hand Boyon.</summary>
+    public const ushort ReportedBoyonX = 0x0208;
+
+    /// <summary>Control X coordinate between the two Boyon pairs, used to shoot the reported target from its right.</summary>
+    public const ushort RightSideControlSamusX = 0x0230;
 }
 
 /// <summary>

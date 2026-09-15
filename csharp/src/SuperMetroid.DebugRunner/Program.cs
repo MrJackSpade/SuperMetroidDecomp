@@ -949,6 +949,13 @@ if (args.Length >= 2 && args[0] == "--alpha-power-bomb-boyon-audit")
     return BoyonAudit.Run(boyonRomPath);
 }
 
+if (args.Length == 3 && args[0] == "--captured-boyon-freeze-audit")
+{
+    return CapturedBoyonFreezeAudit.Run(
+        args[1].Trim('"'),
+        args[2].Trim('"'));
+}
+
 if (args.Length >= 2 && args[0] == "--stoke-audit")
 {
     string stokeRomPath = string.Join(' ', args[1..]).Trim('"');

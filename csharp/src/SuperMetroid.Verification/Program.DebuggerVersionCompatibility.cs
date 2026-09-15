@@ -8,6 +8,7 @@ internal static partial class Program
     {
         VerifyRoomCallbackStateIdentity();
         VerifyLegacyShinesparkGraph();
+        VerifyFieldIdentityRestorationIgnoresMetadataOrder();
         MethodInfo expected = typeof(Program).GetMethod(nameof(DebuggerSignatureProbe), BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (bool wrongParameter in new[] { false, true })
         {
@@ -110,6 +111,10 @@ internal static partial class Program
         var xrayFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusXrayState)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
+                xrayFields.Length - 2).SequenceEqual(xrayFields.Where(field => field.Name is not
+                    "<PendingActivationPose>k__BackingField" and not "<OwnsSamusControl>k__BackingField")),
+            "0.2.0 X-Ray layout omits only activation-pose and control ownership fields");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
                 xrayFields.Length - 1).SequenceEqual(xrayFields.Where(field =>
                     field.Name != "<OwnsSamusControl>k__BackingField")),
             "legacy X-Ray preserves its HDMA, freeze, phase, and palette state");
@@ -125,6 +130,18 @@ internal static partial class Program
         DebuggerStateFieldMigrations.InitializeMissingFields(legacyInactiveXray, xrayFields.Length - 1);
         AssertTrue(!legacyInactiveXray.OwnsSamusControl,
             "legacy inactive X-Ray does not invent Samus handler ownership");
+        var draygonGrabFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusDraygonGrabbedState)])!;
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusDraygonGrabbedState),
+                draygonGrabFields, draygonGrabFields.Length - 1).SequenceEqual(draygonGrabFields.Where(field =>
+                    field.Name != "<MovementHandlerReplaced>k__BackingField")),
+            "0.2.0 Draygon-grab layout omits only explicit movement-handler ownership");
+        var layer3FxFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(RoomLayer3FxState)])!;
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(RoomLayer3FxState), layer3FxFields,
+                layer3FxFields.Length - 1).SequenceEqual(layer3FxFields.Where(field =>
+                    field.Name != "lavaAcidBg3PreInstructionInstalled")),
+            "0.2.0 room-FX layout omits only the BG3 pre-instruction latch");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)
             .SequenceEqual(projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField")),
             "legacy projectile slot retains the actual projectile type and trajectory");
@@ -173,5 +190,58 @@ internal static partial class Program
         static Type Resolve(string name) => DebuggerStateTypeIdentity.Resolve(name) ?? throw new InvalidDataException(name);
     }
 
+    /// <summary>
+    /// Reconstructs a valid field payload in the opposite order to prove that state
+    /// compatibility follows serialized field identity, not compiler metadata order.
+    /// </summary>
+    private static void VerifyFieldIdentityRestorationIgnoresMetadataOrder()
+    {
+        using var stream = new MemoryStream();
+        using (var writer = new BinaryWriter(stream, System.Text.Encoding.UTF8, leaveOpen: true))
+        {
+            writer.Write(DebuggerGraphWireDefinitions.NewObjectMarker);
+            writer.Write(1);
+            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(typeof(DebuggerFieldOrderProbe)));
+            writer.Write(DebuggerGraphWireDefinitions.FieldsPayloadKind);
+            writer.Write(2);
+            WriteIntField(writer, nameof(DebuggerFieldOrderProbe.Second), 22);
+            WriteIntField(writer, nameof(DebuggerFieldOrderProbe.First), 11);
+        }
+        stream.Position = 0;
+        DebuggerFieldOrderProbe restored = DebuggerObjectGraphSerializer.Deserialize<DebuggerFieldOrderProbe>(stream);
+        AssertEqual(11, restored.First, "debugger state restores the first field by identity after reordering");
+        AssertEqual(22, restored.Second, "debugger state restores the second field by identity after reordering");
+
+        static void WriteIntField(BinaryWriter writer, string fieldName, int value)
+        {
+            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(typeof(DebuggerFieldOrderProbe)));
+            writer.Write(fieldName);
+            writer.Write(DebuggerGraphWireDefinitions.NewObjectMarker);
+            writer.Write(0); // Value types do not receive reference IDs.
+            writer.Write(DebuggerStateTypeIdentity.GetSerializedName(typeof(int)));
+            writer.Write(DebuggerGraphWireDefinitions.PrimitivePayloadKind);
+            writer.Write(value);
+        }
+    }
+
     private static SamusState DebuggerSignatureProbe(SamusState state) => state;
+
+    private sealed class DebuggerFieldOrderProbe
+    {
+        public int First = 0;
+        public int Second = 0;
+    }
+}
+
+/// <summary>Stable wire identifiers emitted by the debugger object-graph serializer.</summary>
+internal static class DebuggerGraphWireDefinitions
+{
+    /// <summary>Introduces an object/value not previously emitted in the graph.</summary>
+    public const byte NewObjectMarker = 2;
+
+    /// <summary>Identifies a primitive-value payload.</summary>
+    public const byte PrimitivePayloadKind = 0;
+
+    /// <summary>Identifies an object payload serialized as named instance fields.</summary>
+    public const byte FieldsPayloadKind = 5;
 }

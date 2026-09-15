@@ -17,6 +17,15 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusXrayState) && count == current.Length - 2 &&
+            current.Any(field => field.Name == "<PendingActivationPose>k__BackingField") &&
+            current.Any(field => field.Name == "<OwnsSamusControl>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks pending activation and separate Samus-control ownership; both restore inactive.");
+            return current.Where(field => field.Name is not
+                "<PendingActivationPose>k__BackingField" and not
+                "<OwnsSamusControl>k__BackingField").ToArray();
+        }
         if (type == typeof(SamusShinesparkState) && count == current.Length - 3)
         {
             Console.Error.WriteLine("WARNING: Legacy shinespark requests lack producer-time suppression; retaining historical unsuppressed admission.");
@@ -80,6 +89,22 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy kinematics lacks prospective-pose contact mode; retaining live owner lookup.");
             return current.Where(field => field.Name != "<ProbeContactDamageIndex>k__BackingField").ToArray();
         }
+        if (type == typeof(SamusState) && count == current.Length - 5 &&
+            current.Any(field => field.Name == "<ShinesparkPoseInputLocked>k__BackingField") &&
+            current.Any(field => field.Name == "<CrystalFlashPoseInputLocked>k__BackingField"))
+        {
+            // The 0.2.0/#524 graph predates the two special-movement pose locks, the
+            // stationary script lock, and the paired pose/camera correction history. Its
+            // actual field identities are validated by GraphReader after this selection;
+            // the count alone is never allowed to substitute a different five-field era.
+            Console.Error.WriteLine("WARNING: 0.2.0 Samus state lacks special-movement pose locks, stationary script ownership, and pose/camera correction history; restoring all inactive.");
+            return current.Where(field => field.Name is not
+                "<ShinesparkPoseInputLocked>k__BackingField" and not
+                "<CrystalFlashPoseInputLocked>k__BackingField" and not
+                "<StationaryScriptControlLocked>k__BackingField" and not
+                "_poseCollisionPreviousYPosition" and not
+                "_poseAlignmentPreviousYDelta").ToArray();
+        }
         if (type == typeof(SamusState) && count == current.Length - 9 &&
             current.Any(field => field.Name == "<BombJumpPoseInputLocked>k__BackingField"))
         {
@@ -127,6 +152,15 @@ internal static class DebuggerStateFieldMigrations
             Console.Error.WriteLine("WARNING: Legacy Ceres cinematic state lacks engine palette-FX timing; its glow restarts on the next approach frame.");
             return current.Where(field => field.Name != "paletteFx").ToArray();
         }
+        if (type == typeof(RoomLayer3FxState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "lavaAcidBg3PreInstructionInstalled"))
+        {
+            // The BG3 HDMA pre-instruction latch was added after the 0.2.0 capture used by
+            // issue #524. False is the exact cold-start state: the next active lava/acid
+            // effect frame installs the pre-instruction before it can execute.
+            Console.Error.WriteLine("WARNING: Legacy room FX lacks the lava/acid BG3 pre-instruction latch; restoring its cold-start state.");
+            return current.Where(field => field.Name != "lavaAcidBg3PreInstructionInstalled").ToArray();
+        }
         if (type == typeof(SamusState) && count <= current.Length - 2 &&
             current.Any(field => field.Name == "_poseCollisionPreviousYPosition") &&
             current.Any(field => field.Name == "_poseAlignmentPreviousYDelta"))
@@ -166,6 +200,12 @@ internal static class DebuggerStateFieldMigrations
         {
             Console.Error.WriteLine("WARNING: Legacy grapple state has no pose-change auto-fire timer; unavailable firing age restores expired until the next shot.");
             return current.Where(field => field.Name != "<PoseChangeAutoFireTimer>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusDraygonGrabbedState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<MovementHandlerReplaced>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy Draygon-grab state lacks replacement-handler ownership; retaining its captured active state as the movement owner.");
+            return current.Where(field => field.Name != "<MovementHandlerReplaced>k__BackingField").ToArray();
         }
         if (type.FullName == "SuperMetroid.Core.Frontend.IntroCinematicObjectSystem" && count == current.Length - 1)
         {

@@ -314,26 +314,40 @@ internal static class DebuggerObjectGraphSerializer
             object instance = RuntimeHelpers.GetUninitializedObject(type);
             if (!type.IsValueType)
                 Register(referenceId, instance);
-            FieldInfo[] expected = GetSerializableFields(type);
+            FieldInfo[] currentFields = GetSerializableFields(type);
             int count = ReadNonnegativeLength("field");
-            if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && expected.Length == 20)
+            if (instance is SuperMetroid.Core.Game.SamusShinesparkState legacySpark && count == 19 && currentFields.Length == 20)
             {
-                var preSuppressionFields = DebuggerStateFieldMigrations.SelectSerializedFields(type, expected, 17);
+                var preSuppressionFields = DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, 17);
                 DebuggerLegacyShinesparkReader.Restore(legacySpark, preSuppressionFields, reader, ResolveAllowedType, Read);
                 return instance;
             }
-            expected = DebuggerStateFieldMigrations.SelectSerializedFields(type, expected, count);
-            foreach (FieldInfo field in expected)
+            FieldInfo[] expected = DebuggerStateFieldMigrations.SelectSerializedFields(type, currentFields, count);
+            var remaining = currentFields.ToDictionary(
+                field => (field.DeclaringType!, field.Name),
+                field => field);
+            var restored = new HashSet<FieldInfo>();
+            for (int index = 0; index < count; index++)
             {
                 string declaringName = reader.ReadString();
                 string fieldName = reader.ReadString();
-                if (ResolveAllowedType(declaringName) != field.DeclaringType || fieldName != field.Name)
+                Type declaringType = ResolveAllowedType(declaringName);
+                if (!remaining.Remove((declaringType, fieldName), out FieldInfo? field))
                 {
                     throw new InvalidDataException(
-                        $"Serialized field {declaringName}.{fieldName} does not match " +
-                        $"{field.DeclaringType!.FullName}.{field.Name}.");
+                        $"Serialized field {declaringName}.{fieldName} is unknown or duplicated " +
+                        $"in the supported {type.FullName} layout.");
                 }
                 field.SetValue(instance, Read());
+                restored.Add(field);
+            }
+            if (!restored.SetEquals(expected))
+            {
+                throw new InvalidDataException(
+                    $"Serialized {type.FullName} field set does not match its supported " +
+                    $"{count}-field legacy layout. Actual omissions: " +
+                    string.Join(", ", currentFields.Except(restored).Select(field => field.Name)) +
+                    ".");
             }
             DebuggerStateFieldMigrations.InitializeMissingFields(instance, count);
             return instance;

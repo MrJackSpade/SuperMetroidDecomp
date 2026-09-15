@@ -109,3 +109,31 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-l
 
 Still outstanding: the gray-beam cue, sand/Blue-Suit distinctions, fresh Flash
 and save/reload cancellation. Keep #430 open and in progress.
+
+## Fresh Crystal Flash cancellation
+
+`repeat.csv` runs the verified generator, idles from frame 300, then invokes
+the real Flash admission callback at the end of frame 350 with its exact
+Down/L/R/Shoot chord. The ordinary frame input remains neutral: this isolates
+the admission callback rather than pretending to compare an additional bomb
+placement, refill, or unrelated Shoot/aim transition. The #431 refill fixture
+covers that separate bomb-cleanup prerequisite.
+
+The grab-during-Flash order still has 49 health and ten of each ammo, so the
+new Flash is admitted. It runs to completion, consumes the ammo, and clears
+the retained shine timer. The Flash-during-grab order has already restored
+health and depleted missiles; its rejected attempt leaves the old timer
+looping. No resources or movement phases are reset to force success.
+
+All 3,200 frames across both orders/facings match pose/animation, movement,
+resources and palette/timer state. Native and port explicitly assert admission
+and final cancellation versus retained-state controls. No production change
+was needed. LF-normalized trace SHA-256:
+`1A8779EB4D6E56D2C7EF17E5ACE3DFA12161FB55BBD8EBBADBEA920BE233275D`.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" repeat > csharp\test-temp\flash-repeat.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-repeat-audit "Super Metroid.smc" csharp/test-fixtures/issue-430-flash-lifetime/repeat.csv
+```
+
+Remaining: gray-beam cue, sand/Blue-Suit distinctions and save/reload cancellation.

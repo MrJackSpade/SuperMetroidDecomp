@@ -34,7 +34,8 @@ int main(int argc, char **argv) {
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
   bool recharge = argc == 3 && strcmp(argv[2], "recharge") == 0;
   bool lifetime = argc == 3 && strcmp(argv[2], "lifetime") == 0;
-  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime);
+  bool repeat = argc == 3 && strcmp(argv[2], "repeat") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime || repeat);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -49,7 +50,7 @@ int main(int argc, char **argv) {
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < 4; mode++) {
-    if ((xray || lifetime) && mode != 2 || recharge && mode < 2) continue;
+    if ((xray || lifetime || repeat) && mode != 2 || recharge && mode < 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
@@ -80,12 +81,13 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
-      if (xray || recharge || lifetime) run(HdmaPhase);
+    for (int frame = 0; frame < (repeat ? 800 : lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray || recharge || lifetime || repeat) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, recharge ? 2 : mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
       if (lifetime && frame >= 300) input = 0;
+      if (repeat && frame >= 300) input = 0;
       if (recharge && frame >= 300) {
         int crouch = mode == 2 ? 490 : 390;
         input = frame < 350 ? 0 : frame < crouch ? 0x8000 | (right ? 0x100 : 0x200) : frame == crouch ? 0x410 : 0;
@@ -102,6 +104,17 @@ int main(int argc, char **argv) {
         for (int i = 0; i < 6; i++) run(stages[i]);
       }
       run(Palette);
+      if (repeat && frame == 350) {
+        joypad1_lastkeys = 0x470;
+        run(FlashEntry);
+        joypad1_lastkeys = input;
+        if ((samus_movement_handler == FlashRaising) != (order == 1))
+          Die("Repeat Flash must admit only the still-low-health/full-ammo order");
+      }
+      if (repeat && frame == 799 &&
+          (order == 1 ? samus_shine_timer != 0 || samus_missiles || samus_super_missiles || samus_power_bombs
+                      : samus_shine_timer == 0 || timer_for_shine_timer != 7))
+        Die("Successful Flash must consume ammo and clear retention; failed Flash must preserve it");
       if (recharge && frame == (mode == 2 ? 490 : 390) &&
           (timer_for_shine_timer != (mode == 2 ? 1 : 7) || samus_shine_timer != (mode == 2 ? 179 : 5)))
         Die("Only a stage-four recharge may replace the retained Flash timer");
@@ -114,7 +127,7 @@ int main(int argc, char **argv) {
           Die("X-Ray must replace the retained Flash palette and clear its timer");
         }
       }
-      if (full && !recharge && !lifetime && mode == 2 && frame == 363 &&
+      if (full && !recharge && !lifetime && !repeat && mode == 2 && frame == 363 &&
           (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != (order == 0 ? 98 : 48)))
         Die("Interrupted Flash must permit a damaging, energy-consuming spark without a charge");
       if (!full && frame == 96) {

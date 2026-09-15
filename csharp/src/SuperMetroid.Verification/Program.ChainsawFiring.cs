@@ -144,6 +144,39 @@ internal static partial class Program
                 GameplayWindowRegisterAddresses.Window34Selection), $"active Chainsaw inherited Y high {update}");
         }
 
-        Console.WriteLine("Chainsaw firing: native admission, door reaction, callback store and Power-Bomb-gated lifetime agree.");
+        // Combination thirteen indexes the same vulnerability byte as Super Missiles.
+        // Give every neighboring beam field multiplier zero and byte thirteen multiplier
+        // two, then resolve a real production overlap. Native common damage halves the
+        // slot's 150 damage word before applying that multiplier, producing a 150-point hit.
+        var combatShared = new SamusBombProjectileSystem();
+        combatShared.PowerBombExplosion.Arm();
+        var combatProjectiles = new SamusProjectileSystem();
+        combatProjectiles.StepFrame(bus, level, samus,
+            (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, combatShared);
+        var combat = CreateEnemyDropFixture(samus, [1]);
+        combat.Bus.WriteByte(0xb4800d, 2);
+        RoomEnemySlot target = combat.System.Slots[0];
+        target.EnemyDefinitionPointer = 0x9000;
+        target.Definition = default(RoomEnemyDefinition) with
+        {
+            Bank = 0xa3,
+            ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
+            VulnerabilityPointer = 0x8000,
+        };
+        target.XPosition = 139;
+        target.YPosition = 123;
+        target.XRadius = target.YRadius = 16;
+        target.Health = 1000;
+        target.SpritemapPointer = 0x8000;
+        combat.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: combat.Level);
+        AssertEqual(1, combat.System.ResolveOrdinaryProjectileHits(
+            combat.Bus, combatProjectiles, combatShared, samus),
+            "active Chainsaw overlaps one ordinary enemy");
+        AssertEqual((ushort)850, target.Health,
+            "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
+        AssertEqual((ushort)0x800d, combatProjectiles.Slots[0].Type,
+            "Plasma bit keeps Chainsaw alive after enemy damage");
+
+        Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, callback store and Power-Bomb-gated lifetime agree.");
     }
 }

@@ -148,5 +148,7 @@ one-frame Chainsaw animation list. It also preserves `$90:B0AE`'s unconditional
 fallthrough into `$94:9CAC`, including the cleared-shot dispatch when no Power
 Bomb is active. A production fixture also proves that the initial Wave scan opens
 a blue door without creating a visible impact before the callback deletes the
-shot. Broader full-frame register provenance, enemy/Orange-door behavior and
-charged invalid-beam combinations remain.
+shot. A production enemy fixture proves combination thirteen selects the Super
+Missile vulnerability byte and deals the documented 150 points through common
+damage while its Plasma bit preserves the shot. Broader full-frame register
+provenance, Orange-door behavior and charged invalid-beam combinations remain.

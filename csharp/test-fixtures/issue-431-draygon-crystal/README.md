@@ -98,6 +98,26 @@ cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" runtime 
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-runtime-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/runtime.csv
 ```
 
-Remaining #431 requirements include additional directional patterns and exact threshold
-arithmetic, and the ten-capacity Power Bomb/refill setup. Keep the issue open and
+## Escape arithmetic and input boundaries
+
+`edges.csv` executes the native gamma handler in 12,288 prepared cases: both
+facings, grapple locked/unlocked, all sixteen previous and newly pressed D-pad
+patterns, and shared-counter seeds 0, 1, 58, 59, 60, 61, $7FFF, $8000, $803A,
+$803B, $FFFE and $FFFF. Every input also contains Shoot to check D-pad masking.
+The port calls its production escape handler with matching prepared values.
+LF-normalized SHA-256:
+`192094A1D48791F91D58CFB096FF05E99CF0F1DB585D8340D92E4AD7FC43B414`.
+
+All 12,288 cases match counter, last counted pattern, active/released state,
+pose and prospective-input suppression; the two shared counter views remain
+equal. These seeds deliberately exercise native signed subtraction and wrap,
+not a claim that every seed is naturally reachable during the technique.
+No further production discrepancy was found in this matrix.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" edges > csharp\test-temp\draygon-crystal-edges.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-edges-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/edges.csv
+```
+
+Remaining #431 requirements include the ten-capacity Power Bomb/refill setup. Keep the issue open and
 without `awaiting-player-validation` until these are handled.

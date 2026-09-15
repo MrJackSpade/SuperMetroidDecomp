@@ -18,6 +18,7 @@ static void grab(int right) {
   cpu_free(cpu);
   if (!returned) Die("Grab entry exceeded instruction budget");
 }
+#include "Edges.h"
 static uint16 input_at(int frame, int mode) {
   if (mode == 0) return 0;
   if (mode == 1) return frame == 16 ? 0x100 : 0;
@@ -26,11 +27,13 @@ static uint16 input_at(int frame, int mode) {
 }
 int main(int argc, char **argv) {
   bool full = argc == 3 && strcmp(argv[2], "runtime") == 0;
-  if (argc != 2 && !full) return 2;
+  bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
+  if (argc != 2 && !full && !edges) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
+  if (edges) { edge_matrix(); return 0; }
   printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s\n",
     full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "");
   for (int order = 0; order < 2; order++)

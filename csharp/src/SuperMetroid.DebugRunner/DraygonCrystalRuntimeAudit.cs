@@ -7,15 +7,17 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Full runtime movement after both Flash/grab orders, through a retained spark.</summary>
 internal static class DraygonCrystalRuntimeAudit
 {
-    public static int Run(string rom, string trace)
+    public static int Run(string rom, string trace, bool xrayCancellation = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != "E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7")
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (xrayCancellation
+                ? "84F6CA152C32A090EA394E31B77568839A2F1C9CFD6F1869471BDAB4FA523AD2"
+                : "E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7"))
             throw new InvalidDataException("Use the pinned ROM and native Draygon/Flash runtime trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != 6880 || rows.Any(row => row.Length != 27))
+        if (rows.Length != (xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != 27))
             throw new InvalidDataException("Incomplete runtime trace.");
         int mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -56,12 +58,18 @@ internal static class DraygonCrystalRuntimeAudit
                 if (order == 1 && frame == 12) samus.DraygonGrabbed.Begin(bus, samus, right != 0);
                 ushort input = ushort.Parse(row[4], NumberStyles.HexNumber);
                 runtime.StepFrame(input);
+                if (xrayCancellation && frame == 350 && !samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)))
+                    throw new InvalidDataException("X-Ray rejected the native-admitted retained Flash setup.");
+                if (xrayCancellation && frame == 350 && (!samus.Xray.TimeIsFrozen ||
+                    samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive ||
+                    samus.CrystalFlash.SpecialPaletteKind != SamusSpecialPaletteType.None))
+                    throw new InvalidDataException("X-Ray did not replace the interrupted Flash owners.");
                 if (mode == 2 && frame == 363 && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
                     samus.HorizontalSpeed.ContactDamageIndex != 2 || samus.Health != (order == 0 ? 98 : 48)))
                     throw new InvalidDataException("Retained Flash timer did not launch a damaging, energy-consuming spark.");
                 bool flashPalette = samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash;
                 string actual = $"{samus.Pose:X2},{samus.YPosition:X4},{samus.Health:X4},{samus.Missiles:X4},{samus.SuperMissiles:X4},{samus.PowerBombs:X4}," +
-                    $"{(flashPalette ? samus.CrystalFlash.SpecialPaletteTimer : samus.Shinespark.ShineTimer):X4},{(flashPalette ? samus.CrystalFlash.SpecialPaletteType : samus.Shinespark.PaletteType):X4}," +
+                    $"{samus.SharedShineTimer:X4},{(samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : flashPalette ? samus.CrystalFlash.SpecialPaletteType : samus.Shinespark.PaletteType):X4}," +
                     $"{samus.XPosition:X4},{samus.Kinematics.XSubposition:X4},{samus.Kinematics.YSubposition:X4},{samus.Kinematics.YSpeed:X4},{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4},{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4}";
                 string expected = string.Join(',', row[5..7].Concat(row[12..26]));
                 if (actual != expected)

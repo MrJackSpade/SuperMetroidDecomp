@@ -184,6 +184,10 @@ public sealed class SamusXrayState
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
+        // $91:EEA6 replaces the shared movement/palette handlers and clears
+        // $0A68 even when an interrupted Flash, not a normal charge, owns it.
+        samus.CrystalFlash.RelinquishMovementHandler();
+        samus.CrystalFlash.RelinquishPaletteHandler();
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 1;
         ActivationSoundRequested = true;

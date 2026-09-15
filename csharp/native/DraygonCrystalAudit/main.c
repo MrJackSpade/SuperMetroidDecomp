@@ -7,7 +7,9 @@
 enum {
   GrabEntry = 0x90e23b, GrabGamma = 0xe2a1, FlashEntry = 0x90d5a2,
   FlashRaising = 0xd678, FlashMain = 0xd6ce, FlashFinish = 0xd75b,
-  Palette = 0x91d6f7
+  Palette = 0x91d6f7,
+  /* X-Ray admission and the ordinary HDMA phase needed to finish Flash's bubble. */
+  XrayAdmission = 0x91e16d, HdmaPhase = 0x8884b9
 };
 static void grab(int right) {
   Cpu *cpu = cpu_init(NULL, 0);
@@ -27,7 +29,8 @@ static uint16 input_at(int frame, int mode) {
   return frame >= 16 ? 0x100 : 0;
 }
 int main(int argc, char **argv) {
-  bool full = argc == 3 && strcmp(argv[2], "runtime") == 0;
+  bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -42,6 +45,7 @@ int main(int argc, char **argv) {
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < 4; mode++) {
+    if (xray && mode != 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
@@ -71,7 +75,8 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (full ? 430 : 120); frame++) {
+    for (int frame = 0; frame < (xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
@@ -87,6 +92,13 @@ int main(int argc, char **argv) {
         for (int i = 0; i < 6; i++) run(stages[i]);
       }
       run(Palette);
+      if (xray && frame == 350) {
+        run(XrayAdmission); run(ApplyPosePhase);
+        if (!time_is_frozen_flag || timer_for_shine_timer != 8 || samus_shine_timer != 0) {
+          fprintf(stderr,"Xray frozen=%04X palette=%04X shine=%04X pose=%04X pending=%04X special=%04X status=%04X\n",time_is_frozen_flag,timer_for_shine_timer,samus_shine_timer,samus_pose,samus_new_pose_interrupted,samus_special_transgfx_index,power_bomb_explosion_status);
+          Die("X-Ray must replace the retained Flash palette and clear its timer");
+        }
+      }
       if (full && mode == 2 && frame == 363 &&
           (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != (order == 0 ? 98 : 48)))
         Die("Interrupted Flash must permit a damaging, energy-consuming spark without a charge");

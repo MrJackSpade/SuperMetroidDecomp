@@ -37,6 +37,11 @@ if (args is ["--draygon-eye-effects"])
     VerifyDraygonEyeEffects();
     return 0;
 }
+if (args is ["--acid-statue-first-entry"])
+{
+    VerifyAcidStatueFirstEntry();
+    return 0;
+}
 if (args is ["--spark-crash-alignment"])
 {
     VerifySparkCrashAlignment();

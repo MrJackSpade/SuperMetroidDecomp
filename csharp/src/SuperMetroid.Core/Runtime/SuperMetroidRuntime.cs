@@ -3786,48 +3786,7 @@ public sealed partial class SuperMetroidRuntime
             // sees that mutation on the following Samus frame.
             if (!deathOwnsSamus && !TimeIsFrozen)
             {
-                if (LevelData is null || BackgroundStreamer is null || Camera is null)
-                    throw new InvalidOperationException("The PLM handler requires an active room and camera.");
-
-                // Boss AI and its later collision callbacks publish hardcoded bank-$84
-                // entries at different points in this gameplay frame. Consume all of them
-                // at the native PLM-handler seam so a projectile/contact death cannot lose
-                // its request to the enemy system's next frame-publication reset.
-                ApplyPendingBotwoonWallPlm();
-                ApplyPendingSporeSpawnCeilingPlm();
-                ApplyPendingCrocomireArenaPlms();
-                ApplyPendingKraidPlms();
-                ApplyPendingMotherBrainPlms();
-                ApplyPendingShitroidWallPlms();
-                ApplyPendingChozoStatuePlms();
-
-                IReadOnlyList<PlmTilemapUpdate> plmUpdates = Plms.Step(
-                    _addressSpace,
-                    LevelData,
-                    BackgroundStreamer,
-                    Camera.XPosition,
-                    Camera.YPosition,
-                    BackgroundScroll.Bg1XOffset,
-                    Camera.Scrolls,
-                    Enemies.EnemiesKilled,
-                    Enemies.DeathQuota,
-                    Controller1.NewlyPressed,
-                    Samus.CollectedItems,
-                    powerBombExplosionStatus: BombProjectiles.PowerBombExplosion.Status);
-                foreach (PlmTilemapUpdate update in plmUpdates)
-                    update.ExecuteTo(Vram);
-                ApplyPendingDownwardGateProjectileRequests();
-
-                // PLM opcode $87E5 appends a normal seven-byte VRAM record. It must share
-                // the runtime queue so the next accepted NMI performs the transfer in the
-                // same order as HUD, beam, and room-main uploads.
-                foreach (PlmVramWriteRequest request in Plms.VramWriteRequests)
-                {
-                    VramWrites.Enqueue(
-                        request.SizeInBytes,
-                        request.SourceAddress,
-                        request.EncodedVramDestination);
-                }
+                RunPlmHandlerCore(Controller1.NewlyPressed);
 
                 // Item PLMs publish acquisition only after their native trigger and
                 // handler pass. Apply the hardware-facing consequences at that same seam:

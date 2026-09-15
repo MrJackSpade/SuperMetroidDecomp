@@ -159,7 +159,14 @@ public sealed class DoorTransitionState
                 // over the incrementally moving destination doorway.
                 runtime.RunBlankGameplayFrame(controllerInput);
                 if (runtime.StepDoorOpeningScroll())
+                {
+                    // The cartridge calls PLM_Handler at $82:E53C on the final IRQ
+                    // scrolling update, before the NMI that precedes destination fade-in.
+                    // Setup lists can alter visible room state here; deferring them to the
+                    // first ordinary gameplay frame exposes their pre-PLM state.
+                    runtime.RunDoorTransitionPlmHandler();
                     Phase = DoorTransitionPhase.HandleAnimatedTiles;
+                }
                 break;
 
             case DoorTransitionPhase.HandleAnimatedTiles:

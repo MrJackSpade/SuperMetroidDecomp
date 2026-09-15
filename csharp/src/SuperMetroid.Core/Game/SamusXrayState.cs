@@ -21,6 +21,9 @@ public sealed class SamusXrayState
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>Interrupted pose published by alpha, awaiting bank-$91 pose commit in beta.</summary>
+    public byte? PendingActivationPose { get; private set; }
+
     /// <summary>WRAM `$0A78`; X-ray freezes enemy/projectile/PLM/animated-tile time.</summary>
     public bool TimeIsFrozen { get; private set; }
 
@@ -101,12 +104,13 @@ public sealed class SamusXrayState
         ushort gameState = 8,
         ushort powerBombExplosionStatus = 0,
         ushort projectileCooldownTimer = 0,
-        ushort bombCounter = 0)
+        ushort bombCounter = 0,
+        bool deferActivation = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        if (IsActive)
+        if (IsActive || PendingActivationPose is not null)
             return false;
 
         // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
@@ -137,9 +141,33 @@ public sealed class SamusXrayState
             return false;
 
         bool facingLeft = samus.IsFacingLeft(bus);
-        samus.Pose = posture == XrayPosture.Crouching
+        byte targetPose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusPoseIds.XrayingCrouchingLeftPose : SamusPoseIds.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseIds.XrayingStandingLeftPose : SamusPoseIds.XrayingStandingRightPose;
+        if (deferActivation)
+        {
+            PendingActivationPose = targetPose;
+            TimeIsFrozen = true;
+            return true;
+        }
+        BeginAdmittedActivation(bus, samus, targetPose);
+        return true;
+    }
+
+    /// <summary>Commits the setup after movement/animation; higher-priority poses can supersede it.</summary>
+    public bool CommitPendingActivation(ISnesAddressSpace bus, SamusState samus, bool superseded)
+    {
+        if (PendingActivationPose is not { } targetPose) return false;
+        PendingActivationPose = null;
+        if (superseded) return false;
+        BeginAdmittedActivation(bus, samus, targetPose);
+        return true;
+    }
+
+    private void BeginAdmittedActivation(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    {
+        bool facingLeft = targetPose is SamusPoseIds.XrayingStandingLeftPose or SamusPoseIds.XrayingCrouchingLeftPose;
+        samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 
@@ -155,6 +183,7 @@ public sealed class SamusXrayState
         BeamSizeFlag = 0;
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
+        samus.Shinespark.RelinquishMovementHandler();
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 1;
         ActivationSoundRequested = true;
@@ -163,7 +192,6 @@ public sealed class SamusXrayState
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
         IsActive = true;
-        return true;
     }
 
     /// <summary>

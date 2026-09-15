@@ -213,7 +213,9 @@ public sealed class SamusSuitPickupState
         byte oldLeft = unchecked((byte)LightBeamPosition);
         byte left = unchecked((byte)(oldLeft - amount));
         byte right = unchecked((byte)(LightBeamPosition >> 8));
-        if (unchecked((sbyte)(oldLeft - amount)) < 0)
+        // The native BEQ shares the negative-result clamp. Exact zero must also
+        // force the right endpoint to 255 or the reveal is delayed by a frame.
+        if (left == 0 || unchecked((sbyte)(oldLeft - amount)) < 0)
         {
             left = 0;
             right = 0xff;
@@ -283,9 +285,12 @@ public sealed class SamusSuitPickupState
         LightBeamPosition = unchecked((ushort)(
             LightBeamPosition + (LightBeamWideningSpeed >> 8)));
         int scanlineCount = unchecked((short)LightBeamPosition);
-        for (int i = 0; i < scanlineCount; i++)
-        {
+        for (int i = 0; i < Math.Max(1, scanlineCount); i++)
             _windowTable[i] = SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
+        // Native's lower do/while starts at position minus one. It is deliberately
+        // one scanline shorter than the upper wipe, leaving scanline 128 for stage five.
+        for (int i = 0; i < Math.Max(1, scanlineCount - 1); i++)
+        {
             _windowTable[_windowTable.Length - 1 - i] =
                 SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints;
         }

@@ -554,6 +554,8 @@ if (args.Length == 3 && args[0] == "--temporary-blue-obstacle-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.Obstacle);
 if (args.Length == 3 && args[0] == "--crystal-spark-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.CrystalSpark);
+if (args.Length == 3 && args[0] == "--suit-spark-audit")
+    return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.SuitSpark);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")
     return WalkOffMomentumAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

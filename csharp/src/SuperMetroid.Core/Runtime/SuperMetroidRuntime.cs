@@ -1118,7 +1118,7 @@ public sealed partial class SuperMetroidRuntime
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(ushort gameState = 8)
+    public bool TryBeginXrayFromSelectedHudItem(ushort gameState = 8, bool deferActivation = false)
     {
         if (Samus is null || !GroundedSamusMovementEnabled || LevelData is null)
         {
@@ -1138,7 +1138,8 @@ public sealed partial class SuperMetroidRuntime
             gameState,
             PowerBombExplosionStatus,
             BombProjectiles.CooldownTimer,
-            BombProjectiles.BombCounter);
+            BombProjectiles.BombCounter,
+            deferActivation);
     }
 
     /// <summary>
@@ -1654,6 +1655,10 @@ public sealed partial class SuperMetroidRuntime
             // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
             // affects the next beta, not the animation already owned this frame.
             bool stationaryScriptControlAtFrameStart = Samus.StationaryScriptControlLocked;
+            // Suit command $15 installs an empty beta, not just locked pose input.
+            // Preserve the suspended movement pointer and all of its timers so command
+            // $0B can resume it after the HDMA transformation (including Blue Suit).
+            bool suitOwnsSamus = SuitPickup.IsActive;
             SamusMovementType movementTypeAtFrameStart = Samus.ReadMovementType(_addressSpace);
 
             // Direction bits already use the transition table's canonical layout. Input
@@ -1671,6 +1676,7 @@ public sealed partial class SuperMetroidRuntime
             Samus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
             bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
             bool xrayActivatedThisFrame = false;
+            SamusMovementType movementBeforeXrayAdmission = Samus.ReadMovementType(_addressSpace);
             if (xrayOwnsPoseInput)
             {
                 LastXrayPoseInput = Samus.Xray.HandlePoseInput(
@@ -1909,9 +1915,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus.SelectedHudItem == SamusXrayRomData.SelectedHudItem &&
                         Samus.Grapple.Phase == GrapplePhase.Inactive &&
                         (Controller1.Current & (ushort)SnesButton.B) != 0 &&
-                        TryBeginXrayFromSelectedHudItem())
+                        TryBeginXrayFromSelectedHudItem(deferActivation: true))
                     {
-                        xrayOwnsPoseInput = true;
                         xrayActivatedThisFrame = true;
                         ProspectiveSamusPose = null;
                         ProspectiveSamusFallbackPose = null;
@@ -1972,6 +1977,11 @@ public sealed partial class SuperMetroidRuntime
                     Samus.ProjectileFlareCounter = Projectiles.FlareCounter;
                 }
 
+                // Samus_Func10 ($90:EB30) snapshots movement at the end of alpha,
+                // before beta applies animation/input transitions. Admission reads the
+                // preceding snapshot; a newly queued X-ray pose is not installed yet.
+                PreviousMovementTypeForXray = xrayActivatedThisFrame
+                    ? movementBeforeXrayAdmission : Samus.ReadMovementType(_addressSpace);
                 if (!enemyMainAlreadyRan)
                     RunEnemyMainPhase();
                 if (!TimeIsFrozen && !deathOwnsSamus)
@@ -1979,7 +1989,8 @@ public sealed partial class SuperMetroidRuntime
 
                 // EnemyMain consumes the preceding frame's contact-damage index.
                 // Only beta clears it, before movement republishes the current value.
-                Samus.HorizontalSpeed.ContactDamageIndex = 0;
+                if (!suitOwnsSamus)
+                    Samus.HorizontalSpeed.ContactDamageIndex = 0;
 
                 // $90:E725 dispatches movement type before animation. Every admitted pose
                 // below has its own verified direction/mode path; a newly reachable pose
@@ -2005,7 +2016,7 @@ public sealed partial class SuperMetroidRuntime
                 // functions own Samus's position. An extending or cancelling beam coexists
                 // with the current pose's ordinary movement in the same frame.
                 bool grappleOwnsMovement = false;
-                if (deathOwnsSamus)
+                if (deathOwnsSamus || suitOwnsSamus)
                 {
                     // Game states `$15-$18` do not call the ordinary Samus alpha/beta
                     // handlers. The death state advances later at the animation seam.
@@ -2107,7 +2118,7 @@ public sealed partial class SuperMetroidRuntime
                         previousCameraPoint.YSubposition);
                 }
 
-                if (deathOwnsSamus)
+                if (deathOwnsSamus || suitOwnsSamus)
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -2705,7 +2716,7 @@ public sealed partial class SuperMetroidRuntime
             // at boost stage four, it alternates between two exact world-position snapshots.
             // Keeping this producer here means the draw handler below consumes post-motion
             // coordinates with the same frame ordering as the cartridge.
-            if (LastShinesparkMovement is null)
+            if (!suitOwnsSamus && LastShinesparkMovement is null)
             {
                 Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
                     GameTime.Frames,
@@ -2747,9 +2758,10 @@ public sealed partial class SuperMetroidRuntime
             // `$90:E738` runs the timer/hack handler after movement and before animation.
             // Commands five/$18 install the Mother Brain-specific Up-edge branches; the
             // method is a cheap no-op for every ordinary gameplay state.
-            Samus.Drained.StepGetUpHandler(Samus, Controller1.NewlyPressed);
+            if (!suitOwnsSamus)
+                Samus.Drained.StepGetUpHandler(Samus, Controller1.NewlyPressed);
 
-            if (Samus.DraygonGrabbed.IsActive)
+            if (!suitOwnsSamus && Samus.DraygonGrabbed.IsActive)
             {
                 // `$90:E738` calls this installed hack handler after movement and before
                 // animation. A locked grapple cancels the prospective pose chosen in alpha;
@@ -2781,7 +2793,7 @@ public sealed partial class SuperMetroidRuntime
                     Cgram,
                     VramWrites);
             }
-            else if (!stationaryScriptControlAtFrameStart)
+            else if (!stationaryScriptControlAtFrameStart && !suitOwnsSamus)
             {
                 Samus.AnimateNoFx(
                     _addressSpace,
@@ -2796,7 +2808,7 @@ public sealed partial class SuperMetroidRuntime
             }
 
 
-            if (GroundedSamusMovementEnabled && !deathOwnsSamus)
+            if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus)
             {
                 // Hit interruption observes the old movement type before UpdateSamusPose.
                 // Its carry-clear bomb rejection still occurs when an animation transition
@@ -2905,6 +2917,14 @@ public sealed partial class SuperMetroidRuntime
                     animationTransitionApplied = true;
                 }
 
+                if (Samus.Xray.CommitPendingActivation(_addressSpace, Samus, animationTransitionApplied))
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
                 // $91:E8E5 replaces the ordinary input target with the current pose
                 // on ceiling collision. Apply the ball's deferred EFDF vertical
                 // stop and consume this same-pose transition so history still shifts
@@ -2931,15 +2951,16 @@ public sealed partial class SuperMetroidRuntime
                 // An unobstructed upward platform carry leaves the prospective input
                 // pose intact too. Requiring a vertical collision here wrongly skipped
                 // the native one-pixel run check while a Kamer was carrying Samus upward.
+                // A special movement pointer can also retain a standing/running pose
+                // (suit-interrupted windup). EADE does not require normal grounded beta.
                 if (!animationTransitionApplied &&
-                    LastGroundedSamusMovement is
-                        { } groundedForWallCheck &&
-                    !groundedForWallCheck.Vertical.IsUnobstructedDownwardMovement)
+                    LastGroundedSamusMovement is not
+                        { Vertical.IsUnobstructedDownwardMovement: true })
                 {
                     bool currentRunHitWall =
                         (SamusState.IsRightFacingRunningPose(poseAtFrameStart) ||
                          SamusState.IsLeftFacingRunningPose(poseAtFrameStart)) &&
-                        groundedForWallCheck.Horizontal.Collided;
+                        LastGroundedSamusMovement is { Horizontal.Collided: true };
                     byte? prospectiveRunningPose =
                         ProspectiveSamusPose is { ProspectivePose: <= byte.MaxValue } prospective
                             ? unchecked((byte)prospective.ProspectivePose)
@@ -4009,7 +4030,7 @@ public sealed partial class SuperMetroidRuntime
             }
 
             DrawGameplayActors(deathOwnsSamus, drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles);
+                drawLowPriorityEnemyProjectiles, advanceSamusPalette: !suitOwnsSamus);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);
@@ -4115,15 +4136,6 @@ public sealed partial class SuperMetroidRuntime
         {
             Samus.DecrementHurtTimers();
             Projectiles.DecrementInteractionTimer();
-        }
-
-        // `$0A11` is a one-byte previous-movement snapshot used by X-ray admission on the
-        // following gameplay frame. Update it only after every pose/animation transition
-        // and special teardown above has settled on the frame's final pose.
-        if (Samus is not null)
-        {
-            PreviousMovementTypeForXray = Samus.ReadMovementType(_addressSpace);
-
         }
 
         CompletedGameplayAudioPublication++;

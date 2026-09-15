@@ -12,6 +12,7 @@ enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockM
 #include "XrayFixture.h"
 #include "ObstacleFixture.h"
 #include "CrystalSparkFixture.h"
+#include "SuitSparkFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -73,6 +74,7 @@ int main(int argc, char **argv) {
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
   bool obstacle = argc == 3 && strcmp(argv[2], "obstacle") == 0;
   bool crystal = argc == 3 && strcmp(argv[2], "crystal-spark") == 0;
+  bool suit = argc == 3 && strcmp(argv[2], "suit-spark") == 0;
   bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
@@ -83,17 +85,18 @@ int main(int argc, char **argv) {
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
   bool grab = argc == 3 && strcmp(argv[2], "draygon-grab") == 0;
   bool draygon = echoes || grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !xray && !obstacle && !crystal) return 2;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !xray && !obstacle && !crystal && !suit) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", crystal ? ",health,missiles,supers,powerbombs" : echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
+  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", suit ? suit_spark_columns : crystal ? ",health,missiles,supers,powerbombs" : echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle || crystal ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle || crystal ? 140 : 180); stop += terrain || xray ? 80 : 40)
-  for (int aim = 0; aim < (xray ? 1 : crystal || grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle || crystal || suit ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle || crystal || suit ? 140 : 180); stop += terrain || xray ? 80 : 40)
+  for (int aim = 0; aim < (xray ? 1 : suit || crystal || grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
+    suit_pickup_active = false;
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
     interactive_enemy_indexes[0] = 0xffff;
@@ -101,6 +104,7 @@ int main(int argc, char **argv) {
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = collected_items = 0x2004; game_state = 8;
     if (xray) equipped_items = collected_items = 0xa004;
+    if (suit) equipped_items = collected_items = 0xa004;
     if (bounce && aim >= 4) equipped_items = collected_items = 0x2006;
     samus_health = samus_max_health = 99;
     if (crystal) {
@@ -121,7 +125,8 @@ int main(int argc, char **argv) {
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
     if (menu) reg_INIDISP = 15;
-    for (int frame = 0; frame < (crystal || obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (suit ? 330 : crystal || obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+      if (suit) step_suit_hdma(aim);
       if (menu && frame == 431) {
         if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
         run(SelectInitialEquipment);
@@ -151,6 +156,7 @@ int main(int argc, char **argv) {
       if (grab) input = draygon_grab_input(frame, left, aim);
       if (midair) input = midair_input(frame, left, aim);
       if (crystal) input = crystal_spark_input(frame, left, aim);
+      if (suit) input = suit_spark_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -201,6 +207,9 @@ int main(int argc, char **argv) {
         }
         run(InsideBlockPhase);
       } else {
+      if (suit && suit_pickup_active) {
+        run(SuitLockedAlpha); run(InteractionPhase);
+      } else {
       run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
       run(0x900000 | samus_movement_handler);
       if (grab && frame_handler_gamma == DraygonGrabGamma) run(0x900000 | frame_handler_gamma);
@@ -208,6 +217,9 @@ int main(int argc, char **argv) {
         PoseHistoryPhase,HurtPhase,CollisionPhase,SamusPalettePhase};
       for (int i = 0; i < 8; i++) run(stages[i]);
       }
+      }
+      if (suit && frame == 151) begin_suit_spark(aim);
+      if (suit) verify_suit_spark(frame, aim);
       if (echoes) draw_echo_probe();
       if (grab && frame == draygon_grab_frame(aim)) {
         cur_enemy_index = 0;
@@ -236,6 +248,7 @@ int main(int argc, char **argv) {
       if (sand) printf(",%04X%04X,%04X%04X", extra_samus_x_displacement,extra_samus_x_subdisplacement,extra_samus_y_displacement,extra_samus_y_subdisplacement);
       if (echoes) print_echo_probe(frame);
       if (crystal) printf(",%04X,%04X,%04X,%04X",samus_health,samus_missiles,samus_super_missiles,samus_power_bombs);
+      if (suit) print_suit_spark_state();
       if (terrain) {
         int count = 0;
         for (int p = 0; p < 40; p++) if (plm_header_ptr[p]) count++;

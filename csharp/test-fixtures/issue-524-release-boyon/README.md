@@ -25,3 +25,18 @@ This is cartridge behavior, not a port defect. Native enemy/projectile collision
 `$A0:A143` iterates active enemies in population order, does not skip frozen enemies,
 deletes a colliding non-Plasma projectile, runs that enemy's shot AI, and returns. The
 directional asymmetry follows from which overlapping Boyon the shot reaches first.
+
+After the player clarified that the failure applies at every jump height, the replay
+was expanded from one representative shot to all 47 distinct firing timings across the
+captured rising/falling arc (36 distinct muzzle Y coordinates from `$004F` through
+`$008C`). Forty-five trajectories collide with the foreground Boyon, two miss both,
+and zero reach the reported target. Each attributed collision is also checked against
+the cartridge's strict axis/radius comparisons. This confirms the reported all-heights
+result rather than extrapolating it from the original single trajectory.
+
+The release input recording that contains the state capture independently confirms the
+reported input. Its three down-right jump-shot edges immediately before the capture are
+`A + L + X` with neither horizontal direction held, so the standing-jump sweep matches
+the player's actual attempt rather than substituting a moving trajectory. This does not
+make the target globally unreachable: the same-room right-side control freezes it, and
+the cartridge permits another left-side route after the foreground Boyon thaws and moves.

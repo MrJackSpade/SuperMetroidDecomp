@@ -19,7 +19,7 @@ internal static class CapturedBoyonFreezeAudit
             DebuggerSaveStateLoadResult loaded = store.Load(0);
             Inspect(loaded);
             store.Save(1, loaded.AddressSpace, loaded.Game, loaded.AudioPlayer);
-            SearchCapturedTrajectory(store);
+            SweepCapturedShotHeights(store);
         }
         finally
         {
@@ -74,11 +74,102 @@ internal static class CapturedBoyonFreezeAudit
         }
     }
 
-    private static void SearchCapturedTrajectory(DebuggerSaveStateStore store)
+    private static void SweepCapturedShotHeights(DebuggerSaveStateStore store)
     {
+        int foregroundHits = 0;
+        int reportedTargetHits = 0;
+        int misses = 0;
+        int dualOverlapContacts = 0;
+        var distinctMuzzleHeights = new HashSet<ushort>();
+
+        // Frames 2-48 cover every distinct rising/falling muzzle height in this
+        // captured standing jump. Later frames have landed and repeat the same shot.
+        for (int fireFrame = 2; fireFrame <= 48; fireFrame++)
+        {
+            DebuggerSaveStateLoadResult loaded = store.Load(1);
+            var runtime = loaded.Game.RuntimeForVerification!;
+            RoomEnemySlot front = runtime.Enemies.Slots.Single(slot =>
+                slot.NativeIndex == BoyonAuditDefinitions.ForegroundBoyonNativeIndex);
+            RoomEnemySlot target = runtime.Enemies.Slots.Single(slot =>
+                slot.NativeIndex == BoyonAuditDefinitions.ReportedBoyonNativeIndex);
+            SamusProjectileSpawnSnapshot? shot = null;
+            string outcome = "none";
+            SamusProjectileSlot? contact = null;
+            ushort previousFrontTimer = front.FrozenTimer;
+            for (int frame = 0; frame < 150; frame++)
+            {
+                SnesButton input = frame == 0 ? SnesButton.None : SnesButton.A | SnesButton.L;
+                if (frame == fireFrame) input |= SnesButton.X;
+                loaded.Game.Step((ushort)input);
+                shot ??= runtime.Projectiles.LastFiredProjectileSnapshot;
+                if (target.FrozenTimer != 0)
+                {
+                    outcome = "target";
+                    contact = runtime.Projectiles.Slots.First(slot => slot.IsActive);
+                    break;
+                }
+                if (front.FrozenTimer > previousFrontTimer)
+                {
+                    outcome = "front";
+                    contact = runtime.Projectiles.Slots.First(slot => slot.IsActive);
+                    break;
+                }
+                previousFrontTimer = front.FrozenTimer;
+            }
+            if (shot is not null)
+            {
+                distinctMuzzleHeights.Add(shot.Value.YPosition);
+                if ((SamusProjectileDirection)shot.Value.Direction != SamusProjectileDirection.DownRight)
+                {
+                    throw new InvalidDataException(
+                        $"#524 jump frame {fireFrame} produced direction ${shot.Value.Direction:X2}, " +
+                        "not a down-right shot.");
+                }
+            }
+
+            if (outcome == "front") foregroundHits++;
+            else if (outcome == "target") reportedTargetHits++;
+            else misses++;
+
+            if (contact is not null)
+            {
+                bool overlapsFront = OverlapsLikeCartridge(contact, front);
+                bool overlapsTarget = OverlapsLikeCartridge(contact, target);
+                if (outcome == "front" && !overlapsFront || outcome == "target" && !overlapsTarget)
+                {
+                    throw new InvalidDataException(
+                        $"#524 jump frame {fireFrame} attributed {outcome} without native-radius overlap.");
+                }
+                if (overlapsFront && overlapsTarget)
+                    dualOverlapContacts++;
+            }
+        }
+
+        if (foregroundHits != 45 || reportedTargetHits != 0 || misses != 2)
+        {
+            throw new InvalidDataException(
+                $"#524 complete jump sweep changed: foreground={foregroundHits}, " +
+                $"target={reportedTargetHits}, misses={misses}.");
+        }
+        Console.WriteLine(
+            $"#524 full left-side jump sweep: 47 timings, {distinctMuzzleHeights.Count} distinct " +
+            $"muzzle heights ${distinctMuzzleHeights.Min():X4}-${distinctMuzzleHeights.Max():X4}; " +
+            $"foreground={foregroundHits}, target={reportedTargetHits}, misses={misses}, " +
+            $"dual-overlap contacts={dualOverlapContacts}.");
+
         ReplayDiagonalShot(store.Load(1), fromRight: false, fireFrame: 14);
         ReplayDiagonalShot(store.Load(1), fromRight: true, fireFrame: 8);
     }
+
+    /// <summary>
+    /// Mirrors the two strict axis comparisons at cartridge routine <c>$A0:A1A6..A1D6</c>.
+    /// This deliberately uses the live radius words rather than visible sprite pixels.
+    /// </summary>
+    private static bool OverlapsLikeCartridge(SamusProjectileSlot projectile, RoomEnemySlot enemy) =>
+        Math.Abs(unchecked((short)(projectile.XPosition - enemy.XPosition))) <
+            projectile.XRadius + enemy.XRadius &&
+        Math.Abs(unchecked((short)(projectile.YPosition - enemy.YPosition))) <
+            projectile.YRadius + enemy.YRadius;
 
     private static void ReplayDiagonalShot(
         DebuggerSaveStateLoadResult loaded,
@@ -155,8 +246,12 @@ internal static class CapturedBoyonFreezeAudit
         Console.WriteLine(
             $"#524 {(fromRight ? "right" : "left")}-side diagonal shot: " +
             $"spawn=(${shot.Value.XPosition:X4},${shot.Value.YPosition:X4}), " +
-            $"contact=(${contact.XPosition:X4},${contact.YPosition:X4}) on frame {contactFrame}, " +
-            $"front=${front.XPosition:X4} freeze {frontBefore}->{front.FrozenTimer}, " +
-            $"target=${target.XPosition:X4} freeze {targetBefore}->{target.FrozenTimer}.");
+            $"contact=(${contact.XPosition:X4},${contact.YPosition:X4}) " +
+            $"radius={contact.XRadius}/{contact.YRadius} list=${contact.InstructionPointer:X4} " +
+            $"on frame {contactFrame}, " +
+            $"front=(${front.XPosition:X4},${front.YPosition:X4}) radius={front.XRadius}/{front.YRadius} " +
+            $"freeze {frontBefore}->{front.FrozenTimer}, " +
+            $"target=(${target.XPosition:X4},${target.YPosition:X4}) radius={target.XRadius}/{target.YRadius} " +
+            $"freeze {targetBefore}->{target.FrozenTimer}.");
     }
 }

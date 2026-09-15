@@ -13,7 +13,10 @@ enum {
   /* Samus body OAM emission, including the invincibility/shine gate. */
   DrawBody = 0x9085e2,
   /* Bank-$94 body-overlap dispatcher, including area-specific sand reactions. */
-  InsideBlockPhase = 0x949b60
+  InsideBlockPhase = 0x949b60,
+  BeamHud = 0x90b80d, ProjectilePhase = 0x90aece, ProjectileDraw = 0x938254,
+  BeamCooldown = 0x90ac1c,
+  OamLowTable = 0x370
 };
 static void grab(int right) {
   Cpu *cpu = cpu_init(NULL, 0);
@@ -38,7 +41,8 @@ int main(int argc, char **argv) {
   bool lifetime = argc == 3 && strcmp(argv[2], "lifetime") == 0;
   bool repeat = argc == 3 && strcmp(argv[2], "repeat") == 0;
   bool sand = argc == 3 && strcmp(argv[2], "sand") == 0;
-  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime || repeat || sand);
+  bool beam = argc == 3 && strcmp(argv[2], "beam") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime || repeat || sand || beam);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -49,11 +53,11 @@ int main(int argc, char **argv) {
   if (edges) { edge_matrix(); return 0; }
   if (refill) { refill_matrix(); return 0; }
   printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s%s\n",
-    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : sand ? ",boost,extra_y,extra_ysub" : "");
+    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : sand ? ",boost,extra_y,extra_ysub" : beam ? ",beam_palette,beam_oam" : "");
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < (sand ? 8 : 4); mode++) {
-    if ((xray || lifetime || repeat) && mode != 2 || recharge && mode < 2) continue;
+    if ((xray || lifetime || repeat || beam) && mode != 2 || recharge && mode < 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
@@ -84,14 +88,15 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (sand ? 351 : repeat ? 800 : lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
-      if (xray || recharge || lifetime || repeat || sand) run(HdmaPhase);
+    for (int frame = 0; frame < (sand || beam ? 351 : repeat ? 800 : lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray || recharge || lifetime || repeat || sand || beam) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, recharge || sand ? 2 : mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
       if (lifetime && frame >= 300) input = 0;
       if (repeat && frame >= 300) input = 0;
       if (sand && frame >= 300) input = 0;
+      if (beam && frame >= 300) input = 0;
       if (recharge && frame >= 300) {
         int crouch = mode == 2 ? 490 : 390;
         input = frame < 350 ? 0 : frame < crouch ? 0x8000 | (right ? 0x100 : 0x200) : frame == crouch ? 0x410 : 0;
@@ -108,6 +113,7 @@ int main(int argc, char **argv) {
         for (int i = 0; i < 6; i++) run(stages[i]);
       }
       run(Palette);
+      if (beam) run(BeamCooldown);
       if (sand && frame == 350) {
         area_index = 4;
         int row = (mode == 2 ? samus_y_pos - samus_y_radius : samus_y_pos + samus_y_radius - 1) >> 4;
@@ -163,6 +169,24 @@ int main(int argc, char **argv) {
         substate,suit_pickup_light_beam_pos,which_item_to_pickup,samus_health,samus_missiles,samus_super_missiles,samus_power_bombs,samus_shine_timer,timer_for_shine_timer);
       if (full) printf(",%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X",samus_x_pos,samus_x_subpos,samus_y_subpos,samus_y_speed,samus_y_subspeed,samus_y_dir,samus_anim_frame,samus_anim_frame_timer,samus_input_handler);
       if (sand) printf(",%04X,%04X,%04X",speed_boost_counter,extra_samus_y_displacement,extra_samus_y_subdisplacement);
+      if (beam) {
+        printf(",");
+        if (frame < 300) printf("-");
+        else for (int i = 224; i < 240; i++) printf("%04X",palette_buffer[i] & 0x7fff);
+        printf(",");
+        if (frame != 350) printf("-");
+        else {
+          joypad1_lastkeys = joypad1_newkeys = 0x40;
+          layer1_x_pos = 128; layer1_y_pos = 400; nmi_frame_counter_word = 351;
+          run(BeamHud); run(ProjectilePhase);
+          oam_next_ptr = 0; run(ProjectileDraw);
+          if (!oam_next_ptr) {
+            fprintf(stderr,"Beam count=%04X damage=%04X map=%04X instr=%04X type=%04X x=%04X y=%04X cooldown=%04X\n",projectile_counter,projectile_damage[0],projectile_spritemap_pointers[0],projectile_bomb_instruction_ptr[0],projectile_type[0],projectile_x_pos[0],projectile_y_pos[0],cooldown_timer);
+            Die("Retained Flash beam must emit actual projectile OAM");
+          }
+          for (int i = 0; i < oam_next_ptr; i++) printf("%02X",g_ram[OamLowTable + i]);
+        }
+      }
       if (lifetime) {
         int visible = -1, control = -1;
         if (frame >= 300) {

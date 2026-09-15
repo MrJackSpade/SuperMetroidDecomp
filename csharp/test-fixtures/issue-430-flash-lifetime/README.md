@@ -166,4 +166,10 @@ cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" sand > c
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-sand-audit "Super Metroid.smc" csharp/test-fixtures/issue-430-flash-lifetime/sand.csv
 ```
 
-Remaining: gray-beam cue and save/reload cancellation. Keep #430 in progress.
+## Gray-beam cue
+
+See [BEAM.md](BEAM.md): all 1,404 native state frames, 204 beam-palette
+snapshots and four actual projectile OAM streams match the port. No production
+fix was required. The sprite attributes select the Flash-overwritten palette.
+
+Remaining: save/reload cancellation. Keep #430 in progress.

@@ -8,12 +8,13 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Full runtime movement after both Flash/grab orders, through a retained spark.</summary>
 internal static class DraygonCrystalRuntimeAudit
 {
-    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false, bool lifetime = false, bool repeat = false, bool sand = false)
+    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false, bool lifetime = false, bool repeat = false, bool sand = false, bool beam = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (sand
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (beam
+                ? "88724C419462D65CFEED282AE946DAF4730471C8C673CAD96AD707CBC2C66D55" : sand
                 ? "8BEC4E7921B8B1B76DFFBC93CA970F8ECEFB7D3596DA69CE21D72C4C37B3C43C" : repeat
                 ? "1A8779EB4D6E56D2C7EF17E5ACE3DFA12161FB55BBD8EBBADBEA920BE233275D" : lifetime
                 ? "9208A09FB48468802B707F291507E3C04C9BBB2C0F154FB597F8B609DF1AEAD3" : recharge
@@ -22,7 +23,7 @@ internal static class DraygonCrystalRuntimeAudit
                 : "E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7"))
             throw new InvalidDataException("Use the pinned ROM and native Draygon/Flash runtime trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != (sand ? 11232 : repeat ? 3200 : lifetime ? 4000 : recharge ? 5600 : xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != (sand ? 30 : lifetime ? 29 : 27)))
+        if (rows.Length != (sand ? 11232 : repeat ? 3200 : lifetime ? 4000 : recharge ? 5600 : xrayCancellation || beam ? 1404 : 6880) || rows.Any(row => row.Length != (sand ? 30 : lifetime || beam ? 29 : 27)))
             throw new InvalidDataException("Incomplete runtime trace.");
         int mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -94,6 +95,26 @@ internal static class DraygonCrystalRuntimeAudit
                 {
                     actual += $",{samus.HorizontalSpeed.SpeedBoostCounter:X4},{samus.Kinematics.ExtraYDisplacement:X4},{samus.Kinematics.ExtraYSubdisplacement:X4}";
                     expected += "," + string.Join(',', row[27..30]);
+                }
+                if (beam && frame >= 300)
+                {
+                    string palette = string.Concat(runtime.Cgram.Colors.Slice(224, 16).ToArray().Select(color => $"{color & 0x7fff:X4}"));
+                    if (palette != row[27])
+                        throw new InvalidDataException($"Flash beam palette at {group.Key}/{frame}: {palette} != {row[27]}");
+                    if (frame == 350)
+                    {
+                        runtime.Projectiles.StepFrame(bus, level, samus, 0x40, 0x40, 128, 400, runtime.BombProjectiles);
+                        var oam = new OamBuffer();
+                        oam.BeginFrame();
+                        runtime.Projectiles.DrawLiveProjectiles(bus, oam, 128, 400, 351);
+                        string sprites = Convert.ToHexString(oam.LowTable[..oam.NextByteOffset]);
+                        if (sprites.Length == 0 || sprites != row[28])
+                            throw new InvalidDataException($"Flash beam OAM at {group.Key}/{frame}: {sprites} != {row[28]}");
+                        // Actual ROM sprite attributes select OBJ palette six, CGRAM 224..239.
+                        for (int i = 3; i < oam.NextByteOffset; i += 4)
+                            if ((oam.LowTable[i] & 14) != 12)
+                                throw new InvalidDataException("Beam does not select the verified Flash-overwritten palette.");
+                    }
                 }
                 if (lifetime && frame >= 300)
                 {

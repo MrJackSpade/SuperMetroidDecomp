@@ -5,6 +5,43 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Post-message suit admission; windup itself is earned with real inputs.</summary>
 internal static class SuitSparkProbe
 {
+    public static ushort BombInputAt(int frame, bool left) => frame <= 151
+        ? CrystalSparkProbe.InputAt(frame, left, 0) : ReleaseInputAt(Math.Max(frame, 330), left, 0);
+
+    public static void PrepareBomb(SuperMetroidRuntime runtime, SamusState samus, int frame, int mode)
+    {
+        var bomb = runtime.BombProjectiles.Slots[0];
+        if (frame == 315) bomb.ClearFields();
+        if (frame != 314) return;
+        // Collision-only timer-eight boundary, as in HurtBombComparisonAudit.
+        // No fuse/animation step; the actual runtime overlap publishes direction.
+        bomb.Type = (ushort)SamusProjectileFamily.Bomb;
+        bomb.Damage = 30; bomb.BombTimer = 8;
+        int offset = (mode & 3) switch { 1 => 12, 2 => -12, 3 => 13, _ => 0 };
+        bomb.XPosition = unchecked((ushort)(samus.XPosition + offset));
+        bomb.YPosition = samus.YPosition;
+        bomb.XRadius = bomb.YRadius = 8;
+    }
+
+    public static void VerifyBomb(SamusState samus, int frame, int mode)
+    {
+        bool hit = (mode & 3) != 3;
+        if (frame == 314 && (samus.BombJumpStarting != hit ||
+            (samus.Shinespark.Phase == ShinesparkPhase.Inactive) != hit))
+            throw new InvalidDataException("Suit bomb overlap must replace windup only on a hit.");
+        if (!hit) return;
+        if (frame == 343 && (samus.Shinespark.Phase != ShinesparkPhase.Inactive ||
+            samus.BombJumpActive || samus.BombJumpStarting))
+            throw new InvalidDataException("Bomb arc must return to normal movement, never resume old windup.");
+        if (frame == 389 && samus.HorizontalSpeed.SpeedBoostCounter != 0x0400)
+            throw new InvalidDataException("Suit bomb interruption lost its retained boost.");
+        if (frame == 390 && samus.Shinespark.ShineTimer != 179)
+            throw new InvalidDataException("Suit bomb boost cannot store another charge.");
+        if (frame == 403 && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
+            samus.HorizontalSpeed.ContactDamageIndex != 2 || samus.Health != 98))
+            throw new InvalidDataException("Suit bomb boost cannot launch a damaging, energy-consuming spark.");
+    }
+
     public static ushort ReleaseInputAt(int frame, bool left, int mode)
     {
         if (frame < 330) return InputAt(frame, left, mode);

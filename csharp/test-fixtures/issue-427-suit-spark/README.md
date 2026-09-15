@@ -2,8 +2,8 @@
 
 This native-CPU fixture covers the complete Varia/Gravity transformation while
 shinespark windup is suspended, its release, and subsequent X-Ray admission.
-It is partial coverage of #427: bomb-jump alternatives remain to be tested.
-Crystal Spark heights are covered in `../issue-427-crystal-spark`.
+The bomb-jump alternative is covered below; Crystal Spark heights are covered
+in `../issue-427-crystal-spark`.
 The release matrix below additionally checks
 X-Ray teardown and reuse of the retained boost.
 
@@ -95,3 +95,48 @@ production change. The original suit and Crystal Spark matrices also pass.
 Regression checks passed: 169,332 existing temporary-boost, Draygon and Crystal
 Spark frame comparisons; the complete bank-$80 verification executable; and
 Windows Desktop Release build with zero warnings/errors.
+
+## Bomb interruption without X-Ray
+
+`bomb.csv` has 16 cases, 430 frames each (6,880 matching frames): both initial
+facings, both suits, centered/left/right bomb hits and the first missing pixel.
+X-Ray is not equipped or selected. The same controller-earned windup is suspended
+through suit collection. On the first unlocked frame (314), construct only a
+timer-eight bomb overlap, as in the existing hurt/bomb fixture. The production
+bank-$A0 interaction pass publishes its direction; normal beta and bank-$91
+command three consume it. Clear the collision stimulus on the next frame.
+This isolates the bomb's collision boundary, not its placement or fuse animation.
+
+The front-facing suit pose has X radius 5, the bomb radius 8: offsets 0 and
+plus/minus 12 hit; offset 13 misses. A ceiling at block row 16 catches the missed
+control's uninterrupted spark within valid room geometry. It does not affect
+the successful bomb arcs. No boost, velocity or movement-handler state is injected.
+
+Explicit assertions require bomb-start ownership at frame 314, normal movement
+at 343, retained boost at 389, a new stored charge at 390, and a damaging,
+energy-consuming second spark at 403. Every frame compares the same movement,
+pose, animation, palette, boost and windup fields. Shared suit scratch is also
+checked directly against native while the suit owns it (151–314). After release,
+the inactive suit's separate window/substate is not compared to re-used scratch.
+
+### Reproduced corrections
+
+- Successful hit, frame 343: the port resumed old windup after the bomb arc.
+  Command three now relinquishes the previous spark movement/input ownership,
+  while retaining the independently running palette and boost words. The bomb
+  handler subsequently returns to normal movement just as `$91:EE80` specifies.
+- Missed hit, frame 344: the port accelerated the resumed spark by 7.109375,
+  versus native 0.109375. Suit HDMA overwrites shared `$0DEC/$0DEE`; the separate
+  port owners had preserved stale spark acceleration. Suit entry and every HDMA
+  step now publish those writes into the spark's acceleration pair, including
+  the zero pair at teardown. The resulting uninterrupted trajectory now matches.
+
+```powershell
+cmd /c 'csharp\native\TemporaryBlueSuitAudit\audit.exe "Super Metroid.smc" suit-bomb > csharp\test-temp\suit-bomb.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --suit-bomb-audit "Super Metroid.smc" csharp/test-fixtures/issue-427-suit-spark/bomb.csv
+```
+
+Bomb trace SHA-256 (LF-normalized UTF-8):
+`44A748121B150A2C522001EA5B3E715AED1FD93EEC040C2387DA11306D5170FC`.
+The completed bank-$80 verification executable and Windows Release build pass.
+Suit/X-Ray/Crystal, temporary boost and Draygon matrices remain regression gates.

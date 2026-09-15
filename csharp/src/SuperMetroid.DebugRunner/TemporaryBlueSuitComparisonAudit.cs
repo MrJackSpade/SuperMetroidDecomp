@@ -22,7 +22,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool crystalHeights = kind == TemporaryBlueAuditKind.CrystalHeights;
         bool crystal = crystalHeights || kind == TemporaryBlueAuditKind.CrystalSpark;
         bool suitRelease = kind == TemporaryBlueAuditKind.SuitRelease;
-        bool suit = suitRelease || kind == TemporaryBlueAuditKind.SuitSpark;
+        bool suitBomb = kind == TemporaryBlueAuditKind.SuitBomb;
+        bool suit = suitBomb || suitRelease || kind == TemporaryBlueAuditKind.SuitSpark;
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
@@ -51,7 +52,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             for (int x = 0; x < level.WidthInBlocks; x++)
             {
                 int index = y * level.WidthInBlocks + x;
-                level.SetForegroundEntry(index, y == 32 ? (ushort)0x8000 : (ushort)0);
+                level.SetForegroundEntry(index, y == 32 || (suitBomb && y == 16) ? (ushort)0x8000 : (ushort)0);
                 level.SetBehavior(index, 0);
             }
             foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
@@ -59,7 +60,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var samus = runtime.Samus ?? throw new InvalidDataException("Missing fixture Samus.");
             if (echoes) runtime.GameTime.Load(0, 0, 0, 0);
             samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall);
-            if (xray || suit) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.XrayScope);
+            if (xray || (suit && !suitBomb)) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.XrayScope);
             if (bounce && aim >= 4) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.EquippedBeams = samus.CollectedBeams = 0;
             samus.Health = samus.MaxHealth = 99;
@@ -105,6 +106,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (crystalHeights) expectedInput = CrystalSparkProbe.HeightInputAt(frame, left, aim);
                 if (suit) expectedInput = SuitSparkProbe.InputAt(frame, left, aim);
                 if (suitRelease) expectedInput = SuitSparkProbe.ReleaseInputAt(frame, left, aim);
+                if (suitBomb) expectedInput = SuitSparkProbe.BombInputAt(frame, left);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
                     throw new InvalidDataException("Changed controller sequence or reordered trace.");
                 var publication = new GameplayAudioFramePublication(audio);
@@ -113,6 +115,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (obstacle && frame == 400) TemporaryBlueObstacleProbe.Install(level, samus, left, aim);
                 if (crystal && frame == 152) CrystalSparkProbe.PrepareCleanup(bus, samus, runtime.BombProjectiles.PowerBombExplosion, aim & 7);
                 if (suitRelease && frame == 330) SuitSparkProbe.PrepareRelease(bus, samus);
+                if (suitBomb) SuitSparkProbe.PrepareBomb(runtime, samus, frame, aim);
                 string terrainResult = "0000,0000,0000,0000";
                 if (xray && frame == 200)
                 {
@@ -137,8 +140,14 @@ internal static class TemporaryBlueSuitComparisonAudit
                     DraygonBlueSuitProbe.KillThroughEye(bus, samus);
                 grabProbe?.AfterFrame(frame);
                 if (suit && frame == 151) SuitSparkProbe.Begin(bus, runtime, samus, aim);
-                if (suit) SuitSparkProbe.Verify(runtime, samus, frame, aim);
+                if (suitBomb && frame == 151) samus.SelectedHudItem = 0;
+                if (suit && !suitBomb) SuitSparkProbe.Verify(runtime, samus, frame, aim);
                 if (suitRelease) SuitSparkProbe.VerifyRelease(samus, frame);
+                if (suitBomb) SuitSparkProbe.VerifyBomb(samus, frame, aim);
+                if (suitBomb && frame is >= 151 and <= 314 &&
+                    (samus.Shinespark.VerticalAccelerationSpeed != ushort.Parse(row[19], NumberStyles.HexNumber) ||
+                     samus.Shinespark.VerticalAccelerationSubspeed != ushort.Parse(row[24], NumberStyles.HexNumber)))
+                    throw new InvalidDataException("Suit HDMA did not publish the native shared spark-acceleration words.");
                 grabProbe?.Verify(frame);
                 var speed = samus.HorizontalSpeed;
                 if (stop >= 100 && frame is 89 or 90 &&
@@ -174,14 +183,14 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (terrain) actual += $",{terrainResult}";
                 if (menu) actual += $",{samus.EquippedItems:X4}";
                 string expected = string.Join(',', echoes ? row[5..18] : row[5..]);
-                if (suit && (samus.Xray.IsActive || (suitRelease && frame >= 322)))
+                if (suit && (samus.Xray.IsActive || (suitRelease && frame >= 322) || (suitBomb && frame >= 314)))
                 {
                     // Suit HDMA no longer owns the shared window words once X-ray
                     // overwrites them. Keep comparing Samus/boost/admission state;
                     // this fixture does not drive the X-ray DMA/window setup stages.
                     actual = string.Join(',', actual.Split(',')[..18]);
                     expected = string.Join(',', row[5..23]);
-                    if (suitRelease && frame >= 332)
+                    if ((suitRelease && frame >= 332) || (suitBomb && frame >= 314))
                     {
                         // $0DEC is shared scratch: a subsequent spark writes its
                         // own substate there. The inactive suit's separate C#

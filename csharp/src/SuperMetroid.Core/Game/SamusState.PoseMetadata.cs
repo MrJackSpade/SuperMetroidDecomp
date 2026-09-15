@@ -750,6 +750,12 @@ public sealed partial class SamusState
     /// <summary>Executes special prospective-pose command three at `$91:EE80`.</summary>
     private void ArmPublishedBombJump()
     {
+        // Command three replaces, rather than suspends, the movement pointer.
+        // A suit-interrupted spark may still own it despite the ordinary body pose.
+        // Keep its independently running palette/boost words, but never resume it
+        // when the bomb arc restores normal movement and input.
+        Shinespark.RelinquishMovementHandler();
+        ShinesparkPoseInputLocked = false;
         BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;

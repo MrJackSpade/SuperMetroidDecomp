@@ -76,7 +76,8 @@ int main(int argc, char **argv) {
   bool crystalHeights = argc == 3 && strcmp(argv[2], "crystal-heights") == 0;
   bool crystal = crystalHeights || (argc == 3 && strcmp(argv[2], "crystal-spark") == 0);
   bool suitRelease = argc == 3 && strcmp(argv[2], "suit-release") == 0;
-  bool suit = suitRelease || (argc == 3 && strcmp(argv[2], "suit-spark") == 0);
+  bool suitBomb = argc == 3 && strcmp(argv[2], "suit-bomb") == 0;
+  bool suit = suitBomb || suitRelease || (argc == 3 && strcmp(argv[2], "suit-spark") == 0);
   bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
@@ -104,10 +105,11 @@ int main(int argc, char **argv) {
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
     interactive_enemy_indexes[0] = 0xffff;
     for (int x = 0; x < 144; x++) level_data[32 * 144 + x] = 0x8000;
+    if (suitBomb) for (int x = 0; x < 144; x++) level_data[16 * 144 + x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = collected_items = 0x2004; game_state = 8;
     if (xray) equipped_items = collected_items = 0xa004;
-    if (suit) equipped_items = collected_items = 0xa004;
+    if (suit && !suitBomb) equipped_items = collected_items = 0xa004;
     if (bounce && aim >= 4) equipped_items = collected_items = 0x2006;
     samus_health = samus_max_health = 99;
     if (crystal) {
@@ -128,7 +130,7 @@ int main(int argc, char **argv) {
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
     if (menu) reg_INIDISP = 15;
-    for (int frame = 0; frame < (suitRelease ? 430 : suit ? 330 : crystal || obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (suitRelease || suitBomb ? 430 : suit ? 330 : crystal || obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
       if (suit) step_suit_hdma(aim);
       if (menu && frame == 431) {
         if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
@@ -162,6 +164,7 @@ int main(int argc, char **argv) {
       if (crystalHeights) input = crystal_height_input(frame, left, aim);
       if (suit) input = suit_spark_input(frame, left, aim);
       if (suitRelease) input = suit_release_input(frame, left, aim);
+      if (suitBomb) input = suit_bomb_input(frame, left);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -173,6 +176,7 @@ int main(int argc, char **argv) {
       }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       if (suitRelease) step_suit_xray_release(frame);
+      if (suitBomb) prepare_suit_bomb(frame, aim);
       if (crystal && frame == 152) crystal_spark_cleanup(aim & 7);
       if (grab && frame > draygon_grab_frame(aim) && frame < 220) {
         Get_Draygon(0)->base.y_pos = 400;
@@ -225,8 +229,10 @@ int main(int argc, char **argv) {
       }
       }
       if (suit && frame == 151) begin_suit_spark(aim);
-      if (suit) verify_suit_spark(frame, aim);
+      if (suitBomb && frame == 151) hud_item_index = 0;
+      if (suit && !suitBomb) verify_suit_spark(frame, aim);
       if (suitRelease) verify_suit_xray_release(frame);
+      if (suitBomb) verify_suit_bomb(frame, aim);
       if (crystalHeights) verify_crystal_height(frame, aim);
       if (echoes) draw_echo_probe();
       if (grab && frame == draygon_grab_frame(aim)) {

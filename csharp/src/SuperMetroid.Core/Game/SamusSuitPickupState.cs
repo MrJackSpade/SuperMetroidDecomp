@@ -92,6 +92,7 @@ public sealed class SamusSuitPickupState
             : SamusPaletteRomData.SuitPickup.GravityBlue;
         Substate = 0;
         LightBeamPosition = 0;
+        samus.Shinespark.ApplySuitPickupScratch(Substate, LightBeamPosition);
         LightBeamWideningSpeed = SamusSpecialSequenceRomData.SuitPickup.InitialWideningSpeed;
         Array.Fill(_windowTable, SamusSpecialSequenceRomData.SuitPickup.EmptyWindowEndpoints);
 
@@ -146,28 +147,29 @@ public sealed class SamusSuitPickupState
         {
             case 0:
                 StepLightBeamAppears();
-                return;
+                break;
             case 1:
                 StepUniformWidening();
-                return;
+                break;
             case 2:
                 StepCurvedWidening(bus);
-                return;
+                break;
             case 3:
                 RevealSuit(bus, samus, cgram);
-                return;
+                break;
             case 4:
                 StepLightBeamShrinks();
-                return;
+                break;
             case 5:
                 StepLightBeamDissipates();
-                return;
+                break;
             case 6:
                 Finish(samus);
-                return;
+                break;
             default:
                 throw new InvalidDataException($"Unknown suit-pickup substate {Substate}.");
         }
+        samus.Shinespark.ApplySuitPickupScratch(Substate, LightBeamPosition);
     }
 
     private void StepLightBeamAppears()

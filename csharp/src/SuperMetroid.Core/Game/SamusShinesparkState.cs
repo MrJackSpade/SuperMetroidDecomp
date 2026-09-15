@@ -46,6 +46,17 @@ public sealed class SamusShinesparkState
     /// <summary>Fractional word paired with <see cref="VerticalAccelerationSpeed"/>.</summary>
     public ushort VerticalAccelerationSubspeed { get; private set; }
 
+    /// <summary>
+    /// Mirrors suit HDMA writes to shared WRAM $0DEC/$0DEE (substate/light-beam
+    /// position), which $90:D1FF later reads as the spark acceleration pair.
+    /// A suspended windup must not retain its pre-pickup 7.0000 initializer.
+    /// </summary>
+    internal void ApplySuitPickupScratch(ushort substate, ushort lightBeamPosition)
+    {
+        VerticalAccelerationSpeed = substate;
+        VerticalAccelerationSubspeed = lightBeamPosition;
+    }
+
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
     public ShinesparkPhase Phase { get; private set; }
 

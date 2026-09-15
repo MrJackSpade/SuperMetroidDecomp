@@ -1,5 +1,5 @@
 /// <summary>Distinct controller-earned native temporary-boost comparison matrices.</summary>
-internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation, Sand, Terrain, Chain, Menu, DraygonDeath, DraygonGrab, DraygonEcho, DraygonMidair, Xray, Obstacle, CrystalSpark, SuitSpark, SuitRelease, CrystalHeights }
+internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation, Sand, Terrain, Chain, Menu, DraygonDeath, DraygonGrab, DraygonEcho, DraygonMidair, Xray, Obstacle, CrystalSpark, SuitSpark, SuitRelease, CrystalHeights, SuitBomb }
 
 /// <summary>Accepted original-CPU trace identities and complete matrix dimensions.</summary>
 internal static class TemporaryBlueAuditDefinitions
@@ -24,6 +24,7 @@ internal static class TemporaryBlueAuditDefinitions
         TemporaryBlueAuditKind.CrystalHeights => (48, 500, "CF5DBA0EAFB9EDBE53A300DBFF5F1E0060A45F008F16CC31DF2142957574E778"),
         TemporaryBlueAuditKind.SuitSpark => (16, 330, "3FB90B1CBCD167CFCFA1141679635392F2069F53A171322D36D0B96B2BCEE40F"),
         TemporaryBlueAuditKind.SuitRelease => (8, 430, "44FA7575F8D4CFD542AAC07C7ABF57C5A2EB870ABAEC111E7F085E6BC2C06DB3"),
+        TemporaryBlueAuditKind.SuitBomb => (16, 430, "44A748121B150A2C522001EA5B3E715AED1FD93EEC040C2387DA11306D5170FC"),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 }

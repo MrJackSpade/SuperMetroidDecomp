@@ -19,6 +19,41 @@ static void step_suit_xray_release(int frame) {
   if (frame == 331) run(XrayRestoreSecond);
   if (frame == 332) run(XrayRelease);
 }
+static uint16 suit_bomb_input(int frame, int left) {
+  if (frame <= 151) return crystal_spark_input(frame, left, 0);
+  if (frame == 390) return 0x410;
+  if (frame > 390 && frame < 400) return 0x10;
+  if (frame == 400) return 0x80;
+  if (frame >= 401) return 0x880;
+  return 0;
+}
+static void prepare_suit_bomb(int frame, int mode) {
+  if (frame == 314) {
+    bomb_counter = 1;
+    projectile_type[5] = 0x500; projectile_damage[5] = 30;
+    projectile_x_pos[5] = samus_x_pos + ((mode & 3) == 1 ? 12 : (mode & 3) == 2 ? -12 : (mode & 3) == 3 ? 13 : 0);
+    projectile_y_pos[5] = samus_y_pos;
+    projectile_x_radius[5] = projectile_y_radius[5] = 8;
+    projectile_variables[5] = 8;
+  }
+  if (frame == 315) { bomb_counter = 0; projectile_damage[5] = 0; }
+}
+static void verify_suit_bomb(int frame, int mode) {
+  bool hit = (mode & 3) != 3;
+  if (frame == 314 && ((samus_movement_handler == 0xe025) != hit)) {
+    fprintf(stderr, "mode=%d radius=%u/%u bomb=%u/%u handler=%04X\n", mode, samus_x_radius, samus_y_radius, projectile_x_radius[5], projectile_y_radius[5], samus_movement_handler);
+    Die("Suit bomb overlap must replace windup only on a hit");
+  }
+  if (!hit) return;
+  if (frame == 343 && samus_movement_handler != 0xa337)
+    Die("Bomb arc must restore normal movement");
+  if (frame == 389 && speed_boost_counter != 0x400)
+    Die("Suit bomb interruption must retain boost");
+  if (frame == 390 && samus_shine_timer != 179)
+    Die("Suit bomb boost must store another charge");
+  if (frame == 403 && (samus_contact_damage_index != 2 || samus_health != 98))
+    Die("Suit bomb boost must launch a damaging, energy-consuming spark");
+}
 static void verify_suit_xray_release(int frame) {
   if (frame == 332 && (time_is_frozen_flag || samus_movement_handler != 0xa337 || speed_boost_counter != 0x400))
     Die("X-ray teardown must restore normal movement and retain boost");

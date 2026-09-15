@@ -2,7 +2,7 @@
 
 This covers Crystal Flash interruption of controller-earned spark windup across
 the three setup heights. Suit/X-Ray coverage is in `../issue-427-suit-spark`;
-the bomb-jump alternative remains open under #427.
+including the bomb-jump alternative.
 
 Run the original cartridge instructions, not the translated C functions:
 

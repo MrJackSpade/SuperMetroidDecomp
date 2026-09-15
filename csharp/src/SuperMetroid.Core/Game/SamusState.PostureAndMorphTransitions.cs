@@ -185,7 +185,12 @@ public sealed partial class SamusState
             // posture movement can cancel running momentum. A stage-four crouch therefore
             // banks 180 palette-handler ticks even though the following stable crouch has
             // no horizontal Speed Booster state of its own.
-            Shinespark.TryStoreFromSpeedBooster(HorizontalSpeed.SpeedBoostCounter);
+            if (Shinespark.TryStoreFromSpeedBooster(HorizontalSpeed.SpeedBoostCounter))
+            {
+                // The successful native store replaces the shared palette handler
+                // and timer even if an interrupted Flash was keeping them alive.
+                CrystalFlash.RelinquishPaletteHandler();
+            }
 
             Pose = targetPose;
             RefreshCollisionRadii(bus);

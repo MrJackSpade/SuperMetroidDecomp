@@ -572,6 +572,8 @@ if (args.Length == 3 && args[0] == "--draygon-crystal-refill-audit")
     return DraygonCrystalRefillAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--flash-xray-cancellation-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2], xrayCancellation: true);
+if (args.Length == 3 && args[0] == "--flash-recharge-audit")
+    return DraygonCrystalRuntimeAudit.Run(args[1], args[2], recharge: true);
 if (args.Length == 3 && args[0] == "--draygon-crystal-runtime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")

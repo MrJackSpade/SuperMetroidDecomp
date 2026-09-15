@@ -1,7 +1,7 @@
-# Shinespark Suit lifetime (#430): X-Ray cancellation
+# Shinespark Suit lifetime (#430): X-Ray cancellation and recharge
 
 Partial coverage; keep #430 open without awaiting-player-validation until the
-other requested lifetime, cues, recharge, Flash and save/reload cases are covered.
+other requested lifetime, cues, Flash and save/reload cases are covered.
 
 This extends the verified #431 generator, not a permanent debug award. Both
 facings and both grab/Flash entry orders use alternating directional inputs,
@@ -44,3 +44,36 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-x
 
 The fixture executes original CPU/HDMA logic without claiming rendered-window,
 PAL-revision, or save/reload coverage. Only numeric state is committed.
+
+## Recharge replaces retained Flash
+
+`recharge.csv` uses the same verified generator with Speed Booster equipped,
+starting X=1152 so both directions remain on the runway. After release/landing,
+frames 300..349 have no input. Mode 2 holds forward+Dash for frames 350..489,
+then Down+AimUp at 490 to store an earned charge. Mode 3 stops at frame 390,
+before reaching stage four. Both release input afterward through frame 699.
+Native HDMA and the port's production audio publication run: the echo queue's
+accumulator return affects running cadence and must not be omitted by a fixture.
+
+Before the fix, all four successful runs first diverged at crouching: native
+replaced palette 7/timer 5 with palette 1/timer 179, while the port kept the
+interrupted Flash owner. Successful charge storage now relinquishes Flash's
+palette ownership. An insufficient stage does not relinquish it.
+
+All 5,600 frames across eight cases match the same fields as the runtime audit.
+Native and port explicitly assert the successful recharge expires to zero by
+frame 699, while the insufficient-charge control still has the looping Flash
+timer (1 on that frame). This also checks retained Flash survives forward Dash
+until an actual charge is stored. No charge counter is injected.
+
+LF-normalized trace SHA-256:
+`65BB9B69CBCDC1A28E9F0243D5BAE9D43053D6F95AE676F27040F7C535A5D368`.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" recharge > csharp\test-temp\flash-recharge.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-recharge-audit "Super Metroid.smc" csharp/test-fixtures/issue-430-flash-lifetime/recharge.csv
+```
+
+Remaining: visual cues, sand/Blue-Suit differences, further lifetime/use cases,
+fresh Crystal Flash cancellation, and save/reload. The finite retention control
+does not by itself prove indefinite lifetime. Keep the ticket in progress.

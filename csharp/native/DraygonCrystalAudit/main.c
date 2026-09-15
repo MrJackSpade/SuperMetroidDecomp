@@ -30,7 +30,8 @@ static uint16 input_at(int frame, int mode) {
 }
 int main(int argc, char **argv) {
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
-  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray);
+  bool recharge = argc == 3 && strcmp(argv[2], "recharge") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -45,17 +46,18 @@ int main(int argc, char **argv) {
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < 4; mode++) {
-    if (xray && mode != 2) continue;
+    if (xray && mode != 2 || recharge && mode < 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
     samus_pose_x_dir = samus_prev_pose_x_dir = right ? 8 : 4;
-    samus_x_pos = 256; samus_y_pos = 400;
+    samus_x_pos = recharge ? 1152 : 256; samus_y_pos = 400;
     samus_health = 49; samus_max_health = 99;
     samus_missiles = samus_super_missiles = samus_power_bombs = 10;
     samus_max_missiles = samus_max_super_missiles = samus_max_power_bombs = 10;
     button_config_shoot_x = 0x40; game_state = 8;
     grapple_beam_function = 0xc4f0;
+    if (recharge) equipped_items = collected_items = 0x2000;
     if (full) {
       room_width_in_blocks = 144; room_height_in_blocks = 80;
       room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -75,11 +77,15 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (xray ? 351 : full ? 430 : 120); frame++) {
-      if (xray) run(HdmaPhase);
+    for (int frame = 0; frame < (recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray || recharge) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
-      uint16 input = input_at(frame, mode);
+      uint16 input = input_at(frame, recharge ? 2 : mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
+      if (recharge && frame >= 300) {
+        int crouch = mode == 2 ? 490 : 390;
+        input = frame < 350 ? 0 : frame < crouch ? 0x8000 | (right ? 0x100 : 0x200) : frame == crouch ? 0x410 : 0;
+      }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       nmi_frame_counter_word = frame + (full ? 2 : 0);
       if (full) { run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0; }
@@ -92,6 +98,11 @@ int main(int argc, char **argv) {
         for (int i = 0; i < 6; i++) run(stages[i]);
       }
       run(Palette);
+      if (recharge && frame == (mode == 2 ? 490 : 390) &&
+          (timer_for_shine_timer != (mode == 2 ? 1 : 7) || samus_shine_timer != (mode == 2 ? 179 : 5)))
+        Die("Only a stage-four recharge may replace the retained Flash timer");
+      if (recharge && frame == 699 && (samus_shine_timer != (mode == 2 ? 0 : 1)))
+        Die("Recharge must expire while insufficient charge retains Flash");
       if (xray && frame == 350) {
         run(XrayAdmission); run(ApplyPosePhase);
         if (!time_is_frozen_flag || timer_for_shine_timer != 8 || samus_shine_timer != 0) {
@@ -99,7 +110,7 @@ int main(int argc, char **argv) {
           Die("X-Ray must replace the retained Flash palette and clear its timer");
         }
       }
-      if (full && mode == 2 && frame == 363 &&
+      if (full && !recharge && mode == 2 && frame == 363 &&
           (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != (order == 0 ? 98 : 48)))
         Die("Interrupted Flash must permit a damaging, energy-consuming spark without a charge");
       if (!full && frame == 96) {

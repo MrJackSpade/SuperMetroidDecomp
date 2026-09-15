@@ -17,6 +17,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool chain = kind == TemporaryBlueAuditKind.Chain;
         bool menu = kind == TemporaryBlueAuditKind.Menu;
         bool midair = kind == TemporaryBlueAuditKind.DraygonMidair;
+        bool xray = kind == TemporaryBlueAuditKind.Xray;
+        bool obstacle = kind == TemporaryBlueAuditKind.Obstacle;
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
@@ -53,6 +55,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             var samus = runtime.Samus ?? throw new InvalidDataException("Missing fixture Samus.");
             if (echoes) runtime.GameTime.Load(0, 0, 0, 0);
             samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall);
+            if (xray) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.XrayScope);
             if (bounce && aim >= 4) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.EquippedBeams = samus.CollectedBeams = 0;
             samus.Health = samus.MaxHealth = 99;
@@ -85,13 +88,24 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (cancel) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, aim);
                 if (sand) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, 0);
                 if (terrain) expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
+                if (xray) expectedInput = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
+                if (obstacle) expectedInput = frame < 400 ? TemporaryBlueCancellationInputs.At(frame, left, 0) : 0x80 | (left ? 0x200 : 0x100);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
                     throw new InvalidDataException("Changed controller sequence or reordered trace.");
                 var publication = new GameplayAudioFramePublication(audio);
                 if (cancel) TemporaryBlueCancellationInputs.BeforeFrame(samus, frame, aim);
                 grabProbe?.BeforeFrame(frame);
+                if (obstacle && frame == 400) TemporaryBlueObstacleProbe.Install(level, samus, left, aim);
                 string terrainResult = "0000,0000,0000,0000";
-                if (menuController is not null && frame >= 400)
+                if (xray && frame == 200)
+                {
+                    ushort counter = samus.HorizontalSpeed.SpeedBoostCounter;
+                    if (!runtime.TryBeginXrayFromSelectedHudItem() || !samus.Xray.IsActive ||
+                        samus.Shinespark.ShineTimer != 0 || samus.Xray.SpecialPaletteType != 8 ||
+                        samus.HorizontalSpeed.SpeedBoostCounter != counter)
+                        throw new InvalidDataException("X-ray did not consume charge while preserving the earned boost counter.");
+                }
+                else if (menuController is not null && frame >= 400)
                     menuController.Step(frame, aim, input);
                 else if (terrain && frame == 400)
                     terrainResult = TemporaryBlueTerrainProbe.Run(bus, level, samus, aim, stop == 140);
@@ -110,7 +124,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && frame == 399 &&
+                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && !obstacle && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
@@ -120,6 +134,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (cancel) TemporaryBlueCancellationInputs.Verify(samus, frame, aim);
                 if (draygon && !midair) DraygonBlueSuitProbe.Verify(samus, frame, aim);
                 if (midair) DraygonMidairInputs.Verify(samus, frame, aim);
+                if (obstacle) TemporaryBlueObstacleProbe.Verify(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
                     throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
                 if (stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)
@@ -127,7 +142,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 string actual = $"{samus.Kinematics.XFixed:X8},{samus.Kinematics.YFixed:X8},{samus.Pose:X2}," +
                     $"{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4},{speed.BaseFixed:X8}," +
                     $"{speed.ExtraRunSpeed:X4}{speed.ExtraRunSubspeed:X4},{speed.SpeedBoostCounter:X4},{speed.ContactDamageIndex:X4}," +
-                    $"{samus.Shinespark.ShineTimer:X4},{samus.Shinespark.PaletteType:X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
+                    $"{samus.Shinespark.ShineTimer:X4},{(samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : samus.Shinespark.PaletteType):X4},{samus.Kinematics.VerticalSpeedFixed:X8},{samus.Kinematics.YDirection:X4}";
                 if (sand) actual += $",{samus.Kinematics.ExtraXFixed:X8},{samus.Kinematics.ExtraYFixed:X8}";
                 if (terrain) actual += $",{terrainResult}";
                 if (menu) actual += $",{samus.EquippedItems:X4}";

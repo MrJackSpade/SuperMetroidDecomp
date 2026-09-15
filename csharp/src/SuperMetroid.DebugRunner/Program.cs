@@ -548,6 +548,10 @@ if (args.Length == 3 && args[0] == "--draygon-echo-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.DraygonEcho);
 if (args.Length == 3 && args[0] == "--draygon-midair-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.DraygonMidair);
+if (args.Length == 3 && args[0] == "--temporary-blue-xray-audit")
+    return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.Xray);
+if (args.Length == 3 && args[0] == "--temporary-blue-obstacle-audit")
+    return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.Obstacle);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")
     return WalkOffMomentumAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

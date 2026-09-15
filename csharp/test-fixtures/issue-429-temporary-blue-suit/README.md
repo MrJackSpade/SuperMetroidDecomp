@@ -1,11 +1,11 @@
 # Controller-earned temporary Blue Suit: initial retention
 
-Partial evidence for #429. This covers the run/crouch/angle-held expired-charge
+The initial matrix covers the run/crouch/angle-held expired-charge
 method, partial counter retention and no-angle cancellation. It complements the
 existing [speedball-unmorph evidence](../movement-release/TEMPORARY-BLUE.md) from
-#470. It does not complete aerial soft-unmorph chains, bounce/Spring Ball, sand,
-equipment, X-Ray or persistent-Blue-Suit comparisons. Keep the issue open without a validation
-label until those branches are covered.
+#470. The linked matrices below now cover the remaining #429 scope and are ready
+for player validation. Earlier documents retain their historical partial-result
+notes; the current coverage summary is [COMPLETION.md](COMPLETION.md).
 
 Subsequent fixtures add [soft-unmorph carry](CARRY.md) and
 [ordinary/Spring Ball bounce retention](BOUNCE.md). Those documents record the

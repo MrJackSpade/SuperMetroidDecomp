@@ -8,6 +8,8 @@ enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockM
 #include "DraygonGrabFixture.h"
 #include "EchoFixture.h"
 #include "MidairFixture.h"
+#include "XrayFixture.h"
+#include "ObstacleFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -66,6 +68,8 @@ static uint16 menu_input(int frame, int left, int mode) {
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
   bool midair = argc == 3 && strcmp(argv[2], "draygon-midair") == 0;
+  bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
+  bool obstacle = argc == 3 && strcmp(argv[2], "obstacle") == 0;
   bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
@@ -76,15 +80,15 @@ int main(int argc, char **argv) {
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
   bool grab = argc == 3 && strcmp(argv[2], "draygon-grab") == 0;
   bool draygon = echoes || grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon) return 2;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !xray && !obstacle) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon || obstacle ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon || xray || obstacle ? 140 : 180); stop += terrain || xray ? 80 : 40)
+  for (int aim = 0; aim < (xray ? 1 : grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -92,6 +96,7 @@ int main(int argc, char **argv) {
     for (int x = 0; x < 144; x++) level_data[32 * 144 + x] = 0x8000;
     fx_y_pos = lava_acid_y_pos = 0xffff;
     equipped_items = collected_items = 0x2004; game_state = 8;
+    if (xray) equipped_items = collected_items = 0xa004;
     if (bounce && aim >= 4) equipped_items = collected_items = 0x2006;
     samus_health = samus_max_health = 99;
     samus_x_pos = samus_prev_x_pos = left ? 2100 : 200;
@@ -106,7 +111,7 @@ int main(int argc, char **argv) {
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
     if (menu) reg_INIDISP = 15;
-    for (int frame = 0; frame < (draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (obstacle ? 500 : xray ? 201 : draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
       if (menu && frame == 431) {
         if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
         run(SelectInitialEquipment);
@@ -139,6 +144,11 @@ int main(int argc, char **argv) {
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
       if (terrain) input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
+      if (xray) input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
+      if (obstacle) {
+        input = frame < 400 ? cancel_input(frame, left, 0) : 0x80 | (left ? 0x200 : 0x100);
+        if (frame == 400) install_blue_obstacle(left, aim);
+      }
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
       if (grab && frame > draygon_grab_frame(aim) && frame < 220) {
         Get_Draygon(0)->base.y_pos = 400;
@@ -146,7 +156,11 @@ int main(int argc, char **argv) {
           run(DraygonPlaceSamus);
       }
       int tileleft = 0, tileright = 0;
-      if (terrain && frame == 400) {
+      if (xray && frame == 200) {
+        run(XrayAdmission);
+        if (!time_is_frozen_flag) Die("X-ray admission failed");
+        run(ApplyPosePhase);
+      } else if (terrain && frame == 400) {
         bool up = (aim & 2) != 0;
         int row = up ? (samus_y_pos - samus_y_radius - 4) >> 4 : (samus_y_pos + samus_y_radius + 3) >> 4;
         tileleft = row * room_width_in_blocks + ((samus_x_pos - samus_x_radius) >> 4);

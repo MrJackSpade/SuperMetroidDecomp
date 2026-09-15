@@ -2123,6 +2123,15 @@ public sealed partial class SuperMetroidRuntime
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                 }
+                // Command zero installs an empty beta handler independently of the
+                // movement pointer that was active beforehand. Automatic Reserve can
+                // therefore freeze an in-progress hurt launch; special owners such as
+                // `$90:DF38` must not outrank this explicitly installed handler.
+                else if (stationaryScriptControlAtFrameStart)
+                {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                }
                 else if (grappleOwnsMovement)
                 {
                     // Movement type $16's beta handler is empty. Discard input transitions
@@ -2292,6 +2301,14 @@ public sealed partial class SuperMetroidRuntime
                     // would incorrectly wake the scroll triggers the platform passes.
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
+                }
+                // `$90:A7DA` is the normal movement-table entry for type `$1B`.
+                // It only clears the momentum-transition selector. This path is reachable
+                // when hurt-expiry command one replaces a freshly installed Shinespark
+                // handler while retaining its `$C7/$C8` body and palette (Shinespark Suit).
+                else if (Samus.ReadMovementType(_addressSpace) == SamusMovementType.Special)
+                {
+                    // No positional movement.
                 }
                 else switch (Samus.Pose)
                 {
@@ -2808,7 +2825,8 @@ public sealed partial class SuperMetroidRuntime
             }
 
 
-            if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus)
+            if (GroundedSamusMovementEnabled && !deathOwnsSamus && !suitOwnsSamus &&
+                !stationaryScriptControlAtFrameStart)
             {
                 // Hit interruption observes the old movement type before UpdateSamusPose.
                 // Its carry-clear bomb rejection still occurs when an animation transition
@@ -2819,6 +2837,11 @@ public sealed partial class SuperMetroidRuntime
                 // Command $F8's command-three “super-special” transition wins at this seam.
                 // F8 publishes a turn-completion pose only if alpha did not select one
                 // of its four jump exceptions. When published, it still wins here.
+                // `$90:DDE9` samples hurt expiry before bank $91 applies a queued
+                // animation command. Preserve that decision even if Shinespark setup
+                // clears the live knockback direction while installing `$C7/$C8`.
+                bool hitInterruptionExpiryPending =
+                    SamusKnockbackMovement.IsExpiredHitInterruptionPending(Samus);
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
 
@@ -2853,8 +2876,9 @@ public sealed partial class SuperMetroidRuntime
                 // even when a damage boost has already restored normal movement.
                 // With an animation command three already pending, native changes it
                 // to command eight: keep the animation pose and ALSO clear hurt state.
-                if (SamusKnockbackMovement.TryFinishExpiredHitInterruption(_addressSpace, Samus))
+                if (hitInterruptionExpiryPending)
                 {
+                    SamusKnockbackMovement.FinishExpiredHitInterruption(Samus);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;
@@ -4030,7 +4054,11 @@ public sealed partial class SuperMetroidRuntime
             }
 
             DrawGameplayActors(deathOwnsSamus, drawHighPriorityEnemyProjectiles,
-                drawLowPriorityEnemyProjectiles, advanceSamusPalette: !suitOwnsSamus);
+                drawLowPriorityEnemyProjectiles,
+                // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
+                // palette effects. In particular, automatic Reserve recovery freezes a
+                // stored shine instead of consuming it while Samus is stationary.
+                advanceSamusPalette: !suitOwnsSamus && !stationaryScriptControlAtFrameStart);
         }
         if (EscapeTimer.IsActive)
             EscapeTimerRenderer.Draw(EscapeTimer, Oam, _addressSpace);

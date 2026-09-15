@@ -46,12 +46,20 @@ public sealed partial class SuperMetroidRuntime
                     throw new InvalidOperationException(
                         "Live Samus terrain reactions require an active cartridge room.");
                 }
-                SamusTerrainHazardCollision.PrepareFrame(
-                    _addressSpace,
-                    LevelData,
-                    Samus,
-                    ActiveRoom.AreaIndex,
-                    System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
+                // Samus command zero replaces the ordinary alpha handler with
+                // `$90:E713`. That handler updates projectiles but never dispatches
+                // `$94:9B44` block-inside detection. Automatic Reserve recovery uses
+                // this exact lock; re-sampling spikes while it owns Samus changes the
+                // post-recovery knockback window used by Shinespark Suit.
+                if (!Samus.StationaryScriptControlLocked)
+                {
+                    SamusTerrainHazardCollision.PrepareFrame(
+                        _addressSpace,
+                        LevelData,
+                        Samus,
+                        ActiveRoom.AreaIndex,
+                        System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss));
+                }
             }
         }
     }

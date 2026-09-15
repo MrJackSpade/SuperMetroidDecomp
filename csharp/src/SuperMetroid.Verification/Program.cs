@@ -579,6 +579,7 @@ VerifyCinematicTextGlow();
 VerifyProjectileContactPhase(verifyPhase: true);
 VerifyProjectileRuntimePhase();
 VerifyMorphedSpikeRelease();
+VerifySpikeShinesparkSuit();
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

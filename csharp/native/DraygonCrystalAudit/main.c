@@ -37,6 +37,7 @@ static void grab(int right) {
 #include "SuitEntry.h"
 #include "SuitFlow.h"
 #include "ElevatorEntry.h"
+#include "SpikeSuit.h"
 static uint16 input_at(int frame, int mode) {
   if (mode == 0) return 0;
   if (mode == 1) return frame == 16 ? 0x100 : 0;
@@ -58,7 +59,9 @@ int main(int argc, char **argv) {
   bool suit_flow = argc == 3 && strcmp(argv[2], "suit-flow") == 0;
   bool elevator_entry = argc == 3 && strcmp(argv[2], "elevator-entry") == 0;
   bool suit_fuse = argc == 3 && strcmp(argv[2], "suit-fuse") == 0;
-  if (argc != 2 && !full && !edges && !refill && !suit_entry && !suit_flow && !elevator_entry && !suit_fuse) return 2;
+  bool spike_suit = argc == 3 && strcmp(argv[2], "spike-suit") == 0;
+  bool spike_suit_reserve = argc == 3 && strcmp(argv[2], "spike-suit-reserve") == 0;
+  if (argc != 2 && !full && !edges && !refill && !suit_entry && !suit_flow && !elevator_entry && !suit_fuse && !spike_suit && !spike_suit_reserve) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
@@ -68,6 +71,8 @@ int main(int argc, char **argv) {
   if (suit_entry) { suit_entry_matrix(); return 0; }
   if (suit_flow || suit_fuse) { suit_flow_matrix(suit_fuse); return 0; }
   if (elevator_entry) { elevator_entry_matrix(); return 0; }
+  if (spike_suit) { spike_suit_matrix(); return 0; }
+  if (spike_suit_reserve) { spike_suit_reserve_matrix(); return 0; }
   printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s%s\n",
     full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : sand ? ",boost,extra_y,extra_ysub" : beam ? ",beam_palette,beam_oam" : save ? ",saved_timer,saved_palette,reloaded_timer,reloaded_palette" : "");
   for (int order = 0; order < 2; order++)

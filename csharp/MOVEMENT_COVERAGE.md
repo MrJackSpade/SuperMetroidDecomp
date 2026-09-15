@@ -66,6 +66,14 @@ are listed below so later work cannot accidentally confuse “the current viewer
   suppresses default atmosphere, charge flare, arm cannon, ordinary speed echoes, and grapple
   art without suppressing the shared projectile/trail phase. The private-ROM route requires
   the dedicated handler by its first crash milestone and rejects leaked cannon OAM or DMA.
+- Spike/electricity Shinespark Suit now preserves `$90:DDE9`'s hurt-expiry decision across
+  the same-frame bank-`$91` windup command: command one replaces the movement handler but
+  leaves the `$C7/$C8` body, palette six, and shared shine timer intact. A 315-frame original-
+  CPU sweep locks both successful unmorph timings, the one-frame Jump window, and adjacent
+  ordinary-windup/missed inputs. Automatic Reserve command zero now suspends knockback,
+  terrain hazard alpha, animation, and shine-palette progression while the global hurt tail
+  continues. The 875-frame underwater sweep reproduces the suitless 60-energy Reserve
+  extension and its adjacent failed freeze/Jump timings without granting Gravity Suit.
 - Grapple now retains the independent `$90:EB86` draw-handler lifetime instead of treating
   every active beam as an accessory of the default Samus renderer. Firing refreshes both hand
   origins from post-movement Samus coordinates; `$9B:C036` interprets the shared main-flare

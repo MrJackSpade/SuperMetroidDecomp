@@ -398,13 +398,36 @@ public static class SamusKnockbackMovement
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        if (samus.KnockbackTimer != 0 || samus.KnockbackDirection == 0)
+        if (!IsExpiredHitInterruptionPending(samus))
             return false;
+
+        FinishExpiredHitInterruption(samus);
+        return true;
+    }
+
+    /// <summary>
+    /// Samples the zero-timer arm of <c>Samus_HitInterruption</c> at <c>$90:DDE9</c>.
+    /// The result must be retained until bank $91 applies transitions: an animation
+    /// command can clear <c>knockback_dir</c> after this decision without cancelling it.
+    /// </summary>
+    public static bool IsExpiredHitInterruptionPending(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        return samus.KnockbackTimer == 0 && samus.KnockbackDirection != 0;
+    }
+
+    /// <summary>
+    /// Applies transition command one at <c>$91:F31D</c> for a previously sampled
+    /// hurt-expiry request, including when a higher-priority animation command has
+    /// since replaced the current movement handler.
+    /// </summary>
+    public static void FinishExpiredHitInterruption(SamusState samus)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
 
         // UpdateSamusPose jumps straight to command one without installing its
         // proposed falling pose. The next normal mover owns the floor transition.
         EndWithoutPoseChange(samus);
-        return true;
     }
 
     private static KnockbackMovementResult EndWithoutPoseChange(SamusState samus)
@@ -420,6 +443,11 @@ public static class SamusKnockbackMovement
         // The native expiry command restores the normal input pointer as well as
         // movement, including when hurt interrupted a still-input-locked bomb rise.
         samus.BombJumpPoseInputLocked = false;
+        // `$91:F31D` installs the ordinary movement pointer. A Shinespark windup can
+        // have been initialized after `$90:DDE9` latched this expiry, so replace that
+        // special pointer while retaining its independently owned palette and timer.
+        if (samus.Shinespark.Phase is not (ShinesparkPhase.Inactive or ShinesparkPhase.Stored))
+            samus.Shinespark.RelinquishMovementHandler();
         // Exact `$91:F31D` cleanup shared by humanoid and morphed completion. The falling
         // flag has no independent host field yet; Y-direction two is its movement-visible
         // publication and is consumed by every translated normal/ball dispatcher.

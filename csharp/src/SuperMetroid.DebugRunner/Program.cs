@@ -592,6 +592,10 @@ if (args.Length == 3 && args[0] == "--flash-suit-fuse-audit")
     return FlashSuitFlowAudit.Run(args[1], args[2], fuse: true);
 if (args.Length == 2 && args[0] == "--flash-suit-collectible-audit")
     return FlashSuitCollectibleAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--spike-suit-audit")
+    return SpikeSuitAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--spike-suit-underwater-reserve-audit")
+    return SpikeSuitAudit.RunUnderwaterReserve(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--flash-elevator-entry-audit")
     return FlashElevatorEntryAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--flash-elevator-handoff-audit")

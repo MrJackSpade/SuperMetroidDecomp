@@ -5,6 +5,41 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Post-message suit admission; windup itself is earned with real inputs.</summary>
 internal static class SuitSparkProbe
 {
+    public static ushort ReleaseInputAt(int frame, bool left, int mode)
+    {
+        if (frame < 330) return InputAt(frame, left, mode);
+        if (frame == 390) return 0x410;
+        if (frame > 390 && frame < 400) return 0x10;
+        if (frame == 400) return 0x80;
+        if (frame >= 401) return 0x880;
+        return 0;
+    }
+
+    public static void VerifyRelease(SamusState samus, int frame)
+    {
+        if (frame == 332 && (samus.Xray.IsActive || samus.Xray.TimeIsFrozen ||
+            samus.Shinespark.Phase != ShinesparkPhase.Inactive ||
+            samus.HorizontalSpeed.SpeedBoostCounter != 0x0400))
+            throw new InvalidDataException("X-ray release must restore normal movement without resuming old windup or losing boost.");
+        if (frame == 390 && samus.Shinespark.ShineTimer != 179)
+            throw new InvalidDataException("Retained suit boost must store a new charge without a run-up.");
+        if (frame == 403 && (samus.HorizontalSpeed.ContactDamageIndex != 2 || samus.Health != 98 ||
+            samus.Kinematics.VerticalSpeedFixed != 0x00071c00))
+            throw new InvalidDataException("Retained suit boost must launch a moving, damaging, energy-consuming spark.");
+    }
+
+    public static void PrepareRelease(ISnesAddressSpace bus, SamusState samus)
+    {
+        if (!samus.Xray.IsActive) throw new InvalidDataException("Expected controller-admitted X-ray.");
+        // Isolate the three real teardown calls from VRAM/window setup, without
+        // touching Samus's pose, speed, or boost. The following runtime calls own
+        // both BG2 restore waits and the final return to normal movement.
+        for (int step = 0; samus.Xray.BeamPhase != XrayBeamPhase.RestoreFirstHalf; step++)
+        {
+            if (step >= 16) throw new InvalidDataException("X-ray did not reach its release boundary.");
+            samus.Xray.StepBeam(bus, samus, 0);
+        }
+    }
     public static ushort InputAt(int frame, bool left, int mode)
     {
         if (frame <= 151) return CrystalSparkProbe.InputAt(frame, left, 0);

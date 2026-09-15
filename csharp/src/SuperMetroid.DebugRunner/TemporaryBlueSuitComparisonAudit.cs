@@ -20,7 +20,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool xray = kind == TemporaryBlueAuditKind.Xray;
         bool obstacle = kind == TemporaryBlueAuditKind.Obstacle;
         bool crystal = kind == TemporaryBlueAuditKind.CrystalSpark;
-        bool suit = kind == TemporaryBlueAuditKind.SuitSpark;
+        bool suitRelease = kind == TemporaryBlueAuditKind.SuitRelease;
+        bool suit = suitRelease || kind == TemporaryBlueAuditKind.SuitSpark;
         bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
@@ -101,6 +102,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (obstacle) expectedInput = frame < 400 ? TemporaryBlueCancellationInputs.At(frame, left, 0) : 0x80 | (left ? 0x200 : 0x100);
                 if (crystal) expectedInput = CrystalSparkProbe.InputAt(frame, left, aim);
                 if (suit) expectedInput = SuitSparkProbe.InputAt(frame, left, aim);
+                if (suitRelease) expectedInput = SuitSparkProbe.ReleaseInputAt(frame, left, aim);
                 if (int.Parse(row[3]) != frame || input != expectedInput)
                     throw new InvalidDataException("Changed controller sequence or reordered trace.");
                 var publication = new GameplayAudioFramePublication(audio);
@@ -108,6 +110,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 grabProbe?.BeforeFrame(frame);
                 if (obstacle && frame == 400) TemporaryBlueObstacleProbe.Install(level, samus, left, aim);
                 if (crystal && frame == 152) CrystalSparkProbe.PrepareCleanup(bus, samus, runtime.BombProjectiles.PowerBombExplosion, aim);
+                if (suitRelease && frame == 330) SuitSparkProbe.PrepareRelease(bus, samus);
                 string terrainResult = "0000,0000,0000,0000";
                 if (xray && frame == 200)
                 {
@@ -133,12 +136,13 @@ internal static class TemporaryBlueSuitComparisonAudit
                 grabProbe?.AfterFrame(frame);
                 if (suit && frame == 151) SuitSparkProbe.Begin(bus, runtime, samus, aim);
                 if (suit) SuitSparkProbe.Verify(runtime, samus, frame, aim);
+                if (suitRelease) SuitSparkProbe.VerifyRelease(samus, frame);
                 grabProbe?.Verify(frame);
                 var speed = samus.HorizontalSpeed;
                 if (stop >= 100 && frame is 89 or 90 &&
                     (speed.SpeedBoostCounter != 0x0401 || speed.ContactDamageIndex != (frame == 89 ? 0 : 1)))
                     throw new InvalidDataException("Full-boost animation must precede contact damage by one movement frame.");
-                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && !obstacle && !crystal && frame == 399 &&
+                if (!carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon && !grab && !obstacle && !crystal && !suit && frame == 399 &&
                     (samus.Shinespark.ShineTimer != 0 || samus.Shinespark.PaletteType != 0 ||
                      speed.SpeedBoostCounter != (aim == 0 ? 0 : stop == 60 ? 0x0201 : stop == 100 ? 0x0402 : 0x0401)))
                     throw new InvalidDataException("Aim-held full/partial retention or no-aim cancellation changed after charge expiry.");
@@ -167,13 +171,21 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (terrain) actual += $",{terrainResult}";
                 if (menu) actual += $",{samus.EquippedItems:X4}";
                 string expected = string.Join(',', echoes ? row[5..18] : row[5..]);
-                if (suit && samus.Xray.IsActive)
+                if (suit && (samus.Xray.IsActive || (suitRelease && frame >= 322)))
                 {
                     // Suit HDMA no longer owns the shared window words once X-ray
                     // overwrites them. Keep comparing Samus/boost/admission state;
                     // this fixture does not drive the X-ray DMA/window setup stages.
                     actual = string.Join(',', actual.Split(',')[..18]);
                     expected = string.Join(',', row[5..23]);
+                    if (suitRelease && frame >= 332)
+                    {
+                        // $0DEC is shared scratch: a subsequent spark writes its
+                        // own substate there. The inactive suit's separate C#
+                        // substate is no longer an owner of that native word.
+                        actual = string.Join(',', actual.Split(',').Where((_, index) => index != 14));
+                        expected = string.Join(',', expected.Split(',').Where((_, index) => index != 14));
+                    }
                 }
                 if (echoes)
                 {

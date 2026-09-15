@@ -4,6 +4,29 @@ enum {
   VariaPickupHdma = 0x88e026, GravityPickupHdma = 0x88e05c,
   SuitLockedAlpha = 0x90e713, SuitLockedBeta = 0xe8cd
 };
+enum { XrayRestoreFirst = 0x888934, XrayRestoreSecond = 0x8889ba, XrayRelease = 0x888a08 };
+static uint16 suit_spark_input(int frame, int left, int mode);
+static uint16 suit_release_input(int frame, int left, int mode) {
+  if (frame < 330) return suit_spark_input(frame, left, mode);
+  if (frame == 390) return 0x410;
+  if (frame > 390 && frame < 400) return 0x10;
+  if (frame == 400) return 0x80;
+  if (frame >= 401) return 0x880;
+  return 0;
+}
+static void step_suit_xray_release(int frame) {
+  if (frame == 330) run(XrayRestoreFirst);
+  if (frame == 331) run(XrayRestoreSecond);
+  if (frame == 332) run(XrayRelease);
+}
+static void verify_suit_xray_release(int frame) {
+  if (frame == 332 && (time_is_frozen_flag || samus_movement_handler != 0xa337 || speed_boost_counter != 0x400))
+    Die("X-ray teardown must restore normal movement and retain boost");
+  if (frame == 390 && samus_shine_timer != 179)
+    Die("Retained suit boost must store a new charge without a run-up");
+  if (frame == 403 && (samus_contact_damage_index != 2 || samus_health != 98 || samus_y_speed != 7 || samus_y_subspeed != 0x1c00))
+    Die("Retained suit boost must launch a moving, damaging, energy-consuming spark");
+}
 static bool suit_pickup_active;
 static const char *suit_spark_columns = ",suitactive,suitsubstate,items,winduptimer,frozen,windowhash,beam,widening,red,green,blue";
 static void print_suit_spark_state(void) {

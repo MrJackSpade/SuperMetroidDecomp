@@ -2,8 +2,9 @@
 
 This native-CPU fixture covers the complete Varia/Gravity transformation while
 shinespark windup is suspended, its release, and subsequent X-Ray admission.
-It is partial coverage of #427: full X-Ray teardown/resulting-spark reuse,
-bomb-jump alternatives, and the other Crystal Spark heights remain to be tested.
+It is partial coverage of #427: bomb-jump alternatives and the other Crystal
+Spark heights remain to be tested. The release matrix below additionally checks
+X-Ray teardown and reuse of the retained boost.
 
 ## Regeneration
 
@@ -59,6 +60,36 @@ while preserving boost `$0400`. Port assertions also require the previous windup
 owner to have relinquished movement. All 5,280 compared frames match.
 
 Only numeric trace data is published; no ROM, SRAM, graphics or player state.
+
+## X-Ray release and boost reuse
+
+`release.csv` extends the Run+direction cases to 430 frames: eight cases across
+both facings, both turn directions, and both suits (3,440 matching frames).
+
+```powershell
+cmd /c 'csharp\native\TemporaryBlueSuitAudit\audit.exe "Super Metroid.smc" suit-release > csharp\test-temp\suit-release.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --suit-release-audit "Super Metroid.smc" csharp/test-fixtures/issue-427-suit-spark/release.csv
+```
+
+Release trace SHA-256 (LF-normalized UTF-8):
+`44FA7575F8D4CFD542AAC07C7ABF57C5A2EB870ABAEC111E7F085E6BC2C06DB3`.
+
+The window setup is isolated: before frame 330, the port advances only its X-Ray
+window owner to the first restoration boundary, without modifying Samus's
+movement or boost. Native frames 330/331/332 execute `$88:8934`, `$88:89BA`, and
+`$88:8A08` before alpha; the runtime executes the corresponding teardown stages.
+This does not test elapsed window-setup timing, VRAM transfer contents or rendering.
+
+Both implementations assert normal movement and retained boost at frame 332;
+Down stores a fresh 179-frame charge at frame 390, without another run-up.
+Jump/Up then launches a new spark: frame 403 has vertical speed `$0007:1C00`,
+contact damage index 2 and health 98. No boost or velocity is injected.
+All earlier movement/animation comparisons continue. After teardown, suit
+substate is excluded because native `$0DEC` is scratch reused by the subsequent
+spark (`$90:CFFA` writes 7); it is no longer the inactive suit owner's state.
+
+This extension verifies the preceding gameplay corrections; it required no new
+production change. The original suit and Crystal Spark matrices also pass.
 
 Regression checks passed: 169,332 existing temporary-boost, Draygon and Crystal
 Spark frame comparisons; the complete bank-$80 verification executable; and

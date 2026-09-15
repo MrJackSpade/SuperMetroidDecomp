@@ -2136,7 +2136,7 @@ public sealed partial class SuperMetroidRuntime
                 // The real grabbed route uses the explicit RTS handler installed at
                 // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep
                 // the latter in the pose switch below for direct/diagnostic dispatcher use.
-                else if (Samus.DraygonGrabbed.IsActive)
+                else if (Samus.DraygonGrabbed.IsActive && Samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive)
                 {
                     // Deliberately empty: Draygon's bank-$A5 actor owns coordinates.
                 }

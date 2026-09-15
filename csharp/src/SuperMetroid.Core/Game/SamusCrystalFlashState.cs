@@ -32,6 +32,12 @@ public sealed class SamusCrystalFlashState
     /// <summary>WRAM <c>$0DEC</c>, reloaded to ten between the three ammunition families.</summary>
     public ushort AmmoDecrementTimer { get; private set; }
 
+    /// <summary>Mirrors another owner's write to shared WRAM $0DEC.</summary>
+    internal void SetSharedAmmoCounter(ushort value) => AmmoDecrementTimer = value;
+
+    /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
+    internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
+
     /// <summary>WRAM <c>$0DF0</c>, captured after the complete 20-pixel rise.</summary>
     public ushort RaisedYPosition { get; private set; }
 
@@ -133,6 +139,7 @@ public sealed class SamusCrystalFlashState
         RaiseTimer = 9;
         AmmoDecrementIndex = 0;
         AmmoDecrementTimer = 10;
+        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer);
         RaisedYPosition = 0;
         CrystalPaletteTimer = 1;
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.CrystalFlash;
@@ -254,6 +261,7 @@ public sealed class SamusCrystalFlashState
         SamusEnergyRestoration.Restore(samus, 50);
         NativeWordCounterStep ammoTimer = NativeWordCounter.Decrement(AmmoDecrementTimer);
         AmmoDecrementTimer = ammoTimer.Value;
+        samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer);
         bool timerExpired = ammoTimer.IsZeroOrNegative;
         if (!timerExpired)
             return;
@@ -261,6 +269,7 @@ public sealed class SamusCrystalFlashState
         if (AmmoDecrementIndex < 2)
         {
             AmmoDecrementTimer = 10;
+            samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer);
             AmmoDecrementIndex = unchecked((ushort)(AmmoDecrementIndex + 1));
             return;
         }

@@ -1,8 +1,8 @@
 # Draygon / Crystal Flash counter and ownership investigation (#431)
 
-Status: reproduced, not fixed. The admission audit intentionally exits nonzero
-until the production ownership defects are corrected. Do not treat this fixture
-as completed technique parity or player validation.
+Status: admission/ownership and shared-counter defects reproduced and corrected.
+Both audits below now pass. This is partial #431 coverage, not completed
+technique parity or player validation; remaining requirements are listed below.
 
 ## Native evidence
 
@@ -35,7 +35,7 @@ Only numeric state is retained, with no ROM, SRAM, graphics or player snapshot.
 
 ## Port reproduction
 
-The production runtime admission audit reproduces both orders in both facings:
+The production runtime admission audit originally failed both orders in both facings:
 
 - Flash while grabbed throws because the Draygon movement handler demands a
   grabbed pose, but native admits the Flash pose and executes Flash movement.
@@ -43,14 +43,32 @@ The production runtime admission audit reproduces both orders in both facings:
   replaced its movement pointer with RTS. Current dispatch masks that stale owner
   while grabbed; it must not resume after release.
 
-The independent `EscapeButtonCounter` and `AmmoDecrementTimer` also lack the
-native shared-word coupling. A full frame comparison must be added as that
-coupling is implemented, including counter cadence and inventory underflow.
+The independent `EscapeButtonCounter` and `AmmoDecrementTimer` also lacked the
+native shared-word coupling. Writes now publish to both semantic views; the
+counter audit compares both against every native frame, including each decrement,
+reload, directional increment, wrap and release.
+
+Corrections:
+
+- Crystal Flash movement can replace the grab's RTS movement while grab gamma
+  remains active. Gamma/actor placement no longer impose a held-pose invariant
+  that the cartridge does not have. The ordinary held-pose movement dispatcher
+  retains its own strict pose check.
+- Grab and release relinquish the old Flash movement phase, without clearing
+  the independently running special palette/shine timer.
+- Flash entry/decrement/reload and grab entry/increments keep both views of
+  shared `$0DEC` synchronized. Release tests the signed difference against 60
+  only after a newly counted D-pad edge, matching the cartridge branch.
+
+The four runtime admission cases pass. The counter-only comparison passes all
+1,920 frames. It executes the real Flash beta and Draygon gamma methods; it does
+not claim to compare the trace's animation/palette or full runtime trajectory.
 
 ```powershell
 cmd /c '"C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat" && csharp\native\DraygonCrystalAudit\build.cmd'
 cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" > csharp\test-temp\draygon-crystal.csv'
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-admission-audit "Super Metroid.smc"
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-counter-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/native.csv
 ```
 
 Remaining #431 requirements include full runtime/native trace comparison,

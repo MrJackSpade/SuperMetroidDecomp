@@ -564,6 +564,8 @@ if (args.Length == 3 && args[0] == "--suit-bomb-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.SuitBomb);
 if (args.Length == 2 && args[0] == "--draygon-crystal-admission-audit")
     return DraygonCrystalAdmissionAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--draygon-crystal-counter-audit")
+    return DraygonCrystalCounterAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")
     return WalkOffMomentumAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

@@ -25,6 +25,9 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>WRAM <c>DraygonEscapeButtonCounter</c>.</summary>
     public ushort EscapeButtonCounter { get; private set; }
 
+    /// <summary>Mirrors Crystal Flash's writes to the shared WRAM $0DEC countdown.</summary>
+    internal void SetSharedEscapeCounter(ushort value) => EscapeButtonCounter = value;
+
     /// <summary>
     /// WRAM <c>DraygonEscapePreviousDpadInput</c>. Native stores the entire masked D-pad
     /// nibble, not merely one direction, so a different diagonal chord is also a new input.
@@ -62,6 +65,10 @@ public sealed class SamusDraygonGrabbedState
 
         IsActive = true;
         EscapeButtonCounter = 0;
+        samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
+        // Grab installs RTS movement, but leaves the Flash palette and its shared
+        // shine-timer word alive. A later release must not resume Flash draining.
+        samus.CrystalFlash.RelinquishMovementHandler();
         PreviousDpadInput = 0;
         ReleasePublishedToOwner = false;
         OwnerFacingRight = draygonFacingRight;
@@ -147,10 +154,12 @@ public sealed class SamusDraygonGrabbedState
         {
             PreviousDpadInput = dpad;
             EscapeButtonCounter = unchecked((ushort)(EscapeButtonCounter + 1));
+            samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
             counted = true;
         }
 
-        bool released = EscapeButtonCounter >= EscapeButtonCounterTarget;
+        // Native tests the signed difference only on a newly counted D-pad edge.
+        bool released = counted && unchecked((short)(EscapeButtonCounter - EscapeButtonCounterTarget)) >= 0;
         byte poseBeforeRelease = samus.Pose;
         if (released)
             Release(bus, samus);
@@ -184,6 +193,7 @@ public sealed class SamusDraygonGrabbedState
         // Death calls this even when Samus was never grabbed. Installing normal
         // movement interrupts a spark without resetting its independent boost/palette.
         samus.Shinespark.RelinquishMovementHandler();
+        samus.CrystalFlash.RelinquishMovementHandler();
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose dispatcher to observe the standing pose.
@@ -217,7 +227,8 @@ public sealed class SamusDraygonGrabbedState
                 "Draygon owner/hack handling requires SetSamusIntoTheGrabbedByDraygonPose first.");
         }
 
-        EnsureGrabbedPose(samus);
+        // Gamma and the enemy's placement callback are independent of the pose
+        // and movement handler. Crystal Flash can replace both while still held.
     }
 
     private static void EnsureGrabbedPose(SamusState samus)

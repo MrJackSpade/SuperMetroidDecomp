@@ -20,10 +20,18 @@ public sealed partial class SamusState
     /// <summary>PoseInputHandler currently selects the one-shot $90:E926 auto-jump handler.</summary>
     public bool AutoJumpInputPending { get; internal set; }
 
+    /// <summary>
+    /// Shinespark launch installed the RTS pose-input handler ($91:FACA). This
+    /// survives an independently replaced movement handler until input is restored,
+    /// for example by normal landing's one-shot auto-jump handler ($91:F1EC).
+    /// </summary>
+    public bool ShinesparkPoseInputLocked { get; internal set; }
+
     /// <summary>Local input substitution from $90:E926; does not alter the controller's real edge.</summary>
     internal ushort ConsumeAutoJumpInput(ushort newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;
+        ShinesparkPoseInputLocked = false;
         AutoJumpInputPending = false;
         if (AutoJumpTimer != 0 && unchecked((short)(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit)) < 0)
         {

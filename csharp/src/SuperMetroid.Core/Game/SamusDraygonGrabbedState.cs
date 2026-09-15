@@ -173,14 +173,17 @@ public sealed class SamusDraygonGrabbedState
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
-        EnsureActiveGrabbedPose(samus);
 
         bool facingLeft = samus.IsFacingLeft(bus);
         samus.Pose = facingLeft
             ? SamusPoseIds.FacingLeftNormalPose
             : SamusPoseIds.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
-        samus.InitializeAnimation(bus, initialFrame: 0);
+        if (samus.Pose != samus.PoseHistory.PreviousPose)
+            samus.InitializeAnimation(bus, initialFrame: 0);
+        // Death calls this even when Samus was never grabbed. Installing normal
+        // movement interrupts a spark without resetting its independent boost/palette.
+        samus.Shinespark.RelinquishMovementHandler();
 
         // Release clears pending input transitions, so commit here rather than
         // relying on the normal pose dispatcher to observe the standing pose.

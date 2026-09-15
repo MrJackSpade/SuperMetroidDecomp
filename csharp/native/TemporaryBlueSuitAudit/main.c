@@ -1,8 +1,9 @@
 /* #429: earn temporary Blue Suit through native controller processing. */
 #include "../Common/CartridgeCpuFixture.h"
+#include "../../../upstream-sm/src/ida_types.h"
 #include "../Common/MovementEntryPoints.h"
 #include "../GravityJumpAudit/fixture.h"
-enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150 };
+enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150, DraygonPostDamage = 0xa5960d };
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -67,15 +68,16 @@ int main(int argc, char **argv) {
   bool terrain = argc == 3 && strcmp(argv[2], "terrain") == 0;
   bool chain = argc == 3 && strcmp(argv[2], "chain") == 0;
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
-  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu) return 2;
+  bool draygon = argc == 3 && strcmp(argv[2], "draygon") == 0;
+  if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
-  for (int stop = carry || bounce || cancel || sand || chain || menu ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int stop = carry || bounce || cancel || sand || chain || menu || draygon ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon ? 140 : 180); stop += terrain ? 80 : 40)
+  for (int aim = 0; aim < (draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -97,7 +99,7 @@ int main(int argc, char **argv) {
     button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
     uint16 previous = 0;
     if (menu) reg_INIDISP = 15;
-    for (int frame = 0; frame < (menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
+    for (int frame = 0; frame < (draygon ? 400 : menu ? 560 : chain ? 1000 : carry ? 620 : bounce ? 800 : cancel ? 460 : sand || terrain ? 401 : 400); frame++) {
       if (menu && frame == 431) {
         if (reg_INIDISP != 0 && reg_INIDISP != 0x80) Die("Menu fade did not finish");
         run(SelectInitialEquipment);
@@ -118,6 +120,11 @@ int main(int argc, char **argv) {
       if (carry) input = carry_input(frame, left, aim);
       if (chain) input = chain_input(frame, left, aim);
       if (menu) input = menu_input(frame, left, aim);
+      if (draygon) input = frame < 150 ? cancel_input(frame, left, 0) : frame == 150 ? 0x80 : frame <= 185 ? 0x880 : 0;
+      if (draygon && aim % 4 >= 2 && frame >= 141 && frame < 150) input = 0;
+      if (draygon && frame >= 340 && frame < 350) input = left ? 0x200 : 0x100;
+      if (draygon && aim >= 4 && aim < 8 && frame >= 360 && frame < 370) input = 0x8000 | (left ? 0x200 : 0x100);
+      if (draygon && aim >= 8 && frame >= 360) input = frame == 360 ? 0x410 : frame < 370 ? 0x10 : frame == 370 ? 0x80 : 0x880;
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -158,6 +165,14 @@ int main(int argc, char **argv) {
       unsigned stages[] = {AnimationPhase,TransitionPhase,CollisionPosePhase,ApplyPosePhase,
         PoseHistoryPhase,HurtPhase,CollisionPhase,SamusPalettePhase};
       for (int i = 0; i < 8; i++) run(stages[i]);
+      }
+      if (draygon && frame == ((aim & 1) == 0 ? 175 : 180)) {
+        /* Enter the real fatal boss callback after a constructed lethal hit.
+           Samus's spark/boost state was earned entirely by the preceding inputs. */
+        cur_enemy_index = 0;
+        enemy_data[0].health = 0;
+        enemy_data[0].x_pos = 128; enemy_data[0].y_pos = 128;
+        run(DraygonPostDamage);
       }
       printf("%d,%d,%d,%d,%04X,%04X%04X,%04X%04X,%02X,%04X,%04X,%04X%04X,%04X%04X,%04X,%04X,%04X,%04X,%04X%04X,%04X",
         left,stop,aim,frame,input,samus_x_pos,samus_x_subpos,samus_y_pos,samus_y_subpos,

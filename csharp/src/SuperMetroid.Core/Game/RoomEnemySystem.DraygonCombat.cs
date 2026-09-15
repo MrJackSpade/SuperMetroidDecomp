@@ -106,16 +106,13 @@ public sealed partial class RoomEnemySystem
         state.Eye!.VariableA = 0x804b;
         state.Function = DraygonAiFunction.Dying;
 
-        // Bank $90's owner release is meaningful only if Draygon currently owns Samus. The
-        // native caller then clears the complete grapple-flags word, including the one-shot
-        // owner-release signal published by the translated bank-$90 state object.
+        // The native death callback releases Samus unconditionally, even during an
+        // unrelated movement handler. In particular, this can interrupt a shinespark.
+        // The caller then clears the grapple word, including the owner-release signal.
         if (samus is not null)
         {
-            if (samus.DraygonGrabbed.IsActive)
-            {
-                samus.DraygonGrabbed.Release(_bus!, samus);
-                samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
-            }
+            samus.DraygonGrabbed.Release(_bus!, samus);
+            samus.DraygonGrabbed.ConsumeOwnerReleaseSignal();
             samus.Grapple.Phase = GrapplePhase.Dropped;
         }
 

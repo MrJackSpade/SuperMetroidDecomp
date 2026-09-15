@@ -1681,6 +1681,7 @@ public sealed partial class SuperMetroidRuntime
 
             bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
             bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
+                (Samus.ShinesparkPoseInputLocked && !Samus.AutoJumpInputPending) ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
             // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
             // poses can still have table entries, but reading them here prematurely
@@ -2039,8 +2040,9 @@ public sealed partial class SuperMetroidRuntime
                         Controller1.NewlyPressed,
                         NmiFrameCounter,
                         Enemies.ResolveGrappleEndpoint,
-                        Plms);
-                    grappleOwnsMovement = true;
+                        Plms,
+                        deferDropPoseChange: true);
+                    grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (!TimeIsFrozen &&
                          (DebugGrappleItemSelected || SamusGrappleHudInput.IsSelectedAndAdmitted(_addressSpace, Samus)) &&
@@ -2804,6 +2806,20 @@ public sealed partial class SuperMetroidRuntime
                 // of its four jump exceptions. When published, it still wins here.
                 bool animationTransitionApplied =
                     Samus.ApplyPendingVerifiedAnimationTransition(_addressSpace);
+
+                // C8C5 queues a transitional pose rather than replacing beta movement.
+                // Commit after animation, suppressing the lower-priority input/grounding
+                // pose. Its speed clears already happened before movement in bank $9B.
+                if (!animationTransitionApplied && LastGrappleMovement is { PendingDropPose: byte dropPose })
+                {
+                    Samus.ApplyGrappleDropTransition(_addressSpace,
+                        LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
+                        dropPose, NmiFrameCounter, Plms, clearMovementSpeed: false);
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
 
                 // Crash movement queues a transitional pose; it must not replace the
                 // body seen by AnimateSamus earlier in this frame. Command-three

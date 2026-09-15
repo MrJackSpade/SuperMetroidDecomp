@@ -392,7 +392,8 @@ public sealed partial class SamusState
         RoomLevelData level,
         byte targetPose,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool clearMovementSpeed = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -432,7 +433,8 @@ public sealed partial class SamusState
             Pose = targetPose;
             RefreshCollisionRadii(bus);
             Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-            InitializeAnimation(bus, initialFrame: 0);
+            if (Pose != PoseHistory.PreviousPose)
+                InitializeAnimation(bus, initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
         {
@@ -442,10 +444,13 @@ public sealed partial class SamusState
         // `$9B:C95E-$C967` clears the two base-X and two Y-speed words regardless of the
         // pose-collision result. Extra run speed is not touched by this routine; an ordinary
         // connected grapple never creates it, so preserving the words is the literal rule.
-        HorizontalSpeed.BaseSpeed = 0;
-        HorizontalSpeed.BaseSubspeed = 0;
-        Kinematics.YSpeed = 0;
-        Kinematics.YSubspeed = 0;
+        if (clearMovementSpeed)
+        {
+            HorizontalSpeed.BaseSpeed = 0;
+            HorizontalSpeed.BaseSubspeed = 0;
+            Kinematics.YSpeed = 0;
+            Kinematics.YSubspeed = 0;
+        }
         return collision == LargerPoseCollisionOutcome.Allowed;
     }
 

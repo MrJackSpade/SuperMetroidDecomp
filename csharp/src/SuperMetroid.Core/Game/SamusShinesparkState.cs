@@ -49,6 +49,13 @@ public sealed class SamusShinesparkState
     /// <summary>Debugger-readable replacement for the installed bank-$90 handler pointer.</summary>
     public ShinesparkPhase Phase { get; private set; }
 
+    /// <summary>
+    /// Relinquishes the movement-handler pointer when bank $90 installs normal movement.
+    /// It does not clear the independently owned palette timer, boost counter, or echoes;
+    /// Draygon's unconditional release at $90:E2DE relies on that distinction.
+    /// </summary>
+    internal void RelinquishMovementHandler() => Phase = ShinesparkPhase.Inactive;
+
     /// <summary>Set at stored timer 170, matching SFX queue three `$0C`.</summary>
     public bool StoredShineWarningSoundRequested { get; set; }
 
@@ -256,6 +263,8 @@ public sealed class SamusShinesparkState
         };
 
         samus.Pose = targetPose;
+        samus.ShinesparkPoseInputLocked = true;
+        samus.AutoJumpInputPending = false;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
         samus.HorizontalSpeed.ResetSpeedEchoPositionsForShinespark();
@@ -594,6 +603,8 @@ public sealed class SamusShinesparkState
     /// <summary>Commits the crash's transitional standing pose after this frame's animation.</summary>
     public static void ApplyCrashFinishPose(ISnesAddressSpace bus, SamusState samus)
     {
+        // Transitional command two restores the normal input handler as well as beta.
+        samus.ShinesparkPoseInputLocked = false;
         byte standingPose = samus.IsFacingLeft(bus)
             ? SamusPoseIds.FacingLeftNormalPose
             : SamusPoseIds.FacingRightNormalPose;
@@ -771,13 +782,12 @@ public sealed class SamusShinesparkState
         samus.Kinematics.YSpeed = unchecked((ushort)(speed >> 16));
         samus.Kinematics.YSubspeed = unchecked((ushort)speed);
 
-        // Samus_ClampSpeedHi preserves the fractional word while replacing only the whole
-        // word at or above fourteen. Negation then converts the magnitude to an upward move.
-        if (unchecked((short)(samus.Kinematics.YSpeed - 14)) >= 0)
-            samus.Kinematics.YSpeed = 14;
-        int upwardDisplacement = unchecked(-(int)Compose(
-            samus.Kinematics.YSpeed,
-            samus.Kinematics.YSubspeed));
+        // The native clamp operates on a temporary displacement, not stored velocity.
+        // Keep accumulating the wrapped speed words even after movement reaches its cap.
+        uint displacementSpeed = unchecked((short)(samus.Kinematics.YSpeed - 14)) >= 0
+            ? Compose(14, samus.Kinematics.YSubspeed)
+            : speed;
+        int upwardDisplacement = unchecked(-(int)displacementSpeed);
         upwardDisplacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             samus.Kinematics,
             upwardDisplacement);

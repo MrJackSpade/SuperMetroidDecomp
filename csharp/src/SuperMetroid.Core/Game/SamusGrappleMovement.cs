@@ -451,7 +451,8 @@ public static partial class SamusGrappleMovement
         ushort newlyPressedInput,
         ushort nmiFrameCounter = 0,
         Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null,
-        RoomPlmSystem? plms = null)
+        RoomPlmSystem? plms = null,
+        bool deferDropPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -477,7 +478,7 @@ public static partial class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(bus, level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter, plms);
+            return CompleteDropped(bus, level, samus, grapple, nmiFrameCounter, plms, deferDropPoseChange);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -810,18 +811,27 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         ushort nmiFrameCounter,
-        RoomPlmSystem? plms)
+        RoomPlmSystem? plms,
+        bool deferPoseChange)
     {
         byte targetPose = SelectDroppedPose(bus, samus);
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Stop);
         SamusBlockCollision.EjectAfterGrapple(bus, level, samus.Kinematics);
-        samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
+        // C8C5 clears these words now, but publishes its pose to the transitional
+        // slot. Normal beta movement still runs before that pose is committed.
+        samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSubspeed = 0;
+        samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
+        bool emptyBeta = samus.ReadMovementKind(bus) == SamusMovementType.Grappling;
+        if (!deferPoseChange)
+            samus.ApplyGrappleDropTransition(bus, level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
             Released: false,
             ReleaseQueued: false,
-            Dropped: true);
+            Dropped: true,
+            OwnsMovement: !deferPoseChange || emptyBeta,
+            PendingDropPose: deferPoseChange ? targetPose : null);
     }
 
     private static byte SelectDroppedPose(ISnesAddressSpace bus, SamusState samus)

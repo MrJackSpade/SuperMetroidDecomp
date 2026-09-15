@@ -201,7 +201,8 @@ public readonly record struct GrappleMovementResult(
     bool DropQueued = false,
     bool Dropped = false,
     ushort? CameraPreviousX = null,
-    ushort? CameraPreviousY = null);
+    ushort? CameraPreviousY = null,
+    byte? PendingDropPose = null);
 
 /// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
 internal readonly record struct GrappleCollisionPoint(

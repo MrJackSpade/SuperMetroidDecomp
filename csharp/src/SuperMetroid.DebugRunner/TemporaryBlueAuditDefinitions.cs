@@ -1,5 +1,5 @@
 /// <summary>Distinct controller-earned native temporary-boost comparison matrices.</summary>
-internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation, Sand, Terrain, Chain, Menu }
+internal enum TemporaryBlueAuditKind { Retention, Carry, Bounce, Cancellation, Sand, Terrain, Chain, Menu, DraygonDeath }
 
 /// <summary>Accepted original-CPU trace identities and complete matrix dimensions.</summary>
 internal static class TemporaryBlueAuditDefinitions
@@ -14,6 +14,7 @@ internal static class TemporaryBlueAuditDefinitions
         TemporaryBlueAuditKind.Terrain => (32, 401, "5E2E1203C611077418D168737BE24BE91CA3EF1A9336ACF6070BD159DB897D08"),
         TemporaryBlueAuditKind.Chain => (16, 1000, "B5097BFAA561907059B142478386125AD185DCC969F250FD2086A27987334957"),
         TemporaryBlueAuditKind.Menu => (12, 560, "5713EBE32CAC36423538C7126C312D82103629D83109A3AD6D73B083D83CC2CE"),
+        TemporaryBlueAuditKind.DraygonDeath => (24, 400, "88E6A9B40CDD192C81BA4012795FA2A6CFF5E247989D773343233D99D112EEEE"),
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 }

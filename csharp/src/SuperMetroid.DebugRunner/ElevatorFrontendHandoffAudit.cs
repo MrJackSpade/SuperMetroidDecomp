@@ -9,7 +9,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Room-local #474 reproduction of the actual elevator door coroutine.</summary>
 internal static class ElevatorFrontendHandoffAudit
 {
-    public static int Run(string rom, bool retainedFlash = false)
+    public static int Run(string rom, bool retainedFlash = false, int cleanupTiming = 0)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         var runtime = new SuperMetroidRuntime(bus);
@@ -27,11 +27,28 @@ internal static class ElevatorFrontendHandoffAudit
         runtime.Enemies.PublishElevatorDoorContact();
         if (retainedFlash)
         {
-            samus.Health = 49; samus.MaxHealth = 99; samus.ReserveEnergy = 0;
-            samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 10;
-            samus.EquippedItems = samus.CollectedItems = 0;
-            if (!runtime.TryBeginCrystalFlashFromPowerBombCleanup(0x470, 0x40))
-                throw new InvalidDataException("Elevator setup rejected actual Flash admission.");
+            FlashElevatorBombSetup.Prepare(bus, runtime, samus);
+            if (cleanupTiming != 0)
+            {
+                if (cleanupTiming is not (-1 or 1)) throw new ArgumentOutOfRangeException(nameof(cleanupTiming));
+                // Early control has Down held from the preceding input sample;
+                // late control supplies the chord only after cleanup has rejected it.
+                if (cleanupTiming < 0) runtime.Controller1.Latch(0x470);
+                runtime.StepFrame((ushort)(cleanupTiming < 0 ? 0x470 : 0));
+                if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Inactive ||
+                    (samus.CrystalFlash.Phase == CrystalFlashPhase.Raising) != (cleanupTiming < 0))
+                    throw new InvalidDataException("Early/late cleanup admission differs from native ordering controls.");
+                if (cleanupTiming > 0)
+                {
+                    runtime.Enemies.PublishElevatorDoorContact();
+                    runtime.StepFrame(0x470);
+                    if (runtime.Enemies.ElevatorStatus != ElevatorActorStatus.Departing ||
+                        samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive || samus.SharedShineTimer != 0)
+                        throw new InvalidDataException("Late Down must start an ordinary elevator without granting Flash.");
+                }
+                Console.WriteLine($"Elevator cleanup timing {cleanupTiming}: Flash/elevator negative control passes.");
+                return 0;
+            }
         }
         for (int frame = 0; runtime.PendingDoorTransition == null && frame < 1200; frame++)
             runtime.StepFrame(retainedFlash ? (ushort)(frame == 0 ? 0x470 : 0) : frame % 30 == 0 ? (ushort)SnesButton.Down : (ushort)0);

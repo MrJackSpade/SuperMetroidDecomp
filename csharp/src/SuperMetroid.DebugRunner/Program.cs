@@ -592,6 +592,8 @@ if (args.Length == 3 && args[0] == "--flash-elevator-entry-audit")
     return FlashElevatorEntryAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--flash-elevator-handoff-audit")
     return ElevatorFrontendHandoffAudit.Run(args[1], retainedFlash: true);
+if (args.Length == 3 && args[0] == "--flash-elevator-handoff-audit")
+    return ElevatorFrontendHandoffAudit.Run(args[1], retainedFlash: true, cleanupTiming: int.Parse(args[2]));
 if (args.Length == 3 && args[0] == "--draygon-crystal-runtime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")

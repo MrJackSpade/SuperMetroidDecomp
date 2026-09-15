@@ -36,6 +36,7 @@ comparison are documented in [SUIT-BOMB.md](SUIT-BOMB.md).
 The elevator command-seven ownership fix and its 32 ordering/admission cases
 are documented in [ELEVATOR-ENTRY.md](ELEVATOR-ENTRY.md).
 
-#434 remains in progress: actual pickup/fuse timing and power-bomb cleanup
-ordering cases. The retail elevator handoff/control and spark-use extension
-passes, with its exact native-versus-integration boundary documented above.
+#434 remains in progress for actual suit pickup/fuse timing. The elevator
+extension now uses real bomb placement/cleanup, early/late input-edge controls,
+and the retail handoff through restored control and spark use. Its exact
+native-versus-integration boundary is documented above.

@@ -8,18 +8,19 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Full runtime movement after both Flash/grab orders, through a retained spark.</summary>
 internal static class DraygonCrystalRuntimeAudit
 {
-    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false)
+    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false, bool lifetime = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (recharge
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (lifetime
+                ? "9208A09FB48468802B707F291507E3C04C9BBB2C0F154FB597F8B609DF1AEAD3" : recharge
                 ? "65BB9B69CBCDC1A28E9F0243D5BAE9D43053D6F95AE676F27040F7C535A5D368" : xrayCancellation
                 ? "84F6CA152C32A090EA394E31B77568839A2F1C9CFD6F1869471BDAB4FA523AD2"
                 : "E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7"))
             throw new InvalidDataException("Use the pinned ROM and native Draygon/Flash runtime trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != (recharge ? 5600 : xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != 27))
+        if (rows.Length != (lifetime ? 4000 : recharge ? 5600 : xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != (lifetime ? 29 : 27)))
             throw new InvalidDataException("Incomplete runtime trace.");
         int mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -72,7 +73,7 @@ internal static class DraygonCrystalRuntimeAudit
                     samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive ||
                     samus.CrystalFlash.SpecialPaletteKind != SamusSpecialPaletteType.None))
                     throw new InvalidDataException("X-Ray did not replace the interrupted Flash owners.");
-                if (!recharge && mode == 2 && frame == 363 && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
+                if (!recharge && !lifetime && mode == 2 && frame == 363 && (samus.Shinespark.Phase != ShinesparkPhase.Vertical ||
                     samus.HorizontalSpeed.ContactDamageIndex != 2 || samus.Health != (order == 0 ? 98 : 48)))
                     throw new InvalidDataException("Retained Flash timer did not launch a damaging, energy-consuming spark.");
                 bool flashPalette = samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash;
@@ -80,6 +81,25 @@ internal static class DraygonCrystalRuntimeAudit
                     $"{samus.SharedShineTimer:X4},{(samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : flashPalette ? samus.CrystalFlash.SpecialPaletteType : samus.Shinespark.PaletteType):X4}," +
                     $"{samus.XPosition:X4},{samus.Kinematics.XSubposition:X4},{samus.Kinematics.YSubposition:X4},{samus.Kinematics.YSpeed:X4},{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4},{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4}";
                 string expected = string.Join(',', row[5..7].Concat(row[12..26]));
+                if (lifetime && frame >= 300)
+                {
+                    ushort timer = samus.SharedShineTimer, inv = samus.InvincibilityTimer;
+                    if (timer is < 1 or > 5 || samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive)
+                        throw new InvalidDataException("Retained palette timer stopped cycling independently of movement.");
+                    var oam = new OamBuffer();
+                    samus.InvincibilityTimer = 100;
+                    oam.BeginFrame(); samus.Draw(bus, oam, 128, 400, (ushort)(frame + 2));
+                    int body = oam.NextByteOffset;
+                    // Counterfactual draw only; restore the earned timer before advancing.
+                    var timerProperty = typeof(SamusCrystalFlashState).GetProperty(nameof(SamusCrystalFlashState.SpecialPaletteTimer))!;
+                    timerProperty.SetValue(samus.CrystalFlash, (ushort)0);
+                    oam.BeginFrame(); samus.Draw(bus, oam, 128, 400, (ushort)(frame + 2));
+                    int control = oam.NextByteOffset;
+                    timerProperty.SetValue(samus.CrystalFlash, timer);
+                    samus.InvincibilityTimer = inv;
+                    if (body != int.Parse(row[27]) || control != int.Parse(row[28]))
+                        throw new InvalidDataException($"Flash body draw at {group.Key}/{frame}: {body},{control} != {row[27]},{row[28]}");
+                }
                 if (actual != expected)
                 {
                     mismatches++;

@@ -77,3 +77,35 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-r
 Remaining: visual cues, sand/Blue-Suit differences, further lifetime/use cases,
 fresh Crystal Flash cancellation, and save/reload. The finite retention control
 does not by itself prove indefinite lifetime. Keep the ticket in progress.
+
+## Idle lifetime and invincibility body cue
+
+`lifetime.csv` follows all four verified entry/facing cases for 1,000 frames.
+There is no input after frame 300. During frames 300..999, Flash movement is
+inactive while its palette timer repeats in 1..5. Native $91:DB93 decrements
+that nonnegative word and reloads five at zero; the palette loop has no elapsed
+duration limit. Termination requires another writer/handler, not waiting out
+an ordinary stored-charge timeout. This source invariant plus the 700-tick
+continuations establishes the idle loop; it does not assert immunity to every
+other game event.
+
+Every continuation frame also executes the actual native body drawing routine
+and the port's `SamusState.Draw` with invincibility=100, zero knockback and a
+visible camera position. A counterfactual second draw changes only the shine
+timer to zero, then restores it before the next frame. Both outputs match:
+retained Flash emits body OAM on odd and even frames, while the zero-timer
+control emits none on odd frames. This is the body cue, not an arm-cannon or
+beam-color assertion. The fixture introduces invincibility for the draw test,
+not a claim to reproduce enemy contact or damage.
+
+All 4,000 state frames and 2,800 draw pairs match without another production fix.
+LF-normalized trace SHA-256:
+`9208A09FB48468802B707F291507E3C04C9BBB2C0F154FB597F8B609DF1AEAD3`.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" lifetime > csharp\test-temp\flash-lifetime.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-lifetime-audit "Super Metroid.smc" csharp/test-fixtures/issue-430-flash-lifetime/lifetime.csv
+```
+
+Still outstanding: the gray-beam cue, sand/Blue-Suit distinctions, fresh Flash
+and save/reload cancellation. Keep #430 open and in progress.

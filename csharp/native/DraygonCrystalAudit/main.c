@@ -9,7 +9,9 @@ enum {
   FlashRaising = 0xd678, FlashMain = 0xd6ce, FlashFinish = 0xd75b,
   Palette = 0x91d6f7,
   /* X-Ray admission and the ordinary HDMA phase needed to finish Flash's bubble. */
-  XrayAdmission = 0x91e16d, HdmaPhase = 0x8884b9
+  XrayAdmission = 0x91e16d, HdmaPhase = 0x8884b9,
+  /* Samus body OAM emission, including the invincibility/shine gate. */
+  DrawBody = 0x9085e2
 };
 static void grab(int right) {
   Cpu *cpu = cpu_init(NULL, 0);
@@ -31,7 +33,8 @@ static uint16 input_at(int frame, int mode) {
 int main(int argc, char **argv) {
   bool xray = argc == 3 && strcmp(argv[2], "xray") == 0;
   bool recharge = argc == 3 && strcmp(argv[2], "recharge") == 0;
-  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge);
+  bool lifetime = argc == 3 && strcmp(argv[2], "lifetime") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -41,12 +44,12 @@ int main(int argc, char **argv) {
   fclose(file);
   if (edges) { edge_matrix(); return 0; }
   if (refill) { refill_matrix(); return 0; }
-  printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s\n",
-    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "");
+  printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s%s\n",
+    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : "");
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < 4; mode++) {
-    if (xray && mode != 2 || recharge && mode < 2) continue;
+    if ((xray || lifetime) && mode != 2 || recharge && mode < 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
@@ -77,11 +80,12 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
-      if (xray || recharge) run(HdmaPhase);
+    for (int frame = 0; frame < (lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray || recharge || lifetime) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, recharge ? 2 : mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
+      if (lifetime && frame >= 300) input = 0;
       if (recharge && frame >= 300) {
         int crouch = mode == 2 ? 490 : 390;
         input = frame < 350 ? 0 : frame < crouch ? 0x8000 | (right ? 0x100 : 0x200) : frame == crouch ? 0x410 : 0;
@@ -110,7 +114,7 @@ int main(int argc, char **argv) {
           Die("X-Ray must replace the retained Flash palette and clear its timer");
         }
       }
-      if (full && !recharge && mode == 2 && frame == 363 &&
+      if (full && !recharge && !lifetime && mode == 2 && frame == 363 &&
           (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != (order == 0 ? 98 : 48)))
         Die("Interrupted Flash must permit a damaging, energy-consuming spark without a charge");
       if (!full && frame == 96) {
@@ -125,6 +129,21 @@ int main(int argc, char **argv) {
         order,right,mode,frame,input,samus_pose,samus_y_pos,samus_movement_handler,frame_handler_gamma,
         substate,suit_pickup_light_beam_pos,which_item_to_pickup,samus_health,samus_missiles,samus_super_missiles,samus_power_bombs,samus_shine_timer,timer_for_shine_timer);
       if (full) printf(",%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X",samus_x_pos,samus_x_subpos,samus_y_subpos,samus_y_speed,samus_y_subspeed,samus_y_dir,samus_anim_frame,samus_anim_frame_timer,samus_input_handler);
+      if (lifetime) {
+        int visible = -1, control = -1;
+        if (frame >= 300) {
+          uint16 timer = samus_shine_timer, inv = samus_invincibility_timer;
+          layer1_x_pos = 128; layer1_y_pos = 400;
+          samus_invincibility_timer = 100; oam_next_ptr = 0;
+          run(DrawBody); visible = oam_next_ptr;
+          samus_shine_timer = 0; oam_next_ptr = 0;
+          run(DrawBody); control = oam_next_ptr;
+          samus_shine_timer = timer; samus_invincibility_timer = inv;
+          if (!visible || ((frame & 1) ? control != 0 : control != visible))
+            Die("Retained timer must prevent invincibility flicker; zero control must flicker");
+        }
+        printf(",%d,%d",visible,control);
+      }
       printf("\n");
     }
   }

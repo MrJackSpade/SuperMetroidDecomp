@@ -262,6 +262,11 @@ public sealed partial class RoomEnemySystem
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, ElevatorDepartureSoundLibrary1), maximumQueued: 6);
         samus.ApplyForwardFacingPoseSetup(_bus!);
+        // Command seven replaces the movement/input pointers, even if the HDMA
+        // phase admitted Flash earlier this frame. Its independent palette timer
+        // survives; the old raising handler must not resume after elevator travel.
+        samus.CrystalFlash.RelinquishMovementHandler();
+        samus.CrystalFlashPoseInputLocked = false;
         samus.InputLocked = true;
         samus.PrimeGraphics(_bus!);
         samusProjectiles?.Reset();

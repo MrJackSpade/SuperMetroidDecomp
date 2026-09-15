@@ -33,5 +33,8 @@ Compare: DebugRunner `--flash-suit-scratch-audit "Super Metroid.smc" <suit-entry
 The next reproduced movement-owner defect and its 5,280-frame hit/control
 comparison are documented in [SUIT-BOMB.md](SUIT-BOMB.md).
 
-#434 remains in progress: actual pickup/fuse timing cases and downward-elevator
-interruption are not yet proven.
+The elevator command-seven ownership fix and its 32 ordering/admission cases
+are documented in [ELEVATOR-ENTRY.md](ELEVATOR-ENTRY.md).
+
+#434 remains in progress: actual pickup/fuse timing cases and the complete
+downward-elevator interruption through restored controls remain unproven.

@@ -756,7 +756,7 @@ public sealed partial class SamusLiquidPhysicsState
         // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             BossId == 0 &&
-            samus.Shinespark.ShineTimer == 0 &&
+            samus.SharedShineTimer == 0 &&
             (samus.HorizontalSpeed.SpeedBoostCounter & 0x0400) == 0)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x06), maximumQueued: 6);

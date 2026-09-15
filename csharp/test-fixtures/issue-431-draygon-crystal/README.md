@@ -71,7 +71,33 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-counter-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/native.csv
 ```
 
-Remaining #431 requirements include full runtime/native trace comparison,
-released spark usability, additional directional patterns and exact threshold
+## Full runtime continuation
+
+`runtime.csv` extends all sixteen cases to 430 frames (6,880 total), running
+native input, the installed movement handler, gamma, animation, pose transitions,
+collision and palette phases. The port runs `SuperMetroidRuntime.StepFrame`.
+LF-normalized SHA-256:
+`E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7`.
+
+This reproduced three further defects: completed Flash movement remained blocked
+by an active grab gamma; release incorrectly restored pose input before the native
+RTS input handler was replaced; retained Flash timers could not launch a spark
+because admission required the abstract stored-charge phase. Movement ownership
+and input-handler lifetime are now independent, and spark admission reads the
+live shared shine timer. Launch replaces Flash movement and palette ownership.
+
+All 6,880 frames match position/subposition, vertical velocity, pose/animation,
+health/ammunition and palette/timer state. Both facings and entry orders with
+alternating input launch a damaging, energy-consuming vertical spark at frame
+363, without equipping Speed Booster or injecting a stored charge. Both native
+and port audits assert that result explicitly. The other input patterns remain
+controls. This still uses prepared entry callbacks, not boss flight or drops.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" runtime > csharp\test-temp\draygon-crystal-runtime.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-runtime-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/runtime.csv
+```
+
+Remaining #431 requirements include additional directional patterns and exact threshold
 arithmetic, and the ten-capacity Power Bomb/refill setup. Keep the issue open and
 without `awaiting-player-validation` until these are handled.

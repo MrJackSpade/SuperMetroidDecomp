@@ -502,7 +502,7 @@ public sealed partial class SamusState
         // stricter `$90:C663` rule and may still disappear on that same odd frame.
         bool bodyVisible = KnockbackTimer != 0 ||
             InvincibilityTimer == 0 ||
-            Shinespark.ShineTimer != 0 ||
+            SharedShineTimer != 0 ||
             (nmiFrameCounter & 1) == 0;
         if (!bodyVisible)
         {

@@ -1687,7 +1687,7 @@ public sealed partial class SuperMetroidRuntime
 
             bool bombJumpLocksPoseInput = Samus.BombJumpPoseInputLocked;
             bool actorLocksPoseInput = Samus.InputLocked || bombJumpLocksPoseInput ||
-                (Samus.ShinesparkPoseInputLocked && !Samus.AutoJumpInputPending) ||
+                ((Samus.ShinesparkPoseInputLocked || Samus.CrystalFlashPoseInputLocked) && !Samus.AutoJumpInputPending) ||
                 (SamusState.IsForwardFacingPose(Samus.Pose) && ElevatorStatus != 0);
             // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
             // poses can still have table entries, but reading them here prematurely
@@ -2136,7 +2136,7 @@ public sealed partial class SuperMetroidRuntime
                 // The real grabbed route uses the explicit RTS handler installed at
                 // `$90:E262`, not the otherwise reachable type-$1A normal dispatcher. Keep
                 // the latter in the pose switch below for direct/diagnostic dispatcher use.
-                else if (Samus.DraygonGrabbed.IsActive && Samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive)
+                else if (Samus.DraygonGrabbed.OwnsMovement)
                 {
                     // Deliberately empty: Draygon's bank-$A5 actor owns coordinates.
                 }

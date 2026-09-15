@@ -3,6 +3,14 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class SamusState
 {
     /// <summary>
+    /// Live WRAM $0A68: ordinary stored-shine countdown or Crystal Flash's palette
+    /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
+    /// native jump admission still sees a nonzero shine without a Stored phase.
+    /// </summary>
+    public ushort SharedShineTimer => CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
+        ? CrystalFlash.SpecialPaletteTimer : Shinespark.ShineTimer;
+
+    /// <summary>
     /// WRAM $0E00, joypad1_newinput_samusfilter: the Fire edge retained by $90:EAB3
     /// after drawing Samus and projectiles. Missile admission and grapple's inactive function accept either
     /// this previous-frame edge or the current NMI edge, allowing a press that first
@@ -27,11 +35,15 @@ public sealed partial class SamusState
     /// </summary>
     public bool ShinesparkPoseInputLocked { get; internal set; }
 
+    /// <summary>Crystal Flash's RTS input pointer survives grab/release until native input restoration.</summary>
+    public bool CrystalFlashPoseInputLocked { get; internal set; }
+
     /// <summary>Local input substitution from $90:E926; does not alter the controller's real edge.</summary>
     internal ushort ConsumeAutoJumpInput(ushort newlyPressed)
     {
         if (!AutoJumpInputPending) return newlyPressed;
         ShinesparkPoseInputLocked = false;
+        CrystalFlashPoseInputLocked = false;
         AutoJumpInputPending = false;
         if (AutoJumpTimer != 0 && unchecked((short)(AutoJumpTimer - SamusAutoJumpDefinitions.TimerComparisonLimit)) < 0)
         {

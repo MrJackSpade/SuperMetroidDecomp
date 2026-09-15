@@ -217,7 +217,7 @@ public sealed class SamusShinesparkState
     public void BeginWindup(SamusState samus)
     {
         ArgumentNullException.ThrowIfNull(samus);
-        if (Phase != ShinesparkPhase.Stored || ShineTimer == 0)
+        if (samus.SharedShineTimer == 0)
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
         InitializeWindup(samus);
@@ -232,6 +232,10 @@ public sealed class SamusShinesparkState
 
     private void InitializeWindup(SamusState samus)
     {
+        // $90:CFFA replaces the movement and palette pointers. Flash's live
+        // $0A68 can admit this launch even after its movement was interrupted.
+        samus.CrystalFlash.RelinquishMovementHandler();
+        samus.CrystalFlash.RelinquishPaletteHandler();
 
         // These are literal native writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.

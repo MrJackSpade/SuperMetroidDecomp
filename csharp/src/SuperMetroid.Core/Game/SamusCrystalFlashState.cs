@@ -38,6 +38,13 @@ public sealed class SamusCrystalFlashState
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
 
+    /// <summary>Another special palette handler replaces $0ACC and its live $0A68 timer.</summary>
+    internal void RelinquishPaletteHandler()
+    {
+        SpecialPaletteType = 0;
+        SpecialPaletteTimer = 0;
+    }
+
     /// <summary>WRAM <c>$0DF0</c>, captured after the complete 20-pixel rise.</summary>
     public ushort RaisedYPosition { get; private set; }
 
@@ -136,6 +143,8 @@ public sealed class SamusCrystalFlashState
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
+        samus.DraygonGrabbed.RelinquishMovementHandler();
+        samus.CrystalFlashPoseInputLocked = true;
         RaiseTimer = 9;
         AmmoDecrementIndex = 0;
         AmmoDecrementTimer = 10;
@@ -296,6 +305,7 @@ public sealed class SamusCrystalFlashState
 
         SpecialPaletteTimer = 0xffff;
         samus.ShinesparkPoseInputLocked = false;
+        samus.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the native return path.
         samus.InvincibilityTimer = 0;
         samus.KnockbackTimer = 0;

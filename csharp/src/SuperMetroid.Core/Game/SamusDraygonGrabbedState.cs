@@ -22,6 +22,15 @@ public sealed class SamusDraygonGrabbedState
     /// <summary>True while `$90:E2A1` is installed as Samus's timer/hack handler.</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>Another callback replaced the RTS movement pointer without removing grab gamma.</summary>
+    public bool MovementHandlerReplaced { get; private set; }
+
+    /// <summary>True only while the grab's RTS still owns beta movement.</summary>
+    public bool OwnsMovement => IsActive && !MovementHandlerReplaced;
+
+    /// <summary>Preserves grab gamma while a newer movement callback replaces RTS.</summary>
+    internal void RelinquishMovementHandler() => MovementHandlerReplaced = true;
+
     /// <summary>WRAM <c>DraygonEscapeButtonCounter</c>.</summary>
     public ushort EscapeButtonCounter { get; private set; }
 
@@ -64,6 +73,7 @@ public sealed class SamusDraygonGrabbedState
         samus.InitializeAnimation(bus, initialFrame: 0);
 
         IsActive = true;
+        MovementHandlerReplaced = false;
         EscapeButtonCounter = 0;
         samus.CrystalFlash.SetSharedAmmoCounter(EscapeButtonCounter);
         // Grab installs RTS movement, but leaves the Flash palette and its shared

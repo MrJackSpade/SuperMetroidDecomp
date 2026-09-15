@@ -25,12 +25,14 @@ static uint16 input_at(int frame, int mode) {
   return frame >= 16 ? 0x100 : 0;
 }
 int main(int argc, char **argv) {
-  if (argc != 2) return 2;
+  bool full = argc == 3 && strcmp(argv[2], "runtime") == 0;
+  if (argc != 2 && !full) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette\n");
+  printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s\n",
+    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "");
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < 4; mode++) {
@@ -44,22 +46,45 @@ int main(int argc, char **argv) {
     samus_max_missiles = samus_max_super_missiles = samus_max_power_bombs = 10;
     button_config_shoot_x = 0x40; game_state = 8;
     grapple_beam_function = 0xc4f0;
+    if (full) {
+      room_width_in_blocks = 144; room_height_in_blocks = 80;
+      room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
+      interactive_enemy_indexes[0] = 0xffff;
+      for (int x = 0; x < 144; x++) level_data[32 * 144 + x] = level_data[16 * 144 + x] = 0x8000;
+      fx_y_pos = lava_acid_y_pos = 0xffff;
+      samus_prev_x_pos = samus_x_pos; samus_prev_y_pos = samus_y_pos;
+      samus_input_handler = 0xe913; samus_movement_handler = 0xa337;
+      samus_x_speed_table_pointer = 0x9f55;
+      button_config_run_b = 0x8000; button_config_jump_a = 0x80;
+      button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20;
+      button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
+    }
     run(RefreshRadius);
     if (order == 0) grab(right);
     joypad1_lastkeys = 0x470;
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < 120; frame++) {
+    for (int frame = 0; frame < (full ? 430 : 120); frame++) {
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, mode);
+      if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
-      nmi_frame_counter_word = frame;
-      if (samus_movement_handler == FlashRaising || samus_movement_handler == FlashMain || samus_movement_handler == FlashFinish)
+      nmi_frame_counter_word = frame + (full ? 2 : 0);
+      if (full) { run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0; }
+      if (full || samus_movement_handler == FlashRaising || samus_movement_handler == FlashMain || samus_movement_handler == FlashFinish)
         run(0x900000 | samus_movement_handler);
       if (frame_handler_gamma == GrabGamma) run(0x900000 | GrabGamma);
-      run(AnimationPhase); run(Palette);
-      if (frame == 96) {
+      run(AnimationPhase);
+      if (full) {
+        unsigned stages[] = {TransitionPhase,CollisionPosePhase,ApplyPosePhase,PoseHistoryPhase,HurtPhase,CollisionPhase};
+        for (int i = 0; i < 6; i++) run(stages[i]);
+      }
+      run(Palette);
+      if (full && mode == 2 && frame == 363 &&
+          (samus_movement_handler != 0xd0ab || samus_contact_damage_index != 2 || samus_health != (order == 0 ? 98 : 48)))
+        Die("Interrupted Flash must permit a damaging, energy-consuming spark without a charge");
+      if (!full && frame == 96) {
         if (order == 0 && (mode == 1 || mode == 3) && samus_missiles != 0xffff)
           Die("One extra D-pad edge must underflow ten missiles");
         if (mode == 2 && (frame_handler_gamma == GrabGamma || substate != 60))
@@ -67,9 +92,11 @@ int main(int argc, char **argv) {
         if (order == 1 && (samus_missiles != 10 || samus_super_missiles != 10 || samus_power_bombs != 10))
           Die("Grab during Flash must stop its ammo-drain movement handler");
       }
-      printf("%d,%d,%d,%d,%04X,%02X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X\n",
+      printf("%d,%d,%d,%d,%04X,%02X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X",
         order,right,mode,frame,input,samus_pose,samus_y_pos,samus_movement_handler,frame_handler_gamma,
         substate,suit_pickup_light_beam_pos,which_item_to_pickup,samus_health,samus_missiles,samus_super_missiles,samus_power_bombs,samus_shine_timer,timer_for_shine_timer);
+      if (full) printf(",%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X,%04X",samus_x_pos,samus_x_subpos,samus_y_subpos,samus_y_speed,samus_y_subspeed,samus_y_dir,samus_anim_frame,samus_anim_frame_timer,samus_input_handler);
+      printf("\n");
     }
   }
   return 0;

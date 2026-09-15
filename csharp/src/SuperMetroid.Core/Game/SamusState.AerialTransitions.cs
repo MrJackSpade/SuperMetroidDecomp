@@ -549,8 +549,7 @@ public sealed partial class SamusState
         bool left = targetPose is
             SamusPoseIds.NeutralJumpLeftPose or SamusPoseIds.NormalJumpAimUpLeftPose or
             SamusPoseIds.NormalJumpAimDiagonalUpLeftPose;
-        if ((!right && !left) || Shinespark.ShineTimer == 0 ||
-            Shinespark.Phase != ShinesparkPhase.Stored)
+        if ((!right && !left) || SharedShineTimer == 0)
         {
             return false;
         }

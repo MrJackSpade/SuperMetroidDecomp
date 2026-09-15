@@ -68,6 +68,51 @@ internal static partial class Program
             0,
             new SamusBombProjectileSystem()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
 
+        // Wave collision scans do not kill their owner, but they still run every touched
+        // block's shot reaction before the B0AC callback deletes the no-Power-Bomb shot.
+        // This is how an invisible, zero-range Chainsaw shot opens a blue door.
+        ushort[] doorWords = new ushort[256];
+        byte[] doorBts = new byte[256];
+        int doorOrigin = 6 * 16 + 9;
+        doorWords[doorOrigin] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
+        doorBts[doorOrigin] = 0x41;
+        for (int row = 1; row < 4; row++)
+        {
+            doorWords[doorOrigin + row * 16] =
+                (ushort)((int)RoomCollisionType.VerticalExtension << 12);
+            doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
+        }
+        var doorLevel = new RoomLevelData(16, 16, doorWords, doorBts,
+            new ushort[256], new byte[8]);
+        var doorSamus = new SamusState
+        {
+            Pose = 1,
+            XPosition = 128,
+            YPosition = 128,
+            EquippedBeams = 0x000d,
+            SelectedHudItem = 0,
+        };
+        var doorPlms = new RoomPlmSystem();
+        var doorProjectiles = new SamusProjectileSystem();
+        SamusProjectileFrameResult doorFrame = doorProjectiles.StepFrame(
+            bus,
+            doorLevel,
+            doorSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            new SamusBombProjectileSystem(),
+            roomPlms: doorPlms);
+        AssertEqual(1, doorPlms.ActiveCount, "no-Power-Bomb Chainsaw opens blue door");
+        AssertEqual(RoomCollisionType.SolidBlock,
+            doorLevel.GetCollisionBlockByIndex(doorOrigin).CollisionType,
+            "Chainsaw blue-door setup mutates cap synchronously");
+        AssertTrue(!doorFrame.CollisionStartedExplosion,
+            "Wave scan opens door without synthesizing a visible beam impact");
+        AssertEqual(0, doorProjectiles.ProjectileCounter,
+            "door-opening no-Power-Bomb Chainsaw still deletes in B0AC callback");
+
         var activeShared = new SamusBombProjectileSystem();
         activeShared.PowerBombExplosion.Arm();
         var activeProjectiles = new SamusProjectileSystem();
@@ -99,6 +144,6 @@ internal static partial class Program
                 GameplayWindowRegisterAddresses.Window34Selection), $"active Chainsaw inherited Y high {update}");
         }
 
-        Console.WriteLine("Chainsaw firing: native admission, muzzle, velocity, callback store and Power-Bomb-gated lifetime agree.");
+        Console.WriteLine("Chainsaw firing: native admission, door reaction, callback store and Power-Bomb-gated lifetime agree.");
     }
 }

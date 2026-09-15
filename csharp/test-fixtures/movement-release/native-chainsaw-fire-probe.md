@@ -146,5 +146,7 @@ producers, runtime NMI and capture still require integration. The firing path
 supplies the CPU-Y values established by the bounded native trace for the
 one-frame Chainsaw animation list. It also preserves `$90:B0AE`'s unconditional
 fallthrough into `$94:9CAC`, including the cleared-shot dispatch when no Power
-Bomb is active. Broader full-frame register provenance, enemy/door behavior and
+Bomb is active. A production fixture also proves that the initial Wave scan opens
+a blue door without creating a visible impact before the callback deletes the
+shot. Broader full-frame register provenance, enemy/Orange-door behavior and
 charged invalid-beam combinations remain.

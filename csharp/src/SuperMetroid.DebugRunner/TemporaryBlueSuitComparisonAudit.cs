@@ -16,7 +16,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool terrain = kind == TemporaryBlueAuditKind.Terrain;
         bool chain = kind == TemporaryBlueAuditKind.Chain;
         bool menu = kind == TemporaryBlueAuditKind.Menu;
-        bool draygon = kind == TemporaryBlueAuditKind.DraygonDeath;
+        bool echoes = kind == TemporaryBlueAuditKind.DraygonEcho;
+        bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72")
@@ -26,7 +27,7 @@ internal static class TemporaryBlueSuitComparisonAudit
         if (Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != expectedHash)
             throw new InvalidDataException("Use the accepted original-CPU temporary Blue Suit trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (sand ? 20 : terrain ? 22 : menu ? 19 : 18)))
+        if (rows.Length != expectedCases * expectedFrames || rows.Any(row => row.Length != (echoes ? 26 : sand ? 20 : terrain ? 22 : menu ? 19 : 18)))
             throw new InvalidDataException("Incomplete native temporary boost matrix.");
         int cases = 0, mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -49,6 +50,7 @@ internal static class TemporaryBlueSuitComparisonAudit
             foreach (var enemy in runtime.Enemies.Slots) enemy.Clear();
             foreach (var actor in runtime.Enemies.EnemyProjectiles) actor.Clear();
             var samus = runtime.Samus ?? throw new InvalidDataException("Missing fixture Samus.");
+            if (echoes) runtime.GameTime.Load(0, 0, 0, 0);
             samus.EquippedItems = samus.CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall);
             if (bounce && aim >= 4) samus.EquippedItems = samus.CollectedItems = (ushort)(samus.EquippedItems | (ushort)SamusEquipmentFlags.SpringBall);
             samus.EquippedBeams = samus.CollectedBeams = 0;
@@ -126,7 +128,17 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (sand) actual += $",{samus.Kinematics.ExtraXFixed:X8},{samus.Kinematics.ExtraYFixed:X8}";
                 if (terrain) actual += $",{terrainResult}";
                 if (menu) actual += $",{samus.EquippedItems:X4}";
-                string expected = string.Join(',', row[5..]);
+                string expected = string.Join(',', echoes ? row[5..18] : row[5..]);
+                if (echoes)
+                {
+                    string? mismatch = DraygonEchoComparison.FindMismatch(bus, samus, runtime.NmiFrameCounter, frame, row);
+                    if (mismatch is not null)
+                    {
+                        mismatches++;
+                        if (!reported) Console.WriteLine($"ECHO {group.Key} frame {frame}: {mismatch}");
+                        reported = true;
+                    }
+                }
                 if (actual != expected)
                 {
                     if (draygon && frame == DraygonBlueSuitProbe.DeathFrame(aim))

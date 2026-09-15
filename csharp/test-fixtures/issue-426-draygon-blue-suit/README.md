@@ -106,3 +106,38 @@ Cross-checks: pinned `upstream-sm/src/sm_a5.c` ($A5:960D), `sm_90.c`
 ($90:E2DE, $90:D1FF), `sm_9b.c` ($9B:C8C5), and `sm_91.c`
 ($91:FACA, $91:F1EC, $91:EB88), plus the
 [Blue Suit technique reference](https://wiki.supermetroid.run/Blue_Suit_Glitch#Draygon).
+
+## Echo draw comparison and corrected timing
+
+`echo.csv` repeats the 24 death cases with gameplay time starting at zero and
+NMI starting at two. Native executes $90:85E2 and $90:87BD after movement, with
+a diagnostic viewport centered on Samus. All 9,600 rows compare world echo
+positions/index in addition to the existing movement fields. Frames 150..174
+also compare the complete echo low/high OAM bytes (600 draw checkpoints),
+including tile attributes, positions and sprite order. The C# extra draw probe
+is restricted to the non-mutating active-echo branch; ordinary runtime drawing
+alone advances departing echoes.
+
+This exposed two mismatches before production changes:
+
+- Frame 90: the port sampled on NMI modulo four instead of the gameplay-clock
+  word. Ordinary and active-shinespark movement now pass the gameplay clock,
+  leaving NMI available independently for collision-scan parity.
+- Frame 152: launch cleared the old echo Y words. Native clears X (the empty
+  sentinel), index and velocity but preserves Y until overwritten by sampling.
+  Launch now preserves Y; the distinct room-transition projectile reset still
+  clears it, as $90:AD22 requires.
+
+The final comparison has zero mismatches. Both maintained-speed and cleared-
+speed cases emit echoes in this immediate-launch setup. Thus this fixture does
+not establish the wiki's general absent-echo diagnostic for midair activation;
+that activation timing remains to be tested before closing the investigation.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --draygon-echo-audit 'Super Metroid.smc' `
+  csharp/test-fixtures/issue-426-draygon-blue-suit/echo.csv
+```
+
+Regenerate with `audit.exe ROM draygon-echo`. UTF-8/LF-normalized SHA-256:
+`74A3D1BCC56539A43BB71E4B3A01FE2AAC97B7738CB2F6BAD35874292E59D505`.

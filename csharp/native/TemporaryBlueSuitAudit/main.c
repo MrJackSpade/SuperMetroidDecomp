@@ -6,6 +6,7 @@
 #include "../GravityJumpAudit/fixture.h"
 enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150, DraygonPostDamage = 0xa5960d };
 #include "DraygonGrabFixture.h"
+#include "EchoFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -63,6 +64,7 @@ static uint16 menu_input(int frame, int left, int mode) {
 }
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
+  bool echoes = argc == 3 && strcmp(argv[2], "draygon-echo") == 0;
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
   bool cancel = argc == 3 && strcmp(argv[2], "cancel") == 0;
@@ -71,13 +73,13 @@ int main(int argc, char **argv) {
   bool chain = argc == 3 && strcmp(argv[2], "chain") == 0;
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
   bool grab = argc == 3 && strcmp(argv[2], "draygon-grab") == 0;
-  bool draygon = grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
+  bool draygon = echoes || grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
   if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
     Die("Expected unheadered 3 MiB ROM");
   fclose(file);
-  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
+  printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
   for (int stop = carry || bounce || cancel || sand || chain || menu || draygon ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon ? 140 : 180); stop += terrain ? 80 : 40)
   for (int aim = 0; aim < (grab ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
@@ -118,6 +120,7 @@ int main(int argc, char **argv) {
       if (cancel && frame == 400 && aim >= 3 && aim <= 6) equipped_items &= ~0x2000;
       if (cancel && frame == 410 && aim == 6) equipped_items |= 0x2000;
       nmi_frame_counter_word = nmi_frame_counter_byte = frame + 2;
+      if (echoes) game_time_frames = frame % 60;
       uint16 input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : aim * 0x10;
       if (frame == stop) input |= 0x400;
       if (carry) input = carry_input(frame, left, aim);
@@ -176,6 +179,7 @@ int main(int argc, char **argv) {
         PoseHistoryPhase,HurtPhase,CollisionPhase,SamusPalettePhase};
       for (int i = 0; i < 8; i++) run(stages[i]);
       }
+      if (echoes) draw_echo_probe();
       if (grab && frame == draygon_grab_frame(aim)) {
         cur_enemy_index = 0;
         Enemy_Draygon *body = Get_Draygon(0);
@@ -201,6 +205,7 @@ int main(int argc, char **argv) {
         samus_x_extra_run_speed,samus_x_extra_run_subspeed,speed_boost_counter,samus_contact_damage_index,
         samus_shine_timer,timer_for_shine_timer,samus_y_speed,samus_y_subspeed,samus_y_dir);
       if (sand) printf(",%04X%04X,%04X%04X", extra_samus_x_displacement,extra_samus_x_subdisplacement,extra_samus_y_displacement,extra_samus_y_subdisplacement);
+      if (echoes) print_echo_probe(frame);
       if (terrain) {
         int count = 0;
         for (int p = 0; p < 40; p++) if (plm_header_ptr[p]) count++;

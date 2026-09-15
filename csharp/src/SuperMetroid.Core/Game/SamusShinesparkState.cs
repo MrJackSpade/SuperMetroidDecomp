@@ -273,6 +273,7 @@ public sealed class SamusShinesparkState
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
+    /// <param name="gameTimeFrames">Native gameplay-clock word used by echo sampling, independent of NMI collision parity.</param>
     public ShinesparkMovementResult Step(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -281,7 +282,8 @@ public sealed class SamusShinesparkState
         ushort projectileCounter = 0,
         RoomPlmSystem? plms = null,
         bool playerInvincibilityEnabled = false,
-        SamusProjectileSystem? projectiles = null)
+        SamusProjectileSystem? projectiles = null,
+        ushort gameTimeFrames = 0)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -329,7 +331,7 @@ public sealed class SamusShinesparkState
         // Each active handler samples echoes before motion. Runtime suppresses its ordinary
         // post-motion producer while this special handler owns the frame.
         samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-            nmiFrameCounter,
+            gameTimeFrames,
             samus.XPosition,
             samus.YPosition);
 

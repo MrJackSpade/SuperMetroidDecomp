@@ -522,7 +522,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>
     /// Ports <c>Samus_UpdateSpeedEchoPos</c> at <c>$90:EEE7</c> for ordinary active boost.
-    /// The native game-time counter is one-to-one with accepted frames in this runtime.
+    /// The gameplay clock, not NMI count, selects the four-frame sampling phase.
     /// </summary>
     public bool CaptureSpeedEchoPosition(
         ushort gameTimeFrames,
@@ -559,7 +559,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     /// <remarks>
     /// Native also clears two later crash-circle velocity bytes. Those bytes are not part
-    /// of the ordinary active-echo model yet; the four position words and alternating index
+    /// of the ordinary active-echo model yet; the X position words and alternating index
     /// below are the exact subset consumed by <see cref="CaptureSpeedEchoPosition"/> and
     /// the current renderer.
     /// </remarks>
@@ -570,6 +570,14 @@ public sealed class SamusHorizontalSpeedState
         SecondSpeedEchoXSpeed = 0;
         FirstSpeedEchoXPosition = 0;
         SecondSpeedEchoXPosition = 0;
+        // Launch marks slots empty through X alone. Native leaves the old Y words
+        // intact until the next gameplay-clock sample overwrites them.
+    }
+
+    /// <summary>Clears active echo storage during native ResetProjectileData ($90:AD22).</summary>
+    public void ResetSpeedEchoPositionsForRoomTransition()
+    {
+        ResetSpeedEchoPositionsForShinespark();
         FirstSpeedEchoYPosition = 0;
         SecondSpeedEchoYPosition = 0;
     }

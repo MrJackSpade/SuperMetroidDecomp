@@ -2253,7 +2253,8 @@ public sealed partial class SuperMetroidRuntime
                         Projectiles.ProjectileCounter,
                         Plms,
                         playerInvincibilityEnabled: PlayerInvincibilityEnabled,
-                        projectiles: Projectiles);
+                        projectiles: Projectiles,
+                        gameTimeFrames: GameTime.Frames);
                     if (LastShinesparkMovement.Value.WindupTimedOut)
                     {
                         // The movement handler publishes an interrupted vertical pose. That
@@ -2705,7 +2706,7 @@ public sealed partial class SuperMetroidRuntime
             if (LastShinesparkMovement is null)
             {
                 Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-                    NmiFrameCounter,
+                    GameTime.Frames,
                     Samus.XPosition,
                     Samus.YPosition);
             }

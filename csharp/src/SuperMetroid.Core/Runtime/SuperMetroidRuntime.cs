@@ -1726,6 +1726,7 @@ public sealed partial class SuperMetroidRuntime
                     SamusPoseIds.FallingRightPose or SamusPoseIds.FallingLeftPose or
                     SamusPoseIds.CrouchingRightPose or SamusPoseIds.CrouchingLeftPose or
                     SamusPoseIds.NormalLandingRightPose or SamusPoseIds.NormalLandingLeftPose or
+                    SamusPoseIds.ShinesparkWindupRightPose or SamusPoseIds.ShinesparkWindupLeftPose or
                     SamusPoseIds.MorphBallFallingRightPose or SamusPoseIds.MorphBallFallingLeftPose)
                 ProspectiveSamusFallbackPose = Samus.Pose;
 
@@ -3673,6 +3674,16 @@ public sealed partial class SuperMetroidRuntime
                     ProspectiveSamusPose is null &&
                     movementTypeAtFrameStart == SamusMovementType.Crouching &&
                     Samus.ReadMovementType(_addressSpace) == SamusMovementType.Crouching)
+                    Samus.HorizontalSpeed.ApplyStoppedInputFallback(Samus.ReadFacingDirection(_addressSpace));
+
+                // Windup still runs the ordinary type-$1B input lookup. Its unmatched
+                // chord selects command two at $91:8304, just like crouching. Skipping
+                // this loses the one-frame momentum cancellation before a delayed
+                // midair launch. A selected launch or timeout must win instead.
+                if (!animationTransitionApplied && usePoseDefinitionFallback &&
+                    ProspectiveSamusPose is null &&
+                    poseAtFrameStart is SamusPoseIds.ShinesparkWindupRightPose or SamusPoseIds.ShinesparkWindupLeftPose &&
+                    Samus.Shinespark.Phase == ShinesparkPhase.Windup)
                     Samus.HorizontalSpeed.ApplyStoppedInputFallback(Samus.ReadFacingDirection(_addressSpace));
 
                 // Falling's lookup-failure command still runs when its definition

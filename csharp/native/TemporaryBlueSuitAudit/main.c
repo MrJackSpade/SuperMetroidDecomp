@@ -7,6 +7,7 @@
 enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150, DraygonPostDamage = 0xa5960d };
 #include "DraygonGrabFixture.h"
 #include "EchoFixture.h"
+#include "MidairFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -64,7 +65,8 @@ static uint16 menu_input(int frame, int left, int mode) {
 }
 int main(int argc, char **argv) {
   if (argc != 2 && argc != 3) return 2;
-  bool echoes = argc == 3 && strcmp(argv[2], "draygon-echo") == 0;
+  bool midair = argc == 3 && strcmp(argv[2], "draygon-midair") == 0;
+  bool echoes = midair || (argc == 3 && strcmp(argv[2], "draygon-echo") == 0);
   bool carry = argc == 3 && strcmp(argv[2], "carry") == 0;
   bool bounce = argc == 3 && strcmp(argv[2], "bounce") == 0;
   bool cancel = argc == 3 && strcmp(argv[2], "cancel") == 0;
@@ -82,7 +84,7 @@ int main(int argc, char **argv) {
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", echoes ? ",echoindex,x0,y0,x1,y1,oambytes,low,high" : sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
   for (int stop = carry || bounce || cancel || sand || chain || menu || draygon ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (grab ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int aim = 0; aim < (grab || midair ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -132,6 +134,7 @@ int main(int argc, char **argv) {
       if (draygon && aim >= 4 && aim < 8 && frame >= 360 && frame < 370) input = 0x8000 | (left ? 0x200 : 0x100);
       if (draygon && aim >= 8 && frame >= 360) input = frame == 360 ? 0x410 : frame < 370 ? 0x10 : frame == 370 ? 0x80 : 0x880;
       if (grab) input = draygon_grab_input(frame, left, aim);
+      if (midair) input = midair_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
@@ -191,7 +194,7 @@ int main(int argc, char **argv) {
         if (frame_handler_gamma != DraygonGrabGamma) Die("Chase did not grab Samus");
         samus_x_speed_divisor = 0; /* Goop expires; do not alter boost/velocity words. */
       }
-      if (draygon && !grab && frame == ((aim & 1) == 0 ? 175 : 180)) {
+      if (draygon && !grab && frame == (midair ? 180 : (aim & 1) == 0 ? 175 : 180)) {
         /* Enter the real fatal boss callback after a constructed lethal hit.
            Samus's spark/boost state was earned entirely by the preceding inputs. */
         cur_enemy_index = 0;

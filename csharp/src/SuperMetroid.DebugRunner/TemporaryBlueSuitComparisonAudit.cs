@@ -16,7 +16,8 @@ internal static class TemporaryBlueSuitComparisonAudit
         bool terrain = kind == TemporaryBlueAuditKind.Terrain;
         bool chain = kind == TemporaryBlueAuditKind.Chain;
         bool menu = kind == TemporaryBlueAuditKind.Menu;
-        bool echoes = kind == TemporaryBlueAuditKind.DraygonEcho;
+        bool midair = kind == TemporaryBlueAuditKind.DraygonMidair;
+        bool echoes = midair || kind == TemporaryBlueAuditKind.DraygonEcho;
         bool draygon = echoes || kind == TemporaryBlueAuditKind.DraygonDeath;
         bool grab = kind == TemporaryBlueAuditKind.DraygonGrab;
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
@@ -79,6 +80,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (menu) expectedInput = TemporaryBlueMenuController.At(frame, left, aim);
                 if (draygon) expectedInput = DraygonBlueSuitProbe.InputAt(frame, left, aim);
                 if (grab) expectedInput = DraygonGrabBlueSuitProbe.InputAt(frame, left, aim);
+                if (midair) expectedInput = DraygonMidairInputs.At(frame, left, aim);
                 if (bounce) expectedInput = TemporaryBlueBounceInputs.At(frame, left, aim);
                 if (cancel) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, aim);
                 if (sand) expectedInput = TemporaryBlueCancellationInputs.At(frame, left, 0);
@@ -100,7 +102,7 @@ internal static class TemporaryBlueSuitComparisonAudit
                     runtime.StepFrame(input, queueEchoSound: () => publication.QueueEcho(runtime));
                     publication.PublishPrefix(runtime);
                 }
-                if (draygon && frame == DraygonBlueSuitProbe.DeathFrame(aim))
+                if (draygon && frame == (midair ? 180 : DraygonBlueSuitProbe.DeathFrame(aim)))
                     DraygonBlueSuitProbe.KillThroughEye(bus, samus);
                 grabProbe?.AfterFrame(frame);
                 grabProbe?.Verify(frame);
@@ -116,7 +118,8 @@ internal static class TemporaryBlueSuitComparisonAudit
                 if (chain) TemporaryBlueChainInputs.Verify(samus, frame, aim);
                 if (bounce) TemporaryBlueBounceInputs.Verify(samus, frame, aim);
                 if (cancel) TemporaryBlueCancellationInputs.Verify(samus, frame, aim);
-                if (draygon) DraygonBlueSuitProbe.Verify(samus, frame, aim);
+                if (draygon && !midair) DraygonBlueSuitProbe.Verify(samus, frame, aim);
+                if (midair) DraygonMidairInputs.Verify(samus, frame, aim);
                 if (stop >= 100 && frame == stop && samus.Shinespark.ShineTimer != 179)
                     throw new InvalidDataException("Controller crouch must earn and tick the 180-frame charge.");
                 if (stop >= 100 && frame == stop + 179 && samus.Shinespark.ShineTimer != 0)

@@ -3,8 +3,8 @@
 Partial #426. This covers death during an uncrashed spark, the retained-running-
 momentum exception, recovery, walking contact damage, Dash cancellation, and
 storing/launching another spark, plus grab-at-activation and D-pad escape.
-Rendered echo-cue coverage remains open; this is not a claim that the entire
-issue is complete.
+Midair activation and rendered echo-cue coverage are recorded below. These
+room-local native comparisons are ready for player validation, not a full-route claim.
 
 ## Reproduction
 
@@ -131,7 +131,7 @@ This exposed two mismatches before production changes:
 The final comparison has zero mismatches. Both maintained-speed and cleared-
 speed cases emit echoes in this immediate-launch setup. Thus this fixture does
 not establish the wiki's general absent-echo diagnostic for midair activation;
-that activation timing remains to be tested before closing the investigation.
+that activation timing is covered by the additional comparison below.
 
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
@@ -141,3 +141,41 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
 
 Regenerate with `audit.exe ROM draygon-echo`. UTF-8/LF-normalized SHA-256:
 `74A3D1BCC56539A43BB71E4B3A01FE2AAC97B7738CB2F6BAD35874292E59D505`.
+
+## Midair activation timing
+
+`midair.csv` adds eight modes in both facings (6,400 checkpoints). After the
+same earned charge, Samus walks/runs forward on 141..149, spinjumps on 150,
+optionally reverses on 154, and presses Up without Jump on 160. Jump+Up on
+161 or 162 selects vertical launch. Draygon's real fatal callback interrupts
+on 180. Walking on 340..349 tests retained contact damage; Dash on 360..369
+tests cancellation. Mode bit zero adds the extra windup frame, bit one holds
+Dash during run/jump, and bit two reverses midair. No boost state is injected.
+
+The extra windup frame reproduced a mismatch at 161: native input lookup
+failure selects momentum command two through $91:8304/$91:ECD0. The port
+omitted this self-pose fallback for windup. It now publishes that fallback and
+uses the existing stopped-input command after movement, unless launch or a
+higher-priority transition wins. The resulting state and exact echo OAM now
+match all 6,400 checkpoints, including 400 draw comparisons on 150..174.
+
+Observed pinned-cartridge results, rather than inferred wiki expectations:
+
+- Released Dash or midair reversal: both launch timings retain Blue Suit.
+- Retained Dash without reversal: both timings lose Blue Suit after release.
+  The delayed launch has no flight echoes; the one-frame launch has echoes but
+  still loses Blue Suit. Thus echo presence alone is not a sufficient success
+  test, and the wiki's immediate-launch exception is not reproduced by this
+  particular input sequence. The port matches the native outcome exactly.
+- All successful cases publish walking contact damage and lose retention when
+  Dash starts a new run. Death cases above additionally store and launch a new
+  spark; grab cases exercise the separate real admission/escape callbacks.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --draygon-midair-audit 'Super Metroid.smc' `
+  csharp/test-fixtures/issue-426-draygon-blue-suit/midair.csv
+```
+
+Regenerate with `audit.exe ROM draygon-midair`. UTF-8/LF-normalized SHA-256:
+`D3AE80258C864D7FC8A4ADF416459D17607BFF1EE6284D41F53C56FEE1509C4A`.

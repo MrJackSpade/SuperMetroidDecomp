@@ -177,6 +177,166 @@ internal static partial class Program
         AssertEqual((ushort)0x800d, combatProjectiles.Slots[0].Type,
             "Plasma bit keeps Chainsaw alive after enemy damage");
 
-        Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, callback store and Power-Bomb-gated lifetime agree.");
+        // The documented Orange Door interference is an ordering effect, not a special
+        // door exception. Native processes the bomb-owned slots before the ordinary
+        // Chainsaw slot. The real Power Bomb boundary visit therefore breaks terrain and
+        // publishes family $0300 to the yellow-door actor; the following Chainsaw visit
+        // observes the already-cleared terrain but overwrites that door's pending timer
+        // with its beam-family word. The resident actor consumes only the last published
+        // hit and rejects it. Reproduce both boundary walkers in that exact order.
+        const ushort yellowDoorPopulation = 0x9300;
+        const ushort yellowDoorArgument = 0xffff;
+        const int yellowDoorBlock = 1 * 5 + 2;
+        const int bombableBlock = 2 * 5 + 1;
+        var interferenceBus = new TestAddressSpace();
+        WriteTestWord(interferenceBus, 0x84c85c, 0xe000);
+        WriteTestWord(interferenceBus, 0x84e002, 0xe100);
+        WriteTestWord(interferenceBus, 0x84e006, 0xe200);
+        WriteTestWord(interferenceBus, 0x84e00e, 0xe300);
+        interferenceBus.WriteByte(0x84e202, 1);
+        WriteTestWord(interferenceBus, 0x84e203, 0xe400);
+        WriteTestWord(interferenceBus, 0x84e205, 1);
+        WriteTestWord(interferenceBus, 0x84e207, 0xe320);
+        WriteTestWord(interferenceBus, 0x84e400, 12);
+        WriteTestWord(interferenceBus, 0x84e402, 0xe340);
+        WriteTestWord(interferenceBus, 0x84e105, 0xe360);
+        WriteDoorDrawList(interferenceBus, 0x84e300, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x84e320, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x84e340, [0x0001, 0xc000, 0x0000]);
+        WriteDoorDrawList(interferenceBus, 0x84e360, [0x0001, 0x8000, 0x0000]);
+        WriteTestWord(
+            interferenceBus,
+            0x8f0000 | yellowDoorPopulation,
+            RoomPlmHeaders.YellowDoorFacingLeft);
+        interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 2), 2);
+        interferenceBus.WriteByte(0x8f0000 | (yellowDoorPopulation + 3), 1);
+        WriteTestWord(
+            interferenceBus,
+            0x8f0000 | (yellowDoorPopulation + 4),
+            yellowDoorArgument);
+        WriteTestWord(interferenceBus, 0x8f0000 | (yellowDoorPopulation + 6), 0);
+
+        ushort[] interferenceWords = new ushort[25];
+        byte[] interferenceBts = new byte[25];
+        interferenceWords[yellowDoorBlock] = 0x8000;
+        var interferenceLevel = new RoomLevelData(
+            5,
+            5,
+            interferenceWords,
+            interferenceBts,
+            new ushort[25],
+            new byte[8]);
+        var interferencePlms = new RoomPlmSystem();
+        var interferenceStreamer = interferenceLevel.CreateBackgroundStreamer();
+        AssertEqual(1, interferencePlms.LoadRoomPopulation(
+                interferenceBus,
+                interferenceLevel,
+                interferenceStreamer,
+                new SnesVram(),
+                yellowDoorPopulation,
+                new Bank80SystemState(),
+                AreaId.Crateria,
+                () => new SamusState(),
+                () => false),
+            "Chainsaw interference fixture loads the resident yellow door");
+        interferencePlms.Step(
+            interferenceBus,
+            interferenceLevel,
+            interferenceStreamer,
+            0,
+            0,
+            0);
+
+        var interferenceReactions = new List<BombBlockReaction>();
+        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+            interferenceLevel,
+            32,
+            32,
+            0x1000,
+            interferenceReactions,
+            interferencePlms,
+            AreaId.Crateria,
+            (ushort)SamusProjectileFamily.PowerBomb);
+        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+            interferenceLevel,
+            32,
+            32,
+            0x1000,
+            interferenceReactions,
+            interferencePlms,
+            AreaId.Crateria,
+            0x800d);
+        interferencePlms.Step(
+            interferenceBus,
+            interferenceLevel,
+            interferenceStreamer,
+            0,
+            0,
+            0);
+        ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
+        AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
+            "later Chainsaw hit suppresses yellow-door opening");
+        AssertEqual((byte)0, suppressedDoor.HitCounter,
+            "suppressed yellow door never advances its opening threshold");
+
+        ushort[] breakingWords = new ushort[25];
+        breakingWords[bombableBlock] =
+            (ushort)((int)RoomCollisionType.BombableBlock << 12);
+        var breakingLevel = new RoomLevelData(
+            5,
+            5,
+            breakingWords,
+            new byte[25],
+            new ushort[25],
+            new byte[0x2000]);
+        var breakingPlms = new RoomPlmSystem();
+        var breakingReactions = new List<BombBlockReaction>();
+        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+            breakingLevel,
+            32,
+            32,
+            0x1000,
+            breakingReactions,
+            breakingPlms,
+            AreaId.Crateria,
+            (ushort)SamusProjectileFamily.PowerBomb);
+        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+            breakingLevel,
+            32,
+            32,
+            0x1000,
+            breakingReactions,
+            breakingPlms,
+            AreaId.Crateria,
+            0x800d);
+        AssertEqual(RoomCollisionType.SolidBlock,
+            breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
+            "Chainsaw callback preserves the Power Bomb's synchronous break setup");
+        AssertEqual(1, breakingPlms.ActiveCount,
+            "Power Bomb terrain reaction remains owned after Chainsaw callback");
+        breakingPlms.Step(
+            bus,
+            breakingLevel,
+            breakingLevel.CreateBackgroundStreamer(),
+            0,
+            0,
+            0);
+        AssertEqual(RoomCollisionType.Air,
+            breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,
+            "Power Bomb terrain completes its visible break after Chainsaw callback");
+
+        Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback store and Power-Bomb-gated lifetime agree.");
+
+        static void WriteDoorDrawList(
+            TestAddressSpace targetBus,
+            int address,
+            ushort[] words)
+        {
+            foreach (ushort word in words)
+            {
+                WriteTestWord(targetBus, address, word);
+                address += 2;
+            }
+        }
     }
 }

@@ -42,6 +42,11 @@ if (args is ["--acid-statue-first-entry"])
     VerifyAcidStatueFirstEntry();
     return 0;
 }
+if (args is ["--door-alignment"])
+{
+    VerifyDoorAlignmentParity();
+    return 0;
+}
 if (args is ["--spark-crash-alignment"])
 {
     VerifySparkCrashAlignment();
@@ -837,6 +842,7 @@ VerifyPauseReserveManual();
 VerifyPauseReserveArrow();
 VerifyPauseReserveTanks();
 VerifyPauseReserveHud();
+VerifyDoorAlignmentParity();
 VerifyDoorOpeningTrajectories();
 VerifyCreditsObjectInterpreter();
 VerifyEndingCreditsState();

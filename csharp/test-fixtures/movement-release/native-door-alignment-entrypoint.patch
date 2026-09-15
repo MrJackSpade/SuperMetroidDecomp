@@ -1,0 +1,28 @@
+diff --git a/src/main.c b/src/main.c
+index 64ececa..f6a8091 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -313,6 +313,10 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+ 
+ #undef main
+ int main(int argc, char** argv) {
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-door-alignment") == 0) {
++    extern int DiagnosticDoorAlignment(const char *, const char *);
++    return DiagnosticDoorAlignment(argv[2], argv[3]);
++  }
+ #ifdef __SWITCH__
+   SwitchImpl_Init();
+ #endif
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+index cea7f4c..870810e 100644
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -95,6 +95,8 @@ typedef struct StateRecorder {
+ } StateRecorder;
+ 
+ static StateRecorder state_recorder;
++#include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-door-alignment-probe.h"
+ 
+ void StateRecorder_Init(StateRecorder *sr) {
+   ByteArray_Destroy(&sr->log);

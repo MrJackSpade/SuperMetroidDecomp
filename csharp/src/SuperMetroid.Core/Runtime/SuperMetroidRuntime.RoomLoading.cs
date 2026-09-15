@@ -272,18 +272,14 @@ public sealed partial class SuperMetroidRuntime
         if (Camera is null)
             throw new InvalidOperationException("Door alignment requires an active camera.");
 
-        bool alignsX = DoorTransitionAlignsX(door.Orientation);
-        ushort coordinate = alignsX ? Camera.XPosition : Camera.YPosition;
-        byte low = unchecked((byte)coordinate);
-        if (low == 0)
+        DoorCameraAlignmentState alignment = DoorCameraAlignmentState.Step(
+            door.Orientation,
+            Camera.XPosition,
+            Camera.YPosition);
+        if (alignment.Completed)
             return true;
 
-        coordinate = (low & 0x80) != 0
-            ? unchecked((ushort)(coordinate + 1))
-            : unchecked((ushort)(coordinate - 1));
-        Camera.SetPosition(
-            alignsX ? coordinate : Camera.XPosition,
-            alignsX ? Camera.YPosition : coordinate);
+        Camera.SetPosition(alignment.CameraX, alignment.CameraY);
 
         // CalculateLayer2PosAndScrollsWhenScrolling updates the PPU mirrors on every
         // convergence step. The gameplay scroll owner performs the same parallax math;

@@ -14,6 +14,13 @@ public static class SamusBeamPreInstructionCodes
     /// <summary>$90:B0C3, ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
     public const ushort WaveFourFrameTrail = 0xb0c3;
     /// <summary>
+    /// $90:AD16, the invalid beam-combination fourteen entry read two words beyond
+    /// FireUnchargedBeam's callback table. JSR enters the operand of LoadBeamPalette's
+    /// sprite-palette store, then falls into its increment/loop tail with projectile-owned
+    /// X and Y. Later animation frames can therefore copy a large ROM range through WRAM.
+    /// </summary>
+    public const ushort SpacetimePaletteCopyTail = 0xad16;
+    /// <summary>
     /// $90:B0AC, the invalid beam-combination thirteen entry produced by indexing two
     /// words beyond the uncharged callback table. Execution begins on the bank byte of
     /// the preceding JSL, so it stores Y to the cached PPU register pair at $60+X and

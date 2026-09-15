@@ -82,10 +82,15 @@ internal static partial class Program
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusProjectileFrameResult)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileFrameResult), projectileResultFields, 5)
             .SequenceEqual(projectileResultFields.Where(field => field.Name is not "<AdditionalSoundRequests>k__BackingField"
-                and not "<QueuedSoundSuppressed>k__BackingField")),
+                and not "<QueuedSoundSuppressed>k__BackingField"
+                and not "<PersistentMemoryCorrupted>k__BackingField")),
             "legacy projectile result retains its saved sound and collision results");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
+                typeof(SamusProjectileFrameResult), projectileResultFields, 7)
+            .SequenceEqual(projectileResultFields.Where(field =>
+                field.Name != "<PersistentMemoryCorrupted>k__BackingField")),
+            "pre-SpaceTime projectile result retains every prior publication field");
         foreach (var (type, addedField) in new[] {
-            (typeof(SamusProjectileFrameResult), "<QueuedSoundSuppressed>k__BackingField"),
             (typeof(SamusSoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(EnemySoundRequest), "<SoundSuppressed>k__BackingField"),
             (typeof(RoomFxSoundRequest), "<SoundSuppressed>k__BackingField"),
@@ -165,11 +170,20 @@ internal static partial class Program
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");
         var gameFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [gameType])!;
-        FieldInfo[] preRandomGameFields = gameFields.Where(field => field.Name != "menuRandom").ToArray();
+        FieldInfo[] preSpacetimeGameFields = gameFields.Where(field =>
+            field.Name != "spacetimeIntroRestartSlot").ToArray();
+        AssertEqual(48, preSpacetimeGameFields.Length,
+            "preserved pre-SpaceTime frontend field count");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(
+                gameType, gameFields, 48).SequenceEqual(preSpacetimeGameFields),
+            "pre-SpaceTime frontend preserves every prior saved field in order");
+        FieldInfo[] preRandomGameFields = gameFields.Where(field =>
+            field.Name is not "menuRandom" and not "spacetimeIntroRestartSlot").ToArray();
         AssertEqual(47, preRandomGameFields.Length, "preserved pre-menu-RNG frontend field count");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 47).SequenceEqual(preRandomGameFields),
             "pre-menu-RNG frontend preserves every saved field in order");
-        FieldInfo[] oldGameFields = gameFields.Where(field => field.Name is not "pauseFadeCounter" and not "menuRandom").ToArray();
+        FieldInfo[] oldGameFields = gameFields.Where(field => field.Name is not
+            "pauseFadeCounter" and not "menuRandom" and not "spacetimeIntroRestartSlot").ToArray();
         AssertEqual(46, oldGameFields.Length, "preserved #391 frontend field count");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(gameType, gameFields, 46).SequenceEqual(oldGameFields),
             "pre-pause-cadence frontend preserves every saved field in order");

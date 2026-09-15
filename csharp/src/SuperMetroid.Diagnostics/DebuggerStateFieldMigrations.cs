@@ -17,6 +17,31 @@ internal static class DebuggerStateFieldMigrations
     internal static FieldInfo[] SelectSerializedFields(Type type, FieldInfo[] current, int count)
     {
         if (count == current.Length) return current;
+        if (type == typeof(SamusProjectileFrameResult) && count <= 7 &&
+            current.Any(field => field.Name == "<PersistentMemoryCorrupted>k__BackingField"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy projectile result predates native progression-memory corruption; restoring no pending corruption publication.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "<PersistentMemoryCorrupted>k__BackingField").ToArray(), count);
+        }
+        if (type == typeof(Bank80SystemState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<SavedLoadingGameState>k__BackingField"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy bank-$80 state lacks the saved startup dispatcher; restoring ordinary main-game loading.");
+            return current.Where(field =>
+                field.Name != "<SavedLoadingGameState>k__BackingField").ToArray();
+        }
+        if (type == typeof(SuperMetroid.Core.Frontend.SuperMetroidGame) &&
+            count <= 48 &&
+            current.Any(field => field.Name == "spacetimeIntroRestartSlot"))
+        {
+            Console.Error.WriteLine(
+                "WARNING: Legacy frontend state predates SpaceTime intro restart ownership; restoring no pending restart.");
+            return SelectSerializedFields(type, current.Where(field =>
+                field.Name != "spacetimeIntroRestartSlot").ToArray(), count);
+        }
         if (type == typeof(SamusXrayState) && count == current.Length - 2 &&
             current.Any(field => field.Name == "<PendingActivationPose>k__BackingField") &&
             current.Any(field => field.Name == "<OwnsSamusControl>k__BackingField"))
@@ -365,6 +390,11 @@ internal static class DebuggerStateFieldMigrations
             typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime)
                 .GetField("<RoomTreadmills>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(instance, new RoomTreadmillAnimatedTilesState());
+        }
+        if (instance is Bank80SystemState system && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(Bank80SystemState)) - 1)
+        {
+            system.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
         }
     }
 

@@ -448,6 +448,12 @@ if (args is ["--chainsaw-firing"])
     VerifyChainsawFiring();
     return 0;
 }
+if (args is ["--spacetime-beam"])
+{
+    VerifySpacetimeBeam();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--invalid-beam-graphics"])
 {
     VerifyInvalidBeamGraphics();
@@ -1020,6 +1026,7 @@ VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyHardwareWindows();
 VerifyChainsawFiring();
+VerifySpacetimeBeam();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();

@@ -239,6 +239,7 @@ internal static partial class MorphBallEyeAudit
             ExploredMapBytes: new byte[
                 Bank80SystemState.ExploredMapAreaCount *
                 Bank80SystemState.ExploredMapBytesPerArea],
+            LoadingGameState: SaveLoadingGameStates.MainGame,
             SaveStation: 0,
             Area: 0);
         slot.ApplyTo(restored);

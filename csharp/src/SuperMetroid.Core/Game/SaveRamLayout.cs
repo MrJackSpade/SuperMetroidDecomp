@@ -70,6 +70,30 @@ public static class SaveRamLayout
     public const int CompressedMapDataByteCount = 0x0500;
     public const int PackedMapAreaCount = 6;
 
+    /// <summary>First CPU-bus byte of the cartridge's live SRAM mirror at $7E:D7C0.</summary>
+    public const int WramMirrorAddress = 0x7ed7c0;
+    /// <summary>First persistent event byte at $7E:D820.</summary>
+    public const int EventsWramAddress = WramMirrorAddress + EventsOffset;
+    /// <summary>First area-boss byte at $7E:D828.</summary>
+    public const int BossBitsWramAddress = WramMirrorAddress + BossBitsOffset;
+    /// <summary>First opened-Chozo-orb byte at $7E:D830.</summary>
+    public const int RoomChozoBitsWramAddress = WramMirrorAddress + RoomChozoBitsOffset;
+    /// <summary>First collected-item byte at $7E:D870.</summary>
+    public const int CollectedItemBitsWramAddress = WramMirrorAddress + CollectedItemBitsOffset;
+    /// <summary>First opened-door byte at $7E:D8B0.</summary>
+    public const int OpenedDoorBitsWramAddress = WramMirrorAddress + OpenedDoorBitsOffset;
+    /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
+    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress +
+        Bank80SystemState.DoorBitByteCount;
+    /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
+    public const int ProgressionPaddingByteCount = 8;
+    /// <summary>First used save-station/elevator byte at $7E:D8F8.</summary>
+    public const int UsedSaveStationsWramAddress = WramMirrorAddress + UsedSaveStationsOffset;
+    /// <summary>First acquired-map-station byte at $7E:D908.</summary>
+    public const int MapStationsWramAddress = WramMirrorAddress + MapStationsOffset;
+    /// <summary>Saved frontend dispatcher word at $7E:D914.</summary>
+    public const int LoadingGameStateWramAddress = WramMirrorAddress + LoadingGameStateOffset;
+
     /// <summary>Bank-$81 byte-count table consumed by PackMapToSave/UnpackMapFromSave.</summary>
     public static readonly SnesAddress PackedMapByteCountTable =
         SnesAddress.FromUpperLoRom(0x81, 0x8131);

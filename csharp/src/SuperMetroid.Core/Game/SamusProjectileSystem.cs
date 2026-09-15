@@ -460,6 +460,7 @@ public sealed partial class SamusProjectileSystem
             _slots[initialCollisionSlot].PackedType.IsFamily(
                 SamusProjectileFamily.BeamExplosion);
         bool projectileDeleted = false;
+        bool persistentMemoryCorrupted = false;
         List<SamusSoundRequest>? comboSounds = null;
 
         LastFiredProjectileSnapshot = firedSlot is { } newSlot
@@ -554,6 +555,10 @@ public sealed partial class SamusProjectileSystem
             {
                 RunSuperMissileLinkPreInstruction(slot);
             }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.SpacetimePaletteCopyTail)
+            {
+                persistentMemoryCorrupted |= RunSpacetimePaletteCopyTail(bus, slot);
+            }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {
                 RunChainsawWindowStoreThenPowerBombPreInstruction(
@@ -592,7 +597,8 @@ public sealed partial class SamusProjectileSystem
             collisionStartedExplosion,
             projectileDeleted,
             comboSounds?.ToArray(),
-            soundSuppressedAtProduction);
+            soundSuppressedAtProduction,
+            persistentMemoryCorrupted);
         return LastFrameResult;
     }
 

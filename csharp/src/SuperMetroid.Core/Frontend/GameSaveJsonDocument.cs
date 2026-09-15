@@ -34,6 +34,11 @@ public sealed record GameSaveSlotJsonDocument
     public required bool IconCancelEnabled { get; init; }
     public required ushort CartridgeDebugFlag { get; init; }
     public required ushort NewFileMarker { get; init; }
+    /// <summary>
+    /// Native $7E:D914 dispatcher word. Older JSON saves omitted this translated field and
+    /// therefore retain the ordinary state-five default.
+    /// </summary>
+    public ushort LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
 }
 
 public sealed record SaveCheckpointJsonDocument(

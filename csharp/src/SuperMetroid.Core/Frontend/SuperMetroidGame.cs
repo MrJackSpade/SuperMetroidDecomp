@@ -47,6 +47,7 @@ public sealed partial class SuperMetroidGame
     }
     private int selectedSaveSlot;
     private bool loadingExistingSave;
+    private SuperMetroidSaveSlot? spacetimeIntroRestartSlot;
     private int postCeresLoadFramesRemaining = -1;
     private byte postCeresFadeBrightness;
     private int postCeresFadeCounter = 1;
@@ -267,6 +268,7 @@ public sealed partial class SuperMetroidGame
                 fileSelect = null;
                 fileSelectMap = null;
                 gameOver = null;
+                spacetimeIntroRestartSlot = null;
                 GameState = SuperMetroidGameState.OpeningCinematic;
                 PublishMenu(title);
                 break;
@@ -337,9 +339,40 @@ public sealed partial class SuperMetroidGame
                 {
                     if (loadingExistingSave)
                     {
-                        fileSelectMap = null;
-                        GameState = SuperMetroidGameState.FileSelectMap;
-                        PublishBlack();
+                        SuperMetroidSaveSlot selectedSlot = saveRam.ReadSlot(selectedSaveSlot)
+                            ?? throw new InvalidDataException(
+                                "The selected save became invalid before startup dispatch.");
+                        if (selectedSlot.LoadingGameState ==
+                            SaveLoadingGameStates.OpeningCinematic)
+                        {
+                            // $82:EEB4 dispatches the zero word written by SpaceTime Beam
+                            // to the intro while the already-loaded Samus inventory remains
+                            // live. Retain that inventory for Ceres setup, but do not restore
+                            // the corrupted progression planes into the fresh run.
+                            spacetimeIntroRestartSlot = selectedSlot;
+                            if (gameOptions.SkipOpeningCinematic)
+                            {
+                                intro = null;
+                                GameState = SuperMetroidGameState.SetUpNewGame;
+                                PublishBlack();
+                            }
+                            else
+                            {
+                                intro = new IntroCinematicState(bus, audio)
+                                {
+                                    ProjectileCompositions = projectileCompositions,
+                                    TrailArtwork = trailArtwork,
+                                };
+                                GameState = SuperMetroidGameState.IntroCinematic;
+                                PublishIntro(intro);
+                            }
+                        }
+                        else
+                        {
+                            fileSelectMap = null;
+                            GameState = SuperMetroidGameState.FileSelectMap;
+                            PublishBlack();
+                        }
                     }
                     else if (gameOptions.SkipOpeningCinematic)
                     {
@@ -1292,6 +1325,52 @@ public sealed partial class SuperMetroidGame
         runtime.MoonwalkEnabled = options?.MoonwalkEnabled ?? false;
         runtime.IconCancelEnabled = options?.IconCancelEnabled ?? false;
 
+        if (spacetimeIntroRestartSlot is { } restartSlot)
+        {
+            // The cart loaded the old inventory before $82:EEB4 selected the intro. Ceres
+            // setup then starts from fresh progression while retaining equipment and other
+            // resources. The flashback specifically replaces and then clears Missiles.
+            runtime.InitializeHud(new HudSnapshot(
+                Health: restartSlot.Health,
+                MaxHealth: restartSlot.MaxHealth,
+                Missiles: 0,
+                MaxMissiles: 0,
+                SuperMissiles: restartSlot.SuperMissiles,
+                MaxSuperMissiles: restartSlot.MaxSuperMissiles,
+                PowerBombs: restartSlot.PowerBombs,
+                MaxPowerBombs: restartSlot.MaxPowerBombs,
+                EquippedItems: restartSlot.EquippedItems,
+                SelectedItem: 0,
+                ReserveHealth: restartSlot.ReserveEnergy,
+                ReserveMode: restartSlot.ReserveMode));
+            runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+            runtime.InitializeStartingCeresRoom();
+            runtime.InitializeCeresStartSamus();
+            SamusState restartedSamus = runtime.Samus
+                ?? throw new InvalidOperationException(
+                    "SpaceTime restart did not create the Ceres Samus state.");
+            RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
+            restartedSamus.SelectedHudItem = 0;
+            restartedSamus.AutoCancelHudItemIndex = 0;
+            runtime.System.LoadSavedLoadingGameState(
+                SaveLoadingGameStates.CeresElevatorArrival);
+            saveRam.SaveSlot(
+                selectedSaveSlot,
+                SuperMetroidSaveSnapshot.Capture(
+                    restartedSamus,
+                    runtime.System,
+                    area: (ushort)AreaId.Ceres,
+                    saveStation: 0,
+                    gameTime: runtime.GameTime,
+                    controllerBindings: runtime.ControllerBindings,
+                    moonwalkEnabled: runtime.MoonwalkEnabled,
+                    iconCancelEnabled: runtime.IconCancelEnabled));
+            SaveRamChanged?.Invoke();
+            spacetimeIntroRestartSlot = null;
+            loadingExistingSave = false;
+            return true;
+        }
+
         if (loadingExistingSave)
         {
             SuperMetroidSaveSlot slot = saveRam.ReadSlot(selectedSaveSlot)
@@ -1392,6 +1471,24 @@ public sealed partial class SuperMetroidGame
                 iconCancelEnabled: runtime.IconCancelEnabled));
         SaveRamChanged?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// Applies the inventory that remains live across a SpaceTime-triggered intro. Native
+    /// $8B:A395 temporarily replaces both missile words for the Mother Brain flashback and
+    /// $8B:B76C clears them afterward; no equivalent stores touch Super Missiles or Power
+    /// Bombs. The frontend cinematic uses isolated actor state, so its gameplay consequence
+    /// is made explicit at the shared Ceres handoff.
+    /// </summary>
+    internal static void RestoreSpacetimeRestartInventory(
+        SamusState samus,
+        SuperMetroidSaveSlot slot)
+    {
+        ArgumentNullException.ThrowIfNull(samus);
+        ArgumentNullException.ThrowIfNull(slot);
+        slot.ApplyTo(samus);
+        samus.Missiles = 0;
+        samus.MaxMissiles = 0;
     }
 
     /// <summary>

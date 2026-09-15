@@ -93,6 +93,7 @@ public enum SamusProjectilePreInstruction : byte
     PlasmaCombo,
     SpazerComboFalling,
     ShinesparkEcho,
+    SpacetimePaletteCopyTail,
     ChainsawWindowStoreThenPowerBomb,
     ChargedChainsawLowWramExecution,
 }
@@ -150,7 +151,8 @@ public readonly record struct SamusProjectileFrameResult(
     bool CollisionStartedExplosion,
     bool ProjectileDeleted,
     IReadOnlyList<SamusSoundRequest>? AdditionalSoundRequests = null,
-    bool QueuedSoundSuppressed = false);
+    bool QueuedSoundSuppressed = false,
+    bool PersistentMemoryCorrupted = false);
 
 /// <summary>
 /// Immutable producer-phase evidence captured before the new projectile's first movement.

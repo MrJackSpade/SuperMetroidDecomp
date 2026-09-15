@@ -137,6 +137,7 @@ public static class GameSaveJsonCodec
         IconCancelEnabled = slot.IconCancelEnabled,
         CartridgeDebugFlag = slot.DebugFlag,
         NewFileMarker = slot.NewFileMarker,
+        LoadingGameState = slot.LoadingGameState,
         Progression = new SaveProgressionJsonDocument
         {
             Events = CaptureEvents(slot.EventBytes),
@@ -169,6 +170,7 @@ public static class GameSaveJsonCodec
             IconCancelEnabled = slot.IconCancelEnabled,
             DebugFlag = slot.CartridgeDebugFlag,
             NewFileMarker = slot.NewFileMarker,
+            LoadingGameState = slot.LoadingGameState,
             EquippedItems = (ushort)slot.Inventory.EquippedItems,
             CollectedItems = (ushort)slot.Inventory.CollectedItems,
             EquippedBeams = (ushort)slot.Inventory.EquippedBeams,

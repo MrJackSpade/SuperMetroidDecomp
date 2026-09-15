@@ -84,6 +84,8 @@ public sealed class SuperMetroidSaveRam
             ExploredMapBytes: UnpackExploredMap(ReadSramBytes(
                 slotOffset + SaveRamLayout.CompressedMapDataOffset,
                 SaveRamLayout.CompressedMapDataByteCount)),
+            LoadingGameState: ReadSramWord(
+                slotOffset + SaveRamLayout.LoadingGameStateOffset),
             SaveStation: ReadSramWord(slotOffset + SaveRamLayout.SaveStationOffset),
             Area: ReadSramWord(slotOffset + SaveRamLayout.AreaOffset))
         {
@@ -212,6 +214,7 @@ public sealed class SuperMetroidSaveRam
         if (snapshot.MapStationBytes.Length != Bank80SystemState.MapStationByteCount)
             throw new InvalidDataException("A save snapshot requires exactly 12 map-station bytes.");
         snapshot.MapStationBytes.CopyTo(payload, SaveRamLayout.MapStationsOffset);
+        WriteWord(payload, SaveRamLayout.LoadingGameStateOffset, snapshot.LoadingGameState);
         WriteWord(payload, SaveRamLayout.SaveStationOffset, snapshot.SaveStation);
         WriteWord(payload, SaveRamLayout.AreaOffset, snapshot.Area);
         byte[] compressedMap = PackExploredMap(snapshot.ExploredMapBytes);
@@ -441,6 +444,7 @@ public sealed record SuperMetroidSaveSlot(
     byte[] UsedSaveStationBytes,
     byte[] MapStationBytes,
     byte[] ExploredMapBytes,
+    ushort LoadingGameState,
     ushort SaveStation,
     ushort Area)
 {
@@ -497,6 +501,7 @@ public sealed record SuperMetroidSaveSlot(
         UsedSaveStationBytes = UsedSaveStationBytes.ToArray(),
         MapStationBytes = MapStationBytes.ToArray(),
         ExploredMapBytes = ExploredMapBytes.ToArray(),
+        LoadingGameState = LoadingGameState,
     };
 
     /// <summary>Restores the subset already represented by the translated Samus owner.</summary>
@@ -534,6 +539,7 @@ public sealed record SuperMetroidSaveSlot(
         system.LoadUsedSaveStationBytes(UsedSaveStationBytes);
         system.LoadMapStationBytes(MapStationBytes);
         system.LoadExploredMapBytes(ExploredMapBytes);
+        system.LoadSavedLoadingGameState(LoadingGameState);
     }
 }
 
@@ -567,6 +573,8 @@ public sealed record SuperMetroidSaveSnapshot
     public ushort GameTimeSeconds { get; init; }
     public ushort GameTimeMinutes { get; init; }
     public ushort GameTimeHours { get; init; }
+    /// <summary>Saved dispatcher word at WRAM <c>$7E:D914</c>.</summary>
+    public ushort LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
     public ushort SaveStation { get; init; }
     public ushort Area { get; init; }
     public byte[] EventBytes { get; init; } = new byte[Bank80SystemState.EventByteCount];
@@ -656,6 +664,7 @@ public sealed record SuperMetroidSaveSnapshot
             GameTimeSeconds = gameTime?.Seconds ?? 0,
             GameTimeMinutes = gameTime?.Minutes ?? 0,
             GameTimeHours = gameTime?.Hours ?? 0,
+            LoadingGameState = system.SavedLoadingGameState,
             SaveStation = saveStation,
             Area = area,
             EventBytes = events,

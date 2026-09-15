@@ -320,6 +320,8 @@ public sealed partial class SamusProjectileSystem
                 SamusBeamPreInstructionCodes.NoWave => SamusProjectilePreInstruction.NoWaveBeam,
                 SamusBeamPreInstructionCodes.WaveThreeFrameTrail => SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
                 SamusBeamPreInstructionCodes.WaveFourFrameTrail => SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
+                SamusBeamPreInstructionCodes.SpacetimePaletteCopyTail =>
+                    SamusProjectilePreInstruction.SpacetimePaletteCopyTail,
                 SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb =>
                     SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb,
                 SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution =>

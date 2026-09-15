@@ -1948,7 +1948,12 @@ public sealed partial class SuperMetroidRuntime
                     // `$90:DD31` then dispatches the humanoid HUD producer before the same
                     // HandleProjectile pass. Passing the live layer-1 position also gives
                     // `$90:B16A` its exact off-screen deletion window.
-                    Projectiles.StepFrame(
+                    // Bank-$80's typed progression owners and the cartridge's live SRAM
+                    // mirror are normally equivalent. Publish them before bank-$90 alpha
+                    // so malformed callback-table entries can perform their literal WRAM
+                    // writes, then reclaim ownership only when such a write occurred.
+                    System.WritePersistentMirror(_addressSpace);
+                    SamusProjectileFrameResult projectileFrame = Projectiles.StepFrame(
                         _addressSpace,
                         LevelData,
                         Samus,
@@ -1963,6 +1968,8 @@ public sealed partial class SuperMetroidRuntime
                         roomPlms: Plms,
                         controllerPreviousNewInput: Samus.PreviousDrawNewInput,
                         producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
+                    if (projectileFrame.PersistentMemoryCorrupted)
+                        System.LoadPersistentMirror(_addressSpace);
 
                     if (!TimeIsFrozen)
                         BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);

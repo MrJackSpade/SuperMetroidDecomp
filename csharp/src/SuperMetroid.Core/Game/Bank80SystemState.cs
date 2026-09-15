@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -90,6 +92,12 @@ public sealed class Bank80SystemState
     private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
+    /// Saved frontend dispatcher word at $7E:D914. Ordinary gameplay persists state five;
+    /// SpaceTime Beam can overwrite this independently of Samus equipment and checkpoint.
+    /// </summary>
+    public ushort SavedLoadingGameState { get; private set; } = SaveLoadingGameStates.MainGame;
+
+    /// <summary>
     /// Creates the bank-$80 state using the game's power-on RNG seed, <c>$0061</c>.
     /// </summary>
     public Bank80SystemState()
@@ -104,6 +112,61 @@ public sealed class Bank80SystemState
     public Bank80SystemState(ushort randomNumberSeed)
     {
         RandomNumber = randomNumberSeed;
+    }
+
+    /// <summary>Restores the raw cartridge word loaded from one checksummed save slot.</summary>
+    public void LoadSavedLoadingGameState(ushort value) => SavedLoadingGameState = value;
+
+    /// <summary>
+    /// Publishes the translated progression owners into their literal live-SRAM mirror.
+    /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
+    /// Untranslated padding bytes are deliberately left untouched.
+    /// </summary>
+    public void WritePersistentMirror(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        WriteBytes(bus, SaveRamLayout.EventsWramAddress, _events);
+        WriteBytes(bus, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
+        WriteBytes(bus, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
+        WriteBytes(bus, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
+        WriteBytes(bus, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
+        WriteBytes(bus, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
+        WriteBytes(bus, SaveRamLayout.MapStationsWramAddress, _mapStations);
+        bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress,
+            unchecked((byte)SavedLoadingGameState));
+        bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress + 1,
+            unchecked((byte)(SavedLoadingGameState >> 8)));
+    }
+
+    /// <summary>
+    /// Reclaims the translated owners after native-compatible WRAM corruption. This is a
+    /// raw load, not bitwise gameplay API use: every cartridge-written bit must survive.
+    /// </summary>
+    public void LoadPersistentMirror(ISnesAddressSpace bus)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ReadBytes(bus, SaveRamLayout.EventsWramAddress, _events);
+        ReadBytes(bus, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
+        ReadBytes(bus, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
+        ReadBytes(bus, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
+        ReadBytes(bus, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
+        ReadBytes(bus, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
+        ReadBytes(bus, SaveRamLayout.MapStationsWramAddress, _mapStations);
+        SavedLoadingGameState = unchecked((ushort)(
+            bus.ReadByte(SaveRamLayout.LoadingGameStateWramAddress) |
+            bus.ReadByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));
+    }
+
+    private static void WriteBytes(ISnesAddressSpace bus, int address, ReadOnlySpan<byte> bytes)
+    {
+        for (int index = 0; index < bytes.Length; index++)
+            bus.WriteByte(address + index, bytes[index]);
+    }
+
+    private static void ReadBytes(ISnesAddressSpace bus, int address, Span<byte> bytes)
+    {
+        for (int index = 0; index < bytes.Length; index++)
+            bytes[index] = bus.ReadByte(address + index);
     }
 
     /// <summary>

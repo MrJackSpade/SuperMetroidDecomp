@@ -43,6 +43,31 @@ internal static partial class Program
         AssertEqual((byte)0x00, projectiles.ChainsawWindowRegisters.ReadByte(
             GameplayWindowRegisterAddresses.Window34Selection), "first callback stores inherited Y high byte");
 
+        // PowerBomb_Func3 clears the inactive shot, but the native callback still falls
+        // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner
+        // makes that otherwise invisible call fail loudly through the production path.
+        ushort[] reactiveWords = new ushort[256];
+        reactiveWords[0] = (ushort)((int)RoomCollisionType.BombableBlock << 12);
+        var reactiveLevel = new RoomLevelData(16, 16, reactiveWords, new byte[256],
+            new ushort[256], new byte[8]);
+        var reactiveSamus = new SamusState
+        {
+            Pose = 1,
+            XPosition = 128,
+            YPosition = 128,
+            EquippedBeams = 0x000d,
+            SelectedHudItem = 0,
+        };
+        AssertThrows<InvalidOperationException>(() => new SamusProjectileSystem().StepFrame(
+            bus,
+            reactiveLevel,
+            reactiveSamus,
+            (ushort)SnesButton.X,
+            (ushort)SnesButton.X,
+            0,
+            0,
+            new SamusBombProjectileSystem()), "cleared Chainsaw still reaches Power Bomb boundary reactions");
+
         var activeShared = new SamusBombProjectileSystem();
         activeShared.PowerBombExplosion.Arm();
         var activeProjectiles = new SamusProjectileSystem();

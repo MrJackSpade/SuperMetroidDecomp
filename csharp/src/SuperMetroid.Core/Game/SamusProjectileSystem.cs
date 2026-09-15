@@ -556,7 +556,12 @@ public sealed partial class SamusProjectileSystem
             }
             else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
             {
-                RunChainsawWindowStoreThenPowerBombPreInstruction(slot, sharedProjectiles);
+                RunChainsawWindowStoreThenPowerBombPreInstruction(
+                    level,
+                    samus,
+                    slot,
+                    sharedProjectiles,
+                    roomPlms);
                 projectileDeleted |= !slot.IsActive;
             }
 

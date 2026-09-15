@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -34,8 +35,11 @@ public sealed partial class SamusProjectileSystem
     /// previous consumed record without inventing a persistent CPU register owner.
     /// </summary>
     private void RunChainsawWindowStoreThenPowerBombPreInstruction(
+        RoomLevelData level,
+        SamusState samus,
         SamusProjectileSlot slot,
-        SamusBombProjectileSystem sharedProjectiles)
+        SamusBombProjectileSystem sharedProjectiles,
+        RoomPlmSystem? roomPlms)
     {
         ushort inheritedY = slot.SpritemapPointer == 0
             ? unchecked((ushort)(slot.PackedType.BeamCombinationIndex *
@@ -58,5 +62,21 @@ public sealed partial class SamusProjectileSystem
             sharedProjectiles.PowerBombExplosion.Spawn(slot.XPosition, slot.YPosition);
         if (fuse.DeleteProjectile)
             ClearProjectile(slot);
+
+        // `$90:B0AE` always falls through from PowerBomb_Func3 to `$94:9CAC`, even
+        // when the zero-timer/no-flag branch just cleared the projectile. The latter
+        // case consequently dispatches with the cleared type word, while both paths
+        // use the global Power Bomb centre/radius rather than the Chainsaw's position.
+        // Preserve the inclusive edge traversal and its synchronous PLM mutations.
+        var reactions = new List<BombBlockReaction>();
+        SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
+            level,
+            sharedProjectiles.PowerBombExplosion.XPosition,
+            sharedProjectiles.PowerBombExplosion.YPosition,
+            sharedProjectiles.PowerBombExplosion.ExplosionRadius,
+            reactions,
+            roomPlms,
+            samus.LiquidPhysics.AreaIndex,
+            slot.Type);
     }
 }

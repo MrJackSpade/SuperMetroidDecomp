@@ -568,6 +568,8 @@ if (args.Length == 3 && args[0] == "--draygon-crystal-counter-audit")
     return DraygonCrystalCounterAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--draygon-crystal-edges-audit")
     return DraygonCrystalEdgesAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--draygon-crystal-refill-audit")
+    return DraygonCrystalRefillAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--draygon-crystal-runtime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")

@@ -1,8 +1,9 @@
 # Draygon / Crystal Flash counter and ownership investigation (#431)
 
-Status: admission/ownership and shared-counter defects reproduced and corrected.
-Both audits below now pass. This is partial #431 coverage, not completed
-technique parity or player validation; remaining requirements are listed below.
+Status: scoped cartridge comparisons pass; ready for player validation, not closed.
+Admission/ownership, shared-counter coupling and retained-spark defects were
+reproduced and corrected. The matrices below cover the remaining input boundaries
+and ten-capacity refill prerequisite without a multi-room controller route.
 
 ## Native evidence
 
@@ -119,5 +120,44 @@ cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" edges > 
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-edges-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/edges.csv
 ```
 
-Remaining #431 requirements include the ten-capacity Power Bomb/refill setup. Keep the issue open and
-without `awaiting-player-validation` until these are handled.
+## Ten-capacity Power Bomb/refill prerequisite
+
+`refill.csv` contains 80 intermediate inventory/admission comparisons across
+sixteen cases (both facings, eight setups). Native executes real placement
+`$90:BF9D`, pickup collision `$86:EFE0`, and cleanup `$88:8B4E`; the port executes
+the corresponding production routines and advances its placed bomb through fuse,
+explosion and cleanup. No ammunition is injected after initialization.
+LF-normalized SHA-256:
+`4A6BCFCBB8FE018A61139A83A2E93BD78ACA02D3207ADA66B510FB8C54D3834C`.
+
+Initial position is (256.0000, 400.0000), stationary Morph Ball, Morph Ball
+equipment only, no beams, 49/99 health, no reserve energy, ten missiles/supers,
+and selected Power Bomb. Cheats are not enabled. An existing PB pickup is
+prepared at the same position (or 100 pixels away for the missed-drop control),
+with radius 5 and lifetime 400; no RNG or death/drop generation is asserted.
+Shoot places the bomb, then Draygon's actual grab entry runs and the exact
+Down/L/R/Shoot chord is held through cleanup. The grab does not alter coordinates.
+
+- Ten capacity, no drop: placement leaves nine; Flash rejected.
+- Drop before placement: refill caps at ten, then placement leaves nine; rejected.
+- Drop after placement: nine becomes ten; Flash starts while grabbed.
+- Distant drop: collision misses, leaving nine; rejected.
+- Nine capacity: placement leaves eight, refill caps at nine; rejected.
+- Eleven capacity without a drop: placement leaves ten; successful control.
+- Ten with refill but extra Jump held: rejected.
+- Ten with refill but one-pixel displacement from bomb origin: rejected.
+
+All five recorded stages match ammunition and pose/admission in every case.
+This is an inventory/admission comparison, not a native explosion-duration or
+rendering comparison: native invokes cleanup at the corresponding boundary,
+whereas C# advances the actual bomb to it. Boss flight and random drop generation
+are deliberately outside this isolated prerequisite fixture. The earlier runtime
+matrix covers post-admission movement, release and usable retained spark.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" refill > csharp\test-temp\draygon-crystal-refill.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --draygon-crystal-refill-audit "Super Metroid.smc" csharp/test-fixtures/issue-431-draygon-crystal/refill.csv
+```
+
+These results apply to the pinned Japan/USA cartridge, not a PAL parity claim.
+Keep #431 open with `awaiting-player-validation` until player confirmation.

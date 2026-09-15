@@ -172,4 +172,10 @@ See [BEAM.md](BEAM.md): all 1,404 native state frames, 204 beam-palette
 snapshots and four actual projectile OAM streams match the port. No production
 fix was required. The sprite attributes select the Flash-overwritten palette.
 
-Remaining: save/reload cancellation. Keep #430 in progress.
+## Ordinary save/reload cancellation
+
+See [SAVE.md](SAVE.md): writing the save preserves retention, while ordinary
+reload initialization cancels it. All 1,404 native movement frames and four
+save/reload boundaries match. No production fix was required.
+
+The scoped #430 checks are complete and ready for player confirmation.

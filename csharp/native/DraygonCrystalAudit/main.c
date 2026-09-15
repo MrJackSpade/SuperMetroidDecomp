@@ -1,6 +1,7 @@
 /* #431: original-CPU Crystal Flash beta / Draygon gamma shared-counter probe.
    Isolates owner entry and active handlers, not boss movement, drops or rendering. */
 #define CAPTURE_DMA_CHANNEL_REGISTERS
+#define CAPTURE_SAVE_RAM
 #include "../Common/CartridgeCpuFixture.h"
 #include "../Common/MovementEntryPoints.h"
 
@@ -18,6 +19,8 @@ enum {
   BeamCooldown = 0x90ac1c,
   OamLowTable = 0x370
 };
+/* Ordinary battery save/load and new-session Samus initialization. */
+enum { SaveSlotZero = 0x818000, LoadSlotZero = 0x818085, InitializeSamus = 0x91e00d };
 static void grab(int right) {
   Cpu *cpu = cpu_init(NULL, 0);
   cpu->pc = GrabEntry; cpu->k = cpu->db = GrabEntry >> 16;
@@ -42,7 +45,8 @@ int main(int argc, char **argv) {
   bool repeat = argc == 3 && strcmp(argv[2], "repeat") == 0;
   bool sand = argc == 3 && strcmp(argv[2], "sand") == 0;
   bool beam = argc == 3 && strcmp(argv[2], "beam") == 0;
-  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime || repeat || sand || beam);
+  bool save = argc == 3 && strcmp(argv[2], "save") == 0;
+  bool full = argc == 3 && (strcmp(argv[2], "runtime") == 0 || xray || recharge || lifetime || repeat || sand || beam || save);
   bool edges = argc == 3 && strcmp(argv[2], "edges") == 0;
   bool refill = argc == 3 && strcmp(argv[2], "refill") == 0;
   if (argc != 2 && !full && !edges && !refill) return 2;
@@ -53,11 +57,11 @@ int main(int argc, char **argv) {
   if (edges) { edge_matrix(); return 0; }
   if (refill) { refill_matrix(); return 0; }
   printf("order,right,mode,frame,input,pose,y,handler,gamma,counter,previous,index,health,missiles,supers,pbs,shine,palette%s%s\n",
-    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : sand ? ",boost,extra_y,extra_ysub" : beam ? ",beam_palette,beam_oam" : "");
+    full ? ",x,xsub,ysub,yspeed,ysubspeed,ydir,anim,animtimer,inputhandler" : "", lifetime ? ",body,zero_timer_body" : sand ? ",boost,extra_y,extra_ysub" : beam ? ",beam_palette,beam_oam" : save ? ",saved_timer,saved_palette,reloaded_timer,reloaded_palette" : "");
   for (int order = 0; order < 2; order++)
   for (int right = 0; right < 2; right++)
   for (int mode = 0; mode < (sand ? 8 : 4); mode++) {
-    if ((xray || lifetime || repeat || beam) && mode != 2 || recharge && mode < 2) continue;
+    if ((xray || lifetime || repeat || beam || save) && mode != 2 || recharge && mode < 2) continue;
     memset(g_ram, 0, sizeof(g_ram));
     memset(dma_channel_registers, 0, sizeof(dma_channel_registers));
     samus_pose = samus_prev_pose = right ? 1 : 2;
@@ -88,8 +92,8 @@ int main(int argc, char **argv) {
     run(FlashEntry);
     if (samus_movement_handler != FlashRaising) Die("Flash admission failed");
     uint16 previous = 0x470;
-    for (int frame = 0; frame < (sand || beam ? 351 : repeat ? 800 : lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
-      if (xray || recharge || lifetime || repeat || sand || beam) run(HdmaPhase);
+    for (int frame = 0; frame < (sand || beam || save ? 351 : repeat ? 800 : lifetime ? 1000 : recharge ? 700 : xray ? 351 : full ? 430 : 120); frame++) {
+      if (xray || recharge || lifetime || repeat || sand || beam || save) run(HdmaPhase);
       if (order == 1 && frame == 12) grab(right);
       uint16 input = input_at(frame, recharge || sand ? 2 : mode);
       if (full && frame >= 300) input = frame < 360 ? 0 : frame == 360 ? 0x80 : 0x880;
@@ -97,6 +101,7 @@ int main(int argc, char **argv) {
       if (repeat && frame >= 300) input = 0;
       if (sand && frame >= 300) input = 0;
       if (beam && frame >= 300) input = 0;
+      if (save && frame >= 300) input = 0;
       if (recharge && frame >= 300) {
         int crouch = mode == 2 ? 490 : 390;
         input = frame < 350 ? 0 : frame < crouch ? 0x8000 | (right ? 0x100 : 0x200) : frame == crouch ? 0x410 : 0;
@@ -185,6 +190,24 @@ int main(int argc, char **argv) {
             Die("Retained Flash beam must emit actual projectile OAM");
           }
           for (int i = 0; i < oam_next_ptr; i++) printf("%02X",g_ram[OamLowTable + i]);
+        }
+      }
+      if (save) {
+        if (frame != 350) printf(",-,-,-,-");
+        else {
+          memset(fixture_sram, 0, sizeof(fixture_sram));
+          run(SaveSlotZero);
+          if (samus_shine_timer != 5 || timer_for_shine_timer != 7)
+            Die("Writing an ordinary save must not cancel retained Flash");
+          printf(",%04X,%04X",samus_shine_timer,timer_for_shine_timer);
+          uint16 saved_health = samus_health;
+          samus_health = 0;
+          run(LoadSlotZero);
+          if (samus_health != saved_health) Die("Native SRAM load failed to restore saved health");
+          run(InitializeSamus);
+          if (samus_shine_timer || timer_for_shine_timer)
+            Die("Ordinary reload initialization must cancel retained Flash");
+          printf(",%04X,%04X",samus_shine_timer,timer_for_shine_timer);
         }
       }
       if (lifetime) {

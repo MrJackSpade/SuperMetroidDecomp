@@ -13,6 +13,10 @@ uint8 g_ram[0x20000];
 static uint8 rom[0x300000];
 static bool returned;
 static unsigned multiplicand, dividend, quotient, remainder;
+#ifdef CAPTURE_SAVE_RAM
+/* Disposable LoROM battery RAM for native save/load diagnostic entry points. */
+static uint8 fixture_sram[0x2000];
+#endif
 #ifdef CAPTURE_DMA_CHANNEL_REGISTERS
 /* Some movement handlers allocate HDMA objects. Store their channel registers
    faithfully without claiming to execute DMA or render the resulting window. */
@@ -25,6 +29,10 @@ bool HookedFunctionRts(int is_long) { (void)is_long; returned = true; return tru
 uint8 snes_cpuRead(Snes *snes, uint32 address) {
   (void)snes;
   unsigned bank = address >> 16, offset = address & 0xffff;
+#ifdef CAPTURE_SAVE_RAM
+  if ((bank & 0x7f) >= 0x70 && (bank & 0x7f) <= 0x7d && offset < 0x8000)
+    return fixture_sram[offset & 0x1fff];
+#endif
   if (bank == 0x7e || bank == 0x7f) return g_ram[address - 0x7e0000];
   if ((bank & 0x7f) < 0x40) {
     if (offset < 0x2000) return g_ram[offset];
@@ -44,6 +52,11 @@ uint8 snes_cpuRead(Snes *snes, uint32 address) {
 void snes_cpuWrite(Snes *snes, uint32 address, uint8 value) {
   (void)snes;
   unsigned bank = address >> 16, offset = address & 0xffff;
+#ifdef CAPTURE_SAVE_RAM
+  if ((bank & 0x7f) >= 0x70 && (bank & 0x7f) <= 0x7d && offset < 0x8000) {
+    fixture_sram[offset & 0x1fff] = value; return;
+  }
+#endif
   if (bank == 0x7e || bank == 0x7f) { g_ram[address - 0x7e0000] = value; return; }
   if ((bank & 0x7f) < 0x40) {
     if (offset < 0x2000) { g_ram[offset] = value; return; }

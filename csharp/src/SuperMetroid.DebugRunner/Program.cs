@@ -540,6 +540,8 @@ if (args.Length == 2 && args[0] == "--running-release-audit")
     return RunningReleaseAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--moat-movie-probe")
     return MoatMovieProbe.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--moat-movie-transition-probe")
+    return MoatMovieTransitionProbe.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--draygon-blue-suit-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.DraygonDeath);
 if (args.Length == 3 && args[0] == "--draygon-grab-blue-suit-audit")

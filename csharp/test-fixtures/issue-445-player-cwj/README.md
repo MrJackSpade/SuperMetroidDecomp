@@ -10,16 +10,31 @@ our unmodified Japan/USA ROM. Its `--rip` entry point uses the actual GUI movie
 playback and sync settings. Composite verification used `RIP_PLAIN=1`, not
 layer-keyed rendering. No screenshots are published with this fixture.
 
-## Regression boundary
+## Regression boundaries
 
-The room-local test starts at native checkpoint 270, after the door handoff,
-with captured position/subpixels, equipment, animation, pose history, speed,
-collision tiles/BTS, and collected-item flags. It uses the real runtime movement
-path without cheats or manually inflated speed. This does **not** validate the
-earlier door transition or import every subsystem in the full-machine snapshot.
-PAL is not covered by this Japan/USA recording.
+The transition test starts at native checkpoint 102, the final source-room frame
+before the type-$9 door collision. It consumes the recorded input through the real
+horizontal collision dispatcher, requires the cartridge's $83:8A36 Moat door,
+runs the production room-transition coroutine, and compares its destination
+handoff at native checkpoint 265 plus the next four controlled frames. Exact
+position/subpixels, pose, base and extra run speed, camera, room, and door must
+match. Snes9x's native APU queue state is not imported, so the test deliberately
+does not claim equality for the transition's sound-wait duration.
+
+The room-local test starts at native checkpoint 270, after that handoff, with
+captured position/subpixels, equipment, animation, pose history, speed, collision
+tiles/BTS, and collected-item flags. It uses the real runtime movement path without
+cheats or manually inflated speed.
+
+PAL is not covered: this project deliberately accepts only the supported unheadered
+Japan/USA cartridge revision, and the supplied movie targets that revision. The
+wiki's PAL-specific setup therefore remains documented rather than modeled as a
+second unsupported cartridge.
 
 `native.csv` contains native **pre-frame** checkpoints 270 through 531.
+`native-transition.csv` contains the corresponding source-room/door checkpoints
+100 through 269. The cartridge enters state $0A at 103, remains in state $0B from
+104 through 264, and returns control in the Moat at 265.
 The runtime step following checkpoint N consumes input sample N. Using N+1
 presses Jump a frame early. At 344 the walljump-ready animation is frame 11;
 at 345 Samus enters pose $83 at X=$00FA.0000/Y=$009A.2C00 and retains extra
@@ -33,6 +48,9 @@ It additionally requires the successful walljump and final grounded wall pose.
 ```powershell
 dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
   --moat-movie-probe 'Super Metroid.smc' csharp/test-fixtures/issue-445-player-cwj
+
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --moat-movie-transition-probe 'Super Metroid.smc' csharp/test-fixtures/issue-445-player-cwj
 ```
 
 ## Rebuilding native evidence
@@ -51,12 +69,13 @@ affect the checkpoint. Each checkpoint is a fresh playback from the embedded
 state. Preserve the original `cwj.smv` in the capture directory.
 
 `export-checkpoints.ps1 -CaptureDirectory <capture>` reads each gzip snapshot's
-RAM block and creates the checked-in checkpoint/input files. Expected positions
-are never derived from port output. Format references are Snes9x 1.43
+RAM block and creates the checked-in checkpoint/input files. The ignored
+`frame-102.wram` and `frame-270.wram` provide the two private seeds. Expected
+positions are never derived from port output. Format references are Snes9x 1.43
 `snapshot.cpp` (`S9xFreezeToStream`/`FreezeBlockF`) and `movie.cpp`.
 
-The repository is public. The original movie and extracted `frame-270.wram`
-are deliberately ignored local fixtures, not checked-in artifacts. Do not
+The repository is public. The original movie and extracted `frame-102.wram` /
+`frame-270.wram` are deliberately ignored local fixtures, not checked-in artifacts. Do not
 publish them or native screenshots. Running the test requires those two local
 files; the hashes below identify them. Only the diagnostic source, controller
 inputs, and numeric movement expectations are tracked.
@@ -65,9 +84,12 @@ Pinned SHA-256 identities:
 
 - ROM: `12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72`
 - Movie: `90CDD95DC88845972FEA9CFDBF636D6443C6A825FA9FE0A52A9F2E8648681D39`
+- Frame-102 WRAM: `50F49FAAF602843328275D695EBCD958BD040A62044B497433D8802C74F4A0BE`
 - Frame-270 WRAM: `2F0F8D3F4C8BB7BD73C728C1E3F81F76663B35DCB5FFCC7C52ED035D74279DFA`
 
-Result: all 262 checkpoints match the current port. No gameplay fix was made.
+Result: the source collision, production door handoff, first five destination
+gameplay checkpoints, and all 262 room-local checkpoints match the current port.
+No gameplay fix was made.
 The first setup accidentally consumed input N+1 and omitted collected-item
 flags; that fixture triggered a different jump and then the missile message.
 Correcting the fixture, not movement code, restored the native trajectory.

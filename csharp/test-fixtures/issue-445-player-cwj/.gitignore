@@ -1,5 +1,6 @@
 # Player-supplied native snapshots contain emulated game memory, not just inputs.
 cwj.smv
+frame-102.wram
 frame-270.wram
 *.state
 *.png

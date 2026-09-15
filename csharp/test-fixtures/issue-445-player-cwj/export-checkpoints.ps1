@@ -41,6 +41,17 @@ for($frame=0;$frame -le 532;$frame++) {
 }
 $rows=[Collections.Generic.List[string]]::new()
 $rows.Add('frame,x,y,pose,base,extra,animation,timer,vertical,direction,acceleration')
+$transitionRows=[Collections.Generic.List[string]]::new()
+$transitionRows.Add('frame,gameState,room,door,x,y,pose,base,extra,cameraX,cameraY')
+foreach($frame in 100..269) {
+    $ram=Read-Wram (Join-Path $CaptureDirectory "state$frame/rip_rollback.state")
+    function Word([int]$address) { [BitConverter]::ToUInt16($ram,$address) }
+    $transitionRows.Add(('{0},{1:X4},{2:X4},{3:X4},{4:X4}{5:X4},{6:X4}{7:X4},{8:X2},{9:X4}{10:X4},{11:X4}{12:X4},{13:X4},{14:X4}' -f
+        $frame,(Word 0x0998),(Word 0x079b),(Word 0x078d),
+        (Word 0xaf6),(Word 0xaf8),(Word 0xafa),(Word 0xafc),(Word 0xa1c),
+        (Word 0xb46),(Word 0xb48),(Word 0xb42),(Word 0xb44),(Word 0x0911),(Word 0x0915)))
+    if($frame -eq 102) { [IO.File]::WriteAllBytes((Join-Path $Destination 'frame-102.wram'),$ram) }
+}
 foreach($frame in 270..531) {
     $ram=Read-Wram (Join-Path $CaptureDirectory "state$frame/rip_rollback.state")
     function Word([int]$address) { [BitConverter]::ToUInt16($ram,$address) }
@@ -54,5 +65,6 @@ foreach($frame in 270..531) {
 }
 [IO.File]::WriteAllLines((Join-Path $Destination 'inputs.csv'),$inputs)
 [IO.File]::WriteAllLines((Join-Path $Destination 'native.csv'),$rows)
+[IO.File]::WriteAllLines((Join-Path $Destination 'native-transition.csv'),$transitionRows)
 Copy-Item -LiteralPath (Join-Path $CaptureDirectory 'cwj.smv') -Destination (Join-Path $Destination 'cwj.smv')
-Write-Output 'Exported 262 native checkpoints and the original movie.'
+Write-Output 'Exported 170 transition checkpoints, 262 room-local checkpoints, and the original movie.'

@@ -1,60 +1,19 @@
-using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Rendering;
-using M = MoatMovieMemory;
 
 /// <summary>Diagnostic replay of the player's Snes9x CWJ, seeded after the incoming door handoff.</summary>
 internal static class MoatMovieProbe
 {
     public static int Run(string rom, string directory)
     {
-        if (Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
-                File.ReadAllBytes(Path.Combine(directory,"cwj.smv")))) !=
-            "90CDD95DC88845972FEA9CFDBF636D6443C6A825FA9FE0A52A9F2E8648681D39")
-            throw new InvalidDataException("Use the player-supplied CWJ movie, not a recaptured or retimed input sequence.");
-        var memory = File.ReadAllBytes(Path.Combine(directory,"frame-270.wram"));
-        if (memory.Length != SuperMetroidAddressSpace.WorkRamByteCount ||
-            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(memory)) !=
-            "2F0F8D3F4C8BB7BD73C728C1E3F81F76663B35DCB5FFCC7C52ED035D74279DFA")
-            throw new InvalidDataException("Expected complete Snes9x WRAM capture.");
-        ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));
+        byte[] memory = MoatMovieFixture.LoadCheckpoint(
+            directory,
+            "frame-270.wram",
+            "2F0F8D3F4C8BB7BD73C728C1E3F81F76663B35DCB5FFCC7C52ED035D74279DFA");
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
-        var runtime = new SuperMetroidRuntime(bus);
-        runtime.InitializeHud(HudSnapshot.CeresDebug);
-        runtime.InitializeStartingCeresRoom();
-        runtime.InitializeCeresStartSamus();
-        runtime.System.LoadCollectedItemBytes(memory.AsSpan(M.CollectedItemBits,Bank80SystemState.ItemBitByteCount));
-        runtime.LoadCartridgeRoomForDebug(W(M.Room), W(M.CameraX), W(M.CameraY));
-        // Use the captured collision population, including the already-open entrance.
-        for (int i=0;i<runtime.LevelData!.WidthInBlocks*runtime.LevelData.HeightInBlocks;i++)
-        {
-            runtime.LevelData.SetForegroundEntry(i,W(M.Level+i*sizeof(ushort)));
-            runtime.LevelData.SetBehavior(i,memory[M.Bts+i]);
-        }
-        var s=runtime.Samus!;
-        s.InputLocked=false;
-        s.EquippedItems=W(M.Items); s.EquippedBeams=W(M.Beams);
-        s.Health=W(M.Health); s.MaxHealth=W(M.MaxHealth);
-        s.Pose=(byte)W(M.Pose);
-        s.XPosition=W(M.X); s.YPosition=W(M.Y);
-        s.Kinematics.XSubposition=W(M.XFraction); s.Kinematics.YSubposition=W(M.YFraction);
-        s.RefreshCollisionRadii(bus); s.InitializeAnimation(bus);
-        s.SetAnimationFrameFromSpecialHandler(W(M.Animation),W(M.AnimationTimer));
-        s.PoseHistory.PreviousPose=W(M.PreviousPose);
-        s.PoseHistory.PreviousDirectionAndMovement=W(M.PreviousDirection);
-        s.PoseHistory.LastDifferentPose=W(M.LastDifferentPose);
-        s.PoseHistory.LastDifferentDirectionAndMovement=W(M.LastDifferentDirection);
-        s.HorizontalSpeed.BaseSpeed=W(M.BaseSpeed); s.HorizontalSpeed.BaseSubspeed=W(M.BaseFraction);
-        s.HorizontalSpeed.ExtraRunSpeed=W(M.ExtraSpeed); s.HorizontalSpeed.ExtraRunSubspeed=W(M.ExtraFraction);
-        s.HorizontalSpeed.AccelerationMode=W(M.AccelerationMode);
-        s.HorizontalSpeed.HasRunningMomentum=W(M.Momentum)!=0;
-        s.HorizontalSpeed.SpeedBoostCounter=W(M.BoostCounter);
-        s.Kinematics.YSpeed=W(M.VerticalSpeed); s.Kinematics.YSubspeed=W(M.VerticalFraction);
-        s.Kinematics.YDirection=W(M.VerticalDirection);
-        var inputs=File.ReadLines(Path.Combine(directory,"inputs.csv")).Skip(1)
-            .Select(l=>ushort.Parse(l.Split(',')[1],System.Globalization.NumberStyles.HexNumber)).ToArray();
+        var runtime = MoatMovieFixture.CreateRuntime(bus, memory);
+        SamusState s = runtime.Samus!;
+        ushort[] inputs = MoatMovieFixture.LoadInputs(directory);
         runtime.Controller1.Latch(inputs[269]);
         var expected=File.ReadAllLines(Path.Combine(directory,"native.csv")).Skip(1).ToArray();
         if (expected.Length != 262) throw new InvalidDataException("Expected movie frames 270 through 531.");

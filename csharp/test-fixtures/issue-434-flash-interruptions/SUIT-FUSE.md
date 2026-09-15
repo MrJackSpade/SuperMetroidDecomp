@@ -30,5 +30,19 @@ SUIT-BOMB.md. Native placement/update references are pinned `sm_90.c`.
 LF-normalized trace SHA-256:
 `9A8A9FECE1CA70060CAD0A12C18ADB7B4BACD1EBB3BFF68B013D71501FF01A2B`.
 
-Remaining #434 boundary: actual collectible PLM and message sequencing with
-cleanup/admission, instead of the direct post-message suit setup used here.
+The additional room-local integration audit loads the cartridge-authored Varia
+room at `$8F:A6E2`. It breaks the real Chozo-orb PLM, advances its instruction
+stream until the item is exposed, places both bomb types through the production
+projectile systems, and publishes contact at that visible item block. That one
+resolved-contact publication is the only synthetic seam: pickup, inventory,
+Power Bomb cleanup/Flash admission, the 387-frame bank-$85 message, the
+163-frame suit transformation, bomb collision, restored control, and spark
+launch all execute through production runtime ownership.
+
+Because the contact and message handoff consume two cartridge-ordered gameplay
+frames before suit setup, pre-pickup fuses 10 and 11 reach the native-proven
+timer-eight overlap and preserve a usable spark; adjacent fuses 8 and 9 do not.
+All four cases assert Varia acquisition, completed Flash movement, normal input
+return, retained/cleared palette and timer, and successful/absent vertical spark
+launch as appropriate. Run with DebugRunner
+`--flash-suit-collectible-audit "Super Metroid.smc"`.

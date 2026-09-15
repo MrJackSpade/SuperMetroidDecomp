@@ -39,7 +39,9 @@ are documented in [ELEVATOR-ENTRY.md](ELEVATOR-ENTRY.md).
 Actual bomb placement/fuse timing now matches 8,800 native frames, including
 adjacent failures; see [SUIT-FUSE.md](SUIT-FUSE.md).
 
-#434 remains in progress for collectible PLM/message sequencing. The elevator
-extension now uses real bomb placement/cleanup, early/late input-edge controls,
-and the retail handoff through restored control and spark use. Its exact
-native-versus-integration boundary is documented above.
+#434's elevator extension uses real bomb placement/cleanup, early/late
+input-edge controls, and the retail handoff through restored control and spark
+use. Its suit branch now also covers the actual Varia-room PLM, message,
+transformation, adjacent fuse outcomes, control restoration and spark launch.
+The exact native-versus-integration boundaries are documented above and in
+[SUIT-FUSE.md](SUIT-FUSE.md).

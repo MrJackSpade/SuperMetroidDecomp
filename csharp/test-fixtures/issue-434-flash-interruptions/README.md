@@ -30,5 +30,8 @@ Normalized LF UTF-8 trace SHA-256:
 Generate: `DraygonCrystalAudit/audit.exe "Super Metroid.smc" suit-entry`.
 Compare: DebugRunner `--flash-suit-scratch-audit "Super Metroid.smc" <suit-entry.csv>`.
 
-#434 remains in progress: the complete bomb-assisted pickup outcome and
-negative timing cases, plus downward-elevator interruption, are not yet proven.
+The next reproduced movement-owner defect and its 5,280-frame hit/control
+comparison are documented in [SUIT-BOMB.md](SUIT-BOMB.md).
+
+#434 remains in progress: actual pickup/fuse timing cases and downward-elevator
+interruption are not yet proven.

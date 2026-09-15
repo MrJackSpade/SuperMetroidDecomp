@@ -756,6 +756,11 @@ public sealed partial class SamusState
         // when the bomb arc restores normal movement and input.
         Shinespark.RelinquishMovementHandler();
         ShinesparkPoseInputLocked = false;
+        // The same pointer replacement applies when suit pickup suspended Flash.
+        // Its palette keeps running, but its raising/drain handler must never
+        // resume after the bomb arc returns control to normal movement.
+        CrystalFlash.RelinquishMovementHandler();
+        CrystalFlashPoseInputLocked = false;
         BombJumpDirection |= 0x0800;
         BombJumpStarting = true;
         BombJumpActive = false;

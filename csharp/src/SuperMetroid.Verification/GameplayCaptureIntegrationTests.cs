@@ -20,6 +20,34 @@ internal static partial class Program
             SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!)), "Ceres Mode-7 capture parity");
         runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
         runtime.RunNmi(0, true);
+
+        // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
+        // receives the high byte. Prove this is the runtime's shared cache rather than a
+        // projectile-private diagnostic copy, and that only an accepted NMI publishes it.
+        runtime.Projectiles.ChainsawWindowRegisters.WriteWord(
+            GameplayWindowRegisterAddresses.ObjectColorLogic,
+            0x0412);
+        runtime.RunNmi(0, mainLoopRequestedNmi: false);
+        OrdinaryGameplayRegisters laggedRegisters =
+            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
+                .Layers[0]).Registers;
+        AssertEqual((byte)0, laggedRegisters.Windows.ObjectColorLogic,
+            "lag NMI does not publish Chainsaw WOBJLOG store");
+        AssertEqual(
+            SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
+            laggedRegisters.MainScreenLayers,
+            "lag NMI retains preceding gameplay TM");
+        runtime.RunNmi(0, mainLoopRequestedNmi: true);
+        OrdinaryGameplayRegisters acceptedRegisters =
+            ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime)
+                .Layers[0]).Registers;
+        AssertEqual((byte)0x12, acceptedRegisters.Windows.ObjectColorLogic,
+            "accepted NMI publishes Chainsaw WOBJLOG store");
+        AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,
+            "accepted NMI publishes slot-four Chainsaw TM overwrite");
+        runtime.Projectiles.ChainsawWindowRegisters.InitializeWindowAndScreenSelection();
+        runtime.RunNmi(0, true);
+
         runtime.BombProjectiles.PowerBombExplosion.Arm();
         runtime.BombProjectiles.PowerBombExplosion.Spawn(128, 120);
         for (int i = 0; i < 50; i++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);

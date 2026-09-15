@@ -52,6 +52,7 @@ public sealed partial class SuperMetroidRuntime
         // cooldown $0CCC until the remaining weapon producers are consolidated.
         BombProjectiles = new SamusBombProjectileSystem();
         Projectiles = new SamusProjectileSystem();
+        BindGameplayWindowRegisters();
         Projectiles.BindRoomEarthquakeOwner(Enemies);
 
         // $82:82C5 copies all 512 bytes of kInitialPalette from ROM $9A:8000. The retail
@@ -1396,6 +1397,7 @@ public sealed partial class SuperMetroidRuntime
         // Routing references are deliberately not serialized as duplicate native state.
         // Reattach before any producer executes, including after loading an older snapshot.
         BindGrapplePresentation();
+        BindGameplayWindowRegisters();
         Projectiles.BindRoomEarthquakeOwner(Enemies);
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
         Samus?.Shinespark.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
@@ -1403,6 +1405,7 @@ public sealed partial class SuperMetroidRuntime
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);
         afterAcceptedNmi?.Invoke();
+        PrepareGameplayWindowRegisters();
 
         // HDMA owns shared RNG mutations before the main loop advances it. A
         // message-box NMI wait does not execute that outer-loop HDMA pass.
@@ -4153,6 +4156,7 @@ public sealed partial class SuperMetroidRuntime
             // $211B..$2120. Retain both displayed values so software rendering sees one
             // coherent PPU phase instead of combining old OAM with a newer room-main matrix.
             DisplayedOam.CopyFinalizedFrom(Oam);
+            GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
             DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
             var bg2Window = Enemies.Draygon is { } boss
                 ? DraygonMainScreenWindow.Select(boss.Body.XPosition, boss.Body.YPosition,

@@ -92,6 +92,10 @@ public static partial class GameplayDisplayCapture
         ushort character = runtime.ActiveRoom?.State.SetupCodePointer ==
             RoomSetupCodePointers.SetCeresRidleyBgCharacterBaseAndSpawnHaze
             ? GameplayRenderDefinitions.CeresCharacterWord : (ushort)0;
+        GameplayWindowRegisterSnapshot displayedWindows =
+            runtime.DisplayedGameplayWindowRegisters;
+        SnesMainScreenLayers displayedMainScreen =
+            (SnesMainScreenLayers)(displayedWindows.MainScreen & 0x1f);
         var registers = new OrdinaryGameplayRegisters(bg1X, bg1Y,
             kraidBg ? Add(kraid!.Bg2HorizontalScroll, shake.Bg2X)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBg2HorizontalScroll, shake.Bg2X) : bg2X,
@@ -103,9 +107,13 @@ public static partial class GameplayDisplayCapture
             kraidBg ? KraidBackgroundRomData.LiveBg2TilemapWord : SnesPpuLayout.GameplayBg2TilemapWord,
             character, character, runtime.GameplayHudCharacterBaseWord,
             runtime.DoorTransitionMainScreenLayers ??
-                (SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj |
-                    (runtime.Enemies.MotherBrain?.DeathBg2Hidden == true ? 0 : SnesMainScreenLayers.Bg2)),
+                (runtime.Enemies.MotherBrain?.DeathBg2Hidden == true
+                    ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
+                    : displayedMainScreen),
             ppu.Bg2FirstScanline, ppu.Bg2EndScanline,
+            Windows: displayedWindows.Windows,
+            MainScreenWindowMask:
+                (SnesMainScreenLayers)(displayedWindows.MainScreenWindow & 0x1f),
             Bg2Mosaic: BackgroundMosaicSampling.ForBg2(runtime.Enemies.Phantoon?.Blending.DisplayedMosaic ?? 0));
         // Producers can return longer HDMA storage; the renderer consumes only the
         // gameplay region. Own exactly those visible register values in the packet.

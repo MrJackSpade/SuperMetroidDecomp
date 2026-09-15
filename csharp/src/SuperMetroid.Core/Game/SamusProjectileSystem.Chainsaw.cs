@@ -10,6 +10,15 @@ public sealed partial class SamusProjectileSystem
     private GameplayWindowRegisterCache? chainsawWindowRegisters;
 
     /// <summary>
+    /// Connects the split projectile translation to the runtime's single cached-register
+    /// owner. The cartridge has one WRAM <c>$60..$6D</c> region shared by HDMA, projectiles,
+    /// NMI, and the gameplay IRQ; retaining a projectile-private copy would make the
+    /// Chainsaw store invisible to the actual displayed frame.
+    /// </summary>
+    internal void BindGameplayWindowRegisters(GameplayWindowRegisterCache registers) =>
+        chainsawWindowRegisters = registers ?? throw new ArgumentNullException(nameof(registers));
+
+    /// <summary>
     /// Literal cached PPU-register owner corrupted by the misaligned Chainsaw callback.
     /// The cache is presentation hardware, not durable gameplay state; a restored debugger
     /// state begins from the ordinary layer-blending defaults until producers rewrite it.

@@ -107,6 +107,24 @@ internal static partial class Program
             .SequenceEqual(shineFields.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
                 and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField")),
             "legacy shinespark retains native timers and pending sounds before suppression metadata");
+        var xrayFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
+            BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusXrayState)])!;
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
+                xrayFields.Length - 1).SequenceEqual(xrayFields.Where(field =>
+                    field.Name != "<OwnsSamusControl>k__BackingField")),
+            "legacy X-Ray preserves its HDMA, freeze, phase, and palette state");
+        var legacyXray = new SamusXrayState();
+        typeof(SamusXrayState).GetField("<IsActive>k__BackingField",
+            BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
+        typeof(SamusXrayState).GetField("<TimeIsFrozen>k__BackingField",
+            BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
+        DebuggerStateFieldMigrations.InitializeMissingFields(legacyXray, xrayFields.Length - 1);
+        AssertTrue(legacyXray.OwnsSamusControl,
+            "legacy active frozen X-Ray restores its dedicated Samus handlers");
+        var legacyInactiveXray = new SamusXrayState();
+        DebuggerStateFieldMigrations.InitializeMissingFields(legacyInactiveXray, xrayFields.Length - 1);
+        AssertTrue(!legacyInactiveXray.OwnsSamusControl,
+            "legacy inactive X-Ray does not invent Samus handler ownership");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusProjectileSlot), projectileSlotFields, 19)
             .SequenceEqual(projectileSlotFields.Where(field => field.Name != "<AuxiliaryPhase>k__BackingField")),
             "legacy projectile slot retains the actual projectile type and trajectory");

@@ -1,0 +1,3 @@
+frozen_before,frozen_after,alpha,beta,hdma_mask,xray_phase,backdrop,palette_kind,palette_frame,palette_timer
+0,0000,E695,E725,04,0005,0C63,0008,0008,0005
+1,0000,E695,E725,00,0000,0C63,0008,0000,0000

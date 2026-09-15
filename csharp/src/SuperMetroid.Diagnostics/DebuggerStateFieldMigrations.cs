@@ -23,6 +23,11 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
                 and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField").ToArray();
         }
+        if (type == typeof(SamusXrayState) && count == current.Length - 1)
+        {
+            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks separate Samus-control ownership; active frozen X-Ray restores its dedicated handlers.");
+            return current.Where(field => field.Name != "<OwnsSamusControl>k__BackingField").ToArray();
+        }
         // These values describe a pending host publication, not a new cartridge word.
         // Historical captures cannot recover producer-time suppression. Preserve their
         // previously unsuppressed admission and let the next producer replace it.
@@ -300,6 +305,13 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Constructs an empty owner only for the known legacy layout that omitted it.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
+        if (instance is SamusXrayState xray && serializedCount ==
+            GetCurrentInstanceFieldCount(typeof(SamusXrayState)) - 1)
+        {
+            typeof(SamusXrayState)
+                .GetField("<OwnsSamusControl>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(xray, xray.IsActive && xray.TimeIsFrozen);
+        }
         if (instance is SuperMetroid.Core.Audio.ManagedPcmSampleBank && serializedCount == 3)
         {
             typeof(SuperMetroid.Core.Audio.ManagedPcmSampleBank)
@@ -314,5 +326,22 @@ internal static class DebuggerStateFieldMigrations
                 .GetField("<RoomTreadmills>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(instance, new RoomTreadmillAnimatedTilesState());
         }
+    }
+
+    /// <summary>
+    /// Counts the same declared instance fields as the graph serializer for migration
+    /// comparisons without exposing the serializer's ordering implementation.
+    /// </summary>
+    private static int GetCurrentInstanceFieldCount(Type type)
+    {
+        int count = 0;
+        for (Type? current = type; current is not null; current = current.BaseType)
+        {
+            count += current.GetFields(BindingFlags.Instance | BindingFlags.Public |
+                BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
+                .Count(field => !field.IsStatic &&
+                    !field.IsDefined(typeof(NonSerializedAttribute), false));
+        }
+        return count;
     }
 }

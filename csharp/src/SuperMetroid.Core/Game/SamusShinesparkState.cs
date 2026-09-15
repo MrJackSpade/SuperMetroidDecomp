@@ -236,6 +236,9 @@ public sealed class SamusShinesparkState
         // $0A68 can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishPaletteHandler();
+        // A Reserve-Mode X-Ray HDMA object survives, but directional spark setup replaces
+        // the same shared special-palette dispatcher with handler six.
+        samus.Xray.RelinquishPaletteHandler();
 
         // These are literal native writes. Stage four remains published during windup even
         // though base speed is zero and the extra component becomes exactly 8.0000.

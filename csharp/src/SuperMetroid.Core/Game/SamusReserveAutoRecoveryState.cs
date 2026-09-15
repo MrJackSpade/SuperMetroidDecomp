@@ -26,6 +26,9 @@ public sealed class SamusReserveAutoRecoveryState
         // CallSomeSamusCode($1B) conditionally installs the ordinary locked handler pair.
         // The pair suppresses animation as well as input/movement. A generic input
         // gate alone leaves AnimateSamus running during the frozen recovery frames.
+        // If X-Ray installed its own pair earlier in this state-eight frame, command
+        // $1B replaces those handlers without deleting the independently running HDMA.
+        samus.Xray.RelinquishSamusControlForReserveRecovery();
         samus.SetStationaryScriptControlLock(true);
         IsActive = true;
     }
@@ -70,6 +73,10 @@ public sealed class SamusReserveAutoRecoveryState
         bool completed = samus.ReserveEnergy == 0;
         if (completed)
         {
+            // State $1B clears the one shared freeze word before command $10 restores
+            // normal control. X-Ray phase five deliberately checks that word and skips
+            // cleanup when it is zero, which is the cartridge's Reserve Mode glitch.
+            samus.Xray.ClearSharedFreezeForReserveMode();
             // CallSomeSamusCode($10) restores the ordinary input/movement handlers unless
             // a demo recorder owns them. This host never overlays demo playback here.
             samus.SetStationaryScriptControlLock(false);

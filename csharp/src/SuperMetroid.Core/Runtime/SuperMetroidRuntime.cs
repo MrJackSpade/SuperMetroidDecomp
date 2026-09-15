@@ -1674,7 +1674,7 @@ public sealed partial class SuperMetroidRuntime
             // publication is scoped to one Samus handler. Begin before movement because
             // `$91:F046` queues landing sounds during collision, before AnimateSamus.
             Samus.LiquidPhysics.BeginFrameSoundRequests(BombProjectiles.PowerBombExplosion);
-            bool xrayOwnsPoseInput = Samus.Xray.IsActive && !deathOwnsSamus;
+            bool xrayOwnsPoseInput = Samus.Xray.OwnsSamusControl && !deathOwnsSamus;
             bool xrayActivatedThisFrame = false;
             SamusMovementType movementBeforeXrayAdmission = Samus.ReadMovementType(_addressSpace);
             if (xrayOwnsPoseInput)
@@ -2152,7 +2152,7 @@ public sealed partial class SuperMetroidRuntime
                 // Special prospective-pose command five installs `$90:E94F` instead of the
                 // normal movement-type dispatcher. Stable X-ray bodies select one of five
                 // angle frames; type-`$0E` turning deliberately performs no beta movement.
-                else if (Samus.Xray.IsActive)
+                else if (Samus.Xray.OwnsSamusControl)
                 {
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
@@ -4049,7 +4049,8 @@ public sealed partial class SuperMetroidRuntime
                 // Normal beta ends in LowEnergyCheck. Locked/elevator/appearance
                 // handlers omit it; gunship command $1A installs a dedicated checker.
                 // Automatic reserves invoke their external check in the frontend.
-                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) && !Samus.Xray.IsActive)
+                if ((!Samus.InputLocked || Enemies.HasGunshipHealthHandler) &&
+                    !Samus.Xray.OwnsSamusControl)
                     checkLowHealth?.Invoke();
             }
 

@@ -340,6 +340,11 @@ if (args is ["--reserve-native-trace", var reserveTrace])
     VerifyReserveNativeTrace(reserveTrace);
     return 0;
 }
+if (args is ["--reserve-mode", var reserveModeTrace])
+{
+    VerifyReserveMode(reserveModeTrace);
+    return 0;
+}
 if (args is ["--pause-reserve-manual"])
 {
     VerifyPauseReserveManual();
@@ -580,6 +585,7 @@ VerifyProjectileContactPhase(verifyPhase: true);
 VerifyProjectileRuntimePhase();
 VerifyMorphedSpikeRelease();
 VerifySpikeShinesparkSuit();
+VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv");
 VerifyElevatubeScrolling();
 VerifyIniEditing();
 VerifyBackgroundSampler();

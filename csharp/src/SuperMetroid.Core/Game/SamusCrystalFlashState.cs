@@ -143,6 +143,10 @@ public sealed class SamusCrystalFlashState
         // The native routine reuses shinespark words but installs a distinct pointer. The
         // C# states stay separate so a debugger cannot mistake Crystal Flash for a spark.
         samus.Shinespark.RelinquishToCrystalFlash();
+        // Reserve Mode leaves X-Ray's HDMA object alive but Crystal Flash still replaces
+        // the shared special-palette handler. Keep the greyout object; release only its
+        // palette words so handler seven is the sole cartridge owner.
+        samus.Xray.RelinquishPaletteHandler();
         samus.DraygonGrabbed.RelinquishMovementHandler();
         samus.CrystalFlashPoseInputLocked = true;
         RaiseTimer = 9;

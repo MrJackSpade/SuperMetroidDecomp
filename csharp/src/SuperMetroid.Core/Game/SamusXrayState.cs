@@ -21,6 +21,19 @@ public sealed class SamusXrayState
     /// <summary>True while the dedicated bank-$91 X-ray input/movement handlers are installed.</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// True while X-Ray owns Samus's bank-$91 input and bank-$90 movement handlers.
+    /// The HDMA object can remain active after automatic Reserve recovery restores the
+    /// normal handler pair; that cartridge state is the persistent greyout glitch.
+    /// </summary>
+    public bool OwnsSamusControl { get; private set; }
+
+    /// <summary>
+    /// True when Reserve recovery cleared the shared freeze word underneath X-Ray's
+    /// still-live phase-five HDMA object. The object deliberately cannot clean itself up.
+    /// </summary>
+    public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
+
     /// <summary>Interrupted pose published by alpha, awaiting bank-$91 pose commit in beta.</summary>
     public byte? PendingActivationPose { get; private set; }
 
@@ -196,6 +209,37 @@ public sealed class SamusXrayState
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
         IsActive = true;
+        OwnsSamusControl = true;
+    }
+
+    /// <summary>
+    /// Models Samus command <c>$1B</c> replacing the X-Ray handler pair when automatic
+    /// Reserve recovery begins. The independent HDMA object and shared freeze word remain.
+    /// </summary>
+    internal void RelinquishSamusControlForReserveRecovery()
+    {
+        if (IsActive)
+            OwnsSamusControl = false;
+    }
+
+    /// <summary>
+    /// Models state <c>$1B</c> clearing shared WRAM <c>$0A78</c> before restoring ordinary
+    /// Samus handlers. X-Ray phase five observes zero and therefore leaves its HDMA object
+    /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.
+    /// </summary>
+    internal void ClearSharedFreezeForReserveMode()
+    {
+        if (IsActive)
+            TimeIsFrozen = false;
+    }
+
+    /// <summary>Another special-palette handler replaces shared WRAM <c>$0A68/$0ACE/$0AD0</c>.</summary>
+    internal void RelinquishPaletteHandler()
+    {
+        SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+        SpecialPaletteFrame = 0;
+        CommonPaletteTimer = 0;
+        BeamSizeFlag = 0;
     }
 
     /// <summary>
@@ -370,7 +414,11 @@ public sealed class SamusXrayState
                 break;
 
             case XrayBeamPhase.Finish:
-                Finish(bus, samus);
+                // `$88:8A08` performs every cleanup write only while the shared freeze
+                // word is nonzero. Automatic Reserve completion clears that word first;
+                // phase five then remains installed forever and produces greyout mode.
+                if (TimeIsFrozen)
+                    Finish(bus, samus);
                 break;
 
             default:
@@ -553,6 +601,7 @@ public sealed class SamusXrayState
 
         TimeIsFrozen = false;
         IsActive = false;
+        OwnsSamusControl = false;
         SetupStage = 0;
         BeamPhase = XrayBeamPhase.NoBeam;
         Angle = SnesAngle.Zero;

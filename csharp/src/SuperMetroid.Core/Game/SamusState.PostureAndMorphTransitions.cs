@@ -190,6 +190,9 @@ public sealed partial class SamusState
                 // The successful native store replaces the shared palette handler
                 // and timer even if an interrupted Flash was keeping them alive.
                 CrystalFlash.RelinquishPaletteHandler();
+                // Reserve Mode keeps only X-Ray's HDMA object. Crouch storage replaces
+                // shared palette handler eight with the stored-shine handler one.
+                Xray.RelinquishPaletteHandler();
             }
 
             Pose = targetPose;

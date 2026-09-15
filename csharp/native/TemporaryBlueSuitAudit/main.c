@@ -1,9 +1,11 @@
 /* #429: earn temporary Blue Suit through native controller processing. */
 #include "../Common/CartridgeCpuFixture.h"
 #include "../../../upstream-sm/src/ida_types.h"
+#include "../../../upstream-sm/src/enemy_types.h"
 #include "../Common/MovementEntryPoints.h"
 #include "../GravityJumpAudit/fixture.h"
 enum { SamusPalettePhase = 0x91d6f7, InsideBlockPhase = 0x949b60, VerticalBlockMove = 0x949763, BootsEquipmentInput = 0x82b150, DraygonPostDamage = 0xa5960d };
+#include "DraygonGrabFixture.h"
 /* Carry cases keep the earned, expired charge until frame400. Modes0..3
    contrast held forward, no input, reversal and ordinary landing. Remaining
    modes sweep a soft unmorph after two distinct Down edges, then jump again. */
@@ -68,7 +70,8 @@ int main(int argc, char **argv) {
   bool terrain = argc == 3 && strcmp(argv[2], "terrain") == 0;
   bool chain = argc == 3 && strcmp(argv[2], "chain") == 0;
   bool menu = argc == 3 && strcmp(argv[2], "menu") == 0;
-  bool draygon = argc == 3 && strcmp(argv[2], "draygon") == 0;
+  bool grab = argc == 3 && strcmp(argv[2], "draygon-grab") == 0;
+  bool draygon = grab || (argc == 3 && strcmp(argv[2], "draygon") == 0);
   if (argc == 3 && !carry && !bounce && !cancel && !sand && !terrain && !chain && !menu && !draygon) return 2;
   FILE *file = fopen(argv[1], "rb");
   if (!file || fread(rom, 1, sizeof(rom), file) != sizeof(rom) || fgetc(file) != EOF)
@@ -77,7 +80,7 @@ int main(int argc, char **argv) {
   printf("left,stop,aim,frame,input,x,y,pose,anim,timer,base,extra,boost,contact,shine,palette,yspeed,ydir%s\n", sand ? ",extrax,extray" : terrain ? ",collision,tileleft,tileright,plms" : menu ? ",items" : "");
   for (int left = 0; left < 2; left++)
   for (int stop = carry || bounce || cancel || sand || chain || menu || draygon ? 140 : 60; stop <= (carry || bounce || cancel || sand || terrain || chain || menu || draygon ? 140 : 180); stop += terrain ? 80 : 40)
-  for (int aim = 0; aim < (draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
+  for (int aim = 0; aim < (grab ? 8 : draygon ? 12 : menu ? 6 : carry ? 40 : bounce || cancel || sand || terrain || chain ? 8 : 4); aim++) {
     memset(g_ram, 0, sizeof(g_ram));
     room_width_in_blocks = 144; room_height_in_blocks = 80;
     room_width_in_scrolls = 9; room_height_in_scrolls = 5; room_size_in_blocks = 144 * 80 * 2;
@@ -125,11 +128,17 @@ int main(int argc, char **argv) {
       if (draygon && frame >= 340 && frame < 350) input = left ? 0x200 : 0x100;
       if (draygon && aim >= 4 && aim < 8 && frame >= 360 && frame < 370) input = 0x8000 | (left ? 0x200 : 0x100);
       if (draygon && aim >= 8 && frame >= 360) input = frame == 360 ? 0x410 : frame < 370 ? 0x10 : frame == 370 ? 0x80 : 0x880;
+      if (grab) input = draygon_grab_input(frame, left, aim);
       if (bounce) input = bounce_input(frame, left, aim);
       if (cancel) input = cancel_input(frame, left, aim);
       if (sand) input = cancel_input(frame, left, 0);
       if (terrain) input = frame < stop ? 0x8000 | (left ? 0x200 : 0x100) : frame == stop ? 0x410 : 0x10;
       joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
+      if (grab && frame > draygon_grab_frame(aim) && frame < 220) {
+        Get_Draygon(0)->base.y_pos = 400;
+        if (frame_handler_gamma == DraygonGrabGamma)
+          run(DraygonPlaceSamus);
+      }
       int tileleft = 0, tileright = 0;
       if (terrain && frame == 400) {
         bool up = (aim & 2) != 0;
@@ -162,11 +171,23 @@ int main(int argc, char **argv) {
       } else {
       run(InputPhase); run(InteractionPhase); samus_contact_damage_index = 0;
       run(0x900000 | samus_movement_handler);
+      if (grab && frame_handler_gamma == DraygonGrabGamma) run(0x900000 | frame_handler_gamma);
       unsigned stages[] = {AnimationPhase,TransitionPhase,CollisionPosePhase,ApplyPosePhase,
         PoseHistoryPhase,HurtPhase,CollisionPhase,SamusPalettePhase};
       for (int i = 0; i < 8; i++) run(stages[i]);
       }
-      if (draygon && frame == ((aim & 1) == 0 ? 175 : 180)) {
+      if (grab && frame == draygon_grab_frame(aim)) {
+        cur_enemy_index = 0;
+        Enemy_Draygon *body = Get_Draygon(0);
+        body->draygon_var_20 = !left;
+        body->base.x_pos = samus_x_pos + (left ? 8 : -8);
+        body->base.y_pos = samus_y_pos;
+        samus_x_speed_divisor = 1; /* Constructed attached-goop admission boundary. */
+        run(DraygonChaseGrab);
+        if (frame_handler_gamma != DraygonGrabGamma) Die("Chase did not grab Samus");
+        samus_x_speed_divisor = 0; /* Goop expires; do not alter boost/velocity words. */
+      }
+      if (draygon && !grab && frame == ((aim & 1) == 0 ? 175 : 180)) {
         /* Enter the real fatal boss callback after a constructed lethal hit.
            Samus's spark/boost state was earned entirely by the preceding inputs. */
         cur_enemy_index = 0;

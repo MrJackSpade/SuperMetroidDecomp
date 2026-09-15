@@ -542,6 +542,8 @@ if (args.Length == 3 && args[0] == "--moat-movie-probe")
     return MoatMovieProbe.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--draygon-blue-suit-audit")
     return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.DraygonDeath);
+if (args.Length == 3 && args[0] == "--draygon-grab-blue-suit-audit")
+    return TemporaryBlueSuitComparisonAudit.Run(args[1], args[2], TemporaryBlueAuditKind.DraygonGrab);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")
     return WalkOffMomentumAudit.Run(args[1]);
 if (args.Length == 2 && args[0] == "--attract-demo-frontend-audit")

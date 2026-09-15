@@ -2,8 +2,9 @@
 
 Partial #426. This covers death during an uncrashed spark, the retained-running-
 momentum exception, recovery, walking contact damage, Dash cancellation, and
-storing/launching another spark. Grab-at-activation and rendered echo-cue coverage
-remain open; this is not a claim that the entire issue is complete.
+storing/launching another spark, plus grab-at-activation and D-pad escape.
+Rendered echo-cue coverage remains open; this is not a claim that the entire
+issue is complete.
 
 ## Reproduction
 
@@ -73,6 +74,33 @@ UTF-8/LF-normalized trace SHA-256:
 
 Only numeric checkpoints and diagnostic code are published. No ROM bytes,
 SRAM, player snapshots, movies, or images are included.
+
+## Grab-at-activation comparison
+
+`grab.csv` adds 16 cases of 400 frames (both facings, four admission frames,
+with/without retained running momentum). The native fixture invokes the real
+$A5:8E19 chase admission at frames 150, 151, 152, or 153. C# steps the retail
+Draygon population with the claw positioned at Samus. A constructed attached-goop
+word admits the grab and is then expired; boost and launch state remain entirely
+controller-earned. Subsequent owner placement uses a fixed body Y of 400 to
+isolate Samus's carry and escape logic, rather than claiming a full boss fight.
+
+Alternating D-pad inputs exercise the actual escape counter. Pre-windup grabs
+escape on frame 218; later grabs on 219. Grabs before activation never preserve
+Blue Suit. Windup/launch grabs preserve it only with running momentum cleared.
+Walking publishes boost contact damage in those successful cases; Dash replaces
+the retained counter with a fresh running counter. All 6,400 exact checkpoints
+match the native CPU, with explicit assertions for escape, retention, walking
+damage, and cancellation. This extension required no production changes.
+
+```powershell
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- `
+  --draygon-grab-blue-suit-audit 'Super Metroid.smc' `
+  csharp/test-fixtures/issue-426-draygon-blue-suit/grab.csv
+```
+
+Regenerate with `audit.exe ROM draygon-grab`. UTF-8/LF-normalized SHA-256:
+`0238D4101D520512886F8D4D7B5FBD5F2A3D10C666CD83570EF77C4D9EF0E42F`.
 
 Cross-checks: pinned `upstream-sm/src/sm_a5.c` ($A5:960D), `sm_90.c`
 ($90:E2DE, $90:D1FF), `sm_9b.c` ($9B:C8C5), and `sm_91.c`

@@ -554,6 +554,11 @@ public sealed partial class SamusProjectileSystem
             {
                 RunSuperMissileLinkPreInstruction(slot);
             }
+            else if (slot.PreInstruction == SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb)
+            {
+                RunChainsawWindowStoreThenPowerBombPreInstruction(slot, sharedProjectiles);
+                projectileDeleted |= !slot.IsActive;
+            }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.

@@ -69,13 +69,11 @@ public sealed partial class SamusProjectileSystem
             return (slot, sound, sound == 0 ? (byte)0 : (byte)15);
         }
 
-        // Retail owns twelve low-nibble beam combinations: power through ice+wave+plasma.
-        // Spazer and plasma are mutually exclusive in normal inventory state, which is why
-        // indices `$C-$F` have no tile, palette, projectile-data, sound, or dispatch entry.
+        // Retail inventory normally owns twelve low-nibble combinations, but the native
+        // routine never validates that domain before indexing its adjacent tables. Invalid
+        // equipment combinations are observable cartridge behavior used by advanced beam
+        // glitches, so this producer must preserve the raw four-bit index.
         SamusBeamLoadoutWord beamLoadout = samus.EquippedBeams;
-        int beamType = beamLoadout.CombinationIndex;
-        if ((uint)beamType >= 12)
-            return (null, 0, 0);
 
         bool chargeEquipped = beamLoadout.HasAny(SamusBeamFlags.Charge);
         bool held = (controllerInput & shoot) != 0;
@@ -322,6 +320,8 @@ public sealed partial class SamusProjectileSystem
                 SamusBeamPreInstructionCodes.NoWave => SamusProjectilePreInstruction.NoWaveBeam,
                 SamusBeamPreInstructionCodes.WaveThreeFrameTrail => SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
                 SamusBeamPreInstructionCodes.WaveFourFrameTrail => SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
+                SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb =>
+                    SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb,
                 _ => throw new NotSupportedException($"Beam callback $90:{callback:X4} is not translated."),
             };
             InitializePowerBeamVelocity(bus, slot);

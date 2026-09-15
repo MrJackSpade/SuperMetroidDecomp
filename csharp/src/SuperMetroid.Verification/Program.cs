@@ -1019,6 +1019,7 @@ VerifyCinematicPaletteFader();
 VerifyHostRoomViewportAlignment();
 VerifyPowerBombColorMathWindow();
 VerifyHardwareWindows();
+VerifyChainsawFiring();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();

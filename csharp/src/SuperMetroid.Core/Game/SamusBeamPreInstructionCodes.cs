@@ -13,4 +13,11 @@ public static class SamusBeamPreInstructionCodes
     public const ushort WaveThreeFrameTrail = 0xb0e4;
     /// <summary>$90:B0C3, ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
     public const ushort WaveFourFrameTrail = 0xb0c3;
+    /// <summary>
+    /// $90:B0AC, the invalid beam-combination thirteen entry produced by indexing two
+    /// words beyond the uncharged callback table. Execution begins on the bank byte of
+    /// the preceding JSL, so it stores Y to the cached PPU register pair at $60+X and
+    /// falls through to the Power Bomb pre-instruction at $90:B0AE.
+    /// </summary>
+    public const ushort ChainsawWindowStoreThenPowerBomb = 0xb0ac;
 }

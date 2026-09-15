@@ -52,10 +52,10 @@ by this trace. Those remain required before declaring #396 ready for validation.
 ## Production reproduction
 
 `dotnet run --project csharp/src/SuperMetroid.Verification -c Release -- --chainsaw-firing`
-currently fails at the shot-allocation assertion: expected slot zero, received
-null. This is a deliberate opt-in red reproduction, not part of the default
-green suite until implementation is complete. It asserts admission before
-deletion so the existing silent rejection cannot masquerade as correct lifetime.
+now verifies the production path and also runs in the default suite. It asserts
+admission before deletion so an empty slot cannot masquerade as correct lifetime,
+then checks the inactive-Power-Bomb deletion and all eight recorded active-flag
+animation frames. The callback's inherited-Y stores are checked on every frame.
 
 The actual uncharged callback table is $90:B96E (the B9 6E B9 load in
 FireUnchargedBeam); the charged table is $90:BA3E (B9 3E BA). The comments on
@@ -128,18 +128,20 @@ subscreen composition and later producers still need their actual register
 values traced; do not assume the isolated probe's Power Bomb flag establishes
 an entire live HDMA configuration.
 
-Current port integration gap: `RunNmi` latches scroll/OAM/effect snapshots,
-but no literal cached window register owner is present. `CaptureOrdinaryBase`
-derives main-screen layers from door/boss state and leaves the packet's new
+Current port integration gap: the translated Chainsaw callback owns a literal
+cache and performs its native word stores, but `RunNmi` does not yet merge that
+cache with other gameplay window/screen-selection producers. `CaptureOrdinaryBase`
+still derives main-screen layers from door/boss state and leaves the packet's new
 window fields at defaults. Merely setting packet windows from the projectile
 would bypass both this accepted-NMI boundary and competing producers. The
 software/GPU primitive tests prove register interpretation, not this handoff.
 
-`GameplayWindowRegisterCache` now models the contiguous shadow-byte region,
+`GameplayWindowRegisterCache` models the contiguous shadow-byte region,
 selective window/screen initialization and accepted/lagged NMI publication.
 `--hardware-windows` checks all five native STY targets against literal byte
 addresses, preservation of neighboring bytes, the gameplay_TM gap, high-bit
 retention, and snapshot stability across later writes and lag. This is a tested
-cache component, not yet the live runtime owner: the existing effect producers,
-runtime NMI and capture still require integration. It does not supply CPU Y or
-make the opt-in Chainsaw firing reproduction pass.
+cache component, not yet the shared live runtime owner: the existing effect
+producers, runtime NMI and capture still require integration. The firing path
+supplies the CPU-Y values established by the bounded native trace for the
+one-frame Chainsaw animation list; broader full-frame register provenance remains.

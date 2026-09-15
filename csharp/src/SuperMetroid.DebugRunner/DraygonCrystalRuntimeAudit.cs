@@ -8,12 +8,13 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Full runtime movement after both Flash/grab orders, through a retained spark.</summary>
 internal static class DraygonCrystalRuntimeAudit
 {
-    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false, bool lifetime = false, bool repeat = false)
+    public static int Run(string rom, string trace, bool xrayCancellation = false, bool recharge = false, bool lifetime = false, bool repeat = false, bool sand = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(rom);
         string text = File.ReadAllText(trace).Replace("\r\n", "\n", StringComparison.Ordinal);
         if (Convert.ToHexString(SHA256.HashData(bus.Rom)) != "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72" ||
-            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (repeat
+            Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text))) != (sand
+                ? "8BEC4E7921B8B1B76DFFBC93CA970F8ECEFB7D3596DA69CE21D72C4C37B3C43C" : repeat
                 ? "1A8779EB4D6E56D2C7EF17E5ACE3DFA12161FB55BBD8EBBADBEA920BE233275D" : lifetime
                 ? "9208A09FB48468802B707F291507E3C04C9BBB2C0F154FB597F8B609DF1AEAD3" : recharge
                 ? "65BB9B69CBCDC1A28E9F0243D5BAE9D43053D6F95AE676F27040F7C535A5D368" : xrayCancellation
@@ -21,7 +22,7 @@ internal static class DraygonCrystalRuntimeAudit
                 : "E2F54300208FAA5BEF8F4D978FC2064900D2B04EE913432020D15785239487F7"))
             throw new InvalidDataException("Use the pinned ROM and native Draygon/Flash runtime trace.");
         var rows = text.Split('\n', StringSplitOptions.RemoveEmptyEntries).Skip(1).Select(line => line.Split(',')).ToArray();
-        if (rows.Length != (repeat ? 3200 : lifetime ? 4000 : recharge ? 5600 : xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != (lifetime ? 29 : 27)))
+        if (rows.Length != (sand ? 11232 : repeat ? 3200 : lifetime ? 4000 : recharge ? 5600 : xrayCancellation ? 1404 : 6880) || rows.Any(row => row.Length != (sand ? 30 : lifetime ? 29 : 27)))
             throw new InvalidDataException("Incomplete runtime trace.");
         int mismatches = 0;
         foreach (var group in rows.GroupBy(row => $"{row[0]},{row[1]},{row[2]}"))
@@ -66,6 +67,7 @@ internal static class DraygonCrystalRuntimeAudit
                 var publication = new GameplayAudioFramePublication(audio);
                 runtime.StepFrame(input, queueEchoSound: recharge ? () => publication.QueueEcho(runtime) : null);
                 if (recharge) publication.PublishPrefix(runtime);
+                if (sand && frame == 350) TemporaryBlueSandProbe.Apply(bus, level, samus, mode);
                 if (repeat && frame == 350 && samus.CrystalFlash.TryBegin(bus, samus, 0x470, 0x40) != (order == 1))
                     throw new InvalidDataException("Repeat Flash admission differs from native.");
                 if (repeat && frame == 799 && (order == 1
@@ -88,6 +90,11 @@ internal static class DraygonCrystalRuntimeAudit
                     $"{samus.SharedShineTimer:X4},{(samus.Xray.IsActive ? samus.Xray.SpecialPaletteType : flashPalette ? samus.CrystalFlash.SpecialPaletteType : samus.Shinespark.PaletteType):X4}," +
                     $"{samus.XPosition:X4},{samus.Kinematics.XSubposition:X4},{samus.Kinematics.YSubposition:X4},{samus.Kinematics.YSpeed:X4},{samus.Kinematics.YSubspeed:X4},{samus.Kinematics.YDirection:X4},{samus.AnimationFrame:X4},{samus.AnimationFrameTimer:X4}";
                 string expected = string.Join(',', row[5..7].Concat(row[12..26]));
+                if (sand)
+                {
+                    actual += $",{samus.HorizontalSpeed.SpeedBoostCounter:X4},{samus.Kinematics.ExtraYDisplacement:X4},{samus.Kinematics.ExtraYSubdisplacement:X4}";
+                    expected += "," + string.Join(',', row[27..30]);
+                }
                 if (lifetime && frame >= 300)
                 {
                     ushort timer = samus.SharedShineTimer, inv = samus.InvincibilityTimer;

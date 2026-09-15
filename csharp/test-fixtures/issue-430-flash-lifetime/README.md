@@ -137,3 +137,33 @@ dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-r
 ```
 
 Remaining: gray-beam cue, sand/Blue-Suit distinctions and save/reload cancellation.
+
+## Sand versus Blue Suit
+
+`sand.csv` extends the verified generator through frame 350, then installs one
+body-overlap sample and runs the real bank-$94 inside-block dispatcher in Maridia.
+Both entry orders/facings cover eight geometries: no special block, surface sand
+at feet, surface sand at head, submerging sand, slow sandfall, fast sandfall,
+surface sand reached through a horizontal extension, and a solid-block control.
+No extra beta movement is claimed after this isolated body-sampling boundary.
+
+All 11,232 state frames match, including the boost counter and extra vertical
+displacement written by the reaction. Native explicitly asserts palette 7 and
+shine timer 5 survive every sample. Actual displacement distinguishes executing
+the sand reaction from accidentally skipping it. No production fix was needed.
+
+The corresponding existing `--temporary-blue-sand-audit` matrix (6,416 frames)
+still passes: surface sand clears the earned Blue Suit boost counter there,
+while the retained Flash palette/timer survives here. The two states are not
+interchangeable. The tests share only geometry preparation; their assertions
+remain specific to the independently generated states.
+
+LF-normalized trace SHA-256:
+`8BEC4E7921B8B1B76DFFBC93CA970F8ECEFB7D3596DA69CE21D72C4C37B3C43C`.
+
+```powershell
+cmd /c 'csharp\native\DraygonCrystalAudit\audit.exe "Super Metroid.smc" sand > csharp\test-temp\flash-sand.csv'
+dotnet run --project csharp/src/SuperMetroid.DebugRunner -c Release -- --flash-sand-audit "Super Metroid.smc" csharp/test-fixtures/issue-430-flash-lifetime/sand.csv
+```
+
+Remaining: gray-beam cue and save/reload cancellation. Keep #430 in progress.

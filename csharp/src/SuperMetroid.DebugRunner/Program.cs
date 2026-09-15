@@ -578,6 +578,8 @@ if (args.Length == 3 && args[0] == "--flash-lifetime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2], lifetime: true);
 if (args.Length == 3 && args[0] == "--flash-repeat-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2], repeat: true);
+if (args.Length == 3 && args[0] == "--flash-sand-audit")
+    return DraygonCrystalRuntimeAudit.Run(args[1], args[2], sand: true);
 if (args.Length == 3 && args[0] == "--draygon-crystal-runtime-audit")
     return DraygonCrystalRuntimeAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--walk-off-momentum-audit")

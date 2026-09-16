@@ -65,6 +65,21 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   player validation fails, and close the issue when the player confirms the fix.
   An open issue without this label must not be assumed to be awaiting validation.
 
+## Emulation scope limits
+
+- Techniques and reported behavior that require unbounded memory corruption are
+  outside the project's implementation scope. This exemption applies specifically
+  when the behavior cannot be reproduced with bounded modeled state or a faithful
+  deterministic fixture and would instead require full cartridge-compatible memory,
+  CPU-state, and native-side-effect emulation.
+- Do not approximate, hard-code, or otherwise implement the observed outcome of an
+  exempt technique. Once investigation establishes this boundary, stop implementation,
+  document the architectural reason on the GitHub issue, and close it as `not planned`.
+- Do not treat memory corruption by itself as sufficient grounds for exemption. If its
+  relevant effects can be bounded and reproduced faithfully without full memory
+  emulation, follow the normal issue-fix and regression-test workflow. Keep any
+  separable bounded behavior in scope, using a separate issue when appropriate.
+
 ## Batch handoff summaries
 
 - At the end of every batch containing multiple fixes, provide a self-contained summary before returning control to the user. The user must not need to reconstruct the results from intermediate progress messages or earlier conversation history.

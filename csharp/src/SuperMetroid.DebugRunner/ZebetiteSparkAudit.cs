@@ -24,6 +24,28 @@ internal static class ZebetiteSparkAudit
         return 0;
     }
 
+    public static int ExportPassage(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        foreach ((string name, int escapeFrame) in new[] { ("success", 82), ("early-failure", 81) })
+        {
+            string full = Path.Combine(directory, name + "-full");
+            string isolated = Path.Combine(directory, name + "-isolated");
+            int frameCount = name == "success" ? 179 : 160;
+            RunCase(romPath, escapeFrame, full, isolate: false, frameCount: frameCount, postMode: 2, quiet: true);
+            RunCase(romPath, escapeFrame, isolated, isolate: true, frameCount: frameCount, postMode: 2, quiet: true);
+            if (!File.ReadAllBytes(full + ".csv").SequenceEqual(File.ReadAllBytes(isolated + ".csv")))
+                throw new InvalidDataException($"Omitting other actors changes the {name} passage interval.");
+        }
+
+        int successMinimumX = ReadMinimumWholeX(Path.Combine(directory, "success-full.csv"));
+        int failureMinimumX = ReadMinimumWholeX(Path.Combine(directory, "early-failure-full.csv"));
+        if (successMinimumX >= 800 || failureMinimumX < 800)
+            throw new InvalidDataException($"Expected success/failure split was lost: success={successMinimumX}, failure={failureMinimumX}.");
+        Console.WriteLine($"Spark passage export: success minX={successMinimumX}; one-frame-early failure minX={failureMinimumX}; other actors omitted identically.");
+        return 0;
+    }
+
     public static int ScanCadence(string romPath)
     {
         int candidates = 0;
@@ -63,8 +85,29 @@ internal static class ZebetiteSparkAudit
         return 0;
     }
 
+    public static int ScanEscapeInputs(string romPath)
+    {
+        int candidates = 0;
+        foreach (int postMode in Enumerable.Range(0, 4))
+        foreach (int period in Enumerable.Range(2, 7))
+        foreach (int phase in Enumerable.Range(0, period))
+        foreach (int escape in Enumerable.Range(78, 63))
+        {
+            int minimumX = RunCase(romPath, escape, jumpPeriod: period, jumpPhase: phase,
+                quiet: true, postMode: postMode);
+            if (minimumX >= 800) continue;
+            candidates++;
+            Console.WriteLine($"ESCAPE candidate mode={postMode} period={period} phase={phase} escape={escape} minX={minimumX}");
+        }
+        Console.WriteLine($"Combined-input candidate passages={candidates}; not native certification.");
+        return 0;
+    }
+
+    private static int ReadMinimumWholeX(string path) => File.ReadLines(path).Skip(1)
+        .Select(line => unchecked((int)(uint.Parse(line.Split(',')[2]) >> 16))).Min();
+
     private static int RunCase(string romPath, int escapeFrame, string? prefix = null, bool isolate = false, int frameCount = 180,
-        int jumpPeriod = 2, int jumpPhase = 0, bool quiet = false, int jumpHold = 1)
+        int jumpPeriod = 2, int jumpPhase = 0, bool quiet = false, int jumpHold = 1, int postMode = 0)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -105,9 +148,17 @@ internal static class ZebetiteSparkAudit
         int minimumX = samus.XPosition;
         for (int frame = 0; frame < frameCount; frame++)
         {
+            bool jumpPulse = (frame + jumpPeriod - jumpPhase) % jumpPeriod < jumpHold;
             ushort input = frame < 60 ? (ushort)(SnesButton.A | SnesButton.R) :
-                frame < escapeFrame ? (ushort)(SnesButton.Down | ((frame + jumpPeriod - jumpPhase) % jumpPeriod < jumpHold ? SnesButton.A : 0)) :
-                (ushort)SnesButton.Left;
+                frame < escapeFrame ? (ushort)(SnesButton.Down | (jumpPulse ? SnesButton.A : 0)) :
+                postMode switch
+                {
+                    0 => (ushort)SnesButton.Left,
+                    1 => (ushort)(SnesButton.Left | SnesButton.Down),
+                    2 => (ushort)(SnesButton.Left | (jumpPulse ? SnesButton.A : 0)),
+                    3 => (ushort)(SnesButton.Left | SnesButton.Down | (jumpPulse ? SnesButton.A : 0)),
+                    _ => throw new ArgumentOutOfRangeException(nameof(postMode)),
+                };
             runtime.StepFrame(input);
             if (prefix is not null && frame == 77 &&
                 (samus.Pose != SamusPoseIds.FacingLeftNormalPose || samus.AnimationFrameTimer != 10 || samus.Kinematics.YRadius != 19))

@@ -63,6 +63,23 @@ internal static class ZebetiteSkipAudit
         return 0;
     }
 
+    public static int ExportReferenceIce(string romPath, string directory)
+    {
+        Directory.CreateDirectory(directory);
+        string full = Path.Combine(directory, "reference-ice-full");
+        string isolated = Path.Combine(directory, "reference-ice-isolated");
+        RunCase(romPath, 0, full, isolate: false, exportEnd: 420, referenceIceInput: true, quiet: true);
+        RunCase(romPath, 0, isolated, isolate: true, exportEnd: 420, referenceIceInput: true, quiet: true);
+        if (!File.ReadAllBytes(full + ".csv").SequenceEqual(File.ReadAllBytes(isolated + ".csv")))
+            throw new InvalidDataException("Omitting other actors changes the 300-frame reference Ice passage.");
+        int minimumX = File.ReadLines(full + ".csv").Skip(1)
+            .Select(line => unchecked((int)(uint.Parse(line.Split(',')[2]) >> 16))).Min();
+        if (minimumX >= 800)
+            throw new InvalidDataException($"Reference Ice passage did not regain left-side control: minX={minimumX}.");
+        Console.WriteLine($"Reference Ice passage export: minX={minimumX}; barrier intact; other actors omitted identically.");
+        return 0;
+    }
+
     public static int ScanJumpTiming(string romPath)
     {
         // Controller-only search after the same real projectile freeze setup. Crossing
@@ -179,7 +196,8 @@ internal static class ZebetiteSkipAudit
 
     private static int RunCase(string romPath, int stepBackFrames, string? exportPrefix = null, bool isolate = false, bool repeatStepBack = false,
         bool quiet = false, int jumpHold = 24, int jumpRelease = 12, int initialLeftDelay = 0, int? alignedX = null, int groundLeftLead = 0, int freezeEnd = 120, int exportEnd = 160,
-        bool neutralJumpOnAlignment = false, int recoveryBackFrames = 0, int recoveryWaitFrames = 0)
+        bool neutralJumpOnAlignment = false, int recoveryBackFrames = 0, int recoveryWaitFrames = 0,
+        bool referenceIceInput = false)
     {
         var bus = SuperMetroidAddressSpace.LoadRetailRom(romPath);
         var runtime = new SuperMetroidRuntime(bus);
@@ -207,8 +225,11 @@ internal static class ZebetiteSkipAudit
         int jumpStart = freezeEnd + stepBackFrames + groundLeftLead;
         if (!quiet) Console.WriteLine($"CASE stepBackFrames={stepBackFrames} repeatStepBack={repeatStepBack} hold={jumpHold} release={jumpRelease} delay={initialLeftDelay} lead={groundLeftLead} freezeEnd={freezeEnd}");
         using var trace = exportPrefix is null ? null : new StreamWriter(exportPrefix + ".csv");
-        trace?.WriteLine("frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen");
-        for (int frame = 0; frame < (exportPrefix is null ? 360 : exportEnd); frame++)
+        trace?.WriteLine(referenceIceInput
+            ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,frozen,zebHealth"
+            : "frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen");
+        int runEnd = exportPrefix is null ? referenceIceInput ? 450 : 360 : exportEnd;
+        for (int frame = 0; frame < runEnd; frame++)
         {
             if (frame == 120 && exportPrefix is not null)
             {
@@ -274,7 +295,11 @@ internal static class ZebetiteSkipAudit
             if (neutralJumpStart is { } start)
                 input = frame == start ? (ushort)0 : frame == start + 1 ? (ushort)SnesButton.A :
                     (ushort)(SnesButton.Left | SnesButton.A);
+            if (referenceIceInput && frame >= 120)
+                input = ReferenceIceInput(frame - 120);
             runtime.StepFrame(input);
+            if (referenceIceInput && frame >= 120 && runtime.Enemies.Slots[2].Health != 1000)
+                throw new InvalidDataException("Reference Ice passage must leave the Zebetite intact.");
             if (alignedX is { } alignment)
             {
                 // Original-CPU observations for this constructed precondition. Keep
@@ -299,9 +324,12 @@ internal static class ZebetiteSkipAudit
                 samus.Pose == SamusPoseIds.CrouchingLeftPose && samus.YPosition < 160)
             {
                 reportedCrouchAlignment = true;
-                Console.WriteLine($"ALIGNMENT offset={stepBackFrames} lead={groundLeftLead} hold={jumpHold} release={jumpRelease} freezeEnd={freezeEnd} frame={frame} xSub={samus.Kinematics.XSubposition:X4} y={samus.YPosition}.{samus.Kinematics.YSubposition:X4} inv={samus.InvincibilityTimer}");
+                if (!quiet)
+                    Console.WriteLine($"ALIGNMENT offset={stepBackFrames} lead={groundLeftLead} hold={jumpHold} release={jumpRelease} freezeEnd={freezeEnd} frame={frame} xSub={samus.Kinematics.XSubposition:X4} y={samus.YPosition}.{samus.Kinematics.YSubposition:X4} inv={samus.InvincibilityTimer}");
             }
-            if (frame >= 120) trace?.WriteLine($"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{runtime.Enemies.Slots[3].FrozenTimer}");
+            if (frame >= 120) trace?.WriteLine(referenceIceInput
+                ? $"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{samus.InvincibilityTimer},{runtime.Enemies.Slots[3].FrozenTimer},{runtime.Enemies.Slots[2].Health}"
+                : $"{frame},{input},{samus.Kinematics.XFixed},{samus.Kinematics.YFixed},{samus.Pose},{samus.AnimationFrame},{samus.AnimationFrameTimer},{samus.Kinematics.XRadius},{samus.Kinematics.YRadius},{samus.Health},{runtime.Enemies.Slots[3].FrozenTimer}");
             frozeSpawn |= runtime.Enemies.Slots.Any(slot => slot.EnemyDefinitionPointer == 0xd23f &&
                 slot.XPosition == 823 && slot.YPosition == 166 && slot.FrozenTimer != 0);
             if (!quiet && (frame % 12 == 0 || frame >= jumpStart && frame <= jumpStart + 24))
@@ -316,4 +344,30 @@ internal static class ZebetiteSkipAudit
         if (!quiet) Console.WriteLine($"END stepBackFrames={stepBackFrames} x={samus.XPosition} y={samus.YPosition} pose={samus.Pose:X2} hp={samus.Health}; passage not asserted");
         return minimumX;
     }
+
+    private static ushort ReferenceIceInput(int frame) => frame switch
+    {
+        <= 22 => (ushort)SnesButton.B,
+        <= 40 => (ushort)(SnesButton.Right | SnesButton.B),
+        <= 42 => (ushort)SnesButton.B,
+        <= 45 => (ushort)(SnesButton.B | SnesButton.A),
+        <= 59 => (ushort)(SnesButton.Left | SnesButton.B | SnesButton.A),
+        <= 83 => (ushort)(SnesButton.Left | SnesButton.B),
+        <= 90 => (ushort)SnesButton.B,
+        <= 98 => 0,
+        <= 103 => (ushort)SnesButton.Right,
+        <= 105 => (ushort)(SnesButton.Right | SnesButton.A),
+        <= 107 => (ushort)SnesButton.A,
+        108 => 0,
+        <= 131 => (ushort)SnesButton.Left,
+        <= 133 => (ushort)(SnesButton.Left | SnesButton.B),
+        <= 135 => (ushort)(SnesButton.Left | SnesButton.B | SnesButton.A),
+        <= 139 => (ushort)(SnesButton.B | SnesButton.A),
+        <= 146 => (ushort)SnesButton.B,
+        <= 162 => (ushort)(SnesButton.Left | SnesButton.B),
+        <= 169 => (ushort)(SnesButton.Left | SnesButton.B | SnesButton.A),
+        <= 176 => (ushort)(SnesButton.Left | SnesButton.B),
+        <= 272 => (ushort)SnesButton.B,
+        _ => (ushort)(SnesButton.Left | SnesButton.B),
+    };
 }

@@ -450,7 +450,9 @@ public sealed partial class SamusState
     /// Applies the crouching table's direct `$27/$71/$73/$85 -> $01` and mirrored
     /// `$28/$72/$74/$86 -> $02` exits. These are real six-byte transition-table records;
     /// unlike the animated `$F7-$FC` stand-up family, they install the final standing pose
-    /// immediately after pose-change collision has made room for its larger radius.
+    /// immediately after pose-change collision has made room for its larger radius. The
+    /// live collision radius remains the crouching radius until the following alpha pass,
+    /// matching the cartridge's previous-pose radius publication during `$91:FDAE`.
     /// </summary>
     /// <returns>
     /// False when the two-sided pose-change collision resolver falls back to stable

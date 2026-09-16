@@ -1,6 +1,10 @@
 # Zebetite skip investigation (#442)
 
-Status: **unfinished**. No production fix or native skip-parity claim yet.
+Status: **implemented and native-certified; awaiting player validation**.
+
+The sections below retain the chronological investigation record. The final
+successful traces supersede the earlier failed-search conclusions without erasing
+which intermediate sequences were insufficient.
 
 Sources: [14% techniques](https://wiki.supermetroid.run/14%25#Techniques) and
 [Mother Brain Room](https://wiki.supermetroid.run/Mother_Brain_Room).
@@ -22,10 +26,82 @@ positions, properties and freeze timers. It asserts the setup's Rinka freeze,
 **not successful passage**. The observed wedging could still be invalid alignment;
 do not change collision code based on this trace alone.
 
-Next: reproduce the relevant alignment/trajectory using original CPU routines,
-find a successful setup and adjacent failure, then compare passage and subsequent
-control. The shinespark half remains untested. No player save is loaded or changed;
-keep generated logs and any future ROM/state exports private.
+Historical starting point: reproduce the relevant alignment/trajectory using
+original CPU routines, find a successful setup and adjacent failure, then compare
+passage and subsequent control. At that point the shinespark half was untested. No
+player save is loaded or changed; keep generated logs and future ROM/state exports
+private.
+
+## Successful controller-earned passages
+
+Two controller-only passages now cross the intact first Zebetite while leaving its
+1000 health unchanged. Both use the production room, movement, projectile, enemy,
+and collision systems. Neither grants collision bypass, edits Samus after the first
+frame, nor destroys the barrier.
+
+The Ice sequence was transcribed frame-for-frame from the low-percent reference
+video at <https://www.youtube.com/watch?v=DTntye5_pGY>. Starting at the audit's
+frame zero, its controller runs are:
+
+| Frames | Input |
+| --- | --- |
+| 0..22 | Run |
+| 23..40 | Right + Run |
+| 41..42 | Run |
+| 43..45 | Run + Jump |
+| 46..59 | Left + Run + Jump |
+| 60..83 | Left + Run |
+| 84..90 | Run |
+| 91..98 | Neutral |
+| 99..103 | Right |
+| 104..105 | Right + Jump |
+| 106..107 | Jump |
+| 108 | Neutral |
+| 109..131 | Left |
+| 132..133 | Left + Run |
+| 134..135 | Left + Run + Jump |
+| 136..139 | Run + Jump |
+| 140..146 | Run |
+| 147..162 | Left + Run |
+| 163..169 | Left + Run + Jump |
+| 170..176 | Left + Run |
+| 177..272 | Run |
+| 273 onward | Left + Run, solely to prove recovered control |
+
+`--zebetite-skip-export-reference-ice ROM PRIVATE_DIRECTORY` exports the 300
+controller frames beginning at the established room fixture's frame 120. Complete-
+room and isolated-actor traces are byte-identical. Samus reaches X=773, control is
+retained after passage, and the barrier remains at 1000 health. Native probe offset
+`-7` executes the same inputs through the original CPU routines. All 300 frames match
+for input, fixed-point position, pose, animation frame/timer, collision radii, health,
+invulnerability, frozen-Rinka timer, and Zebetite health.
+
+The successful shinespark schedule was identified by a bounded controller search
+informed by <https://www.youtube.com/watch?v=sMThL7TbzHs>. Frames 0..59 hold
+Jump+angle-up, frames 60..81 hold Down with Jump pulsed on even frames, and frame 82
+onward holds Left with that same even-frame Jump pulse. Samus reaches X=773 with the
+barrier intact and controllable movement restored. Switching to Left one frame early
+is the adjacent failure and stops at X=829.
+
+`--zebetite-spark-export-passage ROM PRIVATE_DIRECTORY` exports the successful 179
+frames and the one-frame-early 160-frame failure, each both with the full room and
+with irrelevant actors omitted. Each full/isolated pair is byte-identical. Native
+probe offsets `-5` and `-6` reproduce the respective schedules, and every recorded
+field matches the original CPU in all 179 success frames and all 160 adjacent-failure
+frames.
+
+The final native discrepancy exposed a shared pose-publication error rather than a
+Zebetite exception. On the direct crouch-to-standing frame, `$91:FDAE` probes the
+standing body and aligns Samus's center while retaining the previous pose's live
+16-pixel radius. Ordinary alpha publishes the standing 21-pixel radius on the next
+frame. The managed transition had published 21 immediately. The shared transition
+now preserves the old radius for that commit frame; a focused regression asserts
+pose, feet alignment, both radius values, and the one-frame boundary. This correction
+removed the sole mismatch from the 300-frame Ice trace. No Zebetite-specific runtime
+behavior was added.
+
+Reference videos and generated diagnostic images remain local-only; no copyrighted
+capture, ROM-derived seed, or trace is committed.
 
 ## Original-CPU collision interval
 

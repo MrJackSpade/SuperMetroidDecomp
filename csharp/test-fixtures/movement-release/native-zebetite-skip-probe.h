@@ -5,8 +5,9 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   // one frame left, then twenty-four Jump frames separated by one release.
   // -2 retains that input sequence through frame 359 for recovery comparison.
   bool approach = offset == -1 || offset == -2;
-  bool spark = offset == -3 || offset == -4;
-  if (!approach && !spark && offset != 0 && offset != 8 && offset != 20) return 4;
+  bool spark = offset == -3 || offset == -4 || offset == -5 || offset == -6;
+  bool ice_reference = offset == -7;
+  if (!approach && !spark && !ice_reference && offset != 0 && offset != 8 && offset != 20) return 4;
   int status = ProbeLoadRetailMovementRom(rom); if (status) return status;
   size_t size = 0; uint8 *seed = ReadWholeFile(movement, &size);
   if (!seed || size != 3200) { free(seed); return 5; }
@@ -49,9 +50,18 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
   button_config_aim_up_R = 0x10; button_config_aim_down_L = 0x20; button_config_itemcancel_y = 0x4000; button_config_itemswitch = 0x2000;
   first_free_enemy_index = 256; enemy_index_to_shake = 0xffff;
   FILE *f = fopen(output, "w"); if (!f) return 9;
-  fprintf(f, spark ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,zebHealth\n" : "frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = spark ? 0 : 0x840;
-  for (int frame = spark ? 0 : 120; frame < (offset == -4 ? 179 : spark ? 80 : offset == -2 ? 360 : approach ? 220 : 160); frame++) {
-    uint16 input = spark ? (frame < 60 ? 0x90 : frame < 90 ? 0x400 | (frame % 2 == 0 ? 0x80 : 0) : 0x200) : approach
+  fprintf(f, spark ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,zebHealth\n" : ice_reference ? "frame,input,x,y,pose,anim,timer,xradius,yradius,health,inv,frozen,zebHealth\n" : "frame,input,x,y,pose,anim,timer,xradius,yradius,health,frozen\n"); uint16 previous = spark ? 0 : 0x840;
+  for (int frame = spark ? 0 : 120; frame < (ice_reference ? 420 : offset == -5 ? 179 : offset == -6 ? 160 : offset == -4 ? 179 : spark ? 80 : offset == -2 ? 360 : approach ? 220 : 160); frame++) {
+    int spark_escape_frame = offset == -5 ? 82 : offset == -6 ? 81 : 90;
+    int reference_frame = frame - 120;
+    uint16 reference_input = reference_frame <= 22 ? 0x8000 : reference_frame <= 40 ? 0x8100 : reference_frame <= 42 ? 0x8000 :
+      reference_frame <= 45 ? 0x8080 : reference_frame <= 59 ? 0x8280 : reference_frame <= 83 ? 0x8200 :
+      reference_frame <= 90 ? 0x8000 : reference_frame <= 98 ? 0 : reference_frame <= 103 ? 0x100 :
+      reference_frame <= 105 ? 0x180 : reference_frame <= 107 ? 0x80 : reference_frame == 108 ? 0 :
+      reference_frame <= 131 ? 0x200 : reference_frame <= 133 ? 0x8200 : reference_frame <= 135 ? 0x8280 :
+      reference_frame <= 139 ? 0x8080 : reference_frame <= 146 ? 0x8000 : reference_frame <= 162 ? 0x8200 :
+      reference_frame <= 169 ? 0x8280 : reference_frame <= 176 ? 0x8200 : reference_frame <= 272 ? 0x8000 : 0x8200;
+    uint16 input = ice_reference ? reference_input : spark ? (frame < 60 ? 0x90 : frame < spark_escape_frame ? 0x400 | (frame % 2 == 0 ? 0x80 : 0) : 0x200 | ((offset == -5 || offset == -6) && frame % 2 == 0 ? 0x80 : 0)) : approach
       ? (frame < 140 ? 0x100 : frame == 140 ? 0x200 : 0x200 | ((frame-141)%25 < 24 ? 0x80 : 0))
       : (frame < 120 + offset ? 0x100 : 0x200 | ((frame - 120 - offset)%36 < 24 ? 0x80 : 0));
     joypad1_lastkeys = input; joypad1_newkeys = input & ~previous; previous = input;
@@ -69,6 +79,8 @@ int DiagnosticZebetiteSkip(const char *rom, const char *movement, const char *ac
     }
     if (spark) fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
       ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,samus_invincibility_timer,gEnemyData(128)->health);
+    else if (ice_reference) fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
+      ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,samus_invincibility_timer,gEnemyData(192)->frozen_timer,gEnemyData(128)->health);
     else fprintf(f,"%d,%u,%u,%u,%u,%u,%u,%u,%u,%u,%u\n",frame,input,((uint32)samus_x_pos<<16)|samus_x_subpos,
       ((uint32)samus_y_pos<<16)|samus_y_subpos,samus_pose,samus_anim_frame,samus_anim_frame_timer,samus_x_radius,samus_y_radius,samus_health,gEnemyData(192)->frozen_timer);
   }

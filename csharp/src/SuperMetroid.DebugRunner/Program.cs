@@ -1286,6 +1286,10 @@ if (args.Length == 3 && args[0] == "--zebetite-spark-export")
     return ZebetiteSparkAudit.Export(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--zebetite-spark-export-recovery")
     return ZebetiteSparkAudit.Export(args[1], args[2], 179);
+if (args.Length == 3 && args[0] == "--zebetite-spark-export-passage")
+    return ZebetiteSparkAudit.ExportPassage(args[1], args[2]);
+if (args.Length == 2 && args[0] == "--zebetite-spark-scan-escape-inputs")
+    return ZebetiteSparkAudit.ScanEscapeInputs(args[1]);
 if (args.Length == 3 && args[0] == "--zebetite-skip-export")
     return ZebetiteSkipAudit.Export(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--zebetite-skip-export-aligned")
@@ -1294,6 +1298,8 @@ if (args.Length == 3 && args[0] == "--zebetite-skip-export-approach")
     return ZebetiteSkipAudit.ExportApproach(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--zebetite-skip-export-long-approach")
     return ZebetiteSkipAudit.ExportApproach(args[1], args[2], 360);
+if (args.Length == 3 && args[0] == "--zebetite-skip-export-reference-ice")
+    return ZebetiteSkipAudit.ExportReferenceIce(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--zebetite-skip-repeat-jumps")
     return ZebetiteSkipAudit.ExploreRepeatedJumps(args[1]);
 if (args.Length == 2 && args[0] == "--zebetite-skip-scan-jumps")

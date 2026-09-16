@@ -577,8 +577,9 @@ static void VerifySamusPostureMovement()
         "crouch aim cannot cross facing families");
 
     // Releasing Down while retaining the facing direction matches `$91:A6A0`'s direct
-    // `$27 -> $01` record. This is not the `$3B` standing animation: radius expansion and
-    // floor alignment happen immediately at the post-input pose-change seam.
+    // `$27 -> $01` record. This is not the `$3B` standing animation: expansion collision
+    // and floor alignment happen at the post-input seam, but `$91:FDAE` leaves the old
+    // live radius published until ordinary alpha begins the following frame.
     var directStand = new SamusState
     {
         Pose = SamusPoseIds.CrouchingRightPose,
@@ -592,8 +593,11 @@ static void VerifySamusPostureMovement()
             bus, level, SamusPoseIds.FacingRightNormalPose, nmiFrameCounter: 0),
         "direct crouch-to-standing record applies");
     AssertEqual(0x01, directStand.Pose, "direct crouch exit target");
-    AssertEqual(21, directStand.Kinematics.YRadius, "direct crouch exit radius");
+    AssertEqual(16, directStand.Kinematics.YRadius, "direct crouch exit commit retains live crouch radius");
     AssertEqual(43, directStand.YPosition, "direct crouch exit keeps feet aligned");
+    directStand.RefreshCollisionRadii(bus);
+    AssertEqual(21, directStand.Kinematics.YRadius, "next alpha publishes direct crouch exit radius");
+    AssertEqual(43, directStand.YPosition, "alpha does not repeat direct crouch exit center correction");
 
     var directStandLeft = new SamusState
     {
@@ -608,6 +612,7 @@ static void VerifySamusPostureMovement()
             bus, level, SamusPoseIds.FacingLeftNormalPose, nmiFrameCounter: 1),
         "mirrored direct crouch-to-standing record applies");
     AssertEqual(0x02, directStandLeft.Pose, "mirrored direct crouch exit target");
+    AssertEqual(16, directStandLeft.Kinematics.YRadius, "mirrored direct crouch exit retains live radius");
     AssertEqual(43, directStandLeft.YPosition, "mirrored direct crouch exit alignment");
 
     // `$91:FC66` first accepts the 16 -> 19 radius expansion, moving the center up three

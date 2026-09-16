@@ -49,7 +49,9 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // `$91:FDAE` explicitly publishes the previous pose's radius while probing the
+        // enlargement, and this direct transition does not call Samus_SetRadius afterward.
+        // Ordinary alpha publishes the standing radius at the start of the next frame.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;

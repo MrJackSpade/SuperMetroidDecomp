@@ -1,12 +1,16 @@
 diff --git a/src/main.c b/src/main.c
 --- a/src/main.c
 +++ b/src/main.c
-@@ -313,3 +313,7 @@ static const struct RendererFuncs kSdlRendererFuncs = {
+@@ -313,3 +313,11 @@ static const struct RendererFuncs kSdlRendererFuncs = {
  #undef main
  int main(int argc, char** argv) {
 +  if (argc == 4 && strcmp(argv[1], "--diagnostic-xray-climb") == 0) {
 +    extern int DiagnosticXrayClimb(const char *, const char *);
 +    return DiagnosticXrayClimb(argv[2], argv[3]);
++  }
++  if (argc == 4 && strcmp(argv[1], "--diagnostic-xray-timing") == 0) {
++    extern int DiagnosticXrayTiming(const char *, const char *);
++    return DiagnosticXrayTiming(argv[2], argv[3]);
 +  }
  #ifdef __SWITCH__
 diff --git a/src/sm_rtl.c b/src/sm_rtl.c

@@ -116,25 +116,34 @@ internal static partial class Program
         var xrayFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusXrayState)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
+                xrayFields.Length - 3).SequenceEqual(xrayFields.Where(field => field.Name is not
+                    "<PendingActivationPose>k__BackingField" and not "<OwnsSamusControl>k__BackingField"
+                    and not "<SuspendedSubsystems>k__BackingField")),
+            "0.2.0 X-Ray layout omits activation-pose, control, and subsystem ownership fields");
+        AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
                 xrayFields.Length - 2).SequenceEqual(xrayFields.Where(field => field.Name is not
-                    "<PendingActivationPose>k__BackingField" and not "<OwnsSamusControl>k__BackingField")),
-            "0.2.0 X-Ray layout omits only activation-pose and control ownership fields");
+                    "<OwnsSamusControl>k__BackingField" and not "<SuspendedSubsystems>k__BackingField")),
+            "legacy X-Ray preserves its HDMA, freeze, phase, and palette state before explicit owners");
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusXrayState), xrayFields,
                 xrayFields.Length - 1).SequenceEqual(xrayFields.Where(field =>
-                    field.Name != "<OwnsSamusControl>k__BackingField")),
-            "legacy X-Ray preserves its HDMA, freeze, phase, and palette state");
+                    field.Name != "<SuspendedSubsystems>k__BackingField")),
+            "immediately previous X-Ray layout omits only subsystem-disable ownership");
         var legacyXray = new SamusXrayState();
         typeof(SamusXrayState).GetField("<IsActive>k__BackingField",
             BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
         typeof(SamusXrayState).GetField("<TimeIsFrozen>k__BackingField",
             BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(legacyXray, true);
-        DebuggerStateFieldMigrations.InitializeMissingFields(legacyXray, xrayFields.Length - 1);
+        DebuggerStateFieldMigrations.InitializeMissingFields(legacyXray, xrayFields.Length - 2);
         AssertTrue(legacyXray.OwnsSamusControl,
             "legacy active frozen X-Ray restores its dedicated Samus handlers");
+        AssertEqual(XraySuspendedSubsystems.All, legacyXray.SuspendedSubsystems,
+            "legacy active X-Ray reconstructs all four native subsystem disables");
         var legacyInactiveXray = new SamusXrayState();
-        DebuggerStateFieldMigrations.InitializeMissingFields(legacyInactiveXray, xrayFields.Length - 1);
+        DebuggerStateFieldMigrations.InitializeMissingFields(legacyInactiveXray, xrayFields.Length - 2);
         AssertTrue(!legacyInactiveXray.OwnsSamusControl,
             "legacy inactive X-Ray does not invent Samus handler ownership");
+        AssertEqual(XraySuspendedSubsystems.None, legacyInactiveXray.SuspendedSubsystems,
+            "legacy inactive X-Ray does not invent suspended subsystems");
         var draygonGrabFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [typeof(SamusDraygonGrabbedState)])!;
         AssertTrue(DebuggerStateFieldMigrations.SelectSerializedFields(typeof(SamusDraygonGrabbedState),

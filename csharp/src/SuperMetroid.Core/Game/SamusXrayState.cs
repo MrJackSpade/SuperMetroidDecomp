@@ -34,6 +34,29 @@ public sealed class SamusXrayState
     /// </summary>
     public bool IsReserveMode => IsActive && !OwnsSamusControl && !TimeIsFrozen;
 
+    /// <summary>
+    /// The four independent native enable words disabled by X-Ray setup. Unlike shared
+    /// time freeze, automatic Reserve completion and a room transition do not restore
+    /// these words; that mismatch is the cartridge's direct/indirect G-Mode state.
+    /// </summary>
+    public XraySuspendedSubsystems SuspendedSubsystems { get; private set; }
+
+    /// <summary>True after Reserve recovery has stranded X-Ray's subsystem disables.</summary>
+    public bool IsGMode => !TimeIsFrozen &&
+        SuspendedSubsystems == XraySuspendedSubsystems.All;
+
+    public bool AreEnemyProjectilesSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.EnemyProjectiles) != 0;
+
+    public bool ArePlmsSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.Plms) != 0;
+
+    public bool AreAnimatedTilesSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.AnimatedTiles) != 0;
+
+    public bool ArePaletteFxSuspended =>
+        (SuspendedSubsystems & XraySuspendedSubsystems.PaletteFx) != 0;
+
     /// <summary>Interrupted pose published by alpha, awaiting bank-$91 pose commit in beta.</summary>
     public byte? PendingActivationPose { get; private set; }
 
@@ -123,7 +146,8 @@ public sealed class SamusXrayState
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        if (IsActive || PendingActivationPose is not null)
+        bool cancellingDirectGMode = IsReserveMode;
+        if ((IsActive && !cancellingDirectGMode) || PendingActivationPose is not null)
             return false;
 
         // `$91:E173-$E189` contains a very specific five-bomb/cooldown/divisor rejection.
@@ -157,6 +181,17 @@ public sealed class SamusXrayState
         byte targetPose = posture == XrayPosture.Crouching
             ? facingLeft ? SamusPoseIds.XrayingCrouchingLeftPose : SamusPoseIds.XrayingCrouchingRightPose
             : facingLeft ? SamusPoseIds.XrayingStandingLeftPose : SamusPoseIds.XrayingStandingRightPose;
+
+        // A second X-Ray setup under direct G-Mode makes the stranded phase-five object
+        // observe a nonzero freeze word. Its `$88:8A08 -> $91:E2AD` cleanup immediately
+        // restores the four subsystem-enable words. Represent the two native HDMA objects
+        // at their shared observable boundary instead of inventing gate-specific state.
+        if (cancellingDirectGMode)
+        {
+            TimeIsFrozen = true;
+            Finish(bus, samus);
+            return true;
+        }
         if (deferActivation)
         {
             PendingActivationPose = targetPose;
@@ -212,6 +247,7 @@ public sealed class SamusXrayState
         SetupStage = 1;
         BeamPhase = XrayBeamPhase.NoBeam;
         TimeIsFrozen = true;
+        SuspendedSubsystems = XraySuspendedSubsystems.All;
         IsActive = true;
         OwnsSamusControl = true;
     }
@@ -235,6 +271,30 @@ public sealed class SamusXrayState
     {
         if (IsActive)
             TimeIsFrozen = false;
+    }
+
+    /// <summary>
+    /// Models the door-transition cleanup which removes direct G-Mode's stranded X-Ray
+    /// HDMA object without restoring any of the four independent subsystem-enable words.
+    /// </summary>
+    internal void TransitionDirectGModeToIndirect()
+    {
+        if (!IsReserveMode)
+            return;
+
+        IsActive = false;
+        OwnsSamusControl = false;
+        SetupStage = 0;
+        BeamPhase = XrayBeamPhase.NoBeam;
+        Angle = SnesAngle.Zero;
+        AngularWidth = 0;
+        AngularSubwidth = 0;
+        AngularWidthDelta = 0;
+        AngularSubwidthDelta = 0;
+        BeamSizeFlag = 0;
+        SpecialPaletteType = (ushort)SamusSpecialPaletteType.None;
+        SpecialPaletteFrame = 0;
+        CommonPaletteTimer = 0;
     }
 
     /// <summary>Another special-palette handler replaces shared WRAM <c>$0A68/$0ACE/$0AD0</c>.</summary>
@@ -604,6 +664,7 @@ public sealed class SamusXrayState
             samus.YPosition = unchecked((ushort)(samus.YPosition - radiusDifference));
 
         TimeIsFrozen = false;
+        SuspendedSubsystems = XraySuspendedSubsystems.None;
         IsActive = false;
         OwnsSamusControl = false;
         SetupStage = 0;

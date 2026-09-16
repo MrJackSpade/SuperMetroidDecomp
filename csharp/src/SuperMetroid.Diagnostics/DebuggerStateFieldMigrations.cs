@@ -42,14 +42,16 @@ internal static class DebuggerStateFieldMigrations
             return SelectSerializedFields(type, current.Where(field =>
                 field.Name != "spacetimeIntroRestartSlot").ToArray(), count);
         }
-        if (type == typeof(SamusXrayState) && count == current.Length - 2 &&
+        if (type == typeof(SamusXrayState) && count == current.Length - 3 &&
             current.Any(field => field.Name == "<PendingActivationPose>k__BackingField") &&
-            current.Any(field => field.Name == "<OwnsSamusControl>k__BackingField"))
+            current.Any(field => field.Name == "<OwnsSamusControl>k__BackingField") &&
+            current.Any(field => field.Name == "<SuspendedSubsystems>k__BackingField"))
         {
-            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks pending activation and separate Samus-control ownership; both restore inactive.");
+            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks pending activation, separate Samus-control ownership, and subsystem-disable ownership; reconstructing native ownership from its active/freeze words.");
             return current.Where(field => field.Name is not
                 "<PendingActivationPose>k__BackingField" and not
-                "<OwnsSamusControl>k__BackingField").ToArray();
+                "<OwnsSamusControl>k__BackingField" and not
+                "<SuspendedSubsystems>k__BackingField").ToArray();
         }
         if (type == typeof(SamusShinesparkState) && count == current.Length - 3)
         {
@@ -57,10 +59,21 @@ internal static class DebuggerStateFieldMigrations
             return current.Where(field => field.Name is not "<StoredShineWarningSoundSuppressed>k__BackingField"
                 and not "<LaunchSoundSuppressed>k__BackingField" and not "<CrashSoundSuppressed>k__BackingField").ToArray();
         }
-        if (type == typeof(SamusXrayState) && count == current.Length - 1)
+        if (type == typeof(SamusXrayState) && count == current.Length - 2 &&
+            current.Any(field => field.Name == "<OwnsSamusControl>k__BackingField") &&
+            current.Any(field => field.Name == "<SuspendedSubsystems>k__BackingField"))
         {
-            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks separate Samus-control ownership; active frozen X-Ray restores its dedicated handlers.");
-            return current.Where(field => field.Name != "<OwnsSamusControl>k__BackingField").ToArray();
+            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks separate Samus-control and subsystem-disable ownership; reconstructing both from its active/freeze words.");
+            return current.Where(field => field.Name is not
+                "<OwnsSamusControl>k__BackingField" and not
+                "<SuspendedSubsystems>k__BackingField").ToArray();
+        }
+        if (type == typeof(SamusXrayState) && count == current.Length - 1 &&
+            current.Any(field => field.Name == "<SuspendedSubsystems>k__BackingField"))
+        {
+            Console.Error.WriteLine("WARNING: Legacy X-Ray state lacks independent subsystem-disable ownership; reconstructing it from the saved active/freeze words.");
+            return current.Where(field =>
+                field.Name != "<SuspendedSubsystems>k__BackingField").ToArray();
         }
         // These values describe a pending host publication, not a new cartridge word.
         // Historical captures cannot recover producer-time suppression. Preserve their
@@ -370,12 +383,21 @@ internal static class DebuggerStateFieldMigrations
     /// <summary>Constructs an empty owner only for the known legacy layout that omitted it.</summary>
     internal static void InitializeMissingFields(object instance, int serializedCount)
     {
-        if (instance is SamusXrayState xray && serializedCount ==
-            GetCurrentInstanceFieldCount(typeof(SamusXrayState)) - 1)
+        if (instance is SamusXrayState xray && serializedCount <=
+            GetCurrentInstanceFieldCount(typeof(SamusXrayState)) - 2)
         {
             typeof(SamusXrayState)
                 .GetField("<OwnsSamusControl>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .SetValue(xray, xray.IsActive && xray.TimeIsFrozen);
+        }
+        if (instance is SamusXrayState legacyXray && serializedCount <
+            GetCurrentInstanceFieldCount(typeof(SamusXrayState)))
+        {
+            typeof(SamusXrayState)
+                .GetField("<SuspendedSubsystems>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .SetValue(legacyXray, legacyXray.IsActive
+                    ? XraySuspendedSubsystems.All
+                    : XraySuspendedSubsystems.None);
         }
         if (instance is SuperMetroid.Core.Audio.ManagedPcmSampleBank && serializedCount == 3)
         {

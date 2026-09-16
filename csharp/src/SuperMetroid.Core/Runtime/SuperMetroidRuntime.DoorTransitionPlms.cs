@@ -15,6 +15,12 @@ public sealed partial class SuperMetroidRuntime
     /// </remarks>
     internal void RunDoorTransitionPlmHandler()
     {
+        // The explicit transition-time call still enters the common bank-$84 handler,
+        // whose first instruction returns while native PLM word `$1C23` is disabled.
+        // Indirect G-Mode deliberately carries that disabled word across the door.
+        if (Samus?.Xray.ArePlmsSuspended == true)
+            return;
+
         RunPlmHandlerCore(controllerNewInput: 0);
 
         // Setup-time PLMs do not have Samus contact/input available. If a future

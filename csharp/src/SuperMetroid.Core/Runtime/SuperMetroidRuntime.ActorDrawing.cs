@@ -24,7 +24,7 @@ public sealed partial class SuperMetroidRuntime
         // `$A0:885D` calls `$86:8390` after bomb/projectile explosions and before the
         // layer loop reaches Samus at layer three. Room-specific actors may supply this
         // pass without teaching the reusable Landing Site runtime how to own enemies.
-        if (!deathOwnsSamus)
+        if (!deathOwnsSamus && !Samus.Xray.AreEnemyProjectilesSuspended)
         {
             // Both Ceres elevator definitions carry properties $3000, including bit
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
@@ -383,10 +383,11 @@ public sealed partial class SuperMetroidRuntime
         // Phase six inserts high-priority enemy projectiles before layer-six actors.
         // Keep the historical delegate name for API compatibility even though the
         // native source calls this pass DrawHighPriorityEprojs.
-        if (!deathOwnsSamus)
+        if (!deathOwnsSamus && Samus?.Xray.AreEnemyProjectilesSuspended != true)
             drawLowPriorityEnemyProjectiles?.Invoke(Oam);
 
-        if (!deathOwnsSamus && Enemies.IsLoaded)
+        if (!deathOwnsSamus && Enemies.IsLoaded &&
+            Samus?.Xray.AreEnemyProjectilesSuspended != true)
         {
             Enemies.DrawLowPriorityEnemyProjectiles(
                 Oam,

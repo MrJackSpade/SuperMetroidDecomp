@@ -537,6 +537,11 @@ public sealed partial class SuperMetroidRuntime
         DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, Samus);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
+        // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
+        // but it does not restore the four subsystem enable words. Destination room setup
+        // therefore begins in indirect G-Mode and cannot create a visible gate actor.
+        Samus.Xray.TransitionDirectGModeToIndirect();
+
         // The desktop's opt-in error reporter resumes at the next emulated-frame boundary.
         // Cartridge code cannot throw, but translated room construction can still reject an
         // unsupported definition. Build the read-only asset graph before consuming the
@@ -1237,7 +1242,11 @@ public sealed partial class SuperMetroidRuntime
             throw new InvalidOperationException("Gate projectile work requires active room level data.");
 
         foreach (DownwardGateProjectileRequest request in Plms.TakeDownwardGateProjectileRequests())
+        {
+            if (Samus?.Xray.AreEnemyProjectilesSuspended == true)
+                continue;
             Enemies.ApplyDownwardGateProjectileRequest(request, LevelData.WidthInBlocks);
+        }
     }
 
     /// <summary>

@@ -1589,17 +1589,20 @@ public sealed partial class SuperMetroidRuntime
         // therefore occupies its highest slots; Hyper Beam later takes the next free slot.
         // Running the room owner before the specialized Hyper Beam owner preserves that
         // ordering until both are consolidated behind one allocator.
-        RoomPaletteFx.Step(
-            _addressSpace,
-            Cgram,
-            Samus?.YPosition ?? 0,
-            Samus?.EquippedItems ?? 0,
-            enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
-            areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
-                System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss),
-            samus: Samus,
-            nmiFrameCounter: NmiFrameCounter,
-            powerBomb: BombProjectiles.PowerBombExplosion);
+        if (Samus?.Xray.ArePaletteFxSuspended != true)
+        {
+            RoomPaletteFx.Step(
+                _addressSpace,
+                Cgram,
+                Samus?.YPosition ?? 0,
+                Samus?.EquippedItems ?? 0,
+                enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
+                areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss),
+                samus: Samus,
+                nmiFrameCounter: NmiFrameCounter,
+                powerBomb: BombProjectiles.PowerBombExplosion);
+        }
         LastHyperBeamPaletteFxStep = Samus?.Drained.HyperBeamPaletteFx.Step(
             _addressSpace,
             Cgram);
@@ -3784,7 +3787,8 @@ public sealed partial class SuperMetroidRuntime
                     Samus.CommitPoseHistory(_addressSpace);
             }
 
-            if (!deathOwnsSamus && !TimeIsFrozen && LevelData is not null)
+            if (!deathOwnsSamus && !TimeIsFrozen &&
+                !Samus.Xray.AreEnemyProjectilesSuspended && LevelData is not null)
                 Enemies.StepEnemyProjectileInstructions(
                     LevelData, Samus, Camera.XPosition, Camera.YPosition,
                     NmiFrameCounter8, BombProjectiles);
@@ -3794,7 +3798,7 @@ public sealed partial class SuperMetroidRuntime
             // acquired above therefore consumes its initial timer and draws $E0B7 in this
             // same frame; when it later becomes air, anchor validation has already run and
             // sees that mutation on the following Samus frame.
-            if (!deathOwnsSamus && !TimeIsFrozen)
+            if (!deathOwnsSamus && !TimeIsFrozen && !Samus.Xray.ArePlmsSuspended)
             {
                 RunPlmHandlerCore(Controller1.NewlyPressed);
 
@@ -4070,17 +4074,20 @@ public sealed partial class SuperMetroidRuntime
                 ActiveRoom?.State.MainCodePointer ?? RoomMainCodePointers.ScrollingSkyLand);
         }
 
-        SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
-        if (ActiveRoom is not null)
-            RoomTreadmills.Step(_addressSpace,
-                System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
+        if (Samus?.Xray.AreAnimatedTilesSuspended != true)
+        {
+            SandAnimatedTiles.Step(_addressSpace, Vram, VramWrites);
+            if (ActiveRoom is not null)
+                RoomTreadmills.Step(_addressSpace,
+                    System.HasAnyBossBits(ActiveRoom.AreaIndex, BossBits.AreaBoss), VramWrites);
+        }
         StepEscapeRoomEffects();
         TourianStatues.StepTiles(this);
 
         // Door ASM $B971/$E1D8 creates an ordinary bank-$87 animated-tile object. Its
         // handler publishes one 32-byte source per frame only after Phantoon's area-boss
         // bit is set; NMI consumes the queued transfer on the following accepted frame.
-        if (WreckedShipTreadmill.IsActive)
+        if (WreckedShipTreadmill.IsActive && Samus?.Xray.AreAnimatedTilesSuspended != true)
         {
             AreaId areaIndex = ActiveRoom?.AreaIndex ?? throw new InvalidOperationException(
                 "A live Wrecked Ship treadmill animation has no active cartridge room.");

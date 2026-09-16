@@ -89,6 +89,12 @@ public static class RoomHeaderPointers
     /// <summary>Blue Brinstar double-missile room at $8F:A1D8 (area $01, room $1D).</summary>
     public const ushort BlueBrinstarDoubleMissile = 0xa1d8;
 
+    /// <summary>RoomHeader_PinkBrinstarHopper at $8F:A130; the high-speed right-facing gate-glitch room.</summary>
+    public const ushort PinkBrinstarHopper = 0xa130;
+
+    /// <summary>RoomHeader_EastTunnel at $8F:CF80; Maridia room $03 with the frozen-enemy gate setup.</summary>
+    public const ushort EastTunnel = 0xcf80;
+
     /// <summary>RoomHeader_MainHall at $8F:B236, Lower Norfair's elevator destination.</summary>
     public const ushort LowerNorfairMainHall = 0xb236;
 

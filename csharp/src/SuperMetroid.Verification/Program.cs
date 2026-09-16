@@ -62,6 +62,11 @@ if (args is ["--gate-beam-collision"])
     VerifyKronicGateBeamCollision();
     return 0;
 }
+if (args is ["--right-facing-gate-glitch"])
+{
+    VerifyRightFacingGateGlitches();
+    return 0;
+}
 if (args is ["--red-tower-hero"])
 {
     VerifyControlledRedTowerHeroShot();
@@ -953,6 +958,7 @@ VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv")
 VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410.csv");
 VerifyKronicGateBeamCollision();
 VerifyGateJumpTraces();
+VerifyRightFacingGateGlitches();
 VerifySparkCrashAlignment();
 VerifyEnemyAngleDivision();
 VerifyDraygonEyeEffects();

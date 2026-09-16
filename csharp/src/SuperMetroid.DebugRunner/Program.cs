@@ -56,6 +56,14 @@ if (args is ["--shaktool-dig-state", var digRom, var digState])
     return ShaktoolDigStateAudit.Run(digRom, digState);
 if (args.Length == 2 && args[0] == "--gate-glitch-room-audit")
     return GateGlitchRoomAudit.Run(args[1]);
+if (args.Length == 3 && args[0] == "--gate-glitch-room-inspect")
+    return GateGlitchRoomAudit.InspectRetailRoom(args[1], Convert.ToUInt16(args[2], 16));
+if (args.Length == 3 && args[0] == "--gate-glitch-right-sweep")
+    return GateGlitchRoomAudit.SweepRightFacingRetailGate(args[1], Convert.ToUInt16(args[2], 16));
+if (args.Length == 2 && args[0] == "--gate-glitch-east-search")
+    return GateGlitchRoomAudit.SearchEastTunnelFrozenSetup(args[1]);
+if (args.Length == 3 && args[0] == "--gate-glitch-east-seed")
+    return GateGlitchRoomAudit.WriteEastTunnelNativeSeed(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--gate-glitch-room-audit")
     return GateGlitchRoomAudit.Run(args[1], byte.Parse(args[2]));
 if (args.Length == 4 && args[0] == "--gate-glitch-room-audit")

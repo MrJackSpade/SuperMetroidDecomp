@@ -67,6 +67,11 @@ if (args is ["--right-facing-gate-glitch"])
     VerifyRightFacingGateGlitches();
     return 0;
 }
+if (args is ["--green-hill-gate-glitch"])
+{
+    VerifyGreenHillGrappleSpeedGateGlitch();
+    return 0;
+}
 if (args is ["--red-tower-hero"])
 {
     VerifyControlledRedTowerHeroShot();
@@ -959,6 +964,7 @@ VerifyCeilingWrapPlmTrace("csharp/test-fixtures/movement-release/ceiling-plm-410
 VerifyKronicGateBeamCollision();
 VerifyGateJumpTraces();
 VerifyRightFacingGateGlitches();
+VerifyGreenHillGrappleSpeedGateGlitch();
 VerifySparkCrashAlignment();
 VerifyEnemyAngleDivision();
 VerifyDraygonEyeEffects();

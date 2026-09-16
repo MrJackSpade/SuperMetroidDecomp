@@ -308,12 +308,12 @@ static void VerifySamusGrappleSwingAndRelease()
     // that the shared reaction side effect is retained independently of collision carry.
     foreach ((ushort collisionWord, bool expectedCancellation, int expectedPlms) in new[]
     {
-        // A clear-carry type-four endpoint survives all four fractional probes, so each
-        // probe allocates its own one-handler native no-op slot.  Solid type C stops at
-        // the first carry-set probe and therefore allocates exactly one.
+        // `$94:A85B` runs all four fractional probes unless a carry+overflow connection
+        // is accepted. Both air type four and solid type C therefore allocate four
+        // one-handler native no-op slots; only the fourth reaction decides cancellation.
         ((ushort)0x4000, false, 4),
         ((ushort)0x7000, false, 0),
-        ((ushort)0xc000, true, 1),
+        ((ushort)0xc000, true, 4),
         ((ushort)0xf000, true, 0),
     })
     {

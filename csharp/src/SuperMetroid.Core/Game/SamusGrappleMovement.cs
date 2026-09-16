@@ -310,6 +310,7 @@ public static partial class SamusGrappleMovement
         // authored per-frame velocity while retaining every intermediate collision point.
         int xSubstep = grapple.ExtensionXVelocity << 6;
         int ySubstep = grapple.ExtensionYVelocity << 6;
+        GrappleBlockReaction finalReaction = default;
         for (int substep = 0; substep < 4; substep++)
         {
             grapple.EndpointXOffsetFixed = unchecked(grapple.EndpointXOffsetFixed + xSubstep);
@@ -322,10 +323,9 @@ public static partial class SamusGrappleMovement
                 grapple.AnchorX,
                 grapple.AnchorY,
                 plms);
-            if (!reaction.Carry)
+            finalReaction = reaction;
+            if (!reaction.Carry || !reaction.Overflow)
                 continue;
-            if (!reaction.Overflow)
-                return QueueFiringCancellation(grapple);
 
             // Carry+overflow is the native connected result. $94:A8DA centers the point in
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
@@ -338,6 +338,15 @@ public static partial class SamusGrappleMovement
                 previousXPosition,
                 previousYPosition);
         }
+
+        // `$94:A85B` does not stop when an intermediate probe returns carry without
+        // overflow. It executes all four quarter-velocity probes and returns only the
+        // fourth reaction to `$9B:C703`. At high running speed a thin solid cell can
+        // therefore be sampled and then cleared before the caller decides whether to
+        // cancel. Green Hill Zone's Grapple/Speed Booster gate exploit depends on this
+        // general cartridge ordering; it is not a gate-specific collision exception.
+        if (finalReaction.Carry)
+            return QueueFiringCancellation(grapple);
 
         return new GrappleMovementResult(
             grapple.Phase,

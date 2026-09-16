@@ -68,6 +68,9 @@ public static class RoomHeaderPointers
     /// <summary>Morph Ball Room at $8F:9E9F.</summary>
     public const ushort MorphBallRoom = 0x9e9f;
 
+    /// <summary>RoomHeader_GreenHillZone at $8F:9E52; contains the blue-left gate used by Grapple and Speed Booster gate glitches.</summary>
+    public const ushort GreenHillZone = 0x9e52;
+
     /// <summary>Construction Zone at $8F:9F11.</summary>
     public const ushort ConstructionZone = 0x9f11;
 

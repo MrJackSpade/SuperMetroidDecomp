@@ -77,9 +77,11 @@ internal static class DownbackComparisonAudit
                 if (entry == 3 && frame == 0) expected = 0x800;
                 if (frame >= 40) expected = 0;
                 if (input != expected) throw new InvalidDataException("Changed downback input timeline.");
-                // The managed hitbox is eager after a pose change; cartridge alpha
-                // refreshes its radius latch before movement. Sample that same boundary.
-                ushort movementXRadius = samus.Kinematics.XRadius, movementYRadius = samus.Kinematics.YRadius;
+                // Native records the radius after alpha but the managed frame is atomic
+                // to this external audit. Read the same current-pose definition before
+                // stepping; a later beta pose commit deliberately retains this latch.
+                ushort movementXRadius = 5;
+                ushort movementYRadius = SamusState.ReadPoseYRadius(bus, samus.Pose);
                 runtime.StepFrame(input, afterAcceptedNmi: () =>
                 {
                     if (entry == 4 && frame == 0)

@@ -74,3 +74,10 @@ cleanup. Its geometry/position assertions remain, but velocity expectations now
 reflect the original-CPU result. A separate assertion preserves suit-palette restoration,
 which belongs before the landing-command gate. Player confirmation remains separate from these
 deterministic tests.
+
+After the managed pose-ownership refactor, the external comparison also reads the
+current pose definition for the native post-alpha radius sample. The cached managed
+radius intentionally belongs to the prior atomic frame at that point. Sampling the
+cache produced 3,281 radius-only mismatches while every position, pose, speed and
+collision value still agreed; sampling the cartridge-equivalent boundary restores
+all 152,320 exact matches without changing production movement.

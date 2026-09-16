@@ -376,6 +376,8 @@ if (args.Length == 3 && args[0] == "--intro-text-capture-audit")
     return IntroTextCaptureAudit.Run(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--xray-first-use-audit")
     return XrayFirstUseAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--xray-climb-audit")
+    return XrayClimbComparisonAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--grapple-jump-aim-audit")
     return GrappleJumpAimAudit.Run(args[1]);
 if (args.Length == 3 && args[0] == "--crocomire-attack-entry-audit")

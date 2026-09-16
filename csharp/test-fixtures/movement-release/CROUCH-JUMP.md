@@ -61,10 +61,12 @@ Standing 16.16 apex measurements (fixed launch Y `02EB.FFFF`): air normal
 The initial diagnostic sampled native radius scratch latches after pose processing
 and reported 960 differences, with all positions/velocities already identical.
 Native alpha refreshes the active radius before movement; changed-pose collision
-can restore the old radius afterward. C# keeps the new radius eagerly. Version 2
-samples active movement radii at the same phase on both sides instead of treating
-that storage-lifetime difference as a movement defect. No comparison field was
-removed and no production workaround was added.
+can restore the old radius afterward. Version 2 samples active movement radii at
+the same phase on both sides instead of treating that storage-lifetime difference
+as a movement defect. After #442 made C# pose commits retain the old latch until
+the following alpha, the external audit was updated to read the current pose's
+compiled radius at that boundary rather than sampling the pre-alpha storage word.
+No comparison field was removed and no production workaround was added.
 
 ## Replay
 

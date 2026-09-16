@@ -61,9 +61,11 @@ internal static class CrouchJumpComparisonAudit
                 if (frame >= 24 && frame < 180) expected |= 0x80;
                 if (frame >= 24 + offset && frame < 180) expected |= (ushort)(angle * 0x10);
                 if (input != expected) throw new InvalidDataException("Changed crouch-jump input timeline.");
-                // The managed hitbox is eager after a pose change; cartridge alpha
-                // refreshes its radius latch before movement. Sample that same boundary.
-                ushort movementXRadius = samus.Kinematics.XRadius, movementYRadius = samus.Kinematics.YRadius;
+                // Native records the radius after alpha but the managed frame is atomic
+                // to this external audit. Read the same current-pose definition before
+                // stepping; a later beta pose commit deliberately retains this latch.
+                ushort movementXRadius = 5;
+                ushort movementYRadius = SamusState.ReadPoseYRadius(bus, samus.Pose);
                 runtime.StepFrame(input);
                 if (frame >= 24)
                     apex = Math.Min(apex, samus.Kinematics.YFixed);

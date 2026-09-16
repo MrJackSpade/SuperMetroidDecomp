@@ -17,13 +17,19 @@ GUI automation when diagnosing a recorded Super Metroid technique.
    reject a byte-identical ROM whose basename differs. If the hash/revision is
    correct, make an ignored temporary copy using the recorded basename; do not go
    hunting for another revision based on that error alone.
-2. Choose sparse checkpoint frames first. Run
+2. Choose sparse intermediate checkpoint frames first. Run
    `scripts/Export-Snes9xMovieCheckpoints.ps1` with the original ROM, the supplied
    1.43 capture build, and those frame numbers. Read room/state/position words from
    the resulting `frame-N.wram` files to narrow the interesting interval.
-3. Export every frame only across the narrowed interval. A checkpoint for frame N
-   is native state immediately before controller sample N.
-4. Build the smallest deterministic port fixture from one native checkpoint and
+3. Export every frame only across the narrowed interval. An intermediate checkpoint
+   for frame N is native state immediately before controller sample N. These
+   checkpoints intentionally use independent shortened copies and can locate the
+   first divergence, but they cannot establish whether the complete technique works.
+4. For the success/failure verdict, always request the movie's declared frame count.
+   That terminal checkpoint must play the original, unmodified SMV through its end
+   and capture native state after the final recorded frame. Never substitute an
+   earlier shortened checkpoint for this terminal result.
+5. Build the smallest deterministic port fixture from one native checkpoint and
    the movie's recorded inputs. Compare exact fields relevant to the report.
 
 The known capture build accepts:
@@ -32,9 +38,12 @@ The known capture build accepts:
 snes9x.exe --rip ROM SHORTENED_MOVIE CAPTURE_DIRECTORY FRAME
 ```
 
-The export script writes a temporary movie whose header frame count is N+1 for
-each checkpoint. Each playback starts from the original embedded native snapshot,
-so checkpoints are independent rather than accumulated rollback state.
+For an intermediate checkpoint, the export script writes a temporary movie whose
+header frame count is N+1. Each playback starts from the original embedded native
+snapshot, so checkpoints are independent rather than accumulated rollback state.
+For the terminal checkpoint (N equals the declared frame count), the script passes
+the original SMV to the capture build without rewriting or copying it; the capture
+build must save after full playback rather than at a pre-frame boundary.
 
 ## Constraints
 
@@ -46,7 +55,7 @@ so checkpoints are independent rather than accumulated rollback state.
 - The scripts intentionally accept only SMV v1 with one recorded controller. Extend
   them explicitly if a future artifact requires another format.
 - Preserve the supplied movie unchanged. The exporter creates shortened copies in
-  its own output directory.
+  its own output directory only for intermediate divergence checkpoints.
 - Preserve the canonical ROM unchanged. A snapshot-name compatibility copy belongs
   only in ignored/temp storage and must retain the canonical ROM's hash.
 - For this project, use the pinned Japan/USA ROM and cross-check addresses against

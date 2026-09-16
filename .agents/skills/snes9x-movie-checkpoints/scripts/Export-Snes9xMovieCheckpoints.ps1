@@ -110,10 +110,15 @@ foreach ($frame in ($checkpointFrames | Sort-Object -Unique)) {
         throw "Checkpoint frame $frame is outside 0..$frameCount."
     }
 
-    $shortMovie = [byte[]] $movie.Clone()
-    [BitConverter]::GetBytes([uint32] ($frame + 1)).CopyTo($shortMovie, 16)
-    $shortMoviePath = Join-Path $outputRoot ("checkpoint-{0}.smv" -f $frame)
-    [IO.File]::WriteAllBytes($shortMoviePath, $shortMovie)
+    $playbackMoviePath = $resolvedMovie
+    $shortMoviePath = $null
+    if ($frame -lt $frameCount) {
+        $shortMovie = [byte[]] $movie.Clone()
+        [BitConverter]::GetBytes([uint32] ($frame + 1)).CopyTo($shortMovie, 16)
+        $shortMoviePath = Join-Path $outputRoot ("checkpoint-{0}.smv" -f $frame)
+        [IO.File]::WriteAllBytes($shortMoviePath, $shortMovie)
+        $playbackMoviePath = $shortMoviePath
+    }
 
     $captureDirectory = Join-Path $outputRoot ("state-{0}" -f $frame)
     [IO.Directory]::CreateDirectory($captureDirectory) | Out-Null
@@ -123,7 +128,7 @@ foreach ($frame in ($checkpointFrames | Sort-Object -Unique)) {
     $startInfo.WorkingDirectory = Split-Path -Parent $resolvedSnes9x
     $startInfo.ArgumentList.Add('--rip')
     $startInfo.ArgumentList.Add($resolvedRom)
-    $startInfo.ArgumentList.Add($shortMoviePath)
+    $startInfo.ArgumentList.Add($playbackMoviePath)
     $startInfo.ArgumentList.Add($captureDirectory)
     $startInfo.ArgumentList.Add([string] $frame)
     $process = [Diagnostics.Process]::Start($startInfo)
@@ -140,11 +145,13 @@ foreach ($frame in ($checkpointFrames | Sort-Object -Unique)) {
     [IO.File]::WriteAllBytes($wramPath, (Read-SnapshotWram $snapshotPath))
     $manifest.Add(('{0},{1}' -f $frame, [IO.Path]::GetFileName($wramPath)))
 
-    [IO.File]::Delete($shortMoviePath)
+    if ($null -ne $shortMoviePath) {
+        [IO.File]::Delete($shortMoviePath)
+    }
     if (-not $KeepNativeSnapshots) {
         [IO.Directory]::Delete($captureDirectory, $true)
     }
 }
 
 [IO.File]::WriteAllLines((Join-Path $outputRoot 'manifest.csv'), $manifest)
-Write-Output ("Exported {0} independent native pre-frame WRAM checkpoints." -f ($manifest.Count - 1))
+Write-Output ("Exported {0} native WRAM checkpoints. Frame {1}, when requested, is post-playback state from the complete unmodified movie." -f ($manifest.Count - 1), $frameCount)

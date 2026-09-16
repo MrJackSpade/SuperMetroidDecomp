@@ -12,7 +12,7 @@ param(
     [string] $OutputDirectory,
 
     [Parameter(Mandatory = $true)]
-    [int[]] $Frames,
+    [string[]] $Frames,
 
     [switch] $KeepNativeSnapshots
 )
@@ -81,6 +81,20 @@ if ([int64] $controllerOffset + 2 * ([int64] $frameCount + 1) -gt $movie.Length)
 $outputRoot = [IO.Path]::GetFullPath($OutputDirectory)
 [IO.Directory]::CreateDirectory($outputRoot) | Out-Null
 
+$checkpointFrames = [Collections.Generic.List[int]]::new()
+foreach ($frameArgument in $Frames) {
+    foreach ($token in $frameArgument.Split(',', [StringSplitOptions]::RemoveEmptyEntries)) {
+        $parsedFrame = 0
+        if (-not [int]::TryParse($token.Trim(), [ref] $parsedFrame)) {
+            throw "Invalid checkpoint frame '$token'."
+        }
+        $checkpointFrames.Add($parsedFrame)
+    }
+}
+if ($checkpointFrames.Count -eq 0) {
+    throw 'At least one checkpoint frame is required.'
+}
+
 $inputs = [Collections.Generic.List[string]]::new()
 $inputs.Add('frame,input')
 for ($frame = 0; $frame -le $frameCount; $frame++) {
@@ -91,7 +105,7 @@ for ($frame = 0; $frame -le $frameCount; $frame++) {
 
 $manifest = [Collections.Generic.List[string]]::new()
 $manifest.Add('frame,wram')
-foreach ($frame in ($Frames | Sort-Object -Unique)) {
+foreach ($frame in ($checkpointFrames | Sort-Object -Unique)) {
     if ($frame -lt 0 -or $frame -gt $frameCount) {
         throw "Checkpoint frame $frame is outside 0..$frameCount."
     }

@@ -34,6 +34,42 @@ if ($controllerEnd -gt $movie.Length) {
     throw 'The SMV controller stream is truncated.'
 }
 
+$snapshotBytes = [byte[]]::new($controllerOffset - $snapshotOffset)
+[Array]::Copy($movie, $snapshotOffset, $snapshotBytes, 0, $snapshotBytes.Length)
+$snapshotInput = [IO.MemoryStream]::new($snapshotBytes)
+$gzip = [IO.Compression.GZipStream]::new(
+    $snapshotInput,
+    [IO.Compression.CompressionMode]::Decompress)
+$snapshotOutput = [IO.MemoryStream]::new()
+try {
+    $gzip.CopyTo($snapshotOutput)
+    $snapshot = $snapshotOutput.ToArray()
+}
+finally {
+    $gzip.Dispose()
+    $snapshotInput.Dispose()
+    $snapshotOutput.Dispose()
+}
+
+$recordedRomName = $null
+$position = [Array]::IndexOf($snapshot, [byte] 10) + 1
+while ($position + 11 -le $snapshot.Length) {
+    $name = [Text.Encoding]::ASCII.GetString($snapshot, $position, 3)
+    $size = 0
+    $sizeText = [Text.Encoding]::ASCII.GetString($snapshot, $position + 4, 6)
+    if (-not [int]::TryParse($sizeText, [ref] $size) -or
+        $size -lt 0 -or
+        $position + 11 + $size -gt $snapshot.Length) {
+        throw "Invalid embedded snapshot block at offset $position."
+    }
+    if ($name -eq 'NAM') {
+        $rawName = [Text.Encoding]::ASCII.GetString($snapshot, $position + 11, $size)
+        $recordedRomName = $rawName.TrimEnd([char] 0)
+        break
+    }
+    $position += 11 + $size
+}
+
 [pscustomobject]@{
     Version = $version
     FrameCount = $frameCount
@@ -41,6 +77,7 @@ if ($controllerEnd -gt $movie.Length) {
     ControllerCount = $controllerCount
     SnapshotOffset = $snapshotOffset
     ControllerOffset = $controllerOffset
+    RecordedRomName = $recordedRomName
     FileLength = $movie.Length
 }
 
@@ -58,4 +95,3 @@ if ($InputCsvPath) {
     }
     [IO.File]::WriteAllLines($InputCsvPath, $rows)
 }
-

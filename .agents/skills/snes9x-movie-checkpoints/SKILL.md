@@ -12,7 +12,11 @@ GUI automation when diagnosing a recorded Super Metroid technique.
 ## Workflow
 
 1. Run `scripts/Inspect-Snes9xMovie.ps1 -MoviePath <movie>` to validate the movie
-   and export its controller samples when needed.
+   and export its controller samples when needed. Note `RecordedRomName`.
+   Snes9x 1.43 compares this embedded `NAM` value during snapshot restore and can
+   reject a byte-identical ROM whose basename differs. If the hash/revision is
+   correct, make an ignored temporary copy using the recorded basename; do not go
+   hunting for another revision based on that error alone.
 2. Choose sparse checkpoint frames first. Run
    `scripts/Export-Snes9xMovieCheckpoints.ps1` with the original ROM, the supplied
    1.43 capture build, and those frame numbers. Read room/state/position words from
@@ -43,6 +47,7 @@ so checkpoints are independent rather than accumulated rollback state.
   them explicitly if a future artifact requires another format.
 - Preserve the supplied movie unchanged. The exporter creates shortened copies in
   its own output directory.
+- Preserve the canonical ROM unchanged. A snapshot-name compatibility copy belongs
+  only in ignored/temp storage and must retain the canonical ROM's hash.
 - For this project, use the pinned Japan/USA ROM and cross-check addresses against
   the pinned disassembly before naming fields.
-

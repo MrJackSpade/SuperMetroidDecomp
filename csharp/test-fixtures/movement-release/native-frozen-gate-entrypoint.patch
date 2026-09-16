@@ -1,0 +1,16 @@
+diff --git a/src/main.c b/src/main.c
+index 64ececa..0000000 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -42,0 +43 @@ void OpenGLRenderer_Create(struct RendererFuncs *funcs);
++int DiagnosticFrozenGate(const char *rom, const char *output);
+@@ -320,0 +322,2 @@ int main(int argc, char** argv) {
++  if (argc >= 3 && strcmp(argv[0], "--frozen-gate-probe") == 0)
++    return DiagnosticFrozenGate(argv[1], argv[2]);
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+index cea7f4c..0000000 100644
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@ -98,0 +99,2 @@ static StateRecorder state_recorder;
++#include "frozen_gate_probe.h"
++

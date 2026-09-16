@@ -77,6 +77,11 @@ if (args is ["--gmode-gate-glitch"])
     VerifyGModeGateGlitch();
     return 0;
 }
+if (args is ["--frozen-gate-glitch"])
+{
+    VerifyFrozenEnemyGateGlitch();
+    return 0;
+}
 if (args is ["--red-tower-hero"])
 {
     VerifyControlledRedTowerHeroShot();
@@ -971,6 +976,7 @@ VerifyGateJumpTraces();
 VerifyRightFacingGateGlitches();
 VerifyGreenHillGrappleSpeedGateGlitch();
 VerifyGModeGateGlitch();
+VerifyFrozenEnemyGateGlitch();
 VerifySparkCrashAlignment();
 VerifyEnemyAngleDivision();
 VerifyDraygonEyeEffects();

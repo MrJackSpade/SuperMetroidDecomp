@@ -499,8 +499,10 @@ static void VerifySamusPostureMovement()
         samus.TryApplyPostureTransition(
             bus, level, SamusPoseIds.StandingTransitionRightPose, nmiFrameCounter: 1),
         "crouch begins standing transition");
-    AssertEqual(21, samus.Kinematics.YRadius, "standing transition radius");
+    AssertEqual(16, samus.Kinematics.YRadius, "standing commit retains crouch radius");
     AssertEqual(43, samus.YPosition, "floor-constrained expansion moves center up five");
+    samus.RefreshCollisionRadii(bus);
+    AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes standing transition radius");
     for (int tick = 0; tick < 2; tick++)
         samus.AnimateNoFx(bus);
     AssertTrue(samus.ApplyPendingVerifiedAnimationTransition(bus), "standing FD applies");
@@ -544,8 +546,10 @@ static void VerifySamusPostureMovement()
             aimedSamus.TryApplyPostureTransition(
                 bus, level, aimedStandTransitions[index], unchecked((ushort)index)),
             $"aimed stand transition ${aimedStandTransitions[index]:X2} begins");
-        AssertEqual(21, aimedSamus.Kinematics.YRadius, "aimed standing transition radius");
+        AssertEqual(16, aimedSamus.Kinematics.YRadius, "aimed standing commit retains crouch radius");
         AssertEqual(43, aimedSamus.YPosition, "aimed stand keeps feet aligned");
+        aimedSamus.RefreshCollisionRadii(bus);
+        AssertEqual(21, aimedSamus.Kinematics.YRadius, "aimed stand next alpha radius");
         aimedSamus.AnimateNoFx(bus);
         aimedSamus.AnimateNoFx(bus);
         AssertTrue(aimedSamus.ApplyPendingVerifiedAnimationTransition(bus), "aimed stand FD applies");

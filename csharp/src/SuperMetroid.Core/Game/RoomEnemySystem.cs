@@ -1335,7 +1335,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Sbug when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
                 InitializeSbug(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_Mochtroid when slot.EnemyDefinitionPointer == MochtroidDefinition:
+            case EnemyAiCodePointers.InitAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid:
                 InitializeMochtroid(slot);
                 return;
             case EnemyAiCodePointers.InitAI_Metroid when slot.EnemyDefinitionPointer == MetroidDefinition:
@@ -1890,7 +1890,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_Sbug when slot.EnemyDefinitionPointer is SbugDefinition or Sbug2Definition:
                 RunSbugMain(slot, samus, level);
                 return;
-            case EnemyAiCodePointers.MainAI_Mochtroid when slot.EnemyDefinitionPointer == MochtroidDefinition:
+            case EnemyAiCodePointers.MainAI_Mochtroid when slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid:
                 RunMochtroidMain(slot, samus, level);
                 return;
             case EnemyAiCodePointers.MainAI_Metroid when slot.EnemyDefinitionPointer == MetroidDefinition:

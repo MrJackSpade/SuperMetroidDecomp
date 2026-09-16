@@ -82,6 +82,11 @@ if (args is ["--frozen-gate-glitch"])
     VerifyFrozenEnemyGateGlitch();
     return 0;
 }
+if (args is ["--mochtroid-botwoon-clip"])
+{
+    VerifyMochtroidBotwoonPipeClip();
+    return 0;
+}
 if (args is ["--red-tower-hero"])
 {
     VerifyControlledRedTowerHeroShot();
@@ -977,6 +982,7 @@ VerifyRightFacingGateGlitches();
 VerifyGreenHillGrappleSpeedGateGlitch();
 VerifyGModeGateGlitch();
 VerifyFrozenEnemyGateGlitch();
+VerifyMochtroidBotwoonPipeClip();
 VerifySparkCrashAlignment();
 VerifyEnemyAngleDivision();
 VerifyDraygonEyeEffects();

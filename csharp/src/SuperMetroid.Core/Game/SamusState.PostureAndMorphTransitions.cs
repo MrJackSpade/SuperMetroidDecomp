@@ -227,7 +227,11 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        RefreshCollisionRadii(bus);
+        // `$91:FDAE` restores the source radius before returning. The prospective
+        // standing-transition geometry was used only by the collision probes above;
+        // ordinary alpha publishes the target radius at the start of the next frame.
+        // Keeping that one-frame handoff is observable when the crouched body is resting
+        // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
         Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;

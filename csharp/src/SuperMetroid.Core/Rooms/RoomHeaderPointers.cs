@@ -15,6 +15,9 @@ public static class RoomHeaderPointers
     /// <summary>RoomHeader_Botwoon at $8F:D95E; both room states share the grey-door population.</summary>
     public const ushort Botwoon = 0xd95e;
 
+    /// <summary>RoomHeader_BotwoonHallway at $8F:D617; contains the Mochtroid pipe-clip setup.</summary>
+    public const ushort BotwoonHallway = 0xd617;
+
     /// <summary>RoomHeader_Draygon at $8F:DA60; the four-record Maridia boss encounter.</summary>
     public const ushort Draygon = 0xda60;
 

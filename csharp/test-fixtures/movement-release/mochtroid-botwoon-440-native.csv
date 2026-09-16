@@ -1,0 +1,3 @@
+case,enemyNativeIndex,samusX,samusY,enemyX,enemyY,firstDownFrame,standFrame,finalJumpFrame,landingFrame,landingY,frame30Pose,frame30Radius,frame30Y,frame31Radius,frame40Pose,minimumY,finalY,finalPose
+success,192,678,208,664,208,1,30,40,12,180,59,16,175,21,75,158,175,1
+adjacent-one-pixel-low,192,678,208,664,209,1,30,40,19,181,39,16,181,16,39,181,181,39

@@ -235,7 +235,7 @@ public sealed partial class RoomEnemySystem
                 isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpTouchAi ||
-                slot.EnemyDefinitionPointer == MochtroidDefinition &&
+                slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid &&
                 slot.Definition.TouchAiPointer == MochtroidTouchAi ||
                 slot.EnemyDefinitionPointer == YardDefinition &&
                 slot.Definition.TouchAiPointer == YardTouchAi;
@@ -549,7 +549,7 @@ public sealed partial class RoomEnemySystem
                 if (contactDamageIndex != 0)
                     ReactHorizontalShutter(slot);
             }
-            else if (slot.EnemyDefinitionPointer == MochtroidDefinition)
+            else if (slot.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid)
             {
                 ResolveMochtroidTouch(
                     slot,
@@ -826,7 +826,7 @@ public sealed partial class RoomEnemySystem
                 isDeadTourianCorpse ||
                 isShitroid ||
                 isLiteralNoOpShotAi ||
-                enemy.EnemyDefinitionPointer == MochtroidDefinition &&
+                enemy.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid &&
                 enemy.Definition.ShotAiPointer == MochtroidShotAi ||
                 isYard;
 
@@ -2273,7 +2273,7 @@ public sealed partial class RoomEnemySystem
         enemy.EnemyDefinitionPointer == MetareeDefinition && callback == MetareeShotAi ||
         enemy.EnemyDefinitionPointer == FirefleaDefinition && callback == FirefleaShotAi ||
         enemy.EnemyDefinitionPointer == TripperDefinition && callback == TripperShotAi ||
-        enemy.EnemyDefinitionPointer == MochtroidDefinition && callback == MochtroidShotAi ||
+        enemy.EnemyDefinitionPointer == EnemyDefinitionPointers.Mochtroid && callback == MochtroidShotAi ||
         enemy.EnemyDefinitionPointer == SkreeDefinition && callback == SkreeShotAi ||
         enemy.EnemyDefinitionPointer == YardDefinition && callback == YardShotAi ||
         enemy.EnemyDefinitionPointer == EvirDefinition && callback == EvirShotAi ||

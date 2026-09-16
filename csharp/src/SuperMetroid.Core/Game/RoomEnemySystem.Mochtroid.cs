@@ -78,8 +78,6 @@ public sealed class MochtroidEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MochtroidDefinition = 0xd8ff;
-
     private const ushort MochtroidIdleInstructionList = 0xa745;
     private const ushort MochtroidAttachedInstructionList = 0xa759;
     private const ushort MochtroidAttachmentDamagePeriod = 0x0050;

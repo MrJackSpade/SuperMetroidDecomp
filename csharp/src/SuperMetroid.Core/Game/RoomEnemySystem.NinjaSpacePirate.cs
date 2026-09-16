@@ -320,7 +320,9 @@ public sealed partial class RoomEnemySystem
         SamusProjectileSlot? projectile = null;
         for (int index = Math.Min(4, samusProjectiles.Slots.Count - 1); index >= 0; index--)
         {
-            if (samusProjectiles.Slots[index].IsActive)
+            // Native `$B2:F72E` selects by nonzero projectile type, not by bank-$93's
+            // animation-list pointer. This includes the invisible zero-list Murder Beam.
+            if (samusProjectiles.Slots[index].HasEnemyCollisionPayload)
             {
                 projectile = samusProjectiles.Slots[index];
                 break;

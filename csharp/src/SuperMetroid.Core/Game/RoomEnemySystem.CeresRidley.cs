@@ -35,7 +35,7 @@ public sealed partial class RoomEnemySystem
 
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            if (!projectile.IsActive ||
+            if (!projectile.HasEnemyCollisionPayload ||
                 !ExtendedSpritemapOverlapsRectangle(
                     slot,
                     projectile.XPosition,

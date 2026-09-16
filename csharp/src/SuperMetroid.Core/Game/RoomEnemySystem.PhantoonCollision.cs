@@ -46,7 +46,7 @@ public sealed partial class RoomEnemySystem
 
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            if (!projectile.IsActive)
+            if (!projectile.HasEnemyCollisionPayload)
                 continue;
 
             ushort projectileType = projectile.Type;

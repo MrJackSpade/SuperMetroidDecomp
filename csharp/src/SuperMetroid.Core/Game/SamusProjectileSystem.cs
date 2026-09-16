@@ -581,6 +581,18 @@ public sealed partial class SamusProjectileSystem
                     "Charged Chainsaw callback $90:0A0A enters mutable low WRAM at " +
                     "$7E:0A0A; arbitrary data-as-65C816 execution is not translated.");
             }
+            else if (slot.PreInstruction ==
+                SamusProjectilePreInstruction.MurderBeamMisalignedExecution)
+            {
+                // Safe left-facing Murder Beam has instruction pointer zero and never
+                // enters HandleProjectile. Other directions retain an instruction list;
+                // the overread callback then jumps into unrelated bank-$90 code and the
+                // cartridge stops making forward progress. Keep that unsafe execution
+                // explicit instead of silently substituting ordinary beam motion.
+                throw new NotSupportedException(
+                    "Unsafe Murder Beam callback $90:A4AA enters unrelated bank-$90 " +
+                    "execution; only the cartridge-safe left-facing zero-list shot is translated.");
+            }
 
             // Kill_Projectile replaces rather than clears a live beam. Consequently the
             // explosion's first bank-$93 record is selected in this same handler pass.

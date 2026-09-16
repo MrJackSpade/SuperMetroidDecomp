@@ -170,7 +170,7 @@ public sealed partial class RoomEnemySystem
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
             int typeNibble = (projectile.Type >> 8) & 0x0f;
-            if (!projectile.IsActive ||
+            if (!projectile.HasEnemyCollisionPayload ||
                 unchecked((short)projectile.Type) >= 0 ||
                 typeNibble >= 3)
             {

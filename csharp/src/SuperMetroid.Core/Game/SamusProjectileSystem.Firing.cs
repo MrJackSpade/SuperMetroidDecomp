@@ -187,7 +187,12 @@ public sealed partial class SamusProjectileSystem
     private (int? Slot, ushort Sound, byte MaximumQueued) CompleteBeamRelease(
         (int? Slot, ushort Sound) firing)
     {
-        if (firing.Sound != 0)
+        // FireChargedBeam's success path queues the indexed sound value even when an
+        // out-of-domain beam combination reads zero from the adjacent table. Allocation,
+        // not a nonzero sound command, distinguishes that success from the shared failure
+        // tail which cancels an audible charge. Murder Beam is the observable index-15
+        // case: it allocates a persistent projectile while requesting no new sound.
+        if (firing.Slot is not null)
             return (firing.Slot, firing.Sound, MaximumQueued: 15);
 
         return PreviousBeamChargeCounter >=
@@ -326,6 +331,8 @@ public sealed partial class SamusProjectileSystem
                     SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb,
                 SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution =>
                     SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
+                SamusBeamPreInstructionCodes.MurderBeamMisalignedExecution =>
+                    SamusProjectilePreInstruction.MurderBeamMisalignedExecution,
                 _ => throw new NotSupportedException($"Beam callback $90:{callback:X4} is not translated."),
             };
             InitializePowerBeamVelocity(bus, slot);
@@ -503,9 +510,18 @@ public sealed partial class SamusProjectileSystem
             : SamusProjectilePreInstruction.Missile;
 
         // Retail constants embedded beside the bank-$90 producer: missile sound library-one
-        // effect three and ten-frame shared cooldown. Empty ammo auto-deselects the HUD item.
+        // effect three and ten-frame shared cooldown. A Select press made while Item Cancel
+        // is held records a one-shot auto-cancel index; a successful missile consumes that
+        // request before the ordinary empty-ammo fallback. Murder Beam uses this exact path
+        // to begin charging safely while the missile cooldown suppresses its unsafe initial
+        // uncharged shot.
         sharedProjectiles.SetSharedCooldown(isSuperMissile ? (ushort)20 : (ushort)10);
-        if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
+        if (samus.AutoCancelHudItemIndex != 0)
+        {
+            samus.SelectedHudItem = 0;
+            samus.AutoCancelHudItemIndex = 0;
+        }
+        else if ((isSuperMissile ? samus.SuperMissiles : samus.Missiles) == 0)
             samus.SelectedHudItem = 0;
         return (slotIndex, isSuperMissile ? (ushort)4 : (ushort)3);
     }

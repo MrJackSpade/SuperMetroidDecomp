@@ -372,7 +372,7 @@ public sealed partial class RoomEnemySystem
 
             foreach (SamusProjectileSlot shot in projectiles.Slots.Take(5))
             {
-                if (!shot.IsActive)
+                if (!shot.HasEnemyCollisionPayload)
                     continue;
 
                 SamusProjectileTypeWord shotType = shot.PackedType;

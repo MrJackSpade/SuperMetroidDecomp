@@ -870,7 +870,7 @@ public sealed partial class RoomEnemySystem
                 ushort projectileDamage = projectile.Damage;
                 ushort projectileDirection = projectile.Direction;
                 SamusProjectileFamily family = projectile.PackedType.Family;
-                if (!projectile.IsActive)
+                if (!projectile.HasEnemyCollisionPayload)
                     continue;
 
                 // Bomb, power-bomb, and pseudo-screw actors share the projectile slot array,

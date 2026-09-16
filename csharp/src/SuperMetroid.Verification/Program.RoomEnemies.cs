@@ -488,12 +488,12 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     }
 
     SamusProjectileSlot shot = projectiles.Slots[0];
-    ArmProjectile(shot, ripper, type: 0, damage: 20);
+    ArmProjectile(shot, ripper, type: 0x8000, damage: 20);
     AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
         "Ripper ineffective power-beam collision");
     AssertEqual(200, ripper.Health, "Ripper power-beam immunity comes from ROM vulnerability");
 
-    ArmProjectile(shot, ripper, type: 2, damage: 20);
+    ArmProjectile(shot, ripper, type: 0x8002, damage: 20);
     AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, projectiles, sharedProjectiles),
         "Ripper Ice Beam collision");
     AssertEqual(400, ripper.FrozenTimer, "Ripper Ice vulnerability freezes actor");

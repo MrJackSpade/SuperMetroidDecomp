@@ -34,4 +34,12 @@ public static class SamusBeamPreInstructionCodes
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
     public const ushort ChargedChainsawLowWramExecution = 0x0a0a;
+
+    /// <summary>
+    /// $90:A4AA, the callback obtained when charged all-beams combination fifteen reads
+    /// beyond <see cref="ChargedTable"/>. The safe left-facing Murder Beam has a zero
+    /// instruction pointer, so bank $90 never dispatches this callback; unsafe directions
+    /// retain nonzero lists and enter unrelated native code.
+    /// </summary>
+    public const ushort MurderBeamMisalignedExecution = 0xa4aa;
 }

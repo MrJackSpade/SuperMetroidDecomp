@@ -454,6 +454,12 @@ if (args is ["--spacetime-beam"])
     VerifyProductionMagicNumberAudit();
     return 0;
 }
+if (args is ["--murder-beam"])
+{
+    VerifyMurderBeam();
+    VerifyProductionMagicNumberAudit();
+    return 0;
+}
 if (args is ["--invalid-beam-graphics"])
 {
     VerifyInvalidBeamGraphics();
@@ -1027,6 +1033,7 @@ VerifyPowerBombColorMathWindow();
 VerifyHardwareWindows();
 VerifyChainsawFiring();
 VerifySpacetimeBeam();
+VerifyMurderBeam();
 VerifyPowerBombRuntimeRendererIntegration();
 VerifyPowerBombFuse();
 VerifyPowerBombBoundary();

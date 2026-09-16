@@ -53,7 +53,7 @@ public sealed partial class RoomEnemySystem
         int hitCount = 0;
         foreach (SamusProjectileSlot shot in projectiles.Slots.Reverse())
         {
-            if (!shot.IsActive)
+            if (!shot.HasEnemyCollisionPayload)
                 continue;
 
             ushort projectileType = shot.Type;

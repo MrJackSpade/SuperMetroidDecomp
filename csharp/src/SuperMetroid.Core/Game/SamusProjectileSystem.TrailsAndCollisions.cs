@@ -22,7 +22,7 @@ public sealed partial class SamusProjectileSystem
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
         SamusProjectileSlot slot = _slots[slotIndex];
-        if (!slot.IsActive)
+        if (!slot.HasEnemyCollisionPayload)
             return;
 
         if (slot.PackedType.Family == SamusProjectileFamily.SuperMissile)
@@ -57,7 +57,7 @@ public sealed partial class SamusProjectileSystem
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
         SamusProjectileSlot slot = _slots[slotIndex];
-        if (!slot.IsActive)
+        if (!slot.HasEnemyCollisionPayload)
             return;
 
         SamusProjectileFamily family = slot.PackedType.Family;
@@ -183,7 +183,7 @@ public sealed partial class SamusProjectileSystem
             throw new ArgumentOutOfRangeException(nameof(slotIndex));
 
         SamusProjectileSlot slot = _slots[slotIndex];
-        if (!slot.IsActive)
+        if (!slot.HasEnemyCollisionPayload)
             return false;
 
         if (slot.PreInstruction is SamusProjectilePreInstruction.IceCombo or

@@ -51,6 +51,18 @@ public sealed class SamusProjectileSlot
     /// <summary>Bank-$93 considers a nonzero instruction pointer allocated and drawable.</summary>
     public bool IsActive => InstructionPointer != 0;
 
+    /// <summary>
+    /// Bank-$A0 enemy collision admits a nonzero beam, missile, or Super Missile type even
+    /// when bank $93 has no instruction list to animate. This distinction is observable for
+    /// the left-facing Murder Beam, whose type and damage remain live while its list is zero.
+    /// </summary>
+    public bool HasEnemyCollisionPayload =>
+        Type != 0 &&
+        PackedType.Family is not (
+            SamusProjectileFamily.PowerBomb or
+            SamusProjectileFamily.Bomb) &&
+        PackedType.FamilyValue < (ushort)SamusProjectileFamily.BeamExplosion;
+
     internal void ClearFields()
     {
         Damage = 0;
@@ -96,6 +108,7 @@ public enum SamusProjectilePreInstruction : byte
     SpacetimePaletteCopyTail,
     ChainsawWindowStoreThenPowerBomb,
     ChargedChainsawLowWramExecution,
+    MurderBeamMisalignedExecution,
 }
 
 /// <summary>

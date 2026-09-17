@@ -420,3 +420,27 @@ the cancellation command, and only when the explosion was inactive at the native
 call. Reversing explosion status before frontend publication proves the guard is
 captured at production. This closes the shinespark-activation producer mismatch,
 not the rest of #422's controller-action timing matrix.
+
+## Processing action producer matrix
+
+`processing-actions-422.csv` records original-CPU queue contents immediately after
+eleven cartridge action routines, each with and without an active Power Bomb. The
+cases cover HUD selection, ordinary spin entry, Space Jump checking, Screw Attack's
+silent direction-change control, ending spin, ending spin while charging, Power and
+Wave beam fire, charged-beam release, normal-bomb expiry, and shinespark activation.
+The two calls in the charging spin-exit case deliberately retain their library-one
+order `$32,$41`; shinespark retains library-one `$02` before library-three `$0F`.
+
+Run the managed comparison with:
+
+```text
+dotnet run --no-build --no-restore --project csharp/src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj -c Release -- --processing-action-compare "Super Metroid.smc" csharp/test-fixtures/movement-release/processing-actions-422.csv
+```
+
+All 22 snapshots match. Managed cases exercise the production HUD, movement,
+post-draw, projectile, bomb, and shinespark producers rather than fabricating sound
+lists. Beam charge is earned through repeated production alpha passes; bomb expiry
+starts from a normally allocated bomb with only its fuse shortened. This establishes
+queue production and Power Bomb admission, not the eventual logical door delay.
+Attached-enemy, looping-liquid, combined action alignment, and acknowledgement-to-
+transition measurements remain outstanding.

@@ -385,6 +385,11 @@ if (args is ["--gameplay-message-panels", var messagePanelRom])
     VerifyGameplayMessagePanels(messagePanelRom);
     return 0;
 }
+if (args is ["--gameplay-message-notices", var messageNoticeRom])
+{
+    VerifyGameplayMessageNotices(messageNoticeRom);
+    return 0;
+}
 if (args is ["--escape-typewriter-presentation", var escapeTextRom])
 {
     VerifyEscapeTypewriterPresentation(escapeTextRom);

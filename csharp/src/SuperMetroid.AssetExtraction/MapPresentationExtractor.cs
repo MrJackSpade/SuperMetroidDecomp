@@ -176,6 +176,11 @@ public static class MapPresentationExtractor
             file.Write(gameplayMessagePanelBytes);
         hashes.Add(GameplayMessagePanelDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessagePanelBytes)));
+        byte[] gameplayMessageNoticeBytes = GameplayMessageNoticeExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, GameplayMessageNoticeDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(gameplayMessageNoticeBytes);
+        hashes.Add(GameplayMessageNoticeDefinitions.FileName,
+            Convert.ToHexString(SHA256.HashData(gameplayMessageNoticeBytes)));
         byte[] escapeTypewriterBytes = EscapeTypewriterExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, EscapeTypewriterDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTypewriterBytes);

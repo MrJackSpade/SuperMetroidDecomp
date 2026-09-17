@@ -161,6 +161,7 @@ internal static partial class Program
         VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original);
         VerifyFileSelectPresentationAssets(bus, stock, Path.Combine(root, "file-select-overrides"), original);
         VerifyGameplayMessagePanelAssets(bus, stock, Path.Combine(root, "gameplay-message-panel-overrides"), original);
+        VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original);
         VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.

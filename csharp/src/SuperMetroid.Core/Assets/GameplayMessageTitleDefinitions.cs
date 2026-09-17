@@ -18,6 +18,7 @@ public static class GameplayMessageTitleDefinitions
     public const int UppercaseACharacter = 0x0e0;
     public const int UppercaseZCharacter = 0x0f9;
     public const int PeriodCharacter = 0x0fa;
+    public const int QuestionMarkCharacter = 0x0fe;
 
     private static readonly GameplayMessageId[] SupportedMessageIds =
     [
@@ -40,5 +41,6 @@ public static class GameplayMessageTitleDefinitions
 
     public static ReadOnlySpan<GameplayMessageId> MessageIds => SupportedMessageIds;
 
-    public static bool IsSupportedGlyph(char character) => character is ' ' or '-' or '.' or >= 'A' and <= 'Z';
+    public static bool IsSupportedGlyph(char character) =>
+        character is ' ' or '-' or '.' or '?' or >= 'A' and <= 'Z';
 }

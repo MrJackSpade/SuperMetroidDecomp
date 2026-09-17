@@ -26,6 +26,7 @@ public sealed class GameplayMessageBoxState
     private ushort[] _tilemap = [];
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
+    [NonSerialized] private GameplayMessageNoticePresentation? noticePresentation;
     private readonly ControllerInputState _controller = new();
     private ISnesAddressSpace? _activeBus;
     private int _nextOpeningRadiusPixels;
@@ -94,11 +95,19 @@ public sealed class GameplayMessageBoxState
     /// </summary>
     public void BindPresentation(
         GameplayMessageTitlePresentation? presentation,
-        GameplayMessagePanelPresentation? panels = null)
+        GameplayMessagePanelPresentation? panels = null,
+        GameplayMessageNoticePresentation? notices = null)
     {
         titlePresentation = presentation;
         panelPresentation = panels;
-        if (panels?.Contains(MessageId) == true)
+        noticePresentation = notices;
+        if (notices?.Contains(MessageId) == true)
+        {
+            _tilemap = notices.Build(MessageId);
+            if (IsSaveConfirmation)
+                notices.ApplySelection(MessageId, _tilemap, ConfirmationSelectionYes);
+        }
+        else if (panels?.Contains(MessageId) == true)
         {
             _tilemap = panels.Build(MessageId);
             PatchInstalledPanelButton(MessageId);
@@ -134,7 +143,9 @@ public sealed class GameplayMessageBoxState
 
         _shootBinding = shootBinding;
         _runBinding = runBinding;
-        if (panelPresentation?.Contains(messageId) == true)
+        if (noticePresentation?.Contains(messageId) == true)
+            _tilemap = noticePresentation.Build(messageId);
+        else if (panelPresentation?.Contains(messageId) == true)
         {
             _tilemap = panelPresentation.Build(messageId);
             PatchInstalledPanelButton(messageId);
@@ -376,6 +387,12 @@ public sealed class GameplayMessageBoxState
     {
         if (!IsSaveConfirmation && MessageId != GameplayMessageId.None)
             return;
+        if (noticePresentation?.Contains(MessageId) == true)
+        {
+            noticePresentation.ApplySelection(
+                MessageId, _tilemap, ConfirmationSelectionYes);
+            return;
+        }
         ISnesAddressSpace source = _activeBus
             ?? throw new InvalidOperationException(
                 "Save confirmation cursor changed without its cartridge address space.");

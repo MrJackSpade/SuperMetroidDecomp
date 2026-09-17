@@ -127,6 +127,7 @@ public sealed class GameplayMessageTitlePresentation
             ' ' => GameplayMessageTitleDefinitions.SpaceCharacter,
             '-' => GameplayMessageTitleDefinitions.HyphenCharacter,
             '.' => GameplayMessageTitleDefinitions.PeriodCharacter,
+            '?' => GameplayMessageTitleDefinitions.QuestionMarkCharacter,
             >= 'A' and <= 'Z' => GameplayMessageTitleDefinitions.UppercaseACharacter + character - 'A',
             _ => throw new InvalidDataException(
                 $"Gameplay-message title glyph U+{(int)character:X4} is not supported."),
@@ -143,6 +144,7 @@ public sealed class GameplayMessageTitlePresentation
             GameplayMessageTitleDefinitions.SpaceCharacter => ' ',
             GameplayMessageTitleDefinitions.HyphenCharacter => '-',
             GameplayMessageTitleDefinitions.PeriodCharacter => '.',
+            GameplayMessageTitleDefinitions.QuestionMarkCharacter => '?',
             >= GameplayMessageTitleDefinitions.UppercaseACharacter and
                 <= GameplayMessageTitleDefinitions.UppercaseZCharacter =>
                 (char)('A' + character - GameplayMessageTitleDefinitions.UppercaseACharacter),

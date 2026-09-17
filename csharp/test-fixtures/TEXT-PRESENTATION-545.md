@@ -76,5 +76,27 @@ Verification compares all 1,344 installed words for the seven panels against the
 pinned cartridge using remapped Shoot and Run controls while forbidding every
 installed bus access. UTF-8 editing, active rebind, stock restoration, strict
 glyph validation, deterministic catalog extraction, override identity and corrupt
-override failure are covered. The remaining non-title multi-row notices, save
-prompt, narration, general labels and credits remain open under #545.
+override failure are covered. Completion/save notices, narration, general labels
+and credits remain open under #545.
+
+## Editable completion and save notices (catalog version 31)
+
+`gameplay-message-notices.json`, schema version 1, contains the map/energy/missile
+completion notices and both owners of the shared save-confirmation prompt. Text is
+stored as bounded UTF-8 regions with row, column, width, alignment and palette.
+The stock regions are deliberately fixed-width and do not wrap; replacement text
+must fit its declared width. Space, `A` through `Z`, hyphen, period and question
+mark use the editable `hud-tiles.png` font.
+
+The JSON also carries presentation-only tilemap templates and the two visual
+YES/NO cursor rows. Cursor input, confirmation/cancellation, minimum display time,
+gunship saving delay and save behavior remain compiled. The active cursor row is
+reapplied after a content or debugger-state rebind, and neither opening nor moving
+the installed save prompt reads its cartridge tilemap.
+
+Verification compares 1,248 installed words covering all five message identities
+and both save selections against the pinned cartridge with all installed bus reads
+forbidden. UTF-8 editing, active rebind, stock restoration, strict glyph/layout
+validation, deterministic extraction, override identity and corrupt override
+failure are covered. All translated gameplay messages are now installed-content
+driven; narration, general cinematic labels and credits remain open under #545.

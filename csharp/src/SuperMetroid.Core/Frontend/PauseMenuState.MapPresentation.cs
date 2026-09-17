@@ -31,6 +31,10 @@ internal sealed partial class PauseMenuState
             SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
+        // Refresh only presentation-owned base cells. Dynamic item labels, native
+        // same-frame overruns, wireframes and reserve state remain live and are either
+        // preserved here or reapplied by their dedicated owners below.
+        if (catalog is not null) catalog.PauseEquipmentBase.RebindBaseInto(equipmentTilemap);
         // Reapply only the wireframe patch, in its native footprint. The surrounding
         // mutable labels include intentional cartridge overruns and must not be rebuilt.
         WriteSamusWireframe();
@@ -40,7 +44,11 @@ internal sealed partial class PauseMenuState
         {
             WriteReserveLabels();
             WriteReserveSupplyDigits();
-            UpdateReserveArrow(pauseNmiFrameCounter8);
+            // The arrow owner intentionally leaves its last palette/colors latched when
+            // the selector moves into another category. Recompute only while reserve
+            // controls own it; otherwise state restore must retain those live fields.
+            if (selectedCategory == PauseEquipmentCategories.Reserves)
+                UpdateReserveArrow(pauseNmiFrameCounter8);
         }
         if (ScreenMode != 0) UploadEquipmentTilemap();
         // The serialized live button palette rows still own their overlay on

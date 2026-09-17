@@ -134,7 +134,8 @@ internal sealed partial class PauseMenuState
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
-        equipmentTilemap = RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, 0x0800);
+        equipmentTilemap = mapPresentation?.PauseEquipmentBase.CreateTilemap() ??
+            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, 0x0800);
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();
@@ -498,8 +499,11 @@ internal sealed partial class PauseMenuState
     {
         // Restore the literal base before applying inventory-dependent labels. This makes
         // repeated A toggles idempotent and mirrors re-entering LoadEquipmentScreen...
-        RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
-            .CopyTo(equipmentTilemap, 0);
+        if (mapPresentation is not null)
+            mapPresentation.PauseEquipmentBase.CreateTilemap().CopyTo(equipmentTilemap, 0);
+        else
+            RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
+                .CopyTo(equipmentTilemap, 0);
 
         for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {

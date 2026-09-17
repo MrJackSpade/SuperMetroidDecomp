@@ -1085,3 +1085,32 @@ replacement and restart alongside prior overrides and synthetic player files.
 Equipment base/inventory-label patches, coordinated semantic layout, broader
 HUD/menu scope, historical full-session coverage and Android validation remain.
 This partial implementation does not complete #544 or #282.
+
+## Editable equipment-page base (#544/#282)
+
+Catalog version 20 adds `pause-equipment-base.json`, schema version 1
+(twenty-two shared resource hashes). Its 1,024 cells are the complete 32x32 BG1
+equipment-page template expressed as Map/Interface atlas references. Copy it to
+`overrides/maps/pause-equipment-base.json` to replace the page frame, separators
+and other static artwork. Inventory ownership, navigation and item effects remain
+compiled; this resource contains no masks, callbacks or control tables.
+
+The native page is mutable after setup. Current-content rebinding therefore
+refreshes only static cells. It preserves all item-label footprints (including
+the four extra words exposed by the native Boots-to-Plasma overlong-copy glitch),
+the selected wireframe, reserve labels/digits and the live arrow palette. The
+arrow's replacement character/flip/priority fields still update while its latched
+palette survives. Dedicated visual owners reapply their own bounded resources.
+This avoids reconstructing or normalizing cartridge-visible state merely because
+the host reloads presentation content.
+
+Verification compares all 1,024 words and 80 native transition frames with the
+original `$B6:E800-$B6:EFFF` range forbidden. A static-cell edit reaches actual
+equipment pixels. Synthetic live-state sentinels, the real Plasma/VAR regression,
+arrow palette ownership, debugger restore/current-content rebind and strict
+invalid/missing/corrupt resource failures pass. The full installer preserves the
+override through cancellation, replacement and restart.
+
+Inventory-label artwork and semantic label placement remain ROM-backed, along
+with broader HUD/menu scope, historical full-session coverage and Android
+validation. This is not completion of #544 or #282.

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -78,7 +79,9 @@ public sealed partial class RoomEnemySystem
         if (step.EscapeTypewriterSetupRequested)
         {
             state.EnableUnpauseHook = sequence.MotherBrainUnpauseHookEnabled;
-            state.EscapeTypewriter = new(EscapeTypewriterRomData.ZebesText, EscapeTypewriterRomData.ZebesTileBase);
+            state.EscapeTypewriter = EscapeTypewriterPresentation is { } presentation
+                ? new(presentation.Get(EscapeTypewriterProgramId.Zebes), EscapeTypewriterRomData.ZebesTileBase)
+                : new(EscapeTypewriterRomData.ZebesText, EscapeTypewriterRomData.ZebesTileBase);
             for (int i = 0; i < 2; i++)
                 _cgram!.SetColor(EscapeTypewriterRomData.ColorDestination + i,
                     _cgram.Colors[EscapeTypewriterRomData.ColorSource + i]);

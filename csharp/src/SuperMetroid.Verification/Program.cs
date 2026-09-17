@@ -380,6 +380,11 @@ if (args is ["--gameplay-message-titles", var messageTitleRom])
     VerifyGameplayMessageTitles(messageTitleRom);
     return 0;
 }
+if (args is ["--escape-typewriter-presentation", var escapeTextRom])
+{
+    VerifyEscapeTypewriterPresentation(escapeTextRom);
+    return 0;
+}
 if (args is ["--pause-reserve-hud"])
 {
     VerifyPauseReserveHud();

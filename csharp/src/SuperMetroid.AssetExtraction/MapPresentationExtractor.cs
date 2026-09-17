@@ -171,6 +171,11 @@ public static class MapPresentationExtractor
             file.Write(gameplayMessageTitleBytes);
         hashes.Add(GameplayMessageTitleDefinitions.FileName,
             Convert.ToHexString(SHA256.HashData(gameplayMessageTitleBytes)));
+        byte[] escapeTypewriterBytes = EscapeTypewriterExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, EscapeTypewriterDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(escapeTypewriterBytes);
+        hashes.Add(EscapeTypewriterDefinitions.FileName,
+            Convert.ToHexString(SHA256.HashData(escapeTypewriterBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

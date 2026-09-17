@@ -30,3 +30,27 @@ phase or window radius, and restoring stock content restores the exact tilemap.
 The complete map/presentation catalog regression also passes with the version-28
 resource and integrity manifest. This is partial #545 implementation, not
 completion of narration, multi-row instructions, escape text, labels or credits.
+
+## Editable Ceres/Zebes escape typewriter (catalog version 29)
+
+`escape-typewriter.json`, schema version 1, contains named Ceres and Zebes
+programs. Each program exposes UTF-8 uppercase warning text and its visual VRAM
+line destinations. Copy the stock file to `overrides/maps/escape-typewriter.json`
+to replace the warning or move its lines. The accepted font is `A` through `Z`,
+space and exclamation mark; line length and VRAM bounds are validated.
+
+The two-frame character cadence, one-glyph-per-call scheduling, exclamation
+remap, every-second-visible-glyph click, escape-sequence blocking and encounter
+phase transitions remain compiled. In particular, JSON cannot introduce native
+typewriter commands or change the delay. The Mother Brain/Zebes production owner
+uses the installed program without reading bank $A6. Ceres data is extracted and
+exhaustively checked through the same compiled interpreter, but its older Ridley
+state adapter remains cartridge-backed until that saved-state owner is migrated.
+
+Verification compares completion, destination, delay state, visible-glyph count,
+click requests and all 64 KiB of VRAM on every accepted call: 271 combined Ceres
+and Zebes frames match the pinned cartridge. Installed calls use an address space
+that throws on every access. Text editing, active-program rebinding, debugger
+save/restore with mandatory host-content rebind, invalid glyphs and full catalog
+integrity are also covered. Narration, Ceres production binding, multi-row item
+instructions, general labels and credits remain open under #545.

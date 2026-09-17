@@ -279,7 +279,7 @@ public sealed partial class SuperMetroidGame
                 if (title.FileSelectRequested)
                 {
                     // `$8B:9F52` sets game_state=4 only after the slow fade reaches black.
-                    fileSelect = new FileSelectMenuState(bus, audio);
+                    fileSelect = new FileSelectMenuState(bus, audio, mapPresentation);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     PublishMenu(fileSelect);
                 }
@@ -332,7 +332,7 @@ public sealed partial class SuperMetroidGame
                 PublishMenu(options);
                 if (options.FileSelectRequested)
                 {
-                    fileSelect = new FileSelectMenuState(bus, audio);
+                    fileSelect = new FileSelectMenuState(bus, audio, mapPresentation);
                     GameState = SuperMetroidGameState.FileSelectMenus;
                     PublishMenu(fileSelect);
                 }

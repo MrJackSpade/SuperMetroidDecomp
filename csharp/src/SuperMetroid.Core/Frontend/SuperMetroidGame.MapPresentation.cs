@@ -19,5 +19,6 @@ public sealed partial class SuperMetroidGame
         fileSelectMap?.BindMapPresentation(catalog);
         gameOver?.BindMapPresentation(catalog);
         options?.BindMapPresentation(catalog);
+        fileSelect?.BindMapPresentation(catalog);
     }
 }

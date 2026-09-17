@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Frontend;
@@ -319,6 +320,12 @@ public sealed partial class FileSelectMenuState
 
     private void BuildCopySourceTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.CopySourcePage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildDataManagementBase(
             FileSelectTilemaps.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
@@ -328,6 +335,12 @@ public sealed partial class FileSelectMenuState
 
     private void BuildCopyDestinationTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.CopyDestinationPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildDataManagementBase(
             FileSelectTilemaps.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
@@ -339,6 +352,12 @@ public sealed partial class FileSelectMenuState
 
     private void BuildCopyConfirmationTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.CopyConfirmPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildDataManagementBase(
             FileSelectTilemaps.DataCopyMode,
             FileSelectLayout.DataModeCopyDestination,
@@ -353,12 +372,25 @@ public sealed partial class FileSelectMenuState
 
     private void BuildCopyCompletedTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildCopyConfirmationTilemap();
+        currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
         LoadMenuTilemap(FileSelectLayout.CopyCompletedDestination, FileSelectTilemaps.CopyCompleted);
     }
 
     private void BuildClearSelectionTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.ClearSelectionPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildDataManagementBase(
             FileSelectTilemaps.DataClearMode,
             FileSelectLayout.DataModeClearDestination,
@@ -368,6 +400,12 @@ public sealed partial class FileSelectMenuState
 
     private void BuildClearConfirmationTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.ClearConfirmPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildDataManagementBase(
             FileSelectTilemaps.DataClearMode,
             FileSelectLayout.DataModeClearDestination,
@@ -380,7 +418,14 @@ public sealed partial class FileSelectMenuState
 
     private void BuildClearCompletedTilemap()
     {
+        currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         BuildClearConfirmationTilemap();
+        currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
         LoadMenuTilemap(FileSelectLayout.DataClearedDestination, FileSelectTilemaps.DataCleared);
         DrawDataManagementSlots();
     }
@@ -427,6 +472,17 @@ public sealed partial class FileSelectMenuState
 
     private (ushort X, ushort Y) GetSelectionMissilePosition()
     {
+        if (mapPresentation is not null)
+        {
+            bool confirmation = Phase is FileSelectPhase.CopyConfirm or
+                FileSelectPhase.ClearConfirm;
+            int selected = IsMainScreenPhase
+                ? SelectedItem
+                : confirmation ? confirmationSelection : submenuSelection;
+            MapLabelPoint point = mapPresentation.FileSelect.CursorPosition(
+                IsMainScreenPhase, confirmation, selected);
+            return (checked((ushort)point.X), checked((ushort)point.Y));
+        }
         if (!showDataManagementScreen)
             return (14, FileSelectLayout.MainSelectionY[SelectedItem]);
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)

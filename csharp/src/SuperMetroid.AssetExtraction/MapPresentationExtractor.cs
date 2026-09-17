@@ -158,6 +158,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, GameOptionsPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameOptionsBytes);
         hashes.Add(GameOptionsPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameOptionsBytes)));
+        byte[] fileSelectBytes = FileSelectPresentationExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, FileSelectPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(fileSelectBytes);
+        hashes.Add(FileSelectPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(fileSelectBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

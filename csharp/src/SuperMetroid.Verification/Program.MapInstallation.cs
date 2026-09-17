@@ -145,6 +145,10 @@ internal static partial class Program
         var gameOptions = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)))!;
         gameOptions["cursorAnchors"]![GameOptionsPresentationDefinitions.PrimaryMenu]![0]!["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
+        string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationDefinitions.FileName);
+        var fileSelect = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationDefinitions.FileName)))!;
+        fileSelect["mainCursorAnchors"]![0]!["x"] = 22;
+        File.WriteAllText(fileSelectOverride, fileSelect.ToJsonString());
         string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
         var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
@@ -170,6 +174,8 @@ internal static partial class Program
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
         AssertTrue(stock.GameOptions.ContentIdentity != edited.GameOptions.ContentIdentity,
             "full installation consumes options-menu override");
+        AssertTrue(stock.FileSelect.ContentIdentity != edited.FileSelect.ContentIdentity,
+            "full installation consumes file-select override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -199,6 +205,7 @@ internal static partial class Program
             [gameplayHudOverride] = File.ReadAllBytes(gameplayHudOverride),
             [gameOverOverride] = File.ReadAllBytes(gameOverOverride),
             [gameOptionsOverride] = File.ReadAllBytes(gameOptionsOverride),
+            [fileSelectOverride] = File.ReadAllBytes(fileSelectOverride),
             [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),

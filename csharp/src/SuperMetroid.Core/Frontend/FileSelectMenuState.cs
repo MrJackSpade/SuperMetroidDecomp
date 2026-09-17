@@ -27,6 +27,7 @@ public sealed partial class FileSelectMenuState
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly ushort[] bg1Tilemap = new ushort[32 * 32];
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
     private int missileAnimationTimer = 1;
@@ -34,13 +35,20 @@ public sealed partial class FileSelectMenuState
     private int helmetAnimationTimer;
     private int helmetAnimationFrame;
     private int brightness;
+    private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
-    public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null)
+    public FileSelectMenuState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+        AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        ppu = new MenuPpuState(bus);
+        this.mapPresentation = mapPresentation;
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,
+            mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
+            loadInitialBackground: mapPresentation is null);
+        if (mapPresentation is not null)
+            mapPresentation.FileSelect.LoadBackground(ppu.Vram);
 
         saveRam = new SuperMetroidSaveRam(bus);
         for (int slot = 0; slot < saveSlots.Length; slot++)
@@ -129,7 +137,7 @@ public sealed partial class FileSelectMenuState
             case FileSelectPhase.TurnSelectedHelmet:
                 if (--helmetAnimationTimer <= 0)
                 {
-                    helmetAnimationTimer = 8;
+                    helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? 8;
                     helmetAnimationFrame++;
                     if (helmetAnimationFrame >= 7)
                         Phase = FileSelectPhase.FadeOutToOptions;
@@ -182,6 +190,31 @@ public sealed partial class FileSelectMenuState
     {
         oam.BeginFrame();
         bool mainScreen = IsMainScreenPhase;
+        if (mapPresentation is not null)
+        {
+            string borderName = IsCopyPhase
+                ? FileSelectPresentationDefinitions.CopyBorder
+                : IsClearPhase
+                    ? FileSelectPresentationDefinitions.ClearBorder
+                    : FileSelectPresentationDefinitions.MainBorder;
+            mapPresentation.FileSelect.DrawBorder(oam, borderName);
+            if (ShouldDrawSelectionMissile)
+            {
+                (ushort missileX, ushort missileY) = GetSelectionMissilePosition();
+                mapPresentation.FileSelect.DrawCursor(oam, missileAnimationFrame,
+                    new(missileX, missileY));
+            }
+            for (int slot = 0; mainScreen && slot < 3; slot++)
+            {
+                int frame = slot == SelectedItem && Phase is
+                        FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
+                    ? helmetAnimationFrame
+                    : 0;
+                mapPresentation.FileSelect.DrawHelmet(oam, Math.Min(frame, 7), slot);
+            }
+            oam.FinalizeFrame();
+            return;
+        }
         ushort border = IsCopyPhase
             ? FileSelectLayout.CopyBorderSpritemap
             : IsClearPhase
@@ -217,6 +250,14 @@ public sealed partial class FileSelectMenuState
 
     private void BuildSaveTilemap()
     {
+        currentPresentationPage = HasAnySave
+            ? FileSelectPresentationDefinitions.MainWithDataPage
+            : FileSelectPresentationDefinitions.MainEmptyPage;
+        if (mapPresentation is not null)
+        {
+            RebuildInstalledPresentationPage();
+            return;
+        }
         // Native `ClearMenuTilemap` fills every word with character $00F (blank).
         Array.Fill(bg1Tilemap, FileSelectLayout.BlankTile);
         LoadMenuTilemap(FileSelectLayout.SamusDataDestination, FileSelectTilemaps.SamusData);
@@ -336,7 +377,7 @@ public sealed partial class FileSelectMenuState
         if (--missileAnimationTimer != 0)
             return;
         missileAnimationFrame = (missileAnimationFrame + 1) & 3;
-        missileAnimationTimer = 8;
+        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? 8;
     }
 
     private void ApplyBrightness(Span<Rgba32> pixels)

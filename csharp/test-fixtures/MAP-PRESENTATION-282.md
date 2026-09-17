@@ -1241,3 +1241,30 @@ deterministic extraction, strict malformed/missing/overlapping data failures and
 full-installer override preservation. File-select-menu presentation, broader
 shared integration, historical full-session coverage and Android validation remain;
 this does not complete #544 or #282.
+
+## Editable file-select and data-management presentation (#544/#282)
+
+Catalog version 26 adds `file-select.json`, schema version 1 (twenty-eight shared
+resource hashes). It contains the shared background; separate complete templates
+for populated/empty main screens and every COPY/CLEAR stage; ENERGY, NO DATA and
+time-separator patches; digit and slot-letter cells; main/data slot-field layouts;
+three borders, four selectors and eight helmet compositions; all actor anchors;
+and selector/helmet timing. Copy it to `overrides/maps/file-select.json` to edit
+those visuals and placements.
+
+SRAM checksums, slot availability, value formatting, navigation, copy/clear
+mutation, confirmation semantics, sounds, helmet state and fades remain compiled.
+The runtime overlays live health and time values plus source/destination letters
+onto authored templates. Installed execution no longer reads the bank-$81 text
+streams, initial background, menu spritemap pointers or compositions. Shared PNG
+artwork and palettes continue through the existing catalog resources.
+
+Verification runs 231 ROM-backed and presentation-read-blocked installed frames
+side by side through COPY source/destination/confirmation/completion, CLEAR
+selection/confirmation/completion, empty-slot rebuilding, return fades, helmet
+turning and audio. Every tilemap, rendered pixel, phase, selection and command
+matches. It also checks visible template/patch/actor/anchor edits, state-safe live
+rebinding, deterministic extraction, strict malformed/missing/duplicate failures
+and full-installer preservation. Broader shared integration, historical
+full-session coverage and Android validation remain; this does not complete #544
+or #282.

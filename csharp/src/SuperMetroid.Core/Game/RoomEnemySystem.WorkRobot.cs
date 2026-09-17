@@ -155,14 +155,13 @@ public sealed partial class RoomEnemySystem
         state.Powered = false;
 
         // The native range check accidentally accepts parameter three even though the
-        // pointer table has only three entries. Read through ROM instead of sanitizing that
-        // bug: retail populations use zero/one, while a corrupt value three observes the
-        // first code word at $CC36 just as the cartridge would.
+        // pointer table has only three entries. Retain rather than sanitize that bug:
+        // retail populations use zero/one, while a corrupt value three observes the
+        // compiled first code word at $CC36 just as the cartridge would.
         if (unchecked((short)slot.Parameter1) < 0 || slot.Parameter1 >= 4)
             slot.Parameter1 = 0;
-        slot.CurrentInstruction = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.WorkRobot.InitialInstructionListWords + slot.Parameter1 * 2);
+        slot.CurrentInstruction =
+            WorkRobotInitializationDefinitions.GetInitialInstruction(slot.Parameter1);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
         slot.InstructionTimer = 1;
         slot.Timer = 0;

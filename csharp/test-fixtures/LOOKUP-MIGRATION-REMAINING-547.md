@@ -57,6 +57,14 @@ program/selector ownership with #538/#539 and presentation bindings with #549.
 Work Robot explicitly accepts parameter three and observes an adjacent code
 word beyond its three authored pointers; preserve that native case when migrating.
 
+Those three fixed selectors are now compiled independently of their mixed
+instruction programs. Golden Torizo retains both facing-specific reflected-Super
+lists; all three Tourian statue byte offsets retain their lists; and Work Robot
+retains all three authored lists plus parameter three's adjacent `$54AE` code
+word. Nine native words and the real production initializers pass with all three
+source ranges forbidden. The selected instruction programs remain separate
+dependencies for #538/#539.
+
 Confirmed presentation-oriented groups from this scan include Torizo/Chozo/
 Tourian/Kraid/Ridley palette reads, Ceres door transfer pointers, Ridley wing and
 tail-tip spritemap selectors, Crocomire death graphics transfers, and gunship

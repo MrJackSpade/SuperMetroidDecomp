@@ -258,10 +258,8 @@ public sealed partial class RoomEnemySystem
         projectile.Variable0 = unchecked((ushort)(torizo.SlotIndex * 2));
         projectile.XPosition = unchecked((ushort)(torizo.XPosition + (facingRight ? 30 : -30)));
         projectile.YPosition = unchecked((ushort)(torizo.YPosition - 52));
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            EnemyRomTablePointers.Torizo.SuperMissileInstructionPointers +
-                (facingRight ? 2 : 0));
+        projectile.InstructionPointer =
+            GoldenTorizoProjectileDefinitions.GetReflectedSuperMissileInstruction(facingRight);
     }
 
     private void SpawnGoldenTorizoEyeBeam(RoomEnemySlot torizo, ushort parameter)

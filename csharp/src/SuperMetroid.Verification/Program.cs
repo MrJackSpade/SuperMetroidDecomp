@@ -188,6 +188,11 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--enemy-instruction-selectors"])
+{
+    VerifyEnemyRomTablePointerCatalog();
+    return 0;
+}
 if (args is ["--pose-dispatch-definitions"])
 {
     var poseRom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

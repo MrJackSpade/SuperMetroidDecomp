@@ -1190,3 +1190,27 @@ checks visible icon/digit/anchor edits, state-safe content rebinding, determinis
 extraction, strict malformed/overlapping resources, and full-installer override
 preservation. Broader HUD/menu extraction, historical full-session coverage and
 Android validation remain; this does not complete #544 or #282.
+
+## Editable game-over screen (#544/#282)
+
+Catalog version 24 adds `game-over.json`, schema version 1 (twenty-six shared
+resource hashes). It contains the complete 32x32 text tilemap, Baby Metroid,
+egg and four cursor compositions, four Baby palettes, actor anchors/palettes and
+cursor animation timing. Compositions reference the existing shared menu OBJ
+PNG; background cells reference `map-tiles.png`.
+
+The sixty-record Baby animation sequence, its three named sound callbacks, answer
+semantics, music queueing and fades are compiled application behavior. Native
+instruction pointers remain debugger/state identities, but installed execution
+does not read the text streams, animation records, palette tables, spritemap
+pointers or parts from the cartridge. The legacy cartridge path remains for
+diagnostics and synthetic dispatcher fixtures.
+
+Verification checks the compiled sequence against `$82:BC27-$82:BD96`, then runs
+518 ROM-backed and completely bus-forbidden installed frames side by side through
+all three cries, music wait, No selection and fade. Every pixel, animation pointer,
+frame identity and audio command matches. Tilemap/composition/palette/layout edits,
+live content rebinding, strict invalid resources and full-installer preservation
+also pass. File-select/options presentation, broader shared integration, historical
+full-session coverage and Android device validation remain; this does not complete
+#544 or #282.

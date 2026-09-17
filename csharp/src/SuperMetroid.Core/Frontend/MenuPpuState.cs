@@ -24,11 +24,9 @@ internal sealed class MenuPpuState
     {
         ArgumentNullException.ThrowIfNull(bus);
         BindWorldArtwork(bus, worldArtwork);
-        if (mapTiles is null) Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
-        else mapTiles.LoadTo(Vram, 0x6000);
+        BindMapTiles(bus, mapTiles);
         BindMapSprites(bus, sprites);
-        if (mapPalettes is null) Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
-        else for (int color = 0; color < SnesCgram.ColorCount; color++) Cgram.SetColor(color, mapPalettes.FileSelect[color]);
+        BindMapPalettes(bus, mapPalettes);
         // Saved-map views do not consume this template: the world view excludes
         // BG2 from its layers, and room select installs its own complete frame.
         // Other menus still require the shared native initialization.
@@ -49,10 +47,29 @@ internal sealed class MenuPpuState
     }
 
     public SnesVram Vram { get; } = new();
+
+    public void BindMapTiles(ISnesAddressSpace bus, MapTileAtlas? mapTiles)
+    {
+        if (mapTiles is null)
+            Vram.LoadBytes(0x6000, RomDataReader.ReadFixedBank(
+                bus, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount));
+        else
+            mapTiles.LoadTo(Vram, 0x6000);
+    }
+
     public void BindMapSprites(ISnesAddressSpace bus, MapSpriteCatalog? sprites)
     {
         if (sprites is null) Vram.LoadBytes(MapSpriteFormat.FileSelectDestination, RomDataReader.ReadFixedBank(bus, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount));
         else sprites.LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
+    }
+
+    public void BindMapPalettes(ISnesAddressSpace bus, MapStaticPalettes? mapPalettes)
+    {
+        if (mapPalettes is null)
+            Cgram.LoadFromBus(bus, FileSelectMapRomData.EntryPalette);
+        else
+            for (int color = 0; color < SnesCgram.ColorCount; color++)
+                Cgram.SetColor(color, mapPalettes.FileSelect[color]);
     }
 
     public SnesCgram Cgram { get; } = new();

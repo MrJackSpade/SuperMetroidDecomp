@@ -631,7 +631,7 @@ public sealed partial class SuperMetroidGame
                 break;
 
             case SuperMetroidGameState.GameOverMenu:
-                gameOver ??= new GameOverMenuState(bus, audio);
+                gameOver ??= new GameOverMenuState(bus, audio, mapPresentation);
                 gameOver.Step(controllerInput);
                 PublishMenu(gameOver);
                 if (gameOver.ContinueRequested)

@@ -23,19 +23,35 @@ public sealed class GameOverMenuState
     private ushort babyInstructionPointer;
     private ushort babyInstructionTimer;
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
-    public GameOverMenuState(ISnesAddressSpace bus, CartridgeAudioState audio)
+    public GameOverMenuState(
+        ISnesAddressSpace bus,
+        CartridgeAudioState audio,
+        AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
-        ppu = new MenuPpuState(bus);
-        Array.Fill(tilemap, GameOverRomData.BlankTile.Raw);
+        this.mapPresentation = mapPresentation;
+        ppu = mapPresentation is null
+            ? new MenuPpuState(bus)
+            : new MenuPpuState(bus, mapPresentation.Tiles, mapPresentation.Palettes,
+                mapPresentation.WorldArtwork, mapPresentation.Sprites,
+                loadInitialBackground: false);
+        if (mapPresentation is null)
+        {
+            Array.Fill(tilemap, GameOverRomData.BlankTile.Raw);
 
-        // GameOverMenu_1_Init uses the general bank-$81 command-stream loader. These five
-        // pointers are the cartridge's localized text and line breaks, not host strings.
-        foreach (GameOverTextStream stream in GameOverRomData.Text.All)
-            LoadMenuTilemap(stream);
-        ppu.Vram.ExecuteWordTransfer(tilemap, MenuPpuState.Bg1TilemapWord, 1);
+            // GameOverMenu_1_Init uses the general bank-$81 command-stream loader. These five
+            // pointers are the cartridge's localized text and line breaks, not host strings.
+            foreach (GameOverTextStream stream in GameOverRomData.Text.All)
+                LoadMenuTilemap(stream);
+            ppu.Vram.ExecuteWordTransfer(tilemap, MenuPpuState.Bg1TilemapWord, 1);
+        }
+        else
+        {
+            mapPresentation.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
+        }
         Phase = GameOverMenuPhase.Initialize;
     }
 
@@ -53,6 +69,30 @@ public sealed class GameOverMenuState
 
     /// <summary>Current bank-$82 Baby instruction pointer, exposed for debugger inspection.</summary>
     public ushort BabyInstructionPointer => babyInstructionPointer;
+
+    /// <summary>
+    /// Reattaches host-owned presentation after debugger restoration and refreshes only
+    /// presentation-owned PPU state. Animation phase, answer selection and fade remain live.
+    /// </summary>
+    public void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        string? previousIdentity = mapPresentation?.ContentIdentity;
+        mapPresentation = catalog;
+        if (catalog is null || string.Equals(
+                previousIdentity, catalog.ContentIdentity, StringComparison.Ordinal))
+            return;
+
+        ppu.BindMapTiles(bus, catalog.Tiles);
+        ppu.BindMapSprites(bus, catalog.Sprites);
+        ppu.BindMapPalettes(bus, catalog.Palettes);
+        catalog.GameOver.LoadTilemapTo(ppu.Vram, MenuPpuState.Bg1TilemapWord);
+        if (babyInstructionPointer != 0)
+        {
+            GameOverBabyInstruction instruction =
+                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+            catalog.GameOver.ApplyBabyPalette(ppu.Cgram, instruction.Palette);
+        }
+    }
 
     public void Step(ushort controllerInput)
     {
@@ -162,6 +202,17 @@ public sealed class GameOverMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
+        if (mapPresentation is not null)
+        {
+            GameOverBabyInstruction instruction = babyInstructionPointer == 0
+                ? GameOverBabyAnimationDefinitions.Get(GameOverBabyAnimationDefinitions.FirstPointer)
+                : GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+            mapPresentation.GameOver.DrawBaby(oam, instruction.Frame);
+            mapPresentation.GameOver.DrawEgg(oam);
+            mapPresentation.GameOver.DrawCursor(oam, missileFrame, SelectedItem != 0);
+            oam.FinalizeFrame();
+            return;
+        }
         DrawMenuSpritemap(
             babySpritemap,
             GameOverRomData.Sprites.BabyX,
@@ -186,6 +237,11 @@ public sealed class GameOverMenuState
     /// <summary>Ports <c>HandleGameOverBabyMetroid</c>'s six/eight-byte instruction stream.</summary>
     private void StepBabyMetroid()
     {
+        if (mapPresentation is not null)
+        {
+            StepCompiledBabyMetroid();
+            return;
+        }
         if (babyInstructionTimer == 0)
         {
             babyInstructionPointer = GameOverRomData.BabyAnimation.FirstInstruction;
@@ -196,6 +252,45 @@ public sealed class GameOverMenuState
         if (babyInstructionTimer == 0)
             AdvanceBabyInstruction();
         LoadCurrentBabyFrame();
+    }
+
+    private void StepCompiledBabyMetroid()
+    {
+        if (babyInstructionTimer == 0)
+        {
+            babyInstructionPointer = GameOverBabyAnimationDefinitions.FirstPointer;
+            babyInstructionTimer =
+                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer).Duration;
+        }
+
+        babyInstructionTimer = unchecked((ushort)(babyInstructionTimer - 1));
+        if (babyInstructionTimer == 0)
+        {
+            GameOverBabyInstruction completed =
+                GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+            if (completed.SoundAfter != GameOverBabySound.None)
+                QueueCompiledBabySound(completed.SoundAfter);
+            babyInstructionPointer = completed.NextPointer;
+            babyInstructionTimer =
+                GameOverBabyAnimationDefinitions.Get(completed.NextPointer).Duration;
+        }
+
+        GameOverBabyInstruction current =
+            GameOverBabyAnimationDefinitions.Get(babyInstructionPointer);
+        babySpritemap = GameOverBabyAnimationDefinitions.NativeSpritemap(current.Frame);
+        mapPresentation!.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
+    }
+
+    private void QueueCompiledBabySound(GameOverBabySound sound)
+    {
+        SoundEffectId effect = sound switch
+        {
+            GameOverBabySound.Cry23 => GameOverRomData.BabyAnimation.Cry23,
+            GameOverBabySound.Cry26 => GameOverRomData.BabyAnimation.Cry26,
+            GameOverBabySound.Cry27 => GameOverRomData.BabyAnimation.Cry27,
+            _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
+        };
+        audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
 
     private void AdvanceBabyInstruction()
@@ -286,7 +381,8 @@ public sealed class GameOverMenuState
         if (--missileTimer != 0)
             return;
         missileFrame = (missileFrame + 1) % GameOverRomData.Sprites.MissileFrameIds.Length;
-        missileTimer = GameOverRomData.Sprites.MissileFrameDuration;
+        missileTimer = mapPresentation?.GameOver.CursorFrameDuration ??
+            GameOverRomData.Sprites.MissileFrameDuration;
     }
 }
 

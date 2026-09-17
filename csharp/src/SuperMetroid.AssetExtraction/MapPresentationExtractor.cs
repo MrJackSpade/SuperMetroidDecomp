@@ -150,6 +150,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, GameplayHudDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayHudBytes);
         hashes.Add(GameplayHudDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
+        byte[] gameOverBytes = GameOverPresentationExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, GameOverPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(gameOverBytes);
+        hashes.Add(GameOverPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameOverBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

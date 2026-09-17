@@ -35,6 +35,25 @@ Use these references during cartridge diagnostics to cross-check routines, symbo
 addresses, and behavior. Confirm findings against the project's ROM revision and
 pinned local sources; reference annotations do not replace reproducing a reported bug.
 
+## Process-boundary error handling
+
+- No repository executable, verifier, diagnostic, replay tool, or temporary probe may
+  allow an exception to escape to the CLR or Windows error reporter. This applies to
+  one-off investigation programs under `test-temp` just as strictly as shipped hosts.
+- Every console entry point must install the existing Windows no-dialog process policy
+  before doing fallible work, wrap its outermost process boundary in `try`/`catch`, write
+  `exception.ToString()` to standard error, and return a nonzero exit code. Follow
+  `SuperMetroid.Verification` or `SuperMetroid.DebugRunner`; do not create unguarded
+  top-level statements that can throw.
+- GUI entry points must use the established `UnhandledExceptionConsole`/dispatcher
+  boundary so failures remain visible in the console or diagnostic log without a modal
+  dialog. Do not add `MessageBox`, Windows Error Reporting, or debugger-only UI as an
+  error path.
+- Failing loudly means a full exception and failing exit code or the configured GitHub
+  recoverable-error report. It never means a focus-stealing dialog. Tests for expected
+  failures must catch them inside the test harness rather than leaking them from the
+  process.
+
 ## Regression tests
 
 - Tests may use synthetic rooms, constructed cartridge data, fake address spaces, and other focused fixtures. A regression test does not need to drive a real retail room when a smaller fixture faithfully reproduces the reported failure.

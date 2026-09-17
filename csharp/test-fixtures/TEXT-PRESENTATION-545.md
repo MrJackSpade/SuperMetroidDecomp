@@ -54,5 +54,27 @@ that throws on every access. Text editing, active-program rebinding, debugger
 save/restore with mandatory host-content rebind, invalid glyphs and full catalog
 integrity are also covered. The full Ceres encounter additionally erases both
 native text streams after extraction and verifies warning DMA, click cadence and
-the timed escape handoff through the real production path. Narration, multi-row
-item instructions, general labels and credits remain open under #545.
+the timed escape handoff through the real production path. Narration, the other
+multi-row notices, the save prompt, general labels and credits remain open under #545.
+
+## Editable large item panels (catalog version 30)
+
+`gameplay-message-panels.json`, schema version 1, contains the seven six-row item
+instruction boxes for missiles, Power Bombs, Grapple, X-Ray, Speed Booster and
+Bombs. Each entry exposes its UTF-8 title, title column and palette. Its remaining
+four-row template is presentation-only tilemap data for the instructional
+diagram; the corresponding 2-bpp pixels remain editable in `hud-tiles.png`.
+
+Titles accept space, `A` through `Z`, hyphen and period, and must fit between
+columns 3 and 28 at the configured column. There is no automatic wrapping. The
+panel template cannot contain callbacks or engine operations: message identity,
+window timing, gameplay blocking and the Shoot/Run binding choice remain compiled.
+The configured controller glyph is reapplied after every load or active-content
+rebind, so editing a template cannot change which binding the instruction teaches.
+
+Verification compares all 1,344 installed words for the seven panels against the
+pinned cartridge using remapped Shoot and Run controls while forbidding every
+installed bus access. UTF-8 editing, active rebind, stock restoration, strict
+glyph validation, deterministic catalog extraction, override identity and corrupt
+override failure are covered. The remaining non-title multi-row notices, save
+prompt, narration, general labels and credits remain open under #545.

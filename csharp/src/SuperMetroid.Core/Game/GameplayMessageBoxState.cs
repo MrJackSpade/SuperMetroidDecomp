@@ -25,6 +25,7 @@ public sealed class GameplayMessageBoxState
 {
     private ushort[] _tilemap = [];
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
+    [NonSerialized] private GameplayMessagePanelPresentation? panelPresentation;
     private readonly ControllerInputState _controller = new();
     private ISnesAddressSpace? _activeBus;
     private int _nextOpeningRadiusPixels;
@@ -33,6 +34,8 @@ public sealed class GameplayMessageBoxState
     private bool _gunshipCompletion;
     private bool _savingSoundRequested;
     private int _savingFramesRemaining;
+    private ushort _shootBinding = (ushort)SnesButton.X;
+    private ushort _runBinding = (ushort)SnesButton.B;
 
     /// <summary>Consumes $85:811B's one-shot saving sound, independently of gameplay publication.</summary>
     public bool ConsumeSavingSoundRequest()
@@ -89,10 +92,18 @@ public sealed class GameplayMessageBoxState
     /// Rebinds host-owned editable content after installation reload or debugger-state restore.
     /// An active supported title is rebuilt without resetting its coroutine phase.
     /// </summary>
-    public void BindPresentation(GameplayMessageTitlePresentation? presentation)
+    public void BindPresentation(
+        GameplayMessageTitlePresentation? presentation,
+        GameplayMessagePanelPresentation? panels = null)
     {
         titlePresentation = presentation;
-        if (presentation?.Contains(MessageId) == true)
+        panelPresentation = panels;
+        if (panels?.Contains(MessageId) == true)
+        {
+            _tilemap = panels.Build(MessageId);
+            PatchInstalledPanelButton(MessageId);
+        }
+        else if (presentation?.Contains(MessageId) == true)
             _tilemap = presentation.Build(MessageId);
     }
 
@@ -121,7 +132,14 @@ public sealed class GameplayMessageBoxState
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
-        if (titlePresentation?.Contains(messageId) == true)
+        _shootBinding = shootBinding;
+        _runBinding = runBinding;
+        if (panelPresentation?.Contains(messageId) == true)
+        {
+            _tilemap = panelPresentation.Build(messageId);
+            PatchInstalledPanelButton(messageId);
+        }
+        else if (titlePresentation?.Contains(messageId) == true)
             _tilemap = titlePresentation.Build(messageId);
         else
             BuildCartridgeTilemap(bus, messageId, shootBinding, runBinding);
@@ -390,6 +408,25 @@ public sealed class GameplayMessageBoxState
         }
 
         _tilemap[byteOffset / 2] = ResolveButtonTilemapWord(binding);
+    }
+
+    private void PatchInstalledPanelButton(GameplayMessageId messageId)
+    {
+        switch (GameplayMessagePanelDefinitions.ButtonBinding(messageId))
+        {
+            case GameplayMessagePanelButtonBinding.Shoot:
+                PatchConfiguredButton(messageId, _shootBinding);
+                break;
+            case GameplayMessagePanelButtonBinding.Run:
+                PatchConfiguredButton(messageId, _runBinding);
+                break;
+            case GameplayMessagePanelButtonBinding.None:
+                throw new InvalidDataException(
+                    $"Installed gameplay-message panel {messageId} has no compiled button binding.");
+            default:
+                throw new InvalidDataException(
+                    $"Unknown gameplay-message panel binding for {messageId}.");
+        }
     }
 
     private static ushort ResolveButtonTilemapWord(ushort binding)

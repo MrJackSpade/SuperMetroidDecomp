@@ -215,6 +215,13 @@ production collision probes cover both sides of every origin, overlap depth,
 and component selection through a helper that no longer accepts a ROM bus.
 Editable spritemaps cannot change these application-owned hitboxes.
 
+Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
+compiled physical definition shared by parent/Samus carry collision and Baby
+Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.
+The real sleeping-parent path passes every in-range distance plus both outside
+boundaries through a helper that no longer accepts a ROM bus; sprite presentation
+remains independent.
+
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits
   as complete coverage.

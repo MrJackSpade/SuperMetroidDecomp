@@ -143,8 +143,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BabyTurtleCrawlingRightInstruction = 0x8c72;
     private const ushort BabyTurtleHidingRightInstruction = 0x8d14;
     private const ushort BabyTurtleLeaveShellRightInstruction = 0x8d40;
-    private const int SleepingMamaTurtleShellShape = 0xa28e80;
-
     private const ushort MamaTurtleSolidProperty = 0x8000;
     private const ushort BabyTurtleTravelDistance = 0x0030;
     private const ushort MamaTurtlePeakYPosition = 0x01e8;
@@ -285,7 +283,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the sleeping shell height/carry routine at <c>$A2:8E0A</c>.</summary>
-    private void RunMamaTurtleAsleep(
+    private static void RunMamaTurtleAsleep(
         RoomEnemySlot mama,
         MamaTurtleEnemyState state,
         SamusState samus)
@@ -305,9 +303,7 @@ public sealed partial class RoomEnemySystem
 
         // The first 24 contour words describe Samus to the left; the second 24 describe
         // Samus to the right. This asymmetry is visible around the sleeping shell's lip.
-        int contourIndex = signedDifference < 0 ? distance + 24 : distance;
-        short contourOffset = unchecked((short)ReadWord(
-            _bus!, SleepingMamaTurtleShellShape + contourIndex * 2));
+        short contourOffset = MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         mama.YRadius = unchecked((ushort)-contourOffset);
         mama.Properties = unchecked((ushort)(mama.Properties | MamaTurtleSolidProperty));
 
@@ -703,12 +699,9 @@ public sealed partial class RoomEnemySystem
 
         short signedDifference = unchecked((short)(parentSlot.XPosition - baby.XPosition));
         int distance = Math.Abs((int)signedDifference);
-        short contourOffset = distance >= 24
+        short contourOffset = distance >= MamaTurtleShellContourDefinitions.HalfWidth
             ? (short)1
-            : unchecked((short)ReadWord(
-                _bus!,
-                SleepingMamaTurtleShellShape +
-                (signedDifference < 0 ? distance + 24 : distance) * 2));
+            : MamaTurtleShellContourDefinitions.GetOffset(signedDifference);
         MoveEnemyVertically(level, baby, contourOffset << 16);
 
         if (carryingSamus)

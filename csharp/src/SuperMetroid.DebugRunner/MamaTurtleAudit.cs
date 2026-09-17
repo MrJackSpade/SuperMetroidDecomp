@@ -5,9 +5,10 @@ using SuperMetroid.Core.Rooms;
 
 /// <summary>
 /// End-to-end ROM audit for the untouched Mama Turtle room at $8F:D055. Population records,
-/// headers, graphics, instruction lists, spritemaps, shell contour, collision data, and pose
-/// metadata all remain cartridge reads; the harness supplies only player position/input and
-/// ordinary beam actors, exactly the stimuli the retail room receives during play.
+/// headers, graphics, instruction lists, spritemaps, collision data, and pose metadata remain
+/// cartridge reads. The physical shell contour is the compiled cartridge-matched definition;
+/// the harness supplies only player position/input and ordinary beam actors, exactly the
+/// stimuli the retail room receives during play.
 /// </summary>
 internal static class MamaTurtleAudit
 {

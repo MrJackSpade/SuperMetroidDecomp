@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 
 namespace SuperMetroid.Core.Frontend;
@@ -10,6 +11,19 @@ internal sealed partial class PauseMenuState
         // Absence of capacity leaves the original blank template intact. Restoring
         // the template before rebuilding also removes labels if inventory is changed.
         if (samus.MaxReserveEnergy == 0) return;
+        if (mapPresentation is not null)
+        {
+            PauseReserveUiPresentation presentation = mapPresentation.PauseReserveUi;
+            presentation.ApplyLabel(equipmentTilemap, "Mode");
+            presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
+            // Native setup retains the initial MANUAL label for the zero/uninitialized
+            // mode and patches its first four characters only after a nonzero mode exists.
+            if (samus.ReserveTankMode != 0)
+                presentation.ApplyLabel(equipmentTilemap,
+                    samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode ? "Auto" : "Manual",
+                    preserveAttributes: true);
+            return;
+        }
         for (int row = 0; row < PauseReserveLabelRomData.LabelCount; row++)
         {
             int destination = RomDataReader.ReadWordFixedBank(bus,

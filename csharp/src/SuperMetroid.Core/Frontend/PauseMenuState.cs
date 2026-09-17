@@ -554,6 +554,11 @@ internal sealed partial class PauseMenuState
         };
         for (int digitIndex = 0; digitIndex < decimalPlaceValues.Length; digitIndex++)
         {
+            if (mapPresentation is not null)
+            {
+                mapPresentation.PauseReserveUi.ApplyDigit(equipmentTilemap, digitIndex, decimalPlaceValues[digitIndex]);
+                continue;
+            }
             ushort word = unchecked((ushort)(
                 PauseMenuLayout.ReserveSupplyDigitZeroTile + decimalPlaceValues[digitIndex]));
             int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;

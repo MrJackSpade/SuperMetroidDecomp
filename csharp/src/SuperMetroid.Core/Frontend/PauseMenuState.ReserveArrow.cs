@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -18,6 +19,14 @@ internal sealed partial class PauseMenuState
 
     private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
     {
+        if (mapPresentation is not null)
+        {
+            PauseReserveUiPresentation presentation = mapPresentation.PauseReserveUi;
+            presentation.ApplyArrowColors(cgram, animated, nmiFrameCounter8,
+                PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
+            presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
+            return;
+        }
         int offset = (nmiFrameCounter8 & PauseReserveArrowRomData.FrameMask) * sizeof(ushort);
         cgram.SetColor(PauseReserveArrowRomData.Color6Index, animated
             ? RomDataReader.ReadWordFixedBank(bus, PauseReserveArrowRomData.Color6Table + offset)

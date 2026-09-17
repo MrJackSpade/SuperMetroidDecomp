@@ -34,6 +34,14 @@ internal sealed partial class PauseMenuState
         // Reapply only the wireframe patch, in its native footprint. The surrounding
         // mutable labels include intentional cartridge overruns and must not be rebuilt.
         WriteSamusWireframe();
+        // Reserve presentation has its own bounded footprints and can safely adopt the
+        // rebound content without reconstructing unrelated inventory labels.
+        if (catalog is not null && samus.MaxReserveEnergy != 0)
+        {
+            WriteReserveLabels();
+            WriteReserveSupplyDigits();
+            UpdateReserveArrow(pauseNmiFrameCounter8);
+        }
         if (ScreenMode != 0) UploadEquipmentTilemap();
         // The serialized live button palette rows still own their overlay on
         // the refreshed backdrop, including a Start/fade highlight.

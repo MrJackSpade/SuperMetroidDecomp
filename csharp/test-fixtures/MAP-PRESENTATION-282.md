@@ -1055,3 +1055,33 @@ This is partial #544/#282/#535 work. Reserve labels/digits/arrow presentation,
 equipment base/inventory patches, coordinated layout and the remaining broader
 menu/HUD/sprite integration still prevent closing those tickets. Android and
 historical full-session validation are still outstanding.
+
+## Editable reserve labels, digits and arrow (#544/#282)
+
+Catalog version 19 adds `pause-reserve-ui.json`, schema version 1 (twenty-one
+shared resource hashes). It contains four named label patches (`Mode`,
+`ReserveTank`, `Manual`, `Auto`), ten supply-digit cells, the ten tilemap cells
+whose palettes form the energy-transfer arrow, its enabled/disabled palettes,
+solid colors and all 32 animated color pairs. Every tile is a named Map/Interface
+atlas reference. Anchors use zero-based columns and rows in the 32x32 equipment
+page; the file contains no WRAM addresses, energy values or input commands.
+
+Copy the stock file to `overrides/maps/pause-reserve-ui.json` to edit it. Capacity,
+current energy, decimal conversion, AUTO/MANUAL behavior, transfer rate, selector
+rules, palette destinations and animation phase remain compiled. A zero-capacity
+inventory still draws no reserve labels. Mode zero retains the authored `Mode`
+baseline exactly as native; nonzero modes replace only the first four characters
+while preserving their live tile attributes. Rebinding restored state refreshes
+only these bounded reserve footprints, so unrelated equipment labels and the
+native same-frame Plasma/VAR overrun remain untouched.
+
+Verification compares installed and ROM-backed pause menus for all 32 arrow phases
+with every migrated source blocked, including complete VRAM, CGRAM and rendered
+pixels. Independent label, digit and animated-color edits reach the actual menu;
+current-content restore and strict malformed/missing/corrupt-resource failures
+pass. Full-installer fixtures preserve the override across cancelled upgrade,
+replacement and restart alongside prior overrides and synthetic player files.
+
+Equipment base/inventory-label patches, coordinated semantic layout, broader
+HUD/menu scope, historical full-session coverage and Android validation remain.
+This partial implementation does not complete #544 or #282.

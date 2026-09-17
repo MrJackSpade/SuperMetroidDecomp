@@ -281,9 +281,11 @@ public sealed class SamusDrainedState
                 $"Drained falling command requires pose $E8/$E9, not ${samus.Pose:X2}.");
         }
 
-        // Command `$F7` writes `$90:94CB` into the same movement-handler word used by
-        // Crystal Flash. When a cinematic changed to drained art during Flash, this is the
-        // exact instruction that strands its palette/input state as a shinespark suit.
+        // Command `$F7` writes `$90:94CB` into the single physical movement-handler word.
+        // It therefore replaces either kind of special owner: an ordinary uncrashed spark
+        // retains its boost words as Blue Suit, while Crystal Flash retains its independent
+        // palette/input state as Shinespark Suit. Neither old movement routine may resume.
+        samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
         Phase = DrainedSamusPhase.Falling;
     }

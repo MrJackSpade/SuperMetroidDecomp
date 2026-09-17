@@ -1,0 +1,6 @@
+owner,movement,input,pose,boost,extra_speed,extra_subspeed,shine,palette
+drained-f7,94CB,E90E,E8,0400,0008,0000,003C,0006
+ceres-ridley,E90E,E90E,C9,0400,0008,0000,003C,0006
+elevator-command,A337,E913,00,0400,0000,0000,003C,0006
+xray-teardown,A337,E913,01,0400,0008,0000,003C,0006
+reserve-unlock-control,D106,E90E,C9,0400,0008,0000,003C,0006

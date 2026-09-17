@@ -616,6 +616,8 @@ if (args.Length == 3 && args[0] == "--spike-suit-underwater-reserve-audit")
     return SpikeSuitAudit.RunUnderwaterReserve(args[1], args[2]);
 if (args.Length == 3 && args[0] == "--flash-elevator-entry-audit")
     return FlashElevatorEntryAudit.Run(args[1], args[2]);
+if (args.Length == 3 && args[0] == "--forced-blue-audit")
+    return ForcedBlueStateAudit.Run(args[1], args[2]);
 if (args.Length == 2 && args[0] == "--flash-elevator-handoff-audit")
     return ElevatorFrontendHandoffAudit.Run(args[1], retainedFlash: true);
 if (args.Length == 3 && args[0] == "--flash-elevator-handoff-audit")

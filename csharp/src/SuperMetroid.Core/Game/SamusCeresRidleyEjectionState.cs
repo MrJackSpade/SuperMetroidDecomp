@@ -52,11 +52,12 @@ public sealed class SamusCeresRidleyEjectionState
         IsActive = true;
         InitializationPending = true;
 
-        // `$90:E119` writes `$E90E` into the one physical movement-handler word. If the
-        // overwritten pointer was Crystal Flash's raise/drain/finish routine, that routine
-        // cannot resume after Ridley's shove ends. Its independent palette handler and the
-        // RTS pose-input pointer are untouched, producing the documented retained-Flash
-        // state instead of suspending and later resuming the heal.
+        // `$90:E119` writes `$E90E` into the one physical movement-handler word. An
+        // uncrashed ordinary spark consequently retains its boost words as Blue Suit. If
+        // the overwritten pointer was Crystal Flash's raise/drain/finish routine, its
+        // independent palette handler and RTS pose-input pointer survive instead. Neither
+        // displaced movement owner can resume after Ridley's shove ends.
+        samus.Shinespark.RelinquishMovementHandler();
         samus.CrystalFlash.RelinquishMovementHandler();
 
         // `$90:E119` replaces only MovementHandler. The ordinary pose-input handler stays

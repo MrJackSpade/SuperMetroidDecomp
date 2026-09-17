@@ -663,6 +663,11 @@ public sealed class SamusXrayState
         if (radiusDifference >= 0)
             samus.YPosition = unchecked((ushort)(samus.YPosition - radiusDifference));
 
+        // `$91:E2AD` restores both normal Samus handler pointers. X-Mode can arrange for
+        // an active spark to own the movement word while the old visor HDMA reaches this
+        // teardown; replacing that spark while retaining `$0B3E` is the Blue Suit result.
+        samus.Shinespark.RelinquishMovementHandler();
+        samus.ShinesparkPoseInputLocked = false;
         TimeIsFrozen = false;
         SuspendedSubsystems = XraySuspendedSubsystems.None;
         IsActive = false;

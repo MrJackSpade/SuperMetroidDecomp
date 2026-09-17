@@ -8,6 +8,7 @@ internal static partial class Program
     private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
+        VerifyComboMechanicsDefinitions(rom, Word);
         int[] headers = Enumerable.Range(0, 24).Select(i => 0x938431 + i * 22).Concat(new[]
         {
             0x938641, 0x938657, 0x93866d, 0x938671, 0x938675, 0x938679, 0x93867d, 0x938681,
@@ -95,6 +96,55 @@ internal static partial class Program
         Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, complete high-bank address scan and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
+    private static void VerifyComboMechanicsDefinitions(
+        SuperMetroidAddressSpace rom,
+        Func<int, ushort> readWord)
+    {
+        for (int beam = 0; beam < 12; beam++)
+            AssertEqual(readWord(SamusComboRomData.Costs + beam * 2),
+                SamusComboMechanicsDefinitions.GetPowerBombCost(beam),
+                $"compiled combo Power Bomb cost {beam}");
+        for (int slot = 0; slot < 4; slot++)
+            AssertEqual(readWord(SamusComboRomData.OriginAngles + slot * 2),
+                SamusComboMechanicsDefinitions.GetOriginAngle(slot),
+                $"compiled combo origin angle {slot}");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusComboMechanicsDefinitions.GetPowerBombCost(12),
+            "combo cost rejects a beam index beyond the native table");
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusComboMechanicsDefinitions.GetOriginAngle(4),
+            "combo angle rejects a fifth projectile slot");
+
+        var guarded = new ComboMechanicsReadGuard(rom);
+        foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
+        {
+            var projectiles = new SamusProjectileSystem();
+            var samus = new SamusState
+            {
+                Pose = SamusPoseIds.FacingRightNormalPose,
+                XPosition = 128,
+                YPosition = 128,
+                EquippedBeams = beam,
+                SelectedHudItem = 3,
+                PowerBombs = 10,
+            };
+            AssertTrue(projectiles.TryActivateCombo(
+                    guarded, samus, new SamusBombProjectileSystem(), out _),
+                $"beam {beam:X} activates with cost/angle ROM reads forbidden");
+            AssertEqual((ushort)9, samus.PowerBombs,
+                $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
+            for (int slot = 0; slot < 4; slot++)
+                AssertEqual(beam is 2 or 8
+                        ? SamusComboMechanicsDefinitions.GetOriginAngle(slot)
+                        : (ushort)0,
+                    projectiles.Slots[slot].Variable,
+                    $"beam {beam:X} slot {slot} receives its compiled origin angle");
+        }
+
+        Console.WriteLine(
+            "  Special beam mechanics: twelve costs and four origin angles match cartridge data; all four producers avoid those ROM tables.");
+    }
+
     private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source, int[] headers) : ISnesAddressSpace
     {
         public byte ReadByte(int address)
@@ -103,6 +153,20 @@ internal static partial class Program
                 throw new InvalidDataException($"Projectile damage still reads compiled ROM header ${address:X6}.");
             return source.ReadByte(address);
         }
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class ComboMechanicsReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 ||
+                address is >= SamusComboRomData.OriginAngles and < SamusComboRomData.OriginAngles + 8)
+                throw new InvalidOperationException(
+                    $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
+            return source.ReadByte(address);
+        }
+
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

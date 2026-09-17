@@ -23,7 +23,8 @@ public sealed partial class SamusProjectileSystem
         int beam = samus.EquippedBeams & 15;
         if (beam >= 12)
             throw new NotSupportedException("Out-of-table Spazer/Plasma combo dispatcher requires emulated ROM execution.");
-        short remaining = unchecked((short)(samus.PowerBombs - ReadWord(bus, SamusComboRomData.Costs + beam * 2)));
+        short remaining = unchecked((short)(samus.PowerBombs -
+            SamusComboMechanicsDefinitions.GetPowerBombCost(beam)));
         samus.PowerBombs = remaining < 0 ? (ushort)0 : (ushort)remaining;
         bool activated = beam is 1 or 2 or 4 or 8;
         if (beam == 2 && _slots[0].PreInstruction is SamusProjectilePreInstruction.IceCombo or SamusProjectilePreInstruction.IceComboOutward ||
@@ -40,7 +41,9 @@ public sealed partial class SamusProjectileSystem
                     2 => SamusProjectilePreInstruction.IceCombo, 4 => SamusProjectilePreInstruction.SpazerCombo,
                     _ => SamusProjectilePreInstruction.PlasmaCombo };
                 if (beam != 8) slot.TrailTimer = beam == 4 && i < 2 ? (ushort)0 : (ushort)4;
-                slot.Variable = beam is 2 or 8 ? ReadWord(bus, SamusComboRomData.OriginAngles + i * 2) : (ushort)0;
+                slot.Variable = beam is 2 or 8
+                    ? SamusComboMechanicsDefinitions.GetOriginAngle(i)
+                    : (ushort)0;
                 if (beam is 1 or 4)
                 {
                     slot.XSubposition = slot.YSubposition = 0;

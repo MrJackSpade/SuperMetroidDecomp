@@ -28,6 +28,8 @@ internal static partial class Program
         VerifyGModeBlueDoorAllocation();
         VerifyGModeSandOverload();
         VerifyGModeStationSoftlock();
+        VerifyGModeRemoteItemAcquisition();
+        VerifyGModeNoobTubeSuspension();
         VerifyGModeDefaultBlockCollision();
         Console.WriteLine(
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
@@ -411,6 +413,96 @@ internal static partial class Program
             "first post-G-Mode PLM pass consumes the pending station setup");
         AssertTrue(samus.InputLocked,
             "resumed station owns Samus until the full access sequence finishes");
+    }
+
+    private static void VerifyGModeRemoteItemAcquisition()
+    {
+        var bus = new TestAddressSpace();
+        SeedCollectibleRom(bus);
+        CollectibleFixture fixture = LoadCollectible(
+            bus,
+            header: 0xeed7,
+            roomArgument: 17,
+            precollected: false);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+        AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
+            "direct G-Mode contact records the visible item's native trigger");
+
+        fixture.Samus.XPosition = 0x0200;
+        fixture.Samus.YPosition = 0x0200;
+        AssertTrue(!fixture.System.HasCollectedItemBit(17),
+            "suspended item PLM remains uncollected after Samus leaves its block");
+        AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count,
+            "suspended item PLM publishes no pickup event");
+
+        // The omitted handler pass above represents G-Mode. Once a second X-Ray use
+        // restores PLMs, the resident trigger is consumed without rechecking distance.
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+        AssertTrue(fixture.System.HasCollectedItemBit(17),
+            "first post-G-Mode handler remotely acquires the previously touched item");
+        AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count,
+            "remote acquisition publishes exactly one cartridge pickup event");
+    }
+
+    private static void VerifyGModeNoobTubeSuspension()
+    {
+        var bus = new TestAddressSpace();
+        SeedNoobTubeRom(bus);
+        const ushort population = 0x9400;
+        const byte blockX = 2;
+        const byte blockY = 2;
+        const int width = 16;
+        int blockIndex = blockY * width + blockX;
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0x0c, 0xd7, blockX, blockY, 0x00, 0x00,
+            0x00, 0x00,
+        ]);
+        RoomLevelData level = CreateRoom(
+            width,
+            16,
+            new ushort[width * 16],
+            new byte[width * 16],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var samus = new SamusState { YPosition = 0x0100 };
+        RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
+        bool brokenEvent = false;
+        var projectiles = new List<NoobTubeProjectileRequest>();
+        var plms = new RoomPlmSystem();
+        plms.LoadRoomPopulation(
+            bus,
+            level,
+            streamer,
+            new SnesVram(),
+            population,
+            new Bank80SystemState(),
+            AreaId.Maridia,
+            getSamus: () => samus,
+            isAreaTorizoDefeated: () => false,
+            hasEvent: _ => false,
+            setEvent: _ => brokenEvent = true,
+            roomFx: roomFx,
+            setEarthquakeTimer: _ => { },
+            setEarthquakeType: _ => { },
+            spawnNoobTubeProjectile: projectiles.Add);
+        StepNoobTube(plms, bus, level, streamer);
+
+        AssertTrue(plms.TryNotifyResidentProjectileHit(
+                blockIndex,
+                SamusBombProjectileSystem.PowerBombType),
+            "Power Bomb publishes its hit to the intact glass-tube resident");
+        AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
+            "G-Mode-disabled tube retains the marked Power Bomb request");
+        AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.InputLocked,
+            "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
+        AssertTrue((roomFx.LiquidOptions & RoomFxRomData.Water.PhysicsDisabledOption) != 0,
+            "suspended glass tube leaves its water-physics disable bit intact");
+
+        StepNoobTube(plms, bus, level, streamer);
+        AssertEqual(NoobTubePlmRomData.WakeOnAcceptedInputPreInstruction,
+            plms.PopulationSlots.Single().PreInstruction,
+            "first post-G-Mode PLM pass consumes the Power Bomb and arms the input callback");
     }
 
     private static void FillSuspendedPlmPool(

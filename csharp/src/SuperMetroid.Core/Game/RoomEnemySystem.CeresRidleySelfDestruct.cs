@@ -150,7 +150,10 @@ public sealed partial class RoomEnemySystem
         byte sourceBank = _bus!.ReadByte(
             (int)new SnesAddress(0xa6, unchecked((ushort)(pointer + 4))));
         ushort destination = ReadWord(_bus!, 0xa60000 | unchecked((ushort)(pointer + 5)));
-        vramWriteQueue.Enqueue(byteCount, (sourceBank << 16) | sourceOffset, destination);
+        int sourceAddress = (sourceBank << 16) | sourceOffset;
+        if (EscapeTimerArtwork?.TryQueueNativeTransfer(
+            vramWriteQueue, sourceAddress, byteCount, destination) != true)
+            vramWriteQueue.Enqueue(byteCount, sourceAddress, destination);
 
         state.CeresEscapeTransferListPointer = unchecked((ushort)(pointer + 7));
         return ReadWord(_bus!, 0xa60000 | state.CeresEscapeTransferListPointer) == 0;

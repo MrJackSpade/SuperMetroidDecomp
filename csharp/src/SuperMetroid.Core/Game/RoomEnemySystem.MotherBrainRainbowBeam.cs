@@ -319,6 +319,9 @@ public sealed partial class RoomEnemySystem
     private void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)
     {
+        if (EscapeTimerArtwork?.TryLoadNativeTransfer(
+            _vram!, unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination) == true)
+            return;
         var bytes = new byte[transfer.Size];
         for (int index = 0; index < bytes.Length; index++)
             bytes[index] = _bus!.ReadByte(unchecked((int)transfer.SourceAddress + index));

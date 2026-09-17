@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -893,14 +894,14 @@ static void VerifyCeresRidleyRoomEntry()
 
     // Keep warning transfers distinguishable after the full compiled Mode-7 curve.
     // The later assertions cover the first-list yield and second-list handoff separately.
-    WriteWord(bus, 0xa6c4cb, 2);
-    WriteWord(bus, 0xa6c4cd, 0x9200);
+    WriteWord(bus, 0xa6c4cb, EscapeTimerTileAtlasFormat.FirstByteCount);
+    WriteWord(bus, 0xa6c4cd, 0xc000);
     bus.WriteByte(0xa6c4cf, 0xb0);
-    WriteWord(bus, 0xa6c4d0, 0x7800);
-    WriteWord(bus, 0xa6c4d2, 2);
-    WriteWord(bus, 0xa6c4d4, 0x9202);
+    WriteWord(bus, 0xa6c4d0, EscapeTimerTileAtlasFormat.FirstDestinationWord);
+    WriteWord(bus, 0xa6c4d2, EscapeTimerTileAtlasFormat.SecondByteCount);
+    WriteWord(bus, 0xa6c4d4, 0xc200);
     bus.WriteByte(0xa6c4d6, 0xb0);
-    WriteWord(bus, 0xa6c4d7, 0x7801);
+    WriteWord(bus, 0xa6c4d7, EscapeTimerTileAtlasFormat.SecondDestinationWord);
     WriteWord(bus, 0xa6c4d9, 0);
     WriteWord(bus, 0xa6c4fe, 2);
     WriteWord(bus, 0xa6c500, 0x9204);
@@ -1195,6 +1196,16 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley retreat copies OBJ palette-seven colors");
 
     var escapeWrites = new VramWriteQueue();
+    using (var timerPng = new MemoryStream())
+    {
+        IndexedPng.Write(timerPng,
+            EscapeTimerTileAtlasFormat.Width,
+            EscapeTimerTileAtlasFormat.Height,
+            new byte[EscapeTimerTileAtlasFormat.Width * EscapeTimerTileAtlasFormat.Height],
+            SnesGraphics.DiagnosticPalette(EscapeTimerTileAtlasFormat.ColorCount));
+        timerPng.Position = 0;
+        enemies.EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng);
+    }
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
     AssertTrue(enemies.SoundRequests.Contains(
             new EnemySoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x4e), MaximumQueued: 6)),
@@ -1228,8 +1239,12 @@ static void VerifyCeresRidleyRoomEntry()
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus, vramWriteQueue: escapeWrites);
     AssertEqual(3, escapeWrites.Entries.Count,
         "Ceres self-destruct final first-list record falls through to one second-list record");
-    AssertEqual(0xb09200, escapeWrites.Entries[0].SourceAddress,
-        "Ceres first warning transfer source");
+    AssertEqual(VramAssetId.EscapeTimerFirstTiles, escapeWrites.Entries[0].AssetId,
+        "Ceres first timer record selects installed artwork");
+    AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
+        "Ceres second timer record selects installed artwork");
+    AssertEqual(0xb09204, escapeWrites.Entries[2].SourceAddress,
+        "Ceres first non-timer warning transfer retains cartridge source");
     AssertEqual(0x7802, escapeWrites.Entries[2].EncodedVramDestination,
         "Ceres second warning transfer destination");
     AssertEqual(4, state.FunctionTimer,

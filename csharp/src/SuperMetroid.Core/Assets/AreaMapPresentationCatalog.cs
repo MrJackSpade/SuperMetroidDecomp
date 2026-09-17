@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Assets;
 public sealed class AreaMapPresentationCatalog : IVramAssetProvider
 {
     private readonly IAreaMapView[] areas;
-    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites, MapTileAtlas pauseTiles, PauseBackdropPresentation pauseBackdrops, PauseWireframePresentation pauseWireframes, PauseSelectorPresentation pauseSelectors, PauseReserveTankPresentation pauseReserveTanks, PauseReserveUiPresentation pauseReserveUi, PauseEquipmentBasePresentation pauseEquipmentBase, PauseEquipmentLabelPresentation pauseEquipmentLabels, EscapeTimerPresentation escapeTimer, GameplayHudPresentation gameplayHud, GameOverPresentation gameOver, GameOptionsPresentation gameOptions, FileSelectPresentation fileSelect)
+    private AreaMapPresentationCatalog(IAreaMapView[] areas, string contentIdentity, MapTileAtlas tiles, HudTileAtlas hudTiles, MapPaletteCycle highlightCycle, MapStaticPalettes palettes, WorldMapLabelLayout labels, MapStationLayout stations, MapLandmarkLayout landmarks, MapSaveMarkerLayout saveMarkers, MapArrowPresentation arrows, MapScreenPresentation screens, WorldMapArtwork worldArtwork, MapSpriteCatalog sprites, MapTileAtlas pauseTiles, PauseBackdropPresentation pauseBackdrops, PauseWireframePresentation pauseWireframes, PauseSelectorPresentation pauseSelectors, PauseReserveTankPresentation pauseReserveTanks, PauseReserveUiPresentation pauseReserveUi, PauseEquipmentBasePresentation pauseEquipmentBase, PauseEquipmentLabelPresentation pauseEquipmentLabels, EscapeTimerPresentation escapeTimer, EscapeTimerTileAtlas escapeTimerTiles, GameplayHudPresentation gameplayHud, GameOverPresentation gameOver, GameOptionsPresentation gameOptions, FileSelectPresentation fileSelect)
     {
         this.areas = areas;
         ContentIdentity = contentIdentity;
@@ -35,6 +35,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         PauseEquipmentBase = pauseEquipmentBase;
         PauseEquipmentLabels = pauseEquipmentLabels;
         EscapeTimer = escapeTimer;
+        EscapeTimerTiles = escapeTimerTiles;
         GameplayHud = gameplayHud;
         GameOver = gameOver;
         GameOptions = gameOptions;
@@ -63,12 +64,17 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     public PauseEquipmentBasePresentation PauseEquipmentBase { get; }
     public PauseEquipmentLabelPresentation PauseEquipmentLabels { get; }
     public EscapeTimerPresentation EscapeTimer { get; }
+    public EscapeTimerTileAtlas EscapeTimerTiles { get; }
     public GameplayHudPresentation GameplayHud { get; }
     public GameOverPresentation GameOver { get; }
     public GameOptionsPresentation GameOptions { get; }
     public FileSelectPresentation FileSelect { get; }
-    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset == VramAssetId.StandardHudTiles
-        ? HudTiles.Transfer : throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}.");
+    public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => asset switch
+    {
+        VramAssetId.StandardHudTiles => HudTiles.Transfer,
+        VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
+        _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
+    };
     public IAreaMapView Get(AreaId area) => areas[AreaIds.ToIndex(area)];
 
     /// <summary>Reads all areas atomically into a new catalog; an invalid override is never replaced with stock.</summary>
@@ -198,6 +204,9 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         EscapeTimerPresentation escapeTimer;
         try { escapeTimer = EscapeTimerPresentation.Load(new MemoryStream(Select(EscapeTimerPresentationDefinitions.FileName, stock.EscapeTimer))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid escape timer presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
+        EscapeTimerTileAtlas escapeTimerTiles;
+        try { escapeTimerTiles = EscapeTimerTileAtlas.Load(new MemoryStream(Select(EscapeTimerTileAtlasFormat.FileName, stock.EscapeTimerTiles))); }
+        catch (InvalidDataException error) { throw new InvalidDataException($"Invalid escape timer artwork in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
         GameplayHudPresentation gameplayHud;
         try { gameplayHud = GameplayHudPresentation.Load(new MemoryStream(Select(GameplayHudDefinitions.FileName, stock.GameplayHud))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid gameplay HUD presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
@@ -210,7 +219,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         FileSelectPresentation fileSelect;
         try { fileSelect = FileSelectPresentation.Load(new MemoryStream(Select(FileSelectPresentationDefinitions.FileName, stock.FileSelect))); }
         catch (InvalidDataException error) { throw new InvalidDataException($"Invalid file-select presentation in {overrideDirectory ?? stockDirectory}: {error.Message}", error); }
-        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, gameplayHud, gameOver, gameOptions, fileSelect);
+        return new(areas, Convert.ToHexString(identity.GetHashAndReset()), tiles, hudTiles, cycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, artwork, sprites, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect);
 
         byte[] Select(string name, byte[] baseline)
         {
@@ -232,7 +241,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
     /// <summary>Installer integrity check; never repairs files or touches the override directory.</summary>
     public static void ValidateStock(string directory) => _ = ReadVerifiedStock(directory);
 
-    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack, byte[] SpriteJson, byte[] SpritePng, byte[] PauseTiles, byte[] PauseBackdrops, byte[] PauseWireframes, byte[] PauseSelectors, byte[] PauseReserveTanks, byte[] PauseReserveUi, byte[] PauseEquipmentBase, byte[] PauseEquipmentLabels, byte[] EscapeTimer, byte[] GameplayHud, byte[] GameOver, byte[] GameOptions, byte[] FileSelect) ReadVerifiedStock(string directory)
+    private static (Dictionary<AreaId, byte[]> Maps, Dictionary<AreaId, HashSet<int>> StationCells, byte[] Atlas, byte[] HudAtlas, byte[] HighlightCycle, byte[] Palettes, byte[] Labels, byte[] Stations, byte[] Landmarks, byte[] SaveMarkers, byte[] Arrows, byte[] Screens, byte[] WorldFront, byte[] WorldBack, byte[] SpriteJson, byte[] SpritePng, byte[] PauseTiles, byte[] PauseBackdrops, byte[] PauseWireframes, byte[] PauseSelectors, byte[] PauseReserveTanks, byte[] PauseReserveUi, byte[] PauseEquipmentBase, byte[] PauseEquipmentLabels, byte[] EscapeTimer, byte[] EscapeTimerTiles, byte[] GameplayHud, byte[] GameOver, byte[] GameOptions, byte[] FileSelect) ReadVerifiedStock(string directory)
     {
         AreaMapCatalogManifest manifest;
         try
@@ -242,8 +251,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
                 ?? throw new InvalidDataException("Map catalog manifest is null.");
         }
         catch (JsonException error) { throw new InvalidDataException($"Invalid map catalog manifest in {directory}.", error); }
-        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 28)
-            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and all twenty-eight shared presentation resource hashes.");
+        if (manifest.Version != AreaMapCatalogFormat.Version || manifest.Sha256 is null || manifest.Sha256.Count != AreaIds.RetailCount + 29)
+            throw new InvalidDataException("Map catalog manifest must contain the supported version, seven maps and all twenty-nine shared presentation resource hashes.");
         var result = new Dictionary<AreaId, byte[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
@@ -309,6 +318,8 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         _ = PauseEquipmentLabelPresentation.Load(new MemoryStream(pauseEquipmentLabels));
         byte[] escapeTimer = ReadChecked(EscapeTimerPresentationDefinitions.FileName);
         _ = EscapeTimerPresentation.Load(new MemoryStream(escapeTimer));
+        byte[] escapeTimerTiles = ReadChecked(EscapeTimerTileAtlasFormat.FileName);
+        _ = EscapeTimerTileAtlas.Load(new MemoryStream(escapeTimerTiles));
         byte[] gameplayHud = ReadChecked(GameplayHudDefinitions.FileName);
         _ = GameplayHudPresentation.Load(new MemoryStream(gameplayHud));
         byte[] gameOver = ReadChecked(GameOverPresentationDefinitions.FileName);
@@ -317,7 +328,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider
         _ = GameOptionsPresentation.Load(new MemoryStream(gameOptions));
         byte[] fileSelect = ReadChecked(FileSelectPresentationDefinitions.FileName);
         _ = FileSelectPresentation.Load(new MemoryStream(fileSelect));
-        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back, spriteJson, spritePng, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, gameplayHud, gameOver, gameOptions, fileSelect);
+        return (result, stationCells, atlas, hudAtlas, highlightCycle, palettes, labels, stations, landmarks, saveMarkers, arrows, screens, front, back, spriteJson, spritePng, pauseTiles, pauseBackdrops, pauseWireframes, pauseSelectors, pauseReserveTanks, pauseReserveUi, pauseEquipmentBase, pauseEquipmentLabels, escapeTimer, escapeTimerTiles, gameplayHud, gameOver, gameOptions, fileSelect);
 
         byte[] ReadChecked(string file)
         {
@@ -341,7 +352,7 @@ public sealed record AreaMapCatalogManifest
 
 public static class AreaMapCatalogFormat
 {
-    public const int Version = 26;
+    public const int Version = 27;
     /// <summary>Bundled authored reveal mask: logical row-major cell indexes, not SRAM offsets or editable engine code.</summary>
     public const string StationRevealFile = "station-reveal.json";
     public const string ManifestFile = "manifest.json";

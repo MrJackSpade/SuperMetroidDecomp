@@ -133,6 +133,18 @@ internal static partial class Program
         var escapeTimer = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)))!;
         escapeTimer["anchors"]!["Minutes"]!["x"] = -27;
         File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
+        string escapeTimerTileOverride = Path.Combine(
+            installation.MapOverrideDirectory, EscapeTimerTileAtlasFormat.FileName);
+        using (var input = File.OpenRead(Path.Combine(
+            installation.MapDirectory, EscapeTimerTileAtlasFormat.FileName)))
+        {
+            var timerImage = IndexedPng.Read(input,
+                EscapeTimerTileAtlasFormat.Width, EscapeTimerTileAtlasFormat.Height);
+            timerImage.Pixels[0] ^= 1;
+            using var output = File.Create(escapeTimerTileOverride);
+            IndexedPng.Write(output, timerImage.Width, timerImage.Height,
+                timerImage.Pixels, timerImage.Palette);
+        }
         string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
         var gameplayHud = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)))!;
         gameplayHud["digits"]!["healthAnchor"]!["x"] = 4;
@@ -153,7 +165,7 @@ internal static partial class Program
         var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
         File.WriteAllText(spriteOverride, sprites.ToJsonString());
-        var artworkOverrides = new List<string>();
+        var artworkOverrides = new List<string> { escapeTimerTileOverride };
         foreach (var atlas in new[] { (WorldMapArtworkFormat.ForegroundFile, WorldMapArtworkFormat.ForegroundHeight, 16, WorldMapArtworkFormat.Width),
             (WorldMapArtworkFormat.BackgroundFile, WorldMapArtworkFormat.BackgroundHeight, 4, WorldMapArtworkFormat.Width),
             (MapSpriteFormat.PngFile, MapSpriteFormat.Height, 16, MapSpriteFormat.Width),
@@ -176,6 +188,9 @@ internal static partial class Program
             "full installation consumes options-menu override");
         AssertTrue(stock.FileSelect.ContentIdentity != edited.FileSelect.ContentIdentity,
             "full installation consumes file-select override");
+        AssertTrue(!stock.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span.SequenceEqual(
+            edited.EscapeTimerTiles.Resolve(SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles).Span),
+            "full installation consumes escape-timer artwork override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>

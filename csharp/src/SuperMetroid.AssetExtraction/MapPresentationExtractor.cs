@@ -146,6 +146,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, EscapeTimerPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerBytes);
         hashes.Add(EscapeTimerPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));
+        byte[] escapeTimerTileBytes = EscapeTimerTileAtlasExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, EscapeTimerTileAtlasFormat.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(escapeTimerTileBytes);
+        hashes.Add(EscapeTimerTileAtlasFormat.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerTileBytes)));
         byte[] gameplayHudBytes = GameplayHudPresentationExtractor.Extract(bus);
         using (var file = new FileStream(Path.Combine(directory, GameplayHudDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(gameplayHudBytes);

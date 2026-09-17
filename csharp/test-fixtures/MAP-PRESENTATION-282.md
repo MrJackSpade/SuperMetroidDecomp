@@ -1268,3 +1268,27 @@ rebinding, deterministic extraction, strict malformed/missing/duplicate failures
 and full-installer preservation. Broader shared integration, historical
 full-session coverage and Android validation remain; this does not complete #544
 or #282.
+
+## Editable escape-timer OBJ artwork (#544/#282)
+
+Catalog version 27 adds `escape-timer-tiles.png` (twenty-nine shared resource
+hashes). It is an indexed 200x8 atlas containing the twenty-five consecutive
+4-bpp OBJ characters from `$B0:C000-$B0:C31F`. Copy it to
+`overrides/maps/escape-timer-tiles.png` to replace the `TIME` label and digit
+pixels independently of `escape-timer.json` composition and placement.
+
+The cartridge intentionally uploads the art as a `$200`-byte page followed by a
+`$120`-byte page. Installed Ceres and Mother Brain paths keep those two records,
+their order, destinations and one-record-per-owner-call cadence. Typed VRAM asset
+references defer byte resolution until NMI for Ceres; Mother Brain's synchronous
+owner resolves the same catalog pages directly. A restored legacy queue is rebound
+from its two native source addresses without changing queue position or byte count.
+
+Verification compares the deterministic PNG and both compiled pages byte-for-byte
+with the cartridge. It exercises typed queue draining with all bus access forbidden,
+synchronous Mother Brain publication, restored pending-write rebinding, Ceres's real
+self-destruct dispatcher selecting both typed pages, an isolated pixel edit that
+changes only the first page, wrong-size rejection and full-installer preservation.
+Countdown mechanics, spritemap composition, transfer cadence and later typewriter
+pages remain compiled/native owners. Historical full-session coverage and Android
+device validation remain shared integration work.

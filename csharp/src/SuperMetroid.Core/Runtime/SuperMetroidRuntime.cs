@@ -1301,8 +1301,17 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public void QueueEscapeTimerSpriteTiles()
     {
-        VramWrites.Enqueue(sizeInBytes: 0x0200, sourceAddress: 0xb0c000, encodedVramDestination: 0x7e00);
-        VramWrites.Enqueue(sizeInBytes: 0x0120, sourceAddress: 0xb0c200, encodedVramDestination: 0x7f00);
+        if (MapPresentation is null)
+        {
+            VramWrites.Enqueue(EscapeTimerTileAtlasFormat.FirstByteCount,
+                EscapeTimerTileRomData.FirstSourceAddress,
+                EscapeTimerTileAtlasFormat.FirstDestinationWord);
+            VramWrites.Enqueue(EscapeTimerTileAtlasFormat.SecondByteCount,
+                EscapeTimerTileRomData.SecondSourceAddress,
+                EscapeTimerTileAtlasFormat.SecondDestinationWord);
+        }
+        else
+            MapPresentation.EscapeTimerTiles.QueueTo(VramWrites);
     }
 
     /// <summary>Low-byte NMI frame counter at WRAM <c>$05B5</c>.</summary>

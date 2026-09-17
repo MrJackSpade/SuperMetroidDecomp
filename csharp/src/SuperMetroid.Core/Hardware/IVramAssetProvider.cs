@@ -13,6 +13,10 @@ public enum VramAssetId
     None,
     /// <summary>Standard gameplay BG3 character sheet followed by its native zero padding.</summary>
     StandardHudTiles,
+    /// <summary>Escape-timer OBJ tiles 480 through 495 from the first native transfer record.</summary>
+    EscapeTimerFirstTiles,
+    /// <summary>Escape-timer OBJ tiles 496 through 504 from the second native transfer record.</summary>
+    EscapeTimerSecondTiles,
     /// <summary>$90:C3B1 selection 0: Power beam artwork.</summary>
     BeamPowerTiles,
     /// <summary>$90:C3B1 selection 1: Wave beam artwork.</summary>

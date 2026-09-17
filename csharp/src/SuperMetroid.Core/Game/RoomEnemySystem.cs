@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
@@ -50,6 +51,10 @@ public sealed partial class RoomEnemySystem
     private bool _processAllEnemies;
     private GunshipLoadScenario _gunshipLoadScenario;
     private SamusState? _samusAtEnemyInitialization;
+
+    /// <summary>Current host-owned timer artwork; rebound after debugger-state restoration.</summary>
+    [field: NonSerialized]
+    public EscapeTimerTileAtlas? EscapeTimerArtwork { get; set; }
 
     public RoomEnemySystem()
     {

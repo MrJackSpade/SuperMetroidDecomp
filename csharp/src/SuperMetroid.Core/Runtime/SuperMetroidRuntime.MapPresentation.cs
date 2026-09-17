@@ -14,10 +14,20 @@ public sealed partial class SuperMetroidRuntime
         {
             mapPresentation = value;
             Hud.BindPresentation(value?.GameplayHud, Samus);
+            Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)
                 VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,
                     SuperMetroid.Core.Hardware.VramAssetId.StandardHudTiles);
+            if (value is not null)
+            {
+                VramWrites.RebindBusSource(EscapeTimerTileRomData.FirstSourceAddress,
+                    EscapeTimerTileAtlasFormat.FirstByteCount,
+                    SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerFirstTiles);
+                VramWrites.RebindBusSource(EscapeTimerTileRomData.SecondSourceAddress,
+                    EscapeTimerTileAtlasFormat.SecondByteCount,
+                    SuperMetroid.Core.Hardware.VramAssetId.EscapeTimerSecondTiles);
+            }
         }
     }
 

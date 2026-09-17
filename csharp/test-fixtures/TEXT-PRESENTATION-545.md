@@ -147,11 +147,11 @@ scrolling staff credits and other cinematic labels remain open under #545.
 ## Editable ending font (catalog version 34)
 
 `ending-font.png` exposes the complete 160-tile, four-bit font sheet shared by the
-scrolling credits, post-credit result screens, and post-shot subtitle. It is a 128x80 indexed PNG with
-sixteen palette indexes. The loader compiles it back to the exact 4096-byte SNES
-planar transfer and uses that installed transfer at all three native consumers,
-including the post-shot subtitle upload;
-the ROM-compressed font is only the stock extraction source.
+scrolling credits, post-credit result screens, and post-shot subtitle. It is a
+128x80 indexed PNG with sixteen palette indexes. The loader compiles it back to
+the exact 5120-byte SNES planar transfer and uses that installed transfer at all
+three native consumers, including the post-shot subtitle upload. The
+ROM-compressed font is only the stock extraction source.
 
 Verification compares every compiled stock byte with the decompressed cartridge,
 proves a pixel edit changes installed VRAM data, and covers deterministic extraction,

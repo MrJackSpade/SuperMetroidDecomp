@@ -123,3 +123,24 @@ interpreter while forbidding installed narration reads. UTF-8 editing, determini
 extraction, override identity, corrupt-resource failure and strict layout/glyph
 validation are covered. General cinematic labels, credits, and editable pixels for
 the opening font remain open under #545.
+
+## Editable post-credit text (catalog version 33)
+
+`ending-text.json`, schema version 1, exposes the producer-panel `PRODUCED BY`
+label, the `1994 NINTENDO` copyright, both item-percentage lines, the alternate
+language subtitle tile template, and `SEE YOU NEXT MISSION`. Text is uppercase,
+bounded to the stock rectangles, and never wraps. The remaining stylized producer
+logo stays in the result-panel template so its non-font tile composition is retained.
+
+The initial 64-frame delays, four-frame typewriter cadence, percentage calculation,
+alternate-language selection, 128-frame percentage hold, scroll request, and final
+hold remain compiled behavior. Installed playback no longer interprets these text
+streams or glyph payloads from bank `$8C`; debugger restoration requires explicit
+rebinding to the current host catalog.
+
+Verification compares both literal panels and every item-percentage/final-message
+frame with the native interpreter while forbidding the installed bank-$8C reads.
+UTF-8 edits, deterministic extraction, override identity, current-content state
+restore, corrupt resources, dimensions, and glyph restrictions are covered. The
+scrolling staff credits, other cinematic labels, and editable ending-font pixels
+remain open under #545.

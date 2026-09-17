@@ -2,6 +2,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -50,6 +51,7 @@ internal sealed partial class EndingCreditsState
     private EndingRewardJump? rewardJump;
     private EndingPostShot? postShot;
     private RoomPaletteFxSystem paletteFx = new();
+    [NonSerialized] private EndingTextPresentation? endingText;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -57,7 +59,8 @@ internal sealed partial class EndingCreditsState
         ushort gameTimeHours,
         ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default,
-        bool japaneseText = false)
+        bool japaneseText = false,
+        EndingTextPresentation? endingText = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
@@ -65,6 +68,7 @@ internal sealed partial class EndingCreditsState
         this.gameTimeMinutes = gameTimeMinutes;
         this.inventory = inventory;
         this.japaneseText = japaneseText;
+        this.endingText = endingText;
         Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
 
@@ -260,10 +264,14 @@ internal sealed partial class EndingCreditsState
                 {
                     // Function 132 installs the complete $8C:DC9B result panel into rows
                     // nine through seventeen before the following 180-frame hold.
-                    CopyPostCreditsWords(
-                        EndingCreditsRomData.Instructions.ResultPanel,
-                        EndingCreditsRomData.Text.ResultPanelDestination,
-                        EndingCreditsRomData.Text.ResultPanelWords);
+                    if (endingText is null)
+                        CopyPostCreditsWords(
+                            EndingCreditsRomData.Instructions.ResultPanel,
+                            EndingCreditsRomData.Text.ResultPanelDestination,
+                            EndingCreditsRomData.Text.ResultPanelWords);
+                    else
+                        endingText.BuildResultPanel().CopyTo(postCreditsTilemap,
+                            EndingCreditsRomData.Text.ResultPanelDestination);
                     UploadPostCreditsTilemap();
                     phaseTimer = 180;
                     Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
@@ -378,7 +386,9 @@ internal sealed partial class EndingCreditsState
                         instructionPointer: EndingCreditsRomData.Instructions.SeeYouNextMissionText,
                         inventory,
                         japaneseText,
-                        postCreditsUploadWord);
+                        postCreditsUploadWord,
+                        endingText,
+                        endingText is null ? null : EndingTextSequence.FinalMessage);
                     Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -502,6 +512,13 @@ internal sealed partial class EndingCreditsState
         sprites.Clear();
         brightness = 15;
         Phase = EndingCreditsPhase.Credits;
+    }
+
+    /// <summary>Rebinds host-owned ending text after catalog reload or graph restoration.</summary>
+    public void BindEndingText(EndingTextPresentation? value)
+    {
+        endingText = value;
+        postCreditsText?.BindPresentation(value);
     }
 
     private void SetupPostCreditsBlank()

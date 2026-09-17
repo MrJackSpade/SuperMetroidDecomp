@@ -44,7 +44,9 @@ internal sealed partial class EndingCreditsState
         if (!endingLogo.Completed) return;
         postCreditsText = new EndingBackgroundTextState(bus, postCreditsTilemap,
             EndingCreditsRomData.Instructions.ItemPercentageText, inventory, japaneseText,
-            EndingPostShotDefinitions.FinalTextTilemapWord);
+            EndingPostShotDefinitions.FinalTextTilemapWord,
+            endingText,
+            endingText is null ? null : SuperMetroid.Core.Assets.EndingTextSequence.ItemPercentage);
         Phase = EndingCreditsPhase.ItemPercentage;
     }
 }

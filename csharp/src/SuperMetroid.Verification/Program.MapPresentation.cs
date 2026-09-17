@@ -164,6 +164,7 @@ internal static partial class Program
         VerifyGameplayMessageNoticeAssets(bus, stock, Path.Combine(root, "gameplay-message-notice-overrides"), original);
         VerifyEscapeTypewriterAssets(bus, stock, Path.Combine(root, "escape-typewriter-overrides"), original);
         VerifyIntroNarrationAssets(bus, stock, Path.Combine(root, "intro-narration-overrides"), original);
+        VerifyEndingTextAssets(bus, stock, Path.Combine(root, "ending-text-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

@@ -8,9 +8,13 @@ internal sealed partial class EndingCreditsState
         // the literal DEDB copyright tilemap. BG1 alone is visible until Func137 ends.
         Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile,
             EndingCreditsRomData.Text.ResultPanelDestination, EndingCreditsRomData.Text.ResultPanelWords);
-        CopyPostCreditsWords(EndingCreditsRomData.Instructions.CopyrightPanel,
-            EndingCreditsRomData.Text.CopyrightPanelDestination,
-            EndingCreditsRomData.Text.CopyrightPanelWords);
+        if (endingText is null)
+            CopyPostCreditsWords(EndingCreditsRomData.Instructions.CopyrightPanel,
+                EndingCreditsRomData.Text.CopyrightPanelDestination,
+                EndingCreditsRomData.Text.CopyrightPanelWords);
+        else
+            endingText.BuildCopyrightPanel().CopyTo(postCreditsTilemap,
+                EndingCreditsRomData.Text.CopyrightPanelDestination);
         UploadPostCreditsTilemap();
         rewardCopyrightShown = true;
         phaseTimer = EndingCreditsRomData.Timing.CopyrightHoldFrames;

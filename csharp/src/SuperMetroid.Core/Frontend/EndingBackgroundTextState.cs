@@ -1,4 +1,5 @@
 using System.Numerics;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -21,6 +22,13 @@ internal sealed class EndingBackgroundTextState
     private ushort instructionPointer;
     private ushort instructionTimer = 1;
     private readonly ushort tilemapDestination;
+    [NonSerialized] private EndingTextPresentation? presentation;
+    [NonSerialized] private EndingTextCharacter[]? installedProgram;
+    private readonly EndingTextSequence? installedSequence;
+    private int installedCharacterIndex;
+    private bool installedInitialMarkerPending = true;
+    private bool installedHoldStarted;
+    private bool installedCompleted;
 
     public EndingBackgroundTextState(
         ISnesAddressSpace bus,
@@ -28,7 +36,9 @@ internal sealed class EndingBackgroundTextState
         ushort instructionPointer,
         EndingInventorySnapshot inventory,
         bool japaneseText,
-        ushort tilemapDestination = EndingCreditsRomData.Rendering.PostCreditsTilemapWord)
+        ushort tilemapDestination = EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
+        EndingTextPresentation? presentation = null,
+        EndingTextSequence? installedSequence = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.tilemap = tilemap ?? throw new ArgumentNullException(nameof(tilemap));
@@ -38,14 +48,29 @@ internal sealed class EndingBackgroundTextState
         this.inventory = inventory;
         this.japaneseText = japaneseText;
         this.tilemapDestination = tilemapDestination;
+        this.presentation = presentation;
+        this.installedSequence = installedSequence;
+        if ((presentation is null) != (installedSequence is null))
+            throw new ArgumentException("Installed ending text requires both presentation and sequence identity.");
+        installedProgram = installedSequence is { } sequence
+            ? presentation!.Compile(sequence).ToArray()
+            : null;
     }
 
-    public bool Completed => instructionPointer == 0;
+    public bool Completed => installedSequence is not null ? installedCompleted : instructionPointer == 0;
     public bool RequestedItemPercentageScroll { get; private set; }
 
     public void Step(SnesVram vram)
     {
         ArgumentNullException.ThrowIfNull(vram);
+        if (installedSequence is not null)
+        {
+            if (installedProgram is null)
+                throw new InvalidOperationException(
+                    "Ending text host content must be rebound after state restoration.");
+            StepInstalled(vram);
+            return;
+        }
         if (instructionPointer == 0 || instructionTimer-- != 1)
             return;
 
@@ -99,6 +124,61 @@ internal sealed class EndingBackgroundTextState
                         $"Ending BG opcode $8B:{word:X4} at $8C:{cursor:X4} is untranslated.");
             }
         }
+    }
+
+    /// <summary>Rebinds current host content after debugger-state restoration.</summary>
+    public void BindPresentation(EndingTextPresentation? value)
+    {
+        presentation = value;
+        installedProgram = installedSequence is { } sequence && value is not null
+            ? value.Compile(sequence).ToArray()
+            : null;
+        if (installedProgram is not null && installedCharacterIndex > installedProgram.Length)
+            throw new InvalidDataException(
+                $"Saved ending-text cursor {installedCharacterIndex} exceeds the rebound program.");
+    }
+
+    private void StepInstalled(SnesVram vram)
+    {
+        if (installedCompleted || instructionTimer-- != 1) return;
+        if (installedInitialMarkerPending)
+        {
+            installedInitialMarkerPending = false;
+            instructionTimer = EndingTextDefinitions.InitialDelayFrames;
+            return;
+        }
+        if (installedCharacterIndex < installedProgram!.Length)
+        {
+            EndingTextCharacter character = installedProgram[installedCharacterIndex++];
+            int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
+            tilemap[target] = character.TopWord;
+            if (character.BottomWord is { } bottom)
+                tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom;
+            instructionTimer = EndingTextDefinitions.CharacterDelayFrames;
+            Upload(vram);
+            return;
+        }
+        if (installedSequence == EndingTextSequence.ItemPercentage && !installedHoldStarted)
+        {
+            DrawItemPercentage();
+            if (japaneseText)
+                presentation!.JapaneseSubtitle.CopyTo(tilemap.AsSpan(
+                    EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                    EndingCreditsRomData.Text.JapaneseSubtitleWords));
+            installedHoldStarted = true;
+            instructionTimer = EndingTextDefinitions.PercentageHoldFrames;
+            Upload(vram);
+            return;
+        }
+        if (installedSequence == EndingTextSequence.ItemPercentage)
+        {
+            Array.Fill(tilemap, EndingCreditsRomData.Rendering.BlankTile,
+                EndingCreditsRomData.Text.JapaneseSubtitleDestination,
+                EndingCreditsRomData.Text.JapaneseSubtitleWords);
+            RequestedItemPercentageScroll = true;
+        }
+        installedCompleted = true;
+        Upload(vram);
     }
 
     private void DrawRecord(ushort packedPosition, ushort dataPointer)

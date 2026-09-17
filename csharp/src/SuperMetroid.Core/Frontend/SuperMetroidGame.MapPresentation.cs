@@ -21,5 +21,6 @@ public sealed partial class SuperMetroidGame
         options?.BindMapPresentation(catalog);
         fileSelect?.BindMapPresentation(catalog);
         if (intro is not null) intro.NarrationPresentation = catalog?.IntroNarration;
+        endingCredits?.BindEndingText(catalog?.EndingText);
     }
 }

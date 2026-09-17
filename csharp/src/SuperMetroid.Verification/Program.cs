@@ -400,6 +400,11 @@ if (args is ["--intro-narration-presentation", var narrationRom])
     VerifyIntroNarrationPresentation(narrationRom);
     return 0;
 }
+if (args is ["--ending-text-presentation", var endingTextRom])
+{
+    VerifyEndingTextPresentation(endingTextRom);
+    return 0;
+}
 if (args is ["--pause-reserve-hud"])
 {
     VerifyPauseReserveHud();

@@ -399,6 +399,20 @@ public sealed partial class RoomPlmSystem
                 slot.Station.Triggered = true;
                 slot.Station.AccessBlockIndex = accessBlockIndex;
                 slot.Station.AccessBehavior = access;
+
+                // ActivateStationIfSamusArmCannonLinedUp runs command six in setup,
+                // before the common PLM handler advances the resident access list. This
+                // distinction is observable in G-Mode: the disabled handler cannot start
+                // or finish the animation, but Samus is already movement-locked and the
+                // station therefore softlocks. Save trigger $B590 only advances its
+                // resident list and does not execute command six at this setup seam.
+                if (slot.Station.Kind != StationKind.Save)
+                {
+                    SamusState samus = _collectibleSamus?.Invoke()
+                        ?? throw new InvalidOperationException(
+                            $"{slot.Station.Kind} station setup has no live Samus owner.");
+                    samus.InputLocked = true;
+                }
             }
             return true;
         }

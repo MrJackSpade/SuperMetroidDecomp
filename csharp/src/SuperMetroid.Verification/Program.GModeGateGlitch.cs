@@ -27,6 +27,7 @@ internal static partial class Program
         VerifyIndirectGModeOmitsGateActor();
         VerifyGModeBlueDoorAllocation();
         VerifyGModeSandOverload();
+        VerifyGModeStationSoftlock();
         VerifyGModeDefaultBlockCollision();
         Console.WriteLine(
             "  G-Mode: native gate timing, direct/indirect ownership, sand overload, and default block collision pass.");
@@ -354,6 +355,62 @@ internal static partial class Program
                 level.GetCollisionBlockByIndex(blockIndex).CollisionType,
                 $"full-pool {description} contact runs no setup mutation");
         }
+    }
+
+    private static void VerifyGModeStationSoftlock()
+    {
+        var bus = new TestAddressSpace();
+        SeedRoomPlmPopulationRom(bus);
+        const ushort population = 0x9700;
+        const int width = 16;
+        const int stationX = 6;
+        const int stationY = 6;
+        bus.WriteBytes(0x8f0000 | population,
+        [
+            0xdf, 0xb6, stationX, stationY, 0x00, 0x00,
+            0x00, 0x00,
+        ]);
+
+        RoomLevelData level = CreateRoom(
+            width,
+            16,
+            new ushort[width * 16],
+            new byte[width * 16],
+            blockDefinitions: new byte[0x400 * 8]);
+        BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
+        var samus = new SamusState { Health = 1, MaxHealth = 99 };
+        var plms = new RoomPlmSystem();
+        plms.LoadRoomPopulation(
+            bus,
+            level,
+            streamer,
+            new SnesVram(),
+            population,
+            new Bank80SystemState(),
+            AreaId.Crateria,
+            getSamus: () => samus,
+            isAreaTorizoDefeated: () => false);
+
+        int accessBlock = level.GetBlockIndex(stationX + 1, stationY);
+        AssertTrue(plms.TryNotifyStationTouch(
+                accessBlock,
+                new RoomBlockBehavior((byte)StationAccessBehavior.EnergyRight)),
+            "G-Mode fixture reaches the resident Energy Station through its real access setup");
+        AssertTrue(samus.InputLocked,
+            "station setup executes Samus command six before the suspended PLM handler");
+        AssertTrue(plms.Stations.Single().Triggered,
+            "disabled PLM handler leaves the station activation pending");
+        AssertEqual(0, plms.StationActivationEvents.Count,
+            "suspended station cannot publish its refill/message event");
+
+        // A normal frame in G-Mode omits this call entirely. Executing it once represents
+        // cancellation by a second X-Ray use: the pending access list finally begins, but
+        // Samus remains locked through its authored insertion/refill/retraction sequence.
+        plms.Step(bus, level, streamer, 0, 0, 0);
+        AssertTrue(!plms.Stations.Single().Triggered,
+            "first post-G-Mode PLM pass consumes the pending station setup");
+        AssertTrue(samus.InputLocked,
+            "resumed station owns Samus until the full access sequence finishes");
     }
 
     private static void FillSuspendedPlmPool(

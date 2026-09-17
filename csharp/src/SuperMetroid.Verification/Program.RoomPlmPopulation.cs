@@ -77,6 +77,8 @@ internal static partial class Program
             "energy setup installs BTS $49");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(21, 8), 0x49),
             "generic BTS dispatcher locates energy-station parent");
+        AssertTrue(samus.InputLocked,
+            "station access setup runs command six before its first PLM handler pass");
         plms.Step(bus, level, streamer, 0, 0, 0);
         AssertTrue(samus.InputLocked,
             "station access command locks Samus during six-plus-$60 insertion");
@@ -1079,6 +1081,8 @@ internal static partial class Program
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(7, 6), 0x47),
             "map access resolves parent");
+        AssertTrue(samus.InputLocked,
+            "map access setup locks Samus before the resident PLM advances");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(13, 6), 0x4b),
             "missile access resolves parent");
         for (int frame = 0; frame < 102; frame++)

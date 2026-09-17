@@ -185,9 +185,9 @@ public sealed partial class SuperMetroidRuntime
     public bool IconCancelEnabled { get; set; }
 
     /// <summary>
-    /// Global WRAM <c>$09E2</c> ownership outside X-ray. Reserve auto-refill and fatal-
-    /// damage states set this while still calling portions of state-eight gameplay; every
-    /// enemy/projectile/scroll consumer must observe the same word.
+    /// Host ownership of shared WRAM <c>$0A78</c> outside X-ray. Reserve auto-refill and
+    /// fatal-damage states set this while still calling portions of state-eight gameplay;
+    /// every enemy/projectile/scroll consumer must observe the same native word.
     /// </summary>
     public bool GameplayTimeFrozen { get; set; }
 

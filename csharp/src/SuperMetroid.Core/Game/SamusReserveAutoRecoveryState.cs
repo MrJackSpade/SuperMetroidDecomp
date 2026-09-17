@@ -29,6 +29,7 @@ public sealed class SamusReserveAutoRecoveryState
         // If X-Ray installed its own pair earlier in this state-eight frame, command
         // $1B replaces those handlers without deleting the independently running HDMA.
         samus.Xray.RelinquishSamusControlForReserveRecovery();
+        samus.Xray.FreezeSharedTimeForReserveRecovery();
         samus.SetStationaryScriptControlLock(true);
         IsActive = true;
     }

@@ -263,6 +263,17 @@ public sealed class SamusXrayState
     }
 
     /// <summary>
+    /// Models <c>$82:DB77</c> setting the shared <c>$0A78</c> freeze word when automatic
+    /// Reserve recovery begins. A stranded phase-five X-Ray object from Reserve Mode sees
+    /// this second trigger and can execute its forced-stand cleanup on the following frame.
+    /// </summary>
+    internal void FreezeSharedTimeForReserveRecovery()
+    {
+        if (IsActive)
+            TimeIsFrozen = true;
+    }
+
+    /// <summary>
     /// Models state <c>$1B</c> clearing shared WRAM <c>$0A78</c> before restoring ordinary
     /// Samus handlers. X-Ray phase five observes zero and therefore leaves its HDMA object
     /// installed, producing Reserve Mode/greyout rather than normal X-Ray teardown.

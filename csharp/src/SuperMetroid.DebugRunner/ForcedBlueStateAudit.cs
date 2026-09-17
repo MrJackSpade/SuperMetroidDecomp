@@ -26,7 +26,7 @@ internal static class ForcedBlueStateAudit
             .Skip(1)
             .Select(line => line.Split(','))
             .ToArray();
-        if (rows.Length != 5 || rows.Any(row => row.Length != 9))
+        if (rows.Length != 6 || rows.Any(row => row.Length != 9))
             throw new InvalidDataException("Incomplete original-CPU forced Blue Suit matrix.");
 
         int mismatches = 0;
@@ -38,6 +38,7 @@ internal static class ForcedBlueStateAudit
                 "ceres-ridley" => RunCeres(retail),
                 "elevator-command" => RunElevator(retail),
                 "xray-teardown" => RunXray(retail),
+                "reserve-mode-forced-stand" => RunReserveMode(retail),
                 "reserve-unlock-control" => RunReserveControl(retail),
                 _ => throw new InvalidDataException($"Unknown forced Blue Suit owner '{row[0]}'."),
             };
@@ -151,6 +152,65 @@ internal static class ForcedBlueStateAudit
         if (!step.Completed)
             throw new InvalidDataException("Forced Blue Suit Reserve control did not complete.");
         return Snapshot(samus, ForcedBlueAuditDefinitions.HorizontalShinesparkMovementHandler);
+    }
+
+    private static ForcedBlueSnapshot RunReserveMode(ISnesAddressSpace bus)
+    {
+        SamusState samus = CreateReserveMode(bus);
+        SeedActiveHorizontalSpark(bus, samus);
+        samus.Health = 0;
+        samus.ReserveEnergy = 1;
+        samus.MaxReserveEnergy = 100;
+        samus.ReserveTankMode = ForcedBlueAuditDefinitions.AutomaticReserveMode;
+
+        var recovery = new SamusReserveAutoRecoveryState();
+        recovery.Begin(samus);
+        if (!samus.Xray.TimeIsFrozen || !samus.Xray.IsActive)
+            throw new InvalidDataException("Forced Blue Suit Reserve fixture did not republish shared freeze.");
+
+        samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+        if (samus.Xray.IsActive || samus.Shinespark.Phase != ShinesparkPhase.Inactive)
+            throw new InvalidDataException("Forced Blue Suit Reserve fixture did not force standing.");
+
+        SamusReserveAutoRecoveryStep step = recovery.StepAfterNmi(samus, nmiFrameCounter: 1);
+        if (!step.Completed)
+            throw new InvalidDataException("Forced Blue Suit Reserve fixture did not complete refill.");
+        return Snapshot(samus, ForcedBlueAuditDefinitions.NormalMovementHandler);
+    }
+
+    private static SamusState CreateReserveMode(ISnesAddressSpace bus)
+    {
+        var samus = new SamusState
+        {
+            Pose = SamusPoseIds.FacingRightNormalPose,
+            XPosition = 256,
+            YPosition = 400,
+            Health = 0,
+            MaxHealth = 99,
+            ReserveEnergy = 1,
+            MaxReserveEnergy = 100,
+            ReserveTankMode = ForcedBlueAuditDefinitions.AutomaticReserveMode,
+            EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.XrayScope),
+            CollectedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.XrayScope),
+        };
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus);
+        if (!samus.Xray.TryBegin(bus, samus, SamusMovementType.Standing))
+            throw new InvalidDataException("Forced Blue Suit Reserve fixture rejected X-Ray admission.");
+
+        var firstRecovery = new SamusReserveAutoRecoveryState();
+        firstRecovery.Begin(samus);
+        SamusReserveAutoRecoveryStep firstStep = firstRecovery.StepAfterNmi(samus, nmiFrameCounter: 1);
+        if (!firstStep.Completed)
+            throw new InvalidDataException("Forced Blue Suit Reserve fixture did not establish Reserve Mode.");
+        while (samus.Xray.SetupStage != 0)
+            samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+        while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)
+            samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+        samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+        if (!samus.Xray.IsReserveMode)
+            throw new InvalidDataException("Forced Blue Suit fixture did not retain Reserve Mode phase five.");
+        return samus;
     }
 
     private static SamusState CreateActiveHorizontalSpark(ISnesAddressSpace bus)

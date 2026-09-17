@@ -65,4 +65,4 @@ that Crystal Flash replaces the shared palette handler while greyout survives.
 The second continuation uses the real crouch posture transition with an active
 speed-booster counter and asserts stored-shine state, stored-shine palette
 ownership, and continued greyout. Blue Suit interruption is intentionally owned
-by linked issue #429 rather than duplicated here.
+by linked issue #428 rather than duplicated here.

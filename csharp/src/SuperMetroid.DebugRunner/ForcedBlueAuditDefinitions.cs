@@ -7,9 +7,9 @@ internal static class ForcedBlueAuditDefinitions
     public const string RetailRomSha256 =
         "12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72";
 
-    /// <summary>SHA-256 of the accepted five-row original-CPU trace.</summary>
+    /// <summary>SHA-256 of the accepted six-row original-CPU trace.</summary>
     public const string NativeTraceSha256 =
-        "1C520EB9D2F5632A922B7463D203ED6377E2612FE0410552392F134E0B6DE5DA";
+        "B5972EF5BCD2667E1F9B91DDE91DFA81E3191100B9270CE26EE82A37976D5748";
 
     /// <summary><c>$90:94CB</c>, the drained-falling movement handler installed by command <c>$F7</c>.</summary>
     public const ushort DrainedFallingMovementHandler = 0x94cb;

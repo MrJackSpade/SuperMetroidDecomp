@@ -12,6 +12,7 @@ enum {
   ForcedBlueCeresEjection = 0x90e119,
   ForcedBlueElevatorCommand = 0x90f1c8,
   ForcedBlueXrayTeardown = 0x91e2ad,
+  ForcedBlueXrayFinish = 0x888a08,
   ForcedBlueReserveUnlockControl = 0x90f2e0,
 };
 
@@ -73,6 +74,18 @@ static void forced_blue_matrix(void) {
   seed_forced_blue_spark();
   run(ForcedBlueXrayTeardown);
   print_forced_blue_row("xray-teardown");
+
+  /* Reserve Mode is a stranded phase-five X-Ray object with the shared freeze word
+     clear. A second automatic Reserve trigger sets that same word to $8000, so phase
+     five finally reaches $91:E2AD and forces standing while replacing the spark. */
+  seed_forced_blue_spark();
+  hdma_object_index = 0;
+  hdma_object_channels_bitmask[0] = 4;
+  demo_input_pre_instr = 5;
+  samus_special_transgfx_index = 8;
+  time_is_frozen_flag = 0x8000;
+  run(ForcedBlueXrayFinish);
+  print_forced_blue_row("reserve-mode-forced-stand");
 
   /* Automatic Reserve completion alone restores alpha/beta handlers, not $0A58. This is
      the adjacent control: Reserve/X-Mode needs its later interruption owner to make Blue

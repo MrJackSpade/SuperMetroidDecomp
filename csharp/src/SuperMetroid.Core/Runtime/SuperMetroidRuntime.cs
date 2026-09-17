@@ -2052,7 +2052,8 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Plms,
-                        Enemies.ResolveGrappleEndpoint);
+                        Enemies.ResolveGrappleEndpoint,
+                        deferConnectionPoseChange: true);
                     grappleOwnsMovement = LastGrappleMovement.Value.OwnsMovement;
                 }
                 else if (Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -2972,6 +2973,29 @@ public sealed partial class SuperMetroidRuntime
 
                 if (Samus.Xray.CommitPendingActivation(_addressSpace, Samus, animationTransitionApplied))
                 {
+                    ProspectiveSamusPose = null;
+                    ProspectiveSamusFallbackPose = null;
+                    ProspectiveSamusWallCollisionPose = null;
+                    animationTransitionApplied = true;
+                }
+
+                // Grapple connection publishes a bank-$91 special prospective command.
+                // Super-special animation/hurt owners above can suppress it without
+                // undoing the already-installed bank-$9B beam function. This is the
+                // cartridge ordering used by bounded Grapple momentum-retention setups.
+                if (!animationTransitionApplied &&
+                    LastGrappleMovement is { PendingConnection: { } pendingConnection })
+                {
+                    (ushort grapplePreviousX, ushort grapplePreviousY) =
+                        SamusGrappleMovement.ApplyPendingConnectionPose(
+                            _addressSpace,
+                            Samus,
+                            pendingConnection);
+                    previousCameraPoint = new SamusCameraPoint(
+                        grapplePreviousX,
+                        previousCameraPoint.XSubposition,
+                        grapplePreviousY,
+                        previousCameraPoint.YSubposition);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;

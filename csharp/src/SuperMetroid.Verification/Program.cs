@@ -795,6 +795,11 @@ if (args is ["--grapple-enemy-death"])
     VerifyGrappleEnemyDeath();
     return 0;
 }
+if (args is ["--samus-grapple"])
+{
+    VerifySamusGrappleSwingAndRelease();
+    return 0;
+}
 if (args is ["--plm-draw-clone"])
 {
     VerifyPlmDrawClone();
@@ -843,7 +848,7 @@ if (args is ["--phantoon-position"])
     return 0;
 }
 if (args.Length > 1 || (args.Length == 1 && args[0] != "--render-contract"))
-    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death | --shutter-riding | --shutter-embedding]");
+    throw new ArgumentException("Usage: SuperMetroid.Verification [--render-contract | --phantoon-position | --samus-grapple | --grapple-doors | --grapple-sounds | --grapple-spin | --grapple-gates | --grapple-enemy-death | --shutter-riding | --shutter-embedding]");
 Console.WriteLine("Verifying translated Super Metroid routines...");
 VerifyPlmDrawClone();
 VerifyGameConfigurationIni();

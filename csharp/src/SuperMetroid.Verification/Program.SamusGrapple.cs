@@ -173,6 +173,64 @@ static void VerifySamusGrappleSwingAndRelease()
     AssertEqual(59, connected.CameraPreviousY!.Value,
         "connection common tail clamps previous Y to twelve pixels from native body");
 
+    // The Grapple-speedkeep movie connects on the same frame that hit-interruption
+    // expiry publishes a super-special pose. Native frame 412 already installs the
+    // swinging function and rope geometry, but UpdateSamusPose suppresses Grapple's
+    // lower-priority command nine. Recreate the relevant frame-411 values here: the
+    // ordinary `$52` body and its 1.4000 + 0.B000 running momentum must survive until
+    // the following connected-function call.
+    SamusState deferredConnectionSamus = CreateSamus(
+        SamusPoseIds.FallingRightPose,
+        32,
+        56);
+    deferredConnectionSamus.Kinematics.YSpeed = 1;
+    SamusGrappleMovement.BeginFiring(bus, deferredConnectionSamus);
+    SamusGrappleMovement.StepFiring(
+        bus,
+        firingLevel,
+        deferredConnectionSamus,
+        (ushort)SnesButton.X);
+    deferredConnectionSamus.Pose = SamusPoseIds.NormalJumpForwardLeftPose;
+    // Native frame 411 is already aimed left while the previously launched endpoint
+    // reaches its block. Keep that accepted direction in sync so the firing-pose-change
+    // pre-handler does not legitimately restart the beam before collision dispatch.
+    deferredConnectionSamus.Grapple.FireDirection = 7;
+    deferredConnectionSamus.HorizontalSpeed.BaseSpeed = 1;
+    deferredConnectionSamus.HorizontalSpeed.BaseSubspeed = 0x4000;
+    deferredConnectionSamus.HorizontalSpeed.ExtraRunSpeed = 0;
+    deferredConnectionSamus.HorizontalSpeed.ExtraRunSubspeed = 0xb000;
+    deferredConnectionSamus.Kinematics.YSpeed = 3;
+    deferredConnectionSamus.Kinematics.YSubspeed = 0x6070;
+
+    GrappleMovementResult deferredConnection = SamusGrappleMovement.StepFiring(
+        bus,
+        firingLevel,
+        deferredConnectionSamus,
+        (ushort)SnesButton.X,
+        deferConnectionPoseChange: true);
+    AssertTrue(deferredConnection.Connected && !deferredConnection.OwnsMovement,
+        "connection publishes its pose without prematurely taking beta movement");
+    AssertEqual(GrapplePhase.ConnectedSwinging, deferredConnectionSamus.Grapple.Phase,
+        "deferred connection still installs the native Grapple function");
+    AssertEqual(SamusPoseIds.NormalJumpForwardLeftPose, deferredConnectionSamus.Pose,
+        "higher-priority pose owner can retain the ordinary body");
+    AssertEqual(1, deferredConnectionSamus.HorizontalSpeed.BaseSpeed,
+        "suppressed Grapple pose retains base whole speed");
+    AssertEqual(0x4000, deferredConnectionSamus.HorizontalSpeed.BaseSubspeed,
+        "suppressed Grapple pose retains base fractional speed");
+    AssertEqual(0xb000, deferredConnectionSamus.HorizontalSpeed.ExtraRunSubspeed,
+        "suppressed Grapple pose retains extra running momentum");
+    AssertEqual(3, deferredConnectionSamus.Kinematics.YSpeed,
+        "suppressed Grapple pose retains vertical whole speed");
+    AssertEqual(0x6070, deferredConnectionSamus.Kinematics.YSubspeed,
+        "suppressed Grapple pose retains vertical fractional speed");
+    AssertTrue(deferredConnection.PendingConnection is
+        { Pose: SamusPoseIds.GrappleSwingLeftPose, Swinging: true },
+        "connection exposes the lower-priority command-nine pose for late dispatch");
+    AssertTrue(!deferredConnection.CameraPreviousX.HasValue &&
+        !deferredConnection.CameraPreviousY.HasValue,
+        "suppressed connection does not run command-nine camera correction");
+
     // BTS one must use the same accepted-connection path, but setup CFB5 also creates an
     // independent bank-$84 object and clears BTS before returning flags $41. This direct
     // firing test guards the integration seam; the complete ROM instruction timeline is

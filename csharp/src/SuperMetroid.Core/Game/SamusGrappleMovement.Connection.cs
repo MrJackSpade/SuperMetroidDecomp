@@ -235,6 +235,27 @@ public static partial class SamusGrappleMovement
         bool validateAnchorBlock = true,
         bool validateAnchorEnemy = false)
     {
+        return ConnectAcceptedFiringCore(
+            bus,
+            samus,
+            grapple,
+            previousXPosition,
+            previousYPosition,
+            validateAnchorBlock,
+            validateAnchorEnemy,
+            deferConnectionPoseChange: false);
+    }
+
+    private static GrappleMovementResult ConnectAcceptedFiringCore(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        SamusGrappleState grapple,
+        ushort previousXPosition,
+        ushort previousYPosition,
+        bool validateAnchorBlock,
+        bool validateAnchorEnemy,
+        bool deferConnectionPoseChange)
+    {
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
         // $9B:B98C bypasses ordinary connection pose/position setup while Draygon owns
         // Samus. Only the beam locks; the enemy continues to place the held body.
@@ -323,12 +344,86 @@ public static partial class SamusGrappleMovement
             grapple.RopeLength);
         grapple.RopeStartX = ropeStart.X;
         grapple.RopeStartY = ropeStart.Y;
+        grapple.Phase = swinging
+            ? GrapplePhase.ConnectedSwinging
+            : GrapplePhase.ConnectedLocked;
 
-        samus.Pose = pose;
+        // Block and enemy acquisition share the same connection/pose machinery, but their
+        // following-frame validators have different owners. Keep those origins mutually
+        // exclusive so a moving Powamp anchor is never reinterpreted as room terrain.
+        if (validateAnchorBlock == validateAnchorEnemy)
+        {
+            throw new ArgumentException(
+                "A live grapple connection must have exactly one anchor validator.");
+        }
+        grapple.ValidateAnchorBlock = validateAnchorBlock;
+        grapple.ValidateAnchorEnemy = validateAnchorEnemy;
+        grapple.SpecialAngleHandling = false;
+        grapple.WallJumpTimer = 0;
+        grapple.CancelFromConnectedPose = false;
+
+        // The connection helper clears delta while choosing the new pose, but its caller
+        // immediately starts automatic retraction. Omitting that caller tail leaves Samus
+        // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
+        // both block and enemy connections, never for an arbitrary restored swing state.
+        grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
+
+        if (deferConnectionPoseChange)
+        {
+            // `$9B:BA61/$BA9B` publish special prospective command 9/10. They do not
+            // execute `$91:EF4F/$EF53` inline. A super-special command can therefore keep
+            // the old pose and every speed word while the Grapple function remains live.
+            return new GrappleMovementResult(
+                grapple.Phase,
+                Released: false,
+                ReleaseQueued: false,
+                Connected: true,
+                OwnsMovement: false,
+                LockedInPlace: !swinging,
+                PendingConnection: new GrapplePendingConnection(
+                    pose,
+                    swinging,
+                    previousXPosition,
+                    previousYPosition));
+        }
+
+        (ushort cameraPreviousX, ushort cameraPreviousY) = ApplyPendingConnectionPose(
+            bus,
+            samus,
+            new GrapplePendingConnection(
+                pose,
+                swinging,
+                previousXPosition,
+                previousYPosition));
+        return new GrappleMovementResult(
+            grapple.Phase,
+            Released: false,
+            ReleaseQueued: false,
+            Connected: true,
+            OwnsMovement: true,
+            LockedInPlace: !swinging,
+            CameraPreviousX: cameraPreviousX,
+            CameraPreviousY: cameraPreviousY);
+    }
+
+    /// <summary>
+    /// Applies bank $91's accepted Grapple special-pose command after the frame's
+    /// super-special transition owners have declined it.
+    /// </summary>
+    internal static (ushort CameraPreviousX, ushort CameraPreviousY) ApplyPendingConnectionPose(
+        ISnesAddressSpace bus,
+        SamusState samus,
+        GrapplePendingConnection pending)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        ArgumentNullException.ThrowIfNull(samus);
+        SamusGrappleState grapple = samus.Grapple;
+
+        samus.Pose = pending.Pose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
 
-        if (swinging)
+        if (pending.Swinging)
         {
             // Special pose command 9 runs $9B:BD95. Swinging copies Start into Flare, then
             // chooses the angle-authored animation frame and body offsets.
@@ -359,37 +454,9 @@ public static partial class SamusGrappleMovement
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
 
-        // Block and enemy acquisition share the same connection/pose machinery, but their
-        // following-frame validators have different owners. Keep those origins mutually
-        // exclusive so a moving Powamp anchor is never reinterpreted as room terrain.
-        if (validateAnchorBlock == validateAnchorEnemy)
-        {
-            throw new ArgumentException(
-                "A live grapple connection must have exactly one anchor validator.");
-        }
-        grapple.ValidateAnchorBlock = validateAnchorBlock;
-        grapple.ValidateAnchorEnemy = validateAnchorEnemy;
-        grapple.SpecialAngleHandling = false;
-        grapple.WallJumpTimer = 0;
-        grapple.CancelFromConnectedPose = false;
-
-        // The connection helper clears delta while choosing the new pose, but its caller
-        // immediately starts automatic retraction. Omitting that caller tail leaves Samus
-        // dangling unless the player explicitly supplies a fresh Up edge. Apply it for
-        // both block and enemy connections, never for an arbitrary restored swing state.
-        grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
-
-        ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
-        ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
-        return new GrappleMovementResult(
-            grapple.Phase,
-            Released: false,
-            ReleaseQueued: false,
-            Connected: true,
-            OwnsMovement: true,
-            LockedInPlace: !swinging,
-            CameraPreviousX: cameraPreviousX,
-            CameraPreviousY: cameraPreviousY);
+        return (
+            ClampPreviousPosition(samus.XPosition, pending.PreviousX),
+            ClampPreviousPosition(samus.YPosition, pending.PreviousY));
     }
 
     /// <summary>

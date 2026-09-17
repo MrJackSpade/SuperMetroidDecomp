@@ -242,7 +242,8 @@ public static partial class SamusGrappleMovement
         SamusState samus,
         ushort controllerInput,
         RoomPlmSystem? plms = null,
-        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null)
+        Func<ushort, ushort, GrappleEnemyCollision>? enemyCollision = null,
+        bool deferConnectionPoseChange = false)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -283,14 +284,15 @@ public static partial class SamusGrappleMovement
                 case GrappleEnemyReaction.AttachAndParalyze:
                     grapple.AnchorX = enemy.AnchorX;
                     grapple.AnchorY = enemy.AnchorY;
-                    return ConnectAcceptedFiring(
+                    return ConnectAcceptedFiringCore(
                         bus,
                         samus,
                         grapple,
                         previousXPosition,
                         previousYPosition,
                         validateAnchorBlock: false,
-                        validateAnchorEnemy: true);
+                        validateAnchorEnemy: true,
+                        deferConnectionPoseChange: deferConnectionPoseChange);
 
                 case GrappleEnemyReaction.Cancel:
                     return QueueFiringCancellation(grapple);
@@ -331,12 +333,15 @@ public static partial class SamusGrappleMovement
             // the accepted 16x16 block before bank $9B chooses the swing/locked pose.
             grapple.AnchorX = unchecked((ushort)((grapple.AnchorX & 0xfff0) | 8));
             grapple.AnchorY = unchecked((ushort)((grapple.AnchorY & 0xfff0) | 8));
-            return ConnectAcceptedFiring(
+            return ConnectAcceptedFiringCore(
                 bus,
                 samus,
                 grapple,
                 previousXPosition,
-                previousYPosition);
+                previousYPosition,
+                validateAnchorBlock: true,
+                validateAnchorEnemy: false,
+                deferConnectionPoseChange: deferConnectionPoseChange);
         }
 
         // `$94:A85B` does not stop when an intermediate probe returns carry without

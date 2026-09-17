@@ -202,7 +202,19 @@ public readonly record struct GrappleMovementResult(
     bool Dropped = false,
     ushort? CameraPreviousX = null,
     ushort? CameraPreviousY = null,
-    byte? PendingDropPose = null);
+    byte? PendingDropPose = null,
+    GrapplePendingConnection? PendingConnection = null);
+
+/// <summary>
+/// The prospective pose published by <c>HandleConnectingGrapple</c>. Bank $9B installs
+/// the function, angle, and rope geometry immediately, while bank $91 applies this pose
+/// later only if a higher-priority super-special transition did not win the frame.
+/// </summary>
+public readonly record struct GrapplePendingConnection(
+    byte Pose,
+    bool Swinging,
+    ushort PreviousX,
+    ushort PreviousY);
 
 /// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
 internal readonly record struct GrappleCollisionPoint(

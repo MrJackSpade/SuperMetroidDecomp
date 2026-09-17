@@ -127,9 +127,6 @@ public sealed class BabyTurtleEnemyState
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort MamaTurtleDefinition = 0xcf3f;
-    internal const ushort BabyTurtleDefinition = 0xcf7f;
-
     private const ushort MamaTurtleAsleepInstruction = 0x8c44;
     private const ushort MamaTurtleSpinningInstruction = 0x8c02;
     private const ushort MamaTurtleEnterShellLeftInstruction = 0x8c1c;
@@ -266,7 +263,7 @@ public sealed partial class RoomEnemySystem
         for (int childOffset = 1; childOffset <= 4; childOffset++)
         {
             RoomEnemySlot child = _slots[mama.SlotIndex + childOffset];
-            if (child.EnemyDefinitionPointer != BabyTurtleDefinition)
+            if (child.EnemyDefinitionPointer != MamaTurtleEnemyDefinitionCatalog.BabyPointer)
             {
                 throw new InvalidDataException(
                     $"Mama Turtle slot {mama.SlotIndex} expected Baby Turtle in following " +
@@ -874,7 +871,7 @@ public sealed partial class RoomEnemySystem
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = SlotFromNativeIndex(child.ParentNativeIndex);
-        if (parent.EnemyDefinitionPointer != MamaTurtleDefinition)
+        if (parent.EnemyDefinitionPointer != MamaTurtleEnemyDefinitionCatalog.MamaPointer)
         {
             throw new InvalidDataException(
                 $"Baby Turtle parent index ${child.ParentNativeIndex:X4} names enemy " +

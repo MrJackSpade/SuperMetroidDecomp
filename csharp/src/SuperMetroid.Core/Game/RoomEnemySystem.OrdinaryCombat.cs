@@ -131,9 +131,9 @@ public sealed partial class RoomEnemySystem
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&
                 slot.Definition.TouchAiPointer == SpacePirateTouchAi;
-            bool isMamaTurtle = slot.EnemyDefinitionPointer == MamaTurtleDefinition &&
+            bool isMamaTurtle = slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer &&
                 slot.Definition.TouchAiPointer == MamaTurtleTouchAi;
-            bool isBabyTurtle = slot.EnemyDefinitionPointer == BabyTurtleDefinition &&
+            bool isBabyTurtle = slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
                 slot.Definition.TouchAiPointer == BabyTurtleTouchAi;
             bool isMagdollite = slot.EnemyDefinitionPointer == MagdolliteDefinition &&
                 slot.Definition.TouchAiPointer == MagdolliteTouchAi;
@@ -696,7 +696,7 @@ public sealed partial class RoomEnemySystem
             bool isOrdinarySpacePirate =
                 IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                 enemy.Definition.ShotAiPointer == SpacePirateShotAi;
-            bool isBabyTurtle = enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
+            bool isBabyTurtle = enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
                 enemy.Definition.ShotAiPointer == BabyTurtleShotAi;
             bool isOwtch = enemy.EnemyDefinitionPointer == OwtchDefinition &&
                 enemy.Definition.ShotAiPointer == OwtchShotAi;
@@ -2093,7 +2093,7 @@ public sealed partial class RoomEnemySystem
                                     appliedDamage);
                             }
 
-                            if (enemy.EnemyDefinitionPointer == BabyTurtleDefinition &&
+                            if (enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer &&
                                 selectedShotAi == BabyTurtleShotAi)
                             {
                                 ResolveBabyTurtleShotAfterCommon(RequireBabyTurtleState(enemy));
@@ -2257,7 +2257,7 @@ public sealed partial class RoomEnemySystem
     private static bool IsTranslatedPrivateNormalBombShotAi(
         RoomEnemySlot enemy,
         ushort callback) =>
-        enemy.EnemyDefinitionPointer == BabyTurtleDefinition && callback == BabyTurtleShotAi ||
+        enemy.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer && callback == BabyTurtleShotAi ||
         enemy.EnemyDefinitionPointer == OwtchDefinition && callback == OwtchShotAi ||
         enemy.EnemyDefinitionPointer == RinkaDefinition && callback == RinkaShotAi ||
         enemy.EnemyDefinitionPointer == MaridiaLargeSnailDefinition &&

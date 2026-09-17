@@ -1191,10 +1191,10 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.InitAI_Stoke when slot.EnemyDefinitionPointer == StokeDefinition:
                 InitializeStoke(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+            case EnemyAiCodePointers.InitAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer:
                 InitializeMamaTurtle(slot);
                 return;
-            case EnemyAiCodePointers.InitAI_BabyTurtle when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+            case EnemyAiCodePointers.InitAI_BabyTurtle when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                 InitializeBabyTurtle(slot);
                 return;
             case EnemyAiCodePointers.InitAI_Puyo when slot.EnemyDefinitionPointer == PuyoDefinition:
@@ -1691,7 +1691,7 @@ public sealed partial class RoomEnemySystem
             case EnemyAiCodePointers.MainAI_Stoke when slot.EnemyDefinitionPointer == StokeDefinition:
                 RunStokeMain(slot, RequireStokeState(slot), level);
                 return;
-            case EnemyAiCodePointers.MainAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+            case EnemyAiCodePointers.MainAI_MamaTurtle when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer:
                 RunMamaTurtleMain(
                     slot,
                     RequireMamaTurtleState(slot),
@@ -1700,7 +1700,7 @@ public sealed partial class RoomEnemySystem
                     controllerInput,
                     nmiFrameCounter8);
                 return;
-            case EnemyAiCodePointers.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+            case EnemyAiCodePointers.MainAI_BabyTurtle when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                 RunBabyTurtleMain(slot, RequireBabyTurtleState(slot), samus, level);
                 return;
             case EnemyAiCodePointers.MainAI_Puyo when slot.EnemyDefinitionPointer == PuyoDefinition:
@@ -2605,7 +2605,7 @@ public sealed partial class RoomEnemySystem
                     SetStokeMovingRight(RequireStokeState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Crawl when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Crawl when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     ProcessBabyTurtleCrawlInstruction(
                         slot,
                         RequireBabyTurtleState(slot),
@@ -2613,45 +2613,45 @@ public sealed partial class RoomEnemySystem
                         level);
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LoopOrTurnAroundIfMovedTooFar when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LoopOrTurnAroundIfMovedTooFar when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     cursor = SelectBabyTurtleCrawlLoop(slot, RequireBabyTurtleState(slot));
                     break;
-                case EnemyInstructionCodePointers.Instruction_MamaTurtle_EnterShell when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_EnterShell when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer:
                     StartMamaTurtleEnteringShell(RequireMamaTurtleState(slot));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
-                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverRightwards when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverRightwards when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer:
                     StartMamaTurtleRisingToHover(
                         RequireMamaTurtleState(slot),
                         rightward: true);
                     cursor = MamaTurtleSpinningInstruction;
                     break;
-                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverLeftwards when slot.EnemyDefinitionPointer == MamaTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_MamaTurtle_RiseToHoverLeftwards when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.MamaPointer:
                     StartMamaTurtleRisingToHover(
                         RequireMamaTurtleState(slot),
                         rightward: false);
                     cursor = MamaTurtleSpinningInstruction;
                     break;
-                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeaveShell when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeaveShell when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     cursor = SelectBabyTurtleLeaveShell(
                         slot,
                         RequireBabyTurtleState(slot),
                         samus,
                         unchecked((ushort)(cursor + 2)));
                     break;
-                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeftShell when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_LeftShell when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     cursor = FinishBabyTurtleLeavingShell(
                         slot,
                         RequireBabyTurtleState(slot),
                         samus);
                     break;
-                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Set_Spinning_Stoppable when slot.EnemyDefinitionPointer == BabyTurtleDefinition:
+                case EnemyInstructionCodePointers.Instruction_BabyTurtle_Set_Spinning_Stoppable when slot.EnemyDefinitionPointer == MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     RequireBabyTurtleState(slot).Function =
                         BabyTurtleAiFunction.SpinningStoppable;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyInstructionCodePointers.Instruction_MamaTurtle_PlaySpinningSFX when slot.EnemyDefinitionPointer is
-                    MamaTurtleDefinition or BabyTurtleDefinition:
+                    MamaTurtleEnemyDefinitionCatalog.MamaPointer or MamaTurtleEnemyDefinitionCatalog.BabyPointer:
                     LastMamaTurtleSoundEffect = MamaTurtleSpinSound;
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
@@ -3587,6 +3587,9 @@ public sealed partial class RoomEnemySystem
     public static RoomEnemyDefinition ReadDefinition(ISnesAddressSpace bus, ushort pointer)
     {
         ArgumentNullException.ThrowIfNull(bus);
+        if (MamaTurtleEnemyDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition compiled))
+            return compiled;
+
         int address = RoomEnemyRomLayout.DefinitionBank | pointer;
         return new RoomEnemyDefinition(
             TileDataSize: ReadWord(bus, address),

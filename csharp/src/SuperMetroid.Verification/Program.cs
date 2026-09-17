@@ -208,6 +208,11 @@ if (args is ["--mama-turtle-shell-contour"])
     VerifyMamaTurtleShellContourDefinitions();
     return 0;
 }
+if (args is ["--mama-turtle-enemy-definitions"])
+{
+    VerifyMamaTurtleEnemyDefinitions();
+    return 0;
+}
 if (args is ["--pose-dispatch-definitions"])
 {
     var poseRom = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -1101,6 +1106,7 @@ VerifyEnemyInstructionCodePointerCatalogs();
 VerifyEnemyRomTablePointerCatalog();
 VerifyMotherBrainContactHitboxes();
 VerifyMamaTurtleShellContourDefinitions();
+VerifyMamaTurtleEnemyDefinitions();
 VerifyPaletteFxInstructionCodeCatalogs();
 VerifyAnimatedTileInstructionCodeCatalog();
 VerifyEnemyProjectileCodePointerCatalog();

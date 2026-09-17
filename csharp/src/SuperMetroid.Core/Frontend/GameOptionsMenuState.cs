@@ -15,6 +15,7 @@ public sealed class GameOptionsMenuState
     private readonly MenuPpuState ppu;
     private readonly OamBuffer oam = new();
     private readonly ControllerInputState controller = new();
+    [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
     private readonly byte[] primaryTilemap;
     private readonly byte[] controllerEnglishTilemap;
     private readonly byte[] controllerJapaneseTilemap;
@@ -34,20 +35,31 @@ public sealed class GameOptionsMenuState
         ControllerBindings? controllerBindings = null,
         bool iconCancelEnabled = false,
         bool moonwalkEnabled = false,
-        bool japaneseText = false)
+        bool japaneseText = false,
+        AreaMapPresentationCatalog? mapPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio;
-        ppu = new MenuPpuState(bus);
+        this.mapPresentation = mapPresentation;
+        ppu = new MenuPpuState(bus, mapPresentation?.Tiles, mapPresentation?.Palettes,
+            mapPresentation?.WorldArtwork, mapPresentation?.Sprites,
+            loadInitialBackground: mapPresentation is null);
+        if (mapPresentation is not null)
+            mapPresentation.GameOptions.LoadBackground(ppu.Vram);
 
         // `$82:EC77-$ECA3` expands these five consecutive one-screen resources. Keeping
         // each decompressed page independent mirrors their WRAM allocation and prevents a
         // language toggle from mutating the other language's source page.
-        primaryTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.Primary);
-        controllerEnglishTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.ControllerEnglish);
-        controllerJapaneseTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.ControllerJapanese);
-        specialEnglishTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.SpecialEnglish);
-        specialJapaneseTilemap = DecompressOptionsPage(GameOptionsRomData.Pages.SpecialJapanese);
+        primaryTilemap = Page(GameOptionsPresentationDefinitions.PrimaryPage,
+            GameOptionsRomData.Pages.Primary);
+        controllerEnglishTilemap = Page(GameOptionsPresentationDefinitions.ControllerEnglishPage,
+            GameOptionsRomData.Pages.ControllerEnglish);
+        controllerJapaneseTilemap = Page(GameOptionsPresentationDefinitions.ControllerJapanesePage,
+            GameOptionsRomData.Pages.ControllerJapanese);
+        specialEnglishTilemap = Page(GameOptionsPresentationDefinitions.SpecialEnglishPage,
+            GameOptionsRomData.Pages.SpecialEnglish);
+        specialJapaneseTilemap = Page(GameOptionsPresentationDefinitions.SpecialJapanesePage,
+            GameOptionsRomData.Pages.SpecialJapanese);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
@@ -58,6 +70,46 @@ public sealed class GameOptionsMenuState
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
         Phase = GameOptionsPhase.FadeIn;
+
+        byte[] Page(string name, GameOptionsPageResource resource) =>
+            mapPresentation?.GameOptions.CreatePage(name) ?? DecompressOptionsPage(resource);
+    }
+
+    /// <summary>Rebinds host-owned visual assets after a debugger-state restore.</summary>
+    internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
+    {
+        mapPresentation = catalog;
+        ppu.BindWorldArtwork(bus, catalog?.WorldArtwork);
+        ppu.BindMapTiles(bus, catalog?.Tiles);
+        ppu.BindMapSprites(bus, catalog?.Sprites);
+        ppu.BindMapPalettes(bus, catalog?.Palettes);
+        if (catalog is null)
+        {
+            ppu.LoadInitialBackground(bus);
+            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.Primary), primaryTilemap);
+            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.ControllerEnglish), controllerEnglishTilemap);
+            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.ControllerJapanese), controllerJapaneseTilemap);
+            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.SpecialEnglish), specialEnglishTilemap);
+            Copy(DecompressOptionsPage(GameOptionsRomData.Pages.SpecialJapanese), specialJapaneseTilemap);
+        }
+        else
+        {
+            catalog.GameOptions.LoadBackground(ppu.Vram);
+            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
+            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);
+            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage), controllerJapaneseTilemap);
+            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage), specialEnglishTilemap);
+            Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage), specialJapaneseTilemap);
+        }
+        ApplyLanguagePaletteBits();
+        LoadVisiblePage();
+
+        static void Copy(byte[] source, byte[] destination)
+        {
+            if (source.Length != destination.Length)
+                throw new InvalidDataException("Rebound options page size changed.");
+            source.CopyTo(destination, 0);
+        }
     }
 
     /// <summary>Current menu row within the active page.</summary>
@@ -203,6 +255,16 @@ public sealed class GameOptionsMenuState
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
+        if (mapPresentation is not null)
+        {
+            string pageName = PresentationPageName(page);
+            mapPresentation.GameOptions.DrawHeading(oam, pageName, bg1VerticalScroll);
+            (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
+            mapPresentation.GameOptions.DrawCursor(oam, missileFrame,
+                new(authoredCursorX, authoredCursorY));
+            oam.FinalizeFrame();
+            return;
+        }
         // Each native page replaces the heading actor while the dissolve is black.
         // The controller actor's pre-instruction also follows BG1's page scroll.
         (ushort border, ushort x) = page switch
@@ -402,6 +464,11 @@ public sealed class GameOptionsMenuState
 
     private void ApplyLanguagePaletteBits()
     {
+        if (mapPresentation is not null)
+        {
+            mapPresentation.GameOptions.ApplyLanguage(primaryTilemap, JapaneseText);
+            return;
+        }
         foreach (GameOptionsLanguagePaletteRegion region in GameOptionsRomData.LanguagePaletteRegions)
         {
             bool selected = JapaneseText == region.HighlightWhenJapanese;
@@ -417,6 +484,14 @@ public sealed class GameOptionsMenuState
 
     private void ApplySpecialPaletteBits()
     {
+        if (mapPresentation is not null)
+        {
+            mapPresentation.GameOptions.ApplySpecialToggle(visibleTilemap,
+                GameOptionsPresentationDefinitions.IconCancelToggle, IconCancelEnabled);
+            mapPresentation.GameOptions.ApplySpecialToggle(visibleTilemap,
+                GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
+            return;
+        }
         ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.IconCancel, IconCancelEnabled);
         ApplySpecialToggle(visibleTilemap, GameOptionsRomData.SpecialToggles.Moonwalk, MoonwalkEnabled);
     }
@@ -444,6 +519,16 @@ public sealed class GameOptionsMenuState
 
     private void ApplyControllerLabels()
     {
+        if (mapPresentation is not null)
+        {
+            for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
+            {
+                int button = Input.ControllerBindings.AssignableButtons.IndexOf(ControllerBindings[action]);
+                mapPresentation.GameOptions.ApplyControllerLabel(visibleTilemap, action,
+                    button < 0 ? 0 : button);
+            }
+            return;
+        }
         ReadOnlySpan<ushort> sourcePointers = GameOptionsRomData.ControllerLabels.Sources;
         ReadOnlySpan<ushort> destinationOffsets = GameOptionsRomData.ControllerLabels.Destinations;
         for (int action = 0; action < GameOptionsRomData.Rows.ControllerActionCount; action++)
@@ -479,7 +564,17 @@ public sealed class GameOptionsMenuState
         // Scroll phases have null native position-table entries. The selector moves
         // off screen until the page settles; only the heading follows the BG scroll.
         if (Phase is GameOptionsPhase.ScrollControllerDown or GameOptionsPhase.ScrollControllerUp)
-            return (GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY);
+        {
+            MapLabelPoint hidden = mapPresentation?.GameOptions.HiddenCursor ??
+                new(GameOptionsRomData.Cursors.HiddenX, GameOptionsRomData.Cursors.HiddenY);
+            return (checked((ushort)hidden.X), checked((ushort)hidden.Y));
+        }
+        if (mapPresentation is not null)
+        {
+            MapLabelPoint point = mapPresentation.GameOptions.CursorPosition(
+                PresentationPageName(page), SelectedItem);
+            return (checked((ushort)point.X), checked((ushort)point.Y));
+        }
         return page switch
         {
             GameOptionsPage.Primary =>
@@ -541,8 +636,17 @@ public sealed class GameOptionsMenuState
         if (--missileTimer != 0)
             return;
         missileFrame = (missileFrame + 1) % GameOptionsRomData.Spritemaps.MissileFrameIds.Length;
-        missileTimer = GameOptionsRomData.Spritemaps.MissileFrameDuration;
+        missileTimer = mapPresentation?.GameOptions.CursorFrameDuration ??
+            GameOptionsRomData.Spritemaps.MissileFrameDuration;
     }
+
+    private static string PresentationPageName(GameOptionsPage value) => value switch
+    {
+        GameOptionsPage.Primary => GameOptionsPresentationDefinitions.PrimaryMenu,
+        GameOptionsPage.Controller => GameOptionsPresentationDefinitions.ControllerMenu,
+        GameOptionsPage.Special => GameOptionsPresentationDefinitions.SpecialMenu,
+        _ => throw new InvalidOperationException($"Unknown options page {value}."),
+    };
 
     private void QueueMoveSound() =>
         audio?.QueueSound(

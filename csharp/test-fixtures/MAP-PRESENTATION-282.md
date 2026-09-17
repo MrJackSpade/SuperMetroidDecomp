@@ -1214,3 +1214,30 @@ live content rebinding, strict invalid resources and full-installer preservation
 also pass. File-select/options presentation, broader shared integration, historical
 full-session coverage and Android device validation remain; this does not complete
 #544 or #282.
+
+## Editable options-menu presentation (#544/#282)
+
+Catalog version 25 adds `options-menu.json`, schema version 1 (twenty-seven shared
+resource hashes). It contains the shared background and five complete 32x32 pages,
+the seven configurable button-label patches and their destinations, language and
+special-toggle highlight regions, three heading compositions, four selector
+compositions, page-specific actor anchors, palette choices and selector timing.
+Copy it to `overrides/maps/options-menu.json` to edit this presentation.
+
+Navigation, page transitions, controller permutation swaps, language and special
+option semantics, menu sounds, fades and persistence remain compiled behavior.
+Installed execution no longer reads compressed page streams, controller-label
+tiles, selector/heading spritemaps or those presentation tables from the cartridge.
+The pages retain the complete ten-bit SNES character references because this menu
+uses multiple already-extracted VRAM artwork regions rather than only the area-map
+tile atlas. The cartridge-backed construction path remains for parity diagnostics.
+
+Verification runs 196 ROM-backed and completely bus-forbidden installed frames
+side by side through language switching, both page dissolves, controller rebinding,
+native controller-page scrolling, both special toggles, return transitions and
+their audio commands. Every rendered pixel, phase and selected row matches. It also
+checks visible page/composition/anchor edits, state-safe live rebinding,
+deterministic extraction, strict malformed/missing/overlapping data failures and
+full-installer override preservation. File-select-menu presentation, broader
+shared integration, historical full-session coverage and Android validation remain;
+this does not complete #544 or #282.

@@ -31,8 +31,7 @@ internal sealed class MenuPpuState
         // BG2 from its layers, and room select installs its own complete frame.
         // Other menus still require the shared native initialization.
         if (loadInitialBackground)
-            Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus,
-                FileSelectMapRomData.InitialMenuBackground, FileSelectMapRomData.TilemapBytes));
+            LoadInitialBackground(bus);
     }
 
     /// <summary>Refreshes the two world character regions only; retains tilemaps and ongoing palette state.</summary>
@@ -73,6 +72,10 @@ internal sealed class MenuPpuState
     }
 
     public SnesCgram Cgram { get; } = new();
+
+    public void LoadInitialBackground(ISnesAddressSpace bus) =>
+        Vram.LoadBytes(Bg2TilemapWord * 2, RomDataReader.ReadFixedBank(bus,
+            FileSelectMapRomData.InitialMenuBackground, FileSelectMapRomData.TilemapBytes));
 
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)
     {

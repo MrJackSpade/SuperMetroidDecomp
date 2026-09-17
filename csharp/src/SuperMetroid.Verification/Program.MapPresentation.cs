@@ -158,6 +158,7 @@ internal static partial class Program
         VerifyEscapeTimerPresentationAssets(bus, stock, Path.Combine(root, "escape-timer-overrides"), original);
         VerifyGameplayHudPresentationAssets(bus, stock, Path.Combine(root, "gameplay-hud-overrides"), original);
         VerifyGameOverPresentationAssets(bus, stock, Path.Combine(root, "game-over-overrides"), original);
+        VerifyGameOptionsPresentationAssets(bus, stock, Path.Combine(root, "game-options-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

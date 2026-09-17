@@ -253,7 +253,7 @@ public sealed class GameOptionsPresentation
             MapPresentationCell? cell = cells[index];
             if (cell is null ||
                 (uint)cell.TileColumn >= MapTileAtlasFormat.TileColumns ||
-                (uint)cell.TileRow >= MapPresentationFormat.AtlasRows ||
+                (uint)cell.TileRow >= GameOptionsPresentationDefinitions.CharacterRows ||
                 (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
                 throw new InvalidDataException(
                     $"{owner} cell {index} has an invalid atlas coordinate or palette.");
@@ -370,6 +370,7 @@ public static class GameOptionsPresentationDefinitions
     public const string IconCancelToggle = "IconCancel";
     public const string MoonwalkToggle = "Moonwalk";
     public const int PageCellCount = GameOptionsRomData.MenuTilemapWidth * GameOptionsRomData.MenuTilemapHeight;
+    public const int CharacterRows = 32;
     public const int ControllerLabelWidth = GameOptionsRomData.ControllerLabels.WidthInTiles;
     public const int ControllerLabelHeight = GameOptionsRomData.ControllerLabels.HeightInTiles;
     public const int ControllerLabelCellCount = ControllerLabelWidth * ControllerLabelHeight;
@@ -380,7 +381,7 @@ public static class GameOptionsPresentationDefinitions
     private static readonly string[] menuPageNames =
         [PrimaryMenu, ControllerMenu, SpecialMenu];
     private static readonly string[] controllerLabelNames =
-        ["B", "Y", "Select", "Start", "Up", "Down", "A"];
+        ["X", "A", "B", "Select", "Y", "L", "R"];
     private static readonly string[] specialToggleNames =
         [IconCancelToggle, MoonwalkToggle];
     private static readonly string[] spriteNames =

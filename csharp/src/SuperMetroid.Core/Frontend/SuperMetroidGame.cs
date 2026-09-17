@@ -320,7 +320,8 @@ public sealed partial class SuperMetroidGame
                         audio,
                         optionSlot?.ControllerBindings,
                         optionSlot?.IconCancelEnabled ?? false,
-                        optionSlot?.MoonwalkEnabled ?? false);
+                        optionSlot?.MoonwalkEnabled ?? false,
+                        mapPresentation: mapPresentation);
                     GameState = SuperMetroidGameState.GameOptionsMenu;
                     PublishMenu(options);
                 }
@@ -669,7 +670,8 @@ public sealed partial class SuperMetroidGame
                     if (fileSelectMap.OptionsRequested)
                     {
                         options = new GameOptionsMenuState(bus, audio, mapSlot.ControllerBindings,
-                            mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled);
+                            mapSlot.IconCancelEnabled, mapSlot.MoonwalkEnabled,
+                            mapPresentation: mapPresentation);
                         fileSelectMap = null;
                         GameState = SuperMetroidGameState.GameOptionsMenu;
                         PublishMenu(options);

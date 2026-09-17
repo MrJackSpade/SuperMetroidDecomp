@@ -141,6 +141,10 @@ internal static partial class Program
         var gameOver = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOverPresentationDefinitions.FileName)))!;
         gameOver["babyAnchor"]!["x"] = 132;
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
+        string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationDefinitions.FileName);
+        var gameOptions = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)))!;
+        gameOptions["cursorAnchors"]![GameOptionsPresentationDefinitions.PrimaryMenu]![0]!["x"] = 32;
+        File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
         var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
@@ -164,6 +168,8 @@ internal static partial class Program
         AssertEqual(104, edited.SaveMarkers.Get(SuperMetroid.Core.Game.AreaId.Maridia, 0).X, "full installation consumes save-marker override");
         AssertEqual(160, edited.Landmarks.Get("Boss.Phantoon").X, "full installation consumes landmark override");
         AssertEqual(80, edited.Stations.Get("Brinstar.Missile.0").X, "full installation consumes station position override");
+        AssertTrue(stock.GameOptions.ContentIdentity != edited.GameOptions.ContentIdentity,
+            "full installation consumes options-menu override");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "full installation consumes edited palette override");
         // Synthetic sentinels, not a copy of the player's real files.
         var preserved = new Dictionary<string, byte[]>
@@ -192,6 +198,7 @@ internal static partial class Program
             [escapeTimerOverride] = File.ReadAllBytes(escapeTimerOverride),
             [gameplayHudOverride] = File.ReadAllBytes(gameplayHudOverride),
             [gameOverOverride] = File.ReadAllBytes(gameOverOverride),
+            [gameOptionsOverride] = File.ReadAllBytes(gameOptionsOverride),
             [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),

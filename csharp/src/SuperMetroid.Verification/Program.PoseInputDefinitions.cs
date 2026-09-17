@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
@@ -64,6 +65,28 @@ internal static partial class Program
         AssertEqual(598, conditionCount, "All distinct-list conditions");
         for (int pose = 253; pose <= byte.MaxValue; pose++)
             AssertTrue(!SamusPoseInputDefinitions.TryGet((byte)pose, out _, out _), "Trailing pose indexes retain explicit bus lookup");
+
+        // Extra held bits are admitted by the native subset matcher. With both horizontal
+        // bits set, the first authored condition wins: the direction opposite the current
+        // facing appears first in each standing table, so the chord begins a turn.
+        const ushort leftRight = (ushort)(SnesButton.Left | SnesButton.Right);
+        AssertEqual(
+            (ushort)SamusPoseIds.TurningRightToLeftPose,
+            SamusPoseTransitionTable.Lookup(
+                forbidden,
+                SamusPoseIds.FacingRightNormalPose,
+                leftRight,
+                leftRight).Transition!.Value.ProspectivePose,
+            "right-facing Left+Right uses the first native Left condition");
+        AssertEqual(
+            (ushort)SamusPoseIds.TurningLeftToRightPose,
+            SamusPoseTransitionTable.Lookup(
+                forbidden,
+                SamusPoseIds.FacingLeftNormalPose,
+                leftRight,
+                leftRight).Transition!.Value.ProspectivePose,
+            "left-facing Left+Right uses the first native Right condition");
+
         long allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
         int accepted = 0;
         for (int i = 0; i < 65536; i++)

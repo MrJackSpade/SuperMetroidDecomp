@@ -280,6 +280,48 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(5, eligible.SolidVerticalCollisionResult,
         "terrain wall jump publishes native solid-vertical result five");
 
+    // `$90:9D6B/$90:9DE3` tests Left before Right. Both bits therefore use the Left
+    // branch and probe the wall to Samus's right, exactly like Left alone.
+    var opposedRightWall = CreateSpinSamus(animationFrame: 0x0b);
+    AerialMovementResult opposedRightWallTrigger = SamusAerialMovement.StepSpinJump(
+        bus,
+        level,
+        opposedRightWall,
+        (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.A),
+        0,
+        (ushort)SnesButton.A);
+    AssertTrue(opposedRightWallTrigger.WallJumpTriggered,
+        "Left+Right uses native Left-first priority at a right wall");
+    AssertEqual(triggerFrame.WallDistance, opposedRightWallTrigger.WallDistance,
+        "Left+Right and Left-only report the same right-wall distance");
+
+    // Mirror the fixture to the wall's right. Right alone probes left and launches; adding
+    // Left changes the first native branch to a rightward probe, so no wall is contacted.
+    WritePoseDefinition(bus, SamusPoseIds.SpinJumpLeftPose,
+        [4, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    WriteTestWord(bus, 0x91b010 + SamusPoseIds.SpinJumpLeftPose * 2, 0xc200);
+    SamusState rightOnlyLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
+    AerialMovementResult rightOnlyLeftWallTrigger = SamusAerialMovement.StepSpinJump(
+        bus,
+        level,
+        rightOnlyLeftWall,
+        (ushort)(SnesButton.Right | SnesButton.A),
+        0,
+        (ushort)SnesButton.A);
+    AssertTrue(rightOnlyLeftWallTrigger.WallJumpTriggered,
+        "Right-only input probes and launches from a left wall");
+
+    SamusState opposedLeftWall = CreateLeftSpinSamus(animationFrame: 0x0b);
+    AerialMovementResult opposedLeftWallResult = SamusAerialMovement.StepSpinJump(
+        bus,
+        level,
+        opposedLeftWall,
+        (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.A),
+        0,
+        (ushort)SnesButton.A);
+    AssertTrue(!opposedLeftWallResult.WallContact && !opposedLeftWallResult.WallJumpTriggered,
+        "Left+Right cannot launch from a left wall because Left wins the native branch");
+
     // Repeat the same eligible chord with a native solid-enemy snapshot in front of the
     // terrain. `$90:9E64` must publish that exact slot for enemy AI's shake response; a
     // terrain-backed wall jump deliberately does not write this word.
@@ -364,6 +406,24 @@ static void VerifySamusAerialTurnsAndWallJump()
         var samus = new SamusState { Pose = 0x19, XPosition = 52, YPosition = 48 };
         // This fixture begins mid-spin after a spin-direction transition.
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
+        samus.RefreshCollisionRadii(bus);
+        samus.InitializeAnimation(bus, 0);
+        samus.AnimationFrame = animationFrame;
+        samus.Kinematics.YDirection = 1;
+        samus.Kinematics.YSpeed = 2;
+        samus.Kinematics.YSubacceleration = 0x2800;
+        return samus;
+    }
+
+    SamusState CreateLeftSpinSamus(ushort animationFrame)
+    {
+        var samus = new SamusState
+        {
+            Pose = SamusPoseIds.SpinJumpLeftPose,
+            XPosition = 92,
+            YPosition = 48,
+        };
+        samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, 0);
         samus.AnimationFrame = animationFrame;

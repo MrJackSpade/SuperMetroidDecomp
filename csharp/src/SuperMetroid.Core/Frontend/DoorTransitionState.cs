@@ -203,9 +203,13 @@ public sealed class DoorTransitionState
                 // IRQ step and visibly corrupted both horizontal door directions. Build and
                 // publish the destination OAM now, while the palette is still black, so the
                 // first fade-in frame cannot expose stale source-room objects.
-                runtime.StepFrame(controller1Input: 0, advanceGameTime: false,
+                // NMI continues sampling the physical controller while the door coroutine
+                // owns Samus. Supplying zero here creates a fake release and makes a held
+                // chord look newly pressed again on the first fade frame. The input lock,
+                // not a fabricated neutral sample, prevents gameplay movement.
+                runtime.StepFrame(controller1Input: controllerInput, advanceGameTime: false,
                     queueEchoSound: queueEchoSound);
-                runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
+                runtime.RunNmi(controller1Input: controllerInput, mainLoopRequestedNmi: true);
                 Phase = DoorTransitionPhase.FadeInDestinationPalette;
                 break;
 

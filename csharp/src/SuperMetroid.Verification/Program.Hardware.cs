@@ -412,6 +412,35 @@ static void VerifyControllerInputLatch()
         "exact-Right comparison rejects opposed horizontal input");
     AssertEqual(SnesButton.Left, directional.NewlyPressedButtons,
         "typed newly-pressed view reports only the added direction");
+
+    // A real SNES controller cannot close both contacts, but adapter/SMV words can. The
+    // cartridge latches that raw chord without normalizing it to neutral. Added directions
+    // remain independent rising edges, which is observable in L+R movement techniques.
+    ushort opposedDirections = (ushort)(SnesButton.Left | SnesButton.Right);
+    var simultaneous = new ControllerInputState();
+    simultaneous.Latch(opposedDirections);
+    AssertEqual(opposedDirections, simultaneous.Current,
+        "simultaneous Left+Right survives the raw controller latch");
+    AssertEqual(opposedDirections, simultaneous.NewlyPressed,
+        "simultaneous first press publishes both direction edges");
+    simultaneous.Latch(opposedDirections);
+    AssertEqual(0, simultaneous.NewlyPressed,
+        "stable simultaneous directions do not repeat as new input");
+    simultaneous.Latch((ushort)(opposedDirections | (ushort)SnesButton.Up));
+    AssertEqual((ushort)SnesButton.Up, simultaneous.NewlyPressed,
+        "elevator direction remains a new edge while Left+Right stays held");
+
+    var leftThenBoth = new ControllerInputState();
+    leftThenBoth.Latch((ushort)SnesButton.Left);
+    leftThenBoth.Latch(opposedDirections);
+    AssertEqual((ushort)SnesButton.Right, leftThenBoth.NewlyPressed,
+        "adding Right to held Left publishes only the Right edge");
+
+    var rightThenBoth = new ControllerInputState();
+    rightThenBoth.Latch((ushort)SnesButton.Right);
+    rightThenBoth.Latch(opposedDirections);
+    AssertEqual((ushort)SnesButton.Left, rightThenBoth.NewlyPressed,
+        "adding Left to held Right publishes only the Left edge");
     AssertThrows<InvalidDataException>(
         () => directional.Latch(0x0001),
         "controller latch rejects non-controller low bits");

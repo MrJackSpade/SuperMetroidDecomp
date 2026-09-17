@@ -75,14 +75,15 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
     AssertEqual((ushort)SnesButton.R, swapped.Shoot, "controller swap assigns requested button");
     AssertEqual((ushort)SnesButton.X, swapped.AimUp, "controller swap preserves permutation");
     ushort normalized = swapped.Normalize(
-        (ushort)(SnesButton.R | SnesButton.X | SnesButton.Left | SnesButton.Start));
+        (ushort)(SnesButton.R | SnesButton.X | SnesButton.Left | SnesButton.Right |
+                 SnesButton.Start));
     AssertTrue((normalized & (ushort)SnesButton.X) != 0,
         "physical remapped Shoot becomes canonical Shoot");
     AssertTrue((normalized & (ushort)SnesButton.R) != 0,
         "displaced physical button becomes canonical Aim Up");
-    AssertTrue((normalized & (ushort)(SnesButton.Left | SnesButton.Start)) ==
-               (ushort)(SnesButton.Left | SnesButton.Start),
-        "fixed directions and Start survive binding normalization");
+    AssertTrue((normalized & (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start)) ==
+               (ushort)(SnesButton.Left | SnesButton.Right | SnesButton.Start),
+        "opposed fixed directions and Start survive binding normalization");
 
     var rom = new byte[SuperMetroidAddressSpace.RetailRomByteCount];
     // Five independent all-blank pages are enough to exercise the state machine. The

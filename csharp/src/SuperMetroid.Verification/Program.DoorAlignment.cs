@@ -4,6 +4,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
@@ -153,17 +154,31 @@ internal static partial class Program
         var transition = new DoorTransitionState();
         transition.Begin(runtime);
         var audio = new CartridgeAudioState();
+        const ushort heldLeftRight = (ushort)(SnesButton.Left | SnesButton.Right);
         int alignmentCalls = 0;
+        bool observedDestinationBuild = false;
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
+            DoorTransitionPhase phaseBeforeStep = transition.Phase;
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
-            transition.Step(runtime, audio, 0);
+            transition.Step(runtime, audio, heldLeftRight);
+            if (phaseBeforeStep == DoorTransitionPhase.HandleTransition &&
+                transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
+            {
+                observedDestinationBuild = true;
+                AssertEqual(heldLeftRight, runtime.Controller1.Current,
+                    "destination OAM handoff retains the live Left+Right sample");
+                AssertEqual(0, runtime.Controller1.NewlyPressed,
+                    "destination OAM handoff does not synthesize a release or fresh edge");
+            }
         }
 
         AssertTrue(!transition.IsActive, "offset retail door transition completes");
         AssertEqual(3, alignmentCalls,
             "two-pixel offset takes two movement calls and one completion call");
+        AssertTrue(observedDestinationBuild,
+            "door transition exercised the destination OAM handoff");
         AssertEqual(destinationRoom, runtime.ActiveRoom!.Pointer,
             "offset retail transition reaches its destination");
         AssertEqual((ushort)58, runtime.GameTime.Frames, "door transition excludes game-time frames");

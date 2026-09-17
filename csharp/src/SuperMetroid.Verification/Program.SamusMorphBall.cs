@@ -291,6 +291,28 @@ static void VerifySamusMorphBallMovement()
     AssertEqual(1, boostedFall.HorizontalSpeed.ExtraRunSpeed,
         "direction-held falling ball retains extra-run momentum");
 
+    var opposedDirectionFall = new SamusState
+    {
+        Pose = SamusPoseIds.MorphBallFallingLeftPose,
+        XPosition = 32,
+        YPosition = 32,
+    };
+    opposedDirectionFall.RefreshCollisionRadii(bus);
+    opposedDirectionFall.HorizontalSpeed.ExtraRunSpeed = 1;
+    opposedDirectionFall.HorizontalSpeed.ExtraRunSubspeed = 0x8000;
+    opposedDirectionFall.Kinematics.YDirection = 2;
+    SamusMorphBallMovement.StepFalling(
+        bus,
+        empty,
+        opposedDirectionFall,
+        controllerInput: (ushort)(SnesButton.Left | SnesButton.Right),
+        nmiFrameCounter: 0);
+    AssertEqual(boostedFall.Kinematics.XFixed, opposedDirectionFall.Kinematics.XFixed,
+        "Left+Right falling ball follows its pose direction instead of cancelling motion");
+    AssertEqual(boostedFall.HorizontalSpeed.BaseFixed,
+        opposedDirectionFall.HorizontalSpeed.BaseFixed,
+        "Left+Right falling ball retains the same native acceleration as Left-only");
+
     var boostedSpring = new SamusState
     {
         Pose = SamusPoseIds.SpringBallJumpRightPose,

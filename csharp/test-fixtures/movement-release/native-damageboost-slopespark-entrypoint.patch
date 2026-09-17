@@ -1,0 +1,17 @@
+diff --git a/src/main.c b/src/main.c
+--- a/src/main.c
++++ b/src/main.c
+@@
+   argc--, argv++;
++  if (argc == 4 && strcmp(argv[0], "--diagnostic-damageboost-slopespark") == 0) {
++    extern int DiagnosticDamageBoostSlopespark(const char *, const char *, const char *);
++    return DiagnosticDamageBoostSlopespark(argv[1], argv[2], argv[3]);
++  }
+   const char *config_file = NULL;
+diff --git a/src/sm_rtl.c b/src/sm_rtl.c
+--- a/src/sm_rtl.c
++++ b/src/sm_rtl.c
+@@
+ #include "../../csharp/test-fixtures/movement-release/native-release-probe.h"
++#include "../../csharp/test-fixtures/movement-release/native-damageboost-slopespark-probe.h"
+

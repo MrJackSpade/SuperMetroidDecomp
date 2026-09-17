@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--damage-boost-slopespark-audit", var slopesparkRom, var slopesparkTrace])
+        return DamageBoostSlopesparkAudit.Run(slopesparkRom, slopesparkTrace);
 if (args is ["--temporary-blue-suit-audit", var blueSuitRom, var blueSuitTrace])
     return TemporaryBlueSuitComparisonAudit.Run(blueSuitRom, blueSuitTrace);
 if (args is ["--temporary-blue-carry-audit", var blueCarryRom, var blueCarryTrace])

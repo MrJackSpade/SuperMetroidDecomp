@@ -26,6 +26,17 @@ public sealed partial class SamusProjectileSystem
         => CancelCharge();
 
     /// <summary>
+    /// Applies <c>Projectile_Func7_Shinespark</c>'s flare teardown at $90:CFFA.
+    /// Unlike HUD selection, the cartridge clears the live charge and its animation
+    /// without rewriting the previous-frame sampling word.
+    /// </summary>
+    internal void CancelChargeForShinespark()
+    {
+        FlareCounter = 0;
+        ClearFlareAnimationState();
+    }
+
+    /// <summary>
     /// Native Samus command four ($90:F19B/$90:F19E): consume Pseudo Screw charge,
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sampling word.

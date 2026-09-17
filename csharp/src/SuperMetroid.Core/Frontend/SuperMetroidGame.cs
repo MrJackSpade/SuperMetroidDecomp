@@ -1101,6 +1101,9 @@ public sealed partial class SuperMetroidGame
             if (samus.Shinespark.ConsumeStoredShineWarningSoundRequest())
                 audio.QueueSoundAndGetAccumulator(ShinesparkSounds.StoredWarning, 9,
                     soundSuppressed: samus.Shinespark.StoredShineWarningSoundSuppressed);
+            if (samus.Shinespark.ConsumeChargeCancellationSoundRequest())
+                audio.QueueSoundAndGetAccumulator(SoundEffectLibrary1Sounds.CancelAll, 9,
+                    soundSuppressed: samus.Shinespark.ChargeCancellationSoundSuppressed);
             if (samus.Shinespark.ConsumeLaunchSoundRequest())
                 audio.QueueSoundAndGetAccumulator(ShinesparkSounds.Launch, 9,
                     soundSuppressed: samus.Shinespark.LaunchSoundSuppressed);

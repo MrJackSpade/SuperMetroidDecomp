@@ -1400,7 +1400,7 @@ public sealed partial class SuperMetroidRuntime
         BindGameplayWindowRegisters();
         Projectiles.BindRoomEarthquakeOwner(Enemies);
         Plms.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
-        Samus?.Shinespark.BindPowerBombAudio(BombProjectiles.PowerBombExplosion);
+        Samus?.Shinespark.BindProjectileOwners(Projectiles, BombProjectiles.PowerBombExplosion);
         ApplyPendingChozoStatuePlms();
         Projectiles.BeginImpactAudioFrame(cinematicActive: false);
         RunNmi(controller1Input, mainLoopRequestedNmi: true);

@@ -394,3 +394,29 @@ This rules out a missing active-explosion guard at the ordinary X-ray activation
 publisher. It does not cover forced/glitched state transitions, X-ray release,
 or a natural controller-to-door timing matrix. The complete Power Bomb sound
 suppression audit passes with these added cases. #422 remains incomplete.
+
+## Shinespark charge cancellation
+
+Original CPU execution of `Projectile_Func7_Shinespark` at `$90:CFFA` exposes a
+missing action in the port: entering windup clears the live beam-charge counter
+and flare animation. When the counter is at least sixteen, it first calls
+`QueueSfx1_Max9($02)` to stop the sustained charge sound. An active Power Bomb
+suppresses that call but does not prevent the teardown. The committed native
+action trace at `movement-release/processing-actions-422.csv` records the same
+result at charge sixty: library-one `$02` without an active explosion and no
+command with one.
+
+The translated windup now binds the live projectile owner, clears both its charge
+and Samus's movement-visible mirror, and publishes `$02` through the existing
+producer-time Power Bomb guard. It deliberately leaves the previous-frame charge
+sample alone, matching the cartridge routine rather than reusing HUD selection's
+broader reset. The pending publication and routing reference are nonserialized:
+they exist only inside one completed gameplay frame, so old and new debugger-state
+layouts remain identical.
+
+`PowerBombShinesparkSoundAudit` covers charges 1, 15, 16, and 60 with both Power
+Bomb states. Every case verifies charge teardown; only counters 16 and 60 emit
+the cancellation command, and only when the explosion was inactive at the native
+call. Reversing explosion status before frontend publication proves the guard is
+captured at production. This closes the shinespark-activation producer mismatch,
+not the rest of #422's controller-action timing matrix.

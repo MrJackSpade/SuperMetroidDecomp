@@ -15,9 +15,28 @@ namespace SuperMetroid.Core.Game;
 public sealed class SamusShinesparkState
 {
     [NonSerialized] private SamusPowerBombExplosionState? _audioPowerBomb;
+    [NonSerialized] private SamusProjectileSystem? _projectiles;
+    [NonSerialized] private bool _chargeCancellationSoundRequested;
+    [NonSerialized] private bool _chargeCancellationSoundSuppressed;
 
-    /// <summary>Rebinds the live sound guard before movement/palette production, including restored states.</summary>
-    internal void BindPowerBombAudio(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
+    /// <summary>
+    /// Rebinds the live projectile and sound owners before movement/palette production,
+    /// including restored states. These references are routing, not cartridge state.
+    /// </summary>
+    internal void BindProjectileOwners(
+        SamusProjectileSystem projectiles,
+        SamusPowerBombExplosionState powerBomb)
+    {
+        _projectiles = projectiles;
+        _audioPowerBomb = powerBomb;
+    }
+
+    /// <summary>
+    /// Compatibility seam for focused producer tests that only exercise the sound guard.
+    /// Ordinary gameplay binds both owners through <see cref="BindProjectileOwners"/>.
+    /// </summary>
+    internal void BindPowerBombAudio(SamusPowerBombExplosionState powerBomb) =>
+        _audioPowerBomb = powerBomb;
 
     /// <summary>Native queue guard captured at the stored-shine warning call, not at publication.</summary>
     public bool StoredShineWarningSoundSuppressed { get; private set; }
@@ -115,6 +134,20 @@ public sealed class SamusShinesparkState
         CrashSoundRequested = false;
         return requested;
     }
+
+    /// <summary>
+    /// Consumes <c>Projectile_Func7_Shinespark</c>'s library-one <c>$02</c> request,
+    /// emitted only when windup cancels a charge whose counter reached sixteen.
+    /// </summary>
+    public bool ConsumeChargeCancellationSoundRequest()
+    {
+        bool requested = _chargeCancellationSoundRequested;
+        _chargeCancellationSoundRequested = false;
+        return requested;
+    }
+
+    /// <summary>Producer-time Power Bomb guard for the pending charge-cancellation call.</summary>
+    public bool ChargeCancellationSoundSuppressed => _chargeCancellationSoundSuppressed;
 
     /// <summary>High byte of native `$0AAE` while the two crash echoes orbit Samus.</summary>
     public byte CrashSubphase { get; private set; }
@@ -232,6 +265,23 @@ public sealed class SamusShinesparkState
 
     private void InitializeWindup(SamusState samus)
     {
+        // Projectile_Func7_Shinespark checks $0CD0 before clearing it. A charge that has
+        // reached the draw-time sound threshold first queues library-one $02; shorter
+        // charges are still torn down without a sound call. The live projectile owner
+        // contains the flare layers and previous-counter word, while Samus mirrors $0CD0
+        // for movement decisions. Keep both views synchronized at this native seam.
+        ushort cancelledCharge = samus.ProjectileFlareCounter;
+        if (cancelledCharge != 0)
+        {
+            _projectiles?.CancelChargeForShinespark();
+            samus.ProjectileFlareCounter = 0;
+            if (cancelledCharge >= SamusProjectileRomData.Beams.ChargeSoundStartCounter)
+            {
+                _chargeCancellationSoundRequested = true;
+                _chargeCancellationSoundSuppressed = _audioPowerBomb?.IsActive == true;
+            }
+        }
+
         // $90:CFFA replaces the movement and palette pointers. Flash's live
         // $0A68 can admit this launch even after its movement was interrupted.
         samus.CrystalFlash.RelinquishMovementHandler();

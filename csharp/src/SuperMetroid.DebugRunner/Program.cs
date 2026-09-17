@@ -22,6 +22,8 @@ if (OperatingSystem.IsWindows())
 
 try
 {
+    if (args is ["--etecoon-floor-clip-native", var floorClipRom, var floorClipDirectory])
+        return EtecoonFloorClipNativeProbe.Run(floorClipRom, floorClipDirectory);
     if (args is ["--damage-boost-slopespark-audit", var slopesparkRom, var slopesparkTrace])
         return DamageBoostSlopesparkAudit.Run(slopesparkRom, slopesparkTrace);
 if (args is ["--temporary-blue-suit-audit", var blueSuitRom, var blueSuitTrace])

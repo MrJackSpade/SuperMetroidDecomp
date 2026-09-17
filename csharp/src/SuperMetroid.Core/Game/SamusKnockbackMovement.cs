@@ -401,7 +401,7 @@ public static class SamusKnockbackMovement
         if (!IsExpiredHitInterruptionPending(samus))
             return false;
 
-        FinishExpiredHitInterruption(samus);
+        FinishExpiredHitInterruption(bus, samus);
         return true;
     }
 
@@ -421,12 +421,24 @@ public static class SamusKnockbackMovement
     /// hurt-expiry request, including when a higher-priority animation command has
     /// since replaced the current movement handler.
     /// </summary>
-    public static void FinishExpiredHitInterruption(SamusState samus)
+    public static void FinishExpiredHitInterruption(ISnesAddressSpace bus, SamusState samus)
     {
+        ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        // UpdateSamusPose jumps straight to command one without installing its
-        // proposed falling pose. The next normal mover owns the floor transition.
+        // Command one always calls `$90:EC7E`, even when command eight first installed
+        // an animation-owned pose. That overlap is observable: a turn from radius 19 to
+        // radius 10 moves Samus down nine pixels while preserving her feet. Reading the
+        // history record instead of assuming a hurt pose also covers the no-animation
+        // path, where both radii ordinarily match and the alignment is a no-op.
+        ushort previousRadius = SamusState.ReadPoseYRadius(
+            bus,
+            unchecked((byte)samus.PoseHistory.PreviousPose));
+        ushort targetRadius = SamusState.ReadPoseYRadius(bus, samus.Pose);
+        samus.AlignBottomAfterPoseChange(previousRadius, targetRadius);
+
+        // UpdateSamusPose jumps straight to command one without installing its own
+        // proposed falling pose. Any higher-priority command-three pose is already live.
         EndWithoutPoseChange(samus);
     }
 

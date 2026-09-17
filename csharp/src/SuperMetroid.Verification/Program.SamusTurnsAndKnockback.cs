@@ -736,6 +736,10 @@ static void VerifySamusKnockbackAndDamageBoost()
     };
     SamusKnockbackMovement.Start(bus, expires, 0, knockbackXDirection: 1);
     expires.RefreshCollisionRadii(bus);
+    // The runtime shifts pose history every gameplay frame. By command-one expiry an
+    // uninterrupted hurt body therefore names the same hurt pose as both current and
+    // previous; seed that real invariant in this direct movement-unit fixture.
+    expires.PoseHistory.PreviousPose = SamusPoseIds.KnockbackRightPose;
     for (int frame = 0; frame < 5; frame++)
     {
         AssertTrue(!SamusKnockbackMovement.Step(bus, empty, expires, (ushort)frame).Ended,
@@ -825,6 +829,7 @@ static void VerifySamusKnockbackAndDamageBoost()
         ballExpires,
         controllerInput: (ushort)SnesButton.Right,
         knockbackXDirection: 0);
+    ballExpires.PoseHistory.PreviousPose = SamusPoseIds.MorphBallGroundRightPose;
     ushort retainedBallFrame = ballExpires.AnimationFrame;
     ushort retainedBallTimer = ballExpires.AnimationFrameTimer;
     for (int frame = 0; frame < 5; frame++)
@@ -863,6 +868,65 @@ static void VerifySamusKnockbackAndDamageBoost()
         "expired humanoid knockback publishes falling direction two");
     AssertEqual(humanoidYAfterFinalMove, expires.YPosition,
         "expired humanoid command retains current pose radius and position");
+
+    // Issue #638's Green Brinstar floor clip reaches command eight at the exact frame an
+    // aimed aerial turn finishes. `$91:EBBB/$91:F3FD` first installs compact pose `$17`,
+    // then `$91:F31D` calls `$90:EC7E`: align the new radius-ten body to the previous
+    // radius-nineteen turn body's bottom. The nine-pixel shift is the cartridge behavior
+    // that admits the later controller-driven crossing; merely clearing hurt velocity
+    // leaves Samus above the floor and makes the technique impossible.
+    WritePoseDefinition(bus, SamusPoseIds.TurningLeftToRightJumpAimDownPose,
+        [0x04, 0x17, 0xff, 0xfb, 0x08, 0x00, 0x13, 0x00]);
+    WritePoseDefinition(bus, SamusPoseIds.NormalJumpAimDownRightPose,
+        [0x08, 0x02, 0xff, 0x04, 0x05, 0x00, 0x0a, 0x00]);
+    var floorClipOverlap = new SamusState
+    {
+        Pose = SamusPoseIds.NormalJumpAimDownRightPose,
+        XPosition = 0x007a,
+        YPosition = 0x0696,
+        KnockbackDirection = 5,
+        KnockbackTimer = 0,
+    };
+    floorClipOverlap.Kinematics.XSubposition = 0xffff;
+    floorClipOverlap.Kinematics.YSubposition = 0xffff;
+    floorClipOverlap.Kinematics.YSpeed = 0xffff;
+    floorClipOverlap.Kinematics.YSubspeed = 0xac00;
+    floorClipOverlap.Kinematics.YDirection = 0;
+    floorClipOverlap.PoseHistory.PreviousPose =
+        SamusPoseIds.TurningLeftToRightJumpAimDownPose;
+    floorClipOverlap.RefreshCollisionRadii(bus);
+
+    AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, floorClipOverlap),
+        "floor-clip hurt expiry consumes command eight");
+    AssertEqual(0x069f, floorClipOverlap.YPosition,
+        "command eight preserves the radius-nineteen turn body's bottom");
+    AssertEqual(0xffff, floorClipOverlap.Kinematics.YSubposition,
+        "floor-clip bottom alignment preserves native Y subposition");
+    AssertEqual(10, floorClipOverlap.Kinematics.YRadius,
+        "floor-clip command retains compact target radius");
+    AssertEqual(0, floorClipOverlap.Kinematics.YSpeed,
+        "floor-clip command clears whole hurt Y speed after alignment");
+    AssertEqual(0, floorClipOverlap.Kinematics.YSubspeed,
+        "floor-clip command clears fractional hurt Y speed after alignment");
+    AssertEqual(2, floorClipOverlap.Kinematics.YDirection,
+        "floor-clip command resumes downward direction");
+
+    // Neighboring control: the same timer expiry without the larger turn pose must not
+    // invent a displacement. The shift belongs to generic old/new-radius alignment, not
+    // a room, coordinate, or technique-specific special case.
+    var sameRadiusExpiry = new SamusState
+    {
+        Pose = SamusPoseIds.NormalJumpAimDownRightPose,
+        YPosition = 0x0696,
+        KnockbackDirection = 5,
+        KnockbackTimer = 0,
+    };
+    sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseIds.NormalJumpAimDownRightPose;
+    sameRadiusExpiry.RefreshCollisionRadii(bus);
+    AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(bus, sameRadiusExpiry),
+        "same-radius adjacent expiry still consumes its native command");
+    AssertEqual(0x0696, sameRadiusExpiry.YPosition,
+        "same-radius adjacent expiry does not receive floor-clip displacement");
 
     // `$90:DDE9` contains carry-clear interrupt entries as real behavior, not missing code.
     // A grounded turn keeps its current pose and ordinary movement handler while retaining

@@ -2907,7 +2907,7 @@ public sealed partial class SuperMetroidRuntime
                 // to command eight: keep the animation pose and ALSO clear hurt state.
                 if (hitInterruptionExpiryPending)
                 {
-                    SamusKnockbackMovement.FinishExpiredHitInterruption(Samus);
+                    SamusKnockbackMovement.FinishExpiredHitInterruption(_addressSpace, Samus);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;

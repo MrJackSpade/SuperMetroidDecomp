@@ -3,17 +3,13 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Mother Brain's encounter-specific projectile callbacks from bank <c>$A9</c>.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainBodySamusHitboxes = 0xb427;
-    private const ushort MotherBrainBrainSamusHitboxes = 0xb439;
-    private const ushort MotherBrainNeckSamusHitboxes = 0xb44b;
-
     /// <summary>
     /// Ports <c>$A9:B3B6-$B454</c>. Mother Brain owns a bit-selected set of asymmetric
     /// rectangles whose side extents are interpreted relative to Samus, rather than an
     /// ordinary enemy radius. Phase one enables only the brain list; later phases also
     /// admit the body and three independently positioned neck segments.
     /// </summary>
-    private bool ResolveMotherBrainSamusCollision(
+    private static bool ResolveMotherBrainSamusCollision(
         MotherBrainEnemyState state,
         SamusState samus)
     {
@@ -21,7 +17,7 @@ public sealed partial class RoomEnemySystem
         if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
-                MotherBrainBodySamusHitboxes,
+                MotherBrainContactPart.Body,
                 state.Body.XPosition,
                 state.Body.YPosition))
         {
@@ -33,7 +29,7 @@ public sealed partial class RoomEnemySystem
         if ((enabled & 1) != 0 && ResolveMotherBrainSamusCollisionPart(
                 state,
                 samus,
-                MotherBrainBrainSamusHitboxes,
+                MotherBrainContactPart.Brain,
                 head.XPosition,
                 head.YPosition))
         {
@@ -52,7 +48,7 @@ public sealed partial class RoomEnemySystem
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,
                         samus,
-                        MotherBrainNeckSamusHitboxes,
+                        MotherBrainContactPart.Neck,
                         segment.X,
                         segment.Y))
                 {
@@ -63,32 +59,26 @@ public sealed partial class RoomEnemySystem
         return false;
     }
 
-    private bool ResolveMotherBrainSamusCollisionPart(
+    private static bool ResolveMotherBrainSamusCollisionPart(
         MotherBrainEnemyState state,
         SamusState samus,
-        ushort hitboxListPointer,
+        MotherBrainContactPart contactPart,
         ushort originX,
         ushort originY)
     {
-        int list = 0xa90000 | hitboxListPointer;
-        int count = ReadWord(_bus!, list);
-        int record = list + 2;
-        for (int index = 0; index < count; index++, record += 8)
+        foreach (MotherBrainContactHitbox hitbox in
+            MotherBrainContactHitboxDefinitions.Get(contactPart))
         {
             bool belowOrigin = unchecked((short)(samus.YPosition - originY)) >= 0;
             int yDistance = Math.Abs(unchecked((short)(samus.YPosition - originY)));
-            short yExtent = unchecked((short)ReadWord(
-                _bus!,
-                record + (belowOrigin ? 6 : 2)));
+            short yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
             int yOverlap = samus.Kinematics.YRadius + Math.Abs((int)yExtent) - yDistance;
             if (yOverlap < 0)
                 continue;
 
             bool rightOfOrigin = unchecked((short)(samus.XPosition - originX)) >= 0;
             int xDistance = Math.Abs(unchecked((short)(samus.XPosition - originX)));
-            short xExtent = unchecked((short)ReadWord(
-                _bus!,
-                record + (rightOfOrigin ? 4 : 0)));
+            short xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
             int xOverlap = samus.Kinematics.XRadius + Math.Abs((int)xExtent) - xDistance;
             if (xOverlap < 0)
                 continue;

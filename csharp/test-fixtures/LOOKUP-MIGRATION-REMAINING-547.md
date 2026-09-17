@@ -207,6 +207,14 @@ forbidden, and all 33 overlapping words are independently compared with the
 pinned cartridge. Baby sprite/instruction presentation and the wider Mother
 Brain integration remain separate dependencies.
 
+Mother Brain's three count-prefixed Samus-contact lists at `$A9:B427-$B454`
+are now compiled physical definitions shared with #535's visual/mechanical
+boundary. Body, brain, and neck retain their native asymmetric signed extents
+and record ordering. Direct parity covers all twenty extent words; 49,155
+production collision probes cover both sides of every origin, overlap depth,
+and component selection through a helper that no longer accepts a ROM bus.
+Editable spritemaps cannot change these application-owned hitboxes.
+
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits
   as complete coverage.

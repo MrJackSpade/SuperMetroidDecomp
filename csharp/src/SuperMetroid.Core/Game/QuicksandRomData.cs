@@ -15,6 +15,8 @@ public static class QuicksandRomData
     public const ushort SurfaceCollision = 0xb4c4;
     /// <summary>$84:B541, submerging sand collision clears vertical speed and gravity.</summary>
     public const ushort SubmergingCollision = 0xb541;
+    /// <summary>$84:B54F, sandfall collision setup that returns clear carry.</summary>
+    public const ushort SandFallsCollision = 0xb54f;
     /// <summary>$84:B4C4's $0030 middle-word clamp: 0.1875 pixels per stationary surface probe.</summary>
     public const int SurfaceProbeLimit = 0x3000;
     /// <summary>$84:B408, PlmSetup_QuicksandSurface; bottom, center, and top body sampling.</summary>
@@ -25,6 +27,22 @@ public static class QuicksandRomData
     public const ushort SlowFallsSetup = 0xb4a8;
     /// <summary>$84:B4B6, PlmSetup_B727_SandFallsFast.</summary>
     public const ushort FastFallsSetup = 0xb4b6;
+    /// <summary>$84:B713, inside reaction header for the quicksand surface.</summary>
+    public const ushort SurfaceInsideHeader = 0xb713;
+    /// <summary>$84:B71F, inside reaction header for submerging quicksand.</summary>
+    public const ushort SubmergingInsideHeader = 0xb71f;
+    /// <summary>$84:B723, inside reaction header for slow sandfalls.</summary>
+    public const ushort SlowFallsInsideHeader = 0xb723;
+    /// <summary>$84:B727, inside reaction header for fast sandfalls.</summary>
+    public const ushort FastFallsInsideHeader = 0xb727;
+    /// <summary>$84:B72B, collision reaction header for the quicksand surface.</summary>
+    public const ushort SurfaceCollisionHeader = 0xb72b;
+    /// <summary>$84:B737, collision reaction header for submerging quicksand.</summary>
+    public const ushort SubmergingCollisionHeader = 0xb737;
+    /// <summary>$84:B73B, collision reaction header for slow sandfalls.</summary>
+    public const ushort SlowFallsCollisionHeader = 0xb73b;
+    /// <summary>$84:B73F, collision reaction header for fast sandfalls.</summary>
+    public const ushort FastFallsCollisionHeader = 0xb73f;
     /// <summary>$84:B48B, upward/falling surface extra-Y values, indexed by Gravity Suit.</summary>
     public const int MovingSurfaceDisplacement = 0x84b48b;
     /// <summary>$84:B48F, stationary surface extra-Y values, indexed by Gravity Suit.</summary>
@@ -37,4 +55,21 @@ public static class QuicksandRomData
     public const int SlowFallsDisplacement = 0x14000;
     /// <summary>Immediate 16.16 extra displacement in PlmSetup_B727_SandFallsFast.</summary>
     public const int FastFallsDisplacement = 0x1c000;
+
+    /// <summary>Returns the setup routine authored by one of the eight sand-reaction headers.</summary>
+    public static bool TryGetSetup(ushort header, out ushort setup)
+    {
+        setup = header switch
+        {
+            SurfaceInsideHeader => SurfaceSetup,
+            SubmergingInsideHeader => SubmergingSetup,
+            SlowFallsInsideHeader => SlowFallsSetup,
+            FastFallsInsideHeader => FastFallsSetup,
+            SurfaceCollisionHeader => SurfaceCollision,
+            SubmergingCollisionHeader => SubmergingCollision,
+            SlowFallsCollisionHeader or FastFallsCollisionHeader => SandFallsCollision,
+            _ => 0,
+        };
+        return setup != 0;
+    }
 }

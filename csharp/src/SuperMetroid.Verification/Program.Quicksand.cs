@@ -11,7 +11,8 @@ internal static partial class Program
         WriteTestWord(bus, QuicksandRomData.CollisionAreaTables + 8, 0xa100);
         ushort[] inside = [QuicksandRomData.SurfaceSetup, QuicksandRomData.SubmergingSetup,
             QuicksandRomData.SlowFallsSetup, QuicksandRomData.FastFallsSetup];
-        ushort[] collision = [QuicksandRomData.SurfaceCollision, QuicksandRomData.SubmergingCollision, 0xb54f, 0xb54f];
+        ushort[] collision = [QuicksandRomData.SurfaceCollision, QuicksandRomData.SubmergingCollision,
+            QuicksandRomData.SandFallsCollision, QuicksandRomData.SandFallsCollision];
         for (int i = 0; i < inside.Length; i++)
         {
             WriteTestWord(bus, 0x94a000 + i * 2, (ushort)(0xc000 + i * 4));

@@ -254,7 +254,7 @@ public static partial class SamusBlockCollision
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
                         collided = SamusInsideBlockReactions.ReactCollision(bus, state, block, false,
-                            ref acceptedDisplacement, out _, blockReactionDirection);
+                            ref acceptedDisplacement, out _, blockReactionDirection, plms);
                         if (collided) collisionBlock = block;
                         if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
                             (plms is null || !plms.TryNotifyScrollTouch(block.Index)))
@@ -295,6 +295,11 @@ public static partial class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        // Both special-solid dispatchers enter Spawn_PLM with clear carry.
+                        // A full pool returns without running setup, so even a block whose
+                        // setup would normally reject contact falls through as air.
+                        if (plms?.IsAllocationFull == true)
+                            break;
                         // `$94:90CB` dispatches the speed-block entries through setup
                         // `$84:CDEA`. A stage-four boost or directional shinespark clears
                         // collision synchronously, so this same horizontal scan continues
@@ -341,6 +346,8 @@ public static partial class SamusBlockCollision
                         // is speed boosting, screw attacking, or in pose `$C9-$CE`. On an
                         // accepted break it installs the air-type bomb-parent visual and
                         // returns carry clear, so this scan continues through the new air.
+                        if (plms?.IsAllocationFull == true)
+                            break;
                         if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipHorizontalToSolid(
@@ -587,7 +594,7 @@ public static partial class SamusBlockCollision
                         if (block.CollisionType == RoomCollisionType.SpecialAir)
                         {
                             collided = SamusInsideBlockReactions.ReactCollision(bus, state, block, true,
-                                ref acceptedDisplacement, out bool touchedSand, blockReactionDirection);
+                                ref acceptedDisplacement, out bool touchedSand, blockReactionDirection, plms);
                             sandContact |= touchedSand;
                             if (collided) collisionBlock = block;
                         }
@@ -636,6 +643,11 @@ public static partial class SamusBlockCollision
                         break;
 
                     case RoomCollisionType.SpecialBlock:
+                        // Spawn_PLM preserves bank $94's clear carry when all forty slots
+                        // are occupied. No setup runs, so the unchanged special block is
+                        // treated as air for this collision probe.
+                        if (plms?.IsAllocationFull == true)
+                            break;
                         // Hand reactions change state but return unconditional collision:
                         // even an admitted morph contact is clipped by this same scan.
                         if (state.SamusOwner is { } chozoSamus)
@@ -672,10 +684,11 @@ public static partial class SamusBlockCollision
                             // `$94:9102` always returns carry set for CE37. Setup removes
                             // the special collision nibble immediately (leaving the block
                             // type-eight solid), and this downward scan remains clipped.
-                            plms.TrySpawnSamusContactCrumbleBlock(
-                                level,
-                                block.Index,
-                                block.Bts);
+                            if (!plms.TrySpawnSamusContactCrumbleBlock(
+                                    level,
+                                    block.Index,
+                                    block.Bts))
+                                break;
                         }
                         // Pose expansion carries native direction $F, not a downward
                         // landing. Keep solidity without waking the save-station owner.
@@ -705,6 +718,13 @@ public static partial class SamusBlockCollision
                     case RoomCollisionType.BombableBlock:
                         // Vertical dispatch is `$94:934C` and shares the exact bank-$84
                         // setup/carry contract documented in the horizontal branch above.
+                        if (plms?.IsAllocationFull == true)
+                        {
+                            // The full native pool prevents rejection setup from setting
+                            // carry. Bank $94 therefore keeps its pre-call clear carry and
+                            // treats an untouched bomb block as air.
+                            break;
+                        }
                         if (block.Bts.UsesAreaReactionTable || !CanBreakCollisionBombBlock(state, canBreakBombBlocks))
                         {
                             acceptedDisplacement = ClipVerticalToSolid(

@@ -43,6 +43,12 @@ public static class SamusInsideBlockReactions
             ushort header = Word(QuicksandRomData.CollisionBank | unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
             if (header == 0) return;
             ushort setup = Word(QuicksandRomData.PlmBank | header);
+            if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&
+                authoredSetup == setup && plms is not null &&
+                !plms.TrySpawnQuicksandReaction(bus, block.Index, header))
+            {
+                return;
+            }
             switch (setup)
             {
                 case SamusEaterPlmRomData.FloorSetup:
@@ -124,7 +130,8 @@ public static class SamusInsideBlockReactions
     /// </summary>
     public static bool ReactCollision(ISnesAddressSpace bus, SamusKinematicsState body,
         RoomCollisionBlock block, bool vertical, ref int displacement, out bool surfaceContact,
-        SamusCollisionDirection? blockReactionDirection = null)
+        SamusCollisionDirection? blockReactionDirection = null,
+        RoomPlmSystem? plms = null)
     {
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
@@ -134,6 +141,12 @@ public static class SamusInsideBlockReactions
             unchecked((ushort)(table + block.Bts.AreaReactionIndex * 2)));
         if (header == 0) return false;
         ushort setup = RomDataReader.ReadWordFixedBank(bus, QuicksandRomData.PlmBank | header);
+        if (QuicksandRomData.TryGetSetup(header, out ushort authoredSetup) &&
+            authoredSetup == setup && plms is not null &&
+            !plms.TrySpawnQuicksandReaction(bus, block.Index, header))
+        {
+            return false;
+        }
         if (setup == QuicksandRomData.SubmergingCollision)
         {
             body.YSpeed = body.YSubspeed = body.YAcceleration = body.YSubacceleration = 0;

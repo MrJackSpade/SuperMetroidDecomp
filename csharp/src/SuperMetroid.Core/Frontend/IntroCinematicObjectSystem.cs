@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -24,6 +25,12 @@ internal sealed class IntroCinematicObjectSystem
     private ushort eyeInstructionTimer = 1;
     private ushort textInstructionPointer;
     private ushort textInstructionTimer;
+    [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
+    private IntroNarrationPageId? narrationPage;
+    private int narrationCharacterIndex;
+    private bool narrationInitialMarkerPending;
+    private bool narrationFinalHoldStarted;
     private ushort spriteInstructionPointer =
         CinematicCodePointers.Lists.IntroTextCaret;
     private ushort spriteInstructionTimer = 1;
@@ -38,12 +45,14 @@ internal sealed class IntroCinematicObjectSystem
         ISnesAddressSpace bus,
         SnesVram vram,
         ushort[] textTilemap,
-        CartridgeAudioState? audio = null)
+        CartridgeAudioState? audio = null,
+        IntroNarrationPresentation? narrationPresentation = null)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.vram = vram ?? throw new ArgumentNullException(nameof(vram));
         this.textTilemap = textTilemap ?? throw new ArgumentNullException(nameof(textTilemap));
         this.audio = audio;
+        this.narrationPresentation = narrationPresentation;
         if (textTilemap.Length != IntroCinematicRomData.Layers.TextTilemapWordCount)
             throw new ArgumentException("The cinematic tilemap staging buffer must contain $400 words.", nameof(textTilemap));
     }
@@ -92,8 +101,9 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageOne()
     {
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage1;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page1,
+            CinematicCodePointers.BackgroundLists.IntroTextPage1);
     }
 
     /// <summary>
@@ -101,8 +111,9 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageTwo()
     {
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage2;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page2,
+            CinematicCodePointers.BackgroundLists.IntroTextPage2);
         PageTwoAwaitingInput = false;
         ResetCaret();
     }
@@ -112,8 +123,9 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     public void StartEnglishPageThree()
     {
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage3;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page3,
+            CinematicCodePointers.BackgroundLists.IntroTextPage3);
         PageThreeAwaitingInput = false;
         ResetCaret();
     }
@@ -121,8 +133,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Spawns the page-four text definition at $8B:CF51 / $8C:CE33.</summary>
     public void StartEnglishPageFour()
     {
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage4;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page4,
+            CinematicCodePointers.BackgroundLists.IntroTextPage4);
         PageFourAwaitingInput = false;
         ResetCaret();
     }
@@ -130,8 +143,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Spawns the page-five text definition at $8B:CF57 / $8C:D15D.</summary>
     public void StartEnglishPageFive()
     {
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage5;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page5,
+            CinematicCodePointers.BackgroundLists.IntroTextPage5);
         PageFiveAwaitingInput = false;
         ResetCaret();
     }
@@ -144,8 +158,9 @@ internal sealed class IntroCinematicObjectSystem
             IntroCinematicRomData.Text.Blank.Raw,
             startIndex: IntroCinematicRomData.Text.GameplayBlankStartIndex,
             count: IntroCinematicRomData.Text.GameplayBlankWordCount);
-        textInstructionPointer = CinematicCodePointers.BackgroundLists.IntroTextPage6;
-        textInstructionTimer = 1;
+        StartNarration(
+            IntroNarrationPageId.Page6,
+            CinematicCodePointers.BackgroundLists.IntroTextPage6);
         IntroFinishRequested = false;
         ResetCaret();
 
@@ -158,9 +173,16 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
     public void Step()
     {
+        if (narrationPage is not null && narrationProgram is null)
+        {
+            throw new InvalidOperationException(
+                "Opening narration host content must be rebound after state restoration.");
+        }
         StepSpriteObject();
         StepBgObject(ref eyeInstructionPointer, ref eyeInstructionTimer);
-        if (textInstructionPointer != 0)
+        if (narrationProgram is not null)
+            StepInstalledNarration();
+        else if (textInstructionPointer != 0)
             StepBgObject(ref textInstructionPointer, ref textInstructionTimer);
         textGlow?.Step(textTilemap);
 
@@ -170,6 +192,133 @@ internal sealed class IntroCinematicObjectSystem
             textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount),
             IntroCinematicRomData.Layers.NarrationTilemapWord,
             1);
+    }
+
+    /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
+    public void BindNarration(IntroNarrationPresentation? presentation)
+    {
+        narrationPresentation = presentation;
+        narrationProgram = narrationPage is { } page && presentation is not null
+            ? presentation.Compile(page)
+            : null;
+        if (narrationProgram is not null && narrationCharacterIndex > narrationProgram.Length)
+        {
+            throw new InvalidDataException(
+                $"Saved narration cursor {narrationCharacterIndex} exceeds the rebound {narrationPage} program.");
+        }
+    }
+
+    private void StartNarration(IntroNarrationPageId page, ushort nativePointer)
+    {
+        textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+        narrationCharacterIndex = 0;
+        narrationInitialMarkerPending = true;
+        narrationFinalHoldStarted = false;
+        if (narrationPresentation is null)
+        {
+            narrationPage = null;
+            narrationProgram = null;
+            textInstructionPointer = nativePointer;
+            return;
+        }
+
+        narrationPage = page;
+        narrationProgram = narrationPresentation.Compile(page);
+        textInstructionPointer = 0;
+    }
+
+    private void StepInstalledNarration()
+    {
+        if (textInstructionTimer-- != 1)
+            return;
+        if (narrationInitialMarkerPending)
+        {
+            narrationInitialMarkerPending = false;
+            textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
+            return;
+        }
+
+        IntroNarrationCharacter[] program = narrationProgram!;
+        if (narrationCharacterIndex < program.Length)
+        {
+            IntroNarrationCharacter character = program[narrationCharacterIndex];
+            IntroNarrationCharacter? next = narrationCharacterIndex + 1 < program.Length
+                ? program[narrationCharacterIndex + 1]
+                : null;
+            (textGlow ??= new()).Spawn(character.Column, character.Row, 1, 1);
+            if (next is { } following)
+            {
+                caretX = unchecked((ushort)(following.Column *
+                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
+                caretY = unchecked((ushort)(following.Row *
+                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize -
+                    IntroCinematicRomData.ObjectSystem.CharacterBaselineOffset));
+            }
+            else
+            {
+                caretX = IntroCinematicRomData.ObjectSystem.CaretLeftX;
+                caretY = unchecked((ushort)((character.Row + 1) *
+                    IntroCinematicRomData.ObjectSystem.CharacterPixelSize));
+            }
+
+            typewriterSoundToggle = !typewriterSoundToggle;
+            if (!character.IsSpace && typewriterSoundToggle)
+            {
+                audio?.QueueSound(
+                    IntroCinematicRomData.Objects.Typewriter,
+                    maximumQueued: IntroCinematicRomData.Objects.MaximumQueuedSounds);
+            }
+            textTilemap[character.Row * IntroCinematicRomData.Layers.TilemapWidth +
+                character.Column] = character.TilemapWord;
+            narrationCharacterIndex++;
+            textInstructionTimer = IntroNarrationDefinitions.CharacterDelayFrames;
+            return;
+        }
+
+        if (narrationPage == IntroNarrationPageId.Page6 && !narrationFinalHoldStarted)
+        {
+            SetCaretBlinking();
+            narrationFinalHoldStarted = true;
+            textInstructionTimer = IntroNarrationDefinitions.FinalPageHoldFrames;
+            return;
+        }
+
+        FinishInstalledNarration(narrationPage ?? throw new InvalidDataException(
+            "Installed narration completed without an active page identity."));
+        narrationProgram = null;
+        narrationPage = null;
+    }
+
+    private void FinishInstalledNarration(IntroNarrationPageId page)
+    {
+        switch (page)
+        {
+            case IntroNarrationPageId.Page1:
+                PageOneAwaitingInput = true;
+                SetCaretBlinking();
+                break;
+            case IntroNarrationPageId.Page2:
+                PageTwoAwaitingInput = true;
+                SetCaretBlinking();
+                break;
+            case IntroNarrationPageId.Page3:
+                PageThreeAwaitingInput = true;
+                SetCaretBlinking();
+                break;
+            case IntroNarrationPageId.Page4:
+                PageFourAwaitingInput = true;
+                SetCaretBlinking();
+                break;
+            case IntroNarrationPageId.Page5:
+                PageFiveAwaitingInput = true;
+                SetCaretBlinking();
+                break;
+            case IntroNarrationPageId.Page6:
+                IntroFinishRequested = true;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(page), page, null);
+        }
     }
 
     private void StepSpriteObject()

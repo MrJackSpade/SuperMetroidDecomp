@@ -100,3 +100,26 @@ forbidden. UTF-8 editing, active rebind, stock restoration, strict glyph/layout
 validation, deterministic extraction, override identity and corrupt override
 failure are covered. All translated gameplay messages are now installed-content
 driven; narration, general cinematic labels and credits remain open under #545.
+
+## Editable opening narration (catalog version 32)
+
+`intro-narration.json`, schema version 1, exposes the six English opening pages as
+ordered UTF-8 lines with explicit tile rows. Copy it to
+`overrides/maps/intro-narration.json` to replace narration without modifying the
+ROM or recompiling C#. Lines begin at column one, do not wrap, and are limited to
+29 cells. Rows must remain even-numbered rows 4 through 16. The safe glyph map
+accepts space, `A` through `Z`, digits, period, comma, apostrophe and exclamation
+mark; those characters compile to the existing opening-cinematic font tiles.
+
+The initial marker, five-frame-per-character cadence, typewriter sound alternation,
+caret tracking/blink, final 128-frame hold, input waits and scene transitions remain
+compiled behavior. JSON cannot inject cinematic opcodes or change timing. The six
+production page owners consume the installed catalog and no longer read their text
+records or glyph tile words from bank `$8C`.
+
+Verification parses the six retail streams mechanically and compares 3,990 frames
+of tilemap output, caret placement and page-completion boundaries against the native
+interpreter while forbidding installed narration reads. UTF-8 editing, deterministic
+extraction, override identity, corrupt-resource failure and strict layout/glyph
+validation are covered. General cinematic labels, credits, and editable pixels for
+the opening font remain open under #545.

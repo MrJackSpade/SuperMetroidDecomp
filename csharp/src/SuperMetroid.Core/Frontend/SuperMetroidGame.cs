@@ -363,6 +363,7 @@ public sealed partial class SuperMetroidGame
                                 {
                                     ProjectileCompositions = projectileCompositions,
                                     TrailArtwork = trailArtwork,
+                                    NarrationPresentation = mapPresentation?.IntroNarration,
                                 };
                                 GameState = SuperMetroidGameState.IntroCinematic;
                                 PublishIntro(intro);
@@ -391,6 +392,7 @@ public sealed partial class SuperMetroidGame
                         {
                             ProjectileCompositions = projectileCompositions,
                             TrailArtwork = trailArtwork,
+                            NarrationPresentation = mapPresentation?.IntroNarration,
                         };
                         GameState = SuperMetroidGameState.IntroCinematic;
                         PublishIntro(intro);

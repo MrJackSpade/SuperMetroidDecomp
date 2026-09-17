@@ -30,6 +30,17 @@ public sealed partial class IntroCinematicState
     /// <summary>Current timed-projectile composition selected by the host.</summary>
     [field: NonSerialized]
     public ProjectileSpriteCatalog? ProjectileCompositions { get; set; }
+    [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    /// <summary>Current host-owned narration content; debugger states retain only playback state.</summary>
+    public IntroNarrationPresentation? NarrationPresentation
+    {
+        get => narrationPresentation;
+        set
+        {
+            narrationPresentation = value;
+            objects?.BindNarration(value);
+        }
+    }
     private const int ScreenWidth = SnesPpuLayout.ScreenWidthPixels;
     private const int ScreenHeight = SnesPpuLayout.ScreenHeightPixels;
 
@@ -1371,7 +1382,12 @@ public sealed partial class IntroCinematicState
             textTilemap,
             IntroCinematicRomData.Layers.NarrationTilemapWord,
             1);
-        objects = new IntroCinematicObjectSystem(bus, vram, textTilemap, audio);
+        objects = new IntroCinematicObjectSystem(
+            bus,
+            vram,
+            textTilemap,
+            audio,
+            narrationPresentation);
         audio?.QueueMusicDelayed8(MusicCommand.Stop);
         audio?.QueueMusicDelayed8(
             MusicCommand.LoadData(IntroCinematicRomData.Music.DiscoveryDataIndex));

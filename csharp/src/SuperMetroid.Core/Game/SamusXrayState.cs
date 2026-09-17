@@ -194,11 +194,12 @@ public sealed class SamusXrayState
         }
         if (deferActivation)
         {
+            BeginAdmittedBeam(facingLeft);
             PendingActivationPose = targetPose;
-            TimeIsFrozen = true;
             return true;
         }
-        BeginAdmittedActivation(bus, samus, targetPose);
+        BeginAdmittedBeam(facingLeft);
+        InstallSamusControl(bus, samus, targetPose);
         return true;
     }
 
@@ -208,13 +209,34 @@ public sealed class SamusXrayState
         if (PendingActivationPose is not { } targetPose) return false;
         PendingActivationPose = null;
         if (superseded) return false;
-        BeginAdmittedActivation(bus, samus, targetPose);
+        InstallSamusControl(bus, samus, targetPose);
         return true;
     }
 
-    private void BeginAdmittedActivation(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    private void BeginAdmittedBeam(bool facingLeft)
     {
-        bool facingLeft = targetPose is SamusPoseIds.XrayingStandingLeftPose or SamusPoseIds.XrayingCrouchingLeftPose;
+        // `$91:E217-$E28A` runs inside XraySetup itself, before UpdateSamusPose
+        // arbitrates the special command that installs X-Ray's Samus handlers. If a
+        // same-frame hurt expiry wins that later arbitration, the beam HDMA lifecycle,
+        // frozen-time word, and four subsystem disables still remain live: X-Mode.
+        Angle = facingLeft ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn;
+        AngularWidth = 0;
+        AngularSubwidth = 0;
+        AngularWidthDelta = 0;
+        AngularSubwidthDelta = 0;
+        BeamSizeFlag = 0;
+        SetupStage = 1;
+        BeamPhase = XrayBeamPhase.NoBeam;
+        TimeIsFrozen = true;
+        SuspendedSubsystems = XraySuspendedSubsystems.All;
+        IsActive = true;
+        OwnsSamusControl = false;
+        ActivationSoundRequested = false;
+        DeactivationSoundRequested = false;
+    }
+
+    private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, byte targetPose)
+    {
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
@@ -223,12 +245,6 @@ public sealed class SamusXrayState
         // delay with frame two/timer `$3F`, installs the dedicated handler pair, starts the
         // visor palette, clears beam-flare state, and queues activation sound nine.
         samus.SetAnimationFrameFromSpecialHandler(frame: 2, timer: 0x003f);
-        Angle = facingLeft ? SnesAngle.ThreeQuarterTurn : SnesAngle.QuarterTurn;
-        AngularWidth = 0;
-        AngularSubwidth = 0;
-        AngularWidthDelta = 0;
-        AngularSubwidthDelta = 0;
-        BeamSizeFlag = 0;
         SpecialPaletteType = (ushort)SamusSpecialPaletteType.Xray;
         samus.Shinespark.RelinquishPaletteToXray();
         samus.Shinespark.RelinquishMovementHandler();
@@ -243,12 +259,6 @@ public sealed class SamusXrayState
         SpecialPaletteFrame = 0;
         CommonPaletteTimer = 1;
         ActivationSoundRequested = true;
-        DeactivationSoundRequested = false;
-        SetupStage = 1;
-        BeamPhase = XrayBeamPhase.NoBeam;
-        TimeIsFrozen = true;
-        SuspendedSubsystems = XraySuspendedSubsystems.All;
-        IsActive = true;
         OwnsSamusControl = true;
     }
 

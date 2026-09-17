@@ -558,6 +558,51 @@ static void VerifySamusXray()
     AssertEqual(2, crouched.PoseHistory.PreviousPose, "X-ray release publishes standing pose");
     AssertEqual(4, crouched.PoseHistory.PreviousDirectionAndMovement, "X-ray release publishes standing metadata");
 
+    // Native movie `x-mode max upward jump speed store.smv`, frame 522, executes
+    // `$91:E16D` while hit-expiry command one wins UpdateSamusPose over X-Ray's special
+    // command five. WRAM retains ordinary pose `$0A` and normal handlers, but `$0A78`
+    // becomes one and `$198D/$1C23/$1E79/$1EF1` all lose their enable high bit. Preserve
+    // that ownership split rather than cancelling the complete X-Ray setup with its pose.
+    var interrupted = new SamusState
+    {
+        Pose = SamusPoseIds.FacingLeftNormalPose,
+        XPosition = 0x0174,
+        YPosition = 0x028b,
+    };
+    interrupted.RefreshCollisionRadii(bus);
+    interrupted.InitializeAnimation(bus);
+    AssertTrue(interrupted.Xray.TryBegin(
+        bus,
+        interrupted,
+        previousMovementType: SamusMovementType.Standing,
+        deferActivation: true),
+        "X-Mode fixture admits deferred left-facing X-Ray setup");
+    AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
+        "deferred setup starts beam ownership before pose-command arbitration");
+    AssertEqual(XraySuspendedSubsystems.All, interrupted.Xray.SuspendedSubsystems,
+        "deferred setup immediately disables all four native subsystems");
+    AssertEqual(SnesAngle.ThreeQuarterTurn.TableIndex, interrupted.Xray.Angle.TableIndex,
+        "deferred left-facing setup publishes native angle C0");
+    AssertEqual(SamusSpecialPaletteType.None, interrupted.Xray.SpecialPaletteKind,
+        "deferred setup does not install command-five palette ownership early");
+    AssertTrue(!interrupted.Xray.ActivationSoundRequested,
+        "deferred setup does not queue command-five activation sound early");
+
+    interrupted.Pose = SamusPoseIds.MovingLeftNormalPose;
+    AssertTrue(!interrupted.Xray.CommitPendingActivation(bus, interrupted, superseded: true),
+        "higher-priority hit expiry suppresses only X-Ray's Samus command");
+    AssertEqual(SamusPoseIds.MovingLeftNormalPose, interrupted.Pose,
+        "interrupted X-Mode retains native winning ordinary pose");
+    AssertTrue(interrupted.Xray.IsActive && interrupted.Xray.TimeIsFrozen,
+        "interrupted X-Mode retains beam lifecycle and frozen time");
+    AssertTrue(!interrupted.Xray.OwnsSamusControl,
+        "interrupted X-Mode retains normal Samus handler ownership");
+    AssertEqual(1, interrupted.Xray.SetupStage,
+        "interrupted X-Mode retains first HDMA setup stage");
+    interrupted.Xray.StepBeam(bus, interrupted, (ushort)SnesButton.B);
+    AssertEqual(2, interrupted.Xray.SetupStage,
+        "interrupted X-Mode continues the independent beam setup program");
+
     // Admission failures are kept independent so no broad host-side `grounded` boolean can
     // accidentally replace the native previous/current type, landing, velocity, and rare
     // five-bomb conjunction checks.
@@ -603,7 +648,7 @@ static void VerifySamusXray()
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(
-        "  X-ray: admission, poses, turns, ROM-tangent window, half color math, visor palette, teardown, and stand-up glitch agree.");
+        "  X-ray: admission, interrupted X-Mode ownership, poses, turns, ROM-tangent window, half color math, visor palette, teardown, and stand-up glitch agree.");
 }
 
 /// <summary>

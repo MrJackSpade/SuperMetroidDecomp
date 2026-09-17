@@ -142,5 +142,18 @@ Verification compares both literal panels and every item-percentage/final-messag
 frame with the native interpreter while forbidding the installed bank-$8C reads.
 UTF-8 edits, deterministic extraction, override identity, current-content state
 restore, corrupt resources, dimensions, and glyph restrictions are covered. The
-scrolling staff credits, other cinematic labels, and editable ending-font pixels
-remain open under #545.
+scrolling staff credits and other cinematic labels remain open under #545.
+
+## Editable ending font (catalog version 34)
+
+`ending-font.png` exposes the complete 160-tile, four-bit font sheet shared by the
+scrolling credits, post-credit result screens, and post-shot subtitle. It is a 128x80 indexed PNG with
+sixteen palette indexes. The loader compiles it back to the exact 4096-byte SNES
+planar transfer and uses that installed transfer at all three native consumers,
+including the post-shot subtitle upload;
+the ROM-compressed font is only the stock extraction source.
+
+Verification compares every compiled stock byte with the decompressed cartridge,
+proves a pixel edit changes installed VRAM data, and covers deterministic extraction,
+override identity, and corrupt PNG failure. The scrolling staff-credit text/layout,
+other cinematic labels, and opening/cinematic font sheets remain open under #545.

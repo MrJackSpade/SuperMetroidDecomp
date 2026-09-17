@@ -52,6 +52,7 @@ internal sealed partial class EndingCreditsState
     private EndingPostShot? postShot;
     private RoomPaletteFxSystem paletteFx = new();
     [NonSerialized] private EndingTextPresentation? endingText;
+    [NonSerialized] private EndingFontAtlas? endingFont;
 
     public EndingCreditsState(
         ISnesAddressSpace bus,
@@ -328,7 +329,7 @@ internal sealed partial class EndingCreditsState
                 rewardJump!.Step();
                 if (rewardJump.ShotRequested)
                 {
-                    postShot = new EndingPostShot(bus, cgram);
+                    postShot = new EndingPostShot(bus, cgram, ResolveEndingFont());
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
                     Phase = EndingCreditsPhase.PostCreditsShot;
                 }
@@ -521,6 +522,21 @@ internal sealed partial class EndingCreditsState
         postCreditsText?.BindPresentation(value);
     }
 
+    /// <summary>Rebinds the host-owned ending font after catalog reload or restoration.</summary>
+    public void BindEndingFont(EndingFontAtlas? value) => endingFont = value;
+
+    private EndingFontAtlas ResolveEndingFont()
+    {
+        if (endingFont is not null)
+            return endingFont;
+        byte[] decoded = RomDataReader.Decompress(
+            bus,
+            EndingCreditsRomData.Assets.EndingFontCharacters,
+            EndingCreditsRomData.Rendering.Mode7Bytes);
+        return EndingFontAtlas.FromPlanarBytes(
+            decoded.AsSpan(0, EndingFontAtlasFormat.ByteCount));
+    }
+
     private void SetupPostCreditsBlank()
     {
         // F6FE copies Intro4 colors $04-$FF, disables text glow, forces blank, and arms
@@ -588,15 +604,12 @@ internal sealed partial class EndingCreditsState
         LoadObjectFragment(
             EndingCreditsRomData.Assets.EndingObjectCharacters7C,
             EndingCreditsRomData.Rendering.Fragment7CDestination);
-        byte[] font = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.Mode7Bytes);
+        ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
         RequireMinimum(font, EndingCreditsRomData.Rendering.ObjectFragmentLimit,
             "ending font characters");
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.FontCharactersDestination,
-            font.AsSpan(0, EndingCreditsRomData.Rendering.ObjectFragmentLimit));
+            font.Span[..EndingCreditsRomData.Rendering.ObjectFragmentLimit]);
     }
 
     private void LoadObjectFragment(int sourceAddress, int destinationByte)
@@ -620,10 +633,7 @@ internal sealed partial class EndingCreditsState
             EndingCreditsRomData.Assets.CreditsPalette,
             EndingCreditsRomData.Rendering.PaletteHalfBytes,
             0);
-        byte[] font = RomDataReader.Decompress(
-            bus,
-            EndingCreditsRomData.Assets.EndingFontCharacters,
-            EndingCreditsRomData.Rendering.Mode7Bytes);
+        ReadOnlyMemory<byte> font = ResolveEndingFont().Transfer;
         byte[] waiting = RomDataReader.Decompress(
             bus,
             EndingCreditsRomData.Assets.WaitingForCreditsCharacters,
@@ -666,7 +676,7 @@ internal sealed partial class EndingCreditsState
         vram.Clear();
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.ObjectCharactersDestination,
-            font.AsSpan(0, EndingCreditsRomData.Rendering.FontCharacterBytes));
+            font.Span[..EndingCreditsRomData.Rendering.FontCharacterBytes]);
         vram.LoadBytes(
             EndingCreditsRomData.Rendering.FontCharactersDestination,
             waiting.AsSpan(0, EndingCreditsRomData.Rendering.WaitingCharacterBytes));
@@ -1017,7 +1027,7 @@ internal sealed partial class EndingCreditsState
         fraction = result.Fraction;
     }
 
-    private static void RequireMinimum(byte[] data, int minimum, string name)
+    private static void RequireMinimum(ReadOnlyMemory<byte> data, int minimum, string name)
     {
         if (data.Length < minimum)
             throw new InvalidDataException($"{name} expanded to ${data.Length:X}, expected at least ${minimum:X}.");

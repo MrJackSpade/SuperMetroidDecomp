@@ -992,6 +992,7 @@ public sealed partial class SuperMetroidGame
                             endingSamus.CollectedBeams),
                         runtime.JapaneseText);
                     endingCredits.BindEndingText(mapPresentation?.EndingText);
+                    endingCredits.BindEndingFont(mapPresentation?.EndingFont);
                     GameState = SuperMetroidGameState.EndingAndCredits;
                     PublishBlack();
                 }

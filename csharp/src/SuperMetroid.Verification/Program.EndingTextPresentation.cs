@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
@@ -12,6 +13,14 @@ internal static partial class Program
         byte[] extracted = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(nativeBus);
         EndingTextPresentation presentation = EndingTextPresentation.Load(
             new MemoryStream(extracted, writable: false));
+        byte[] fontPng = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(nativeBus);
+        EndingFontAtlas font = EndingFontAtlas.Load(new MemoryStream(fontPng, writable: false));
+        byte[] nativeFont = RomDataReader.Decompress(nativeBus,
+            EndingCreditsRomData.Assets.EndingFontCharacters,
+            EndingCreditsRomData.Rendering.Mode7Bytes);
+        AssertTrue(font.Transfer.Span.SequenceEqual(
+            nativeFont.AsSpan(0, EndingFontAtlasFormat.ByteCount)),
+            "installed ending-font PNG compiles to exact native planar bytes");
         ISnesAddressSpace installedBus = new EndingTextReadGuard(nativeBus);
 
         AssertTrue(presentation.BuildResultPanel().AsSpan().SequenceEqual(
@@ -98,7 +107,19 @@ internal static partial class Program
             new MemoryStream(Encoding.UTF8.GetBytes(
                 editedDocument.ToJsonString(MapPresentationFormat.JsonOptions)), writable: false)),
             "ending text rejects glyphs absent from its documented font mapping");
+        IndexedPngImage editableFont = IndexedPng.Read(
+            new MemoryStream(fontPng, writable: false),
+            EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height);
+        editableFont.Pixels[0] ^= 1;
+        using var editedFontPng = new MemoryStream();
+        IndexedPng.Write(editedFontPng, editableFont.Width, editableFont.Height,
+            editableFont.Pixels, editableFont.Palette);
+        editedFontPng.Position = 0;
+        EndingFontAtlas editedFont = EndingFontAtlas.Load(editedFontPng);
+        AssertTrue(!editedFont.Transfer.Span.SequenceEqual(font.Transfer.Span),
+            "ending-font PNG edit changes compiled VRAM bytes");
         Console.WriteLine($"Ending text: exact producer/copyright panels and {comparedFrames} native typewriter frames match with bank-$8C text reads forbidden; edits, restore and validation pass.");
+        Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
     }
 
     private static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
@@ -138,6 +159,37 @@ internal static partial class Program
             AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
             "corrupt ending-text override fails loudly");
         Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
+    }
+
+    private static void VerifyEndingFontAssets(
+        ISnesAddressSpace bus,
+        string stockDirectory,
+        string overrideDirectory,
+        AreaMapPresentationCatalog stockCatalog)
+    {
+        byte[] deterministic = SuperMetroid.AssetExtraction.EndingFontAtlasExtractor.Extract(bus);
+        AssertTrue(deterministic.AsSpan().SequenceEqual(File.ReadAllBytes(
+            Path.Combine(stockDirectory, EndingFontAtlasFormat.FileName))),
+            "installed ending font is the deterministic cartridge extraction");
+        IndexedPngImage image = IndexedPng.Read(new MemoryStream(deterministic, writable: false),
+            EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height);
+        image.Pixels[0] ^= 1;
+        Directory.CreateDirectory(overrideDirectory);
+        string replacement = Path.Combine(overrideDirectory, EndingFontAtlasFormat.FileName);
+        using (var output = File.Create(replacement))
+            IndexedPng.Write(output, image.Width, image.Height, image.Pixels, image.Palette);
+        AreaMapPresentationCatalog edited = AreaMapPresentationCatalog.Load(
+            stockDirectory, overrideDirectory);
+        AssertTrue(!edited.EndingFont.Transfer.Span.SequenceEqual(
+            stockCatalog.EndingFont.Transfer.Span),
+            "ending-font override changes installed VRAM bytes");
+        AssertTrue(stockCatalog.ContentIdentity != edited.ContentIdentity,
+            "ending-font override changes catalog content identity");
+        File.WriteAllText(replacement, "not a PNG");
+        AssertThrows<InvalidDataException>(() =>
+            AreaMapPresentationCatalog.Load(stockDirectory, overrideDirectory),
+            "corrupt ending-font override fails loudly");
+        Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
     private sealed class EndingTextReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

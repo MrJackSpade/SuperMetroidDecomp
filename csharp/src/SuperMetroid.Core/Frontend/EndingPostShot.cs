@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
@@ -19,13 +20,14 @@ internal sealed class EndingPostShot
     public bool RotationFinished { get; private set; }
     public bool ReadyForWhiteFlash { get; private set; }
 
-    public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram)
+    public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas)
     {
+        ArgumentNullException.ThrowIfNull(fontAtlas);
         this.bus = bus;
         sourcePalette = cgram.Colors.ToArray();
         tiles = Decode(EndingPostShotDefinitions.LogoTiles);
         map = Decode(EndingPostShotDefinitions.LogoMap);
-        font = Decode(EndingCreditsRomData.Assets.EndingFontCharacters);
+        font = fontAtlas.Transfer.ToArray();
     }
 
     public void Step(SnesVram vram, SnesCgram cgram)

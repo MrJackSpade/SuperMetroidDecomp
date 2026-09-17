@@ -184,7 +184,11 @@ Special-beam-attack Power Bomb costs and Ice/Plasma origin angles are now
 compiled as typed mechanics definitions. All twelve beam-indexed cost words and
 four slot-indexed angle words match the pinned cartridge, and the real Wave,
 Ice, Spazer, and Plasma producers run with both source ranges forbidden. Combo
-instruction programs and editable presentation remain separate dependencies.
+offsets now consume the shared compiled signed-sine catalog while preserving the
+native low-byte hardware multiply and truncation. All 65,536 angle/amplitude
+pairs match, and the real Ice, Spazer, and Plasma updates run with the 512-byte
+sine source forbidden. Combo instruction programs and editable presentation
+remain separate dependencies.
 
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits

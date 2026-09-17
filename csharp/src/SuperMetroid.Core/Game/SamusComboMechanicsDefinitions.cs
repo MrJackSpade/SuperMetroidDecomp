@@ -35,4 +35,21 @@ internal static class SamusComboMechanicsDefinitions
             throw new ArgumentOutOfRangeException(nameof(projectileSlot));
         return OriginAngles[projectileSlot];
     }
+
+    /// <summary>
+    /// Applies the unsigned hardware-multiply sequence at $90:CC39 to the low
+    /// bytes of an angle and amplitude. Native negates the truncated positive
+    /// magnitude, so this deliberately truncates toward zero in all quadrants.
+    /// </summary>
+    internal static (ushort X, ushort Y) GetSineOffset(ushort angle, ushort amplitude)
+    {
+        ushort Component(byte phase)
+        {
+            short sample = EnemyTrigonometryTables.SignedSine(phase);
+            int magnitude = Math.Abs((int)sample) * (byte)amplitude >> 8;
+            return unchecked((ushort)(sample < 0 ? -magnitude : magnitude));
+        }
+
+        return (Component((byte)angle), Component(unchecked((byte)(angle - 64))));
+    }
 }

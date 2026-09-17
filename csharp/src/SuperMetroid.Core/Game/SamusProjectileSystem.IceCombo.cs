@@ -24,7 +24,7 @@ public sealed partial class SamusProjectileSystem
             SpawnTrail(bus, slot);
         }
         ushort distance = outward ? unchecked((ushort)slot.XVelocity) : (ushort)32;
-        var (x, y) = ComboSineOffset(bus, slot.Variable, distance);
+        var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
         slot.XPosition = unchecked((ushort)(samus.XPosition + x));
         if (outward && (unchecked((short)(slot.XPosition - cameraX + 32)) < 0 ||
                         unchecked((short)(slot.XPosition - cameraX - 288)) >= 0))
@@ -57,20 +57,5 @@ public sealed partial class SamusProjectileSystem
         shared.SetSharedCooldown(2);
         FlareCounter = 0;
         return sound;
-    }
-
-    /// <summary>Literal $90:CC39 two-byte hardware multiply, retaining low-byte amplitude and integer truncation.</summary>
-    private static (ushort X, ushort Y) ComboSineOffset(ISnesAddressSpace bus, ushort angle, ushort amplitude)
-    {
-        ushort Component(int phase)
-        {
-            bool negative = phase >= 128;
-            int index = negative ? unchecked((byte)(phase + 128)) : phase;
-            int address = SamusComboRomData.PositiveSine + 2 * index;
-            int magnitude = (bus.ReadByte(address) * (byte)amplitude >> 8) +
-                            bus.ReadByte(address + 1) * (byte)amplitude;
-            return unchecked((ushort)(negative ? -magnitude : magnitude));
-        }
-        return (Component(angle), Component(unchecked((byte)(angle - 64))));
     }
 }

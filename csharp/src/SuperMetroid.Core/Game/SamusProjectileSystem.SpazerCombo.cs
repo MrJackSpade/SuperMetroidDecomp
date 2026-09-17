@@ -36,7 +36,8 @@ public sealed partial class SamusProjectileSystem
         }
         else
         {
-            var (x, y) = ComboSineOffset(bus, slot.Variable, unchecked((ushort)slot.XVelocity));
+            var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
+                slot.Variable, unchecked((ushort)slot.XVelocity));
             slot.XPosition = unchecked((ushort)(samus.XPosition + x));
             slot.YPosition = unchecked((ushort)(samus.YPosition + y - (slot.AuxiliaryPhase == 0 ? 0 : 114)));
             switch (slot.AuxiliaryPhase)

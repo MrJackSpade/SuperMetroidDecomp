@@ -115,10 +115,32 @@ internal static partial class Program
             () => SamusComboMechanicsDefinitions.GetOriginAngle(4),
             "combo angle rejects a fifth projectile slot");
 
+        (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
+        {
+            ushort Component(int phase)
+            {
+                bool negative = phase >= 128;
+                int index = negative ? unchecked((byte)(phase + 128)) : phase;
+                int address = SamusComboRomData.PositiveSine + index * 2;
+                int magnitude = (rom.ReadByte(address) * (byte)amplitude >> 8) +
+                    rom.ReadByte(address + 1) * (byte)amplitude;
+                return unchecked((ushort)(negative ? -magnitude : magnitude));
+            }
+
+            return (Component(angle), Component(unchecked((byte)(angle - 64))));
+        }
+        for (int angle = 0; angle < 256; angle++)
+        for (int amplitude = 0; amplitude < 256; amplitude++)
+            AssertEqual(NativeOffset(angle, amplitude),
+                SamusComboMechanicsDefinitions.GetSineOffset(
+                    (ushort)angle, (ushort)amplitude),
+                $"compiled combo sine offset {angle}/{amplitude}");
+
         var guarded = new ComboMechanicsReadGuard(rom);
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var projectiles = new SamusProjectileSystem();
+            var shared = new SamusBombProjectileSystem();
             var samus = new SamusState
             {
                 Pose = SamusPoseIds.FacingRightNormalPose,
@@ -129,7 +151,7 @@ internal static partial class Program
                 PowerBombs = 10,
             };
             AssertTrue(projectiles.TryActivateCombo(
-                    guarded, samus, new SamusBombProjectileSystem(), out _),
+                    guarded, samus, shared, out _),
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
             AssertEqual((ushort)9, samus.PowerBombs,
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
@@ -139,10 +161,28 @@ internal static partial class Program
                         : (ushort)0,
                     projectiles.Slots[slot].Variable,
                     $"beam {beam:X} slot {slot} receives its compiled origin angle");
+
+            if (beam == 1)
+                continue;
+            SamusProjectileSlot first = projectiles.Slots[0];
+            ushort angle = first.Variable;
+            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.XVelocity);
+            (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
+                angle, amplitude);
+            if (beam == 2)
+                projectiles.StepIceCombo(guarded, samus, first, shared, 0, 0);
+            else if (beam == 4)
+                projectiles.StepSpazerCombo(guarded, samus, first, shared, 0);
+            else
+                projectiles.StepPlasmaCombo(guarded, samus, first, shared, 0, 0);
+            AssertEqual(unchecked((ushort)(samus.XPosition + offset.X)), first.XPosition,
+                $"beam {beam:X} production X consumes compiled sine offset");
+            AssertEqual(unchecked((ushort)(samus.YPosition + offset.Y)), first.YPosition,
+                $"beam {beam:X} production Y consumes compiled sine offset");
         }
 
         Console.WriteLine(
-            "  Special beam mechanics: twelve costs and four origin angles match cartridge data; all four producers avoid those ROM tables.");
+            "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
     private sealed class ProjectileDamageReadGuard(ISnesAddressSpace source, int[] headers) : ISnesAddressSpace
@@ -161,7 +201,8 @@ internal static partial class Program
         public byte ReadByte(int address)
         {
             if (address is >= SamusComboRomData.Costs and < SamusComboRomData.Costs + 24 ||
-                address is >= SamusComboRomData.OriginAngles and < SamusComboRomData.OriginAngles + 8)
+                address is >= SamusComboRomData.OriginAngles and < SamusComboRomData.OriginAngles + 8 ||
+                address is >= SamusComboRomData.PositiveSine and < SamusComboRomData.PositiveSine + 512)
                 throw new InvalidOperationException(
                     $"Special beam mechanics still read compiled ROM byte ${address:X6}.");
             return source.ReadByte(address);

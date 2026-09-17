@@ -1114,3 +1114,33 @@ override through cancellation, replacement and restart.
 Inventory-label artwork and semantic label placement remain ROM-backed, along
 with broader HUD/menu scope, historical full-session coverage and Android
 validation. This is not completion of #544 or #282.
+
+## Editable equipment labels and placement (#544/#282)
+
+Catalog version 21 adds `pause-equipment-labels.json`, schema version 1
+(twenty-three shared resource hashes). It contains the fourteen named beam,
+suit/misc and boot labels, the Hyper Beam label, the nine-word blank patch,
+each label's zero-based equipment-page column/row and the disabled palette.
+Copy it to `overrides/maps/pause-equipment-labels.json` to change label artwork,
+placement or disabled color. Inventory masks, collection/equip state, category
+dispatch, navigation and beam-exclusion behavior remain compiled.
+
+Installed pause setup and equipment toggles no longer read the bank-$82 label,
+blank, destination or pointer tables. Hyper Beam retains the cartridge's layout:
+the five beam destinations are blanked and its one visible label occupies the
+Wave row. The same-frame Boots-to-Plasma path still performs its nine-word copy;
+the extra words come from the first four editable Varia cells and the wireframe
+owner overwrites the ninth word exactly as native. A content reload with unchanged
+label data preserves the mutable live page byte-for-byte. A label edit rebuilds
+only that semantic layer on the new authored positions, then reapplies the native
+overrun, wireframe and reserve owners.
+
+Verification compares empty, mixed equipped/disabled and Hyper inventories with
+the entire `$82:BF32-$82:C0B1` label/table range forbidden. Edited art and placement
+reach a live equipment page immediately. The retail Plasma/VAR overrun survives a
+changed-content rebind, while missing, overlapping, malformed and corrupt resources
+fail explicitly. The full installer preserves this override through replacement.
+
+Broader HUD/menu/timer presentation, historical full-session coverage, Android
+validation and the shared ROM-unavailable runtime gate remain. This partial
+implementation does not complete #544 or #282.

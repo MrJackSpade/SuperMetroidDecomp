@@ -8,6 +8,7 @@ internal sealed partial class PauseMenuState
 {
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
+        AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog;
         paletteAnimation.Bind(catalog?.HighlightCycle);
         if (catalog is not null) catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
@@ -31,10 +32,28 @@ internal sealed partial class PauseMenuState
             SuperMetroid.Core.Rom.RomDataReader.ReadFixedBank(bus, HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount));
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
-        // Refresh only presentation-owned base cells. Dynamic item labels, native
-        // same-frame overruns, wireframes and reserve state remain live and are either
-        // preserved here or reapplied by their dedicated owners below.
-        if (catalog is not null) catalog.PauseEquipmentBase.RebindBaseInto(equipmentTilemap);
+        // Refresh the authored base and rebuild the now-semantic inventory layer. The
+        // explicit overrun bit retains the retail Boots-to-Plasma VAR artifact without
+        // preserving stale pixels at a label's old editable destination.
+        if (catalog is not null)
+        {
+            bool labelsChanged = previousCatalog is null ||
+                previousCatalog.PauseEquipmentLabels.ContentIdentity != catalog.PauseEquipmentLabels.ContentIdentity;
+            if (labelsChanged)
+            {
+                catalog.PauseEquipmentBase.RebindBeforeInventoryRefreshInto(equipmentTilemap);
+                catalog.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
+                    samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
+                    samus.EquippedItems, samus.HyperBeam != 0);
+                if (plasmaLabelOverrunActive)
+                    catalog.PauseEquipmentLabels.ApplyLabel(equipmentTilemap,
+                        PauseEquipmentCategories.Beams, PauseEquipmentCategories.PlasmaItem,
+                        PauseEquipmentCategories.Definitions[PauseEquipmentCategories.Boots].LabelWordCount,
+                        disabled: false);
+            }
+            else catalog.PauseEquipmentBase.RebindBaseInto(
+                equipmentTilemap, previousCatalog!.PauseEquipmentLabels);
+        }
         // Reapply only the wireframe patch, in its native footprint. The surrounding
         // mutable labels include intentional cartridge overruns and must not be rebuilt.
         WriteSamusWireframe();

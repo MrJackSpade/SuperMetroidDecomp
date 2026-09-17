@@ -67,6 +67,15 @@ internal sealed partial class PauseMenuState
     private void UpdateEquipmentLabel(int categoryIndex, int item, int wordCount, bool disabled)
     {
         var category = PauseEquipmentCategories.Definitions[categoryIndex];
+        if (categoryIndex == PauseEquipmentCategories.Beams &&
+            item == PauseEquipmentCategories.PlasmaItem && wordCount > category.LabelWordCount)
+            plasmaLabelOverrunActive = true;
+        if (mapPresentation is not null)
+        {
+            mapPresentation.PauseEquipmentLabels.ApplyLabel(
+                equipmentTilemap, categoryIndex, item, wordCount, disabled);
+            return;
+        }
         int offset = RomDataReader.ReadWordFixedBank(bus, category.OffsetTableAddress + item * 2) -
             PauseEquipmentCategories.TilemapWramBase;
         Span<byte> label = equipmentTilemap.AsSpan(offset, wordCount * 2);

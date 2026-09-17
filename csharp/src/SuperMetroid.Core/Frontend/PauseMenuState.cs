@@ -47,6 +47,7 @@ internal sealed partial class PauseMenuState
     private int mapIndicatorAnimationTimer;
     private int itemSelectorAnimationFrame;
     private int itemSelectorAnimationTimer;
+    private bool plasmaLabelOverrunActive;
     private ushort lastIndicatorOriginX;
     private ushort lastIndicatorOriginY;
     private ushort lastIndicatorSpritemapId;
@@ -505,7 +506,13 @@ internal sealed partial class PauseMenuState
             RomDataReader.ReadFixedBank(bus, PauseMenuRomData.EquipmentTilemap, equipmentTilemap.Length)
                 .CopyTo(equipmentTilemap, 0);
 
-        for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
+        if (mapPresentation is not null)
+        {
+            mapPresentation.PauseEquipmentLabels.ApplyInventory(equipmentTilemap,
+                samus.CollectedBeams, samus.EquippedBeams, samus.CollectedItems,
+                samus.EquippedItems, samus.HyperBeam != 0);
+        }
+        else for (int categoryIndex = 1; categoryIndex <= 3; categoryIndex++)
         {
             PauseEquipmentCategoryDefinition category = PauseEquipmentCategories.Definitions[categoryIndex];
             ushort collected = GetCollectedBits(categoryIndex);
@@ -524,14 +531,19 @@ internal sealed partial class PauseMenuState
                 }
 
                 ushort mask = ReadCategoryMask(category, item);
-                ushort source = (collected & mask) != 0
-                    ? RomDataReader.ReadWordFixedBank(bus, category.TilemapPointerTableAddress + item * 2)
-                    : PauseMenuRomData.BlankEquipmentTilemap;
+                bool hyperBeamLabel = categoryIndex == PauseEquipmentCategories.Beams && samus.HyperBeam != 0;
+                ushort source = hyperBeamLabel
+                    ? RomDataReader.ReadWordFixedBank(bus, PauseEquipmentLabelDefinitions.HyperPointerTable + item * 2)
+                    : (collected & mask) != 0
+                        ? RomDataReader.ReadWordFixedBank(bus, category.TilemapPointerTableAddress + item * 2)
+                        : PauseMenuRomData.BlankEquipmentTilemap;
                 CopyBank82Words(source, equipmentTilemap.AsSpan(destinationOffset, byteCount));
-                if ((collected & mask) != 0 && (equipped & mask) == 0)
+                if (!hyperBeamLabel && (collected & mask) != 0 && (equipped & mask) == 0)
                     RecolorLabel(equipmentTilemap.AsSpan(destinationOffset, byteCount));
             }
         }
+
+        plasmaLabelOverrunActive = false;
 
         WriteSamusWireframe();
         WriteReserveLabels();

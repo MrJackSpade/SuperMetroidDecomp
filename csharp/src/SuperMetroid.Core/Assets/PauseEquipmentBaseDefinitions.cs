@@ -13,7 +13,7 @@ public static class PauseEquipmentBaseDefinitions
 
     // These are visual ownership footprints resolved from the native destination tables,
     // not editable navigation or inventory rules. Rebinding base art must not erase them.
-    private static readonly (int Cell, int Count)[] labelRegions =
+    private static readonly (int Cell, int Count)[] equipmentLabelRegions =
     [
         // $82:C06C beam-label destinations. Native beam labels are five words, but the
         // Boots-to-Plasma simultaneous-input path copies nine and exposes four adjacent
@@ -23,18 +23,33 @@ public static class PauseEquipmentBaseDefinitions
         (0x135, 9), (0x155, 9), (0x1b5, 9), (0x1d5, 9), (0x1f5, 9), (0x215, 9),
         // $82:C082 boots destinations, nine words each.
         (0x275, 9), (0x295, 9), (0x2b5, 9),
+    ];
+
+    private static readonly (int Cell, int Count)[] reserveRegions =
+    [
         // $82:C068 reserve label destinations, then $82:8FCE's three digits.
         (0x144, 7), (0x164, 7), (PauseReserveUiDefinitions.DigitCell, PauseReserveUiDefinitions.SupplyDigitPlaces),
     ];
 
+    public static bool IsEquipmentLabelCell(int cell)
+    {
+        foreach (var region in equipmentLabelRegions)
+            if ((uint)(cell - region.Cell) < region.Count) return true;
+        return false;
+    }
+
     public static bool IsLiveOwnedCell(int cell)
     {
-        foreach (var region in labelRegions)
+        if (IsEquipmentLabelCell(cell)) return true;
+        foreach (var region in reserveRegions)
             if ((uint)(cell - region.Cell) < region.Count) return true;
         int wireframeRelative = cell - PauseWireframeDefinitions.DestinationByte / sizeof(ushort);
         return wireframeRelative >= 0 && wireframeRelative / (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Rows &&
             wireframeRelative % (PauseWireframeDefinitions.DestinationStride / sizeof(ushort)) < PauseWireframeDefinitions.Columns;
     }
+
+    public static bool IsNonInventoryLiveOwnedCell(int cell) =>
+        IsLiveOwnedCell(cell) && !IsEquipmentLabelCell(cell);
 
     public static bool IsArrowCell(int cell)
     {

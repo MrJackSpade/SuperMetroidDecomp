@@ -12,13 +12,40 @@ public sealed class PauseEquipmentBasePresentation
     public byte[] CreateTilemap() => tilemap.ToArray();
 
     /// <summary>Refreshes authored base cells while preserving every footprint owned by live menu state.</summary>
-    public void RebindBaseInto(Span<byte> current)
+    public void RebindBaseInto(Span<byte> current,
+        PauseEquipmentLabelPresentation? equipmentLabels = null)
     {
         if (current.Length != PauseEquipmentBaseDefinitions.Cells * sizeof(ushort))
             throw new ArgumentException("Equipment base requires a complete 32x32 tilemap.", nameof(current));
         for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
         {
-            if (PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell)) continue;
+            bool liveOwned = equipmentLabels is null
+                ? PauseEquipmentBaseDefinitions.IsLiveOwnedCell(cell)
+                : PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) ||
+                    equipmentLabels.OwnsLiveCell(cell);
+            if (liveOwned) continue;
+            int offset = cell * sizeof(ushort);
+            ushort replacement = BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(offset));
+            if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
+            {
+                int palette = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(current.Slice(offset))).PaletteIndex;
+                replacement = new SnesBgTilemapWord(replacement).WithPaletteIndex(palette).Raw;
+            }
+            BinaryPrimitives.WriteUInt16LittleEndian(current.Slice(offset), replacement);
+        }
+    }
+
+    /// <summary>
+    /// Refreshes the complete authored base before semantic inventory labels are rebuilt,
+    /// while retaining the independent wireframe/reserve owners and live arrow palette.
+    /// </summary>
+    public void RebindBeforeInventoryRefreshInto(Span<byte> current)
+    {
+        if (current.Length != PauseEquipmentBaseDefinitions.Cells * sizeof(ushort))
+            throw new ArgumentException("Equipment base requires a complete 32x32 tilemap.", nameof(current));
+        for (int cell = 0; cell < PauseEquipmentBaseDefinitions.Cells; cell++)
+        {
+            if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell)) continue;
             int offset = cell * sizeof(ushort);
             ushort replacement = BinaryPrimitives.ReadUInt16LittleEndian(tilemap.AsSpan(offset));
             if (PauseEquipmentBaseDefinitions.IsArrowCell(cell))
@@ -54,4 +81,3 @@ public sealed record PauseEquipmentBaseDocument
     public required int Version { get; init; }
     public required PauseBackdropCell[] Cells { get; init; }
 }
-

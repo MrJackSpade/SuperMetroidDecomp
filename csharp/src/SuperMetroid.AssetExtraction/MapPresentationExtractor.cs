@@ -138,6 +138,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, PauseEquipmentBaseDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(equipmentBaseBytes);
         hashes.Add(PauseEquipmentBaseDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentBaseBytes)));
+        byte[] equipmentLabelBytes = PauseEquipmentLabelExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, PauseEquipmentLabelDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(equipmentLabelBytes);
+        hashes.Add(PauseEquipmentLabelDefinitions.FileName, Convert.ToHexString(SHA256.HashData(equipmentLabelBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

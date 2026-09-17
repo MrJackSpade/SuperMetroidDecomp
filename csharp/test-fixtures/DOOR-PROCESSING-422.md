@@ -444,3 +444,25 @@ starts from a normally allocated bomb with only its fuse shortened. This establi
 queue production and Power Bomb admission, not the eventual logical door delay.
 Attached-enemy, looping-liquid, combined action alignment, and acknowledgement-to-
 transition measurements remain outstanding.
+
+## Attached-enemy request multiplicity
+
+The first retail multi-actor reproduction exposed a real mismatch before any timing
+assumption was added. Beetom, Metroid, and Mochtroid drain sounds were published through
+one nullable legacy field per family. Several actors calling the native queue routine in
+one EnemyMain pass therefore collapsed into one managed request. Mochtroid's adapter also
+routed its `$A3:A97C` call to library two, although the cartridge calls
+`QueueSfx3_Max6($2D)`.
+
+The three attachment callbacks now append one library-three request at the call site.
+`--processing-attached-enemy-audit ROM` uses unchanged retail populations: four Beetoms in
+room `$9FE5`, four Metroids in `$DAE1`, and eight Mochtroids in `$D72A`. It overlaps every
+actor on the same shared one-in-eight sound phase through the ordinary collision
+dispatcher. The resulting request counts are 4/4/8; feeding them through the production
+audio queue retains 4/4/6, matching each cartridge call's Max6 admission rule. This
+restores the enemy-count-dependent backlog needed for the reported half-second Mochtroid
+case instead of adding a bespoke door delay.
+
+The focused family audits still pass. This result establishes producer multiplicity,
+library identity, and queue admission. Dispatcher-alignment duration, looping liquid
+backlog, and combined action-to-transition measurements remain separate work.

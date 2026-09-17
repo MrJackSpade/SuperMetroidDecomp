@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -259,11 +260,11 @@ public sealed partial class RoomEnemySystem
         bool applyCommonTouch = samus.HorizontalSpeed.ContactDamageIndex != 0;
         if (!applyCommonTouch)
         {
-            // The sound queue itself is owned by the frontend/audio layer. Publish the exact
-            // library-three effect on the native global enemy-frame phase so that consumer
-            // code and the verifier can observe it without playing host-invented audio.
+            // Every overlapping actor invokes the queue routine independently. Using the
+            // legacy one-value family field here collapsed a room full of attached actors
+            // into one request and erased the cartridge's sound-backlog processing delay.
             if ((_randomEnemyCounter & 7) == 7 && unchecked((short)(samus.Health - 30)) >= 0)
-                LastMochtroidSoundEffect = 0x002d;
+                QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
 
             if (unchecked((short)(state.AttachmentDamageTimer - MochtroidAttachmentDamagePeriod)) >= 0)
             {

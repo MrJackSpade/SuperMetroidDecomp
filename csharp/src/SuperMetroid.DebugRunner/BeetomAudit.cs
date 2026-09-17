@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -276,7 +277,8 @@ internal static class BeetomAudit
             ushort input = (frame & 1) == 0 ? (ushort)1 : (ushort)2;
             StepCentered(enemies, assets, room, samus, actor, input);
             enemies.ResolveOrdinarySamusContact(samus, input);
-            heardDrain |= enemies.LastBeetomSoundEffect == 0x002d;
+            heardDrain |= enemies.SoundRequests.Any(request =>
+                request.SoundEffect == SoundEffectLibrary3Sounds.AttachedEnemyDrain);
         }
         if (state.ButtonCounter != 0 || samus.Health != startingHealth - 10 ||
             samus.InvincibilityTimer != 0 || samus.KnockbackTimer != 0 || !heardDrain)

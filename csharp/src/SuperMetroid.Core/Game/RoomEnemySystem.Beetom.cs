@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -108,7 +109,6 @@ public sealed partial class RoomEnemySystem
     private const ushort BeetomHopRightInstruction = 0xb708;
     private const ushort BeetomDrainingRightInstruction = 0xb728;
     private const ushort BeetomProximityDistance = 0x0060;
-    private const ushort BeetomDrainSound = 0x002d;
     private const ushort BeetomMashCount = 0x0040;
     private const ushort BeetomMaximumYSpeedIndex = 0x0040;
 
@@ -550,7 +550,7 @@ public sealed partial class RoomEnemySystem
         }
 
         if ((_randomEnemyCounter & 7) == 7 && samus.Health >= 30)
-            LastBeetomSoundEffect = BeetomDrainSound;
+            QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
 
         // Unlike ordinary touch damage, the once-per-64-frame drain explicitly cancels the
         // invincibility and knockback installed by common AI. Apply the suit-scaled health

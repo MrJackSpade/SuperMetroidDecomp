@@ -98,7 +98,6 @@ public sealed partial class RoomEnemySystem
         QueueLegacySound(LastBoyonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastMamaTurtleSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastCacatacSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastMochtroidSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastBoulderSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastEtecoonSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
         QueueLegacySound(LastDachoraSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
@@ -128,10 +127,8 @@ public sealed partial class RoomEnemySystem
 
         // These actors deliberately use a different library or the tighter Max3 entry.
         QueueLegacySound(LastYardSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 3);
-        QueueLegacySound(LastBeetomSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
         QueueLegacySound(LastZebetiteSoundEffect, library: SoundEffectLibrary.Library3, maximumQueued: 6);
         QueueLegacySound(LastMetroidSoundEffectLibrary2, library: SoundEffectLibrary.Library2, maximumQueued: 6);
-        QueueLegacySound(LastMetroidSoundEffectLibrary3, library: SoundEffectLibrary.Library3, maximumQueued: 6);
 
         // Bank-$86 pickup/death opcodes and the common rejected-shot path have explicit,
         // smaller admission limits. Their fields are shared by several projectile actors.

@@ -138,6 +138,14 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>
+    /// <c>$A3:A97C</c>, <c>$A3:ED91</c>, and <c>$A8:BE8D</c> queue library-three
+    /// <c>$2D</c> once per attached Mochtroid, Metroid, or Beetom on the shared
+    /// enemy-clock phase.
+    /// </summary>
+    public static readonly SoundEffectId AttachedEnemyDrain =
+        new(SoundEffectLibrary.Library3, 0x2d); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$82:DC3E/$AF7A, library-three $2D during automatic/manual reserve refill.</summary>
     public static readonly SoundEffectId ReserveRefill = new(SoundEffectLibrary.Library3, 0x2d); // magic-number-audit: allow(AudioId) - named cartridge reserve-refill SFX identity
     /// <summary>$A0:A8AE, normal enemy shot: library-three $0A when an enemy becomes frozen.</summary>

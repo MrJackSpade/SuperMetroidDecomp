@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -111,7 +112,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MetroidOuterBodyAFrozenInstructionList = 0xc3ba;
     private const ushort MetroidOuterBodyBFrozenInstructionList = 0xc4b6;
     private const ushort MetroidFrozenSpritePalette = 0x0c00;
-    private const ushort MetroidAttachedSoundEffect = 0x002d;
     private const ushort MetroidIceSoundEffect = 0x000a;
     private const ushort MetroidRecoilSoundEffect = 0x005a;
     private const ushort MetroidAnimationSoundEffect = 0x0050;
@@ -353,7 +353,7 @@ public sealed partial class RoomEnemySystem
         if (state.Function != MetroidAiFunction.PowerBombEscape)
         {
             if ((_randomEnemyCounter & 7) == 7 && unchecked((short)(samus.Health - 30)) >= 0)
-                LastMetroidSoundEffectLibrary3 = MetroidAttachedSoundEffect;
+                QueueEnemySound(SoundEffectLibrary3Sounds.AttachedEnemyDrain, maximumQueued: 6);
             DrainSamusWithMetroid(state, samus);
         }
 

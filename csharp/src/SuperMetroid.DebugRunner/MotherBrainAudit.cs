@@ -2520,7 +2520,7 @@ internal static class MotherBrainAudit
                 BabyMetroidCutsceneState.InitialInstructionList &&
                 babyPhaseBefore == BabyMetroidCutscenePhase.StopDraining;
             observedCeilingRoute |= step.SamusCrouchingRequested &&
-                baby.MovementTablePointer == BabyMetroidCutsceneState.CeilingToSamusMovementTable;
+                baby.MovementTablePointer == BabyMetroidRouteDefinitions.FirstRecordPointer;
             observedSamusTouch |= step.SamusTouchCollision;
             releaseDustRequests += step.ReleaseDustClouds.Count;
 

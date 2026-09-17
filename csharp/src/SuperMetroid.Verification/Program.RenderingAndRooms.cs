@@ -388,26 +388,6 @@ static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
     WriteTestWords(bus, 0xa99a26, words);
 }
 
-static void SeedBabyCeilingToSamusRoute(TestAddressSpace bus)
-{
-    // Exact `$A9:CA24-$CA65` words. Records are eight bytes even though the AI reads a
-    // fifth word at +8: for records zero through six that read aliases the following X
-    // target, while final record `$CA5C` aliases `$CA64`'s negative `$CA66` function.
-    ushort[] words =
-    [
-        0x00a0, 0x0078, 0x0000, 0xf466,
-        0x0130, 0x007a, 0x0000, 0xf466,
-        0x00c0, 0x0040, 0x0000, 0xf466,
-        0x00c0, 0x0070, 0x0000, 0xf466,
-        0x00e0, 0x0080, 0x0000, 0xf466,
-        0x00cd, 0x0090, 0x0000, 0xf45f,
-        0x00cc, 0x00a0, 0x0000, 0xf45f,
-        0x00cb, 0x00b0, 0x0000, 0xf45f,
-        0xca66,
-    ];
-    WriteTestWords(bus, 0xa9ca24, words);
-}
-
 /// <summary>Checks both edges and relative tile-step movement of the temporary host camera.</summary>
 static void VerifyDebugRoomCamera()
 {

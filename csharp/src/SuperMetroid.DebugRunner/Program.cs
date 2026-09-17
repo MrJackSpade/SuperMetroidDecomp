@@ -6511,7 +6511,7 @@ for (int frameIndex = 0; frameIndex < options.FrameCount; frameIndex++)
             observedBabyMotherBrainInterrupt |= babyResult.MotherBrainInterrupted;
             observedBabyCeilingTableInstall |=
                 babyResult.PhaseAfter == BabyMetroidCutscenePhase.MoveToSamus &&
-                babyResult.MovementTablePointer == BabyMetroidCutsceneState.CeilingToSamusMovementTable;
+                babyResult.MovementTablePointer == BabyMetroidRouteDefinitions.FirstRecordPointer;
             if (babyResult.HealingCompleted)
             {
                 observedBabyHealingCompletion = true;

@@ -20,9 +20,6 @@ public sealed partial class BabyMetroidCutsceneState
         return new BabyMetroidOnionRingHitResult(true, healthBefore, Health, OnionRingHitFlashTimer);
     }
 
-    private static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
-
     private void StepSamusRainbowPaletteAnimation(
         SamusState samus,
         ref bool samusRainbowActivated)

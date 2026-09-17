@@ -14,6 +14,7 @@ internal static partial class Program
 /// <summary>Baby Metroid cutscene verification and its private fixtures.</summary>
 static void VerifyBabyMetroidCutsceneEntrance()
 {
+    VerifyBabyMetroidRouteDefinitions();
     var bus = new TestAddressSpace();
 
     // `$A0:B443` is trunc(sin(i*pi/128)*256), stored as a sign-extended word. Seed every
@@ -40,8 +41,6 @@ static void VerifyBabyMetroidCutsceneEntrance()
     SeedMotherBrainWalkProgram(bus, 0x9852, duration: 8, forward: false);
     SeedMotherBrainWalkProgram(bus, 0x993a, duration: 10, forward: false);
     SeedMotherBrainCrouchFastProgram(bus);
-    SeedBabyCeilingToSamusRoute(bus);
-
     // Controller one reads the current `$E9` direction byte, then rebinds the new `$EB`
     // animation pointer without refreshing radii. These are the only Samus ROM fields the
     // entrance consumes; the dedicated drained-controller suite proves their animation.
@@ -286,7 +285,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(new BabyMetroidReleaseDustRequest(97, 70, 9), releaseDustClouds[2],
         "Baby release third dust uses brain offset (+16,-8)");
     AssertTrue(sawSamusCrouch, "Baby ceiling collision calls drained controller four");
-    AssertEqual(BabyMetroidCutsceneState.CeilingToSamusMovementTable,
+    AssertEqual(BabyMetroidRouteDefinitions.FirstRecordPointer,
         baby.MovementTablePointer,
         "Baby ceiling collision installs `$CA24` movement table");
     AssertEqual(0x8ca0, motherBrain.BrainHealth,
@@ -296,7 +295,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(SamusPoseIds.DrainedCrouchingLeftPose, samus.Pose,
         "ceiling collision installs left drained crouching pose");
 
-    // Continue in native enemy-slot order through the eight ROM route records, generic
+    // Continue in native enemy-slot order through the eight compiled route records, generic
     // touch AI, and 699 one-point healing calls. This deliberately remains an integrated
     // synthetic fixture: its earlier entrance used a stationary neck target, so its inherited
     // subpixels are not falsely presented as coordinates captured from the full retail run.
@@ -307,6 +306,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     int healingCompleteFrame = 0;
     bool sawSamusTouch = false;
     bool sawAmbientCryThreshold = false;
+    var routeReadGuard = new BabyRouteReadGuard(bus);
     while (baby.Phase != BabyMetroidCutscenePhase.IdleUntilNoHealth)
     {
         ushort pointerBefore = baby.MovementTablePointer;
@@ -319,7 +319,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
         motherBrain.Body.Step(bus);
         motherBrain.StepNeckMovement(bus, samus);
         BabyMetroidCutsceneStepResult routeStep = baby.Step(
-            bus,
+            routeReadGuard,
             samus,
             motherBrain,
             enemyFrameCounter: unchecked((ushort)drainFrame),

@@ -21,15 +21,6 @@ public sealed partial class BabyMetroidCutsceneState
     // witnesses, not arbitrary host animation IDs.
     public const ushort InitialInstructionList = 0xcfa2;
     public const ushort DrainingMotherBrainInstructionList = 0xcfb8;
-    public const ushort CeilingToSamusMovementTable = 0xca24;
-
-    // The movement records store native bank-$A9 code pointers, not a host enum. Keeping
-    // their literal values lets the route reader reject corrupt or wrong-region ROM data
-    // instead of silently assigning visually plausible acceleration.
-    private const ushort GradualAccelerationExtraEightFunction = 0xf45f;
-    private const ushort GradualAccelerationExtraTenFunction = 0xf466;
-    private const ushort LatchOntoSamusFunction = 0xca66;
-
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
     // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries.
     private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
@@ -460,7 +451,7 @@ public sealed partial class BabyMetroidCutsceneState
                     samus.Drained.PutCrouchingOrFalling(bus, samus);
                     samusCrouchingRequested = true;
                     Phase = BabyMetroidCutscenePhase.MoveToSamus;
-                    MovementTablePointer = CeilingToSamusMovementTable;
+                    MovementTablePointer = BabyMetroidRouteDefinitions.FirstRecordPointer;
                 }
                 break;
             }
@@ -474,16 +465,14 @@ public sealed partial class BabyMetroidCutsceneState
                 HealthBasedPaletteEnabled = true;
                 ambientCrySoundQueued = (randomNumber & 0x0fff) >= 0x0fa0;
 
-                // `$CA24-$CA64` is eight overlapping records. Bytes +0/+2 are the target,
-                // +4 is the acceleration-divisor-table index, +6 is a wrapper function,
-                // and +8 is either the following record's X coordinate or, on the final
-                // record, the signed `$CA66` function pointer. Reading this from the bus is
-                // intentional: the private cartridge remains the authority for route data.
-                int recordAddress = 0xa90000 | MovementTablePointer;
-                ushort targetX = ReadWord(bus, recordAddress);
-                ushort targetY = ReadWord(bus, recordAddress + 2);
-                ushort divisorIndex = ReadWord(bus, recordAddress + 4);
-                ushort movementFunction = ReadWord(bus, recordAddress + 6);
+                // `$CA24-$CA64` is eight overlapping records. The fixed targets, divisor
+                // indexes, and callback identities are compiled mechanics definitions;
+                // sprite/instruction presentation remains separately cartridge-backed.
+                BabyMetroidRouteRecord record =
+                    BabyMetroidRouteDefinitions.GetRecord(MovementTablePointer);
+                ushort targetX = record.TargetX;
+                ushort targetY = record.TargetY;
+                ushort divisorIndex = record.AccelerationDivisorIndex;
 
                 // `$F56A` is `[10,0F,...,01]`; every retail `$CA24` record uses index zero,
                 // but implementing all legal indices costs nothing and catches malformed
@@ -494,13 +483,8 @@ public sealed partial class BabyMetroidCutsceneState
                         $"Baby route ${MovementTablePointer:X4} has invalid divisor index ${divisorIndex:X4}.");
                 }
                 ushort accelerationDivisor = unchecked((ushort)(0x0010 - divisorIndex));
-                ushort wrongWayExtra = movementFunction switch
-                {
-                    GradualAccelerationExtraEightFunction => 0x0008,
-                    GradualAccelerationExtraTenFunction => 0x0010,
-                    _ => throw new InvalidDataException(
-                        $"Baby route ${MovementTablePointer:X4} names unknown movement function ${movementFunction:X4}."),
-                };
+                ushort wrongWayExtra = BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(
+                    record.MovementFunction);
 
                 GraduallyAccelerateTowardsPoint(
                     targetX,
@@ -516,10 +500,10 @@ public sealed partial class BabyMetroidCutsceneState
                 // +8 word with `$CA66`, so BMI installs the next AI function instead.
                 if (CollidesWithRectangle(targetX, targetY, 4, 4))
                 {
-                    ushort nextWord = ReadWord(bus, recordAddress + 8);
+                    ushort nextWord = record.FollowingWord;
                     if ((nextWord & 0x8000) != 0)
                     {
-                        if (nextWord != LatchOntoSamusFunction)
+                        if (nextWord != BabyMetroidRouteDefinitions.LatchOntoSamusFunction)
                         {
                             throw new InvalidDataException(
                                 $"Baby route terminates at unexpected function ${nextWord:X4}.");

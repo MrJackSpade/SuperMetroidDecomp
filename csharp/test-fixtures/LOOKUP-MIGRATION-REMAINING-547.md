@@ -198,6 +198,15 @@ pairs match, and the real Ice, Spazer, and Plasma updates run with the 512-byte
 sine source forbidden. Combo instruction programs and editable presentation
 remain separate dependencies.
 
+The Baby Metroid's eight ceiling-to-Samus movement records at `$A9:CA24` are
+compiled as typed physical targets, divisor indexes, and callback identities.
+The catalog preserves every overlapping +8 read, including the final record's
+adjacent `$CA66` latch callback. The full entrance/drain/route/healing fixture
+runs through the production state machine while all 66 source bytes are
+forbidden, and all 33 overlapping words are independently compared with the
+pinned cartridge. Baby sprite/instruction presentation and the wider Mother
+Brain integration remain separate dependencies.
+
 - Bank/indirect reads and definitions whose names do not contain speed, curve,
   angle or math. Trace intermediate addresses rather than treating search hits
   as complete coverage.

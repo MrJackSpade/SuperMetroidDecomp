@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Game;
 
@@ -8,18 +9,23 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class EscapeTimerRenderer
 {
-    private const int TimerDigitPointerTable = 0x809fd4;
-    private const int TimerLabelSpritemap = 0x80a060;
     private static readonly ushort TimerPaletteBits = EnemyPaletteBits.Palette5;
 
     /// <summary>Draws "TIME mm:ss:cc" using the timer's current fixed-point position.</summary>
-    public static void Draw(EscapeTimer timer, OamBuffer oam, ISnesAddressSpace bus)
+    public static void Draw(EscapeTimer timer, OamBuffer oam, ISnesAddressSpace bus,
+        EscapeTimerPresentation? presentation = null)
     {
         ArgumentNullException.ThrowIfNull(timer);
         ArgumentNullException.ThrowIfNull(oam);
         ArgumentNullException.ThrowIfNull(bus);
 
-        DrawAtOffset(timer, oam, bus, xOffset: 0, TimerLabelSpritemap);
+        if (presentation is not null)
+        {
+            presentation.Draw(timer, oam);
+            return;
+        }
+
+        DrawAtOffset(timer, oam, bus, xOffset: 0, EscapeTimerPresentationDefinitions.LabelSpritemap);
         DrawTwoDigits(timer, oam, bus, timer.MinutesBcd, xOffset: unchecked((short)0xffe4));
         DrawTwoDigits(timer, oam, bus, timer.SecondsBcd, xOffset: unchecked((short)0xfffc));
         DrawTwoDigits(timer, oam, bus, timer.CentisecondsBcd, xOffset: 0x0014);
@@ -45,7 +51,7 @@ public static class EscapeTimerRenderer
 
     private static ushort ReadDigitSpritemapPointer(ISnesAddressSpace bus, int digit)
     {
-        int pointerAddress = TimerDigitPointerTable + digit * 2;
+        int pointerAddress = EscapeTimerPresentationDefinitions.DigitPointerTable + digit * 2;
         return (ushort)(bus.ReadByte(pointerAddress) | (bus.ReadByte(pointerAddress + 1) << 8));
     }
 

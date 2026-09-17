@@ -155,6 +155,7 @@ internal static partial class Program
         VerifyPauseReserveUiAssets(bus, stock, Path.Combine(root, "pause-reserve-ui-overrides"), original);
         VerifyPauseEquipmentBaseAssets(bus, stock, Path.Combine(root, "pause-equipment-base-overrides"), original);
         VerifyPauseEquipmentLabelAssets(bus, stock, Path.Combine(root, "pause-equipment-label-overrides"), original);
+        VerifyEscapeTimerPresentationAssets(bus, stock, Path.Combine(root, "escape-timer-overrides"), original);
         // Stronger than composing individual range guards: no bus read or write
         // is permitted anywhere in this complete installed saved-map lifecycle.
         VerifyInstalledFileSelectMenu(bus, new ForbiddenMapBus(), original, original, verifyCapturedRendering: true);

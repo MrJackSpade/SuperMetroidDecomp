@@ -1144,3 +1144,27 @@ fail explicitly. The full installer preserves this override through replacement.
 Broader HUD/menu/timer presentation, historical full-session coverage, Android
 validation and the shared ROM-unavailable runtime gate remain. This partial
 implementation does not complete #544 or #282.
+
+## Editable escape-timer compositions and layout (#544/#282)
+
+Catalog version 22 adds `escape-timer.json`, schema version 1 (twenty-four shared
+resource hashes). It contains named `Label` and `Digit.0` through `Digit.9` OAM
+compositions, the four screen-relative anchors for the label/minutes/seconds/
+centiseconds groups, digit spacing and the caller palette. Parts use the full
+nine-bit gameplay OBJ tile number because the timer lives at tiles 480-504,
+rather than pretending it occupies the shared menu atlas.
+
+Copy the stock file to `overrides/maps/escape-timer.json` to change composition
+or placement. The BCD values, NTSC decrement table, startup movement, timeout,
+escape sequencing and host one-second testing floor remain compiled. With an
+installed catalog, normal timer drawing consumes only this resource and performs
+no label, digit-pointer or spritemap reads from bank $80. The legacy cartridge
+path remains available to diagnostics that deliberately construct no catalog.
+
+Verification compares complete low/high OAM for a mixed-digit timer against the
+ROM-backed renderer, with every installed-path bus read forbidden. A moved minute
+anchor changes only those four OAM parts. Deterministic extraction, selected
+content identity, malformed/corrupt data, missing named digits, invalid palette
+and invalid spacing all fail explicitly. Broader timer OBJ artwork extraction,
+other HUD/menu presentation, historical full-session coverage and Android
+validation remain; this does not complete #544 or #282.

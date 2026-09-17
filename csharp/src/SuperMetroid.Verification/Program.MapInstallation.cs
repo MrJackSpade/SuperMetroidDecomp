@@ -133,6 +133,10 @@ internal static partial class Program
         var escapeTimer = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, EscapeTimerPresentationDefinitions.FileName)))!;
         escapeTimer["anchors"]!["Minutes"]!["x"] = -27;
         File.WriteAllText(escapeTimerOverride, escapeTimer.ToJsonString());
+        string gameplayHudOverride = Path.Combine(installation.MapOverrideDirectory, GameplayHudDefinitions.FileName);
+        var gameplayHud = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameplayHudDefinitions.FileName)))!;
+        gameplayHud["digits"]!["healthAnchor"]!["x"] = 4;
+        File.WriteAllText(gameplayHudOverride, gameplayHud.ToJsonString());
         string spriteOverride = Path.Combine(installation.MapOverrideDirectory, MapSpriteFormat.JsonFile);
         var sprites = JsonNode.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapSpriteFormat.JsonFile)))!;
         sprites["frames"]!["Marker.Boss"]![0]!["offsetX"] = 12;
@@ -182,6 +186,7 @@ internal static partial class Program
             [equipmentBaseOverride] = File.ReadAllBytes(equipmentBaseOverride),
             [equipmentLabelOverride] = File.ReadAllBytes(equipmentLabelOverride),
             [escapeTimerOverride] = File.ReadAllBytes(escapeTimerOverride),
+            [gameplayHudOverride] = File.ReadAllBytes(gameplayHudOverride),
             [spriteOverride] = File.ReadAllBytes(spriteOverride),
             [Path.Combine(root, "SuperMetroid.ini")] = "[Testing]\nInvincibility=true\n"u8.ToArray(),
             [Path.Combine(root, "SuperMetroid.save.json")] = "{\"fixture\":\"player-save\"}"u8.ToArray(),

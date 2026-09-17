@@ -146,6 +146,10 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, EscapeTimerPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(escapeTimerBytes);
         hashes.Add(EscapeTimerPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(escapeTimerBytes)));
+        byte[] gameplayHudBytes = GameplayHudPresentationExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, GameplayHudDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(gameplayHudBytes);
+        hashes.Add(GameplayHudDefinitions.FileName, Convert.ToHexString(SHA256.HashData(gameplayHudBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

@@ -13,6 +13,7 @@ public sealed partial class SuperMetroidRuntime
         set
         {
             mapPresentation = value;
+            Hud.BindPresentation(value?.GameplayHud, Samus);
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)
                 VramWrites.RebindBusSource(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.TransferByteCount,

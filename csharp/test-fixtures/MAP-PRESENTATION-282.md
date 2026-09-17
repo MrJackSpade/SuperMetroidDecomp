@@ -1168,3 +1168,25 @@ content identity, malformed/corrupt data, missing named digits, invalid palette
 and invalid spacing all fail explicitly. Broader timer OBJ artwork extraction,
 other HUD/menu presentation, historical full-session coverage and Android
 validation remain; this does not complete #544 or #282.
+
+## Editable gameplay HUD presentation (#544/#282)
+
+Catalog version 23 adds `gameplay-hud.json`, schema version 1 (twenty-five
+shared resource hashes). It contains the three-row gameplay HUD template,
+equipment icons, health/ammunition digits and anchors, energy-tank cells,
+reserve AUTO indicator, selected/deselected palettes, and the minimap anchor.
+Copy it to `overrides/maps/gameplay-hud.json` to change that presentation while
+leaving counters, inventory ownership, exploration state, and selection logic
+compiled.
+
+Installed gameplay no longer reads those visual tables from the ROM. Runtime
+catalog rebinding rebuilds the presentation-owned cells and carries the live
+logical 5x3 minimap to an edited anchor instead of retaining stale layout data.
+The cartridge-backed path remains available for focused native comparisons.
+
+Verification compares stock initialization, live counter changes, selection,
+reserve state, and minimap output with every migrated ROM range blocked. It also
+checks visible icon/digit/anchor edits, state-safe content rebinding, deterministic
+extraction, strict malformed/overlapping resources, and full-installer override
+preservation. Broader HUD/menu extraction, historical full-session coverage and
+Android validation remain; this does not complete #544 or #282.

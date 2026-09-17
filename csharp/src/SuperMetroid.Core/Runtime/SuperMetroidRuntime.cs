@@ -739,6 +739,7 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     public void InitializeHud(HudSnapshot snapshot)
     {
+        Hud.BindPresentation(MapPresentation?.GameplayHud, Samus);
         // Load_StandardBG3Tiles_SpriteTiles_ClearTilemaps at `$82:82E2` directly DMAs a
         // prefilled WRAM page to VRAM $5800. Rows zero through three are replaced by the
         // live HUD below; rows four through 31 must remain character $6F padding. A fresh

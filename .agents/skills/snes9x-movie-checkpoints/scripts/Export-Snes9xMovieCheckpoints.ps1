@@ -71,8 +71,8 @@ $version = [BitConverter]::ToUInt32($movie, 4)
 $frameCount = [BitConverter]::ToUInt32($movie, 16)
 $controllerCount = [int] $movie[20]
 $controllerOffset = [BitConverter]::ToUInt32($movie, 28)
-if ($version -ne 1 -or $controllerCount -ne 1) {
-    throw "Expected an SMV v1 one-controller movie; found v$version with $controllerCount controllers."
+if ($version -notin 1, 4, 5 -or $controllerCount -ne 1) {
+    throw "Expected an SMV v1, v4 or v5 one-controller movie; found v$version with $controllerCount controllers."
 }
 if ([int64] $controllerOffset + 2 * ([int64] $frameCount + 1) -gt $movie.Length) {
     throw 'The SMV controller stream is truncated.'

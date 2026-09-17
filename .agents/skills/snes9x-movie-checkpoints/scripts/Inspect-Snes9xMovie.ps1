@@ -18,8 +18,8 @@ $controllerCount = [int] $movie[20]
 $snapshotOffset = [BitConverter]::ToUInt32($movie, 24)
 $controllerOffset = [BitConverter]::ToUInt32($movie, 28)
 
-if ($version -ne 1) {
-    throw "Only SMV v1 is supported; this movie is v$version."
+if ($version -notin 1, 4, 5) {
+    throw "Only SMV v1, v4 and v5 inspection is supported; this movie is v$version."
 }
 if ($controllerCount -ne 1) {
     throw "Only one-controller movies are supported; this movie records $controllerCount controllers."

@@ -5,9 +5,10 @@ description: Inspect Snes9x 1.43 SMV movies and export deterministic native WRAM
 
 # Snes9x movie checkpoints
 
-Use the bundled scripts to turn an SMV v1 movie with an embedded snapshot into
-controller inputs and native pre-frame WRAM checkpoints. Prefer this workflow to
-GUI automation when diagnosing a recorded Super Metroid technique.
+Use the bundled scripts to inspect SMV v1, v4, or v5 movies with embedded
+snapshots, export their controller inputs, and produce deterministic native WRAM
+checkpoints. Prefer this workflow to GUI automation when diagnosing a recorded
+Super Metroid technique.
 
 ## Workflow
 
@@ -19,8 +20,10 @@ GUI automation when diagnosing a recorded Super Metroid technique.
    hunting for another revision based on that error alone.
 2. Choose sparse intermediate checkpoint frames first. Run
    `scripts/Export-Snes9xMovieCheckpoints.ps1` with the original ROM, the supplied
-   1.43 capture build, and those frame numbers. Read room/state/position words from
-   the resulting `frame-N.wram` files to narrow the interesting interval.
+   matching capture build, and those frame numbers. Read room/state/position words
+   from the resulting `frame-N.wram` files to narrow the interesting interval.
+   Use the 1.43 capture build for v1 and the 1.51 capture build for v4/v5; a movie
+   must be replayed by the emulator generation that recorded its snapshot format.
 3. Export every frame only across the narrowed interval. An intermediate checkpoint
    for frame N is native state immediately before controller sample N. These
    checkpoints intentionally use independent shortened copies and can locate the
@@ -52,8 +55,9 @@ build must save after full playback rather than at a pre-frame boundary.
 - Do not infer native expectations from port output. Checked-in evidence may contain
   controller inputs, hashes, addresses, and numeric expectations derived from the
   native checkpoints.
-- The scripts intentionally accept only SMV v1 with one recorded controller. Extend
-  them explicitly if a future artifact requires another format.
+- Inspection and checkpoint export accept SMV v1, v4, and v5 with one recorded
+  controller. Select a compatible capture executable: Snes9x 1.43 for v1, or the
+  Snes9x 1.51 capture build for v4/v5.
 - Preserve the supplied movie unchanged. The exporter creates shortened copies in
   its own output directory only for intermediate divergence checkpoints.
 - Preserve the canonical ROM unchanged. A snapshot-name compatibility copy belongs

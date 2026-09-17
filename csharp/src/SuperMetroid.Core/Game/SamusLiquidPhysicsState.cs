@@ -405,8 +405,11 @@ public sealed partial class SamusLiquidPhysicsState
         if (!CinematicFunctionActive && previousMovementType is
             SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
-            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, previousPose is SamusPoseIds.ScrewAttackRightPose or
-                    SamusPoseIds.ScrewAttackLeftPose ? (byte)0x34 : (byte)0x32), maximumQueued: 6);
+            QueueSound(previousPose is SamusPoseIds.ScrewAttackRightPose or
+                    SamusPoseIds.ScrewAttackLeftPose
+                        ? SoundEffectLibrary1Sounds.StopScrewAttack
+                        : SoundEffectLibrary1Sounds.StopSpinJump,
+                maximumQueued: 6);
         }
 
         // A truly stationary grounding probe returns before impact audio AND graphics. Any
@@ -417,7 +420,10 @@ public sealed partial class SamusLiquidPhysicsState
 
         if (!CinematicFunctionActive)
         {
-            QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, impactYSpeed >= 5 ? (byte)0x04 : (byte)0x05), maximumQueued: 6);
+            QueueSound(impactYSpeed >= 5
+                    ? SoundEffectLibrary3Sounds.HardLanding
+                    : SoundEffectLibrary3Sounds.SoftLanding,
+                maximumQueued: 6);
         }
 
         HandleLandingGraphics(bus, samus);

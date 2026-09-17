@@ -466,3 +466,64 @@ case instead of adding a bespoke door delay.
 The focused family audits still pass. This result establishes producer multiplicity,
 library identity, and queue admission. Dispatcher-alignment duration, looping liquid
 backlog, and combined action-to-transition measurements remain separate work.
+
+## Logical action-to-door timing
+
+`--processing-door-timing-audit ROM processing-actions-422.csv` completes the queue-to-
+transition composition without using wall-clock time or sleeps. It consumes the committed
+original-CPU producer snapshots, queues them through `CartridgeAudioState`, executes the
+real `DoorTransitionState.WaitForSoundQueues` branch before each NMI dispatcher pass, and
+supplies the same one-frame controlled acknowledgement model covered by the native queue
+and door-handoff traces. Every action is measured over all six relative dispatcher phases
+against an otherwise identical door-entry baseline. The entry baseline includes command
+`$1D`'s library-one stop and `$82:E26C`'s library-two `$71`, then enables the real
+door-owned sound-admission guard.
+
+One additional request in a library contributes at most six logical frames. Two requests
+in the same library contribute twelve; requests in separate libraries drain concurrently.
+The eleven original-CPU action snapshots therefore measure as follows: item selection,
+spin entry, Space Jump checking, ordinary/Wave/charged firing, bomb expiry, and the
+single-routine Shinespark snapshot contribute six; Screw Attack's direction-change control
+contributes zero; the charge-resume form of spin exit contributes twelve. Power Bomb
+controls contribute zero because the native bank-$80 guard admits none of their requests.
+
+The linked demonstrations contain more than the table's short labels imply. The spin-break
+clip fires while leaving spin, so the production beam and post-draw requests occupy the same
+library and contribute twelve. Landing is a separate `$91:F046` owner: production hard,
+soft, and Screw landings publish the expected library-one stop plus library-three impact,
+adding at most six; a stationary probe publishes neither. The Shinespark corridor combines
+launch `$0F`, crash `$35/$10`, and door-entry traffic rather than one atomic "activation"
+call. Its two libraries drain in parallel in the isolated fixed-alignment comparison; the
+wiki's twelve-frame video result must not be encoded as a bespoke twelve-frame Shinespark
+delay. The cartridge producers and queue alignment, not an action-name table, own it.
+
+The same distinction explains why the wiki's Wave-Beam note is not a global queue rule.
+Actual original-CPU firing and the production C# firing path both queue library-one `$0D`.
+It can contribute six frames under the controlled alignment just like `$0B`; any prevention
+shown by that linked route is contextual to its controller/projectile/door timing. The audit
+records the discrepancy rather than changing `$0D` into a silent special case.
+
+The sixteen-frame charge case drives the production beam counter through its first `$0B`
+shot and sustained-charge `$08`, then runs Morph-Ball cancellation to publish `$02` and
+clear both live charge views. `$08,$02` in library one contribute twelve frames at the
+immediate boundary. This covers the wiki's interrupted-charge mechanism without a real-time
+delay or a charge-specific door hack.
+
+Finally, the audit loads the unchanged rising-lava FX selected by retail door `$83:929A`
+in room `$02/$28`. With one-frame acknowledgements it produces 22 real earthquake requests
+over 95 gameplay frames and reaches the native Max6 library-two backlog. After the ordinary
+door stop commands and admission guard, the real wait coroutine reaches palette fade after
+40 logical frames. The ordinary library-two door cancel can consume six of those frames;
+the liquid backlog therefore contributes roughly 34, consistent with the source's
+"around 30" rather than an exact constant. No room-specific delay is present.
+
+Run the completed timing audit with:
+
+```text
+dotnet run --no-build --no-restore --project csharp/src/SuperMetroid.DebugRunner/SuperMetroid.DebugRunner.csproj -c Release -- --processing-door-timing-audit "Super Metroid.smc" csharp/test-fixtures/movement-release/processing-actions-422.csv
+```
+
+Together with the exact original-CPU dispatcher, simultaneous-library, wait-to-fade, action
+producer, and attached-enemy comparisons above, this covers the issue's requested logical
+timing domains. It does not claim that compressed reference-video input can be recovered
+frame-perfectly, nor does it use host paint/audio performance as evidence.

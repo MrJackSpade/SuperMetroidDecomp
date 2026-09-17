@@ -50,6 +50,8 @@ if (args is ["--processing-action-compare", var processingRom, var processingCsv
     return ProcessingActionAudit.Run(processingRom, processingCsv);
 if (args is ["--processing-attached-enemy-audit", var processingEnemyRom])
     return ProcessingAttachedEnemyAudit.Run(processingEnemyRom);
+if (args is ["--processing-door-timing-audit", var processingTimingRom, var processingTimingCsv])
+    return ProcessingDoorTimingAudit.Run(processingTimingRom, processingTimingCsv);
 if (args is ["--recover-recording-state", var recoveryRecording, var recoveryRom, var recoveryAudio, var recoveryDirectory, var recoveryFrame])
     return RecordingRecoveryState.Export(recoveryRecording, recoveryRom, recoveryAudio, recoveryDirectory, int.Parse(recoveryFrame));
 if (args is ["--verify-recovered-state", var recoveredRecording, var recoveredRom, var recoveredAudio, var recoveredDirectory, var recoveredFrame])

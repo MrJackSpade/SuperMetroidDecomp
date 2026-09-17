@@ -58,6 +58,9 @@ public static class SoundEffectLibrary1Sounds
     /// <summary>$90:F576, Samus_ShootCheck: library-one $32 stops a spin when movement leaves spin/wall jump.</summary>
     public static readonly SoundEffectId StopSpinJump = new(SoundEffectLibrary.Library1, 0x32); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
+    /// <summary>$91:F05D stops Screw Attack on landing through library-one $34.</summary>
+    public static readonly SoundEffectId StopScrewAttack = new(SoundEffectLibrary.Library1, 0x34); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>$91:F624, SamusFunc_F468_SpinJump: library-one $33, initial Screw Attack spin.</summary>
     public static readonly SoundEffectId ScrewAttack = new(SoundEffectLibrary.Library1, 0x33); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
 
@@ -138,6 +141,12 @@ public static class SoundEffectLibrary2Sounds
 /// <summary>Named, proven sound sequences in cartridge SFX library three.</summary>
 public static class SoundEffectLibrary3Sounds
 {
+    /// <summary>$91:F076 queues library-three $04 for a landing with whole Y speed at least five.</summary>
+    public static readonly SoundEffectId HardLanding = new(SoundEffectLibrary.Library3, 0x04); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
+    /// <summary>$91:F08A queues library-three $05 for a nonzero landing below whole Y speed five.</summary>
+    public static readonly SoundEffectId SoftLanding = new(SoundEffectLibrary.Library3, 0x05); // magic-number-audit: allow(AudioId) - named cartridge SFX identity
+
     /// <summary>
     /// <c>$A3:A97C</c>, <c>$A3:ED91</c>, and <c>$A8:BE8D</c> queue library-three
     /// <c>$2D</c> once per attached Mochtroid, Metroid, or Beetom on the shared

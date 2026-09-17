@@ -14,6 +14,7 @@ public sealed partial class SuperMetroidRuntime
         {
             mapPresentation = value;
             Hud.BindPresentation(value?.GameplayHud, Samus);
+            MessageBox.BindPresentation(value?.GameplayMessageTitles);
             Enemies.EscapeTimerArtwork = value?.EscapeTimerTiles;
             hudArtworkRefreshPending = value is not null && Hud.IsInitialized;
             if (value is not null)

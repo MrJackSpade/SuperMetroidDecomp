@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
@@ -23,6 +24,7 @@ namespace SuperMetroid.Core.Game;
 public sealed class GameplayMessageBoxState
 {
     private ushort[] _tilemap = [];
+    [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     private readonly ControllerInputState _controller = new();
     private ISnesAddressSpace? _activeBus;
     private int _nextOpeningRadiusPixels;
@@ -84,6 +86,17 @@ public sealed class GameplayMessageBoxState
     public bool ConfirmationSelectionChangedThisFrame { get; private set; }
 
     /// <summary>
+    /// Rebinds host-owned editable content after installation reload or debugger-state restore.
+    /// An active supported title is rebuilt without resetting its coroutine phase.
+    /// </summary>
+    public void BindPresentation(GameplayMessageTitlePresentation? presentation)
+    {
+        titlePresentation = presentation;
+        if (presentation?.Contains(MessageId) == true)
+            _tilemap = presentation.Build(MessageId);
+    }
+
+    /// <summary>
     /// Starts one ordinary gameplay message using its native config and tilemap records.
     /// Bindings are parameters because the options menu may remap them; their defaults are
     /// the words installed by <c>NewSaveFile</c>.
@@ -108,6 +121,32 @@ public sealed class GameplayMessageBoxState
         if (IsActive)
             throw new InvalidOperationException("A gameplay message box is already active.");
 
+        if (titlePresentation?.Contains(messageId) == true)
+            _tilemap = titlePresentation.Build(messageId);
+        else
+            BuildCartridgeTilemap(bus, messageId, shootBinding, runBinding);
+
+        MessageId = messageId;
+        _activeBus = bus;
+        RadiusPixels = 0;
+        MinimumDisplayFramesRemaining = 0;
+        _nextOpeningRadiusPixels = 0;
+        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
+        _closingConfirmationResult = null;
+        _gunshipCompletion = false;
+        CompletedConfirmationResult = null;
+        ConfirmationSelectionYes = true;
+        DrawSaveConfirmationSelection();
+        Phase = GameplayMessageBoxPhase.Opening;
+    }
+
+    private void BuildCartridgeTilemap(
+        ISnesAddressSpace bus,
+        GameplayMessageId messageId,
+        ushort shootBinding,
+        ushort runBinding)
+    {
+        byte rawMessageId = (byte)messageId;
         int definition = GameplayMessageRomData.Assets.DefinitionTable +
             (rawMessageId - 1) * GameplayMessageRomData.Layout.DefinitionBytes;
         ushort modifyFunction = ReadWord(bus, definition);
@@ -123,43 +162,30 @@ public sealed class GameplayMessageBoxState
                 "does not contain complete 32-word rows.");
         }
 
-        int borderAddress;
-        switch (drawFunction)
+        int borderAddress = drawFunction switch
         {
-            case GameplayMessageRomData.Routines.DrawSmallTilemap:
-                borderAddress = GameplayMessageRomData.Assets.SmallBorder;
-                break;
-            case GameplayMessageRomData.Routines.DrawLargeTilemap:
-                borderAddress = GameplayMessageRomData.Assets.LargeBorder;
-                break;
-            default:
-                throw new InvalidDataException(
-                    $"Message {messageId} names unsupported draw routine $85:{drawFunction:X4}.");
-        }
+            GameplayMessageRomData.Routines.DrawSmallTilemap => GameplayMessageRomData.Assets.SmallBorder,
+            GameplayMessageRomData.Routines.DrawLargeTilemap => GameplayMessageRomData.Assets.LargeBorder,
+            _ => throw new InvalidDataException(
+                $"Message {messageId} names unsupported draw routine $85:{drawFunction:X4}."),
+        };
 
-        // `$85:8289` and `$85:825A` select the small and large *border artwork*.
-        // Neither routine fixes the content height. Both tail-call `$85:82C1`, whose
-        // copy length is the difference between this definition's content pointer and
-        // the following definition's pointer. Message $14 (the map-station message) is
-        // the important retail counterexample: it deliberately uses the small border
-        // routine around three content rows. Treating "small" as "one row" made valid
-        // cartridge data fail as soon as the first map station opened.
-        int contentRows = contentByteCount / (GameplayMessageRomData.Layout.TilemapWidth * 2);
-
-        _tilemap = new ushort[
-            (contentRows + GameplayMessageRomData.Layout.BorderRows) *
+        // The draw routine selects border artwork; content height comes from the
+        // difference between adjacent definition pointers. Message $14 deliberately
+        // combines the small border with three content rows.
+        int contentRows = contentByteCount /
+            (GameplayMessageRomData.Layout.TilemapWidth * sizeof(ushort));
+        _tilemap = new ushort[(contentRows + GameplayMessageRomData.Layout.BorderRows) *
             GameplayMessageRomData.Layout.TilemapWidth];
         for (int column = 0; column < GameplayMessageRomData.Layout.TilemapWidth; column++)
         {
-            ushort borderWord = ReadWord(bus, borderAddress + column * 2);
+            ushort borderWord = ReadWord(bus, borderAddress + column * sizeof(ushort));
             _tilemap[column] = borderWord;
-            _tilemap[_tilemap.Length - GameplayMessageRomData.Layout.TilemapWidth + column] =
-                borderWord;
+            _tilemap[_tilemap.Length - GameplayMessageRomData.Layout.TilemapWidth + column] = borderWord;
         }
-        for (int word = 0; word < contentByteCount / 2; word++)
+        for (int word = 0; word < contentByteCount / sizeof(ushort); word++)
             _tilemap[GameplayMessageRomData.Layout.TilemapWidth + word] = ReadWord(
-                bus,
-                GameplayMessageRomData.Assets.BankBase | (contentPointer + word * 2));
+                bus, GameplayMessageRomData.Assets.BankBase | (contentPointer + word * sizeof(ushort)));
 
         switch (modifyFunction)
         {
@@ -176,19 +202,6 @@ public sealed class GameplayMessageBoxState
                 throw new InvalidDataException(
                     $"Message {messageId} names unsupported setup routine $85:{modifyFunction:X4}.");
         }
-
-        MessageId = messageId;
-        _activeBus = bus;
-        RadiusPixels = 0;
-        MinimumDisplayFramesRemaining = 0;
-        _nextOpeningRadiusPixels = 0;
-        _nextClosingRadiusPixels = GameplayMessageRomData.Timing.MaximumRadiusPixels;
-        _closingConfirmationResult = null;
-        _gunshipCompletion = false;
-        CompletedConfirmationResult = null;
-        ConfirmationSelectionYes = true;
-        DrawSaveConfirmationSelection();
-        Phase = GameplayMessageBoxPhase.Opening;
     }
 
     /// <summary>Consumes the completed result of save confirmation message $17.</summary>

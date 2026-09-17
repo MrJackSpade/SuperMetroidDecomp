@@ -166,6 +166,11 @@ public static class MapPresentationExtractor
         using (var file = new FileStream(Path.Combine(directory, FileSelectPresentationDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
             file.Write(fileSelectBytes);
         hashes.Add(FileSelectPresentationDefinitions.FileName, Convert.ToHexString(SHA256.HashData(fileSelectBytes)));
+        byte[] gameplayMessageTitleBytes = GameplayMessageTitleExtractor.Extract(bus);
+        using (var file = new FileStream(Path.Combine(directory, GameplayMessageTitleDefinitions.FileName), FileMode.CreateNew, FileAccess.Write))
+            file.Write(gameplayMessageTitleBytes);
+        hashes.Add(GameplayMessageTitleDefinitions.FileName,
+            Convert.ToHexString(SHA256.HashData(gameplayMessageTitleBytes)));
         using var manifest = new FileStream(Path.Combine(directory, AreaMapCatalogFormat.ManifestFile), FileMode.CreateNew, FileAccess.Write);
         JsonSerializer.Serialize(manifest, new AreaMapCatalogManifest
         {

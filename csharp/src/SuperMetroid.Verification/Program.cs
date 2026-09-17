@@ -375,6 +375,11 @@ if (args is ["--map-presentation"])
     VerifyMapPresentation();
     return 0;
 }
+if (args is ["--gameplay-message-titles", var messageTitleRom])
+{
+    VerifyGameplayMessageTitles(messageTitleRom);
+    return 0;
+}
 if (args is ["--pause-reserve-hud"])
 {
     VerifyPauseReserveHud();

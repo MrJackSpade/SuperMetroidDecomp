@@ -917,6 +917,7 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0xb09204, 0x9abc);
     WriteWord(bus, 0xb09206, 0xdef0);
     WriteCeresEnglishEscapeWarning(bus);
+    WriteZebesEscapeWarning(bus);
     for (int paletteFrame = 0; paletteFrame < 16; paletteFrame++)
     {
         for (int color = 0; color < 3; color++)
@@ -950,6 +951,13 @@ static void VerifyCeresRidleyRoomEntry()
     WriteWord(bus, 0x90c28f, 0x000b);
 
     var enemies = new RoomEnemySystem();
+    using (var escapeText = new MemoryStream(
+        SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
+        enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
+    for (int address = EscapeTypewriterDefinitions.CeresSourceAddress;
+         address < 0xa6c4cb;
+         address++)
+        bus.WriteByte(address, 0);
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0x1234);
 
     RoomEnemySlot ridley = enemies.Slots[0];
@@ -1333,6 +1341,33 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     Word(0x5185);
     Text("COLONY IMMEDIATELY");
     Word(0);
+}
+
+static void WriteZebesEscapeWarning(TestAddressSpace bus)
+{
+    int cursor = EscapeTypewriterDefinitions.ZebesSourceAddress;
+
+    void Word(ushort value)
+    {
+        WriteWord(bus, cursor, value);
+        cursor += 2;
+    }
+
+    void Text(string value)
+    {
+        foreach (char character in value)
+            bus.WriteByte(cursor++, checked((byte)character));
+    }
+
+    Word(EscapeTypewriterRomData.Delay);
+    Word(EscapeTypewriterDefinitions.CharacterDelayFrames);
+    Word(EscapeTypewriterRomData.Destination);
+    Word(0x4905);
+    Text("TIME BOMB SET!");
+    Word(EscapeTypewriterRomData.Destination);
+    Word(0x4945);
+    Text("ESCAPE IMMEDIATELY!");
+    Word(EscapeTypewriterRomData.End);
 }
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>

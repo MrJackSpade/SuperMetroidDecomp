@@ -70,6 +70,12 @@ public sealed partial class RoomEnemySystem
                 if (value is null) active.UnbindProgram();
                 else active.BindProgram(value.Get(EscapeTypewriterProgramId.Zebes));
             }
+            EscapeTypewriterState? ceres = _ridleyState?.CeresEscapeTypewriter;
+            if (ceres?.ProgramId == EscapeTypewriterProgramId.Ceres)
+            {
+                if (value is null) ceres.UnbindProgram();
+                else ceres.BindProgram(value.Get(EscapeTypewriterProgramId.Ceres));
+            }
         }
     }
 

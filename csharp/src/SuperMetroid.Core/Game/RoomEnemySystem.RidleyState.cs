@@ -218,5 +218,6 @@ public sealed class RidleyEnemyState
     public ushort CeresEscapeTextDelayTimer { get; internal set; }
     public ushort CeresEscapeTextDelay { get; internal set; }
     public ushort CeresEscapeTextSoundCounter { get; internal set; }
+    public EscapeTypewriterState? CeresEscapeTypewriter { get; internal set; }
     public ushort CeresEscapePaletteFrame { get; internal set; }
 }

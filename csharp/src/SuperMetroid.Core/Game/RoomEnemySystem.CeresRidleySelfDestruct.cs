@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -75,6 +76,9 @@ public sealed partial class RoomEnemySystem
                 state.CeresEscapeTextDelayTimer = 0;
                 state.CeresEscapeTextDelay = 0;
                 state.CeresEscapeTextSoundCounter = 0;
+                state.CeresEscapeTypewriter = EscapeTypewriterPresentation is { } presentation
+                    ? new(presentation.Get(EscapeTypewriterProgramId.Ceres), CeresTypewriterTileBase)
+                    : null;
 
                 // `$A6:C0E3-$A6:C0F1` advances the even-byte dispatch index twice for
                 // English before executing the common final increment: 6 -> 8 -> 10.
@@ -183,6 +187,20 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the byte-oriented command stream consumed by $A6:C2A7.</summary>
     private bool StepCeresEscapeTypewriter(RidleyEnemyState state)
     {
+        if (state.CeresEscapeTypewriter is { } installed)
+        {
+            bool completed = installed.Step(_bus!, _vram!);
+            state.CeresEscapeTextPointer = unchecked((ushort)installed.Pointer);
+            state.CeresEscapeTextDestination = installed.Destination;
+            state.CeresEscapeTextDelayTimer = installed.DelayTimer;
+            state.CeresEscapeTextDelay = installed.Delay;
+            state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
+            if (installed.ClickRequested)
+                QueueEnemySound(SoundEffectId.FromCartridge(
+                    SoundEffectLibrary.Library2, 0x0045), maximumQueued: 3);
+            return completed;
+        }
+
         if (state.CeresEscapeTextDelayTimer != 0)
         {
             state.CeresEscapeTextDelayTimer--;

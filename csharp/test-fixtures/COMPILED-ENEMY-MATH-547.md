@@ -1325,12 +1325,14 @@ non-sentinel hitbox reference. All 32 words are independently compared to ROM.
 of each left boundary, including exact equality. Existing host arithmetic is
 retained; full-word native overflow parity is not claimed by this substitution.
 
-Non-catalog pointers retain existing address-space reads, including mutable
-low-bank memory. The Kraid audit exercises pointer zero, exposing why rejecting
-all non-catalog values would be an incorrect narrowing. Separate regression
-probes cover zero, another low address, the low-bank boundary and an unaligned
-ROM address. Thus this compiles the fixed geometry, not every possible indirect
-read. The wider mixed head-program migration remains outstanding.
+All 32,768 bank-$A7 low-half pointer starts retain their exact live address-space
+behavior across WRAM, hardware, MDR/open-bus, and unmapped regions rather than
+being mistaken for cartridge definitions. The seven exact upper-window bytes
+reachable when a low-half rectangle crosses `$7FFF` are compiled as bounded
+boundary observations. Every other non-catalog upper-ROM pointer, including
+unaligned pointers inside the authored rectangle range, now fails explicitly
+instead of treating arbitrary code or presentation bytes as physical collision
+geometry. The wider mixed head-program migration remains outstanding.
 
 Full Release Verification, complete Kraid audit (including pointer-zero
 diagnostic handoff) and Windows Release build pass.

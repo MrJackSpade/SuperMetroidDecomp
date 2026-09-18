@@ -7,6 +7,9 @@ internal static partial class Program
     private static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort PointerWord(ushort pointer) => (ushort)(
+            rom.ReadByte(0xa70000 | pointer) |
+            rom.ReadByte(0xa70000 | unchecked((ushort)(pointer + 1))) << 8);
         for (int cursor = 0x96d2; cursor < 0x9788;)
         {
             ushort command = Word(0xa70000 | cursor);
@@ -20,7 +23,8 @@ internal static partial class Program
         }
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        var guarded = new KraidMouthLowHalfReadGuard(rom);
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
         var overlaps = typeof(RoomEnemySystem).GetMethod("KraidMouthHitboxOverlapsShot", flags)!
             .CreateDelegate<Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool>>(enemies);
         var body = enemies.Slots[0];
@@ -45,17 +49,126 @@ internal static partial class Program
                 AssertEqual(expected, overlaps(body, pointer, shot), "Actual mouth collision preserves vertical bounds and inclusive left edge");
             }
         }
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
+
+        for (int index = 0; index < KraidMouthHitboxes.LowHalfBoundaryBytes.Length; index++)
+        {
+            AssertEqual(
+                rom.ReadByte(0xa78000 + index),
+                KraidMouthHitboxes.LowHalfBoundaryBytes[index],
+                $"Kraid mouth low-half boundary byte {index}");
+        }
+
+        for (int rawPointer = 0; rawPointer < 0x8000; rawPointer++)
+        {
+            ushort pointer = (ushort)rawPointer;
+            (short Left, short Top, short Bottom) expected = default;
+            (short Left, short Top, short Bottom) actual = default;
+            Exception? expectedFailure = null;
+            Exception? actualFailure = null;
+            try
+            {
+                expected = (
+                    unchecked((short)PointerWord(pointer)),
+                    unchecked((short)PointerWord(unchecked((ushort)(pointer + 2)))),
+                    unchecked((short)PointerWord(unchecked((ushort)(pointer + 6)))));
+            }
+            catch (Exception failure)
+            {
+                expectedFailure = failure;
+            }
+
+            try
+            {
+                actual = KraidMouthHitboxes.ResolveCollision(guarded, pointer);
+            }
+            catch (Exception failure)
+            {
+                actualFailure = failure;
+            }
+
+            AssertEqual(expectedFailure?.GetType(), actualFailure?.GetType(),
+                $"Kraid low-half failure type ${pointer:X4}");
+            AssertEqual(expectedFailure?.Message, actualFailure?.Message,
+                $"Kraid low-half first-failing access ${pointer:X4}");
+            if (expectedFailure is null)
+            {
+                AssertEqual(expected, actual,
+                    $"Kraid live low-half mouth geometry pointer ${pointer:X4}");
+            }
+        }
+
+        var boundaryBus = new KraidMouthBoundaryReadBus();
+        byte BoundaryByte(ushort pointer) => pointer < 0x8000
+            ? KraidMouthBoundaryReadBus.Value(pointer)
+            : KraidMouthHitboxes.LowHalfBoundaryBytes[pointer - 0x8000];
+        ushort BoundaryWord(ushort pointer) => (ushort)(
+            BoundaryByte(pointer) |
+            BoundaryByte(unchecked((ushort)(pointer + 1))) << 8);
+        for (ushort pointer = 0x7ff9; pointer <= 0x7fff; pointer++)
+        {
+            var expected = (
+                Left: unchecked((short)BoundaryWord(pointer)),
+                Top: unchecked((short)BoundaryWord(unchecked((ushort)(pointer + 2)))),
+                Bottom: unchecked((short)BoundaryWord(unchecked((ushort)(pointer + 6)))));
+            AssertEqual(expected, KraidMouthHitboxes.ResolveCollision(boundaryBus, pointer),
+                $"Kraid low-half crossing pointer ${pointer:X4}");
+        }
+
         shot.XPosition = 260;
         shot.YPosition = 256;
-        foreach (ushort pointer in new ushort[] { 0, 2, 0x1ff8, 0x9789 })
+        foreach (ushort pointer in new ushort[] { 0, 2, 0x1ff8 })
         {
-            int address = 0xa70000 | pointer;
-            short left = (short)Word(address), top = (short)Word(address + 2), bottom = (short)Word(address + 6);
+            short left = unchecked((short)PointerWord(pointer));
+            short top = unchecked((short)PointerWord(unchecked((ushort)(pointer + 2))));
+            short bottom = unchecked((short)PointerWord(unchecked((ushort)(pointer + 6))));
             bool expected = shot.YPosition - shot.YRadius - 1 < body.YPosition + bottom &&
                 shot.YPosition + shot.YRadius >= body.YPosition + top && shot.XPosition + shot.XRadius >= body.XPosition + left;
             AssertEqual(expected, overlaps(body, pointer, shot), "Non-catalog pointers preserve address-space reads");
         }
-        Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native words and 1572864 authored collision probes reject bus access; non-catalog reads preserved.");
+
+        foreach (ushort pointer in new ushort[] { 0x8000, 0x9787, 0x9789, 0x97c8, 0xffff })
+        {
+            AssertThrows<InvalidDataException>(
+                () => KraidMouthHitboxes.ResolveCollision(guarded, pointer),
+                $"Kraid non-catalog cartridge pointer ${pointer:X4} rejects");
+        }
+
+        Console.WriteLine("Kraid mouth geometry: all head-program pointers, 32 native rectangle words, seven low-half boundary bytes, 32768 live address-space starts and 1572864 authored collision probes match; unrelated cartridge pointers reject.");
+    }
+
+    private sealed class KraidMouthLowHalfReadGuard(ISnesAddressSpace source)
+        : ISnesAddressSpace
+    {
+        public byte ReadByte(int address)
+        {
+            SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
+            if (sourceAddress.Bank == 0xa7 && sourceAddress.IsUpperLoRomWindow)
+            {
+                throw new InvalidOperationException(
+                    $"Kraid mouth geometry attempted upper-ROM read {sourceAddress}.");
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace
+    {
+        public static byte Value(ushort pointer) => unchecked((byte)(pointer ^ 0x5a));
+
+        public byte ReadByte(int address)
+        {
+            SnesAddress sourceAddress = SnesAddress.FromBusAddress(address);
+            if (sourceAddress.Bank != 0xa7 || sourceAddress.IsUpperLoRomWindow)
+            {
+                throw new InvalidOperationException(
+                    $"Kraid boundary fixture rejected unexpected read {sourceAddress}.");
+            }
+            return Value(sourceAddress.Offset);
+        }
+
+        public void WriteByte(int address, byte value) =>
+            throw new InvalidOperationException("Kraid mouth geometry is read-only.");
     }
 }

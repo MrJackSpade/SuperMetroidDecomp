@@ -24,6 +24,7 @@ internal static partial class Program
         VerifyMotherBrainNeckSine(rom);
         VerifyCompiledGrappleMath(rom);
         VerifyCompiledProjectileMath(rom);
+        VerifyBeamCallbackTables();
         VerifyCompiledFamilyTrigonometry(rom);
         VerifyPhantoonWaveMath(rom);
         VerifyCompiledLinearEnemySpeeds(rom);

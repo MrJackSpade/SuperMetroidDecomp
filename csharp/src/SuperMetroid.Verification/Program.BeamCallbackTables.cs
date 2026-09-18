@@ -8,20 +8,51 @@ internal static partial class Program
     private static void VerifyBeamCallbackTables()
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = new RoomLevelData(16, 16, new ushort[256], new byte[256], new ushort[256], new byte[8]);
         foreach (bool charged in new[] { false, true })
-        foreach (var (pointer, expected) in new[] {
-            (SamusBeamPreInstructionCodes.NoWave, SamusProjectilePreInstruction.NoWaveBeam),
-            (SamusBeamPreInstructionCodes.WaveThreeFrameTrail, SamusProjectilePreInstruction.WaveBeamThreeFrameTrail),
-            (SamusBeamPreInstructionCodes.WaveFourFrameTrail, SamusProjectilePreInstruction.WaveBeamFourFrameTrail) })
         {
-            // Keep the beam word fixed; only the cartridge table changes. This catches
-            // synthesized dispatch that passes all retail combinations by coincidence.
+            ReadOnlySpan<SamusBeamCallbackDefinition> definitions = charged
+                ? SamusBeamCallbackDefinitions.Charged
+                : SamusBeamCallbackDefinitions.Uncharged;
+            AssertEqual(SamusBeamCallbackDefinitions.CombinationCount, definitions.Length,
+                $"charged={charged} beam callback definition count");
+            int table = charged
+                ? SamusBeamPreInstructionCodes.ChargedTable
+                : SamusBeamPreInstructionCodes.UnchargedTable;
+            for (int combination = 0; combination < definitions.Length; combination++)
+            {
+                AssertEqual(
+                    ReadBeamCallbackWord(retail, table + combination * sizeof(ushort)),
+                    definitions[combination].NativePointer,
+                    $"charged={charged} callback {combination:X1} matches cartridge");
+                AssertEqual(
+                    definitions[combination],
+                    SamusBeamCallbackDefinitions.Resolve(charged, combination),
+                    $"charged={charged} callback {combination:X1} resolves by identity");
+            }
+        }
+
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => SamusBeamCallbackDefinitions.Resolve(false, 16),
+            "beam callback rejects index beyond low nibble");
+
+        var room = new RoomLevelData(
+            16,
+            16,
+            new ushort[256],
+            new byte[256],
+            new ushort[256],
+            new byte[8]);
+        foreach (bool charged in new[] { false, true })
+        foreach (int beamType in Enumerable.Range(0, 12))
+        {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            bus.SetWord(charged ? SamusBeamPreInstructionCodes.ChargedTable :
-                SamusBeamPreInstructionCodes.UnchargedTable, pointer);
-            var samus = new SamusState { Pose = 1, XPosition = 128, YPosition = 128,
-                EquippedBeams = charged ? (ushort)0x1000 : (ushort)0 };
+            var samus = new SamusState
+            {
+                Pose = 1,
+                XPosition = 128,
+                YPosition = 128,
+                EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),
+            };
             var projectiles = new SamusProjectileSystem();
             var shared = new SamusBombProjectileSystem();
             if (charged)
@@ -33,13 +64,28 @@ internal static partial class Program
                         frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
                 }
             }
-            var result = projectiles.StepFrame(bus, room, samus,
+            SamusProjectileFrameResult result = projectiles.StepFrame(
+                bus,
+                room,
+                samus,
                 charged ? (ushort)0 : (ushort)SnesButton.X,
-                charged ? (ushort)0 : (ushort)SnesButton.X, 0, 0, shared);
-            AssertEqual(true, result.FiredSlot.HasValue, "callback table fixture fires");
-            AssertEqual(expected, projectiles.Slots[result.FiredSlot!.Value].PreInstruction,
-                $"charged={charged} callback pointer {pointer:X4} controls production dispatch");
+                charged ? (ushort)0 : (ushort)SnesButton.X,
+                0,
+                0,
+                shared);
+            AssertTrue(result.FiredSlot.HasValue,
+                $"charged={charged} beam {beamType:X1} fires");
+            SamusBeamCallbackDefinition expected =
+                SamusBeamCallbackDefinitions.Resolve(charged, beamType);
+            AssertEqual(
+                expected.Translated!.Value,
+                projectiles.Slots[result.FiredSlot!.Value].PreInstruction,
+                $"charged={charged} beam {beamType:X1} installs compiled callback");
         }
-        Console.WriteLine("Beam callback tables: both producers honor all three translated pointers independently of beam bits.");
+        Console.WriteLine(
+            "Beam callback definitions: all 32 low-nibble words and 24 retail firing paths pass with both source ranges forbidden.");
     }
+
+    private static ushort ReadBeamCallbackWord(SuperMetroidAddressSpace bus, int address) =>
+        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 }

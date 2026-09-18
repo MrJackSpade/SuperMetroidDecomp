@@ -328,24 +328,10 @@ public sealed partial class SamusProjectileSystem
         {
             // The cartridge installs the callback only after muzzle collision. Do not
             // infer it from Wave bits: the table is the dispatcher, including overreads.
-            ushort callback = ReadWord(bus, (charged
-                ? SamusBeamPreInstructionCodes.ChargedTable
-                : SamusBeamPreInstructionCodes.UnchargedTable) + slot.PackedType.BeamCombinationIndex * sizeof(ushort));
-            slot.PreInstruction = callback switch
-            {
-                SamusBeamPreInstructionCodes.NoWave => SamusProjectilePreInstruction.NoWaveBeam,
-                SamusBeamPreInstructionCodes.WaveThreeFrameTrail => SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
-                SamusBeamPreInstructionCodes.WaveFourFrameTrail => SamusProjectilePreInstruction.WaveBeamFourFrameTrail,
-                SamusBeamPreInstructionCodes.SpacetimePaletteCopyTail =>
-                    SamusProjectilePreInstruction.SpacetimePaletteCopyTail,
-                SamusBeamPreInstructionCodes.ChainsawWindowStoreThenPowerBomb =>
-                    SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb,
-                SamusBeamPreInstructionCodes.ChargedChainsawLowWramExecution =>
-                    SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
-                SamusBeamPreInstructionCodes.MurderBeamMisalignedExecution =>
-                    SamusProjectilePreInstruction.MurderBeamMisalignedExecution,
-                _ => throw new NotSupportedException($"Beam callback $90:{callback:X4} is not translated."),
-            };
+            SamusBeamCallbackDefinition callback =
+                SamusBeamCallbackDefinitions.Resolve(charged, beamType);
+            slot.PreInstruction = callback.Translated ?? throw new NotSupportedException(
+                $"Beam callback $90:{callback.NativePointer:X4} is not translated.");
             InitializePowerBeamVelocity(bus, slot);
         }
         return (slotIndex, sound);

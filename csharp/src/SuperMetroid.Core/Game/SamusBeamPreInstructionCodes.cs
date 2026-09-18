@@ -14,6 +14,11 @@ public static class SamusBeamPreInstructionCodes
     /// <summary>$90:B0C3, ProjPreInstr_WavePlasmaEtc: Wave movement with a four-frame trail reload.</summary>
     public const ushort WaveFourFrameTrail = 0xb0c3;
     /// <summary>
+    /// <c>$3920</c>, the non-routine word observed when uncharged combination twelve
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort UnchargedCombinationTwelveAdjacentWord = 0x3920;
+    /// <summary>
     /// $90:AD16, the invalid beam-combination fourteen entry read two words beyond
     /// FireUnchargedBeam's callback table. JSR enters the operand of LoadBeamPalette's
     /// sprite-palette store, then falls into its increment/loop tail with projectile-owned
@@ -34,6 +39,18 @@ public static class SamusBeamPreInstructionCodes
     /// execution is data-dependent and may crash; it is not a stable bank-$90 routine.
     /// </summary>
     public const ushort ChargedChainsawLowWramExecution = 0x0a0a;
+
+    /// <summary>
+    /// <c>$0DC2</c>, the non-routine word observed when uncharged combination fifteen
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort UnchargedCombinationFifteenAdjacentWord = 0x0dc2;
+
+    /// <summary>
+    /// <c>$1CAD</c>, the non-routine word observed when charged combination twelve
+    /// indexes beyond the retail callback table. It remains untranslated and fails loudly.
+    /// </summary>
+    public const ushort ChargedCombinationTwelveAdjacentWord = 0x1cad;
 
     /// <summary>
     /// $90:A4AA, the callback obtained when charged all-beams combination fifteen reads

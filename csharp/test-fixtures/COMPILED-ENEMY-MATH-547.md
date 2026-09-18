@@ -2393,3 +2393,17 @@ rejects the ordinary no-op header, and extends the production read guard across
 `$84:B713-$B742`. Real inside/collision physics and the G-Mode forty-slot fill
 continue through the compiled identities; unrelated restored/other-area headers
 retain their explicit cartridge fallback.
+
+# Beam pre-instruction callback definitions
+
+`SamusBeamCallbackDefinitions` compiles both complete sixteen-word low-nibble
+domains at `$90:B96E-$B98D` and `$90:BA3E-$BA5D`. The first twelve records retain
+ordinary retail Power/Wave/Ice/Spazer/Plasma dispatch. The four adjacent-code
+observations in each domain remain exact, including the translated Chainsaw,
+SpaceTime, and Murder Beam callbacks and three deliberately unsupported words.
+
+Verification compares all 32 words with the pinned cartridge, resolves every
+index, rejects a value beyond the low nibble, and fires all 24 ordinary charged
+and uncharged combinations through production with both source ranges forbidden.
+The previous synthetic test that rewrote executable callback tables was removed;
+the catalog is now the authoritative immutable dispatcher.

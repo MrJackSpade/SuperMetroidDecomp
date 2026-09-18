@@ -102,8 +102,10 @@ internal static partial class Program
         private readonly Dictionary<int, byte> _overrides = new();
         public byte ReadByte(int address)
         {
-            if (address is >= 0x90c2d1 and < 0x90c37b)
-                throw new InvalidOperationException($"Compiled projectile motion unexpectedly reads ROM ${address:X6}.");
+            if (address is >= 0x90c2d1 and < 0x90c37b or
+                >= SamusBeamPreInstructionCodes.UnchargedTable and < SamusBeamPreInstructionCodes.UnchargedTable + 32 or
+                >= SamusBeamPreInstructionCodes.ChargedTable and < SamusBeamPreInstructionCodes.ChargedTable + 32)
+                throw new InvalidOperationException($"Compiled projectile mechanics unexpectedly read ROM ${address:X6}.");
             return _overrides.TryGetValue(address, out byte value) ? value : source.ReadByte(address);
         }
         public void WriteByte(int address, byte value) => _overrides[address] = value;

@@ -2901,7 +2901,7 @@ public sealed partial class RoomEnemySystem
             : EnemyVulnerabilityDefinitions.DefaultPointer;
         int vulnerabilityOffset = family switch
         {
-            SamusProjectileFamily.Beam => projectile.Type & 0x000f,
+            SamusProjectileFamily.Beam => projectile.PackedType.BeamCombinationIndex,
             SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
             SamusProjectileFamily.SuperMissile =>
                 EnemyVulnerabilityDefinitions.SuperMissileOffset,

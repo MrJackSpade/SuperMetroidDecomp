@@ -196,8 +196,7 @@ public sealed partial class RoomEnemySystem
             state.CeresEscapeTextDelay = installed.Delay;
             state.CeresEscapeTextSoundCounter = unchecked((ushort)(installed.GlyphsWritten & 1));
             if (installed.ClickRequested)
-                QueueEnemySound(SoundEffectId.FromCartridge(
-                    SoundEffectLibrary.Library2, 0x0045), maximumQueued: 3);
+                QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
             return completed;
         }
 
@@ -248,7 +247,7 @@ public sealed partial class RoomEnemySystem
             // Ceres is area six, selecting QueueSfx2_Max3($45); the alternate library-three
             // call belongs to the non-Ceres reuse of this shared native routine.
             if (state.CeresEscapeTextSoundCounter == 0)
-                QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x0045), maximumQueued: 3);
+                QueueEnemySound(EscapeTypewriterRomData.CeresClick, maximumQueued: 3);
             return false;
         }
     }

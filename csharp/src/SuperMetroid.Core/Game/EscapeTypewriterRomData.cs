@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Audio;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Shared $A6:C2A7 byte-stream commands and the Zebes text setup.</summary>
@@ -19,6 +21,9 @@ public static class EscapeTypewriterRomData
     public const byte ExclamationGlyph = 91;
     /// <summary>$A6:C36D non-Ceres key click in sound library three.</summary>
     public const ushort ZebesClick = 0x0d;
+    /// <summary>$A6:C371 queues library-two $45 for every other Ceres typewriter glyph.</summary>
+    public static readonly SoundEffectId CeresClick =
+        new(SoundEffectLibrary.Library2, 0x45);
     /// <summary>$A6:C23F escape message foreground colors are copied from these two entries.</summary>
     public const int ColorSource = 125;
     /// <summary>$A6:C242 the two message foreground colors land at these entries.</summary>

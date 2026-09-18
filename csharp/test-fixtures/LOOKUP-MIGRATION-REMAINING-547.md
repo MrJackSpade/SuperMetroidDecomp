@@ -380,6 +380,11 @@ a mutually-exclusive selector enum with an explicit reinstall sentinel. All six
 installs, phase/facing mappings, and both live directional body/wing/attack paths
 run with the pointer table forbidden. The animation programs remain separate.
 
+The six enemy-pickup selectors at `$86:EF04-$EF0F` are compiled in
+`EnemyPickupDefinitions`, retaining the cartridge's non-visual kind order and byte
+offsets. All five live pickup initialization paths now avoid the pointer table;
+the no-drop identity remains outside that authored table and fails explicitly.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

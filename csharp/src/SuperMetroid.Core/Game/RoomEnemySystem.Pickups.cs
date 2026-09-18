@@ -22,7 +22,6 @@ public sealed partial class RoomEnemySystem
         EnemyProjectileCodePointers.PreInstruction_EnemyProjectile_Pickup;
     private const ushort EnemyPickupLifetime = 400;
     private const ushort EnemyPickupGrappleDelay = 16;
-    private const int EnemyPickupInstructionPointerTable = 0x86ef04;
     private const int EnemyDropChancesBank = 0xb40000;
 
     // Indexes zero through five are the accumulator order used by $86:F106. Notice that
@@ -259,15 +258,13 @@ public sealed partial class RoomEnemySystem
         BeginEnemyPickup(projectile, kind);
     }
 
-    private void BeginEnemyPickup(
+    private static void BeginEnemyPickup(
         RoomEnemyProjectileSlot projectile,
         EnemyPickupKind kind)
     {
-        ushort tableOffset = checked((ushort)((ushort)kind * 2));
-        projectile.Variable0 = tableOffset;
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            EnemyPickupInstructionPointerTable + tableOffset);
+        EnemyPickupAnimationDefinition animation = EnemyPickupDefinitions.Animation(kind);
+        projectile.Variable0 = animation.TableOffset;
+        projectile.InstructionPointer = animation.InstructionList;
         projectile.InstructionTimer = 1;
         projectile.Variable1 = EnemyPickupLifetime;
         projectile.PreInstruction = EnemyPickupPreInstruction;

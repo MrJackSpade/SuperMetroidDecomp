@@ -76,7 +76,6 @@ public sealed class RoomSpriteObjectSlot
 public sealed partial class RoomEnemySystem
 {
     private const int RoomSpriteObjectSlotCount = 32;
-    private const int RoomSpriteObjectInstructionTable = 0xb4bda8;
     private const ushort SpriteObjectRepeatLastInstruction = 0xbcf0;
     private const ushort SpriteObjectTerminateInstruction = 0xbd07;
     private const ushort SpriteObjectGotoInstruction = 0xbd12;
@@ -122,9 +121,7 @@ public sealed partial class RoomEnemySystem
             slot.XPosition = x;
             slot.YPosition = y;
             slot.GraphicsIndex = graphicsIndex;
-            slot.InstructionPointer = ReadWord(
-                _bus!,
-                RoomSpriteObjectInstructionTable + (ushort)kind * 2);
+            slot.InstructionPointer = RoomSpriteObjectDefinitions.InstructionPointer(kind);
             LoadRoomSpriteObjectFrame(slot);
             return slot;
         }

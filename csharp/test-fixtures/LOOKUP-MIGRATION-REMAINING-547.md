@@ -501,6 +501,11 @@ orientations, the eight duplicated hidden-head entries, eight spit orientations,
 movement, aim, and articulated-body consumers run with `$B3:946B-$949A` and
 `$86:E9F1-$EA30` forbidden. The selected instruction programs remain separate dependencies.
 
+The shared bank-$B4 room-sprite-object dispatcher now compiles all 62 initial instruction
+selectors, including native object numbers not yet named by a translated caller. Every entry
+runs through the real descending finite-pool allocator and first-frame loader with
+`$B4:BDA8-$BE23` forbidden. The selected mixed lifetime/artwork programs remain separate.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

@@ -22,9 +22,13 @@ internal sealed class EndingLogo
         for (int i = 0; i < actors.Length; i++)
         {
             var origin = EndingLogoDefinitions.Origin(i);
-            ushort list = RomDataReader.ReadWordFixedBank(bus,
-                IntroCinematicRomData.Banks.CinematicCode | (EndingLogoDefinitions.Actors[i] + 4));
-            actors[i] = new IntroDiscoverySprite(origin.X, origin.Y, SnesObjPalettes.Index7.Raw, list);
+            EndingLogoActorDefinition definition = EndingLogoDefinitions.Actor(i);
+            actors[i] = new IntroDiscoverySprite(
+                origin.X,
+                origin.Y,
+                SnesObjPalettes.Index7.Raw,
+                definition.InstructionList);
+            actors[i].PreInstructionPointerForDiscovery(definition.PreInstruction);
         }
         for (int i = 0; i < 16; i++) cgram.SetColor(16 + i, 0);
         cgram.LoadFromBus(bus, EndingLogoDefinitions.InitialPalette, 16, 240);

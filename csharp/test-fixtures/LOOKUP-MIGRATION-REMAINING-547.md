@@ -208,6 +208,10 @@ triples. Their initialization callback, no-op pre-instruction identity, and init
 selector are compiled, while the selected animation and spritemap programs remain ROM
 presentation data.
 
+The adjacent final-logo owner now compiles its four initialization/pre-instruction/list
+triples as well. Its complete approach and palette-crossfade path no longer reads those
+definition records; the selected animation, spritemap, and palette data remain in ROM.
+
 ## Additional inventory still required
 
 Samus's fixed atmospheric-effect policy is now compiled too: all 28 movement-type

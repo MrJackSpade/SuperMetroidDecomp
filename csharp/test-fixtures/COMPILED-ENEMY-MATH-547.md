@@ -2594,3 +2594,12 @@ cartridge-backed presentation data.
 Verification compares all thirty native words, rejects unknown definitions, and runs every
 reward variant through gesture, jump, landing, sixteen graphics uploads, and shot request
 with the ten source records forbidden.
+
+# Ending logo actor definitions
+
+The four six-byte actor definitions used to assemble the final Super Metroid logo now
+compile their initialization callback, movement/no-op pre-instruction, and starting list.
+Logo animation, spritemaps, and palette colors remain cartridge-backed presentation data.
+
+Verification compares all twelve native definition words, rejects an out-of-range actor
+index, and runs the complete approach/crossfade with every source record forbidden.

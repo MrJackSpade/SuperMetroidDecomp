@@ -6,9 +6,11 @@ internal static partial class Program
 {
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
+        VerifyEndingLogoDefinitions(bus);
+        var guarded = new EndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
         int landings = 0;
-        var logo = new EndingLogo(bus, cgram, () => landings++);
+        var logo = new EndingLogo(guarded, cgram, () => landings++);
         int frame = 0, fadeStart = 0;
         var poses = new HashSet<string>();
         while (!logo.Completed && frame < 300)
@@ -30,6 +32,56 @@ internal static partial class Program
         AssertEqual(187, frame, "logo palette handoff follows sixteen function calls");
         AssertEqual(1, landings, "upper logo half spawns its palette FX exactly once on landing");
         AssertTrue(poses.Count >= 10, "logo approach and circle animation produce changing OAM positions/maps");
+        AssertEqual(0, guarded.ForbiddenReadAttempts,
+            "ending logo never rereads compiled actor definitions");
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
+    }
+
+    private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) => unchecked((ushort)(
+            source.ReadByte(address) | source.ReadByte(address + 1) << 8));
+
+        for (int index = 0; index < EndingLogoDefinitions.Actors.Length; index++)
+        {
+            EndingLogoActorDefinition actual = EndingLogoDefinitions.Actor(index);
+            AssertEqual(EndingLogoDefinitions.Actors[index], actual.Pointer,
+                $"logo actor {index} definition pointer");
+            int address = EndingLogoDefinitions.NativeDefinitionBank | actual.Pointer;
+            AssertEqual(ReadWord(bus, address), actual.Initialization,
+                $"logo actor {index} initialization callback");
+            AssertEqual(ReadWord(bus, address + 2), actual.PreInstruction,
+                $"logo actor {index} pre-instruction callback");
+            AssertEqual(ReadWord(bus, address + 4), actual.InstructionList,
+                $"logo actor {index} initial instruction list");
+        }
+        AssertThrows<ArgumentOutOfRangeException>(
+            () => EndingLogoDefinitions.Actor(4),
+            "logo actor definition boundary");
+        Console.WriteLine(
+            "  Logo definitions: twelve native callback/list words match the compiled catalog.");
+    }
+
+    private sealed class EndingLogoDefinitionReadGuard(ISnesAddressSpace source) :
+        ISnesAddressSpace
+    {
+        public int ForbiddenReadAttempts { get; private set; }
+
+        public byte ReadByte(int address)
+        {
+            foreach (ushort pointer in EndingLogoDefinitions.Actors)
+            {
+                int start = EndingLogoDefinitions.NativeDefinitionBank | pointer;
+                if (address >= start && address < start + 3 * sizeof(ushort))
+                {
+                    ForbiddenReadAttempts++;
+                    throw new InvalidOperationException(
+                        $"Ending logo reread definition byte ${address:X6}.");
+                }
+            }
+            return source.ReadByte(address);
+        }
+
+        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

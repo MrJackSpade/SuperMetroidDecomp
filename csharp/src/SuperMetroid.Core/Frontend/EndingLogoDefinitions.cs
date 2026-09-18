@@ -3,8 +3,21 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge definitions for the final assembling Super Metroid icon.</summary>
 internal static class EndingLogoDefinitions
 {
+    /// <summary>Bank containing the native six-byte cinematic-object definitions.</summary>
+    public const int NativeDefinitionBank = 0x8b0000;
+
     /// <summary>$8B:EF81/EF87/EF8D/EF93, in native allocation order.</summary>
     public static ReadOnlySpan<ushort> Actors => [0xef81, 0xef87, 0xef8d, 0xef93];
+
+    /// <summary>Returns one complete native logo actor definition in allocation order.</summary>
+    public static EndingLogoActorDefinition Actor(int index) => index switch
+    {
+        0 => new(0xef81, 0xf18f, 0xf1e7, 0xee5d),
+        1 => new(0xef87, 0xf1a8, 0xf227, 0xee65),
+        2 => new(0xef8d, 0xf1c1, EndingRewardActorDefinitions.SharedNoOp, 0xee6d),
+        3 => new(0xef93, 0xf1d4, EndingRewardActorDefinitions.SharedNoOp, 0xee87),
+        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+    };
     /// <summary>F18F–F1D4 initialize these world-space centers before the $100 scroll subtraction.</summary>
     public static (ushort X, ushort Y) Origin(int actor) => actor switch
     {
@@ -36,3 +49,10 @@ internal static class EndingLogoDefinitions
     /// <summary>F25E selects logo BG2 characters at VRAM word $6000.</summary>
     public const ushort Characters = 0x6000;
 }
+
+/// <summary>One native six-byte final-logo cinematic-object definition.</summary>
+internal readonly record struct EndingLogoActorDefinition(
+    ushort Pointer,
+    ushort Initialization,
+    ushort PreInstruction,
+    ushort InstructionList);

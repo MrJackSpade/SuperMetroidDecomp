@@ -81,6 +81,7 @@ internal static partial class Program
         VerifyBombTorizoAttackDefinitions(rom);
         VerifyBombTorizoMovementDefinitions(rom);
         VerifyCrocomireRumbleDefinitions(rom);
+        VerifyRoomShakeDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

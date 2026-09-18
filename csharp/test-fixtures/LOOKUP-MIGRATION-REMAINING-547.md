@@ -455,6 +455,11 @@ complete retail schedule is compared word-for-word and replayed frame-for-frame 
 an independent ROM-backed reference with `$A4:98CA-$A4:9909` forbidden to production.
 The duplicate trailing terminator remains available to restored/debugger state.
 
+All 36 room-shake types now pair their BG1/BG2 and enemy-projectile XY displacement
+records in one compiled physical catalog. Both real consumers are exercised with positive
+and alternating-negative phases while the complete bank-$A0 and bank-$86 source tables
+are forbidden; frozen, expired, and non-rendered type boundaries remain unchanged.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

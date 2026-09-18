@@ -12,10 +12,9 @@ public sealed partial class RoomEnemySystem
     {
         if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return default;
-        int address = RoomFxRomData.Earthquake.ProjectileDisplacementTableAddress +
-            EarthquakeType * RoomFxRomData.Earthquake.ProjectileBytesPerType;
-        short x = unchecked((short)ReadWord(_bus!, address));
-        short y = unchecked((short)ReadWord(_bus!, address + sizeof(ushort)));
+        RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
+        short x = definition.ProjectileX;
+        short y = definition.ProjectileY;
         if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
             return (unchecked((short)-x), unchecked((short)-y));
         return (x, y);
@@ -42,12 +41,11 @@ public sealed partial class RoomEnemySystem
             EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return LastRoomShake;
 
-        int tableAddress = RoomFxRomData.Earthquake.BgDisplacementTableAddress +
-            EarthquakeType * RoomFxRomData.Earthquake.BytesPerType;
-        short bg1X = unchecked((short)ReadWord(_bus!, tableAddress));
-        short bg1Y = unchecked((short)ReadWord(_bus!, tableAddress + 2));
-        short bg2X = unchecked((short)ReadWord(_bus!, tableAddress + 4));
-        short bg2Y = unchecked((short)ReadWord(_bus!, tableAddress + 6));
+        RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
+        short bg1X = definition.Bg1X;
+        short bg1Y = definition.Bg1Y;
+        short bg2X = definition.Bg2X;
+        short bg2Y = definition.Bg2Y;
 
         // Bit one alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.

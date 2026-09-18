@@ -54,7 +54,6 @@ public sealed partial class RoomEnemySystem
 
     private const ushort ElevatorNothingSpritemap = 0x804d;
     private const ushort ElevatorInstructionList = 0x94d6;
-    private const int ElevatorInputMaskTable = 0xa394e2;
     private const int ElevatorSpeedFixed = 0x00018000;
     private const ushort ElevatorDepartureSoundLibrary1 = 0x0032;
     private const ushort ElevatorDepartureSoundLibrary3 = 0x000b;
@@ -238,17 +237,8 @@ public sealed partial class RoomEnemySystem
         ushort newlyPressedControllerInput,
         SamusProjectileSystem? samusProjectiles)
     {
-        if (state.DirectionTableByteOffset > 2 ||
-            (state.DirectionTableByteOffset & 1) != 0)
-        {
-            throw new InvalidDataException(
-                $"Elevator direction offset ${state.DirectionTableByteOffset:X4} exceeds " +
-                "$A3:94E2's two-word input table.");
-        }
-
-        ushort requiredInput = ReadWord(
-            _bus!,
-            ElevatorInputMaskTable + state.DirectionTableByteOffset);
+        ushort requiredInput =
+            ElevatorActorDefinitions.RequiredDirectionInput(state.DirectionTableByteOffset);
         if ((newlyPressedControllerInput & requiredInput) == 0)
         {
             ElevatorFlags = 0;

@@ -2011,3 +2011,15 @@ cartridge, invokes the production initializer for all four selectors while the
 complete source span is forbidden, and checks the two-bit mask for additional
 parameter values. No malformed/custom selector is silently normalized to an
 authored state.
+
+# Elevator direction inputs
+
+`ElevatorActorDefinitions` compiles the two newly-pressed controller masks at
+`$A3:94E2-$94E5`. The actor's doubled population parameter remains the native
+byte offset: zero requires Down for downward travel and two requires Up for
+upward travel. Odd and out-of-range restored offsets fail explicitly.
+
+Verification independently compares both words to the pinned cartridge and
+runs both real departure paths through pose setup, graphics priming, projectile
+reset publication, Samus pinning, input locking, sound publication, status, and
+frame-event changes while the old input table is forbidden.

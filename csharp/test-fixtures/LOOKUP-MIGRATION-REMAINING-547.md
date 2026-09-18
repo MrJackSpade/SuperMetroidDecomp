@@ -107,6 +107,10 @@ Wrecked Ship Spark's three authored initial instruction/function pairs are
 compiled too, together with selector three's two adjacent-code observations.
 All four production initializers retain the two-bit population mask while
 `$A8:E682-$E68F` is forbidden. Mixed animation programs remain separate dependencies.
+The elevator actor's Down/Up departure masks are compiled in its shared domain
+catalog. Both real departure paths retain the doubled population byte offset,
+pose/input/projectile/audio handoff, and Samus pinning while `$A3:94E2-$94E5`
+is forbidden.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

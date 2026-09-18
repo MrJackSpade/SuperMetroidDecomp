@@ -2325,3 +2325,16 @@ real debounced arm-cannon update for all six HUD selections while the source ran
 is guarded against runtime access. It also rejects a seventh selector explicitly.
 The pose drawing records, OAM attributes, tile-list pointers, and tile graphics
 remain cartridge-backed presentation data.
+
+# Tourian access-floor PLM definitions
+
+`TourianAccessPlmDefinitions` compiles the two complete spawn identities used by
+the four-boss statue sequence: crumble header/list `$B773/$AAE5` and clear
+header/list `$B777/$AB0C`. `TrySpawnTourianAccess` no longer accepts an address
+space or rereads header+2 during the live descent and already-unlocked paths.
+
+Verification compares both initial-list words with the pinned cartridge and runs
+both real PLM allocation paths. Each occupies native slot 39, targets block
+`(6,12)`, installs the matching header/list pair, and starts on timer one. The
+mixed crumble/clear instruction streams and their draw data remain cartridge-
+backed program/presentation data.

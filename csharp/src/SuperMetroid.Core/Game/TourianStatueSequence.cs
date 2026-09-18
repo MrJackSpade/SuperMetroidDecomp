@@ -39,7 +39,7 @@ public sealed class TourianStatueSequence
         {
             descent = TourianStatueRomData.DescentDistance << 16;
             runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
-            runtime.Plms.TrySpawnTourianAccess(runtime.AddressSpace, runtime.LevelData!, clear: true);
+            runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: true);
             EnableScrolling(runtime);
         }
         else
@@ -149,7 +149,7 @@ public sealed class TourianStatueSequence
         runtime.Enemies.TourianEntranceStatueVerticalOffset = VerticalOffset;
         if (descent == TourianStatueRomData.DescentDistance << 16)
         {
-            runtime.Plms.TrySpawnTourianAccess(runtime.AddressSpace, runtime.LevelData!, clear: false);
+            runtime.Plms.TrySpawnTourianAccess(runtime.LevelData!, clear: false);
             runtime.System.SetEvent(EventNumber.TourianUnlocked);
         }
     }

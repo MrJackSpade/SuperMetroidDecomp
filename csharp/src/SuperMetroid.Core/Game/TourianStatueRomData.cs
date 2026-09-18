@@ -5,8 +5,6 @@ public static class TourianStatueRomData
 {
     /// <summary>Bank $86 owns the statue unlock projectiles and their instruction operands.</summary>
     public const int ProjectileBank = 0x860000;
-    /// <summary>Bank $84 owns the clear/crumble access PLM headers and instruction-list pointers.</summary>
-    public const int AccessPlmBank = 0x840000;
     /// <summary>$8F:91D7 spawn order; native allocation/iteration preserves this order.</summary>
     public static ReadOnlySpan<ushort> AnimatedObjects => [0x8558, 0x854c, 0x855e, 0x8552];
     /// <summary>$87:833E serializes the four lock-release animations with bit 15.</summary>
@@ -19,10 +17,6 @@ public static class TourianStatueRomData
     public const int DescentStep = 0x4000;
     /// <summary>$88:DC69 completes at signed BG2 offset -240.</summary>
     public const int DescentDistance = 240;
-    /// <summary>$84:B773 crumble access to Tourian elevator, spawned at (6,12).</summary>
-    public const ushort CrumbleAccess = 0xb773;
-    /// <summary>$84:B777 clear access on re-entry after event $0A.</summary>
-    public const ushort ClearAccess = 0xb777;
     /// <summary>$84:AB00 advances the six-row crumble PLM one row downward.</summary>
     public const ushort MoveAccessDown = 0xab00;
     /// <summary>$87:839C eight grey target palette colors used by $87:837F.</summary>

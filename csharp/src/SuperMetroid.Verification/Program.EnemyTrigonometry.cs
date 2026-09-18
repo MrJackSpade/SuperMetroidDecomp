@@ -26,6 +26,7 @@ internal static partial class Program
         VerifyPhantoonWaveMath(rom);
         VerifyCompiledLinearEnemySpeeds(rom);
         VerifyFirefleaMovementDefinitions(rom);
+        VerifyCacatacMovementDefinitions(rom);
         VerifyCompiledQuadraticEnemySpeeds(rom);
         VerifyCompiledBullMovement(rom);
         VerifyPowerBombCallbackDefinitions(rom);

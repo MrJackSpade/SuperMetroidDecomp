@@ -87,6 +87,10 @@ Fireflea's eight parameter-selected circular/vertical movement radii are compile
 too. Every production initializer runs with `$A3:8D1D-$8D2C` forbidden; restored
 selectors outside the authored zero-through-seven domain fail explicitly instead
 of reading adjacent enemy code.
+Cacatac's six parameter-selected patrol distances are compiled as physical
+definitions as well. All eighteen selector/wrapped-origin initializer cases run
+with `$A2:9F36-$9F41` forbidden; invalid restored selectors no longer consume
+adjacent code as a distance.
 The shared $94:8B2B height profiles are compiled for Samus, enemies, missiles and
 bomb spread. Samus horizontal multipliers are also compiled and exhaustively
 verified. Square-slope definitions now share a compiled domain catalog across

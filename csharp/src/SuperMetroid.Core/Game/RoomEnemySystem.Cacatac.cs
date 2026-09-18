@@ -116,7 +116,6 @@ public sealed partial class RoomEnemySystem
     private const ushort CacatacUpsideUpAttackInstructionList = 0x9eb0;
     private const ushort CacatacUpsideDownIdleInstructionList = 0x9eda;
     private const ushort CacatacUpsideDownAttackInstructionList = 0x9f00;
-    private const int CacatacTravelDistanceTable = 0xa29f36;
     private const ushort CacatacSpikeSound = 0x0034;
 
     private readonly CacatacEnemyState?[] _cacatacStates =
@@ -161,7 +160,7 @@ public sealed partial class RoomEnemySystem
                 ? CacatacUpsideUpIdleInstructionList
                 : CacatacUpsideDownIdleInstructionList);
 
-        ushort distance = ReadWord(_bus!, CacatacTravelDistanceTable + distanceIndex * 2);
+        ushort distance = CacatacMovementDefinitions.TravelDistance((byte)distanceIndex);
         int speedRecord = speedIndex * EnemyLinearSpeedDefinitions.RecordSize;
         var right = EnemyLinearSpeedDefinitions.Read(speedRecord);
         var left = EnemyLinearSpeedDefinitions.Read(speedRecord + 4);

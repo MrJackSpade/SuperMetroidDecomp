@@ -1944,3 +1944,15 @@ Verification independently compares every word to the pinned cartridge and
 invokes the production Fireflea initializer for every authored selector with the
 complete source range forbidden. Selectors outside zero through seven now fail
 explicitly rather than interpreting adjacent enemy code as a movement radius.
+
+# Cacatac patrol-distance definitions
+
+`CacatacMovementDefinitions` compiles the six travel-distance words at
+`$A2:9F36-$9F41`. Population parameter two selects the patrol half-width; the
+initializer retains native 16-bit wrapping when deriving minimum and maximum X.
+Linear velocities remain owned by the already compiled shared speed catalog.
+
+Verification independently compares every word to the pinned cartridge and runs
+the production initializer for all six selectors at zero, ordinary and maximum
+spawn coordinates while the old table range is forbidden. Out-of-domain restored
+selectors fail explicitly rather than treating adjacent enemy code as distance.

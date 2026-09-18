@@ -72,8 +72,9 @@ public sealed partial class RoomPlmSystem
             return true;
         }
 
-        ushort fallbackHeader = DoorClosingPlmRomData.GetHeader(door.Orientation);
-        if (fallbackHeader == 0)
+        DoorClosingPlmDefinition fallback =
+            DoorClosingPlmRomData.GetDefinition(door.Orientation);
+        if (fallback.Header == 0)
             return false;
 
         for (int slotIndex = _slots.Length - 1; slotIndex >= 0; slotIndex--)
@@ -84,11 +85,9 @@ public sealed partial class RoomPlmSystem
 
             ClearSlot(slot);
             slot.Active = true;
-            slot.HeaderPointer = fallbackHeader;
+            slot.HeaderPointer = fallback.Header;
             slot.BlockIndex = blockIndex;
-            slot.InstructionPointer = ReadBank84Word(
-                bus,
-                unchecked((ushort)(fallbackHeader + 2)));
+            slot.InstructionPointer = fallback.InitialInstructionList;
             slot.InstructionTimer = 1;
             SetupDoorTransitionDeactivatedSlot(level, slot);
             return true;

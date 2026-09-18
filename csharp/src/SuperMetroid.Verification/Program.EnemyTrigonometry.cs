@@ -80,6 +80,7 @@ internal static partial class Program
         VerifyEnemyVulnerabilityDefinitions(rom);
         VerifyDownwardGateShotBlockDefinitions(rom);
         VerifySpeedBoosterEscapeStageDefinitions(rom);
+        VerifyDoorClosingPlmDefinitions(rom);
         VerifyEnemyDeathExplosionDefinitions(rom);
         VerifyRoomSpriteObjectDefinitions(rom);
         VerifyCeresSteamDefinitions(rom);

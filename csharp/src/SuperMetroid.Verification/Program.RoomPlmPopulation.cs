@@ -4,6 +4,65 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom)
+    {
+        static ushort ReadWord(ISnesAddressSpace source, int address) =>
+            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+
+        for (byte direction = 0; direction < DoorClosingPlmRomData.DirectionCount; direction++)
+        {
+            DoorClosingPlmDefinition definition =
+                DoorClosingPlmRomData.GetDefinition(direction);
+            ushort expectedHeader = ReadWord(
+                rom,
+                DoorClosingPlmRomData.HeaderTableAddress + direction * sizeof(ushort));
+            AssertEqual(expectedHeader, definition.Header,
+                $"door-closing direction {direction} header matches cartridge");
+            ushort expectedList = expectedHeader == 0
+                ? (ushort)0
+                : ReadWord(rom, 0x840000 | unchecked((ushort)(expectedHeader + 2)));
+            AssertEqual(expectedList, definition.InitialInstructionList,
+                $"door-closing direction {direction} initial list matches cartridge");
+
+            var plms = new RoomPlmSystem();
+            RoomLevelData level = CreateRoom(
+                4,
+                4,
+                new ushort[16],
+                new byte[16],
+                blockDefinitions: new byte[0x400 * 8]);
+            var door = new CartridgeDoorHeader(
+                Pointer: 0,
+                DestinationRoomPointer: 0,
+                BitFlags: 0,
+                Orientation: direction,
+                PlmX: 1,
+                PlmY: 1,
+                DestinationScreenX: 0,
+                DestinationScreenY: 0,
+                SamusDistance: 0,
+                SetupCodePointer: 0);
+            bool spawned = plms.TrySpawnDoorClosingPlm(
+                new TestAddressSpace(), level, door, new Bank80SystemState());
+            AssertEqual(expectedHeader != 0, spawned,
+                $"door-closing direction {direction} fallback admission matches cartridge");
+            if (expectedHeader == 0)
+                continue;
+            RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
+            AssertEqual(expectedHeader, slot.HeaderPointer,
+                $"door-closing direction {direction} installs compiled header");
+            AssertEqual(expectedList, slot.InstructionPointer,
+                $"door-closing direction {direction} installs compiled initial list");
+        }
+
+        AssertThrows<InvalidDataException>(
+            () => DoorClosingPlmRomData.GetDefinition(DoorClosingPlmRomData.DirectionCount),
+            "out-of-range door-closing direction fails loudly");
+        VerifySequentialRoomPlmPopulationLoader();
+        Console.WriteLine(
+            "Door-closing fallback definitions: all twelve direction/header/list selections match.");
+    }
+
     private static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -821,7 +880,6 @@ internal static partial class Program
         WriteWord(bus, 0x84c8cc, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosed);
         WriteWord(bus, 0x84c8ce, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
         WriteWord(bus, 0x84c8d0, 0xb3c1);
-        WriteWord(bus, 0x84c8d2, RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
         bus.WriteBytes(0x8f0000 | population,
         [
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,

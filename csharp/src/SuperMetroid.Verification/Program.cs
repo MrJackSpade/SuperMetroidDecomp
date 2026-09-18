@@ -205,6 +205,12 @@ if (args is ["--speed-booster-escape-definitions"])
         SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
     return 0;
 }
+if (args is ["--door-closing-definitions"])
+{
+    VerifyDoorClosingPlmDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--quicksand-definitions"])
 {
     VerifyQuicksandDefinitions(

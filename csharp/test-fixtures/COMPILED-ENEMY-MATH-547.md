@@ -1449,8 +1449,9 @@ Compiled $90:9F25's diagonal bomb-jump record and all three Grapple-release
 records ($9F31/$9F3D/$9F49). Pinned native values are acceleration 0.3000,
 maximum 3.0000 and deceleration 0.0800 for bombs; Grapple's three records are
 identically 0.3000, 15.0000 and 0.1000. Source: bank_90.asm physics constants.
-`CalculateBaseSpeedAtAddress` recognizes only these exact entries. Unknown,
-unaligned and mutable low-bank addresses retain the original six-word reader.
+`CalculateBaseSpeedAtAddress` recognizes only these exact entries. Unknown or
+unaligned high-bank addresses fail explicitly; mutable low-bank aliases retain
+the original six-word reader.
 
 The migration regression compares all 24 words with the ROM and performs
 3,145,728 public calculator calls with all bus reads forbidden for compiled
@@ -1458,8 +1459,9 @@ entries. For each entry it sweeps every whole/fraction word (paired), four
 acceleration modes and three deceleration multipliers. Its comparison invokes
 the unchanged calculator with independently ROM-read records: this proves
 entry substitution and resulting speed/mode writes, not a fresh independent
-proof of the arithmetic implementation. Separate mutable/unaligned cases change
-their source words between calls and prove the fallback observes those changes.
+proof of the arithmetic implementation. Separate mutable cases change their
+source words between calls and prove the low-bank path observes those changes;
+unaligned and unrelated high-bank records are rejected.
 
 Updated old synthetic fixtures that used deliberately different Grapple-release
 decelerations and a faster bomb record. The bomb first-step assertion now checks
@@ -1480,14 +1482,15 @@ three `SamusXSpeedTable` definitions in bank_90.asm, not inferred smooth curves.
 Resolution occurs after native address calculation. Air indexes 26/27 therefore
 select water rows 0/1, and other indexes crossing between authored tables retain
 their actual records. The public indexed and standalone calculators now share
-one resolver. Unknown/unaligned addresses still use the original six-word reader:
-this preserves existing behavior but does not remove every out-of-table immutable
-ROM dependency or establish full native parity for corrupted state.
+one resolver. Unknown/unaligned high-bank addresses now fail explicitly. Bank-$90
+low-bank aliases still use the original six-word reader because those addresses
+represent mutable SNES memory rather than fixed cartridge definitions.
 
 Tests cover all 768 medium/movement-byte pairs (166 resolve into authored records),
 every restored base word's wrapped address, every resulting high-bank address's
 exact record alignment, and changed mutable low-bank data. Authored reads throw
-if production touches the bus; non-catalog reads remain allowed and compared.
+if production touches the bus; non-catalog ROM reads are rejected, while mutable
+low-bank reads remain allowed and compared.
 The earlier standalone calculator's ROM-fed arithmetic comparison remains active.
 
 Added `--samus-physics` to run 18 independent physics fixtures, report all failures

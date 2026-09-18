@@ -41,22 +41,26 @@ internal static partial class Program
             }
         }
 
-        // Unknown and unaligned records retain the existing indirect address-space path.
-        // In particular, low-bank WRAM aliases are not immutable ROM definitions.
+        // Low-bank aliases remain live because they are mutable SNES memory, not immutable
+        // cartridge definitions. Unknown/unaligned high-bank records fail loudly rather
+        // than treating executable or presentation bytes as horizontal physics.
         var mutable = new TestAddressSpace();
-        foreach (int address in new[] { 0x900100, 0x909f26, 0x90a32d })
+        const int mutableAddress = 0x900100;
+        AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(mutableAddress, out _), "Mutable address not silently clamped");
+        foreach (ushort acceleration in new ushort[] { 0x1234, 0x4321 })
         {
-            AssertTrue(!SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out _), "Non-catalog address not silently clamped");
-            foreach (ushort acceleration in new ushort[] { 0x1234, 0x4321 })
-            {
-                ushort[] words = [0, acceleration, 15, 0, 0, 1];
-                for (int i = 0; i < words.Length; i++) WriteTestWord(mutable, address + i * 2, words[i]);
-                actual.BaseSpeed = reference.BaseSpeed = 0;
-                actual.BaseSubspeed = reference.BaseSubspeed = 0;
-                actual.AccelerationMode = reference.AccelerationMode = 0;
-                AssertEqual(calculate(Read(mutable, address)), actual.CalculateBaseSpeedAtAddress(mutable, address), "Non-catalog record observes live changed data");
-            }
+            ushort[] words = [0, acceleration, 15, 0, 0, 1];
+            for (int i = 0; i < words.Length; i++) WriteTestWord(mutable, mutableAddress + i * 2, words[i]);
+            actual.BaseSpeed = reference.BaseSpeed = 0;
+            actual.BaseSubspeed = reference.BaseSubspeed = 0;
+            actual.AccelerationMode = reference.AccelerationMode = 0;
+            AssertEqual(calculate(Read(mutable, mutableAddress)), actual.CalculateBaseSpeedAtAddress(mutable, mutableAddress), "Mutable low-bank record observes live changed data");
         }
-        Console.WriteLine($"Standalone Samus speeds: {cases} actual bomb/Grapple calculations match ROM-fed arithmetic with reads forbidden; mutable/unaligned fallback preserved.");
+        foreach (int invalidAddress in new[] { 0x909f26, 0x90a32d, 0x919f25 })
+            AssertThrows<InvalidDataException>(
+                () => actual.CalculateBaseSpeedAtAddress(mutable, invalidAddress),
+                "Unknown high-bank horizontal record rejected");
+
+        Console.WriteLine($"Standalone Samus speeds: {cases} actual bomb/Grapple calculations match ROM-fed arithmetic with reads forbidden; mutable low-bank aliases remain live and unknown ROM records fail loudly.");
     }
 }

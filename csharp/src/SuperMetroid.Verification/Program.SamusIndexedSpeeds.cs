@@ -26,9 +26,15 @@ internal static partial class Program
                 {
                     AssertEqual(expected, entry, "All six indexed words match native data");
                     compiledCount++;
+                    guard.ForbidReads = true;
+                    AssertEqual(expected, speed.ReadEntry(guard, (SamusMovementType)movement), "Actual byte-indexed read preserves adjacent authored tables");
                 }
-                guard.ForbidReads = authored;
-                AssertEqual(expected, speed.ReadEntry(guard, (SamusMovementType)movement), "Actual byte-indexed read preserves adjacent tables and overreads");
+                else
+                {
+                    AssertThrows<InvalidDataException>(
+                        () => speed.ReadEntry(guard, (SamusMovementType)movement),
+                        "Byte-indexed high-bank overread rejected");
+                }
             }
         }
         AssertEqual(166, compiledCount, "Air 82 + water 56 + lava 28 authored address outcomes");
@@ -40,8 +46,18 @@ internal static partial class Program
             int address = speed.ResolveEntryAddress(SamusMovementType.Running);
             AssertEqual(0x900000 | unchecked((ushort)(raw + 12)), address, "Restored base wraps as a native word");
             if (address < 0x908000) continue; // Mutable aliases are separately exercised below.
-            guard.ForbidReads = address >= 0x909f25 && address < 0x90a32d && (address - 0x909f25) % 12 == 0;
-            AssertEqual(Read(address), speed.ReadEntry(guard, SamusMovementType.Running), "Restored ROM base respects exact record alignment");
+            bool compiled = address >= 0x909f25 && address < 0x90a32d && (address - 0x909f25) % 12 == 0;
+            if (compiled)
+            {
+                guard.ForbidReads = true;
+                AssertEqual(Read(address), speed.ReadEntry(guard, SamusMovementType.Running), "Restored authored ROM base respects exact record alignment");
+            }
+            else
+            {
+                AssertThrows<InvalidDataException>(
+                    () => speed.ReadEntry(guard, SamusMovementType.Running),
+                    "Restored non-catalog ROM base rejected");
+            }
         }
         var mutable = new TestAddressSpace();
         baseProperty.SetValue(speed, (ushort)0x0100);
@@ -50,7 +66,7 @@ internal static partial class Program
             WriteTestWord(mutable, 0x90010c, changed);
             AssertEqual(changed, speed.ReadEntry(mutable, SamusMovementType.Running).Acceleration, "Restored WRAM base remains live");
         }
-        Console.WriteLine("Indexed Samus speeds: all 492 authored words, 768 medium/movement reads and every restored base address preserve native data/alignment; compiled reads forbidden.");
+        Console.WriteLine("Indexed Samus speeds: all 492 authored words and every restored base address preserve authored data/alignment; compiled reads are forbidden, mutable aliases stay live, and ROM overreads fail loudly.");
     }
 
     private sealed class IndexedSpeedReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

@@ -31,8 +31,8 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>
     /// Resolves exact records in the three adjacent native tables. Address-based selection
-    /// deliberately lets air movement bytes 26/27 read water rows 0/1. Higher reads outside
-    /// the authored data are left to the caller's address space, not clamped or rejected.
+    /// deliberately lets air movement bytes 26/27 read water rows 0/1. Addresses outside
+    /// the authored records are not treated as additional mechanics definitions.
     /// </summary>
     internal static bool TryResolveIndexed(int address, out SpeedTableEntry entry)
     {
@@ -84,7 +84,7 @@ internal static class SamusHorizontalMotionDefinitions
 
     /// <summary>
     /// Recognizes exact standalone entry addresses. Unknown/unaligned addresses are not
-    /// clamped to a known record: callers may still be reading live memory or other data.
+    /// clamped to a known record.
     /// </summary>
     internal static bool TryResolveStandalone(int address, out SpeedTableEntry entry)
     {

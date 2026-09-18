@@ -267,15 +267,14 @@ reads are legitimate live state, not remaining immutable lookup dependencies.
 
 The four standalone horizontal records for diagonal bomb jumps and Grapple
 release ($90:9F25/$9F31/$9F3D/$9F49) are now compiled. Exact-address recognition
-preserves the existing fallback for non-catalog/unaligned/mutable records.
+preserves live reads only for bank-$90's mutable low-bank aliases.
 Movement-indexed `ReadEntry` now compiles all 82 authored records: normal air has
 26 rows, water and lava have 28 each. Address-based resolution preserves reads
 across those boundaries, including normal-air indexes 26/27 entering water rows
 0/1. Every movement byte and restored base word has been checked for exact
-address/alignment handling. Non-catalog reads remain live rather than being
-clamped; higher byte indexes can still read adjacent executable/data bytes.
-That residual ROM dependency needs explicit treatment under the wider contract,
-not relabeling as mutable state. Low-bank aliases genuinely remain mutable.
+address/alignment handling. Non-catalog and unaligned high-bank addresses now fail
+explicitly rather than interpreting adjacent executable or presentation bytes as
+physics. Low-bank aliases genuinely remain mutable and retain live reads.
 
 - `EnemyRomTablePointers` consumers: boss jumps, projectile launch/angle records,
   death trajectories and other indirect family definitions.

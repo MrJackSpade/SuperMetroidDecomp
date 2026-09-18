@@ -4,13 +4,6 @@ namespace SuperMetroid.Core.Game;
 
 public sealed partial class RoomEnemySystem
 {
-    private static readonly short[] BombTorizoSwipeXOffsets =
-        [-30, -40, -47, -31, -21, -1, -28, -43, -48, -31, -21];
-    private static readonly short[] BombTorizoSwipeYOffsets =
-        [-52, -28, -11, 9, 21, 20, -52, -27, -10, 9, 20];
-    private static readonly short[] BombTorizoExplosionXOffsets = [0, 12, -12, 0, 16, -16];
-    private static readonly short[] BombTorizoExplosionYOffsets = [-8, -8, -8, -20, -20, -20];
-
     private void SpawnBombTorizoLowHealthDrool(RoomEnemySlot torizo) =>
         SpawnBombTorizoDrool(torizo, RoomEnemyProjectileKind.BombTorizoLowHealthDrool);
 
@@ -72,12 +65,8 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnBombTorizoExplosiveSwipe(RoomEnemySlot torizo, ushort parameter)
     {
-        int index = parameter >> 1;
-        if ((uint)index >= (uint)BombTorizoSwipeXOffsets.Length)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo swipe parameter ${parameter:X4} exceeds its eleven-entry tables.");
-        }
+        BombTorizoSwipeDefinition definition =
+            BombTorizoAttackDefinitions.Swipe(parameter);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -87,25 +76,19 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoExplosiveSwipe,
             graphicsIndex: 0);
 
-        short xOffset = BombTorizoSwipeXOffsets[index];
         projectile.XPosition = (torizo.Parameter1 & 0x8000) != 0
-            ? unchecked((ushort)(torizo.XPosition - xOffset))
-            : unchecked((ushort)(torizo.XPosition + xOffset));
+            ? unchecked((ushort)(torizo.XPosition - definition.XOffset))
+            : unchecked((ushort)(torizo.XPosition + definition.XOffset));
         projectile.YPosition = unchecked((ushort)(
-            torizo.YPosition + BombTorizoSwipeYOffsets[index]));
+            torizo.YPosition + definition.YOffset));
     }
 
     private void SpawnBombTorizoLowHealthExplosion(RoomEnemySlot torizo, ushort parameter)
     {
-        // The initializer adds two to the operand and adds another two while facing left,
-        // then treats the result as a word-table byte offset.
-        int adjusted = parameter + 2 + ((torizo.Parameter1 & 0x8000) == 0 ? 2 : 0);
-        int index = adjusted >> 1;
-        if ((uint)index >= (uint)BombTorizoExplosionXOffsets.Length)
-        {
-            throw new InvalidDataException(
-                $"Bomb Torizo explosion parameter ${parameter:X4} selects table index {index}.");
-        }
+        BombTorizoExplosionDefinition definition =
+            BombTorizoAttackDefinitions.LowHealthExplosion(
+                parameter,
+                facingRight: (torizo.Parameter1 & 0x8000) != 0);
 
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -115,9 +98,9 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BombTorizoLowHealthExplosion,
             graphicsIndex: 0);
         projectile.XPosition = unchecked((ushort)(
-            torizo.XPosition + BombTorizoExplosionXOffsets[index]));
+            torizo.XPosition + definition.XOffset));
         projectile.YPosition = unchecked((ushort)(
-            torizo.YPosition + BombTorizoExplosionYOffsets[index]));
+            torizo.YPosition + definition.YOffset));
         projectile.Variable0 = projectile.XPosition;
         projectile.Variable1 = projectile.YPosition;
     }

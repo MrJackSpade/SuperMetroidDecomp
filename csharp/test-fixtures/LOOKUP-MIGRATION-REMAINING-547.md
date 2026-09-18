@@ -440,6 +440,11 @@ compiled as typed physical records. The shared real initializer retains independ
 signed-byte velocity jitter, while the eye beam still replaces those base velocities
 with its aimed launch. All family/facing spawn paths run with the eight tuples forbidden.
 
+Bomb Torizo's eleven explosive-swipe and six low-health explosion placements are
+compiled as paired physical records rather than anonymous runtime arrays. Every legal
+swipe and every bounded facing/parameter explosion selection is checked against the ROM
+and exercised through the real projectile allocators with both source tables forbidden.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

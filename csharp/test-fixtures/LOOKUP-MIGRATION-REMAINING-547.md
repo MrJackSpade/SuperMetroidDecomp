@@ -342,6 +342,15 @@ its signed world offset from `$86:C992-$C9B1` with its signed 8.8 launch velocit
 spawns run with both physical tables forbidden. Fragment animation bytecode remains a
 separate program/presentation dependency.
 
+Mother Brain's twelve room-turret definitions are compiled too: fixed placements,
+initial directions, native rotation-policy pointers and all 96 permission bytes now
+share typed records. The eight directional animation selectors are paired with their
+signed bullet offsets and 8.8 launch velocities. All twelve real turret initializers,
+all eight real bullet spawns and every signed rotation step run with
+`$86:BE89-$86:BF58`, `$86:BF9F-$86:BFDE`, and `$86:C040-$86:C04F` forbidden.
+The mixed projectile animation programs selected by those fixed identities remain a
+separate program/presentation dependency.
+
 The four Tourian statue eye/soul world positions at `$86:B90E-$B91D` are compiled
 as paired physical records. The catalog retains the native doubled boss parameters
 zero, two, four, and six. All eight source words match the pinned cartridge, and both

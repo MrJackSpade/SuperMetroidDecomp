@@ -9,18 +9,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MotherBrainTurretGraphicsIndex = 0x0400;
-    private const ushort MotherBrainTurretInitialListTable = 0xbeb9;
-    private const ushort MotherBrainTurretAllowedRotationPointerTable = 0xbec9;
-    private const ushort MotherBrainTurretDirectionTable = 0xbee1;
-    private const ushort MotherBrainTurretXPositionTable = 0xbe89;
-    private const ushort MotherBrainTurretYPositionTable = 0xbea1;
-    private const ushort MotherBrainTurretRuntimeListTable = 0xc040;
-    private const ushort MotherBrainTurretBulletXOffsetTable = 0xbf9f;
-    private const ushort MotherBrainTurretBulletYOffsetTable = 0xbfaf;
-    private const ushort MotherBrainTurretBulletXVelocityTable = 0xbfbf;
-    private const ushort MotherBrainTurretBulletYVelocityTable = 0xbfcf;
-
     /// <summary>
     /// Ports the twelve calls to <c>SpawnEprojWithRoomGfx($C17E, A=0..$B)</c> made by
     /// <c>InitAI_MotherBrainBody</c>. Allocation scans from native index $22 down, so request
@@ -45,26 +33,24 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(
             turret,
             RoomEnemyProjectileKind.MotherBrainRoomTurret,
-            MotherBrainTurretGraphicsIndex);
+            MotherBrainTurretDefinitions.GraphicsIndex);
 
-        int tableOffset = parameter * 2;
-        ushort direction = ReadMotherBrainProjectileWord(
-            unchecked((ushort)(MotherBrainTurretDirectionTable + tableOffset)));
+        MotherBrainTurretDefinition definition =
+            MotherBrainTurretDefinitions.ForTurret(parameter);
+        MotherBrainTurretDirection direction = definition.InitialDirection;
+        MotherBrainTurretDirectionDefinition directionDefinition =
+            MotherBrainTurretDefinitions.ForDirection(direction);
         turret.DirectionParameter = parameter;
-        turret.XPosition = ReadMotherBrainProjectileWord(
-            unchecked((ushort)(MotherBrainTurretXPositionTable + tableOffset)));
-        turret.YPosition = ReadMotherBrainProjectileWord(
-            unchecked((ushort)(MotherBrainTurretYPositionTable + tableOffset)));
+        turret.XPosition = definition.X;
+        turret.YPosition = definition.Y;
 
         // The turret is stationary, so the initializer intentionally repurposes both
         // subposition words. X-subposition is a bank-$86 pointer to this turret's allowed
         // direction bytes. Y-subposition packs direction in the low byte and signed
         // rotation delta (+1 initially) in the high byte.
-        turret.XSubposition = ReadMotherBrainProjectileWord(unchecked((ushort)(
-            MotherBrainTurretAllowedRotationPointerTable + tableOffset)));
-        turret.YSubposition = unchecked((ushort)(0x0100 | direction));
-        turret.InstructionPointer = ReadMotherBrainProjectileWord(unchecked((ushort)(
-            MotherBrainTurretInitialListTable + direction * 2)));
+        turret.XSubposition = definition.AllowedRotationPointer;
+        turret.YSubposition = unchecked((ushort)(0x0100 | (byte)direction));
+        turret.InstructionPointer = directionDefinition.InstructionPointer;
         turret.InstructionTimer = 1;
 
         // X/Y velocity are likewise timers for a stationary turret. Each initializer makes
@@ -106,9 +92,10 @@ public sealed partial class RoomEnemySystem
         {
             ResetMotherBrainTurretRotationTimer(turret);
             SelectNextMotherBrainTurretDirection(turret);
-            ushort direction = unchecked((byte)turret.YSubposition);
-            turret.InstructionPointer = ReadMotherBrainProjectileWord(unchecked((ushort)(
-                MotherBrainTurretRuntimeListTable + direction * 2)));
+            MotherBrainTurretDirection direction =
+                (MotherBrainTurretDirection)unchecked((byte)turret.YSubposition);
+            turret.InstructionPointer = MotherBrainTurretDefinitions
+                .ForDirection(direction).InstructionPointer;
             turret.InstructionTimer = 1;
         }
 
@@ -121,15 +108,16 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports the signed direction-delta and allowed-rotation test at $86:C050.</summary>
-    private void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
+    private static void SelectNextMotherBrainTurretDirection(RoomEnemyProjectileSlot turret)
     {
         byte currentDirection = unchecked((byte)turret.YSubposition);
         sbyte rotationDelta = unchecked((sbyte)(turret.YSubposition >> 8));
         byte candidate = unchecked((byte)((currentDirection + rotationDelta) & 7));
-        byte allowed = _bus!.ReadByte((int)new SnesAddress(0x86, unchecked((ushort)(
-            turret.XSubposition + candidate))));
+        bool allowed = MotherBrainTurretDefinitions.IsRotationAllowed(
+            turret.XSubposition,
+            (MotherBrainTurretDirection)candidate);
 
-        if (allowed != 0)
+        if (allowed)
         {
             turret.YSubposition = unchecked((ushort)(
                 (turret.YSubposition & 0xff00) | candidate));
@@ -147,13 +135,13 @@ public sealed partial class RoomEnemySystem
     private void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_nextRandom!());
-        turret.XVelocity = Math.Max(sample, (ushort)0x0020);
+        turret.XVelocity = Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay);
     }
 
     private void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
         ushort sample = unchecked((byte)_nextRandom!());
-        turret.YVelocity = Math.Max(sample, (ushort)0x0080);
+        turret.YVelocity = Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown);
     }
 
     /// <summary>Ports the asymmetric viewport bounds at $86:C0B4.</summary>
@@ -184,22 +172,20 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(
             bullet,
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
-            MotherBrainTurretGraphicsIndex);
-        ushort direction = unchecked((byte)turret.YSubposition);
-        ushort directionByteOffset = unchecked((ushort)(direction * 2));
-        bullet.DirectionParameter = direction;
-        bullet.Variable0 = directionByteOffset;
+            MotherBrainTurretDefinitions.GraphicsIndex);
+        MotherBrainTurretDirection direction =
+            (MotherBrainTurretDirection)unchecked((byte)turret.YSubposition);
+        MotherBrainTurretDirectionDefinition definition =
+            MotherBrainTurretDefinitions.ForDirection(direction);
+        bullet.DirectionParameter = (byte)direction;
+        bullet.Variable0 = unchecked((ushort)((byte)direction * 2));
         bullet.Variable1 = 0;
-        bullet.XVelocity = ReadMotherBrainProjectileWord(unchecked((ushort)(
-            MotherBrainTurretBulletXVelocityTable + directionByteOffset)));
-        bullet.YVelocity = ReadMotherBrainProjectileWord(unchecked((ushort)(
-            MotherBrainTurretBulletYVelocityTable + directionByteOffset)));
+        bullet.XVelocity = unchecked((ushort)definition.BulletXVelocity);
+        bullet.YVelocity = unchecked((ushort)definition.BulletYVelocity);
         bullet.XPosition = unchecked((ushort)(turret.XPosition +
-            ReadMotherBrainProjectileWord(unchecked((ushort)(
-                MotherBrainTurretBulletXOffsetTable + directionByteOffset)))));
+            definition.BulletXOffset));
         bullet.YPosition = unchecked((ushort)(turret.YPosition +
-            ReadMotherBrainProjectileWord(unchecked((ushort)(
-                MotherBrainTurretBulletYOffsetTable + directionByteOffset)))));
+            definition.BulletYOffset));
     }
 
     /// <summary>Ports the bullet property flicker, 8.8 movement, and point collision.</summary>
@@ -223,6 +209,4 @@ public sealed partial class RoomEnemySystem
             bullet.Clear();
     }
 
-    private ushort ReadMotherBrainProjectileWord(ushort pointer) =>
-        ReadWord(_bus!, 0x860000 | pointer);
 }

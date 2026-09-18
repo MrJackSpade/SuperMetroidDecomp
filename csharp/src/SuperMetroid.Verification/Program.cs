@@ -208,6 +208,12 @@ if (args is ["--mother-brain-contact-hitboxes"])
     VerifyMotherBrainContactHitboxes();
     return 0;
 }
+if (args is ["--mother-brain-turret-definitions"])
+{
+    VerifyMotherBrainTurretDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--mama-turtle-shell-contour"])
 {
     VerifyMamaTurtleShellContourDefinitions();

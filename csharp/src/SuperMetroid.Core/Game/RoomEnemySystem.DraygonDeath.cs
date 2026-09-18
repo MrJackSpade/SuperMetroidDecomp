@@ -11,9 +11,6 @@ public sealed partial class RoomEnemySystem
     private const ushort DraygonDeathTargetY = 0x01e0;
     private const ushort DraygonBurialFinishedY = 0x0240;
     private const ushort DraygonDeathWaitFramesUs = 0x01a0;
-    private const int DraygonDeathEvirSubspeedTable = 0xa5a1af;
-    private const int DraygonDeathEvirSpawnPositionTable = 0xa5a1c7;
-    private const int DraygonDeathEvirAngleTable = 0xa5a1df;
 
     private void DriftDyingDraygonToBurialPoint(DraygonEnemyState state)
     {
@@ -159,10 +156,11 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnDraygonDeathEvir(int entry, RoomSpriteObjectKind kind)
     {
-        int source = DraygonDeathEvirSpawnPositionTable + entry * 4;
+        DraygonBurialEvirDefinition definition =
+            DraygonBurialEvirDefinitions.ForEntry(entry);
         RoomSpriteObjectSlot? sprite = SpawnRoomSpriteObject(
-            ReadWord(_bus!, source),
-            ReadWord(_bus!, source + 2),
+            definition.InitialX,
+            definition.InitialY,
             kind,
             graphicsIndex: EnemyPaletteBits.Palette7);
         if (sprite is null)
@@ -187,19 +185,18 @@ public sealed partial class RoomEnemySystem
                     $"Draygon burial movement expected Evir in sprite slot {slotIndex}.");
             }
 
-            ushort angle = ReadWord(_bus!, DraygonDeathEvirAngleTable + entry * 4);
-            ushort xSubspeed = ReadWord(_bus!, DraygonDeathEvirSubspeedTable + entry * 4);
-            ushort ySubspeed = ReadWord(_bus!, DraygonDeathEvirSubspeedTable + entry * 4 + 2);
+            DraygonBurialEvirDefinition definition =
+                DraygonBurialEvirDefinitions.ForEntry(entry);
             (sprite.XPosition, sprite.XSubposition) = AddSpriteObjectSubspeed(
                 sprite.XPosition,
                 sprite.XSubposition,
-                xSubspeed,
-                add: ((angle + 0x0040) & 0x0080) != 0);
+                definition.XSubspeed,
+                add: ((definition.Angle + 0x0040) & 0x0080) != 0);
             (sprite.YPosition, sprite.YSubposition) = AddSpriteObjectSubspeed(
                 sprite.YPosition,
                 sprite.YSubposition,
-                ySubspeed,
-                add: ((angle + 0x0080) & 0x0080) != 0);
+                definition.YSubspeed,
+                add: ((definition.Angle + 0x0080) & 0x0080) != 0);
         }
     }
 

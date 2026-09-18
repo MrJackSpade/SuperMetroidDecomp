@@ -396,6 +396,12 @@ Normal and strong Brinstar Pipe Bugs' four facing/action instruction selectors a
 versus rising and bit one selects right versus left. All eight production handoffs
 run with both pointer tables forbidden. The mixed animation programs remain separate.
 
+Draygon's six death/burial Evir records are compiled too. Their initial world
+positions, XY 16.16 subspeed magnitudes and movement angles are now one typed
+physical definition per actor. The real descending sprite-object allocation and
+movement paths run with `$A5:A1AF-$A5:A1F6` forbidden; the unused zero word in
+each native angle record is independently checked rather than exposed as data.
+
 Shaktool's seven parallel initialization records at `$AA:DE95-$DEF6` are now
 compiled in `ShaktoolSegmentDefinitions`, including property masks, chain ownership,
 orbit angles, initial lists, layers, pre-instruction callbacks, and angular velocity.

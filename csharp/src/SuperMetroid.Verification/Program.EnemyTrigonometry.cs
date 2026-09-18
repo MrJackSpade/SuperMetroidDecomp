@@ -70,6 +70,7 @@ internal static partial class Program
         VerifyEnemyPickupDefinitions(rom);
         VerifyCeresSteamDefinitions(rom);
         VerifyPipeBugAnimationDefinitions(rom);
+        VerifyDraygonBurialEvirDefinitions(rom);
         VerifyCompiledCeresRidleyGetaway(rom);
         VerifyCompiledBoyonSpeeds(rom);
         VerifyCompiledSurfaceMotion(rom);

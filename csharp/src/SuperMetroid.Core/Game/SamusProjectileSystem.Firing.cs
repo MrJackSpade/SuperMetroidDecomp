@@ -296,12 +296,12 @@ public sealed partial class SamusProjectileSystem
         // A fresh press takes the ordinary table path. Held auto-fire without a new edge
         // uses $19 instead, preserving the native distinction between the compiled rows.
         byte cooldown = charged
-            ? SamusProjectileCooldownDefinitions.ReadByte(bus,
+            ? SamusProjectileCooldownDefinitions.ReadByte(
                 SamusProjectileRomData.Beams.UnchargedCooldowns +
                 SamusProjectileRomData.Beams.ChargedRowOffset + beamType)
             : (controllerNewInput & shoot) != 0
-                ? SamusProjectileCooldownDefinitions.ReadByte(bus, SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
-                : SamusProjectileCooldownDefinitions.ReadByte(bus, SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
+                ? SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + beamType)
+                : SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.AutoFireCooldowns + beamType);
         sharedProjectiles.SetSharedCooldown(cooldown);
 
         ushort sound = ReadWord(
@@ -529,7 +529,7 @@ public sealed partial class SamusProjectileSystem
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseIds.MoonwalkAimUpLeftPose or SamusPoseIds.MoonwalkAimUpRightPose;
-        var origin = SamusProjectileOriginDefinitions.Read(bus, runningOrigin, slot.Direction);
+        var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.Direction);
         slot.XPosition = unchecked((ushort)(samus.XPosition + origin.X));
         slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));
     }

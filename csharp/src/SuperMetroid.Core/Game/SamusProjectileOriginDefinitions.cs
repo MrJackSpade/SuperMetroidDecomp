@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Physical beam/missile muzzle positions, independent of charge-flare artwork.</summary>
@@ -14,22 +12,22 @@ internal static class SamusProjectileOriginDefinitions
         -8, -16, -2, 1, 13, 13, 1, -2, -16, -8,
     ];
 
-    internal static (short X, short Y) Read(ISnesAddressSpace bus, bool running, ushort direction)
+    internal static (short X, short Y) Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
         int x = running ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX;
         int y = running ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY;
-        return (ReadWord(bus, x + offset), ReadWord(bus, y + offset));
+        return (ReadWord(x + offset), ReadWord(y + offset));
     }
 
-    private static short ReadWord(ISnesAddressSpace bus, int address)
+    private static short ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Origins.DefaultX;
         if (offset >= 0 && offset < Offsets.Length * sizeof(ushort) && (offset & 1) == 0)
             return Offsets[offset / sizeof(ushort)];
         // Resolve addresses before table ownership: low-nibble directions ten through
         // fifteen cross into adjacent rows, and running Y eventually reaches cooldowns.
-        return unchecked((short)(SamusProjectileCooldownDefinitions.ReadByte(bus, address) |
-            (SamusProjectileCooldownDefinitions.ReadByte(bus, address + 1) << 8)));
+        return unchecked((short)(SamusProjectileCooldownDefinitions.ReadByte(address) |
+            (SamusProjectileCooldownDefinitions.ReadByte(address + 1) << 8)));
     }
 }

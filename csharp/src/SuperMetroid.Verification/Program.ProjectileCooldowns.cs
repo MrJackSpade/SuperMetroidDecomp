@@ -10,9 +10,13 @@ internal static partial class Program
     {
         var retail = SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var bus = new ProjectileCooldownReadGuard(retail);
-        for (int address = 0x90c250; address < 0x90c2b0; address++)
-            AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(bus, address),
-                "Compiled cooldown bytes and adjacent presentation fallback match native address identity");
+        for (int address = 0x90c254; address < 0x90c28f; address++)
+            AssertEqual(retail.ReadByte(address), SamusProjectileCooldownDefinitions.ReadByte(address),
+                "Compiled cooldown byte matches native address identity");
+        foreach (int address in new[] { 0x908000, 0x90c253, 0x90c28f, 0x90ffff })
+            AssertThrows<InvalidDataException>(
+                () => SamusProjectileCooldownDefinitions.ReadByte(address),
+                "Unknown cooldown address fails instead of reading adjacent presentation data");
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
         var fire = typeof(SamusProjectileSystem).GetMethod("TryFireBeam", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (ushort beam = 0; beam < 12; beam++)
@@ -59,7 +63,7 @@ internal static partial class Program
             AssertEqual((ushort)retail.ReadByte(0x90c254 + (projectiles.Slots[0].Type & 0x3f)),
                 shared.CooldownTimer, "Combo retains six-bit index into padding/non-beam neighbors");
         }
-        Console.WriteLine("Projectile cooldowns: 59 native bytes, adjacent reads, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
+        Console.WriteLine("Projectile cooldowns: 59 native bytes, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
     private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace

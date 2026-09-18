@@ -256,8 +256,9 @@ beam accelerations are now compiled as 85 native words, including the adjacent
 ignition marker. Exact-address dispatch preserves invalid beam combinations
 reading into missile data and leaves non-catalog/unaligned reads on the bus.
 The 59 contiguous cooldown bytes (uncharged/charged/padding/non-beam/auto-fire)
-are compiled too; combination indices beyond that range still read adjacent SFX
-presentation bytes. Damage/animation definitions still need migration. The separate
+are compiled too; combination indices beyond that range now fail explicitly instead
+of reading adjacent SFX presentation bytes. Physical muzzle origins consequently no
+longer require a runtime bus, including their native cross-row cooldown reads. The separate
 previous-frame displacement omission discovered during this audit is addressed
 under #600: the initializer now consumes native mutable movement/camera records,
 with runtime producers/reset and saved-state continuation coverage. These WRAM

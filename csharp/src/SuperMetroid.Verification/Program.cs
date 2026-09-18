@@ -183,6 +183,11 @@ if (args is ["--samus-projectiles"])
     VerifyControlledRedTowerHeroShot();
     return 0;
 }
+if (args is ["--projectile-cooldowns"])
+{
+    VerifyProjectileCooldowns();
+    return 0;
+}
 if (args is ["--botwoon-plm-identity"])
 {
     VerifyBotwoonPlmIdentity();

@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native NTSC firing delays, independent of projectile presentation assets.</summary>
@@ -19,11 +17,12 @@ internal static class SamusProjectileCooldownDefinitions
         25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25,
     ];
 
-    internal static byte ReadByte(ISnesAddressSpace bus, int address)
+    internal static byte ReadByte(int address)
     {
         int index = address - SamusProjectileRomData.Beams.UnchargedCooldowns;
-        // Select by exact address before table identity. Extended indices can read
-        // neighboring cooldown rows or continue beyond them into presentation SFX.
-        return index >= 0 && index < Delays.Length ? Delays[index] : bus.ReadByte(address);
+        return index >= 0 && index < Delays.Length
+            ? Delays[index]
+            : throw new InvalidDataException(
+                $"Projectile cooldown byte ${address:X6} is outside the compiled definitions.");
     }
 }

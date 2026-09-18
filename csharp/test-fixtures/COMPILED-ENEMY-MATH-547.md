@@ -2086,3 +2086,18 @@ selectors at `$A8:96D3-$A8:96E2`, along with their species definitions, cursor
 deltas, and spit-sound identity. Verification compares all eight words and runs
 all four real species/facing initializers into both idle and active installation
 with the source range forbidden. Unaligned and out-of-range cursors fail explicitly.
+
+# Shared misc-dust projectile definitions
+
+`MiscDustProjectileDefinitions` compiles all thirty room-graphics dust/explosion
+instruction selectors at `$86:E42C-$E467` and the five randomized smoke-placement
+records at `$86:E47E-$E4A5`. These are shared mechanics definitions rather than
+Eye Door-owned data: Mother Brain corpse/bomb/door effects, Ridley projectile
+impacts, Rinka and generic room effects all select the same native actor programs.
+
+Verification independently compares all fifty words to the pinned cartridge. It
+runs every selector through both the Mother Brain and general room-projectile
+production allocators, every placement through the real Eye Door initializer,
+and Ridley's clamped selector path while both source ranges are forbidden. Invalid
+selectors and placement indexes fail explicitly instead of reading the initializer
+and pre-instruction code that follows either authored table.

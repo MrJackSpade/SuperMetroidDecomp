@@ -214,9 +214,8 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
         dust.XPosition = x;
         dust.YPosition = y;
-        dust.InstructionPointer = ReadWord(
-            _bus!,
-            0x86e42c + Math.Min(variant, (ushort)0x001d) * 2);
+        dust.InstructionPointer = MiscDustProjectileDefinitions.InstructionList(
+            Math.Min(variant, (ushort)0x001d));
         dust.InstructionTimer = 1;
     }
 }

@@ -16,9 +16,6 @@ public static class EyeDoorEnemyProjectileRomData
 
     public const ushort ProjectileImpactInstructionList = 0xb5f3;
     public const ushort SweatImpactInstructionList = 0xb61d;
-    public const ushort SmokeInstructionListTable = 0xe42c;
-    public const ushort SmokeOffsetTable = 0xe47e;
-
     public const int PixelsPerRoomBlock = 16;
 
     /// <summary>

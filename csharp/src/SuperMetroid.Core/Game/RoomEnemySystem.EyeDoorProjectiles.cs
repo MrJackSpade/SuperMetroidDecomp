@@ -117,27 +117,20 @@ public sealed partial class RoomEnemySystem
         int blockY)
     {
         byte listOffset = unchecked((byte)parameter);
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            EyeDoorEnemyProjectileRomData.BankBase | unchecked((ushort)(
-                EyeDoorEnemyProjectileRomData.SmokeInstructionListTable + listOffset * 2)));
+        ushort instructionList = MiscDustProjectileDefinitions.InstructionList(listOffset);
+        MiscDustPlacementDefinition placement =
+            MiscDustProjectileDefinitions.SmokePlacement((ushort)(parameter >> 8));
 
         ushort random = (_readRandomNumber ?? throw new InvalidOperationException(
             "Eye-door smoke initialization requires the current cartridge RNG word."))();
-        int tableWord = (parameter >> 8) * 4;
-        int tableAddress = EyeDoorEnemyProjectileRomData.BankBase | unchecked((ushort)(
-            EyeDoorEnemyProjectileRomData.SmokeOffsetTable + tableWord * 2));
-        ushort xMask = ReadWord(_bus!, tableAddress);
-        ushort yMask = ReadWord(_bus!, tableAddress + 2);
-        short xBase = unchecked((short)ReadWord(_bus!, tableAddress + 4));
-        short yBase = unchecked((short)ReadWord(_bus!, tableAddress + 6));
+        projectile.InstructionPointer = instructionList;
 
         projectile.XPosition = unchecked((ushort)(
             blockX * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            xBase + (random & xMask)));
+            placement.XBase + (random & placement.XMask)));
         projectile.YPosition = unchecked((ushort)(
             blockY * EyeDoorEnemyProjectileRomData.PixelsPerRoomBlock + 8 +
-            yBase + ((random >> 8) & yMask)));
+            placement.YBase + ((random >> 8) & placement.YMask)));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         (_nextRandom ?? throw new InvalidOperationException(

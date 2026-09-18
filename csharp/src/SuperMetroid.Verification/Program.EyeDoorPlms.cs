@@ -97,11 +97,11 @@ internal static partial class Program
             system);
         RoomEnemyProjectileSlot smoke = enemies.EnemyProjectiles.Single(projectile =>
             projectile.Kind == RoomEnemyProjectileKind.EyeDoorSmoke);
-        AssertEqual((ushort)0xb800, smoke.InstructionPointer,
+        AssertEqual((ushort)0xe1c6, smoke.InstructionPointer,
             "smoke low parameter byte indexes the cartridge instruction-list pointer table");
-        AssertEqual((ushort)123, smoke.XPosition,
+        AssertEqual((ushort)114, smoke.XPosition,
             "smoke X uses low random byte and selected mask/base tuple");
-        AssertEqual((ushort)74, smoke.YPosition,
+        AssertEqual((ushort)76, smoke.YPosition,
             "smoke Y uses high random byte and selected mask/base tuple");
         AssertEqual(1, randomAdvances,
             "smoke advances cartridge RNG once after sampling current seed");
@@ -329,16 +329,6 @@ internal static partial class Program
         WriteWord(bus, EnemyRomTablePointers.Common.SignedSineCosineWords, 0);
         WriteWord(bus, EnemyRomTablePointers.Common.SignedSineCosineWords + 0x80, 0x0100);
 
-        WriteWord(bus,
-            EyeDoorEnemyProjectileRomData.BankBase |
-            (EyeDoorEnemyProjectileRomData.SmokeInstructionListTable + 0x0a * 2),
-            0xb800);
-        int smokeTuple = EyeDoorEnemyProjectileRomData.BankBase |
-            (EyeDoorEnemyProjectileRomData.SmokeOffsetTable + 3 * 8);
-        WriteWord(bus, smokeTuple, 0x000f);
-        WriteWord(bus, smokeTuple + 2, 0x0007);
-        WriteWord(bus, smokeTuple + 4, 1);
-        WriteWord(bus, smokeTuple + 6, unchecked((ushort)-2));
     }
 
     private static void StepEyeDoorPlms(

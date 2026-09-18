@@ -45,7 +45,6 @@ public sealed partial class MotherBrainEnemyProjectileSystem
     private const ushort SleepInstruction = 0x8159;
     private const ushort ClearPreInstruction = 0x816a;
     private const ushort GotoInstruction = 0x81ab;
-    private const int MiscDustInstructionPointerTable = 0x86e42c;
     private static ReadOnlySpan<ushort> BombYAccelerations =>
         [0x0007, 0x0010, 0x0020, 0x0040, 0x0070, 0x00b0, 0x00f0, 0x0130, 0x0170, 0x0000];
     private static readonly short[] EscapeDoorParticleYOffsets =
@@ -200,14 +199,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         ushort animationIndex)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        if (animationIndex > 0x001d)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(animationIndex),
-                animationIndex,
-                "Bank-$86 misc-dust animation index must be in the native $00..$1D range.");
-        }
-
+        ushort instructionList = MiscDustProjectileDefinitions.InstructionList(animationIndex);
         int slotIndex = SlotCount - 1;
         while (slotIndex >= 0 && _slots[slotIndex].IsActive)
             slotIndex--;
@@ -226,9 +218,7 @@ public sealed partial class MotherBrainEnemyProjectileSystem
         // `$E468` doubles the parameter and follows the literal bank-$86 word table. Native
         // SpawnEnemyProjectile cleared the slot and installed instruction timer one before
         // calling that initializer; reproduce those shared effects around its three stores.
-        slot.InstructionPointer = ReadWord(
-            bus,
-            MiscDustInstructionPointerTable + animationIndex * 2);
+        slot.InstructionPointer = instructionList;
         slot.InstructionTimer = 1;
         slot.SpritemapPointer = 0x8000;
         return slotIndex;

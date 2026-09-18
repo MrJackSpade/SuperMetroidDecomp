@@ -266,6 +266,14 @@ production collision probes cover both sides of every origin, overlap depth,
 and component selection through a helper that no longer accepts a ROM bus.
 Editable spritemaps cannot change these application-owned hitboxes.
 
+The shared bank-$86 misc-dust actor's thirty instruction selectors at
+`$86:E42C-$E467` and five randomized smoke placements at `$86:E47E-$E4A5` are now
+compiled in `MiscDustProjectileDefinitions`. Mother Brain, Ridley, Eye Door, and
+the general room-graphics producer all consume the catalog with the original ROM
+ranges forbidden. The animation programs and spritemaps selected by those fixed
+mechanics identities remain presentation/program dependencies for the wider
+#530/#540/#541 contract; this completed slice does not relabel them as editable art.
+
 Mama Turtle's 48 signed sleeping-shell contour words at `$A2:8E80` are now a
 compiled physical definition shared by parent/Samus carry collision and Baby
 Turtle crawling. Both asymmetric 24-pixel halves match the pinned cartridge.

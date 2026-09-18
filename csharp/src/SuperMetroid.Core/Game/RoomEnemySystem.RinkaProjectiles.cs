@@ -6,7 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private const ushort MiscDustInstructionPointerTable = 0xe42c;
     private const ushort RinkaDustAnimationIndex = 3;
     private const ushort RinkaDeathAnimationIndex = 0;
     private const ushort EnemyDeathInstructionPointerTable = 0xefd5;
@@ -27,6 +26,8 @@ public sealed partial class RoomEnemySystem
         ushort yPosition,
         ushort animationIndex)
     {
+        ushort instructionList =
+            MiscDustProjectileDefinitions.InstructionList(animationIndex);
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
             return;
@@ -41,10 +42,7 @@ public sealed partial class RoomEnemySystem
         // EprojInit_DustCloudOrExplosion ignores the definition's placeholder list and
         // indexes this literal thirty-word table with the spawn parameter. Parameter three
         // selects $E138 for Rinka; Boulder passes $11 for its impact cloud.
-        projectile.InstructionPointer = ReadWord(
-            _bus!,
-            0x860000 | unchecked((ushort)(
-                MiscDustInstructionPointerTable + animationIndex * 2)));
+        projectile.InstructionPointer = instructionList;
         projectile.InstructionTimer = 1;
     }
 

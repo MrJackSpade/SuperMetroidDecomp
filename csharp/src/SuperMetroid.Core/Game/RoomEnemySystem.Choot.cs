@@ -209,7 +209,7 @@ public sealed partial class RoomEnemySystem
     }
 
     /// <summary>Ports <c>MainAI_Choot</c> and its four targets at <c>$A2:E02E-$E143</c>.</summary>
-    private void RunChootMain(
+    private static void RunChootMain(
         RoomEnemySlot slot,
         ChootEnemyState state,
         SamusState? samus)
@@ -295,13 +295,13 @@ public sealed partial class RoomEnemySystem
         state.Function = ChootEnemyFunction.Falling;
     }
 
-    private void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
+    private static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
         int frameIndex = (state.FallingPatternIndex >> 8) & 0xff;
-        int entryAddress = 0xa20000 |
-            unchecked((ushort)(state.FallingPatternPointer + frameIndex * 4));
-        ushort xOffset = ReadWord(_bus!, entryAddress);
-        if (xOffset == 0x8000)
+        ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
+            state.FallingPatternPointer,
+            frameIndex);
+        if (point.IsTerminator)
         {
             state.FallingYOrigin = unchecked((ushort)(
                 state.FallingYOrigin + state.FallingPatternYDistance));
@@ -323,10 +323,10 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        short yOffset = unchecked((short)ReadWord(_bus!, entryAddress + 2));
         slot.XPosition = unchecked((ushort)(
-            state.FallingXOrigin + unchecked((short)xOffset)));
-        slot.YPosition = unchecked((ushort)(state.FallingYOrigin + yOffset));
+            state.FallingXOrigin + unchecked((short)point.XOffset)));
+        slot.YPosition = unchecked((ushort)(
+            state.FallingYOrigin + unchecked((short)point.YOffset)));
         state.FallingPatternIndex = unchecked((ushort)(
             state.FallingPatternIndex + 0x0100));
     }

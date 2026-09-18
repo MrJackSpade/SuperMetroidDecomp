@@ -317,11 +317,11 @@ compiled in `PhantoonPatternDefinitions`. All eight reachable tracking octants
 consume the catalog with the source range forbidden; the selected eye animation
 programs and sprite presentation remain separate dependencies.
 
-Choot's five real fall-stream selectors and their five indirectly selected loop
-distances are now compiled in `ChootPatternDefinitions`; all initializer consumers
-run with the pointer tables and distance words forbidden. The variable-length X/Y
-fall streams themselves remain live mechanical program data and still require an
-explicit migration decision.
+Choot's five real fall-stream selectors, five indirectly selected loop distances,
+and all 450 physical X/Y frames are compiled. The two slower streams retain their
+exact cartridge structure as dwell-expanded normal paths rather than duplicated
+opaque rows. Exhaustive frame comparison plus real fall-loop execution reject ROM
+reads across all five source ranges.
 
 The five crawler-family initial orientation tables and all four shared six-species
 surface tables are now compiled in `CrawlerAnimationDefinitions`. Shared crawlers,

@@ -193,6 +193,12 @@ if (args is ["--compiled-enemy-sine"])
     VerifyCompiledEnemyTrigonometry();
     return 0;
 }
+if (args is ["--choot-pattern-definitions"])
+{
+    VerifyChootPatternDefinitions(
+        SuperMetroidAddressSpace.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
+    return 0;
+}
 if (args is ["--enemy-instruction-selectors"])
 {
     VerifyEnemyRomTablePointerCatalog();
